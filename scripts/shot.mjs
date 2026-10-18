@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ executablePath: process.env.HOME + '/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome' });
+const p = await b.newPage({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });
+const errs = [];
+p.on('pageerror', (e) => errs.push('PAGE ' + e.message));
+p.on('console', (m) => m.type() === 'error' && errs.push('CON ' + m.text())); p.on('response', (r) => r.status() >= 400 && errs.push('HTTP ' + r.status() + ' ' + r.url()));
+await p.goto('http://localhost:8931/?mockad');
+await p.waitForTimeout(1200);
+await p.screenshot({ path: 'shots/t1.png' });
+await p.click('text=开张营业'); await p.waitForTimeout(600);
+await p.screenshot({ path: 'shots/t2.png' });
+await p.click('text=开张！'); await p.waitForTimeout(900);
+await p.screenshot({ path: 'shots/t3.png' });
+console.log(errs.join('\n') || 'no errors');
+await b.close();

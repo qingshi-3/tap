@@ -1,0 +1,10 @@
+node_modules/
+art/gen*.log
+art/gen.sh
+art/jobs*.txt
+art/process.mjs
+art/retry.sh
+art/sheet.mjs
+art/rejects/
+*.log
+.DS_Store

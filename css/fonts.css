@@ -1,0 +1,7 @@
+/* 由 scripts/subset-fonts.mjs 生成 */
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:400;src:url(../fonts/noto-sc-400.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:400;src:url(../fonts/noto-sans-sc-latin-400-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F;}
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:700;src:url(../fonts/noto-sc-700.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:700;src:url(../fonts/noto-sans-sc-latin-700-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F;}
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:900;src:url(../fonts/noto-sc-900.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans SC';font-display:swap;font-weight:900;src:url(../fonts/noto-sans-sc-latin-900-normal.woff2) format('woff2');unicode-range:U+0000-00FF,U+2000-206F;}
