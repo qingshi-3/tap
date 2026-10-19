@@ -37,7 +37,7 @@
 ## 文件与验证
 
 - `dist/rules.js`：确定性玩法与存档验证；`dist/storage.js`：本地持久化；`dist/app.js`：界面与输入。
-- `dist/art.js`、`dist/assets/`：复用MiniWorldSprites像素素材，来源与裁切记录见 `dist/assets/SOURCES.md`；源项目未修改。
+- `dist/art.js`、`dist/assets/generated/`：使用本游戏通过内置 image_gen 新生成的彩绘模型图集（10建筑、5地形及净地版本、7资源图标），不再引用本地素材库。完整提示词见 `dist/assets/generated/prompts.json`，图集与裁切记录见 `dist/assets/SOURCES.md`。
 - `npm test`：规则与保存失败路径行为检查。
 - `node tools/browser-qa.mjs` 或 `node tools/popup-qa.mjs`：当前弹窗/拖放、非法退回、边缘平移、自动推送、四种视口、键盘及v1迁移重进检查。
 - `node tools/storage-ui-qa.mjs`：导出导入、重开备份、拆除以及坏档/存储拒绝路径。
@@ -46,3 +46,5 @@
 ## 平台与授权
 
 仅授权并完成本地游戏制作与验证。没有创建TapTap应用，没有绑定、上传、提审或发布；无广告、排行榜、云存档或分享SDK。手机尺寸为浏览器触控模拟验收，TapTap宿主与真实手机尚未验收。
+
+生成美术专项检查：运行 `node tools/generated-art-qa.mjs`，实际渲染证据见 `output/qa-generated-art/`，包含全部建筑48/64px及资源24/40px。美术替换后已复查四种视口拖放；真实手机与TapTap宿主未验收。

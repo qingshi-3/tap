@@ -52,9 +52,9 @@ function cellsForSelection(){return selection?.kind==='land'?R.rotateCells(state
 function drawBoard(){
  const map=new Map(state.tiles.map(t=>[`${t.x},${t.y}`,t])),ghosts=selection&&anchor?cellsForSelection().map(c=>({...c,x:c.x+anchor.x,y:c.y+anchor.y})):[],valid=placementCheck().ok;
  for(const el of tiles){const x=+el.dataset.x,y=+el.dataset.y,t=map.get(`${x},${y}`),g=ghosts.find(c=>c.x===x&&c.y===y),ctx=el.firstElementChild.getContext('2d');ctx.clearRect(0,0,64,64);ctx.imageSmoothingEnabled=false;el.className='tile'+(t?' owned':' empty')+(selection?' placing':'');el.querySelector('.level')?.remove();
-  if(t){drawTerrain(ctx,t.terrain,0,0,64,x+y*14);if(t.building){drawBuilding(ctx,t.building,0,0,64,t.level);if(t.level>1){const badge=document.createElement('span');badge.className='level';badge.textContent='ⅡⅢ'[t.level-2];el.append(badge);}}}
+  if(t){drawTerrain(ctx,t.terrain,0,0,64,x+y*14);if(t.building){drawBuilding(ctx,t.building,0,0,64,t.level,t.terrain);if(t.level>1){const badge=document.createElement('span');badge.className='level';badge.textContent='ⅡⅢ'[t.level-2];el.append(badge);}}}
   if(selection?.kind==='building'&&t&&!t.building&&BUILDINGS[selection.type].terrains.includes(t.terrain))el.classList.add('suitable');
-  if(g){ctx.globalAlpha=.85;if(selection.kind==='land')drawTerrain(ctx,g.terrain,0,0,64);else drawBuilding(ctx,selection.type,0,0,64,1);ctx.globalAlpha=1;el.classList.remove('suitable');el.classList.add(valid?'ghost':'invalid');}
+  if(g){ctx.globalAlpha=.85;if(selection.kind==='land')drawTerrain(ctx,g.terrain,0,0,64);else drawBuilding(ctx,selection.type,0,0,64,1,t?.terrain);ctx.globalAlpha=1;el.classList.remove('suitable');el.classList.add(valid?'ghost':'invalid');}
   if(!selection&&selectedTile?.x===x&&selectedTile?.y===y)el.classList.add('selected');
   el.setAttribute('aria-label',`${x+1}列${y+1}行，${t?TERRAIN[t.terrain].name+(t.building?'，'+BUILDINGS[t.building].name+' '+t.level+'级':'，空地'):'未购土地'}`);
  }
@@ -137,7 +137,9 @@ function records(){showDialog(`<h2>王国存档</h2><p>${unsaved?'最近改动�
  $('#restart').onclick=()=>showDialog('<h2>开始新王国？</h2><p>当前进度会替换，并保留一份替换前备份。</p><button id="confirm-restart" class="danger">确认开始新王国</button>',()=>{$('#confirm-restart').onclick=()=>replaceCurrent(R.createGame(Date.now()>>>0));});
  });}
 $('#records').onclick=records;
-await loadArt();render();
+const artReport=await loadArt();render();
 if(blocked){showDialog(`<h2>原存档暂时无法载入</h2><p>${esc(loaded.reason)}。原件未被覆盖。</p><div class="save-actions"><button id="export-original">导出原件</button><button id="recover-new">备份并建立新王国</button></div>`,()=>{$('#export-original').onclick=()=>{try{download(storage.getItem(SAVE_KEY)||'','拼土王国-原存档.json');}catch{notify('浏览器不允许读取存档');}};$('#recover-new').onclick=()=>{const r=replaceSave(storage,state);if(!r.ok){notify(r.reason);return;}blocked=false;dialog.close();openMarket('land',{center:true});};});}
 else{if(!loaded.state)save();openMarket(state.landBought?'building':'land',{center:true});}
 new ResizeObserver(()=>{if(!gesture)centerOn(6.5,6.5,!!marketKind);}).observe(viewport);
+if(artReport.loaded!==artReport.total)notify('部分游戏图片未能加载，请刷新重试。');
+

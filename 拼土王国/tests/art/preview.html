@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>生成美术检查</title>
+<style>body{margin:20px;background:#344d52;color:#f7efdb;font:14px sans-serif}button{background:#e9c980;color:#2e4647;padding:12px 18px;border:0;margin:0 10px 14px 0}canvas{display:block;max-width:100%;height:auto}</style>
+<button id="tier">建筑等级 1</button><button id="background">建筑底层 森林</button>
+<canvas width="900" height="630"></canvas>
+<script type="module">
+import { loadArt, drawTerrain, drawBuilding, drawIcon } from '../../dist/art.js';
+const loaded = await loadArt(), canvas = document.querySelector('canvas'), c = canvas.getContext('2d');
+const terrains = ['grass','forest','water','mountain','fertile'];
+const buildings = ['hall','house','farm','lumber','mine','fishery','market','school','clinic','barracks'];
+const resources = ['gold','food','wood','population','happiness','knowledge','defense'];
+let tier = 1, ground = 'forest';
+function label(text,x,y){c.fillStyle='#f7efdb';c.font='14px sans-serif';c.fillText(text,x,y);}
+function draw(){
+  c.clearRect(0,0,900,630);label(`图片 ${loaded.loaded}/${loaded.total}`,0,17);
+  terrains.forEach((t,i)=>{drawTerrain(c,t,i*120,35,96,i);label(t,i*120,151);});
+  [48,64].forEach((size,row)=>{
+    label(`${size}px`,0,189+row*110);
+    buildings.forEach((b,i)=>{const x=i*87,y=205+row*110;drawTerrain(c,ground,x,y,size,i);drawBuilding(c,b,x,y,size,tier,ground);label(b,x,y+size+20);});
+  });
+  [24,40].forEach((size,row)=>resources.forEach((r,i)=>{drawIcon(c,r,i*120,445+row*80,size);label(r,i*120,445+row*80+size+20);}));
+}
+document.querySelector('#tier').onclick=()=>{tier=tier%3+1;document.querySelector('#tier').textContent=`建筑等级 ${tier}`;draw();};
+document.querySelector('#background').onclick=()=>{ground=ground==='forest'?'water':'forest';document.querySelector('#background').textContent=`建筑底层 ${ground==='forest'?'森林':'水域'}`;draw();};
+draw();
+document.body.dataset.ready='true';
+</script></html>
