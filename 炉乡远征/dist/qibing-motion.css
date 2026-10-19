@@ -1,0 +1,40 @@
+/* Motion copied from games/zhenlie-demo/source/src/style.css:
+   .btn (173–181), .btn.fight::after / sheen (1664–1677),
+   .card.selected .card-in (1723–1725), .res-card / popIn (2103–2107).
+   Materials, card faces, layout and gesture ownership remain with the host. */
+:root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command {
+  transition:transform .14s,filter .14s,box-shadow .2s,opacity .2s;
+}
+@media(hover:hover) {
+  :root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command:hover:not(:disabled):not([aria-disabled="true"]) {
+    transform:translateY(-2px); filter:brightness(1.12);
+  }
+}
+:root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command:active:not(:disabled):not([aria-disabled="true"]) {
+  transform:translateY(1px) scale(.98);
+}
+:root :is(#expedition-home,#lobby,#match) button.qibing-fight { position:relative; overflow:hidden; }
+:root :is(#expedition-home,#lobby,#match) button.qibing-fight:not(:disabled)::after {
+  content:''; position:absolute; top:0; bottom:0; width:40%; left:-60%;
+  pointer-events:none;
+  background:linear-gradient(100deg,transparent 0 30%,rgba(255,255,255,.5) 30% 46%,transparent 46% 56%,rgba(255,255,255,.35) 56% 64%,transparent 64%);
+  animation:qibing-sheen 3.2s ease-in-out infinite;
+}
+@keyframes qibing-sheen { 0%,60% { left:-60%; } 100% { left:130%; } }
+/* App.modal: m.animate([{opacity:0},{opacity:1}], {duration:200}).
+   Native ::backdrop replaces the source's authored modal-ov element. */
+:root dialog.qibing-modal-open::backdrop { animation:qibing-modal-veil 200ms; }
+@keyframes qibing-modal-veil { from { opacity:0; } to { opacity:1; } }
+/* Source's 2px surrounding gold outline is intentionally omitted under the
+   host's no-extra-card-frame rule; its actual selected glow is retained. */
+:root .match .hand-card.aiming > .game-card {
+  box-shadow:0 0 30px rgba(255,211,107,.55),0 18px 36px rgba(0,0,0,.6);
+}
+:root.qibing-motion-paused .qibing-fight::after { animation-play-state:paused; }
+:root.qibing-motion-paused dialog.qibing-modal-open::backdrop { animation:none; }
+@media(prefers-reduced-motion:reduce) {
+  :root dialog.qibing-modal-open::backdrop { animation:none; }
+  :root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command { transition:none; }
+  :root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command:is(:hover,:active):not(:disabled):not([aria-disabled="true"]) { transform:none; }
+  :root :is(#expedition-home,#lobby,#match) button.qibing-fight::after { display:none; animation:none; }
+}

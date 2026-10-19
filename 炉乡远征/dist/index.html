@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#111820">
+  <meta name="description" content="炉乡远征，像素风单人战棋卡牌游戏。">
+  <title>炉乡远征</title>
+  <link rel="icon" href="./assets/generals/general_portrait_image_f1.png">
+  <link rel="preload" href="./assets/fonts/luxiang-ui.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="./fonts.css">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./game-card.css">
+  <link rel="stylesheet" href="./metagame.css">
+  <link rel="stylesheet" href="./expedition.css">
+  <link rel="stylesheet" href="./expedition-battle.css">
+  <link rel="stylesheet" href="./keyword-ui.css">
+  <link rel="stylesheet" href="./safe-area.css">
+  <link rel="stylesheet" href="./trial-lesson.css">
+  <link rel="stylesheet" href="./battle-command-preview.css">
+  <link rel="stylesheet" href="./battle-objective.css">
+  <link rel="stylesheet" href="./hand-layout.css">
+  <link rel="stylesheet" href="./recruitment.css">
+  <link rel="stylesheet" href="./resource-rewards.css">
+  <link rel="stylesheet" href="./scene-loading.css">
+  <link rel="stylesheet" href="./reward-presentation.css">
+  <link rel="stylesheet" href="./visual-theme.css">
+  <link rel="stylesheet" href="./battle-controls-v2.css">
+  <link rel="stylesheet" href="./battle-inspect.css">
+  <link rel="stylesheet" href="./battle-flow.css">
+  <link rel="stylesheet" href="./battle-tips.css">
+  <link rel="stylesheet" href="./card-stat-badges.css">
+  <link rel="stylesheet" href="./audio-settings.css">
+  <link rel="stylesheet" href="./campaign-atlas.css">
+  <link rel="stylesheet" href="./camp-dialogs.css">
+  <link rel="stylesheet" href="./vendor/qibing-ui/fonts/fonts.css">
+  <link rel="stylesheet" href="./qibing-ui.css">
+  <link rel="stylesheet" href="./qibing-motion.css">
+  <link rel="stylesheet" href="./gift-code.css">
+  <link rel="stylesheet" href="./deck-filters.css">
+  <link rel="stylesheet" href="./progress-features.css">
+</head>
+<body>
+  <div class="scene-backdrop" aria-hidden="true"></div>
+  <main id="app" class="app">
+    <section id="expedition-home" aria-label="远征营地"></section>
+    <section id="lobby" class="lobby metagame" aria-labelledby="game-title" data-screen="home" hidden>
+      <div class="meta-world" aria-hidden="true"></div>
+      <header class="meta-topbar">
+        <button id="return-expedition" class="game-button game-button-quiet" type="button">远征营地</button>
+        <button class="game-back" data-meta-back type="button" aria-label="返回章节首页" hidden></button>
+        <div class="meta-brand"><img src="./assets/metagame/original/crest-f1.png" alt=""><div><h1 id="game-title">狮心试炼</h1><p data-screen-subtitle>单人战术演武</p></div></div>
+        <div class="meta-top-actions"><button id="resume-local" class="game-button game-button-quiet" hidden>继续试炼</button><button id="resume-cloud" class="game-button game-button-quiet" hidden>云端继续</button></div>
+        <div class="meta-completion" aria-label="章节完成进度"><img src="./assets/metagame/original/crest-f1.png" alt=""><span data-complete-count>0 / 3</span></div>
+      </header>
+
+      <div class="meta-stage">
+        <section class="meta-page meta-campaign-page" data-meta-panel="campaign" aria-label="章节与关卡">
+          <div class="chapter-view chapter-home" data-chapter-view="overview">
+            <div class="chapter-intro"><span class="chapter-kicker">第一章</span><h2>狮心试炼</h2><p>站位、联结，一击制胜。</p><div class="chapter-medal" data-chapter-medal><img src="./assets/metagame/original/crest-f1.png" alt=""><div><strong>狮心勋章</strong><small>完成全部试炼获得</small></div></div><button class="game-button chapter-enter" type="button" data-open-chapter>进入章节</button></div>
+            <button class="chapter-banner" type="button" data-open-chapter aria-label="打开狮心试炼章节"><img class="chapter-crest" src="./assets/metagame/original/crest-f1-deck-select.png" alt="白银狮心徽记"><span class="chapter-banner-caption">狮心试炼<small><span data-level-progress>0 / 3</span> 关已完成</small></span></button>
+          </div>
+          <div class="chapter-view level-view" data-chapter-view="levels" hidden>
+            <div class="level-heading"><span>第一章 · 狮心试炼</span><p>选择试炼</p><small>固定手牌 · 一回合解局</small></div>
+            <div id="level-list" class="meta-level-list" aria-label="试炼关卡"></div>
+          </div>
+        </section>
+
+        <section class="meta-page codex-page" data-meta-panel="codex" aria-label="卡牌图鉴" hidden>
+          <div class="codex-toolbar"><div class="codex-filters" role="group" aria-label="筛选卡牌"><button type="button" class="is-active" data-card-filter="all" aria-pressed="true">全部</button><button type="button" data-card-filter="unit" aria-pressed="false">随从</button><button type="button" data-card-filter="spell" aria-pressed="false">法术</button><button type="button" data-card-filter="general" aria-pressed="false">主将</button></div><span data-codex-count></span></div>
+          <div class="codex-grid" data-codex-grid aria-label="左右滑动浏览卡牌" tabindex="0"></div>
+          <div class="codex-pager"><button class="game-arrow" data-codex-prev type="button" aria-label="上一页卡牌">‹</button><span data-codex-page aria-live="polite">左右滑动 · 点按查看</span><button class="game-arrow" data-codex-next type="button" aria-label="下一页卡牌">›</button></div>
+        </section>
+      </div>
+
+      <footer class="meta-footer">
+        <nav class="meta-nav" aria-label="游戏功能"><button class="meta-nav-button is-active" type="button" data-meta-page="campaign" aria-pressed="true"><img src="./assets/metagame/original/crest-f1.png" alt=""><span>战术试炼</span></button><button class="meta-nav-button" type="button" data-meta-page="codex" aria-pressed="false"><img src="./assets/metagame/original/shop-tab-card-backs.png" alt=""><span>卡牌图鉴</span></button></nav>
+        <div class="save-indicator"><span id="cloud-status">进度自动保存</span><button id="sync-cloud" class="text-button" hidden>同步进度</button></div><span class="meta-progress-error" data-progress-error role="alert" hidden></span>
+      </footer>
+
+      <dialog id="mission-dialog" class="game-dialog mission-dialog" aria-labelledby="mission-dialog-title">
+        <button class="game-close" type="button" data-close-mission aria-label="关闭出战预览">×</button>
+        <div class="mission-brief">
+          <div class="brief-emblem" aria-hidden="true"><img src="./assets/metagame/original/crest-f1-deck-select.png" alt=""><span data-brief-number>01</span></div>
+          <div class="brief-main"><div class="brief-heading"><small data-brief-state></small><h2 id="mission-dialog-title" data-brief-title></h2></div><p class="brief-subtitle" data-brief-subtitle></p><dl class="brief-rules"><div><dt>胜利目标</dt><dd data-brief-goal></dd></div><div><dt>回合限制</dt><dd data-brief-turns></dd></div></dl><h3 class="brief-roster-title">本局手牌与单位 <small>点按查看</small></h3><div class="brief-roster" data-brief-roster aria-label="本局卡牌"></div><p class="brief-reward" data-brief-reward></p><button id="new-game" class="game-button">开始试炼</button></div>
+        </div>
+      </dialog>
+      <dialog id="card-dialog" class="card-dialog" aria-label="卡牌详情">
+        <button class="game-close" type="button" data-close-card aria-label="关闭卡牌详情">×</button>
+        <button class="game-arrow" type="button" data-card-prev aria-label="查看上一张卡牌">‹</button><div data-card-dossier></div><button class="game-arrow" type="button" data-card-next aria-label="查看下一张卡牌">›</button>
+      </dialog>
+      <div class="turn-device" role="status">请旋转设备，以横屏进入战场</div>
+    </section>
+
+    <section id="match" class="match" hidden aria-label="战术试炼">
+      <div class="battle-layers" aria-hidden="true">
+        <div class="battle-midground"></div>
+        <div class="battle-foreground battle-foreground-left"></div>
+        <div class="battle-foreground battle-foreground-right"></div>
+      </div>
+      <header class="match-topbar">
+        <button id="leave-match" class="icon-button" aria-label="战斗设置" title="战斗设置" aria-haspopup="dialog" aria-controls="audio-settings"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="m10 2-.7 2.6-2 .9-2.5-.7-2 3.4 1.9 1.9-.2 2.2L2.6 14l2 3.5 2.6-.6 1.8 1.2.6 2.9h4.1l.7-2.8 1.9-1.1 2.7.5 2-3.5-2-1.9v-2.1l1.9-2-2-3.4-2.6.7-2-.9L13.8 2H10Zm2 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/></svg></button>
+        <div class="mission-title">
+          <span id="level-kicker">战术试炼</span>
+          <strong id="level-title">狮王一击</strong>
+        </div>
+        <div class="battle-top-center">
+        <div class="turn-marker">
+          <span id="turn-label">第一回合</span>
+          <strong id="phase-label">你的回合</strong>
+        </div>
+        <button id="objective-open" class="objective-toggle" type="button" aria-haspopup="dialog" aria-controls="objective-dialog" aria-expanded="false">本局目标</button>
+        </div>
+      </header>
+
+      <canvas id="battle-fx-back" class="battle-fx battle-fx-back" aria-hidden="true"></canvas>
+      <aside id="map-controls" class="map-controls" hidden aria-label="战场导航">
+        <button id="map-open" type="button" aria-expanded="false" aria-controls="map-panel">战场</button>
+        <section id="map-panel" class="map-panel" hidden aria-label="战场概览">
+          <div class="map-heading"><strong>战场</strong><button id="map-close" type="button" aria-label="关闭战场概览">×</button></div>
+          <canvas id="map-overview" width="432" height="240" tabindex="0" role="button" aria-label="点按位置定位并收起；方向键移动镜头"></canvas>
+          <div class="map-legend"><span class="map-ally">◆ 己方</span><span class="map-hostile">◆ 敌方</span><span>◆ 主将 · ● 部队</span><span>□ 镜头</span></div>
+        </section>
+        <span id="faction-status" class="battle-sr-only"></span>
+      </aside>
+      <div class="battle-row">
+        <aside class="general-panel general-player" aria-label="你的主将">
+          <button id="focus-general" class="portrait-frame" type="button" aria-label="定位己方主将"><img src="./assets/generals/general_portrait_image_f1.png" alt=""></button>
+          <div class="general-copy">
+            <div class="general-name">阿杰农</div>
+            <div class="general-health"><img src="./assets/ui/icon-health.png" alt="生命"><strong id="player-hp">25 / 25</strong><span class="health-meter" aria-hidden="true"><i id="player-hp-fill"></i></span></div>
+            <div class="deck-count"><img src="./assets/ui/icon-deck.png" alt="牌库"><span id="player-deck-count">0</span></div>
+          </div>
+        </aside>
+        <div class="board-wrap">
+          <canvas id="board" tabindex="0" aria-label="战场棋盘，拖动己方单位到空格移动，选中己方后点击范围内敌人攻击，点击空白取消选中，长按查看机制"></canvas>
+        </div>
+        <aside class="general-panel general-enemy" aria-label="敌方主将">
+          <button id="focus-enemy" class="portrait-frame" type="button" aria-label="依次定位敌方主将"><img src="./assets/generals/general_portrait_image_f1alt.png" alt=""></button>
+          <div class="general-copy">
+            <div class="general-name">齐兰</div>
+            <div class="general-health enemy-health"><img src="./assets/ui/icon-health.png" alt="生命"><strong id="enemy-hp">25 / 25</strong><span class="health-meter" aria-hidden="true"><i id="enemy-hp-fill"></i></span></div>
+            <div class="deck-count"><img src="./assets/ui/icon-deck.png" alt="牌库"><span id="enemy-deck-count">0</span></div>
+          </div>
+        </aside>
+
+      </div>
+
+      <canvas id="battle-fx-front" class="battle-fx battle-fx-front" aria-hidden="true"></canvas>
+        <aside id="unit-inspect" class="unit-inspect" role="region" aria-label="卡牌详情" aria-hidden="true" hidden>
+          <button id="inspect-close" class="inspect-close" type="button" aria-label="关闭卡牌详情">×</button>
+          <div class="unit-inspect-card game-card">
+            <span id="unit-inspect-cost" class="game-card-cost card-stat-badge card-stat-mana"></span>
+            <span id="unit-inspect-range" class="game-card-range card-stat-badge card-stat-range" hidden></span>
+            <div class="game-card-frame" aria-hidden="true"></div>
+            <div class="game-card-art"><canvas id="unit-inspect-art" width="224" height="176" aria-hidden="true"></canvas></div>
+            <div class="game-card-caption">
+              <strong class="game-card-name" id="unit-inspect-name"></strong>
+              <span class="game-card-type" id="unit-inspect-type"></span>
+            </div>
+            <div class="game-card-stats"><span id="unit-inspect-attack" class="game-card-attack"></span><span id="unit-inspect-health" class="game-card-health"></span></div>
+            <div class="game-card-description" id="unit-inspect-description"></div>
+          </div>
+          <button id="inspect-cast" class="button button-primary inspect-cast" type="button" hidden>施放风暴</button>
+        </aside>
+      <button id="inspect-followup-skip" class="button button-primary battle-followup-skip" type="button" hidden>只部署</button>
+      <section class="hand-zone" aria-label="你的手牌">
+        <div class="hand-caption">
+          <span id="level-goal" hidden>本回合击败敌方主将。</span>
+          <span id="hand-instruction" hidden></span>
+          <span id="selected-unit-label"></span>
+        </div>
+        <span id="hand-count" class="hand-count" role="status" aria-live="polite"></span>
+        <div id="draw-hand-controls" class="draw-hand-controls" hidden>
+          <span id="draw-hand-status" role="status" aria-live="polite"></span>
+          <button id="replace-hand-card" type="button" aria-describedby="draw-hand-status">换选中牌</button>
+        </div>
+        <div id="hand" class="hand" role="list"></div>
+      </section>
+
+      <div class="match-footer">
+        <div id="battle-log" class="battle-log" aria-live="polite">战斗开始。</div>
+        <button id="match-sync" class="text-button" hidden>同步进度</button>
+        <button id="bbs-button" class="button button-bbs" aria-label="狮王怒吼，消耗1法力"><canvas id="bbs-icon" width="96" height="96" aria-hidden="true"></canvas><span id="bbs-name">狮王怒吼</span><b>1</b></button>
+        <div class="mana-track" aria-label="可用法力">
+          <span class="mana-glyph" aria-hidden="true"></span>
+          <strong id="mana-count">1 / 1</strong>
+          <span id="mana-orbs" class="mana-orbs" aria-hidden="true"></span>
+        </div>
+        <button id="end-turn" class="button button-primary end-turn">结束回合</button>
+      </div>
+      <div id="move-cancel-zone" class="move-cancel-zone" role="status" hidden>拖到这里取消移动</div>
+
+      <div id="game-result" class="result-screen" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
+        <div class="result-panel">
+          <div class="result-body">
+          <h2 id="result-title">胜利</h2>
+          <p id="result-copy"></p>
+          <p id="result-reward"></p>
+          <p id="result-progress"></p>
+          <details id="trial-result-guide" hidden>
+            <summary>查看解法</summary>
+            <p id="trial-result-solution"></p>
+          </details>
+          </div>
+          <div class="result-controls">
+          <button id="result-ad-reward" class="button button-primary" type="button" hidden></button>
+          <p id="result-ad-status" role="status" aria-live="polite" hidden></p>
+          <button id="next-level" class="button button-primary" hidden>下一关</button>
+          <button id="play-again" class="button button-primary">重试本关</button>
+          <button id="result-prep" class="button button-secondary" hidden>返回战前整备</button>
+          <button id="result-collection" class="button button-secondary" hidden>查看收藏培养</button>
+          <button id="back-to-lobby" class="button button-secondary">返回章节</button>
+          </div>
+        </div>
+      </div>
+    </section>
+      <dialog id="objective-dialog" class="objective-dialog" aria-labelledby="objective-title" aria-describedby="objective-goal objective-limit">
+        <div class="objective-heading"><img src="./assets/generals/general_portrait_image_f1.png" alt=""><h2 id="objective-title" tabindex="-1">本局目标</h2><button id="objective-close" class="button button-primary" type="button">进入战场</button></div>
+        <div id="rule-tabs" role="tablist" aria-label="规则分类" hidden>
+          <button id="rule-tab-keywords" type="button" role="tab" data-rule-tab="keywords" aria-selected="true" aria-controls="battle-rules-panel">战斗词条</button>
+          <button id="rule-tab-draw" type="button" role="tab" data-rule-tab="draw" aria-selected="false" aria-controls="battle-rules-panel" tabindex="-1">通用抽卡</button>
+          <button id="rule-tab-tactics" type="button" role="tab" data-rule-tab="tactics" aria-selected="false" aria-controls="battle-rules-panel" tabindex="-1">战斗技巧</button>
+        </div>
+        <div class="objective-body" tabindex="0" aria-label="可滚动阅读">
+        <p id="objective-goal" class="objective-goal"></p>
+        <p id="objective-limit" class="objective-limit"></p>
+        <section id="trial-lesson" hidden>
+          <p id="trial-lesson-summary"></p>
+          <details id="trial-lesson-details">
+            <summary>操作提示</summary>
+            <ol id="trial-lesson-steps"></ol>
+          </details>
+        </section>
+        <div id="battle-rules-panel" role="tabpanel" aria-labelledby="rule-tab-keywords" tabindex="0" hidden><dl id="battle-rules"></dl></div>
+        </div>
+        <div class="objective-actions"><button id="objective-rules" class="button button-secondary" type="button">战斗规则</button></div>
+      </dialog>
+    <div id="confirm-screen" class="confirm-screen" hidden role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+      <div class="confirm-panel">
+        <h2 id="confirm-title">确认操作</h2>
+        <p id="confirm-copy"></p>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="button button-secondary">取消</button>
+          <button id="confirm-accept" class="button button-primary">继续</button>
+        </div>
+      </div>
+    </div>
+    <dialog id="cloud-dialog" class="cloud-dialog" aria-labelledby="cloud-title">
+      <header><h2 id="cloud-title">存档</h2><button id="cloud-close" type="button" aria-label="关闭存档">关闭</button></header>
+      <div class="cloud-body" tabindex="0" aria-label="本机与云端存档信息">
+      <p id="player-cloud-status" role="status"></p>
+      <div class="cloud-slots">
+        <section class="cloud-slot cloud-slot-local"><h3>本机进度</h3><div id="cloud-local-summary"></div></section>
+        <section class="cloud-slot cloud-slot-remote"><h3>云端备份</h3><div id="cloud-remote-summary"></div></section>
+      </div>
+      </div>
+      <p id="cloud-choice-copy" hidden></p>
+      <footer>
+        <button id="cloud-refresh" class="button button-secondary" type="button">刷新</button>
+        <button id="cloud-use-local" class="button button-primary" type="button">备份到云端</button>
+        <button id="cloud-use-remote" class="button button-secondary" type="button">使用云端进度</button>
+        <button id="cloud-choice-back" class="button button-secondary" type="button" hidden>返回</button>
+        <button id="cloud-choice-confirm" class="button button-primary" type="button" hidden>确认</button>
+      </footer>
+    </dialog>
+    <dialog id="ad-self-test-dialog" class="cloud-dialog ad-self-test-dialog" aria-labelledby="ad-self-test-title">
+      <header><h2 id="ad-self-test-title">广告自测</h2><button id="ad-self-test-close" type="button" aria-label="关闭广告自测">×</button></header>
+      <p id="ad-self-test-status" role="status" aria-live="polite"></p>
+      <dl class="ad-self-test-checks">
+        <div><dt>TapTap 宿主</dt><dd id="ad-self-test-host"></dd></div>
+        <div><dt>激励视频接口</dt><dd id="ad-self-test-api"></dd></div>
+        <div><dt>广告位配置</dt><dd id="ad-self-test-config"></dd></div>
+        <div><dt>实际播放</dt><dd id="ad-self-test-playback">未试播</dd></div>
+      </dl>
+      <footer><button id="ad-self-test-refresh" class="button button-secondary" type="button">重新检测</button><button id="ad-self-test-play" class="button button-primary" type="button">播放广告</button></footer>
+    </dialog>
+    <div class="app-turn-device" role="status">请旋转设备，以横屏进入远征</div>
+  </main>
+  <div id="board-hint" class="board-hint" role="status"></div>
+  <script type="module" src="./js/main.js"></script>
+  <dialog id="audio-settings" class="audio-settings" aria-labelledby="audio-settings-title">
+    <header class="audio-settings-header"><h2 id="audio-settings-title">设置</h2><button id="audio-settings-close" class="audio-settings-close" type="button" aria-label="关闭设置">关闭</button></header>
+    <div class="audio-settings-controls"><div class="audio-settings-row"><span class="audio-settings-label">背景音乐</span><button id="settings-music-toggle" type="button" role="switch" aria-label="背景音乐" aria-checked="true"><span class="settings-toggle-label">开启</span><i class="settings-toggle-knob" aria-hidden="true"></i></button></div><label class="audio-settings-volume" for="settings-music-volume">音乐音量<output id="settings-music-value" for="settings-music-volume">45%</output><input id="settings-music-volume" type="range" min="0" max="100" step="5" value="45"></label>
+    <label class="audio-settings-volume" for="settings-effects-volume">战斗音效<output id="settings-effects-value" for="settings-effects-volume">100%</output><input id="settings-effects-volume" type="range" min="0" max="100" step="5" value="100"></label>
+    <button id="settings-music-retry" type="button" hidden>重试播放</button>
+    </div>
+    <button id="settings-gift-code" type="button" hidden>兑换码</button>
+    <button id="settings-leave-battle" class="button button-secondary" type="button" hidden>退出战斗</button>
+  </dialog>
+  <dialog id="gift-code-dialog" class="audio-settings game-dialog gift-code-dialog" aria-labelledby="gift-code-title">
+    <header class="audio-settings-header"><h2 id="gift-code-title">兑换码</h2><button id="gift-code-close" type="button">返回</button></header>
+    <form id="gift-code-form" class="gift-code-form">
+      <div class="gift-code-entry"><input id="gift-code-input" name="gift-code" aria-labelledby="gift-code-title" aria-describedby="gift-code-status" type="text" maxlength="64" autocomplete="off" autocapitalize="characters" spellcheck="false" enterkeyhint="done"><button id="gift-code-submit" class="button-primary" type="submit" disabled>领取</button></div>
+      <p id="gift-code-status" role="status" aria-live="polite" aria-atomic="true"></p>
+    </form>
+  </dialog>
+</body>
+</html>

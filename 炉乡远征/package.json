@@ -1,0 +1,10 @@
+{
+  "name": "duelyst-h5",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node serve.mjs",
+    "package": "node tools/package.mjs",
+    "check:save-compatibility": "node tools/check-save-compatibility.mjs"
+  }
+}

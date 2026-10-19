@@ -1,0 +1,47 @@
+/* Insets protect interactive chrome; atmospheric layers and the board keep the full viewport. */
+:root { --host-capsule-width: 0px; --host-capsule-height: 0px; }
+@media (orientation: landscape) and (pointer: coarse) and (max-width: 1100px) and (max-height: 600px) {
+  /* TapTap's native capsule is inside the viewport, not reported by CSS safe-area
+     insets. Keep a conservative top-right pocket even if the host exposes no API. */
+  :root { --safe-side-floor: 60px; --host-capsule-width: 104px; --host-capsule-height: 52px; }
+}
+.expedition-ui {
+  grid-template-columns: minmax(0, 1fr);
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+}
+/* The outer wrapper consumes system insets; screens keep only their local spacing. */
+
+.expedition-topbar { padding-top: 4px; padding-right: max(12px, var(--host-capsule-width)); }
+.faction-menu .menu-resources { padding-right: 0; }
+.meta-topbar { padding-right: var(--host-capsule-width); }
+.expedition-menu { min-width: 0; width: 100%; }
+.expedition-codex { min-width: 0; }
+.metagame {
+  padding: var(--safe-top) max(16px, var(--ui-right)) var(--safe-bottom) max(16px, var(--ui-left));
+}
+.match-topbar { padding-top: var(--ui-top); padding-right: calc(var(--ui-right) + var(--host-capsule-width)); }
+/* Native modal centring uses the safe rectangle, including asymmetric device insets. */
+:root :is(.cloud-dialog, .hero-dialog, .expedition-card-dialog, .mission-dialog, .card-dialog, .objective-dialog) {
+  inset: max(var(--ui-top), var(--host-capsule-height)) var(--ui-right) var(--ui-bottom) var(--ui-left);
+  margin: auto;
+  max-width: calc(100vw - var(--ui-left) - var(--ui-right));
+  max-height: calc(100dvh - max(var(--ui-top), var(--host-capsule-height)) - var(--ui-bottom));
+}
+.result-screen, .confirm-screen {
+  padding: max(18px, var(--ui-top)) max(18px, var(--ui-right)) max(18px, var(--ui-bottom)) max(18px, var(--ui-left));
+}
+.result-panel, .confirm-panel { max-width: 100%; }
+.match .unit-inspect { max-width: calc(100vw - var(--ui-left) - var(--ui-right)); }
+.map-panel { max-width: calc(100vw - var(--ui-left) - var(--ui-right)); }
+@media (max-width: 600px) {
+  /* Preserve three readable squad slots after both side guards consume short-screen width. */
+  .barracks { padding-inline: 4px; }
+  .squad-slot { grid-template-columns: 44px minmax(36px, 1fr); }
+  .squad-slot .game-card { width: 50px; }
+  .slot-name { font-size: 10px; }
+  .deployment-budget { white-space: normal; max-width: 54px; }
+  .expedition-menu { padding-inline: 8px; grid-template-columns: minmax(0, 1fr) minmax(190px, 1fr); }
+  .menu-play { width: 190px; }
+
+}
+

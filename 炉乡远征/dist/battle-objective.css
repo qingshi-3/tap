@@ -1,0 +1,43 @@
+/* A fixed heading and action frame the scrollable brief on short landscape screens. */
+#objective-dialog {
+  position:fixed; top:max(60px,var(--ui-top)); bottom:var(--ui-bottom); margin:auto;
+  width:min(440px,calc(100vw - var(--ui-left) - var(--ui-right) - 24px));
+  max-height:calc(100dvh - max(60px,var(--ui-top)) - var(--ui-bottom) - 8px);
+  padding:0; overflow:hidden; border:0; border-radius:5px;
+  background:linear-gradient(135deg,#182d3b,#0c1a28 75%);
+  box-shadow:0 16px 54px #030b15b3;
+}
+#objective-dialog[open] { display:flex; flex-direction:column; }
+#objective-dialog .objective-heading { flex:none; gap:12px; padding:16px 22px 12px; border-bottom:1px solid #b3d4de26; }
+#objective-dialog .objective-heading img { width:38px; height:42px; object-fit:contain; }
+#objective-dialog .objective-heading h2 { color:#e9eff0; font:500 18px/1.4 var(--font-ui); }
+#objective-title:focus { outline:none; }
+#objective-dialog .objective-body { padding:17px 22px; min-height:0; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; scrollbar-width:thin; }
+#objective-dialog .objective-label { margin:0 0 6px; color:#87bdcf; font-size:11px; line-height:1.5; }
+#objective-dialog .objective-goal { margin:0; color:#f2e5c5; font:500 18px/1.5 var(--font-ui); }
+#objective-dialog .objective-limit { margin:12px 0 0; color:#b4c7d1; font:400 12px/1.65 var(--font-ui); }
+#objective-dialog .objective-actions { flex:none; display:flex; justify-content:flex-end; padding:10px 20px 12px; border-top:1px solid #b3d4de26; background:#08172555; }
+#objective-dialog .objective-actions { align-items:center; gap:12px; }
+#objective-dialog #objective-rules { margin:0 auto 0 0; min-width:88px; min-height:44px; font:500 13px var(--font-ui); }
+#objective-dialog [hidden] { display:none !important; }
+#battle-rules { margin:0; color:#e1e9ed; font:400 14px/1.65 var(--font-ui); }
+#battle-rules > div { display:grid; grid-template-columns:3em 1fr; gap:12px; margin:0 0 12px; }
+#battle-rules > div:last-child { margin-bottom:0; }
+#battle-rules dt { color:#c8dce7; font-weight:600; }
+#battle-rules dd { margin:0; }
+#objective-dialog #objective-close { width:168px; height:44px; min-height:44px; margin:0; padding:0 16px; font:500 13px var(--font-ui); }
+#objective-dialog :is(button,.objective-body,summary):focus { outline:none; }
+#objective-dialog :is(button,.objective-body,summary):focus-visible { outline:2px solid #a3e4f1; outline-offset:-3px; border-radius:4px; }
+#objective-dialog #trial-lesson { margin-top:16px; padding-top:12px; border-top:1px solid #b3d4de26; }
+#objective-dialog #trial-lesson-summary { margin:0 0 4px; color:#d9e7eb; font-size:12px; }
+#objective-dialog #trial-lesson-details { font-size:12px; }
+@media(max-height:360px) {
+  #objective-dialog { width:min(430px,calc(100vw - var(--ui-left) - var(--ui-right) - 20px)); }
+  #objective-dialog .objective-heading { padding:10px 18px 8px; gap:10px; }
+  #objective-dialog .objective-heading img { width:30px; height:32px; }
+  #objective-dialog .objective-heading h2 { font-size:16px; }
+  #objective-dialog .objective-body { padding:12px 18px; }
+  #objective-dialog .objective-goal { font-size:16px; }
+  #objective-dialog .objective-limit { margin-top:8px; }
+  #objective-dialog .objective-actions { padding:7px 16px 8px; }
+}

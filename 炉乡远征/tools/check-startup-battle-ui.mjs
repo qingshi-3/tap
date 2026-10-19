@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+const require=createRequire('C:/Users/qs/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json');
+const {chromium}=require('playwright');await mkdir('output/playwright',{recursive:true});
+const baseURL=process.env.TRIAL_URL || 'http://127.0.0.1:4197/';
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});const evidence=[];
+try{
+const context=await browser.newContext({viewport:{width:844,height:390},hasTouch:true,reducedMotion:'reduce'});const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(String(e)));
+let releaseSprites;const spritesReady=new Promise(resolve=>{releaseSprites=resolve;});
+await page.route('**/assets/units/*.png',async route=>{await spritesReady;await route.continue();});
+await page.addInitScript(async()=>{const {BoardRenderer}=await import('/js/renderer.js');const draw=BoardRenderer.prototype.draw;BoardRenderer.prototype.draw=function(...args){window.__renderer=this;return draw.apply(this,args);};});
+await page.goto(baseURL,{waitUntil:'domcontentloaded'});
+await page.locator('.menu-play').tap();assert(await page.locator('.expedition-chapter').first().isVisible());assert.equal(await page.locator('#startup').count(),0);
+await page.screenshot({path:'output/playwright/startup-direct-menu.png'});evidence.push('menu accepts touch navigation while battle sprites are still downloading');releaseSprites();
+await page.locator('[data-page="trials"]').tap();await page.locator('[data-group-id="advanced"]').tap();await page.locator('[data-action="trial"]').first().tap();await page.locator('#objective-close').tap();await page.locator('#hand button').first().tap();
+await page.waitForFunction(()=>window.__renderer?.ready);
+assert.equal(await page.locator('#hand .card-name').count(),0);assert.equal(await page.locator('#hand-instruction').isVisible(),false);assert(await page.locator('#unit-inspect-name').innerText());
+evidence.push(await page.evaluate(()=>({mana:window.__renderer.state.players[0].mana,hand:window.__renderer.state.players[0].hand})));
+await page.evaluate(()=>{const r=window.__renderer;r.state.players[0].mana=0;});
+await page.locator('#hand button').first().tap();await page.locator('#hand button').first().tap();
+assert.match(await page.locator('#board-hint').innerText(),/法力不足/);
+assert(await page.locator('#board-hint').evaluate(el=>{const b=el.getBoundingClientRect();el.style.pointerEvents='auto';const top=document.elementFromPoint(b.x+b.width/2,b.y+b.height/2);el.style.pointerEvents='';return top===el;}));
+evidence.push('0 mana real tap: one toast, above card detail');
+assert.equal(await page.locator('#hand-instruction').isVisible(),false);
+await page.screenshot({path:'output/playwright/battle-clean-hand-phone.png'});await page.setViewportSize({width:568,height:320});await page.screenshot({path:'output/playwright/battle-clean-hand-small.png'});assert.deepEqual(errors,[]);
+await page.locator('#hand button').first().tap();
+await page.evaluate(()=>window.__renderer.state.players[0].mana=1);
+await page.locator('#hand button').first().tap();
+const target=await page.evaluate(()=>{const r=window.__renderer,b=r.canvas.getBoundingClientRect(),m=r.boardMetrics(b.width,b.height),u=r.state.units[1],p=r.cellGeometry(m,u.x,u.y).center;return {x:b.left+p.x,y:b.top+p.y};});
+await page.touchscreen.tap(target.x,target.y);
+await page.waitForFunction(()=>window.__renderer.state.players[0].hand.length===0);
+assert.equal(await page.evaluate(()=>window.__renderer.state.players[0].mana),0);evidence.push('paid spell via real touch target consumes mana and hand');
+await page.evaluate(()=>{const state=window.__renderer.state;const generals=state.units.filter(u=>u.owner===0||u.owner===1);const player=generals.find(u=>u.owner===0),enemy=generals.find(u=>u.owner===1);player.health=5;player.maxHealth=125;enemy.health=125;enemy.maxHealth=125;state.players[0].deck=Array(24).fill(20174);state.players[1].deck=Array(123).fill(20174);});
+const refreshPoint=await page.evaluate(()=>{const r=window.__renderer,b=r.canvas.getBoundingClientRect(),m=r.boardMetrics(b.width,b.height),u=r.state.units[0],p=r.cellGeometry(m,u.x,u.y).center;return {x:b.left+p.x,y:b.top+p.y};});await page.touchscreen.tap(refreshPoint.x,refreshPoint.y);
+await page.screenshot({path:'output/playwright/hud-low-health-wide-small.png'});
+assert.equal(await page.locator('#player-deck-count').innerText(),'24');assert.equal(await page.locator('#enemy-deck-count').innerText(),'123');assert.equal(await page.locator('#player-hp').innerText(),'5 / 125');
+await page.setViewportSize({width:844,height:390});await page.screenshot({path:'output/playwright/hud-low-health-wide-phone.png'});evidence.push('HUD: 5/125,125/125; deck 0/24/123; both phone sizes');
+const fallbackContext=await browser.newContext({viewport:{width:844,height:390},hasTouch:true,reducedMotion:'reduce'});const fail=await fallbackContext.newPage();await fail.route('**/assets/tiles/tile_board@2x.png',route=>route.abort());await fail.goto(baseURL);await fail.locator('[data-page="trials"]').tap();await fail.locator('[data-group-id="basics"]').tap();await fail.locator('[data-action="trial"]').first().tap();await fail.locator('#objective-close').tap();assert(await fail.locator('#end-turn').isVisible());await fail.screenshot({path:'output/playwright/startup-resource-fallback.png'});assert.equal(await fail.locator('#startup').count(),0);evidence.push('missing image does not require an extra continue screen');
+await writeFile('output/playwright/startup-battle-evidence.json',JSON.stringify(evidence,null,2));console.log(evidence);
+}finally{await browser.close();}
+

@@ -1,0 +1,29 @@
+.scene-loading {
+  position:fixed; inset:0; width:100vw; height:100dvh; max-width:none; max-height:none;
+  margin:0; border:0; padding:var(--ui-top,12px) var(--ui-right,12px) var(--ui-bottom,12px) var(--ui-left,12px);
+  color:#e1f2f6; background:linear-gradient(115deg,#061329e8,#153659bb,#0d1a32e8),url('./assets/metagame/original/play-background.jpg') center/cover;
+  font-family:var(--font-ui); overflow:auto;
+}
+.scene-loading::backdrop { background:#07162a; }
+.scene-loading { --battle-tips-top: calc(var(--ui-top, 6px) + 8px); }
+.scene-loading[open] { display:grid; place-items:center; }
+.scene-loading-content { display:grid; justify-items:center; gap:12px; width:min(400px,100%); text-align:center; }
+.scene-loading-crest { width:104px; height:104px; object-fit:contain; filter:drop-shadow(0 4px 12px #07101d); }
+.scene-loading h2 { margin:0; font-size:23px; font-weight:500; color:#f2d27b; }
+.scene-loading p { margin:0; line-height:1.5; font-size:13px; }
+.scene-loading-progress { appearance:none; width:80%; height:6px; border:0; background:#1a3549; accent-color:#8feaff; }
+.scene-loading-progress::-webkit-progress-bar { background:#1a3549; }
+.scene-loading-progress::-webkit-progress-value { background:#8feaff; }
+.scene-loading-progress::-moz-progress-bar { background:#8feaff; }
+.scene-loading-count { color:#9ebccb; font-variant-numeric:tabular-nums; }
+.scene-loading-actions { display:flex; justify-content:center; gap:12px; }
+.scene-loading button { min-width:112px; min-height:44px; padding:8px 18px; border:0; border-radius:4px; color:#e4edf2; font:inherit; font-size:13px; background:#29475c url('./assets/ui/generated/forged-button.webp') center/100% 100% no-repeat; }
+.scene-loading button:active { filter:brightness(1.2); }
+.scene-loading button:focus-visible { outline:2px solid #8feaff; outline-offset:2px; }
+.scene-loading button[hidden] { display:none; }
+.scene-loading button:disabled { color:#98a3ad; filter:grayscale(1) brightness(.65); cursor:default; }
+@media (max-height:420px) {
+  .scene-loading-content { gap:8px; }
+  .scene-loading-crest { width:64px; height:64px; }
+  .scene-loading h2 { font-size:19px; }
+}

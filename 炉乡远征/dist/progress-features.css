@@ -1,0 +1,55 @@
+#result-reward { min-width:0; }
+:root #game-result { z-index:200; }
+:root #game-result .result-panel { display:flex; flex-direction:column; align-items:stretch; min-height:0; overflow:hidden; }
+.result-body { min-width:0; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+.result-controls { flex:none; display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.result-controls :is(#result-ad-reward,#result-ad-status,#next-level) { grid-column:1/-1; }
+:root #game-result .result-body p { max-height:none; overflow:visible; }
+:root #match[data-mode="expedition"] #game-result .result-panel {
+  display:grid; grid-template-columns:minmax(0,1fr) 172px; align-items:center;
+  width:min(660px,100%); gap:16px; padding:12px 18px;
+}
+:root #match[data-mode="expedition"] .result-controls { display:flex; flex-direction:column; gap:6px; max-height:calc(100dvh - 64px); overflow:auto; }
+:root #match[data-mode="expedition"] .result-body { max-height:calc(100dvh - 64px); }
+:root #match[data-mode="expedition"] .result-controls button { flex-shrink:0; min-height:44px; }
+.battle-reward-resources { display:flex; flex-wrap:wrap; justify-content:center; gap:8px 18px; margin:8px 0; }
+.battle-reward-resource { display:inline-flex; align-items:center; gap:5px; }
+.battle-reward-resource img { width:24px; height:24px; object-fit:contain; }
+.battle-reward-cards { display:flex; gap:8px; overflow-x:auto; max-width:100%; padding:4px 0 8px; touch-action:pan-x; text-align:center; }
+.battle-reward-card { flex:0 0 104px; display:flex; flex-direction:column; align-items:center; background:rgba(94,84,154,.24); padding:4px; }
+.battle-reward-card canvas { width:100px; height:72px; object-fit:contain; }
+.battle-reward-card strong { font-size:13px; line-height:1.4; overflow-wrap:anywhere; }
+.battle-reward-card-type { font-size:12px; color:#e8d696; }
+.battle-reward-detail { display:block; font-size:12px; line-height:1.6; }
+.battle-reward-cards:focus-visible { outline:2px solid #6fe6ff; outline-offset:2px; }
+.platform-progress-dialog {
+  box-sizing:border-box; width:min(480px,calc(100vw - var(--ui-left,16px) - var(--ui-right,16px)));
+  max-height:calc(100dvh - max(var(--ui-top,8px),var(--host-capsule-height,0px)) - var(--ui-bottom,8px));
+  padding:0; border:0; border-radius:4px; background:#191735; color:#ece4cf; font:14px/1.5 var(--font-ui);
+  top:max(var(--ui-top,8px),var(--host-capsule-height,0px)); bottom:auto; margin:0 auto;
+}
+.platform-progress-dialog[open] { display:flex; flex-direction:column; }
+.platform-progress-dialog::backdrop { background:#080815b8; }
+.platform-progress-header { flex:none; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:8px 14px; background:#2e2854; }
+.platform-progress-header h2 { color:#ffd36b; font-size:18px; margin:0; }
+.platform-progress-body { min-height:0; overflow:auto; padding:8px 16px; overscroll-behavior:contain; touch-action:pan-y; }
+.platform-progress-score { margin:12px 0; font-size:24px; text-align:center; }
+.achievement-list { list-style:none; margin:0; padding:0; }
+.achievement-list li { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:44px; border-bottom:1px solid #a89ac329; }
+.achievement-list li strong { white-space:nowrap; font-size:13px; font-weight:400; color:#c2b8d9; }
+.achievement-list .is-achieved strong { color:#f5d178; }
+.platform-progress-status { flex:none; margin:0; padding:4px 16px 8px; font-size:13px; overflow-wrap:anywhere; }
+.platform-progress-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; flex:none; gap:6px; padding:8px 14px; background:#121126; }
+:root #platform-progress-dialog button { box-sizing:border-box; min-height:44px; min-width:64px; padding:8px 12px; border:0; border-radius:3px; background:#49416e; color:#f8edcc; font:600 14px var(--font-ui); cursor:pointer; box-shadow:inset 0 2px #ffffff20,inset 0 -3px #00000040; }
+:root #platform-progress-dialog .platform-progress-actions .is-primary { background:#c89447; color:#241c26; }
+:root #platform-progress-dialog button:disabled { background:#424955; color:#bfc1c8; cursor:default; }
+:root #platform-progress-dialog button:not(:disabled):active { filter:brightness(.8); }
+:root #platform-progress-dialog :is(button,.platform-progress-body):focus-visible { outline:2px solid #8ce4fa; outline-offset:-2px; }
+:root #platform-progress-dialog [hidden] { display:none; }
+.challenge-opponent { display:flex; align-items:center; gap:12px; }
+.challenge-opponent img { width:44px; height:44px; object-fit:cover; }
+.challenge-best-details,.challenge-score-rule { margin:6px 0; font-size:13px; line-height:1.6; }
+@media(max-width:480px) {
+ :root #match[data-mode="expedition"] #game-result .result-panel { display:flex; }
+ :root #match[data-mode="expedition"] .result-controls { display:grid; max-height:none; }
+}

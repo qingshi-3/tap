@@ -1,0 +1,30 @@
+/* All card contexts use the same authored mana gem and filled targeting socket. */
+.card-stat-badge {
+  position:absolute; z-index:7; display:grid; place-items:center;
+  aspect-ratio:1; padding:0; border:0; border-radius:0;
+  color:#fff; font-family:DuelystUI,Lato,sans-serif; font-weight:700;
+  line-height:1; text-shadow:0 1px 2px #020811,0 0 3px #020811;
+  box-shadow:none; pointer-events:none; background:center/contain no-repeat;
+}
+.card-stat-mana { background-image:url('./assets/ui/icon-mana.png'); }
+.card-stat-range { background-image:url('./assets/ui/icon-attack-range.svg'); }
+.card-stat-badge[hidden] { display:none; }
+.game-card :is(.game-card-cost,.game-card-range) { top:0; width:22%; font-size:clamp(12px,9cqw,28px); }
+.game-card .game-card-cost { left:0; }
+.game-card .game-card-range { right:0; }
+.squad-slot .game-card :is(.game-card-cost,.game-card-range) { width:20px; font-size:12px; }
+.match .hand-card :is(.card-cost,.card-range),
+.hand-drag-ghost .hand-card :is(.card-cost,.card-range),
+.battle-flow-mulligan .hand-card :is(.card-cost,.card-range) { top:0; width:26px; font-size:16px; }
+.match .hand-card .card-cost,.hand-drag-ghost .hand-card .card-cost,.battle-flow-mulligan .hand-card .card-cost { left:0; }
+.match .hand-card .card-range,.hand-drag-ghost .hand-card .card-range,.battle-flow-mulligan .hand-card .card-range { right:0; }
+/* The stacked strip exposes at least 44px per card, including the last card at
+   the scroll edge. Selection/focus expands a card and restores its two corners. */
+.match .hand.is-stacked .hand-card:not(.selected):not(:focus-visible) :is(.card-cost,.card-range) { width:22px; font-size:15px; }
+.match .hand.is-stacked .hand-card:not(.selected):not(:focus-visible) .card-range { right:calc(100% - 44px); }
+.match .unit-inspect .card-stat-badge { width:42px; font-size:22px; }
+.match .unit-inspect .unit-inspect-cost { top:0; left:0; filter:none; }
+.match .unit-inspect .unit-inspect-range { top:50px; right:2px; }
+@media(max-height:360px) {
+  .match .hand-card :is(.card-cost,.card-range) { width:24px; font-size:15px; }
+}

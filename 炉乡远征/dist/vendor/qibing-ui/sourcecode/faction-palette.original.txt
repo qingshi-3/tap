@@ -1,0 +1,9 @@
+export const FACTION_INFO: Record<Faction, { name: string; color: string; dark: string }> = {
+  light: { name: '圣光', color: '#ffd36b', dark: '#7a5413' },
+  shadow: { name: '影刃', color: '#ff5f6d', dark: '#6e1622' },
+  abyss: { name: '深渊', color: '#b77bff', dark: '#3d1a6e' },
+  magma: { name: '熔岩', color: '#ff9a3d', dark: '#6b2a07' },
+  frost: { name: '寒冰', color: '#6fe6ff', dark: '#0e4a63' },
+  neutral: { name: '中立', color: '#cfd6e6', dark: '#3a4255' },
+  enemy: { name: '敌军', color: '#ff4b6e', dark: '#3a0b19' },
+};

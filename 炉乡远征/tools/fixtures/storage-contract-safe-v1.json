@@ -1,0 +1,9 @@
+{
+  "provenance": "Fixed storage generation adopted on 2026-10-12; independent of runtime constants and package version.",
+  "namespace": "duelyst-h5.safe-v1",
+  "keys": { "expedition": "duelyst-h5.safe-v1.expedition", "campaign": "duelyst-h5.safe-v1.campaign", "match": "duelyst-h5.safe-v1.match" },
+  "legacyKeys": { "expedition": "duelyst-h5.expedition.v1", "campaign": "duelyst-h5.progress.v1", "match": "duelyst-h5.match.v1" },
+  "meta": "duelyst-h5.safe-v1.cloud-meta",
+  "cloudArchive": "duelyst_player_safe_v1",
+  "legacyCloudArchive": "duelyst_player_v1"
+}

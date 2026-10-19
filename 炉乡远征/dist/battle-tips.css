@@ -1,0 +1,29 @@
+/* A single quiet instruction strip; it never captures battlefield input. */
+.battle-tips {
+  position: absolute;
+  z-index: 8;
+  top: var(--battle-tips-top, calc(var(--ui-top, 6px) + 8px));
+  left: var(--battle-tips-left, max(12px, var(--ui-left, 12px)));
+  right: var(--battle-tips-right, max(12px, var(--ui-right, 12px)));
+  width: max-content;
+  max-width: calc(100% - var(--ui-left, 12px) - var(--ui-right, 12px));
+  height: 26px;
+  margin-inline: auto;
+  padding: 3px 12px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 4px;
+  background: #081522dc;
+  color: #e4edf2;
+  font: 400 13px/20px var(--font-ui, sans-serif);
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+}
+.battle-tips[hidden] { display: none; }
+.battle-tips-text { display: block; white-space: nowrap; }
+/* Reuse the vacated mission-title slot, alongside the actual battle controls. */
+.match .mission-title { visibility: hidden; flex: 1; min-width: 180px; }
+.match .battle-tips { left: calc(var(--ui-left, 12px) + 50px); right: auto; margin: 0; }
+.match .match-topbar { padding-right: max(var(--ui-right, 12px), var(--host-capsule-width, 0px)); }
+.match .turn-marker { margin-left: 0; }

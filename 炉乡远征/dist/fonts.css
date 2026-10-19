@@ -1,0 +1,8 @@
+/* Offline Chinese UI font; source, subset recipe and OFL are in assets/SOURCES.md. */
+@font-face {
+  font-family: "Luxiang UI";
+  src: url('./assets/fonts/luxiang-ui.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}

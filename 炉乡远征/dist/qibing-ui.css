@@ -1,0 +1,496 @@
+/* Direct UI transfer from games/zhenlie-demo/source/src/.
+   Values below retain the source palette, stepped button paint and pixel frames.
+   Adaptation: selector mapping, fluid layout, >=44px touch targets, original cards excluded. */
+:root[data-ui="qibing"][data-ui] {
+ --gold:#ffd36b; --gold2:#e2a12b; --gold-soft:rgba(255,211,107,.28);
+ --ink:#090a1e; --panel:rgba(14,15,38,.9); --panel2:rgba(22,24,58,.92);
+ --line:rgba(255,214,140,.22); --text:#eef0ff; --muted:#959bc6;
+ --green:#7dffb0; --red:#ff5a6a; --ice:#8feaff; --violet:#c590ff;
+ --num:'Russo One','Noto Sans SC','Luxiang UI',sans-serif; --latin:'Cinzel','Noto Sans SC','Luxiang UI',serif;
+ --font-ui:'Noto Sans SC','Luxiang UI',system-ui,sans-serif;
+}
+/* Source style.css:47-50,2699-2705; pixel.css:21-65 (.modal/.res-card). */
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.hero-effect-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) {
+ font-family:'Noto Sans SC','Luxiang UI',system-ui,sans-serif; color:#eef0ff;
+}
+:root[data-ui="qibing"][data-ui] :is(#cloud-dialog,#objective-dialog,#audio-settings,#ad-self-test-dialog,.mission-preview,.deck-editor,.hero-dialog,.hero-effect-dialog,.game-dialog,.card-dialog,.expedition-card-dialog,.atlas-dialog,.recruitment-dialog,.recruitment-presentation,.resource-rewards-dialog,.reward-presentation,.keyword-explanation,.scene-loading-panel,.scene-loading-content,.confirm-panel,.result-panel,.map-panel) {
+ --ink:#eef0ff; --muted:#959bc6; --gold:#ffd36b;
+ color:#eef0ff; text-shadow:none; clip-path:none;
+ border:0 solid; border-radius:4px;
+ border-image:var(--pxf-gold) 6 / 12px / 0 stretch;
+ background:linear-gradient(180deg,rgba(30,28,74,.98),rgba(12,12,32,.98));
+ box-shadow:0 24px 60px rgba(0,0,0,.6);
+}
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.hero-effect-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) :is(h1,h2,h3,h4):not(:where(.game-card *,.hand-card *)) { color:#ffd36b; text-shadow:none; }
+:root[data-ui="qibing"][data-ui] :is(#cloud-dialog,#objective-dialog,#audio-settings,.hero-dialog,.hero-effect-dialog,.game-dialog,.expedition-card-dialog,.recruitment-dialog,.resource-rewards-dialog,.result-panel,.confirm-panel,.deck-editor,.mission-preview,.atlas-dialog) :is(p,dd,dt,small,label,.hero-name,.hero-skill b,.hero-skill>span,.training-stat-row,.deck-contract,.deck-status,.mission-rewards,.mission-intel,.recruitment-detail-stats,.recruitment-probability,.recruitment-pool-rules,.hero-effect-copy):not(:where(button *, .game-card *, .hand-card *, .unit-inspect *)) { color:#eef0ff; text-shadow:none; }
+:root[data-ui="qibing"][data-ui] :is(#cloud-dialog,#objective-dialog,#audio-settings,.hero-dialog,.game-dialog)::backdrop { background:rgba(3,3,14,.72); backdrop-filter:blur(4px); }
+/* Source style.css:161-224; pixel.css:131-178. Ghost's source alpha paint
+   sits on the source --panel2 fill so landscape does not make it an empty outline. */
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#ad-self-test-dialog,#confirm-screen,#game-result,.hero-dialog,.hero-effect-dialog,.game-dialog,.card-dialog,.expedition-card-dialog,.atlas-dialog,.recruitment-dialog,.recruitment-presentation,.resource-rewards-dialog,.reward-presentation,.keyword-explanation,.scene-loading) button:not(:where(.game-card,.hand-card,.training-card-open,.expedition-codex-card,.spell-card-open,.deck-card-detail,.atlas-level,.general-power,.hero-power,.general-skill,.portrait-frame,#bbs-button,.recruitment-featured,.atlas-enemy-card-open)) {
+ --qibing-button-ink:#e9e3ff;
+ min-height:44px; min-width:44px; border:0; border-image:none; border-radius:0; clip-path:none;
+ color:var(--qibing-button-ink); text-shadow:none; font-family:'Noto Sans SC','Luxiang UI',system-ui,sans-serif;
+ font-weight:700; letter-spacing:.04em; cursor:pointer; touch-action:manipulation;
+ --qibing-button-background:linear-gradient(180deg,rgba(255,255,255,.14) 0 2px,rgba(255,255,255,.06) 2px calc(100% - 4px),rgba(0,0,0,.25) calc(100% - 4px)),rgba(22,24,58,.92); background:var(--qibing-button-background);
+ --qibing-button-shadow:2px 0 rgba(255,220,160,.38),-2px 0 rgba(255,220,160,.38),0 2px rgba(255,220,160,.38),0 -2px rgba(255,220,160,.38); box-shadow:var(--qibing-button-shadow);
+ transition:transform .14s,filter .14s,box-shadow .2s,opacity .2s;
+}
+/* Commands that map to source .btn.primary, including selected controls. */
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#ad-self-test-dialog,#confirm-screen,#game-result,.hero-dialog,.hero-effect-dialog,.game-dialog,.expedition-card-dialog,.atlas-dialog,.recruitment-dialog,.recruitment-presentation,.resource-rewards-dialog,.reward-presentation,.scene-loading) button:is(.button-primary,.expedition-primary,.menu-play,.prep-start,.atlas-start,.chapter-enter,.opening-confirm,.training-upgrade,.reward-presentation-continue,[data-recruitment-action="draw"],[data-recruitment-action="synthesize"],[data-recruitment-action="double"],[data-recruitment-presentation-action="continue"],#cloud-use-local,#cloud-choice-confirm,#confirm-accept,#next-level,#play-again,#new-game,#ad-self-test-play,#end-turn,[data-loading-action="retry"],[aria-pressed="true"],[aria-selected="true"],[aria-checked="true"],.is-active,.is-selected):not(:where(.game-card,.hand-card,.training-card-open,.expedition-codex-card,.spell-card-open,.deck-card-detail,.atlas-level,.general-power,.hero-power,.general-skill,.portrait-frame,#bbs-button,.recruitment-featured,.atlas-enemy-card-open)) {
+ --qibing-button-ink:#2a1700; color:#2a1700;
+ --qibing-button-background:linear-gradient(180deg,#fff1b8 0 4px,#ffd36b 4px 52%,#f0b048 52% calc(100% - 6px),#b06a1a calc(100% - 6px)); background:var(--qibing-button-background);
+ --qibing-button-shadow:2px 0 #4a2604,-2px 0 #4a2604,0 2px #4a2604,0 -2px #4a2604,0 8px 22px rgba(255,180,60,.3); box-shadow:var(--qibing-button-shadow);
+ --qibing-button-text-shadow:0 2px 0 #fff6; text-shadow:var(--qibing-button-text-shadow); filter:none;
+}
+:root[data-ui="qibing"][data-ui] :is(#app,#confirm-screen,.game-dialog) button:is(.danger,.button-danger,[data-intent="danger"]) {
+ --qibing-button-ink:#fff; color:#fff;
+ --qibing-button-background:linear-gradient(180deg,#ffb0b8 0 4px,#ff6a78 4px 52%,#e8394f 52% calc(100% - 6px),#8a1024 calc(100% - 6px)); background:var(--qibing-button-background);
+ --qibing-button-shadow:2px 0 #3a0610,-2px 0 #3a0610,0 2px #3a0610,0 -2px #3a0610,0 8px 20px rgba(255,60,80,.28); box-shadow:var(--qibing-button-shadow);
+}
+/* Button-owned text follows its material, including original explicit hero text.
+   Original card objects and their numeric artwork remain outside this mapping. */
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.hero-effect-dialog,.game-dialog,.expedition-card-dialog,.atlas-dialog,.recruitment-dialog,.resource-rewards-dialog,.reward-presentation) button:not(:where(.game-card,.hand-card,.training-card-open,.expedition-codex-card,.spell-card-open,.deck-card-detail,.atlas-level,.general-power,.hero-power,.general-skill,.portrait-frame,#bbs-button,.recruitment-featured,.atlas-enemy-card-open)) :is(strong,b,span,small,p,.hero-name,.hero-skill,.hero-select-mark):not(:where(.game-card *,.hand-card *)) { color:var(--qibing-button-ink,#e9e3ff); text-shadow:inherit; }
+@media(hover:hover) {
+ :root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:not(:where(.game-card,.hand-card,.training-card-open,.expedition-codex-card,.spell-card-open,.deck-card-detail,.atlas-level,.general-power,.hero-power,.general-skill,.portrait-frame,#bbs-button,.recruitment-featured,.atlas-enemy-card-open)):hover:not(:disabled) { transform:translateY(-2px); filter:brightness(1.12); }
+}
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:not(:where(.game-card,.hand-card,.training-card-open,.expedition-codex-card,.spell-card-open,.deck-card-detail,.atlas-level,.general-power,.hero-power,.general-skill,.portrait-frame,#bbs-button,.recruitment-featured,.atlas-enemy-card-open)):active:not(:disabled) { transform:translateY(1px) scale(.98); }
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:not(:where(#bbs-button,.game-card,.hand-card,.portrait-frame)):focus-visible { outline:3px solid #6fe6ff; outline-offset:2px; }
+/* Source style.css:222-225: disabled opacity/grayscale. Semantic :disabled
+   replaces source class; pointer events intentionally block native input too. */
+:root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:not(:where(#bbs-button,.game-card,.hand-card,.portrait-frame,.training-card-open,.expedition-codex-card,.spell-card-open,.recruitment-featured,.atlas-enemy-card-open)):disabled {
+ opacity:.38; pointer-events:none; filter:grayscale(.6); transform:none; color:var(--qibing-button-ink,#e9e3ff); text-shadow:none;
+}
+/* Home: fluid crest grid and circular portrait retain the existing composition.
+   Frame and dark fill are source .gen-card (pixel.css:125-128); no wood skins. */
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-grid { grid-template-rows:repeat(3,82px); align-content:center; gap:8px; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-picker { grid-template-rows:auto; align-content:center; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-story { background:none; border:0; box-shadow:none; padding:0; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-story :is(h1,strong) { color:#ffd36b; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-strengths li { background:rgba(22,24,58,.92); color:#eef0ff; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-commander { container-type:size; display:grid; grid-template-rows:minmax(0,1fr) 44px; gap:6px; justify-items:center; align-items:center; align-self:stretch; height:100%; min-height:0; aspect-ratio:auto; background:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-portrait-medallion { position:relative; box-sizing:border-box; width:min(100%,calc(100cqh - 50px)); aspect-ratio:1; border-radius:50%; padding:6px; background:linear-gradient(180deg,#1c1b44,#0d0d24 60%,#0a0a1c); box-shadow:0 12px 26px rgba(0,0,0,.55); }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-portrait-medallion .menu-hero { position:relative; inset:auto; display:block; width:100%; height:100%; aspect-ratio:1; object-fit:cover; object-position:50% 42%; border-radius:50%; }
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-hero-switch { position:relative; inset:auto; width:100%; max-width:190px; height:44px; min-height:44px; transform:none; font-size:12px; white-space:nowrap; }
+/* Source style.css:2093-2110 (.res-card),2134-2146 (.res-title). */
+:root[data-ui="qibing"][data-ui] #game-result .result-panel { background:linear-gradient(180deg,rgba(30,26,76,.96),rgba(12,12,32,.96)); }
+:root[data-ui="qibing"][data-ui] #game-result #result-title { background:linear-gradient(180deg,#fffbe6,#ffd36b 50%,#c27a14); background-clip:text; -webkit-background-clip:text; color:transparent; filter:drop-shadow(0 4px 0 rgba(0,0,0,.5)) drop-shadow(0 0 22px rgba(255,200,90,.5)); }
+:root[data-ui="qibing"][data-ui] :is(#cloud-dialog,#objective-dialog,#audio-settings,.hero-dialog,.game-dialog,.recruitment-dialog) :is(header,footer,.objective-heading,.objective-body,.objective-actions,.cloud-body,.audio-settings-header,.audio-settings-controls) { background:none; box-shadow:none; border-color:transparent; }
+@media(max-height:450px) { :root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-grid { grid-template-rows:repeat(3,68px); gap:5px; } }
+@media(max-height:350px) { :root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-faction-grid { grid-template-rows:repeat(3,62px); gap:4px; } }
+@media(prefers-reduced-motion:reduce) {
+ :root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button { transition:none; }
+ :root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:hover,
+ :root[data-ui="qibing"][data-ui] :is(#app,#objective-dialog,#cloud-dialog,#audio-settings,#confirm-screen,#game-result,.hero-dialog,.game-dialog,.recruitment-dialog,.resource-rewards-dialog) button:active { transform:none; }
+}
+
+
+/* Coverage follow-up: source .modal/.card-in fill and steel/dim frames
+   (style.css:2699-2705; pixel.css:21-65,85-95). */
+:root[data-ui="qibing"][data-ui] :is(#cloud-dialog,#objective-dialog,#audio-settings,#ad-self-test-dialog,.mission-preview,.deck-editor,.hero-dialog,.hero-effect-dialog,.game-dialog,.card-dialog,.expedition-card-dialog,.atlas-dialog,.recruitment-dialog,.recruitment-presentation,.resource-rewards-dialog,.reward-presentation,.keyword-explanation,.scene-loading-panel,.scene-loading-content,.confirm-panel,.result-panel,.map-panel) { font-family:'Noto Sans SC','Luxiang UI',system-ui,sans-serif; }
+:root[data-ui="qibing"][data-ui] #expedition-home :is(.atlas-summary,.atlas-level-caption) {
+ border:0; border-radius:4px; clip-path:none;
+ border-image:var(--pxf-dim) 6 / 12px / 0 stretch;
+ background:linear-gradient(180deg,#1c1b44,#0d0d24 60%,#0a0a1c);
+ color:#eef0ff; box-shadow:none; text-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level.is-selected .atlas-level-caption { border-image-source:var(--pxf-gold); background:linear-gradient(180deg,#1c1b44,#0d0d24 60%,#0a0a1c); box-shadow:0 0 30px rgba(255,211,107,.55),0 18px 36px rgba(0,0,0,.6); }
+:root[data-ui="qibing"][data-ui] #expedition-home :is(.atlas-goal,.atlas-level-name,.atlas-rewards) { color:#eef0ff; text-shadow:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home :is(.atlas-unlocks,.atlas-level-state) { color:#959bc6; text-shadow:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level.is-selected :is(.atlas-level-name,.atlas-level-state) { color:#ffd36b; }
+:root[data-ui="qibing"][data-ui] #expedition-home :is(.atlas-chapter-number,.atlas-level-number) { background:none; box-shadow:none; clip-path:none; color:inherit; text-shadow:inherit; }
+/* Existing music rules use !important. Match that boundary only here, so
+   selected gold uses the original primary deep ink rather than legacy pale ink. */
+:root[data-ui="qibing"][data-ui] #expedition-home .menu-music-toggle {
+ background-color:rgba(22,24,58,.92)!important; color:var(--qibing-button-ink,#e9e3ff)!important;
+}
+/* Replacing a battle maps to source .btn.danger (pixel.css:163-171). */
+:root[data-ui="qibing"][data-ui] #confirm-screen[data-intent="replace-battle"] #confirm-accept {
+ --qibing-button-ink:#fff; color:#fff;
+ --qibing-button-background:linear-gradient(180deg,#ffb0b8 0 4px,#ff6a78 4px 52%,#e8394f 52% calc(100% - 6px),#8a1024 calc(100% - 6px)); background:var(--qibing-button-background);
+ --qibing-button-shadow:2px 0 #3a0610,-2px 0 #3a0610,0 2px #3a0610,0 -2px #3a0610,0 8px 20px rgba(255,60,80,.28); box-shadow:var(--qibing-button-shadow);
+}
+/* Text-adjacent input wells use source --panel2 and --text, not old pale forms. */
+:root[data-ui="qibing"][data-ui] :is(#app,#cloud-dialog,#audio-settings,.recruitment-dialog) :is(select,input:not([type="range"]),textarea) { background:rgba(22,24,58,.92); color:#eef0ff; border-color:rgba(255,214,140,.22); font-family:'Noto Sans SC','Luxiang UI',system-ui,sans-serif; }
+:root[data-ui="qibing"][data-ui] :is(#app,#cloud-dialog,.recruitment-dialog) select option { background:#090a1e; color:#eef0ff; }
+:root[data-ui="qibing"][data-ui] #objective-dialog #battle-rules :is(dt,dd,p,li,span) { color:#eef0ff; }
+:root[data-ui="qibing"][data-ui] #objective-dialog #battle-rules dt { color:#ffd36b; }
+:root[data-ui="qibing"][data-ui] #art-retry {
+ min-width:44px; min-height:44px; color:#e9e3ff; font-family:'Noto Sans SC','Luxiang UI',system-ui,sans-serif;
+ border:0; border-image:none; border-radius:0; clip-path:none;
+ --qibing-button-background:linear-gradient(180deg,rgba(255,255,255,.14) 0 2px,rgba(255,255,255,.06) 2px calc(100% - 4px),rgba(0,0,0,.25) calc(100% - 4px)),rgba(22,24,58,.92); background:var(--qibing-button-background);
+ --qibing-button-shadow:2px 0 rgba(255,220,160,.38),-2px 0 rgba(255,220,160,.38),0 2px rgba(255,220,160,.38),0 -2px rgba(255,220,160,.38); box-shadow:var(--qibing-button-shadow);
+}
+
+
+
+/* Explicit bridges for legacy host rules with two ID selectors. Paint stays
+   with the transferred .btn materials above; no global !important escalation. */
+:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-use-local,#cloud-choice-confirm),
+:root[data-ui="qibing"][data-ui] #objective-dialog :is(#objective-close,#objective-rules),
+:root[data-ui="qibing"][data-ui] #objective-dialog #rule-tabs button,
+:root[data-ui="qibing"][data-ui] #audio-settings :is(#settings-music-toggle,#settings-music-retry),
+:root[data-ui="qibing"][data-ui] #confirm-screen #confirm-accept {
+ border:0; border-image:none; border-radius:0; clip-path:none;
+ background:var(--qibing-button-background); box-shadow:var(--qibing-button-shadow);
+ color:var(--qibing-button-ink,#e9e3ff); text-shadow:var(--qibing-button-text-shadow,none);
+}
+:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-use-local,#cloud-choice-confirm):focus-visible,
+:root[data-ui="qibing"][data-ui] #objective-dialog :is(#objective-close,#objective-rules):focus-visible {
+ outline:3px solid #6fe6ff; outline-offset:2px;
+}
+/* Daily reward choices are source --panel2 wells, not old textured slate.
+   Keep resource art, amounts and claim controls with their existing owners. */
+:root[data-ui="qibing"][data-ui] .resource-rewards-dialog .resource-rewards-options article {
+ border:0; border-image:none; border-radius:0;
+ background:rgba(22,24,58,.92); box-shadow:none; color:#eef0ff;
+}
+/* Preparation layout only. Source .btn paints above remain unchanged; the
+   host's fluid two-column roster replaces its old percentage/36px controls. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-barracks {
+ grid-template-columns:300px minmax(0,1fr); grid-template-rows:minmax(0,1fr);
+ gap:14px; padding:0 8px 6px; overflow:hidden;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-editor {
+ display:flex; flex-direction:column; gap:4px; padding:0 2px; min-height:0;
+ border:0; border-image:none; border-radius:0; background:none; box-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-heading {
+ display:flex; align-items:center; justify-content:space-between; flex:none;
+ height:44px; min-height:44px; gap:6px;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-heading .inline-return {
+ min-height:44px; height:44px; min-width:44px; padding:0 6px; font-size:12px;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-total { flex:none; font-size:14px; color:#ffd36b; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] :is(.deck-contract,.deck-status) { margin:0; font-size:11px; line-height:1.4; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-editor-actions {
+ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; flex:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-editor-actions button { min-width:44px; height:44px; min-height:44px; padding:0 3px; font-size:12px; letter-spacing:0; white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-list {
+ flex:1 1 0; min-height:0; margin:0; padding:2px; overflow-y:auto; overflow-x:hidden;
+ touch-action:pan-y; overscroll-behavior:contain;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-row {
+ display:grid; grid-template-columns:minmax(0,1fr) 116px; align-items:center;
+ gap:6px; min-height:50px; padding:2px 0; border:0; border-image:none;
+ border-radius:0; background:none; box-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-row > .deck-card-detail {
+ display:flex; align-items:center; gap:4px; min-width:0; min-height:44px;
+ padding:0; border:0; border-image:none; border-radius:0; background:none;
+ box-shadow:none; color:#eef0ff; font-size:12px; letter-spacing:0; text-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls {
+ display:grid; grid-template-columns:44px 28px 44px; gap:0; align-items:center;
+ width:116px; min-width:0; padding:0; border:0; border-image:none; background:none; box-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button {
+ width:44px; min-width:44px; height:44px; min-height:44px; padding:0;
+ border:0; border-radius:0; font-size:20px; letter-spacing:0;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls > span { min-width:0; width:28px; text-align:center; font-size:11px; color:#eef0ff; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .prep-start { flex:0 0 46px; height:46px; min-height:44px; margin-top:2px; font-size:13px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .barracks-inventory {
+ display:grid; grid-template-rows:44px minmax(0,1fr); gap:6px; min-width:0; min-height:0;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .inventory-tabs { gap:8px; padding:0; align-items:center; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .inventory-tabs button { min-height:44px; height:44px; min-width:90px; padding:0 8px; font-size:12px; }
+/* Preserve card pixels and the card component's own container queries. Give
+   the entire object enough width and a separate caption row rather than
+   allowing the roster's old 72px tracks to squeeze keyword strips. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-roster {
+ display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr));
+ align-content:start; align-items:start; justify-content:stretch;
+ gap:16px 12px; padding:6px 6px 12px; min-height:0;
+ overflow-x:hidden; overflow-y:auto; container-type:normal;
+ touch-action:pan-y; overscroll-behavior:contain;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card {
+ display:grid; grid-template-rows:auto minmax(34px,auto); row-gap:7px;
+ width:100%; max-width:142px; max-height:none; min-width:0; justify-self:center;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] :is(.training-card-open,.spell-card-open) { display:block; width:100%; min-width:0; padding:0; touch-action:pan-y; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-caption {
+ display:flex; flex-direction:column; justify-content:flex-start; align-items:center;
+ gap:2px; height:auto; min-height:34px; margin:0; padding:0 2px;
+ font-size:11px; line-height:1.4; white-space:normal; overflow-wrap:anywhere;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card.is-in-squad::after { content:none; }
+@media(max-width:1000px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-barracks { grid-template-columns:280px minmax(0,1fr); gap:12px; padding-inline:4px; }
+}
+@media(max-width:650px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-barracks { grid-template-columns:228px minmax(0,1fr); gap:10px; padding-inline:2px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-row { grid-template-columns:minmax(0,1fr) 116px; gap:4px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-editor-actions button { font-size:11px; padding-inline:1px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .inventory-tabs { gap:6px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .inventory-tabs button { min-width:44px; padding-inline:5px; font-size:11px; }
+}
+
+/* Home hierarchy: only the campaign command uses the full stepped button.
+   Secondary commands retain 44px hit boxes with smaller source-painted faces. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-selected-faction {
+ grid-template-columns:minmax(0,1fr) minmax(108px,43%);
+ grid-template-rows:minmax(0,1fr) 48px; gap:8px 14px;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-journeys {
+ grid-column:1; grid-row:2; grid-template-columns:minmax(0,1fr) 54px; gap:10px;
+ align-items:center;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-play { min-height:48px; height:48px; width:100%; font-size:14px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-destinations {
+ grid-column:2; grid-row:2; display:flex; justify-content:center; align-items:center;
+ width:auto; gap:10px; justify-self:stretch;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] :is(.menu-trials,.menu-destinations .menu-destination) { flex:0 1 64px; width:64px; min-width:44px; padding:0 3px; font-size:12px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] :is(.menu-utility,.menu-other-resume,.menu-hero-switch,.menu-destination) {
+ position:relative; isolation:isolate; min-height:44px; height:44px;
+ background:none; box-shadow:none; border:0; border-image:none;
+}
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] :is(.menu-utility,.menu-other-resume,.menu-hero-switch,.menu-destination)::before {
+ content:''; position:absolute; z-index:-1; pointer-events:none; inset:7px 2px;
+ background:var(--qibing-button-background); box-shadow:var(--qibing-button-shadow);
+}
+/* Important legacy audio fill is the sole existing important paint boundary. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-music-toggle { background:none!important; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-resources { gap:8px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-utility { width:44px; min-width:44px; padding:0 3px; font-size:11px; letter-spacing:0; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-supply { width:60px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-hero-switch { max-width:156px; font-size:11px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-hero-switch::before { inset:7px 10px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction-grid { grid-template-rows:repeat(3,76px); gap:8px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction { grid-template-rows:32px 18px 15px; padding:4px 2px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction img { width:38px; height:32px; object-fit:contain; }
+/* Preparation captions now contain only current, actionable short state. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card { grid-template-rows:auto minmax(24px,auto); row-gap:5px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-caption { min-height:24px; }
+@media(max-height:450px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction-grid { grid-template-rows:repeat(3,66px); gap:6px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction { grid-template-rows:27px 17px 14px; padding:3px 1px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction img { width:32px; height:27px; }
+}
+@media(max-width:650px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-selected-faction { gap:6px 10px; grid-template-columns:minmax(0,1fr) 38%; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-journeys { grid-template-columns:minmax(0,1fr) 44px; gap:8px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-destinations { gap:6px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-play { font-size:12px; letter-spacing:0; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction-grid { grid-template-rows:repeat(3,60px); gap:5px; }
+}
+@media(max-width:650px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction { grid-template-rows:24px 16px 14px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-faction img { height:24px; }
+}
+
+/* Prep tools follow the draft state; retain the same actions and touch area. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-editor-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-heading .inline-return { padding:0 3px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-heading { gap:4px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-name { white-space:normal; overflow:visible; text-overflow:clip; line-height:1.3; overflow-wrap:anywhere; }
+
+/* Small filled faces inside full touch targets keep repeated controls separate. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button { position:relative; isolation:isolate; background:none; box-shadow:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button::before { content:''; position:absolute; inset:6px; z-index:-1; pointer-events:none; background:var(--qibing-button-background); box-shadow:var(--qibing-button-shadow); }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls > span { font-size:12px; }
+@media(min-width:651px) { :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-row > .deck-card-detail { font-size:14px; } }
+
+/* Campaign enemy portraits belong to a dedicated inset, never the status baseline. */
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level { grid-template-rows:minmax(0,1fr) 70px; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-caption { position:relative; height:70px; box-sizing:border-box; grid-template-rows:auto auto; align-content:center; gap:5px; padding:8px 62px 8px 10px; text-align:left; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-name { justify-content:flex-start; white-space:normal; font-size:15px; line-height:1.2; gap:5px; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-number { flex-basis:18px; background:none; clip-path:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-meta { justify-content:flex-start; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-enemy-portraits { position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; gap:4px; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-enemy { width:44px; height:44px; object-fit:cover; object-position:50% 12%; border-radius:50%; background:#25294e; filter:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-caption:has(.atlas-enemy:nth-child(2)) { padding-right:82px; }
+:root[data-ui="qibing"][data-ui] #expedition-home .atlas-enemy-portraits:has(.atlas-enemy:nth-child(2)) .atlas-enemy { width:32px; height:32px; }
+/* The enemy deck is a read-only original-card gallery, with one scroll surface. */
+:root[data-ui="qibing"][data-ui] .atlas-intel-dialog { inset:0; margin:auto; width:min(920px,calc(100vw - 24px)); max-width:calc(100vw - var(--ui-left,12px) - var(--ui-right,12px)); height:min(660px,calc(100dvh - 24px)); max-height:calc(100dvh - max(var(--ui-top,8px),var(--host-capsule-height,0px)) - var(--ui-bottom,8px)); }
+:root[data-ui="qibing"][data-ui] :is(.atlas-intel-dialog,.atlas-enemy-card-dialog) .atlas-dialog-heading { flex:none; min-height:44px; padding:5px 12px; background:none; gap:12px; }
+:root[data-ui="qibing"][data-ui] :is(.atlas-intel-dialog,.atlas-enemy-card-dialog) .atlas-dialog-heading h3 { margin:0; color:#ffd36b; font-size:18px; }
+:root[data-ui="qibing"][data-ui] .atlas-intel-dialog .atlas-dialog-body { flex:1; min-height:0; padding:4px 16px 16px; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; font-size:14px; line-height:1.5; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:16px 12px; align-items:start; padding:8px 0 16px; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card { display:grid; grid-template-rows:auto 24px; gap:5px; justify-self:center; width:100%; max-width:168px; min-width:0; margin:0; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-open { display:block; width:100%; padding:0; margin:0; min-width:0; border:0; border-radius:0; background:none; box-shadow:none; color:inherit; cursor:pointer; touch-action:pan-y; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-count { text-align:center; color:#ffd36b; font-size:16px; line-height:24px; font-variant-numeric:tabular-nums; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-dialog { inset:0; margin:auto; padding:0; width:min(720px,calc(100vw - 24px)); max-width:calc(100vw - var(--ui-left,12px) - var(--ui-right,12px)); height:min(540px,calc(100dvh - 24px)); max-height:calc(100dvh - max(var(--ui-top,8px),var(--host-capsule-height,0px)) - var(--ui-bottom,8px)); border:0; border-image:var(--pxf-gold) 6 / 12px / 0 stretch; border-radius:4px; color:#eef0ff; background:linear-gradient(180deg,rgba(30,28,74,.98),rgba(12,12,32,.98)); box-shadow:0 24px 60px rgba(0,0,0,.6); overflow:hidden; font-family:var(--font-ui); }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-dialog[open] { display:flex; flex-direction:column; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-dialog::backdrop { background:rgba(3,3,14,.72); backdrop-filter:blur(4px); }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-body { display:grid; grid-template-columns:minmax(150px,224px) minmax(0,1fr); gap:20px; padding:6px 20px 20px; min-height:0; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; align-items:start; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-rules { color:#eef0ff; font-size:15px; line-height:1.6; min-width:0; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-rules h4 { color:#ffd36b; font-size:15px; margin:0 0 4px; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-rules section { margin:0 0 16px; padding:0; background:none; border:0; }
+:root[data-ui="qibing"][data-ui] .atlas-enemy-card-rules p { margin:0; }
+@media(max-width:650px) {
+ :root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-caption { padding-left:7px; padding-right:54px; gap:4px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home .atlas-enemy-portraits { right:7px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home .atlas-enemy { width:38px; height:38px; }
+ :root[data-ui="qibing"][data-ui] #expedition-home .atlas-level-name { font-size:13px; gap:3px; }
+ :root[data-ui="qibing"][data-ui] .atlas-enemy-card-body { grid-template-columns:150px minmax(0,1fr); gap:14px; padding-inline:12px; }
+}
+
+:root[data-ui="qibing"][data-ui] .atlas-intel-dialog .atlas-dialog-body > h4 { margin:4px 0; font-size:15px; }
+:root[data-ui="qibing"][data-ui] .atlas-intel-dialog .atlas-dialog-body > p { margin:3px 0; }
+@media(max-height:360px) {
+ :root[data-ui="qibing"][data-ui] .atlas-enemy-grid { grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); gap:12px 10px; padding-top:5px; }
+ :root[data-ui="qibing"][data-ui] .atlas-enemy-card { max-width:124px; grid-template-rows:auto 20px; gap:3px; }
+ :root[data-ui="qibing"][data-ui] .atlas-enemy-count { font-size:14px; line-height:20px; }
+}
+
+/* Both deck views act on the same draft, with controls directly below the card. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card { grid-template-rows:auto 44px; grid-auto-rows:auto; row-gap:5px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card > .deck-card-controls { justify-self:center; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .training-card > .training-caption { min-height:0; }
+
+/* Compact circular quantity faces; the invisible hit target stays 44px. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button { font-size:16px; font-weight:700; line-height:1; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button::before { inset:9px; border-radius:50%; background:linear-gradient(180deg,#515173 0 12%,#303253 12% 72%,#22243e 72%); box-shadow:inset 0 1px rgba(255,255,255,.25),0 2px 3px rgba(0,0,0,.4); }
+
+/* Collection uses the original card's lower engraving area, without an external essay. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-rail { grid-template-columns:repeat(auto-fill,minmax(172px,1fr)); gap:22px 16px; align-items:start; align-content:start; padding:10px 12px 16px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-card { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; max-width:202px; justify-self:center; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-card .game-card { width:100%; max-width:none; }
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .game-card-description { top:69%; left:10%; width:80%; height:23%; gap:5px; color:#e6eef7; font-size:11px; line-height:1.35; }
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .card-keywords { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px 8px; }
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-chip { display:inline-flex; align-items:center; gap:3px; min-width:0; min-height:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; color:#e6eef7; }
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-icon { display:block; flex:none; width:13px; height:13px; margin:0; }
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-label { display:inline; font-size:11px; font-weight:500; line-height:1.3; color:#e6eef7; }
+:root[data-ui="qibing"][data-ui] .collection-card-abilities { display:grid; gap:7px; width:100%; }
+:root[data-ui="qibing"][data-ui] .collection-card-ability { display:flex; align-items:center; gap:7px; text-align:left; }
+:root[data-ui="qibing"][data-ui] .collection-ability-kind { flex:none; min-width:48px; color:#9fcbd8; font-size:10px; line-height:1.3; }
+:root[data-ui="qibing"][data-ui] .collection-ability-name { font-size:12px; font-weight:500; line-height:1.3; color:#f4e2b5; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .collection-card-status { color:#b4bed3; font-size:11px; line-height:1.4; }
+/* Cultivation stays with its object. Each column scrolls from its own top edge. */
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog:not(.is-codex)[open] { width:min(820px,calc(100vw - 24px)); height:min(700px,calc(100dvh - 24px)); max-height:calc(100dvh - var(--safe-top,0px) - var(--safe-bottom,0px) - 24px); padding:18px 18px 14px; display:grid; grid-template-columns:minmax(210px,38%) minmax(0,1fr); gap:24px; align-items:stretch; overflow:hidden; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .card-dialog-close { position:absolute; z-index:10; top:6px; right:8px; min-width:52px; min-height:44px; padding:0 8px; font-size:13px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-object { display:flex; flex-direction:column; align-items:stretch; gap:12px; min-width:0; min-height:0; overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y; scrollbar-width:thin; padding:0 4px 8px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-object > .game-card { flex:none; width:min(100%,200px); max-width:200px; align-self:center; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-cultivation { display:grid; gap:9px; flex:none; min-width:0; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-purchase { gap:6px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-upgrade { min-height:44px; font-size:14px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-steps { width:100%; max-width:none; gap:6px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-steps i { height:7px; transform:none; border:0; background:#323750; box-shadow:none; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-steps .is-complete { background:#ffd36b; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-steps .is-next { background:#646d8d; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-stat-comparison { gap:6px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-stat-row { grid-template-columns:22px 1fr 18px 1fr; max-width:none; gap:5px; font-size:18px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-stat-icon { width:20px; height:20px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-detail { display:flex; flex-direction:column; gap:14px; align-content:initial; min-width:0; min-height:0; max-height:none; padding:0 4px 10px 0; overflow-y:auto; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-detail > * { flex:none; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-detail h2 { margin:0; padding-right:56px; min-height:32px; font-size:19px; line-height:1.5; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-rules { font-size:14px; line-height:1.65; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .specialization-choices { gap:9px; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .specialization-choices h3 { font-size:13px; line-height:1.4; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .specialization-choices button { padding:9px 10px; font-size:13px; letter-spacing:0; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .specialization-choices small { font-size:12px; line-height:1.5; }
+:root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-detail-note { font-size:12px; line-height:1.5; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-heading [data-action="deck-default"] { height:44px; padding:0 8px; font-size:12px; letter-spacing:0; }
+@media(max-height:450px) {
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog:not(.is-codex)[open] { padding:10px 14px; grid-template-columns:minmax(190px,34%) minmax(0,1fr); gap:20px; }
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-object { gap:8px; }
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-object > .game-card { width:124px; max-width:124px; }
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-cultivation { gap:7px; }
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog .training-detail { gap:10px; }
+}
+@media(max-width:650px) {
+ :root[data-ui="qibing"][data-ui] .expedition-card-dialog:not(.is-codex)[open] { grid-template-columns:190px minmax(0,1fr); gap:14px; padding-inline:10px; }
+ :root[data-ui="qibing"][data-ui] .collection-ability-kind { min-width:44px; }
+}
+
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-total.is-incomplete { display:inline-block; color:#ff7b88; }
+:root[data-ui="qibing"][data-ui] #app #expedition-home[data-page="prep"] .prep-start[aria-disabled="true"] { --qibing-button-ink:#aeb3c6; color:#aeb3c6; background:linear-gradient(180deg,#424758 0 3px,#303647 3px 70%,#252938 70%); box-shadow:inset 0 1px rgba(255,255,255,.12); text-shadow:none; filter:grayscale(1); cursor:default; }
+:root[data-ui="qibing"][data-ui] #app #expedition-home[data-page="prep"] .prep-start[aria-disabled="true"]::after { display:none; animation:none; }
+
+/* Current hero: a moving band of light plus a broad soft halo, behind the art. */
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion { isolation:isolate; overflow:visible; box-shadow:0 0 18px rgba(88,204,255,.32),0 0 36px rgba(72,120,255,.18),0 12px 26px rgba(0,0,0,.55); }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::before,
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::after { content:''; position:absolute; pointer-events:none; border-radius:50%; background:conic-gradient(from 0deg,rgba(83,213,255,.12),rgba(94,212,255,.38) 16%,#b6f6ff 25%,rgba(68,143,255,.6) 37%,rgba(39,73,156,0) 60%,rgba(110,233,255,.55) 85%,rgba(83,213,255,.12)); mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); mask-composite:exclude; -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0); -webkit-mask-composite:xor; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::before { inset:-4px; padding:7px; z-index:2; animation:qibing-hero-orbit 5s linear infinite; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::after { inset:-10px; padding:14px; filter:blur(6px); z-index:-1; animation:qibing-hero-orbit 5s linear infinite,qibing-hero-breathe 2.8s ease-in-out infinite alternate; }
+@keyframes qibing-hero-orbit { to { transform:rotate(360deg); } }
+@keyframes qibing-hero-breathe { from { opacity:.45; } to { opacity:.9; } }
+:root.qibing-motion-paused #expedition-home .menu-portrait-medallion::before,
+:root.qibing-motion-paused #expedition-home .menu-portrait-medallion::after { animation-play-state:paused; }
+@media(prefers-reduced-motion:reduce) {
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::before,
+ :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::after { animation:none; }
+}
+
+/* Battle chrome keeps the round state on the viewport centre, independently
+   of the two hero groups. Only the host's narrow landscape pocket needs a
+   second row; the board itself keeps its full-screen input surface. */
+:root[data-ui="qibing"][data-ui] #match {
+ --battle-hud-top:max(4px,var(--safe-top,0px));
+ --battle-hero-edge:max(8px,var(--ui-left,8px),calc(50% - 570px));
+ --battle-enemy-edge:max(8px,var(--ui-right,8px),var(--host-capsule-width,0px),calc(50% - 570px));
+}
+:root[data-ui="qibing"][data-ui] #match .match-topbar { position:absolute; inset:0 0 auto; height:0; min-height:0; padding:0; background:none; overflow:visible; z-index:8; }
+:root[data-ui="qibing"][data-ui] #match .mission-title { display:none; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center { position:absolute; top:var(--battle-hud-top); left:50%; transform:translateX(-50%); display:grid; grid-template-columns:minmax(0,1fr) 76px 80px; align-items:center; gap:8px; width:min(400px,calc(100vw - 344px)); min-height:44px; pointer-events:none; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips { grid-column:1; grid-row:1; position:static; inset:auto; display:flex; align-items:center; width:100%; max-width:none; height:auto; min-height:40px; margin:0; padding:4px 0; box-sizing:border-box; overflow:visible; background:none; box-shadow:none; font-size:12px; line-height:17px; text-align:left; text-shadow:0 1px 2px #09101a,0 0 4px #09101a,1px 0 2px #09101a,-1px 0 2px #09101a; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips[hidden] { display:none; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips-text { white-space:normal; word-break:normal; overflow-wrap:normal; text-wrap:pretty; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .turn-marker { grid-column:2; grid-row:1; min-width:0; margin:0; gap:3px; padding:3px 0; background:none; box-shadow:none; color:#f4f0ff; text-shadow:0 1px 2px #09101a,0 0 4px #09101a,1px 0 2px #09101a,-1px 0 2px #09101a; text-align:center; white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #match .turn-marker span { font-size:12px; line-height:16px; }
+:root[data-ui="qibing"][data-ui] #match .turn-marker strong { font-size:14px; line-height:18px; white-space:normal; overflow-wrap:anywhere; }
+:root[data-ui="qibing"][data-ui] #app #match #objective-open { grid-column:3; grid-row:1; width:80px; min-width:0; min-height:44px; height:44px; padding:0 5px; font-size:12px; letter-spacing:0; white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #match .general-panel { top:var(--battle-hud-top); transform:none; gap:4px; min-width:0; z-index:7; }
+:root[data-ui="qibing"][data-ui] #match .general-player { left:var(--battle-hero-edge); }
+:root[data-ui="qibing"][data-ui] #match .general-enemy { right:var(--battle-enemy-edge); }
+:root[data-ui="qibing"][data-ui] #match .portrait-frame { flex:0 0 48px; width:48px; height:54px; min-width:44px; min-height:44px; }
+:root[data-ui="qibing"][data-ui] #match .general-copy { width:76px; min-width:0; gap:2px; }
+:root[data-ui="qibing"][data-ui] #match .general-name { max-width:76px; font-size:11px; line-height:15px; }
+:root[data-ui="qibing"][data-ui] #match .general-health { height:22px; font-size:13px; line-height:20px; }
+:root[data-ui="qibing"][data-ui] #match .health-meter { height:20px; }
+:root[data-ui="qibing"][data-ui] #match .deck-count { font-size:12px; line-height:16px; }
+:root[data-ui="qibing"][data-ui] #app #match #leave-match { position:absolute; top:calc(var(--battle-hud-top) + 66px); right:calc(var(--battle-enemy-edge) + 2px); width:44px; min-width:44px; height:44px; min-height:44px; padding:0; display:grid; place-items:center; font-size:0; border:0; border-image:none; border-radius:4px; background:#303550; box-shadow:inset 0 2px #545b7c,inset 0 -3px #1a1d31; color:#eef0ff; }
+:root[data-ui="qibing"][data-ui] #match #leave-match::after { content:none; }
+:root[data-ui="qibing"][data-ui] #match #leave-match svg { display:block; width:25px; height:25px; fill:currentColor; }
+@media(max-width:720px) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:304px; grid-template-columns:minmax(0,1fr) 72px 76px; gap:6px; }
+ :root[data-ui="qibing"][data-ui] #app #match #objective-open { width:76px; }
+ :root[data-ui="qibing"][data-ui] #match .portrait-frame { flex-basis:44px; width:44px; height:50px; }
+ :root[data-ui="qibing"][data-ui] #match .general-copy { width:64px; }
+ :root[data-ui="qibing"][data-ui] #match .general-name { max-width:64px; }
+}
+@media(max-width:720px) and (pointer:coarse) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { top:max(72px,calc(var(--battle-hud-top) + 68px)); width:248px; grid-template-columns:minmax(0,1fr) 72px 76px; }
+}
+/* Equal side tracks keep the turn marker itself at the exact viewport centre. */
+:root[data-ui="qibing"][data-ui] #match .battle-top-center { grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr); }
+:root[data-ui="qibing"][data-ui] #app #match #objective-open { justify-self:start; }
+@media(max-width:720px) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr); }
+}
+:root[data-ui="qibing"][data-ui] #audio-settings #settings-leave-battle { flex:none; margin:0 20px 14px; min-height:44px; background:#59303e; color:#ffe7eb; border:0; border-image:none; box-shadow:inset 0 2px #805061,inset 0 -3px #321c28; }
+:root[data-ui="qibing"][data-ui] #audio-settings #settings-effects-value { color:#ffd36b; }
+
+/* Keep instructions wide where the hero HUD leaves room, without shifting the round. */
+:root[data-ui="qibing"][data-ui] #match .battle-top-center { width:min(660px,calc(100vw - 312px)); }
+@media(min-width:721px) and (pointer:coarse) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:min(660px,calc(100vw - 408px)); }
+}
+@media(max-width:720px) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:304px; }
+}
+@media(max-width:720px) and (pointer:coarse) {
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:248px; }
+ :root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips { width:max-content; max-width:calc(50vw - var(--ui-left,8px) - 48px); justify-self:end; }
+}
+/* The power art and mana gem carry the control; no extra backing plate. */
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button,
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button:is([aria-pressed="true"],.is-unavailable,:disabled,:active) { background:none; border:0; border-image:none; box-shadow:none; }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button::before,
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button::after { content:none; }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button #bbs-icon { opacity:1; filter:drop-shadow(0 2px 3px #07121cb3); }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button:not(.is-unavailable):not(:disabled) { opacity:1; filter:none; }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button:not(.is-unavailable):not(:disabled) #bbs-icon { opacity:1; filter:saturate(1.18) brightness(1.12) drop-shadow(0 0 5px #71e8ffb3) drop-shadow(0 2px 3px #07121c); }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button[aria-pressed="true"] #bbs-icon { filter:drop-shadow(0 0 7px #71e8ff); }
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button:is(.is-unavailable,:disabled) #bbs-icon { filter:grayscale(1) drop-shadow(0 2px 3px #07121cb3); opacity:.45; }
+
+/* Each trial owns its authored scenery; campaign battles keep their current map. */
+:root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-layers { background-image:var(--trial-background); background-size:cover; background-position:center; }
+:root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-midground { background-image:var(--trial-middleground); }
+:root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-foreground-left { background-image:var(--trial-foreground-left); }
+:root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-foreground-right { background-image:var(--trial-foreground-right); }
+:root[data-ui="qibing"][data-ui] .trial-card .trial-cover { display:block; background-size:cover; background-position:center; background-repeat:no-repeat; }

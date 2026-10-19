@@ -1,0 +1,3127 @@
+{
+  "provenance": "Frozen synthetic historical contract specimens derived from supported v1/v2/v3 shapes and 0.1.9 source on 2026-10-12; not player data or byte-extracted shipped saves.",
+  "profiles": [
+    {
+      "schemaVersion": 1,
+      "coins": 321,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 2,
+        "15": 0,
+        "16": 0,
+        "17": 0
+      },
+      "squad": [
+        14,
+        9,
+        11
+      ],
+      "completed": [
+        "border-01"
+      ],
+      "activeBattle": {
+        "schemaVersion": 3,
+        "mode": "expedition",
+        "levelId": "border-01",
+        "board": {
+          "columns": 9,
+          "rows": 5,
+          "tiles": [
+            {
+              "x": 4,
+              "y": 2,
+              "type": "outpost"
+            }
+          ]
+        },
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 10,
+        "training": {
+          "9": 0,
+          "11": 0,
+          "14": 2,
+          "15": 0,
+          "16": 0,
+          "17": 0
+        },
+        "squad": [
+          14,
+          9,
+          11
+        ],
+        "runId": "550ada73-25b6-4614-ac89-5aee207032a1",
+        "revision": 0,
+        "phase": "playing",
+        "currentPlayer": 0,
+        "round": 1,
+        "turnSerial": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "你",
+            "generalId": 1,
+            "ai": false,
+            "deck": [
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14
+            ],
+            "hand": [
+              11,
+              20174,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 1,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          },
+          {
+            "id": 1,
+            "name": "齐兰",
+            "generalId": 23,
+            "ai": true,
+            "deck": [
+              14
+            ],
+            "hand": [
+              14,
+              9,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 0,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          }
+        ],
+        "units": [
+          {
+            "unitId": 1,
+            "cardId": 1,
+            "owner": 0,
+            "x": 1,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 25,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 2,
+            "cardId": 14,
+            "owner": 0,
+            "x": 2,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 6,
+            "health": 6,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 3,
+            "cardId": 9,
+            "owner": 0,
+            "x": 1,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 4,
+            "cardId": 23,
+            "owner": 1,
+            "x": 7,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 18,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 5,
+            "cardId": 14,
+            "owner": 1,
+            "x": 6,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 6,
+            "cardId": 9,
+            "owner": 1,
+            "x": 7,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          }
+        ],
+        "manaTiles": [],
+        "outposts": {},
+        "creepCells": {},
+        "mulligan": [],
+        "log": [
+          "远征开始：边哨初战。击败敌方主将。"
+        ],
+        "winner": null,
+        "result": null,
+        "resultReason": null,
+        "selectedUnitId": null,
+        "lastAction": null,
+        "playtimeSeconds": 0
+      },
+      "settlements": {
+        "frozen-win": {
+          "levelId": "border-01",
+          "firstClear": true,
+          "amount": 100
+        }
+      }
+    },
+    {
+      "schemaVersion": 2,
+      "coins": 321,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "109": 0,
+        "110": 0,
+        "115": 0,
+        "211": 0,
+        "213": 0,
+        "214": 0,
+        "308": 0,
+        "311": 0,
+        "317": 0,
+        "406": 0,
+        "410": 0,
+        "412": 0,
+        "503": 0,
+        "505": 0,
+        "506": 0
+      },
+      "selectedHeroId": 1,
+      "factionSquads": {
+        "1": [
+          14,
+          9,
+          15
+        ],
+        "2": [
+          110,
+          115,
+          109
+        ],
+        "3": [
+          213,
+          211,
+          214
+        ],
+        "4": [
+          308,
+          317,
+          311
+        ],
+        "5": [
+          406,
+          412,
+          410
+        ],
+        "6": [
+          505,
+          506,
+          503
+        ]
+      },
+      "squad": [
+        14,
+        9,
+        15
+      ],
+      "completed": [
+        "border-01"
+      ],
+      "activeBattle": {
+        "schemaVersion": 4,
+        "mode": "expedition",
+        "levelId": "border-01",
+        "board": {
+          "columns": 9,
+          "rows": 5,
+          "tiles": [
+            {
+              "x": 4,
+              "y": 2,
+              "type": "outpost"
+            }
+          ]
+        },
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 10,
+        "training": {
+          "9": 0,
+          "11": 0,
+          "14": 0,
+          "15": 0,
+          "16": 0,
+          "17": 0,
+          "109": 0,
+          "110": 0,
+          "115": 0,
+          "211": 0,
+          "213": 0,
+          "214": 0,
+          "308": 0,
+          "311": 0,
+          "317": 0,
+          "406": 0,
+          "410": 0,
+          "412": 0,
+          "503": 0,
+          "505": 0,
+          "506": 0
+        },
+        "squad": [
+          14,
+          9,
+          15
+        ],
+        "runId": "fbd2eb0a-9748-470f-b31f-70a7708a4f59",
+        "revision": 0,
+        "phase": "playing",
+        "currentPlayer": 0,
+        "round": 1,
+        "turnSerial": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "你",
+            "generalId": 1,
+            "ai": false,
+            "deck": [
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14
+            ],
+            "hand": [
+              15,
+              20174,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 1,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          },
+          {
+            "id": 1,
+            "name": "齐兰",
+            "generalId": 23,
+            "ai": true,
+            "deck": [
+              14
+            ],
+            "hand": [
+              14,
+              9,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 0,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          }
+        ],
+        "units": [
+          {
+            "unitId": 1,
+            "cardId": 1,
+            "owner": 0,
+            "x": 1,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 25,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 2,
+            "cardId": 14,
+            "owner": 0,
+            "x": 2,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 3,
+            "cardId": 9,
+            "owner": 0,
+            "x": 1,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 4,
+            "cardId": 23,
+            "owner": 1,
+            "x": 7,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 18,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 5,
+            "cardId": 14,
+            "owner": 1,
+            "x": 6,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 6,
+            "cardId": 9,
+            "owner": 1,
+            "x": 7,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          }
+        ],
+        "manaTiles": [],
+        "outposts": {},
+        "creepCells": {},
+        "mulligan": [],
+        "log": [
+          "远征开始：边哨初战。击败敌方主将。"
+        ],
+        "winner": null,
+        "result": null,
+        "resultReason": null,
+        "selectedUnitId": null,
+        "lastAction": null,
+        "playtimeSeconds": 0
+      },
+      "settlements": {
+        "frozen-win": {
+          "levelId": "border-01",
+          "firstClear": true,
+          "amount": 100
+        }
+      }
+    },
+    {
+      "schemaVersion": 3,
+      "coins": 321,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "109": 0,
+        "110": 0,
+        "115": 0,
+        "211": 0,
+        "213": 0,
+        "214": 0,
+        "308": 0,
+        "311": 0,
+        "317": 0,
+        "406": 0,
+        "410": 0,
+        "412": 0,
+        "503": 0,
+        "505": 0,
+        "506": 0
+      },
+      "selectedHeroId": 1,
+      "factionSquads": {
+        "1": [
+          14,
+          9,
+          15
+        ],
+        "2": [
+          110,
+          115,
+          109
+        ],
+        "3": [
+          213,
+          211,
+          214
+        ],
+        "4": [
+          308,
+          317,
+          311
+        ],
+        "5": [
+          406,
+          412,
+          410
+        ],
+        "6": [
+          505,
+          506,
+          503
+        ]
+      },
+      "squad": [
+        14,
+        9,
+        15
+      ],
+      "completed": [
+        "border-01"
+      ],
+      "activeBattle": {
+        "schemaVersion": 4,
+        "mode": "expedition",
+        "levelId": "border-01",
+        "board": {
+          "columns": 9,
+          "rows": 5,
+          "tiles": [
+            {
+              "x": 4,
+              "y": 2,
+              "type": "outpost"
+            }
+          ]
+        },
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 10,
+        "training": {
+          "9": 0,
+          "11": 0,
+          "14": 0,
+          "15": 0,
+          "16": 0,
+          "17": 0,
+          "109": 0,
+          "110": 0,
+          "115": 0,
+          "211": 0,
+          "213": 0,
+          "214": 0,
+          "308": 0,
+          "311": 0,
+          "317": 0,
+          "406": 0,
+          "410": 0,
+          "412": 0,
+          "503": 0,
+          "505": 0,
+          "506": 0
+        },
+        "squad": [
+          14,
+          9,
+          15
+        ],
+        "runId": "fbd2eb0a-9748-470f-b31f-70a7708a4f59",
+        "revision": 0,
+        "phase": "playing",
+        "currentPlayer": 0,
+        "round": 1,
+        "turnSerial": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "你",
+            "generalId": 1,
+            "ai": false,
+            "deck": [
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              15,
+              20043,
+              14
+            ],
+            "hand": [
+              15,
+              20174,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 1,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          },
+          {
+            "id": 1,
+            "name": "齐兰",
+            "generalId": 23,
+            "ai": true,
+            "deck": [
+              14
+            ],
+            "hand": [
+              14,
+              9,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 0,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          }
+        ],
+        "units": [
+          {
+            "unitId": 1,
+            "cardId": 1,
+            "owner": 0,
+            "x": 1,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 25,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 2,
+            "cardId": 14,
+            "owner": 0,
+            "x": 2,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 3,
+            "cardId": 9,
+            "owner": 0,
+            "x": 1,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 4,
+            "cardId": 23,
+            "owner": 1,
+            "x": 7,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 18,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 5,
+            "cardId": 14,
+            "owner": 1,
+            "x": 6,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 6,
+            "cardId": 9,
+            "owner": 1,
+            "x": 7,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          }
+        ],
+        "manaTiles": [],
+        "outposts": {},
+        "creepCells": {},
+        "mulligan": [],
+        "log": [
+          "远征开始：边哨初战。击败敌方主将。"
+        ],
+        "winner": null,
+        "result": null,
+        "resultReason": null,
+        "selectedUnitId": null,
+        "lastAction": null,
+        "playtimeSeconds": 0
+      },
+      "settlements": {
+        "frozen-win": {
+          "levelId": "border-01",
+          "firstClear": true,
+          "amount": 100
+        }
+      },
+      "rewardClaims": {
+        "frozen-win": {
+          "status": "claimed",
+          "requestId": "frozen-ad",
+          "levelId": "border-01",
+          "amount": 25
+        }
+      }
+    },
+    {
+      "schemaVersion": 4,
+      "coins": 321,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "108": 0,
+        "109": 0,
+        "110": 0,
+        "111": 0,
+        "115": 0,
+        "116": 0,
+        "209": 0,
+        "211": 0,
+        "213": 0,
+        "214": 0,
+        "215": 0,
+        "216": 0,
+        "308": 0,
+        "309": 0,
+        "310": 0,
+        "311": 0,
+        "316": 0,
+        "317": 0,
+        "402": 0,
+        "404": 0,
+        "406": 0,
+        "410": 0,
+        "412": 0,
+        "413": 0,
+        "503": 0,
+        "505": 0,
+        "506": 0,
+        "511": 0,
+        "513": 0,
+        "526": 0
+      },
+      "selectedHeroId": 1,
+      "factionSquads": {
+        "1": [
+          14,
+          9,
+          11
+        ],
+        "2": [
+          110,
+          115,
+          109
+        ],
+        "3": [
+          213,
+          211,
+          214
+        ],
+        "4": [
+          308,
+          317,
+          311
+        ],
+        "5": [
+          406,
+          412,
+          410
+        ],
+        "6": [
+          505,
+          506,
+          503
+        ]
+      },
+      "squad": [
+        14,
+        9,
+        11
+      ],
+      "completed": [
+        "border-01"
+      ],
+      "activeBattle": {
+        "schemaVersion": 4,
+        "mode": "expedition",
+        "levelId": "border-01",
+        "board": {
+          "columns": 9,
+          "rows": 5,
+          "tiles": [
+            {
+              "x": 4,
+              "y": 2,
+              "type": "outpost"
+            }
+          ]
+        },
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 10,
+        "training": {
+          "9": 0,
+          "11": 0,
+          "14": 0,
+          "15": 0,
+          "16": 0,
+          "17": 0,
+          "108": 0,
+          "109": 0,
+          "110": 0,
+          "111": 0,
+          "115": 0,
+          "116": 0,
+          "209": 0,
+          "211": 0,
+          "213": 0,
+          "214": 0,
+          "215": 0,
+          "216": 0,
+          "308": 0,
+          "309": 0,
+          "310": 0,
+          "311": 0,
+          "316": 0,
+          "317": 0,
+          "402": 0,
+          "404": 0,
+          "406": 0,
+          "410": 0,
+          "412": 0,
+          "413": 0,
+          "503": 0,
+          "505": 0,
+          "506": 0,
+          "511": 0,
+          "513": 0,
+          "526": 0
+        },
+        "squad": [
+          14,
+          9,
+          11
+        ],
+        "runId": "fbe77039-18d7-4279-a36d-93b9c422984a",
+        "revision": 0,
+        "phase": "playing",
+        "currentPlayer": 0,
+        "round": 1,
+        "turnSerial": 1,
+        "players": [
+          {
+            "id": 0,
+            "name": "你",
+            "generalId": 1,
+            "ai": false,
+            "deck": [
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14,
+              14,
+              20174,
+              9,
+              11,
+              20043,
+              14
+            ],
+            "hand": [
+              11,
+              20174,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 1,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          },
+          {
+            "id": 1,
+            "name": "齐兰",
+            "generalId": 23,
+            "ai": true,
+            "deck": [
+              14
+            ],
+            "hand": [
+              14,
+              9,
+              20043
+            ],
+            "maxMana": 3,
+            "mana": 3,
+            "turnsStarted": 0,
+            "bbsUsed": false,
+            "wins": 0,
+            "turnTriggers": {}
+          }
+        ],
+        "units": [
+          {
+            "unitId": 1,
+            "cardId": 1,
+            "owner": 0,
+            "x": 1,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 25,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 2,
+            "cardId": 14,
+            "owner": 0,
+            "x": 2,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 3,
+            "cardId": 9,
+            "owner": 0,
+            "x": 1,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 4,
+            "cardId": 23,
+            "owner": 1,
+            "x": 7,
+            "y": 2,
+            "attack": 2,
+            "maxHealth": 25,
+            "health": 18,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 5,
+            "cardId": 14,
+            "owner": 1,
+            "x": 6,
+            "y": 2,
+            "attack": 1,
+            "maxHealth": 4,
+            "health": 4,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          },
+          {
+            "unitId": 6,
+            "cardId": 9,
+            "owner": 1,
+            "x": 7,
+            "y": 3,
+            "attack": 2,
+            "maxHealth": 3,
+            "health": 3,
+            "attackBuff": 0,
+            "healthBuff": 0,
+            "moved": false,
+            "attacked": false,
+            "summonedThisTurn": false,
+            "token": false,
+            "reborn": false
+          }
+        ],
+        "manaTiles": [],
+        "outposts": {},
+        "creepCells": {},
+        "mulligan": [],
+        "log": [
+          "远征开始：边哨初战。击败敌方主将。"
+        ],
+        "winner": null,
+        "result": null,
+        "resultReason": null,
+        "selectedUnitId": null,
+        "lastAction": null,
+        "playtimeSeconds": 0
+      },
+      "settlements": {
+        "frozen-win": {
+          "levelId": "border-01",
+          "firstClear": true,
+          "amount": 100
+        }
+      },
+      "rewardClaims": {
+        "frozen-win": {
+          "status": "claimed",
+          "requestId": "frozen-ad",
+          "levelId": "border-01",
+          "amount": 25
+        }
+      }
+    }
+  ],
+  "campaign": {
+    "game": "duelyst-h5",
+    "schemaVersion": 1,
+    "completedLevelIds": [
+      "roar-lethal"
+    ],
+    "attemptedLevelIds": [
+      "roar-lethal"
+    ],
+    "lastLevelId": "roar-lethal",
+    "updatedAt": 1
+  },
+  "battles": [
+    {
+      "schemaVersion": 1,
+      "mode": "local-ai",
+      "runId": "628c0992-b2e9-43e9-962f-5730c758e2ac",
+      "revision": 0,
+      "phase": "mulligan",
+      "currentPlayer": 0,
+      "round": 0,
+      "turnSerial": 0,
+      "players": [
+        {
+          "id": 0,
+          "name": "你",
+          "generalId": 1,
+          "ai": false,
+          "deck": [
+            20066,
+            16,
+            15,
+            9,
+            20044,
+            9,
+            20043,
+            15,
+            14,
+            20066,
+            16,
+            17,
+            20043,
+            20066,
+            20044,
+            14,
+            20043,
+            14,
+            11,
+            9
+          ],
+          "hand": [
+            20068,
+            17,
+            15,
+            11,
+            11
+          ],
+          "maxMana": 2,
+          "mana": 2,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0
+        },
+        {
+          "id": 1,
+          "name": "齐兰",
+          "generalId": 23,
+          "ai": true,
+          "deck": [
+            11,
+            9,
+            14,
+            20044,
+            9,
+            17,
+            20043,
+            16,
+            14,
+            20066,
+            9,
+            11,
+            14,
+            20043,
+            20043,
+            15,
+            17,
+            20066,
+            20044,
+            20068
+          ],
+          "hand": [
+            11,
+            20066,
+            15,
+            16,
+            15
+          ],
+          "maxMana": 2,
+          "mana": 2,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0
+        }
+      ],
+      "units": [
+        {
+          "unitId": 1,
+          "cardId": 1,
+          "owner": 0,
+          "x": 0,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": true,
+          "attacked": true,
+          "summonedThisTurn": true,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 2,
+          "cardId": 23,
+          "owner": 1,
+          "x": 8,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": true,
+          "attacked": true,
+          "summonedThisTurn": true,
+          "token": false,
+          "reborn": false
+        }
+      ],
+      "manaTiles": [
+        {
+          "x": 4,
+          "y": 0
+        },
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 2
+        }
+      ],
+      "mulligan": [],
+      "log": [
+        "将军登场。起手牌可替换至多两张。"
+      ],
+      "winner": null,
+      "result": null,
+      "selectedUnitId": null,
+      "lastAction": null,
+      "playtimeSeconds": 0
+    },
+    {
+      "schemaVersion": 2,
+      "mode": "challenge",
+      "levelId": "roar-lethal",
+      "turnLimit": 1,
+      "completedLevels": [],
+      "runId": "d5745bad-8e6d-454f-83bd-511638dd403e",
+      "revision": 0,
+      "phase": "playing",
+      "currentPlayer": 0,
+      "round": 1,
+      "turnSerial": 1,
+      "players": [
+        {
+          "id": 0,
+          "name": "你",
+          "generalId": 1,
+          "ai": false,
+          "deck": [],
+          "hand": [
+            20174
+          ],
+          "maxMana": 1,
+          "mana": 1,
+          "turnsStarted": 1,
+          "bbsUsed": false,
+          "wins": 0
+        },
+        {
+          "id": 1,
+          "name": "齐兰",
+          "generalId": 23,
+          "ai": false,
+          "deck": [],
+          "hand": [],
+          "maxMana": 0,
+          "mana": 0,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0
+        }
+      ],
+      "units": [
+        {
+          "unitId": 1,
+          "cardId": 1,
+          "owner": 0,
+          "x": 2,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 2,
+          "cardId": 9,
+          "owner": 0,
+          "x": 3,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 3,
+          "cardId": 23,
+          "owner": 1,
+          "x": 4,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 5,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        }
+      ],
+      "manaTiles": [
+        {
+          "x": 4,
+          "y": 0
+        },
+        {
+          "x": 4,
+          "y": 4
+        },
+        {
+          "x": 5,
+          "y": 2
+        }
+      ],
+      "mulligan": [],
+      "log": [
+        "试炼开始：狮王一击。本回合击败敌方主将。"
+      ],
+      "winner": null,
+      "result": null,
+      "selectedUnitId": null,
+      "lastAction": null,
+      "playtimeSeconds": 0
+    },
+    {
+      "schemaVersion": 3,
+      "mode": "expedition",
+      "levelId": "border-01",
+      "board": {
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 2,
+            "type": "outpost"
+          }
+        ]
+      },
+      "objective": {
+        "type": "eliminate"
+      },
+      "turnLimit": 10,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 2,
+        "15": 0,
+        "16": 0,
+        "17": 0
+      },
+      "squad": [
+        14,
+        9,
+        11
+      ],
+      "runId": "550ada73-25b6-4614-ac89-5aee207032a1",
+      "revision": 0,
+      "phase": "playing",
+      "currentPlayer": 0,
+      "round": 1,
+      "turnSerial": 1,
+      "players": [
+        {
+          "id": 0,
+          "name": "你",
+          "generalId": 1,
+          "ai": false,
+          "deck": [
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14
+          ],
+          "hand": [
+            11,
+            20174,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 1,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        },
+        {
+          "id": 1,
+          "name": "齐兰",
+          "generalId": 23,
+          "ai": true,
+          "deck": [
+            14
+          ],
+          "hand": [
+            14,
+            9,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        }
+      ],
+      "units": [
+        {
+          "unitId": 1,
+          "cardId": 1,
+          "owner": 0,
+          "x": 1,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 2,
+          "cardId": 14,
+          "owner": 0,
+          "x": 2,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 6,
+          "health": 6,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 3,
+          "cardId": 9,
+          "owner": 0,
+          "x": 1,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 4,
+          "cardId": 23,
+          "owner": 1,
+          "x": 7,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 18,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 5,
+          "cardId": 14,
+          "owner": 1,
+          "x": 6,
+          "y": 2,
+          "attack": 1,
+          "maxHealth": 4,
+          "health": 4,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 6,
+          "cardId": 9,
+          "owner": 1,
+          "x": 7,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        }
+      ],
+      "manaTiles": [],
+      "outposts": {},
+      "creepCells": {},
+      "mulligan": [],
+      "log": [
+        "远征开始：边哨初战。击败敌方主将。"
+      ],
+      "winner": null,
+      "result": null,
+      "resultReason": null,
+      "selectedUnitId": null,
+      "lastAction": null,
+      "playtimeSeconds": 0
+    },
+    {
+      "schemaVersion": 4,
+      "mode": "expedition",
+      "levelId": "border-01",
+      "board": {
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 2,
+            "type": "outpost"
+          }
+        ]
+      },
+      "objective": {
+        "type": "eliminate"
+      },
+      "turnLimit": 10,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "109": 0,
+        "110": 0,
+        "115": 0,
+        "211": 0,
+        "213": 0,
+        "214": 0,
+        "308": 0,
+        "311": 0,
+        "317": 0,
+        "406": 0,
+        "410": 0,
+        "412": 0,
+        "503": 0,
+        "505": 0,
+        "506": 0
+      },
+      "squad": [
+        14,
+        9,
+        15
+      ],
+      "runId": "fbd2eb0a-9748-470f-b31f-70a7708a4f59",
+      "revision": 0,
+      "phase": "playing",
+      "currentPlayer": 0,
+      "round": 1,
+      "turnSerial": 1,
+      "players": [
+        {
+          "id": 0,
+          "name": "你",
+          "generalId": 1,
+          "ai": false,
+          "deck": [
+            14,
+            20174,
+            9,
+            15,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            15,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            15,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            15,
+            20043,
+            14
+          ],
+          "hand": [
+            15,
+            20174,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 1,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        },
+        {
+          "id": 1,
+          "name": "齐兰",
+          "generalId": 23,
+          "ai": true,
+          "deck": [
+            14
+          ],
+          "hand": [
+            14,
+            9,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        }
+      ],
+      "units": [
+        {
+          "unitId": 1,
+          "cardId": 1,
+          "owner": 0,
+          "x": 1,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 2,
+          "cardId": 14,
+          "owner": 0,
+          "x": 2,
+          "y": 2,
+          "attack": 1,
+          "maxHealth": 4,
+          "health": 4,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 3,
+          "cardId": 9,
+          "owner": 0,
+          "x": 1,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 4,
+          "cardId": 23,
+          "owner": 1,
+          "x": 7,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 18,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 5,
+          "cardId": 14,
+          "owner": 1,
+          "x": 6,
+          "y": 2,
+          "attack": 1,
+          "maxHealth": 4,
+          "health": 4,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 6,
+          "cardId": 9,
+          "owner": 1,
+          "x": 7,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        }
+      ],
+      "manaTiles": [],
+      "outposts": {},
+      "creepCells": {},
+      "mulligan": [],
+      "log": [
+        "远征开始：边哨初战。击败敌方主将。"
+      ],
+      "winner": null,
+      "result": null,
+      "resultReason": null,
+      "selectedUnitId": null,
+      "lastAction": null,
+      "playtimeSeconds": 0
+    },
+    {
+      "schemaVersion": 4,
+      "mode": "expedition",
+      "levelId": "border-01",
+      "board": {
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 2,
+            "type": "outpost"
+          }
+        ]
+      },
+      "objective": {
+        "type": "eliminate"
+      },
+      "turnLimit": 10,
+      "training": {
+        "9": 0,
+        "11": 0,
+        "14": 0,
+        "15": 0,
+        "16": 0,
+        "17": 0,
+        "108": 0,
+        "109": 0,
+        "110": 0,
+        "111": 0,
+        "115": 0,
+        "116": 0,
+        "209": 0,
+        "211": 0,
+        "213": 0,
+        "214": 0,
+        "215": 0,
+        "216": 0,
+        "308": 0,
+        "309": 0,
+        "310": 0,
+        "311": 0,
+        "316": 0,
+        "317": 0,
+        "402": 0,
+        "404": 0,
+        "406": 0,
+        "410": 0,
+        "412": 0,
+        "413": 0,
+        "503": 0,
+        "505": 0,
+        "506": 0,
+        "511": 0,
+        "513": 0,
+        "526": 0
+      },
+      "squad": [
+        14,
+        9,
+        11
+      ],
+      "runId": "fbe77039-18d7-4279-a36d-93b9c422984a",
+      "revision": 0,
+      "phase": "playing",
+      "currentPlayer": 0,
+      "round": 1,
+      "turnSerial": 1,
+      "players": [
+        {
+          "id": 0,
+          "name": "你",
+          "generalId": 1,
+          "ai": false,
+          "deck": [
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14,
+            14,
+            20174,
+            9,
+            11,
+            20043,
+            14
+          ],
+          "hand": [
+            11,
+            20174,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 1,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        },
+        {
+          "id": 1,
+          "name": "齐兰",
+          "generalId": 23,
+          "ai": true,
+          "deck": [
+            14
+          ],
+          "hand": [
+            14,
+            9,
+            20043
+          ],
+          "maxMana": 3,
+          "mana": 3,
+          "turnsStarted": 0,
+          "bbsUsed": false,
+          "wins": 0,
+          "turnTriggers": {}
+        }
+      ],
+      "units": [
+        {
+          "unitId": 1,
+          "cardId": 1,
+          "owner": 0,
+          "x": 1,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 25,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 2,
+          "cardId": 14,
+          "owner": 0,
+          "x": 2,
+          "y": 2,
+          "attack": 1,
+          "maxHealth": 4,
+          "health": 4,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 3,
+          "cardId": 9,
+          "owner": 0,
+          "x": 1,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 4,
+          "cardId": 23,
+          "owner": 1,
+          "x": 7,
+          "y": 2,
+          "attack": 2,
+          "maxHealth": 25,
+          "health": 18,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 5,
+          "cardId": 14,
+          "owner": 1,
+          "x": 6,
+          "y": 2,
+          "attack": 1,
+          "maxHealth": 4,
+          "health": 4,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        },
+        {
+          "unitId": 6,
+          "cardId": 9,
+          "owner": 1,
+          "x": 7,
+          "y": 3,
+          "attack": 2,
+          "maxHealth": 3,
+          "health": 3,
+          "attackBuff": 0,
+          "healthBuff": 0,
+          "moved": false,
+          "attacked": false,
+          "summonedThisTurn": false,
+          "token": false,
+          "reborn": false
+        }
+      ],
+      "manaTiles": [],
+      "outposts": {},
+      "creepCells": {},
+      "mulligan": [],
+      "log": [
+        "远征开始：边哨初战。击败敌方主将。"
+      ],
+      "winner": null,
+      "result": null,
+      "resultReason": null,
+      "selectedUnitId": null,
+      "lastAction": null,
+      "playtimeSeconds": 0
+    }
+  ],
+  "content": {
+    "cardIds": [
+      1,
+      9,
+      11,
+      14,
+      15,
+      16,
+      17,
+      23,
+      101,
+      108,
+      109,
+      110,
+      111,
+      115,
+      116,
+      123,
+      201,
+      209,
+      211,
+      213,
+      214,
+      215,
+      216,
+      217,
+      223,
+      225,
+      301,
+      308,
+      309,
+      310,
+      311,
+      315,
+      316,
+      317,
+      323,
+      401,
+      402,
+      404,
+      406,
+      410,
+      411,
+      412,
+      413,
+      418,
+      501,
+      503,
+      504,
+      505,
+      506,
+      511,
+      513,
+      525,
+      526,
+      527,
+      20043,
+      20044,
+      20052,
+      20066,
+      20068,
+      20072,
+      20081,
+      20086,
+      20095,
+      20116,
+      20117,
+      20139,
+      20149,
+      20151,
+      20174
+    ],
+    "factions": [
+      {
+        "id": 1,
+        "unitIds": [
+          14,
+          9,
+          15,
+          16,
+          11,
+          17
+        ],
+        "defaultSquad": [
+          14,
+          9,
+          11
+        ]
+      },
+      {
+        "id": 2,
+        "unitIds": [
+          110,
+          115,
+          109,
+          108,
+          111,
+          116
+        ],
+        "defaultSquad": [
+          110,
+          115,
+          109
+        ]
+      },
+      {
+        "id": 3,
+        "unitIds": [
+          213,
+          211,
+          214,
+          209,
+          215,
+          216
+        ],
+        "defaultSquad": [
+          213,
+          211,
+          214
+        ]
+      },
+      {
+        "id": 4,
+        "unitIds": [
+          308,
+          317,
+          311,
+          309,
+          310,
+          316
+        ],
+        "defaultSquad": [
+          308,
+          317,
+          311
+        ]
+      },
+      {
+        "id": 5,
+        "unitIds": [
+          406,
+          412,
+          410,
+          402,
+          404,
+          413
+        ],
+        "defaultSquad": [
+          406,
+          412,
+          410
+        ]
+      },
+      {
+        "id": 6,
+        "unitIds": [
+          505,
+          506,
+          503,
+          526,
+          511,
+          513
+        ],
+        "defaultSquad": [
+          505,
+          506,
+          503
+        ]
+      }
+    ],
+    "trainingCosts": [
+      40,
+      70,
+      110,
+      160
+    ],
+    "levels": [
+      {
+        "id": "border-01",
+        "reward": {
+          "first": 100,
+          "repeat": 25
+        },
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 2,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 10
+      },
+      {
+        "id": "border-02",
+        "reward": {
+          "first": 110,
+          "repeat": 30
+        },
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 1,
+            "type": "rough"
+          },
+          {
+            "x": 4,
+            "y": 3,
+            "type": "rough"
+          },
+          {
+            "x": 4,
+            "y": 2,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 11
+      },
+      {
+        "id": "border-03",
+        "reward": {
+          "first": 120,
+          "repeat": 35
+        },
+        "columns": 9,
+        "rows": 5,
+        "tiles": [
+          {
+            "x": 0,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 0,
+            "y": 3,
+            "type": "wall"
+          },
+          {
+            "x": 3,
+            "y": 2,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "survive",
+          "rounds": 7
+        },
+        "turnLimit": 7
+      },
+      {
+        "id": "road-01",
+        "reward": {
+          "first": 130,
+          "repeat": 40
+        },
+        "columns": 11,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 5,
+            "y": 0,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 6,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 13
+      },
+      {
+        "id": "road-02",
+        "reward": {
+          "first": 140,
+          "repeat": 45
+        },
+        "columns": 11,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 4,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 13
+      },
+      {
+        "id": "road-03",
+        "reward": {
+          "first": 150,
+          "repeat": 45
+        },
+        "columns": 11,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 5,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 5,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 14
+      },
+      {
+        "id": "banners-01",
+        "reward": {
+          "first": 160,
+          "repeat": 50
+        },
+        "columns": 13,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 1,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 5,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 3,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 15
+      },
+      {
+        "id": "banners-02",
+        "reward": {
+          "first": 170,
+          "repeat": 55
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 0,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 8,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 7,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 4,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 16
+      },
+      {
+        "id": "banners-03",
+        "reward": {
+          "first": 180,
+          "repeat": 60
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 3,
+            "y": 2,
+            "type": "wall"
+          },
+          {
+            "x": 3,
+            "y": 6,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 3,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 5,
+            "type": "rough"
+          },
+          {
+            "x": 4,
+            "y": 4,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "survive",
+          "rounds": 10
+        },
+        "turnLimit": 10
+      },
+      {
+        "id": "sand-01",
+        "reward": {
+          "first": 190,
+          "repeat": 60
+        },
+        "columns": 11,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 5,
+            "y": 3,
+            "type": "outpost"
+          },
+          {
+            "x": 5,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 4,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 6,
+            "y": 4,
+            "type": "rough"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 14
+      },
+      {
+        "id": "sand-02",
+        "reward": {
+          "first": 200,
+          "repeat": 60
+        },
+        "columns": 13,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 1,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 5,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 3,
+            "type": "wall"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 16
+      },
+      {
+        "id": "sand-03",
+        "reward": {
+          "first": 210,
+          "repeat": 60
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 4,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 7,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "rough"
+          },
+          {
+            "x": 7,
+            "y": 5,
+            "type": "rough"
+          },
+          {
+            "x": 3,
+            "y": 2,
+            "type": "wall"
+          },
+          {
+            "x": 3,
+            "y": 6,
+            "type": "wall"
+          }
+        ],
+        "objective": {
+          "type": "survive",
+          "rounds": 10
+        },
+        "turnLimit": 10
+      },
+      {
+        "id": "shadow-01",
+        "reward": {
+          "first": 220,
+          "repeat": 65
+        },
+        "columns": 7,
+        "rows": 11,
+        "tiles": [
+          {
+            "x": 3,
+            "y": 5,
+            "type": "outpost"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 1,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 4,
+            "y": 4,
+            "type": "rough"
+          },
+          {
+            "x": 2,
+            "y": 6,
+            "type": "rough"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 15
+      },
+      {
+        "id": "shadow-02",
+        "reward": {
+          "first": 230,
+          "repeat": 65
+        },
+        "columns": 13,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 4,
+            "y": 0,
+            "type": "wall"
+          },
+          {
+            "x": 4,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 4,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 4,
+            "y": 6,
+            "type": "wall"
+          },
+          {
+            "x": 8,
+            "y": 0,
+            "type": "wall"
+          },
+          {
+            "x": 8,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 8,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 8,
+            "y": 6,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 3,
+            "type": "outpost"
+          },
+          {
+            "x": 5,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 7,
+            "y": 4,
+            "type": "rough"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 17
+      },
+      {
+        "id": "shadow-03",
+        "reward": {
+          "first": 240,
+          "repeat": 65
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 4,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 7,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "rough"
+          },
+          {
+            "x": 7,
+            "y": 5,
+            "type": "rough"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 18
+      },
+      {
+        "id": "frost-01",
+        "reward": {
+          "first": 250,
+          "repeat": 70
+        },
+        "columns": 13,
+        "rows": 7,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 3,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 7,
+            "y": 2,
+            "type": "rough"
+          },
+          {
+            "x": 5,
+            "y": 4,
+            "type": "rough"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 17
+      },
+      {
+        "id": "frost-02",
+        "reward": {
+          "first": 260,
+          "repeat": 70
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 5,
+            "y": 2,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 5,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 6,
+            "type": "wall"
+          },
+          {
+            "x": 3,
+            "y": 4,
+            "type": "outpost"
+          },
+          {
+            "x": 7,
+            "y": 1,
+            "type": "outpost"
+          },
+          {
+            "x": 7,
+            "y": 7,
+            "type": "outpost"
+          }
+        ],
+        "objective": {
+          "type": "eliminate"
+        },
+        "turnLimit": 18
+      },
+      {
+        "id": "frost-03",
+        "reward": {
+          "first": 270,
+          "repeat": 70
+        },
+        "columns": 13,
+        "rows": 9,
+        "tiles": [
+          {
+            "x": 6,
+            "y": 4,
+            "type": "outpost"
+          },
+          {
+            "x": 6,
+            "y": 1,
+            "type": "wall"
+          },
+          {
+            "x": 6,
+            "y": 7,
+            "type": "wall"
+          },
+          {
+            "x": 5,
+            "y": 3,
+            "type": "rough"
+          },
+          {
+            "x": 7,
+            "y": 5,
+            "type": "rough"
+          },
+          {
+            "x": 3,
+            "y": 2,
+            "type": "wall"
+          },
+          {
+            "x": 3,
+            "y": 6,
+            "type": "wall"
+          }
+        ],
+        "objective": {
+          "type": "survive",
+          "rounds": 12
+        },
+        "turnLimit": 12
+      }
+    ]
+  }
+}

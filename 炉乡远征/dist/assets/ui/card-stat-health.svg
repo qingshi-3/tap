@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="64" viewBox="0 0 128 64">
+  <defs>
+    <linearGradient id="steel" x2="0" y2="1"><stop stop-color="#d3d9d7"/><stop offset=".18" stop-color="#737e88"/><stop offset=".55" stop-color="#283440"/><stop offset="1" stop-color="#101923"/></linearGradient>
+    <linearGradient id="rubyMount" x2="0" y2="1"><stop stop-color="#edb2a1"/><stop offset=".3" stop-color="#a95a53"/><stop offset="1" stop-color="#4f2530"/></linearGradient>
+    <linearGradient id="enamel" x2=".25" y2="1"><stop stop-color="#4a2931"/><stop offset=".45" stop-color="#28202b"/><stop offset="1" stop-color="#121b24"/></linearGradient>
+    <linearGradient id="ruby" x2=".5" y2="1"><stop stop-color="#ffaba1"/><stop offset=".35" stop-color="#ee5a61"/><stop offset=".7" stop-color="#b52546"/><stop offset="1" stop-color="#651b37"/></linearGradient>
+  </defs>
+  <path fill="#070e17" d="M11 4h105l12 12v35l-11 13H10L0 53V15Z"/>
+  <path fill="url(#steel)" d="M12 0h104l12 12v36l-12 12H12L0 48V12Z"/>
+  <path fill="#edf2df" opacity=".65" d="M12 0h104l7 7H13L5 15V8Z"/>
+  <path fill="url(#rubyMount)" d="M15 5h98l10 10v29l-10 11H15L5 45V15Z"/>
+  <path fill="url(#enamel)" d="M17 9h94l8 8v25l-9 9H17l-8-8V17Z"/>
+  <path fill="#c57f85" opacity=".18" d="M18 10h92l8 8v9H9V18Z"/>
+  <path fill="#0a121c" opacity=".8" d="M51 10h3v40h-3Z"/>
+  <path fill="#a2646a" opacity=".5" d="M54 10h1v40h-1Z"/>
+  <path fill="#48192d" d="m30 18 7-6 9 2 5 9-2 11-19 18L11 34 9 23l5-9 9-2Z"/>
+  <path fill="url(#ruby)" d="m30 21 7-6 8 2 4 7-2 9-17 16-17-16-2-9 4-7 8-2Z"/>
+  <path fill="#ffd0bd" d="m15 19 8-2 5 5-10 6-5-4Z"/>
+  <path fill="#ff9a99" d="m32 23 6-6 7 2 2 5-8 4Z"/>
+  <path fill="#f46b78" d="m18 28 12-5 9 5-9 18Z"/>
+  <path fill="#9d2547" d="m13 27 5 1 12 18-15-14Z"/>
+  <path fill="#771d3e" d="m39 28 8-2-2 7-15 13Z"/>
+  <path fill="#fff1d7" d="m17 19 5-1 2 2-6 3Z"/>
+  <path fill="#c7d1d3" d="M5 19h3v20H5ZM120 19h3v20h-3Z" opacity=".45"/>
+</svg>

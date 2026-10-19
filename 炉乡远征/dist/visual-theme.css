@@ -1,0 +1,157 @@
+/* Shared material surfaces. Geometry stays with each screen's layout stylesheet. */
+:root {
+  --ui-slate: url('./assets/ui/generated/slate-panel.webp');
+  --button-face:linear-gradient(#32566bb0,#142d41d5);
+  --button-edge:url('./assets/ui/button-family/slate.svg');
+  --ui-paper: #e6eff3;
+  --ui-muted: #a8bdc8;
+}
+
+/* Approved button family: filled stone faces with small metal cut corners.
+   Meaning is assigned by actions, not by the broad legacy primary class. */
+:root :is(.button,.game-button,.expedition-primary,.menu-play,.menu-destination,
+ .menu-utility,.menu-other-resume,.expedition-menu-return,.inline-return,.inline-commander,
+ .prep-commander,.mission-adjust,.training-upgrade,.hero-dialog-close,.recruitment-button,
+ .resource-rewards-dialog button,.reward-presentation-continue,.deck-editor-actions button,
+ .expedition-save,.trial-save,.card-dialog-close,.keyword-close,.menu-hero-switch,
+ .deck-card-controls button,.icon-button,.game-arrow,.game-close,.inspect-close,
+ .inventory-tabs button,.codex-types button,.collection-scope button,.trial-group,
+ .codex-filters button,.expedition-codex-filters button,.recruitment-tabs button,
+ .specialization-option,.training-specialization,.spell-mode-option,.specialization-choices button,
+ .spell-mode-choices button,.cloud-dialog button,.audio-settings button,
+ #replace-hand-card,#map-open,#map-close,#objective-open,#objective-close,#inspect-close,#art-retry) {
+ min-height:44px; border:0; border-radius:0;
+ color:#edf4f6; filter:none; opacity:1;
+ background:var(--button-edge) center / 100% 100% no-repeat,
+  var(--button-face),var(--ui-slate) center / 240px;
+ clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+ box-shadow:inset 0 -4px #06111b80; text-shadow:0 1px 2px #06101b;
+ transition:filter .1s ease,transform .1s ease;
+}
+/* Commit decisions and paid growth share gold; navigation remains quiet. */
+:root :is(.opening-confirm,.prep-start,.mission-actions [data-action="adjust-loadout"],.training-upgrade,
+ .reward-presentation-continue,.chapter-enter,#new-game,#end-turn,#inspect-cast,
+ #next-level,#play-again,#cloud-choice-confirm,[data-draw-action="confirm"],
+ [data-recruitment-action="draw"],[data-recruitment-action="synthesize"]) {
+ --button-face:linear-gradient(#e4a92ade,#a66b13eb);
+ --button-edge:url('./assets/ui/button-family/gold.svg');
+ color:#fff4d7; font-weight:600; text-shadow:0 1px 2px #51300b;
+}
+/* Replacing an unfinished battle is the only destructive confirmation. */
+:root #confirm-screen[data-intent="replace-battle"] #confirm-accept {
+ --button-face:linear-gradient(#884951e6,#512b39ef);
+ --button-edge:url('./assets/ui/button-family/red.svg'); color:#fff0eb;
+}
+:root :is(.inventory-tabs button,.codex-types button,.collection-scope button,.trial-group,
+ .codex-filters button,.expedition-codex-filters button,.recruitment-tabs button,
+ .specialization-choices button,.spell-mode-choices button)[aria-pressed="true"],
+:root :is(.codex-filters button,.trial-group).is-active {
+ --button-face:linear-gradient(#258399dc,#125162ea);
+ --button-edge:url('./assets/ui/button-family/cyan.svg');
+ color:#f2fcff; box-shadow:inset 0 -4px #073b4baa; font-weight:600;
+}
+:root :is(.deck-card-controls button,.icon-button,.game-arrow,.game-close,
+ .inspect-close,#map-close,.audio-settings-close,.menu-music-toggle) {
+ padding:0; background-size:calc(100% - 6px) calc(100% - 6px),100% 100%,240px;
+}
+:root :is(button,select):disabled:not(#button-family-specificity) {
+ color:#aeb7bc; filter:grayscale(1) brightness(.8); cursor:default;
+ opacity:1; text-shadow:none;
+}
+:root button:disabled:not(#button-family-specificity) {
+ --button-face:linear-gradient(#50565de8,#30383eec);
+ --button-edge:url('./assets/ui/button-family/disabled.svg');
+}
+:root :is(button):active:not(:disabled):not(#button-family-specificity) {filter:brightness(.78);transform:translateY(1px)}
+@media(hover:hover){:root :is(button):hover:not(:disabled):not(#button-family-specificity){filter:brightness(1.12)}}
+:root :is(button,summary,select,input):focus-visible {
+ outline:2px solid #e5f5ff; outline-offset:-5px;
+}
+:root :is(.menu-faction,.hero-faction,.codex-faction-button) {
+ border:0; border-radius:2px;
+ background:linear-gradient(#091c3355,#0a1b2b99),var(--ui-slate) center / 240px;
+ box-shadow:none;
+}
+:root :is(.menu-faction,.hero-faction,.codex-faction-button)[aria-pressed="true"],
+:root :is(.menu-faction,.hero-faction).is-selected {
+ background-image:linear-gradient(#28778a99,#164b6066),var(--ui-slate);
+ box-shadow:inset 0 -2px #b4d9e5;
+}
+
+/* Readable parchment-like slate interiors, with art remaining on cards and scenes. */
+:root :is(.mission-preview,.deck-editor,.recruitment-dialog,.resource-rewards-dialog,
+  .cloud-dialog,.hero-dialog,.objective-dialog,.game-dialog,.result-panel,.confirm-panel,
+  .expedition-card-dialog:not(.is-codex),.map-panel,.unit-inspect,.scene-loading-panel,.keyword-explanation) {
+  color:var(--ui-paper); border:0; border-radius:3px;
+  background:linear-gradient(115deg,#09142080,#06101cbb),var(--ui-slate) center / 380px;
+  box-shadow:0 12px 35px #0007,inset 0 1px #b8d0df30,inset 0 -1px #0006;
+}
+:root :is(.resource-rewards-options article,.recruitment-targets button,.hero-choice,
+  .cloud-slot,.deck-card-row,.expedition-level) {
+  border:0; border-radius:2px;
+  background:linear-gradient(90deg,#243d4d90,#101e2b80),var(--ui-slate) center / 280px;
+  box-shadow:inset 0 1px #b4cdd017;
+}
+:root :is(.recruitment-targets button,.hero-choice)[aria-pressed="true"],
+:root :is(.hero-choice,.expedition-level).is-selected {
+  background-image:linear-gradient(90deg,#416176b0,#152d4190),var(--ui-slate);
+  box-shadow:inset 3px 0 #a7c8d7;
+}
+:root :is(.recruitment-pool,.recruitment-transfer-target,.codex-faction,
+  .cloud-dialog input,.cloud-dialog textarea) {
+  color:var(--ui-paper); border:0; border-radius:2px;
+  background:linear-gradient(#07121b99,#13293988),var(--ui-slate) center / 260px;
+  box-shadow:inset 0 2px 4px #0008;
+}
+:root :is(.recruitment-pool,.recruitment-transfer-target,.codex-faction) option { background:#15293a; }
+:root .reward-presentation {
+  border-radius:4px;
+  background:radial-gradient(ellipse at 50% 42%,rgba(var(--reward-color),.16),transparent 68%),
+    linear-gradient(#0c182570,#0a1422b0),var(--ui-slate) center / 320px;
+}
+:root .menu-resources { background:linear-gradient(#0c1a2899,#0c1a2899),var(--ui-slate) center / 320px; border-radius:2px; }
+:root .expedition-ui:not([data-page="menu"])::before {
+  background:linear-gradient(105deg,#061329da,#102d4999 58%,#07152dd9),var(--ui-slate) center / 600px;
+}
+
+/* A modal must fit the safe rectangle, not only receive a max-height from it. */
+:root .expedition-card-dialog:not(.is-codex)[open] {
+  height:min(540px,calc(100dvh - max(var(--ui-top),var(--host-capsule-height)) - var(--ui-bottom)));
+  max-height:calc(100dvh - max(var(--ui-top),var(--host-capsule-height)) - var(--ui-bottom));
+}
+:root .expedition-card-dialog .card-dialog-close { top:2px; right:2px; }
+:root .trial-groups { padding-right:max(0px,calc(var(--host-capsule-width) - var(--safe-right))); }
+@media(prefers-reduced-motion:reduce) {
+  :root :is(button,summary,select) { transition:none; }
+}
+
+/* Keep the two home journeys warm, with the same compact geometry. */
+:root #expedition-home :is(.faction-menu .menu-play,.faction-menu .menu-trials) {
+ --button-face:linear-gradient(#e4a92ade,#a66b13eb);
+ --button-edge:url('./assets/ui/button-family/gold.svg');
+ color:#fff3cf; font-weight:600; filter:none;
+}
+:root #expedition-home :is(.faction-menu .menu-play,.faction-menu .menu-trials)::before {content:none}
+:root #expedition-home :is(.faction-menu .menu-play,.faction-menu .menu-trials):disabled {
+ --button-face:linear-gradient(#50565de8,#30383eec);
+ --button-edge:url('./assets/ui/button-family/disabled.svg'); color:#aeb7bc;
+}
+
+/* These close controls used to hide their text behind an image-only face. */
+:root .expedition-card-dialog .card-dialog-close {text-indent:0;font-size:13px;color:#edf4f6;overflow:visible}
+
+:root #leave-match {font-size:24px;text-indent:0;line-height:1}
+:root .game-close {font-size:26px;text-indent:0;line-height:1}
+:root :is(.deck-card-controls button,.icon-button,.game-arrow,.game-close,.inspect-close,#map-close,.menu-music-toggle) {min-width:44px}
+
+:root #leave-match {font-size:0}
+:root #leave-match::after {content:'';display:block;width:24px;height:24px;margin:auto;background:url('./assets/ui/button-family/back.svg') center/contain no-repeat}
+
+:root #confirm-screen[data-intent] #confirm-accept {
+ background:var(--button-edge) center/100% 100% no-repeat,var(--button-face),var(--ui-slate) center/240px;
+ color:#edf4f6;border-radius:0;text-shadow:0 1px 2px #06101b;
+}
+:root .deck-card-row,:root .deck-card-row>.deck-card-detail {min-height:44px}
+
+/* Two 44px controls and their count must fit the short-screen row. */
+:root .deck-card-row {grid-template-columns:minmax(0,1fr) 114px}

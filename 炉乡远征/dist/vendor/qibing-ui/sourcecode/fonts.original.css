@@ -1,0 +1,4 @@
+/* 由 scripts/subset-fonts.mjs 生成，勿手改 */
+@font-face{font-family:'Noto Sans SC';font-style:normal;font-display:swap;font-weight:400;src:url(./noto-sc-400.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans SC';font-style:normal;font-display:swap;font-weight:700;src:url(./noto-sc-700.woff2) format('woff2');}
+@font-face{font-family:'Noto Sans SC';font-style:normal;font-display:swap;font-weight:900;src:url(./noto-sc-900.woff2) format('woff2');}

@@ -1,0 +1,88 @@
+{
+  "typescript": "5.9.3",
+  "output": "pixel.js",
+  "target": "ES2020 browser ESM",
+  "entries": [
+    {
+      "source": "games/zhenlie-demo/source/src/ui/pixel.ts",
+      "target": "sourcecode/pixel.original.ts",
+      "sha256": "5817928a769366670093e2c451efab39589b399a19ca1aaaf2cd1c8dc24ec293",
+      "bytes": 11391
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/ui/unitArt.ts",
+      "excerpt": "sourcecode/mix.original.ts",
+      "sha256": "ed2d1902c26ac1c79ba2574697c59fc72ac1157e7e23dd398ff4e220681174a8",
+      "bytes": 3265
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/core/data.ts",
+      "excerpt": "sourcecode/faction-palette.original.txt",
+      "sha256": "57cbb74e9a7aca70df6987d54432b47be8d714f006280b64229b8d5ae596f89b",
+      "bytes": 12272
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/fonts/fonts.css",
+      "target": "sourcecode/fonts.original.css",
+      "sha256": "01d66ca6986a172ea07456af03fc6bbada0c8abbc6d054bf31abda2d827002b0",
+      "bytes": 465
+    },
+    {
+      "source": "games/zhenlie-demo/web-dist/assets/cinzel-latin-700-normal-C-gK7hA8.woff",
+      "target": "fonts/cinzel-latin-700-normal-C-gK7hA8.woff",
+      "sha256": "83ea41e439a253b4d436cc895d07a0d47f714c4816a23e86df35c442eddffafb",
+      "bytes": 17524
+    },
+    {
+      "source": "games/zhenlie-demo/web-dist/assets/cinzel-latin-700-normal-Dkw14w9r.woff2",
+      "target": "fonts/cinzel-latin-700-normal-Dkw14w9r.woff2",
+      "sha256": "8efa224fe70fef188a39c095e218b81fd31061809f2752537e33a9ec7b9c2263",
+      "bytes": 15184
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/fonts/noto-sc-400.woff2",
+      "target": "fonts/noto-sc-400.woff2",
+      "sha256": "76a6d14d3d899045bbed9486b92ec25cefa565c6d60fa3112bbcd32d1f3caa8c",
+      "bytes": 108112
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/fonts/noto-sc-700.woff2",
+      "target": "fonts/noto-sc-700.woff2",
+      "sha256": "b7565f048e3b254802d94bed847a970ffbbb84f710c42bf84908e759363ebcc4",
+      "bytes": 110296
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/fonts/noto-sc-900.woff2",
+      "target": "fonts/noto-sc-900.woff2",
+      "sha256": "987d09ce1087cad47ac62cefdd516ce15979de18d603e5020f10edabefd40b89",
+      "bytes": 109864
+    },
+    {
+      "source": "games/zhenlie-demo/web-dist/assets/russo-one-latin-400-normal-BfOuQF9V.woff2",
+      "target": "fonts/russo-one-latin-400-normal-BfOuQF9V.woff2",
+      "sha256": "8a6b754cd3bc5ad2bf0d0308bbd9c1b7f6b4ecdd915982ffedf50ed18fed4a46",
+      "bytes": 7344
+    },
+    {
+      "source": "games/zhenlie-demo/web-dist/assets/russo-one-latin-400-normal-CosRecV9.woff",
+      "target": "fonts/russo-one-latin-400-normal-CosRecV9.woff",
+      "sha256": "e71371cdf766e09640a98917550c8b1517236ea897ac6b0fbbf5d30886344100",
+      "bytes": 10128
+    },
+    {
+      "source": "games/zhenlie-demo/source/src/ui/audio.ts",
+      "target": "sourcecode/audio.source.ts",
+      "adapter": "sourcecode/audio.adapter.ts",
+      "output": "audio.js",
+      "sha256": "7c0188d08dc118d9dd1c38b3b084e25459e76a9d91152d0d68c8805da4e6fab8",
+      "bytes": 4559,
+      "differences": [
+        "Initial muted=true; host preferences inject via setMuted(boolean).",
+        "Remove zl_muted localStorage read/write; vendor module has no persistence or event listeners.",
+        "Add setVolume(number), clamp to 0..1, multiply original 0.55 master gain by host volume; tone/noise/sfx synthesis remains unchanged."
+      ],
+      "adapterSha256": "4253c1c565766bd1b37275345550298265b699d897175076d3e27d06cbb84cc1",
+      "outputSha256": "142a3c74824ff9af9962c382c6a98028827e49e7c6c13d673353fb2dc06ac8e8"
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+/* Reserve space for the complete portrait frame, so the dock never intercepts
+   the lowest playable row. The command/end-turn lane keeps its own geometry. */
+.match {
+  grid-template-rows:calc(55px + var(--safe-top)) minmax(0,1fr) 114px calc(46px + var(--safe-bottom));
+}
+.match .hand-zone {
+  position:absolute;
+  inset:auto 0 0;
+  grid-row:auto;
+  height:calc(160px + var(--safe-bottom));
+  padding:0 max(calc(180px + max(10px,var(--ui-right))),calc(50% - 440px)) 0 max(var(--ui-left),calc(50% - 610px));
+  display:block;
+  pointer-events:none;
+}
+.match[data-mode="expedition"] .hand-zone {
+  padding-left:max(var(--ui-left),calc(50% - 610px));
+}
+.match .hand-caption {
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+}
+.match .hand {
+  height:100%;
+  margin:0;
+  padding:18px 8px calc(10px + var(--safe-bottom));
+  gap:8px;
+  align-items:flex-end;
+  pointer-events:auto;
+}
+.match[data-mode="expedition"].has-map-navigation .hand-zone {
+  padding-left:max(calc(72px + max(12px,var(--ui-left))),calc(50% - 528px));
+}
+@media(max-height:450px), (max-width:720px) {
+  .match { grid-template-rows:calc(49px + var(--safe-top)) minmax(0,1fr) 118px calc(42px + var(--safe-bottom)); }
+  .match .hand-zone { padding-right:calc(164px + max(10px,var(--ui-right))); }
+}
+@media(max-height:360px) {
+  .match { grid-template-rows:calc(44px + var(--safe-top)) minmax(0,1fr) 108px calc(42px + var(--safe-bottom)); }
+  .match .hand-zone { height:calc(150px + var(--safe-bottom)); }
+}
+@media(max-width:600px) {
+  .match .hand-zone { padding-right:calc(160px + max(6px,var(--ui-right))); }
+}
+
+.match .hand.is-stacked { gap:0; }
+
+.match .hand-count { position:absolute; top:0; left:max(calc(8px + var(--ui-left)),calc(50% - 602px)); z-index:3; padding:1px 6px; border-radius:3px; background:#122635d9; color:#cfdee3; font:500 10px/14px var(--font-ui); white-space:nowrap; pointer-events:none; }
+.match .hand-count.is-full { color:#f3dba0; }
+
+/* One screen-sized battlefield beneath floating HUDs. The row remains in the
+   layout for gesture cancellation, but must never clip standing sprites. */
+.match .battle-row { position:static; padding-top:0; pointer-events:none; }
+.match .board-wrap,
+.match[data-mode="expedition"] .board-wrap { position:absolute; inset:0; width:100%; height:100%; pointer-events:auto; }
+.match .general-panel,
+.match[data-mode="expedition"] .general-panel { top:calc(55px + var(--safe-top)); }
+.match .match-topbar { pointer-events:none; }
+.match .match-topbar button { pointer-events:auto; }
+.match .hand { pointer-events:none; }
+.match .hand-card { pointer-events:auto; }
+@media(max-height:450px), (max-width:720px) {
+  .match .general-panel,
+  .match[data-mode="expedition"] .general-panel { top:max(52px,calc(49px + var(--safe-top))); }
+}
+@media(max-height:360px) {
+  .match .general-panel,
+  .match[data-mode="expedition"] .general-panel { top:max(52px,calc(44px + var(--safe-top))); }
+}
+.match[data-mode="expedition"].has-map-navigation .hand-count { left:max(calc(80px + max(12px,var(--ui-left))),calc(50% - 520px)); }
+
+/* The button owns input; the collection component owns every card face. */
+.match .hand-zone { height:calc(120px + var(--safe-bottom)); }
+.match .hand { touch-action:none; pointer-events:auto; padding-top:12px; }
+.match .hand-card,.hand-drag-ghost .hand-card {
+  display:block; width:76px; height:auto; aspect-ratio:224/296;
+  min-width:44px; min-height:44px; padding:0; border:0; border-radius:0;
+  background:none; isolation:isolate;
+}
+.match .hand-card > .game-card,.hand-drag-ghost .hand-card > .game-card { width:100%; height:100%; }
+/* Rule text is read in inspection. Keep the original name and stat sockets. */
+.match .hand .game-card-description,.match .hand .game-card-type,
+.match .hand .battle-card-level,.match .hand .battle-card-rarity { display:none; }
+.match .hand .game-card-name { font-size:10px; line-height:1.2; }
+.match .hand .game-card-caption { left:4%; width:92%; }
+.match .hand .game-card-stats { font-size:13px; }
+.match .hand-card.aiming { transform:none; filter:brightness(1.15) drop-shadow(0 0 5px #a8e7fa); }
+.match .hand-card:focus-visible { outline:2px solid #c2e8ff; outline-offset:2px; }
+.hand-cancel-zone { position:fixed; inset:auto 0 0; z-index:95; background:rgba(176,35,44,.23); border-top:1px solid #f17979; color:#ffe3d9; text-align:center; padding-top:5px; font-size:12px; pointer-events:none; }
+.hand-cancel-zone.is-active { background:rgba(196,32,43,.46); }
+.hand-drag-ghost { position:fixed; z-index:96; pointer-events:none; transform:translate(-50%,-50%); }
+.hand-drag-ghost .hand-card { width:84px; transform:none; opacity:.9; }
+.hand-drag-ghost.is-invalid { opacity:.45; }
+.hand-cancel-zone[hidden],.hand-drag-ghost[hidden] { display:none; }
+.match .move-cancel-zone { height:auto; background:rgba(176,35,44,.23); border-top:1px solid #f17979; }
+.match .move-cancel-zone.active { background:rgba(196,32,43,.46); }
+.hand-drag-ghost.is-ready { filter:drop-shadow(0 0 7px #a9f5bd); }
+.match:has(#hand[data-dragging="true"]) .draw-hand-controls,.match:has(#hand[data-dragging="true"]) .battle-tips { visibility:hidden; }
+@media(max-height:360px) {
+  .match .hand-zone { height:calc(108px + var(--safe-bottom)); }
+  .match .hand-card { width:68px; }
+}
+@media(prefers-reduced-motion:reduce) { .hand-drag-ghost,.hand-card { transition:none!important; animation:none!important; } }
+
+/* At hand scale the same plates keep a readable height rather than shrinking
+   to the large card's percentage strip. Leave the name clear above them. */
+.match .hand .game-card-stats,
+.hand-drag-ghost .game-card-stats {
+  top:60%; left:3%; right:3%; height:17px; font-size:13px;
+}
+.match .hand .game-card-stats span,
+.hand-drag-ghost .game-card-stats span { width:47%; }

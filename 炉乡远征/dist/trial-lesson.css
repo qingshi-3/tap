@@ -1,0 +1,21 @@
+/* Trial instructions share the battle's authored controls and remain optional. */
+#trial-lesson { text-align: left; }
+#trial-lesson-summary { color: #f0d67f; font-size: 13px; line-height: 1.5; margin: 8px 0; }
+#trial-lesson-details, #trial-result-guide { width: 100%; text-align: left; color: #d7e1e6; font-size: 13px; line-height: 1.6; }
+#trial-lesson-details summary, #trial-result-guide summary { min-height: 44px; display: list-item; align-content: center; cursor: pointer; color: #9edeea; }
+#trial-lesson-details summary:focus-visible, #trial-result-guide summary:focus-visible { outline: 2px solid #f0d67f; outline-offset: 2px; }
+#trial-lesson-steps { margin: 0 0 12px; padding-left: 22px; }
+#trial-lesson-steps li + li { margin-top: 6px; }
+.objective-dialog:has(#trial-lesson:not([hidden])) { width: min(540px, calc(100vw - var(--safe-left) - var(--safe-right) - 24px)); overscroll-behavior: contain; }
+.objective-dialog:has(#trial-lesson:not([hidden])) > #objective-close { position: sticky; bottom: -1px; margin-top: 10px; }
+#match[data-mode="challenge"] .result-panel { max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - 24px); overflow-y: auto; overscroll-behavior: contain; }
+#match[data-mode="challenge"] .result-panel > * { flex-shrink: 0; }
+#trial-result-guide { grid-column: 1 / -1; }
+#trial-result-guide #trial-result-solution { max-height: none; padding: 0 6px 8px; font-size: 14px; line-height: 1.5; }
+#match[data-mode="challenge"] .result-panel > #result-copy { font-size: 14px; }
+#match[data-mode="challenge"] .result-panel > #result-progress { font-size: 12px; }
+@media (max-height: 420px) {
+  #match[data-mode="challenge"] .result-panel { padding: 12px 20px; gap: 5px; }
+  #match[data-mode="challenge"] .result-panel .brand-kicker { margin: 0; }
+  #trial-lesson-steps { font-size: 12px; }
+}
