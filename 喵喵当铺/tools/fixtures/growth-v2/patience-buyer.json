@@ -1,0 +1,130 @@
+{
+  "v": 2,
+  "day": 3,
+  "money": 840,
+  "uid": 27,
+  "sign": "warm",
+  "win": [],
+  "filter": 10,
+  "ice": 0,
+  "fakeCash": 0,
+  "shelf": [
+    {
+      "uid": 26,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 3,
+      "lab": null,
+      "gk": true
+    }
+  ],
+  "hidden": [],
+  "shelfCap": 18,
+  "hiddenCap": 0,
+  "up": {
+    "purifier": true,
+    "brewery": true,
+    "tank": true,
+    "lens": false
+  },
+  "machines": {
+    "furnace": null,
+    "purifier": null,
+    "brewery": null,
+    "tank": null
+  },
+  "owned": {
+    "furnace": true,
+    "purifier": true,
+    "brewery": true,
+    "tank": true
+  },
+  "rep": {
+    "elite": 0,
+    "folk": 0,
+    "law": 0,
+    "gang": 0
+  },
+  "orders": [],
+  "queue": [
+    {
+      "kind": "buy",
+      "who": "worker",
+      "want": "drink",
+      "rich": 1.2,
+      "eye": 1,
+      "pat": 3
+    },
+    {
+      "kind": "sell",
+      "who": "granny",
+      "item": {
+        "uid": 25,
+        "id": "watch",
+        "fake": false,
+        "stolen": false,
+        "cost": 0,
+        "q": 1
+      },
+      "ask": 160,
+      "ask0": 160,
+      "res": 100,
+      "pat": 3,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": -1
+    }
+  ],
+  "qi": 0,
+  "news": "calm",
+  "nextNews": "glut",
+  "newsPeek": false,
+  "mkt": {
+    "food": 0.9203338982537389,
+    "drink": 1,
+    "material": 1.09992245240137,
+    "tech": 1.0672969846520575,
+    "treasure": 0.9605915602296591,
+    "toy": 0.9140048678498716,
+    "ban": 0.9998714019544424
+  },
+  "phase": "day",
+  "night": {
+    "crates": [
+      "heavy",
+      "smell",
+      "wet"
+    ],
+    "opened": [],
+    "extra": false,
+    "peek": false,
+    "free": 1
+  },
+  "rentDue": 0,
+  "graceUsed": false,
+  "rentPaid": 0,
+  "story": {
+    "lady": 0,
+    "pearl": null
+  },
+  "st": {
+    "buy": 0,
+    "sell": 0,
+    "fakeSpot": 0,
+    "fakeSold": 0,
+    "ingots": 0,
+    "waters": 0,
+    "clean": 0,
+    "orders": 0,
+    "peakWorth": 0,
+    "robo": 0,
+    "cooled": 0
+  },
+  "tutorial": true
+}

@@ -58,26 +58,38 @@ export function framesWithPrefix(frames, prefix = '') {
 
 export function drawAtlasFrame(ctx, image, frame, x, y, options = {}) {
   if (!ctx || !image || !frame) return;
-  if (options.tint) {
+  if (options.tint || options.resting) {
     const width = frame.canvasWidth || frame.sourceWidth || (frame.rotated ? frame.height : frame.width);
     const height = frame.canvasHeight || frame.sourceHeight || (frame.rotated ? frame.width : frame.height);
-    const key = `${tintId(image)}:${tintId(frame)}:${options.tint}:${options.tintAlpha ?? .32}`;
+    const key = `${tintId(image)}:${tintId(frame)}:${options.tint}:${options.tintAlpha ?? .32}:${Boolean(options.resting)}`;
     let isolated = tintCache.get(key)?.canvas;
     if (!isolated) {
-    isolated = document.createElement('canvas');
-    isolated.width = Math.max(1, Math.ceil(width)); isolated.height = Math.max(1, Math.ceil(height));
-    const isolatedContext = isolated.getContext('2d');
-    drawAtlasFrame(isolatedContext, image, frame, width / 2, height / 2, { scale: 1 });
-    const mask = document.createElement('canvas');
-    mask.width = isolated.width; mask.height = isolated.height;
-    mask.getContext('2d').drawImage(isolated, 0, 0);
-    isolatedContext.globalCompositeOperation = 'multiply';
-    isolatedContext.globalAlpha = options.tintAlpha ?? .32;
-    isolatedContext.fillStyle = options.tint;
-    isolatedContext.fillRect(0, 0, width, height);
-    isolatedContext.globalCompositeOperation = 'destination-in';
-    isolatedContext.globalAlpha = 1;
-    isolatedContext.drawImage(mask, 0, 0);
+      isolated = document.createElement('canvas');
+      isolated.width = Math.max(1, Math.ceil(width)); isolated.height = Math.max(1, Math.ceil(height));
+      const isolatedContext = isolated.getContext('2d');
+      drawAtlasFrame(isolatedContext, image, frame, width / 2, height / 2, { scale: 1 });
+      if (options.resting) {
+        // Canvas filters are missing in some mobile WebViews. Cache actual muted
+        // pixels so action availability has the same appearance on every host.
+        const pixels = isolatedContext.getImageData(0, 0, isolated.width, isolated.height);
+        for (let i = 0; i < pixels.data.length; i += 4) {
+          const gray = Math.round((pixels.data[i] * .2126 + pixels.data[i + 1] * .7152 + pixels.data[i + 2] * .0722) * .78);
+          pixels.data[i] = pixels.data[i + 1] = pixels.data[i + 2] = gray;
+        }
+        isolatedContext.putImageData(pixels, 0, 0);
+      }
+      if (options.tint) {
+      const mask = document.createElement('canvas');
+      mask.width = isolated.width; mask.height = isolated.height;
+      mask.getContext('2d').drawImage(isolated, 0, 0);
+      isolatedContext.globalCompositeOperation = 'multiply';
+      isolatedContext.globalAlpha = options.tintAlpha ?? .32;
+      isolatedContext.fillStyle = options.tint;
+      isolatedContext.fillRect(0, 0, width, height);
+      isolatedContext.globalCompositeOperation = 'destination-in';
+      isolatedContext.globalAlpha = 1;
+      isolatedContext.drawImage(mask, 0, 0);
+      }
       const bytes = isolated.width * isolated.height * 4;
       while (tintBytes + bytes > TINT_CACHE_BYTES && tintCache.size) {
         const oldest = tintCache.keys().next().value;
@@ -92,6 +104,7 @@ export function drawAtlasFrame(ctx, image, frame, x, y, options = {}) {
     ctx.translate(x, y); ctx.rotate((clean.rotation ?? 0) * Math.PI / 180);
     ctx.scale((clean.scaleX ?? clean.scale ?? 1) * (clean.flipX ? -1 : 1), (clean.scaleY ?? clean.scale ?? 1) * (clean.flipY ? -1 : 1));
     ctx.globalAlpha *= clean.alpha ?? 1;
+    if (options.resting) ctx.imageSmoothingEnabled = false;
     ctx.drawImage(isolated, -width / 2, -height / 2);
     ctx.restore();
     return;

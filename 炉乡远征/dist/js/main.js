@@ -28,6 +28,7 @@ import {
 } from './engine.js';
 import { createExpeditionMatch, boardOf, objectiveText, isTacticalMatch } from './engine.js';
 import * as battleRules from './engine.js';
+import { hasAvailablePlayerAction } from './battle-available-actions.js';
 import { EXPEDITION_LEVELS, trainingBonus, DEPLOYMENT_BUDGET, deploymentCost } from './expedition-data.js';
 import { ExpeditionProgress } from './expedition-progress.js';
 import { ExpeditionUI } from './expedition-ui.js';
@@ -1278,6 +1279,10 @@ function refreshMatch() {
   ui.endTurn.textContent = isMulligan ? '确认起手' : '结束回合';
   ui.endTurn.hidden = isMulligan;
   ui.endTurn.disabled = battleFlow.busy || drawController.busy || !(isMulligan || isHumanTurn);
+  const showEndTurnHint = isHumanTurn && !ui.match.hidden && !ui.objective.open
+    && !cardFollowup && !moveGesture?.dragging && !hasAvailablePlayerAction(match);
+  $('end-turn-hint').hidden = !showEndTurnHint;
+  ui.endTurn.parentElement.classList.toggle('has-end-turn-hint', showEndTurnHint);
   if (botFailure && match.phase === 'ai') { ui.endTurn.disabled = false; ui.endTurn.textContent = '继续敌军行动'; }
   ui.objectiveOpen.disabled = battleFlow.busy || drawController.busy || movementPlayback || actionPlayback || isOver || match.phase === 'ai';
   ui.objectiveOpen.textContent = '本局目标';

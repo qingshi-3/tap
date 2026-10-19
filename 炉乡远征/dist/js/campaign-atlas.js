@@ -123,6 +123,20 @@ export function buildCampaignAtlas(ui) {
   chapters.scrollLeft = ui.atlasScrollLeft || 0;
   chapters.addEventListener('scroll',() => { ui.atlasScrollLeft = chapters.scrollLeft; },{passive:true});
   const levels = node('div','atlas-levels'); levels.setAttribute('role','group'); levels.setAttribute('aria-label','关卡');
+  // Keep each miniature and its plaque together as one touch target. Preserve
+  // the chapter's position when selection rebuilds the view and summary.
+  ui.atlasLevelScroll ??= new Map();
+  levels.addEventListener('scroll',()=>ui.atlasLevelScroll.set(chapter.id,levels.scrollLeft),{passive:true});
+  requestAnimationFrame(()=>{
+    if (!levels.isConnected) return;
+    levels.scrollLeft=ui.atlasLevelScroll.get(chapter.id) || 0;
+    const selected=levels.querySelector('[aria-pressed="true"]');
+    if (selected) {
+      const item=selected.getBoundingClientRect(), rail=levels.getBoundingClientRect();
+      if (item.left<rail.left+2) levels.scrollLeft-=rail.left+2-item.left;
+      else if (item.right>rail.right-2) levels.scrollLeft+=item.right-(rail.right-2);
+    }
+  });
   for (const id of chapter.levelIds) {
     const level = EXPEDITION_LEVELS.find(l => l.id === id), unlocked = ui.progress.isUnlocked(id), selected = id === ui.levelId;
     const plan = getEnemyPlan(id,3,ui.faction.id), status = ui.completed(id) ? '已完成' : unlocked ? '可出征' : '未解锁';

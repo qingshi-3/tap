@@ -1,0 +1,12 @@
+{
+  "source": "output/miaomiao-pawnshop/hands-on-20261019/end-run.json",
+  "fixture": "hands-on-day17.json",
+  "sha256": "6b75b1b25e982b5ec9110f048f4d374e4a8de9d2c2c79c2654ac691f8f1938de",
+  "capturedRun": {
+    "version": 3,
+    "day": 17,
+    "money": 669
+  },
+  "provenance": "Byte-for-byte copy of the existing real hands-on play end-run; no values normalized or rewritten.",
+  "purpose": "Same-device update compatibility; original fixture remains immutable."
+}

@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>布局隔离验收</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#24150f}iframe{display:block;width:100%;height:100%;border:0}</style>
+<script type="module">
+  // Isolated QA origin only. Seed a disposable run before loading the real game.
+  const query=new URLSearchParams(location.search);
+  const base=query.get('variant')==='before'
+    ? '/output/miaomiao-pawnshop/layout-refinement/before/miaomiao-pawnshop/'
+    : '/games/miaomiao-pawnshop/';
+  const G=await import(base+'js/game.js');
+  const S=G.newRun();
+  S.tutorial=true; S.day=9; S.money=query.get('poor')==='1'?0:query.get('rich')==='1'?999999:486;
+  S.rentPaid=1; S.rep.folk=3; S.rep.elite=2;
+  S.shelf=[G.mkItem('water',{g:4,gk:true,cost:40}),G.mkItem('watch'),G.mkItem('bell'),G.mkItem('radio')];
+  const scenario=query.get('scenario')||'seller';
+  if(scenario==='night'){
+    G.startNight();
+  }else{
+    S.phase='day';
+    let c;
+    if(scenario==='buyer'){
+      c={kind:'buy',who:'noble',want:'drink',minG:4,rich:1.7,eye:1,pat:3,
+        item:S.shelf[0],bid:80,max:100,said:true,line:'这瓶山泉水看着不错，80 鱼币怎么样？'};
+      c.item.est={day:S.day,lo:60,hi:100};
+    }else{
+      const long=query.get('long')==='1';
+      const item=long?G.mkItem('holo',{fake:true,known:true,stolen:true,stolenKnown:true,heat:2}):G.mkItem('water',{g:2,lab:5});
+      item.est={day:S.day,lo:40,hi:64};
+      c={kind:'sell',who:'doctor',item,ask:96,ask0:96,res:50,pat:3,checks:[null,null,null],bad:long?1:2,said:true,
+        line:long?'这台全息投影仪可是收藏级的老物件，电路、铭牌、镜头都值得仔细看看，96 鱼币绝对划算。':'刚从实验室带出来的纯净水，96 鱼币，绝对干净～'};
+    }
+    S.queue=[c,{kind:'buy',who:'worker',want:'food',rich:1,eye:0,pat:3}]; S.qi=0;
+  }
+  localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},best:0,fastest:0,runs:1,tut:true,sfx:false,music:false}));
+  localStorage.setItem('mmdp_run',JSON.stringify(S));
+  const frame=document.createElement('iframe'); frame.title='布局验收游戏'; frame.src=base;
+  document.body.append(frame);
+</script>
+</html>

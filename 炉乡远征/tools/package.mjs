@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(project, 'dist');
-const version = '0.4.5';
+const version = '0.4.6';
 const files = [];
 const args = process.argv.slice(2);
 if (args.length && (args.length !== 2 || args[0] !== '--output-dir')) throw new Error('Usage: package.mjs [--output-dir <workspace-contained-directory>]');
@@ -21,6 +21,7 @@ const checks = ['check-expedition-progress.mjs','check-hero-progress.mjs','check
 // and the known ways to win while omitting their central mechanics.
 checks.push('check-trial-lessons.mjs', 'check-trial-mechanisms.mjs', 'check-trial-design.mjs');
 checks.push('check-battle-command-gesture.mjs');
+checks.push('check-battle-available-actions.mjs');
 checks.push('check-gift-codes.mjs');
 checks.push('check-battle-reward-summary.mjs', 'check-deck-filters.mjs', 'check-deck-recommendation.mjs', 'check-platform-progress.mjs');
 checks.push('check-ranked-challenge.mjs', 'check-challenge-preparation.mjs', 'check-ranked-main-isolation.mjs');

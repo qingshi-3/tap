@@ -1,0 +1,82 @@
+import assert from 'node:assert/strict';
+import * as G from '../js/game.js';
+import {UPGRADES,rentOf} from '../js/data.js';
+const C=(a,p={})=>G.businessCommand(a,p);
+const ok=(a,p)=>{const r=C(a,p);assert.equal(r.ok,true,r.reason);return r;};
+const fresh=(day=3)=>{G.newRun();G.S.day=day;G.S.money=20000;G.S.shelf=[];G.S.queue=[];G.S.qi=0;G.S.filter=100;return G.S;};
+const machine=route=>{const id=route==='water'?'purifier':'tank';assert(G.buyUpgrade(UPGRADES.find(u=>u.id===id)));return id;};
+const next=()=>{G.startNight();G.sleep();G.startDay();};
+const roundtrip=()=>{const s=JSON.parse(JSON.stringify(G.S));G.setState(s);};
+let tests=0;
+for(const route of ['water','fish']){
+ fresh(6);const mid=machine(route),qty=route==='water'?3:2;
+ const c=ok('acceptContract',{route,kind:'trial'}).contract;
+ const money=G.S.money;
+ const order=ok('purchase',{route,qty}).order;
+ assert.equal(G.businessView().warehouse.reserved,qty);
+ const before=JSON.stringify(G.S);assert.equal(C('purchase',{route,qty:100}).ok,false);assert.equal(JSON.stringify(G.S),before);
+ ok('cancelPurchase',{id:order.id});assert.equal(G.S.money,money);
+ ok('purchase',{route,qty});next();roundtrip();
+ assert.equal(G.S.business.warehouse.length,qty);
+ assert.equal(G.runMachine(mid,{uids:G.S.business.warehouse.map(i=>i.uid)}),qty);
+ const cost=qty*(route==='water'?11:12);
+ next();if(route==='fish')next();
+ const goods=[...G.S.shelf,...Object.values(G.S.machines).flatMap(j=>j?.products||[])];
+ assert.equal(goods.length,qty);assert.equal(goods.reduce((s,i)=>s+i.cost,0),cost);
+ const ids=goods.map(i=>i.uid);roundtrip();assert.deepEqual(G.businessView().contracts.find(v=>v.id===c.id).defaultUids,ids);
+ ok('reserve',{id:c.id,uids:ids});assert.equal(G.fenceSell(G.S.shelf),0);
+ const res=ok('deliverContract',{id:c.id});assert.equal(res.cost,cost);roundtrip();
+ assert.equal(C('deliverContract',{id:c.id}).ok,false);assert(G.S.business.routes[route].trial);
+ const formal=ok('acceptContract',{route,kind:'regular'}).contract;assert.equal(formal.qty,qty);
+ G.S.day=formal.start;G.S.shelf=Array.from({length:qty},()=>G.mkItem(route==='water'?'water':'fish',{known:true,g:4,gk:true,cost:12}));
+ ok('deliverContract',{id:formal.id});assert.notEqual(ok('acceptContract',{route,kind:'regular'}).contract.start,formal.start);
+ tests++;
+}
+fresh();machine('water');G.S.shelf=Array.from({length:6},()=>G.mkItem('dryfish'));G.S.business.warehouse=Array.from({length:3},()=>G.mkItem('water',{g:2,gk:true,known:true,cost:8,q:1}));
+assert.equal(G.runMachine('purifier'),3);next();const j=G.S.machines.purifier;assert.equal(j.products.length,3);const product=structuredClone(j.products);G.collectMachines();roundtrip();G.collectMachines();assert.deepEqual(G.S.machines.purifier.products,product);tests++;
+fresh(10);machine('water');G.S.business.routes.water.trial=true;G.S.business.routes.water.completed=2;
+ok('invest',{id:'water1'});assert.equal(G.businessView().suppliers[0].quota,12);ok('invest',{id:'warehouse'});
+const c=ok('acceptContract',{route:'water',kind:'regular'}).contract;G.S.day=c.due;G.startNight();G.sleep();assert.equal(G.S.business.routes.water.recovery,true);const day=G.S.day;assert.equal(day,c.due+1);tests++;
+fresh();G.S.rentDue=40;const initial=G.S.money;ok('buyout');assert.equal(G.S.money,initial-6040);assert.equal(G.rentAmount(),0);assert.equal(C('buyout').ok,false);roundtrip();assert.equal(G.businessView().ownership.day,3);assert.equal(rentOf(100),140);tests++;
+fresh(11);machine('water');const r=G.S.business.routes.water;r.trial=true;r.level=3;r.completed=8;r.level1Completed=4;r.level2Completed=2;G.S.business.mainRoute='water';G.S.business.capacity=36;
+const boutique=ok('acceptContract',{route:'water',kind:'boutique'}).contract;G.S.day=boutique.start;G.S.shelf=Array.from({length:18},()=>G.mkItem('water',{known:true,gk:true,g:4,cost:11}));
+ok('deliverContract',{id:boutique.id,uids:G.S.shelf.slice(0,9).map(i=>i.uid)});assert.equal(C('deliverContract',{id:boutique.id}).ok,false);G.S.day=boutique.start+3;ok('deliverContract',{id:boutique.id});assert.equal(r.markets.boutique,1);tests++;
+fresh(6);machine('water');G.S.business.routes.water.completed=2;ok('hire');assert.equal(G.S.business.employee.active,false);next();assert.equal(G.S.business.employee.days,5);G.S.shelf=[G.mkItem('fish',{known:true,cost:12})];const item=G.S.shelf[0];ok('delegate',{uid:item.uid,minPrice:1});const snapshot=JSON.stringify(G.S);assert.equal(C('delegate',{uid:item.uid,minPrice:NaN}).ok,false);assert.equal(JSON.stringify(G.S),snapshot);next();assert.equal(G.S.business.employee.days,4);tests++;
+fresh(6);machine('water');let ct=ok('acceptContract',{route:'water',kind:'trial'}).contract;G.S.day=ct.start;
+G.S.shelf=[G.mkItem('water',{g:5,gk:true,known:true}),G.mkItem('water',{g:4,gk:false,known:true})];
+assert.equal(C('deliverContract',{id:ct.id}).ok,false);assert.equal(G.S.shelf.length,2);
+ok('deliverContract',{id:ct.id,uids:[G.S.shelf[0].uid]});assert.equal(ct.delivered,1);tests++;
+fresh(6);machine('water');ct=ok('acceptContract',{route:'water',kind:'trial'}).contract;G.S.day=ct.start;const stock=G.mkItem('water',{g:4,gk:true,known:true});G.S.shelf=[stock];ok('reserve',{id:ct.id,uids:[stock.uid]});assert.equal(G.removeItem(stock),false);assert.equal(G.S.shelf.length,1);assert.equal(G.runMachine('purifier',{uids:[stock.uid]}),0);tests++;
+fresh(6);const original=JSON.stringify(G.S);assert.equal(C('renew').ok,false);assert.equal(JSON.stringify(G.S),original);tests++;
+fresh(6);machine('water');ok('purchase',{route:'water',qty:6});next();ok('purchase',{route:'water',qty:6});assert.equal(C('purchase',{route:'water',qty:1}).ok,false);roundtrip();assert.equal(C('purchase',{route:'water',qty:1}).ok,false);tests++;
+// Every economic legacy path must reconcile its actual cash with the cash journal.
+fresh(6);const cashStart=G.S.money;
+const cashTotal=()=>G.S.business.ledger.reduce((n,e)=>n+e.amount,0);
+const reconciles=fn=>{const before=G.S.money,ledgerBefore=cashTotal();fn();assert.equal(G.S.money-before,cashTotal()-ledgerBefore);assert.equal(G.S.money-cashStart,cashTotal());};
+const acquired=G.mkItem('can',{known:true});const seller={who:'worker',item:acquired};
+reconciles(()=>assert.equal(G.buyItem(seller,10),true));
+reconciles(()=>G.sellItem({who:'worker',item:acquired,robo:true},20));
+assert.equal(G.S.fakeCash,20);reconciles(()=>assert.equal(G.voidFakeCash(),20));
+const orderGoods=G.mkItem('can',{known:true,cost:7});G.S.shelf.push(orderGoods);
+const oldOrder={id:'can',qty:1,due:G.S.day,reward:30};G.acceptOrder(oldOrder);
+reconciles(()=>assert.equal(G.deliver(oldOrder,[orderGoods.uid]),true));
+const waterGoods=G.mkItem('water',{g:4,gk:true,known:true,cost:8});G.S.shelf.push(waterGoods);G.S.owned.labeler=true;
+reconciles(()=>assert.equal(G.labelWater(waterGoods),true));assert.equal(waterGoods.cost,10);
+reconciles(()=>assert.equal(G.report({who:'worker',robo:true}).ok,true));
+reconciles(()=>G.acceptFine({found:[],fine:13}));
+const oldRandom=Math.random;
+try{Math.random=()=>0;reconciles(()=>assert.equal(G.tryBribe({found:[],fine:13,bribe:8}),true));
+Math.random=()=>1;reconciles(()=>assert.equal(G.tryBribe({found:[],fine:13,bribe:8}),false));}finally{Math.random=oldRandom;}
+reconciles(()=>{G.S.money+=12;G.recordCash('storyReceipt',12,0,'test');});
+reconciles(()=>G.acceptFine({found:[],fine:50000}));assert.equal(G.S.money,0);roundtrip();assert.equal(G.S.money-cashStart,cashTotal());tests++;
+// Stock in all three locations contributes once; appraisals are not cash income.
+fresh();const w=G.mkItem('fry',{known:true,q:1,cost:12}),p=G.mkItem('fish',{known:true,q:1,cost:12});
+G.S.business.warehouse.push(w);G.S.machines.tank={ready:true,left:0,n:1,products:[p]};
+assert.equal(G.netWorth(),G.S.money+G.trueValue(w)+G.trueValue(p));assert.equal(G.S.business.ledger.length,0);tests++;
+// Ownership ends both normal rent and the grace operation, without phantom payments.
+fresh();ok('buyout');G.S.day=10;G.S.phase='day';G.S.rentDone=false;
+const ownedBefore=JSON.stringify(G.S);
+assert.equal(G.payRent(),false);assert.equal(G.graceRent(),false);
+assert.equal(JSON.stringify(G.S),ownedBefore);tests++;
+console.log(`growth regression: ${tests} scenario groups passed`);
+

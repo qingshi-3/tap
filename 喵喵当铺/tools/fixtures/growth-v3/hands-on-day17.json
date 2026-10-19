@@ -1,0 +1,1416 @@
+{
+  "v": 3,
+  "day": 17,
+  "money": 669,
+  "uid": 136,
+  "sign": "warm",
+  "win": [],
+  "filter": 0,
+  "ice": 0,
+  "fakeCash": 0,
+  "shelf": [],
+  "hidden": [],
+  "shelfCap": 9,
+  "hiddenCap": 0,
+  "up": {
+    "purifier": true,
+    "tank": true,
+    "shelf1": true
+  },
+  "machines": {
+    "furnace": null,
+    "purifier": null,
+    "tank": null
+  },
+  "owned": {
+    "furnace": true,
+    "purifier": true,
+    "tank": true
+  },
+  "rep": {
+    "elite": 1,
+    "folk": 5,
+    "law": 5,
+    "gang": 0
+  },
+  "orders": [],
+  "queue": [
+    {
+      "kind": "sell",
+      "who": "rebel",
+      "pat": 3,
+      "item": {
+        "uid": 130,
+        "id": "nipwine",
+        "fake": false,
+        "stolen": false,
+        "cost": 0,
+        "q": 1.072553937773721
+      },
+      "ask": 98,
+      "ask0": 98,
+      "res": 61,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": -1,
+      "resolved": true
+    },
+    {
+      "kind": "sell",
+      "who": "trader",
+      "item": {
+        "uid": 131,
+        "id": "bell",
+        "fake": true,
+        "stolen": false,
+        "cost": 0,
+        "q": 1.1159732696858984
+      },
+      "ask": 233,
+      "ask0": 233,
+      "res": 125,
+      "pat": 3,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": 0,
+      "resolved": true
+    },
+    {
+      "kind": "sell",
+      "who": "trader",
+      "pat": 3,
+      "item": {
+        "uid": 132,
+        "id": "claw",
+        "fake": true,
+        "stolen": false,
+        "cost": 0,
+        "q": 0.9209880928869161
+      },
+      "ask": 112,
+      "ask0": 112,
+      "res": 59,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": 0,
+      "resolved": true
+    },
+    {
+      "kind": "order",
+      "who": "robot",
+      "order": {
+        "id": "can",
+        "qty": 2,
+        "due": 19,
+        "reward": 49
+      }
+    },
+    {
+      "kind": "sell",
+      "who": "doctor",
+      "pat": 3,
+      "item": {
+        "uid": 133,
+        "id": "battery",
+        "fake": false,
+        "stolen": false,
+        "cost": 0,
+        "q": 1.0706754937119567
+      },
+      "ask": 35,
+      "ask0": 35,
+      "res": 19,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": -1,
+      "resolved": true
+    },
+    {
+      "kind": "sell",
+      "who": "thief",
+      "pat": 2,
+      "item": {
+        "uid": 134,
+        "id": "mouse",
+        "fake": false,
+        "stolen": true,
+        "cost": 0,
+        "q": 0.9262311190225632,
+        "heat": 2,
+        "stolenKnown": true,
+        "est": {
+          "day": 17,
+          "lo": 30,
+          "hi": 53
+        }
+      },
+      "ask": 29,
+      "ask0": 29,
+      "res": 17,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": -1,
+      "said": true,
+      "line": "嘘……这发条老鼠别问来路，29 就给你。"
+    },
+    {
+      "kind": "sell",
+      "who": "rebel",
+      "pat": 3,
+      "item": {
+        "uid": 135,
+        "id": "chip",
+        "fake": false,
+        "stolen": false,
+        "cost": 0,
+        "q": 1.0321061846648742,
+        "est": {
+          "day": 17,
+          "lo": 96,
+          "hi": 154
+        }
+      },
+      "ask": 126,
+      "ask0": 126,
+      "res": 73,
+      "checks": [
+        null,
+        null,
+        null
+      ],
+      "bad": -1,
+      "said": true,
+      "line": "我有件黑市芯片，126 鱼币收不收？"
+    }
+  ],
+  "qi": 7,
+  "news": "ball",
+  "nextNews": "ball",
+  "newsPeek": false,
+  "mkt": {
+    "food": 0.9038662260715189,
+    "drink": 0.9969369454875701,
+    "material": 0.94416649127641,
+    "tech": 0.9240962575519974,
+    "treasure": 1.4692827341597052,
+    "toy": 1.0654951108448092,
+    "ban": 0.9433985692428729
+  },
+  "phase": "night",
+  "night": {
+    "crates": [
+      "myst",
+      "jingle",
+      "smell"
+    ],
+    "extra": false,
+    "peek": false,
+    "opened": [],
+    "free": 1
+  },
+  "rentDue": 0,
+  "graceUsed": false,
+  "rentPaid": 3,
+  "story": {
+    "lady": 3,
+    "pearl": null
+  },
+  "st": {
+    "buy": 4,
+    "sell": 17,
+    "fakeSpot": 1,
+    "fakeSold": 0,
+    "ingots": 2,
+    "waters": 26,
+    "clean": 1,
+    "orders": 1,
+    "peakWorth": 1181,
+    "robo": 3,
+    "cooled": 1
+  },
+  "tutorial": true,
+  "persistence": {
+    "revision": 281,
+    "commands": [
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:0:checkSpot:0",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:0:offerToSeller:1",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:0:buyItem:2",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:3",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:1:buyerLooks:4",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:1:askBuyer:5",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:1:askBuyer:6",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:1:sellItem:7",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:8",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:2:checkSpot:9",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:10",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:3:buyerLooks:11",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:3:askBuyer:12",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:3:askBuyer:13",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:3:sellItem:14",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:15",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:4:checkSpot:16",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:4:offerToSeller:17",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:4:buyItem:18",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:19",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:5:buyerLooks:20",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:5:askBuyer:21",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:5:sellItem:22",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:leave:23",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:6:startNight:24",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:6:openCrate:25",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:6:buyUpgrade:26",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:1:production:1792404997388:1",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:1",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:0:buyerLooks:29",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:0:askBuyer:30",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:0:askBuyer:31",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:0:sellItem:32",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:33",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:34",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:35",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:36",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:4:buyerLooks:37",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:4:askBuyer:38",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:4:sellItem:39",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:40",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:5:buyerLooks:41",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:5:askBuyer:42",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:5:sellItem:43",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:44",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:leave:45",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:7:startNight:46",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:production:1792405080256:2",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:7:openCrate:48",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:2:production:1792405098708:3",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:2",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:51",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:52",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:2:buyerLooks:53",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:2:askBuyer:54",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:2:sellItem:55",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:56",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:3:acceptOrder:57",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:58",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:inspection:59",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:60",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:5:checkSpot:61",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:5:offerToSeller:62",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:5:buyItem:63",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:64",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:65",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:66",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:leave:67",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:9:startNight:68",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:supplier-invitation:69",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:acceptContract:1792405188951:4",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:reserve:1792405194456:5",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:purchase:1792405214310:6",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:9:openCrate:73",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:3:production:1792405227740:7",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:3",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:deliverContract:1792405243792:8",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:0:deliver:77",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:78",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:1:buyerLooks:79",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:1:askBuyer:80",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:1:askBuyer:81",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:1:sellItem:82",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:83",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:84",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:3:observe:85",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:86",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:87",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:5:checkSpot:88",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:5:offerToSeller:89",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:5:buyItem:90",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:leave:91",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:6:startNight:92",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:production:1792405346578:9",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:6:buyUpgrade:94",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:purchase:1792405351384:10",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:4:6:openCrate:96",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:4",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:deliverContract:1792405371853:11",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:acceptContract:1792405377676:12",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:100",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:101",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:102",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:3:observe:103",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:104",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:4:buyerLooks:105",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:4:askBuyer:106",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:4:sellItem:107",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:108",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:leave:109",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:6:payRent:110",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:6:startNight:111",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:production:1792405457024:13",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:5:6:openCrate:113",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:5",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:deliverContract:1792405468152:14",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:acceptContract:1792405481365:15",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:0:buyerLooks:117",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:0:askBuyer:118",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:0:sellItem:119",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:120",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:1:observe:121",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:1:buyerLooks:122",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:1:askBuyer:123",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:1:sellItem:124",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:125",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:126",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:127",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:128",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:129",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:6:buyerLooks:130",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:6:askBuyer:131",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:6:sellItem:132",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:leave:133",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:7:startNight:134",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:supplier-invitation:135",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:7:buyUpgrade:136",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:acceptContract:1792405546982:16",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:purchase:1792405549969:17",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:purchase:1792405552971:18",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:6:7:openCrate:140",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:6",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:142",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:1:buyerLooks:143",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:1:askBuyer:144",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:1:sellItem:145",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:146",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:147",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:3:buyerLooks:148",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:3:askBuyer:149",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:3:sellItem:150",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:151",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:152",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:153",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:leave:154",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:7:startNight:155",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:production:1792405613384:19",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:production:1792405615368:20",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:7:7:openCrate:158",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:7",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:reserve:1792405633254:21",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:161",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:162",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:163",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:3:buyerLooks:164",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:3:askBuyer:165",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:3:sellItem:166",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:167",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:168",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:leave:169",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:6:startNight:170",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:production:1792405673196:22",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:8:6:openCrate:172",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:8",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:deliverContract:1792405696669:23",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:acceptContract:1792405700556:24",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:reserve:1792405710800:25",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:177",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:178",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:179",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:180",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:181",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:5:observe:182",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:5:report:183",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:184",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:185",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:leave:186",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:8:startNight:187",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:purchase:1792405774582:26",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:moveWarehouse:1792405782323:27",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:9:8:buyUpgrade:190",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:9",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:192",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:193",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:2:observe:194",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:2:buyerLooks:195",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:2:askBuyer:196",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:2:sellItem:197",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:198",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:199",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:200",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:leave:201",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:6:payRent:202",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:6:startNight:203",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:production:1792405847940:28",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:10:6:openCrate:205",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:10",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:deliverContract:1792405862988:29",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:208",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:209",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:210",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:3:observe:211",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:3:buyerLooks:212",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:3:askBuyer:213",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:3:sellItem:214",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:215",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:216",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:leave:217",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:6:startNight:218",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:invest:1792405925236:30",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:hire:1792405934011:31",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:acceptContract:1792405956483:32",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:acceptContract:1792405958452:33",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:invest:1792405964225:34",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:6:buyUpgrade:224",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:purchase:1792405968178:35",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:purchase:1792405972049:36",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:plan:1792405987065:37",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:11:6:openCrate:228",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:11",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:deliverContract:1792406009370:38",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:reception-mode:231",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:auto-reception:232",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:leave:233",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:auto-reception:234",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:leave:235",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:leave:236",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:5:observe:237",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:5:report:238",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:leave:239",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:leave:240",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:7:startNight:241",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:12:production:1792406076740:39",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:12",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:13:leave:244",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:13:auto-reception:245",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:13:6:startNight:246",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:13",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:auto-reception:248",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:1:observe:249",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:1:report:250",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:leave:251",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:2:fenceSell:252",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:leave:253",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:auto-reception:254",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:14:7:startNight:255",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:14",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:15:auto-reception:257",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:15:6:payRent:258",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:15:6:startNight:259",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:15:production:1792406217316:40",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:15:renew:1792406223105:41",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:15",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:auto-reception:263",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:deliverContract:1792406240940:42",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:deliverContract:1792406242925:43",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:leave:266",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:auto-reception:267",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:leave:268",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:auto-reception:269",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:16:7:startNight:270",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:sleep:16",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:auto-reception:272",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:deliverContract:1792406267618:44",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:deliverContract:1792406269603:45",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:leave:275",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:auto-reception:276",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:leave:277",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:leave:278",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:7:startNight:279",
+      "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688:17:invest:1792406315367:46"
+    ]
+  },
+  "rulesetVersion": "growth-v1",
+  "runId": "bd7bbd41-fd1b-4bc8-8b19-f29818ad0688",
+  "business": {
+    "warehouse": [
+      {
+        "uid": 56,
+        "id": "can",
+        "fake": false,
+        "stolen": false,
+        "cost": 0,
+        "q": 0.9842102790743348,
+        "source": "crate"
+      }
+    ],
+    "capacity": 24,
+    "purchases": [
+      {
+        "id": "p13",
+        "route": "water",
+        "qty": 1,
+        "price": 8,
+        "period": 1,
+        "arrivalDay": 4,
+        "status": "received"
+      },
+      {
+        "id": "p20",
+        "route": "water",
+        "qty": 3,
+        "price": 8,
+        "period": 1,
+        "arrivalDay": 5,
+        "status": "received"
+      },
+      {
+        "id": "p33",
+        "route": "fish",
+        "qty": 2,
+        "price": 12,
+        "period": 2,
+        "arrivalDay": 7,
+        "status": "received"
+      },
+      {
+        "id": "p35",
+        "route": "water",
+        "qty": 6,
+        "price": 8,
+        "period": 2,
+        "arrivalDay": 7,
+        "status": "received"
+      },
+      {
+        "id": "p43",
+        "route": "fish",
+        "qty": 2,
+        "price": 12,
+        "period": 2,
+        "arrivalDay": 10,
+        "status": "received"
+      },
+      {
+        "id": "p56",
+        "route": "water",
+        "qty": 12,
+        "price": 8,
+        "period": 3,
+        "arrivalDay": 12,
+        "status": "received"
+      },
+      {
+        "id": "p58",
+        "route": "fish",
+        "qty": 4,
+        "price": 12,
+        "period": 3,
+        "arrivalDay": 12,
+        "status": "received"
+      }
+    ],
+    "contracts": [
+      {
+        "route": "water",
+        "kind": "trial",
+        "qty": 3,
+        "price": 44,
+        "start": 4,
+        "due": 7,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 24,
+        "filterCost": 3,
+        "productionDays": 1,
+        "requiresRestart": false,
+        "id": "c12",
+        "status": "completed",
+        "delivered": 3,
+        "windows": [
+          3,
+          0
+        ],
+        "level": 0
+      },
+      {
+        "route": "water",
+        "kind": "regular",
+        "qty": 3,
+        "price": 44,
+        "start": 6,
+        "due": 10,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 24,
+        "filterCost": 3,
+        "productionDays": 1,
+        "requiresRestart": false,
+        "id": "c23",
+        "status": "completed",
+        "delivered": 3,
+        "windows": [
+          3,
+          0
+        ],
+        "level": 0
+      },
+      {
+        "route": "water",
+        "kind": "regular",
+        "qty": 6,
+        "price": 44,
+        "start": 11,
+        "due": 15,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 48,
+        "filterCost": 6,
+        "productionDays": 1,
+        "requiresRestart": true,
+        "id": "c27",
+        "status": "completed",
+        "delivered": 6,
+        "windows": [
+          6,
+          0
+        ],
+        "level": 0
+      },
+      {
+        "route": "fish",
+        "kind": "trial",
+        "qty": 2,
+        "price": 56,
+        "start": 7,
+        "due": 11,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 24,
+        "filterCost": 0,
+        "productionDays": 2,
+        "requiresRestart": false,
+        "id": "c32",
+        "status": "completed",
+        "delivered": 2,
+        "windows": [
+          2,
+          0
+        ],
+        "level": 0
+      },
+      {
+        "route": "fish",
+        "kind": "regular",
+        "qty": 2,
+        "price": 56,
+        "start": 11,
+        "due": 15,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 24,
+        "filterCost": 0,
+        "productionDays": 2,
+        "requiresRestart": false,
+        "id": "c41",
+        "status": "completed",
+        "delivered": 2,
+        "windows": [
+          2,
+          0
+        ],
+        "level": 0
+      },
+      {
+        "route": "water",
+        "kind": "regular",
+        "qty": 12,
+        "price": 44,
+        "start": 16,
+        "due": 20,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 96,
+        "filterCost": 12,
+        "productionDays": 1,
+        "requiresRestart": true,
+        "id": "c52",
+        "status": "completed",
+        "delivered": 12,
+        "windows": [
+          12,
+          0
+        ],
+        "level": 1
+      },
+      {
+        "route": "fish",
+        "kind": "regular",
+        "qty": 4,
+        "price": 56,
+        "start": 16,
+        "due": 20,
+        "eligible": true,
+        "visible": true,
+        "reason": "",
+        "fee": 0,
+        "rawCost": 48,
+        "filterCost": 0,
+        "productionDays": 2,
+        "requiresRestart": true,
+        "id": "c53",
+        "status": "completed",
+        "delivered": 4,
+        "windows": [
+          4,
+          0
+        ],
+        "level": 0
+      }
+    ],
+    "routes": {
+      "water": {
+        "level": 2,
+        "completed": 3,
+        "level1Completed": 1,
+        "level2Completed": 0,
+        "trial": true,
+        "firstRegular": true,
+        "recovery": false,
+        "markets": {
+          "harbor": 0,
+          "boutique": 0
+        },
+        "levelHistory": [
+          {
+            "day": 0,
+            "level": 0
+          },
+          {
+            "day": 16,
+            "level": 1
+          },
+          {
+            "day": 21,
+            "level": 2
+          }
+        ]
+      },
+      "fish": {
+        "level": 0,
+        "completed": 2,
+        "level1Completed": 0,
+        "level2Completed": 0,
+        "trial": true,
+        "firstRegular": true,
+        "recovery": false,
+        "markets": {
+          "harbor": 0,
+          "boutique": 0
+        }
+      }
+    },
+    "mainRoute": "water",
+    "employee": {
+      "hired": true,
+      "days": 5,
+      "active": true,
+      "pending": null,
+      "delegated": [],
+      "results": [],
+      "status": "",
+      "reception": true
+    },
+    "reservations": {},
+    "ledger": [
+      {
+        "id": "l1",
+        "day": 1,
+        "period": 1,
+        "type": "retailPurchase",
+        "amount": -15,
+        "cost": 0,
+        "detail": "yarn"
+      },
+      {
+        "id": "l2",
+        "day": 1,
+        "period": 1,
+        "type": "retail",
+        "amount": 20,
+        "cost": 15,
+        "detail": "retailPurchase"
+      },
+      {
+        "id": "l3",
+        "day": 1,
+        "period": 1,
+        "type": "retail",
+        "amount": 15,
+        "cost": 0,
+        "detail": "inventory"
+      },
+      {
+        "id": "l4",
+        "day": 1,
+        "period": 1,
+        "type": "retailPurchase",
+        "amount": -52,
+        "cost": 0,
+        "detail": "radio"
+      },
+      {
+        "id": "l5",
+        "day": 1,
+        "period": 1,
+        "type": "retail",
+        "amount": 7,
+        "cost": 0,
+        "detail": "inventory"
+      },
+      {
+        "id": "l6",
+        "day": 1,
+        "period": 1,
+        "type": "investment",
+        "amount": -60,
+        "cost": 0,
+        "detail": "purifier"
+      },
+      {
+        "id": "l7",
+        "day": 2,
+        "period": 1,
+        "type": "retail",
+        "amount": 7,
+        "cost": 0,
+        "detail": "inventory"
+      },
+      {
+        "id": "l8",
+        "day": 2,
+        "period": 1,
+        "type": "retail",
+        "amount": 10,
+        "cost": 0,
+        "detail": "inventory"
+      },
+      {
+        "id": "l9",
+        "day": 2,
+        "period": 1,
+        "type": "retail",
+        "amount": 81,
+        "cost": 52,
+        "detail": "retailPurchase"
+      },
+      {
+        "id": "l10",
+        "day": 3,
+        "period": 1,
+        "type": "retail",
+        "amount": 55,
+        "cost": 0,
+        "detail": "inventory"
+      },
+      {
+        "id": "l11",
+        "day": 3,
+        "period": 1,
+        "type": "retailPurchase",
+        "amount": -52,
+        "cost": 0,
+        "detail": "laser"
+      },
+      {
+        "id": "l14",
+        "day": 3,
+        "period": 1,
+        "type": "supplies",
+        "amount": -8,
+        "cost": 0,
+        "detail": "water"
+      },
+      {
+        "id": "l15",
+        "day": 4,
+        "period": 1,
+        "type": "contract",
+        "amount": 88,
+        "cost": 24,
+        "detail": "c12"
+      },
+      {
+        "id": "l16",
+        "day": 4,
+        "period": 1,
+        "type": "temporaryOrder",
+        "amount": 67,
+        "cost": 0,
+        "detail": "ingot"
+      },
+      {
+        "id": "l17",
+        "day": 4,
+        "period": 1,
+        "type": "retail",
+        "amount": 74,
+        "cost": 52,
+        "detail": "retailPurchase"
+      },
+      {
+        "id": "l18",
+        "day": 4,
+        "period": 1,
+        "type": "retailPurchase",
+        "amount": -21,
+        "cost": 0,
+        "detail": "battery"
+      },
+      {
+        "id": "l19",
+        "day": 4,
+        "period": 1,
+        "type": "consumable",
+        "amount": -30,
+        "cost": 0,
+        "detail": "filter"
+      },
+      {
+        "id": "l21",
+        "day": 4,
+        "period": 1,
+        "type": "supplies",
+        "amount": -24,
+        "cost": 0,
+        "detail": "water"
+      },
+      {
+        "id": "l22",
+        "day": 5,
+        "period": 1,
+        "type": "contract",
+        "amount": 44,
+        "cost": 11,
+        "detail": "c12"
+      },
+      {
+        "id": "l24",
+        "day": 5,
+        "period": 1,
+        "type": "retail",
+        "amount": 19,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l25",
+        "day": 5,
+        "period": 1,
+        "type": "rent",
+        "amount": -50,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l26",
+        "day": 6,
+        "period": 2,
+        "type": "contract",
+        "amount": 132,
+        "cost": 33,
+        "detail": "c23"
+      },
+      {
+        "id": "l28",
+        "day": 6,
+        "period": 2,
+        "type": "retail",
+        "amount": 25,
+        "cost": 21,
+        "detail": "retailPurchase"
+      },
+      {
+        "id": "l29",
+        "day": 6,
+        "period": 2,
+        "type": "retail",
+        "amount": 11,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l30",
+        "day": 6,
+        "period": 2,
+        "type": "retail",
+        "amount": 13,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l31",
+        "day": 6,
+        "period": 2,
+        "type": "investment",
+        "amount": -140,
+        "cost": 0,
+        "detail": "tank"
+      },
+      {
+        "id": "l34",
+        "day": 6,
+        "period": 2,
+        "type": "supplies",
+        "amount": -24,
+        "cost": 0,
+        "detail": "fish"
+      },
+      {
+        "id": "l36",
+        "day": 6,
+        "period": 2,
+        "type": "supplies",
+        "amount": -48,
+        "cost": 0,
+        "detail": "water"
+      },
+      {
+        "id": "l37",
+        "day": 7,
+        "period": 2,
+        "type": "retail",
+        "amount": 16,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l38",
+        "day": 7,
+        "period": 2,
+        "type": "retail",
+        "amount": 22,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l39",
+        "day": 8,
+        "period": 2,
+        "type": "retail",
+        "amount": 13,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l40",
+        "day": 9,
+        "period": 2,
+        "type": "contract",
+        "amount": 112,
+        "cost": 24,
+        "detail": "c32"
+      },
+      {
+        "id": "l42",
+        "day": 9,
+        "period": 2,
+        "type": "reward",
+        "amount": 95,
+        "cost": 0,
+        "detail": "report"
+      },
+      {
+        "id": "l44",
+        "day": 9,
+        "period": 2,
+        "type": "supplies",
+        "amount": -24,
+        "cost": 0,
+        "detail": "fish"
+      },
+      {
+        "id": "l45",
+        "day": 9,
+        "period": 2,
+        "type": "investment",
+        "amount": -120,
+        "cost": 0,
+        "detail": "shelf1"
+      },
+      {
+        "id": "l46",
+        "day": 10,
+        "period": 2,
+        "type": "retail",
+        "amount": 41,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l47",
+        "day": 10,
+        "period": 2,
+        "type": "rent",
+        "amount": -80,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l48",
+        "day": 11,
+        "period": 3,
+        "type": "contract",
+        "amount": 264,
+        "cost": 66,
+        "detail": "c27"
+      },
+      {
+        "id": "l49",
+        "day": 11,
+        "period": 3,
+        "type": "retail",
+        "amount": 125,
+        "cost": 0,
+        "detail": "crate"
+      },
+      {
+        "id": "l50",
+        "day": 11,
+        "period": 3,
+        "type": "investment",
+        "amount": -160,
+        "cost": 0,
+        "detail": "water1"
+      },
+      {
+        "id": "l51",
+        "day": 11,
+        "period": 3,
+        "type": "wage",
+        "amount": -110,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l54",
+        "day": 11,
+        "period": 3,
+        "type": "investment",
+        "amount": -100,
+        "cost": 0,
+        "detail": "warehouse"
+      },
+      {
+        "id": "l55",
+        "day": 11,
+        "period": 3,
+        "type": "consumable",
+        "amount": -30,
+        "cost": 0,
+        "detail": "filter"
+      },
+      {
+        "id": "l57",
+        "day": 11,
+        "period": 3,
+        "type": "supplies",
+        "amount": -96,
+        "cost": 0,
+        "detail": "water"
+      },
+      {
+        "id": "l59",
+        "day": 11,
+        "period": 3,
+        "type": "supplies",
+        "amount": -48,
+        "cost": 0,
+        "detail": "fish"
+      },
+      {
+        "id": "l60",
+        "day": 12,
+        "period": 3,
+        "type": "contract",
+        "amount": 112,
+        "cost": 24,
+        "detail": "c41"
+      },
+      {
+        "id": "l61",
+        "day": 12,
+        "period": 3,
+        "type": "reward",
+        "amount": 110,
+        "cost": 0,
+        "detail": "report"
+      },
+      {
+        "id": "l62",
+        "day": 14,
+        "period": 3,
+        "type": "reward",
+        "amount": 120,
+        "cost": 0,
+        "detail": "report"
+      },
+      {
+        "id": "l63",
+        "day": 14,
+        "period": 3,
+        "type": "fence",
+        "amount": 81,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l64",
+        "day": 15,
+        "period": 3,
+        "type": "rent",
+        "amount": -140,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l65",
+        "day": 15,
+        "period": 3,
+        "type": "wage",
+        "amount": -30,
+        "cost": 0,
+        "detail": ""
+      },
+      {
+        "id": "l66",
+        "day": 16,
+        "period": 4,
+        "type": "contract",
+        "amount": 396,
+        "cost": 99,
+        "detail": "c52"
+      },
+      {
+        "id": "l67",
+        "day": 16,
+        "period": 4,
+        "type": "contract",
+        "amount": 112,
+        "cost": 24,
+        "detail": "c53"
+      },
+      {
+        "id": "l68",
+        "day": 17,
+        "period": 4,
+        "type": "contract",
+        "amount": 132,
+        "cost": 33,
+        "detail": "c52"
+      },
+      {
+        "id": "l69",
+        "day": 17,
+        "period": 4,
+        "type": "contract",
+        "amount": 112,
+        "cost": 24,
+        "detail": "c53"
+      },
+      {
+        "id": "l70",
+        "day": 17,
+        "period": 4,
+        "type": "investment",
+        "amount": -500,
+        "cost": 0,
+        "detail": "water2"
+      }
+    ],
+    "ownership": {
+      "owned": false,
+      "day": null
+    },
+    "plans": [
+      {
+        "machine": "purifier",
+        "qty": 3,
+        "purpose": "contract",
+        "enabled": true,
+        "status": "已开工"
+      }
+    ],
+    "nextId": 71,
+    "marks": {
+      "evening": 16,
+      "suppliersSeen": [
+        "water",
+        "fish"
+      ],
+      "sales": 17
+    },
+    "ledgerTotals": {
+      "retailPurchase": {
+        "amount": -140,
+        "cost": 0
+      },
+      "retail": {
+        "amount": 554,
+        "cost": 140
+      },
+      "investment": {
+        "amount": -1080,
+        "cost": 0
+      },
+      "supplies": {
+        "amount": -272,
+        "cost": 0
+      },
+      "contract": {
+        "amount": 1504,
+        "cost": 362
+      },
+      "temporaryOrder": {
+        "amount": 67,
+        "cost": 0
+      },
+      "consumable": {
+        "amount": -60,
+        "cost": 0
+      },
+      "rent": {
+        "amount": -270,
+        "cost": 0
+      },
+      "reward": {
+        "amount": 325,
+        "cost": 0
+      },
+      "wage": {
+        "amount": -140,
+        "cost": 0
+      },
+      "fence": {
+        "amount": 81,
+        "cost": 0
+      }
+    }
+  },
+  "rentDone": false,
+  "morningOut": null,
+  "nightTut": false,
+  "nightWarned": false
+}

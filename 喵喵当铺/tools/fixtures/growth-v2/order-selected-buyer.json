@@ -1,0 +1,270 @@
+{
+  "v": 2,
+  "day": 5,
+  "money": 840,
+  "uid": 24,
+  "sign": "warm",
+  "win": [],
+  "filter": 10,
+  "ice": 0,
+  "fakeCash": 0,
+  "shelf": [
+    {
+      "uid": 6,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 0,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 7,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 1,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 8,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 2,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 9,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 3,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 10,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 4,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 11,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 5,
+      "lab": null,
+      "gk": true
+    },
+    {
+      "uid": 12,
+      "id": "water",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "g": 1,
+      "lab": 4,
+      "gk": false
+    },
+    {
+      "uid": 13,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 14,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 15,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 16,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 17,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 18,
+      "id": "scrap",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 19,
+      "id": "catnip",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 20,
+      "id": "catnip",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 21,
+      "id": "catnip",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 22,
+      "id": "catnip",
+      "fake": false,
+      "stolen": false,
+      "cost": 0,
+      "q": 1
+    },
+    {
+      "uid": 23,
+      "id": "scrap",
+      "fake": true,
+      "stolen": false,
+      "cost": 0,
+      "q": 1,
+      "known": true
+    }
+  ],
+  "hidden": [],
+  "shelfCap": 18,
+  "hiddenCap": 0,
+  "up": {
+    "purifier": true,
+    "brewery": true,
+    "tank": true,
+    "lens": true
+  },
+  "machines": {
+    "furnace": null,
+    "purifier": null,
+    "brewery": null,
+    "tank": null
+  },
+  "owned": {
+    "furnace": true,
+    "purifier": true,
+    "brewery": true,
+    "tank": true
+  },
+  "rep": {
+    "elite": 0,
+    "folk": 0,
+    "law": 0,
+    "gang": 0
+  },
+  "orders": [
+    {
+      "id": "water",
+      "qty": 2,
+      "due": 8,
+      "reward": 120
+    }
+  ],
+  "queue": [
+    {
+      "kind": "buy",
+      "who": "worker",
+      "want": "drink",
+      "rich": 1.2,
+      "eye": 1,
+      "pat": 3
+    }
+  ],
+  "qi": 0,
+  "news": "calm",
+  "nextNews": "glut",
+  "newsPeek": false,
+  "mkt": {
+    "food": 0.9203338982537389,
+    "drink": 1.0292043992783875,
+    "material": 1.09992245240137,
+    "tech": 1.0672969846520575,
+    "treasure": 0.9605915602296591,
+    "toy": 0.9140048678498716,
+    "ban": 0.9998714019544424
+  },
+  "phase": "day",
+  "night": {
+    "crates": [
+      "heavy",
+      "smell",
+      "wet"
+    ],
+    "opened": [],
+    "extra": false,
+    "peek": false,
+    "free": 1
+  },
+  "rentDue": 0,
+  "graceUsed": false,
+  "rentPaid": 0,
+  "story": {
+    "lady": 0,
+    "pearl": null
+  },
+  "st": {
+    "buy": 0,
+    "sell": 0,
+    "fakeSpot": 0,
+    "fakeSold": 0,
+    "ingots": 0,
+    "waters": 0,
+    "clean": 0,
+    "orders": 0,
+    "peakWorth": 0,
+    "robo": 0,
+    "cooled": 0
+  },
+  "tutorial": true
+}

@@ -1,0 +1,25 @@
+{
+  "source": "games/miaomiao-pawnshop/tools/fixtures/growth-v3/hands-on-day17.json",
+  "sourceSHA256": "6b75b1b25e982b5ec9110f048f4d374e4a8de9d2c2c79c2654ac691f8f1938de",
+  "runtime": "output/miaomiao-pawnshop/operations-20261019/baseline/js/game.js",
+  "runtimeSHA256": "3b5b0ee7cc698f0b9babb4b97f27fa95bfbe25aa2ce4d427ff1754df790dbddd",
+  "seed": 121018,
+  "actions": [
+    "setState(frozen real day17)",
+    "sleep()",
+    "startDay()",
+    "startNight()"
+  ],
+  "changes": "Only baseline core gameplay advanced date and generated the next queue; no cash, date, inventory, progression or employee values were manually set.",
+  "fixtureSHA256": "864d8be621f9850b7750edd047d5ebb4d1726bac0d68e55cf64b088d3376741b",
+  "end": {
+    "day": 18,
+    "money": 669,
+    "uid": 140
+  },
+  "runtimeModuleSHA256": {
+    "game.js": "3b5b0ee7cc698f0b9babb4b97f27fa95bfbe25aa2ce4d427ff1754df790dbddd",
+    "business.js": "bc155d4946a78f36cbb9c047a655d86980be201e327eecd5d61bd339f9f439c5",
+    "data.js": "577457b1976f4c938eb7765a905c4c65516ecd4f2d3a32571571f2b286af68b6"
+  }
+}

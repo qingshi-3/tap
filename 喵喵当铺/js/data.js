@@ -118,8 +118,8 @@ export const BUYERS = {
   trader: { wants: ['treasure', 'tech', 'toy', 'food'], eye: 0.85, rich: [1.05, 1.25] },
 };
 
-export const RENT = [100, 160, 240, 330, 440, 570, 720, 900];
-export const rentOf = (week) => (week <= RENT.length ? RENT[week - 1] : RENT[RENT.length - 1] + (week - RENT.length) * 200);
+export const RENT = [50, 80, 140];
+export const rentOf = (week) => (week <= RENT.length ? RENT[week - 1] : RENT[RENT.length - 1]);
 export const BUYOUT = 6000;
 export const DAYS_PER_WEEK = 5;
 export const WEEKDAYS = ['周一', '周二', '周三', '周四', '周五'];
@@ -166,15 +166,15 @@ export const UPGRADES = [
   { id: 'lens', name: '黄铜放大镜', d: '每位客人第一次鉴定不耗耐心', cost: 160 },
   { id: 'guide', name: '行情手册', d: '估价范围更准', cost: 140 },
   { id: 'lucky', name: '招财猫', d: '每天多来一位客人', cost: 220 },
-  { id: 'purifier', name: '净水器', d: '水质 +2 档，送 10 点滤芯', cost: 100, machine: true },
-  { id: 'filter', name: '备用滤芯', d: '滤芯 +10（脏水一份耗 3 点）', cost: 30, repeat: true, need: 'purifier' },
-  { id: 'uv', name: '紫外线灯', d: '净水器能做出纯净水', cost: 180, need: 'purifier' },
-  { id: 'dew', name: '集露器', d: '每晚收集 1 份怪味水', cost: 110 },
-  { id: 'fridge', name: '制冰盒', d: '卖水时能加冰，客人明天带更多钱来', cost: 80 },
+  { id: 'purifier', name: '净水器', d: '原水升2档，需1晚；附10点滤芯', cost: 60, machine: true },
+  { id: 'filter', name: '备用滤芯', d: '即买即补；水沟水/铁锈水每份3点，其余可净化水1点', cost: 30, repeat: true, need: 'purifier' },
+  { id: 'uv', name: '紫外线灯', d: '上限升至纯净水；山泉再净化1晚可得', cost: 180, need: 'purifier' },
+  { id: 'dew', name: '集露器', d: '每晚怪味水×1，可净化；货架需空1格', cost: 110 },
+  { id: 'fridge', name: '制冰盒', d: '免费加冰；成交后吸引明日饮品客', cost: 80 },
   { id: 'dark', name: '暗灯', d: '灯牌：引来销赃的流浪猫', cost: 60 },
   { id: 'wsign', name: '水牌', d: '灯牌：引来卖水的猫', cost: 60 },
   { id: 'tank', name: '鱼缸', d: '鱼苗 → 鲜鱼（2晚）', cost: 140, machine: true },
-  { id: 'brewery', name: '酿酒桶', d: '2 猫薄荷 → 猫薄荷酒（2晚）', cost: 160, machine: true },
+  { id: 'brewery', name: '酿酒桶', d: '2猫薄荷＋1份白开水或山泉水 → 1猫薄荷酒（2晚）；纯净水不可用', cost: 160, machine: true },
   { id: 'labeler', name: '贴标台', d: '罐头贴成「金枪鱼罐」，水贴「纯净水」标签…', cost: 120, machine: true },
   { id: 'lawfee', name: '治安打点', d: '治安局好感 +2', cost: 90, repeat: true },
   { id: 'gangfee', name: '野猫会费', d: '野猫帮好感 +2', cost: 90, repeat: true },

@@ -17,6 +17,8 @@ const rvAd = () => {
 };
 export const ads = {
   busy: false,
+  captureGuard(state) { return state ? { runId: state.runId, day: state.day } : null; },
+  isCurrent(guard, state) { return !!(guard && state && guard.runId === state.runId && guard.day === state.day); },
   get available() {
     if (mockAd) return true;
     const t = getTap();
@@ -53,10 +55,10 @@ export const ads = {
 const lbm = () => { const t = getTap(); try { return t && t.getLeaderboardManager ? t.getLeaderboardManager() : null; } catch { return null; } };
 export const board = {
   get available() { return !!lbm(); },
-  submit(netWorth, days) {
+  submit(netWorth, days, rulesetVersion = 'growth-v1') {
     const m = lbm(); if (!m) return;
     const scores = [{ leaderboardId: LB_NETWORTH, score: Math.max(0, Math.round(netWorth)) }];
-    if (days) scores.push({ leaderboardId: LB_FASTEST, score: days });
+    if (days && rulesetVersion === 'legacy-v2') scores.push({ leaderboardId: LB_FASTEST, score: days });
     safe(() => m.submitScores({ scores, callback: { onSuccess() {}, onFailure() {} } }));
   },
   open(which) {
@@ -67,7 +69,21 @@ export const board = {
 };
 
 export const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* 存储满或被禁用 */ } },
-  del(k) { try { localStorage.removeItem(k); } catch { /* 同上 */ } },
+  has(k) { return localStorage.getItem(k) !== null; },
+  get(k, d) {
+    const v = localStorage.getItem(k);
+    if (v === null) return d;
+    try { return JSON.parse(v); } catch { throw new Error('存档内容损坏，原件已保留'); }
+  },
+  set(k, v) {
+    const raw = JSON.stringify(v);
+    try { localStorage.setItem(k, raw); if (localStorage.getItem(k) !== raw) throw Error(); }
+    catch { throw new Error('未保存：存储空间不足或权限受限，请重试'); }
+    return true;
+  },
+  del(k) {
+    try { localStorage.removeItem(k); if (localStorage.getItem(k) !== null) throw Error(); }
+    catch { throw new Error('未能删除存档，请重试'); }
+    return true;
+  },
 };

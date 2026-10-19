@@ -343,13 +343,20 @@ export class BoardRenderer {
 
   animateMovement(unitId, path) {
     this.finishMovement();
-    if (path.length < 2 || this.motionPreference.matches) {
+    if (path.length < 2) {
       this.paint();
       return Promise.resolve();
     }
     const unit = this.state?.units.find((entry) => entry.unitId === unitId);
     const card = unit && getCard(unit.cardId);
-    this.effects.playSound(EFFECT_MANIFEST.bodies?.[unit?.cardId]?.sounds?.walk);
+    // Several original general bodies reuse an impact/death cue for walk.
+    // Use the existing running cue for heroes, independently of motion settings.
+    this.effects.playSound(card?.type === 'general' ? 'resources/sfx/sfx_unit_run_charge_4.m4a'
+      : EFFECT_MANIFEST.bodies?.[unit?.cardId]?.sounds?.walk);
+    if (this.motionPreference.matches) {
+      this.paint();
+      return Promise.resolve();
+    }
     const run = card?.sprite && this.atlases.get(card.sprite.sheet)?.animations.run;
     const cycleMs = (run?.frames.length || 6) * (run?.frameMs || 80);
     let resolve;
@@ -927,7 +934,7 @@ export class BoardRenderer {
     // belong to the live unit, while its current body/movement playback wins.
     // The engine's flags include extra action quotas; partial use is still ready.
     const logicalUnit = this.state?.units.find((entry) => entry.unitId === unit.unitId) ?? unit;
-    return Boolean(logicalUnit.moved && logicalUnit.attacked)
+    return Boolean(logicalUnit.summonedThisTurn || (logicalUnit.moved && logicalUnit.attacked))
       && playback?.unitId !== unit.unitId && this.movement?.unitId !== unit.unitId && !effectBody;
   }
 
@@ -947,7 +954,6 @@ export class BoardRenderer {
 
     ctx.save();
     ctx.globalAlpha *= this.effects.unitOpacity(unit.unitId);
-    if (restingAfterAction) ctx.filter = 'grayscale(1) brightness(.78)';
 
     if (!unit.silenced && card.provoke || unit.provokeBuff) this.effects.drawPersistent(ctx, metrics, unit, 'FX.Modifiers.ModifierProvoke');
     if (!unit.silenced && card.zeal) {
@@ -959,7 +965,8 @@ export class BoardRenderer {
 
     ctx.save();
     const ringY = footY + cell.height * .015;
-    const ringColor = [[54, 204, 239], [234, 91, 106], [188, 137, 243]][unit.owner] ?? [234, 91, 106];
+    const ringColor = restingAfterAction ? [138, 145, 150]
+      : [[54, 204, 239], [234, 91, 106], [188, 137, 243]][unit.owner] ?? [234, 91, 106];
     const ringGlow = ctx.createRadialGradient(centerX, ringY, 1, centerX, ringY, cell.width * .42);
     ringGlow.addColorStop(0, `rgba(${ringColor.join(',')},.34)`);
     ringGlow.addColorStop(.72, `rgba(${ringColor.join(',')},.17)`);
@@ -999,9 +1006,9 @@ export class BoardRenderer {
         ctx.shadowColor = unit.owner === 0 ? 'rgba(40,170,255,.98)' : 'rgba(255,65,105,.98)';
         ctx.shadowBlur = cell.width * (isHovered ? .18 : .1);
       }
-      drawAtlasFrame(ctx, atlas.image, frame, 0, (logicalHeight / 2 - baseline) * scale, { scale });
+      drawAtlasFrame(ctx, atlas.image, frame, 0, (logicalHeight / 2 - baseline) * scale, { scale, resting: restingAfterAction });
     } else {
-      ctx.fillStyle = color;
+      ctx.fillStyle = restingAfterAction ? '#899096' : color;
       ctx.font = `bold ${Math.round(cell.width * 0.48)}px Georgia, serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(isGeneral ? '♜' : '✦', centerX, ringY - cell.height * .52);
@@ -1027,11 +1034,10 @@ export class BoardRenderer {
     const logicalUnit = state.units.find((entry) => entry.unitId === unit.unitId) ?? unit;
     const iconSize = Math.max(17, cell.width * .29);
     const spacing = cell.width * .22;
-    const suffix = unit.owner === 0 ? '' : '-bw';
+    const suffix = unit.owner === 0 && !this.unitRestingAfterAction(unit) ? '' : '-bw';
     const opacity = this.effects.unitOpacity(unit.unitId);
     ctx.save();
     ctx.globalAlpha *= opacity;
-    if (this.unitRestingAfterAction(unit)) ctx.filter = 'grayscale(1)';
     this.drawStat(ctx, centerX - spacing, footY - cell.height * .11, iconSize,
       effectiveAttack(state, logicalUnit), this.images.get(`stat-attack${suffix}`));
     this.drawStat(ctx, centerX + spacing, footY - cell.height * .11, iconSize,

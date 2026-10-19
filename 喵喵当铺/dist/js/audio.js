@@ -1,16 +1,37 @@
 // WebAudio 合成音效与八音盒背景乐，不依赖音频文件
 let ctx = null, master = null, musicGain = null, musicTimer = null;
+const musicVoices = new Map();
+let playing = null, musicGeneration = 0;
 export const sound = { sfx: true, music: true };
 
 function ac() {
   if (!ctx) {
     const C = globalThis.AudioContext || globalThis.webkitAudioContext;
     if (!C) return null;
-    ctx = new C();
-    master = ctx.createGain(); master.gain.value = 0.5; master.connect(ctx.destination);
-    musicGain = ctx.createGain(); musicGain.gain.value = 0.16; musicGain.connect(master);
+    try {
+      const c = new C(), main = c.createGain(), bgm = c.createGain();
+      main.gain.value = 0.5; main.connect(c.destination);
+      bgm.gain.value = 0.16; bgm.connect(main);
+      ctx = c; master = main; musicGain = bgm;
+      // iOS interruptions can end without another game button click. Restart only
+      // after the audio clock is running, using the latest requested song.
+      c.onstatechange = () => {
+        if (c !== ctx) return;
+        if (c.state === 'running') {
+          if (current && sound.music && musicTimer === null) music(current);
+        } else if (c.state === 'suspended' || c.state === 'interrupted') stopMusic();
+      };
+    } catch { return null; }
   }
-  if (ctx.state === 'suspended') ctx.resume();
+  if (ctx.state === 'suspended' || ctx.state === 'interrupted') {
+    // 解锁可能异步成功或被宿主拒绝；仅在成功后按最新请求起曲。
+    const c = ctx;
+    try {
+      c.resume()?.then(() => {
+        if (c === ctx && c.state === 'running' && current && sound.music && musicTimer === null) music(current);
+      }, () => {});
+    } catch {}
+  }
   return ctx;
 }
 
@@ -21,6 +42,12 @@ function tone(f, t0, dur, { type = 'square', vol = 0.18, to = null, out = null }
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime(vol, t0 + 0.012);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  const release = () => {
+    o.disconnect(); g.disconnect(); o.onended = null;
+    musicVoices.delete(o);
+  };
+  o.onended = release;
+  if (out === musicGain) musicVoices.set(o, release);
   o.connect(g); g.connect(out || master); o.start(t0); o.stop(t0 + dur + 0.02);
 }
 
@@ -53,19 +80,40 @@ const freq = (n) => {
   return 440 * Math.pow(2, (k - 9 + (Number(m[3]) - 4) * 12) / 12);
 };
 let current = null;
+function stopMusic() {
+  clearTimeout(musicTimer); musicTimer = null;
+  playing = null; musicGeneration++;
+  // 一整段音符已提交给 WebAudio，取消 JS 定时器不会撤回它们。
+  for (const [o, release] of musicVoices) {
+    try { o.stop(ctx.currentTime); } catch {} // 已结束但尚未收到 ended 也可安全清理。
+    release();
+  }
+}
 export function music(name) {
   current = name;
-  clearTimeout(musicTimer);
-  if (!sound.music || !name || !ac()) return;
+  if (!sound.music || !SONGS[name]) { stopMusic(); return; }
+  const c = ac();
+  if (!c || c.state !== 'running') { stopMusic(); return; }
+  if (playing === name && musicTimer !== null) return;
+  stopMusic(); playing = name;
+  const generation = musicGeneration;
   const song = SONGS[name], step = 60 / song.bpm / 2;
   const notes = song.notes.split(' '), bass = song.bass.split(' ');
+  const duration = notes.length * step;
+  let nextLoopAt = 0;
   const loop = () => {
-    if (current !== name || !sound.music) return;
+    if (generation !== musicGeneration) return;
+    musicTimer = null;
+    if (current !== name || !sound.music || ctx.state !== 'running') { stopMusic(); return; }
+    // AudioContext 暂停会冻结音频时钟；墙钟定时器到期不代表上段已播完。
+    const remaining = nextLoopAt - ctx.currentTime;
+    if (remaining > 0.001) { musicTimer = setTimeout(loop, remaining * 1000); return; }
     const t0 = ctx.currentTime + 0.05;
     notes.forEach((n, i) => { const f = freq(n); if (f) tone(f, t0 + i * step, step * 2.2, { type: 'sine', vol: 0.5, out: musicGain }); });
     bass.forEach((n, i) => tone(freq(n), t0 + i * step * 4, step * 4, { type: 'triangle', vol: 0.35, out: musicGain }));
-    musicTimer = setTimeout(loop, notes.length * step * 1000);
+    nextLoopAt = ctx.currentTime + duration;
+    musicTimer = setTimeout(loop, duration * 1000);
   };
   loop();
 }
-export function unlockAudio() { ac(); if (current && sound.music && !musicTimer) music(current); }
+export function unlockAudio() { ac(); if (current && sound.music && musicTimer === null) music(current); }

@@ -1,3 +1,75 @@
+import * as Network from './network.js';
+import * as Business from './business.js';
+export const ensureGrowthState = Business.ensureGrowthState;
+export const businessView = () => Business.businessView(S,businessAPI());
+// Records a committed cash movement without applying it a second time.
+export const recordCash = (type, amount, cost = 0, detail = '') => Business.record(S,type,amount,cost,detail);
+export const operateManaged = (stage='morning') => Business.runOperations(S,businessAPI(),stage);
+export const networkPreview = (policy,periodId) => Network.previewNetwork(S,policy,periodId);
+export const networkManagerActive = () => Network.networkManagerActive(S);
+export const machineCapacity = mid => Business.capacity(S,mid);
+const receptionDecision = () => {
+  const e=S.business.employee,c=current(),manager=networkManagerActive();
+  const started=c&&(c.item&&c.kind==='buy'||c.negotiation||c.charmed||c.lensUsed||c.checks?.some(Boolean)||c.obs?.some(Boolean));
+  if(S.phase!=='day'||!c||c.tut||c.story!=null||c.who==='lady'||c.hoarder||c.collector||started)return null;
+  if(manager&&c.kind==='fence'&&!allItems().some(it=>!Business.reserved(S,it.uid)))return 'emptyFence';
+  if(manager&&c.kind==='order'&&S.business.network.reception==='stock'){
+    const o=c.order;
+    // Refuse only from public stock; unknown quality/authenticity is still a candidate.
+    if(o&&ITEMS[o.id]&&Number.isSafeInteger(o.qty)&&o.qty>0&&Number.isFinite(o.due)&&S.day<=o.due&&Number.isFinite(o.reward)&&o.reward>=0&&!S.orders.includes(o)&&allItems().filter(it=>orderCandidate(o,it)).length<o.qty)return 'declinedOrder';
+  }
+  return (manager||e.hired&&e.active&&e.days>0)&&['buy','sell'].includes(c.kind)&&(manager||!observationClue(c))?'ordinary':null;
+};
+export const canDelegateReception = () => !!receptionDecision();
+export function delegateReception() {
+  if(!canDelegateReception())return {ok:false,reason:'这位来客需要亲自接待'};
+  let count=0,declinedOrders=0,emptyFences=0,decision;
+  while((decision=receptionDecision())){if(decision==='declinedOrder')declinedOrders++;if(decision==='emptyFence')emptyFences++;S.queue[S.qi].resolved=true;S.qi++;count++;}
+  return {ok:true,count,declinedOrders,emptyFences};
+}
+export function advanceManaged(){
+ const initial=businessView().operations,start=S.day,end=Business.periodOf(start).end+1;
+ const regional=businessView().network;
+ if((!initial.enabled||!initial.available)&&!regional.enabled&&!regional.managerActive)return {ok:false,stop:'inactive',reason:initial.reason||'先开启经营安排',daysAdvanced:0};
+ const beganWithRegionalStop=regional.enabled&&!regional.current&&S.business.network.marks.opened===Business.periodOf(start).id&&start===Business.periodOf(start).start;
+ const beganOnClosingNight=S.phase==='night'&&start===Business.periodOf(start).end;
+ const buildBefore=new Set(regional.builds.filter(b=>b.eligible).map(b=>b.id)),goalBefore=regional.goal.completedDay;
+ const before=new Set(businessView().investments.filter(i=>i.eligible).map(i=>i.id));
+ let filteredOrders=0,emptyFences=0;
+ const done=(stop,reason)=>({ok:true,stop,reason,daysAdvanced:S.day-start,filteredOrders,emptyFences});
+ for(let guard=0;guard<7;guard++){
+  if(S.phase==='dawn')startDay();
+  if(S.phase==='night'&&S.day===Business.periodOf(S.day).end&&!beganOnClosingNight)return done('planning','本期结束，可调整下期安排');
+  operateManaged(S.phase==='night'?'night':'morning');
+  let ops=businessView().operations;
+  if(ops.enabled&&ops.issues.length)return done('operations',ops.issues[0].text);
+  const network=businessView().network;
+  if(network.enabled&&!network.current&&S.business.network.marks.opened===Business.periodOf(S.day).id&&S.day===Business.periodOf(S.day).start&&!(beganWithRegionalStop&&S.day===start))return done('operations',network.reason||S.business.network.goalReason||'区域运营未开工');
+  if(network.goal.completedDay&&!goalBefore)return done('goal','三店连续三期稳健经营已达成');
+  if(network.builds.some(b=>b.eligible&&!buildBefore.has(b.id)))return done('investment','新的区域建设已可安排');
+  if(businessView().investments.some(i=>i.eligible&&!before.has(i.id)))return done('investment','新的扩建已可安排');
+  if(S.day>=end)return done('period','已进入下一供货期');
+  if(S.phase==='day'){
+   while(current()&&(current().resolved||(['sell','buy'].includes(current().kind)&&current().pat<=0)))S.qi++;
+   if(current()&&canDelegateReception()){const delegated=delegateReception();filteredOrders+=delegated.declinedOrders;emptyFences+=delegated.emptyFences;}
+   if(current())return done('important','这位来客需要亲自接待');
+   if(rentToday()&&!S.business.ownership.owned&&!S.rentDone&&!payRent())return done('rent','鱼币不足，房租尚未支付');
+   startNight();
+   if(S.day===Business.periodOf(S.day).end&&!beganOnClosingNight)return done('planning','本期结束，可调整下期安排');
+   operateManaged('night');ops=businessView().operations;
+   if(ops.enabled&&ops.issues.length)return done('operations',ops.issues[0].text);
+  const network=businessView().network;
+  if(network.enabled&&!network.current&&S.business.network.marks.opened===Business.periodOf(S.day).id&&S.day===Business.periodOf(S.day).start&&!(beganWithRegionalStop&&S.day===start))return done('operations',network.reason||S.business.network.goalReason||'区域运营未开工');
+  if(network.goal.completedDay&&!goalBefore)return done('goal','三店连续三期稳健经营已达成');
+  if(network.builds.some(b=>b.eligible&&!buildBefore.has(b.id)))return done('investment','新的区域建设已可安排');
+  }
+  sleep();const expired=expireOrders(),lost=voidFakeCash();startDay();
+  if(expired.length||lost)return done('operations',`${expired.length?'临时订单已过期'+expired.length+'份':''}${expired.length&&lost?'；':''}${lost?'假币损失'+lost+'鱼币':''}`);
+ }
+ return done('period','已完成本期安排');
+}
+export const businessCommand = (action, args = {}) => Business.businessCommand(S, action, args, businessAPI());
+const businessAPI = () => ({mkItem, productionPlan, runMachine, collectMachines, observationClue, wants, buyerLooks, sellItem, rentInfo, buyFilter:()=>buyUpgrade(UPGRADES.find(u=>u.id==='filter'))});
 // 核心规则：状态、行情、客人生成、交易判定、夜晚结算。不碰 DOM。
 import { ITEMS, SELLERS, BUYERS, NEWS, CRATES, MACHINES, UPGRADES, CATS, WG, SIGNS, OBS, rentOf, DAYS_PER_WEEK, BUYOUT } from './data.js';
 
@@ -8,7 +80,7 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const r5 = (v) => Math.max(1, Math.round(v));
 
 export let S = null;
-export const setState = (s) => { S = s; };
+export const setState = (s) => { S = s ? Business.ensureGrowthState(s) : null; };
 
 export function newRun() {
   S = {
@@ -25,6 +97,7 @@ export function newRun() {
     st: { buy: 0, sell: 0, fakeSpot: 0, fakeSold: 0, ingots: 0, waters: 0, clean: 0, orders: 0, peakWorth: 0, robo: 0, cooled: 0 },
     tutorial: false,
   };
+  Business.ensureGrowthState(S);
   ['dryfish', 'dryfish', 'can', 'scrap', 'scrap'].forEach((id) => S.shelf.push(mkItem(id)));
   rollMarket();
   return S;
@@ -41,7 +114,12 @@ const baseV = (it, g) => ITEMS[it.id].v * (isWater(it) ? WG[g].m : 1);
 export const week = () => Math.floor((S.day - 1) / DAYS_PER_WEEK) + 1;
 export const weekday = () => (S.day - 1) % DAYS_PER_WEEK;
 export const rentToday = () => weekday() === DAYS_PER_WEEK - 1;
-export const rentAmount = () => rentOf(week()) + S.rentDue;
+export const rentAmount = () => (Business.ensureGrowthState(S).business.ownership.owned ? 0 : rentOf(week())) + S.rentDue;
+// On a settled rent day, planning must point to next week, including any deferred debt.
+export function rentInfo() {
+  const paid = rentToday() && (!!S.rentDone || S.phase === 'night');
+  return { amount: (S.business?.ownership.owned ? 0 : rentOf(week() + (paid ? 1 : 0))) + (S.rentDue || 0), days: DAYS_PER_WEEK - 1 - weekday() + (paid ? DAYS_PER_WEEK : 0), paid };
+}
 export const isBan = (it) => !!ITEMS[it.id].ban;
 export const allItems = () => [...S.shelf, ...S.hidden];
 
@@ -73,7 +151,7 @@ export function estimate(it) {
   }
   return it.est;
 }
-export const netWorth = () => S.money + allItems().reduce((a, it) => a + trueValue(it), 0);
+export const netWorth = () => S.money + Network.networkInventoryValue(S) + [...allItems(), ...Business.inventory(S).filter(i=>!S.shelf.includes(i))].reduce((a, it) => a + trueValue(it), 0);
 
 // ───── 客人 ─────
 const sellerTypes = Object.keys(SELLERS), buyerTypes = Object.keys(BUYERS);
@@ -197,23 +275,57 @@ function ladySpec() {
 }
 
 export function startDay() {
+  Business.morning(S, businessAPI());
   S.phase = 'day';
   S.queue = genQueue();
   S.qi = 0;
   S.rentDone = false;
+  Business.employeeSales(S, businessAPI());
+  Business.runOperations(S,businessAPI(),'morning');
+  Network.networkMorning(S,{record:recordCash});
   return S.queue;
 }
 export const current = () => S.queue[S.qi];
+
+// Clues are derived from existing v2 fields: no rerolls, new save fields or RNG consumption.
+function clueKey(c) {
+  let hash = 2166136261;
+  const itemKey = c.kind === 'sell' ? c.item?.uid ?? '' : '';
+  for (const ch of `${c.kind}|${c.who}|${itemKey}|${S.day}|${S.qi}`) hash = Math.imul(hash ^ ch.charCodeAt(0), 16777619) >>> 0;
+  return hash;
+}
+const ITEM_DETAILS = {
+  food: ['包装封口有些皱褶', '气味有些难分辨', '日期印字有些浅'],
+  drink: ['颜色看着不太均匀', '气味有些难分辨', '成分需要试纸核实'],
+  material: ['纹理有一处不均', '拿在手里有点坠手', '断口处有些磨痕'],
+  tech: ['铭牌有些磨损', '接线处有些旧', '外壳上有一道浅痕'],
+  treasure: ['印记边缘有些浅', '材质光泽不太均匀', '做工细节值得看看'],
+  toy: ['缝线有些不整齐', '材质手感有点特别', '标签字迹有些浅'],
+};
+export function itemClue(c) {
+  if (!c || c.kind !== 'sell' || !c.item || !ITEMS[c.item.id]) return null;
+  if (isWater(c.item)) return { index: 2, text: '试纸能确认水质' };
+  const index = c.item.fake && Number.isInteger(c.bad) && c.bad >= 0 && c.bad < 3 ? c.bad : c.item.stolen ? 0 : clueKey(c) % 3;
+  return { index, text: (ITEM_DETAILS[ITEMS[c.item.id].cat] || ITEM_DETAILS.tech)[index] };
+}
+export function observationClue(c) {
+  if (!c || !['sell', 'buy'].includes(c.kind) || S.day < 4 || c.tut || c.who === 'lady') return null;
+  const key = clueKey(c);
+  if (!c.robo && key % 4 !== 0) return null;
+  const index = c.robo && Number.isInteger(c.roboBad) && c.roboBad >= 0 && c.roboBad < 3 ? c.roboBad : (key >>> 2) % 3;
+  return { index, text: ['眨眼节奏有点奇怪', '胡须看着有些僵', '呼噜声忽然停了一下'][index] };
+}
 
 // ───── 收货 ─────
 // 返回 {r:'deal'|'counter'|'leave', price, angry}
 export function offerToSeller(c, p) {
   if (p >= c.ask || p >= c.res) return { r: 'deal', price: Math.min(p, c.ask) };
-  const angry = p < c.res * 0.5;
+  const angry = p < c.res * 0.5, near = p >= c.res * 0.85;
   c.pat -= angry ? 2 : 1;
-  if (c.pat <= 0) return { r: 'leave', angry };
+  if (c.pat <= 0) { c.negotiation = { price: p, counter: c.ask, near, angry }; return { r: 'leave', angry, near }; }
   c.ask = Math.max(c.res, r5(c.ask - (c.ask - p) * rnd(0.3, 0.45)));
-  return { r: 'counter', price: c.ask, angry };
+  c.negotiation = { price: p, counter: c.ask, near, angry };
+  return { r: 'counter', price: c.ask, angry, near };
 }
 export function checkSpot(c, i) {
   if (c.checks[i]) return { res: c.checks[i], free: true };
@@ -223,6 +335,7 @@ export function checkSpot(c, i) {
   if (fakeish(c.item) && i === c.bad) res = 'fake';
   else if (c.item.stolen && c.who !== 'thief' && i === 0) res = 'stolen';
   c.checks[i] = res;
+  if(c.checks.length===3 && c.checks.every(check=>check==='ok'))c.item.known=true;
   if (isWater(c.item) && i === 2) c.item.gk = true;
   if (res === 'fake') {
     c.exposed = true;
@@ -237,6 +350,8 @@ export function checkSpot(c, i) {
 export function buyItem(c, price) {
   if (S.shelf.length >= S.shelfCap) return false;
   S.money -= price;
+  Business.record(S,'retailPurchase',-price,0,c.item.id);
+  c.item.source='retailPurchase';
   c.item.cost = price;
   if (c.exposed) c.item.known = true;
   S.shelf.push(c.item);
@@ -250,6 +365,7 @@ export function buyerLooks(c, it) {
   const v = lookValue(it), fac = CATS[c.who].fac;
   const repAdj = fac ? 1 + 0.03 * S.rep[fac] : 1;
   c.item = it;
+  delete c.negotiation;
   c.max = r5(v * c.rich * repAdj);
   c.bid = r5(v * rnd(0.6, 0.78));
   c.bid0 = c.bid;
@@ -258,13 +374,16 @@ export function buyerLooks(c, it) {
 }
 export function askBuyer(c, p) {
   if (p <= c.max) return { r: 'deal', price: p };
-  const angry = p > c.max * 1.6;
+  const angry = p > c.max * 1.6, near = p <= c.max * 1.15;
   c.pat -= angry ? 2 : 1;
-  if (c.pat <= 0) return { r: 'leave', angry };
+  if (c.pat <= 0) { c.negotiation = { price: p, counter: c.bid, near, angry }; return { r: 'leave', angry, near }; }
   c.bid = Math.min(c.max, r5(c.bid + (p - c.bid) * rnd(0.3, 0.45)));
-  return { r: 'counter', price: c.bid, angry };
+  c.negotiation = { price: p, counter: c.bid, near, angry };
+  return { r: 'counter', price: c.bid, angry, near };
 }
 export function sellItem(c, price) {
+  if (!c?.item || Business.reserved(S,c.item.uid) || !S.shelf.includes(c.item) && !S.hidden.includes(c.item)) return false;
+  Business.record(S,'retail',price,c.item.cost||0,c.item.source||'inventory');
   removeItem(c.item);
   S.money += price;
   S.st.sell++;
@@ -275,6 +394,8 @@ export function sellItem(c, price) {
   if (fac && price <= lookValue(c.item) * 1.05) addRep(fac, 1);
 }
 export function removeItem(it) {
+  if(!it || Business.reserved(S,it.uid))return false;
+  S.business.warehouse = S.business.warehouse.filter(x=>x.uid!==it.uid);
   S.shelf = S.shelf.filter((x) => x !== it);
   S.hidden = S.hidden.filter((x) => x !== it);
   S.win = S.win.filter((u) => u !== it.uid);
@@ -294,9 +415,10 @@ export function charm(c) {
 // 三花姐不验水：贴了标签的水按标签价收
 export const fencePrice = (it) => r5((isWater(it) ? lookValue(it) : trueValue(it)) * (it.fake ? 0.5 : 0.62));
 export function fenceSell(list) {
-  let sum = 0;
-  for (const it of list) { sum += fencePrice(it); if (isWater(it) && fakeish(it)) S.st.scamRival = 1; removeItem(it); }
+  let sum = 0, cost = 0;
+  for (const it of list) { if(Business.reserved(S,it.uid)||!allItems().includes(it))continue; sum += fencePrice(it); cost+=it.cost||0; if (isWater(it) && fakeish(it)) S.st.scamRival = 1; removeItem(it); }
   S.money += sum;
+  if(sum) Business.record(S,'fence',sum,cost);
   return sum;
 }
 export function inspect() {
@@ -307,23 +429,61 @@ export function inspect() {
 }
 export function acceptFine(res) {
   res.found.forEach(removeItem);
-  S.money -= res.fine;
+  const paid=Math.min(S.money,res.fine); S.money-=paid; Business.record(S,'fine',-paid);
 }
 export function tryBribe(res) {
   const ok = Math.random() < clamp(0.75 + 0.05 * S.rep.law, 0.35, 0.95);
-  if (ok) { S.money -= res.bribe; addRep('law', -1); return true; }
+  if (ok) { const paid=Math.min(S.money,res.bribe); S.money-=paid; Business.record(S,'bribe',-paid); addRep('law', -1); return true; }
   res.found.forEach(removeItem);
-  S.money -= res.fine * 2; addRep('law', -2);
+  const paid=Math.min(S.money,res.fine*2); S.money-=paid; Business.record(S,'fine',-paid); addRep('law', -2);
   return false;
 }
 export function acceptOrder(o) { S.orders.push(o); }
-export function canDeliver(o) { return allItems().filter((it) => orderOk(o, it)).length >= o.qty; }
-export function deliver(o) {
-  let n = o.qty;
-  for (const it of [...S.shelf, ...S.hidden]) if (n > 0 && orderOk(o, it)) { removeItem(it); n--; }
+const knownWaterGrade = (it) => isWater(it) && (it.gk || WG[grade(it)]?.eye) ? grade(it) : null;
+function publicInput(it) {
+  return { uid: it.uid, id: it.id, name: itemName(it), qty: 1, knownGrade: knownWaterGrade(it), shownGrade: isWater(it) ? shownG(it) : null,
+    cost: it.cost || 0, fakeKnown: !!(it.fake && it.known) };
+}
+const validUids = (uids) => Array.isArray(uids) && uids.every(Number.isSafeInteger) && new Set(uids).size === uids.length;
+const orderCandidate = (o, it) => !Business.reserved(S,it.uid) && it.id === o.id && !(it.fake && it.known) && (!isWater(it) || knownWaterGrade(it) === null || knownWaterGrade(it) >= 3);
+export function orderPlan(o, uids) {
+  const candidates = o && ITEMS[o.id] ? allItems().filter(it => orderCandidate(o, it)) : [];
+  const plan = { ok: false, reason: null, eligibleUids: candidates.map(it => it.uid), inputUids: [], inputs: [], qty: o?.qty || 0, have: candidates.length };
+  const fail = (reason) => ({ ...plan, reason });
+  if (!o || !ITEMS[o.id] || !Number.isSafeInteger(o.qty) || o.qty < 1 || !Number.isFinite(o.reward) || o.reward < 0) return fail('订单无效');
+  if (!S.orders.includes(o)) return fail('订单尚未接取');
+  if (!Number.isFinite(o.due) || S.day > o.due) return fail('订单已过期');
+  let take;
+  if (uids !== undefined) {
+    if (!validUids(uids)) return fail('选择重复或无效');
+    take = uids.map(uid => allItems().find(it => it.uid === uid));
+    if (take.some(it => !it)) return fail('所选货物已不在库存');
+  } else {
+    // Known, low-grade qualifying water comes first. Unknown labels are not evidence of quality.
+    take = [...candidates].sort((a, b) => {
+      if (!isWater(a)) return 0;
+      return (knownWaterGrade(a) ?? 99) - (knownWaterGrade(b) ?? 99);
+    }).slice(0, o.qty);
+  }
+  plan.inputUids = take.map(it => it.uid); plan.inputs = take.map(publicInput);
+  if (take.length !== o.qty) return fail(take.length < o.qty ? `还缺 ${o.qty - take.length} 份货物` : `请选择 ${o.qty} 份货物`);
+  // Planning uses public eligibility only. Unknown merchandise is verified at delivery.
+  if (take.some(it => !orderCandidate(o, it))) return fail('所选货物不符合订单要求');
+  return { ...plan, ok: true };
+}
+// Also usable for a visitor's not-yet-accepted offer; actual delivery is stricter.
+export function canDeliver(o) { return !!(o && ITEMS[o.id] && Number.isSafeInteger(o.qty) && o.qty > 0 && S.day <= o.due && allItems().filter(it => orderOk(o, it)).length >= o.qty); }
+export function deliver(o, uids) {
+  const plan = orderPlan(o, uids);
+  if (!plan.ok) return false;
+  const take = plan.inputUids.map(uid => allItems().find(it => it.uid === uid));
+  if (take.some(it => !it || !orderOk(o, it))) return false;
+  take.forEach(removeItem);
   S.money += o.reward;
+  Business.record(S,'temporaryOrder',o.reward,take.reduce((n,it)=>n+(it.cost||0),0),o.id);
   S.orders = S.orders.filter((x) => x !== o);
   S.st.orders++;
+  return true;
 }
 export function expireOrders() {
   const gone = S.orders.filter((o) => S.day > o.due);
@@ -343,7 +503,7 @@ export function openCrate(idx) {
   if (cr.rare && cr.rare.includes(id) && Math.random() < 0.55) [id, n] = pick(cr.pool.filter((p) => !cr.rare.includes(p[0])));
   const got = [], lost = [];
   for (let i = 0; i < n; i++) {
-    const it = mkItem(id, id === 'water' ? { g: cr.id === 'wet' ? ri(0, 2) : 0, gk: true } : {});
+    const it = mkItem(id, {source:'crate',...(id === 'water' ? { g: cr.id === 'wet' ? ri(0, 2) : 0, gk: true } : {})});
     if (S.shelf.length < S.shelfCap) { S.shelf.push(it); got.push(it); } else lost.push(it);
   }
   S.night.opened.push(idx);
@@ -352,45 +512,113 @@ export function openCrate(idx) {
 // 净水器：每份 +2 档，上限山泉水（有紫外线灯到纯净水）；脏水耗滤芯 3 点
 export const pureMax = () => (S.up.uv ? 5 : 4);
 const filterCost = (it) => (grade(it) <= 1 ? 3 : 1);
+const productionItems = () => Business.rawItems(S).filter(it=>!Business.reserved(S,it.uid) && S.queue[S.qi]?.item?.uid!==it.uid);
 function pureQueue() {
-  const list = S.shelf.filter((it) => isWater(it) && grade(it) < pureMax()).sort((a, b) => grade(b) - grade(a));
+  const list = productionItems().filter((it) => isWater(it) && grade(it) < pureMax()).sort((a, b) => grade(b) - grade(a));
   const take = []; let f = S.filter;
-  for (const it of list) { if (take.length >= MACHINES.purifier.cap) break; if (filterCost(it) <= f) { take.push(it); f -= filterCost(it); } }
+  for (const it of list) { if (take.length >= Business.capacity(S,'purifier')) break; if (filterCost(it) <= f) { take.push(it); f -= filterCost(it); } }
   return take;
 }
 // 酿酒要白开水或山泉水：山泉水酿得更香，纯净水太干净发不了酵
-const brewWater = () => S.shelf.filter((it) => isWater(it) && grade(it) >= 3 && grade(it) <= 4).sort((a, b) => grade(b) - grade(a));
+const brewWater = () => productionItems().filter((it) => isWater(it) && grade(it) >= 3 && grade(it) <= 4).sort((a, b) => grade(b) - grade(a));
 export function machineInputs(mid) {
-  const m = MACHINES[mid];
+  const m = MACHINES[mid] ? {...MACHINES[mid], cap:Business.capacity(S,mid)} : null;
+  if (!m) return 0;
   if (mid === 'purifier') return pureQueue().length;
-  const have = S.shelf.filter((it) => it.id === m.in[0] && !it.fake).length;
+  const have = productionItems().filter((it) => it.id === m.in[0] && !it.fake).length;
   let n = Math.min(m.cap, Math.floor(have / m.in[1]));
   if (m.water) n = Math.min(n, brewWater().length);
   return n;
 }
-export function runMachine(mid) {
-  const m = MACHINES[mid], batches = machineInputs(mid);
-  if (!batches || S.machines[mid]) return 0;
+function resolveProduction(mid, selection, execute = false) {
+  const m = MACHINES[mid] ? {...MACHINES[mid], cap:Business.capacity(S,mid)} : null;
+  const publicCandidates = m ? productionItems().filter(it => mid === 'purifier' ? isWater(it) && (knownWaterGrade(it) === null || knownWaterGrade(it) < pureMax())
+    : (it.id === m.in[0] && !(it.fake && it.known)) || (m.water && isWater(it) && (knownWaterGrade(it) === null || (knownWaterGrade(it) >= 3 && knownWaterGrade(it) <= 4)))) : [];
+  const plan = { ok: false, reason: null, inputUids: [], inputs: [], outputs: [], outputCount: 0, days: m?.days || 0,
+    filterCost: 0, filterAfter: S.filter, batches: 0, eligibleUids: publicCandidates.map(it => it.uid) };
+  const fail = reason => ({ plan: { ...plan, reason }, take: [] });
+  if (!m) return fail('机器不存在');
+  if (!S.owned?.[mid]) return fail('尚未购买机器');
+  if (S.machines[mid]) return fail(S.machines[mid].ready ? '成品尚未入库' : '机器正在加工');
+  let take, batches;
+  if (selection !== undefined) {
+    if (!selection || !validUids(selection.uids)) return fail('选择重复或无效');
+    take = selection.uids.map(uid => productionItems().find(it => it.uid === uid));
+    if (take.some(it => !it)) return fail('所选原料已不在货架');
+  } else if (mid === 'purifier') {
+    if (execute) take = pureQueue();
+    else {
+      let availableFilter = S.filter;
+      take = [];
+      for (const it of [...publicCandidates].sort((a, b) => (knownWaterGrade(b) ?? -1) - (knownWaterGrade(a) ?? -1))) {
+        const cost = knownWaterGrade(it) !== null && knownWaterGrade(it) <= 1 ? 3 : 1;
+        if (take.length < m.cap && cost <= availableFilter) { take.push(it); availableFilter -= cost; }
+      }
+    }
+  }
+  else {
+    const materials = productionItems().filter(it => it.id === m.in[0] && !(it.fake && (execute || it.known)));
+    const waters = m.water ? (execute ? brewWater() : publicCandidates.filter(isWater).sort((a, b) => (knownWaterGrade(b) ?? -1) - (knownWaterGrade(a) ?? -1))) : [];
+    batches = Math.min(m.cap, Math.floor(materials.length / m.in[1]), m.water ? waters.length : Infinity);
+    take = materials.slice(0, batches * m.in[1]);
+    if (m.water) take.push(...waters.slice(0, batches));
+  }
+  plan.inputUids = take.map(it => it.uid); plan.inputs = take.map(publicInput);
+  if (!take.length) {
+    if (mid === 'purifier') return fail(publicCandidates.length ? '滤芯不足' : '缺待净化的原水');
+    if (m.water && publicCandidates.filter(it => it.id === m.in[0]).length >= m.in[1]) return fail('缺白开水或山泉水');
+    return fail(`缺${ITEMS[m.in[0]].name}，每批需 ${m.in[1]} 份`);
+  }
   if (mid === 'purifier') {
-    const take = pureQueue();
-    const items = take.map((it) => { S.filter -= filterCost(it); removeItem(it); return { g: Math.min(pureMax(), grade(it) + 2), gk: true }; });
+    if (take.length > m.cap) return fail(`每批最多 ${m.cap} 份`);
+    if (take.some(it => !isWater(it) || (execute ? grade(it) >= pureMax() : knownWaterGrade(it) !== null && knownWaterGrade(it) >= pureMax()))) return fail('所选原水不符合净化要求');
+    batches = take.length; plan.filterCost = take.reduce((sum, it) => sum + (execute ? filterCost(it) : knownWaterGrade(it) !== null && knownWaterGrade(it) <= 1 ? 3 : 1), 0); plan.filterAfter = S.filter - plan.filterCost;
+    if (plan.filterAfter < 0) return fail('滤芯不足');
+    plan.outputs = take.map(it => {
+      const before = knownWaterGrade(it), after = before === null ? null : Math.min(pureMax(), before + 2);
+      return { id: 'water', name: after === null ? '净化后的水（档位待验）' : WG[after].n, qty: 1, knownGrade: after, shownGrade: after, fakeKnown: false };
+    });
+  } else {
+    const material = take.filter(it => it.id === m.in[0]), waters = m.water ? take.filter(it => isWater(it)) : [];
+    if (take.length !== material.length + waters.length || material.some(it => it.fake && (execute || it.known))) return fail('所选原料不符合配方');
+    if (!material.length || material.length % m.in[1]) return fail(`原料需按 ${m.in[1]} 份成批选择`);
+    batches = material.length / m.in[1];
+    if (batches > m.cap) return fail(`每批最多 ${m.cap} 批次`);
+    if (m.water && (waters.length !== batches || waters.some(it => execute ? grade(it) < 3 || grade(it) > 4 : knownWaterGrade(it) !== null && (knownWaterGrade(it) < 3 || knownWaterGrade(it) > 4)))) return fail('每批需一份白开水或山泉水');
+    plan.outputs = [{ id: m.out[0], name: ITEMS[m.out[0]].name, qty: batches * m.out[1], knownGrade: null, shownGrade: null, fakeKnown: m.out[2] === 'fake' }];
+  }
+  plan.batches = batches; plan.outputCount = batches * m.out[1]; plan.ok = true;
+  return { plan, take };
+}
+export function productionPlan(mid, selection) { return resolveProduction(mid, selection).plan; }
+export function runMachine(mid, selection) {
+  const { plan, take } = resolveProduction(mid, selection, true);
+  if (!plan.ok) return 0;
+  const m = MACHINES[mid], batches = plan.batches;
+  if (mid === 'purifier') {
+    const items = take.map((it) => { const cost=(it.cost||0)+filterCost(it)*3; S.filter -= filterCost(it); removeItem(it); return { g: Math.min(pureMax(), grade(it) + 2), gk: true, known:true, q:it.q, cost, stolen:it.stolen, heat:it.heat||0 }; });
     S.machines[mid] = { left: m.days, n: items.length, items };
     return batches;
   }
-  let need = batches * m.in[1];
-  for (const it of [...S.shelf]) if (need > 0 && it.id === m.in[0] && !it.fake) { removeItem(it); need--; }
+  const materials = take.filter(it => it.id === m.in[0]), waters = m.water ? take.filter(isWater) : [];
+  materials.forEach(removeItem);
   let items;
-  if (m.water) items = brewWater().slice(0, batches).map((w) => { removeItem(w); return { q: grade(w) === 4 ? rnd(1.3, 1.45) : rnd(0.95, 1.1) }; });
+  const unitCost=take.reduce((sum,it)=>sum+(it.cost||0),0)/(batches*m.out[1]);
+  if (m.water) items = waters.map((w) => { removeItem(w); return { q: grade(w) === 4 ? rnd(1.3, 1.45) : rnd(0.95, 1.1) }; });
+  items = Array.from({length:batches*m.out[1]},(_,i)=>({...items?.[i], cost:unitCost, known:true, stolen:take.some(t=>t.stolen), heat:Math.max(0,...take.map(t=>t.heat||0))}));
   S.machines[mid] = { left: m.days, n: batches * m.out[1], items };
   return batches;
 }
 // 睡觉：机器推进一晚、换日
 export function sleep() {
   const out = [];
+  if (!Business.evening(S,{...businessAPI(),collectMachines:()=>collectMachines(out)})) return out;
+  Network.networkEvening(S,{record:recordCash});
   for (const [mid, job] of Object.entries(S.machines)) {
     if (!job) continue;
     if (job.left > 0) job.left--;
     if (job.left <= 0 && !job.ready) job.ready = true;
+    if(job.ready) materializeProducts(mid,job);
   }
   collectMachines(out);
   if (S.up.dew && S.shelf.length < S.shelfCap) { const w = mkItem('water', { g: 2, gk: true }); S.shelf.push(w); out.push(w); }
@@ -401,30 +629,40 @@ export function sleep() {
     if (it.heat <= 0) { it.stolen = false; it.heat = 0; it.cooled = true; S.st.cooled++; }
   }
   S.day++;
+  S.phase = 'dawn';
+  Business.morning(S,businessAPI());
   S.news = S.nextNews;
   S.nextNews = pick(NEWS).id;
   rollMarket();
   return out;
 }
 // 机器产出放进货架，放不下的留在机器里等明晚
-export function collectMachines(out = []) {
-  for (const [mid, job] of Object.entries(S.machines)) {
-    if (!job || !job.ready) continue;
-    const m = MACHINES[mid];
-    while (job.n > 0 && S.shelf.length < S.shelfCap) {
-      const it = mkItem(m.out[0], { fake: m.out[2] === 'fake', ...(job.items ? job.items.shift() : {}) });
-      S.shelf.push(it); out.push(it); job.n--;
-      if (mid === 'furnace') S.st.ingots++;
-      if (mid === 'purifier') { S.st.waters++; if (grade(it) >= 5) S.st.pure = 1; }
+function materializeProducts(mid,job) {
+  if(job.products) return;
+  const m=MACHINES[mid];
+  job.products=Array.from({length:job.n},()=>mkItem(m.out[0],{fake:m.out[2]==='fake',known:true,...(job.items?.shift()||{})}));
+  if(mid==='furnace') S.st.ingots+=job.n;
+  if(mid==='purifier'){S.st.waters+=job.n;if(job.products.some(i=>grade(i)>=5))S.st.pure=1;}
+}
+export function collectMachines(out = [], machine = null) {
+  for (const [mid,job] of Object.entries(S.machines)) {
+    if((machine && mid!==machine)||!job?.ready) continue;
+    materializeProducts(mid,job);
+    while(job.products.length && S.shelf.length<S.shelfCap) {
+      const i=job.products[0];
+      job.products.shift();S.shelf.push(i);out.push(i);
     }
-    if (job.n <= 0) S.machines[mid] = null;
+    job.n=job.products.length;
+    if(!job.n)S.machines[mid]=null;
   }
   return out;
 }
 export function buyUpgrade(u) {
+  if(!u || !UPGRADES.includes(u) || (u.need && !S.up[u.need]))return false;
   if (S.money < u.cost) return false;
   if (!u.repeat && S.up[u.id]) return false;
   S.money -= u.cost;
+  Business.record(S,u.id==='filter'?'consumable':'investment',-u.cost,0,u.id);
   if (u.id === 'lawfee') { addRep('law', 2); return true; }
   if (u.id === 'gangfee') { addRep('gang', 2); return true; }
   if (u.id === 'filter') { S.filter += 10; return true; }
@@ -436,17 +674,24 @@ export function buyUpgrade(u) {
   return true;
 }
 export const allUpgrades = () => UPGRADES.filter((u) => !u.repeat).every((u) => S.up[u.id]);
-export const canBuyout = () => S.money >= BUYOUT;
+export const canBuyout = () => !S.business.ownership.owned && S.money >= BUYOUT + (S.rentDue||0);
 
 export function payRent() {
+  if (S.business.ownership.owned || !rentToday() || S.rentDone || S.phase === 'night') return false;
   const amt = rentAmount();
   if (S.money < amt) return false;
-  S.money -= amt; S.rentDue = 0; S.rentPaid++;
+  S.money -= amt; Business.record(S,'rent',-amt); S.rentDue = 0; S.rentPaid++; S.rentDone = true;
   return true;
 }
-export function graceRent() { S.rentDue += rentOf(week()); S.graceUsed = true; }
+export function graceRent() {
+  if (S.business.ownership.owned || !rentToday() || S.rentDone || S.phase === 'night' || S.graceUsed) return false;
+  S.rentDue += S.business.ownership.owned ? 0 : rentOf(week()); S.graceUsed = true; S.rentDone = true;
+  return true;
+}
 
 export function moveItem(it) {
+  if(!S.shelf.includes(it)&&!S.hidden.includes(it))return false;
+  if(Business.reserved(S,it.uid))return false;
   if (S.hidden.includes(it)) {
     if (S.shelf.length >= S.shelfCap) return false;
     S.hidden = S.hidden.filter((x) => x !== it); S.shelf.push(it); return true;
@@ -459,8 +704,9 @@ export const trackPeak = () => { S.st.peakWorth = Math.max(S.st.peakWorth, netWo
 // ───── 水：贴标 ─────
 export const canLabel = (it) => S.owned.labeler && isWater(it) && grade(it) >= 2 && it.lab == null;
 export function labelWater(it) {
+  if(Business.reserved(S,it.uid))return false;
   if (!canLabel(it) || S.money < 2) return false;
-  S.money -= 2; it.lab = 5; it.est = null;
+  S.money -= 2; Business.record(S,'label',-2,0,String(it.uid)); it.cost=(it.cost||0)+2; it.lab = 5; it.est = null;
   return true;
 }
 export function unlabel(it) { it.lab = null; it.est = null; }
@@ -476,9 +722,9 @@ export function observe(c, i) {
 export function report(c) {
   if (c.robo) {
     const bounty = r5(50 + S.day * 5);
-    S.money += bounty; addRep('law', 2); S.st.robo++;
+    S.money += bounty; Business.record(S,'reward',bounty,0,'report'); addRep('law', 2); S.st.robo++;
     let drop = null;
-    if (S.shelf.length < S.shelfCap) { drop = mkItem(pick(['battery', 'battery', 'chip', 'claw'])); S.shelf.push(drop); }
+    if (S.shelf.length < S.shelfCap) { drop = mkItem(pick(['battery', 'battery', 'chip', 'claw']),{source:'reward',known:true}); S.shelf.push(drop); }
     return { ok: true, bounty, drop };
   }
   const fac = CATS[c.who].fac;
@@ -489,6 +735,6 @@ export function report(c) {
 // 伪猫付的是全息假币，第二天早上消失
 export function voidFakeCash() {
   const lost = Math.min(S.fakeCash, Math.max(0, S.money));
-  S.money -= lost; S.fakeCash = 0;
+  S.money -= lost; S.fakeCash = 0; if(lost)Business.record(S,'fakeCash',-lost);
   return lost;
 }

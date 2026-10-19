@@ -6,11 +6,26 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="screen-orientation" content="portrait">
 <title>喵喵当铺</title>
+<style>
+#boot { position:fixed; inset:0; z-index:10000; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:20px; padding:32px; background:#ffe9c4; color:#4a2c1a; font:700 18px/1.6 'PingFang SC','Microsoft YaHei',sans-serif; text-align:center; }
+#boot[hidden], #boot-retry[hidden] { display:none; }
+#boot h1 { margin:0; font-size:32px; }
+#boot-message { max-width:320px; margin:0; }
+#boot-retry { min-height:48px; padding:10px 30px; border:0; background:#f7a93a; color:#4a2410; font:inherit; cursor:pointer; box-shadow:inset 0 -4px #d9822a; }
+#boot-retry:active { transform:translateY(2px); box-shadow:inset 0 -2px #d9822a; }
+#boot-retry:focus-visible { outline:3px solid #4a2c1a; outline-offset:4px; }
+</style>
 <link rel="stylesheet" href="css/fonts.css">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<div id="boot" role="status" aria-live="polite">
+  <h1>喵喵当铺</h1>
+  <p id="boot-message">正在开门…</p>
+  <button id="boot-retry" type="button" hidden>重新加载</button>
+</div>
 <div id="stage"></div>
+<script src="js/boot.js"></script>
 <script type="module" src="js/main.js"></script>
 </body>
 </html>

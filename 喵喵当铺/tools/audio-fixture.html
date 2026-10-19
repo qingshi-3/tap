@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="/games/miaomiao-pawnshop/">
+  <title>BGM 隔离验收</title>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="stage"></div>
+<script type="module">
+  // Test-origin only: count scheduled voices without changing their playback.
+  const query = new URLSearchParams(location.search);
+  const base = query.has('before')
+    ? '/output/miaomiao-pawnshop/layout-refinement/before/miaomiao-pawnshop/'
+    : query.has('dist') ? '/games/miaomiao-pawnshop/dist/' : '/games/miaomiao-pawnshop/';
+  document.querySelector('base').href = base;
+  const NativeContext = window.AudioContext || window.webkitAudioContext;
+  const voices = [];
+  let context;
+  window.AudioContext = class extends NativeContext {
+    constructor(...args) { super(...args); context = this; }
+    createOscillator() {
+      const node = super.createOscillator();
+      const record = { start: Infinity, stop: Infinity, disconnected: false };
+      voices.push(record);
+      const start = node.start.bind(node), stop = node.stop.bind(node), disconnect = node.disconnect.bind(node);
+      node.start = (when = 0) => { record.start = when; return start(when); };
+      node.stop = (when = 0) => { record.stop = when; return stop(when); };
+      node.disconnect = (...args) => { record.disconnected = true; return disconnect(...args); };
+      return node;
+    }
+  };
+  window.audioProbe = () => {
+    const now = context?.currentTime || 0;
+    const live = voices.filter(v => !v.disconnected && v.stop > now);
+    return { created: voices.length, scheduled: live.length, sounding: live.filter(v => v.start <= now).length, state: context?.state };
+  };
+  setInterval(() => { document.documentElement.dataset.audioProbe = JSON.stringify(window.audioProbe()); }, 50);
+  const G = await import(base + 'js/game.js');
+  const run = G.newRun();
+  run.tutorial = true; run.day = 9; run.money = 486;
+  G.startNight();
+  localStorage.setItem('mmdp_meta', JSON.stringify({ach:{},best:0,fastest:0,runs:1,tut:true,sfx:false,music:true}));
+  localStorage.setItem('mmdp_run', JSON.stringify(run));
+  await import(base + 'js/main.js');
+</script>
+</body>
+</html>

@@ -1,4 +1,18 @@
 /* Battle controls use the approved filled metal button family. */
+/* Reserve a separate row while the hint is visible, keeping the end-turn hit area
+   fixed and the bubble clear of mana and the hero power on short screens. */
+.match .match-footer.has-end-turn-hint { height:146px; grid-template-rows:64px 28px 44px; }
+.match-footer.has-end-turn-hint .end-turn { grid-row:3; }
+.match-footer .end-turn-hint {
+ grid-column:1/-1; grid-row:2; position:relative; justify-self:center; align-self:center;
+ padding:4px 10px; border:0; border-radius:5px; background:#f4d99a; color:#342718;
+ font-size:13px; font-weight:600; line-height:18px; white-space:nowrap;
+ box-shadow:0 2px 4px #10151c70; pointer-events:none;
+}
+.end-turn-hint::after { content:''; position:absolute; width:8px; height:8px; background:#f4d99a; bottom:-4px; left:calc(50% - 4px); transform:rotate(45deg); }
+@media(max-height:450px), (max-width:720px) {
+ .match .match-footer.has-end-turn-hint { height:138px; grid-template-rows:58px 28px 44px; }
+}
 :root .match #bbs-button{
  display:grid;place-items:center;position:relative;width:58px;height:64px;min-width:44px;min-height:44px;padding:3px 4px 17px;
  border:0;border-radius:0;background:url('./assets/ui/button-family/slate.svg') center / 100% 100% no-repeat,linear-gradient(#4b6c80dd,#172f45ef),var(--ui-slate) center / 180px;

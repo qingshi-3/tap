@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <base href="/games/miaomiao-pawnshop/">
+  <title>经营决策隔离验收</title>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body><div id="stage"></div>
+<script type="module">
+  if (!['127.0.0.1', 'localhost'].includes(location.hostname)) throw new Error('Fixture requires isolated localhost origin');
+  const runtime = new URLSearchParams(location.search).get('runtime') === 'dist' ? './dist/' : './';
+  if (runtime === './dist/') document.querySelector('link[href="css/style.css"]').href = 'dist/css/style.css';
+  const G = await import(runtime + 'js/game.js');
+  const { makeScenario } = await import('./tools/decision-fixture.mjs');
+  const scenario = new URLSearchParams(location.search).get('scenario');
+  if (!scenario) {
+    const stage = document.getElementById('stage');
+    const labels = { 'rent-paid': '已付租金', 'daytime-negotiation': '议价', 'fake-and-real': '真假线索', 'night-production-mixed-waters': '混合水生产', 'empty-filter': '滤芯耗尽', 'order-mixed-waters': '混合水订单', 'ice-buyer': '免费加冰', 'unknown-water': '未验原水', legacycontinue: '旧v2继续' };
+    for (const [key, label] of Object.entries(labels)) {
+      const button = document.createElement('button'); button.className = 'btn mint'; button.textContent = label;
+      button.onclick = () => { location.search = '?scenario=' + key; }; stage.append(button);
+    }
+  } else {
+    const run = makeScenario(G, scenario);
+    localStorage.setItem('mmdp_meta', JSON.stringify({ ach: {}, best: 0, fastest: 0, runs: 1, tut: true, sfx: false, music: false }));
+    localStorage.setItem('mmdp_run', JSON.stringify(run));
+    await import(runtime + 'js/main.js');
+  }
+</script></body></html>

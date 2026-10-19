@@ -1,0 +1,17 @@
+{
+  "source": "output/miaomiao-pawnshop/operations-20261019/compatibility/continued-run.json",
+  "fixture": "v1.3.0-day28.json",
+  "sha256": "560141df335deef9507218ef0cbf8bb09ba1dda0cbe71d0e95b64fd8bbab11c0",
+  "provenance": "Byte-for-byte freeze of the final v1.3.0 compatibility continuation, naturally derived from real day17 through baseline day18 and actual automatic core gameplay. No manual day/cash/inventory/progression changes.",
+  "sourceFixture": "tools/fixtures/operations/v1.2.1-day18.json",
+  "sourceReport": "output/miaomiao-pawnshop/operations-20261019/compatibility/report.json",
+  "state": {
+    "day": 28,
+    "money": 1649,
+    "uid": 256,
+    "property": {
+      "owned": false,
+      "day": null
+    }
+  }
+}
