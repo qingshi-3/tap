@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { createGame, dispatch, tick, validate, managementView, orderPreview, PIPELINE_LAYOUT, pipelineWorkerPoint } from '../js/engine.js';
+import { CONTENT, createGame, dispatch, tick, validate, managementView, orderPreview, PIPELINE_LAYOUT, pipelineWorkerPoint } from '../js/engine.js';
 import { SAVE_KEY, loadGame, saveGame } from '../js/storage.js';
 
 const copy = state => JSON.parse(JSON.stringify(state));
@@ -61,7 +61,7 @@ test('accepted order waits through staffing and reload until opening, then consu
   assert.equal(state.shift.elapsed, 0);
   assert.equal(state.shift.spawned, 1);
   assert.equal(state.shift.parcels[0].dest, 2);
-  assert.deepEqual(state.shift.flow.workers, roster, 'opening uses the most recent saved staffing');
+  assert.deepEqual(state.shift.flow.workers.map(({ x, y, ...worker }) => worker), roster.map(({ x, y, ...worker }) => worker), 'opening uses the most recent saved staffing; planning uses wider touch spacing');
   const opened = copy(state);
   assert.equal(dispatch(state, { type: 'START' }).ok, false);
   assert.equal(dispatch(state, { type: 'SET_ORDER', plan: 'steady', route: null }).ok, false);
@@ -169,7 +169,8 @@ test('five employees at the same idle workstation occupy distinct persistent pos
   const original = copy(state), preview = copy(managementView(state).workers);
   assert.deepEqual(state, original, 'planning preview does not write state');
   act(state, { type: 'START' });
-  assert.deepEqual(state.shift.flow.workers, preview, 'planning and opening use the same physical roster');
+  assert.deepEqual(state.shift.flow.workers.map(({ x, y, ...worker }) => worker), preview.map(({ x, y, ...worker }) => worker), 'opening keeps planning identities and assignments');
+  for (const a of preview) for (const b of preview) if (a.id !== b.id) assert.ok(Math.hypot(a.x - b.x, a.y - b.y) >= 54, 'planning touch targets have enough separation');
   advance(state, 8);
   const workers = state.shift.flow.workers;
   assert.equal(workers.length, 5);
@@ -213,11 +214,19 @@ test('frozen real schema1 save migrates to management and survives continued pla
   assert.equal(state.history.length, 3);
 });
 
-test('same rush order gains measured throughput from an extra bottleneck worker and equipment', () => {
+// Historical rule-one shifts retain the original arrival sequence and work clocks.
+function originalFlow(state) {
+  delete state.shift.flow.rules; delete state.shift.arrivals;
+  state.shift.parcels=state.shift.parcels.slice(0,1);
+  state.shift.parcels[0].kind=CONTENT.days[state.day-1].weights[0];
+  state.shift.spawned=1; state.shift.nextId=2;
+  return state;
+}
+test('historical rule-one rush order gains measured throughput from an extra bottleneck worker and equipment', () => {
   const base = automated({ day: 8, plan: 'rush' });
   const staffed = automated({ day: 8, plan: 'rush', upgrades: ['worker'], staff: { sort: 2, pack: 1, load: 1 } });
   const equipped = automated({ day: 8, plan: 'rush', upgrades: ['worker', 'packer', 'widegate'], staff: { sort: 2, pack: 1, load: 1 } });
-  for (const state of [base, staffed, equipped]) advance(state, 60);
+  for (const state of [base, staffed, equipped]) { originalFlow(state); advance(state, 60); }
   assert.equal(base.shift.total, staffed.shift.total);
   assert.equal(staffed.shift.total, equipped.shift.total);
   assert.ok(staffed.shift.delivered > base.shift.delivered, `${base.shift.delivered} -> ${staffed.shift.delivered}`);
@@ -262,7 +271,7 @@ test('running legacy processing and carried job migrate without resetting balanc
   assert.equal(saveGame(storage, state).ok, true);
 });
 
-test('all eighteen management days remain winnable with earned cash and bottleneck staffing', () => {
+test('historical rule-one eighteen management days remain winnable with earned cash and bottleneck staffing', () => {
   const state = createGame();
   act(state, { type: 'ENABLE_MANAGEMENT' });
   const purchases = { 5: ['worker'], 8: ['widegate'], 10: ['packer', 'dispatch'], 12: ['worker'], 13: ['scanner'], 15: ['sorter'] };
@@ -271,6 +280,7 @@ test('all eighteen management days remain winnable with earned cash and bottlene
     const extra = state.upgrades.worker || 0;
     act(state, { type: 'SET_STAFF', staff: day === 12 ? { sort: 2, pack: 2, load: 1 } : extra ? { sort: 2, pack: 1, load: extra } : { sort: 1, pack: 1, load: 1 } });
     act(state, { type: 'START' });
+    originalFlow(state);
     advance(state, 999);
     assert.equal(state.dayResult.success, true, `day ${day}`);
     assert.equal(state.dayResult.delivered, state.shift.total, `day ${day} releases and delivers every parcel`);
@@ -359,4 +369,106 @@ test('precise order previews match all released destinations and route premiums;
   assert.ok(counts.every((count, dest) => count <= expected[dest]));
   assert.equal(state.adRewards.grants.length, 1);
   assert.equal(validate(state).ok, true);
+});
+
+
+test('specific worker moves retain identity through planning, hire, opening, reload and next day', () => {
+  let state = atDay(3);
+  act(state, { type: 'ENABLE_MANAGEMENT' });
+  act(state, { type: 'MOVE_WORKER', workerId: 2, role: 'load' });
+  act(state, { type: 'MOVE_WORKER', workerId: 3, role: 'pack' });
+  const assignments = [{ id: 1, targetRole: 'sort' }, { id: 2, targetRole: 'load' }, { id: 3, targetRole: 'pack' }];
+  assert.deepEqual(state.management.assignments, assignments);
+  assert.deepEqual(managementView(state).workers.map(({ id, role, targetRole, phase }) => ({ id, role, targetRole, phase })), assignments.map(({ id, targetRole }) => ({ id, role: targetRole, targetRole, phase: 'idle' })));
+  const storage = storageFor();
+  assert.equal(saveGame(storage, state).ok, true);
+  state = loadGame(storage).state;
+  act(state, { type: 'BUY', id: 'worker' });
+  const hired = [...assignments, { id: 4, targetRole: 'load' }];
+  assert.deepEqual(state.management.assignments, hired);
+  act(state, { type: 'START' });
+  assert.deepEqual(state.shift.flow.workers.map(({ id, targetRole }) => ({ id, targetRole })), hired);
+  advance(state, 999);
+  act(state, { type: 'NEXT' });
+  assert.deepEqual(state.management.assignments, hired);
+  assert.equal(saveGame(storage, state).ok, true);
+  state = loadGame(storage).state;
+  act(state, { type: 'START' });
+  assert.deepEqual(state.shift.flow.workers.map(({ id, targetRole }) => ({ id, targetRole })), hired);
+});
+
+test('retargeting a chosen busy worker preserves its parcel and clock until it unloads', () => {
+  let state = automated();
+  let worker;
+  for (let i = 0; i < 200; i++) {
+    tick(state, 0.1);
+    worker = state.shift.flow.workers.find(item => item.parcel && item.phase === 'work' && item.progress > 0);
+    if (worker) break;
+  }
+  assert.ok(worker?.parcel);
+  const before = copy(worker), others = copy(state.shift.flow.workers.filter(item => item.id !== worker.id));
+  act(state, { type: 'MOVE_WORKER', workerId: worker.id, role: 'load' });
+  act(state, { type: 'MOVE_WORKER', workerId: worker.id, role: 'pack' });
+  assert.deepEqual({ ...worker, targetRole: before.targetRole }, before);
+  assert.deepEqual(state.shift.flow.workers.filter(item => item.id !== worker.id), others);
+  assert.equal(managementView(state).roles.pack.assigned, 2);
+  const storage = storageFor();
+  assert.equal(saveGame(storage, state).ok, true);
+  state = loadGame(storage).state;
+  worker = state.shift.flow.workers.find(item => item.id === before.id);
+  assert.equal(worker.parcel.id, before.parcel.id);
+  let completed = false;
+  for (let i = 0; i < 500 && !completed; i++) {
+    const events = tick(state, 0.05);
+    completed = events.some(event => event.type === 'pipelineDone' && event.id === before.parcel.id && event.stage === before.role);
+    if (!completed) { assert.equal(worker.role, before.role); assert.equal(worker.parcel.id, before.parcel.id); }
+  }
+  assert.ok(completed);
+  assert.equal(worker.parcel, null);
+  assert.equal(worker.phase, 'transfer');
+  for (let i = 0; i < 100 && worker.role !== 'pack'; i++) tick(state, 0.05);
+  assert.equal(worker.role, 'pack');
+  assert.equal(validate(state).ok, true);
+});
+
+test('old management saves preserve running targets while strict optional assignments reject corruption', () => {
+  const state = automated();
+  act(state, { type: 'MOVE_WORKER', workerId: 2, role: 'load' });
+  act(state, { type: 'MOVE_WORKER', workerId: 3, role: 'pack' });
+  delete state.management.assignments;
+  assert.equal(validate(state).ok, true);
+  const storage = storageFor(state);
+  let restored = loadGame(storage).state;
+  advance(restored, 999);
+  act(restored, { type: 'NEXT' });
+  assert.deepEqual(restored.management.assignments.map(item => item.targetRole), ['sort', 'load', 'pack']);
+  assert.equal(saveGame(storage, restored).ok, true);
+  restored = loadGame(storage).state;
+  const original = copy(restored);
+  for (const assignments of [null, [], [{ id: 1, targetRole: 'sort' }],
+    [{ id: 1, targetRole: 'sort' }, { id: 1, targetRole: 'load' }, { id: 3, targetRole: 'pack' }],
+    [{ id: 1, targetRole: 'sort', extra: true }, { id: 2, targetRole: 'load' }, { id: 3, targetRole: 'pack' }],
+    [{ id: 1, targetRole: 'sort' }, { id: 2, targetRole: 'sort' }, { id: 3, targetRole: 'pack' }]]) {
+    const bad = copy(original); bad.management.assignments = assignments;
+    assert.equal(validate(bad).ok, false);
+  }
+  for (const workerId of [0, 4, '2', null]) assert.equal(dispatch(restored, { type: 'MOVE_WORKER', workerId, role: 'pack' }).ok, false);
+  assert.equal(dispatch(restored, { type: 'MOVE_WORKER', workerId: 2, role: 'unknown' }).ok, false);
+  assert.deepEqual(restored, original);
+});
+
+
+test('legacy headcount staffing preserves selected identities and deterministically reassigns only excess workers', () => {
+  const state = createGame();
+  act(state, { type: 'ENABLE_MANAGEMENT' });
+  act(state, { type: 'MOVE_WORKER', workerId: 2, role: 'load' });
+  act(state, { type: 'MOVE_WORKER', workerId: 3, role: 'pack' });
+  act(state, { type: 'SET_STAFF', staff: { sort: 1, pack: 1, load: 1 } });
+  assert.deepEqual(state.management.assignments.map(item => item.targetRole), ['sort', 'load', 'pack']);
+  act(state, { type: 'SET_STAFF', staff: { sort: 2, pack: 0, load: 1 } });
+  assert.deepEqual(state.management.assignments.map(item => item.targetRole), ['sort', 'load', 'sort']);
+  act(state, { type: 'START' });
+  const bad = copy(state);
+  bad.management.assignments = [{ id: 1, targetRole: 'sort' }, { id: 2, targetRole: 'sort' }, { id: 3, targetRole: 'load' }];
+  assert.equal(validate(bad).ok, false, 'assignment counts matching headcounts cannot hide flow identity disagreement');
 });

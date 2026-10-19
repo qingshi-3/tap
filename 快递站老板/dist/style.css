@@ -8,47 +8,45 @@
 .primary,#main-action{border:0;border-image:none;border-radius:0;padding:9px 15px;background:#d7a83c;box-shadow:inset 0 3px #fff0b170,inset 0 -4px #94682366}
 .primary:disabled,#main-action:disabled{background:#657174;color:#c2cbc7}
 .parcel{width:15.5%;min-width:44px}.parcel img{width:100%;max-width:58px;object-fit:contain}
-#departures{position:absolute;top:24.5%;left:0;width:100%;display:flex;z-index:2}
-.dispatch-slot{width:33.333%;position:relative;padding:0 8px}
-.dispatch-slot button{width:100%;min-height:44px;padding:4px 2px;background:#3e716d;border-radius:0;line-height:1.25}
-.dispatch-slot button:disabled{background:#596762;color:#e0e6d6}
+#departures{display:flex;flex:none;width:100%;height:44px;background:#3b5358;z-index:2}
+.dispatch-slot{width:33.333%;position:relative;padding:0 2px}
+.dispatch-slot button{width:100%;height:44px;min-height:44px;padding:3px 2px;background:#3e716d;border-radius:0;line-height:1.2;box-shadow:none}
+.dispatch-slot button:disabled{background:#465c60;color:#bfcac5;box-shadow:none}
 .dispatch-slot b,.dispatch-slot small{display:block;font-size:13px;font-weight:700}
 .dispatch-slot small{font-size:12px;margin-top:2px}
-.dispatch-slot .batch-ready{background:#bd8c32;color:#fff5cf}
-.dispatch-gain{position:absolute;bottom:calc(100% + 4px);left:0;width:100%;text-align:center;font-size:13px;color:#fff0a5;text-shadow:1px 2px #243b42;pointer-events:none}
+.dispatch-slot .batch-ready{background:#567e6c;color:#fff5cf}
+.dispatch-gain{position:absolute;top:calc(100% + 2px);left:0;width:100%;text-align:center;font-size:13px;color:#fff0a5;text-shadow:1px 2px #243b42;pointer-events:none}
 .parcel-status{position:absolute;bottom:0;left:50%;transform:translateX(-50%);font-size:12px;line-height:18px;white-space:nowrap;background:#264d50;color:#fff0bc;padding:0 4px;pointer-events:none}
 .parcel-status:empty{display:none}.parcel.urgent .parcel-status{background:#a74532;color:#fff4d5}.parcel.processing img{filter:drop-shadow(0 0 5px #a3d9da)}
 .parcel.selected:after{left:50%;transform:translateX(-50%)}
 #prepare:disabled{background:#66716a;color:#e0e4dc}
 #toast{top:auto;bottom:calc(76px + env(safe-area-inset-bottom));left:10%;right:10%;padding:8px;font-size:13px}
-@media(max-height:680px){#toast{bottom:calc(68px + env(safe-area-inset-bottom))}.dispatch-slot{padding:0 6px}}
+@media(max-height:680px){#toast{bottom:calc(68px + env(safe-area-inset-bottom))}.dispatch-slot{padding:0 2px}}
 
 #selection{white-space:pre-line}
 
 .reward-ad{display:block;width:100%;margin-top:10px;background:#53746b;font-size:14px;min-height:44px}.ad-result{font-size:13px;margin:9px 0 0;color:#3c574e;line-height:1.55}
 
-/* Staffing lives beside the three physical workstations; the footer only acts on the selected role. */
-footer{display:block;flex:none;min-height:112px;padding:7px 10px 9px}
-.staff-heading{display:flex;align-items:center;gap:8px;margin-bottom:6px;min-height:44px}
+/* Workstation targets and worker sprites are the staffing controls. */
+footer{display:block;flex:none;min-height:64px;padding:7px 10px 9px}
+.staff-heading{display:flex;align-items:center;gap:8px;margin-bottom:0;min-height:44px}
 #selection{font-size:14px;white-space:normal}
 #main-action{min-width:88px;padding:9px 10px}
-#staff-controls{display:flex;gap:8px}
-#staff-controls button{flex:1;padding:8px 5px;font-size:14px;background:#4b7a73}
-#staff-controls button:disabled{background:#606c6c;color:#bac4be}
 #yard{min-height:0}
-#stations button{position:absolute;width:29.5%;min-height:52px;padding:5px 2px;font-size:14px;z-index:2;background:#576e68;color:#fff1cb;line-height:1.35}
+#stations button{position:absolute;height:44px;min-height:44px;padding:3px 2px;font-size:14px;z-index:4;background:var(--station-fill);color:#fff6de;line-height:1.25;box-shadow:inset 0 3px #ffffff38,inset 0 -4px #1e354555;display:flex;flex-direction:column;justify-content:center}
 #stations button b,#stations button small{display:block;font-size:14px}
-#stations button small{font-size:12px;margin-top:2px}
-#stations [data-role=sort]{left:6%;top:44%}
-#stations [data-role=pack]{left:37.2%;top:67%}
-#stations [data-role=load]{left:68%;top:58%}
+#stations button small{font-size:12px;margin-top:2px;white-space:nowrap}
+#stations button small:empty{display:none}
+#stations [data-role=sort]{--station-fill:#b3593c}
+#stations [data-role=pack]{--station-fill:#367561}
+#stations [data-role=load]{--station-fill:#3f6d91}
 #stations button.active{background:#e3b34b;color:#233b3e}
 #stations button.stalled small{background:#9e4935;color:#fff5e0}
 #stations button:disabled{background:#606c6c;color:#bac4be}
 
-#departures{top:25%}
-#toast{bottom:calc(118px + env(safe-area-inset-bottom))}
-@media(max-height:680px){footer{min-height:110px;padding:6px 9px 8px}#yard{min-height:0}#stations button{min-height:48px}#stations button b{font-size:13px}#stations button small{font-size:12px}#toast{bottom:calc(114px + env(safe-area-inset-bottom))}}
+
+#toast{bottom:calc(70px + env(safe-area-inset-bottom))}
+@media(max-height:680px){footer{min-height:64px;padding:6px 9px 8px}#yard{min-height:0}#stations button{min-height:44px}#stations button b{font-size:13px}#stations button small{font-size:12px}#toast{bottom:calc(70px + env(safe-area-inset-bottom))}}
 
 .plan-sheet h2{margin-bottom:14px}
 .plan-sheet .incoming-types{margin:-7px 0 14px;color:#4b5d53;font-size:14px}
@@ -86,3 +84,38 @@ footer{display:block;flex:none;min-height:112px;padding:7px 10px 9px}
 
 #edit-order{flex:none;padding:9px 8px;font-size:13px;background:#4b7a73}
 .staff-heading #selection{min-width:0}
+
+#yard{touch-action:none}
+#workers{position:absolute;inset:0;pointer-events:none;z-index:3}
+#workers .worker-hit{position:absolute;width:44px;height:44px;min-height:44px;padding:0;transform:translate(-50%,-50%);border:0;background:transparent;box-shadow:none;pointer-events:auto;touch-action:none;transition:none;border-radius:12px}
+#workers .worker-hit:active{transform:translate(-50%,-50%)}
+#workers .worker-hit:focus-visible{outline:0;background:#92dbff55;box-shadow:0 0 10px 5px #9cdcff99}
+#workers .worker-hit:disabled{pointer-events:none}
+#stations button.drop-ready{background:#397e9c;color:#fff5d8}
+#stations button.drop-hover{background:#a6def0;color:#203b42;box-shadow:inset 0 3px #ffffff70,inset 0 -4px #33739366,0 0 12px #b4ebff88}
+#selection{font-size:13px}
+@media(max-width:340px){.staff-heading{gap:5px}#main-action{min-width:80px;padding:9px 7px;font-size:14px}#edit-order{padding:9px 6px}#selection{font-size:12px}}
+
+#stations button{z-index:4}
+
+/* Signs are mounted on the workbenches; their geometry is shared with Canvas. */
+#stations button b{white-space:nowrap}
+#stations button[data-pressure=busy] small{color:#ffdc8b}
+#stations button[data-pressure=blocked] small,#stations button[data-pressure=urgent] small{background:#943f2e;color:#fff5d8}
+/* Order and incoming batch are one visual group, above the production floor. */
+#mission{flex:none;background:#304e51;padding:5px 12px 7px}
+#progress{height:25px;padding:0;background:transparent;font-size:15px;gap:8px}
+#reputation{font-size:13px;white-space:nowrap;color:#d3dfd5}
+#arrival-notice{display:flex;align-items:center;gap:7px;min-height:44px;color:#ffdf8a}
+#arrival-icon{width:32px;height:32px;image-rendering:pixelated;flex:none}
+.arrival-copy{flex:1;min-width:0;line-height:1.3}
+#arrival-timing{display:block;font-size:12px;color:#d3dfd5}
+#arrival-timing:empty{display:none}
+#arrival-forecast{display:block;font-size:17px;white-space:nowrap}
+#arrival-waiting{font-size:13px;white-space:nowrap;color:#ffb895}
+#arrival-waiting:empty{display:none}
+.plan-waves{display:flex;flex-wrap:wrap;gap:5px 7px;padding:0;margin:12px 0 8px;list-style:none;align-items:center}
+.plan-waves li{display:flex;align-items:center;gap:3px;font-size:13px;white-space:nowrap;color:#37594f}
+.plan-waves li+li:before{content:'→';color:#6b7767;margin-right:3px}
+.plan-waves img{width:20px;height:20px;image-rendering:pixelated}
+.plan-waves+.contract-result{margin-top:7px;margin-bottom:16px}

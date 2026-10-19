@@ -2,6 +2,18 @@ import { ROUTE_PALETTES, INK, rect, sprite, routeMark, routeSymbol, parcelSprite
 import { PIPELINE_LAYOUT, pipelineWorkerPoint, managementView } from './engine.js';
 export { parcelDataUrl };
 
+// Only visual anchors move; simulation positions, timing and sprite proportions stay fixed.
+const Y_KNOTS=[[120,48],[230,140],[292,238],[348,328],[460,464],[520,520]];
+function mapY(value,inverse=false){
+  const axis=inverse?1:0,other=1-axis;
+  let i=0;
+  while(i<Y_KNOTS.length-2&&value>Y_KNOTS[i+1][axis])i++;
+  const a=Y_KNOTS[i],b=Y_KNOTS[i+1];
+  return a[other]+(value-a[axis])*(b[other]-a[other])/(b[axis]-a[axis]);
+}
+export const sceneY=value=>mapY(value);
+export const worldY=value=>mapY(value,true);
+
 // Fixed 195×260 back buffer: geometry and hit targets share the 390×520 space.
 // Static station architecture is cached; live parcels, truck loads and staff never are.
 const W=195,H=260,centers=[32.5,97.5,162.5];
@@ -200,34 +212,113 @@ function equipment(ctx,upgrades,station,time,reducedMotion,shift,feedback){
   }
 }
 
+export const STATION_SIGNS=Object.freeze({
+  sort:Object.freeze({x:8,y:230,width:106}),
+  pack:Object.freeze({x:128,y:140,width:106}),
+  load:Object.freeze({x:276,y:50,width:106}),
+});
 const ROLE_INDEX={sort:0,pack:1,load:2};
-function pipelineParcel(ctx,parcel,x,y,size=12){
-  ctx.drawImage(parcelSprite(parcel.kind,parcel.dest,parcel.prepared),Math.round(x-size/2),Math.round(y-size),size,size);
+function stationSupports(ctx,role,stationSigns){
+  const measured=Array.isArray(stationSigns)?stationSigns.find(b=>(b.role||b.id)===role):stationSigns?.[role];
+  const box={...STATION_SIGNS[role],height:44,...measured};
+  const bottom=(box.y+box.height)/2,point=PIPELINE_LAYOUT.roles[role].work;
+  const benchY=sceneY(point.y)/2-5,benchX=point.x/2;
+  // These are the bench's sign uprights, not an extra frame around the button.
+  for(const fraction of [.17,.83]){
+    const sx=Math.round((box.x+box.width*fraction)/2);
+    r(ctx,sx-1,bottom-1,3,Math.max(2,benchY-bottom+2),'#657e78');
+    r(ctx,sx-1,bottom-1,1,Math.max(2,benchY-bottom),'#c5d0ae');
+    polygon(ctx,[[sx,benchY-2],[sx+2,benchY+1],[benchX+(fraction<.5?-17:17),benchY+1],[benchX+(fraction<.5?-17:17),benchY-2]],'#758f85');
+    r(ctx,sx-2,benchY,5,3,'#455d60');
+  }
 }
-function pipelineBench(ctx,role,selected,up){
-  const index=ROLE_INDEX[role],p=ROUTE_PALETTES[index],point=PIPELINE_LAYOUT.roles[role].work;
-  const x=Math.round(point.x/2),y=Math.round(point.y/2)-5;
-  if(selected){
-    // A soft filled footprint belongs to the selected machine, never an outline.
-    for(const [radius,alpha] of [[31,.09],[27,.13],[23,.19]]){
-      ctx.fillStyle=`rgba(108,192,235,${alpha})`;ctx.beginPath();ctx.ellipse(x,y+2,radius,16,0,0,Math.PI*2);ctx.fill();
+function incomingParcels(ctx,arrivals){
+  if(!arrivals?.enabled||!arrivals.waiting)return;
+  const kinds=arrivals.waitingKinds||[];
+  let slot=0;
+  // Move the hopper as one solid assembly, without stretching its cartons.
+  ctx.save();ctx.translate(0,sceneY(410)/2-205);
+  // The inbound hopper is part of the forecourt, outside the moving belt.
+  r(ctx,7,205,81,5,'#5a7278');r(ctx,8,205,79,2,'#c5c9a9');
+  r(ctx,10,210,5,2,'#3c535d');r(ctx,79,210,5,2,'#3c535d');
+  r(ctx,7,198,3,9,'#718e8b');r(ctx,85,198,3,9,'#718e8b');
+  // Only parcels genuinely waiting outside the belt are pictured. Limit the
+  // physical frontage; the nearby DOM count preserves the complete backlog.
+  for(const batch of kinds){
+    for(let i=0;i<batch.count&&slot<9;i++,slot++){
+      const size=batch.kind==='large'?18:14;
+      pipelineParcel(ctx,{kind:batch.kind,dest:-1,prepared:false},13+(slot%5)*15,206-Math.floor(slot/5)*9,size);
     }
   }
+  ctx.restore();
+}
+
+function pipelineParcel(ctx,parcel,x,y,size=12){
+  const width=parcel.kind==='large'?Math.round(size*1.4):size;
+  ctx.drawImage(parcelSprite(parcel.kind,parcel.dest,parcel.prepared),Math.round(x-width/2),Math.round(y-size),width,size);
+}
+function pipelineBench(ctx,role,highlight,up,stationSigns,pressure){
+  const index=ROLE_INDEX[role],p=ROUTE_PALETTES[index],point=PIPELINE_LAYOUT.roles[role].work;
+  const x=Math.round(point.x/2),y=Math.round(sceneY(point.y)/2)-5;
+  if(highlight){
+    // Filled light identifies available destinations; the hovered drop is stronger.
+    for(const [radius,alpha] of [[31,.09],[27,.13],[23,.19]]){
+      ctx.fillStyle=`rgba(108,192,235,${alpha*(highlight===2?1.75:.8)})`;ctx.beginPath();ctx.ellipse(x,y+2,radius,16,0,0,Math.PI*2);ctx.fill();
+    }
+  }
+  if(!highlight&&(pressure==='busy'||pressure==='blocked')){
+    const blocked=pressure==='blocked';
+    for(const [radius,alpha] of [[29,.08],[25,.12],[21,.17]]){
+      ctx.fillStyle=blocked?`rgba(193,78,62,${alpha})`:`rgba(219,151,53,${alpha})`;
+      ctx.beginPath();ctx.ellipse(x,y+7,radius,14,0,0,Math.PI*2);ctx.fill();
+    }
+  }
+  // Solid inset floor mats tie each machine to its standing position.
+  r(ctx,x-23,y+4,46,12,role==='sort'?'#ad9272':role==='pack'?'#8eaa8e':'#889ca6');
+  r(ctx,x-21,y+5,42,2,role==='sort'?'#c2a781':role==='pack'?'#aac09b':'#a9bac0');
+  if(!highlight&&(pressure==='busy'||pressure==='blocked')){
+    r(ctx,x-20,y+7,40,7,pressure==='blocked'?'#b57a63':'#bf9b60');
+  }
+  stationSupports(ctx,role,stationSigns);
   r(ctx,x-23,y+7,46,5,'#4d5a5444');
   for(const leg of [-19,16]){r(ctx,x+leg,y,3,12,'#536a6b');r(ctx,x+leg,y,1,10,'#aac1aa');}
   r(ctx,x-22,y-9,44,11,p.dark);r(ctx,x-22,y-10,44,3,p.light);r(ctx,x-20,y-7,40,6,p.main);
   if(role==='sort'){
-    // Sloped sorting bins and an optical head identify this station from above.
-    for(let i=0;i<3;i++){const sx=x-19+i*13;r(ctx,sx,y-19,11,10,ROUTE_PALETTES[i].dark);r(ctx,sx+1,y-18,9,6,'#435d63');r(ctx,sx+1,y-12,9,2,ROUTE_PALETTES[i].main);}
+    // Open address bins, paper labels and a hand scanner make sorting literal.
+    for(let i=0;i<3;i++){
+      const sx=x-20+i*14,p=ROUTE_PALETTES[i];
+      polygon(ctx,[[sx,y-13],[sx+11,y-13],[sx+13,y-3],[sx-1,y-3]],p.dark);
+      r(ctx,sx+1,y-11,9,6,'#3b535a');r(ctx,sx,y-5,12,4,p.main);
+      r(ctx,sx+3,y-4,6,3,'#f4e5b9');routeSymbol(ctx,i,sx+4,y-10,p.light);
+    }
+    r(ctx,x+15,y-1,5,4,'#344e5b');r(ctx,x+16,y-1,4,2,'#cce2ba');
+    r(ctx,x-17,y-1,11,3,'#eee2bd');r(ctx,x-16,y-1,6,1,'#786d5a');
+    if(up.scanner){r(ctx,x+14,y-14,8,13,'#47626d');r(ctx,x+15,y-13,6,6,'#c4e2ad');r(ctx,x+16,y-12,4,3,'#6b9e91');r(ctx,x+13,y-2,11,2,'#344e5b');}
     if(up.sorter){r(ctx,x-22,y-24,44,4,'#a8c9b5');for(const sx of [x-22,x+19])r(ctx,sx,y-22,3,12,'#587f83');r(ctx,x-3,y-20,6,3,'#deefac');}
   }else if(role==='pack'){
-    r(ctx,x-17,y-16,10,6,'#d5c098');r(ctx,x-16,y-16,8,2,'#f3dfb2');r(ctx,x+10,y-17,7,7,'#eee1be');r(ctx,x+12,y-15,3,3,'#a18b6d');
+    // Cardboard roll, loose bubble-wrap and tape gun, never invented stock.
+    r(ctx,x-21,y-12,10,8,'#b48953');r(ctx,x-20,y-13,8,2,'#f0d294');
+    r(ctx,x-18,y-11,4,5,'#e9cc96');r(ctx,x-17,y-10,2,3,'#82684c');
+    r(ctx,x-11,y-9,14,5,'#ddd4b1');
+    for(let dx=-10;dx<3;dx+=3)r(ctx,x+dx,y-8,2,2,'#faf0cf');
+    r(ctx,x+5,y-11,11,7,'#c0ccb0');r(ctx,x+7,y-12,7,2,'#f0e5bf');
+    r(ctx,x+8,y-10,4,3,'#788c80');r(ctx,x+12,y-6,5,3,'#dfae64');
+    r(ctx,x-7,y-1,13,3,'#e9cc8e');r(ctx,x-5,y-1,9,1,'#9b805d');
     if(up.packer){r(ctx,x-4,y-28,20,4,'#9ac5b5');r(ctx,x+13,y-26,3,16,'#5c8885');r(ctx,x-2,y-24,3,9,'#6c9891');r(ctx,x-5,y-16,12,3,'#c3d8b1');}
-    if(up.scanner){r(ctx,x-22,y-26,7,13,'#47626d');r(ctx,x-21,y-25,5,6,'#c4e2ad');r(ctx,x-20,y-24,3,3,'#6b9e91');}
   }else{
-    // Steel pallet platform, wheel stops and upright dispatch terminal.
-    r(ctx,x-20,y-18,40,8,'#879f9d');for(let dx=-17;dx<19;dx+=6)r(ctx,x+dx,y-17,3,6,'#c0c7aa');
-    r(ctx,x+14,y-30,8,14,'#486673');r(ctx,x+15,y-29,6,7,'#b9dbb4');r(ctx,x+16,y-27,4,3,'#6d9d96');
+    // Roll-out pallet, solid loading ramp and wheeled sack trolley.
+    r(ctx,x-20,y-18,34,7,'#879f9d');for(let dx=-17;dx<12;dx+=6)r(ctx,x+dx,y-17,3,6,'#c0c7aa');
+    polygon(ctx,[[x-17,y-10],[x+10,y-10],[x+16,y-2],[x-21,y-2]],'#a1b3a7');
+    for(let dy=-8;dy<-2;dy+=3)r(ctx,x-17,y+dy,27,1,'#d1d5b4');
+    r(ctx,x+16,y-14,3,9,'#4c6a73');r(ctx,x+10,y-14,8,3,'#8fb6ae');
+    r(ctx,x+12,y-9,12,3,'#587980');r(ctx,x+13,y-6,4,4,'#354750');r(ctx,x+21,y-6,4,4,'#354750');
+    r(ctx,x-22,y-14,7,8,'#486673');r(ctx,x-21,y-13,5,4,'#b9dbb4');
+
+  }
+  if(!highlight&&(pressure==='busy'||pressure==='blocked')){
+    // Steady machine beacon follows real queued work, including reduced motion.
+    r(ctx,x+18,y-5,4,5,'#405a60');
+    r(ctx,x+18,y-7,4,3,pressure==='blocked'?'#f19a79':'#f4cf7a');
   }
 }
 function pipelineQueue(ctx,parcels,x,y,columns=4){
@@ -238,40 +329,60 @@ function pipelineQueue(ctx,parcels,x,y,columns=4){
     pipelineParcel(ctx,parcel,x+(slot%columns)*10,y+row*7-tier*8,12);
   });
 }
-function drawPipeline(ctx,state,station,time,reducedMotion,selectedRole){
+function drawPipeline(ctx,state,station,time,reducedMotion,selectedRole,selectedWorkerId,dragWorker,dropRole,stationSigns,arrivals){
   const t=THEMES[station],shift=state.shift,flow=shift?.flow,up=state.upgrades||{};
-  // Reuse the depot walls, yard and conveyor while opening a continuous floor.
-  r(ctx,5,82,185,132,t.floor);
-  for(let y=84;y<213;y++)for(let x=6;x<189;x++)if(noise(x,y)%137===0)r(ctx,x,y,2,1,t.fleck);
-  for(let y=94;y<212;y+=24)r(ctx,5,y,185,1,t.seam);
-  plant(ctx,7,84,station);plant(ctx,176,181,station);
+  // A full-height cutaway depot dedicates the yard to hands-on work.
+  r(ctx,0,0,W,H,t.floor);
+  for(let y=5;y<H;y++)for(let x=4;x<W-4;x++){
+    const n=noise(x,y);if(n%137===0)r(ctx,x,y,2,1,t.fleck);
+  }
+  for(let y=20;y<H;y+=26){
+    r(ctx,4,y,187,1,t.seam);
+    for(let x=4+(y%52?24:0);x<190;x+=48)r(ctx,x,y,1,26,t.seam);
+  }
+  r(ctx,0,0,4,H,t.beam);r(ctx,191,0,4,H,t.beam);
+  r(ctx,1,0,1,H,t.wallLight);r(ctx,191,0,1,H,t.wallLight);
+  r(ctx,4,0,187,4,t.wall);r(ctx,4,0,187,1,t.wallLight);
+  r(ctx,4,258,187,2,t.beam);
+  // A compact dispatch threshold replaces the former parking forecourt.
+  for(const cx of centers){
+    r(ctx,cx-17,5,34,5,'#788e87');r(ctx,cx-17,5,34,1,'#c7d1b1');
+    for(let x=cx-15;x<cx+15;x+=8)r(ctx,x,7,4,2,'#d4bf79');
+  }
+  // The belt retains its real horizontal parcel coordinates and mapped center.
+  const beltY=sceneY(PIPELINE_LAYOUT.belt.y)/2;
+  r(ctx,7,beltY-13,181,28,'#3a4b54');r(ctx,9,beltY-15,177,28,'#607780');
+  r(ctx,11,beltY-11,173,22,'#394d58');
+  r(ctx,10,beltY-16,175,3,'#d3ccab');r(ctx,10,beltY+12,175,3,'#9aa99d');
+  for(const x of [8,181]){r(ctx,x,beltY-11,5,23,'#455c65');r(ctx,x+1,beltY-9,3,18,'#9ca998');}
+  r(ctx,181,beltY-4,9,12,'#9f7657');r(ctx,182,beltY-3,7,8,'#cfa66c');
   // Physical roller transfer trays sit at the engine's hand-off points.
   for(const role of ['sort','pack']){
-    const point=PIPELINE_LAYOUT.roles[role].drop,x=point.x/2,y=point.y/2;
+    const point=PIPELINE_LAYOUT.roles[role].drop,x=point.x/2,y=sceneY(point.y)/2;
     r(ctx,x-23,y-5,46,10,'#6c807d');r(ctx,x-23,y-5,46,2,'#c7cdb0');
     for(let dx=-20;dx<22;dx+=5){r(ctx,x+dx,y-2,3,5,'#a3b2a1');r(ctx,x+dx,y-2,1,5,'#d3d6ba');}
   }
-  for(const role of ['sort','pack','load'])pipelineBench(ctx,role,selectedRole===role,up);
-  pipelineQueue(ctx,flow?.pack||[],62,151);
-  pipelineQueue(ctx,flow?.load||[],119,121);
+  const management=managementView(state);
+  const staff=state.phase==='planning'?management.workers:(flow?.workers||[]);
+  const selectedWorker=staff.find(w=>selectedWorkerId!==null&&String(w.id)===String(selectedWorkerId));
+  for(const role of ['sort','pack','load']){
+    const available=selectedWorker&&role!==(selectedWorker.targetRole||selectedWorker.role);
+    pipelineBench(ctx,role,available?(dropRole===role?2:1):(!selectedWorker&&selectedRole===role?1:0),up,stationSigns,management.roles[role]?.pressure);
+  }
+  pipelineQueue(ctx,flow?.pack||[],62,sceneY(302)/2);
+  pipelineQueue(ctx,flow?.load||[],119,sceneY(242)/2);
   // Transitional legacy jobs remain visible during their real remaining time.
   const oldJob=shift?.processing,oldParcel=oldJob&&shift.parcels.find(p=>String(p.id)===String(oldJob.id));
   if(oldParcel){
-    pipelineParcel(ctx,oldParcel,98,131,15);
+    pipelineParcel(ctx,oldParcel,98,sceneY(262)/2,15);
     const progress=Math.max(0,Math.min(1,1-oldJob.remaining/oldJob.duration));
-    r(ctx,88,133,20,3,'#476164');r(ctx,88,133,20*progress,3,'#cae7a9');
+    r(ctx,88,sceneY(262)/2+2,20,3,'#476164');r(ctx,88,sceneY(262)/2+2,20*progress,3,'#cae7a9');
   }
   const running=state.phase==='running',offset=!reducedMotion&&running?Math.floor(time*13)%10:0;
-  for(let x=12+offset;x<181;x+=10){r(ctx,x,220,3,20,'#617d80');r(ctx,x,220,1,20,'#8da39b');}
+  for(let x=12+offset;x<181;x+=10){r(ctx,x,beltY-10,3,20,'#617d80');r(ctx,x,beltY-10,1,20,'#8da39b');}
   for(const parcel of shift?.parcels||[]){
     if(oldJob&&String(parcel.id)===String(oldJob.id))continue;
-    pipelineParcel(ctx,parcel,(PIPELINE_LAYOUT.belt.left+parcel.x*(PIPELINE_LAYOUT.belt.right-PIPELINE_LAYOUT.belt.left))/2,PIPELINE_LAYOUT.belt.y/2+6,16);
-  }
-  let staff=flow?.workers||[];
-  if(state.phase==='planning'){
-    // The engine owns preview identities and slots, matching the next START.
-    // Running staff always use their persisted x/y above.
-    staff=managementView(state).workers;
+    pipelineParcel(ctx,parcel,(PIPELINE_LAYOUT.belt.left+parcel.x*(PIPELINE_LAYOUT.belt.right-PIPELINE_LAYOUT.belt.left))/2,sceneY(PIPELINE_LAYOUT.belt.y)/2+6,16);
   }
   // Pickup reserves ownership before the worker arrives. The carton stays at
   // the pickup point until the engine changes phase, rather than teleporting.
@@ -279,21 +390,43 @@ function drawPipeline(ctx,state,station,time,reducedMotion,selectedRole){
     if(w.phase!=='pickup'||!w.parcel)continue;
     const point=PIPELINE_LAYOUT.roles[w.role].pickup;
     const x=w.role==='sort'?(PIPELINE_LAYOUT.belt.left+w.parcel.x*(PIPELINE_LAYOUT.belt.right-PIPELINE_LAYOUT.belt.left))/2:point.x/2;
-    const y=w.role==='sort'?PIPELINE_LAYOUT.belt.y/2+6:point.y/2;
+    const y=w.role==='sort'?sceneY(PIPELINE_LAYOUT.belt.y)/2+6:sceneY(point.y)/2;
     pipelineParcel(ctx,w.parcel,x,y,w.role==='sort'?16:12);
   }
-  for(const w of [...staff].sort((a,b)=>a.y-b.y)){
+  incomingParcels(ctx,arrivals);
+  // Draw the dragged employee last and replace their original, preserving identity.
+  const dragging=staff.find(w=>dragWorker&&String(w.id)===String(dragWorker.id));
+  const ordered=[...staff].filter(w=>w!==dragging).sort((a,b)=>a.y-b.y);
+  if(dragging)ordered.push(dragging);
+  for(const w of ordered){
     if(!Number.isFinite(w.x)||!Number.isFinite(w.y))continue;
-    const x=Math.round(w.x/2),y=Math.round(w.y/2),index=ROLE_INDEX[w.role]??0;
+    const isDragging=w===dragging;
+    const selected=selectedWorkerId!==null&&String(w.id)===String(selectedWorkerId);
+    const x=Math.round((isDragging?dragWorker.x:w.x)/2),y=Math.round(sceneY(isDragging?dragWorker.y:w.y)/2),index=ROLE_INDEX[w.role]??0;
+    const scale=isDragging?1.35:selected?1.2:1;
+    if(selected||isDragging){
+      const glow=ctx.createRadialGradient(x,y,1,x,y,17*scale);
+      glow.addColorStop(0,'rgba(74,144,184,.4)');glow.addColorStop(1,'rgba(74,144,184,0)');
+      ctx.fillStyle=glow;ctx.beginPath();ctx.ellipse(x,y,17*scale,8*scale,0,0,Math.PI*2);ctx.fill();
+    }
+    ctx.save();ctx.translate(x,y);ctx.scale(scale,scale);ctx.translate(-x,-y);
     const workPoint=pipelineWorkerPoint(w.role,w.id);
     const atBench=Math.hypot(w.x-workPoint.x,w.y-workPoint.y)<2;
     const walking=['pickup','deliver','return','transfer'].includes(w.phase)||(w.phase==='work'&&!atBench);
     const step=!reducedMotion&&walking?Math.floor(time*6)%2:0;
     // x/y are feet in the simulation; animation changes pose only, never location.
     worker(ctx,x-8,y-18,{dest:index,carrying:w.phase==='pickup'?null:w.parcel,step,variant:Number(w.id)||0});
-    if(w.phase==='work'&&atBench){
+    if(!isDragging&&w.phase==='work'&&atBench){
       const press=!reducedMotion?Math.floor(time*5)%2:0;
       r(ctx,x-8,y-7+press,4,3,'#f0c390');r(ctx,x+5,y-7+press,4,3,'#f0c390');
+      // Visible tools follow the real stage; no invented processing animation.
+      if(w.role==='sort'){
+        r(ctx,x+7,y-10+press,5,3,'#405d67');r(ctx,x+8,y-10+press,3,1,'#cfdfb4');
+      }else if(w.role==='pack'){
+        r(ctx,x-6,y-6+press,12,2,'#f0db9e');r(ctx,x+3,y-10+press,5,4,'#a5c2ad');
+      }else{
+        r(ctx,x+7,y-10+press,5,7,'#e4d2a1');r(ctx,x+8,y-8+press,3,1,'#788778');
+      }
       const progress=w.job?.duration>0?1-w.job.remaining/w.job.duration:w.progress||0;
       r(ctx,x-9,y-24,18,3,'#405b63');r(ctx,x-9,y-24,Math.round(18*Math.max(0,Math.min(1,progress))),3,'#d0e8a5');
     }
@@ -304,14 +437,26 @@ function drawPipeline(ctx,state,station,time,reducedMotion,selectedRole){
       // One/two/three solid pips identify the target without relying on color.
       for(let i=0;i<=target;i++)r(ctx,x+10+i*2,y-18,1,2,p.light);
     }
+    // A small solid numbered badge ties pointer selection to the keyboard IDs.
+    const numeral=String(w.id);
+    r(ctx,x-16,y-23,9,9,selected||isDragging?'#d8efbc':'#334f5a');
+    ctx.fillStyle=selected||isDragging?'#294650':'#fff0cb';ctx.font='bold 8px sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(numeral,x-11.5,y-18.5);
+    ctx.restore();
   }
 }
 
-export function renderScene(canvas,state,{time=0,reducedMotion=false,selectedId=null,selectedRole=null,feedback=null}={}){
+export function renderScene(canvas,state,{time=0,reducedMotion=false,selectedId=null,selectedRole=null,selectedWorkerId=null,dragWorker=null,dropRole=null,feedback=null,stationSigns=null,arrivals=null}={}){
   if(!canvas||!state)return;
   if(!back){back=document.createElement('canvas');back.width=W;back.height=H;backCtx=back.getContext('2d');backCtx.imageSmoothingEnabled=false;}
   const ctx=backCtx,station=Math.min(2,Math.max(0,Math.floor(((state.day||1)-1)/6))),up=state.upgrades||{},shift=state.shift;
-  ctx.clearRect(0,0,W,H);ctx.drawImage(backdrop(station),0,0);
+  ctx.clearRect(0,0,W,H);
+  if(state.management){
+    drawPipeline(ctx,state,station,time,reducedMotion,selectedRole,selectedWorkerId,dragWorker,dropRole,stationSigns,arrivals);
+    const target=canvas.getContext('2d');target.imageSmoothingEnabled=false;target.clearRect(0,0,canvas.width,canvas.height);target.drawImage(back,0,0,canvas.width,canvas.height);
+    return;
+  }
+  ctx.drawImage(backdrop(station),0,0);
   const queues=shift?.queues||[[],[],[]],loads=shift?.loading||[[],[],[]];
   let trips=departureAnimations.get(canvas);
   if(!trips||trips.shift!==shift){trips={shift,previous:shift?.departures?.slice()||[],started:[-100,-100,-100]};departureAnimations.set(canvas,trips);}
@@ -324,11 +469,6 @@ export function renderScene(canvas,state,{time=0,reducedMotion=false,selectedId=
     // Dock wall masks the vehicle as it moves out through the top of the yard.
     ctx.save();ctx.beginPath();ctx.rect(d*65,0,65,69);ctx.clip();
     truck(ctx,d,loads[d]||[],countdown,time,reducedMotion,Boolean(up.dispatch),travelOffset);ctx.restore();
-  }
-  if(state.management){
-    drawPipeline(ctx,state,station,time,reducedMotion,selectedRole);
-    const target=canvas.getContext('2d');target.imageSmoothingEnabled=false;target.clearRect(0,0,canvas.width,canvas.height);target.drawImage(back,0,0,canvas.width,canvas.height);
-    return;
   }
   for(let d=0;d<3;d++)shelf(ctx,d,queues[d]||[],0);
   const employees=shift?.workers?.length?shift.workers:Array.from({length:1+(up.worker||0)},(_,i)=>({id:i,dest:i%3,parcel:null,progress:0}));

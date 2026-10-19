@@ -18,10 +18,10 @@ const role = value => ROLES.includes(value);
 const staffTotal = state => 3 + (state.upgrades.worker || 0);
 const validStaff = (staff, total) => keys(staff, ROLES) && ROLES.every(key => Number.isInteger(staff[key]) && staff[key] >= 0 && staff[key] <= total) && ROLES.reduce((sum, key) => sum + staff[key], 0) === total;
 /** Stable physical bench positions keep multiple employees visibly separate. */
-export function pipelineWorkerPoint(assigned, id) {
+export function pipelineWorkerPoint(assigned, id, spread = false) {
   const center = PIPELINE_LAYOUT.roles[assigned].work;
   const slot = id - 1;
-  return { x: center.x + (1 - slot % 3) * 28, y: center.y + Math.floor(slot / 3) * 38 };
+  return { x: center.x + (1 - slot % 3) * (spread ? 54 : 28), y: center.y + Math.floor(slot / 3) * (spread ? 60 : 38) };
 }
 const makeWorker = (id, assigned) => ({ id, role: assigned, targetRole: assigned, ...pipelineWorkerPoint(assigned, id), phase: 'idle', parcel: null, job: null, progress: 0 });
 function assignTargets(workers, staff) {
@@ -39,7 +39,9 @@ function assignTargets(workers, staff) {
 }
 function plannedWorkers(state) {
   const workers = Array.from({ length: staffTotal(state) }, (_, index) => makeWorker(index + 1, index === 0 ? 'sort' : index === 1 ? 'pack' : 'load'));
-  assignTargets(workers, state.management.staff);
+  if (state.management.assignments) {
+    for (const worker of workers) worker.targetRole = state.management.assignments[worker.id - 1].targetRole;
+  } else assignTargets(workers, state.management.staff);
   // Before opening, assignments are already in place. Running reassignments
   // use assignTargets alone and therefore retain their current physical point.
   for (const worker of workers) { worker.role = worker.targetRole; worker.phase = 'idle'; Object.assign(worker, pipelineWorkerPoint(worker.role, worker.id)); }
@@ -98,18 +100,48 @@ export function enableManagement(state, workerSeconds) {
   return true;
 }
 
-export function setStaff(state, staff) {
-  if (!state.management || !validStaff(staff, staffTotal(state))) return false;
-  state.management.staff = { ...staff };
-  const workers = state.shift?.flow?.workers;
-  if (!workers) return true;
-  // Retain assignments where possible. Only excess staff physically transfer.
-  assignTargets(workers, staff);
+// Legacy saves lack assignments. Capture running identities before removing a shift.
+export function preserveAssignments(state) {
+  if (!state.management) return;
+  const workers = state.shift?.flow?.workers || plannedWorkers(state);
+  state.management.assignments = workers.map(({ id, targetRole }) => ({ id, targetRole }));
+}
+export function hireWorker(state) {
+  // Called after the upgrade count increments; obtain the old roster first.
+  if (!state.management.assignments) {
+    const previous = { ...state, upgrades: { ...state.upgrades, worker: state.upgrades.worker - 1 } };
+    state.management.assignments = plannedWorkers(previous).map(({ id, targetRole }) => ({ id, targetRole }));
+  }
+  state.management.staff.load++;
+  state.management.assignments.push({ id: staffTotal(state), targetRole: 'load' });
+}
+export function moveWorker(state, workerId, targetRole) {
+  if (!state.management || !Number.isInteger(workerId) || !role(targetRole)) return false;
+  const workers = state.shift?.flow?.workers || plannedWorkers(state);
+  const worker = workers.find(item => item.id === workerId);
+  if (!worker) return false;
+  state.management.staff[worker.targetRole]--;
+  state.management.staff[targetRole]++;
+  worker.targetRole = targetRole;
+  if (!worker.parcel) worker.phase = worker.role === targetRole ? (worker.phase === 'idle' ? 'idle' : 'return') : 'transfer';
+  state.management.assignments = workers.map(({ id, targetRole }) => ({ id, targetRole }));
   return true;
 }
 
-export function managementView(state) {
+export function setStaff(state, staff) {
+  if (!state.management || !validStaff(staff, staffTotal(state))) return false;
+  const workers = state.shift?.flow?.workers || plannedWorkers(state);
+  state.management.staff = { ...staff };
+  // Retain assignments where possible. Only excess staff physically transfer.
+  assignTargets(workers, staff);
+  state.management.assignments = workers.map(({ id, targetRole }) => ({ id, targetRole }));
+  return true;
+}
+
+export function managementView(state, workerSeconds = 2.4) {
   const workers = state.shift?.flow?.workers || (state.management ? plannedWorkers(state) : []);
+  // Preparation previews spread touch targets without changing paid work routes.
+  if (!state.shift) for (const worker of workers) Object.assign(worker, pipelineWorkerPoint(worker.role, worker.id, true));
   const roles = {};
   for (const key of ROLES) roles[key] = {
     assigned: state.management?.staff[key] || 0,
@@ -117,6 +149,18 @@ export function managementView(state) {
     busy: workers.filter(worker => worker.role === key && worker.parcel).length,
     pending: key === 'sort' ? (state.shift?.parcels.length || 0) : (state.shift?.flow?.[key].length || 0),
   };
+  for(const key of ROLES) {
+    const queue=key==='sort' ? [...(state.shift?.arrivals?.waiting || []),...(state.shift?.parcels || [])] : (state.shift?.flow?.[key] || []);
+    const busy=workers.filter(w=>w.role===key && w.parcel);
+    const seconds=workerSeconds;
+    const loads=queue.map(p=>({p,seconds:durationFor(state,key,p,seconds)+3})).concat(busy.map(w=>({p:w.parcel,seconds:w.job.remaining+1.5})));
+    const r=roles[key]; r.workSeconds=loads.reduce((n,l)=>n+l.seconds,0);
+    const kinds={}; for(const l of loads) kinds[l.p.kind]=(kinds[l.p.kind]||0)+l.seconds;
+    r.dominantKind=Object.keys(kinds).sort((a,b)=>kinds[b]-kinds[a])[0] || null;
+    const urgent=loads.filter(l=>l.p.kind==='urgent');
+    r.oldestUrgentRemaining=urgent.length ? Math.max(0,25-Math.max(...urgent.map(l=>l.p.age))) : null;
+    r.pressure=!loads.length ? 'idle' : !r.assigned ? 'blocked' : r.workSeconds/Math.max(1,r.active)>16 ? 'busy' : 'steady';
+  }
   return { total: staffTotal(state), roles, workers };
 }
 
@@ -136,7 +180,12 @@ function move(worker, point, dt) {
   worker.y += dy / distance * amount;
   return false;
 }
-function durationFor(state, stage, parcel, workerSeconds) {
+export function durationFor(state, stage, parcel, workerSeconds) {
+  if (state.shift?.flow?.rules === 2) {
+    if(stage==='sort') return (state.upgrades.sorter ? 0.4 : 0.9) + (parcel.kind==='exception' ? (state.upgrades.scanner ? 3 : 10) : 0);
+    if(stage==='pack') return 0.8 + (parcel.kind==='fragile' ? (state.upgrades.packer ? 2.5 : state.day < 7 ? 4 : 10) : parcel.kind==='large' ? 1.2 : 0);
+    return workerSeconds*0.45 + (parcel.kind==='large' ? (state.upgrades.widegate ? 3 : 10) : 0);
+  }
   if (stage === 'sort') return state.upgrades.sorter ? 0.32 : 1;
   if (stage === 'load') return workerSeconds * 0.55 * (parcel.kind === 'large' && !state.upgrades.widegate ? 2.125 : 1);
   const special = { fragile: 3, large: 3.5, exception: 4 }[parcel.kind] || 0;
@@ -218,14 +267,20 @@ export function clearPipeline(shift) {
 
 export function validManagement(state, workerSeconds) {
   if (state.management === undefined) return state.shift?.flow === undefined;
-  if (!keys(state.management, ['version', 'staff']) || state.management.version !== 1 || !validStaff(state.management.staff, staffTotal(state))) return false;
+  if (!keys(state.management, ['version', 'staff', 'assignments']) || state.management.version !== 1 || !validStaff(state.management.staff, staffTotal(state))) return false;
+  if (Object.hasOwn(state.management, 'assignments')) {
+    const assignments = state.management.assignments;
+    if (!Array.isArray(assignments) || assignments.length !== staffTotal(state) || !assignments.every((item, index) => keys(item, ['id', 'targetRole']) && item.id === index + 1 && role(item.targetRole))) return false;
+    if (!ROLES.every(key => assignments.filter(item => item.targetRole === key).length === state.management.staff[key])) return false;
+  }
   if (!state.shift) return true;
   const flow = state.shift.flow;
-  if (!keys(flow, ['version', 'pack', 'load', 'workers']) || flow.version !== 1 || !Array.isArray(flow.pack) || !Array.isArray(flow.load) || !Array.isArray(flow.workers) || flow.workers.length !== staffTotal(state)) return false;
+  if (!keys(flow, ['version', 'pack', 'load', 'workers', 'rules']) || flow.version !== 1 || (flow.rules !== undefined && flow.rules !== 2) || !Array.isArray(flow.pack) || !Array.isArray(flow.load) || !Array.isArray(flow.workers) || flow.workers.length !== staffTotal(state)) return false;
   if (!Array.isArray(state.shift.queues) || !state.shift.queues.every(Array.isArray) || !Array.isArray(state.shift.workers) || state.shift.queues.some(queue => queue.length) || state.shift.workers.some(worker => !plain(worker) || worker.parcel || worker.progress !== 0)) return false;
   const targets = { sort: 0, pack: 0, load: 0 };
   for (const [index, worker] of flow.workers.entries()) {
     if (!keys(worker, ['id', 'role', 'targetRole', 'x', 'y', 'phase', 'parcel', 'job', 'progress']) || worker.id !== index + 1 || !role(worker.role) || !role(worker.targetRole) || !finite(worker.x, 0, 390) || !finite(worker.y, 0, 520) || !PHASES.includes(worker.phase) || !finite(worker.progress, 0, 1)) return false;
+    if (state.management.assignments && state.management.assignments[index].targetRole !== worker.targetRole) return false;
     targets[worker.targetRole]++;
     const busy = ['pickup', 'work', 'deliver'].includes(worker.phase);
     if (busy !== !!worker.parcel || busy !== !!worker.job) return false;

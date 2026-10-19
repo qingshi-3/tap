@@ -1,5 +1,8 @@
-import { PIPELINE_LAYOUT, initializePipeline, enableManagement, setStaff, managementView, pipelineParcels, beltParcels, stepPipeline, clearPipeline, validManagement } from './pipeline.js';
-export { PIPELINE_LAYOUT, managementView };
+import { waveSchedule } from './arrivals.js';
+export { arrivalView } from './arrivals.js';
+import { PIPELINE_LAYOUT, initializePipeline, enableManagement, setStaff, moveWorker, hireWorker, preserveAssignments, managementView as pipelineManagementView, pipelineParcels, beltParcels, stepPipeline, clearPipeline, validManagement } from './pipeline.js';
+export { PIPELINE_LAYOUT };
+export function managementView(state) { return pipelineManagementView(state, definition(state).workerSeconds); }
 export { pipelineWorkerPoint } from './pipeline.js';
 /** Pure, deterministic simulation. Time is seconds, belt x/progress are 0..1.
  * CONTENT.days is indexed by day-1 (freeplay uses the final definition).
@@ -130,15 +133,17 @@ export function createGame() {
 export function orderPreview(state, { plan = 'steady', route = null } = {}) {
   const day = definition(state), rush = plan === 'rush';
   const total = day.total + (rush ? Math.ceil(day.total * 0.3) : 0) + Math.min(12, Math.max(0, state.day - 18));
+  const waves = state.management ? waveSchedule(state.day, total, plan, day.weights) : null;
+  const kinds = waves?.flatMap(w => Array(w.count).fill(w.kind));
   const routeCounts = [0, 0, 0];
   let baseRevenue = 0;
   for (let i = 0; i < total; i++) {
     const dest = route !== null && i % 3 === 0 ? route : (i * 7 + state.day - 1) % 3;
     routeCounts[dest]++;
-    baseRevenue += day.basePay + (day.weights[i % day.weights.length] === 'normal' ? 0 : 2);
+    baseRevenue += day.basePay + ((kinds?.[i] ?? day.weights[i % day.weights.length]) === 'normal' ? 0 : 2);
   }
   const bonus = (rush ? 35 : 20) + Math.min(state.day, 50) * (rush ? 4 : 3);
-  return { total, goal: rush ? Math.min(1, day.goal + 0.1) : day.goal, bonus, routeCounts,
+  return { ...(waves ? { waves } : {}), total, goal: rush ? Math.min(1, day.goal + 0.1) : day.goal, bonus, routeCounts,
     routeExtra: route === null ? 0 : routeCounts[route] * 2, baseRevenue,
     rushExtraTotal: rush ? Math.ceil(day.total * 0.3) : 0, rushExtraBonus: rush ? 15 + Math.min(state.day, 50) : 0 };
 }
@@ -159,12 +164,16 @@ function start(state, action) {
     workers: Array.from({ length: 1 + (state.upgrades.worker || 0) }, (_, i) => ({ id: i + 1, dest: i % 3, parcel: null, progress: 0 })),
     departures: [departureInterval(state), departureInterval(state) + 1, departureInterval(state) + 2], routeDelivered: [0, 0, 0], urgentDelivered: 0, timedOut: false,
   };
-  if (state.management) initializePipeline(state);
+  if (state.management) {
+    initializePipeline(state);
+    state.shift.flow.rules = 2;
+    state.shift.arrivals = { version: 1, waves: waveSchedule(state.day, total, plan, day.weights), cursor: 0, waiting: [] };
+  }
   state.dayResult = null;
   state.phase = 'running';
   delete state.plannedOrder;
   // The first parcel is immediately actionable; the clock never runs in planning.
-  spawn(state);
+  if (state.shift.arrivals) inbound(state); else spawn(state);
   return result(true, '开始营业', [{ type: 'start', day: state.day }]);
 }
 
@@ -177,6 +186,19 @@ function spawn(state) {
   const dest = state.contract.route !== null && index % 3 === 0 ? state.contract.route : (index * 7 + state.day - 1) % 3;
   shift.parcels.push({ id: shift.nextId++, dest, kind, x: 0.04, prepared: !!preparedAutomatically(state, kind), age: 0 });
   shift.spawned++;
+}
+
+function inbound(state) {
+  const s=state.shift, a=s.arrivals;
+  while(a.cursor<a.waves.length && a.waves[a.cursor].at<=s.elapsed+1e-8) {
+    const wave=a.waves[a.cursor++];
+    for(let i=0;i<wave.count;i++) {
+      const index=s.spawned++;
+      const dest=state.contract.route!==null && index%3===0 ? state.contract.route : (index*7+state.day-1)%3;
+      a.waiting.push({id:s.nextId++,dest,kind:wave.kind,x:0.04,prepared:!!preparedAutomatically(state,wave.kind),age:Math.max(0,s.elapsed-wave.at)});
+    }
+  }
+  if(a.waiting.length && beltHasRoom(s)) s.parcels.push(a.waiting.shift());
 }
 
 function beltHasRoom(shift) {
@@ -226,7 +248,7 @@ function buy(state, action) {
   if (state.cash < cost) return result(false, `还差 ${cost - state.cash} 元，先营业赚取运费`);
   state.cash -= cost;
   state.upgrades[upgrade.id] = (state.upgrades[upgrade.id] || 0) + 1;
-  if (state.management && upgrade.id === 'worker') state.management.staff.load++;
+  if (state.management && upgrade.id === 'worker') hireWorker(state);
   return result(true, `${upgrade.name}已到位`, [{ type: 'upgrade', id: upgrade.id }]);
 }
 
@@ -241,6 +263,10 @@ export function dispatch(state, action) {
       outcome = result(true, '岗位管理已开启');
       break;
     }
+    case 'MOVE_WORKER':
+      if (!moveWorker(state, action.workerId, action.role)) return result(false, '请选择有效员工和岗位');
+      outcome = result(true, '员工岗位已更新');
+      break;
     case 'SET_STAFF':
       if (!setStaff(state, action.staff)) return result(false, '岗位人数须合计为全部员工');
       outcome = result(true, '岗位分配已更新');
@@ -268,6 +294,7 @@ export function dispatch(state, action) {
     case 'NEXT':
       if (!['summary', 'ending'].includes(state.phase)) return result(false, '请先完成当天营业');
       if (state.adRewards) state.adRewards.pending = null;
+      preserveAssignments(state);
       state.day++;
       state.phase = 'planning';
       state.shift = null;
@@ -330,9 +357,10 @@ function step(state, dt, events) {
   const interval = definition(state).interval * (state.contract.plan === 'rush' ? 0.75 : 1);
   // A blocked belt stops the inbound hopper. Unreleased parcels remain in the
   // day's total and are accounted for at closing, never stacked invisibly.
-  while (shift.spawned < shift.total && (shift.parcels.length === 0 || shift.elapsed + 1e-8 >= shift.spawned * interval) && beltHasRoom(shift)) spawn(state);
-  const allParcels = [...pipelineParcels(shift), ...shift.parcels, ...shift.queues.flat(), ...shift.loading.flat(), ...shift.workers.map(worker => worker.parcel).filter(Boolean)];
+  if (!shift.arrivals) while (shift.spawned < shift.total && (shift.parcels.length === 0 || shift.elapsed + 1e-8 >= shift.spawned * interval) && beltHasRoom(shift)) spawn(state);
+  const allParcels = [...(shift.arrivals?.waiting || []), ...pipelineParcels(shift), ...shift.parcels, ...shift.queues.flat(), ...shift.loading.flat(), ...shift.workers.map(worker => worker.parcel).filter(Boolean)];
   for (const parcel of allParcels) parcel.age += dt;
+  if (shift.arrivals) inbound(state);
   if (shift.processing) {
     shift.processing.remaining = Math.max(0, shift.processing.remaining - dt);
     if (shift.processing.remaining <= 1e-8) {
@@ -391,12 +419,13 @@ function finishStep(state, dt, events) {
       shift.departures[dest] += departureInterval(state);
     }
   }
-  const remaining = pipelineParcels(shift).length + shift.parcels.length + shift.queues.flat().length + shift.loading.flat().length + shift.workers.filter(worker => worker.parcel).length;
+  const remaining = (shift.arrivals?.waiting.length || 0) + pipelineParcels(shift).length + shift.parcels.length + shift.queues.flat().length + shift.loading.flat().length + shift.workers.filter(worker => worker.parcel).length;
   if (shift.elapsed + 1e-8 >= shift.duration) {
     // Closing time catches every unresolved parcel, including unspawned backlog.
     shift.timedOut = true;
     shift.missed += remaining + shift.total - shift.spawned;
     clearPipeline(shift);
+    if (shift.arrivals) shift.arrivals.waiting.length = 0;
     shift.parcels.length = 0;
     shift.queues.forEach(queue => queue.length = 0);
     shift.loading.forEach(queue => queue.length = 0);
@@ -440,7 +469,7 @@ export function validate(state) {
   const contract = state.contract;
   if (!keys(contract, ['plan', 'route', 'goal', 'bonus']) || !['steady', 'rush'].includes(contract.plan) || !(contract.route === null || destination(contract.route)) || contract.goal !== (contract.plan === 'rush' ? Math.min(1, definition(state).goal + 0.1) : definition(state).goal) || contract.bonus !== (contract.plan === 'rush' ? 35 : 20) + Math.min(state.day, 50) * (contract.plan === 'rush' ? 4 : 3)) return bad('订单数据损坏');
   const shift = state.shift;
-  if (!keys(shift, ['elapsed', 'duration', 'spawned', 'total', 'parcels', 'queues', 'loading', 'delivered', 'errors', 'missed', 'earnings', 'specialHandled', 'nextId', 'workers', 'departures', 'routeDelivered', 'urgentDelivered', 'timedOut', 'processing', 'flow'])) return bad('营业数据结构损坏');
+  if (!keys(shift, ['elapsed', 'duration', 'spawned', 'total', 'parcels', 'queues', 'loading', 'delivered', 'errors', 'missed', 'earnings', 'specialHandled', 'nextId', 'workers', 'departures', 'routeDelivered', 'urgentDelivered', 'timedOut', 'processing', 'flow', 'arrivals'])) return bad('营业数据结构损坏');
   if (!finite(shift.duration, 1, 1000) || !finite(shift.elapsed, 0, shift.duration) || !integer(shift.total, 1, 1000) || !integer(shift.spawned, 0, shift.total) || !integer(shift.nextId, 1, 1001) || shift.nextId !== shift.spawned + 1 || !['delivered', 'errors', 'missed', 'earnings', 'specialHandled', 'urgentDelivered'].every(key => integer(shift[key])) || typeof shift.timedOut !== 'boolean') return bad('营业计数损坏');
   if (state.phase === 'running' && (shift.elapsed >= shift.duration || shift.timedOut)) return bad('营业时钟与阶段不一致');
   if (shift.delivered > shift.spawned || shift.specialHandled > shift.delivered || shift.urgentDelivered > shift.specialHandled || shift.missed > shift.total || (shift.timedOut && !settled)) return bad('送达计数不一致');
@@ -448,8 +477,16 @@ export function validate(state) {
   if (!Array.isArray(shift.parcels) || !Array.isArray(shift.queues) || shift.queues.length !== 3 || !shift.queues.every(Array.isArray) || !Array.isArray(shift.loading) || shift.loading.length !== 3 || !shift.loading.every(Array.isArray)) return bad('分拣队列损坏');
   if (!Array.isArray(shift.workers) || shift.workers.length !== 1 + (state.upgrades.worker || 0) || !shift.workers.every((worker, index) => keys(worker, ['id', 'dest', 'parcel', 'progress']) && worker.id === index + 1 && destination(worker.dest) && finite(worker.progress, 0, 1) && (worker.parcel === null || plain(worker.parcel)))) return bad('员工数据损坏');
   if (!Array.isArray(shift.departures) || shift.departures.length !== 3 || !shift.departures.every(value => finite(value, 0, 18)) || !Array.isArray(shift.routeDelivered) || shift.routeDelivered.length !== 3 || !shift.routeDelivered.every(value => integer(value)) || shift.routeDelivered.reduce((sum, value) => sum + value, 0) !== shift.delivered) return bad('车次数据损坏');
-  const parcels = [...pipelineParcels(shift), ...shift.parcels, ...shift.queues.flat(), ...shift.loading.flat(), ...shift.workers.map(worker => worker.parcel).filter(Boolean)];
+  if (shift.arrivals !== undefined) {
+    const a=shift.arrivals, expected=waveSchedule(state.day,shift.total,state.contract.plan,definition(state).weights);
+    if (shift.flow?.rules!==2 || !keys(a,['version','waves','cursor','waiting']) || a.version!==1 || !Array.isArray(a.waiting) || !integer(a.cursor,0,expected.length) || (!Array.isArray(a.waves) || a.waves.length!==expected.length || !a.waves.every((w,i)=>keys(w,['kind','count','at']) && w.kind===expected[i].kind && w.count===expected[i].count && w.at===expected[i].at)) || shift.spawned!==expected.slice(0,a.cursor).reduce((n,w)=>n+w.count,0) || expected.slice(0,a.cursor).some(w=>w.at>shift.elapsed+1e-8) || (expected[a.cursor] && expected[a.cursor].at<=shift.elapsed+1e-8)) return bad('来件批次损坏');
+  } else if (shift.flow?.rules !== undefined) return bad('缺少来件批次');
+  const parcels = [...(shift.arrivals?.waiting || []), ...pipelineParcels(shift), ...shift.parcels, ...shift.queues.flat(), ...shift.loading.flat(), ...shift.workers.map(worker => worker.parcel).filter(Boolean)];
   if (!parcels.every(parcel => keys(parcel, ['id', 'dest', 'kind', 'x', 'prepared', 'age']) && integer(parcel.id, 1, shift.spawned) && destination(parcel.dest) && KINDS.includes(parcel.kind) && finite(parcel.x, 0, 1) && typeof parcel.prepared === 'boolean' && finite(parcel.age, 0, 2000))) return bad('包裹数据损坏');
+  if (shift.arrivals) {
+    const manifest=shift.arrivals.waves.flatMap(w=>Array(w.count).fill(w));
+    if (parcels.some(p=>p.kind!==manifest[p.id-1].kind || p.dest!==(state.contract.route!==null && (p.id-1)%3===0 ? state.contract.route : ((p.id-1)*7+state.day-1)%3) || Math.abs(p.age-(shift.elapsed-manifest[p.id-1].at))>1e-6) || shift.arrivals.waiting.some(p=>p.x!==0.04)) return bad('来件归属或到站时间损坏');
+  }
   if (new Set(parcels.map(parcel => parcel.id)).size !== parcels.length || parcels.length + shift.delivered + (shift.timedOut ? shift.total - shift.delivered : 0) !== (shift.timedOut ? shift.total : shift.spawned)) return bad('包裹归属不一致');
   if (shift.processing !== undefined && shift.processing !== null) {
     const job = shift.processing;

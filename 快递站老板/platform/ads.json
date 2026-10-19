@@ -1,0 +1,20 @@
+{
+  "appId": 985949,
+  "developerId": 488823,
+  "title": "快递站老板",
+  "productType": "h5",
+  "orientation": "portrait",
+  "screenOrientationReturned": 1,
+  "checkedAt": "2026-10-19",
+  "status": "active",
+  "spaceId": "1054324",
+  "source": "check_ads_status for current selected app 985949",
+  "type": "rewarded-video-only",
+  "placement": "settlement",
+  "reward": {
+    "cash": 20,
+    "limit": "once per game day"
+  },
+  "hostPlaybackVerified": false,
+  "uploadedWithIntegration": true
+}

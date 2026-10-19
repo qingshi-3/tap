@@ -27,7 +27,8 @@ const parcelUrls=new Map();
 export function parcelSprite(kind='normal',dest=0,prepared=false){
   const key=`${kind}:${dest}:${prepared}`;
   if(parcelCache.has(key))return parcelCache.get(key);
-  const p=ROUTE_PALETTES[dest]||ROUTE_PALETTES[0];
+  const routed=Number.isInteger(dest)&&dest>=0&&dest<3;
+  const p=routed?ROUTE_PALETTES[dest]:{main:'#ddd4b4',deep:'#9a896c'};
   const large=kind==='large',w=large?29:23,h=25;
   const c=sprite(w,h,(ctx)=>{
     const l=2,r=w-3,b=20;
@@ -39,7 +40,9 @@ export function parcelSprite(kind='normal',dest=0,prepared=false){
     rect(ctx,l+2,6,r-l-6,1,'#ffe0a0');rect(ctx,l+2,18,r-l-4,1,'#b78654');
     for(let i=4;i<r-3;i+=5){rect(ctx,i,16,1,1,'#c79b60');rect(ctx,i+1,7,1,1,'#ecc68a');}
     rect(ctx,Math.floor(w/2)-1,3,3,15,'#f7dfa8');rect(ctx,Math.floor(w/2)+1,4,1,14,'#d6b47b');
-    rect(ctx,l+1,9,8,9,p.deep);rect(ctx,l+1,8,8,9,p.main);routeMark(ctx,dest,l+2,9,1);
+    rect(ctx,l+1,9,8,9,p.deep);rect(ctx,l+1,8,8,9,p.main);
+    if(routed)routeMark(ctx,dest,l+2,9,1);
+    else for(let dx=0;dx<5;dx+=2)rect(ctx,l+2+dx,10,1,4,'#806d57');
     rect(ctx,r-3,13,3,4,'#f2e5c6');rect(ctx,r-2,14,1,2,'#877556');
     // Shape as well as color identifies handling requirements.
     if(kind==='fragile'){
@@ -90,7 +93,7 @@ export function worker(ctx,x,y,{dest=0,step=0,carrying=null,variant=0}={}){
   rect(ctx,x+4,y+15,3,3,'#384355');rect(ctx,x+10,y+15,3,3,'#384355');
   if(step){rect(ctx,x+3,y+17,4,1,'#303745');rect(ctx,x+10,y+16,4,1,'#303745');}
   else {rect(ctx,x+4,y+16,4,2,'#303745');rect(ctx,x+9,y+17,4,1,'#303745');}
-  if(carrying){ctx.drawImage(parcelSprite(carrying.kind,carrying.dest,carrying.prepared),x+3,y+5,14,15);rect(ctx,x+2,y+12,2,3,skin);rect(ctx,x+15,y+12,2,3,skin);}
+  if(carrying){const wide=carrying.kind==='large';ctx.drawImage(parcelSprite(carrying.kind,carrying.dest,carrying.prepared),x+(wide?0:3),y+5,wide?20:14,15);rect(ctx,x+2,y+12,2,3,skin);rect(ctx,x+15,y+12,2,3,skin);}
 }
 export function plant(ctx,x,y,variant=0){
   rect(ctx,x+3,y+11,10,2,'#573e3f');rect(ctx,x+4,y+13,8,6,'#b16e4e');rect(ctx,x+5,y+13,2,5,'#dc9364');rect(ctx,x+5,y+19,6,1,'#744e42');
