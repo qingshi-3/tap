@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { SAVE_KEY, readSave, writeSave, replaceSave } from '../dist/storage.js';
 import { createGame, build, nextTurn } from '../dist/rules.js';
 
@@ -20,6 +21,24 @@ function memoryStorage(initial = {}) {
     },
   };
 }
+
+test('writing or explicitly importing a validated v1 persists normalized v2 at the fixed key', () => {
+  const legacy=JSON.parse(readFileSync(new URL('./fixtures/save-v1-before-drafts.json',import.meta.url),'utf8'));
+  const storage=memoryStorage({[SAVE_KEY]:JSON.stringify(legacy)});
+  assert.equal(writeSave(storage,legacy).ok,true);
+  assert.equal(JSON.parse(storage.values.get(SAVE_KEY)).version,2);
+  assert.equal(replaceSave(storage,legacy).ok,true);
+  const saved=JSON.parse(storage.values.get(SAVE_KEY));
+  assert.equal(saved.version,2);
+  assert.deepEqual(saved.tiles,legacy.tiles);
+  assert.equal(saved.gold,legacy.gold);
+  nextTurn(saved);
+  assert.equal(writeSave(storage,saved).ok,true);
+  const reloaded=readSave(storage).state;
+  nextTurn(reloaded);
+  assert.equal(writeSave(storage,reloaded).ok,true);
+  assert.equal(readSave(storage).state.turn,legacy.turn+2);
+});
 
 test('missing saves are distinguishable from corrupt saves, and reading never repairs or deletes data', () => {
   const empty = memoryStorage();

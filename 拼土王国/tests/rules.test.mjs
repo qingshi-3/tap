@@ -234,7 +234,7 @@ test('serialized saves load as detached state and continue buying, building, set
 test('save validation rejects unknown, disconnected, duplicate, incompatible and corrupt data without repair', () => {
   const valid = createGame(9);
   const corruptions = [
-    state => { state.version = 2; },
+    state => { state.version = 99; },
     state => { state.extra = true; },
     state => { state.gold = -1; },
     state => { state.food = 1.2; },

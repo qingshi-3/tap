@@ -82,9 +82,10 @@ function generateOffers(state) {
 }
 export function createGame(seed = 20261019) {
   const state = {
-    version: 1, seed: initialSeed(seed), turn: 1, gold: 150, food: 30, wood: 12,
+    version: 2, seed: initialSeed(seed), turn: 1, gold: 150, food: 30, wood: 12,
     population: 8, happiness: 70, knowledge: 0, level: 1, tiles: [], offers: [],
-    landBought: false, rerolls: 0, log: [], policy: 'balanced', achievements: [],
+    landBought: false, rerolls: 0, buildingRerolls: 0, buildingDraws: 0,
+    log: [], policy: 'balanced', achievements: [],
   };
   const terrain = [['forest', 'grass', 'water'], ['grass', 'grass', 'fertile'], ['mountain', 'grass', 'forest']];
   for (let y = 5; y <= 7; y++) for (let x = 5; x <= 7; x++) {
@@ -141,9 +142,11 @@ export function build(state, type, x, y) {
   if (state.level < definition.unlock) return fail(`城镇${definition.unlock}级解锁。`);
   if (!definition.terrains.includes(tile.terrain)) return fail(`${definition.name}不能建在${TERRAIN[tile.terrain].name}上。`);
   if (state.gold < definition.cost) return fail(`金币不足，需要${definition.cost}。`);
+  const previous = getBuildingOffers(state);
   state.gold -= definition.cost;
   tile.building = type;
   tile.level = 1;
+  advanceBuildingDraft(state, previous);
   record(state, `建成${definition.name}。`);
   return ok({ cost: definition.cost });
 }
@@ -182,6 +185,59 @@ export function reroll(state) {
   state.gold -= cost;
   state.rerolls++;
   state.offers = generateOffers(state);
+  return ok({ cost });
+}
+function buildingCombinations(state) {
+  const pool = Object.keys(BUILDINGS).filter(type => type !== 'hall' && BUILDINGS[type].unlock <= state.level);
+  // A private shuffle consumes no game RNG; repeated reads and reloads are identical.
+  const rng = { seed: (state.seed ^ Math.imul(state.turn, 2246822519)) >>> 0 };
+  for (let i = pool.length - 1; i > 0; i--) {
+    const index = Math.floor(random(rng) * (i + 1));
+    [pool[i], pool[index]] = [pool[index], pool[i]];
+  }
+  const emptyTerrains = new Set(state.tiles.filter(tile => !tile.building).map(tile => tile.terrain));
+  const fits = type => BUILDINGS[type].terrains.some(terrain => emptyTerrains.has(terrain));
+  const preferred = pool.filter(fits), fallback = pool.filter(type => !fits(type));
+  const combinations = [];
+  const choose = (types, count, start = 0, picked = [], output = []) => {
+    if (picked.length === count) { output.push(picked); return output; }
+    for (let i = start; i <= types.length - (count - picked.length); i++) choose(types, count, i + 1, [...picked, types[i]], output);
+    return output;
+  };
+  // Fill all three slots with compatible types whenever possible. Unusable terrain
+  // types only fill remaining slots, so the UI can show the precise disabled reason.
+  const preferredCount = Math.min(3, preferred.length);
+  for (const usable of choose(preferred, preferredCount)) {
+    for (const other of choose(fallback, 3 - preferredCount)) combinations.push([...usable, ...other]);
+  }
+  return combinations;
+}
+export function getBuildingOffers(state) {
+  const combinations = buildingCombinations(state);
+  const draws = state.buildingDraws;
+  const selected = combinations[draws % combinations.length];
+  // When terrain restrictions leave only one possible combination, rotate the
+  // presentation order rather than silently charging for an identical display.
+  const offset = Math.floor(draws / combinations.length) % selected.length;
+  return [...selected.slice(offset), ...selected.slice(0, offset)];
+}
+function advanceBuildingDraft(state, previous) {
+  const before = [...previous].sort().join(',');
+  const combinations = buildingCombinations(state);
+  const advance = () => { state.buildingDraws = state.buildingDraws === Number.MAX_SAFE_INTEGER ? 0 : state.buildingDraws + 1; };
+  advance();
+  // A build or a season can alter the compatible pool. Skip its coincidental
+  // repeat, preserving priority rather than offering unusable types for variety.
+  if (combinations.length > 1 && getBuildingOffers(state).slice().sort().join(',') === before) advance();
+  if (combinations.length === 1 && getBuildingOffers(state).join(',') === previous.join(',')) advance();
+}
+export function rerollBuildings(state) {
+  const cost = 5 * (state.buildingRerolls + 1);
+  if (state.gold < cost) return fail(`刷新建筑需要${cost}金币。`);
+  const previous = getBuildingOffers(state);
+  state.gold -= cost;
+  state.buildingRerolls++;
+  advanceBuildingDraft(state, previous);
   return ok({ cost });
 }
 export function setPolicy(state, key) {
@@ -261,6 +317,7 @@ export function forecast(state) {
   };
 }
 export function nextTurn(state) {
+  const previousBuildings = getBuildingOffers(state);
   const result = forecast(state);
   for (const resource of ['gold', 'food', 'wood', 'knowledge']) state[resource] = Math.min(1e9, state[resource] + result[resource]);
   state.happiness = result.happiness;
@@ -279,7 +336,9 @@ export function nextTurn(state) {
   state.turn++;
   state.landBought = false;
   state.rerolls = 0;
+  state.buildingRerolls = 0;
   state.offers = generateOffers(state);
+  advanceBuildingDraft(state, previousBuildings);
   return ok({ ...result, level: state.level });
 }
 function exactKeys(value, keys) {
@@ -297,7 +356,9 @@ function connected(cells) {
   }
   return unseen.size === 0;
 }
-export function validateSave(raw) {
+// Frozen v1 schema and full semantic checks. Migration only runs AFTER this
+// validator succeeds; v2 fields must never make a malformed v1 save acceptable.
+function validateV1(raw) {
   let state;
   try { state = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return fail('存档不是有效JSON，原档已保留。'); }
   const fields = ['version', 'seed', 'turn', 'gold', 'food', 'wood', 'population', 'happiness', 'knowledge', 'level', 'tiles', 'offers', 'landBought', 'rerolls', 'log', 'policy', 'achievements'];
@@ -342,4 +403,20 @@ export function validateSave(raw) {
   }
   // Return a detached state; validation never repairs or mutates the original.
   return ok({ state: JSON.parse(JSON.stringify(state)) });
+}
+export function validateSave(raw) {
+  let state;
+  try { state = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return fail('存档不是有效JSON，原档已保留。'); }
+  if (!state || typeof state !== 'object' || ![1, 2].includes(state.version)) return fail('不支持的存档版本或字段，原档已保留。');
+  if (state.version === 1) {
+    const checked = validateV1(state);
+    if (!checked.ok) return checked;
+    return ok({ state: { ...checked.state, version: 2, buildingRerolls: 0, buildingDraws: 0 } });
+  }
+  const { buildingRerolls, buildingDraws, ...legacy } = state;
+  if (!Object.hasOwn(state, 'buildingRerolls') || !Object.hasOwn(state, 'buildingDraws')
+    || !integer(buildingRerolls, 0, Number.MAX_SAFE_INTEGER) || !integer(buildingDraws, 0, Number.MAX_SAFE_INTEGER)) return fail('建筑候选记录损坏，原档已保留。');
+  const checked = validateV1({ ...legacy, version: 1 });
+  if (!checked.ok) return checked;
+  return ok({ state: { ...checked.state, version: 2, buildingRerolls, buildingDraws } });
 }
