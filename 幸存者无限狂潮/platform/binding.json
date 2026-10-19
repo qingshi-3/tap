@@ -1,0 +1,13 @@
+{
+  "game": "幸存者：无限狂潮",
+  "slug": "pixel-survivor",
+  "developer_name": "阿芙工作室",
+  "developer_id": 488823,
+  "app_id": 968359,
+  "client_id": "d0frcwhrh5gigstex7",
+  "miniapp_id": "tapmcxo62gae1i9hyf",
+  "package_type": "h5",
+  "screen_orientation": "landscape",
+  "admin_url": "https://developer.taptap.cn/v3/488823/app/968359/store/update",
+  "note": "公开应用标识快照；不包含认证信息，当前审核/上线状态以平台实时查询为准。"
+}

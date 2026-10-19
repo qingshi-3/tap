@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29483d"><title>拼土王国</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+<main id="game">
+  <header class="hud"><div class="identity"><h1>拼土王国</h1><span id="season"></span><button id="records" class="quiet" aria-label="打开存档与玩法">存档</button></div><div id="resources" class="resources"></div></header>
+  <div class="play">
+    <section class="world" aria-label="领土地图">
+      <div class="map-top"><button id="milestone" class="milestone"></button><div class="map-controls"><button id="zoom-out" aria-label="缩小地图">−</button><button id="center" aria-label="回到城镇中心">居中</button><button id="zoom-in" aria-label="放大地图">＋</button></div></div>
+      <div id="viewport"><div id="board" role="grid" aria-label="领土，方向键移动，回车选择"></div></div>
+      <div id="hint" class="map-hint">选一块新土地，拼到王国旁边</div>
+      <div id="toast" role="status" aria-live="polite"></div>
+    </section>
+    <aside class="workbench" aria-label="经营操作">
+      <nav class="tabs" aria-label="经营分类"><button data-tab="land" aria-selected="true">买地</button><button data-tab="build" aria-selected="false">建造</button><button data-tab="realm" aria-selected="false">国政</button></nav>
+      <div id="panel"></div>
+      <footer class="turnbar"><div id="turn-preview"></div><button id="next-turn" class="primary">下一季</button></footer>
+    </aside>
+  </div>
+</main>
+<dialog id="dialog"><div id="dialog-body"></div><button id="close-dialog" class="primary">继续经营</button></dialog>
+<script type="module" src="./app.js"></script>
+</body></html>

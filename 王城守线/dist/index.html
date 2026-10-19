@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#17241c">
+  <meta name="description" content="王城守线：在林地布防，率领部队守住王城。">
+  <title>王城守线 · 林地防线</title>
+  <link rel="stylesheet" href="./openfield.css">
+</head>
+<body>
+<main id="of-app">
+  <section id="of-title" aria-label="王城守线">
+    <div class="of-title-copy"><span class="of-title-mark" aria-hidden="true">♜</span><h1>王城守线</h1><p>林地防线</p>
+      <button id="of-start" class="of-primary" type="button" disabled><img src="./assets/ui/action/play.png" alt="">开始守城</button>
+      <strong id="of-record" aria-live="polite">最高守住 0 波</strong><button id="of-about" class="of-link" type="button">玩法与隐私</button>
+    </div>
+  </section>
+  <section id="of-hud" hidden aria-label="林地战场">
+    <canvas id="of-canvas" tabindex="0" aria-label="林地战场；拖动查看地图，选择部队或空地进行布防"></canvas>
+    <header class="of-header" aria-label="战场状态">
+      <button id="of-back" class="of-icon-button" type="button" aria-label="返回"><img src="./assets/ui/action/back.png" alt=""></button>
+      <div class="of-counter" aria-label="王城耐久"><svg width="24" height="24" viewBox="0 0 24 24" fill="#ed735d" stroke="#75372c" aria-hidden="true"><path d="M12 21 3 12C-3 5 7-1 12 6c5-7 15-1 9 6Z"/></svg><strong id="of-lives">20</strong></div>
+      <div class="of-counter" aria-label="金币"><svg width="24" height="24" viewBox="0 0 24 24" fill="#edc164" stroke="#84562c" stroke-width="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 6v12M8 8h7M9 16h7"/></svg><strong id="of-gold">300</strong></div>
+      <button id="of-scout" class="of-labelled" type="button" aria-label="查看下一波进攻方向"><img src="./assets/ui/action/rally.png" alt=""><span>侦察</span></button>
+      <button id="of-speed" class="of-icon-button" type="button" aria-label="切换速度"><span class="of-fast" aria-hidden="true"><img src="./assets/ui/action/play.png" alt=""><img src="./assets/ui/action/play.png" alt=""></span><small>1×</small></button>
+      <button id="of-pause" class="of-icon-button" type="button" aria-label="暂停" aria-pressed="false"><img src="./assets/ui/action/pause.png" alt=""></button>
+      <strong id="of-wave">0 / 9 波</strong>
+    </header>
+    <div id="of-banner" role="status" aria-live="polite"></div>
+    <div class="of-bottom-left" aria-label="布防与法术">
+      <button id="of-roster" class="of-labelled" type="button"><img src="./assets/ui/action/reinforce.png" alt=""><span>布防</span></button>
+      <button id="of-spell" class="of-labelled" type="button"><span class="of-meteor" aria-hidden="true"></span><small>火雨</small></button>
+      <button id="of-cancel" class="of-small" type="button" hidden>取消</button>
+    </div>
+    <div class="of-bottom-right"><span id="of-enemy-count">0 名敌人</span><button id="of-wave-start" class="of-primary" type="button"><img src="./assets/ui/action/play.png" alt="">迎战</button></div>
+    <section id="of-menu" class="of-menu of-unit-menu" hidden aria-label="布防菜单">
+      <header><strong id="of-menu-name">选择守军</strong><button id="of-menu-close" class="of-icon-button" type="button" aria-label="关闭"><img src="./assets/ui/action/close.png" alt=""></button></header>
+      <div id="of-catalog">
+        <div id="of-tabs" role="tablist" aria-label="守军类型">
+          <button type="button" role="tab" data-of-group="front" aria-selected="true">近战</button><button type="button" role="tab" data-of-group="ranged" aria-selected="false">远程</button><button type="button" role="tab" data-of-group="support" aria-selected="false">支援</button><button type="button" role="tab" data-of-group="tower" aria-selected="false">塔楼</button>
+        </div>
+        <div id="of-cards" aria-live="polite"></div><p id="of-menu-note"></p>
+      </div>
+      <div id="of-detail" hidden></div>
+    </section>
+  </section>
+  <div id="of-overlay" class="of-overlay" hidden><section class="of-dialog" role="dialog" aria-modal="true" aria-labelledby="of-dialog-title"><h2 id="of-dialog-title">战斗暂停</h2><p id="of-dialog-copy"></p><div id="of-dialog-actions"></div></section></div>
+  <div id="of-rotate" hidden role="status"><div><span aria-hidden="true">↻</span><h2>请横屏游玩</h2><p>旋转设备后即可继续守城。</p></div></div>
+  <div id="of-toast" role="status" aria-live="polite"></div>
+</main>
+<script src="./game.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "revision": 9,
+  "coins": 266,
+  "ownedTrucks": ["van"],
+  "completed": {
+    "o01": { "stars": 3, "reward": 132 },
+    "o02": { "stars": 2, "reward": 134 }
+  },
+  "active": {
+    "orderId": "o03",
+    "placements": {
+      "o03-1": { "x": 0, "y": 0, "r": 0 },
+      "o03-2": { "x": 2, "y": 1, "r": 1 }
+    },
+    "phase": "unloading",
+    "stop": 1,
+    "delivered": ["o03-3", "o03-4", "o03-5", "o03-6"],
+    "moves": 6,
+    "hints": 0,
+    "paid": false
+  },
+  "sound": true
+}

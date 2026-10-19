@@ -1,0 +1,23 @@
+#daily-dialog{width:min(460px,calc(var(--app-width,100vw) - 24px));max-width:none;max-height:calc(var(--app-height,100dvh) - 20px);border:0;border-radius:8px;padding:0;background:#102b38;color:#e6f3ed;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;scroll-padding-top:56px}
+.daily-panel{padding:0 18px 12px;font-size:12px;line-height:1.5;text-align:center}
+.daily-heading{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:10px;background:#102b38;padding:5px 0}
+.daily-heading h2{margin:0;font:700 22px/1.2 KaiTi,STKaiti,"Microsoft YaHei",serif;color:#effff1;text-align:left}
+.daily-heading button{min-width:60px;min-height:44px;padding:0 12px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;font-size:12px}
+.daily-panel p{margin:6px 0;color:#c1d7df}
+#daily-summary{margin:2px 0 8px;color:#eaf8ef;font-size:13px}
+.daily-rewards{display:flex;justify-content:center;align-items:center;gap:24px;padding:6px 0}
+.daily-rewards span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.daily-rewards img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
+.daily-rewards b{font-size:24px;color:#f2dfad}
+.daily-panel .daily-total{font-size:11px;margin:5px 0 10px}
+#daily-count{color:#a7e0ce}
+.daily-panel .daily-rule{font-size:11px;color:#a4bdca;margin-bottom:10px}
+.daily-actions{display:grid;grid-template-columns:1fr 1.3fr;gap:8px}
+.daily-actions button{min-height:48px;padding:6px 12px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;white-space:nowrap;font-size:12px;color:#e7f5ff}
+.daily-actions #daily-base{background-image:url('./assets/ui/duelyst-button-primary.png')}
+.daily-actions #daily-retry{grid-column:1/-1;background-image:url('./assets/ui/duelyst-button-primary.png')}
+#daily-dialog button:not(:disabled):hover{filter:brightness(1.15)}
+#daily-dialog button:disabled{opacity:.55;cursor:default}
+#daily-dialog button:focus-visible{outline:2px solid #b2ffe7;outline-offset:2px}
+#daily-status{min-height:18px;margin:7px 0 0;color:#e5d2a1;font-size:11px}
+@media(max-height:340px){.daily-panel{padding:0 14px 8px}.daily-heading h2{font-size:20px}.daily-panel p{margin:4px 0}.daily-rewards{padding:2px 0}.daily-rewards b{font-size:21px}.daily-panel .daily-total{margin:4px 0 6px}.daily-panel .daily-rule{margin-bottom:6px}.daily-actions button{min-height:44px}}

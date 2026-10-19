@@ -1,0 +1,18 @@
+{
+  "units": 12,
+  "animations": 36,
+  "frames": 535,
+  "unitImageRequests": 12,
+  "worldRects": 11,
+  "uiImages": 18,
+  "files": 43,
+  "bytes": 1040747,
+  "checks": [
+    "All 535 atlas regions equal original decoded RGBA pixels",
+    "All idle/walk/attack frames decoded as nonempty PNG",
+    "Positive source-bound animation delays",
+    "All atlas/world rects within actual PNG bounds",
+    "All manifest browser paths exist",
+    "Obsolete frame tree contains only verified generated files and has no manifest references"
+  ]
+}

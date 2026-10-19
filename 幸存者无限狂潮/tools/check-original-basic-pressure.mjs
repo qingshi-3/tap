@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import {fixture,enemy,tick} from './check-researched-original.mjs';
+import {ensureOriginal} from '../dist/original-heroes.js';
+// High weapons acquire and reach a front line before melee contact, without moving player.
+for(const tier of [2,3]){const g=fixture('commander',tier,3);g.enemies=[enemy(1,720),enemy(2,760)];tick(g,.8);assert.ok(g.hits.some(h=>h.id===1),'short wave reaches front');assert.equal(g.player.x,500);}
+// Soul chain adds real targets, with a finite budget and still-manual corpses.
+for(const branch of [null,'a','b']){const g=fixture('summoner',3,branch?4:3,branch);g.enemies=Array.from({length:9},(_,i)=>enemy(i+1,650+i*110));tick(g,.15);const ids=new Set(g.hits.filter(h=>h.source==='basic'||h.source==='basicSecondary').map(h=>h.id));assert.equal(ids.size,branch==='a'?5:branch==='b'?4:3);assert.equal(g.companions.length,3);}
+// Healing does not erase an attack; healing has independent frequency and resource cadence.
+{const g=fixture('summoner',3,4,'b');g.enemies=[enemy(1,650,500,{boss:true}),enemy(2,740,500,{boss:true})];tick(g,.15);g.originalHero.clock=100;const priest=g.companions.find(c=>c.role==='priest'),shield=g.companions.find(c=>c.role==='shield');for(const c of g.companions)c.attackClock=100;shield.hp=40;priest.attackClock=0;const round=priest.soulRound||0;g.hits=[];tick(g,.02);assert.equal(shield.hp,62);assert.equal(priest.soulRound,round+1);assert.ok(g.hits.some(h=>h.source==='companion'&&h.id===2));assert.ok(g.hits.some(h=>h.n===42));priest.attackClock=0;tick(g,.02);assert.equal(shield.hp,62,'cannot heal again inside 2.2 seconds');}
+// Lower weapons retain target caps; final spears hit the real full forward segment.
+for(const [rank,branch,cap]of [[2,null,2],[3,null,3],[4,'b',6],[4,'a',6]]){const g=fixture('summoner',2,rank,branch);g.enemies=Array.from({length:6},(_,i)=>enemy(i+1,650+i*40));tick(g,.15);g.originalHero.clock=100;for(const c of g.companions)c.attackClock=100;const spear=g.companions.find(c=>c.role==='spear');spear.x=500;spear.y=500;spear.attackClock=0;g.hits=[];tick(g,.02);assert.equal(new Set(g.hits.map(h=>h.id)).size,cap);}
+// Both advanced mage careers reach a distant back row in the first chain, and keep bounded fork/discharge.
+for(const tier of [2,3])for(const branch of [null,'a']){const g=fixture('mage',tier,branch?4:3,branch);g.enemies=Array.from({length:9},(_,i)=>enemy(i+1,650+i*160));tick(g,.15);const chain=g.hits.filter(h=>h.source==='basic'||h.source==='basicSecondary');assert.equal(new Set(chain.map(h=>h.id)).size,branch?7:5);g.originalHero.clock=100;tick(g,.4);assert.ok(g.heroEffects.some(f=>f.visualKind==='originalDischarge'));assert.equal(g.originalHero.waves.length,0);}
+// Concentrated lightning still clears neighbors through its real 90-radius thunder shocks.
+{const g=fixture('mage',3,4,'b');g.enemies=[enemy(1,650),enemy(2,700,565),enemy(3,700,435)];tick(g,.15);g.originalHero.clock=100;g.hits=[];tick(g,.65);assert.ok(g.hits.some(h=>h.id===2&&h.source==='basicSecondary'));assert.ok(g.heroEffects.some(f=>f.visualKind==='originalDischarge'&&f.radius===90));}
+// A dead original echo target permits one new contact at a visible real shadow position.
+{const g=fixture('blink',3,3);g.enemies=[enemy(1,565,500,{hp:30}),enemy(2,650)];tick(g,.15);g.originalHero.clock=100;g.hits=[];tick(g,.4);assert.ok(g.hits.some(h=>h.id===2&&h.source==='basicEcho'));assert.equal(g.originalHero.basicEcho,null);assert.ok(g.heroEffects.some(f=>f.visualKind==='originalAttackShadow'&&f.x>500));}
+// Area collection is a finite second-shot budget, rather than recursive lightning growth.
+{const g=fixture('mage',3,4,'a');g.enemies=Array.from({length:12},(_,i)=>enemy(i+1,650+i*160));tick(g,.15);assert.equal(g.heroEffects.filter(f=>f.visualKind==='originalDischarge'&&f.radius===100).length,0);tick(g,.84);const shocks=g.heroEffects.filter(f=>f.visualKind==='originalDischarge'&&f.radius===100&&f.source==='basicSecondary');assert.ok(shocks.length>=4&&shocks.length<=7);assert.ok(g.originalHero.waves.length<=3);}
+// High-tier replacements remain one soldier per cadence and never exceed the role slots.
+{const g=fixture('summoner',3,3);tick(g,.15);g.companions[0].hp=0;g.originalHero.replenish=.1;tick(g,.12);assert.equal(g.companions.length,3);assert.ok(g.originalHero.replenish>1);}
+console.log('Original high basic pressure regressions passed: frontline, finite chains and army, parallel healing, back-row lightning, and one real echo retarget.');

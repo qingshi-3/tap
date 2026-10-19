@@ -1,0 +1,412 @@
+.campaign-shell{--top:58px;--nav:58px;--ink:#f2e7ce;--muted:#aa9f8a;--gold:#d7ae5e;--teal:#71cfbd;position:absolute;inset:0;z-index:60;overflow:hidden;color:var(--ink);font-family:"Microsoft YaHei UI","Noto Sans SC",sans-serif;background:#120f0b;user-select:none}
+.campaign-shell *{box-sizing:border-box}
+.campaign-shell.is-hidden{display:none}
+:where(.campaign-shell) button{font:inherit;color:inherit;cursor:pointer}
+.campaign-topbar{position:absolute;z-index:20;inset:0 0 auto;height:var(--top);display:flex;align-items:center;padding:6px 12px;background:linear-gradient(#19150ff7,#15110de8);border-bottom:1px solid #5d4b31}
+.campaign-back{width:42px;height:42px;border:0;background:url('./assets/ui/back.png') center/contain no-repeat}
+.campaign-title{margin-left:7px;text-shadow:0 2px 5px #000}
+.campaign-title h1{margin:0;font:800 18px/1 Georgia,"Microsoft YaHei UI",serif;letter-spacing:.08em}
+.campaign-title span{color:#c9ab6c;font-size:9px}
+.campaign-about{margin-left:13px;min-height:34px;padding:0 11px;border:1px solid #715b3b;border-radius:3px;background:#261e14;font-size:10px}
+.campaign-wallet{display:flex;gap:6px;margin-left:auto}
+.campaign-resource{display:inline-flex;align-items:center;gap:4px;min-width:62px;padding:2px 8px 2px 3px;border:1px solid #635238;border-radius:14px;background:#100d09;white-space:nowrap}
+.campaign-resource img{width:21px;height:21px}
+.campaign-resource strong{font-size:11px}
+.campaign-view{position:absolute;inset:var(--top) 0 var(--nav);overflow:hidden}
+.campaign-primary,.campaign-small{min-height:40px;border:1px solid #dcb968;border-radius:3px;background:linear-gradient(#97662e,#68451f);box-shadow:inset 0 1px #f1d68c66,0 3px 8px #0007;font-weight:800}
+.campaign-small{min-height:36px;padding:0 10px;font-size:10px}
+.campaign-small.quiet{border-color:#766244;background:#282016}
+.campaign-primary:disabled,.campaign-small:disabled{cursor:default;filter:saturate(.2);opacity:.55}
+.campaign-toast{position:absolute;z-index:40;left:50%;bottom:calc(var(--nav) + 8px);translate:-50% 10px;padding:8px 16px;border:1px solid #bd9147;background:#201810f4;opacity:0;pointer-events:none;transition:.16s}
+.campaign-toast.is-visible{translate:-50% 0;opacity:1}
+.section-heading{display:flex;align-items:baseline;gap:9px;min-height:29px}
+.section-heading h2{margin:0;font:800 16px Georgia,"Microsoft YaHei UI",serif}
+.section-heading span{color:var(--muted);font-size:9px}
+.meter{overflow:hidden;height:5px;background:#0e0c09;border:1px solid #534630}
+.meter i{display:block;width:var(--p);height:100%;background:linear-gradient(90deg,#477f70,#83d5bd)}
+.text-reward{color:#d5bd84;font-size:9px}
+.campaign-buildings{padding:8px 12px;background:linear-gradient(120deg,#17130e,#211a11)}
+.building-list{display:grid;grid-template-rows:repeat(3,1fr);gap:5px;height:calc(100% - 29px)}
+.building-row{display:grid;grid-template-columns:38px minmax(140px,1.3fr) minmax(140px,1fr) 105px;align-items:center;gap:8px;padding:6px 8px;border:1px solid #604c32;background:linear-gradient(90deg,#292016,#17130e);box-shadow:inset 3px 0 #9b7339}
+.building-row>i{display:grid;place-items:center;width:34px;height:34px;border:1px solid #9e7942;border-radius:50%;font-style:normal;color:#dfba67}
+.building-row h3{margin:0;font-size:11px}
+.building-row p{margin:2px 0;color:#a99c87;font-size:8px}
+.building-row span{color:#c6a962;font-size:8px}
+.building-row>b{font-size:9px}
+.building-row>div:last-child{text-align:center}
+.building-row button{width:100%;margin-top:3px}
+.campaign-nav{position:absolute;z-index:20;inset:auto 0 0;height:var(--nav);display:flex;justify-content:center;gap:6px;padding:4px 12px;background:linear-gradient(transparent,#100d09 18%)}
+.campaign-nav button{min-width:102px;min-height:48px;border:1px solid transparent;border-radius:3px;background:transparent;color:#9f927d}
+.campaign-nav button.is-active{border-color:#75603f;background:#2a2014;color:#f0d493}
+.campaign-nav i,.campaign-nav span{display:block}
+.campaign-nav i{font-style:normal;font-size:16px}
+.campaign-nav span{font-size:9px}
+.campaign-shell button:focus-visible{outline:2px solid #f1d697;outline-offset:2px}
+/* Highlight the authored button art without adding a rectangular frame. */
+@media(hover:hover) and (pointer:fine){
+.campaign-shell button:hover:not(:disabled){filter:brightness(1.08)}
+.campaign-shell button:active:not(:disabled){filter:brightness(1.18)}
+}
+.campaign-back:hover{background:url('./assets/ui/back.png') center/contain no-repeat}
+@media(orientation:landscape) and (max-height:500px){
+.campaign-shell{--top:50px;--nav:50px}
+.campaign-topbar{padding-block:3px}
+.campaign-back{width:38px;height:38px}
+.campaign-title h1{font-size:15px}
+.campaign-about{min-height:32px}
+.campaign-view{padding-top:5px;padding-bottom:5px}
+.campaign-buildings{gap:5px;padding-left:8px;padding-right:8px}
+.campaign-primary{min-height:35px}
+.building-row{padding-block:3px}
+.campaign-nav button{min-height:42px}
+}
+@media(orientation:landscape) and (max-height:350px){
+.campaign-shell{--top:44px;--nav:44px}
+.campaign-title span,.campaign-about,.section-heading span,.building-row p{display:none}
+.campaign-nav button{min-height:37px}
+.campaign-nav i{display:none}
+}
+@media(max-width:700px){
+.building-row{grid-template-columns:30px minmax(100px,1fr) minmax(105px,1fr) 84px}
+.campaign-nav button{min-width:84px}
+}
+@media(prefers-reduced-motion:reduce){
+.campaign-toast{transition:none}
+}
+:where(.campaign-shell) button{appearance:none;margin:0;padding:0;min-width:0;min-height:0;border:0;border-radius:0;background:none;box-shadow:none;font:inherit;line-height:normal;color:inherit;text-align:center;white-space:normal;cursor:pointer;touch-action:manipulation}
+.campaign-shell{--nav:52px}
+.campaign-topbar{padding-right:calc(12px + var(--host-menu-reserve,0px))}
+.campaign-back{flex:0 0 44px;width:44px;height:44px;background:url('./assets/ui/back.png') center/contain no-repeat}
+.campaign-about{flex:0 0 auto;margin-left:10px;min-width:48px;min-height:36px;padding:0 10px;border:1px solid #715b3b;border-radius:3px;background:#261e14;font-size:10px}
+.campaign-wallet{flex:0 0 auto}
+.campaign-view{bottom:calc(var(--nav) + var(--menu-bottom-inset,0px))}
+.campaign-primary,.campaign-small{min-height:40px;padding:0 10px;border:1px solid #dcb968;border-radius:3px;background:linear-gradient(#97662e,#68451f);box-shadow:inset 0 1px #f1d68c66,0 3px 8px #0007;font-weight:800}
+.campaign-small{min-height:36px;font-size:10px}
+.campaign-small.quiet{border-color:#766244;background:#282016}
+.campaign-nav{bottom:var(--menu-bottom-inset,0px);height:var(--nav);padding:4px 12px;background:linear-gradient(transparent,#100d09 18%)}
+.campaign-nav button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:102px;min-height:44px;padding:0 12px;border:1px solid transparent;border-radius:3px;background:transparent;color:#9f927d}
+.campaign-nav button.is-active{border-color:#75603f;background:#2a2014;color:#f0d493}
+.campaign-nav i,.campaign-nav span{display:inline;line-height:1}
+.campaign-nav i{font-size:15px}
+.campaign-nav span{font-size:10px;white-space:nowrap}
+.campaign-toast{bottom:calc(var(--nav) + var(--menu-bottom-inset,0px) + 8px)}
+@media(orientation:landscape) and (max-height:500px){
+.campaign-shell{--top:50px;--nav:48px}
+.campaign-view{padding-top:5px;padding-bottom:5px}
+.campaign-nav button{min-height:44px}
+}
+@media(orientation:landscape) and (max-height:350px){
+.campaign-shell{--top:44px;--nav:48px}
+.campaign-about{display:block;min-height:34px}
+.campaign-nav i{display:inline}
+.campaign-nav button{min-height:44px}
+}
+@media(max-width:700px){
+.campaign-title span{display:none}
+.campaign-wallet{gap:3px}
+.campaign-resource{min-width:55px;padding-right:5px}
+.campaign-nav button{min-width:82px;padding-inline:8px}
+}
+.campaign-view>*{min-width:0}
+.campaign-shell .campaign-back{padding:0}
+/* Duelyst chrome frames a compact library and a real combat demonstration. */
+.campaign-shell{--ink:#e6edf1;--muted:#95a8b5;--gold:#e6c88b;--teal:#67d9e9;background:#071019}
+.campaign-topbar{background:linear-gradient(#101f2cf7,#0b1521f5);border-bottom-color:#355066}
+.campaign-title span{color:#8ea8b9;letter-spacing:.1em}
+.campaign-title h1{color:#edf5f7;font-family:"Microsoft YaHei UI",sans-serif;text-shadow:0 2px 5px #000}
+.campaign-about{border-color:#355066;background:#142532;color:#b8cbd8;min-height:44px}
+.campaign-resource{border-color:#3b5160;background:#080f19}
+.campaign-nav{background:#0a1420f7;border-top:1px solid #2d4558;gap:24px}
+.campaign-nav button{min-width:156px;color:#9caebb;font-size:12px}
+.campaign-nav button.is-active{border-color:transparent;background:url('./assets/ui/duelyst-button-primary.png') center/auto 50px no-repeat;color:#dcf8ff}
+.campaign-nav span{font-size:12px}
+.campaign-nav i{color:#72d8ea}
+.campaign-toast{border-color:#568295;background:#102430f7;color:#e4f4fa;font-size:12px;max-width:80%;text-align:center}
+.campaign-shell button:focus-visible{outline:2px solid #a9edff;outline-offset:-3px}
+.campaign-hero{display:grid;place-items:center;padding:18px 26px;background:linear-gradient(120deg,#07121ef2,#07131de0),url('./assets/ui/hub.jpg') center/cover}
+.hero-screen{width:min(1180px,100%);height:min(820px,100%);min-height:0;display:grid;grid-template-rows:88px minmax(0,1fr);gap:16px}
+.hero-roster{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;min-height:0}
+.hero-roster button{position:relative;display:flex;align-items:center;gap:12px;min-height:44px;padding:0 16px 0 8px;text-align:left;background:linear-gradient(110deg,#1d334475,#0b162380);border:1px solid #34495a;color:#a6b8c5}
+.hero-roster button.is-active{color:#fff;border-color:var(--hero-color);background:linear-gradient(110deg,#203d50dc,#101e2b);box-shadow:inset 0 -2px var(--hero-color)}
+.roster-portrait{position:relative;flex:0 0 72px;width:72px;height:72px;background:radial-gradient(ellipse,#35536a7a,transparent 68%)}
+.roster-portrait::after{content:"";position:absolute;inset:0;background:url('./assets/ui/duelyst-round-border.png') center/contain no-repeat;pointer-events:none;opacity:.65}
+.roster-portrait canvas{display:block;width:72px;height:72px;image-rendering:pixelated;filter:drop-shadow(0 3px 4px #0009)}
+.roster-name{min-width:0}
+.roster-name b{display:block;font-size:18px;font-weight:700;letter-spacing:.12em}
+.roster-name small{display:block;margin-top:5px;font-size:10px;letter-spacing:.08em;color:#8fa6b7;white-space:nowrap}
+.roster-level{margin-left:auto;font-size:10px;white-space:nowrap;color:#acb8c1}
+.roster-check{position:absolute;right:8px;bottom:6px;color:var(--hero-color);font-size:9px;font-style:normal}
+.hero-workspace{display:grid;grid-template-rows:44px minmax(0,1fr);min-height:0;gap:10px}
+.hero-tabs{display:flex;align-items:stretch;border-bottom:1px solid #34495a;gap:8px}
+.hero-tabs button{min-height:44px;width:136px;padding:0 18px;font-size:14px;color:#879eaf;border-bottom:2px solid transparent;background:none}
+.hero-tabs button.is-active{border-bottom-color:#72d6ea;background:linear-gradient(0deg,#16435670,transparent);color:#e0f8ff}
+.hero-tabs>span{margin-left:auto;align-self:center;color:#a3b4c3;font-size:11px;letter-spacing:.07em}
+.hero-tabs i{margin:0 8px;font-style:normal;color:#3c6177}
+.hero-panel{min-width:0;min-height:0}
+.skill-armory{display:grid;grid-template-columns:272px minmax(0,1fr);gap:18px}
+.armory-catalog{display:grid;grid-template-rows:34px minmax(0,1fr) auto;min-height:0}
+.armory-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;color:#8fa4b5}
+.armory-heading h2,.armory-heading h3{margin:0;font-size:12px;font-weight:500;letter-spacing:.12em;color:#c3d2dc}
+.armory-heading span{font-size:10px}
+.armory-icon{display:block;width:48px;height:48px;object-fit:contain;image-rendering:pixelated;flex-shrink:0}
+.skill-library{display:grid;grid-template-columns:minmax(0,1fr);grid-auto-rows:72px;align-content:start;gap:6px;min-height:0;overflow-y:auto;overflow-x:hidden;padding-right:5px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:#425d71 #101d29}
+.skill-library button{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:10px;padding:8px;min-height:44px;border:1px solid #2e4556;background:#10212f80;text-align:left;color:#d7e4ed}
+.skill-library button.is-selected{border-color:#73bfd1;background:linear-gradient(90deg,#244355,#132b3b);box-shadow:inset 3px 0 #8ae4f1}
+.skill-library button.is-locked:not(.is-selected){background:#101b2580}
+.skill-library button.is-locked .armory-icon{filter:saturate(.5);opacity:.65}
+.skill-library button b{display:block;font-size:13px;white-space:nowrap}
+.skill-library button small{display:block;margin-top:5px;color:#8da5b7;font-size:10px}
+.skill-library button em{align-self:start;margin-top:5px;color:#a9cddd;font-size:9px;font-style:normal;white-space:nowrap}
+.skill-library button.is-locked em{color:#a5a498}
+.armory-loadout{margin-top:16px;padding-top:10px;border-top:1px solid #31495b}
+.armory-loadout .armory-heading{margin-bottom:8px}
+.skill-slots{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.skill-slots button{position:relative;display:grid;place-items:center;gap:3px;min-height:78px;padding:3px 0 5px;background:#0a1724;border:1px solid #344d60}
+.skill-slots button.is-active{border-color:#f0ce83;box-shadow:inset 0 -2px #efd292;background:#242b2d}
+.skill-slots .armory-icon{width:42px;height:42px}
+.skill-slots i{position:absolute;top:0;left:2px;font-style:normal;color:#f5dfab;font-size:11px;font-weight:bold;text-shadow:0 1px #000}
+.skill-slots b{font-size:10px;font-weight:400;white-space:nowrap;color:#b6c8d6}
+.skill-inspector{display:grid;grid-template-rows:minmax(150px,1fr) auto;min-width:0;min-height:0;border:1px solid #3d586a;box-shadow:0 8px 32px #0005;background:#0c1b28}
+.skill-preview-stage{position:relative;min-height:0;overflow:hidden;background:#101e24;border-bottom:1px solid #36505e}
+.skill-preview-canvas{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+.preview-label{position:absolute;top:16px;left:18px;display:grid;gap:4px;pointer-events:none;text-shadow:0 2px 4px #000}
+.preview-label>span{display:flex;align-items:center;gap:7px;color:#c9e3e9;font-size:13px;letter-spacing:.2em}
+.preview-label>span::before{content:"";display:inline-block;width:24px;height:18px;background:url('./assets/ui/duelyst-header-dashes.png') center/contain no-repeat}
+.preview-label small{padding-left:31px;color:#90aeb9;font-size:9px;letter-spacing:.12em}
+.preview-controls{position:absolute;inset:auto 0 0;display:flex;align-items:center;justify-content:space-between;gap:6px;padding:5px 12px;background:linear-gradient(transparent,#06131ae8 55%);min-height:54px}
+.preview-state{font-size:10px;color:#b2c4ce;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preview-controls button{display:flex;align-items:center;justify-content:center;gap:6px;min-width:74px;min-height:44px;color:#d5f3fb;background:none;border:1px solid #6292a866;font-size:12px}
+.preview-controls i{font-size:22px;font-style:normal}
+.skill-detail{padding:18px 22px;background:linear-gradient(120deg,#172a3a,#0d1b29)}
+.skill-detail-title{display:flex;align-items:center;gap:12px}
+.skill-detail-title h2{margin:0 0 7px;font-size:24px;letter-spacing:.08em;font-weight:600;color:#eff5f7}
+.skill-tags{display:flex;flex-wrap:wrap;gap:8px 16px;color:#a2bfd0;font-size:11px}
+.skill-tags span+span{color:#d4c79f}
+.skill-detail>p{margin:12px 0;color:#b9cbd8;font-size:12px;line-height:1.65;max-width:58em}
+.skill-unlock{display:block;color:#d4c2a1;font-size:11px;line-height:1.5}
+.skill-equip-line{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px}
+.skill-equip-line>span{color:#819eaf;font-size:10px}
+.skill-equip-line .campaign-primary,.hero-profile .campaign-small{flex-shrink:0;min-height:48px;min-width:154px;border:0;border-radius:0;box-shadow:none;background:url('./assets/ui/duelyst-button-primary.png') center/auto 54px no-repeat;color:#e7fbff;font-size:12px;padding:0 20px;white-space:nowrap}
+.skill-equip-line .campaign-primary:disabled{filter:saturate(.25);opacity:.5;cursor:default}
+.hero-profile{display:grid;grid-template-rows:minmax(0,1fr) auto;gap:18px;overflow-y:auto;overscroll-behavior:contain}
+.hero-overview{display:grid;grid-template-columns:minmax(160px,35%) minmax(0,1fr);align-items:center;gap:32px;padding:24px 32px;min-height:260px;border:1px solid #365164;background:radial-gradient(ellipse at 20% 50%,#2b476264,transparent 45%),#0b1926a0}
+.hero-portrait-stage{position:relative;display:grid;place-items:center;height:100%;min-height:200px;background:url('./assets/ui/duelyst-round-border.png') center/210px 210px no-repeat}
+.hero-command-portrait{display:block;width:220px;height:220px;max-width:100%;image-rendering:pixelated;filter:drop-shadow(0 8px 5px #0007)}
+.hero-portrait-stage>span{position:absolute;bottom:4px;left:0;right:0;text-align:center;color:var(--hero-color);font-size:12px;letter-spacing:.3em}
+.hero-summary{min-width:0}
+.hero-eyebrow{font-size:11px;letter-spacing:.15em;color:var(--hero-color)}
+.hero-summary h2{margin:8px 0 12px;font-size:30px;font-weight:500;letter-spacing:.13em}
+.hero-summary>p,.hero-passive p{font-size:12px;line-height:1.7;color:#a9c0d2;margin:7px 0}
+.hero-passive{border-left:2px solid #55778c;padding-left:12px;margin:18px 0}
+.hero-passive b{font-size:11px;color:#d0e3ed;font-weight:500}
+.hero-rank{display:flex;align-items:center;gap:10px;margin:12px 0}
+.hero-rank b{font-size:14px;color:#dfd1a4}
+.hero-rank .meter{width:120px;max-width:40%;margin:0}
+.hero-rank small{font-size:10px;color:#879eaf}
+.training-line{display:flex;align-items:center;gap:8px}
+.training-line .campaign-resource{min-width:64px}
+.training-line .campaign-small{min-width:140px;margin-left:auto}
+.hero-profile .text-button{min-height:44px;display:block;padding:8px 0;background:none;border:0;text-align:left;color:#90c9dd;font-size:11px}
+.job-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.job-card{display:grid;grid-template-columns:48px minmax(0,1fr);gap:10px;padding:14px;border:1px solid #344b5e;background:#101f2d}
+.job-card.is-active{border-color:#5c9bae;background:#193040}
+.job-card span{font-size:9px;color:#839bac}
+.job-card h3{font-size:14px;margin:4px 0}
+.job-card p{font-size:10px;line-height:1.5;color:#96b0c1;margin:5px 0}
+.job-card footer{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.job-card footer>b{color:#9edee9;font-size:11px;font-weight:400;min-height:44px;display:flex;align-items:center}
+.job-requirement{font-size:10px;color:#c0b79a;line-height:1.5}
+.job-card .campaign-small{min-width:114px;min-height:44px;padding:0 15px;background-size:auto 44px;font-size:10px}
+.job-choices:has(>.job-card:only-child){grid-template-columns:minmax(0,1fr)}
+.job-card:only-child{grid-template-columns:48px minmax(0,1fr) auto}
+.job-card:only-child footer{grid-column:auto}
+@media(max-width:1000px) and (min-height:501px){
+.campaign-hero{padding:14px}
+.hero-roster button{gap:6px;padding-right:8px}
+.roster-level{font-size:9px}
+.roster-name b{font-size:16px}
+.roster-name small{font-size:9px}
+.roster-portrait,.roster-portrait canvas{width:60px;height:60px}
+.roster-portrait{flex-basis:60px}
+.skill-armory{grid-template-columns:220px minmax(0,1fr);gap:12px}
+.skill-library button{gap:6px}
+.skill-library button b{font-size:12px}
+.skill-library button em{font-size:8px}
+.skill-library button small{font-size:9px}
+.skill-detail{padding:14px}
+.hero-overview{padding:20px;gap:16px}
+}
+@media(orientation:landscape) and (max-height:500px){
+.campaign-shell{--top:48px;--nav:48px}
+.campaign-topbar{padding-block:2px}
+.campaign-title h1{font-size:14px}
+.campaign-title span{display:none}
+.campaign-about{min-height:44px}
+.campaign-nav{gap:12px;padding:2px 8px}
+.campaign-nav button{min-width:142px}
+.campaign-nav button.is-active{background-size:auto 46px}
+.campaign-nav span{font-size:10px}
+.campaign-hero{padding:5px 8px}
+.hero-screen{grid-template-columns:72px minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:8px;height:100%}
+.hero-roster{grid-template-columns:minmax(0,1fr);grid-template-rows:repeat(4,minmax(44px,1fr));gap:4px}
+.hero-roster button{display:grid;grid-template-columns:34px minmax(0,1fr);gap:2px;padding:1px 2px}
+.roster-portrait,.roster-portrait canvas{width:36px;height:44px}
+.roster-portrait::after{display:none}
+.roster-name b{font-size:10px;letter-spacing:0}
+.roster-name small,.roster-level{display:none}
+.roster-check{right:3px;bottom:3px;font-size:6px}
+.hero-workspace{grid-template-rows:44px minmax(0,1fr);gap:4px}
+.hero-tabs{gap:6px}
+.hero-tabs button{width:96px;padding:0 8px;font-size:12px}
+.hero-tabs>span{font-size:9px;letter-spacing:0}
+.hero-tabs i{margin:0 4px}
+.skill-armory{grid-template-columns:160px minmax(0,1fr);gap:8px}
+.armory-catalog{grid-template-rows:minmax(0,1fr) auto}
+.armory-catalog>.armory-heading{display:none}
+.skill-library{grid-auto-rows:48px;gap:4px;padding-right:3px}
+.skill-library button{grid-template-columns:36px minmax(0,1fr);gap:5px;padding:3px 4px}
+.skill-library .armory-icon{width:36px;height:36px}
+.skill-library button b{font-size:11px}
+.skill-library button small{font-size:9px;margin-top:3px}
+.skill-library button em{display:none}
+.armory-loadout{margin-top:6px;padding-top:5px}
+.armory-loadout .armory-heading{margin-bottom:4px}
+.armory-loadout .armory-heading h3{font-size:9px;letter-spacing:0}
+.armory-loadout .armory-heading span{display:none}
+.skill-slots{gap:4px}
+.skill-slots button{min-height:44px;height:44px;padding:0}
+.skill-slots .armory-icon{width:36px;height:36px}
+.skill-slots b{display:none}
+.skill-slots i{font-size:10px;background:#112332dd;padding:0 2px}
+.skill-inspector{grid-template-columns:minmax(0,1fr) 160px;grid-template-rows:minmax(0,1fr)}
+.skill-preview-stage{border-bottom:0;border-right:1px solid #36505e}
+.preview-label{left:8px;top:8px;gap:2px}
+.preview-label>span{font-size:10px}
+.preview-label small{font-size:8px;padding-left:0}
+.preview-label>span::before{display:none}
+.preview-controls{padding:0 5px;min-height:44px}
+.preview-controls button{min-width:44px;border:0;gap:3px;font-size:10px}
+.preview-controls button span{display:none}
+.preview-state{font-size:8px}
+.skill-detail{display:flex;flex-direction:column;padding:10px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}
+.skill-detail-title{gap:5px}
+.skill-detail-title>.armory-icon{display:none}
+.skill-detail-title h2{font-size:16px;margin-bottom:7px;letter-spacing:.02em}
+.skill-tags{gap:4px 10px;font-size:9px;line-height:1.4}
+.skill-detail>p{font-size:10px;margin:8px 0;line-height:1.5}
+.skill-unlock{font-size:9px}
+.skill-equip-line{display:flex;flex-direction:column;align-items:stretch;gap:2px;margin-top:auto}
+.skill-equip-line>span{font-size:8px}
+.skill-equip-line .campaign-primary{min-width:0;width:100%;min-height:44px;font-size:10px;padding:0 6px;background-size:100% auto}
+.hero-profile{gap:7px;grid-template-rows:auto auto;overflow:auto}
+.hero-overview{grid-template-columns:100px minmax(0,1fr);min-height:150px;padding:10px 12px;gap:12px}
+.hero-portrait-stage{min-height:120px;background-size:100px}
+.hero-command-portrait{width:108px;height:108px}
+.hero-portrait-stage>span{font-size:9px;letter-spacing:0;bottom:0}
+.hero-summary h2{font-size:19px;margin:3px 0}
+.hero-eyebrow{font-size:9px}
+.hero-summary>p{font-size:10px;margin:3px 0}
+.hero-passive{margin:8px 0;padding-left:8px}
+.hero-passive p{font-size:10px}
+.hero-passive b{font-size:9px}
+.hero-rank{margin:5px 0}
+.hero-rank b{font-size:11px}
+.hero-rank small{font-size:9px}
+.training-line{gap:4px}
+.training-line .campaign-resource{min-width:55px}
+.hero-profile .campaign-small{min-width:118px;min-height:44px;font-size:10px;background-size:auto 44px}
+.hero-profile .text-button{font-size:10px;padding:0;min-height:44px}
+.job-choices{gap:5px}
+.job-card{grid-template-columns:32px minmax(0,1fr);padding:7px;gap:5px}
+.job-card>.armory-icon{width:32px;height:32px}
+.job-card h3{font-size:12px}
+.job-card p{font-size:9px}
+.job-card footer{flex-wrap:wrap}
+.job-card .campaign-small{min-width:110px}
+.job-requirement{font-size:9px}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:740px){
+.hero-screen{grid-template-columns:60px minmax(0,1fr);gap:5px}
+.hero-roster button{grid-template-columns:30px minmax(0,1fr)}
+.roster-portrait,.roster-portrait canvas{width:30px;height:40px}
+.roster-name b{font-size:9px}
+.skill-armory{grid-template-columns:132px minmax(0,1fr);gap:5px}
+.skill-library button{grid-template-columns:32px minmax(0,1fr);gap:3px}
+.skill-library .armory-icon{width:32px;height:32px}
+.skill-library button b{font-size:10px}
+.skill-library button small{font-size:8px}
+.skill-inspector{grid-template-columns:minmax(0,1fr) 148px}
+.skill-detail{padding:8px}
+.hero-tabs>span{font-size:8px}
+.hero-tabs>span i{margin:0 3px}
+.hero-tabs button{width:86px;font-size:11px}
+.skill-slots{gap:0}
+.skill-slots button{border-width:1px 0}
+.skill-slots button.is-active{outline:1px solid #efd292;outline-offset:-1px}
+}
+@media(prefers-reduced-motion:reduce){
+.campaign-toast{transition:none}
+}
+.hero-tabs button.is-active{background:url('./assets/ui/duelyst-panel-header.png') center/120px 49px no-repeat}
+.skill-equip-line .campaign-primary,.hero-profile .campaign-small{background-size:contain}
+.hero-overview{padding:16px 24px;min-height:300px}
+.hero-summary h2{font-size:26px;margin:6px 0}
+.hero-passive{margin:10px 0}
+.hero-rank{margin:8px 0}
+@media(min-aspect-ratio:4/3) and (min-height:501px){
+.skill-inspector{grid-template-columns:minmax(0,1fr) 242px;grid-template-rows:minmax(0,1fr)}
+.skill-preview-stage{border-right:1px solid #36505e;border-bottom:0}
+.skill-detail{display:flex;flex-direction:column;padding:22px 18px;overflow:auto}
+.skill-detail-title{flex-direction:column;align-items:flex-start;gap:14px}
+.skill-detail-title>.armory-icon{width:64px;height:64px}
+.skill-detail-title h2{font-size:22px}
+.skill-detail>p{margin:20px 0;font-size:12px;line-height:1.8}
+.skill-equip-line{margin-top:auto;flex-direction:column;align-items:flex-start;gap:12px}
+.skill-equip-line .campaign-primary{align-self:flex-end}
+}
+@media(orientation:landscape) and (max-height:500px){
+.hero-overview{min-height:150px;padding:10px 12px}
+.hero-summary h2{font-size:19px;margin:3px 0}
+.hero-passive{margin:8px 0}
+.hero-rank{margin:5px 0}
+.hero-tabs button.is-active{background-size:96px 39px}
+}
+@media(orientation:landscape) and (max-height:500px) and (max-width:740px){
+.skill-armory{grid-template-columns:140px minmax(0,1fr)}
+}
+
+/* Seven heroes: keep each touch target intact and scroll the roster separately. */
+.preview-job-picker{display:flex;gap:2px;min-width:0;flex-shrink:0}
+.preview-job-picker button{flex:1;min-width:44px;min-height:44px;padding:3px 2px;display:flex;align-items:center;justify-content:center;gap:4px;border:1px solid #395a6d;background:#102534;color:#a9c6d7}
+.preview-job-picker button{flex-direction:column;gap:1px}
+.preview-job-picker button b{font-size:12px}.preview-job-picker button small{font-size:9px}
+.preview-job-picker button.is-active{color:#ffebaf;border-color:#e2c780;background:#3d392d;box-shadow:inset 0 -3px #e2c780}
+.preview-job-picker button:focus-visible{outline:2px solid #f4dfaa;outline-offset:-3px}
+.armory-catalog{grid-template-rows:44px minmax(0,1fr) auto;gap:4px}
+.hero-roster{overflow:auto;overscroll-behavior:contain;grid-auto-rows:minmax(64px,1fr)}
+@media(orientation:landscape) and (max-height:500px){.hero-roster{grid-template-rows:none;grid-auto-rows:58px;align-content:start;scrollbar-width:thin}.hero-roster button{min-height:58px;flex-shrink:0}}
+
+/* Browsing a hero never commits selection; confirmation stays outside scrolling panels. */
+.hero-workspace{grid-template-rows:44px minmax(0,1fr) 48px}
+.hero-confirm-bar{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid #34495a;min-height:48px}
+.hero-confirm-bar>span{font-size:12px;color:#a6b8c5}
+.hero-confirm-bar>button{min-height:44px;min-width:112px;padding:0 16px}
+.hero-confirm-bar>button:disabled{opacity:.5;filter:grayscale(1);cursor:default}
+.hero-confirm-bar>button:focus-visible{outline:2px solid #e0f8ff;outline-offset:2px}
+@media(orientation:landscape) and (max-height:500px){.hero-workspace{grid-template-rows:44px minmax(0,1fr) 44px}.hero-confirm-bar{min-height:44px}.hero-confirm-bar>span{font-size:10px}.hero-confirm-bar>button{min-width:100px}}
+
+.hero-confirm-bar>span{display:flex;flex-direction:column;gap:2px}
+.hero-confirm-bar>span small{font-size:10px;color:#91a0ac}
+.campaign-shell .hero-confirm-bar>button:disabled{background:#26313b!important;background-image:none!important;border:1px solid #4e5963!important;color:#89949d!important;box-shadow:none!important;opacity:1;filter:none;text-shadow:none;cursor:default}
+@media(orientation:landscape) and (max-height:500px){.hero-confirm-bar>span small{font-size:9px}}
+
+.skill-slots button{border:0;background:#193140}.skill-slots button.is-active{outline:0;background:#735a2c;box-shadow:inset 0 -3px #d8b15f}.skill-slots button:focus-visible{outline:0;background:#36596b;box-shadow:inset 0 0 0 3px #a3c5d3}.skill-slots button:disabled{background:#303a40;color:#7b878d;cursor:default}
+/* The two-active armory uses solid controls, including cooldown/locked states. */
+.campaign-shell .campaign-hero button{border:0!important;outline:0;box-shadow:none;background:#203746;background-image:none;border-radius:5px}
+.campaign-shell .campaign-hero button:is(.is-active,.is-selected,[aria-pressed="true"]){background:#735a2c;color:#fff0c7;box-shadow:none}
+.campaign-shell .campaign-hero button.campaign-primary{background:#b68c4f;color:#151b1e}
+.campaign-shell .campaign-hero button:disabled,.campaign-shell .hero-confirm-bar>button:disabled{background:#26313b!important;border:0!important;color:#89949d!important;opacity:1;filter:none}
+.campaign-shell .campaign-hero button:focus-visible{filter:brightness(1.35);text-decoration:underline;text-underline-offset:3px;outline:0}
+.campaign-shell .campaign-topbar button{background:#2c4655;background-image:none;border:0;box-shadow:none;border-radius:6px;min-height:44px}
+.campaign-shell .campaign-back::before{content:'‹';font-size:28px;font-weight:800;color:#e8f3f5}
+.campaign-shell .campaign-topbar button:focus-visible{filter:brightness(1.35);text-decoration:underline;outline:0}

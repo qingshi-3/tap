@@ -1,0 +1,14 @@
+{
+  "contractVersion": 1,
+  "game": "pixel-survivor",
+  "app": 968359,
+  "profileSchema": 2,
+  "localKey": "pixel-survivor.campaign.v2",
+  "legacyLocalKey": "pixel-survivor.campaign.v1",
+  "cloudSlot": "pixel_survivor_app968359_v2",
+  "legacyCloudSlot": "pixel_survivor_app968359_v1",
+  "sourcePackage": "build/pixel-survivor-0.14.1.zip",
+  "campaignSourceSha256": "6f7b7fadc7b8508ee75bb4446503697531351fac4d0dee06c5f1469bf3906519",
+  "cloudSourceSha256": "ed16f1d6211a7e04bc439eceb0cd2f2c8db38157d041b537230a1496961440c7",
+  "provenance": "Frozen namespace/schema contract from the uploaded 0.14.1 client. Existing cloud identifiers are recorded only to preserve established support; this gate adds no cross-device behavior."
+}

@@ -1,0 +1,8 @@
+import { chromium } from 'file:///C:/Users/qs/AppData/Local/npm-cache/_npx/31e32ef8478fbf80/node_modules/playwright/index.mjs';
+import {writeFileSync} from 'node:fs';import assert from 'node:assert/strict';import {fileURLToPath} from 'node:url';
+const b=await chromium.launch({channel:'msedge',headless:true});const c=await b.newContext({viewport:{width:360,height:640}});const p=await c.newPage();await p.goto('http://127.0.0.1:4196');await p.getByRole('button',{name:'接下小站',exact:true}).click();
+await p.evaluate(()=>{window.originalWrite=Storage.prototype.setItem;Storage.prototype.setItem=function(){throw new DOMException('full','QuotaExceededError')}});
+await p.getByRole('button',{name:'开门营业',exact:true}).click();assert.match(await p.locator('#sheet-content').innerText(),/重试保存/);await p.screenshot({path:fileURLToPath(new URL('../output/qa/storage-failure.png',import.meta.url))});
+await p.evaluate(()=>{Storage.prototype.setItem=window.originalWrite});await p.getByRole('button',{name:'重试保存',exact:true}).click();assert.equal(await p.locator('#sheet[open]').count(),0);assert.match(await p.locator('#shift-status').innerText(),/已送/);await p.reload();assert.match(await p.locator('#shift-status').innerText(),/已送/);
+const p2=await c.newPage();await p2.goto('http://127.0.0.1:4196');assert.match(await p2.locator('#sheet-content').innerText(),/另一个页面正在经营/);await p.close();await p2.getByRole('button',{name:'重试读取',exact:true}).click();await p2.waitForSelector('.parcel');assert.equal(await p2.locator('#sheet[open]').count(),0);
+writeFileSync(new URL('../output/qa/storage-ui-report.json',import.meta.url),JSON.stringify({passed:['START写失败保持错误界面','重试保存当前内存营业进度','重进继续','Web Locks第二页阻止并发','关闭第一页面后重试接管']},null,2));await b.close();console.log('storage UI passed');

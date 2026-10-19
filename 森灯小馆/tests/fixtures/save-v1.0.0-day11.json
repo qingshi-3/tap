@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "seed": 1232445338,
+  "day": 11,
+  "phase": "prep",
+  "coins": 3175,
+  "reputation": 65,
+  "inventory": {
+    "mushroom": 32,
+    "carrot": 48,
+    "rice": 93,
+    "fish": 77,
+    "berry": 60,
+    "milk": 56,
+    "herb": 89,
+    "flour": 66
+  },
+  "menu": [
+    "soup",
+    "fishrice",
+    "bread"
+  ],
+  "priceMode": "normal",
+  "upgrades": {
+    "tables": 1,
+    "kitchen": 1,
+    "garden": 0,
+    "decor": 0,
+    "sign": 1
+  },
+  "staff": [
+    "pip",
+    "oak",
+    "moss"
+  ],
+  "guests": [],
+  "service": {
+    "elapsed": 0,
+    "duration": 60,
+    "spawned": 0,
+    "served": 0,
+    "lost": 0,
+    "revenue": 0,
+    "cost": 0,
+    "tips": 0,
+    "festivalServed": 0,
+    "spawnClock": 0,
+    "staffClocks": {},
+    "tagCounts": {
+      "forest": 0,
+      "river": 0,
+      "sweet": 0,
+      "hearty": 0
+    },
+    "recipeCounts": {},
+    "riverRevenue": 0,
+    "warmGuestTypes": []
+  },
+  "summary": null,
+  "totals": {
+    "revenue": 4201,
+    "served": 140,
+    "days": 10
+  },
+  "claimed": [
+    "staff",
+    "first",
+    "ten",
+    "revenue500",
+    "fifty",
+    "revenue2000",
+    "days7",
+    "hundred"
+  ],
+  "ending": null,
+  "settings": {
+    "sound": true,
+    "reducedMotion": false
+  },
+  "gathered": false,
+  "reliefUsed": false,
+  "guestSerial": 140,
+  "festivalWins": 1,
+  "regions": [
+    "forest",
+    "river",
+    "mountain"
+  ],
+  "gatherActions": 4,
+  "researched": [
+    "soup",
+    "ricebowl",
+    "berrytea",
+    "fishrice",
+    "bread",
+    "salad",
+    "fishsoup"
+  ],
+  "mastery": {
+    "soup": 90,
+    "ricebowl": 0,
+    "berrytea": 0,
+    "fishrice": 31,
+    "bread": 0,
+    "salad": 8,
+    "fishsoup": 11,
+    "risotto": 0,
+    "pie": 0,
+    "stew": 0,
+    "feast": 0,
+    "lantern": 0
+  },
+  "event": {
+    "id": "market",
+    "choice": null
+  },
+  "contractOffer": {
+    "id": "bakery",
+    "offerDay": 10
+  },
+  "contract": null,
+  "completedContracts": [],
+  "expiredContracts": [],
+  "festivalRecords": {
+    "7": {
+      "attempts": 1,
+      "wins": 1,
+      "lastDay": 7
+    }
+  },
+  "lastContractMessage": ""
+}

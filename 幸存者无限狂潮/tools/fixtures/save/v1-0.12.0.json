@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "gold": 1234,
+  "materials": 567,
+  "roster": {
+    "stone-guard": {
+      "level": 1,
+      "copies": 0
+    },
+    "wind-scout": {
+      "level": 1,
+      "copies": 0
+    }
+  },
+  "squad": [
+    "stone-guard",
+    "wind-scout"
+  ],
+  "buildings": {
+    "hall": 2,
+    "barracks": 0,
+    "workshop": 0
+  },
+  "cleared": [
+    "moss-gate"
+  ],
+  "settledRuns": [
+    "frozen-run"
+  ],
+  "lastReward": {
+    "gold": 420,
+    "materials": 48,
+    "runId": "frozen-run",
+    "victory": true
+  },
+  "selectedHero": "commander",
+  "heroes": {
+    "commander": {
+      "level": 5,
+      "experience": 123,
+      "job": "blade_master",
+      "unlockedJobs": [
+        "fighter",
+        "blade_master"
+      ],
+      "skillLoadout": [
+        "dash",
+        "cleave",
+        "swordField"
+      ]
+    },
+    "summoner": {
+      "level": 1,
+      "experience": 0,
+      "job": "summoner",
+      "unlockedJobs": [
+        "summoner"
+      ],
+      "skillLoadout": [
+        "summonGuard",
+        "recallSummons",
+        "summonElite"
+      ]
+    },
+    "blink": {
+      "level": 1,
+      "experience": 0,
+      "job": "blink",
+      "unlockedJobs": [
+        "blink"
+      ],
+      "skillLoadout": [
+        "markBlade",
+        "blinkStrike",
+        "blinkStorm"
+      ]
+    },
+    "mage": {
+      "level": 1,
+      "experience": 0,
+      "job": "mage",
+      "unlockedJobs": [
+        "mage"
+      ],
+      "skillLoadout": [
+        "flameBreath",
+        "rockWall",
+        "frostAura"
+      ]
+    }
+  },
+  "progression": {
+    "claimedQuests": [
+      "main-moss"
+    ],
+    "dungeonWins": {
+      "moss-gate": 3
+    },
+    "kills": 987
+  }
+}

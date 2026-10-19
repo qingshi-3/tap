@@ -1,0 +1,42 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {loadProfile,STORAGE_KEY} from '../dist/campaign.js';
+const memory=new Map();globalThis.localStorage={getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v))};
+const template=loadProfile().profile;
+const require=createRequire('C:/Users/qs/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json');
+const {chromium}=require('playwright'),out=new URL('../output/economy-audit/browser/',import.meta.url);await mkdir(out,{recursive:true});
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true}),reports=[];
+try{for(const [width,height] of [[844,390],[667,320]]){
+ const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:true,reducedMotion:height===320?'reduce':'no-preference'}),page=await context.newPage(),errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ const read=()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)),STORAGE_KEY);
+ const growth=async(permanent=false)=>{await page.locator('[data-tab="growth"]').tap();if(permanent)await page.locator('[data-growth-panel="permanent"]').tap();};
+ const seed=async p=>{await page.evaluate(({key,p})=>localStorage.setItem(key,JSON.stringify(p)),{key:STORAGE_KEY,p});await page.reload();await page.locator('.home-entries').waitFor();};
+ await page.goto('http://127.0.0.1:4178/');await page.locator('.home-entries').waitFor();await growth(true);
+ const gold=()=>page.locator('[data-payment="gold"]'),materials=()=>page.locator('[data-payment="materials"]');
+ assert.equal(await gold().isEnabled(),true);assert.equal(await materials().isEnabled(),false);
+ await gold().tap();let p=await read();assert.equal(p.gold,20);assert.equal(p.materials,30);assert.equal(p.buildings.hall,1);
+ assert.equal(await gold().isEnabled(),false);assert.equal(await materials().isEnabled(),false);
+ await page.reload();await page.locator('.home-entries').waitFor();assert.equal((await read()).buildings.hall,1);
+ const funded=structuredClone(template);funded.gold=2500;funded.materials=200;funded.heroes.commander.level=10;
+ await seed(funded);await growth(true);await page.locator('[data-growth-option="barracks"]').tap();
+ await materials().tap();p=await read();assert.equal(p.gold,2500);assert.equal(p.materials,170);assert.equal(p.buildings.barracks,1);
+ assert.equal(await page.evaluate(()=>document.activeElement.dataset.payment),'materials','currency choice retains focus after render');
+ await gold().tap();p=await read();assert.equal(p.gold,2020);assert.equal(p.materials,170);assert.equal(p.buildings.barracks,2);
+ for(const button of [gold(),materials()]){const r=await button.boundingBox();assert.ok(r.width>=44&&r.height>=44);assert.ok(r.x>=0&&r.y>=0&&r.x+r.width<=width&&r.y+r.height<=height,`payment visible at ${width}: ${JSON.stringify(r)}`);}
+ assert.ok((await page.locator('.growth-benefits').textContent()).includes('10%'));
+ await page.screenshot({path:new URL(`payments-${width}.png`,out).pathname.replace(/^\/([A-Z]:)/,'$1')});
+ await page.locator('[data-growth-panel="hero"]').tap();await page.locator('[data-action="train"]').tap();p=await read();assert.equal(p.gold,1660);assert.equal(p.materials,116);assert.equal(p.heroes.commander.level,11);
+ await page.screenshot({path:new URL(`training-${width}.png`,out).pathname.replace(/^\/([A-Z]:)/,'$1')});
+ await page.reload();await page.locator('.home-entries').waitFor();assert.equal((await read()).heroes.commander.level,11);await growth(true);await page.locator('[data-growth-option="barracks"]').tap();
+ await page.evaluate(key=>{const original=Storage.prototype.setItem;window.__failEconomySave=true;Storage.prototype.setItem=function(k,v){if(window.__failEconomySave&&k===key)throw Error('QA write failure');return original.call(this,k,v);};},STORAGE_KEY);
+ const before=JSON.stringify(await read());await gold().tap();assert.equal(JSON.stringify(await read()),before,'save failure does not debit');assert.ok((await page.locator('.campaign-toast').textContent()).includes('保存'));
+ await page.evaluate(()=>window.__failEconomySave=false);await gold().tap();assert.equal((await read()).buildings.barracks,3);assert.equal((await read()).gold,940);
+ const capped=structuredClone(template);capped.gold=1300;capped.materials=100;capped.buildings.barracks=5;capped.heroes.commander.level=10;
+ await seed(capped);await growth(true);await page.locator('[data-growth-option="barracks"]').tap();assert.equal(await page.locator('[data-payment]').count(),0);assert.ok((await page.locator('.growth-benefits').textContent()).includes('25%'));
+ await page.locator('[data-growth-panel="hero"]').tap();await page.locator('[data-action="train"]').tap();p=await read();assert.equal(p.gold,970);assert.equal(p.materials,55);assert.equal(p.heroes.commander.level,11,'old level receives discount without migration');
+ await page.keyboard.press('Tab');assert.ok(await page.evaluate(()=>document.activeElement.matches(':focus-visible')));
+ assert.deepEqual(errors,[]);reports.push({width,height,errors,freshGoldPurchase:true,bothPayments:true,saveFailureRetry:true,reload:true,existingTrainingEfficiency:true,focus:true});await context.close();
+}}finally{await browser.close();}
+await writeFile(new URL('report.json',out),JSON.stringify(reports,null,2));console.log(JSON.stringify(reports));

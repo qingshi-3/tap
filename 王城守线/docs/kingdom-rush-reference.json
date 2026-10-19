@@ -1,0 +1,542 @@
+{
+  "status": "runtime_baseline_implemented_development_0.3.0_uploaded",
+  "checked_at": "2026-10-11",
+  "reference": "Kingdom Rush 1",
+  "scope": "Mobile/Steam Campaign, Normal difficulty, no purchased star upgrades. Exact historical build number is not established by these community references.",
+  "policy": "Reuse established mechanics, economy and progression together; map owned artwork to roles. Unverified details remain null or pending, never invented as original-game values.",
+  "runtime_mapping": {
+    "local_version": "0.3.0 validated in isolated browser and uploaded as independent development H5 version 287989; physical host unverified",
+    "baseline": "KR1 mobile/Steam Campaign, Normal difficulty, with no purchased star upgrades",
+    "tower_families": {
+      "archer": [
+        "archer",
+        "frost"
+      ],
+      "mage": [
+        "mage",
+        "flame"
+      ],
+      "artillery": [
+        "catapult",
+        "storm"
+      ],
+      "barracks": [
+        "guardian",
+        "sentinel"
+      ]
+    },
+    "skin_rule": "The two visuals in each family share the same baseline costs, damage, interval, range and level data. Base skins grant no slow, chain, burn or stun.",
+    "stages": [
+      {
+        "id": "greenway",
+        "reference": "Southport",
+        "waves": 7,
+        "build_sites": 8,
+        "starting_gold": 265,
+        "max_base_tower_level": 1
+      },
+      {
+        "id": "old-ford",
+        "reference": "The Outskirts",
+        "waves": 7,
+        "build_sites": 7,
+        "starting_gold": 220,
+        "max_base_tower_level": 2
+      },
+      {
+        "id": "mirewatch",
+        "reference": "Pagras",
+        "waves": 11,
+        "build_sites": 12,
+        "starting_gold": 300,
+        "max_base_tower_level": 2
+      }
+    ],
+    "barracks": "Each barracks creates three damageable soldiers with ground blocking, melee combat, rally movement, out-of-combat recovery, death and timed replacement.",
+    "abilities": "Reinforcements and Rain of Fire are implemented with stage/wave unlocks and cooldowns.",
+    "progression": "Schema v2 stores unlocks, wins and best 1-3 star result. Stars use remaining-life thresholds 1/6/18; unknown or invalid saves are preserved and writes are disabled for that session.",
+    "adaptations_remaining": [
+      "Map coordinates, route geometry and the 1024x576 world scale are local layouts rather than verified original stage coordinates.",
+      "Spawn gaps and projectile speeds are local presentation values because the cited community references do not establish them.",
+      "Rain of Fire applies three simultaneous impacts around the target with a local radius; original impact timing and radius have not been verified.",
+      "There is no early-wave countdown or early-call gold reward. Waves are started manually between intermissions, so exact original encounter balance is not claimed.",
+      "Advanced tower branches and purchasing star talents are not implemented."
+    ]
+  },
+  "openfield_runtime_mapping": {
+    "local_version": "0.4.0 current open-field implementation in dist/openfield.js; local development state",
+    "baseline": "The recorded KR1 mobile/Steam Campaign Normal values remain the numerical source. Open-field placement, free movement between waves and the encounter itself are local adaptations rather than an original KR1 stage.",
+    "implementation_source": "dist/openfield.js OF_TYPES, OF_ADAPTATIONS, OF_ENEMIES and OF_WAVES",
+    "sources": {
+      "base_towers_and_barracks": [
+        "archer_detail",
+        "mage_detail",
+        "artillery",
+        "barracks"
+      ],
+      "frost_specialist": "https://wikily.gg/kingdom-rush/heroes/elora-wintersong/",
+      "storm_specialist": "tesla",
+      "healer": "https://wikily.gg/kingdom-rush/enemies/shaman",
+      "summoner": "upgrades",
+      "boss_baseline": "https://wikily.gg/kingdom-rush/enemies/ogre"
+    },
+    "recruitment_mapping": {
+      "frontline": {
+        "guard": "Barracks grade 1 aggregated into one field unit: cost 70; HP 3×50=150; damage 3×(1-3)=3-9; interval 1 s; armor 0.",
+        "sentinel": "Barracks grade 2 aggregated into one field unit: cumulative cost 70+110=180; HP 3×100=300; damage 3×(3-4)=9-12; interval 1.37 s; armor 0.15.",
+        "berserker": "Barracks grade 3 aggregated into one field unit: cumulative cost 70+110+160=340; HP 3×150=450; damage 3×(6-10)=18-30; interval 1.37 s; armor 0.3.",
+        "aggregation_rule": "One recruited frontline body represents the output of three KR1 barracks soldiers. Recruitment prices are the matching barracks purchase or cumulative upgrade costs, not independently authored prices."
+      },
+      "ranged": {
+        "archer": "Archer grade 1: cost 70, damage 4-6, interval 0.8 s, range 140, physical.",
+        "ranger": "Archer grade 2: cumulative cost 70+110=180, damage 7-11, interval 0.6 s, range 160, physical.",
+        "sniper": "Archer grade 3: cumulative cost 70+110+160=340, damage 10-16, interval 0.5 s, range 180, physical.",
+        "mage": "Mage grade 1: cost 100, damage 9-17, interval 1.5 s, range 140, magic.",
+        "flame": "Mage grade 2: cumulative cost 100+160=260, damage 23-43, interval 1.5 s, range 160, magic; the flame visual adds no burn.",
+        "frost": "Elora level-one Frost Bolt supplies 15-41 magic damage, 1.8 s interval and 50% slow for 2 s. Range 180 and recruitment cost 100+160+240=500 are local derivations from mage grade 3; Elora has no gold purchase price.",
+        "storm": "Tesla x104 supplies 26 or 39 electric damage per target, 2.2 s interval, three targets and jump distance 95. Range 180 and recruitment cost 125+220+320=665 are local derivations from artillery grade 3; no Supercharged Bolt or Overcharge purchase is included."
+      },
+      "support": {
+        "healer": "Reuses Shaman HP 100 and healing 50 every 8 s; cost 100 is derived from mage grade 1.",
+        "summoner": "Reuses Reinforcements count 2, HP 30, damage 1-2, duration 20 s and cooldown 10 s; cost 70 is derived from militia barracks grade 1. A local cap of four simultaneous summons prevents unlimited accumulation."
+      },
+      "towers": "Arrow, mage, cannon and barracks towers use the recorded three-grade KR1 costs and combat values. Only towers can buy grade upgrades; recruited units have no upgrade action."
+    },
+    "combat_adaptations": {
+      "deterministic_damage": "Ordinary non-splash attacks resolve each recorded damage range at its arithmetic midpoint instead of rolling within the range. Damage is applied immediately when an attack begins.",
+      "visual_projectiles": "Ranged attacks also create a 0.22 s visual projectile, but collision does not delay or reapply damage; the projectile is presentation for the already-resolved hit.",
+      "automation": "Combat has no unit micro-control: deployed units automatically acquire targets, move within their leash, attack, heal or summon. Placement and troop relocation are limited to deployment and intermission phases.",
+      "tower_upgrades_only": "Only tower-category entities can upgrade to levels 2 and 3. Frontline, ranged and support recruits remain fixed profiles.",
+      "local_world_rules": "The 1024×576 open field, three entrances, free placement, obstacle collision, routefinding, unit durability, movement speed, leash behavior and tower structure HP are local implementation rules.",
+      "recovery": "After 2 seconds without attacking or taking damage, recorded militia regeneration 5/7/10 HP per second applies by grade. Single frontline bodies aggregate three soldiers (15/21/30); ranged/support recruits derive 5 from grade-one militia; temporary reinforcements use recorded 3. Recovery continues between waves."
+    },
+    "encounter_adaptation": {
+      "waves": 9,
+      "enemy_count": 64,
+      "composition": "Locally authored multi-entrance sequence using Goblin, Orc, Wulf, Shaman and Ogre-style progression; spawn order and the 0.58 s global spawn spacing are local rather than sourced KR1 wave data.",
+      "boss": "The final Ancient Tree Beast presentation reuses the Ogre numerical baseline: HP 800, armor 0, magic resistance 0, speed 26.9, reward 50, breach cost 3, damage 40-60 and interval 1.8 s. The boss flag and artwork do not create a separate sourced KR1 boss profile.",
+      "claim_limit": "The nine-wave encounter is an authored local scenario and must not be described as a reproduction of a KR1 campaign wave table.",
+      "counts": [
+        4,
+        7,
+        6,
+        8,
+        10,
+        6,
+        10,
+        7,
+        6
+      ],
+      "low_input_revision": "Initial 78-enemy draft concentrated pressure in waves 6–9. Reduce these authored groups from 43 to 29; remove the extra wave-8 Ogre and final Ogre escort. Keep all source tower/troop/enemy profiles and early five waves unchanged. This local slice targets planning-only play without Rain of Fire."
+    }
+  },
+  "sources": {
+    "archer": "https://kingdomrushtd.fandom.com/wiki/Archer_Tower",
+    "marksman": "https://kingdomrushtd.fandom.com/wiki/Marksmen_Tower",
+    "sharpshooter": "https://kingdomrushtd.fandom.com/wiki/Sharpshooter_Tower",
+    "archer_detail": "https://wikily.gg/kingdom-rush/towers/archer-tower/",
+    "mage": "https://kingdomrushtd.fandom.com/wiki/Mage_Tower",
+    "adept": "https://kingdomrushtd.fandom.com/wiki/Adept_Tower",
+    "wizard": "https://kingdomrushtd.fandom.com/wiki/Wizard_Tower",
+    "mage_detail": "https://wikily.gg/kingdom-rush/towers/mage-tower",
+    "artillery": "https://wikily.gg/kingdom-rush/towers/dwarven-bombard",
+    "barracks": "https://wikily.gg/kingdom-rush/towers/militia-barracks",
+    "damage": "https://wikily.gg/kingdom-rush/damage-and-armor",
+    "stars": "https://kingdomrushtd.fandom.com/wiki/Lives",
+    "upgrades": "https://wikily.gg/kingdom-rush/upgrades",
+    "southport": "https://wikily.gg/kingdom-rush/stages/southport",
+    "outskirts": "https://wikily.gg/kingdom-rush/stages/the-outskirts",
+    "pagras": "https://wikily.gg/kingdom-rush/stages/pagras",
+    "stage_crosscheck": "https://relentlessoptimizer.com/KR/",
+    "ranger": "https://wikily.gg/kingdom-rush/towers/rangers-hideout",
+    "musketeer": "https://wikily.gg/kingdom-rush/towers/musketeer-garrison",
+    "sorcerer": "https://wikily.gg/kingdom-rush/towers/sorcerer-mage",
+    "tesla": "https://wikily.gg/kingdom-rush/towers/tesla-x104"
+  },
+  "evidence_limits": [
+    "Community documentation, not an official exported balance database. Fandom direct-page access was blocked; available search-index extracts were read.",
+    "Fandom uses displayed damage bounds; Wikily distinguishes actual projectile ceil rounding. Do not mix these two columns.",
+    "Fandom major-axis range is a diameter; Wikily lists radius. Convert coordinate scale only after map dimensions are established.",
+    "The Outskirts is the mobile/Steam name; older Flash references call it The Farmlands.",
+    "Exclude Frontiers, Origins, Battles and Genesis/Classic Rush variants from this baseline.",
+    "Wave counts and composition do not supply spawn intervals, route points or timing. These require further verification before implementing a matching encounter."
+  ],
+  "towers": {
+    "archer": {
+      "sources": [
+        "archer",
+        "marksman",
+        "sharpshooter",
+        "archer_detail"
+      ],
+      "purchase_costs_by_level": [
+        70,
+        110,
+        160
+      ],
+      "cumulative_costs": [
+        70,
+        180,
+        340
+      ],
+      "displayed_damage_bounds": [
+        [
+          4,
+          6
+        ],
+        [
+          7,
+          11
+        ],
+        [
+          10,
+          16
+        ]
+      ],
+      "interval_seconds": [
+        0.8,
+        0.6,
+        0.5
+      ],
+      "reference_range_radius": [
+        140,
+        160,
+        180
+      ],
+      "damage_type": "physical",
+      "targets": [
+        "ground",
+        "air"
+      ]
+    },
+    "mage": {
+      "sources": [
+        "mage",
+        "adept",
+        "wizard",
+        "mage_detail"
+      ],
+      "purchase_costs_by_level": [
+        100,
+        160,
+        240
+      ],
+      "cumulative_costs": [
+        100,
+        260,
+        500
+      ],
+      "displayed_damage_bounds": [
+        [
+          9,
+          17
+        ],
+        [
+          23,
+          43
+        ],
+        [
+          40,
+          74
+        ]
+      ],
+      "interval_seconds": [
+        1.5,
+        1.5,
+        1.5
+      ],
+      "reference_range_radius": [
+        140,
+        160,
+        180
+      ],
+      "damage_type": "magic",
+      "targets": [
+        "ground",
+        "air"
+      ],
+      "base_splash": false,
+      "base_slow": false
+    },
+    "artillery": {
+      "sources": [
+        "artillery",
+        "damage"
+      ],
+      "purchase_costs_by_level": [
+        125,
+        220,
+        320
+      ],
+      "cumulative_costs": [
+        125,
+        345,
+        665
+      ],
+      "damage_bounds": [
+        [
+          8,
+          15
+        ],
+        [
+          20,
+          40
+        ],
+        [
+          30,
+          60
+        ]
+      ],
+      "damage_model": "Explosion damage falls with distance from impact; bounds are not a random single-target roll.",
+      "interval_seconds": [
+        3,
+        3,
+        3
+      ],
+      "reference_range_radius": [
+        160,
+        160,
+        179.2
+      ],
+      "reference_blast_radius": [
+        62.4,
+        62.4,
+        67.2
+      ],
+      "damage_type": "explosive",
+      "targets": [
+        "ground"
+      ]
+    },
+    "barracks": {
+      "sources": [
+        "barracks"
+      ],
+      "purchase_costs_by_level": [
+        70,
+        110,
+        160
+      ],
+      "soldier_count": 3,
+      "soldier_hp_by_level": [
+        50,
+        100,
+        150
+      ],
+      "soldier_damage_bounds": [
+        [
+          1,
+          3
+        ],
+        [
+          3,
+          4
+        ],
+        [
+          6,
+          10
+        ]
+      ],
+      "soldier_armor_fraction": [
+        0,
+        0.15,
+        0.3
+      ],
+      "respawn_seconds": 10,
+      "rally_radius": 145,
+      "required_mechanics": [
+        "three damageable soldiers",
+        "ground blocking",
+        "rally point",
+        "out-of-combat recovery",
+        "death and replacement"
+      ],
+      "current_game_equivalent": true
+    }
+  },
+  "economy_and_growth": {
+    "sources": [
+      "archer_detail",
+      "barracks",
+      "stars",
+      "upgrades"
+    ],
+    "campaign_starting_lives": 20,
+    "stars_minimum_remaining_lives": {
+      "1": 1,
+      "2": 6,
+      "3": 18
+    },
+    "pre_first_wave_refund_fraction": 1,
+    "default_post_start_refund_fraction": 0.6,
+    "archer_salvage_refund_fraction": 0.9,
+    "star_upgrade_trees": [
+      "archer",
+      "barracks",
+      "mage",
+      "artillery",
+      "rain_of_fire",
+      "reinforcements"
+    ],
+    "reset_returns_spent_stars": true,
+    "own_draft_flat_wave_bonus_20": "withdrawn; not supported as the reference game's standard economy",
+    "early_wave_call_reward_formula": null
+  },
+  "first_three_stage_references": [
+    {
+      "source": "southport",
+      "starting_gold": 265,
+      "lives": 20,
+      "waves": 7,
+      "build_sites": 8,
+      "max_base_tower_level": 1,
+      "enemy_roles": [
+        "Goblin",
+        "Orc"
+      ],
+      "reinforcements_from_wave": 3,
+      "rain_of_fire_from_wave": 7
+    },
+    {
+      "source": "outskirts",
+      "starting_gold": 220,
+      "lives": 20,
+      "waves": 7,
+      "build_sites": 7,
+      "max_base_tower_level": 2,
+      "new_enemy_roles": [
+        "Wulf"
+      ]
+    },
+    {
+      "source": "pagras",
+      "starting_gold": 300,
+      "lives": 20,
+      "waves": 11,
+      "build_sites": 12,
+      "max_base_tower_level": 2,
+      "new_enemy_roles": [
+        "Shaman",
+        "Ogre"
+      ]
+    }
+  ],
+  "normal_enemy_reference": [
+    {
+      "role": "Goblin",
+      "hp": 20,
+      "armor": 0,
+      "magic_resistance": 0,
+      "source_speed_units": 46.1,
+      "gold": 3,
+      "breach_lives": 1,
+      "source": "https://wikily.gg/kingdom-rush/enemies/goblin/"
+    },
+    {
+      "role": "Orc",
+      "hp": 80,
+      "armor": 0.3,
+      "magic_resistance": 0,
+      "source_speed_units": 30.7,
+      "gold": 9,
+      "breach_lives": 1,
+      "source": "https://wikily.gg/kingdom-rush/enemies/orc"
+    },
+    {
+      "role": "Wulf",
+      "hp": 35,
+      "armor": 0,
+      "magic_resistance": 0,
+      "source_speed_units": 96,
+      "gold": 5,
+      "breach_lives": 1,
+      "melee_dodge": 0.3,
+      "source": "https://wikily.gg/kingdom-rush/enemies/wulf"
+    },
+    {
+      "role": "Shaman",
+      "hp": 100,
+      "armor": 0,
+      "magic_resistance": 0.85,
+      "source_speed_units": 38.4,
+      "gold": 10,
+      "breach_lives": 1,
+      "heal_interval_seconds": 8,
+      "heal_hp": 50,
+      "heal_max_targets": 3,
+      "source": "https://wikily.gg/kingdom-rush/enemies/shaman"
+    },
+    {
+      "role": "Gargoyle",
+      "hp": 90,
+      "armor": 0,
+      "magic_resistance": 0,
+      "source_speed_units": 46.1,
+      "gold": 12,
+      "breach_lives": 1,
+      "flying": true,
+      "first_stage": 6,
+      "source": "https://wikily.gg/kingdom-rush/enemies/gargoyle"
+    }
+  ],
+  "asset_mapping_candidates": [
+    {
+      "reference_role": "basic ranged physical",
+      "owned_art": "existing archer building",
+      "mapping": "direct visual fit; use reference single-target ground/air rules"
+    },
+    {
+      "reference_role": "basic ranged magic",
+      "owned_art": "existing mage building or f3_pyromancer",
+      "mapping": "magic projectile animation; no free area damage, burn or slow merely because the art is fiery"
+    },
+    {
+      "reference_role": "basic artillery",
+      "owned_art": "existing catapult",
+      "mapping": "lobbed projectile, ground explosion with distance falloff"
+    },
+    {
+      "reference_role": "barracks soldiers",
+      "owned_art": "f1_silverguardsquire; higher-grade f1_ironcliffeguardian candidate",
+      "mapping": "sword/shield sprites; implement three blocking soldiers first, not a stationary invulnerable cleave turret"
+    },
+    {
+      "reference_role": "Rangers Hideout",
+      "owned_art": "f6_icedryad candidate",
+      "mapping": "verify ranged animation; ice may represent purchased ground root but does not grant default area slow"
+    },
+    {
+      "reference_role": "Tesla x104",
+      "owned_art": "f2_stormkage candidate",
+      "mapping": "lightning presentation with artillery-family electric rules and specialist-tier economy; not current cheap magic-chain unit"
+    },
+    {
+      "reference_role": "Musketeer Garrison",
+      "owned_art": "existing guardian crossbow candidate",
+      "mapping": "verify heavy bolt/aiming visual; no automatic fixed 18 armor penetration"
+    },
+    {
+      "reference_role": "Sorcerer Mage",
+      "owned_art": "neutral_mercflamebloodwarlock candidate",
+      "mapping": "curse-like presentation; armor debuff, damage-over-time and elemental mechanics must match reference rather than current generic splash burn"
+    },
+    {
+      "reference_role": "Goblin/Orc/Wulf/Shaman/Ogre/Gargoyle",
+      "owned_art": "existing light infantry/armored infantry/runner/f3_aymarahealer/f4_juggernaut/flyer candidates",
+      "mapping": "select by silhouette, movement and attack; some current armored visual labels must change when mapped to an unarmored high-health Ogre"
+    }
+  ],
+  "implementation_prerequisites": [
+    "Verify or deliberately retain the local map coordinates, route travel time, firing coverage and 1024x576 world scale before claiming original-stage equivalence.",
+    "Verify original spawn intervals and projectile speeds if closer encounter timing is required; current values are local presentation adaptations.",
+    "Verify Rain of Fire impact sequencing and radius; the current three simultaneous local-radius impacts are an adaptation.",
+    "Implement an early-wave countdown and verified early-call reward before claiming the original inter-wave economy; the current game waits for a manual wave call.",
+    "Implement advanced tower branches and star-talent purchasing before describing the broader KR1 progression system as complete."
+  ],
+  "delivery": {
+    "h5VersionId": 287989,
+    "localVersion": "0.3.0",
+    "physicalHostTested": false,
+    "earlyWaveCallAndStarTalents": "not implemented"
+  }
+}

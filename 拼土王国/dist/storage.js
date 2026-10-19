@@ -1,0 +1,5 @@
+import {validateSave} from './rules.js';
+export const SAVE_KEY='patchwork-kingdom.save.v1';
+export function readSave(storage){try{const raw=storage.getItem(SAVE_KEY);if(raw===null)return{ok:true,state:null};const checked=validateSave(JSON.parse(raw));return checked.ok?{ok:true,state:checked.state}:{ok:false,reason:checked.reason,raw};}catch(error){return{ok:false,reason:'无法读取存档：'+error.message};}}
+export function writeSave(storage,state){const checked=validateSave(state);if(!checked.ok)return checked;const previous=readSave(storage);if(!previous.ok)return{ok:false,reason:'原存档无法读取，未覆盖。请导出备份或在存档中明确建立新王国。'};try{storage.setItem(SAVE_KEY,JSON.stringify(state));return{ok:true};}catch{return{ok:false,reason:'浏览器没有保存成功，请导出备份后再离开。'};}}
+export function replaceSave(storage,state){const checked=validateSave(state);if(!checked.ok)return checked;try{const old=storage.getItem(SAVE_KEY);if(old!==null)storage.setItem(SAVE_KEY+'.backup',old);storage.setItem(SAVE_KEY,JSON.stringify(state));return{ok:true};}catch{return{ok:false,reason:'未能备份或写入，原存档没有被主动清除。'};}}

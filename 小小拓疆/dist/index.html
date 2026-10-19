@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#202c20"><title>小小拓疆 · 三方战场</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+<div class="rotate-notice"><strong>请横屏游玩</strong><span>战斗已暂停，横屏后点继续</span></div>
+<main id="game">
+  <section id="viewport" aria-label="战场：拖动军团头像到道路或据点下令，拖动空地移动地图">
+    <canvas id="terrain" aria-hidden="true"></canvas><div id="world-targets"></div><div id="order-drag-avatar" hidden aria-hidden="true"><span></span><b></b></div>
+    <div id="context" hidden><div class="context-title"><strong id="context-name"></strong><span id="context-note"></span><button id="context-close" aria-label="关闭对象菜单">×</button></div><div id="context-actions"></div></div>
+    <div id="loading" role="status">展开三方战场…</div>
+  </section>
+  <header class="hud">
+    <div class="resources"><span><img src="./assets/ui/gold.svg" alt="金币"><b id="gold">250</b><small id="income">+3/s</small></span><button id="army-status" aria-label="查看编制占用"><span>编制</span><b id="population">1/2</b></button><span title="法力"><i class="mana-icon">◆</i><b id="mana">100</b></span></div>
+    <div class="controls"><button id="pause">开战</button><button id="speed" aria-label="切换战斗速度">1×</button><button id="menu" aria-label="战地手册">☰</button></div>
+  </header>
+  <aside id="army-roster" hidden aria-label="当前存活军队"><div class="roster-title"><strong>当前军队</strong><button id="roster-close" aria-label="关闭军队列表">×</button></div><div id="roster-units"></div></aside>
+  <div id="selection-bar" hidden><strong id="selection-label"></strong><button id="multi" aria-pressed="false">增选</button><button id="return-home">回防</button><button id="clear-selection" aria-label="取消选军">×</button></div>
+  <div class="battle-tools"><button id="select-nearby" aria-label="选择视野内全部己方编队">集结</button><button id="heal" aria-label="治疗旗，50法力">✚<small>50</small></button></div>
+  <div class="navigation-tools"><button id="home" aria-label="镜头返回主城">⌂</button><button id="overview" aria-label="点击小地图跳转视野"><canvas id="minimap" width="116" height="76"></canvas></button></div>
+  <div id="instruction">拖军团到道路或据点 · 拖空地移动地图</div>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <button id="threat" hidden></button>
+  <dialog id="guide"><h2>掌握这片战场</h2><ol><li><b>拖动空地</b>查看前线；点小地图可快速定位，双指可以调整视野。</li><li><b>点城堡 → 点兵种</b>，立即招募。点地图空资源位建矿场、农场或方尖碑。</li><li><b>拖动编队或驻军头像到道路或据点</b>，松手立即出发。拖到屏幕边缘可以继续查看远方。可用“增选”追加编队，或“集结”选中视野内军队后整组拖动。</li><li>行军中可以改派，点己方城堡回防；近战接敌后无法即时撤走。攻破据点后需驻留占领。编制按整队计算，整队阵亡立即释放；残存队伍仍占编制。</li><li>点击治疗旗后再点地图，消耗50法力，为范围内友军持续恢复。</li></ol><p>三方互相争夺。守住你的据点，夺下敌方全部领地。</p><div class="dialog-actions"><button id="guide-close">返回战场</button><button id="restart">重新开始</button></div></dialog>
+  <dialog id="confirm-restart"><h2>重新开始？</h2><p>当前战局将被重置。</p><div class="dialog-actions"><button id="confirm-new">重新开始</button><button id="cancel-new">保留战局</button></div></dialog>
+  <dialog id="result"><h2 id="result-title"></h2><p id="result-copy"></p><div class="dialog-actions"><button id="again">再战一局</button><button id="view-map">查看战场</button></div></dialog>
+</main><script type="module" src="./main.js"></script></body></html>

@@ -1,0 +1,20 @@
+import type { AssetManifest } from '../assets-types';
+
+let assets:AssetManifest;
+const portraits=new Map<string,string>();
+const url=(path:string)=>new URL(path.startsWith('assets/')?path:'assets/'+path,document.baseURI).href;
+export function icon(kind:string){const img=document.createElement('img');img.alt='';img.draggable=false;img.className='ui-icon';if(assets?.ui[kind])img.src=url(assets.ui[kind]);return img}
+export function portrait(kind:string){const img=document.createElement('img');img.alt='';img.draggable=false;img.className='portrait';const source=portraits.get(kind);if(source)img.src=source;return img}
+export function product(button:HTMLButtonElement,kind:string,name:string,price:number|string,description?:string){button.classList.add('product-button');button.replaceChildren(portrait(kind));const copy=document.createElement('span');copy.className='product-copy';const label=document.createElement('strong');label.className='product-name';label.textContent=name;const cost=document.createElement('span');cost.className='product-price';cost.append(icon('coin'),document.createTextNode(String(price)));copy.append(label,cost);if(description){const detail=document.createElement('span');detail.className='product-detail';detail.textContent=description;copy.append(detail)}button.append(copy)}
+export async function installArtwork(manifest:AssetManifest){assets=manifest;for(const [key,value] of Object.entries(manifest.ui))document.documentElement.style.setProperty('--ui-'+key,`url("${url(value)}")`);
+ const sources=new Map<string,Promise<HTMLImageElement>>();const load=(file:string)=>{let p=sources.get(file);if(!p){p=new Promise<HTMLImageElement>((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=url(file)});sources.set(file,p)}return p};
+ const crops=Object.entries(manifest.units).map(([kind,unit])=>({kind,file:unit.animations.idle[0].file,rect:unit.animations.idle[0].rect??[0,0,unit.width,unit.height]})).concat(Object.entries(manifest.world).map(([kind,item])=>({kind,file:item.file,rect:item.rect})));
+ await Promise.all(crops.map(async({kind,file,rect})=>{const img=await load(file);const [x,y,w,h]=rect;const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;const ctx=canvas.getContext('2d')!;ctx.drawImage(img,x,y,w,h,0,0,w,h);const pixels=ctx.getImageData(0,0,w,h).data;let l=w,t=h,r=0,b=0;for(let yy=0;yy<h;yy++)for(let xx=0;xx<w;xx++)if(pixels[(yy*w+xx)*4+3]>16){l=Math.min(l,xx);t=Math.min(t,yy);r=Math.max(r,xx);b=Math.max(b,yy)}if(l<=r&&t<=b){const crop=document.createElement('canvas');crop.width=r-l+1;crop.height=b-t+1;crop.getContext('2d')!.drawImage(canvas,l,t,crop.width,crop.height,0,0,crop.width,crop.height);portraits.set(kind,crop.toDataURL())}}));
+ for(const kind of ['shield','archer'])portraits.set(kind,portraits.get(kind+'-1')!);for(const [kind,key] of Object.entries({heal:'spellHeal',freeze:'spellFreeze',shop:'coin',effect:'star'}))if(manifest.ui[key])portraits.set(kind,url(manifest.ui[key]));
+ document.querySelectorAll<HTMLButtonElement>('[data-tool]').forEach(b=>product(b,b.dataset.tool!,b.textContent||'',0));
+ const shop=document.getElementById('open-shop') as HTMLButtonElement;shop.prepend(icon('book'));
+ for(const [id,key] of Object.entries({settings:'pause','start-wave':'play'})){const button=document.getElementById(id)!;if(id==='settings')button.replaceChildren(icon(key));else button.prepend(icon(key))}
+ document.getElementById('overview-map')!.replaceChildren(icon('map'));document.getElementById('overview-map')!.classList.add('icon-button');document.querySelector('.gold-resource img')!.replaceWith(icon('coin'));document.getElementById('core-health')!.before(icon('heart'));document.getElementById('shop-scroll')!.replaceChildren(icon('scroll'));
+ document.querySelectorAll<HTMLButtonElement>('[data-close]').forEach(b=>b.replaceChildren(icon('close')));
+ document.querySelectorAll<HTMLButtonElement>('[data-spell]').forEach(b=>b.prepend(portrait(b.dataset.spell!)));
+}

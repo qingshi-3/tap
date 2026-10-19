@@ -1,0 +1,70 @@
+{
+  "heroes": [
+    "commander",
+    "summoner",
+    "blink",
+    "mage"
+  ],
+  "jobs": [
+    "fighter",
+    "blade_master",
+    "swift_blade",
+    "summoner",
+    "summoner_master",
+    "blink",
+    "blink_master",
+    "mage",
+    "mage_master"
+  ],
+  "skills": [
+    "dash",
+    "cleave",
+    "guard",
+    "swordField",
+    "bladeWave",
+    "whirlwind",
+    "quickCut",
+    "summonGuard",
+    "recallSummons",
+    "summonElite",
+    "markBlade",
+    "blinkStrike",
+    "blinkStorm",
+    "flameBreath",
+    "rockWall",
+    "frostAura"
+  ],
+  "units": [
+    "stone-guard",
+    "wind-scout",
+    "herb-mender",
+    "ember-archer",
+    "iron-vanguard",
+    "moon-priest"
+  ],
+  "buildings": [
+    "hall",
+    "barracks",
+    "workshop"
+  ],
+  "cleared": [
+    "moss-gate",
+    "ember-trail",
+    "blade-trial",
+    "swift-trial",
+    "summoner-trial",
+    "blink-trial",
+    "mage-trial",
+    "iron-quarry",
+    "moon-ruins"
+  ],
+  "quests": [
+    "main-moss",
+    "main-ember",
+    "job-blade",
+    "job-swift",
+    "job-summoner",
+    "job-blink",
+    "job-mage"
+  ]
+}

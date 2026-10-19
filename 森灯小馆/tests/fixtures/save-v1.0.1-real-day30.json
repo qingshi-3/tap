@@ -1,0 +1,172 @@
+{
+  "schema": 1,
+  "seed": 2465886163,
+  "day": 30,
+  "phase": "prep",
+  "coins": 16069,
+  "reputation": 192,
+  "inventory": {
+    "mushroom": 1,
+    "carrot": 129,
+    "rice": 10,
+    "fish": 34,
+    "berry": 64,
+    "milk": 99,
+    "herb": 135,
+    "flour": 101
+  },
+  "menu": [
+    "ricebowl",
+    "risotto",
+    "stew"
+  ],
+  "priceMode": "premium",
+  "upgrades": {
+    "tables": 3,
+    "kitchen": 2,
+    "garden": 2,
+    "decor": 1,
+    "sign": 2
+  },
+  "staff": [
+    "pip",
+    "oak",
+    "moss",
+    "luna"
+  ],
+  "guests": [],
+  "service": {
+    "elapsed": 0,
+    "duration": 60,
+    "spawned": 0,
+    "served": 0,
+    "lost": 0,
+    "revenue": 0,
+    "cost": 0,
+    "tips": 0,
+    "festivalServed": 0,
+    "spawnClock": 0,
+    "staffClocks": {},
+    "tagCounts": {
+      "forest": 0,
+      "river": 0,
+      "sweet": 0,
+      "hearty": 0
+    },
+    "recipeCounts": {},
+    "riverRevenue": 0,
+    "warmGuestTypes": []
+  },
+  "summary": null,
+  "totals": {
+    "revenue": 21742,
+    "served": 403,
+    "days": 29
+  },
+  "claimed": [
+    "staff",
+    "first",
+    "ten",
+    "revenue500",
+    "fifty",
+    "build",
+    "hundred",
+    "days7",
+    "revenue2000",
+    "days14",
+    "days21",
+    "days28"
+  ],
+  "ending": {
+    "title": "四季名店",
+    "score": 1390,
+    "message": "四季旅程完成：4/4项节庆、12/12道菜、8份订单。未完成的节庆可在下一轮四季重试。"
+  },
+  "settings": {
+    "sound": true,
+    "reducedMotion": false
+  },
+  "gathered": false,
+  "reliefUsed": false,
+  "guestSerial": 403,
+  "festivalWins": 4,
+  "regions": [
+    "forest",
+    "river",
+    "mountain"
+  ],
+  "gatherActions": 4,
+  "researched": [
+    "soup",
+    "ricebowl",
+    "berrytea",
+    "fishrice",
+    "bread",
+    "salad",
+    "fishsoup",
+    "risotto",
+    "pie",
+    "stew",
+    "feast",
+    "lantern"
+  ],
+  "mastery": {
+    "soup": 41,
+    "ricebowl": 43,
+    "berrytea": 44,
+    "fishrice": 54,
+    "bread": 65,
+    "salad": 6,
+    "fishsoup": 37,
+    "risotto": 34,
+    "pie": 41,
+    "stew": 38,
+    "feast": 0,
+    "lantern": 0
+  },
+  "event": {
+    "id": "challenge",
+    "choice": null
+  },
+  "contractOffer": {
+    "id": "tea",
+    "offerDay": 28
+  },
+  "contract": null,
+  "completedContracts": [
+    "1:picnic",
+    "4:tea",
+    "10:bakery",
+    "13:soupbox",
+    "16:harvestbox",
+    "19:herbbox",
+    "22:banquet",
+    "25:picnic"
+  ],
+  "expiredContracts": [
+    "7:riverbox"
+  ],
+  "festivalRecords": {
+    "7": {
+      "attempts": 1,
+      "wins": 1,
+      "lastDay": 7
+    },
+    "14": {
+      "attempts": 1,
+      "wins": 1,
+      "lastDay": 14
+    },
+    "21": {
+      "attempts": 1,
+      "wins": 1,
+      "lastDay": 21
+    },
+    "28": {
+      "attempts": 1,
+      "wins": 1,
+      "lastDay": 28
+    }
+  },
+  "lastContractMessage": ""
+}

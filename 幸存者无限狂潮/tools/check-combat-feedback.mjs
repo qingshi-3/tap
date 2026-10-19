@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import {createGame,configureRun,startGame,updateGame,castSkill,chooseUpgrade,togglePause} from '../dist/simulation.js';
+import {emitCombatFeedback,tickCombatFeedback,MAX_FEEDBACK_EVENTS} from '../dist/combat-feedback.js';
+const run=()=>{const g=createGame({seed:71});configureRun(g);startGame(g);g._spawnClock=g._nextSupplyAt=1e9;return g;};
+const g=run(),p=g.player;
+g.enemies=[{id:888,kind:'grunt',x:p.x+60,y:p.y,hp:1,maxHp:1,radius:12,speed:0,damage:0,xp:1,spawnDelay:0,anim:'idle',animTime:0}];
+assert.ok(castSkill(g,'cleave',{x:1,y:0}));
+assert.equal(g.combatFeedback.totals.hit,1);assert.equal(g.combatFeedback.totals.kill,1);
+assert.ok(castSkill(g,'dash',{x:1,y:0}));assert.equal(g.combatFeedback.totals.kill,1);
+g.gems=[{id:900,x:p.x,y:p.y,value:1}];g.supplies=[{id:901,type:'heal',x:p.x,y:p.y}];p.dash=null;
+updateGame(g,1/60);assert.equal(g.combatFeedback.totals.pickup,1);assert.equal(g.combatFeedback.totals.supply,1);
+updateGame(g,1/60);assert.equal(g.combatFeedback.totals.pickup,1);assert.equal(g.combatFeedback.totals.supply,1);
+togglePause(g);const snapshot=JSON.stringify(g.combatFeedback);updateGame(g,1);assert.equal(JSON.stringify(g.combatFeedback),snapshot);togglePause(g);
+const seed=g._seed;emitCombatFeedback(g,'evolution');for(let i=0;i<1000;i++)emitCombatFeedback(g,'hit');
+assert.equal(g._seed,seed);assert.equal(g.combatFeedback.events.length,MAX_FEEDBACK_EVENTS);assert.ok(g.combatFeedback.events.some(e=>e.type==='evolution'));
+tickCombatFeedback(g,1);assert.equal(g.combatFeedback.events.length,0);assert.equal(g.combatFeedback.totals.hit,1001);
+const fresh=run();assert.equal(fresh.combatFeedback.totals.hit,0);assert.notEqual(g.combatFeedback,fresh.combatFeedback);
+fresh.phase='upgrade';fresh.time=90;fresh.upgrades.orbit=5;fresh.growth.area=1;fresh.choices=[{id:'evolve:orbit:a'}];fresh._pendingLevels=1;
+assert.equal(chooseUpgrade(fresh,'evolve:orbit:b'),false);assert.equal(fresh.combatFeedback.totals.evolution,0);
+assert.ok(chooseUpgrade(fresh,'evolve:orbit:a'));assert.equal(fresh.combatFeedback.totals.evolution,1);
+const basic=run();basic.phase='upgrade';basic.attackProgress={rank:3,branch:null};basic.choices=[{id:'attack:a'}];basic._pendingLevels=1;
+assert.ok(chooseUpgrade(basic,'attack:a'));assert.equal(basic.attackProgress.rank,4);assert.equal(basic.combatFeedback.totals.evolution,1);
+const h=run();h.player.commonShield=100;h.enemyProjectiles=[{x:h.player.x,y:h.player.y,vx:0,vy:0,radius:5,life:1,damage:10}];
+updateGame(h,1/60);assert.equal(h.combatFeedback.totals.hurt,0);
+h.player.invulnerable=0;h.player.commonShield=0;h.enemyProjectiles=[{x:h.player.x,y:h.player.y,vx:0,vy:0,radius:5,life:1,damage:10}];
+updateGame(h,1/60);assert.equal(h.combatFeedback.totals.hurt,1);
+console.log('Combat feedback: real hit/kill/pickup/supply/hurt/evolution; pause, reset, cap, priority, RNG independence passed.');
+

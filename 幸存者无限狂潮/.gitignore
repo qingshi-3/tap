@@ -1,0 +1,12 @@
+node_modules/
+output/*
+!output/save-compatibility/
+output/save-compatibility/*
+!output/save-compatibility/fixture-source/
+build/
+*.log
+.env
+.env.*
+!.env.example
+.DS_Store
+__pycache__/

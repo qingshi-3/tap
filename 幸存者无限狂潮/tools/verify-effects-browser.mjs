@@ -1,0 +1,22 @@
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+import path from 'node:path';
+const require=createRequire('C:/Users/qs/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json');const {chromium}=require('playwright');
+const OUT=path.resolve(import.meta.dirname,'../output/controls-polish');await mkdir(OUT,{recursive:true});
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
+const report=[];
+const hook=`window.__FX_QA={game:()=>game,seed(mode){const g=game,p=g.player;g._spawnClock=9999;g.enemies=[];g.enemyHazards=[];g.enemyProjectiles=[];g.effects=[];g.commonEffects=[];g.commonEntities=[];g.fields=[];g.boss=null;g.announcement={text:"",remaining:0};
+const point=(dx,dy)=>({x:p.x+dx,y:p.y+dy,life:5,maxLife:6});
+if(mode==='hero'){g.effects=[{...point(-90,-30),type:'summon'},{...point(105,-25),type:'blinkImpact',radius:65},{...point(-100,60),type:'flameBreath',radius:170,width:.8,angle:-.45}];}
+if(mode==='common'){g.commonEffects=[{...point(-160,-45),weapon:'lightning',shape:'line',toX:p.x+30,toY:p.y-70,width:4,layer:'above'},{...point(-145,40),weapon:'beam',shape:'line',toX:p.x+170,toY:p.y+40,width:24,layer:'above'},{...point(100,-40),weapon:'vortex',shape:'circle',radius:64,layer:'ground'},{...point(120,70),weapon:'meteor',shape:'circle',radius:45,width:12,layer:'above'}];}
+if(mode==='entities'){g.player.commonShield=20;g.effects=[{...point(-100,10),type:'swordField',guard:true,radius:65}];g.commonEffects=[{...point(0,0),weapon:'aegis',shape:'ring',radius:38,width:7,layer:'above'}];g.commonEntities=[{...point(90,-35),weapon:'familiar',kind:'familiar',shape:'construct',radius:13,layer:'above'},{...point(110,45),weapon:'mine',kind:'mine',shape:'construct',radius:12,layer:'above'}];}if(mode==='hostile'){g.enemyHazards=[{...point(-105,-45),type:'warning',shape:'sector',radius:100,width:1.6,angle:0,telegraph:true,total:6,remaining:4},{...point(120,0),type:'ring',shape:'ring',radius:75,innerRadius:50,outerRadius:75,gapAngle:Math.PI/2,gapWidth:1.3,total:6,remaining:4},{...point(-100,70),type:'line',shape:'line',width:26,toX:p.x+80,toY:p.y+70,total:6,remaining:4}];g.enemyProjectiles=[{...point(30,-50),kind:'enemyOrb',radius:8,vx:-125,vy:0},{...point(50,-30),kind:'enemyOrb',radius:8,vx:-125,vy:0}];}
+g.phase="paused";return {hp:p.hp,mode,fixture:"paused static render"};}};`;
+try{for(const [width,height,reduced] of [[667,320,false],[844,390,false],[667,320,true]]){
+const c=await browser.newContext({viewport:{width,height},isMobile:true,hasTouch:true,reducedMotion:reduced?'reduce':'no-preference'}),p=await c.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
+await c.route('**/main.js',async r=>{const response=await r.fetch();await r.fulfill({response,body:(await response.text())+hook});});
+await p.goto('http://127.0.0.1:4178/');await p.locator('.campaign-shell:not(.is-hidden)').waitFor();await p.locator('[data-tab="map"]').click();await p.locator('[data-action="depart"]').click();await p.waitForFunction(()=>window.__FX_QA?.game().phase==='playing');
+const before=await p.evaluate(()=>window.__FX_QA.game().player.x);const box=await p.locator('#battle').boundingBox(),cdp=await c.newCDPSession(p),start={x:box.x+100,y:box.y+box.height-65,id:1};await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[start]});await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{...start,x:start.x+60}]});await p.waitForTimeout(250);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});const moved=await p.evaluate(b=>window.__FX_QA.game().player.x-b,before);if(moved<15)throw Error('touch movement failed');
+for(const mode of ['hero','common','hostile','entities']){const state=await p.evaluate(m=>window.__FX_QA.seed(m),mode);await p.waitForTimeout(80);await p.addStyleTag({content:'dialog,#pause-dialog,dialog::backdrop{display:none!important}'});const name=`effects-${mode}-${width}x${height}${reduced?'-reduce':''}.png`;await p.screenshot({path:path.join(OUT,name)});report.push({name,state,moved,errors});}
+if(errors.length)throw Error(errors.join(';'));await c.close();}
+await writeFile(path.join(OUT,'effects-report.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({cases:report.length,errors:report.flatMap(x=>x.errors)}));}finally{await browser.close();}
+

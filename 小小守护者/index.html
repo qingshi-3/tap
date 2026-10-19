@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#233c2a"><title>小小守护者</title></head>
+<body>
+<main id="game" aria-label="小小守护者">
+  <div id="battlefield" aria-label="战场"></div>
+  <header id="hud"><div class="resources"><span id="core-health" aria-label="营地生命">100</span><span class="gold-resource"><img src="./assets/ui-generated/coin.png" alt="金币"><span id="gold">0</span></span><span id="wave">1 / 7</span></div><div class="view-controls"><button id="overview-map" aria-label="全景地图">全景</button><button id="zoom-map" class="icon-button" aria-label="放大地图" aria-pressed="false">＋</button><button id="settings" class="icon-button" aria-label="暂停与设置">Ⅱ</button></div></header>
+  <nav id="wave-preview" aria-label="波次路线预告"></nav>
+  <section id="context" hidden aria-label="选中对象操作"></section>
+  <div id="placement" hidden><span id="placement-label"></span><button id="confirm-placement">施放</button><button id="cancel-placement">取消</button></div>
+  <footer id="commands"><div id="prep-tools"><button data-tool="shield">盾卫</button><button data-tool="archer">弓手</button><button data-tool="wall">墙</button><button data-tool="tower">箭塔</button><button data-tool="slow">减速</button><button data-tool="engineer">英雄</button><button id="open-shop">商店</button></div><div id="combat-tools" hidden><button data-spell="heal">治疗 <b>0</b></button><button data-spell="freeze">定身 <b>0</b></button></div><button id="start-wave" class="primary">开战</button></footer>
+  <p id="notice" role="status" aria-live="polite"></p>
+</main>
+<dialog id="home"><h1>小小守护者</h1><div class="home-actions"><button id="continue-game" class="primary" disabled>继续营地</button><button id="new-game" disabled>新建营地</button><label class="seed-field">种子 <input id="seed" inputmode="numeric" type="number" min="1" max="4294967295" value="20261013"></label><button id="seed-game" disabled>按种子开局</button></div><p id="home-error" role="status"></p></dialog>
+<dialog id="pause"><h2>已暂停</h2><div class="settings-grid"><button id="resume" class="primary">继续</button><button id="mute" aria-pressed="false">音效：开</button><button id="motion" aria-pressed="false">动效：开</button><button id="open-codex">图鉴</button><button id="open-achievements">成就</button><button id="open-replay">回放</button><button id="fit-map">全景</button><button id="restart-seed">重开本种子</button><button id="back-home">返回营地菜单</button></div></dialog>
+<dialog id="shop"><header class="dialog-heading"><h2 id="shop-title">商店</h2><button data-close="shop" aria-label="关闭商店">×</button></header><div class="shop-body"><div id="shop-items" class="shop-grid"></div><div id="shop-scroll" class="shop-scroll" aria-label="上下拖动浏览商店"><span aria-hidden="true">↕</span></div></div><p id="shop-detail"></p></dialog>
+<dialog id="cards"><h2>选择效果</h2><div id="card-choices" class="choice-grid"></div></dialog>
+<dialog id="collection"><header class="dialog-heading"><h2 id="collection-title">图鉴</h2><button data-close="collection" aria-label="关闭">×</button></header><div id="collection-content" class="collection-list"></div></dialog>
+<dialog id="result"><h2 id="result-title"></h2><p id="result-stats"></p><div class="result-actions"><button id="again" class="primary">再守一次</button><button id="result-home">营地菜单</button></div></dialog>
+<dialog id="confirm"><h2 id="confirm-title"></h2><p id="confirm-copy"></p><div class="result-actions"><button id="confirm-yes" class="primary">确认</button><button id="confirm-no">取消</button></div></dialog>
+<div id="portrait-hint" role="status">请横屏守护营地</div>
+<script type="module" src="./src/main.ts"></script>
+</body></html>

@@ -1,0 +1,7796 @@
+{
+  "units": {
+    "shield-1": {
+      "width": 80,
+      "height": 80,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              80,
+              80
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_silverguardsquire.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              160,
+              80,
+              80
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_silverguardsquire"
+    },
+    "shield-2": {
+      "width": 80,
+      "height": 80,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              80,
+              80
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              880,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              0,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              80,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              160,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              240,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              320,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              400,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              480,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_tank.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              240,
+              80,
+              80
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_tank"
+    },
+    "shield-3": {
+      "width": 80,
+      "height": 80,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              160,
+              80,
+              80
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              240,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ironcliffeguardian.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              240,
+              80,
+              80
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_ironcliffeguardian"
+    },
+    "archer-1": {
+      "width": 120,
+      "height": 120,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              120,
+              120,
+              120
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              240,
+              120,
+              120
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_backlinearcher.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              600,
+              120,
+              120
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_backlinearcher"
+    },
+    "archer-2": {
+      "width": 80,
+      "height": 80,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              80,
+              80
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              800,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              880,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              0,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              80,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              160,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              240,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              320,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              400,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_ranged.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              160,
+              80,
+              80
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_ranged"
+    },
+    "archer-3": {
+      "width": 100,
+      "height": 100,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              100,
+              100,
+              100
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              200,
+              100,
+              100
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_arrowwhistler.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              500,
+              100,
+              100
+            ]
+          }
+        ]
+      },
+      "sourceId": "neutral_arrowwhistler"
+    },
+    "engineer": {
+      "width": 100,
+      "height": 100,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              100,
+              100,
+              100
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              200,
+              100,
+              100
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              500,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              600,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              700,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              700,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_artificer.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              700,
+              100,
+              100
+            ]
+          }
+        ]
+      },
+      "sourceId": "neutral_artificer"
+    },
+    "grunt": {
+      "width": 110,
+      "height": 110,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              110,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              220,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              330,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              440,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              550,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              660,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              770,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              0,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              110,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              220,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              330,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              440,
+              110,
+              110,
+              110
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              550,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              660,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              770,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              110,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              110,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              220,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              330,
+              220,
+              110,
+              110
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              440,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              550,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              660,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              770,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              220,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              110,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              220,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              330,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              440,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              550,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              660,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              770,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              330,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              440,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              110,
+              440,
+              110,
+              110
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_ghoulie.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              220,
+              440,
+              110,
+              110
+            ]
+          }
+        ]
+      },
+      "sourceId": "neutral_ghoulie"
+    },
+    "siege": {
+      "width": 80,
+      "height": 80,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              0,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              160,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              240,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              320,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              400,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              480,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              560,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              640,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.07,
+            "rect": [
+              720,
+              80,
+              80,
+              80
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              880,
+              80,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              80,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              160,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              320,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              560,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              640,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              160,
+              80,
+              80
+            ]
+          },
+          {
+            "file": "assets/atlases/neutral_golemstone.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              160,
+              80,
+              80
+            ]
+          }
+        ]
+      },
+      "sourceId": "neutral_golemstone"
+    },
+    "flyer": {
+      "width": 100,
+      "height": 100,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              0,
+              100,
+              100
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              100,
+              100,
+              100
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_gryphinox.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              400,
+              100,
+              100
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_gryphinox"
+    },
+    "boss": {
+      "width": 120,
+      "height": 120,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              0,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              120,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              120,
+              120,
+              120
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              240,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              240,
+              120,
+              120
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              360,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              480,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              240,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              360,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              480,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              720,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              840,
+              600,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              720,
+              120,
+              120
+            ]
+          },
+          {
+            "file": "assets/atlases/boss_borealjuggernaut.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              120,
+              720,
+              120,
+              120
+            ]
+          }
+        ]
+      },
+      "sourceId": "boss_borealjuggernaut"
+    },
+    "hero": {
+      "width": 100,
+      "height": 100,
+      "animations": {
+        "idle": [
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              0,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              100,
+              100,
+              100
+            ]
+          }
+        ],
+        "walk": [
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              100,
+              100,
+              100
+            ]
+          }
+        ],
+        "attack": [
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              100,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              200,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              200,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              300,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              400,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              500,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              600,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              700,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              800,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              900,
+              300,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              0,
+              400,
+              100,
+              100
+            ]
+          },
+          {
+            "file": "assets/atlases/f1_general.png",
+            "offset": [
+              0,
+              0
+            ],
+            "duration": 0.08,
+            "rect": [
+              100,
+              400,
+              100,
+              100
+            ]
+          }
+        ]
+      },
+      "sourceId": "f1_general"
+    }
+  },
+  "world": {
+    "grass": {
+      "file": "assets/world/Ground/Grass.png",
+      "rect": [
+        16,
+        0,
+        16,
+        16
+      ]
+    },
+    "grassDetail": {
+      "file": "assets/world/Ground/TexturedGrass.png",
+      "rect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "grassFlowers": {
+      "file": "assets/world/Ground/TexturedGrass.png",
+      "rect": [
+        32,
+        16,
+        16,
+        16
+      ]
+    },
+    "path": {
+      "file": "assets/world/Ground/Grass.png",
+      "rect": [
+        48,
+        0,
+        16,
+        16
+      ]
+    },
+    "water": {
+      "file": "assets/world/Ground/Grass.png",
+      "rect": [
+        0,
+        0,
+        16,
+        16
+      ]
+    },
+    "tree": {
+      "file": "assets/world-generated/tree.png",
+      "rect": [
+        0,
+        0,
+        72,
+        106
+      ]
+    },
+    "rock": {
+      "file": "assets/world-generated/rock.png",
+      "rect": [
+        0,
+        0,
+        96,
+        43
+      ]
+    },
+    "keep": {
+      "file": "assets/world-generated/keep.png",
+      "rect": [
+        0,
+        0,
+        120,
+        143
+      ]
+    },
+    "tower": {
+      "file": "assets/world-generated/tower.png",
+      "rect": [
+        0,
+        0,
+        66,
+        120
+      ]
+    },
+    "wall": {
+      "file": "assets/world-generated/wall.png",
+      "rect": [
+        0,
+        0,
+        96,
+        60
+      ]
+    },
+    "slow": {
+      "file": "assets/world-generated/slow.png",
+      "rect": [
+        0,
+        0,
+        96,
+        40
+      ]
+    },
+    "grassBackdrop": {
+      "file": "assets/world-generated/grass.png",
+      "rect": [
+        0,
+        0,
+        512,
+        512
+      ]
+    }
+  },
+  "ui": {
+    "wideNormal": "assets/ui-generated/wideNormal.png",
+    "squareNormal": "assets/ui-generated/squareNormal.png",
+    "widePressed": "assets/ui-generated/widePressed.png",
+    "squarePressed": "assets/ui-generated/squarePressed.png",
+    "wideDisabled": "assets/ui-generated/wideDisabled.png",
+    "squareDisabled": "assets/ui-generated/squareDisabled.png",
+    "panel": "assets/ui-generated/panel.png",
+    "coin": "assets/ui-generated/coin.png",
+    "heart": "assets/ui-generated/heart.png",
+    "pause": "assets/ui-generated/pause.png",
+    "play": "assets/ui-generated/play.png",
+    "close": "assets/ui-generated/close.png",
+    "book": "assets/ui-generated/book.png",
+    "spellHeal": "assets/ui-generated/spellHeal.png",
+    "spellFreeze": "assets/ui-generated/spellFreeze.png",
+    "star": "assets/ui-generated/star.png",
+    "map": "assets/ui-generated/map.png",
+    "fist": "assets/ui-generated/fist.png",
+    "skull": "assets/ui-generated/skull.png",
+    "swords": "assets/ui-generated/swords.png",
+    "scroll": "assets/ui-generated/scroll.png",
+    "trophy": "assets/ui-generated/trophy.png",
+    "repair": "assets/ui-generated/repair.png"
+  },
+  "sounds": {
+    "attack": [
+      "assets/sounds/sfx_f1tank_attack_swing.m4a"
+    ],
+    "hit": [
+      "assets/sounds/sfx_f1tank_hit.m4a"
+    ],
+    "death": [
+      "assets/sounds/sfx_f1tank_death.m4a"
+    ]
+  }
+}

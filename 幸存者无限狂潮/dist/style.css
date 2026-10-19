@@ -1,0 +1,161 @@
+:root{color-scheme:dark;--ink:#142a2c;--panel:#20383b;--brass:#e8c47b;--paper:#f4edd6;--muted:#b7c4b5;--teal:#78dac5;--danger:#e97877;font-family:"Microsoft YaHei","PingFang SC",sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--paper);overflow:hidden;overscroll-behavior:none}button{font:inherit;cursor:pointer;color:var(--paper);background:#294449;border:1px solid #66847b;padding:10px 18px;min-height:44px;border-radius:3px;touch-action:manipulation}button:hover{background:#3a5956}button:active{filter:brightness(1.18)}button:disabled{opacity:.65;cursor:wait}button:focus-visible{outline:3px solid var(--teal);outline-offset:3px}.primary{background:var(--brass);color:#28332b;border:2px solid #fae6a6;font-weight:700;box-shadow:0 3px 0 #957144}.primary:hover{background:#f0d18c}[hidden]{display:none!important}
+#arena{height:100vh;height:100dvh;width:100vw;position:relative;overflow:hidden;touch-action:none}#battle{display:block;position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated}#hud{position:absolute;z-index:2;inset:0px 0px auto 0px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:10px 20px 16px;background:linear-gradient(#132927f2,#132927a0,transparent);pointer-events:none}.health{width:clamp(130px,27vw,330px);font-size:12px}.meter{height:9px;background:#15222a;border:1px solid #bdd7b755;margin-top:5px}.meter i{display:block;background:#ea8278;width:100%;height:100%}.run-time{text-align:center;display:grid;gap:3px}.run-time strong{font-size:22px;font-variant-numeric:tabular-nums}.run-time span{font-size:12px;color:var(--muted)}.hud-actions{display:flex;gap:8px;pointer-events:auto}.hud-actions button{padding:6px 12px;background:#172f36d9}.experience{position:absolute;height:7px;left:0;right:0;top:0;background:#152929}.experience i{display:block;background:var(--teal);height:100%;width:0}.experience span{position:absolute;top:76px;right:20px;font-size:12px;color:var(--paper);text-shadow:0 1px 3px #000}
+.welcome{position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:linear-gradient(90deg,#102622dd,#102622b8 55%,#10262277);padding:20px}.title-mark{font-size:24px;color:var(--brass);margin-bottom:6px}h1{font-family:KaiTi,STKaiti,"Microsoft YaHei",serif;font-size:clamp(42px,6vw,76px);letter-spacing:.09em;margin:0;color:#fff0c8;text-shadow:0 3px #163b34,0 0 30px #9e8a3b66}.tagline{color:#c7d6be;margin:12px 0 27px;font-size:16px}.welcome>.primary{min-width:230px;font-size:18px;padding:12px 30px}.instructions{font-size:13px;line-height:1.8;color:#c5d1c2;margin:22px 0 0}.menu-bottom{display:flex;align-items:center;gap:24px;margin-top:16px;font-size:12px;color:#a1b5a6}.menu-bottom button{border:none;background:transparent;padding:7px 0;text-decoration:underline;text-underline-offset:4px;font-size:13px}#loading-error{max-width:380px;font-size:13px;color:#ffc5bd}
+dialog{border:1px solid #bda16a;max-width:min(830px,94vw);max-height:calc(100dvh - 30px);padding:0;margin:auto;background:#1b3337;color:var(--paper);box-shadow:0 20px 70px #0009;border-radius:4px}dialog::backdrop{background:#081917b5}.dialog-inner{padding:24px;text-align:center;border:4px solid #d6b36b20}.dialog-inner h2{font-family:KaiTi,STKaiti,"Microsoft YaHei",serif;font-size:28px;margin:4px 0 8px}.dialog-inner>p{color:var(--muted);line-height:1.7;font-size:14px;margin:8px 0 20px}.ornament{color:var(--brass);font-size:24px}.compact{width:min(450px,92vw);display:flex;flex-direction:column;gap:10px}.compact>p{margin:0 0 10px}.choices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:22px}.upgrade-option{text-align:left;min-height:165px;padding:16px;display:flex;flex-direction:column;gap:9px;border-color:#879b77;background:#29433e;width:100%;min-width:0}.upgrade-option:hover{border-color:var(--brass);background:#39544a}.upgrade-option .upgrade-icon{width:38px;height:38px;display:grid;place-items:center;font-size:25px;color:#eada9b;background:#192e30;border:1px solid #92aa8466}.upgrade-option strong{font-size:18px;color:#f9e3a5}.upgrade-option .description{font-size:13px;color:#c7d8c4;line-height:1.6}.result-stats{display:flex;justify-content:center;gap:24px;padding:8px 0 15px}.result-stats div{display:flex;flex-direction:column;gap:5px}.result-stats strong{color:var(--brass);font-size:25px}.result-stats span{font-size:12px;color:var(--muted)}
+#joystick{position:absolute;left:30px;bottom:24px;z-index:2;pointer-events:none;opacity:.5}.stick-ring{width:102px;height:102px;border:2px solid #b5d6b861;border-radius:50%;background:#142f323b;display:grid;place-items:center}#stick-knob{width:38px;height:38px;border-radius:50%;background:#bbdebe45;border:1px solid #d3f1ce83;transform:translate(0,0)}#joystick.active{opacity:.95}.active #stick-knob{background:#83d9c9a0}#control-hint{position:absolute;bottom:13px;left:160px;pointer-events:none;color:#d0e6c8b0;font-size:12px;z-index:2}#rotate{position:absolute;inset:0;background:#142a2cf5;z-index:10;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:25px}#rotate>span{font-size:64px;color:var(--brass)}#rotate h2{font-size:24px}#rotate p{color:var(--muted)}
+/* Game gestures must never become browser text selection or a long-press callout. */
+html,body,#arena,#arena *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none;-webkit-tap-highlight-color:transparent}
+#arena{touch-action:pan-y}#battle{touch-action:none}
+.expedition-hud{position:absolute;top:72px;left:20px;max-width:27vw;display:grid;gap:5px;text-shadow:0 2px 4px #000;font-size:12px;color:#dfd5b8}.expedition-hud span{font-size:10px;line-height:1.5;color:#aee1d0}#result-loot{color:#edd291;line-height:1.6}#campaign{position:absolute;inset:0;z-index:4;touch-action:pan-y}#campaign button:disabled{cursor:not-allowed}
+@media(max-height:500px){.expedition-hud{top:55px;left:14px;font-size:11px}.expedition-hud span{font-size:9px}}
+#rotate{margin:0;max-width:none;max-height:none;width:100vw;height:100dvh;border:0;border-radius:0}#rotate::backdrop{background:#142a2c}
+@media(pointer:fine){#joystick{opacity:.23}#control-hint{display:none!important}}@media(max-height:500px){#hud{padding:9px 14px 12px;gap:12px}.run-time strong{font-size:19px}.experience span{top:64px;right:15px}.welcome{padding:12px}.title-mark{display:none}h1{font-size:46px}.tagline{margin:6px 0 14px;font-size:14px}.welcome>.primary{min-height:44px;padding:8px 24px;font-size:16px}.instructions{margin:12px 0 0;font-size:12px}.menu-bottom{margin-top:5px;gap:18px}.dialog-inner{padding:13px}.dialog-inner h2{font-size:24px}.dialog-inner>p{margin:5px 0 8px}.choices{margin-top:12px;gap:10px}.upgrade-option{min-height:145px;padding:11px;gap:6px}.upgrade-option strong{font-size:16px}.upgrade-option .description{font-size:12px}.compact{gap:6px}.compact>p{font-size:12px;line-height:1.5}.ornament{font-size:18px}.result-stats{padding:4px 0 8px}#joystick{left:22px;bottom:20px}.stick-ring{width:90px;height:90px}}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}button{transition:none}}
+
+/* Skill controls use the campaign's worn brass and blue stone palette. */
+.skill-bar{position:absolute;z-index:2;right:max(24px,0px);bottom:max(24px,0px);display:block;width:174px;height:158px;touch-action:none}
+.skill-button,.skill-button:hover{position:relative;isolation:isolate;display:grid;place-items:center;align-content:center;width:82px;height:88px;padding:8px 4px;border:1px solid #ad9562;border-radius:7px;background:#172c35 url('./assets/ui/button.png') center/100% 100% no-repeat;box-shadow:inset 0 0 0 3px #09192099,0 4px 12px #0006;overflow:hidden;touch-action:none;transition:filter .12s,transform .12s}
+.skill-bar .skill-button{position:absolute}.skill-bar .skill-button:nth-child(1){left:0;bottom:0}.skill-bar .skill-button:nth-child(2){right:0;bottom:0}.skill-bar .skill-button:nth-child(3){right:5px;top:0}
+.skill-bar:before{content:'拖出范围取消';position:absolute;right:3px;top:-27px;padding:4px 9px;border-radius:12px;background:#10242ee8;border:1px solid #8db2aa88;color:#dbe8dd;font-size:11px;white-space:nowrap;opacity:0;transform:translateY(5px);transition:opacity .1s,transform .1s;pointer-events:none}.skill-bar.is-aiming:before{opacity:1;transform:none}.skill-bar.is-cancelled:before{content:'松手取消';color:#ffd8d0;border-color:#ef817d;background:#5a2024ee}.skill-button.is-aiming{filter:brightness(1.28);box-shadow:inset 0 0 0 3px #80e4d399,0 0 0 3px #80e4d344,0 4px 12px #0008}
+.skill-button:before{content:'';position:absolute;inset:auto 0 0;height:var(--cooldown,0%);background:#071219e6;z-index:-1}
+.skill-button:hover{filter:brightness(1.15)}.skill-button:active{transform:translateY(2px)}.skill-button:disabled{opacity:.55;cursor:default}.skill-button:focus-visible{outline:2px solid #83e7d5;outline-offset:4px}.skill-key{position:absolute;left:7px;top:5px;font:700 10px 'Microsoft YaHei',sans-serif;color:#d5c6a1}.skill-icon{font-size:29px;line-height:34px;color:#e9d5a2;text-shadow:0 2px 4px #000}.skill-name{font-size:11px;font-weight:600;color:#e4e8d9;line-height:20px}.skill-cooldown{position:absolute;inset:0;display:grid;place-items:center;color:#fff5d9;font-size:23px;font-weight:700;text-shadow:0 2px 5px #000;font-variant-numeric:tabular-nums}.skill-button.is-cooling .skill-icon{opacity:.25}.skill-button.is-cooling .skill-name{opacity:.65}
+.weapon-rack{position:absolute;z-index:2;left:20px;top:116px;display:flex;flex-wrap:wrap;gap:5px;max-width:290px;pointer-events:none}.weapon-slot{display:flex;align-items:center;gap:5px;background:#0b202dcc;padding:4px 7px;border-left:2px solid #6d9f9b;box-shadow:0 2px 5px #0003}.weapon-slot b{color:#9edaca;font-size:16px}.weapon-slot span{font-size:10px;color:#d6dfd3}.weapon-slot.is-evolved{border-color:#eac474}.weapon-slot.is-evolved b,.weapon-slot.is-evolved span{color:#f2d89f}
+#control-hint{max-width:240px;bottom:10px;left:145px}#hero-status.is-empowered{color:#f5d47f}
+@media(max-height:500px){.skill-bar{right:16px;bottom:16px;width:140px;height:126px}.skill-button,.skill-button:hover{width:66px;height:70px}.skill-icon{font-size:24px;line-height:27px}.skill-name{font-size:10px;line-height:17px}.weapon-rack{left:14px;top:90px;max-width:240px;gap:3px}.weapon-slot{padding:2px 5px}.weapon-slot span{font-size:9px}#control-hint{font-size:10px;max-width:160px}}
+@media(max-width:560px){.skill-bar{right:12px;width:124px;height:114px}.skill-button,.skill-button:hover{width:58px;height:64px}.weapon-rack{max-width:210px}#control-hint{display:none}}
+@media(prefers-reduced-motion:reduce){.skill-button{transition:none}.skill-button:active{transform:none}}
+
+/* Match the visible WebView, including host chrome and device cutouts. */
+html,body{width:100%;height:100%;overscroll-behavior:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+#arena{width:var(--app-width,100vw);height:var(--app-height,100dvh);overflow:hidden}
+#campaign .campaign-shell{position:absolute;inset:0}
+#rotate{width:var(--app-width,100vw);height:var(--app-height,100dvh)}
+dialog{max-height:calc(var(--app-height,100dvh) - 0px - 0px - 16px);max-width:calc(var(--app-width,100vw) - 0px - 0px - 20px)}
+.skill-bar{right:calc(14px + 0px);bottom:calc(14px + 0px)}
+.weapon-rack{left:calc(14px + 0px)}
+@media(orientation:landscape) and (max-height:500px){
+ .choices{margin-top:8px;gap:8px}.upgrade-option{min-height:122px;padding:9px}.upgrade-option strong{font-size:14px}.upgrade-option .description{font-size:11px;line-height:1.4}.upgrade-option .upgrade-icon{height:28px;width:28px;font-size:20px}
+ .dialog-inner{padding:10px}.dialog-inner h2{font-size:21px}.compact{gap:5px}.compact>p{line-height:1.4;font-size:11px;margin:2px 0 4px}.compact button{min-height:38px;padding:6px 14px}.compact .ornament{display:none}.result-stats{gap:20px;padding:3px 0}.result-stats strong{font-size:20px}
+}
+
+/* Upgrade draft: a compact hand of cards above the thumb controls. */
+#upgrade-dialog{position:fixed;inset:0;margin:auto;width:min(680px,82vw);height:fit-content;max-height:calc(var(--app-height,100dvh) - 64px);overflow:visible;background:transparent;border:0;box-shadow:none;translate:0 -12px}
+#upgrade-dialog::backdrop{background:rgba(2,12,18,.68);animation:upgrade-backdrop .24s ease-out both}
+#upgrade-dialog .dialog-inner{padding:10px 8px;border:0;background:linear-gradient(180deg,#071c29ed,#071c2900);border-radius:8px}
+#upgrade-dialog .ornament{display:none}#upgrade-title{font-size:21px;line-height:1.2;margin:0 0 5px;color:#f2dfad;outline:0}#upgrade-dialog .dialog-inner>p{font-size:11px;margin:0 0 12px;color:#b4cbd1}
+#upgrade-dialog .choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:0}
+#upgrade-dialog .upgrade-option{position:relative;display:grid;grid-template-rows:20px 38px auto 1fr;gap:6px;min-width:0;min-height:176px;padding:12px 14px;text-align:left;border:1px solid #547e89;border-top:3px solid #9fc8c4;background:linear-gradient(150deg,#244451,#10242f 75%);border-radius:5px;box-shadow:0 8px 18px #0006,inset 0 0 0 3px #06141b;transition:border-color .12s,filter .12s}
+#upgrade-dialog .upgrade-tag{color:#93c1c6;font-size:10px;letter-spacing:.08em}#upgrade-dialog .upgrade-icon{height:36px;width:36px;font-size:26px;border:0;background:none;color:#e6d299}#upgrade-dialog .upgrade-option strong{font-size:15px;line-height:1.3;color:#f4e5bd}#upgrade-dialog .description{font-size:11px;line-height:1.45;color:#c0d2d5}#upgrade-dialog .upgrade-option:focus-visible{outline:2px solid #9bdfd8;outline-offset:3px}#upgrade-dialog .upgrade-option.is-chosen{border-color:#f0d190;filter:brightness(1.2)}#upgrade-dialog .upgrade-option:disabled{opacity:1;cursor:default}
+@keyframes upgrade-backdrop{from{background:rgba(2,12,18,0)}to{background:rgba(2,12,18,.68)}}
+#upgrade-dialog.is-leaving::backdrop{animation:upgrade-backdrop-out .19s ease-in both}
+@keyframes upgrade-backdrop-out{from{background:rgba(2,12,18,.68)}to{background:rgba(2,12,18,0)}}
+@media(orientation:landscape) and (max-height:500px){
+ #upgrade-dialog{width:min(650px,80vw);translate:0 -10px}#upgrade-dialog .choices{gap:9px}#upgrade-dialog .upgrade-option{min-height:155px;padding:9px 11px;grid-template-rows:14px 30px auto 1fr;gap:4px}#upgrade-dialog .upgrade-icon{height:30px;width:30px;font-size:24px}#upgrade-title{font-size:18px}#upgrade-dialog .dialog-inner>p{margin-bottom:8px;font-size:10px}#upgrade-dialog .upgrade-option strong{font-size:13px}#upgrade-dialog .description{font-size:10px}
+ .hud-actions{position:absolute;top:50px;right:calc(12px + 0px)}.hud-actions button{min-height:36px;padding:5px 10px;font-size:11px}.run-time{position:absolute;left:36%;top:14px;gap:2px}.run-time strong{font-size:18px}.run-time span{font-size:10px}.experience span{top:96px;right:15px}#control-hint{white-space:nowrap;max-width:none;font-size:10px;left:130px;bottom:8px}
+}
+@media(orientation:landscape) and (max-height:340px){#upgrade-dialog{width:82vw}#upgrade-dialog .upgrade-option{min-height:138px;padding:7px 9px;grid-template-rows:12px 25px auto 1fr}#upgrade-dialog .upgrade-icon{font-size:21px;height:25px}#upgrade-dialog .dialog-inner>p{margin-bottom:6px}}
+@media(prefers-reduced-motion:reduce){#upgrade-dialog::backdrop{animation:none}#upgrade-dialog .upgrade-option{transition:none}}
+@media(prefers-reduced-motion:reduce){#upgrade-dialog.is-leaving::backdrop{animation-duration:.07s}}
+#encounter-status{display:block;max-width:320px;font-size:10px;color:#e4c88d;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.weapon-rack{top:132px}
+@media(orientation:landscape) and (max-height:500px){#encounter-status{max-width:240px;font-size:9px}.weapon-rack{top:108px;max-width:220px}.mission-meta{flex-wrap:wrap}}
+/* During a short-screen boss fight, keep the live hero meter above the arena;
+   the full common build remains available from the pause panel. */
+@media(orientation:landscape) and (max-height:500px){
+ #arena.has-boss #expedition-name,#arena.has-boss #encounter-status,#arena.has-boss #weapon-rack{display:none}
+ #arena.has-boss .expedition-hud{top:54px;max-width:120px;gap:0}
+ #arena.has-boss #hero-status{white-space:nowrap;font-size:10px;line-height:16px}
+}
+/* All game surfaces share a rectangle below host chrome and outside device cutouts. */
+body{background:#070d12}
+#arena{position:fixed;left:var(--app-left,0px);top:var(--app-top,0px)}
+dialog{position:fixed;inset:var(--app-top,0px) auto auto var(--app-left,0px);margin:0;left:calc(var(--app-left,0px) + var(--app-width,100vw)/2);top:calc(var(--app-top,0px) + var(--app-height,100dvh)/2);transform:translate(-50%,-50%);max-height:calc(var(--app-height,100dvh) - 16px)}
+#upgrade-dialog{inset:var(--app-top,0px) auto auto var(--app-left,0px);margin:0;width:var(--app-width,100vw);height:var(--app-height,100dvh);max-width:none;max-height:none;translate:none;transform:none;padding:0;overflow:hidden}
+#upgrade-dialog[open]{display:flex;align-items:center;justify-content:center}
+#upgrade-dialog .dialog-inner{width:min(650px,82%);translate:0 -8px}
+#rotate{inset:var(--app-top,0px) auto auto var(--app-left,0px);transform:none;max-width:none;max-height:none}
+.safe-compact #upgrade-dialog .upgrade-option{min-height:132px;padding:7px 9px;grid-template-rows:12px 25px auto 1fr;gap:3px}
+.safe-compact #upgrade-dialog .upgrade-icon{height:25px;font-size:21px}
+.safe-compact #upgrade-dialog .dialog-inner>p{margin-bottom:6px}
+.skill-button.is-locked .skill-cooldown{font-size:11px;background:#102029d9}.skill-button.is-locked .skill-icon{opacity:.2}
+@media(orientation:landscape) and (max-height:500px){.experience span{top:17px;right:150px}}
+#load-progress{width:min(320px,65vw);height:9px;accent-color:#d5be78;margin:16px 0 0}#load-status{font-size:12px;color:#d1c7aa;margin:10px 0 18px}
+body:not(.boot-loading) #load-progress,body:not(.boot-loading) #load-status{display:none}
+.boot-loading .welcome{background:#122025}.boot-loading .instructions,.boot-loading .menu-bottom,.boot-loading .tagline{display:none}.boot-loading #start:disabled{display:none}
+.boot-loading #campaign{visibility:hidden}
+
+/* Dual-axis draft: shape/tag text supplements category color. */
+#upgrade-dialog .upgrade-option[data-category="hero"],#upgrade-dialog .upgrade-option[data-category="heroSkill"]{border-top-color:#91e3c2}
+#upgrade-dialog .upgrade-option[data-category="attack"]{border-top-color:#e1cc8f;background:linear-gradient(150deg,#354c55,#172831 75%)}
+#upgrade-dialog .upgrade-icon img{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}
+#upgrade-dialog .upgrade-option[data-category="evolution"]{border-top-color:#f3c874;background:linear-gradient(150deg,#574b34,#192b32 75%)}
+#upgrade-dialog .upgrade-option[data-category="stat"]{border-top-color:#a9b8d2}
+.weapon-slot.is-empty{color:#a5b8b3;font-size:10px;border-left-style:dashed;opacity:.8}
+.build-details{text-align:left;font-size:12px;line-height:1.5;color:#c7d8d0;max-height:40vh;overflow:auto}
+.build-details summary{min-height:44px;display:flex;align-items:center;cursor:pointer;color:#f2d99e}
+#build-summary p{margin:7px 0}
+/* The empty lower-right quarter is the thumb rest; Q/E/R follow its outer arc. */
+.skill-bar{width:212px;height:190px;right:14px;bottom:max(14px,env(safe-area-inset-bottom,0px));pointer-events:none}
+.skill-bar .skill-button,.skill-bar .skill-button:hover{width:72px;height:72px;min-height:72px;padding:0;border:0;border-radius:50%;background:#101f2b;box-shadow:0 3px 10px #0008;overflow:visible;pointer-events:auto}
+.skill-bar .skill-button:after{content:'';position:absolute;inset:-2px;background:url('./assets/ui/duelyst-round-border.png') center/100% 100% no-repeat;pointer-events:none}
+.skill-bar .skill-button[data-key="q"]{left:0;right:auto;top:auto;bottom:0}
+.skill-bar .skill-button[data-key="e"]{left:58px;right:auto;top:46px;bottom:auto}
+.skill-bar .skill-button[data-key="r"]{left:auto;right:4px;top:0;bottom:auto}
+.skill-icon.has-art{position:absolute;inset:5px;border-radius:50%;background-position:center;background-size:cover;image-rendering:pixelated}
+.skill-name{position:absolute;bottom:5px;left:4px;right:4px;font-size:10px;line-height:13px;text-shadow:0 1px 3px #000,0 0 4px #000;background:#081c2880;border-radius:0 0 18px 18px;z-index:1}
+.skill-key{z-index:2;left:10px;top:7px;text-shadow:0 1px 3px #000}
+.skill-button:before{inset:0;border-radius:50%;height:auto;background:conic-gradient(#071219d9 var(--cooldown),transparent 0);z-index:1;pointer-events:none}
+.skill-cooldown{z-index:2;border-radius:50%;pointer-events:none}
+.skill-bar.is-aiming:before{top:-24px;right:15px}
+@media(max-height:340px),(max-width:560px){.skill-bar{width:204px;height:176px}.skill-bar .skill-button,.skill-bar .skill-button:hover{width:68px;height:68px;min-height:68px}.skill-bar .skill-button[data-key="e"]{left:54px;top:42px}.skill-bar .skill-button[data-key="r"]{left:auto;right:4px;top:0}}
+/* Upgrade cards own only their panel. The battlefield continues tracking left touch. */
+#upgrade-dialog{z-index:5;pointer-events:none;background:rgba(2,12,18,.62)}
+#upgrade-dialog .dialog-inner{pointer-events:auto}
+#upgrade-dialog.is-leaving .dialog-inner{pointer-events:none}
+.is-upgrading .hud-actions{pointer-events:none}
+@media(orientation:landscape) and (max-height:500px){#weapon-rack{display:none}#encounter-status{display:none}#hero-status{white-space:nowrap;font-size:10px;line-height:16px}.mission-meta{max-width:260px}}
+
+/* Tactical rewards use the same authored Duelyst controls as the home screens. */
+#upgrade-dialog .upgrade-reroll-footer{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:9px;min-height:44px}
+.tactical-button,.tactical-button:hover{min-height:44px;min-width:166px;padding:8px 22px;border:0;border-radius:0;box-shadow:none;background:transparent url('./assets/ui/duelyst-button-primary.png') center/100% 100% no-repeat;color:#effbff;font-size:13px;font-weight:600;text-shadow:0 1px 3px #071b29;flex-shrink:0}
+.tactical-button.is-secondary,.tactical-button.is-secondary:hover{background-image:url('./assets/ui/duelyst-button-secondary.png');color:#d0e4ef}
+.tactical-button:hover{filter:brightness(1.12)}
+#upgrade-dialog #reroll-status{margin:0;max-width:230px;color:#c3d7dc;font-size:12px;line-height:1.4;text-align:left}
+#reroll-status:empty,#revive-status:empty{display:none}
+#revive-dialog{width:min(430px,calc(var(--app-width,100vw) - 28px));border-color:#648995;background:#102b38}
+#revive-dialog .dialog-inner{width:100%;padding:20px 22px;gap:12px}
+#revive-dialog .revive-description{font-size:14px;line-height:1.6;color:#cfdee1;margin:0}
+#revive-dialog .revive-actions{display:flex;justify-content:center;gap:10px}
+#revive-dialog .tactical-button{min-width:0;flex:1;min-height:44px;padding:8px 14px}
+#revive-dialog #revive-status{margin:0;font-size:12px;line-height:1.5;color:#edd291}
+@media(orientation:landscape) and (max-height:500px){
+ #upgrade-dialog .dialog-inner{translate:none;padding:6px 8px}
+ #upgrade-dialog .upgrade-reroll-footer{margin-top:7px;gap:9px}
+ #upgrade-dialog .upgrade-option{min-height:144px;padding:8px 10px;grid-template-rows:14px 28px auto 1fr;gap:4px}
+ #upgrade-dialog .description{font-size:11px;line-height:1.4}
+ #upgrade-dialog .upgrade-option strong{font-size:14px}
+ #upgrade-dialog #reroll-status{font-size:12px;max-width:215px}
+ #revive-dialog .dialog-inner{padding:14px 18px;gap:10px}
+ #revive-dialog .revive-description{font-size:13px}
+}
+@media(orientation:landscape) and (max-height:340px){
+ #upgrade-dialog .dialog-inner{width:84%}
+ #upgrade-dialog .upgrade-option,.safe-compact #upgrade-dialog .upgrade-option{min-height:136px;padding:7px 9px;grid-template-rows:12px 25px auto 1fr;gap:3px}
+ #upgrade-dialog .dialog-inner>p{margin-bottom:5px}
+ #upgrade-dialog .upgrade-reroll-footer{margin-top:5px;gap:8px}
+}
+
+#result-dialog #ad-gold,#result-dialog #ad-gold:hover,#result-dialog #retry-ad-gold,#result-dialog #retry-ad-gold:hover{min-height:44px;padding:8px 20px;border:0;background:transparent url('./assets/ui/duelyst-button-primary.png') center/100% 100% no-repeat;color:#effbff;font-size:13px;text-shadow:0 1px 3px #071b29}
+#result-dialog #retry-ad-gold,#result-dialog #retry-ad-gold:hover{background-image:url('./assets/ui/duelyst-button-secondary.png')}
+
+/* Two equally reachable active buttons; passive attacks do not occupy a slot. */
+.skill-bar{width:164px;height:80px}
+.skill-bar .skill-button,.skill-bar .skill-button:hover{background:#294955;box-shadow:0 3px 8px #0006;border:0}
+.skill-bar .skill-button:after{display:none}
+.skill-bar .skill-button[data-key="q"]{left:0;right:auto;top:auto;bottom:0}
+.skill-bar .skill-button[data-key="e"]{left:auto;right:0;top:auto;bottom:0}
+.skill-bar .skill-button:disabled{background:#303b42;box-shadow:none;cursor:default}
+.skill-bar .skill-button:disabled .skill-name,.skill-bar .skill-button:disabled .skill-key{color:#9ba9af}
+.skill-bar .skill-button:focus-visible{outline:0;background:#507b88;filter:brightness(1.2);text-decoration:underline}
+.skill-bar .skill-button.is-aiming{background:#78633b}

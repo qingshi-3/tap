@@ -1,0 +1,160 @@
+.campaign-shell{--nav:0px;--top:44px}
+.campaign-shell .campaign-topbar{padding-top:0;padding-bottom:0}
+.campaign-shell .campaign-view{bottom:0}
+.campaign-shell .campaign-nav{display:none}
+.campaign-shell button:focus-visible{outline:2px solid #b2ffe7;outline-offset:2px}
+.campaign-shell .campaign-back,.campaign-shell .campaign-about{min-width:44px;min-height:44px}
+.campaign-shell.is-home{background:#176769 url('./assets/ui/scenes/moss-gate.jpg') center/cover no-repeat}
+.is-home .campaign-topbar{background:linear-gradient(#072b37b8,#092e3900);border:0;pointer-events:none}
+.is-home .campaign-topbar button,.is-home .campaign-wallet{pointer-events:auto}
+.is-home .campaign-title,.is-home .campaign-back,.is-home .campaign-wallet{display:none}
+.is-home .campaign-topbar{display:none}
+.campaign-home{inset:0!important;background:linear-gradient(90deg,#062b4259,transparent 54%,#061e3270);overflow:hidden}
+.home-title{position:absolute;left:8%;top:13%;color:#effff1;text-shadow:0 3px 1px #164b55,0 5px 20px #062e3f}
+.home-title h1{margin:0;font:900 clamp(32px,5vw,62px)/1.15 Georgia,"Microsoft YaHei UI",serif;letter-spacing:.1em}
+.home-hero{position:absolute;left:19%;bottom:15%;width:26%;height:48%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border:0;padding:0;background:transparent}
+.home-hero:hover{background:transparent}
+.home-hero:before{content:"";position:absolute;bottom:24px;width:80%;height:15%;border-radius:50%;background:#02333b80;filter:blur(5px)}
+.home-hero .home-portrait{position:relative;width:min(100%,210px);height:calc(100% - 25px);object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 7px 3px #062e38)}
+.home-hero-name{position:relative;display:flex;gap:10px;color:#fff;text-shadow:0 2px 3px #082e3b;font-size:12px}
+.home-hero-name span{color:#d7f5cb}
+.home-entries{position:absolute;right:7%;top:50%;transform:translateY(-50%);width:30%;display:grid;gap:6px}
+.home-entry{display:flex;align-items:center;justify-content:center;width:100%;min-height:56px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;padding:7px 22px;text-align:center;filter:drop-shadow(0 4px 5px #05262b99)}
+.home-entry-map{background-image:url('./assets/ui/duelyst-button-primary.png')}
+.home-entry span{display:grid;gap:2px;min-width:0}
+.home-entry b{font-size:16px;line-height:18px;color:#fff;text-shadow:0 2px #071c35}
+.home-entry small{font-size:10px;line-height:12px;color:#cadfe9;white-space:nowrap}
+.home-entry:hover,.home-entry:focus-visible{filter:brightness(1.18) drop-shadow(0 4px 5px #05262b99)}
+.home-facilities{position:absolute;left:5%;bottom:5%;min-height:44px;padding:5px 14px;display:flex;align-items:center;gap:7px;border:1px solid #89bbc499;background:#082f43b8;font-size:12px}
+.home-facilities img{width:26px;height:26px}
+.home-supply{position:absolute;right:7%;bottom:5%;display:flex;align-items:center;gap:6px}
+.home-settings,.campaign-shell .campaign-about{min-width:74px;min-height:44px;padding:0 14px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;color:#d9edf6;font-size:11px}
+.home-settings:hover,.campaign-shell .campaign-about:hover{background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat}
+.home-settings{margin-left:0;min-width:54px;padding:0 8px}
+.home-daily{min-width:98px;min-height:44px;padding:0 10px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;color:#effff1;font-size:11px;white-space:nowrap}
+.home-daily:hover{background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;filter:brightness(1.18)}
+.home-supply .campaign-resource{background:#062839b8;border-color:#87b9c799}
+.campaign-common{padding:8px 12px;background:linear-gradient(#0d2335e8,#08121ef2),url('./assets/ui/scenes/moss-gate.jpg') center/cover}
+.common-layout{height:100%;display:grid;grid-template-columns:minmax(190px,29%) minmax(0,1fr);gap:12px}
+.common-catalog{min-height:0;display:flex;flex-direction:column;border:1px solid #456076;background:#06111dbc}
+.common-heading{display:flex;align-items:center;justify-content:space-between;padding:10px;gap:6px;background:url('./assets/ui/duelyst-panel-header.png') center/100% 100% no-repeat}
+.common-heading h2{font-size:14px;margin:0;color:#e7f5ff}
+.common-heading>span{font-size:10px;color:#b3cada;white-space:nowrap}
+.common-library{overflow:auto;overscroll-behavior:contain;min-height:0;padding:4px}
+.common-library button{width:100%;min-height:49px;display:flex;align-items:center;gap:8px;padding:5px 8px;border:1px solid transparent;border-bottom-color:#315066;background:#10283c;text-align:left}
+.common-library button+button{margin-top:3px}
+.common-library button.is-selected{border-color:#a3e5ea;background:#234d68}
+.common-library button.is-locked{background:#101e2b;color:#bdc7d2}
+.common-library button.is-locked .common-art{filter:saturate(.4)}
+.common-art{width:33px;height:33px;object-fit:contain;image-rendering:pixelated;flex:none}
+.common-library button>span{display:grid;gap:3px;min-width:0}
+.common-library b{font-size:12px}
+.common-library small{font-size:10px;color:#9fb7c8}
+.common-library i{margin-left:auto;font-style:normal;font-size:10px;color:#a7d5d7}
+.common-inspector{min-width:0;min-height:0;display:grid;grid-template-rows:auto minmax(110px,1fr) auto;gap:6px}
+.common-stages{display:grid;grid-template-columns:repeat(3,1fr) repeat(2,1.4fr);gap:4px}
+.common-stages button{min-height:44px;border:1px solid #456781;background:#112b42;padding:3px 5px;font-size:11px}
+.common-stages button.is-active{background:#315d76;border-color:#96d5df;color:#f5ffff}
+.common-preview-stage{min-height:0;height:100%;border:1px solid #527994;overflow:hidden}
+.common-preview-canvas{width:100%;height:100%;display:block}
+.common-preview-stage .preview-controls button{min-width:44px;min-height:44px}
+.common-detail{padding:7px 10px;background:#081c2ce8;border:1px solid #39586b;max-height:145px;overflow:auto;overscroll-behavior:contain}
+.common-detail-heading{display:flex;gap:8px;align-items:center}
+.common-detail-heading h2{font-size:16px;margin:0 0 3px;color:#f3faff}
+.common-detail-heading span{font-size:11px;color:#c0d2dd}
+.common-stage-description{font-size:11px;margin:7px 0;line-height:1.5;color:#d4e6ef}
+.common-stage-description b{color:#a3e0e9;margin-right:5px}
+.common-unlock{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;font-size:11px;color:#d9be94}
+.common-unlock.is-unlocked{color:#99dbcb}
+.common-unlock progress{width:90px;height:7px;accent-color:#85c5cd}
+.common-unlock small{font-size:10px}
+.common-rule{margin:5px 0 0;font-size:10px;color:#9aafc1;line-height:1.5}
+@media(max-height:400px){.home-entries{gap:4px}.home-entry{min-height:56px;padding:12px 26px}.home-title{top:16%}.home-title>span{margin-top:7px}.home-hero{bottom:17%;height:43%}.common-heading{padding:6px}.common-detail{max-height:112px}.common-detail-heading .common-art{width:25px;height:25px}.common-detail-heading h2{font-size:14px}.common-layout{gap:8px}.common-stage-description{margin:4px 0}.common-stages button{font-size:10px}}
+@media(max-width:700px){.home-entries{right:5%;width:35%}.home-title{left:7%}.home-title h1{font-size:34px}.home-entry{gap:7px;padding:5px 14px}.home-entry b{font-size:14px}.home-entry small{font-size:9px}.home-hero{left:16%;width:28%}.home-supply{right:5%}.campaign-common{padding:6px 8px}.common-layout{grid-template-columns:180px minmax(0,1fr)}.common-stages{grid-template-columns:repeat(3,.7fr) repeat(2,1.4fr)}.common-stages button{padding:3px 2px}.common-heading h2{font-size:12px}.common-heading>span{font-size:9px}.common-detail{padding:5px 8px}.common-detail-heading span{font-size:10px}}
+/* Keep a tall combat viewport on short landscape screens; details scroll independently. */
+.common-inspector{grid-template-columns:minmax(0,1fr) 185px;grid-template-rows:44px minmax(0,1fr)}
+.common-stages{grid-column:1/-1}
+.common-detail{max-height:none;min-height:0}
+.common-detail-heading{align-items:flex-start}
+.common-unlock{line-height:1.5}
+.common-preview-stage .preview-state{max-width:65%;font-size:9px}
+.common-preview-stage .preview-controls{z-index:2}
+.common-preview-stage .preview-controls button{background:#0b293bd9;border:1px solid #6292a8;border-radius:3px;flex-shrink:0}
+@media(max-width:700px){.common-inspector{grid-template-columns:minmax(0,1fr) 145px}.common-detail-heading .common-art{display:none}.common-detail-heading h2{font-size:13px}}
+@media(prefers-reduced-motion:reduce){.campaign-shell button{transition:none}}
+.campaign-home .home-supply{left:5%;right:auto}
+@media(max-width:700px){.campaign-home .home-supply{gap:4px}.home-supply .campaign-resource{min-width:48px;padding-right:4px;gap:3px}.home-supply .campaign-resource strong{font-size:10px}}
+@media(max-height:340px){.campaign-home .home-hero{bottom:21%}}
+/* Growth keeps each upgrade flow separate and its transaction visible. */
+.campaign-growth{padding:10px 14px;display:flex;flex-direction:column;gap:8px;overflow:hidden;background:linear-gradient(#0d2335ed,#08121ef5),url('./assets/ui/scenes/moss-gate.jpg') center/cover}
+.growth-tabs{display:flex;gap:6px;flex:none}
+.growth-tabs button{min-height:44px;min-width:132px;padding:6px 20px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100%;font-size:13px;color:#bdd3df}
+.growth-tabs button[aria-pressed=true]{background-image:url('./assets/ui/duelyst-button-primary.png');color:#fff}
+.growth-hero,.growth-permanent{min-height:0;flex:1;display:grid;gap:18px;padding:14px;background:#0b2234db;border:1px solid #467084}
+.growth-hero{grid-template-columns:minmax(180px,.8fr) minmax(0,1.2fr)}
+.growth-identity{min-width:0;display:flex;align-items:center;justify-content:center;gap:12px}
+.growth-portrait{width:112px;height:144px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 5px 3px #041524)}
+.growth-identity h2{margin:0;font-size:20px;color:#ecfff4}
+.growth-identity p{margin:8px 0;font-size:12px;color:#a4c8dc}
+.growth-identity strong{font-size:25px;color:#b5edd8}
+.growth-identity strong small,.growth-level small{font-size:12px;color:#92afbf}
+.growth-hero-content{min-width:0;min-height:0;display:flex;flex-direction:column;gap:10px}
+.growth-experience{font-size:11px;color:#bad2e0}
+.growth-experience progress{display:block;width:100%;height:10px;margin-top:6px;accent-color:#96e3c7}
+.growth-training{display:flex;flex-direction:column;gap:8px}
+.growth-level{margin:0;font-size:22px;font-weight:700;color:#effff4}
+.growth-level>span{margin:0 9px;color:#b5edd8}
+.growth-gain{display:flex;flex-wrap:wrap;gap:8px;margin:0;font-size:12px;color:#bad2e0}
+.growth-gain b{color:#b5edd8;font-weight:500}
+.growth-purchase{display:flex;align-items:center;gap:12px;margin-top:auto}
+.growth-cost{display:flex;gap:6px;flex-wrap:wrap}
+.growth-purchase button{min-width:136px;min-height:44px;padding:5px 16px;border:0;background:url('./assets/ui/duelyst-button-primary.png') center/100% 100%}
+.growth-details{min-height:44px;overflow:auto;overscroll-behavior:contain;max-height:100%;font-size:11px;color:#a9c0cf;border-top:1px solid #416071}
+.growth-details summary{min-height:44px;display:list-item;align-content:center;cursor:pointer;color:#c7dce8}
+.growth-details p{margin:0 0 7px;line-height:1.5}
+.growth-permanent{grid-template-columns:180px minmax(0,1fr)}
+.growth-options{display:flex;flex-direction:column;gap:6px}
+.growth-options button{min-height:54px;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:6px 12px;text-align:left;border:1px solid #416071;background:#102c3d;color:#c5d9e5}
+.growth-options button[aria-pressed=true]{border-color:#a3e5ea;background:#234d68;color:#f4fff8}
+.growth-options b{font-size:13px}
+.growth-options span{font-size:11px;color:#aac5d5}
+.growth-inspector{display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0}
+.growth-inspector h2{margin:0 0 7px;font-size:18px;color:#ecfff4}
+.growth-benefits{display:flex;gap:28px}
+.growth-benefits small{font-size:10px;color:#9eb9cc}
+.growth-benefits p{margin:5px 0 0;font-size:14px;color:#b5edd8}
+.growth-rule{margin:0;font-size:11px;line-height:1.5;color:#a9c0cf}
+.growth-payment{margin-top:auto}
+.growth-payment>p{margin:0 0 5px;font-size:11px;color:#a9c0cf}
+.growth-payment-options{display:flex;gap:10px;flex-wrap:wrap}
+.growth-payment-options button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:52px;min-width:150px;max-width:100%;padding:8px 18px;border:0;background:transparent url('./assets/ui/duelyst-button-primary.png') center/100% 100% no-repeat;font-size:12px}
+.growth-payment-cost .campaign-resource{padding:0;background:transparent;border:0;gap:3px}
+.growth-payment-cost .campaign-resource img{width:17px;height:17px}
+.growth-payment-cost .campaign-resource strong{font-size:12px}
+@media(max-height:400px){.campaign-growth{padding:6px 12px;gap:6px}.growth-hero,.growth-permanent{padding:10px;gap:14px}.growth-portrait{width:96px;height:120px}.growth-hero-content{gap:5px}.growth-training{gap:5px}.growth-inspector{gap:7px}.growth-inspector h2{font-size:16px;margin-bottom:4px}.growth-level{font-size:20px}.growth-benefits p{font-size:12px}}
+@media(max-width:700px){.campaign-growth{padding-left:8px;padding-right:8px}.growth-hero{grid-template-columns:minmax(170px,.8fr) minmax(0,1.2fr);gap:12px}.growth-identity{gap:5px}.growth-portrait{width:82px;height:112px}.growth-identity h2{font-size:17px}.growth-permanent{grid-template-columns:156px minmax(0,1fr);gap:12px}.growth-benefits{gap:16px}.growth-purchase{gap:8px}.growth-purchase button{min-width:120px}.growth-cost{gap:4px}}
+
+/* The category switch shares the existing catalog entrance; stat selection is read-only. */
+.campaign-common{display:flex;flex-direction:column;gap:6px;min-height:0}
+.campaign-common .common-layout{height:auto;flex:1;min-height:0}
+.common-panels{display:flex;gap:6px;flex:none}
+.common-panels button{min-height:44px;min-width:120px;padding:0 20px;border:0;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat}
+.common-panels button.is-active{background-image:url('./assets/ui/duelyst-button-primary.png');color:#fff}
+.common-stat-inspector{display:flex;flex-direction:column;min-height:0;min-width:0;gap:6px}
+.common-stat-levels{display:flex;flex:none;gap:5px;overflow-x:auto}
+.common-stat-levels button{min-height:44px;min-width:54px;border:1px solid #456781;background:#112b42;padding:4px 10px}
+.common-stat-levels button.is-active{background:#315d76;border-color:#96d5df}
+.common-stat-detail{overflow:auto;overscroll-behavior:contain;min-height:0;flex:1;padding:10px 14px;border:1px solid #456076;background:#081c2ce8;font-size:12px;line-height:1.65;color:#c7dce7}
+.common-stat-detail h2{font-size:17px;margin:0 0 6px;color:#f3faff}
+.common-stat-detail p{margin:7px 0}
+.common-stat-result{color:#a3e0e9;font-size:14px;font-weight:bold}
+.common-stat-table>div{display:grid;grid-template-columns:44px 1fr;gap:8px;border-bottom:1px solid #315066;padding:7px 5px}
+.common-stat-table .is-current{background:#234d68;color:#f5ffff}
+.stat-geometry{border:1px solid #456076;padding:4px 10px}
+.stat-geometry dl{display:grid;grid-template-columns:80px 1fr;margin:4px 0;gap:5px}
+.stat-geometry dd{margin:0}
+@media(max-height:400px){.campaign-common{gap:4px}.common-stat-detail{padding:6px 10px}.common-stat-detail h2{font-size:15px}}
+.common-stages{grid-template-columns:repeat(7,minmax(44px,1fr));overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain}
+.common-stages button,.common-stat-levels button{border:0;background:transparent url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;padding:3px 6px;white-space:nowrap}
+.common-stages button.is-active,.common-stat-levels button.is-active{background:transparent url('./assets/ui/duelyst-button-primary.png') center/100% 100% no-repeat}
+.common-evolution-rule{font-size:11px;line-height:1.6;color:#e5d2a1;margin:8px 0}

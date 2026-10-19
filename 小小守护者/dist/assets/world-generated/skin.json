@@ -1,0 +1,65 @@
+{
+  "keep": {
+    "file": "assets/world-generated/keep.png",
+    "rect": [
+      0,
+      0,
+      120,
+      143
+    ]
+  },
+  "tower": {
+    "file": "assets/world-generated/tower.png",
+    "rect": [
+      0,
+      0,
+      66,
+      120
+    ]
+  },
+  "wall": {
+    "file": "assets/world-generated/wall.png",
+    "rect": [
+      0,
+      0,
+      96,
+      60
+    ]
+  },
+  "slow": {
+    "file": "assets/world-generated/slow.png",
+    "rect": [
+      0,
+      0,
+      96,
+      40
+    ]
+  },
+  "tree": {
+    "file": "assets/world-generated/tree.png",
+    "rect": [
+      0,
+      0,
+      72,
+      106
+    ]
+  },
+  "rock": {
+    "file": "assets/world-generated/rock.png",
+    "rect": [
+      0,
+      0,
+      96,
+      43
+    ]
+  },
+  "grassBackdrop": {
+    "file": "assets/world-generated/grass.png",
+    "rect": [
+      0,
+      0,
+      512,
+      512
+    ]
+  }
+}

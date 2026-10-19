@@ -1,0 +1,50 @@
+[
+  {
+    "file": "v1-0.2.0.json",
+    "packageVersion": "0.2.0",
+    "source": "build/pixel-survivor-0.2.0.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "34d4cd990f9e11a8161443cf5acf54102a5960abe6892eb71a27a988e25a2a35",
+    "fixtureSha256": "4639b247da496ff96ae1fc25717ba2b5ac7c96c156e27bf93b29a79522888d5a",
+    "adaptation": "Generated once using archived loadProfile with isolated memory storage; explicit synthetic progress values, never real player data."
+  },
+  {
+    "file": "v1-0.4.0.json",
+    "packageVersion": "0.4.0",
+    "source": "build/pixel-survivor-0.4.0.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "df6d12c842b6478266021341b89594adb3bbb7f8c2fe78948fa863fd4df10480",
+    "fixtureSha256": "4639b247da496ff96ae1fc25717ba2b5ac7c96c156e27bf93b29a79522888d5a",
+    "adaptation": "Generated once using archived loadProfile with isolated memory storage; explicit synthetic progress values, never real player data."
+  },
+  {
+    "file": "v1-0.5.0.json",
+    "packageVersion": "0.5.0",
+    "source": "build/pixel-survivor-0.5.0.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "ce9f9824188d3c60728bd6d44f32ecadb63d80b28ab39fa428e2212964e51252",
+    "fixtureSha256": "705e0836ad1161b777d4c77e8cbaae6475ab50384bcbbf1b078c71244dfcffe1",
+    "adaptation": "Generated once using archived loadProfile with isolated memory storage; explicit synthetic progress values, never real player data."
+  },
+  {
+    "file": "v1-0.6.4.json",
+    "packageVersion": "0.6.4",
+    "source": "build/pixel-survivor-0.6.4.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "21546d3b632b93542a8a08775f8e2c97c000a391f1c7bc9bcdf8b6f35853f763",
+    "fixtureSha256": "93db36746f47a9e27c4e0da2ed2653b5b472a4a9ac179a08d1560c9e7752483f",
+    "adaptation": "Generated once using archived loadProfile with isolated memory storage; explicit synthetic progress values, never real player data."
+  },
+  {
+    "file": "v1-0.12.0.json",
+    "packageVersion": "0.12.0",
+    "source": "build/pixel-survivor-0.12.0.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "6c8e70edffd26990d25458c334f0268196e8ed7fb821613680f5cb4069d16da6",
+    "fixtureSha256": "a6046297ca5c0159eea2b6daebee3cebb45055ee821a032f017994921e48d205",
+    "adaptation": "Generated once using archived loadProfile with isolated memory storage; explicit synthetic progress values, never real player data."
+  },
+  {
+    "file": "v1-pre-solo.json",
+    "packageVersion": "pre-solo contract supported by 0.2.0",
+    "source": "build/pixel-survivor-0.2.0.zip:pixel-survivor/campaign.js validLegacyProfile",
+    "sourceSha256": "34d4cd990f9e11a8161443cf5acf54102a5960abe6892eb71a27a988e25a2a35",
+    "fixtureSha256": "29d0d0d40f8e90f587ff465f4ee25b6960cde0b6ea8e00963ad14bf816a57c9c",
+    "adaptation": "Reconstructed from archived validLegacyProfile contract by removing heroes from synthetic 0.2.0 fixture; verified once with archived loadProfile to migrate successfully. No claim that archived initialProfile generated this shape; no real player data."
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "name": "castle-ward-h5",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node tools/build.mjs && node serve.mjs",
+    "build": "node tools/build.mjs",
+    "package": "npm run build && node tools/package.mjs"
+  }
+}

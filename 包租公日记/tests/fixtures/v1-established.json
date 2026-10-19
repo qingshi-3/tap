@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "month": 3,
+  "cash": 312,
+  "properties": {
+    "xingfu-402": {
+      "owned": true,
+      "tenantId": "zhangwei",
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 94,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1.005
+    },
+    "xingfu-403": {
+      "owned": true,
+      "tenantId": null,
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 60300,
+      "payment": 600,
+      "valueFactor": 1.005
+    },
+    "xingfu-301": {
+      "owned": false,
+      "tenantId": null,
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1.005
+    },
+    "university-101": {
+      "owned": false,
+      "tenantId": null,
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1.005
+    },
+    "tech-302": {
+      "owned": false,
+      "tenantId": null,
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1.005
+    }
+  },
+  "tenants": {
+    "zhangwei": {
+      "relationship": 85,
+      "job": "高级工程师",
+      "growth": 5
+    },
+    "xiaolin": {
+      "relationship": 60,
+      "job": "大学生",
+      "growth": 0
+    },
+    "ajie": {
+      "relationship": 60,
+      "job": "摄影师",
+      "growth": 0
+    },
+    "wangjie": {
+      "relationship": 60,
+      "job": "家庭租客",
+      "growth": 0
+    },
+    "lina": {
+      "relationship": 60,
+      "job": "设计师",
+      "growth": 0
+    }
+  },
+  "pendingEvents": [],
+  "history": [
+    {
+      "month": 1,
+      "income": 0,
+      "maintenance": 96,
+      "loanPayment": 0,
+      "net": -96,
+      "items": [
+        "幸福里402装修完成，可以招租"
+      ]
+    },
+    {
+      "month": 2,
+      "income": 1500,
+      "maintenance": 96,
+      "loanPayment": 0,
+      "net": 1404,
+      "items": [
+        "幸福里402租金 +1500"
+      ]
+    },
+    {
+      "month": 3,
+      "income": 1500,
+      "maintenance": 96,
+      "loanPayment": 0,
+      "net": 1404,
+      "items": [
+        "幸福里402租金 +1500"
+      ]
+    }
+  ],
+  "news": [
+    "2029年4月：幸福里配套改善，房价上涨0.5%。",
+    "幸福里402租金 +1500"
+  ],
+  "completedEvents": [
+    "neighbor",
+    "network",
+    "promotion"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "courier-depot",
+  "version": "1.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node tools/serve.mjs",
+    "test": "node --test tests/engine.test.mjs tests/save-compat.test.mjs tests/ads.test.mjs tests/pipeline.test.mjs",
+    "build": "node tools/with-lock.mjs node tools/build.mjs",
+    "package": "node tools/with-lock.mjs node tools/package.mjs"
+  }
+}

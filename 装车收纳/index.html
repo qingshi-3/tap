@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover"><meta name="theme-color" content="#173f47"><meta name="description" content="把家具装进小货车，沿街送到每一站。旋转、重排、留出卸货路，开着自己的车走遍小城。"><title>装车收纳</title><link rel="stylesheet" href="style.css"></head>
+<body><main id="game">
+<header><button id="orders" class="small secondary" aria-label="订单与车库">订单</button><div id="heading"><h1>装车收纳</h1><span id="order-title">第一趟搬家</span></div><div id="wallet" aria-label="运费余额"><i class="px-item coin"></i><strong id="coins">0</strong></div></header>
+<div id="route" aria-label="配送路线"></div>
+<section id="scene" aria-label="装车场地"><canvas id="board" tabindex="0" role="application" aria-label="车厢。先选货物，方向键移动，R旋转，回车放下。"></canvas><div id="scene-label"></div><div id="bubble" role="status" aria-live="polite"></div><div id="trip" hidden><span id="trip-text">关好车门</span></div></section>
+<div id="selection"><span id="selected-name">选一件货物</span><button id="rotate" class="secondary" disabled>旋转</button><button id="remove" class="secondary" disabled>拿出</button></div>
+<div id="cargo-tray" aria-label="待装货物"></div>
+<footer><button id="hint" class="secondary" aria-label="装车提示">提示</button><button id="go" class="primary">装好出发</button></footer>
+</main>
+<dialog id="sheet"><div id="sheet-content"></div></dialog><div id="live" class="sr-only" role="status" aria-live="polite"></div>
+<script type="module" src="js/app.js"></script></body></html>

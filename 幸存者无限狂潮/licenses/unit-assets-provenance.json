@@ -1,0 +1,70 @@
+{
+  "verifiedAt": "2026-10-10",
+  "hashAlgorithm": "SHA-256",
+  "pixelComparison": "ImageMagick compare -metric AE; 0 means no differing pixels",
+  "license": {
+    "name": "CC0 1.0 Universal",
+    "localSource": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main/LICENSE",
+    "sourceSha256": "A2010F343487D3F7618AFFE54F789F5487602331C0A8D03F49E9A7C547CF0499",
+    "preservedCopy": "CC0-1.0.txt",
+    "preservedCopySha256": "7179683E8000E6BDC9BBC60D85EDF0A4AC8E76F951857F54FCB775D5886F1309",
+    "copyNote": "Legal text copied without alteration; line endings normalized from CRLF to LF and trailing blank lines are non-semantic.",
+    "repositoryReadmeStatement": "OpenDuelyst is licensed under the Creative Commons Zero v1.0 Universal license."
+  },
+  "assets": [
+    {
+      "gameKey": "hero",
+      "gameFile": "dist/assets/units/hero.png",
+      "identity": "f1_windbladecommander",
+      "gameSha256": "95978E93042529296F017ACBE4C86F0D9648CDB3920C69DB50461043CD045263",
+      "rpgSource": "D:/godot/rpg/assets/battle/units/莱昂纳王国/f1_风刃指挥官/f1_windbladecommander.png",
+      "rpgSha256": "95978E93042529296F017ACBE4C86F0D9648CDB3920C69DB50461043CD045263",
+      "cc0Original": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main/app/original_resources/units/f1_windbladecommander.png",
+      "cc0OriginalSha256": "542A7AD21D70E75B4F5786F25FEB843674762905CE4E2AB329D2BEFBFB957DA6",
+      "dimensions": "512x1024",
+      "pixelAbsoluteError": 0,
+      "result": "Byte-identical to RPG source; pixel-identical to CC0 original. Different PNG byte hash and file size reflect encoding only."
+    },
+    {
+      "gameKey": "grunt",
+      "gameFile": "dist/assets/units/grunt.png",
+      "identity": "f4_crawler",
+      "gameSha256": "C99E5F07F18792BE8A168DA3BBEA131200E48EC118432F2C46798A13E38B7535",
+      "rpgSource": "D:/godot/rpg/assets/battle/units/深渊军团/f4_异界Crawler/f4_crawler.png",
+      "rpgSha256": "C99E5F07F18792BE8A168DA3BBEA131200E48EC118432F2C46798A13E38B7535",
+      "cc0Original": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main/app/original_resources/units/f4_crawler.png",
+      "cc0OriginalSha256": "8C2C5D87377D53D3EED2242CE5C2D24570F183354EEBC0358BEA9F6ABEC18556",
+      "dimensions": "512x1024",
+      "pixelAbsoluteError": 0,
+      "result": "Byte-identical to RPG source; pixel-identical to CC0 original. Different PNG byte hash and file size reflect encoding only."
+    },
+    {
+      "gameKey": "runner",
+      "gameFile": "dist/assets/units/runner.png",
+      "identity": "f4_shadowdancer",
+      "gameSha256": "4A64BA5436308E33FB2AE45AE1ED491F1B20F990FFF4C50735AE6F9D707595FF",
+      "rpgSource": "D:/godot/rpg/assets/battle/units/深渊军团/f4_暗影Dancer/f4_shadowdancer.png",
+      "rpgSha256": "4A64BA5436308E33FB2AE45AE1ED491F1B20F990FFF4C50735AE6F9D707595FF",
+      "cc0Original": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main/app/original_resources/units/f4_shadowdancer.png",
+      "cc0OriginalSha256": "80FFAE3B015D3D839EFB18C0FAB58E3BC5B74AB158368351F1E0C2697D53B1DE",
+      "dimensions": "512x1024",
+      "pixelAbsoluteError": 0,
+      "result": "Byte-identical to RPG source; pixel-identical to CC0 original. Different PNG byte hash and file size reflect encoding only."
+    },
+    {
+      "gameKey": "brute",
+      "gameFile": "dist/assets/units/brute.png",
+      "identity": "f4_underworldbrute",
+      "gameSha256": "FC33258378203B5D3542099BF3F7C382B867B3737A72ED17B5E4ECFD27E84CCE",
+      "rpgSource": "D:/godot/rpg/assets/battle/units/深渊军团/f4_异界Underworldbrute/f4_underworldbrute.png",
+      "rpgSha256": "FC33258378203B5D3542099BF3F7C382B867B3737A72ED17B5E4ECFD27E84CCE",
+      "dimensions": "1024x1024",
+      "cc0Original": null,
+      "cc0AtlasMetadata": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main/app/resources/units/f4_underworldbrute.plist",
+      "cc0AtlasMetadataSha256": "20625EF710CEA76F960F7B0FAEBD28201C00D5AB37135D87D154F709A3EDD5F8",
+      "atlasDeclaredTexture": "f4_underworldbrute.png",
+      "atlasDeclaredSize": "1024x1024",
+      "result": "Byte-identical to RPG source. The local CC0 tree contains matching named atlas metadata but no corresponding PNG, so direct pixel identity to that library could not be verified."
+    }
+  ]
+}

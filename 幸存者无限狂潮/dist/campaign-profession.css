@@ -1,0 +1,80 @@
+.profession-view{height:100%;min-height:0;display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);gap:14px;color:#dce8ee}
+.profession-current{min-height:0;overflow:auto;overscroll-behavior:contain;padding:18px;display:flex;flex-direction:column;border:1px solid #365164;background:radial-gradient(ellipse at 50% 30%,#294d6670,transparent 52%),#0a1824d9;scrollbar-width:thin;scrollbar-color:#436277 #0b1823}
+.profession-current-art{position:relative;display:grid;place-items:center;min-height:230px;background:url('./assets/ui/duelyst-round-border.png') center/230px 230px no-repeat}
+.profession-current-unit{display:block;width:250px;height:250px;max-width:100%;image-rendering:pixelated;filter:drop-shadow(0 9px 6px #000a)}
+.profession-current-art>span{position:absolute;inset:auto 0 9px;text-align:center;color:var(--hero-color);font-size:11px;letter-spacing:.24em;text-shadow:0 2px 3px #000}
+.profession-current-copy{border-top:1px solid #304b5e;padding-top:13px}
+.profession-current-copy small,.profession-detail header small{color:#7fcadd;font-size:10px;letter-spacing:.09em}
+.profession-current-copy h2{margin:4px 0 7px;font-size:24px;font-weight:500;letter-spacing:.1em}
+.profession-current-copy p{margin:0;color:#91aabd;font-size:11px;line-height:1.6}
+.profession-level{display:grid;grid-template-columns:auto minmax(60px,1fr) auto;align-items:center;gap:9px;margin:13px 0 9px}
+.profession-level b{color:#e1d29f;font-size:13px}.profession-level small{color:#839bab;font-size:9px}.profession-level .meter{width:auto}
+.profession-training{display:flex;align-items:center;gap:5px}.profession-training>.campaign-resource{min-width:55px}.profession-training>b{color:#b9cad3;font-size:11px}
+.profession-training>button{margin-left:auto;min-width:104px;min-height:44px;padding:0 14px;background:url('./assets/ui/duelyst-button-primary.png') center/contain no-repeat;color:#e4f9ff;font-size:10px}
+.profession-training>button:disabled{cursor:default;filter:saturate(.25);opacity:.55}
+.profession-buildings{min-height:44px;margin-top:auto;padding-top:8px;text-align:left;color:#8dc9dc;font-size:10px}
+.profession-workbench{min-width:0;min-height:0;display:grid;grid-template-rows:auto auto minmax(0,1fr);gap:8px}
+.profession-path-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;min-height:39px;padding:0 5px 5px;border-bottom:1px solid #314b5d}
+.profession-path-heading h2{margin:0;font-size:15px;font-weight:500;letter-spacing:.1em}.profession-path-heading p{margin:3px 0 0;color:#8199aa;font-size:9px}
+.profession-path-heading>span{color:#9fb3c0;font-size:10px;white-space:nowrap}.profession-path-heading i{margin:0 8px;color:#65cee1;font-style:normal}
+.profession-path{display:grid;grid-template-columns:repeat(var(--profession-count,3),minmax(0,1fr));gap:7px;overflow-x:auto;padding:1px 2px 4px;scrollbar-width:thin;scrollbar-color:#45687a #0b1722}
+.profession-node{position:relative;display:grid;grid-template-columns:74px minmax(0,1fr);align-items:center;min-height:92px;padding:4px 8px 4px 2px;border:1px solid #30495b;background:#0d1c298f;text-align:left}
+.profession-node::after{content:"";position:absolute;inset:auto 8px 0;height:1px;background:transparent}.profession-node.is-selected{border-color:#65b8ca;background:linear-gradient(90deg,#183a4b,#102532)}.profession-node.is-selected::after{background:#80e2ef}
+.profession-node.is-active .profession-node-copy em{color:#e6ce91}
+.profession-node-art{display:grid;place-items:center;width:74px;height:82px;background:radial-gradient(ellipse,#31566c88,transparent 65%)}
+.profession-node-unit{display:block;width:78px;height:82px;image-rendering:pixelated;filter:drop-shadow(0 4px 3px #0009)}
+.profession-node-copy{min-width:0}.profession-node-copy small,.profession-node-copy b,.profession-node-copy em{display:block}.profession-node-copy small{color:#8098a9;font-size:8px}.profession-node-copy b{margin:4px 0 8px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.profession-node-copy em{color:#9db0bc;font-size:9px;font-style:normal}
+.profession-inspector{min-width:0;min-height:0;display:grid;grid-template-columns:minmax(230px,42%) minmax(0,1fr);overflow:hidden;border:1px solid #3a586b;background:#0b1926}
+.profession-preview{position:relative;display:grid;place-items:center;overflow:hidden;background:radial-gradient(ellipse at 50% 65%,#315d746b,transparent 55%),url('./assets/ui/hub.jpg') center/cover}
+.profession-preview::after{content:"";position:absolute;inset:10% 12%;background:url('./assets/ui/duelyst-round-border.png') center/contain no-repeat;opacity:.42;pointer-events:none}
+.profession-preview-unit{z-index:1;display:block;width:min(360px,100%);height:min(360px,100%);image-rendering:pixelated;filter:drop-shadow(0 12px 7px #000b)}
+.profession-preview>span{position:absolute;z-index:2;left:12px;bottom:10px;padding-left:30px;color:#afd3de;font-size:9px;letter-spacing:.16em;text-shadow:0 2px 3px #000}.profession-preview>span::before{content:"";position:absolute;left:0;top:-4px;width:24px;height:18px;background:url('./assets/ui/duelyst-header-dashes.png') center/contain no-repeat}
+.profession-preview>button{position:absolute;z-index:3;right:9px;bottom:7px;min-width:94px;min-height:44px;padding:0 12px;background:url('./assets/ui/duelyst-button-secondary.png') center/contain no-repeat;color:#d8f2f8;font-size:10px}
+.profession-detail{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:20px;display:flex;flex-direction:column;background:linear-gradient(135deg,#172c3b,#0c1b28);scrollbar-width:thin;scrollbar-color:#45687a #0b1722}
+.profession-detail>header{display:flex;justify-content:space-between;align-items:start}.profession-detail>header h2{margin:5px 0 0;font-size:24px;font-weight:500;letter-spacing:.08em}.profession-detail>header>span{color:#d9c486;font:24px Georgia,serif}
+.profession-detail-scroll>p{margin:13px 0;color:#a8bdca;font-size:11px;line-height:1.65}
+.profession-benefit{padding:9px 11px;border-left:2px solid #5e9aae;background:#102331}.profession-benefit h3{margin:0 0 5px;color:#c9dce5;font-size:10px;font-weight:500}.profession-benefit p{margin:0;color:#a9d7df;font-size:11px;line-height:1.55}
+.profession-steps{display:grid;gap:5px;margin:10px 0 0;padding:0;list-style:none}.profession-steps li{display:flex;gap:7px;color:#9caeba;font-size:9px}.profession-steps i{color:#627a89;font-style:normal}.profession-steps li.is-complete{color:#c5d8df}.profession-steps li.is-complete i{color:#67d1de}
+.profession-requirement{color:#d4c399!important;font-size:10px!important}.profession-detail footer{margin-top:auto;padding-top:12px;display:flex;justify-content:flex-end}
+.profession-cta{min-width:190px;min-height:48px;padding:0 22px;background:url('./assets/ui/duelyst-button-primary.png') center/contain no-repeat;color:#e4f9ff;font-size:11px}.profession-cta.is-secondary{background-image:url('./assets/ui/duelyst-button-secondary.png')}.profession-cta.is-current{filter:saturate(.3);opacity:.65;cursor:default}
+.profession-empty{margin:auto;color:#9eb2bf}
+@media(min-height:900px){.profession-view{max-height:760px;align-self:start}.profession-current-art{min-height:290px}.profession-inspector{min-height:360px}}
+@media(orientation:landscape) and (max-height:500px){
+ .profession-view{grid-template-columns:142px minmax(0,1fr);gap:6px}.profession-current{padding:5px 7px}.profession-current-art{min-height:82px;background-size:88px}.profession-current-unit{width:92px;height:92px}.profession-current-art>span{bottom:0;font-size:7px;letter-spacing:0}.profession-current-copy{padding-top:4px}.profession-current-copy small,.profession-current-copy p{display:none}.profession-current-copy h2{margin:0;font-size:13px;letter-spacing:.02em}.profession-level{margin:4px 0;gap:3px}.profession-level b{font-size:9px}.profession-level small{display:none}.profession-training{display:grid;grid-template-columns:1fr 1fr;gap:2px}.profession-training>.campaign-resource{min-width:0;padding:1px 2px}.profession-training>.campaign-resource img{width:17px;height:17px}.profession-training>.campaign-resource strong{font-size:8px}.profession-training>button{grid-column:1/-1;width:100%;min-width:0;min-height:44px;margin:0;padding:0 4px}.profession-buildings{margin:0;padding:0;min-height:44px;font-size:9px}
+ .profession-workbench{grid-template-rows:26px 62px minmax(0,1fr);gap:4px}.profession-path-heading{min-height:26px;padding-bottom:2px;align-items:center}.profession-path-heading h2{font-size:11px}.profession-path-heading p{display:none}.profession-path-heading>span{font-size:8px}.profession-path{gap:4px;padding-bottom:1px}.profession-node{grid-template-columns:48px minmax(0,1fr);min-height:58px;padding:1px}.profession-node-art{width:48px;height:56px}.profession-node-unit{width:50px;height:56px}.profession-node-copy small{display:none}.profession-node-copy b{margin:0 0 4px;font-size:9px}.profession-node-copy em{font-size:7px}
+ .profession-inspector{grid-template-columns:minmax(145px,40%) minmax(0,1fr)}.profession-preview-unit{width:160px;height:160px}.profession-preview>span{left:5px;top:4px;bottom:auto;padding:0;font-size:7px}.profession-preview>span::before{display:none}.profession-preview>button{right:4px;bottom:3px;min-width:82px;padding:0 5px;font-size:8px}.profession-detail{padding:7px 9px}.profession-detail>header h2{margin-top:1px;font-size:14px}.profession-detail>header small{font-size:8px}.profession-detail>header>span{font-size:15px}.profession-detail-scroll>p{margin:4px 0;font-size:9px;line-height:1.35}.profession-benefit{padding:4px 6px}.profession-benefit h3{display:none}.profession-benefit p{font-size:8px;line-height:1.35}.profession-steps{gap:2px;margin-top:4px}.profession-steps li{font-size:8px}.profession-requirement{margin:4px 0!important;font-size:8px!important}.profession-detail footer{padding-top:4px}.profession-cta{width:100%;min-width:0;min-height:44px;font-size:9px;padding:0 7px}
+}
+@media(orientation:landscape) and (max-height:350px) and (max-width:740px){.profession-view{grid-template-columns:126px minmax(0,1fr)}.profession-current-art{display:none}.profession-inspector{grid-template-columns:132px minmax(0,1fr)}.profession-detail-scroll>p{display:none}.profession-path-heading>span{display:none}}
+@media(prefers-reduced-motion:reduce){.profession-view *{scroll-behavior:auto!important;transition:none!important}}
+
+/* Keep the action outside the scrollable explanation at every height. */
+.profession-detail{display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;gap:8px}
+.profession-detail-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;padding-right:3px}
+.profession-mechanics{margin:12px 0;border-top:1px solid #345267;padding-top:8px}.profession-mechanics h3{font-size:11px;color:#d8c78e;margin:0 0 6px}.profession-mechanics p{font-size:11px;color:#b3c6d2;line-height:1.6;margin:5px 0}.profession-mechanics b{color:#d9e8ee}
+.profession-inline-action{min-height:44px;padding:0 14px;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;color:#d1eff6;font-size:11px}
+.profession-detail footer{gap:5px}.profession-details-open,.profession-skills-open{flex-shrink:0;min-width:78px;font-size:10px;padding:0 7px}.profession-detail footer .profession-cta{min-width:0;flex:1;padding:0 8px}
+.profession-skills-open{color:#ffe6a6;border:1px solid #b49a63;background:#403b2b}
+.attack-options{grid-row:1/-1;min-height:0;display:flex;flex-direction:column;gap:6px}.attack-options .attack-stages{min-height:0}
+.attack-options .preview-job-picker button{min-width:44px}
+.profession-info{width:min(620px,94vw);max-height:calc(var(--app-height,100dvh) - 20px);padding:0;background:#0e2232;border:1px solid #65a6b9;color:#c6d9e3;box-shadow:0 20px 60px #000b}.profession-info[open]{display:flex;flex-direction:column}.profession-info::backdrop{background:#030d17bb}.profession-info>header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-shrink:0;padding:0 14px;border-bottom:1px solid #345267;background:url('./assets/ui/duelyst-panel-header.png') center/cover}.profession-info h2{font-size:15px;font-weight:500;margin:0}.profession-info>header button{min-width:60px;min-height:48px;color:#c9e7f4}.profession-info-content{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:8px 18px 14px;font-size:12px}.profession-info .profession-mechanics h3{font-size:13px}.profession-info .profession-mechanics p{font-size:12px;line-height:1.7}.profession-info .profession-inline-action{font-size:12px}
+.attack-training{min-height:0;display:grid;grid-template-columns:145px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:10px;overflow:hidden}.attack-stages{grid-row:1/-1;display:flex;flex-direction:column;gap:8px;overflow-y:auto}.attack-stages button{min-height:44px;padding:8px 12px;background:url('./assets/ui/duelyst-button-secondary.png') center/100% 100% no-repeat;color:#a9c6d7;font-size:12px}.attack-stages button.is-active{background-image:url('./assets/ui/duelyst-button-primary.png');color:#effbff}.attack-training .skill-preview-stage{min-height:0;overflow:hidden}.attack-training .skill-preview-canvas{width:100%;height:100%;display:block}.attack-training-description{padding:10px 14px;background:#0b1c2acc;border:1px solid #355366;color:#c3d4de}.attack-training-description>b{font-size:13px;color:#eddaad}.attack-training-description p{margin:5px 0;font-size:12px;line-height:1.5}.attack-training-description small{color:#829eaf;font-size:10px}
+@media(orientation:landscape) and (max-height:500px){.attack-training{grid-template-columns:96px minmax(0,1fr);gap:5px}.attack-stages{gap:3px}.attack-stages button{font-size:10px;padding:4px}.attack-training-description{padding:5px 8px}.attack-training-description>b,.attack-training-description p{font-size:10px}.attack-training-description small{display:none}.profession-mechanics{margin:7px 0;padding-top:5px}.profession-mechanics h3,.profession-mechanics p{font-size:10px}.hero-tabs>span{display:none}}
+.profession-detail footer{padding-top:0;margin:0}
+.profession-cta{flex-shrink:0}
+.profession-path{overflow-y:hidden}
+.profession-current-unit{height:auto;aspect-ratio:1}
+@media(max-width:1000px) and (min-height:501px){.profession-training{flex-wrap:wrap}.profession-training>button{flex-basis:100%;margin-left:0}.profession-current{overflow-x:hidden}}
+.profession-training>button:hover,.profession-cta:hover{background:url('./assets/ui/duelyst-button-primary.png') center/contain no-repeat}
+.profession-cta.is-secondary:hover,.profession-preview>button:hover{background:url('./assets/ui/duelyst-button-secondary.png') center/contain no-repeat}
+@media(orientation:landscape) and (max-height:500px){.profession-detail{gap:4px}.profession-node-copy b{white-space:normal}.profession-preview-unit{max-height:100%}}
+@media(orientation:landscape) and (max-height:350px){
+ .profession-workbench{grid-template-rows:44px minmax(0,1fr);gap:4px}
+ .profession-path-heading{display:none}
+ .profession-path{padding:0;min-height:0}
+ .profession-node{min-height:44px;max-height:44px;grid-template-columns:40px minmax(0,1fr)}
+ .profession-node-art,.profession-node-unit{width:40px;height:40px}
+ .profession-detail{padding:4px 7px;gap:2px}
+ .profession-detail>header h2{font-size:12px;margin:0}
+ .profession-preview-unit{position:absolute;top:4px;width:100%;height:calc(100% - 42px)}
+}
+.attack-training{grid-template-columns:140px minmax(0,1fr)}

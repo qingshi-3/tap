@@ -1,0 +1,211 @@
+{
+  "terrain": {
+    "field": {
+      "base": {
+        "path": "assets/terrain/field/base.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "path": {
+        "path": "assets/terrain/field/path.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "decorations": {
+        "towerSlot": "assets/terrain/field/tower-slot.png",
+        "tree": "assets/terrain/field/tree.png",
+        "rock": "assets/terrain/field/rock.png"
+      }
+    },
+    "river": {
+      "base": {
+        "path": "assets/terrain/river/base-water.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "path": {
+        "path": "assets/terrain/river/path.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "decorations": {
+        "shore": "assets/terrain/river/shore.png",
+        "bridge": {
+          "path": "assets/terrain/river/bridge.png",
+          "frameWidth": 64,
+          "frameHeight": 96,
+          "frameCount": 8
+        }
+      }
+    },
+    "swamp": {
+      "base": {
+        "path": "assets/terrain/swamp/base.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "path": {
+        "path": "assets/terrain/swamp/path.png",
+        "width": 32,
+        "height": 32,
+        "repeat": true
+      },
+      "decorations": {
+        "towerSlot": "assets/terrain/swamp/tower-slot.png",
+        "tree": "assets/terrain/swamp/tree.png",
+        "waterDetail": "assets/terrain/swamp/water-detail.png"
+      }
+    }
+  },
+  "towers": {
+    "archer": {
+      "completed": { "sourceStage": 7, "path": "assets/towers/archer/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+      "idle": [
+        { "level": 1, "sourceStage": 7, "path": "assets/towers/archer/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+        { "level": 2, "sourceStage": 7, "path": "assets/towers/archer/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+        { "level": 3, "sourceStage": 7, "path": "assets/towers/archer/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 }
+      ]
+    },
+    "mage": {
+      "completed": { "sourceStage": 7, "path": "assets/towers/mage/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+      "idle": [
+        { "level": 1, "sourceStage": 7, "path": "assets/towers/mage/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+        { "level": 2, "sourceStage": 7, "path": "assets/towers/mage/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+        { "level": 3, "sourceStage": 7, "path": "assets/towers/mage/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 }
+      ]
+    },
+    "guardian": {
+      "completed": { "sourceStage": 7, "path": "assets/towers/guardian/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+      "idle": [
+        { "level": 1, "sourceStage": 7, "path": "assets/towers/guardian/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+        { "level": 2, "sourceStage": 7, "path": "assets/towers/guardian/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 },
+        { "level": 3, "sourceStage": 7, "path": "assets/towers/guardian/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 4 }
+      ]
+    },
+    "catapult": {
+      "completed": { "sourceStage": 7, "path": "assets/towers/catapult/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+      "idle": [
+        { "level": 1, "sourceStage": 7, "path": "assets/towers/catapult/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+        { "level": 2, "sourceStage": 7, "path": "assets/towers/catapult/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 },
+        { "level": 3, "sourceStage": 7, "path": "assets/towers/catapult/idle-level-7.png", "frameWidth": 70, "frameHeight": 130, "frameCount": 6 }
+      ]
+    }
+  },
+  "enemies": {
+    "grunt": {
+      "movement": "walk",
+      "contentBounds": {
+        "down": { "x": 13, "y": 15, "width": 22, "height": 19, "footX": 24, "footY": 34 },
+        "side": { "x": 15, "y": 15, "width": 20, "height": 18, "footX": 24, "footY": 33 },
+        "up": { "x": 13, "y": 15, "width": 22, "height": 18, "footX": 24, "footY": 33 }
+      },
+      "walk": {
+        "down": "assets/enemies/grunt/walk-down.png",
+        "side": "assets/enemies/grunt/walk-side.png",
+        "up": "assets/enemies/grunt/walk-up.png"
+      },
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "frameCount": 6
+    },
+    "runner": {
+      "movement": "run",
+      "contentBounds": {
+        "down": { "x": 36, "y": 19, "width": 24, "height": 49, "footX": 48, "footY": 68 },
+        "side": { "x": 24, "y": 35, "width": 61, "height": 29, "footX": 48, "footY": 64 },
+        "up": { "x": 35, "y": 26, "width": 26, "height": 51, "footX": 48, "footY": 77 }
+      },
+      "run": {
+        "down": "assets/enemies/runner/run-down.png",
+        "side": "assets/enemies/runner/run-side.png",
+        "up": "assets/enemies/runner/run-up.png"
+      },
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "frameCount": 6
+    },
+    "armored": {
+      "movement": "walk",
+      "contentBounds": {
+        "down": { "x": 11, "y": 5, "width": 23, "height": 30, "footX": 24, "footY": 35 },
+        "side": { "x": 9, "y": 5, "width": 25, "height": 28, "footX": 24, "footY": 33 },
+        "up": { "x": 13, "y": 5, "width": 25, "height": 29, "footX": 24, "footY": 34 }
+      },
+      "walk": {
+        "down": "assets/enemies/armored/walk-down.png",
+        "side": "assets/enemies/armored/walk-side.png",
+        "up": "assets/enemies/armored/walk-up.png"
+      },
+      "frameWidth": 48,
+      "frameHeight": 48,
+      "frameCount": 6
+    },
+    "flyer": {
+      "movement": "fly",
+      "contentBounds": {
+        "down": { "x": 31, "y": 27, "width": 30, "height": 44, "footX": 48, "footY": 71 },
+        "side": { "x": 29, "y": 28, "width": 39, "height": 45, "footX": 48, "footY": 73 },
+        "up": { "x": 34, "y": 27, "width": 29, "height": 42, "footX": 48, "footY": 69 }
+      },
+      "fly": {
+        "down": "assets/enemies/flyer/fly-down.png",
+        "side": "assets/enemies/flyer/fly-side.png",
+        "up": "assets/enemies/flyer/fly-up.png"
+      },
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "frameCount": 6
+    },
+    "boss": {
+      "movement": "walk",
+      "contentBounds": {
+        "down": { "x": 34, "y": 20, "width": 27, "height": 33, "footX": 48, "footY": 53 },
+        "side": { "x": 30, "y": 20, "width": 32, "height": 30, "footX": 48, "footY": 50 },
+        "up": { "x": 34, "y": 20, "width": 28, "height": 31, "footX": 48, "footY": 51 }
+      },
+      "walk": {
+        "down": "assets/enemies/boss/walk-down.png",
+        "side": "assets/enemies/boss/walk-side.png",
+        "up": "assets/enemies/boss/walk-up.png"
+      },
+      "frameWidth": 96,
+      "frameHeight": 96,
+      "frameCount": 6
+    }
+  },
+  "ui": {
+    "frame": {
+      "panel": "assets/ui/frame/panel.png",
+      "topbar": "assets/ui/frame/topbar.png",
+      "roundSlot": "assets/ui/frame/round-slot.png"
+    },
+    "button": {
+      "smallNormal": "assets/ui/button/small-normal.png",
+      "smallPressed": "assets/ui/button/small-pressed.png",
+      "wideNormal": "assets/ui/button/wide-normal.png",
+      "widePressed": "assets/ui/button/wide-pressed.png"
+    },
+    "bar": {
+      "goldFill": "assets/ui/bar/gold-fill.png",
+      "purpleTrack": "assets/ui/bar/purple-track.png"
+    },
+    "font": {
+      "latinPixel": "assets/ui/font/survival-kit.otf"
+    },
+    "icon": {
+      "play": "assets/ui/icon/play.png",
+      "pause": "assets/ui/icon/pause.png",
+      "health": "assets/ui/icon/health.png",
+      "restart": "assets/ui/icon/restart.png",
+      "upgrade": "assets/ui/icon/upgrade.png",
+      "speed": "assets/ui/icon/speed.png",
+      "gold": "assets/ui/icon/gold.png",
+      "wave": "assets/ui/icon/wave.png"
+    }
+  }
+}

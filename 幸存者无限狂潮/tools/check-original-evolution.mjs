@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {fixture,enemy,tick,cast} from './check-researched-original.mjs';
+import {ensureOriginal} from '../dist/original-heroes.js';
+// Final sword waves hit an actual swept segment once per leg; no player teleport.
+{const g=fixture('commander',3,4,'a');g.enemies=[enemy(1,850),enemy(2,850,500,{boss:true})];tick(g,.15);g.originalHero.clock=100;tick(g,1.8);const ordinary=g.hits.filter(h=>h.id===1),boss=g.hits.filter(h=>h.id===2);assert.equal(ordinary.length,2);assert.equal(boss.length,2);assert.equal(ordinary[0].n/boss[0].n,2.4);assert.equal(g.player.x,500);assert.equal(g.originalHero.momentum,2);assert.equal(g.originalHero.waves.length,0);}
+// The retired charged E is now an automatic momentum discharge and reserve still matters.
+{const sample=perk=>{const g=fixture('commander',3);g.heroPerks.commander_reserve=perk;g.enemies=[enemy(1,565,500,{boss:true})];ensureOriginal(g).momentum=12;g.originalHero.combo=2;tick(g,.15);assert.equal(g.originalHero.momentum,0);return g.hits.reduce((n,h)=>n+h.n,0);};assert.ok(sample(2)>sample(0));}
+// Three independent army slots remain bounded; their actual attack clocks honor growth.
+{const g=fixture('summoner',3,4,'b');g.growth.attackSpeed=2;g.enemies=[enemy(1,650,500,{boss:true})];tick(g,.15);g.originalHero.clock=100;for(const c of g.companions){c.attackClock=100;c.originalRush=null;c.nextAutoRush=100;}const spear=g.companions.find(c=>c.role==='spear');spear.x=500;spear.y=500;spear.attackClock=0;tick(g,.02);assert.ok(spear.attackClock>.5&&spear.attackClock<.55);assert.equal(g.companions.length,3);assert.equal(g.originalHero.corpses.length,0);}
+// Final offensive shadows have real contact locations and are finite delayed attacks.
+{const g=fixture('blink',3,4,'a');g.enemies=[enemy(1,800),enemy(2,500,800),enemy(3,200)];tick(g,.5);assert.ok(g.hits.some(h=>h.source==='basicEcho'&&h.id===2));assert.ok(g.heroEffects.some(f=>f.visualKind==='originalAttackShadow'&&f.y>700));assert.ok(g.originalHero.pending.length<=6);assert.equal(g.player.x,500);assert.equal(g.player.y,500);}
+// Four run-owned storm nodes, at most four pulses each, no permanent population growth.
+{const g=fixture('mage',3,4,'a');g.enemies=Array.from({length:12},(_,i)=>enemy(i+1,500+Math.cos(i*Math.PI/6)*300,500+Math.sin(i*Math.PI/6)*300,{boss:true}));tick(g,6);assert.ok(g.originalHero.stormNodes.length<=4);assert.ok(g.originalHero.stormNodes.every(n=>n.pulses<=4));g.originalHero.clock=100;g.enemies=[];tick(g,3);assert.equal(g.originalHero.stormNodes.length,0);}
+// Two public actives each remain complete. The return alias is internal to Q.
+for(const [hero,ids]of Object.entries({commander:['dash','whirlwind'],summoner:['recallSummons','summonElite'],blink:['markBlade','blinkStorm'],mage:['frostAura','rockWall']})){const g=fixture(hero,3,4,'a');g.enemies=[enemy(1,650,500,{boss:true})];for(const id of ids)assert.equal(cast(g,id),true);tick(g,2);}
+{const g=fixture('blink',3);g.enemies=[enemy(1,650)];const x=g.player.x;cast(g,'markBlade');assert.notEqual(g.player.x,x);cast(g,'markBlade');assert.equal(g.player.x,x);}
+{const g=fixture('mage',3);g.enemies=[enemy(1,600,500,{boss:true})];cast(g,'rockWall',{x:1,y:0,targetX:600,targetY:500});g.originalHero.clock=100;tick(g,1.8);assert.ok(g.heroEffects.some(f=>f.visualKind==='originalMeteor'&&f.element==='lightning'));assert.ok(g.originalHero.iceFields.length>0);assert.equal(cast(g,'flameBreath'),false);}
+console.log('Original final evolution passed: real outbound/return hits, ordinary-only bonus, automatic reserve, army clocks/slots, finite shadows/nodes and two-active closure.');

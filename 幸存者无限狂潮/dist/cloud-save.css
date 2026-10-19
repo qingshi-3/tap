@@ -1,0 +1,90 @@
+#cloud-save-dialog{
+  width:min(660px,calc(var(--app-width,100vw) - 24px));
+  max-width:none;
+  max-height:calc(var(--app-height,100dvh) - 20px);
+  padding:0;
+  border:0;
+  border-radius:12px;
+  box-shadow:0 18px 60px #0009;
+  background:linear-gradient(145deg,#132b3b,#0b1825 75%);
+  color:#d8e6e7;
+  overflow:auto;
+  overscroll-behavior:contain;
+  touch-action:pan-y;
+  scroll-padding-block:64px 14px;
+}
+.cloud-panel{padding:12px 18px 16px;font-size:12px}
+.cloud-heading{
+  position:sticky;
+  top:0;
+  z-index:2;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding-bottom:6px;
+  background:#122838;
+  box-shadow:0 7px 12px #122838;
+}
+.cloud-heading h2{margin:0;font-size:19px;line-height:44px;color:#efdbab}
+.cloud-panel button{
+  min-height:44px;
+  min-width:74px;
+  padding:7px 18px;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
+  background-color:transparent;
+  background-image:url('./assets/ui/duelyst-button-secondary.png');
+  background-position:center;
+  background-size:100% 100%;
+  background-repeat:no-repeat;
+  color:#d9edf6;
+  font-size:12px;
+  line-height:1.4;
+  text-shadow:0 1px 2px #071725;
+}
+.cloud-panel #cloud-backup,.cloud-panel #cloud-confirm{background-image:url('./assets/ui/duelyst-button-primary.png');color:#effbff}
+.cloud-panel button:hover:not(:disabled){background-color:transparent;filter:brightness(1.12)}
+.cloud-panel button:active:not(:disabled){filter:brightness(1.2)}
+.cloud-panel button:disabled{opacity:.6;filter:saturate(.15);color:#b9c8ce;cursor:not-allowed;text-shadow:none}
+.cloud-panel button:focus-visible{outline:2px solid #b9f5ff;outline-offset:-5px}
+.cloud-note{color:#adc1c7;line-height:1.65;margin:10px 0}
+.cloud-slots{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;margin:14px 0}
+.cloud-slot{min-width:0;padding:13px 14px;border:0;border-radius:8px;background:#0717258c}
+.cloud-slot h3{color:#efd59a;margin:0 0 8px;font-size:13px}
+.cloud-slot p{margin:4px 0;line-height:1.6;overflow-wrap:anywhere}
+.cloud-slot small{display:block;color:#9db8c4;line-height:1.5;overflow-wrap:anywhere}
+.cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.cloud-actions button{flex:1 1 120px}
+.cloud-panel #cloud-status{min-height:30px;line-height:1.6;color:#bee1dc;margin:10px 2px}
+.cloud-confirmation{padding:13px 14px;border:0;border-radius:8px;background:#3b3326;color:#f2e6cb}
+.cloud-confirmation p{margin:0 0 9px;line-height:1.65;font-weight:600;overflow-wrap:anywhere}
+.cloud-about{margin-top:5px}
+#result-dialog button{min-height:44px;flex-shrink:0}
+@media(max-width:430px){.cloud-slots{grid-template-columns:minmax(0,1fr)}}
+@media(orientation:landscape) and (min-height:351px) and (max-height:430px){
+  .cloud-panel{padding:8px 18px 10px}
+  .cloud-heading{padding-bottom:2px}
+  .cloud-note{margin:6px 0;line-height:1.5}
+  .cloud-slots{margin:8px 0}
+  .cloud-slot{padding:9px 14px}
+  .cloud-slot h3{margin-bottom:5px}
+  .cloud-panel #cloud-status{margin:6px 2px;min-height:20px}
+}
+@media(orientation:landscape) and (max-height:350px){
+  .cloud-panel{padding:6px 12px 12px;font-size:11px}
+  .cloud-heading{padding-bottom:3px}
+  .cloud-heading h2{font-size:16px}
+  .cloud-note{margin:7px 0;line-height:1.5}
+  .cloud-slots{margin:10px 0;gap:10px}
+  .cloud-slot{padding:10px 12px}
+  .cloud-slot p{margin:2px 0}
+  .cloud-actions{margin-top:6px}
+  .cloud-panel #cloud-status{margin:7px 2px;min-height:20px}
+}
+
+.ad-test-panel{display:flex;align-items:center;gap:12px;margin:12px 0;padding:10px 12px;background:#0717258c;border-radius:8px}
+.ad-test-panel button{flex:0 0 176px}
+.ad-test-panel p{margin:0;color:#aac4cc;line-height:1.6;font-size:12px}
+@media(max-height:350px){.ad-test-panel{margin:8px 0;padding:7px 10px}.ad-test-panel p{font-size:11px}}

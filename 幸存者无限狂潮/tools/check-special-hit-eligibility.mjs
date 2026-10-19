@@ -1,0 +1,21 @@
+import assert from 'node:assert/strict';
+import {createGame,configureRun,startGame} from '../dist/simulation.js';
+import {ensureSpecialHero,updateSpecialHero,castSpecialHero} from '../dist/special-heroes.js';
+const jobs={grappler:['brawler','grappler','titan_grappler'],rift:['rift_apprentice','rift_weaver','rift_sovereign'],magnet:['scrap_apprentice','magnet_master','magnet_sovereign']};
+const enemy=(id,x,y,extra={})=>({id,x,y,radius:18,hp:100000,maxHp:100000,kind:'light',dead:false,spawnDelay:0,frozen:0,slow:0,...extra});
+// Non-final rank III isolates normal hit eligibility; final structures use check-special-evolution.
+function game(hero,tier=3,rank=3,branch=null){const g=createGame({seed:7});configureRun(g,{heroId:hero,heroJob:jobs[hero][tier-1]});startGame(g);g.player.x=600;g.player.y=600;g.mapObjects=[];g.enemies=[];g.attackProgress={rank,branch};ensureSpecialHero(g);g.specialHero.clock=999;g.hits=[];return g;}
+const api=g=>({damage:(e,n,c,k)=>{e.hp-=n;g.hits.push({id:e.id,n,k});},movementHitsWall:()=>false,isUnsafePosition:()=>false});
+function tick(g,time){for(let t=0;t<time-1e-8;t+=1/120)updateSpecialHero(g,Math.min(1/120,time-t),api(g));}
+function fire(g){g.specialHero.clock=0;tick(g,.001);g.specialHero.clock=999;}
+const checks=[];function check(name,fn){fn();checks.push(name);console.log('PASS '+name);}
+check('40 nearer off-axis enemies do not erase an eligible physical lane hit',()=>{const g=game('grappler',1,1,null);g.enemies=Array.from({length:40},(_,i)=>enemy(i+1,605+i%10,i%2?520:680));g.enemies.push(enemy(99,710,600));castSpecialHero(g,'grappleSlam',{x:1,y:0},api(g));assert.ok(g.hits.some(h=>h.id===99));assert.ok(!g.hits.some(h=>h.id!==99));});
+check('a real radius impact damages all 40 eligible bodies rather than a hidden nearest twelve',()=>{const g=game('grappler',1,1,null);g.enemies=Array.from({length:40},(_,i)=>enemy(i+1,660+i%8*5,580+Math.floor(i/8)*8,{kind:'guard'}));castSpecialHero(g,'grappleSlam',{x:1,y:0},api(g));g.hits=[];tick(g,.24);assert.equal(new Set(g.hits.map(h=>h.id)).size,40);});
+check('an already-hit overlapping body never takes a second piercing slot',()=>{const g=game('magnet');g.enemies=[enemy(1,645,600),enemy(2,675,600)];g.specialHero.bolts.push({id:99,x:640,y:600,vx:600,vy:0,angle:0,speed:600,life:.3,width:7,pierce:2,damage:10,category:'basic',style:'magnetBolt',hitIds:new Set([1])});tick(g,.05);assert.ok(!g.hits.some(h=>h.id===1));assert.equal(g.hits.filter(h=>h.id===2).length,1);});
+check('side-group eligibility precedes the nearest-24 crowd ordering',()=>{const g=game('magnet');g.enemies=Array.from({length:32},(_,i)=>enemy(i+1,670+i%8,598+i%3));g.enemies.push(enemy(99,880,740));fire(g);tick(g,.85);assert.ok(g.hits.some(h=>h.id===99));});
+check('heavy front bodies do not hide a valid Q capture behind them',()=>{const g=game('grappler',1,1,null);g.enemies=Array.from({length:12},(_,i)=>enemy(i+1,665+i,600,{kind:'guard',radius:26}));g.enemies.push(enemy(99,750,600));castSpecialHero(g,'grappleHook',{x:1,y:0},api(g));tick(g,.4);assert.equal(g.specialHero.heldId,99);assert.ok(g.enemies.slice(0,12).every(e=>!e.specialHeld&&e.x===665+e.id-1));});
+check('an out-of-range priority boss does not steal a valid focused beam target',()=>{const g=game('rift',2,4,'b');g.enemies=[enemy(1,1090,600,{boss:true}),enemy(2,810,640)];fire(g);tick(g,.8);assert.ok(g.hits.some(h=>h.id===2));assert.ok(!g.hits.some(h=>h.id===1));});
+check('the moved exit is the targeting origin and teleport gap receives no basic damage',()=>{const g=game('rift',1,1,null);g.specialHero.gates=[{id:9,x:1100,y:600,angle:0,remaining:8}];g.enemies=[enemy(1,700,600),enemy(2,1300,600)];fire(g);tick(g,.6);assert.ok(g.hits.some(h=>h.id===2));assert.ok(!g.hits.some(h=>h.id===1));});
+check('out-of-range enemies alone do not start short-range normal guns',()=>{const g=game('magnet',3,3,null);g.enemies=[enemy(1,1010,600)];fire(g);assert.equal(g.specialHero.bolts.length,0);assert.equal(g.specialHero.combo,0);});
+check('the existing 165 normal-beam budget is documented without silently relaxing it',()=>{const g=game('rift',3,3,null);g.enemies=[enemy(1,800,600,{hp:180,maxHp:180})];fire(g);tick(g,.88);assert.ok(g.enemies[0].hp>=15-1e-7);assert.ok(g.hits.reduce((sum,h)=>sum+h.n,0)<=165+1e-7);});
+console.log(JSON.stringify({passed:true,groups:checks.length,checks},null,2));

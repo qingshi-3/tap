@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 2,
+  "applicants": [
+    {
+      "id": "agency:0:xingfu-402:xiaolin",
+      "propertyId": "xingfu-402",
+      "tenantId": "xiaolin",
+      "source": "agency",
+      "createdMonth": 0
+    },
+    {
+      "id": "agency:0:xingfu-402:ajie",
+      "propertyId": "xingfu-402",
+      "tenantId": "ajie",
+      "source": "agency",
+      "createdMonth": 0
+    }
+  ],
+  "walkinMonths": {
+    "xingfu-402": 0
+  },
+  "month": 0,
+  "cash": 19450,
+  "properties": {
+    "xingfu-402": {
+      "owned": true,
+      "leases": [
+        {
+          "tenantId": "zhangwei",
+          "rentShare": 0.3333333333333333,
+          "joinedMonth": 0,
+          "source": "walkin"
+        }
+      ],
+      "renovationId": null,
+      "renovatingMonths": 0,
+      "condition": 100,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1
+    },
+    "xingfu-403": {
+      "owned": false,
+      "leases": [],
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1
+    },
+    "xingfu-301": {
+      "owned": false,
+      "leases": [],
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1
+    },
+    "university-101": {
+      "owned": false,
+      "leases": [],
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1
+    },
+    "tech-302": {
+      "owned": false,
+      "leases": [],
+      "renovationId": "simple",
+      "renovatingMonths": 0,
+      "condition": 90,
+      "debt": 0,
+      "payment": 0,
+      "valueFactor": 1
+    }
+  },
+  "tenants": {
+    "zhangwei": {
+      "relationship": 60,
+      "job": "程序员",
+      "growth": 0
+    },
+    "xiaolin": {
+      "relationship": 60,
+      "job": "大学生",
+      "growth": 0
+    },
+    "ajie": {
+      "relationship": 60,
+      "job": "摄影师",
+      "growth": 0
+    },
+    "wangjie": {
+      "relationship": 60,
+      "job": "家庭租客",
+      "growth": 0
+    },
+    "lina": {
+      "relationship": 60,
+      "job": "设计师",
+      "growth": 0
+    },
+    "chenchen": {
+      "relationship": 60,
+      "job": "护士",
+      "growth": 0
+    },
+    "liuyang": {
+      "relationship": 60,
+      "job": "厨师",
+      "growth": 0
+    },
+    "xiaoyu": {
+      "relationship": 60,
+      "job": "研究生",
+      "growth": 0
+    },
+    "zhouhang": {
+      "relationship": 60,
+      "job": "快递员",
+      "growth": 0
+    },
+    "sunli": {
+      "relationship": 60,
+      "job": "教师",
+      "growth": 0
+    },
+    "wutong": {
+      "relationship": 60,
+      "job": "工程师",
+      "growth": 0
+    },
+    "linfeng": {
+      "relationship": 60,
+      "job": "店员",
+      "growth": 0
+    },
+    "zhaomin": {
+      "relationship": 60,
+      "job": "会计",
+      "growth": 0
+    },
+    "heping": {
+      "relationship": 60,
+      "job": "医生",
+      "growth": 0
+    },
+    "tangtang": {
+      "relationship": 60,
+      "job": "插画师",
+      "growth": 0
+    }
+  },
+  "pendingEvents": [],
+  "history": [],
+  "news": [
+    "2029年1月：幸福里402交到你手中，先装修，再招租。"
+  ],
+  "completedEvents": []
+}

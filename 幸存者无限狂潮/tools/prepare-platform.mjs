@@ -1,0 +1,24 @@
+import { readFile,writeFile } from 'node:fs/promises';
+const root=new URL('../platform/',import.meta.url);
+const read=async name=>JSON.parse(await readFile(new URL(`${name}.json`,root),'utf8'));
+const fields={};
+for(const name of ['basic','developer','promotion','platforms','assets']) Object.assign(fields,(await read(`${name}-before`)).data.result.fields);
+if(fields.title.current_value!=='像素孤锋')throw new Error('Unexpected app title');
+const uploaded=async name=>(await read(`${name}-upload`)).data.url;
+const changes=[];
+function set(id,value){if(!fields[id])throw new Error(`Unknown field ${id}`);changes.push({field_id:id,value,expected:fields[id].current_value??[]});}
+set('description','五分钟，一柄风刃，一波接一波的深渊敌潮。\n\n《像素孤锋》是一款像素风生存动作游戏。移动躲开围攻，风刃自动斩击；拾取经验，在每次升级时从三项强化中选择一项。提高斩击伤害与速度，解锁自动魔弹、护身旋刃，努力守住最后一刻。\n\n当前为基础生存版本：三类敌人、后期精英、随机升级、五分钟胜利目标。手机横屏拖动左侧摇杆，键盘使用 WASD 或方向键。\n\n无需账号，不含广告和内购。战局仅保留在本次运行中，关闭或刷新会结束战斗。');
+set('author_name','阿芙工作室');
+set('developer_message','这是《像素孤锋》的基础生存版本。我们先把走位、自动攻击、经验拾取和升级循环做好，让每一局五分钟都能从孤身迎战逐渐成长。\n\n本版提供风刃、魔弹与旋刃，暂未加入队友、羁绊、符文、装备或局外养成。欢迎体验并反馈操作手感、难度和升级选择。单位动画复用 CC0 素材，地面与宣传物料使用生成式图像工具制作。');
+set('promotion_text','自动挥刃，走位升级，守住五分钟');
+set('promotion_material_type','BANNER_4');
+set('icon',await uploaded('icon'));
+set('banner_4',await uploaded('banner'));
+set('screenshots',await Promise.all(['shot-mid','shot-late','shot-early'].map(uploaded)));
+set('region_flag_android',4);set('region_flag_ios',0);
+await writeFile(new URL('store-changes.json',root),JSON.stringify({changes},null,2)+'\n');
+const packages=(await read('packages-before')).data.result;
+if(!packages.list.some(p=>p.type==='h5'&&p.package_id==='283964'&&p.status==='ready'))throw new Error('Target H5 is not ready');
+await writeFile(new URL('bind-package.json',root),JSON.stringify({slot:'main',expected:packages.package_slots.main.expected,package:{type:'h5',id:'283964'}},null,2)+'\n');
+await writeFile(new URL('ai-declaration.json',root),JSON.stringify({app_features:{is_internet_required:false,has_in_app_purchase:false,has_ai_content:true,has_ip_authorization:false,has_text_story_simulation:false,package_types:['h5']},qualification:{qualification_type:'ai-declaration',aigc_qualification:{provide_aigc_service:false,package_types:['h5']}}},null,2)+'\n');
+console.log('Prepared current-value store changes, explicit H5 binding, and factual AI declaration.');

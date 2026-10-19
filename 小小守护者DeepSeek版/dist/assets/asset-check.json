@@ -1,0 +1,118 @@
+{
+  "generatedBy": "games/deepseek-little-guardians/tools/import-assets.py",
+  "units": 26,
+  "animations": 78,
+  "unitFrames": 1167,
+  "unitImageRequests": 26,
+  "atlasFiles": 26,
+  "atlasBytes": 1209276,
+  "pixelComparisons": 1167,
+  "pixelComparisonsPassed": 1167,
+  "worldRects": 14,
+  "uiImages": 0,
+  "soundEvents": 3,
+  "files": 42,
+  "bytes": 1675280,
+  "unitDetail": [
+    "shield-1 f1_silverguardsquire idle/walk/attack=10/8/13 frames=31 anchor=[44,64] canvas=80x80 atlas=18449B",
+    "shield-2 f1_tank idle/walk/attack=11/8/19 frames=38 anchor=[40,64] canvas=80x80 atlas=27144B",
+    "shield-3 f1_ironcliffeguardian idle/walk/attack=18/8/18 frames=44 anchor=[42,64] canvas=80x80 atlas=32072B",
+    "archer-1 f1_backlinearcher idle/walk/attack=12/8/24 frames=44 anchor=[60,104] canvas=120x120 atlas=47077B",
+    "archer-2 f1_ranged idle/walk/attack=10/8/15 frames=33 anchor=[44,64] canvas=80x80 atlas=16220B",
+    "archer-3 neutral_arrowwhistler idle/walk/attack=18/8/31 frames=57 anchor=[48,85] canvas=100x100 atlas=67644B",
+    "mage-1 f1_sunwisp idle/walk/attack=10/10/25 frames=45 anchor=[52,84] canvas=100x100 atlas=23764B",
+    "mage-2 f2_geomancer idle/walk/attack=14/8/32 frames=54 anchor=[44,85] canvas=100x100 atlas=74812B",
+    "mage-3 f3_pyromancer idle/walk/attack=14/8/12 frames=34 anchor=[43,64] canvas=80x80 atlas=21372B",
+    "spear-1 f1_sunforgelancer idle/walk/attack=13/8/26 frames=47 anchor=[60,85] canvas=100x100 atlas=38500B",
+    "spear-2 f1_peacekeeper idle/walk/attack=14/8/19 frames=41 anchor=[40,84] canvas=100x100 atlas=45673B",
+    "spear-3 f3_dervish idle/walk/attack=12/8/13 frames=33 anchor=[39,62] canvas=80x80 atlas=18237B",
+    "rider-1 f5_dreadnaught idle/walk/attack=16/8/26 frames=50 anchor=[68,105] canvas=120x120 atlas=95014B",
+    "rider-2 neutral_windrunner idle/walk/attack=8/8/20 frames=36 anchor=[40,86] canvas=100x100 atlas=31580B",
+    "rider-3 f6_fenrirwarmaster idle/walk/attack=12/8/19 frames=39 anchor=[44,84] canvas=100x100 atlas=36455B",
+    "engineer neutral_artificer idle/walk/attack=14/8/51 frames=73 anchor=[62,84] canvas=100x100 atlas=70595B",
+    "captain neutral_captainhankheart idle/walk/attack=12/6/19 frames=37 anchor=[38,84] canvas=100x100 atlas=25735B",
+    "ranger neutral_jaxtruesight idle/walk/attack=14/8/21 frames=43 anchor=[47,84] canvas=100x100 atlas=37118B",
+    "grunt neutral_ghoulie idle/walk/attack=14/8/17 frames=39 anchor=[50,94] canvas=110x110 atlas=36037B",
+    "siege neutral_golemstone idle/walk/attack=14/8/13 frames=35 anchor=[48,64] canvas=80x80 atlas=12526B",
+    "flyer f1_gryphinox idle/walk/attack=8/7/34 frames=49 anchor=[52,85] canvas=100x100 atlas=47572B",
+    "boss boss_borealjuggernaut idle/walk/attack=16/8/26 frames=50 anchor=[68,105] canvas=120x120 atlas=96643B",
+    "healer neutral_healingmystic idle/walk/attack=14/8/16 frames=38 anchor=[53,93] canvas=110x110 atlas=42040B",
+    "armored neutral_ironclad idle/walk/attack=16/10/39 frames=65 anchor=[85,124] canvas=140x140 atlas=119832B",
+    "splitter f4_ooz idle/walk/attack=12/8/22 frames=42 anchor=[49,84] canvas=100x100 atlas=24851B",
+    "raider neutral_bloodletter idle/walk/attack=22/8/40 frames=70 anchor=[66,122] canvas=130x130 atlas=102314B"
+  ],
+  "worldDetail": {
+    "grass": "Ground/Grass.png [16, 0, 16, 16] avg=(195, 214, 87) opaque=100.0% colors=1",
+    "water": "Ground/Grass.png [0, 0, 16, 16] avg=(78, 188, 185) opaque=100.0% colors=1",
+    "waterDeep": "Ground/Shore.png [64, 0, 16, 16] avg=(66, 172, 175) opaque=100.0% colors=1",
+    "shore": "Ground/Shore.png [0, 0, 16, 16] avg=(231, 213, 147) opaque=100.0% colors=1",
+    "deadGrass": "Ground/DeadGrass.png [16, 0, 16, 16] avg=(184, 180, 125) opaque=100.0% colors=4",
+    "grassDetail": "Ground/TexturedGrass.png [16, 0, 16, 16] avg=(195, 215, 89) opaque=100.0% colors=3",
+    "grassTuft": "Ground/TexturedGrass.png [32, 16, 16, 16] avg=(178, 212, 86) opaque=100.0% colors=3",
+    "tree": "Nature/Trees.png [16, 0, 16, 16] avg=(127, 161, 85) opaque=48.4% colors=6",
+    "rock": "Nature/Rocks.png [0, 0, 16, 16] avg=(169, 170, 173) opaque=47.7% colors=4",
+    "keep": "Buildings/Wood/Keep.png [0, 0, 32, 32] avg=(159, 141, 120) opaque=95.5% colors=13",
+    "tower": "Buildings/Wood/Tower.png [16, 16, 16, 16] avg=(170, 160, 150) opaque=95.3% colors=11",
+    "wall": "Buildings/Enemy/SpearWall.png [0, 0, 16, 16] avg=(154, 130, 104) opaque=96.5% colors=11",
+    "slow": "Nature/Wheatfield.png [16, 0, 16, 16] avg=(190, 230, 115) opaque=63.7% colors=4",
+    "bridge": "Miscellaneous/Bridge.png [48, 16, 16, 16] avg=(195, 147, 86) opaque=100.0% colors=3"
+  },
+  "worldDuplicateAverageColors": {},
+  "worldDuplicateRects": {},
+  "worldKeyChanged20261015": {
+    "removed": [
+      "path"
+    ],
+    "renamed": {
+      "grassFlowers": "grassTuft"
+    },
+    "added": [
+      "shore",
+      "deadGrass",
+      "waterDeep"
+    ],
+    "fixed": [
+      "water 与 grass 不再指向同一 rect（此前都是 Ground/Grass.png [0,0,16,16]）",
+      "grassDetail 由 colors=1 且与 grass 同色改为 colors=3（TexturedGrass[16,0]）",
+      "deadGrass 由 colors=1 纯色改为 colors=4 带草茬（DeadGrass[16,0]）"
+    ],
+    "shoreRectDeviation": "主 Agent 给的 Shore.png[48,0] 实测 avg=(78,188,185)，与 water 同色；以实测为准改为 Shore.png[0,0] avg=(231,213,147)",
+    "waterDeep": "Cliff-Water.png 无可用水面格（穷举 5265 个 16×16 窗口：覆盖率 100% 的窗口水色占比上限 91%，网格对齐格上限 74%，均含悬崖像素）；按指定后备方案取 Shore.png[64,0] avg=(66,172,175) colors=1，比 water(78,188,185) 更深，仅提供明度层次。"
+  },
+  "sounds": {
+    "attack": [
+      "assets/sounds/sfx_f1tank_attack_swing.m4a"
+    ],
+    "hit": [
+      "assets/sounds/sfx_f1tank_hit.m4a"
+    ],
+    "death": [
+      "assets/sounds/sfx_f1tank_death.m4a"
+    ]
+  },
+  "replacements": {
+    "splitter": {
+      "requested": "neutral_ooz",
+      "used": "f4_ooz",
+      "reason": "指定目录 output/duelyst-unit-library/units/neutral_ooz 不存在；库内同名单位 Ooz 的实际目录是 f4_ooz，且 idle/walk/attack 全部 resolved。"
+    }
+  },
+  "anchorRule": "idle+walk 全部帧不透明像素并集 bbox 底部中心 [round((minX+maxX+1)/2), maxY+1]；按 SPEC 2026-10-15 修订不计入 attack",
+  "missingKeys": [
+    "sounds.wave",
+    "sounds.victory",
+    "sounds.defeat"
+  ],
+  "checks": [
+    "全部 1167 帧 atlas crop 解码 RGBA 与原 PNG 逐字节相等",
+    "全部 idle/walk/attack 帧 decoded 为非空 PNG 且 alpha 包围盒非空",
+    "全部 duration 取自 bindings.json frame_delay 且 > 0，resolved 均为 true",
+    "anchor 逐单位由 idle+walk 全部帧不透明像素并集 bbox 实算（不含 attack），未硬编码",
+    "全部 atlas/world rect 在实际 PNG 边界内，写入 PNG 均非空",
+    "每个 world 键的实测平均色/不透明占比/颜色数已记录；13 个 world 键两两 rect 互不相同",
+    "每个 world 键的变体格 colors > 1（有可见细节），无两键平均色相同",
+    "manifest.ui 为空对象，未导出任何 UI 位图",
+    "sounds 仅使用来源库 verified: true 的事件；无 wave/victory/defeat 可用",
+    "manifest 中每个浏览器路径均存在；26 个 unit 键的 sourceId 互不重复"
+  ]
+}

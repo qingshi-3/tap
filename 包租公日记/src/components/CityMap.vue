@@ -1,0 +1,25 @@
+<script setup lang="ts">
+import {ref,onMounted,onBeforeUnmount,watch} from 'vue';
+const props=defineProps<{properties:any[],districts:any[],camera?:{x:number,y:number}|null}>();
+const emit=defineEmits<{select:[id:string],enter:[id:string],busy:[value:boolean],camera:[value:{x:number,y:number}]}>();
+const viewport=ref<HTMLElement|null>(null);const pan=ref(props.camera?{...props.camera}:{x:0,y:0});const dragging=ref(false);
+watch(dragging,value=>emit('busy',value),{flush:'sync'});
+const money=(n:number)=>'¥'+Math.round(n).toLocaleString('zh-CN');
+const status=(p:any)=>!p.owned?'待售':p.renovatingMonths?'施工中':p.condition<40?'待维修':p.renewalCount?'待续租':!p.vacancies?'满住':p.askingRent===null?'未挂牌':p.applicantCount?'谈价中':'待租';
+const regions=[{id:'xingfu',name:'幸福里',x:300,y:130},{id:'university',name:'大学城',x:920,y:130},{id:'tech',name:'科技园',x:940,y:720}];
+const positions:Record<string,{x:number,y:number}>={'xingfu-402':{x:180,y:300},'xingfu-403':{x:420,y:300},'xingfu-301':{x:300,y:485},'university-101':{x:920,y:330},'tech-302':{x:940,y:825}};
+function clamp(x:number,y:number){const rect=viewport.value?.getBoundingClientRect();if(!rect||rect.width<=0||rect.height<=0)return;pan.value={x:Math.min(0,Math.max(rect.width-1200,x)),y:Math.min(0,Math.max(rect.height-900,y))};emit('camera',{...pan.value});}
+function locate(){const rect=viewport.value?.getBoundingClientRect();if(rect)clamp(rect.width/2-300,rect.height/2-220);}
+let observer:ResizeObserver|undefined;let pointer:number|null=null;let start={x:0,y:0,panX:0,panY:0};let moved=false;
+function down(e:PointerEvent){if(!e.isPrimary||e.button!==0)return;pointer=e.pointerId;moved=false;start={x:e.clientX,y:e.clientY,panX:pan.value.x,panY:pan.value.y};}
+function move(e:PointerEvent){if(pointer!==e.pointerId)return;const dx=e.clientX-start.x,dy=e.clientY-start.y;if(!moved&&Math.hypot(dx,dy)<6)return;moved=true;dragging.value=true;viewport.value?.setPointerCapture(e.pointerId);clamp(start.panX+dx,start.panY+dy);}
+function up(e:PointerEvent){if(pointer!==e.pointerId)return;pointer=null;dragging.value=false;if(viewport.value?.hasPointerCapture(e.pointerId))viewport.value.releasePointerCapture(e.pointerId);}
+function cancel(e:PointerEvent){up(e);moved=false;}
+function lostCapture(e:PointerEvent){if(e.target===viewport.value&&!viewport.value?.hasPointerCapture(e.pointerId))up(e);}
+function click(e:MouseEvent){if(moved&&e.detail!==0){e.preventDefault();e.stopPropagation();}moved=false;}
+function selectProperty(id:string){emit('select',id);}
+onMounted(()=>{if(props.camera)clamp(props.camera.x,props.camera.y);else locate();observer=new ResizeObserver(()=>clamp(pan.value.x,pan.value.y));if(viewport.value)observer.observe(viewport.value);});
+onBeforeUnmount(()=>{observer?.disconnect();emit('busy',false);});
+</script>
+<template><section class="city-map city-explorer" aria-label="城市地图"><div ref="viewport" class="city-viewport" :class="{dragging}" @pointerdown="down" @pointermove="move" @pointerup="up" @pointercancel="cancel" @lostpointercapture="lostCapture" @click.capture="click"><div class="city-world" :style="{transform:`translate(${pan.x}px,${pan.y}px)`}"><svg viewBox="0 0 440 470" preserveAspectRatio="none" aria-hidden="true"><rect width="440" height="470" fill="#abc09c"/><path d="M0 324Q126 263 233 348T440 329V369Q329 420 226 386T0 371Z" fill="#81adb5"/><path d="M0 206H440M224 0V470" stroke="#e5dbc0" stroke-width="27"/><path d="M0 206H440M224 0V470" stroke="#a6967e" stroke-width="16"/><rect x="226" y="317" width="28" height="71" fill="#957452"/><rect x="22" y="32" width="179" height="245" rx="18" fill="#d6c485"/><rect x="251" y="30" width="172" height="244" rx="18" fill="#cadb9a"/><rect x="260" y="372" width="163" height="88" rx="13" fill="#becbd0"/><g fill="#c4a67b"><rect x="37" y="78" width="62" height="81"/><rect x="126" y="78" width="55" height="81"/><rect x="76" y="181" width="75" height="74"/></g><g fill="#816b52"><path d="M29 78L68 53 108 78Z"/><path d="M119 78L153 55 188 78Z"/><path d="M69 181L113 155 158 181Z"/></g><g fill="#ddd0ae"><rect x="269" y="81" width="56" height="61"/><rect x="341" y="81" width="56" height="61"/><rect x="274" y="163" width="117" height="43"/></g><g fill="#7b9da4"><rect x="278" y="388" width="34" height="61"/><rect x="325" y="376" width="35" height="73"/><rect x="374" y="397" width="33" height="52"/></g><g fill="#607b52"><circle cx="44" cy="419" r="22"/><circle cx="101" cy="431" r="25"/><circle cx="148" cy="409" r="21"/></g><path d="M20 450Q86 390 171 447" stroke="#dcc8a0" stroke-width="9" fill="none"/></svg><button v-for="r in regions" :key="r.id" class="city-district-object" :style="{left:r.x+'px',top:r.y+'px'}" :aria-label="r.name+'，进入小区'" @click="emit('enter',r.id)"><b>{{r.name}}</b><span>房价 {{districts.find(d=>d.id===r.id)?.priceLevel}} · {{districts.find(d=>d.id===r.id)?.demandLevel}}</span><span v-if="districts.find(d=>d.id===r.id)?.ownedCount">我的{{districts.find(d=>d.id===r.id)?.ownedCount}}套 · 空位{{districts.find(d=>d.id===r.id)?.vacancies}}</span></button></div><button class="city-locate" @click="locate" aria-label="回到幸福里">回到幸福里</button></div>
+</section></template>

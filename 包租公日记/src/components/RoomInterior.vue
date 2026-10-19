@@ -1,0 +1,5 @@
+<script setup lang="ts">
+import NpcAvatar from './NpcAvatar.vue';
+defineProps<{tenantIds:string[],renovating:boolean}>();
+</script>
+<template><div class="room-interior" role="img" :aria-label="renovating?'三个租位，装修中':`三个租位，已入住${tenantIds.length}户`"><svg viewBox="0 0 360 170" aria-hidden="true"><rect width="360" height="170" fill="#e4d6b6"/><path d="M0 112L360 100V170H0Z" fill="#b69770"/><rect x="136" y="15" width="88" height="51" rx="3" fill="#87acae"/><rect x="176" y="15" width="8" height="51" fill="#f2e5c9"/><g v-for="i in 3" :key="i" :transform="`translate(${(i-1)*115+12},0)`"><rect x="0" y="88" width="90" height="61" rx="5" fill="#687f68"/><rect x="6" y="90" width="78" height="18" rx="5" fill="#f3ead5"/><rect x="5" y="113" width="80" height="28" rx="3" :fill="tenantIds[i-1]?'#9fbb88':'#a6b5a1'"/><rect x="0" y="148" width="8" height="15" fill="#795e42"/><rect x="82" y="148" width="8" height="15" fill="#795e42"/></g></svg><div class="interior-people"><div v-for="slot in 3" :key="slot"><NpcAvatar v-if="tenantIds[slot-1]" :tenant-id="tenantIds[slot-1]"/><NpcAvatar v-else-if="renovating&&slot===2" tenant-id="worker"/></div></div></div></template>

@@ -1,0 +1,20 @@
+[
+  {
+    "file": "v2-0.14.1.json",
+    "packageVersion": "0.14.1",
+    "schemaVersion": 2,
+    "source": "build/pixel-survivor-0.14.1.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "6f7b7fadc7b8508ee75bb4446503697531351fac4d0dee06c5f1469bf3906519",
+    "fixtureSha256": "8e2b276faf6f671af03c58916f2b235887e54fa26f251d302aa960a61a304384",
+    "adaptation": "Synthetic contract fixture generated once by archived loadProfile, saveProfile, trainHero, settleRun in isolated memory storage, with explicit synthetic starting balances. Not an original player save."
+  },
+  {
+    "file": "v2-0.14.1-daily.json",
+    "packageVersion": "0.14.1",
+    "schemaVersion": 2,
+    "source": "build/pixel-survivor-0.14.1.zip:pixel-survivor/campaign.js",
+    "sourceSha256": "6f7b7fadc7b8508ee75bb4446503697531351fac4d0dee06c5f1469bf3906519",
+    "fixtureSha256": "556173cd51bcac385a14a7ef2d1e14a2a6ae2d50cd551f62b8007d06bcf63c27",
+    "adaptation": "Synthetic contract fixture generated once by archived loadProfile, saveProfile, trainHero, settleRun, claimDailyCheckin and grantDailyCheckinBonus in isolated memory storage, with explicit synthetic starting balances. Not an original player save."
+  }
+]

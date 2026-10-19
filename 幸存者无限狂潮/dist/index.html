@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+  <meta name="theme-color" content="#162c2e"><meta name="description" content="幸存者：无限狂潮：培养英雄，探索副本，用主动技能与三选一武器构筑迎战敌潮。">
+  <link rel="icon" type="image/png" href="./assets/ui/skill-sword-field.png">
+  <title>幸存者：无限狂潮</title><link rel="stylesheet" href="./style.css"><link rel="stylesheet" href="./campaign.css"><link rel="stylesheet" href="./campaign-journey.css"><link rel="stylesheet" href="./campaign-profession.css"><link rel="stylesheet" href="./cloud-save.css"><link rel="stylesheet" href="./campaign-home.css"><link rel="stylesheet" href="./daily-checkin.css">
+</head>
+<body class="boot-loading">
+  <main id="arena" aria-label="幸存者：无限狂潮战场">
+    <canvas id="battle" aria-label="使用 WASD 或方向键移动，手机拖动左侧摇杆。武器自动攻击，Q/E 施放主动技能。"></canvas>
+    <header id="hud" hidden>
+      <div class="health"><span id="hp-text">生命</span><div class="meter"><i id="hp-fill"></i></div></div>
+      <div class="run-time"><strong id="time">00:00</strong><span id="kills">击败 0</span></div>
+      <div class="hud-actions"><button id="sound" aria-pressed="false" title="切换音效">音效关</button><button id="pause">暂停</button></div>
+      <div class="experience"><i id="xp-fill"></i><span id="level">等级 1</span></div>
+      <div class="expedition-hud"><strong id="expedition-name"></strong><span id="hero-status"></span><span id="encounter-status"></span></div>
+    </header>
+    <div id="joystick" aria-hidden="true"><div class="stick-ring"><div id="stick-knob"></div></div></div>
+    <p id="control-hint" hidden>左侧移动 · 技能拖动瞄准，松手释放</p>
+    <div id="weapon-rack" class="weapon-rack" aria-label="本局通用能力，最多两个" hidden></div>
+    <nav id="skill-bar" class="skill-bar" aria-label="主动技能，Q E" hidden></nav>
+    <section id="welcome" class="welcome" aria-label="游戏开始">
+      <div class="title-mark" aria-hidden="true">✦</div><h1>幸存者：无限狂潮</h1>
+      <progress id="load-progress" max="100" value="0" aria-label="资源加载进度"></progress><p id="load-status" role="status">正在准备画面与音效…</p>
+      <button id="start" class="primary" disabled>正在准备战场…</button>
+      <p class="instructions">拖动左侧摇杆，或使用 WASD / 方向键移动。<br>武器自动攻击；Q / E 释放技能，拾取经验三选一升级。</p>
+      <div class="menu-bottom"><button id="about">玩法与隐私</button><span>据点远征版</span></div>
+      <p id="loading-error" role="alert" hidden></p>
+    </section>
+    <section id="campaign" aria-label="远征据点" hidden></section>
+    <dialog id="upgrade-dialog" aria-labelledby="upgrade-title"><div class="dialog-inner"><span class="ornament" aria-hidden="true">✦</span><h2 id="upgrade-title" tabindex="-1">选择成长</h2><p id="upgrade-context">英雄专属 · 通用能力 · 基础属性</p><div id="upgrade-choices" class="choices"></div><footer class="upgrade-reroll-footer"><button id="upgrade-reroll" class="tactical-button">免费重抽 1/1</button><p id="reroll-status" role="status" aria-live="polite"></p></footer></div></dialog>
+    <dialog id="revive-dialog" aria-labelledby="revive-title"><div class="dialog-inner compact"><h2 id="revive-title" tabindex="-1">再战一次</h2><p class="revive-description">远征满 60 秒，可看视频恢复 50% 生命，并获得 3 秒无敌。<br>每局复活与广告重抽共用一次机会。</p><div class="revive-actions"><button id="revive-watch" class="tactical-button">看视频复活</button><button id="revive-skip" class="tactical-button is-secondary">结束远征</button></div><p id="revive-status" role="status" aria-live="polite"></p></div></dialog>
+    <dialog id="pause-dialog" aria-labelledby="pause-title"><div class="dialog-inner compact"><h2 id="pause-title">战斗暂停</h2><details class="build-details"><summary>查看本局构筑</summary><div id="build-summary"></div></details><button id="resume" class="primary">继续战斗</button><button id="restart">重新开始</button><button id="return-title">返回据点</button></div></dialog>
+    <dialog id="result-dialog" aria-labelledby="result-title"><div class="dialog-inner compact"><span class="ornament" aria-hidden="true">✦</span><h2 id="result-title">本次远征结束</h2><p id="result-note"></p><div id="result-stats" class="result-stats"></div><p id="result-loot" role="status"></p><button id="retry-save" hidden>重试保存战利品</button><button id="ad-gold" hidden>看视频领取额外战利品</button><button id="retry-ad-gold" hidden>重试保存额外战利品</button><p id="ad-status" role="status" aria-live="polite"></p><button id="result-home" class="primary">返回据点</button><button id="again">再次挑战</button></div></dialog>
+    <dialog id="confirm-dialog" aria-labelledby="confirm-title"><div class="dialog-inner compact"><h2 id="confirm-title">重新开始？</h2><p>本次战斗进度将结束。</p><button id="confirm-yes" class="primary">确定</button><button id="confirm-no">继续本次战斗</button></div></dialog>
+    <dialog id="cloud-save-dialog" aria-labelledby="cloud-title"><section class="cloud-panel"><header class="cloud-heading"><h2 id="cloud-title">存档与说明</h2><button id="cloud-close" aria-label="关闭存档面板">关闭</button></header><p class="cloud-note">进度首先保存在此设备。云端仅手动备份与恢复，不自动同步；换设备需手动恢复。云档由当前 TapTap 宿主管理，本游戏不自行登录或识别账号。</p><section class="ad-test-panel" aria-label="广告测试"><button id="ad-self-test">广告自测（不发奖励）</button><p id="ad-self-test-status" role="status" aria-live="polite"></p></section><div class="cloud-slots"><section class="cloud-slot"><h3>本机进度</h3><p id="cloud-local-summary"></p><small id="cloud-local-time"></small></section><section class="cloud-slot"><h3>当前宿主云端</h3><p id="cloud-remote-summary"></p><small id="cloud-remote-time"></small></section></div><p class="cloud-note">英雄顺序：风刃指挥官 / 契灵使 / 瞬印行者 / 元素法师。云端只保存完整养成档案，不保存当前战局。</p><div class="cloud-actions"><button id="cloud-backup">备份到云端</button><button id="cloud-restore">恢复云端进度</button><button id="cloud-refresh">刷新云端</button></div><p id="cloud-status" role="status" aria-live="polite"></p><section id="cloud-confirmation" class="cloud-confirmation" hidden><p id="cloud-confirm-text"></p><div class="cloud-actions"><button id="cloud-cancel-confirm">取消</button><button id="cloud-confirm">确认</button></div></section><button id="cloud-about" class="cloud-about">玩法与隐私</button></section></dialog>
+    <dialog id="daily-dialog" aria-labelledby="daily-title"><section class="daily-panel"><header class="daily-heading"><h2 id="daily-title" tabindex="-1">每日签到</h2><button id="daily-close" aria-label="关闭每日签到">关闭</button></header><p id="daily-summary">今日可免费领取一份奖励</p><div class="daily-rewards" aria-label="每份签到奖励"><span><img src="./assets/ui/gold.png" alt=""><b>60</b> 金币</span><span><img src="./assets/ui/materials.png" alt=""><b>8</b> 材料</span></div><p class="daily-total">免费领一份，或看广告领双份：120 金币、16 材料。</p><p id="daily-count">累计签到 0 天</p><p class="daily-rule">北京时间每天 0 点更新。累计签到不会因断签重置。</p><div class="daily-actions"><button id="daily-base">免费领取</button><button id="daily-double">看广告领双份</button><button id="daily-retry" hidden>重试保存奖励</button></div><p id="daily-status" role="status" aria-live="polite"></p></section></dialog>
+    <dialog id="about-dialog" aria-labelledby="about-title"><div class="dialog-inner compact"><h2 id="about-title">玩法与隐私</h2><p>在任务页追踪目标，选择副本获得英雄经验与材料。十名英雄均沿一阶、二阶、三阶晋升：该英雄3级并通关苔痕关可升二阶，6级并通关烬火古道且已获二阶可升三阶，免费领取后直接晋升。五场英雄挑战保留奖励，不是晋升前置；在战技页装配两个主动技能，平A自动施放。局内拾取经验，通过三选一强化英雄机制、基础属性和最多两种通用能力；通用能力升至五级、获得对应属性并达到关卡进度门槛后，选择一条进化路线；坚持到副本时间结束并击败首领即可通关。</p><p>手机横屏拖动左侧；键盘使用 WASD / 方向键移动，Q / E 施放技能，Esc 暂停。手机按住右侧技能拖动瞄准，松手释放；拖远取消，点按自动施放。切到后台会暂停，需要手动继续。</p><p>本游戏无需自建账号，不含内购。远征正常结算奖励完整保留，不强制观看广告。每日签到可免费领取 60 金币和 8 材料，也可自愿看广告再领一份；北京时间每天 0 点更新，累计签到不断签重置。远征满 60 秒后，可自愿观看 TapTap 激励视频，每局结算一次额外战利品：金币 +50%、材料 +25%，不增加英雄经验或任务进度。每局可免费重抽一次升级选项；之后可选择看视频重抽，或在远征满 60 秒后看视频复活，恢复 50% 生命并获得 3 秒无敌。广告重抽与复活每局共用一次机会。未完整观看、加载失败或取消均不发广告奖励，不扣正常奖励。养成进度首先保存在本设备浏览器中；清除浏览器数据会丢失本机进度。可在支持云存档的 TapTap 手机宿主中，手动将完整养成档案备份到当前宿主云端或恢复，不自动同步；档案不含登录凭证。战局只在内存中，刷新会结束本次战斗。云备份保存局外完整养成进度，不保存当前战局或游戏账号凭证。广告播放及云端服务的数据由 TapTap 平台按其政策处理。</p><button id="about-close" class="primary">明白了</button></div></dialog>
+    <dialog id="rotate" aria-labelledby="rotate-title" hidden><span aria-hidden="true">↻</span><h2 id="rotate-title">横屏迎战</h2><p>请旋转手机，战斗已暂停。</p></dialog>
+  </main>
+  <script>
+    // Keep startup reporting outside the game module so parse/import failures are visible.
+    window.reportStartupError = function (error) {
+      if (!document.body.classList.contains('boot-loading')) return;
+      var message = error && error.message ? error.message : String(error || '未知启动错误');
+      document.getElementById('load-status').textContent = '启动未完成';
+      var detail = document.getElementById('loading-error');
+      detail.hidden = false;
+      detail.textContent = '启动失败：' + message + '。可重新加载，无需清除存档。';
+      var retry = document.getElementById('start');
+      retry.disabled = false;
+      retry.textContent = '重新加载';
+      retry.onclick = function () { location.reload(); };
+    };
+    window.addEventListener('error', function (event) {
+      if (event.error) window.reportStartupError(event.error);
+    });
+    import('./main.js').catch(window.reportStartupError);
+  </script>
+</body>
+</html>
+
+

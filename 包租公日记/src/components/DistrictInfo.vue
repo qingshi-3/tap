@@ -1,0 +1,14 @@
+<script setup lang="ts">
+import {computed,ref,watch} from 'vue';
+import GameDialog from './GameDialog.vue';
+const props=defineProps<{district:any,properties:any[]}>();
+const emit=defineEmits<{close:[],select:[id:string]}>();
+const page=ref<'overview'|'market'|'properties'|'project'>('overview');
+const current=computed(()=>props.district);
+const owned=computed(()=>props.properties.filter(p=>p.regionId===props.district.id&&p.owned));
+watch(()=>props.district.id,()=>page.value='overview');
+const date=(m:number)=>`${2029+Math.floor(m/12)}年${m%12+1}月`;const money=(n:number)=>'¥'+Math.round(n).toLocaleString('zh-CN');
+const status=(p:any)=>p.renovatingMonths?'施工中':p.condition<40?'待维修':p.renewalCount?'待续租':!p.vacancies?'满住':p.askingRent===null?'未挂牌':p.applicantCount?'谈价中':'待租';
+function selectProperty(id:string){emit('select',id);}
+</script>
+<template><GameDialog :title="current.name" @close="emit('close')"><template v-if="page==='overview'"><dl class="city-overview"><div><dt>房价</dt><dd>{{current.priceLevel}}</dd></div><div><dt>租金</dt><dd>{{current.rentLevel}}</dd></div><div><dt>需求</dt><dd>{{current.demandLevel}}</dd></div><div><dt>我的房产</dt><dd>{{current.ownedCount}}套 · 空位{{current.vacancies}}位</dd></div><div v-if="current.project"><dt>{{current.project.name}}</dt><dd>{{current.project.stageLabel}}</dd></div></dl><div class="city-detail-actions"><button @click="page='market'">地区行情</button><button @click="page='properties'">我的房产</button><button v-if="current.project" @click="page='project'">发展详情</button></div></template><template v-else><div class="sheet-heading"><h3>{{page==='market'?'地区行情':page==='properties'?'我的房产':current.project?.name}}</h3><button class="quiet" @click="page='overview'">返回概况</button></div><table v-if="page==='market'" class="market-table"><thead><tr><th scope="col">档位</th><th scope="col">房价</th><th scope="col">租金</th><th scope="col">热度</th></tr></thead><tbody><tr v-for="tier in current.tiers" :key="tier.id"><th scope="row">{{tier.name}}</th><td>{{tier.priceLevel}}</td><td>{{tier.rentLevel}}</td><td>{{tier.demandLevel}}</td></tr></tbody></table><template v-else-if="page==='properties'"><dl v-if="owned.length" class="city-overview"><div><dt>合同月租</dt><dd>{{money(current.contractRent)}}</dd></div><div><dt>预计结余</dt><dd>{{money(current.netIncome)}}</dd></div></dl><p v-if="!owned.length">这里还没有你的房产。</p><button v-for="p in owned" :key="p.id" class="district-property" @click="selectProperty(p.id)"><b>{{p.name}}</b><span>{{status(p)}} · {{p.occupancy}}/{{p.capacity}}户</span><span>月租 {{money(p.rent)}}</span></button></template><template v-else-if="current.project"><p>{{current.project.stageLabel}}</p><p>{{current.project.description}}</p><p v-if="current.project.nextMonth!==null">预计下一阶段：{{date(current.project.nextMonth)}}</p></template></template></GameDialog></template>

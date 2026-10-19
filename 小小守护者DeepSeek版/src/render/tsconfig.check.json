@@ -1,0 +1,19 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": false,
+    "isolatedModules": false,
+    "declaration": false,
+    "sourceMap": false,
+    "outDir": "../../output/render-check/tsc",
+    "rootDir": "..",
+    "types": []
+  },
+  "include": ["./**/*.ts", "../core/**/*.ts", "../assets-types.ts"],
+  "exclude": ["../core/core.test.ts", "../app.ts", "../main.ts", "../../tools/**"]
+}
