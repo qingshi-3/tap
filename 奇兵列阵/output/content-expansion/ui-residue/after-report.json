@@ -1,0 +1,28 @@
+{
+  "mode": "after",
+  "errors": [],
+  "inventoryBefore": "{\"contentVersion\":\"0.3\",\"seed\":869190083,\"general\":\"argeon\",\"lives\":3,\"stage\":0,\"wins\":0,\"slots\":[{\"defId\":\"v_wall\",\"ownedId\":1,\"copies\":4},null,null,null,null],\"bench\":[null,null],\"activeFactions\":[\"light\",\"magma\",\"frost\",\"desert\"],\"variantChoices\":[0,0,0,0,0,0,1,1,1,0],\"nextOwnedId\":2,\"draft\":[\"l_shield\",\"m_rex\",\"n_merc\"],\"picks\":2,\"rerolls\":1,\"history\":[],\"rngState\":-623414815,\"rewardedRetryCount\":0,\"rewardedRerollStage\":null,\"over\":null}",
+  "ghostsFirst": 1,
+  "ghostsSecond": 1,
+  "ghostsAfterRelease": 0,
+  "inventoryUnchanged": true,
+  "ghostsBeat4": 0,
+  "visibleGhosts": [],
+  "cases": [
+    "multitouch valid placement commits once without double consumption",
+    "invalid drop returns without consuming inventory",
+    "cancelled return animation removes actual node",
+    "touchCancel removes preview without consuming inventory",
+    "Escape cancels held gesture",
+    "valid touch bench round trip preserves identity/copies/picks",
+    "official start cancels held gesture and late release",
+    "sandbox restore cancels held gesture",
+    "sandbox trial cancels held gesture",
+    "sandbox result/adjust has no residue",
+    "simulated host blur cancels held gesture",
+    "pause/resume lifecycle cancels held gesture",
+    "ad wait cancels held gesture",
+    "cancelled ad returns without residue",
+    "exit during invalid return removes preview"
+  ]
+}

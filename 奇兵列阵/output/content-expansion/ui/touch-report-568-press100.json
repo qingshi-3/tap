@@ -1,0 +1,43 @@
+[
+  {
+    "width": 568,
+    "height": 320,
+    "dpr": 1,
+    "material": true,
+    "content": {
+      "top": 174,
+      "height": 395,
+      "total": 569,
+      "width": 546,
+      "scrollWidth": 546,
+      "text": "曙光执政官 · 传说\n★\n4\n9\n开战指定一名友军护盾 +6；此后其首次破盾且存活，若执政官仍存活且未沉默，再为其加 3 护盾，仅一次\n★★\n5\n11\n开战指定一名友军护盾 +8；此后其首次破盾且存活，若执政官仍存活且未沉默，再为其加 4 护盾，仅一次\n★★★\n6\n13\n开战指定一名友军护盾 +8，其相邻格友军各护盾 +4；此后仅指定目标首次破盾且存活时，若执政官仍存活且未沉默，再为其加 4 护盾，仅一次",
+      "stageScroll": 0,
+      "viewportScroll": 0
+    },
+    "resetEvents": [
+      {
+        "type": "pointerdown",
+        "time": 12772.200000047684,
+        "prevented": false
+      },
+      {
+        "type": "pointerup",
+        "time": 12886.200000047684,
+        "prevented": false
+      },
+      {
+        "type": "click",
+        "time": 14406.600000023842,
+        "prevented": false
+      }
+    ],
+    "resetInput": "Keyboard Enter passed; first restore touch after CDP drag remains unverified (pointerdown/up delivered, no click within 1500ms; cause unresolved)",
+    "actions": [
+      "CDP touch drag bench to battlefield and back",
+      "touchCancel leaves inventory unchanged",
+      "long legendary star-three text scrolled to bottom by touch without horizontal overflow",
+      "replay same-name touch drag swaps without merging then restore"
+    ],
+    "errors": []
+  }
+]

@@ -1,0 +1,118 @@
+[
+  {
+    "width": 844,
+    "height": 390,
+    "mobile": true,
+    "reducedMotion": true,
+    "labelHit": {
+      "x": 345.83660888671875,
+      "y": 87.419921875,
+      "width": 43.993499755859375,
+      "height": 43.993499755859375
+    },
+    "feedback": [
+      {
+        "slot": "0",
+        "frames": [
+          [
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1.45)",
+              "computedOffset": 0
+            },
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1)",
+              "computedOffset": 1
+            }
+          ]
+        ]
+      },
+      {
+        "slot": "1",
+        "frames": [
+          [
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1.45)",
+              "computedOffset": 0
+            },
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1)",
+              "computedOffset": 1
+            }
+          ]
+        ]
+      },
+      {
+        "slot": "2",
+        "frames": [
+          [
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1.45)",
+              "computedOffset": 0
+            },
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1)",
+              "computedOffset": 1
+            }
+          ]
+        ]
+      },
+      {
+        "slot": "3",
+        "frames": [
+          [
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1.45)",
+              "computedOffset": 0
+            },
+            {
+              "offset": null,
+              "easing": "linear",
+              "composite": "auto",
+              "filter": "brightness(1)",
+              "computedOffset": 1
+            }
+          ]
+        ]
+      }
+    ],
+    "actions": [
+      "full battlefield ritualist real label drag to slot2 two-star abyss seed stores UID2 and removes pending column",
+      "pending official guard; every pending source has observable shake or reduced-motion brightness feedback",
+      "real label drag commits single UID and lights only source plus legal hover",
+      "illegal enemy remains gray and prior UID binding survives",
+      "two separate label drags commit complete double atomically",
+      "half-choice cancels on Escape/blank/other selection/blur/paused hidden/pointercancel/start attempt; prior configuration preserved",
+      "moving half-selected source to bench discards half and retains original pair",
+      "keyboard label Enter and target Space",
+      "keyboard double target remains atomic",
+      "ordinary role drag still swaps; target follows owned UID after swapping",
+      "selected bench source can designate battlefield and never blocks",
+      "invalid explicit binding blocked; sandbox and ad retry guarded before ad/count",
+      "injected frozen retry snapshot guard",
+      "CDP second touch cannot reenter target/ordinary gesture; cancel removes arrow/gray/ghost",
+      "no legal complete choice allows natural fizzle and battle"
+    ],
+    "errors": []
+  }
+]

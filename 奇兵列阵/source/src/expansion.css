@@ -1,0 +1,737 @@
+.tray {
+  height:264px}
+.tray-left {
+  left:22px;
+  top:36px;
+  width:190px;
+  gap:10px}
+.tl-row {
+  font-size:24px;
+  justify-content:center}
+.cards {
+  left:236px;
+  top:28px;
+  width:540px;
+  height:220px;
+  gap:12px}
+.card {
+  width:172px;
+  height:220px;
+  flex:none}
+.card-in {
+  padding:10px 9px}
+.card-top {
+  font-size:18px;
+  gap:4px}
+.card-tier {
+  font-size:18px;
+  gap:2px}
+.card-tier .ic {
+  font-size:13px}
+.card-art {
+  height:94px}
+.card-name {
+  font-size:25px;
+  letter-spacing:0;
+  white-space:nowrap}
+.card-text {
+  display:none}
+.card-stats {
+  position:absolute;
+  bottom:12px;
+  left:12px;
+  right:12px}
+.card-kw {
+  display:none}
+.card-badge {
+  font-size:20px;
+  top:-22px}
+.cards-done {
+  font-size:26px;
+  letter-spacing:0;
+  background:#162836}
+.tray-right {
+  left:800px;
+  right:22px;
+  width:auto;
+  top:38px;
+  display:flex;
+  flex-direction:row;
+  gap:18px;
+  align-items:center}
+.fight-controls {
+  display:flex;
+  flex:1;
+  flex-direction:column;
+  align-items:stretch;
+  gap:12px}
+.tr-team {
+  font-size:26px;
+  justify-content:center;
+  color:#eaf4ff}
+.btn.fight {
+  height:var(--control-size);
+  padding:0 14px;
+  font-size:30px;
+  letter-spacing:0;
+  min-width:var(--control-size)}
+.bench {
+  display:flex;
+  gap:10px;
+  flex:none}
+.bench-slot {
+  position:relative;
+  width:104px;
+  height:150px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  background:transparent;
+  box-shadow:none;
+  min-width:var(--control-size)}
+.bench-slot.selected {
+  background:transparent}
+.bench-art {
+  width:100px;
+  height:112px;
+  pointer-events:none}
+.bench-art .uart {
+  width:100px;
+  height:112px}
+.bench-label {
+  font-size:22px;
+  line-height:1.1;
+  color:#f5d47b;
+  pointer-events:none;
+  white-space:nowrap}
+.bench-slot:has(>.ic) {
+  color:#a9cdd9;
+  gap:18px;
+  font-size:24px}
+.bench-slot:has(>.ic) .ic {
+  display:none}
+.bench-slot[data-drop=place],.bench-slot[data-drop=move] {
+  background:transparent}
+.bench-slot[data-drop=merge] {
+  background:transparent}
+.bench-slot[data-drop=reserve],.bench-slot[data-drop=swap] {
+  background:transparent}
+.bench-slot[data-drop=replace] {
+  background:transparent}
+.bench-slot[data-drop=invalid] {
+  filter:grayscale(1);
+  opacity:.5}
+.bench-slot.drop-hover {
+  background:transparent}
+.bench-slot[data-drop]:not([data-drop=''])::after {
+  position:absolute;
+  bottom:-32px;
+  font-size:20px;
+  color:#eafaff;
+  white-space:nowrap}
+.bench-slot[data-drop=merge]::after {
+  content:'升级'}
+.bench-slot[data-drop=swap]::after {
+  content:'交换'}
+.bench-slot[data-drop=reserve]::after {
+  content:'替换'}
+.bench-slot[data-drop=replace]::after {
+  content:'替换'}
+.card.tier-1 .card-tier,.pool-unit.tier-1>span:last-child {
+  color:#d0d8df}
+.card.tier-2 .card-tier,.pool-unit.tier-2>span:last-child {
+  color:#8fe6ff}
+.card.tier-3 .card-tier,.pool-unit.tier-3>span:last-child {
+  color:#ddb0ff}
+.card.tier-4 .card-tier,.pool-unit.tier-4>span:last-child {
+  color:#ffcf71}
+.btn:disabled {
+  filter:grayscale(1);
+  opacity:.4;
+  pointer-events:none}
+button:active:not(:disabled) {
+  filter:brightness(1.28)}
+button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible {
+  outline:4px solid #a3eeff;
+  outline-offset:3px}
+.tray>.bench {
+  position:absolute;
+  left:24px;
+  top:55px}
+.sandbox-panel {
+  left:270px;
+  right:24px;
+  top:30px;
+  height:220px;
+  padding:10px 14px;
+  gap:10px;
+  grid-template-rows:minmax(0,1fr) var(--control-size)}
+.sp-text {
+  font-size:23px;
+  line-height:1.25}
+.sp-btns {
+  gap:10px}
+.sandbox-panel .sp-btns .btn {
+  height:var(--control-size);
+  font-size:25px;
+  min-width:0;
+  letter-spacing:0;
+  padding:0 8px}
+.content-dialog {
+  font-size:24px}
+.content-dialog h3 {
+  margin:0 0 20px}
+.refresh-options {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px}
+.content-dialog .btn {
+  font-size:26px;
+  letter-spacing:0;
+  min-height:var(--control-size)}
+.content-dialog .active {
+  filter:brightness(1.35);
+  color:var(--gold)}
+.pool-dialog {
+  height:510px;
+  max-height:65vh;
+  display:flex;
+  flex-direction:column;
+  gap:16px}
+.pool-tabs {
+  display:flex;
+  gap:10px;
+  flex:none}
+.pool-tabs .btn {
+  flex:1;
+  min-width:0;
+  padding:0 10px}
+.pool-body {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:24px;
+  min-height:0;
+  flex:1}
+.pool-list,.pool-detail {
+  overflow-y:auto;
+  touch-action:pan-y;
+  overscroll-behavior:contain}
+.pool-list {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-content:start}
+.pool-unit {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  min-height:170px;
+  padding:4px;
+  background:#1d3544;
+  font-size:22px}
+.pool-unit.locked {
+  background:#202c35}
+.pool-unit-art {
+  height:100px;
+  width:100px}
+.pool-unit>span:last-child {
+  font-size:19px}
+.pool-detail {
+  padding:0 12px}
+.pool-art {
+  display:none}
+.pool-detail>.tip-unit,.pool-detail section {
+  margin:12px 0}
+.pool-detail .tip-up {
+  display:none}
+.pool-detail .tip-name {
+  font-size:25px}
+.pool-detail .tip-text {
+  font-size:24px;
+  line-height:1.4}
+.pool-detail .tip-fac,.pool-detail .tip-lv {
+  font-size:20px}
+.pool-detail section>b {
+  color:#f3d480}
+.pool-detail .tip-head {
+  display:none}
+.tip-text,.tip-up {
+  line-height:1.45}
+.tip.viewport-tip {
+  font-size:13px;
+  max-width:310px}
+.tip.viewport-tip .tip-up {
+  font-size:12px;
+  line-height:1.4}
+.tip.viewport-tip .tip-name {
+  font-size:16px}
+.tip.viewport-tip .tip-text {
+  font-size:13px}
+.tip.viewport-tip .tip-fac,.tip.viewport-tip .tip-lv {
+  font-size:11px}
+@media(pointer:coarse) {
+
+.pool-dialog {
+  max-height:510px}
+.modal.wide {
+  width:1180px}
+.game .res-btns .btn,.confirm-btns .btn,.ht-nav .btn {
+  min-height:var(--control-size);
+  font-size:28px}
+.game .battle-bar .btn {
+  min-height:var(--control-size);
+  min-width:var(--control-size);
+  font-size:28px}
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .card,.unit,.btn {
+  transition:none!important}
+}
+
+/* The recruitment face carries the first complete clause;
+   full star text is on selection. */
+.card-art {
+  height:62px}
+.card-art .uart {
+  transform:scale(.72);
+  transform-origin:center bottom}
+.card-name {
+  font-size:24px}
+.card-brief {
+  font-size:19px;
+  line-height:1.25;
+  text-align:left;
+  margin:3px 3px 0;
+  color:#dbeaf1}
+.card-stats {
+  bottom:8px}
+.card-in {
+  border-radius:0}
+
+.board.dropping .slot.side-0[data-drop=reserve] .ped {
+  filter:brightness(1.4) sepia(.2)}
+
+.board.dropping .slot.side-0[data-drop=reserve]::after {
+  content:'替换';
+  color:#2a1000;
+  background:#ff9a50}
+
+.board.dropping .slot.side-0[data-drop=replace]::after {
+  content:'替换'}
+
+.slot.target-allowed .ped {
+  filter:brightness(1.65) drop-shadow(0 0 18px #80ddfa)}
+
+.slot.target-chosen .ped {
+  filter:brightness(1.9) drop-shadow(0 0 20px #ffe399)}
+
+.modal-ov.wide .modal {
+  width:1180px;
+  max-width:calc(100% - 48px)}
+
+.modal-x {
+  width:var(--control-size);
+  height:var(--control-size);
+  z-index:2}
+
+.pool-tabs {
+  padding-right:80px}
+.pool-dialog {
+  height:510px;
+  max-height:510px}
+.pool-detail .tip-text .trg {
+  font-size:20px;
+  line-height:1.2;
+  padding:2px 4px}
+
+.card-brief {
+  font-size:24px;
+  line-height:1.25;
+  margin:4px 4px 0}
+.card-stats {
+  top:58px;
+  bottom:auto}
+.card-stats .cs {
+  width:32px;
+  height:30px}
+.card-stats .cs i {
+  font-size:22px}
+
+@media(pointer:coarse) {
+
+}
+
+/* Bench seats use Board.seatArt, including the same --px-ped-0 material. */
+.bench-slot {
+  height: 168px;
+  background: transparent;
+  box-shadow: none;
+}
+.bench-seat { position: absolute; left: 50%; top: 100px; pointer-events: none; }
+.bench-seat .ped { left: -52px; top: 0; width: 104px; height: 41px; background-size: 104px 41px; --pc: 255, 205, 110; }
+.bench-art { position: absolute; left: calc(50% - 50px); top: 0; }
+.bench-label { position: absolute; left: 0; right: 0; top: 143px; text-align: center; }
+.bench-slot:is(.selected,.drop-hover) .ped,
+.bench-slot:is([data-drop=place],[data-drop=move],[data-drop=reserve],[data-drop=swap]) .ped {
+  filter: brightness(1.4) drop-shadow(0 0 12px #88d6f0);
+}
+.bench-slot[data-drop=merge] .ped { filter: brightness(1.6) drop-shadow(0 0 14px #ffe19b); }
+.bench-slot[data-drop=replace] .ped { filter: brightness(1.4) drop-shadow(0 0 12px #f99878); }
+.bench-slot.selected .duelyst-normal { visibility: hidden; }
+.bench-slot.selected .duelyst-selected { visibility: visible; }
+.board .u-pips span { width: 14px; height: 14px; transform: none; background: none; box-shadow: none; color: #ffdf8a; font-size: 14px; }
+/* The fixed, scaled stage is a clipped canvas, never a browser focus-scroll container. */
+#stage, #viewport { overflow: clip; }
+
+/* Existing tooltip and pixel buttons remain the sole unit-detail surface. */
+.tray-left { top: 52px; gap: 12px; }
+.tray-left > .reroll { min-height: var(--control-size); font-size: 24px; letter-spacing: 0; padding: 0 16px; }
+.tray-left .reroll i { font-size: 20px; }
+.tip.interactive { pointer-events: auto; overflow-y: auto; touch-action: pan-y; }
+.board.dropping .slot.side-0[data-drop=reserve] .slot-num { visibility: hidden; }
+.bench-slot[data-drop]:not([data-drop=''])::after {
+  top: 180px; bottom: auto; left: 50%; transform: translateX(-50%);
+  font-size: 20px; line-height: 26px; font-weight: 900; padding: 2px 10px;
+  letter-spacing: .1em; pointer-events: none;
+}
+.bench-slot[data-drop=place]::after { content: '放置'; color: #0c2a18; background: var(--green); }
+.bench-slot[data-drop=merge]::after { content: '升级'; color: #2a1700; background: var(--gold); }
+.bench-slot[data-drop=reserve]::after, .bench-slot[data-drop=replace]::after { content: '替换'; color: #2a1000; background: #ff9a50; }
+.bench-slot[data-drop=swap]::after { content: '交换'; color: #071a30; background: #8cc8ff; }
+@media(pointer:coarse) {
+
+
+
+
+}
+.tip-rarity.rarity-1 { color: #d0d8df; }
+.tip-rarity.rarity-2 { color: #8fe6ff; }
+.tip-rarity.rarity-3 { color: #ddb0ff; }
+.tip-rarity.rarity-4 { color: #ffcf71; }
+.tip-stars { color: var(--gold); }
+.bench-slot { height: 180px; }
+.bench-slot .bench-stats { top: 111px; left: 8px; right: 8px; pointer-events: none; }
+.bench-slot:has(.bench-stats) .bench-label { top: 150px; }
+
+/* ═════════ 阵营与稀有度 ═════════
+   阵营：卡框轮廓 / 边纹（pixel.ts FRAME_SPECS）+ 阵营签的形状，颜色只是第三层线索。
+   稀有度：卡底宝石数 = 星级档位，史诗加流光，传说加冠饰与金色外晕。 */
+.card-in,
+.gen-card {
+  -webkit-mask-box-image: var(--pxm) 9 / 18px round;
+}
+/* 遮罩会裁掉 box-shadow，阴影与光晕改由外层按轮廓投影 */
+.card-in {
+  box-shadow: none !important;
+}
+.card {
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.55));
+}
+.card:hover {
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 10px color-mix(in srgb, var(--fc) 45%, transparent));
+}
+.card.selected {
+  filter: drop-shadow(0 0 2px #ffd36b) drop-shadow(0 0 2px #ffd36b) drop-shadow(0 0 14px rgba(255, 211, 107, 0.6));
+}
+.cards.exhausted .card {
+  filter: grayscale(0.85) brightness(0.55);
+}
+
+/* 阵营签：实色底 + 每个阵营一种外形 */
+.card-fac,
+.gc-fac {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  padding: 4px 10px 3px;
+  color: #0b0716;
+  background: var(--fc);
+  box-shadow: none;
+  border-radius: 0;
+}
+.fac-light .card-fac,
+.fac-light .gc-fac {
+  /* 圆润：像素阶梯圆角 */
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, calc(100% - 4px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 4px) calc(100% - 2px), calc(100% - 4px) 100%, 4px 100%, 4px calc(100% - 2px), 0 calc(100% - 2px), 0 2px, 4px 2px);
+}
+.fac-shadow .card-fac,
+.fac-shadow .gc-fac {
+  /* 锋利：平行四边形 */
+  clip-path: polygon(7px 0, 100% 0, calc(100% - 7px) 100%, 0 100%);
+  padding: 4px 13px 3px;
+}
+.fac-abyss .card-fac,
+.fac-abyss .gc-fac {
+  /* 内凹：两端燕尾 */
+  clip-path: polygon(0 0, 100% 0, calc(100% - 6px) 50%, 100% 100%, 0 100%, 6px 50%);
+  padding: 4px 13px 3px;
+}
+.fac-magma .card-fac,
+.fac-magma .gc-fac {
+  /* 锯齿：下沿犬牙 */
+  clip-path: polygon(0 0, 100% 0, 100% 82%, 87.5% 100%, 75% 82%, 62.5% 100%, 50% 82%, 37.5% 100%, 25% 82%, 12.5% 100%, 0 82%);
+  padding: 3px 10px 5px;
+}
+.fac-frost .card-fac,
+.fac-frost .gc-fac {
+  /* 冰晶：六边形 */
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 7px 100%, 0 50%);
+  padding: 4px 13px 3px;
+}
+.fac-desert .card-fac,
+.fac-desert .gc-fac {
+  /* 阶梯：上窄下宽的台基 */
+  clip-path: polygon(6px 0, calc(100% - 6px) 0, calc(100% - 6px) 4px, calc(100% - 3px) 4px, calc(100% - 3px) 8px, 100% 8px, 100% 100%, 0 100%, 0 8px, 3px 8px, 3px 4px, 6px 4px);
+}
+.fac-neutral .card-fac,
+.fac-neutral .gc-fac {
+  background: #cfd6e6;
+}
+
+/* 稀有度：名称颜色 + 卡底宝石 */
+.card-tier {
+  font-size: 17px;
+  font-weight: 900;
+  filter: none;
+}
+.card-gems {
+  position: absolute;
+  left: 50%;
+  bottom: 3px;
+  width: calc(var(--n) * 16px);
+  height: 14px;
+  transform: translateX(-50%);
+  background: var(--pxr) 0 0 / 16px 14px repeat-x;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+.card-gems::before {
+  content: none;
+}
+.card.tier-1 .card-gems { --pxr: var(--pxr-1); }
+.card.tier-2 .card-gems { --pxr: var(--pxr-2); }
+.card.tier-3 .card-gems { --pxr: var(--pxr-3); }
+.card.tier-4 .card-gems { --pxr: var(--pxr-4); }
+.card.tier-3 .card-in::after {
+  background: conic-gradient(from var(--ang, 0deg), transparent 0 70%, #d9a8ffcc 80%, transparent 90%);
+}
+
+/* 传说：顶部冠饰 + 金色外晕 + 周期流光；保留阵营框 */
+.card.tier-4 {
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.55)) drop-shadow(0 0 3px #ffc23d) drop-shadow(0 0 10px rgba(255, 194, 61, 0.5));
+}
+.card.tier-4.selected {
+  filter: drop-shadow(0 0 2px #fff1b8) drop-shadow(0 0 3px #ffc23d) drop-shadow(0 0 16px rgba(255, 211, 107, 0.75));
+}
+.card.tier-4::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  width: 51px;
+  height: 30px;
+  transform: translateX(-50%);
+  background: var(--px-crown) 0 0 / 100% 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 1;
+}
+.card.tier-4 .card-badge {
+  top: -46px;
+}
+.card.tier-4 .card-name {
+  color: #ffe08a;
+  text-shadow: 0 0 8px rgba(255, 194, 61, 0.55), 0 2px 0 #3a1e04;
+}
+.card.tier-4 .card-shine {
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 230, 160, 0.22) 47%, rgba(255, 255, 255, 0.32) 50%, transparent 58%);
+  background-size: 250% 100%;
+  animation: legendShine 3.6s ease-in-out infinite;
+}
+@keyframes legendShine {
+  0%, 55% { background-position: 120% 0; }
+  100% { background-position: -20% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card.tier-4 .card-shine { animation: none; }
+}
+
+/* ═════════ 阵营徽记与底纹 ═════════
+   徽记（pixel.ts SIGILS）同时出现在卡面水印、场上单位和备战位，单位脱离卡牌后靠它认阵营。
+   底纹每阵营一种硬边纹理，按 2px 像素步进。 */
+.u-fac {
+  flex: none;
+  align-self: center;
+  position: relative;
+  z-index: 0;
+  width: 26px;
+  height: 26px;
+  background: var(--pxs) center / 26px 26px no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.6)) drop-shadow(0 0 5px color-mix(in srgb, var(--fc) 60%, transparent));
+  pointer-events: none;
+}
+.u-stats:has(.u-fac) {
+  left: 2px;
+  right: 2px;
+}
+.unit.doomed .u-fac {
+  opacity: 0;
+}
+
+.card-sigil {
+  position: absolute;
+  left: 50%;
+  top: 22px;
+  width: 90px;
+  height: 90px;
+  transform: translateX(-50%);
+  background: var(--pxs) center / 90px 90px no-repeat;
+  image-rendering: pixelated;
+  opacity: 0.22;
+  pointer-events: none;
+}
+.card-top,
+.card-art,
+.card-name,
+.card-brief {
+  position: relative;
+  z-index: 1;
+}
+.card-in {
+  --pat: none;
+  --c1: color-mix(in srgb, var(--fc) 15%, transparent);
+  background:
+    var(--pat),
+    radial-gradient(ellipse 80% 55% at 50% 28%, color-mix(in srgb, var(--fc) 30%, transparent), transparent 70%),
+    linear-gradient(180deg, #1c1b44, #0d0d24 60%, #0a0a1c);
+}
+/* 圣光：自画面中心放射的光芒 */
+.fac-light .card-in {
+  --pat: repeating-conic-gradient(from 0deg at 50% 26%, var(--c1) 0 7deg, transparent 7deg 20deg);
+}
+/* 影刃：斜向刀痕 */
+.fac-shadow .card-in {
+  --pat: repeating-linear-gradient(125deg, transparent 0 12px, var(--c1) 12px 16px);
+}
+/* 深渊：同心漩涡 */
+.fac-abyss .card-in {
+  --pat: repeating-radial-gradient(circle at 50% 26%, transparent 0 10px, var(--c1) 10px 14px);
+}
+/* 熔岩：自下涌起的熔浆 + 裂纹 */
+.fac-magma .card-in {
+  --pat: linear-gradient(0deg, color-mix(in srgb, var(--fc) 30%, transparent) 0, transparent 40%),
+    repeating-linear-gradient(168deg, transparent 0 18px, var(--c1) 18px 20px, transparent 20px 34px, var(--c1) 34px 36px);
+}
+/* 寒冰：菱形冰格 */
+.fac-frost .card-in {
+  --pat: repeating-linear-gradient(45deg, transparent 0 14px, var(--c1) 14px 16px),
+    repeating-linear-gradient(-45deg, transparent 0 14px, var(--c1) 14px 16px);
+}
+/* 沙域：横向沙丘 */
+.fac-desert .card-in {
+  --pat: repeating-linear-gradient(0deg, transparent 0 8px, var(--c1) 8px 10px);
+}
+/* 中立：无纹理、去色 */
+.fac-neutral .card-in {
+  background: linear-gradient(180deg, #262a3c, #14161f 60%, #0e1018);
+}
+
+/* v0.6 状态角标：格挡（右）、寒意（左）、灼烧（右上） */
+.u-chill, .u-burn {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0.4);
+  transition: 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+  filter: drop-shadow(0 2px 3px #000a);
+  pointer-events: none;
+}
+.u-chill { left: -6px; top: 46px; color: #8feaff; }
+.u-burn { right: -6px; top: 12px; color: #ff9a3d; }
+.u-chill .ic, .u-burn .ic { position: absolute; inset: 0; width: 28px; height: 28px; }
+.u-chill i, .u-burn i {
+  position: relative;
+  font: 15px var(--num);
+  font-style: normal;
+  color: #fff;
+  text-shadow: 0 0 2px #000, 0 1px 0 #000, 1px 0 0 #000, -1px 0 0 #000, 0 -1px 0 #000;
+  margin-top: 2px;
+}
+.unit.has-chill .u-chill, .unit.has-burn .u-burn { opacity: 1; transform: scale(1); }
+.unit.has-burn .u-art { filter: drop-shadow(0 0 6px #ff7a2a); }
+.unit.frozen .u-chill { color: #fff; filter: drop-shadow(0 0 6px #8feaff); }
+
+/* 本拍即将出手的单位 */
+.unit.next-actor .u-glow {
+  opacity: 1;
+  background: radial-gradient(ellipse at 50% 85%, rgba(255, 240, 160, 0.55), transparent 65%);
+}
+.unit.next-actor::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -20px;
+  width: 0;
+  height: 0;
+  margin-left: -7px;
+  border: 7px solid transparent;
+  border-top: 10px solid #ffe58a;
+  filter: drop-shadow(0 0 4px #ffcf40);
+  animation: nextBob 0.9s ease-in-out infinite;
+  z-index: 5;
+}
+@keyframes nextBob { 50% { transform: translateY(5px); } }
+
+/* 出手顺序预告条 */
+.order-strip {
+  position: absolute;
+  top: 160px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  font: 12px var(--num, monospace);
+  color: #cfe3ff;
+  pointer-events: none;
+  z-index: 6;
+}
+.order-strip .os-side { display: flex; gap: 4px; align-items: center; }
+.order-strip .os-u {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: 4px;
+  background: #0b1424cc;
+  border: 1px solid #4a6a9a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.order-strip .os-u.first { border-color: #ffe58a; color: #ffe58a; }
+.order-strip .os-side.enemy .os-u { border-color: #9a4a5a; }
+.order-strip .os-side.enemy .os-u.first { border-color: #ff8a9a; color: #ff8a9a; }
+
+/* 触发类型小标 */
+.utag.trg-cast { background: #4b2a8a; color: #e6d4ff; }
+.utag.trg-frozen { background: #1e5a78; color: #d8f6ff; }
+.utag.trg-revive { background: #7a5a13; color: #fff2c4; }
+
+/* v0.7 易伤角标（左上） */
+.u-vuln {
+  position: absolute; left: -6px; top: 12px; width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center; color: #ff7ad9;
+  opacity: 0; transform: scale(0.4); transition: 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+  filter: drop-shadow(0 2px 3px #000a); pointer-events: none;
+}
+.u-vuln .ic { position: absolute; inset: 0; width: 28px; height: 28px; }
+.u-vuln i { position: relative; font: 15px var(--num); font-style: normal; color: #fff; text-shadow: 0 0 2px #000, 0 1px 0 #000; margin-top: 2px; }
+.unit.has-vuln .u-vuln { opacity: 1; transform: scale(1); }

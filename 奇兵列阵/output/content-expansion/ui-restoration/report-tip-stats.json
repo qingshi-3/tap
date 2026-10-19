@@ -1,0 +1,143 @@
+[
+  {
+    "width": 568,
+    "height": 320,
+    "mobile": true,
+    "rarity": [
+      {
+        "name": "银盾侍卫",
+        "rarity": "普通",
+        "color": "rgb(208, 216, 223)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "圣光牧师",
+        "rarity": "稀有",
+        "color": "rgb(143, 230, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "战阵指挥官",
+        "rarity": "史诗",
+        "color": "rgb(221, 176, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "曙光执政官",
+        "rarity": "传说",
+        "color": "rgb(255, 207, 113)",
+        "starColor": "rgb(255, 211, 107)"
+      }
+    ],
+    "benchNumbers": [
+      "3",
+      "7"
+    ],
+    "benchLayout": {
+      "statsBottom": 283.8062438964844,
+      "starsTop": 286.0249938964844,
+      "bottom": 299.3374938964844
+    },
+    "actions": [
+      "bench shared stat gems and actual battlefield round trip",
+      "mouse/touch original tooltip controls",
+      "single/double cancel/default/invalid/self targets",
+      "four rarity colors with gold stars"
+    ],
+    "errors": []
+  },
+  {
+    "width": 844,
+    "height": 390,
+    "mobile": true,
+    "rarity": [
+      {
+        "name": "银盾侍卫",
+        "rarity": "普通",
+        "color": "rgb(208, 216, 223)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "圣光牧师",
+        "rarity": "稀有",
+        "color": "rgb(143, 230, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "战阵指挥官",
+        "rarity": "史诗",
+        "color": "rgb(221, 176, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "曙光执政官",
+        "rarity": "传说",
+        "color": "rgb(255, 207, 113)",
+        "starColor": "rgb(255, 211, 107)"
+      }
+    ],
+    "benchNumbers": [
+      "3",
+      "7"
+    ],
+    "benchLayout": {
+      "statsBottom": 346.125,
+      "starsTop": 348.8333435058594,
+      "bottom": 365.0833435058594
+    },
+    "actions": [
+      "bench shared stat gems and actual battlefield round trip",
+      "mouse/touch original tooltip controls",
+      "single/double cancel/default/invalid/self targets",
+      "four rarity colors with gold stars"
+    ],
+    "errors": []
+  },
+  {
+    "width": 1280,
+    "height": 720,
+    "mobile": false,
+    "rarity": [
+      {
+        "name": "银盾侍卫",
+        "rarity": "普通",
+        "color": "rgb(208, 216, 223)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "圣光牧师",
+        "rarity": "稀有",
+        "color": "rgb(143, 230, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "战阵指挥官",
+        "rarity": "史诗",
+        "color": "rgb(221, 176, 255)",
+        "starColor": "rgb(255, 211, 107)"
+      },
+      {
+        "name": "曙光执政官",
+        "rarity": "传说",
+        "color": "rgb(255, 207, 113)",
+        "starColor": "rgb(255, 211, 107)"
+      }
+    ],
+    "benchNumbers": [
+      "3",
+      "7"
+    ],
+    "benchLayout": {
+      "statsBottom": 639,
+      "starsTop": 644,
+      "bottom": 674
+    },
+    "actions": [
+      "bench shared stat gems and actual battlefield round trip",
+      "mouse/touch original tooltip controls",
+      "single/double cancel/default/invalid/self targets",
+      "four rarity colors with gold stars"
+    ],
+    "errors": []
+  }
+]

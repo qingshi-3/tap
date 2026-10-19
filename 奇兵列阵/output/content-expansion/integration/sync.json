@@ -1,0 +1,11 @@
+{
+  "files": 307,
+  "splitOutputs": [
+    "dist",
+    "web-dist"
+  ],
+  "hashMatch": true,
+  "singleMatch": true,
+  "rule": "same-name-same-star-only",
+  "ui": "drag designation, no-target exception, ritualist no-space reason, restored original placement and merge effects"
+}

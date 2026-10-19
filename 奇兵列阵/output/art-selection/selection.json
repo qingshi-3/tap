@@ -1,0 +1,2570 @@
+{
+  "designVersion": "0.3",
+  "generatedFrom": "DESIGN.md",
+  "sourceRoot": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main",
+  "units": [
+    {
+      "id": "l_shield",
+      "name": "银盾侍卫",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "普通",
+      "role": "保护接口",
+      "atk": 2,
+      "hp": 5,
+      "source": "f1_silverguardsquire",
+      "reason": "保留；宽盾与紧凑铠甲直接表达基础保护位。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 5,
+          "effect": "开战：后一友军护盾 +3"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 7,
+          "effect": "开战：后两格友军各护盾 +4"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 9,
+          "effect": "开战：所有其他友军各护盾 +5"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f1_silverguardsquire",
+      "preview": "previews/l_shield.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_silverguardsquire.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_silverguardsquire.plist",
+      "pngSha256": "8df234dc6be9080797e08855a33eca1757a12edb0b7c00bdc36e75b7a36daaee",
+      "plistSha256": "7191c5873ed1932fba49af6eedc8e5bbe9568a9217b2a04d9c35b75d9c9a00a4"
+    },
+    {
+      "id": "l_martyr",
+      "name": "殉道者",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "普通",
+      "role": "阵亡接口",
+      "atk": 1,
+      "hp": 3,
+      "source": "f1_support",
+      "reason": "保留；轻型金色翼状轮廓与献身支援相容。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 3,
+          "effect": "亡语：后一友军 +2/+2"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 5,
+          "effect": "亡语：后两格友军各 +2/+2"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 7,
+          "effect": "亡语：所有其他友军各 +3/+3"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f1_support",
+      "preview": "previews/l_martyr.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_support.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_support.plist",
+      "pngSha256": "fd0e4d508dc075f512ffa25ff9fd59215f5749015f3f29192ae3ad10a8b0e213",
+      "plistSha256": "e55e0186b568c278fcf05c11d50477ec2b9ae7368b29bd73ab174d500a94ff0f"
+    },
+    {
+      "id": "l_vigil",
+      "name": "守誓者",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "普通",
+      "role": "反击核心",
+      "atk": 2,
+      "hp": 4,
+      "source": "f1_melee",
+      "reason": "轻装剑士，作为普通成长输出，避免普通卡也全部使用重甲造型。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "每场首次圣光友军破盾后，自身攻击 +1"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "每场前两次圣光友军破盾后，自身攻击 +2"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每次圣光友军破盾后，自身 +2/+1"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/l_vigil.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_melee.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_melee.plist",
+      "pngSha256": "525f1a8bc9ae42d9a3cdee5c64c9f65af5b89b4f978ae7fddee04b7f11abbe1c",
+      "plistSha256": "b22eb67d929a9f458ebec3758f874a6aa88965410c648944c13290ca2ad66638"
+    },
+    {
+      "id": "l_priest",
+      "name": "圣光牧师",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "稀有",
+      "role": "生命支援",
+      "atk": 2,
+      "hp": 6,
+      "source": "f1_caster",
+      "reason": "保留；法器与圣光配色用于生命支援，具体恢复/增益靠战斗反馈区分。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 6,
+          "effect": "开战：最近两名其他圣光友军各 +0/+3"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 8,
+          "effect": "开战：所有其他圣光友军各 +0/+4"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 10,
+          "effect": "开战：所有其他友军各 +0/+5"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f1_caster",
+      "preview": "previews/l_priest.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_caster.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_caster.plist",
+      "pngSha256": "952ce7a7778823f381a97bfe67407490beea1d6eeebede8431a9340dd0f6c90d",
+      "plistSha256": "6e39fbddc20c7afd9c6ad606cc4db71c4420533e73e482d9311206c948d74d4f"
+    },
+    {
+      "id": "l_knight",
+      "name": "晨曦骑士",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "稀有",
+      "role": "承伤供盾",
+      "atk": 3,
+      "hp": 7,
+      "source": "f1_silvermanevanguard",
+      "reason": "保留；厚重铠甲与大盾适合承伤并保护邻军。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 7,
+          "effect": "首次受伤：相邻友军各护盾 +2"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 9,
+          "effect": "前两次受伤：相邻友军各护盾 +3"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 11,
+          "effect": "每次受伤：相邻友军各护盾 +4"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f1_silvermanevanguard",
+      "preview": "previews/l_knight.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_silvermanevanguard.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_silvermanevanguard.plist",
+      "pngSha256": "5145a7342678349a858f8f276c98d8c25c0bc46ce0bcfecdd91c6a121aaeab3d",
+      "plistSha256": "0fdc2bc9c43bd30b111131dab48c9f0ecd38417a0f2ecc76201d262683d7654d"
+    },
+    {
+      "id": "l_mender",
+      "name": "辉光医者",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "史诗",
+      "role": "恢复核心",
+      "atk": 3,
+      "hp": 9,
+      "source": "f1_sunstonetemplar",
+      "reason": "长袍和双持法杖构成清楚的后排施法者轮廓。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 9,
+          "effect": "每拍结束，恢复缺失生命最多的圣光友军 2 生命"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 11,
+          "effect": "每拍结束，恢复缺失生命最多的圣光友军 4 生命"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 13,
+          "effect": "每拍结束，恢复缺失生命最多的两名友军各 4 生命，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/l_mender.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_sunstonetemplar.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_sunstonetemplar.plist",
+      "pngSha256": "4ff392514424e940926afbbde98225eabaf55c136e9d448d42350051355b55a0",
+      "plistSha256": "507a0c68eb5efe8d4af61d28f6a3223e6e23567cf874e8e5bf4daed9ea5f5c8c"
+    },
+    {
+      "id": "l_banner",
+      "name": "誓约旗手",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "史诗",
+      "role": "持续保护",
+      "atk": 4,
+      "hp": 8,
+      "source": "f1_grandmasterzir",
+      "reason": "骑乘长柄武器的统领造型适合持续支援；原图没有旗帜，建议后续显示名改为“誓约统领”，本稿暂不改名。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每场前两次其他圣光友军攻击完成后，为出手者加 2 护盾"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 10,
+          "effect": "每场前四次其他圣光友军攻击完成后，为出手者加 3 护盾"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 12,
+          "effect": "每次其他友军攻击完成后，为出手者加 4 护盾，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/l_banner.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_grandmasterzir.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_grandmasterzir.plist",
+      "pngSha256": "87630bfaf55ccc163e4dfb330c527d85632970551448e780ffbf28ecc3b9a375",
+      "plistSha256": "d3bc0c23b9cb2aa41158aa203b7295f0f8aab9af65c2f0e04fd2afe87478d634"
+    },
+    {
+      "id": "l_archon",
+      "name": "曙光执政官",
+      "kind": "card",
+      "faction": "圣光",
+      "rarity": "传说",
+      "role": "指定保护核心",
+      "atk": 4,
+      "hp": 9,
+      "source": "f1_elyxstormblade",
+      "reason": "高挑冠饰、翼状大盾和长剑，表达传说保护核心，避免只靠放大基础盾兵。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 9,
+          "effect": "开战：指定一名友军护盾 +6；此后其首次破盾且存活，若执政官仍存活且未沉默，再为其加 3 护盾，仅一次"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 11,
+          "effect": "开战：指定友军护盾 +8；同条件补盾一次，提高为 4"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 13,
+          "effect": "开战：指定友军护盾 +8，且其相邻格友军各护盾 +4；仍只为指定目标按同条件补盾 4 一次"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/l_archon.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_elyxstormblade.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_elyxstormblade.plist",
+      "pngSha256": "20f772ebba1093869f185d7fda6b91f5efd2a3b7b759d60dcee5d1642fdad02c",
+      "plistSha256": "463fc09c56a19b40fafd04020c0d920afdbf331567dad5578ae28a3640bf7a89"
+    },
+    {
+      "id": "s_wind",
+      "name": "风刃学徒",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "普通",
+      "role": "换位启动",
+      "atk": 3,
+      "hp": 3,
+      "source": "f2_melee",
+      "reason": "保留；横向长刃与轻装站姿适合受伤后换位。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 3,
+          "effect": "首次受伤，与后一友军换位"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 5,
+          "effect": "前两次受伤，与后一友军换位"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 7,
+          "effect": "每次受伤，与后一友军换位"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f2_melee",
+      "preview": "previews/s_wind.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_melee.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_melee.plist",
+      "pngSha256": "38ea62382be8794f4f81035bff31a2f6481f05a5bd68cc2a57321def9def9855",
+      "plistSha256": "ef46ec90300879815847347092f62796ccc20e43d9d9ed6574b2fd8388aaa228"
+    },
+    {
+      "id": "s_backstab",
+      "name": "背刺者",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "普通",
+      "role": "队尾输出",
+      "atk": 2,
+      "hp": 4,
+      "source": "f2_keshraifanblade",
+      "reason": "保留；环绕刃片能表达绕后与定点输出。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "普攻目标改为敌方队尾"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "普攻目标为敌方队尾；攻击满生命目标额外造成 2 点攻击伤害"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "普攻目标为队尾；攻击满生命目标额外伤害 3；每拍首次由自身攻击击杀后，向新队尾追击一次"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f2_keshraifanblade",
+      "preview": "previews/s_backstab.png",
+      "frames": 16,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_keshraifanblade.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_keshraifanblade.plist",
+      "pngSha256": "d846e30c206eb341bfeaa8363cbebaa286a91f5d3ac804f31139a57af3bbd11b",
+      "plistSha256": "e53bf8ccdd96eacb6d46a9b256c204cec8a1701ebb2ea5aa11af7a6e08cc184d"
+    },
+    {
+      "id": "s_dancer",
+      "name": "影舞者",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "普通",
+      "role": "换位成长",
+      "atk": 2,
+      "hp": 4,
+      "source": "f2_chakriavatar",
+      "reason": "轻装、扭转站姿和红色飘带适合换位成长。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "每场首次友军换位后，自身攻击 +1"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "每场前两次友军换位后，自身攻击 +2"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每次友军换位后，自身攻击 +2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/s_dancer.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_chakriavatar.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_chakriavatar.plist",
+      "pngSha256": "c4aabebcc893d0028c6be7035277690d9f953c516e998f3d016c3ff453134b84",
+      "plistSha256": "dc913e18c55c6aec227be528bb214597b7bb4dea7cd577f041300755a9afbade"
+    },
+    {
+      "id": "s_dart",
+      "name": "飞镖手",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "稀有",
+      "role": "开战爆发",
+      "atk": 3,
+      "hp": 5,
+      "source": "f2_ranged",
+      "reason": "保留；蹲姿远程兵与小型投掷武器适合开战爆发。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "开战：敌方第 3 格受到 4 伤害"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "开战：敌方第 3、4 格各受 5 伤害"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "开战：敌方第 3、4、5 格各受 7 伤害"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f2_ranged",
+      "preview": "previews/s_dart.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_ranged.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_ranged.plist",
+      "pngSha256": "0a74e91e22ecee0f0dd78032f6f527739f07239b51bb9b5c22ad60211c80cb91",
+      "plistSha256": "9fbffea1e33eed21cedb6d0933784b9adca30d1ccea75057340d996a20b67ca0"
+    },
+    {
+      "id": "s_ninja",
+      "name": "连环忍者",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "稀有",
+      "role": "亡语输出",
+      "atk": 3,
+      "hp": 5,
+      "source": "f2_deathphantom",
+      "reason": "建议替换现有野猪；蒙面人形与暗色轻装更符合忍者、死亡后爆发的职责。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "亡语：敌方队尾受 5 伤害"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "亡语：敌方最后两名存活单位各受 6 伤害"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "亡语：所有存活敌人各受 6 伤害"
+        }
+      ],
+      "status": "建议替换",
+      "previousSource": "f2_special",
+      "preview": "previews/s_ninja.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_deathphantom.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_deathphantom.plist",
+      "pngSha256": "c8d81806fe034e59cd0b44837acf14347c12cb53f68ea59b21bc39f3a5e7ae01",
+      "plistSha256": "f4b285fbd8f2ea16242500689329191347ed480231ebcd67fa93bb79b940f59e"
+    },
+    {
+      "id": "s_hunter",
+      "name": "霜隙猎手",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "史诗",
+      "role": "冻结接口",
+      "atk": 4,
+      "hp": 7,
+      "source": "f2_hammonnladeseeker",
+      "reason": "青色长刃与影刃红衣兼具，适合冻结接口；其冻结加成仍由技能标识解释。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 7,
+          "effect": "普攻优先攻击生命最低的冻结敌人，无则攻击队尾；攻击冻结目标额外伤害 2"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 9,
+          "effect": "同目标规则；攻击冻结目标额外伤害 4"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 11,
+          "effect": "同目标规则；攻击冻结目标额外伤害 6；每拍首次攻击击杀后按该规则追击一次"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/s_hunter.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_hammonnladeseeker.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_hammonnladeseeker.plist",
+      "pngSha256": "3468c826281e265076b1fa43a7ee7e580b87a6ebfb1f36b067109440b0768017",
+      "plistSha256": "485f3404ffa4976f58f5eab585025f52a8d1bbaa63a7953226d96bf3043e4be2"
+    },
+    {
+      "id": "s_choreo",
+      "name": "换影师",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "史诗",
+      "role": "指定调位支援",
+      "atk": 2,
+      "hp": 5,
+      "source": "f2_mage4winds",
+      "reason": "多臂施法轮廓能与近战剑士区分，适合调位与支援。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 5,
+          "effect": "开战：指定两名不同友军交换位置，至少一名为影刃，可选自身"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 7,
+          "effect": "开战：指定两名不同友军交换位置，不限阵营，可选自身"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 9,
+          "effect": "同样换位；成功后两名参与者各 +2/+2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/s_choreo.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_mage4winds.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_mage4winds.plist",
+      "pngSha256": "bc5f1d773e525d404299fff4eda184416971eaa320016786fe45be83edcc6cd7",
+      "plistSha256": "d9bfc2e2dc7ae024c2a08df9791a51992b6a79dd03f2bc0246bd597a293ca8a2"
+    },
+    {
+      "id": "s_master",
+      "name": "千刃宗师",
+      "kind": "card",
+      "faction": "影刃",
+      "rarity": "传说",
+      "role": "换位爆发核心",
+      "atk": 6,
+      "hp": 10,
+      "source": "f2_stormkage",
+      "reason": "对称双刃与冠饰构成宗师造型，保持影刃色系。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 6,
+          "hp": 10,
+          "effect": "每拍首次友军换位后，对敌方队尾造成 4 技能伤害"
+        },
+        {
+          "level": 2,
+          "atk": 7,
+          "hp": 12,
+          "effect": "每拍首次友军换位后，对敌方最后两名存活单位各造成 5 技能伤害"
+        },
+        {
+          "level": 3,
+          "atk": 8,
+          "hp": 14,
+          "effect": "每拍首次友军换位后，对敌方最后两名存活单位各造成 7 技能伤害"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/s_master.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_stormkage.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_stormkage.plist",
+      "pngSha256": "146a0e69dd87f4054ce333199f22a72b3b83d0475666b6c8f89315e5cbccd611",
+      "plistSha256": "9c3ceae9dd5f2e5c1abe62dee55d81c2c94c750b5c6b747f31fe2de255851f1c"
+    },
+    {
+      "id": "a_seed",
+      "name": "亡灵之种",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "普通",
+      "role": "召唤启动",
+      "atk": 1,
+      "hp": 3,
+      "source": "f4_gloomchaser",
+      "reason": "保留；小型阴影生物作为暗影召唤入口，继续使用较小显示尺度。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 3,
+          "effect": "亡语：召唤一个 2/2 暗影"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 5,
+          "effect": "亡语：召唤一个 4/4 暗影"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 7,
+          "effect": "亡语：依次召唤两个 5/5 暗影"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f4_gloomchaser",
+      "preview": "previews/a_seed.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_gloomchaser.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_gloomchaser.plist",
+      "pngSha256": "9cdb015a6b753b414d9609b9fafbaa0673596b1c8b4a49c2abee259b4e8c2a9e",
+      "plistSha256": "32a75a25bb18169f11c6e70fd8f9626476be53f6dfd0e59caced5dcfe7083b8d"
+    },
+    {
+      "id": "a_devour",
+      "name": "吞噬者",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "普通",
+      "role": "阵亡成长接口",
+      "atk": 2,
+      "hp": 4,
+      "source": "f4_daemondeep",
+      "reason": "保留；多爪幽体与吞噬成长相符。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "前一格友军阵亡时，获得其攻击的 50% 与生命上限的 25%"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "前两格友军分别阵亡时，按相同比例获得属性"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "任意其他友军阵亡时，按相同比例获得属性；可响应召唤物"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f4_daemondeep",
+      "preview": "previews/a_devour.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_daemondeep.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_daemondeep.plist",
+      "pngSha256": "fc2bf8d6918ccf8c5f1c2e1ae13dcb632d530ce8ac25289ec70bde3d7a8e99b2",
+      "plistSha256": "1c34e3d0105f415a6f2b559fc3ce8eb0cbc40dbeaf3a7309b409b1f83aafae65"
+    },
+    {
+      "id": "a_graveguard",
+      "name": "墓园守卫",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "普通",
+      "role": "承伤与供体",
+      "atk": 2,
+      "hp": 5,
+      "source": "f4_daemongate",
+      "reason": "紧凑黑甲、护具和长剑适合普通守卫与供体。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 5,
+          "effect": "亡语：最近一名深渊友军 +0/+3"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 7,
+          "effect": "亡语：最近两名深渊友军各 +0/+4"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 9,
+          "effect": "亡语：所有深渊友军各 +0/+5"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/a_graveguard.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_daemongate.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_daemongate.plist",
+      "pngSha256": "cab93a320f133a06b7d327cb74811ef1b4101d155daf653f9b65e9bb0c8b26c6",
+      "plistSha256": "01ed30d4e95f5019bdad61f7c2a8d581d8f06563bf823784c8e6898920f93b5a"
+    },
+    {
+      "id": "a_reaper",
+      "name": "灵魂收割者",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "稀有",
+      "role": "阵亡输出核心",
+      "atk": 3,
+      "hp": 5,
+      "source": "f4_reaperninemoons",
+      "reason": "保留；横向刃翼和红色灵能形体适合阵亡转伤害。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "每当其他深渊友军阵亡，对敌方队首造成 1 技能伤害"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "同条件，伤害 2"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "同条件，伤害 3"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f4_reaperninemoons",
+      "preview": "previews/a_reaper.png",
+      "frames": 10,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_reaperninemoons.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_reaperninemoons.plist",
+      "pngSha256": "f151bdeaef30ee37c423d30d4f3bcabf30b76b23db40f27cecddf4bbee00560a",
+      "plistSha256": "42477d633ca06ac31498837fb5fe46db732db59f76ced38069419ff95a94aaaa"
+    },
+    {
+      "id": "a_cult",
+      "name": "献祭术士",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "稀有",
+      "role": "聚合核心",
+      "atk": 2,
+      "hp": 5,
+      "source": "f4_shadowdancer",
+      "reason": "保留；细长人形与法器动作符合献祭施法者。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 5,
+          "effect": "开战末：献祭后一友军，获得其全部攻击和 50% 生命上限"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 7,
+          "effect": "开战末：献祭后一友军，获得其全部攻击和生命上限"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 9,
+          "effect": "开战末：献祭后两格友军，获得各自全部攻击和生命上限"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f4_shadowdancer",
+      "preview": "previews/a_cult.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_shadowdancer.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_shadowdancer.plist",
+      "pngSha256": "80ffae3b015d3d839efb18c0fab58e3bc5b74ab158368351f1e0c2697d53b1de",
+      "plistSha256": "65ae5c2d481caf3b120403c5d69ad0a951bdc3d83d9b53a3a96fb5cdba1a0442"
+    },
+    {
+      "id": "a_brood",
+      "name": "育魂者",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "史诗",
+      "role": "召唤强化接口",
+      "atk": 3,
+      "hp": 8,
+      "source": "f4_bloodmoon",
+      "reason": "悬浮圆环与内核适合魂体生成/强化支援，与前排恶魔区分。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 8,
+          "effect": "每当其他深渊单位被召唤，使其 +1/+1"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 10,
+          "effect": "每当其他友军被召唤，使其 +1/+1，不限阵营"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 12,
+          "effect": "每当其他友军被召唤，使其 +2/+2，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/a_brood.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_bloodmoon.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_bloodmoon.plist",
+      "pngSha256": "8e1785077ac5c104ca8ec66b3ba353b9732491b44c95f06c7a6c11221d8b5c3c",
+      "plistSha256": "b3bb9db3264270eee2155e8c38220fd756b5216393e3ac1304b92e55b5102d18"
+    },
+    {
+      "id": "a_ritualist",
+      "name": "唤亡祭师",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "史诗",
+      "role": "指定亡语接口",
+      "atk": 1,
+      "hp": 5,
+      "source": "f4_nightsorrow",
+      "reason": "白发、长裙和红色施法手部形成独立祭师轮廓。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 5,
+          "effect": "开战：指定一名有亡语的深渊友军，额外执行其亡语一次，不杀死目标"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 7,
+          "effect": "开战：指定一名有亡语的友军，额外执行一次，不限阵营、不杀死目标"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 9,
+          "effect": "同样指定一名友军，依次额外执行其亡语两次，不杀死目标"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/a_ritualist.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_nightsorrow.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_nightsorrow.plist",
+      "pngSha256": "fd525c87434035538014d76ca5cdceed758fb0d81ec21d01e33dc73a3287df99",
+      "plistSha256": "d96683fda6bbe871044682ce6f93fc22ece933a32c70dff6eeceb4d9daa0aa26"
+    },
+    {
+      "id": "a_matriarch",
+      "name": "深渊主母",
+      "kind": "card",
+      "faction": "深渊",
+      "rarity": "传说",
+      "role": "亡语放大核心",
+      "atk": 5,
+      "hp": 11,
+      "source": "f4_siren",
+      "reason": "冠状头部、展开双臂和翼状轮廓形成主母形象；通过造型细节而非体积表示传说。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 5,
+          "hp": 11,
+          "effect": "每场首次其他深渊友军原生亡语完成后，再执行该亡语一次"
+        },
+        {
+          "level": 2,
+          "atk": 6,
+          "hp": 13,
+          "effect": "每场前两次其他深渊友军原生亡语完成后，分别再执行一次"
+        },
+        {
+          "level": 3,
+          "atk": 7,
+          "hp": 15,
+          "effect": "每场前三次其他友军原生亡语完成后，分别再执行一次，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/a_matriarch.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_siren.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_siren.plist",
+      "pngSha256": "e1b2851905ad1e5044f08d8df18fd07c3ef9d15b68b635b2e0bf475e72df14ee",
+      "plistSha256": "f32bf3a1f0f0dc34c4207a9e7c09dba831c7144e6c9db3fb14ea1592b2693f0e"
+    },
+    {
+      "id": "m_egg",
+      "name": "幼兽蛋",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "普通",
+      "role": "孵化启动 不出手",
+      "atk": 0,
+      "hp": 4,
+      "source": "f5_egg",
+      "reason": "保留；蛋形直接表达孵化，不冒充可普通攻击的生物。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 0,
+          "hp": 4,
+          "effect": "亡语：召唤一个 4/4 幼兽"
+        },
+        {
+          "level": 2,
+          "atk": 0,
+          "hp": 6,
+          "effect": "亡语：召唤一个 7/7 幼兽"
+        },
+        {
+          "level": 3,
+          "atk": 0,
+          "hp": 8,
+          "effect": "亡语：依次召唤两个 8/8 幼兽"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f5_egg",
+      "preview": "previews/m_egg.png",
+      "frames": 9,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_egg.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_egg.plist",
+      "pngSha256": "ab8bbb9b0c9875aab32a771638c17506655d22892fa410f922d79c105832c62b",
+      "plistSha256": "92a733b9124dd5b7c81d83bf7fe8d9a28bff4c95f710130d7d92346c6513ddfd"
+    },
+    {
+      "id": "m_shaman",
+      "name": "原始萨满",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "普通",
+      "role": "属性接口",
+      "atk": 1,
+      "hp": 5,
+      "source": "f5_primordialgazer",
+      "reason": "保留；具有灵能头部与粗壮肢体的族内支援者。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 5,
+          "effect": "开战：前一友军 +2/+2"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 7,
+          "effect": "开战：前两格友军各 +2/+2"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 9,
+          "effect": "开战：前两格友军各 +4/+4"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f5_primordialgazer",
+      "preview": "previews/m_shaman.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_primordialgazer.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_primordialgazer.plist",
+      "pngSha256": "a5327ad1048dc0002e642e9b67bafbd7b7c4ca357b449b9e446ca5a91736dc7e",
+      "plistSha256": "149d039319e756dd74ec526d3a988140295b9b51858063953f4e705dc6f3a9cf"
+    },
+    {
+      "id": "m_hide",
+      "name": "厚皮兽",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "普通",
+      "role": "受伤前排",
+      "atk": 2,
+      "hp": 6,
+      "source": "f5_earthwalker",
+      "reason": "低伏四足、背甲和骨刺适合厚皮承伤，轮廓低于大型核心。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 6,
+          "effect": "首次受伤，自身 +0/+1"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 8,
+          "effect": "前两次受伤，自身各 +0/+2"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 10,
+          "effect": "每次受伤，自身 +0/+2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/m_hide.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_earthwalker.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_earthwalker.plist",
+      "pngSha256": "c79d4358019c74cbf16aa75a022dc72e18b685f5998825f03c2ddab783f97b1c",
+      "plistSha256": "d18702ad70262bc5a7d6f68a70d14b92957cb1674ac1300eb4f18ae5b2c8016e"
+    },
+    {
+      "id": "m_rex",
+      "name": "暴龙",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "稀有",
+      "role": "受伤成长核心",
+      "atk": 3,
+      "hp": 6,
+      "source": "f5_unstableleviathan",
+      "reason": "保留；庞大兽体与受伤成长方向一致，不再增加额外高亮配色。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 6,
+          "effect": "首次受伤，自身攻击 +2"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 8,
+          "effect": "前两次受伤，自身各攻击 +3"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 10,
+          "effect": "每次受伤，自身攻击 +3"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f5_unstableleviathan",
+      "preview": "previews/m_rex.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_unstableleviathan.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_unstableleviathan.plist",
+      "pngSha256": "c41e053e79c3d441d9c05cadff76d6d624e79fe7fc692a822d061734efa64d06",
+      "plistSha256": "ba47ac78869495d43164adcb7280e525f4c9f7ec637c7e030f3c80b8cb51d74f"
+    },
+    {
+      "id": "m_mender",
+      "name": "血脉医师",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "稀有",
+      "role": "受伤恢复",
+      "atk": 2,
+      "hp": 7,
+      "source": "f5_support",
+      "reason": "小型兽形支援者，能与暴龙区分；原图没有医疗道具，治疗职责需技能反馈辅助识别。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 7,
+          "effect": "每场首次其他熔岩友军受伤，恢复其 2 生命"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 9,
+          "effect": "每场前两次其他熔岩友军受伤，各恢复其 3 生命"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 11,
+          "effect": "每次其他熔岩友军受伤，恢复其 3 生命"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/m_mender.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_support.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_support.plist",
+      "pngSha256": "023c12e34d9a7a96b6f0d895559e3eee492d50f040de0df7696f67b819e5e17a",
+      "plistSha256": "aff8536e0a419f95e0d847fc275d4db673e551f9feaf168e930ac9f7ad54af48"
+    },
+    {
+      "id": "m_incubator",
+      "name": "孵化看守",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "史诗",
+      "role": "召唤接口",
+      "atk": 3,
+      "hp": 8,
+      "source": "f5_silitharelder",
+      "reason": "与幼兽同属长尾兽族，成年体与角冠表达孵化守护者。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 8,
+          "effect": "其他友军成功召唤单位后，额外召唤一个 3/3 幼兽；每场成功一次"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 10,
+          "effect": "同条件，幼兽 4/4；每场成功两次"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 12,
+          "effect": "同条件，幼兽 5/5；每场成功三次"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/m_incubator.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_silitharelder.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_silitharelder.plist",
+      "pngSha256": "d9665e764dca4f304b34c460361c74116aaa47dfce2ef52d99e777a4eb4231b7",
+      "plistSha256": "7812746c26ab85a1607fad9b83309b136536265e1bc20af83785915957407018"
+    },
+    {
+      "id": "m_bloodcaller",
+      "name": "熔血导师",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "史诗",
+      "role": "主动启动受伤",
+      "atk": 4,
+      "hp": 8,
+      "source": "f5_kolossus",
+      "reason": "高耸骨冠与灵能形体适合群体血脉施法，区别于四足承伤者。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 8,
+          "effect": "开战：对前一格熔岩友军造成 1 普通技能伤害，再使仍存活的目标 +0/+3"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 10,
+          "effect": "开战：对前两格熔岩友军各造成 1 伤害，仍存活者各 +0/+4"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 12,
+          "effect": "开战：对所有其他熔岩友军各造成 1 伤害，仍存活者各 +0/+5"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/m_bloodcaller.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_kolossus.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_kolossus.plist",
+      "pngSha256": "2b0d672ec878f08cb8333063934a0682c2a8616241f0a5b58027521fc4b35d6b",
+      "plistSha256": "5c66e76b15f85e613e6608db81c581325a05eeaf45e43087296b649061f8da5a"
+    },
+    {
+      "id": "m_titan",
+      "name": "熔岩巨像",
+      "kind": "card",
+      "faction": "熔岩",
+      "rarity": "传说",
+      "role": "反击前排",
+      "atk": 6,
+      "hp": 14,
+      "source": "f5_grimrock",
+      "reason": "保留；巨拳和装甲兽体适合承伤反击，维持现有大型角色尺度。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 6,
+          "hp": 14,
+          "effect": "开战：前一格为空或自己在队首时，攻击 +4；首次被敌方普攻或追击扣血且存活时，对来源反击 2 技能伤害"
+        },
+        {
+          "level": 2,
+          "atk": 7,
+          "hp": 16,
+          "effect": "同开战条件，攻击 +6；前两次被敌方普攻或追击扣血且存活时，分别反击 3"
+        },
+        {
+          "level": 3,
+          "atk": 8,
+          "hp": 18,
+          "effect": "同开战条件，攻击 +8；每次被敌方普攻或追击扣血且存活时，反击 4"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f5_grimrock",
+      "preview": "previews/m_titan.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_grimrock.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_grimrock.plist",
+      "pngSha256": "79457a3f4525c37ed7af01d3a1249fb721c2a080e31dedf68511f6eb83077847",
+      "plistSha256": "aa553452328da7d02930d72a7c5e8dded92eae36a61dfc86b204000512da8e1a"
+    },
+    {
+      "id": "v_guard",
+      "name": "寒冰卫士",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "普通",
+      "role": "受伤控场",
+      "atk": 1,
+      "hp": 6,
+      "source": "f6_crystalbeetle",
+      "reason": "保留；冰晶背甲与低伏兽体适合受击控场。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 6,
+          "effect": "首次受伤，使仍存活的敌方伤害来源冻结 1 次"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 8,
+          "effect": "前两次受伤，分别使敌方伤害来源冻结 1 次"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 10,
+          "effect": "每次受伤，使仍存活的敌方伤害来源冻结 1 次"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f6_crystalbeetle",
+      "preview": "previews/v_guard.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_crystalbeetle.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_crystalbeetle.plist",
+      "pngSha256": "30a132437d584b74256c565f7f9846ecdf45ecabb913582468f0832efcafa252",
+      "plistSha256": "4ebce456611500889ec1414b67d056e62a9e26fdb8f9c2f0e130ee5b9680aa1e"
+    },
+    {
+      "id": "v_wall",
+      "name": "冰墙",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "普通",
+      "role": "生命接口 不出手",
+      "atk": 0,
+      "hp": 8,
+      "source": "f6_bonechillbarrier",
+      "reason": "保留；纯冰构造表达不出手的生命支援。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 0,
+          "hp": 8,
+          "effect": "开战：后一友军 +0/+3"
+        },
+        {
+          "level": 2,
+          "atk": 0,
+          "hp": 10,
+          "effect": "开战：后两格友军各 +0/+4"
+        },
+        {
+          "level": 3,
+          "atk": 0,
+          "hp": 12,
+          "effect": "开战：所有其他友军各 +0/+5"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f6_bonechillbarrier",
+      "preview": "previews/v_wall.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_bonechillbarrier.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_bonechillbarrier.plist",
+      "pngSha256": "acc38eaf067e22d9c76e72c254fc7a11ac3549f78da895c3737e4fdd7d0d0462",
+      "plistSha256": "83db2ea54d0be1bc110f6e5379bda67474592709a05332e32f5f97eacedf68a7"
+    },
+    {
+      "id": "v_scout",
+      "name": "冰原猎犬",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "普通",
+      "role": "持续输出",
+      "atk": 2,
+      "hp": 4,
+      "source": "f6_spiritwolf",
+      "reason": "白色狼形直接对应猎犬；普通单位采用简洁四足轮廓。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "普攻命中冻结目标，额外攻击伤害 1"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "普攻命中冻结目标，额外攻击伤害 3"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "普攻命中冻结目标，额外攻击伤害 3；攻击完成后自身 +2/+2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/v_scout.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_spiritwolf.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_spiritwolf.plist",
+      "pngSha256": "fb5b57b422226ec85733e55e043209f0d3899138df667c0ef5b23763e3540260",
+      "plistSha256": "3de3c096df9cc852b517f7b457ce42caafcc9668b48de45645e299cf18452151"
+    },
+    {
+      "id": "v_mage",
+      "name": "冰霜法师",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "稀有",
+      "role": "开战控场",
+      "atk": 2,
+      "hp": 6,
+      "source": "f6_icedryad",
+      "reason": "保留；冰杖与人形施法者对应开战冻结。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 6,
+          "effect": "开战：冻结敌方队首 1 次"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 8,
+          "effect": "开战：冻结最前两名敌人各 1 次"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 10,
+          "effect": "开战：冻结所有敌人各 1 次"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f6_icedryad",
+      "preview": "previews/v_mage.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_icedryad.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_icedryad.plist",
+      "pngSha256": "4afb25c7cf16e24576958201aba88be38717476f687a47650d387d3cd65d909a",
+      "plistSha256": "fc1cd709cbe4d37e85d5f13cab7a2c6e24c2a3ba15441b47b7f65876f52f012e"
+    },
+    {
+      "id": "v_shard",
+      "name": "冰棱射手",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "稀有",
+      "role": "冻结爆发核心",
+      "atk": 3,
+      "hp": 5,
+      "source": "f6_voiceofthewind",
+      "reason": "保留；鹿角灵体承担冰棱施法输出，原图没有弓，“射手”需要按技能投射理解。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "每拍开始，对最前一名冻结敌人造成 3 伤害，并消耗其 1 层冻结"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "每拍开始，对最前两名冻结敌人各造成 4 伤害，各消耗 1 层冻结"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "每拍开始，对所有冻结敌人各造成 5 伤害，各消耗 1 层冻结"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f6_voiceofthewind",
+      "preview": "previews/v_shard.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_voiceofthewind.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_voiceofthewind.plist",
+      "pngSha256": "cc565f49faffe06feae37796d7716538b24348dc298bad7ab375d887208e6179",
+      "plistSha256": "8fb391e7e7934ce33bc1e965b583c007164815cce8b9b7ba29b2282cd9aae257"
+    },
+    {
+      "id": "v_conduit",
+      "name": "雪灵引路者",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "史诗",
+      "role": "召唤接口",
+      "atk": 3,
+      "hp": 8,
+      "source": "f6_waterelemental",
+      "reason": "水冰灵体与引导手势适合召唤转冻结的接口。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 8,
+          "effect": "每场首次友军召唤成功，使敌方队首冻结 1 次"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 10,
+          "effect": "每场前两次友军召唤成功，分别使敌方队首冻结 1 次"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 12,
+          "effect": "每次友军召唤成功，使敌方队首冻结 1 次"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/v_conduit.png",
+      "frames": 18,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_waterelemental.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_waterelemental.plist",
+      "pngSha256": "f607f67326fd0a164c55f886d2a33fdff20d7967d868046d4929820fb0f153f5",
+      "plistSha256": "7791c8edec94d6d66d42e9d138ed21dc38d72ddfabf923f29f4e3ea7718416c8"
+    },
+    {
+      "id": "v_keeper",
+      "name": "寒冬守望者",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "史诗",
+      "role": "控制成长核心",
+      "atk": 4,
+      "hp": 8,
+      "source": "f6_draugarlord",
+      "reason": "大型重甲守卫与毛皮轮廓适合寒冬守望、生命成长。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每当敌人因冻结跳过出手，使缺失生命最多的寒冰友军 +0/+2"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 10,
+          "effect": "同条件，使缺失生命最多的两名寒冰友军各 +0/+2"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 12,
+          "effect": "同条件，使所有寒冰友军各 +0/+2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/v_keeper.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_draugarlord.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_draugarlord.plist",
+      "pngSha256": "357d54d98d2e85f35eff6148b581b83ce6ea4603490df025b5aa14507fb6a8f4",
+      "plistSha256": "cf90402c2449c5ad59d1496ff74d9ef8f9d2d2d2e7f9502f010085626f072ef6"
+    },
+    {
+      "id": "v_queen",
+      "name": "霜冠执政官",
+      "kind": "card",
+      "faction": "寒冰",
+      "rarity": "传说",
+      "role": "群体控制",
+      "atk": 5,
+      "hp": 12,
+      "source": "f6_justice",
+      "reason": "长袍、冠饰和圆环法器适合群体控制领袖；与现有将军法伊使用不同主体。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 5,
+          "hp": 12,
+          "effect": "开战：所有敌人各冻结 1 次"
+        },
+        {
+          "level": 2,
+          "atk": 6,
+          "hp": 14,
+          "effect": "开战：所有敌人各冻结 2 次"
+        },
+        {
+          "level": 3,
+          "atk": 7,
+          "hp": 16,
+          "effect": "开战：所有敌人各冻结 2 次；每拍首次对敌方施加冻结成功后，对该目标造成 3 技能伤害"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/v_queen.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_justice.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_justice.plist",
+      "pngSha256": "a2fed26095762eb559b350b0b44e2bd7c14a4c08031c245bb13ebc6f0445cbbc",
+      "plistSha256": "b8a3f037cc40395a1cd2504a5a6e700d0ae636525e996d7c6b425c10cdf364fa"
+    },
+    {
+      "id": "d_sentry",
+      "name": "沙铠卫士",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "普通",
+      "role": "开战前排",
+      "atk": 3,
+      "hp": 5,
+      "source": "f3_starfirescarab",
+      "reason": "白甲沙漠甲虫构装，外壳能表达基础护盾；卫士不限定人形。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "开战：自身护盾 +2"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "开战：自身与后一友军各护盾 +2"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "开战：自身与后两格友军各护盾 +3"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_sentry.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_starfirescarab.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_starfirescarab.plist",
+      "pngSha256": "1c4f99f6ae75ad7fdfd19156ee52a363fa18f5a1c3d8c0e0199069d064bf6820",
+      "plistSha256": "f51db8a2fbcf76a2058b93c6573634d25c61c4e06ea0c9d1fda76d23bd6bc8a2"
+    },
+    {
+      "id": "d_dune",
+      "name": "沙丘行者",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "普通",
+      "role": "沙兵来源",
+      "atk": 2,
+      "hp": 4,
+      "source": "f3_orbweaver",
+      "reason": "披袍持杖的沙漠行者，作为较弱沙兵来源，与沙兵本体分离。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 4,
+          "effect": "亡语：召唤一个 3/2 沙兵"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 6,
+          "effect": "亡语：召唤一个 5/3 沙兵"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 8,
+          "effect": "亡语：依次召唤两个 5/4 沙兵"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_dune.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_orbweaver.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_orbweaver.plist",
+      "pngSha256": "db1f65920abbb2ee8f682821390ff35cf8f6a861a65dd1636d5f3e5117c30470",
+      "plistSha256": "5b345883e6fc1a8daf8501cab09f5c7525379fdc377e966f4b9b317ce9c76edb"
+    },
+    {
+      "id": "d_artificer",
+      "name": "构装学徒",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "普通",
+      "role": "阵营启动",
+      "atk": 1,
+      "hp": 5,
+      "source": "f3_palacetrinketeer",
+      "reason": "金色零件、工作服与小型构装匠轮廓符合普通强化支援。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 5,
+          "effect": "开战：前一格沙域友军 +1/+2"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 7,
+          "effect": "开战：前两格沙域友军各 +2/+2"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 9,
+          "effect": "开战：所有其他沙域友军各 +2/+3"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_artificer.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_palacetrinketeer.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_palacetrinketeer.plist",
+      "pngSha256": "61e449e54a54ed09c6b45e5b6138758f3418e3b5390fa0be336429839cc985cb",
+      "plistSha256": "d0408801961a1ee86cd7db57eebd4a343a0427fc4181aab11af4fab2ec3d0111"
+    },
+    {
+      "id": "d_keeper",
+      "name": "遗迹守卫",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "稀有",
+      "role": "共鸣成长核心",
+      "atk": 3,
+      "hp": 6,
+      "source": "f3_zodiac",
+      "reason": "双刃金甲构装，适合共鸣后强化自身的战斗核心。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 6,
+          "effect": "每次其他沙域友军原生开战完成，自身 +1/+1"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每次其他友军原生开战完成，自身 +1/+1，不限阵营"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 10,
+          "effect": "每次其他友军原生开战完成，自身 +2/+1，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_keeper.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_zodiac.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_zodiac.plist",
+      "pngSha256": "8d8247a0adce8dcda822824080f4b03d2839d02371e24d4cf7c74547952a7263",
+      "plistSha256": "60429b9fca9cf12fc8ecdf6b06bb5df0e67e11ea9596967782de47705addd7b4"
+    },
+    {
+      "id": "d_obelisk",
+      "name": "流沙构装",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "稀有",
+      "role": "属性支援 不出手",
+      "atk": 0,
+      "hp": 9,
+      "source": "f3_obelyskduskwind",
+      "reason": "白紫悬浮碑体与中立红砂方尖碑可区分；两者仍同属碑体家族，评审时重点看缩小后的辨识度。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 0,
+          "hp": 9,
+          "effect": "开战：前一友军攻击 +3"
+        },
+        {
+          "level": 2,
+          "atk": 0,
+          "hp": 11,
+          "effect": "开战：前两格友军各攻击 +3"
+        },
+        {
+          "level": 3,
+          "atk": 0,
+          "hp": 13,
+          "effect": "开战：所有其他友军各攻击 +4"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_obelisk.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_obelyskduskwind.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_obelyskduskwind.plist",
+      "pngSha256": "6afc92f2419c7979539ecfe991c16acecdc294755e9c02b03edba17bd733cf6e",
+      "plistSha256": "751be7ac4494d31e5284d76396c16f2adbaef43fe3c9b2d77551c63affff25c8"
+    },
+    {
+      "id": "d_dunecaster",
+      "name": "沙灵塑师",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "史诗",
+      "role": "召唤保护接口",
+      "atk": 4,
+      "hp": 8,
+      "source": "f3_dunecaster",
+      "reason": "长袍与悬浮灵球直接对应沙灵塑师和召唤保护。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 8,
+          "effect": "每次沙域友军被召唤，使其护盾 +3"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 10,
+          "effect": "每次友军被召唤，使其护盾 +3，不限阵营"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 12,
+          "effect": "每次友军被召唤，使其护盾 +5、攻击 +2，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_dunecaster.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_dunecaster.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_dunecaster.plist",
+      "pngSha256": "18ec0922f4492d862006a9415f265d7737b3ece93cfde747081062a1770508e3",
+      "plistSha256": "367acef4ac0d8ddd397a00c1e3f73c2e9a7008ac8367cf925e72cd1533a20588"
+    },
+    {
+      "id": "d_sandblade",
+      "name": "日轮刃使",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "史诗",
+      "role": "共鸣输出核心",
+      "atk": 4,
+      "hp": 7,
+      "source": "f3_altgeneral",
+      "reason": "金黑铠甲和长刃表达高阶进攻者；原图为未使用的将军造型，本作作为单位使用，不新增可选将军。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 4,
+          "hp": 7,
+          "effect": "每次其他沙域友军原生开战完成，对敌方队首造成 2 伤害"
+        },
+        {
+          "level": 2,
+          "atk": 5,
+          "hp": 9,
+          "effect": "同条件，对敌方队首造成 3 伤害"
+        },
+        {
+          "level": 3,
+          "atk": 6,
+          "hp": 11,
+          "effect": "每次其他友军原生开战完成，对敌方队首造成 3 伤害及其相邻敌人各 1 伤害，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_sandblade.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_altgeneral.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_altgeneral.plist",
+      "pngSha256": "ad55a2239008832445d853d0dcfed94f12bce0f2de642606b21622174df0146e",
+      "plistSha256": "71e570d96858cbc97b93d44d3fa32a15c810e0a38f3b0c00b5118d890a5ab968"
+    },
+    {
+      "id": "d_pharaoh",
+      "name": "沙域法老",
+      "kind": "card",
+      "faction": "沙域",
+      "rarity": "传说",
+      "role": "开战放大核心",
+      "atk": 5,
+      "hp": 12,
+      "source": "f3_anubis",
+      "reason": "高冠、黑金长袍与双手灵能构成古代统治者形象，作为开战放大核心。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 5,
+          "hp": 12,
+          "effect": "开战：复制前一格沙域友军的可复制开战主动效果一次"
+        },
+        {
+          "level": 2,
+          "atk": 6,
+          "hp": 14,
+          "effect": "开战：按从前到后，分别复制前两格沙域友军的可复制开战主动效果一次"
+        },
+        {
+          "level": 3,
+          "atk": 7,
+          "hp": 16,
+          "effect": "开战：按从前到后，分别复制所有其他友军的可复制开战主动效果一次，不限阵营"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/d_pharaoh.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_anubis.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_anubis.plist",
+      "pngSha256": "fcf657057bb9ade03d868692bdbb544576ff6236e402c0d9a447ef7395584e33",
+      "plistSha256": "3ec6dc9ffca415c067ed52606ad108689c165a9ebe022a733373499b76f02090"
+    },
+    {
+      "id": "n_merc",
+      "name": "佣兵",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "普通",
+      "role": "独立输出",
+      "atk": 3,
+      "hp": 5,
+      "source": "neutral_mercmelee1",
+      "reason": "保留；朴素皮甲与短刀适合普通独立输出。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 5,
+          "effect": "普攻对满生命目标额外伤害 1"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 7,
+          "effect": "普攻对满生命目标额外伤害 2"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 9,
+          "effect": "普攻对满生命目标额外伤害 4"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "neutral_mercmelee1",
+      "preview": "previews/n_merc.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercmelee1.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercmelee1.plist",
+      "pngSha256": "f46b3bbe71e4902b9df97e53f238bd5eedeab6ac27270d380fe5e6771dbb55fd",
+      "plistSha256": "627d0ccd20775d0277ce5f1477a8740c6644e14528381b27bcc06206eb875417"
+    },
+    {
+      "id": "n_bulwark",
+      "name": "铁甲卫士",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "普通",
+      "role": "通用前排",
+      "atk": 1,
+      "hp": 8,
+      "source": "neutral_mercsworndefender",
+      "reason": "白甲与大盾直观表达通用前排，轮廓不同于圣光金甲盾兵。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 8,
+          "effect": "开战：自身护盾 +3"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 10,
+          "effect": "开战：自身护盾 +5"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 12,
+          "effect": "开战：自身护盾 +7；自身首次破盾后攻击 +2"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/n_bulwark.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercsworndefender.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercsworndefender.plist",
+      "pngSha256": "4e0e273fd3a508fdbe84ef5ca5a6db7d70f1457c5d8b0a74b2c82dded2560c1a",
+      "plistSha256": "5d83182b15192027980191760a9fc33bc5a3929e290f1de078883b9afa9774c2"
+    },
+    {
+      "id": "n_medic",
+      "name": "战地医师",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "普通",
+      "role": "恢复支援",
+      "atk": 1,
+      "hp": 5,
+      "source": "neutral_healingmystic",
+      "reason": "双侧绿色治疗法器形成清楚的恢复支援特征。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 1,
+          "hp": 5,
+          "effect": "每拍结束，恢复前一友军 2 生命"
+        },
+        {
+          "level": 2,
+          "atk": 2,
+          "hp": 7,
+          "effect": "每拍结束，恢复前两格友军各 2 生命"
+        },
+        {
+          "level": 3,
+          "atk": 3,
+          "hp": 9,
+          "effect": "每拍结束，恢复前两格友军各 3 生命"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/n_medic.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_healingmystic.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_healingmystic.plist",
+      "pngSha256": "b717b3bdd6a43c1a6f1781939b28ebe36f21e1328545ae31cd6da23e9097d190",
+      "plistSha256": "c671a984b03d267bc482cb632afbc6e7f4eba7cd3a3c18f78b87ad44aec817f3"
+    },
+    {
+      "id": "n_obelisk",
+      "name": "方尖碑",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "稀有",
+      "role": "强化支援 不出手",
+      "atk": 0,
+      "hp": 6,
+      "source": "f3_obelyskredsand",
+      "reason": "保留中立身份和红砂碑体；不因新增沙域而迁走现有单位。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 0,
+          "hp": 6,
+          "effect": "开战：前一友军攻击 +4"
+        },
+        {
+          "level": 2,
+          "atk": 0,
+          "hp": 8,
+          "effect": "开战：前一友军攻击 +6"
+        },
+        {
+          "level": 3,
+          "atk": 0,
+          "hp": 10,
+          "effect": "开战：前一友军攻击 +8、后一友军攻击 +4"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "f3_obelyskredsand",
+      "preview": "previews/n_obelisk.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_obelyskredsand.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_obelyskredsand.plist",
+      "pngSha256": "8936d940357c0bf4c2cd63c6ab28418201708810f1339a2e701112fa37223203",
+      "plistSha256": "81187b1c2ce4141a1005cbc85dbe5564b499bfe0c74d237303a65e55b60b2c76"
+    },
+    {
+      "id": "n_breaker",
+      "name": "破甲佣兵",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "稀有",
+      "role": "功能输出",
+      "atk": 3,
+      "hp": 6,
+      "source": "neutral_gauntletmaster",
+      "reason": "巨大蓝色拳套表达破盾近战，与普通持刀佣兵区分。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 3,
+          "hp": 6,
+          "effect": "普攻伤害结算前移除目标 2 护盾"
+        },
+        {
+          "level": 2,
+          "atk": 4,
+          "hp": 8,
+          "effect": "普攻伤害结算前移除目标 4 护盾"
+        },
+        {
+          "level": 3,
+          "atk": 5,
+          "hp": 10,
+          "effect": "普攻伤害结算前移除目标全部护盾"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/n_breaker.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_gauntletmaster.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_gauntletmaster.plist",
+      "pngSha256": "241327e972a1336eaa82d2554657a4e5fbf108c9c8a17b757dc82ba799fec496",
+      "plistSha256": "8efe6359f5625e0a5d17a38785d51e7d608ae4e6809f773855036fe1c2f967c1"
+    },
+    {
+      "id": "n_echo",
+      "name": "回响祭司",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "史诗",
+      "role": "技能接口",
+      "atk": 2,
+      "hp": 7,
+      "source": "neutral_aethermaster",
+      "reason": "保留；环绕法符与回响复制接口相符。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 7,
+          "effect": "开战：从自身位置复制前一友军的可复制开战主动效果一次"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 9,
+          "effect": "同目标，复制两次"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 11,
+          "effect": "同目标，复制三次"
+        }
+      ],
+      "status": "保留",
+      "previousSource": "neutral_aethermaster",
+      "preview": "previews/n_echo.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_aethermaster.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_aethermaster.plist",
+      "pngSha256": "768f7504c224aa82de8233d82ea7800c04f0cd1432300b1b564b1d3d401421d1",
+      "plistSha256": "3b1a1e36fe08a41aaf4220a29f2be392b981251597d8b7009ac09f3f4bb19dae"
+    },
+    {
+      "id": "n_marshal",
+      "name": "战阵指挥官",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "史诗",
+      "role": "指定调位接口",
+      "atk": 2,
+      "hp": 5,
+      "source": "neutral_ladylocke",
+      "reason": "金色军装、冠饰和武器构成军官形象，适合调位指挥。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 2,
+          "hp": 5,
+          "effect": "开战：指定另一名友军，与自身交换位置"
+        },
+        {
+          "level": 2,
+          "atk": 3,
+          "hp": 7,
+          "effect": "同样换位；成功后双方各获得 2 护盾"
+        },
+        {
+          "level": 3,
+          "atk": 4,
+          "hp": 9,
+          "effect": "同样换位；成功后双方各获得 4 护盾"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/n_marshal.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_ladylocke.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_ladylocke.plist",
+      "pngSha256": "9f3713bc045861512b91806a8ec3f0abd1dfb9b64c338637d88e3c6635f857d8",
+      "plistSha256": "a83e21ca0d7251abac91f2adb48889392e1b43650f906e29de44b8955a93594e"
+    },
+    {
+      "id": "n_colossus",
+      "name": "战争巨像",
+      "kind": "card",
+      "faction": "中立",
+      "rarity": "传说",
+      "role": "重型前排",
+      "atk": 7,
+      "hp": 14,
+      "source": "neutral_sunsteeldefender",
+      "reason": "大型钢铁躯干与金色重拳表达传说重型前排和破盾溅射。",
+      "stars": [
+        {
+          "level": 1,
+          "atk": 7,
+          "hp": 14,
+          "effect": "普攻同时对目标后一格敌人造成 2 溅射伤害"
+        },
+        {
+          "level": 2,
+          "atk": 8,
+          "hp": 16,
+          "effect": "同样溅射，伤害 3"
+        },
+        {
+          "level": 3,
+          "atk": 9,
+          "hp": 18,
+          "effect": "普攻前移除主目标全部护盾，并对目标后一格敌人造成 4 溅射伤害"
+        }
+      ],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/n_colossus.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_sunsteeldefender.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_sunsteeldefender.plist",
+      "pngSha256": "6d7a3e9f9fcdabcfc52f6f1a441cd54628d6ac9a26b3c8cd79efabb4c14f521c",
+      "plistSha256": "3b50bf8d0db86800d2bbcc35e6466fb6254cff911bd42fd0201e268de296a123"
+    },
+    {
+      "id": "t_shade",
+      "name": "暗影",
+      "kind": "token",
+      "faction": "深渊",
+      "rarity": "召唤物",
+      "role": "身材由召唤者决定",
+      "source": "f4_crawler",
+      "reason": "保留；小型暗影，无独立招募品质。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f4_crawler",
+      "preview": "previews/t_shade.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_crawler.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_crawler.plist",
+      "pngSha256": "8c2c5d87377d53d3eed2242ce5c2d24570f183354eebc0358bea9f6abec18556",
+      "plistSha256": "8f091ad93c3fe570c25341e4c36865ed9688481ea04bee863c6bd17cf0f444d8"
+    },
+    {
+      "id": "t_hatch",
+      "name": "幼兽",
+      "kind": "token",
+      "faction": "熔岩",
+      "rarity": "召唤物",
+      "role": "身材由召唤者决定",
+      "source": "f5_silitharyoung",
+      "reason": "保留；长尾幼兽，与孵化看守的成年体形成视觉联系。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f5_silitharyoung",
+      "preview": "previews/t_hatch.png",
+      "frames": 8,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f5_silitharyoung.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f5_silitharyoung.plist",
+      "pngSha256": "3ce8c9f78f75294d92e1c62f2e843777667ad42eb3a857f283745db2b64ca926",
+      "plistSha256": "fda1daad6b4cd1d8586a915ceaaab7f7737dfd148887fe3bff8f8215ee5168b4"
+    },
+    {
+      "id": "t_dervish",
+      "name": "沙兵",
+      "kind": "token",
+      "faction": "沙域",
+      "rarity": "召唤物",
+      "role": "身材由召唤者决定",
+      "source": "f3_dervish",
+      "reason": "沙旋风与灵核表达沙兵；导出为召唤物尺度，不能按原图宽度挤占两格。",
+      "stars": [],
+      "status": "新增",
+      "previousSource": null,
+      "preview": "previews/t_dervish.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f3_dervish.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f3_dervish.plist",
+      "pngSha256": "3fdd63adac0d38749528486fb07eb75fcaadfd2635680afff5db8dfb82905c5b",
+      "plistSha256": "6eb6a7201f1545887c12e8683c0c1bdde7aa6eb3bc1ba1840a03a895d99ef980"
+    },
+    {
+      "id": "e_skel",
+      "name": "骷髅兵",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_golem_crossbones",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_golem_crossbones",
+      "preview": "previews/e_skel.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_golem_crossbones.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_golem_crossbones.plist",
+      "pngSha256": "eac348fa8fa8d2fb1864fe8ab543a715fa2564a1ef931257342f17e29dc6924f",
+      "plistSha256": "8c3978e5e2c7a433dbb22f7ad5cf112e79cb358ba2a7eabc9dee1b210676e789"
+    },
+    {
+      "id": "e_raider",
+      "name": "掠夺者",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_mercpirate",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_mercpirate",
+      "preview": "previews/e_raider.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercpirate.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercpirate.plist",
+      "pngSha256": "1a31b6564b6b3774868beb07ea7f96ce2d67e277acc8a8a742f41b6b58e09790",
+      "plistSha256": "3ffe45182f07062e88d00cb45c630ccab511d54d6e742c3ba5cbdcfb0dbcc645"
+    },
+    {
+      "id": "e_golem",
+      "name": "石魔",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_golemrunesand",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_golemrunesand",
+      "preview": "previews/e_golem.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_golemrunesand.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_golemrunesand.plist",
+      "pngSha256": "35b35b3b46ffaa0e949d83ab093673af03c36ea2ef1eb9661e76ef9ee63faf57",
+      "plistSha256": "efedd37529cf3b565a83fe2d43c2a22ef88d8907bfcdea8d5efac549dfc96bde"
+    },
+    {
+      "id": "e_brute",
+      "name": "蛮兵",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_mercmelee4",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_mercmelee4",
+      "preview": "previews/e_brute.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercmelee4.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercmelee4.plist",
+      "pngSha256": "10dd11228b134dfcf1a6e26f82600f3fbba6d34f44440281777f05893499c7e8",
+      "plistSha256": "f2e56bb5621ef2379880194041687ecfde913828ca0123111b05dc3e72d9f1f1"
+    },
+    {
+      "id": "e_assassin",
+      "name": "影袭者",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_mercdaggerkiri",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_mercdaggerkiri",
+      "preview": "previews/e_assassin.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercdaggerkiri.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercdaggerkiri.plist",
+      "pngSha256": "a4d1192c5eaea111832082a517c0453bce6228172e93f6c45b77d196655f3aab",
+      "plistSha256": "142fd2a3411d20f0667d253867a4ad60566f95646eae3d54ef3510e21964d4d2"
+    },
+    {
+      "id": "e_silencer",
+      "name": "默言者",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_mercarcanelimiter",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_mercarcanelimiter",
+      "preview": "previews/e_silencer.png",
+      "frames": 16,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_mercarcanelimiter.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_mercarcanelimiter.plist",
+      "pngSha256": "5d73b951c3a53a295b73fe85eeea1546584d024de6fbba76e6efe101596eb945",
+      "plistSha256": "ba007823295a19f57aec007c4b196b0fb9ee44e74ea9d3dc56df550230247214"
+    },
+    {
+      "id": "e_crusher",
+      "name": "碎岩者",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_rook",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_rook",
+      "preview": "previews/e_crusher.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_rook.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_rook.plist",
+      "pngSha256": "1992708df23c6869efca2195e54650ed9aea5a2f7a2e55d39d4ee0b17c58b0b9",
+      "plistSha256": "a5547ce8a69aa9c7d9e301be7871dc280972c48b6db4b7010df47bbd48eb043e"
+    },
+    {
+      "id": "e_exile",
+      "name": "放逐者",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_voidhunter",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_voidhunter",
+      "preview": "previews/e_exile.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_voidhunter.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_voidhunter.plist",
+      "pngSha256": "1fadc8957c23cda28acc64fba8cf3de33f0aaa90ffba3f638ba8f9576225796b",
+      "plistSha256": "fcc66abd3f7a1208a21547b284fa3a6916fe7bd681239524ee1c445248702ab3"
+    },
+    {
+      "id": "e_thorn",
+      "name": "荆棘守卫",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "neutral_beastswamp",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "neutral_beastswamp",
+      "preview": "previews/e_thorn.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\neutral_beastswamp.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\neutral_beastswamp.plist",
+      "pngSha256": "8a6e8aaf4be24100d855e968c86760f5a849e824a826b87218f51dcd927ebf6d",
+      "plistSha256": "c7c45839a342172f569a0a4e6e4a69a9ab2abb17b800823ad5a0cda97c68fc70"
+    },
+    {
+      "id": "e_void",
+      "name": "虚空领主",
+      "kind": "enemy",
+      "faction": "敌军",
+      "rarity": "敌军",
+      "role": "沿用现有映射",
+      "source": "boss_shadowlord",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "boss_shadowlord",
+      "preview": "previews/e_void.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\boss_shadowlord.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\boss_shadowlord.plist",
+      "pngSha256": "0ca8c4b44690584fb7c1445e61a5e2322679a2f265fe222267c3017eeae710b9",
+      "plistSha256": "76e39c52aa53b5d1cd79b7876e7f92bbfe30cce47ab99b0ed92570d04c9cf741"
+    },
+    {
+      "id": "general_argeon",
+      "name": "阿尔吉昂",
+      "kind": "general",
+      "faction": "将军",
+      "rarity": "将军",
+      "role": "沿用现有映射",
+      "source": "f1_general",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f1_general",
+      "preview": "previews/general_argeon.png",
+      "frames": 12,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f1_general.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f1_general.plist",
+      "pngSha256": "1dcbf673fa0dec4eda34b426b884df529e1c76f3d32cf3c0baf0c10ea83931f8",
+      "plistSha256": "c9fc39d8d7dec25ef09721fed8284bbf606a69d698d6b2982f33b51a0f054a10"
+    },
+    {
+      "id": "general_kaleos",
+      "name": "卡雷奥斯",
+      "kind": "general",
+      "faction": "将军",
+      "rarity": "将军",
+      "role": "沿用现有映射",
+      "source": "f2_general",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f2_general",
+      "preview": "previews/general_kaleos.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f2_general.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f2_general.plist",
+      "pngSha256": "a57b67b068a8b541f5e5ae18b936157b888c4e32fbc42b7db010752f28246d06",
+      "plistSha256": "887ed35cf51926ecc9d6808aeccc0f71f9c10527ca911b901a1637bb166cef17"
+    },
+    {
+      "id": "general_lilithe",
+      "name": "莉莉丝",
+      "kind": "general",
+      "faction": "将军",
+      "rarity": "将军",
+      "role": "沿用现有映射",
+      "source": "f4_general",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f4_general",
+      "preview": "previews/general_lilithe.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f4_general.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f4_general.plist",
+      "pngSha256": "3059c8405a2f9f8fd9180dc5d749335fb7be216e327b61b76fbb6d36b06f4848",
+      "plistSha256": "afc9d5c8a36943d63f94b59a58c95c3c7c99f0411cc12e3bff18507fb42c97d0"
+    },
+    {
+      "id": "general_faie",
+      "name": "法伊",
+      "kind": "general",
+      "faction": "将军",
+      "rarity": "将军",
+      "role": "沿用现有映射",
+      "source": "f6_general",
+      "reason": "保留现有素材；本次不改变敌军/将军身份。",
+      "stars": [],
+      "status": "保留",
+      "previousSource": "f6_general",
+      "preview": "previews/general_faie.png",
+      "frames": 14,
+      "pngPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\original_resources\\units\\f6_general.png",
+      "plistPath": "C:\\Users\\qs\\Desktop\\游戏素材\\duelyst-main (1)\\duelyst-main\\app\\resources\\units\\f6_general.plist",
+      "pngSha256": "a1b275e8ce2e12b067e371bbf22b234605a2d780b64b3bb5af059572c3367dfe",
+      "plistSha256": "358a09b42a58af8895aa83ef8b45a566ebab1e5a50d941efa4c9f6172fc2174a"
+    }
+  ]
+}

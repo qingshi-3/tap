@@ -1,0 +1,13 @@
+{
+  "command": "npm test -- --maxWorkers=2",
+  "testFiles": 12,
+  "testsPassed": 377,
+  "failures": 0,
+  "focus": [
+    "Complete legal target choices, explicit binding gate, no-choice exception and bench exclusion",
+    "Ritualist can choose a two-star abyss seed by owned identity at slots 2 and 4",
+    "Living deathrattle spawns 4/4 shade without killing or consuming the seed deathrattle",
+    "Full board reports no summon space, partial success does not become whole-action failure",
+    "Existing content, merge, rewards and battle regression suite"
+  ]
+}

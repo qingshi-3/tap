@@ -1,0 +1,1258 @@
+{
+  "objects": 73,
+  "cards": 56,
+  "tokens": 3,
+  "enemies": 10,
+  "generals": 4,
+  "retainedCards": 22,
+  "newCards": 33,
+  "replacedCards": [
+    "s_ninja"
+  ],
+  "uniqueSources": 73,
+  "uniqueSourcePngHashes": 73,
+  "validatedIdleFrames": 991,
+  "details": [
+    {
+      "id": "l_shield",
+      "source": "f1_silverguardsquire",
+      "frameCount": 14,
+      "sourceBox": [
+        21,
+        30,
+        60,
+        64
+      ],
+      "scaledSize": [
+        92,
+        80
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_martyr",
+      "source": "f1_support",
+      "frameCount": 14,
+      "sourceBox": [
+        14,
+        20,
+        76,
+        64
+      ],
+      "scaledSize": [
+        92,
+        65
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_vigil",
+      "source": "f1_melee",
+      "frameCount": 14,
+      "sourceBox": [
+        24,
+        26,
+        56,
+        64
+      ],
+      "scaledSize": [
+        69,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_priest",
+      "source": "f1_caster",
+      "frameCount": 14,
+      "sourceBox": [
+        13,
+        19,
+        59,
+        64
+      ],
+      "scaledSize": [
+        84,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_knight",
+      "source": "f1_silvermanevanguard",
+      "frameCount": 14,
+      "sourceBox": [
+        16,
+        28,
+        63,
+        64
+      ],
+      "scaledSize": [
+        92,
+        70
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_mender",
+      "source": "f1_sunstonetemplar",
+      "frameCount": 14,
+      "sourceBox": [
+        20,
+        19,
+        59,
+        64
+      ],
+      "scaledSize": [
+        71,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_banner",
+      "source": "f1_grandmasterzir",
+      "frameCount": 14,
+      "sourceBox": [
+        2,
+        16,
+        77,
+        64
+      ],
+      "scaledSize": [
+        92,
+        59
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "l_archon",
+      "source": "f1_elyxstormblade",
+      "frameCount": 14,
+      "sourceBox": [
+        22,
+        28,
+        63,
+        64
+      ],
+      "scaledSize": [
+        92,
+        81
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_wind",
+      "source": "f2_melee",
+      "frameCount": 14,
+      "sourceBox": [
+        8,
+        34,
+        57,
+        64
+      ],
+      "scaledSize": [
+        92,
+        56
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_backstab",
+      "source": "f2_keshraifanblade",
+      "frameCount": 16,
+      "sourceBox": [
+        18,
+        21,
+        63,
+        64
+      ],
+      "scaledSize": [
+        86,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_dancer",
+      "source": "f2_chakriavatar",
+      "frameCount": 14,
+      "sourceBox": [
+        28,
+        31,
+        55,
+        64
+      ],
+      "scaledSize": [
+        67,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_dart",
+      "source": "f2_ranged",
+      "frameCount": 14,
+      "sourceBox": [
+        19,
+        35,
+        52,
+        65
+      ],
+      "scaledSize": [
+        90,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_ninja",
+      "source": "f2_deathphantom",
+      "frameCount": 14,
+      "sourceBox": [
+        23,
+        19,
+        64,
+        67
+      ],
+      "scaledSize": [
+        70,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_hunter",
+      "source": "f2_hammonnladeseeker",
+      "frameCount": 14,
+      "sourceBox": [
+        18,
+        24,
+        61,
+        64
+      ],
+      "scaledSize": [
+        88,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_choreo",
+      "source": "f2_mage4winds",
+      "frameCount": 14,
+      "sourceBox": [
+        24,
+        24,
+        56,
+        64
+      ],
+      "scaledSize": [
+        66,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "s_master",
+      "source": "f2_stormkage",
+      "frameCount": 14,
+      "sourceBox": [
+        21,
+        10,
+        73,
+        62
+      ],
+      "scaledSize": [
+        92,
+        92
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_seed",
+      "source": "f4_gloomchaser",
+      "frameCount": 14,
+      "sourceBox": [
+        26,
+        32,
+        55,
+        64
+      ],
+      "scaledSize": [
+        57,
+        63
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_devour",
+      "source": "f4_daemondeep",
+      "frameCount": 12,
+      "sourceBox": [
+        16,
+        19,
+        59,
+        63
+      ],
+      "scaledSize": [
+        80,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_graveguard",
+      "source": "f4_daemongate",
+      "frameCount": 14,
+      "sourceBox": [
+        18,
+        20,
+        77,
+        64
+      ],
+      "scaledSize": [
+        92,
+        69
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_reaper",
+      "source": "f4_reaperninemoons",
+      "frameCount": 10,
+      "sourceBox": [
+        26,
+        25,
+        67,
+        68
+      ],
+      "scaledSize": [
+        78,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_cult",
+      "source": "f4_shadowdancer",
+      "frameCount": 14,
+      "sourceBox": [
+        24,
+        24,
+        48,
+        65
+      ],
+      "scaledSize": [
+        48,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_brood",
+      "source": "f4_bloodmoon",
+      "frameCount": 14,
+      "sourceBox": [
+        24,
+        31,
+        58,
+        64
+      ],
+      "scaledSize": [
+        84,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_ritualist",
+      "source": "f4_nightsorrow",
+      "frameCount": 14,
+      "sourceBox": [
+        25,
+        31,
+        56,
+        64
+      ],
+      "scaledSize": [
+        77,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "a_matriarch",
+      "source": "f4_siren",
+      "frameCount": 14,
+      "sourceBox": [
+        25,
+        24,
+        55,
+        62
+      ],
+      "scaledSize": [
+        76,
+        96
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_egg",
+      "source": "f5_egg",
+      "frameCount": 9,
+      "sourceBox": [
+        27,
+        32,
+        53,
+        64
+      ],
+      "scaledSize": [
+        44,
+        54
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_shaman",
+      "source": "f5_primordialgazer",
+      "frameCount": 12,
+      "sourceBox": [
+        19,
+        24,
+        64,
+        64
+      ],
+      "scaledSize": [
+        92,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_hide",
+      "source": "f5_earthwalker",
+      "frameCount": 14,
+      "sourceBox": [
+        24,
+        27,
+        62,
+        64
+      ],
+      "scaledSize": [
+        84,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_rex",
+      "source": "f5_unstableleviathan",
+      "frameCount": 12,
+      "sourceBox": [
+        10,
+        15,
+        72,
+        64
+      ],
+      "scaledSize": [
+        92,
+        73
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_mender",
+      "source": "f5_support",
+      "frameCount": 14,
+      "sourceBox": [
+        3,
+        33,
+        63,
+        64
+      ],
+      "scaledSize": [
+        92,
+        48
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_incubator",
+      "source": "f5_silitharelder",
+      "frameCount": 14,
+      "sourceBox": [
+        9,
+        22,
+        80,
+        64
+      ],
+      "scaledSize": [
+        92,
+        54
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_bloodcaller",
+      "source": "f5_kolossus",
+      "frameCount": 14,
+      "sourceBox": [
+        1,
+        3,
+        73,
+        64
+      ],
+      "scaledSize": [
+        92,
+        78
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "m_titan",
+      "source": "f5_grimrock",
+      "frameCount": 12,
+      "sourceBox": [
+        13,
+        24,
+        66,
+        64
+      ],
+      "scaledSize": [
+        92,
+        69
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_guard",
+      "source": "f6_crystalbeetle",
+      "frameCount": 14,
+      "sourceBox": [
+        33,
+        60,
+        78,
+        84
+      ],
+      "scaledSize": [
+        92,
+        49
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_wall",
+      "source": "f6_bonechillbarrier",
+      "frameCount": 12,
+      "sourceBox": [
+        24,
+        18,
+        70,
+        85
+      ],
+      "scaledSize": [
+        56,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_scout",
+      "source": "f6_spiritwolf",
+      "frameCount": 14,
+      "sourceBox": [
+        19,
+        50,
+        80,
+        84
+      ],
+      "scaledSize": [
+        92,
+        51
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_mage",
+      "source": "f6_icedryad",
+      "frameCount": 14,
+      "sourceBox": [
+        12,
+        12,
+        65,
+        64
+      ],
+      "scaledSize": [
+        84,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_shard",
+      "source": "f6_voiceofthewind",
+      "frameCount": 14,
+      "sourceBox": [
+        30,
+        24,
+        76,
+        84
+      ],
+      "scaledSize": [
+        63,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_conduit",
+      "source": "f6_waterelemental",
+      "frameCount": 18,
+      "sourceBox": [
+        23,
+        18,
+        66,
+        65
+      ],
+      "scaledSize": [
+        75,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_keeper",
+      "source": "f6_draugarlord",
+      "frameCount": 14,
+      "sourceBox": [
+        8,
+        14,
+        76,
+        65
+      ],
+      "scaledSize": [
+        92,
+        69
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "v_queen",
+      "source": "f6_justice",
+      "frameCount": 12,
+      "sourceBox": [
+        16,
+        19,
+        75,
+        64
+      ],
+      "scaledSize": [
+        92,
+        70
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_sentry",
+      "source": "f3_starfirescarab",
+      "frameCount": 14,
+      "sourceBox": [
+        20,
+        24,
+        66,
+        64
+      ],
+      "scaledSize": [
+        92,
+        80
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_dune",
+      "source": "f3_orbweaver",
+      "frameCount": 14,
+      "sourceBox": [
+        25,
+        26,
+        61,
+        64
+      ],
+      "scaledSize": [
+        78,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_artificer",
+      "source": "f3_palacetrinketeer",
+      "frameCount": 12,
+      "sourceBox": [
+        12,
+        28,
+        55,
+        63
+      ],
+      "scaledSize": [
+        92,
+        75
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_keeper",
+      "source": "f3_zodiac",
+      "frameCount": 14,
+      "sourceBox": [
+        23,
+        17,
+        55,
+        64
+      ],
+      "scaledSize": [
+        56,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_obelisk",
+      "source": "f3_obelyskduskwind",
+      "frameCount": 12,
+      "sourceBox": [
+        19,
+        14,
+        54,
+        68
+      ],
+      "scaledSize": [
+        53,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_dunecaster",
+      "source": "f3_dunecaster",
+      "frameCount": 14,
+      "sourceBox": [
+        26,
+        13,
+        54,
+        64
+      ],
+      "scaledSize": [
+        45,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_sandblade",
+      "source": "f3_altgeneral",
+      "frameCount": 14,
+      "sourceBox": [
+        6,
+        35,
+        75,
+        96
+      ],
+      "scaledSize": [
+        92,
+        81
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "d_pharaoh",
+      "source": "f3_anubis",
+      "frameCount": 14,
+      "sourceBox": [
+        25,
+        38,
+        74,
+        93
+      ],
+      "scaledSize": [
+        86,
+        96
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_merc",
+      "source": "neutral_mercmelee1",
+      "frameCount": 14,
+      "sourceBox": [
+        28,
+        38,
+        62,
+        64
+      ],
+      "scaledSize": [
+        92,
+        70
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_bulwark",
+      "source": "neutral_mercsworndefender",
+      "frameCount": 14,
+      "sourceBox": [
+        22,
+        20,
+        64,
+        64
+      ],
+      "scaledSize": [
+        78,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_medic",
+      "source": "neutral_healingmystic",
+      "frameCount": 14,
+      "sourceBox": [
+        20,
+        35,
+        87,
+        93
+      ],
+      "scaledSize": [
+        92,
+        80
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_obelisk",
+      "source": "f3_obelyskredsand",
+      "frameCount": 12,
+      "sourceBox": [
+        25,
+        25,
+        51,
+        67
+      ],
+      "scaledSize": [
+        51,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_breaker",
+      "source": "neutral_gauntletmaster",
+      "frameCount": 14,
+      "sourceBox": [
+        31,
+        36,
+        71,
+        84
+      ],
+      "scaledSize": [
+        68,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_echo",
+      "source": "neutral_aethermaster",
+      "frameCount": 14,
+      "sourceBox": [
+        22,
+        26,
+        70,
+        84
+      ],
+      "scaledSize": [
+        68,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_marshal",
+      "source": "neutral_ladylocke",
+      "frameCount": 14,
+      "sourceBox": [
+        41,
+        63,
+        81,
+        105
+      ],
+      "scaledSize": [
+        78,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "n_colossus",
+      "source": "neutral_sunsteeldefender",
+      "frameCount": 14,
+      "sourceBox": [
+        29,
+        59,
+        103,
+        108
+      ],
+      "scaledSize": [
+        92,
+        61
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "t_shade",
+      "source": "f4_crawler",
+      "frameCount": 14,
+      "sourceBox": [
+        26,
+        34,
+        53,
+        64
+      ],
+      "scaledSize": [
+        57,
+        63
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "t_hatch",
+      "source": "f5_silitharyoung",
+      "frameCount": 8,
+      "sourceBox": [
+        10,
+        44,
+        66,
+        64
+      ],
+      "scaledSize": [
+        92,
+        33
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "t_dervish",
+      "source": "f3_dervish",
+      "frameCount": 12,
+      "sourceBox": [
+        23,
+        34,
+        57,
+        62
+      ],
+      "scaledSize": [
+        76,
+        63
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_skel",
+      "source": "neutral_golem_crossbones",
+      "frameCount": 12,
+      "sourceBox": [
+        21,
+        25,
+        59,
+        62
+      ],
+      "scaledSize": [
+        84,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_raider",
+      "source": "neutral_mercpirate",
+      "frameCount": 14,
+      "sourceBox": [
+        28,
+        31,
+        63,
+        64
+      ],
+      "scaledSize": [
+        87,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_golem",
+      "source": "neutral_golemrunesand",
+      "frameCount": 14,
+      "sourceBox": [
+        22,
+        28,
+        63,
+        64
+      ],
+      "scaledSize": [
+        92,
+        81
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_brute",
+      "source": "neutral_mercmelee4",
+      "frameCount": 14,
+      "sourceBox": [
+        25,
+        40,
+        62,
+        64
+      ],
+      "scaledSize": [
+        92,
+        60
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_assassin",
+      "source": "neutral_mercdaggerkiri",
+      "frameCount": 14,
+      "sourceBox": [
+        19,
+        14,
+        63,
+        64
+      ],
+      "scaledSize": [
+        72,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_silencer",
+      "source": "neutral_mercarcanelimiter",
+      "frameCount": 16,
+      "sourceBox": [
+        15,
+        14,
+        56,
+        64
+      ],
+      "scaledSize": [
+        67,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_crusher",
+      "source": "neutral_rook",
+      "frameCount": 14,
+      "sourceBox": [
+        32,
+        40,
+        114,
+        104
+      ],
+      "scaledSize": [
+        92,
+        72
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_exile",
+      "source": "neutral_voidhunter",
+      "frameCount": 14,
+      "sourceBox": [
+        23,
+        18,
+        67,
+        84
+      ],
+      "scaledSize": [
+        55,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_thorn",
+      "source": "neutral_beastswamp",
+      "frameCount": 14,
+      "sourceBox": [
+        27,
+        32,
+        57,
+        64
+      ],
+      "scaledSize": [
+        77,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "e_void",
+      "source": "boss_shadowlord",
+      "frameCount": 14,
+      "sourceBox": [
+        27,
+        51,
+        76,
+        104
+      ],
+      "scaledSize": [
+        89,
+        96
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "general_argeon",
+      "source": "f1_general",
+      "frameCount": 12,
+      "sourceBox": [
+        19,
+        40,
+        66,
+        84
+      ],
+      "scaledSize": [
+        88,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "general_kaleos",
+      "source": "f2_general",
+      "frameCount": 14,
+      "sourceBox": [
+        14,
+        8,
+        59,
+        64
+      ],
+      "scaledSize": [
+        66,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "general_lilithe",
+      "source": "f4_general",
+      "frameCount": 14,
+      "sourceBox": [
+        15,
+        14,
+        80,
+        64
+      ],
+      "scaledSize": [
+        92,
+        71
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    },
+    {
+      "id": "general_faie",
+      "source": "f6_general",
+      "frameCount": 14,
+      "sourceBox": [
+        20,
+        3,
+        53,
+        64
+      ],
+      "scaledSize": [
+        44,
+        82
+      ],
+      "allIdleFramesNonEmpty": true,
+      "normalizedOutlineEdgesClear": true
+    }
+  ]
+}

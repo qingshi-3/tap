@@ -1,0 +1,86 @@
+[
+  {
+    "name": "split-568",
+    "width": 568,
+    "height": 320,
+    "errors": [],
+    "final": {
+      "count": 2,
+      "stage": 1,
+      "rng": 1939846045,
+      "draft": [
+        "m_egg",
+        "d_artificer",
+        "v_guard"
+      ],
+      "picks": 2,
+      "mode": "prep",
+      "pending": false
+    },
+    "verified": [
+      "cancel/error preserve count and RNG",
+      "two in one round",
+      "third disabled and no SDK call",
+      "next round does not refill",
+      "new run resets",
+      "one in each round accumulates"
+    ],
+    "sdk": "test double; no real ad playback"
+  },
+  {
+    "name": "split-844",
+    "width": 844,
+    "height": 390,
+    "errors": [],
+    "final": {
+      "count": 2,
+      "stage": 1,
+      "rng": -1695072424,
+      "draft": [
+        "n_medic",
+        "n_bulwark",
+        "s_backstab"
+      ],
+      "picks": 2,
+      "mode": "prep",
+      "pending": false
+    },
+    "verified": [
+      "cancel/error preserve count and RNG",
+      "two in one round",
+      "third disabled and no SDK call",
+      "next round does not refill",
+      "new run resets",
+      "one in each round accumulates"
+    ],
+    "sdk": "test double; no real ad playback"
+  },
+  {
+    "name": "single-844",
+    "width": 844,
+    "height": 390,
+    "errors": [],
+    "final": {
+      "count": 2,
+      "stage": 1,
+      "rng": -1393117270,
+      "draft": [
+        "m_shaman",
+        "d_sentry",
+        "n_merc"
+      ],
+      "picks": 2,
+      "mode": "prep",
+      "pending": false
+    },
+    "verified": [
+      "cancel/error preserve count and RNG",
+      "two in one round",
+      "third disabled and no SDK call",
+      "next round does not refill",
+      "new run resets",
+      "one in each round accumulates"
+    ],
+    "sdk": "test double; no real ad playback"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "capturedAt": "2026-10-16T00:01:02+08:00",
+  "command": "npm test",
+  "cwd": "games/zhenlie-demo/source",
+  "testFiles": 6,
+  "tests": 67,
+  "passed": 67,
+  "durationSeconds": 1.54,
+  "buildExecuted": false,
+  "scope": "Existing tests before expansion integration; does not certify DESIGN 0.3 behavior."
+}

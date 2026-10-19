@@ -1,0 +1,116 @@
+/* 常驻词条标记：护卫 / 复生是身上光效，其余词条是脚下一排小标。
+   常驻动画只动 transform / opacity。 */
+
+/* 词条小标：位于数值下方 */
+.u-kws {
+  position: absolute;
+  left: 50%;
+  top: 126px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.u-kws:empty { display: none; }
+.kwc {
+  position: relative;
+  min-width: 26px;
+  height: 26px;
+  padding: 0 3px 0 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  border-radius: 7px;
+  background: #0d1020e6;
+  box-shadow: 0 0 0 1.5px var(--kc), 0 2px 3px #000a;
+  color: var(--kc);
+}
+.kwc .ic { width: 20px; height: 20px; flex: none; }
+.kwc .ic svg { width: 100%; height: 100%; display: block; }
+.kwc i {
+  font: 16px var(--num);
+  font-style: normal;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 1px 0 #000;
+}
+.kwc:not(:has(i)) { padding: 0; }
+.kw-guard { --kc: #ffd36b; }
+.kw-armor { --kc: #b9c7d8; }
+.kw-thorns { --kc: #ff8a6a; }
+.kw-combo { --kc: #ff7ab0; }
+.kw-snipe { --kc: #9fe870; }
+.kw-splash { --kc: #ffb340; }
+.kw-power { --kc: #c99bff; }
+
+/* 护卫：朝向敌方一侧的半透明大盾（静态） */
+.u-guard {
+  position: absolute;
+  top: 6px;
+  width: 54px;
+  height: 78px;
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+  clip-path: polygon(50% 0, 100% 12%, 100% 52%, 50% 100%, 0 52%, 0 12%);
+  background: linear-gradient(180deg, rgba(255, 236, 160, 0.95), rgba(240, 170, 50, 0.7) 70%, rgba(240, 170, 50, 0.3));
+  pointer-events: none;
+}
+.u-guard::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  clip-path: inherit;
+  background: linear-gradient(180deg, rgba(90, 60, 10, 0.75), rgba(60, 40, 10, 0.45) 70%, rgba(60, 40, 10, 0.15));
+}
+.side-0 .u-guard { right: -14px; }
+.side-1 .u-guard { left: -14px; }
+.unit.kw-guard .u-guard { opacity: 1; transform: scale(1); }
+
+/* 复生：脚下旋转的青色符文圈 + 身后青光 */
+.u-reborn {
+  position: absolute;
+  left: 50%;
+  top: 70px;
+  width: 104px;
+  height: 104px;
+  margin: 0 0 0 -52px;
+  transform: scaleY(0.34);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.u-reborn i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px dashed rgba(120, 240, 255, 0.95);
+  background: radial-gradient(circle, rgba(120, 240, 255, 0.3) 0 40%, transparent 66%);
+  box-shadow: 0 0 14px rgba(90, 220, 255, 0.8), inset 0 0 12px rgba(90, 220, 255, 0.6);
+}
+.unit.kw-reborn .u-reborn { opacity: 1; }
+.unit.kw-reborn .u-reborn i { animation: rebornSpin 6s linear infinite; }
+@keyframes rebornSpin { to { transform: rotate(360deg); } }
+.unit .u-bob::before {
+  content: '';
+  position: absolute;
+  inset: 6px 8px 14px;
+  border-radius: 46% 46% 40% 40%;
+  background: radial-gradient(ellipse at 50% 60%, rgba(110, 235, 255, 0.8), rgba(80, 200, 255, 0.3) 50%, transparent 72%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.unit.kw-reborn .u-bob::before { opacity: 1; animation: rebornGlow 2.2s ease-in-out infinite; }
+@keyframes rebornGlow { 50% { opacity: 0.45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .unit.kw-reborn .u-reborn i, .unit.kw-reborn .u-bob::before { animation: none; }
+}
+[data-unit-motion="off"] .unit.kw-reborn .u-reborn i,
+[data-unit-motion="off"] .unit.kw-reborn .u-bob::before { animation: none; }
+
+/* 有词条小标时，格位编号让到小标下方 */
+.board .slot .slot-num { top: 96px; }

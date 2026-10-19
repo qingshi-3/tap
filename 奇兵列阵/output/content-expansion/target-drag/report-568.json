@@ -1,0 +1,29 @@
+[
+  {
+    "width": 568,
+    "height": 320,
+    "mobile": true,
+    "reducedMotion": false,
+    "labelHit": {
+      "x": 217.628173828125,
+      "y": 67.89067077636719,
+      "width": 43.99365234375,
+      "height": 43.99365234375
+    },
+    "actions": [
+      "pending official guard; all four sources remain pending",
+      "real label drag commits single UID and lights only source plus legal hover",
+      "illegal enemy remains gray and prior UID binding survives",
+      "two separate label drags commit complete double atomically",
+      "half-choice cancels on Escape/blank/other selection/blur/paused hidden/pointercancel/start attempt; prior configuration preserved",
+      "keyboard label Enter and target Space",
+      "ordinary role drag still swaps; target follows owned UID after swapping",
+      "selected bench source can designate battlefield and never blocks",
+      "invalid explicit binding blocked; sandbox and ad retry guarded before ad/count",
+      "injected frozen retry snapshot guard",
+      "CDP second touch cannot reenter target/ordinary gesture; cancel removes arrow/gray/ghost",
+      "no legal complete choice allows natural fizzle and battle"
+    ],
+    "errors": []
+  }
+]
