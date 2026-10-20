@@ -1,12 +1,57 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#29483d"><title>拼土王国</title><link rel="stylesheet" href="./style.css"></head><body>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2f5d6b">
+<title>拼土王国</title>
+<link rel="stylesheet" href="./style.css">
+</head>
+<body>
 <main id="game">
-<section class="world" aria-label="领土地图"><div id="viewport"><div id="board" role="grid" aria-label="领土，方向键移动，回车选择"></div></div></section>
-<header class="hud"><div class="identity"><h1>拼土王国</h1><span id="season"></span><button id="records">存档</button></div><div id="resources" class="resources"></div></header>
-<button id="milestone" aria-label="查看国政"></button>
-<div class="map-controls"><button id="zoom-out" aria-label="缩小地图">−</button><button id="center">居中</button><button id="zoom-in" aria-label="放大地图">＋</button></div>
-<nav class="map-actions" aria-label="经营操作"><button id="open-land">买地</button><button id="open-building">建造</button><button id="next-turn" class="primary">下一季</button></nav>
-<section id="market" role="dialog" aria-modal="false" aria-labelledby="market-title" hidden></section>
-<section id="placement" aria-label="放置操作" hidden></section><section id="inspector" aria-label="建筑详情" hidden></section>
-<div id="drag-status" role="status" hidden></div><div id="toast" role="status" aria-live="polite"></div>
-</main><dialog id="dialog"><div id="dialog-body"></div><button id="close-dialog" class="primary">返回地图</button></dialog><script type="module" src="./app.js"></script></body></html>
+  <canvas id="map" aria-label="王国地图：拖动平移，双指缩放，点建筑查看详情"></canvas>
+  <header id="hud">
+    <button id="season" class="chip season" aria-label="王国概况"></button>
+    <div id="resources" class="resources"></div>
+    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴">图鉴</button>
+    <button id="menu" class="icon-btn" aria-label="菜单">☰</button>
+  </header>
+  <aside id="dock" aria-label="建筑：常备与背包">
+    <div id="cards" class="cards"></div>
+  </aside>
+  <aside id="side">
+    <div class="actions" id="actions">
+      <button id="open-land" class="act">买地</button>
+      <button id="open-draft" class="act">选卡</button>
+      <button id="next-turn" class="act primary">下一季</button>
+    </div>
+    <div id="place-bar" class="place-bar" hidden>
+      <div id="place-info" class="place-info" role="status"></div>
+      <div class="place-buttons">
+        <button id="place-rotate" class="act">旋转</button>
+        <button id="place-cancel" class="act">取消</button>
+        <button id="place-confirm" class="act primary">放下</button>
+      </div>
+    </div>
+  </aside>
+  <div class="left-col"><div id="alerts" class="alerts"></div></div>
+  <div id="map-tools" class="map-tools">
+    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false">盾</button>
+    <button id="center" class="icon-btn" aria-label="回到领土">◎</button>
+    <button id="zoom-out" class="icon-btn" aria-label="缩小">−</button>
+    <button id="zoom-in" class="icon-btn" aria-label="放大">＋</button>
+  </div>
+  <section id="sheet" class="sheet" hidden role="dialog" aria-modal="false"></section>
+  <div id="banner" class="banner" aria-hidden="true"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</main>
+<div id="modal" class="modal" hidden><div class="modal-card" role="dialog" aria-modal="true"><div id="modal-body"></div></div></div>
+<div id="tut" class="tut" hidden></div>
+<div id="rotate-tip" class="rotate-tip"><div><div class="phone"></div><b>请把手机横过来</b><small>拼土王国是横屏游戏</small></div></div>
+<script type="module" src="./app.js"></script>
+</body>
+</html>

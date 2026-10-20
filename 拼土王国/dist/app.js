@@ -1,145 +1,1056 @@
 import * as R from './rules.js';
-import {loadArt,drawTerrain,drawBuilding,drawIcon} from './art.js';
-import {readSave,writeSave,replaceSave,SAVE_KEY} from './storage.js';
-const {TERRAIN,BUILDINGS}=R;
-const $=s=>document.querySelector(s);
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const signed=n=>(n>0?'+':'')+Math.round(n),fmt=n=>n>=10000?(n/10000).toFixed(n<100000?1:0)+'万':n;
-const seasons=['春','夏','秋','冬'],PAD=300;
-let storage,loaded;
-try{storage=window.localStorage;loaded=readSave(storage);}catch{loaded={ok:false,reason:'浏览器未允许本地存档'};}
-let state=loaded.ok&&loaded.state?loaded.state:R.createGame(20261019);
-let blocked=!loaded.ok,unsaved=false,marketKind=null,selection=null,selectedTile=null,anchor=null,rotation=0;
-let cell=matchMedia('(max-height:700px) and (orientation:portrait)').matches?48:64;
-let gesture=null,frame=0,toastTimer;
-const game=$('#game'),board=$('#board'),viewport=$('#viewport'),market=$('#market'),placement=$('#placement'),inspector=$('#inspector'),dialog=$('#dialog');
-// Touch release activates controls directly, including immediately after a captured drag.
-// Keyboard and mouse retain native click behavior; compatibility touch clicks cannot double-charge.
-let touchControl=null;
-document.addEventListener('pointerdown',e=>{if(e.pointerType!=='touch')return;const button=e.target.closest('button');touchControl=button&&!button.matches('.tile,.offer,#held-item')?{button,id:e.pointerId,x:e.clientX,y:e.clientY}:null;});
-document.addEventListener('pointerup',e=>{const t=touchControl;touchControl=null;if(t&&e.pointerId===t.id&&t.button===e.target.closest('button')&&Math.hypot(e.clientX-t.x,e.clientY-t.y)<8){e.preventDefault();t.button.click();}});
-document.addEventListener('pointercancel',()=>{touchControl=null;});
-document.addEventListener('click',e=>{if(e.isTrusted&&e.detail>0&&(e.pointerType==='touch'||e.sourceCapabilities?.firesTouchEvents)){e.preventDefault();e.stopImmediatePropagation();}},true);
-board.style.setProperty('--cell',cell+'px');
-const tiles=[];
-for(let y=0;y<14;y++)for(let x=0;x<14;x++){
- const el=document.createElement('button');el.className='tile';el.dataset.x=x;el.dataset.y=y;el.setAttribute('role','gridcell');el.tabIndex=x===6&&y===6?0:-1;el.innerHTML='<canvas width="64" height="64"></canvas>';board.append(el);tiles.push(el);
-}
-function tileAt(x,y){return state.tiles.find(t=>t.x===x&&t.y===y);}
-function icon(key){return `<canvas width="64" height="64" data-icon="${esc(key)}" aria-hidden="true"></canvas>`;}
-function paint(root=document){root.querySelectorAll('[data-icon]').forEach(c=>{const ctx=c.getContext('2d');ctx.clearRect(0,0,64,64);drawIcon(ctx,c.dataset.icon,0,0,64);});root.querySelectorAll('[data-land]').forEach(c=>{const o=state.offers[+c.dataset.land];if(!o)return;const cells=R.rotateCells(o.cells,rotation),w=Math.max(...cells.map(t=>t.x))+1,h=Math.max(...cells.map(t=>t.y))+1,s=Math.min(28,112/w,72/h),ctx=c.getContext('2d');ctx.clearRect(0,0,120,80);for(const t of cells)drawTerrain(ctx,t.terrain,(120-w*s)/2+t.x*s,(80-h*s)/2+t.y*s,s);});}
-function landIcon(index){return `<canvas width="120" height="80" data-land="${index}" aria-hidden="true"></canvas>`;}
-function notify(message){if(dialog.open){let p=dialog.querySelector('.dialog-notice');if(!p){p=document.createElement('p');p.className='dialog-notice';p.setAttribute('role','status');dialog.append(p);}p.textContent=message;}$('#toast').textContent=message;$('#toast').classList.add('visible');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('visible'),3200);}
-function save(){const r=writeSave(storage,state);unsaved=!r.ok;if(!r.ok)notify(r.reason);return r;}
-function act(fn,...args){if(blocked)return false;const r=fn(state,...args);if(!r.ok){notify(r.reason);return false;}save();return true;}
-function goalText(){const g=R.LEVELS[state.level+1];return g?`人口 ${state.population}/${g.population} · 学识 ${state.knowledge}/${g.knowledge}`:`${state.tiles.length} 格领土`;}
-function renderHud(){
- const f=R.forecast(state);$('#records').textContent=unsaved?'未保存':'存档';$('#season').textContent=`第 ${Math.floor((state.turn-1)/4)+1} 年 · ${seasons[(state.turn-1)%4]}`;
- const stats=[['gold',state.gold,`金币 ${signed(f.gold)}`],['food',state.food,`粮食 ${signed(f.food)}`],['wood',state.wood,`木材 ${signed(f.wood)}`],['population',state.population,`人口 / ${f.capacity}`],['happiness',state.happiness,'幸福']];
- $('#resources').innerHTML=stats.map(([k,v,label])=>`<div class="resource ${f[k]<0?'negative':''}" aria-label="${esc(label)}，当前${v}">${icon(k)}<div><strong>${fmt(v)}</strong><small>${label}</small></div></div>`).join('');
- $('#milestone').innerHTML=`${R.LEVELS[state.level].name}<small>${goalText()}</small>`;
- $('#open-land').disabled=state.landBought||blocked;$('#open-land').textContent=state.landBought?'本季已购':'买地';$('#open-building').disabled=blocked;$('#next-turn').disabled=blocked||!!selection||!!gesture;
- paint($('.hud'));
-}
-function placementCheck(){if(!selection||!anchor)return{ok:false,reason:'拖到地图上的合适位置'};
- if(selection.kind==='land')return R.canPlaceLand(state,selection.index,anchor.x,anchor.y,rotation);
- const t=tileAt(anchor.x,anchor.y),b=BUILDINGS[selection.type];
- if(!t)return{ok:false,reason:'这里还没有买地'};if(t.building)return{ok:false,reason:'这里已有建筑'};
- if(!b.terrains.includes(t.terrain))return{ok:false,reason:'需要'+b.terrains.map(k=>TERRAIN[k].name).join('或')};
- if(state.gold<b.cost)return{ok:false,reason:'金币不足'};return{ok:true,reason:''};
-}
-function cellsForSelection(){return selection?.kind==='land'?R.rotateCells(state.offers[selection.index].cells,rotation):[{x:0,y:0}];}
-function drawBoard(){
- const map=new Map(state.tiles.map(t=>[`${t.x},${t.y}`,t])),ghosts=selection&&anchor?cellsForSelection().map(c=>({...c,x:c.x+anchor.x,y:c.y+anchor.y})):[],valid=placementCheck().ok;
- for(const el of tiles){const x=+el.dataset.x,y=+el.dataset.y,t=map.get(`${x},${y}`),g=ghosts.find(c=>c.x===x&&c.y===y),ctx=el.firstElementChild.getContext('2d');ctx.clearRect(0,0,64,64);ctx.imageSmoothingEnabled=false;el.className='tile'+(t?' owned':' empty')+(selection?' placing':'');el.querySelector('.level')?.remove();
-  if(t){drawTerrain(ctx,t.terrain,0,0,64,x+y*14);if(t.building){drawBuilding(ctx,t.building,0,0,64,t.level,t.terrain);if(t.level>1){const badge=document.createElement('span');badge.className='level';badge.textContent='ⅡⅢ'[t.level-2];el.append(badge);}}}
-  if(selection?.kind==='building'&&t&&!t.building&&BUILDINGS[selection.type].terrains.includes(t.terrain))el.classList.add('suitable');
-  if(g){ctx.globalAlpha=.85;if(selection.kind==='land')drawTerrain(ctx,g.terrain,0,0,64);else drawBuilding(ctx,selection.type,0,0,64,1,t?.terrain);ctx.globalAlpha=1;el.classList.remove('suitable');el.classList.add(valid?'ghost':'invalid');}
-  if(!selection&&selectedTile?.x===x&&selectedTile?.y===y)el.classList.add('selected');
-  el.setAttribute('aria-label',`${x+1}列${y+1}行，${t?TERRAIN[t.terrain].name+(t.building?'，'+BUILDINGS[t.building].name+' '+t.level+'级':'，空地'):'未购土地'}`);
- }
-}
-const briefs={house:'增加住房与税收',farm:'产粮，邻水增产',lumber:'产木材，邻林增产',mine:'开采金币',fishery:'产粮，冬季照常',market:'邻民居增加收益',school:'积累学识',clinic:'提升幸福与人口',barracks:'减少风暴损失'};
-function availableBuilding(type){const b=BUILDINGS[type];return state.tiles.some(t=>!t.building&&b.terrains.includes(t.terrain));}
-function renderMarket(){
- if(!marketKind){market.hidden=true;return;}market.hidden=false;market.classList.remove('lifted');const land=marketKind==='land',cost=5*((land?state.rerolls:state.buildingRerolls)+1);
- const cards=land?state.offers.map((o,i)=>`<button class="offer" data-kind="land" data-index="${i}" ${state.gold<o.cost?'disabled':''}>${landIcon(i)}<strong>${o.name}</strong><span class="price">${o.cost} 金币</span><small>${o.cells.length} 格土地</small></button>`).join(''):
- R.getBuildingOffers(state).map(type=>{const b=BUILDINGS[type],can=availableBuilding(type);return`<button class="offer" data-kind="building" data-type="${type}" ${state.gold<b.cost||!can?'disabled':''}>${icon(type)}<strong>${b.name}</strong><span class="price">${b.cost} 金币</span><small>${can?briefs[type]:'暂无合适空地'}</small></button>`;}).join('');
- market.innerHTML=`<div class="market-header"><h2 id="market-title">${land?'选一块土地':'选一座建筑'}</h2><div class="controls">${land?'<button id="market-rotate" aria-label="旋转候选地块">旋转 ↻</button>':''}<button id="close-market" aria-label="收起选择">收起</button></div></div><div class="offers">${cards}</div><div class="market-footer"><span>拖到地图上，松手${land?'购买':'建造'}</span><div class="controls"><button id="refresh-offers" ${state.gold<cost?'disabled':''}>换一批 ${cost}金</button>${land?'<button id="skip-land">先建造</button>':''}</div></div>`;
- $('#close-market').onclick=()=>closeMarket();if(land){$('#market-rotate').onclick=()=>{rotation=(rotation+1)%4;paint(market);};$('#skip-land').onclick=()=>openMarket('building');}
- $('#refresh-offers').onclick=()=>{if(act(land?R.reroll:R.rerollBuildings)){renderHud();renderMarket();}};
- market.querySelectorAll('.offer').forEach(el=>{el.addEventListener('pointerdown',e=>beginOffer(e,el));el.onclick=e=>{if(e.detail===0)selectForTap(offerData(el));};});paint(market);
-}
-function offerData(el){return el.dataset.kind==='land'?{kind:'land',index:+el.dataset.index}:{kind:'building',type:el.dataset.type};}
-function openMarket(kind,{center=false}={}){if(blocked)return;if(kind==='land'&&state.landBought){notify('本季已购地，下季再来');return;}selection=null;anchor=null;selectedTile=null;marketKind=kind;rotation=0;render();if(center)requestAnimationFrame(()=>centerOn(6.5,6.5,true));}
-function closeMarket(){marketKind=null;render();}
-function selectForTap(item){selection=item;marketKind=null;anchor=null;selectedTile=null;render();}
-function renderPlacement(){placement.hidden=!selection||!!gesture?.active;if(placement.hidden)return;const land=selection.kind==='land',b=land?state.offers[selection.index]:BUILDINGS[selection.type],check=placementCheck();
- placement.innerHTML=`<div class="placement-info"><button id="held-item" aria-label="拖动${b.name}">${land?landIcon(selection.index):icon(selection.type)}</button><div><strong>${b.name} · ${b.cost} 金币</strong><p>${land?'拖动地块，或点地图选择位置':b.description}</p></div></div><p class="placement-reason ${check.ok?'':'bad'}">${check.ok?'位置合适':check.reason}</p><div class="actions"><button id="cancel-placement">放回</button>${land?'<button id="rotate">旋转 ↻</button>':''}<button id="confirm-placement" class="primary" ${check.ok?'':'disabled'}>${land?'确认买地':'确认建造'}</button></div>`;
- $('#held-item').onpointerdown=e=>beginOffer(e,null,selection);$('#cancel-placement').onclick=()=>openMarket(selection.kind);
- if(land)$('#rotate').onclick=()=>{rotation=(rotation+1)%4;render();};$('#confirm-placement').onclick=commitPlacement;paint(placement);
-}
-function commitPlacement(){const check=placementCheck();if(!check.ok){notify(check.reason);return false;}const land=selection.kind==='land',name=land?state.offers[selection.index].name:BUILDINGS[selection.type].name;
- if(!act(land?R.placeLand:R.build,...(land?[selection.index,anchor.x,anchor.y,rotation]:[selection.type,anchor.x,anchor.y])))return false;
- selection=null;anchor=null;selectedTile=null;marketKind=null;render();notify(`${name}${land?'已拼入领土':'建造完成'}`);if(land)openMarket('building');return true;
-}
-function renderInspector(){const t=selectedTile&&tileAt(selectedTile.x,selectedTile.y);inspector.hidden=!t?.building;if(inspector.hidden)return;const b=BUILDINGS[t.building],cost=R.upgradeCost(t);
- inspector.innerHTML=`<div class="inspect-heading">${icon(t.building)}<div><h3>${b.name} · ${t.level}级</h3><p>${TERRAIN[t.terrain].name}</p></div><button id="unselect">收起</button></div><p class="tile-description">${b.description}</p><div class="actions"><button id="upgrade" class="primary" ${!cost||state.gold<cost.gold||state.wood<cost.wood?'disabled':''}>${cost?`升级 ${cost.gold}金 ${cost.wood}木`:'已满级'}</button>${t.building!=='hall'?'<button id="demolish">拆除</button>':''}</div>`;
- $('#unselect').onclick=()=>{selectedTile=null;render();};$('#upgrade').onclick=()=>{if(act(R.upgrade,t.x,t.y)){render();notify('建筑升级完成');}};
- if($('#demolish'))$('#demolish').onclick=()=>showDialog(`<h2>拆除${b.name}？</h2><p>土地保留，返还部分金币。</p><button id="confirm-demolish" class="danger">确认拆除</button>`,()=>{$('#confirm-demolish').onclick=()=>{if(act(R.demolish,t.x,t.y)){dialog.close();selectedTile=null;render();}};});paint(inspector);
-}
-function render(){renderHud();renderMarket();renderPlacement();renderInspector();drawBoard();}
-function centerOn(x=6.5,y=6.5,avoidMarket=false){let cy=viewport.clientHeight/2;if(avoidMarket&&!market.hidden&&innerHeight>innerWidth){const top=market.getBoundingClientRect().top;cy=(170+top)/2;}
- viewport.scrollLeft=PAD+x*cell-viewport.clientWidth/2;viewport.scrollTop=PAD+y*cell-cy;}
-function chooseTile(x,y){if(blocked)return;if(selection){anchor={x,y};renderPlacement();drawBoard();return;}const t=tileAt(x,y);if(t?.building){marketKind=null;selectedTile={x,y};render();}else if(t)openMarket('building');else if(!state.landBought)openMarket('land');else{selectedTile=null;marketKind=null;render();}}
+import * as A from './art.js';
+import { readSave, writeSave, replaceSave, readRecords, writeRecords } from './storage.js';
+import { Spotlight } from './tutorial.js';
 
-// Pointer ownership stays on the stable game root while cards disappear during a drag.
-function beginOffer(e,el,item){if(blocked||e.button!==0||gesture||el?.disabled)return;e.preventDefault();gesture={kind:'offer',id:e.pointerId,startX:e.clientX,startY:e.clientY,x:e.clientX,y:e.clientY,item:item?{...item}:offerData(el),active:false,lift:e.pointerType==='touch'?cell*1.15:0};game.setPointerCapture(e.pointerId);}
-function pointAnchor(){if(!gesture?.active)return;const rect=board.getBoundingClientRect(),cells=cellsForSelection(),w=Math.max(...cells.map(c=>c.x))+1,h=Math.max(...cells.map(c=>c.y))+1;
- anchor={x:Math.floor((gesture.x-rect.x-PAD)/cell-(w-1)/2),y:Math.floor((gesture.y-gesture.lift-rect.y-PAD)/cell-(h-1)/2)};
- drawBoard();const check=placementCheck(),status=$('#drag-status');status.hidden=false;status.classList.toggle('bad',!check.ok);status.textContent=check.ok?'松手放置':check.reason;
+const { BUILDINGS, TERRAIN, W, H } = R;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const signed = n => (n > 0 ? '+' : '') + n;
+const S = 64;                      // resolution of the cached map layer, px per cell
+const BASE = 44;                   // CSS px per cell at zoom 1
+const RES_NAMES = { gold: '金', food: '粮', wood: '木', fame: '声望', pop: '人口' };
+const TUT_FLAG = 'patchwork-kingdom.v3.tutorial-done', TIPS_KEY = 'patchwork-kingdom.v3.tips', TUT_SEED = 20261020;
+
+// ---------- state ----------
+let storage = null;
+try { storage = window.localStorage; } catch { storage = null; }
+const memory = new Map();
+const store = storage || { getItem: k => memory.get(k) ?? null, setItem: (k, v) => memory.set(k, String(v)) };
+let records = readRecords(store);
+let loaded = readSave(store);
+let state = loaded.ok && loaded.state ? loaded.state : null;
+let saveBlocked = !loaded.ok;
+let liveRun = !!(loaded.ok && loaded.state);   // false while the map shows a placeholder kingdom behind the title
+
+let mode = null;          // {kind:'land', index, rot, ax, ay} | {kind:'build', type, rot, ax, ay}
+let drag = null;          // active pointer drag of a card or ghost
+let press = null;         // pointer pressed on a card, not yet a drag
+let pan = null;
+const pointers = new Map();
+let pinch = null;
+let sheet = null;         // 'land' | 'draft' | null
+const dismissed = { land: 0, draft: 0 };
+let guardView = false;
+let floaters = [];
+let cam = { x: 0, y: 0, z: 1 };
+let dirty = true, frameQueued = false, busy = false;
+let toastTimer = 0, bannerTimer = 0;
+let lastPointerType = 'touch';
+
+const canvas = $('#map'), ctx = canvas.getContext('2d');
+const cache = document.createElement('canvas'); cache.width = W * S; cache.height = H * S;
+const seaTile = document.createElement('canvas'); seaTile.width = seaTile.height = S * 4;
+let seaPattern = null;
+let dpr = 1, vw = 0, vh = 0;
+
+// ---------- helpers ----------
+const cellHash = (x, y) => ((x * 73856093) ^ (y * 19349663) ^ (state ? state.seed : 0)) >>> 0;
+const cp = () => BASE * cam.z;
+const year = () => R.yearOf(state), season = () => R.seasonOf(state);
+function iconHtml(key, cls = '') { return `<canvas class="ic ${cls}" data-icon="${key}" width="44" height="44" aria-hidden="true"></canvas>`; }
+function paintIcons(root) {
+  root.querySelectorAll('canvas[data-icon]').forEach(c => { const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); A.drawIcon(g, c.dataset.icon, 0, 0, c.width); });
+  root.querySelectorAll('canvas[data-card]').forEach(c => {
+    const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+    A.drawCard(g, c.dataset.card, c.width, c.height, { rot: +(c.dataset.rot || 0) });
+  });
+  root.querySelectorAll('canvas[data-land]').forEach(c => paintLand(c, state.landOffers[+c.dataset.land]));
 }
-function edgePan(){if(!gesture?.active)return;const edge=40,speed=5,v=viewport.getBoundingClientRect();const dx=gesture.x<v.left+edge?-speed:gesture.x>v.right-edge?speed:0,dy=gesture.y<v.top+70?-speed:gesture.y>v.bottom-65?speed:0;if(dx||dy){viewport.scrollLeft+=dx;viewport.scrollTop+=dy;pointAnchor();}frame=requestAnimationFrame(edgePan);}
-game.addEventListener('pointermove',e=>{if(!gesture||e.pointerId!==gesture.id)return;
- if(gesture.kind==='pan'){const dx=e.clientX-gesture.startX,dy=e.clientY-gesture.startY;if(Math.hypot(dx,dy)>7){gesture.active=true;viewport.classList.add('dragging');}if(gesture.active){viewport.scrollLeft=gesture.left-dx;viewport.scrollTop=gesture.top-dy;}return;}
- gesture.x=e.clientX;gesture.y=e.clientY;
- if(!gesture.active&&Math.hypot(e.clientX-gesture.startX,e.clientY-gesture.startY)>8){gesture.active=true;selection={...gesture.item};selectedTile=null;market.classList.add('lifted');placement.hidden=true;inspector.hidden=true;$('#toast').classList.remove('visible');$('.map-actions').classList.add('hidden-actions');$('#next-turn').disabled=true;frame=requestAnimationFrame(edgePan);}
- if(gesture.active)pointAnchor();
+function paintLand(c, offer) {
+  if (!offer) return;
+  const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+  const w = Math.max(...offer.cells.map(t => t.x)) + 1, h = Math.max(...offer.cells.map(t => t.y)) + 1;
+  const s = Math.floor(Math.min(c.width / (w + 0.4), c.height / (h + 0.4), c.height / 2.2));
+  const ox = Math.round((c.width - w * s) / 2), oy = Math.round((c.height - h * s) / 2);
+  offer.cells.forEach((t, i) => {
+    A.drawTerrain(g, t.t, ox + t.x * s, oy + t.y * s, s, i * 7 + 3);
+    if (t.treasure) A.drawTreasure(g, ox + t.x * s, oy + t.y * s, s);
+  });
+  g.strokeStyle = '#3b3a2c88'; g.lineWidth = Math.max(1, s / 16);
+  outline(g, offer.cells, ox, oy, s);
+}
+function outline(g, cells, ox, oy, s) {
+  const set = new Set(cells.map(c => `${c.x},${c.y}`));
+  g.beginPath();
+  for (const c of cells) {
+    const x = ox + c.x * s, y = oy + c.y * s;
+    if (!set.has(`${c.x},${c.y - 1}`)) { g.moveTo(x, y); g.lineTo(x + s, y); }
+    if (!set.has(`${c.x},${c.y + 1}`)) { g.moveTo(x, y + s); g.lineTo(x + s, y + s); }
+    if (!set.has(`${c.x - 1},${c.y}`)) { g.moveTo(x, y); g.lineTo(x, y + s); }
+    if (!set.has(`${c.x + 1},${c.y}`)) { g.moveTo(x + s, y); g.lineTo(x + s, y + s); }
+  }
+  g.stroke();
+}
+function toast(text, ms = 2600) {
+  const t = $('#toast'); t.textContent = text; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
+function banner(title, sub = '') {
+  const b = $('#banner'); b.innerHTML = `${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ''}`; b.classList.add('show');
+  clearTimeout(bannerTimer); bannerTimer = setTimeout(() => b.classList.remove('show'), 1300);
+}
+function costText(def) { return `${def.gold}金${def.wood ? ` ${def.wood}木` : ''}`; }
+function save() {
+  if (saveBlocked) return;
+  const r = writeSave(store, state);
+  if (!r.ok) toast('未保存：' + r.reason);
+}
+function invalidate() { dirty = true; requestFrame(); }
+function requestFrame() { if (!frameQueued) { frameQueued = true; requestAnimationFrame(frame); } }
+
+// ---------- modal ----------
+let modalResolve = null;
+function modal(html, buttons = [{ label: '好的', value: true, primary: true }], { onOpen, dismissable = true, cls = '' } = {}) {
+  return new Promise(resolve => {
+    modalResolve?.(null);
+    modalResolve = resolve;
+    const body = $('#modal-body');
+    body.innerHTML = html + `<div class="modal-actions">${buttons.map((b, i) => `<button class="act ${b.primary ? 'primary' : ''} ${b.danger ? 'danger' : ''}" data-i="${i}" ${b.disabled ? 'disabled' : ''}>${b.label}</button>`).join('')}</div>`;
+    $('#modal').hidden = false;
+    $('#modal .modal-card').className = 'modal-card ' + cls;
+    $('#modal').dataset.dismissable = dismissable ? '1' : '';
+    paintIcons(body);
+    body.querySelectorAll('.modal-actions [data-i]').forEach(el => el.onclick = () => closeModal(buttons[+el.dataset.i].value));
+    onOpen?.(body);
+    body.querySelector('.modal-actions .primary, .modal-actions button')?.focus({ preventScroll: true });
+  });
+}
+function closeModal(value) {
+  $('#modal').hidden = true;
+  const r = modalResolve; modalResolve = null; r?.(value);
+}
+$('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal' && $('#modal').dataset.dismissable) closeModal(null); });
+
+// ---------- layout & camera ----------
+// The map area is the space between the top bar and the two rails (the card rail slides away while a sheet is open).
+function viewArea() {
+  const top = $('#hud').offsetTop + $('#hud').offsetHeight + 4, bottom = 0;
+  const left = document.body.classList.contains('sheet-open') ? 0 : $('#dock').offsetWidth, right = $('#side').offsetWidth;
+  const w = vw - left - right, h = vh - top - bottom;
+  return { top, bottom, left, right, w, h, cx: left + w / 2, cy: top + h / 2 };
+}
+const mapRect = () => { const a = viewArea(); return { x: a.left, y: a.top, w: a.w, h: a.h }; };
+function resize() {
+  dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  vw = window.innerWidth; vh = window.innerHeight;
+  canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr);
+  clampCam(); requestFrame();
+}
+function territoryBox() {
+  const xs = state.tiles.map(t => t.x), ys = state.tiles.map(t => t.y);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs) + 1, y1: Math.max(...ys) + 1 };
+}
+function centerCamera(fit = true) {
+  const box = territoryBox(), area = viewArea();
+  if (fit) {
+    const want = Math.min(area.w / (box.x1 - box.x0 + 3), area.h / (box.y1 - box.y0 + 3), 50);
+    cam.z = Math.max(0.6, Math.min(1.6, want / BASE));
+  }
+  const c = cp();
+  cam.x = ((box.x0 + box.x1) / 2) * c - area.cx;
+  cam.y = ((box.y0 + box.y1) / 2) * c - area.cy;
+  clampCam(); requestFrame();
+}
+function clampCam() {
+  const c = cp(), margin = 2 * c;
+  cam.x = Math.max(-vw + margin + 0, Math.min(W * c - margin, cam.x));
+  cam.y = Math.max(-vh + margin, Math.min(H * c - margin, cam.y));
+}
+function zoomAt(factor, sx, sy) {
+  const before = cp(), z = Math.max(0.55, Math.min(2.2, cam.z * factor));
+  const wx = (sx + cam.x) / before, wy = (sy + cam.y) / before;
+  cam.z = z;
+  cam.x = wx * cp() - sx; cam.y = wy * cp() - sy;
+  clampCam(); requestFrame();
+}
+const toCell = (sx, sy) => ({ x: Math.floor((sx + cam.x) / cp()), y: Math.floor((sy + cam.y) / cp()) });
+const toScreen = (x, y) => ({ x: x * cp() - cam.x, y: y * cp() - cam.y });
+
+// ---------- map drawing ----------
+function rebuildStatic() {
+  const g = cache.getContext('2d');
+  g.clearRect(0, 0, cache.width, cache.height);
+  const owned = new Map(state.tiles.map(t => [`${t.x},${t.y}`, t]));
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const tile = owned.get(`${x},${y}`), seed = cellHash(x, y);
+    if (tile) A.drawTerrain(g, tile.t, x * S, y * S, S, seed);
+    else if (R.isIsland(state, x, y)) { A.drawWild(g, x * S, y * S, S, seed); }
+    else A.drawSea(g, x * S, y * S, S, seed, 0);
+  }
+  g.save(); g.strokeStyle = '#fff6dc'; g.lineWidth = 4; g.lineCap = 'round';
+  outline(g, state.tiles, 0, 0, S); g.restore();
+  const f = R.forecast(state), idle = new Set(f.per.filter(p => p.idle).map(p => p.id));
+  const list = [...state.buildings].sort((a, b) => (a.y - b.y) || (a.x - b.x));
+  for (const b of list) drawBuildingAt(g, b.type, R.buildingCells(b), S, 0, 0, { level: b.level, damaged: b.damaged, idle: idle.has(b.id), rot: b.rot, t: 0 });
+  dirty = false;
+}
+function drawBuildingAt(g, type, cells, s, ox, oy, opts) {
+  const minX = Math.min(...cells.map(c => c.x)), minY = Math.min(...cells.map(c => c.y));
+  g.save(); g.translate(ox + minX * s, oy + minY * s);
+  A.drawBuilding(g, type, cells.map(c => ({ x: c.x - minX, y: c.y - minY })), s, opts);
+  g.restore();
+}
+function buildSeaPattern() {
+  const g = seaTile.getContext('2d');
+  for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) A.drawSea(g, x * S, y * S, S, x * 31 + y * 17, 0);
+  seaPattern = ctx.createPattern(seaTile, 'repeat');
+}
+function ghost() {
+  if (!mode) return null;
+  if (mode.kind === 'land') {
+    const cells = R.landCells(state, mode.index, mode.ax, mode.ay, mode.rot);
+    return { cells, check: R.canPlaceLand(state, mode.index, mode.ax, mode.ay, mode.rot) };
+  }
+  const cells = R.footprint(mode.type, mode.ax, mode.ay, mode.rot);
+  const preview = R.previewBuild(state, mode.type, mode.ax, mode.ay, mode.rot);
+  return { cells, check: preview, preview };
+}
+let ghostCache = null, ghostKey = '';
+function currentGhost() {
+  const k = mode ? `${mode.kind}|${mode.index}|${mode.type}|${mode.ax}|${mode.ay}|${mode.rot}|${state.gold}|${state.wood}|${state.turn}|${state.buildings.length}|${state.tiles.length}` : '';
+  if (k !== ghostKey) { ghostKey = k; ghostCache = ghost(); renderPlaceBar(); }
+  return ghostCache;
+}
+function frame(now) {
+  frameQueued = false;
+  const t = now / 1000;
+  if (dirty) rebuildStatic();
+  if (drag) edgePan();
+  const c = cp();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.save(); ctx.translate(-cam.x, -cam.y); ctx.scale(c / S, c / S);
+  ctx.fillStyle = seaPattern || '#5d9fb1';
+  ctx.fillRect((cam.x / c) * S - S, (cam.y / c) * S - S, (vw / c + 2) * S, (vh / c + 2) * S);
+  ctx.restore();
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(cache, -cam.x, -cam.y, W * c, H * c);
+  const g = currentGhost();
+  const showGuard = guardView || (mode?.kind === 'build' && ['tower', 'barracks'].includes(mode.type));
+  if (showGuard) drawGuard(g && mode.kind === 'build' && ['tower', 'barracks'].includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null);
+  drawThreats(t);
+  if (g) drawGhost(g);
+  drawFloaters(now);
+  if (state.threats.length || floaters.length || drag) requestFrame();
+}
+function drawGuard(extra) {
+  const covered = R.guardMap(state, extra), c = cp();
+  ctx.save(); ctx.fillStyle = '#4f86a83a'; ctx.strokeStyle = '#cfe6f5aa'; ctx.lineWidth = 1;
+  for (const k of covered.keys()) {
+    const [x, y] = k.split(',').map(Number);
+    if (!R.isIsland(state, x, y)) continue;
+    const p = toScreen(x, y); ctx.fillRect(p.x, p.y, c, c);
+  }
+  ctx.restore();
+}
+function drawThreats(t) {
+  if (!state.threats.length) return;
+  const covered = R.guardMap(state, mode?.kind === 'build' && GUARDS.includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null), c = cp();
+  for (const th of state.threats) {
+    const p = toScreen(th.x, th.y), safe = covered.has(`${th.x},${th.y}`);
+    A.drawThreat(ctx, p.x, p.y, c, safe ? 0 : t);
+    if (safe) A.drawIcon(ctx, 'guard', p.x + c * 0.52, p.y + c * 0.02, c * 0.46);
+  }
+}
+const GUARDS = ['tower', 'barracks'];
+function drawGhost(g) {
+  const c = cp(), okay = g.check.ok;
+  ctx.save();
+  if (mode.kind === 'build') {
+    // Neighbouring cells are where adjacency bonuses come from.
+    ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+    for (const n of R.adjacentCells(state, mode.type, mode.ax, mode.ay, mode.rot)) {
+      if (!R.tileAt(state, n.x, n.y)) continue;
+      const p = toScreen(n.x, n.y); ctx.strokeRect(p.x + 3, p.y + 3, c - 6, c - 6);
+    }
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.92;
+    drawBuildingAt(ctx, mode.type, g.cells, c, -cam.x, -cam.y, { level: 1, damaged: false, idle: false, rot: mode.rot, t: 0 });
+    ctx.globalAlpha = 1;
+  } else {
+    ctx.globalAlpha = 0.95;
+    g.cells.forEach((cell, i) => {
+      const p = toScreen(cell.x, cell.y);
+      A.drawTerrain(ctx, cell.t, p.x, p.y, c, i * 7 + 3);
+      if (cell.treasure) A.drawTreasure(ctx, p.x, p.y, c);
+    });
+    ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = okay ? '#7fd36b40' : '#e0503c55';
+  for (const cell of g.cells) { const p = toScreen(cell.x, cell.y); ctx.fillRect(p.x, p.y, c, c); }
+  ctx.strokeStyle = okay ? '#e9ffd8' : '#ffd0c8'; ctx.lineWidth = 3;
+  outline(ctx, g.cells, -cam.x, -cam.y, c);
+  ctx.restore();
+}
+function addFloater(x, y, parts, delay = 0) {
+  const now = performance.now();
+  parts.filter(p => p.v).forEach((p, i) => floaters.push({ x, y, key: p.key, text: signed(p.v), bad: p.v < 0, t0: now + delay + i * 140 }));
+  requestFrame();
+}
+function drawFloaters(now) {
+  if (!floaters.length) return;
+  const c = cp(), size = Math.max(16, Math.min(24, c * 0.5));
+  floaters = floaters.filter(f => now - f.t0 < 1500);
+  ctx.save(); ctx.font = `800 ${size}px system-ui, sans-serif`; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+  for (const f of floaters) {
+    const age = (now - f.t0) / 1500;
+    if (age < 0) continue;
+    const p = toScreen(f.x, f.y), y = p.y - age * c * 0.9;
+    ctx.globalAlpha = age < 0.75 ? 1 : 1 - (age - 0.75) / 0.25;
+    A.drawIcon(ctx, f.key, p.x - size * 1.05, y - size * 0.5, size);
+    ctx.strokeStyle = '#2b2a20'; ctx.fillStyle = f.bad ? '#ff9b8a' : '#fff4c2';
+    ctx.strokeText(f.text, p.x, y); ctx.fillText(f.text, p.x, y);
+  }
+  ctx.restore();
+}
+function edgePan() {
+  if (!drag || drag.sx == null) return;
+  const area = viewArea(), edge = 36, speed = 9;
+  let dx = 0, dy = 0;
+  const l = area.left, r = vw - area.right;
+  if (drag.sx < l + edge && drag.sx > l - 10) dx = -speed; else if (drag.sx > r - edge && drag.sx < r + 10) dx = speed;
+  if (drag.sy < area.top + edge && drag.sy > area.top - 30) dy = -speed; else if (drag.sy > vh - edge) dy = speed;
+  if (dx || dy) { cam.x += dx; cam.y += dy; clampCam(); updateDrag(drag.sx, drag.sy); }
+}
+
+// ---------- HUD & dock ----------
+function renderHud() {
+  const f = R.forecast(state), w = R.workers(state);
+  $('#season').innerHTML = `第${year()}年 · ${R.SEASONS[season()].name}<small>${R.SEASONS[season()].tip.split('；')[0]}</small>`;
+  const res = [
+    ['gold', state.gold, signed(f.gold), f.gold < 0],
+    ['food', state.food, signed(f.food), f.famine],
+    ['wood', state.wood, signed(f.wood), f.wood < 0],
+    ['worker', w.free, `/${w.population}`, w.free === 0],
+    ['fame', state.fame, '', false],
+  ];
+  $('#resources').innerHTML = res.map(([k, v, sub, bad]) => `<div class="res" data-res="${k}" aria-label="${RES_NAMES[k] || '空闲人口'} ${v} ${sub}" title="${k === 'food' ? `粮仓上限 ${R.foodCap(state)}` : ''}">${iconHtml(k)}<div><b>${v}</b>${sub ? `<small class="${bad ? 'neg' : ''}">${sub}</small>` : ''}</div></div>`).join('');
+  paintIcons($('#resources'));
+  renderAlerts(f);
+}
+function tributeProjection(f) {
+  const left = 4 - season();
+  return { due: R.tributeOf(state), projected: state.gold + f.gold * left, left };
+}
+function renderAlerts(f = R.forecast(state)) {
+  const out = [];
+  const tp = tributeProjection(f);
+  const short = tp.projected < tp.due;
+  out.push(`<div class="alert tribute ${season() === 3 && state.gold + f.gold < tp.due ? 'danger' : short ? 'warn' : ''}">${iconHtml('tribute')}年贡 ${tp.due} · ${tp.left === 1 ? '本季末' : `${tp.left}季后`}</div>`);
+  if (state.threats.length) {
+    const covered = R.guardMap(state), open = state.threats.filter(t => !covered.has(`${t.x},${t.y}`)).length;
+    out.push(`<div class="alert threat ${open ? 'danger' : ''}">${iconHtml('threat')}蛮族 ${state.threats.length}处 · ${season() === 2 ? '本季末' : '秋末'}${open ? ` · ${open}处无守` : ' · 全守住'}</div>`);
+  }
+  if (f.famine) out.push(`<div class="alert famine danger">${iconHtml('food')}粮食不够，会饥荒</div>`);
+  const broken = state.buildings.filter(b => b.damaged).length;
+  if (broken) out.push(`<div class="alert warn">${broken}座建筑损毁，点击修复</div>`);
+  $('#alerts').innerHTML = out.join('');
+  paintIcons($('#alerts'));
+}
+function renderDock() {
+  const basic = R.BASIC.map(type => cardHtml(type, 'basic')).join('');
+  let hand = state.hand.map((type, i) => cardHtml(type, 'hand', i)).join('');
+  for (let i = state.hand.length; i < R.HAND_LIMIT; i++) hand += '<div class="card slot">空</div>';
+  $('#cards').innerHTML = `<div class="col basic"><div class="col-h">常备</div>${basic}</div><div class="col hand"><div class="col-h">背包 ${state.hand.length}/${R.HAND_LIMIT}</div>${hand}</div>`;
+  paintIcons($('#cards'));
+  $('#cards').querySelectorAll('[data-type]').forEach(el => el.addEventListener('pointerdown', e => cardDown(e, { kind: 'build', type: el.dataset.type }, el)));
+  const playing = state.status === 'playing';
+  const land = $('#open-land'), draft = $('#open-draft');
+  land.disabled = !playing || state.landBought; draft.disabled = !playing || state.drafted;
+  land.innerHTML = state.landBought ? '已买地' : '买地<span class="badge"></span>';
+  draft.innerHTML = state.drafted ? '已选卡' : '选卡<span class="badge"></span>';
+  $('#next-turn').disabled = !playing;
+  $('#next-turn').innerHTML = season() === 3 ? `结算并交贡<small>${R.tributeOf(state)}金</small>` : '下一季';
+}
+function cardHtml(type, kind, handIndex) {
+  const def = BUILDINGS[type];
+  const short = state.gold < def.gold || state.wood < def.wood;
+  const active = mode?.kind === 'build' && mode.type === type;
+  return `<button class="card ${kind} ${short ? 'unaffordable' : ''} ${active ? 'active' : ''}" data-type="${type}" ${kind === 'hand' ? `data-hand="${handIndex}"` : ''} aria-label="${def.name}，${costText(def)}，${def.workers ? `需${def.workers}人，` : ''}拖到地图上建造，长按看图鉴">
+    <canvas data-card="${type}" width="116" height="76"></canvas><span class="nm">${def.name}</span><span class="cost ${short ? 'short' : ''}">${costText(def)}</span></button>`;
+}
+function renderPlaceBar() {
+  const bar = $('#place-bar');
+  if (!mode) { bar.hidden = true; $('#actions').hidden = false; return; }
+  bar.hidden = false; $('#actions').hidden = true;
+  const g = ghostCache || ghost();
+  let info = '';
+  if (mode.kind === 'land') {
+    const o = state.landOffers[mode.index];
+    info = `<b>${esc(o.name)}</b><span>${o.cells.length}格 · ${o.cost}金</span><span class="muted">点虚影旋转</span>`;
+  } else {
+    const def = BUILDINGS[mode.type];
+    info = `<b>${def.name}</b><span>${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span>`;
+    const d = g?.preview?.delta;
+    if (d) {
+      const parts = [['gold', d.gold], ['food', d.food], ['wood', d.wood], ['fame', d.fame], ['pop', d.pop]].filter(([, v]) => v);
+      info += `<div class="deltas">${parts.map(([k, v]) => `<span class="delta">${iconHtml(k)}${signed(v)}</span>`).join('')}${d.guard ? `<span class="delta">${iconHtml('guard')}守${d.guard}格</span>` : ''}${!parts.length && !d.guard ? '<span>本季无产出</span>' : ''}</div>`;
+    }
+  }
+  if (g && !g.check.ok) info += `<span class="bad">${esc(g.check.reason)}</span>`;
+  $('#place-info').innerHTML = info;
+  paintIcons($('#place-info'));
+  $('#place-confirm').disabled = !g?.check.ok;
+  $('#place-confirm').textContent = mode.kind === 'land' ? '买下' : '建造';
+}
+
+// ---------- sheets ----------
+function openSheet(kind) {
+  if (state.status !== 'playing') return;
+  if (kind === 'land' && state.landBought) return;
+  if (kind === 'draft' && state.drafted) return;
+  sheet = kind; renderSheet();
+}
+let camBeforeSheet = null;
+function closeSheet(remember = true) {
+  if (remember && sheet) dismissed[sheet] = state.turn;
+  sheet = null; $('#sheet').hidden = true; document.body.classList.remove('sheet-open');
+  restoreCam();
+}
+function restoreCam() {
+  if (camBeforeSheet) { cam = camBeforeSheet; camBeforeSheet = null; clampCam(); requestFrame(); }
+}
+function renderSheet() {
+  const el = $('#sheet');
+  const open = !!sheet && !mode;
+  if (document.body.classList.contains('sheet-open') !== open) { document.body.classList.toggle('sheet-open', open); clampCam(); }
+  if (!open) { el.hidden = true; return; }
+  el.hidden = false;
+  if (sheet === 'land') {
+    const cost = R.landRerollCost(state);
+    el.innerHTML = `<h2>选一块土地 <small>每季1块 · 拖到领土边上</small></h2>
+      <div class="offers">${state.landOffers.map((o, i) => {
+        const counts = {}; o.cells.forEach(c => counts[c.t] = (counts[c.t] || 0) + 1);
+        const desc = Object.entries(counts).map(([t, n]) => `${TERRAIN[t].name}${n}`).join(' ');
+        const treasure = o.cells.some(c => c.treasure);
+        return `<button class="offer" data-land-i="${i}" aria-label="${esc(o.name)}，${desc}，${o.cost}金"><canvas data-land="${i}" width="264" height="152"></canvas><b>${esc(o.name)}</b><span>${desc}${treasure ? ` · 宝箱+${o.treasure}` : ''}</span><span class="price ${state.gold < o.cost ? 'short' : ''}">${o.cost}金</span></button>`;
+      }).join('')}</div>
+      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-close">本季不买</button></div>`;
+    el.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
+    $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
+    $('#sheet-close').onclick = () => { closeSheet(); maybeAutoSheet(); };
+  } else {
+    const cost = R.draftRerollCost(state), full = state.hand.length >= R.HAND_LIMIT;
+    el.innerHTML = `<h2>选一张建筑卡 <small>放进背包 · 长按看图鉴</small></h2>
+      ${full ? '<p class="hint">背包满了：先建掉或丢弃一张</p>' : ''}
+      <div class="offers">${state.draft.map((type, i) => {
+        const def = BUILDINGS[type];
+        return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}><canvas data-card="${type}" width="264" height="152"></canvas><b>${def.name}</b>${def.unlock === year() && year() > 1 ? '<span class="new">新解锁</span>' : ''}<span>${esc(def.text)}</span><span class="price">${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span></button>`;
+      }).join('')}</div>
+      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
+    el.querySelectorAll('[data-draft-i]').forEach(b => {
+      b.onclick = () => {
+        if (b.dataset.longpressed) { delete b.dataset.longpressed; return; }
+        const r = R.takeDraft(state, +b.dataset.draftI);
+        if (!r.ok) return toast(r.reason);
+        buzz(); save(); closeSheet(); toast(`${BUILDINGS[r.type].name}放进背包`); renderAll(); tutNotify('draft');
+      };
+      longPress(b, () => { b.dataset.longpressed = '1'; openCodex({ type: state.draft[+b.dataset.draftI] }); });
+    });
+    $('#sheet-reroll').onclick = () => { const r = R.rerollDraft(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
+    $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
+    $('#sheet-close').onclick = () => closeSheet();
+  }
+  paintIcons(el);
+  keepTerritoryVisible(el.getBoundingClientRect());
+}
+function keepTerritoryVisible(rect) {
+  // The sheet covers the right of the map; nudge the camera so the kingdom (plus a ring for new land) stays left of it.
+  const area = viewArea(), box = territoryBox(), a = toScreen(box.x0 - 1, box.y0 - 1), z = toScreen(box.x1 + 1, box.y1 + 1);
+  if (z.x <= rect.left - 6 && a.x >= 4 && a.y >= area.top && z.y <= vh - 4) return;
+  if (!camBeforeSheet) camBeforeSheet = { ...cam };
+  const room = rect.left - 12, roomY = vh - area.top - 8;
+  const fit = Math.min(room / (z.x - a.x), roomY / (z.y - a.y));
+  if (fit < 1) cam.z = Math.max(0.4, cam.z * fit);
+  const c = cp();
+  cam.x = ((box.x0 + box.x1) / 2) * c - (6 + room / 2);
+  cam.y = ((box.y0 + box.y1) / 2) * c - (area.top + roomY / 2);
+  clampCam(); requestFrame();
+}
+function maybeAutoSheet() {
+  if (state.status !== 'playing' || mode || busy || !$('#modal').hidden) return;
+  if (!state.landBought && dismissed.land !== state.turn) openSheet('land');
+  else if (!state.drafted && dismissed.draft !== state.turn) openSheet('draft');
+}
+
+// ---------- placement ----------
+function shapeSize() {
+  const cells = mode.kind === 'land' ? R.landCells(state, mode.index, 0, 0, mode.rot) : R.footprint(mode.type, 0, 0, mode.rot);
+  return { w: Math.max(...cells.map(c => c.x)) + 1, h: Math.max(...cells.map(c => c.y)) + 1 };
+}
+function enterMode(spec, keepRot = true) {
+  const same = mode && mode.kind === spec.kind && mode.type === spec.type && mode.index === spec.index;
+  const rot = same && keepRot ? mode.rot : 0;
+  mode = { ...spec, rot, ax: 0, ay: 0 };
+  $('#sheet').hidden = true;
+  if (spec.kind === 'land') restoreCam();
+  renderDock();
+}
+function suggestSpot() {
+  // Nearest legal anchor to the view centre; otherwise just centre the ghost.
+  const area = viewArea(), centre = toCell(area.cx, area.cy), { w, h } = shapeSize();
+  let best = null;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const ok = mode.kind === 'land' ? R.canPlaceLand(state, mode.index, x, y, mode.rot).ok : R.canBuild(state, mode.type, x, y, mode.rot).ok;
+    if (!ok) continue;
+    const d = Math.hypot(x + w / 2 - centre.x, y + h / 2 - centre.y);
+    if (!best || d < best.d) best = { x, y, d };
+  }
+  if (best) { mode.ax = best.x; mode.ay = best.y; }
+  else {
+    mode.ax = centre.x - Math.floor(w / 2); mode.ay = centre.y - Math.floor(h / 2);
+    toast(mode.kind === 'land' ? '这块地拼不上：金币不够或没有空位' : whyNoSpot(mode.type));
+  }
+  ensureVisible();
+}
+function whyNoSpot(type) {
+  const def = BUILDINGS[type];
+  if (state.gold < def.gold) return `金币不足，需要${def.gold}`;
+  if (state.wood < def.wood) return `木材不足，需要${def.wood}`;
+  if (def.workers > R.workers(state).free) return `空闲人口不足，需要${def.workers}人，先建民居`;
+  return `领土上没有放得下${def.name}的空地，先买地`;
+}
+function ensureVisible() {
+  const { w, h } = shapeSize(), c = cp(), area = viewArea();
+  const p = toScreen(mode.ax, mode.ay);
+  const l = area.left + 12, r = vw - area.right - 12, t = area.top + 36, b = vh - 60;
+  if (p.x < l) cam.x += p.x - l; else if (p.x + w * c > r) cam.x += p.x + w * c - r;
+  if (p.y < t) cam.y += p.y - t; else if (p.y + h * c > b) cam.y += p.y + h * c - b;
+  clampCam();
+}
+function cancelMode() { mode = null; drag = null; renderAll(); maybeAutoSheet(); }
+function rotate() {
+  if (!mode) return;
+  const { w: w0, h: h0 } = shapeSize();
+  mode.rot = (mode.rot + 1) % 4;
+  const { w, h } = shapeSize();
+  // Rotate around the visual centre so the piece stays under the finger.
+  mode.ax += Math.round((w0 - w) / 2); mode.ay += Math.round((h0 - h) / 2);
+  renderDock(); requestFrame();
+}
+function commit() {
+  const g = currentGhost();
+  if (!g?.check.ok) { if (g) toast(g.check.reason); return; }
+  if (mode.kind === 'land') {
+    const r = R.placeLand(state, mode.index, mode.ax, mode.ay, mode.rot);
+    if (!r.ok) return toast(r.reason);
+    const cx = mode.ax + shapeSize().w / 2, cy = mode.ay + shapeSize().h / 2;
+    addFloater(cx, cy, [{ key: 'gold', v: -r.cost }]);
+    if (r.treasure) addFloater(cx, cy - 0.6, [{ key: 'treasure', v: r.treasure }], 400);
+    mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('land');
+    if (r.regions.length) {
+      for (const g2 of r.regions) addFloater(cx, cy - 1, [{ key: 'fame', v: g2.fame }, { key: 'gold', v: g2.gold }], 600);
+      banner(`${r.regions.map(x => x.name).join('、')}成形！`, r.regions.map(x => `连成${x.size}格 · 声望+${x.fame} 金+${x.gold}`).join('；'));
+    } else if (r.treasure) toast(`挖到宝箱，金+${r.treasure}`);
+    maybeAutoSheet();
+  } else {
+    const type = mode.type, d = g.preview?.delta;
+    const r = R.build(state, type, mode.ax, mode.ay, mode.rot);
+    if (!r.ok) return toast(r.reason);
+    const { w, h } = shapeSize(), cx = mode.ax + w / 2, cy = mode.ay + h / 2;
+    addFloater(cx, cy, [{ key: 'gold', v: -BUILDINGS[type].gold }, { key: 'wood', v: -BUILDINGS[type].wood }]);
+    if (d) addFloater(cx, cy - 0.5, [{ key: 'gold', v: d.gold }, { key: 'food', v: d.food }, { key: 'wood', v: d.wood }, { key: 'fame', v: d.fame }, { key: 'pop', v: d.pop }].map(p => ({ ...p })), 450);
+    mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('build');
+    toast(`${BUILDINGS[type].name}建成${d && (d.gold || d.food || d.wood || d.fame) ? '，每季产出见上方' : ''}`, 1600);
+  }
+}
+$('#place-rotate').onclick = rotate;
+$('#place-cancel').onclick = cancelMode;
+$('#place-confirm').onclick = commit;
+
+// ---------- pointer input ----------
+function cardDown(e, spec, el) {
+  if (state.status !== 'playing' || busy) return;
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  lastPointerType = e.pointerType;
+  clearTimeout(press?.timer);
+  press = { id: e.pointerId, x0: e.clientX, y0: e.clientY, spec, el };
+  el.classList.add('pressing');
+  // Hold still on a building card to open its codex entry.
+  if (spec.kind === 'build') press.timer = setTimeout(() => {
+    if (!press || press.el !== el) return;
+    el.classList.remove('pressing'); press = null; buzz();
+    openCodex({ type: spec.type });
+  }, 480);
+}
+function releasePress() { if (press) { clearTimeout(press.timer); press.el.classList.remove('pressing'); } press = null; }
+// Generic long-press for plain buttons (draft offers); fires cb and lets the caller swallow the click.
+function longPress(el, cb) {
+  let t = 0, x0 = 0, y0 = 0;
+  el.addEventListener('pointerdown', e => { x0 = e.clientX; y0 = e.clientY; clearTimeout(t); t = setTimeout(() => { buzz(); cb(); }, 480); });
+  el.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - x0, e.clientY - y0) > 9) clearTimeout(t); });
+  for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) el.addEventListener(ev, () => clearTimeout(t));
+}
+function startDrag(spec, e, source) {
+  if (source === 'card') { enterMode(spec); buzz(); }
+  const lift = e.pointerType === 'mouse' ? 0 : cp() * 1.1;
+  drag = { id: e.pointerId, source, lift, sx: e.clientX, sy: e.clientY, x0: e.clientX, y0: e.clientY, moved: false, grabX: 0, grabY: 0 };
+  if (source === 'ghost') {
+    const cell = toCell(e.clientX, e.clientY);
+    drag.grabX = cell.x - mode.ax; drag.grabY = cell.y - mode.ay; drag.lift = 0;
+  }
+  updateDrag(e.clientX, e.clientY);
+}
+function updateDrag(sx, sy) {
+  drag.sx = sx; drag.sy = sy;
+  if (Math.hypot(sx - drag.x0, sy - drag.y0) > 8) drag.moved = true;
+  if (drag.source === 'ghost') {
+    if (!drag.moved) return;
+    const cell = toCell(sx, sy);
+    mode.ax = cell.x - drag.grabX; mode.ay = cell.y - drag.grabY;
+  } else {
+    const { w, h } = shapeSize(), c = cp();
+    mode.ax = Math.round((sx + cam.x) / c - w / 2);
+    mode.ay = Math.round((sy - drag.lift + cam.y) / c - h / 2);
+  }
+  requestFrame();
+}
+// Dropping a card back onto either rail cancels it.
+function overRail(sx) { const a = viewArea(); return sx < a.left - 4 || sx > vw - a.right + 4; }
+function endDrag(e) {
+  const d = drag; drag = null;
+  if (d.source === 'card' && overRail(e.clientX)) { cancelMode(); return; }
+  if (d.source === 'ghost' && !d.moved) { rotate(); return; }
+  const g = currentGhost();
+  if (g?.check.ok && d.source === 'card') commit();
+  else { renderAll(); requestFrame(); }
+}
+window.addEventListener('pointermove', e => {
+  if (press && e.pointerId === press.id && !drag) {
+    if (Math.hypot(e.clientX - press.x0, e.clientY - press.y0) > 9) { const p = press; releasePress(); startDrag(p.spec, e, 'card'); }
+    return;
+  }
+  if (drag && e.pointerId === drag.id) { updateDrag(e.clientX, e.clientY); return; }
 });
-function finishGesture(e,cancel=false){if(!gesture||e.pointerId!==gesture.id)return;const g=gesture;cancelAnimationFrame(frame);gesture=null;if(game.hasPointerCapture(e.pointerId))game.releasePointerCapture(e.pointerId);viewport.classList.remove('dragging');$('.map-actions').classList.remove('hidden-actions');$('#drag-status').hidden=true;
- if(g.kind==='pan'){if(!cancel&&!g.active&&g.tile)chooseTile(+g.tile.dataset.x,+g.tile.dataset.y);return;}
- if(cancel){openMarket(g.item.kind);return;}
- if(!g.active){selectForTap(g.item);return;}
- // Releasing over HUD or below the map action line is cancellation, even if the offset preview is legal.
- const overControl=['.hud','#milestone','.map-controls'].some(selector=>{const r=$(selector).getBoundingClientRect();return g.x>=r.left&&g.x<=r.right&&g.y>=r.top&&g.y<=r.bottom;});
- const inside=!overControl&&g.x>=0&&g.x<=innerWidth&&g.y>=105&&g.y<innerHeight-65;
- if(inside&&placementCheck().ok){commitPlacement();}else{const reason=inside?placementCheck().reason:'已放回，未扣款';openMarket(g.item.kind);notify(reason);}
+window.addEventListener('pointerup', e => {
+  if (press && e.pointerId === press.id) { const p = press; releasePress(); tapCard(p.spec, p.el); return; }
+  if (drag && e.pointerId === drag.id) endDrag(e);
+});
+window.addEventListener('pointercancel', e => {
+  if (press && e.pointerId === press.id) releasePress();
+  if (drag && e.pointerId === drag.id) { drag = null; requestFrame(); renderAll(); }
+});
+function tapCard(spec, el) {
+  if (spec.kind === 'build' && el?.dataset.hand !== undefined && mode?.kind === 'build' && mode.type === spec.type) {
+    // Second tap on a selected backpack card offers to discard it.
+    handMenu(+el.dataset.hand); return;
+  }
+  enterMode(spec); suggestSpot(); renderAll(); requestFrame();
 }
-game.addEventListener('pointerup',e=>finishGesture(e));game.addEventListener('pointercancel',e=>finishGesture(e,true));
-window.addEventListener('blur',()=>{if(gesture)finishGesture({pointerId:gesture.id},true);});
-viewport.addEventListener('pointerdown',e=>{if(gesture||e.button!==0||blocked)return;gesture={kind:'pan',id:e.pointerId,startX:e.clientX,startY:e.clientY,left:viewport.scrollLeft,top:viewport.scrollTop,active:false,tile:e.target.closest('.tile')};game.setPointerCapture(e.pointerId);});
-board.addEventListener('click',e=>{if(e.detail!==0)return;const t=e.target.closest('.tile');if(t)chooseTile(+t.dataset.x,+t.dataset.y);});
-board.addEventListener('keydown',e=>{const el=e.target.closest('.tile');if(!el)return;const d={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[e.key];if(d){e.preventDefault();const x=Math.max(0,Math.min(13,+el.dataset.x+d[0])),y=Math.max(0,Math.min(13,+el.dataset.y+d[1]));tiles.forEach(t=>t.tabIndex=-1);const t=tiles[y*14+x];t.tabIndex=0;t.focus({preventScroll:true});centerOn(x+.5,y+.5);}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!dialog.open){if(gesture)finishGesture({pointerId:gesture.id},true);else if(selection)openMarket(selection.kind);else{marketKind=null;selectedTile=null;render();}}});
-$('#open-land').onclick=()=>openMarket('land');$('#open-building').onclick=()=>openMarket('building');$('#center').onclick=()=>centerOn(6.5,6.5,!!marketKind);
-function zoom(delta){const x=(viewport.scrollLeft+viewport.clientWidth/2-PAD)/cell,y=(viewport.scrollTop+viewport.clientHeight/2-PAD)/cell;cell=Math.max(44,Math.min(88,cell+delta));board.style.setProperty('--cell',cell+'px');centerOn(x,y);$('#zoom-out').disabled=cell===44;$('#zoom-in').disabled=cell===88;}
-$('#zoom-in').onclick=()=>zoom(8);$('#zoom-out').onclick=()=>zoom(-8);
-function showDialog(html,bind){dialog.querySelector('.dialog-notice')?.remove();$('#dialog-body').innerHTML=html;$('#close-dialog').textContent='返回地图';if(!dialog.open)dialog.showModal();bind?.();paint(dialog);}
-$('#close-dialog').onclick=()=>{if(blocked){notify('请先处理原存档，避免覆盖进度');return;}dialog.close();};dialog.addEventListener('cancel',e=>{if(blocked)e.preventDefault();});
-$('#next-turn').onclick=()=>{const before={...state};if(!act(R.nextTurn))return;selectedTile=null;openMarket('land',{center:true});notify(`${seasons[(before.turn-1)%4]}季结算：金币 ${signed(state.gold-before.gold)}，粮食 ${signed(state.food-before.food)}${state.level>before.level?' · 升为'+R.LEVELS[state.level].name:''}`);};
-function realm(){const f=R.forecast(state);showDialog(`<h2>${R.LEVELS[state.level].name}</h2><p>${goalText()}</p><div class="realm-stats"><div><strong>${state.population}/${f.capacity}</strong>居民 / 住房</div><div><strong>${state.knowledge}</strong>学识 ${signed(f.knowledge)}</div><div><strong>${state.happiness}</strong>幸福 → ${f.happiness}</div><div><strong>${f.defense}</strong>防务</div></div><div class="policy">${Object.entries(R.POLICIES).map(([id,p])=>`<button data-policy="${id}" class="${state.policy===id?'active':''}" aria-pressed="${state.policy===id}">${p.name}</button>`).join('')}</div><p>${R.POLICIES[state.policy].description}</p><div class="separator"></div><p>${f.effects.map(esc).join('<br>')}</p><ul class="log">${state.log.slice(-4).reverse().map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`,()=>dialog.querySelectorAll('[data-policy]').forEach(b=>b.onclick=()=>{if(act(R.setPolicy,b.dataset.policy)){renderHud();realm();}}));}
-$('#milestone').onclick=realm;
-function download(text,name){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'application/json'}));a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
-function replaceCurrent(next){const r=replaceSave(storage,next);if(!r.ok){notify(r.reason);return;}state=next;unsaved=false;selection=null;selectedTile=null;dialog.close();openMarket(state.landBought?'building':'land',{center:true});}
-function records(){showDialog(`<h2>王国存档</h2><p>${unsaved?'最近改动未保存，请导出备份后再离开。':'进度自动保存在当前浏览器。更换浏览器前请导出备份。'}</p><div class="save-actions"><button id="export">导出存档</button><button id="import">导入存档</button><button id="restart">新王国</button></div><input type="file" id="file-input" accept=".json,application/json"><div class="separator"></div><p>从三选一卡片拖出土地或建筑，松手放置；不合适的位置会退回，不扣钱。土地可先旋转，地图可单指拖动。</p><p>也可点选卡片后用方向键或点地图选择位置，再确认。点已有建筑可升级和拆除。</p>`,()=>{
- $('#export').onclick=()=>download(JSON.stringify(state,null,2),`拼土王国-第${state.turn}季.json`);$('#import').onclick=()=>$('#file-input').click();
- $('#file-input').onchange=async e=>{const file=e.target.files[0];if(!file)return;try{const r=R.validateSave(JSON.parse(await file.text()));if(!r.ok){notify(r.reason);return;}showDialog('<h2>替换当前王国？</h2><p>确认后替换当前进度，并在本浏览器保留替换前备份。</p><button id="confirm-import">确认导入</button>',()=>{$('#confirm-import').onclick=()=>replaceCurrent(r.state);});}catch{notify('文件不是可用存档，原进度保留。');}};
- $('#restart').onclick=()=>showDialog('<h2>开始新王国？</h2><p>当前进度会替换，并保留一份替换前备份。</p><button id="confirm-restart" class="danger">确认开始新王国</button>',()=>{$('#confirm-restart').onclick=()=>replaceCurrent(R.createGame(Date.now()>>>0));});
- });}
-$('#records').onclick=records;
-const artReport=await loadArt();render();
-if(blocked){showDialog(`<h2>原存档暂时无法载入</h2><p>${esc(loaded.reason)}。原件未被覆盖。</p><div class="save-actions"><button id="export-original">导出原件</button><button id="recover-new">备份并建立新王国</button></div>`,()=>{$('#export-original').onclick=()=>{try{download(storage.getItem(SAVE_KEY)||'','拼土王国-原存档.json');}catch{notify('浏览器不允许读取存档');}};$('#recover-new').onclick=()=>{const r=replaceSave(storage,state);if(!r.ok){notify(r.reason);return;}blocked=false;dialog.close();openMarket('land',{center:true});};});}
-else{if(!loaded.state)save();openMarket(state.landBought?'building':'land',{center:true});}
-new ResizeObserver(()=>{if(!gesture)centerOn(6.5,6.5,!!marketKind);}).observe(viewport);
-if(artReport.loaded!==artReport.total)notify('部分游戏图片未能加载，请刷新重试。');
+async function handMenu(i) {
+  const type = state.hand[i], def = BUILDINGS[type];
+  const v = await modal(`<h2>${def.name}</h2><canvas class="big-preview" data-card="${type}" width="240" height="160"></canvas><p>${esc(def.text)}</p><p class="muted">${costText(def)} · ${def.workers}人 · 可旋转</p>`,
+    [{ label: '去建造', value: 'build', primary: true }, { label: '图鉴', value: 'codex' }, { label: '丢弃 +3金', value: 'discard' }, { label: '关闭', value: null }]);
+  if (v === 'codex') { cancelMode(); openCodex({ type }); }
+  else if (v === 'discard') { mode = null; R.discard(state, i); save(); renderAll(); maybeAutoSheet(); }
+  else if (v === null) cancelMode();
+}
 
+canvas.addEventListener('pointerdown', e => {
+  if (busy) return;
+  canvas.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  lastPointerType = e.pointerType;
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: cam.z };
+    pan = null; if (drag?.source === 'ghost') drag = null;
+    return;
+  }
+  if (mode) {
+    const cell = toCell(e.clientX, e.clientY), g = currentGhost();
+    const hit = g?.cells.some(c => Math.abs(c.x - cell.x) <= (e.pointerType === 'mouse' ? 0 : 1) && Math.abs(c.y - cell.y) <= (e.pointerType === 'mouse' ? 0 : 1));
+    if (hit) { startDrag(null, e, 'ghost'); return; }
+  }
+  pan = { id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+});
+canvas.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+    zoomAt((pinch.z * d / pinch.d) / cam.z, (a.x + b.x) / 2, (a.y + b.y) / 2); return;
+  }
+  if (pan && e.pointerId === pan.id) {
+    const dx = e.clientX - pan.x0, dy = e.clientY - pan.y0;
+    if (Math.hypot(dx, dy) > 7) pan.moved = true;
+    if (pan.moved) { cam.x = pan.cx - dx; cam.y = pan.cy - dy; clampCam(); requestFrame(); }
+  }
+});
+function pointerEnd(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pan && e.pointerId === pan.id) {
+    const p = pan; pan = null;
+    if (!p.moved && e.type === 'pointerup') tapMap(e.clientX, e.clientY);
+  }
+}
+canvas.addEventListener('pointerup', pointerEnd);
+canvas.addEventListener('pointercancel', pointerEnd);
+canvas.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX, e.clientY); }, { passive: false });
+
+function tapMap(sx, sy) {
+  const cell = toCell(sx, sy);
+  if (mode) {
+    const { w, h } = shapeSize();
+    mode.ax = cell.x - Math.floor(w / 2); mode.ay = cell.y - Math.floor(h / 2);
+    requestFrame(); return;
+  }
+  const b = R.buildingAt(state, cell.x, cell.y);
+  if (b) { inspect(b); return; }
+  const tile = R.tileAt(state, cell.x, cell.y);
+  const threat = state.threats.some(t => t.x === cell.x && t.y === cell.y);
+  if (tile) toast(`${TERRAIN[tile.t].name}${threat ? ' · 蛮族目标！在2格内建哨塔可守住' : ''}`);
+  else if (R.isIsland(state, cell.x, cell.y)) toast('未开拓的土地：买地拼到这里');
+}
+
+// ---------- inspector ----------
+function describeOutput(p) {
+  if (!p) return '';
+  if (p.damaged) return '<p class="muted">已损毁，不产出也不提供人口。</p>';
+  if (p.idle) return '<p class="muted">人手不足，停工中。建民居增加人口。</p>';
+  const parts = [['gold', p.gold], ['food', p.food], ['wood', p.wood], ['fame', p.fame]].filter(([, v]) => v);
+  return parts.length ? `<p>本季产出：${parts.map(([k, v]) => `${iconHtml(k, 'inline')}${signed(v)}`).join('　')}</p>` : '';
+}
+async function inspect(b) {
+  const def = BUILDINGS[b.type], f = R.forecast(state), p = f.per.find(x => x.id === b.id);
+  const up = R.upgradeCost(b), playing = state.status === 'playing';
+  const buttons = [];
+  if (b.damaged) buttons.push({ label: `修复 ${R.repairCost(b)}金`, value: 'repair', primary: true, disabled: !playing || state.gold < R.repairCost(b) });
+  else if (up) buttons.push({ label: `升到${b.level + 1}级 ${up.gold}金 ${up.wood}木`, value: 'upgrade', primary: true, disabled: !playing || state.gold < up.gold || state.wood < up.wood });
+  if (b.type !== 'hall') buttons.push({ label: '拆除', value: 'demolish', disabled: !playing });
+  buttons.push({ label: '图鉴', value: 'codex' }, { label: '关闭', value: null });
+  const v = await modal(`<h2>${def.name} <small class="muted">${b.type === 'hall' ? '' : `${b.level}级`}</small></h2>
+    <canvas class="big-preview" data-card="${b.type}" data-rot="${b.rot}" width="240" height="160"></canvas>
+    <p>${esc(def.text)}</p>${describeOutput(p)}${up && !b.damaged ? '<p class="muted">升级后产出×1.5（3级×2）。</p>' : ''}`, buttons);
+  if (v === 'codex') openCodex({ type: b.type });
+  if (v === 'upgrade') act(R.upgrade(state, b.id), `${def.name}升到${b.level}级`);
+  if (v === 'repair') act(R.repair(state, b.id), `${def.name}已修复`);
+  if (v === 'demolish') {
+    const sure = await modal(`<h2>拆除${def.name}？</h2><p>${b.damaged ? '损毁建筑拆除不退款。' : `回收${Math.floor(def.gold * 0.4)}金，背包卡不返还。`}</p>`, [{ label: '拆除', value: true, danger: true }, { label: '取消', value: false }]);
+    if (sure) act(R.demolish(state, b.id), `已拆除${def.name}`);
+  }
+}
+function act(r, ok) { if (!r.ok) { toast(r.reason); return false; } save(); invalidate(); renderAll(); if (ok) toast(ok); return true; }
+
+// ---------- season flow ----------
+async function nextSeason() {
+  if (busy || state.status !== 'playing') return;
+  if (mode) cancelMode();
+  closeSheet(false);
+  const f = R.forecast(state), due = R.tributeOf(state);
+  if (season() === 3 && state.gold + f.gold < due) {
+    const go = await modal(`<h2>${iconHtml('tribute', 'inline')}年贡不够</h2><p>结算后预计有 <b>${state.gold + f.gold}</b> 金，年贡要 <b>${due}</b> 金。交不上王国就会陷落。</p><p class="muted">还可以拆除建筑回收金币，或先别花钱。</p>`,
+      [{ label: '再想想', value: false, primary: true }, { label: '仍然结算', value: true, danger: true }]);
+    if (!go) return;
+  }
+  if (season() === 2 && state.threats.length) {
+    const covered = R.guardMap(state), open = state.threats.filter(t => !covered.has(`${t.x},${t.y}`)).length;
+    if (open) {
+      const go = await modal(`<h2>${iconHtml('threat', 'inline')}还有${open}处边境无人守</h2><p>本季末蛮族来袭。无人守卫的格子每处被抢 ${R.plunderOf(state)} 金，上面的建筑会损毁。</p><p class="muted">哨塔守周围2格，王城守2格。打开「盾」看守卫范围。</p>`,
+        [{ label: '去布防', value: false, primary: true }, { label: '仍然结算', value: true }]);
+      if (!go) { guardView = true; $('#guard-view').setAttribute('aria-pressed', 'true'); requestFrame(); return; }
+    }
+  }
+  busy = true; tutNotify('turn');
+  const r = R.nextTurn(state);
+  save();
+  const rep = r.report;
+  // Floating yields over every producing building.
+  for (const p of rep.economy.per) {
+    const b = state.buildings.find(x => x.id === p.id);
+    if (!b) continue;
+    const cells = R.buildingCells(b), cx = cells.reduce((s, c) => s + c.x, 0) / cells.length + 0.5, cy = Math.min(...cells.map(c => c.y)) + 0.3;
+    addFloater(cx, cy, [{ key: 'gold', v: p.gold }, { key: 'food', v: p.food }, { key: 'wood', v: p.wood }, { key: 'fame', v: p.fame }]);
+  }
+  const hall = state.buildings.find(b => b.type === 'hall');
+  if (rep.economy.tax) addFloater(hall.x + 1, hall.y - 0.2, [{ key: 'gold', v: rep.economy.tax }], 300);
+  invalidate(); renderAll();
+  await wait(rep.economy.per.length ? 900 : 300);
+  if (rep.economy.famine) toast('饥荒！税收减半，声望−1。多建农田或渔港。', 3400);
+  if (rep.raid) { buzz('heavy'); await raidReport(rep.raid); }
+  if (rep.tribute?.paid) {
+    await modal(`<h2>${iconHtml('tribute', 'inline')}第${rep.year}年年贡已缴</h2><p>上缴 <b>${rep.tribute.due}</b> 金，声望+2。</p>${state.status === 'playing' ? `<p class="muted">下一年年贡：${R.tributeOf(state)} 金。${unlockText()}</p>` : ''}`);
+  }
+  busy = false;
+  if (state.status !== 'playing') { await endScreen(); return; }
+  banner(`第${year()}年 · ${R.SEASONS[season()].name}`, R.SEASONS[season()].tip);
+  if (rep.threats) {
+    await wait(700);
+    toast(`斥候：蛮族盯上${rep.threats}处边境（红旗），秋末来袭`, 3600);
+    guardView = true; $('#guard-view').setAttribute('aria-pressed', 'true');
+  }
+  renderAll(); requestFrame();
+  setTimeout(() => { if (!contextTips()) maybeAutoSheet(); }, 500);
+}
+function unlockText() {
+  const fresh = Object.entries(BUILDINGS).filter(([, d]) => d.unlock === year()).map(([, d]) => d.name);
+  return fresh.length ? `新建筑卡：${fresh.join('、')}。` : '';
+}
+async function raidReport(raid) {
+  const held = raid.filter(r => r.defended), lost = raid.filter(r => !r.defended);
+  for (const r of raid) addFloater(r.x + 0.5, r.y + 0.3, r.defended ? [{ key: 'fame', v: r.fame }] : [{ key: 'gold', v: -r.loss }]);
+  invalidate(); requestFrame();
+  await wait(600);
+  await modal(`<h2>${iconHtml('threat', 'inline')}蛮族来袭</h2>
+    <ul class="list">${held.length ? `<li class="good"><span>守住</span><b>${held.length}处 · 声望+${held.reduce((s, r) => s + r.fame, 0)}</b></li>` : ''}
+    ${lost.length ? `<li class="bad"><span>失守</span><b>${lost.length}处 · 金−${lost.reduce((s, r) => s + r.loss, 0)}</b></li>` : ''}
+    ${lost.filter(r => r.damaged).map(r => `<li class="bad"><span>${BUILDINGS[state.buildings.find(b => b.id === r.damaged)?.type]?.name || '建筑'}损毁</span><b>点击修复</b></li>`).join('')}</ul>
+    <p class="muted">边境越长，下一年蛮族目标越多。</p>`);
+}
+const wait = ms => new Promise(r => setTimeout(r, matchMedia('(prefers-reduced-motion: reduce)').matches ? Math.min(ms, 150) : ms));
+
+// ---------- screens ----------
+function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function newRun(daily, tutorial = false) {
+  const seed = daily ? `daily-${today()}` : tutorial ? TUT_SEED : Math.floor(Math.random() * 4294967295);
+  state = R.createGame(seed, daily ? `daily:${today()}` : 'free'); liveRun = true;
+  const r = replaceSave(store, state);
+  saveBlocked = !r.ok;
+  if (!r.ok) toast('未能保存：' + r.reason);
+  mode = null; sheet = null; floaters = []; dismissed.land = dismissed.draft = 0; guardView = false;
+  $('#guard-view').setAttribute('aria-pressed', 'false');
+  invalidate(); centerCamera(); renderAll();
+  stopTutorial();
+  if (tutorial) { startTutorial(); return; }
+  banner('第1年 · 春', '拼地、建城，熬过六年年贡');
+  setTimeout(maybeAutoSheet, 700);
+}
+async function titleScreen() {
+  const daily = records.daily[today()];
+  const canContinue = liveRun && state && state.status === 'playing';
+  const v = await modal(`<div class="title-card"><h1>拼土王国</h1><p class="tag">拼地块 · 摆建筑 · 撑过六年年贡</p>
+    <div class="stat-grid"><div class="stat"><b>${records.best}</b>最高分</div><div class="stat"><b>${records.wins}/${records.runs}</b>胜/局</div><div class="stat"><b>${daily ?? '—'}</b>今日挑战</div></div></div>`,
+    [...(canContinue ? [{ label: '继续这一局', value: 'continue', primary: true }] : []),
+      { label: '新王国', value: 'new', primary: !canContinue }, { label: '今日挑战', value: 'daily' }, { label: '教学', value: 'tutorial' }, { label: '图鉴', value: 'codex' }],
+    { dismissable: false, cls: 'title' });
+  if (v === 'codex') { await openCodex({ tab: 'rules' }); return titleScreen(); }
+  if (v === 'tutorial') {
+    if (canContinue && !await modal('<h2>开始教学？</h2><p class="muted">当前这一局会被教学局覆盖。</p>', [{ label: '开始教学', value: true, primary: true }, { label: '返回', value: false }])) return titleScreen();
+    newRun(false, true); return;
+  }
+  if (v === 'new' || v === 'daily') {
+    if (canContinue) {
+      const sure = await modal('<h2>放弃当前这一局？</h2><p class="muted">当前进度会被新王国覆盖。</p>', [{ label: '开始新局', value: true, danger: true }, { label: '返回', value: false }]);
+      if (!sure) return titleScreen();
+    }
+    // The very first new kingdom (not the daily) runs the tutorial.
+    newRun(v === 'daily', v === 'new' && !tutorialDone());
+  } else { renderAll(); maybeAutoSheet(); }
+}
+async function endScreen() {
+  const sc = R.score(state), won = state.status === 'won';
+  if (!state.recorded) {
+    records.runs++; if (won) records.wins++;
+    records.best = Math.max(records.best, sc.total);
+    if (state.mode.startsWith('daily:')) { const k = state.mode.slice(6); records.daily[k] = Math.max(records.daily[k] || 0, sc.total); }
+    writeRecords(store, records);
+    state.recorded = true; save();
+  }
+  const v = await modal(`<h2>${won ? '王国屹立' : '王国陷落'}</h2><p class="muted">${esc(state.endReason)}</p>
+    ${won ? `<div class="stars">${[1, 2, 3].map(i => `<span class="${i <= sc.stars ? '' : 'off'}">★</span>`).join('')}</div>` : ''}
+    <div class="score-total">${sc.total}</div>
+    <ul class="list">${sc.parts.map(p => `<li><span>${p.label}</span><b>${p.value}</b></li>`).join('')}</ul>
+    <div class="stat-grid"><div class="stat"><b>${state.tiles.length}</b>领土格</div><div class="stat"><b>${state.buildings.length}</b>建筑</div><div class="stat"><b>${state.stats.defended}</b>守住进攻</div><div class="stat"><b>${records.best}</b>最高分</div></div>`,
+    [{ label: '再来一局', value: 'new', primary: true }, { label: '今日挑战', value: 'daily' }, { label: '看看王国', value: null }], { dismissable: false });
+  if (v === 'new' || v === 'daily') newRun(v === 'daily');
+  else renderAll();
+}
+async function overview() {
+  const f = R.forecast(state), w = R.workers(state);
+  const regions = R.regionProgress(state);
+  await modal(`<h2>第${year()}年 · ${R.SEASONS[season()].name}</h2><p class="muted">${esc(R.SEASONS[season()].tip)}</p>
+    <div class="stat-grid"><div class="stat"><b>${signed(f.gold)}</b>每季金（税${f.tax}）</div><div class="stat"><b>${signed(f.produced)}/−${f.eat}</b>产粮/吃粮</div><div class="stat"><b>${w.used}/${w.population}</b>在岗/人口</div><div class="stat"><b>${R.borderCells(state).length}</b>边境格</div></div>
+    <h3>年贡</h3><p>${R.TRIBUTE.map((t, i) => i + 1 === year() ? `<b>${t}</b>` : i + 1 < year() ? `<s>${t}</s>` : t).join(' → ')}</p>
+    <h3>地形连片</h3>${regions.map(r => `<div class="region-row">${iconHtml('year', 'inline')}<span style="width:44px">${r.name}</span><div class="bar"><i style="width:${Math.min(100, r.next ? r.size / r.next * 100 : 100)}%"></i></div><span>${r.next ? `${r.size}/${r.next}` : '已满'}</span></div>`).join('')}
+    <h3>最近</h3><ul class="list">${state.log.slice(-5).reverse().map(l => `<li>${esc(l)}</li>`).join('')}</ul>`, [{ label: '返回', value: null, primary: true }]);
+}
+async function menu() {
+  const v = await modal('<h2>菜单</h2>', [{ label: '王国概况', value: 'overview' }, { label: '图鉴', value: 'codex' }, { label: '重玩教学', value: 'tutorial' }, { label: '回到标题', value: 'title' }, { label: '继续', value: null, primary: true }], { cls: 'title' });
+  if (v === 'overview') overview();
+  if (v === 'codex') openCodex();
+  if (v === 'tutorial') {
+    const sure = await modal('<h2>重玩教学？</h2><p class="muted">会开一局新的教学局，当前进度被覆盖。</p>', [{ label: '开始教学', value: true, primary: true }, { label: '返回', value: false }]);
+    if (sure) newRun(false, true);
+  }
+  if (v === 'title') { stopTutorial(); titleScreen(); }
+}
+
+// ---------- codex ----------
+const TERRAIN_NOTE = {
+  grass: '大多数建筑都能建。', fertile: '农田每格粮+3（草地+2）。', forest: '伐木场旁的森林每块木+1。',
+  water: '渔港必须占1格水域；邻水的农田、庄园有加成。', mountain: '矿场必须占山地；挨着山地的工坊更好。',
+};
+const RULES = () => [
+  ['tribute', '年贡', `每年冬末交年贡：${R.TRIBUTE.join('→')}金。交不上王国陷落；撑满${R.YEARS}年获胜。`],
+  ['year', '四季', R.SEASONS.map(x => `${x.name}：${x.tip}`).join('<br>')],
+  ['gold', '买地', '每季可买1块地，拖到领土边上拼接，点虚影旋转。地形决定能建什么；宝箱地块拼上就给金币。'],
+  ['pop', '人口与粮', '民居、庄园提供人口；生产建筑要占人手，人手不够会停工。每2人每季吃1粮，粮不够就饥荒：税收减半、声望−1。'],
+  ['threat', '蛮族', '第2年起，夏季在边境插红旗，秋末来袭。王城、哨塔、兵营守卫范围内的格子能守住并得声望；失守被抢金币、建筑损毁。'],
+  ['guard', '守卫', '王城守2格，哨塔守2格（3级3格），兵营守3格。打开地图右下的「盾」可看全部范围。'],
+  ['fame', '连片', `同种地形连成6/10/15格时获得声望与金币：${Object.values(R.REGION).join('、')}。`],
+  ['wood', '升级与拆除', '点地图上的建筑可升级（产出×1.5，3级×2）、修复或拆除（回收40%金）。'],
+  ['food', '背包', `每季可选1张特殊建筑卡，背包最多${R.HAND_LIMIT}张；常备建筑随时可建。背包卡可丢弃换3金。`],
+];
+function codexDetail(type) {
+  const d = BUILDINGS[type], locked = state && d.unlock > year() && type !== 'hall';
+  const terr = d.terrains.map(t => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}</span>`).join('');
+  const need = d.need ? Object.entries(d.need).map(([t, n]) => `至少${n}格${TERRAIN[t].name}`).join('、') : '';
+  return `<h3>${d.name}<small>${type === 'hall' ? '开局自带' : d.basic ? '常备 · 随时可建' : `建筑卡 · 第${d.unlock}年起`}</small></h3>
+    <canvas class="big-preview" data-card="${type}" width="300" height="200"></canvas>
+    <p class="rule">${esc(d.text)}</p>
+    <dl class="facts"><dt>造价</dt><dd>${type === 'hall' ? '—' : costText(d)}</dd><dt>人手</dt><dd>${d.workers ? `${d.workers}人` : '不需要'}</dd>
+    <dt>占地</dt><dd>${d.cells.length}格 · 可旋转</dd><dt>地形</dt><dd><span class="terr-row">${terr}</span>${need ? `<br>${need}` : ''}</dd>
+    <dt>升级</dt><dd>${type === 'hall' ? '不可升级' : '2级产出×1.5，3级×2'}</dd></dl>${locked ? '<p class="muted">还没解锁，到那一年的选卡里会出现。</p>' : ''}`;
+}
+function paintTerrains(root) {
+  root.querySelectorAll('canvas[data-terrain]').forEach(c => { const g = c.getContext('2d'); A.drawTerrain(g, c.dataset.terrain, 0, 0, c.width, 5); });
+}
+function openCodex({ tab = 'build', type } = {}) {
+  let cur = type || (mode?.kind === 'build' ? mode.type : 'house');
+  let curTab = type ? 'build' : tab;
+  const order = Object.keys(BUILDINGS).sort((a, b) => (BUILDINGS[a].basic ? 0 : 1) - (BUILDINGS[b].basic ? 0 : 1) || BUILDINGS[a].unlock - BUILDINGS[b].unlock);
+  order.unshift(...order.splice(order.indexOf('hall'), 1));
+  const render = body => {
+    const content = curTab === 'build'
+      ? `<div class="codex-body"><div class="codex-grid" role="listbox">${order.map(t => {
+          const d = BUILDINGS[t], locked = state && d.unlock > year() && t !== 'hall';
+          return `<button class="cx ${locked ? 'locked' : ''}" data-cx="${t}" aria-selected="${t === cur}"><canvas data-card="${t}" width="116" height="76"></canvas><span>${d.name}</span>${d.basic ? '<i class="tag">常备</i>' : t !== 'hall' && d.unlock > 1 ? `<i class="tag">${d.unlock}年</i>` : ''}</button>`;
+        }).join('')}</div><div class="codex-detail">${codexDetail(cur)}</div></div>`
+      : curTab === 'terrain'
+        ? `<div class="codex-rules">${Object.keys(TERRAIN).map(t => `<div class="rule-card"><canvas data-terrain="${t}" width="80" height="80"></canvas><div><b>${TERRAIN[t].name}</b>${TERRAIN_NOTE[t]}<br><span class="muted">可建：${order.filter(k => k !== 'hall' && BUILDINGS[k].terrains.includes(t)).map(k => BUILDINGS[k].name).join('、')}</span></div></div>`).join('')}</div>`
+        : `<div class="codex-rules">${RULES().map(([ic, h, t]) => `<div class="rule-card">${iconHtml(ic)}<div><b>${h}</b>${t}</div></div>`).join('')}</div>`;
+    body.innerHTML = `<div class="codex-head"><h2>图鉴</h2><div class="tabs" role="tablist">${[['build', '建筑'], ['terrain', '地形'], ['rules', '规则']].map(([k, l]) => `<button class="tab" data-tab="${k}" role="tab" aria-selected="${k === curTab}">${l}</button>`).join('')}</div><button class="act primary codex-close">关闭</button></div>${content}<div class="modal-actions"></div>`;
+    paintIcons(body); paintTerrains(body);
+    body.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { curTab = b.dataset.tab; render(body); });
+    body.querySelectorAll('[data-cx]').forEach(b => b.onclick = () => {
+      cur = b.dataset.cx;
+      body.querySelectorAll('[data-cx]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      const det = body.querySelector('.codex-detail'); det.innerHTML = codexDetail(cur); det.scrollTop = 0; paintIcons(det); paintTerrains(det);
+    });
+    body.querySelector('.codex-close').onclick = () => closeModal(null);
+    body.querySelector('[aria-selected="true"][data-cx]')?.scrollIntoView({ block: 'nearest' });
+  };
+  tutNotify('codex');
+  return modal('', [], { cls: 'codex', onOpen: render });
+}
+
+// ---------- tutorial & one-time tips ----------
+let tut = null;
+const tutorialDone = () => { try { return store.getItem(TUT_FLAG) === '1'; } catch { return true; } };
+const idle = () => !busy && $('#modal').hidden && !!state && state.status === 'playing';
+const terrRect = () => {
+  const b = territoryBox(), a = toScreen(b.x0, b.y0), z = toScreen(b.x1, b.y1), m = mapRect();
+  const x = Math.max(a.x, m.x), y = Math.max(a.y, m.y);
+  return { x, y, w: Math.min(z.x, m.x + m.w) - x, h: Math.min(z.y, m.y + m.h) - y };
+};
+/** Ghost footprint plus a one-cell ring (the neighbour highlights). */
+const ghostRect = () => {
+  if (!mode) return null;
+  const { w, h } = shapeSize(), c = cp(), p = toScreen(mode.ax - 1, mode.ay - 1);
+  return { x: p.x, y: p.y, w: (w + 2) * c, h: (h + 2) * c };
+};
+const TUT_AVOID = ['#dock', '#side', '#hud', '#map-tools'];
+function tutNotify(ev) { tut?.notify(ev); }
+function stopTutorial() { if (tut) { const t = tut; tut = null; t.opts.onDone = null; t.finish(true); } }
+function startTutorial() {
+  const steps = [
+    { at: ['#alerts .tribute', '#season'], until: 'tap', text: '目标：每年<b>冬末交年贡</b>，撑过6年就赢。<br>这里是季节和今年的年贡。' },
+    { at: ['#resources'], until: 'tap', text: '金、粮、木、空闲人口、声望。<br>小字是<b>每季变化</b>，红色说明在亏。' },
+    { at: [terrRect], until: 'tap', text: '这是你的领土。<b>拖动</b>平移地图，<b>双指</b>缩放；点建筑可以升级、拆除。' },
+    { skip: () => sheet === 'land' || state.landBought, at: ['#open-land'], until: () => sheet === 'land', text: '先扩张：点<b>买地</b>。' },
+    { gate: () => sheet === 'land', at: ['#sheet .offers'], until: () => mode?.kind === 'land' || state.landBought,
+      text: '每季可买1块地。<b>按住一块地，拖到领土边上</b>松手；也可以点一下。' },
+    { gate: () => mode?.kind === 'land', at: ['#place-bar', terrRect], allow: [mapRect], avoid: [ghostRect], until: () => state.landBought,
+      text: '拖虚影换位置，<b>点虚影旋转</b>。<br>绿色能放，点<b>买下</b>。' },
+    { skip: () => sheet === 'draft' || state.drafted, gate: () => state.landBought && !mode, at: ['#open-draft'], until: () => sheet === 'draft', text: '再点<b>选卡</b>。' },
+    { gate: () => sheet === 'draft', at: ['#sheet .offers'], until: () => state.drafted, text: '每季可选1张<b>特殊建筑卡</b>放进背包。<b>点一张</b>拿走；长按看规则。' },
+    { gate: () => state.drafted && !mode && !sheet, at: ['#dock'], until: () => mode?.kind === 'build',
+      text: '左边是建筑：<b>常备</b>随时可建，<b>背包</b>是选来的卡。<br><b>按住拖到地图上</b>，或点一下。长按看图鉴。' },
+    { gate: () => mode?.kind === 'build', at: ['#place-bar'], allow: [mapRect, '#dock'], avoid: [ghostRect], until: 'build',
+      text: '虚线圈出的是<b>邻居</b>，会带来加成；右边是这座建筑<b>每季产出</b>。<br>位置合适就点<b>建造</b>。' },
+    { gate: () => !mode && !sheet, at: ['#next-turn'], until: 'turn', text: '这一季做完了。点<b>下一季</b>：结算产出、吃粮，冬末交年贡。' },
+    { at: ['#codex'], until: 'codex', text: '每座建筑的规则、地形和玩法都在<b>图鉴</b>里，随时点开查。' },
+    { until: 'tap', ok: '开始', text: '教学完成！<br>第2年起夏天会有<b>蛮族</b>在边境插红旗、秋末来袭——用哨塔守住。祝王国长久。' },
+  ];
+  tut = new Spotlight($('#tut'), steps, {
+    idle, skippable: true, avoid: TUT_AVOID,
+    onDone: () => { try { store.setItem(TUT_FLAG, '1'); } catch {} tut = null; maybeAutoSheet(); },
+  });
+}
+function readTips() { try { return JSON.parse(store.getItem(TIPS_KEY) || '{}') || {}; } catch { return {}; } }
+/** One-time contextual tips; returns true when one is showing. */
+function contextTips() {
+  if (tut || !state || state.status !== 'playing') return false;
+  const seen = readTips(), f = R.forecast(state);
+  const tips = [
+    ['threat', state.threats.length > 0, ['#alerts .threat', '#guard-view'], '<b>红旗</b>是蛮族目标，<b>秋末</b>来袭。<br>王城、哨塔、兵营守卫范围内能守住。点<b>盾</b>看范围。'],
+    ['winter', season() === 3, ['#alerts .tribute', '#next-turn'], '冬天了：本季末结算时<b>交年贡</b>。<br>金币不够王国就会陷落，可以拆建筑回收金币。'],
+    ['famine', f.famine, ['[data-res="food"]'], '粮食不够了，会<b>饥荒</b>：税收减半、声望−1。<br>多建农田、渔港或粮仓。'],
+    ['unlock', year() > 1 && season() === 0, ['#open-draft'], () => `第${year()}年解锁新建筑卡，这一季的<b>选卡</b>里一定有。`],
+  ];
+  const t = tips.find(([k, on]) => on && !seen[k]);
+  if (!t) return false;
+  const [k, , at, text] = t;
+  seen[k] = 1; try { store.setItem(TIPS_KEY, JSON.stringify(seen)); } catch {}
+  tut = new Spotlight($('#tut'), [{ at, until: 'tap', ok: '知道了', text }], { idle, label: false, avoid: TUT_AVOID, onDone: () => { tut = null; maybeAutoSheet(); } });
+  return true;
+}
+
+// ---------- app shell: haptics, orientation, gestures ----------
+function buzz(kind = 'light') {
+  try { if (window.tap?.vibrateShort) { window.tap.vibrateShort({ type: kind }); return; } } catch {}
+  try { navigator.vibrate?.(kind === 'heavy' ? 30 : kind === 'medium' ? 16 : 8); } catch {}
+}
+function lockLandscape() { try { screen.orientation?.lock?.('landscape')?.catch?.(() => {}); } catch {} }
+window.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+window.addEventListener('pointerdown', lockLandscape, { once: true });
+document.addEventListener('visibilitychange', () => { if (document.hidden && liveRun) save(); });
+window.addEventListener('pagehide', () => { if (liveRun) save(); });
+
+// ---------- wiring ----------
+function renderAll() { renderHud(); renderDock(); renderSheet(); renderPlaceBar(); requestFrame(); }
+$('#open-land').onclick = () => { if (mode) cancelMode(); openSheet('land'); };
+$('#open-draft').onclick = () => { if (mode) cancelMode(); openSheet('draft'); };
+$('#next-turn').onclick = nextSeason;
+$('#season').onclick = overview;
+$('#menu').onclick = menu;
+$('#zoom-in').onclick = () => zoomAt(1.2, viewArea().cx, viewArea().cy);
+$('#zoom-out').onclick = () => zoomAt(1 / 1.2, viewArea().cx, viewArea().cy);
+$('#codex').onclick = () => openCodex();
+$('#center').onclick = () => centerCamera();
+$('#guard-view').onclick = () => { guardView = !guardView; $('#guard-view').setAttribute('aria-pressed', String(guardView)); requestFrame(); };
+window.addEventListener('keydown', e => {
+  if (!$('#modal').hidden) { if (e.key === 'Escape' && $('#modal').dataset.dismissable) closeModal(null); return; }
+  if (mode) {
+    const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (moves[e.key]) { e.preventDefault(); mode.ax += moves[e.key][0]; mode.ay += moves[e.key][1]; ensureVisible(); requestFrame(); }
+    else if (e.key === 'r' || e.key === 'R') rotate();
+    else if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    else if (e.key === 'Escape') cancelMode();
+  } else if (e.key === 'Escape' && sheet) closeSheet();
+});
+window.addEventListener('resize', () => { resize(); renderPlaceBar(); if (sheet) renderSheet(); });
+// Debug/QA hook: read-only snapshot of the running game.
+window.__pt = { get state() { return state; }, R, cam: () => ({ ...cam, cell: cp() }), toScreen, viewArea, get tutStep() { return tut ? tut.i : -1; } };
+
+async function boot() {
+  buildSeaPattern(); lockLandscape();
+  if (!loaded.ok) {
+    state = R.createGame(Math.floor(Math.random() * 4294967295));
+    resize(); centerCamera(); renderAll();
+    const v = await modal(`<h2>存档无法读取</h2><p>${esc(loaded.reason)}</p><p class="muted">原存档不会被自动覆盖。开始新王国时会先把它备份到 .backup。</p>`, [{ label: '开始新王国', value: true, primary: true }], { dismissable: false });
+    if (v) { saveBlocked = false; newRun(false); }
+    return;
+  }
+  if (!state) state = R.createGame(Math.floor(Math.random() * 4294967295));
+  resize(); centerCamera(); renderAll();
+  if (!loaded.state || state.status !== 'playing') { if (state.status !== 'playing' && loaded.state) { await endScreen(); return; } return titleScreen(); }
+  banner(`第${year()}年 · ${R.SEASONS[season()].name}`, '欢迎回来');
+  setTimeout(() => { if (!contextTips()) maybeAutoSheet(); }, 400);
+}
+boot();

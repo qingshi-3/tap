@@ -1,0 +1,3404 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="screen-orientation" content="landscape">
+<meta name="x5-orientation" content="landscape">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2f5d6b">
+<title>拼土王国</title>
+<style>
+:root {
+  --sea: #2f5d6b; --wood: #f1e5c9; --wood-2: #e6d5ac; --wood-3: #d4bf8c; --ink: #3b3a2c; --ink-2: #6d6650;
+  --gold: #e3b65c; --gold-2: #c9963a; --pine: #29483d; --grass: #82ad61; --red: #c4553f; --blue: #4f86a8;
+  --safe-t: env(safe-area-inset-top, 0px); --safe-b: env(safe-area-inset-bottom, 0px);
+  --safe-l: env(safe-area-inset-left, 0px); --safe-r: env(safe-area-inset-right, 0px);
+  --top: calc(50px + var(--safe-t)); --rail-l: calc(150px + var(--safe-l)); --rail-r: calc(112px + var(--safe-r));
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sea); color: var(--ink);
+  font: 15px/1.35 "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif; overscroll-behavior: none; }
+button { font: inherit; color: inherit; border: 0; cursor: pointer; touch-action: manipulation; }
+button:disabled { cursor: default; opacity: .45; }
+button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+#game { position: fixed; inset: 0; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+html, body, #game { touch-action: none; }
+#map { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; display: block; }
+
+/* Top bar */
+#hud { position: absolute; top: calc(5px + var(--safe-t)); left: calc(6px + var(--safe-l)); right: calc(6px + var(--safe-r)); height: 42px;
+  display: flex; gap: 6px; align-items: stretch; pointer-events: none; z-index: 3; }
+#hud > * { pointer-events: auto; }
+.chip { background: var(--wood); border-radius: 10px; padding: 3px 10px; box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; }
+.season { white-space: nowrap; display: flex; flex-direction: column; justify-content: center; line-height: 1.1; font-size: 15px; min-width: 96px; }
+.season small { font-weight: 700; color: var(--ink-2); font-size: 11px; }
+.resources { flex: 1; display: flex; gap: 5px; min-width: 0; }
+.res { flex: 1 1 0; max-width: 112px; display: flex; align-items: center; gap: 4px; background: var(--wood); border-radius: 10px; padding: 2px 8px 2px 5px;
+  box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; min-width: 0; }
+.res canvas { width: 24px; height: 24px; flex: none; }
+.res b { font-size: 16px; display: block; line-height: 1.05; }
+.res small { display: block; font-size: 11px; color: var(--ink-2); line-height: 1.05; white-space: nowrap; font-weight: 700; }
+.res small.neg { color: var(--red); }
+.icon-btn { min-width: 44px; height: 44px; border-radius: 10px; background: var(--wood); box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; font-size: 17px; flex: none; padding: 0 6px; }
+#hud .icon-btn { height: auto; }
+.icon-btn.wide { padding: 0 12px; font-size: 15px; }
+.icon-btn[aria-pressed="true"] { background: var(--blue); color: #fff; box-shadow: 0 2px 0 #305e7c; }
+
+/* Alerts & map tools sit inside the map area between the rails */
+.left-col { position: absolute; top: calc(var(--top) + 4px); left: calc(var(--rail-l) + 6px); right: calc(var(--rail-r) + 6px); pointer-events: none; }
+.alerts { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-start; }
+.alert { pointer-events: auto; display: flex; align-items: center; gap: 5px; background: #fffaf0e8; border-radius: 9px; padding: 3px 9px 3px 5px; font-size: 13.5px; font-weight: 800; box-shadow: 0 2px 6px #0003; min-height: 30px; }
+.alert canvas { width: 20px; height: 20px; }
+.alert.danger { background: var(--red); color: #fff; }
+.alert.warn { background: #f6d58a; }
+.map-tools { position: absolute; right: calc(var(--rail-r) + 6px); bottom: calc(6px + var(--safe-b)); display: flex; gap: 6px; }
+.map-tools .icon-btn { width: 44px; opacity: .94; font-size: 16px; }
+
+/* Left rail: building cards */
+#dock { position: absolute; left: 0; top: var(--top); bottom: 0; width: var(--rail-l); padding: 2px 4px calc(6px + var(--safe-b)) calc(6px + var(--safe-l));
+  transition: transform .22s; z-index: 2; }
+body.sheet-open #dock { transform: translateX(-105%); }
+.cards { height: 100%; display: flex; gap: 5px; }
+.col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.col-h { flex: none; font-size: 11px; font-weight: 800; color: #fff; text-align: center; line-height: 14px; text-shadow: 0 1px 2px #0008; }
+.card { position: relative; flex: 1 1 0; min-height: 48px; max-height: 96px; width: 100%; border-radius: 10px; background: #fff8e6; box-shadow: 0 2px 0 var(--wood-3), 0 2px 6px #0003;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; touch-action: none; overflow: hidden; }
+.card canvas { height: calc(100% - 28px); max-height: 52px; min-height: 18px; width: auto; max-width: 100%; pointer-events: none; }
+.card .nm { font-size: 13px; font-weight: 800; line-height: 1.05; pointer-events: none; }
+.card .cost { font-size: 11px; color: var(--ink-2); white-space: nowrap; line-height: 1.1; pointer-events: none; font-weight: 700; }
+.card .cost.short { color: var(--red); }
+.card.hand { background: #fdf0c8; box-shadow: 0 2px 0 var(--gold-2), 0 2px 6px #0003; }
+.card.slot { background: #fff8e630; box-shadow: none; color: #fffc; font-size: 12px; font-weight: 700; }
+.card.active { box-shadow: 0 0 0 3px var(--blue), 0 2px 6px #0003; }
+.card.unaffordable canvas { opacity: .5; }
+.card.pressing { transform: scale(.95); }
+
+/* Right rail: actions, or the placement panel */
+#side { position: absolute; right: 0; top: var(--top); bottom: 0; width: var(--rail-r); padding: 2px calc(6px + var(--safe-r)) calc(6px + var(--safe-b)) 4px; z-index: 3; }
+.actions { height: 100%; display: flex; flex-direction: column; gap: 7px; }
+.act { min-height: 46px; border-radius: 11px; background: #fff8e6; box-shadow: 0 3px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; font-size: 17px; padding: 0 8px; position: relative; }
+.actions .act { flex: 1 1 0; max-height: 96px; }
+.actions #next-turn { flex: 1.5 1 0; max-height: 130px; }
+.act.primary { background: var(--gold); box-shadow: 0 3px 0 var(--gold-2), 0 3px 8px #0003; }
+.act.danger { background: var(--red); color: #fff; box-shadow: 0 3px 0 #8e3a2a; }
+.act:active:not(:disabled) { transform: translateY(2px); }
+.act .badge { position: absolute; top: -4px; right: -2px; width: 14px; height: 14px; border-radius: 7px; border: 2px solid #fff8e6; background: var(--red); }
+.act small { display: block; font-size: 12px; font-weight: 700; opacity: .8; line-height: 1.1; margin-top: 2px; }
+.place-bar { height: 100%; display: flex; flex-direction: column; gap: 6px; }
+.place-info { flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--wood); border-radius: 11px; padding: 6px 7px; box-shadow: 0 3px 8px #0004;
+  font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+.place-info b { font-size: 16px; }
+.place-info .bad { color: var(--red); font-size: 12.5px; }
+.place-info .delta { display: inline-flex; gap: 2px; align-items: center; }
+.place-info .delta canvas { width: 18px; height: 18px; }
+.place-info .deltas { display: flex; flex-wrap: wrap; gap: 0 6px; }
+.place-buttons { flex: none; display: flex; flex-direction: column; gap: 6px; }
+.place-buttons .act { min-height: 48px; }
+#place-confirm { min-height: 60px; }
+
+/* Sheet beside the right rail; the card rail slides away */
+.sheet { position: absolute; top: calc(var(--top) + 2px); max-height: calc(100% - var(--top) - 8px - var(--safe-b)); right: calc(var(--rail-r) + 4px);
+  width: min(540px, calc(100vw - var(--rail-r) - 200px)); background: var(--wood); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px #0006; z-index: 4;
+  display: flex; flex-direction: column; overflow: hidden; }
+.sheet h2 { margin: 0 4px 6px; font-size: 17px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex: none; }
+.sheet h2 small { font-size: 12px; color: var(--ink-2); font-weight: 700; }
+.sheet .hint { margin: 0 4px 6px; font-size: 13px; color: var(--red); font-weight: 700; }
+.offers { flex: 0 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow-y: auto; align-content: start; padding-bottom: 3px; }
+.offer { background: #fff8e6; border-radius: 12px; box-shadow: 0 3px 0 var(--wood-3); padding: 5px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; touch-action: none; min-height: 0; }
+.offer canvas { width: 100%; max-width: 132px; height: auto; aspect-ratio: 264 / 152; max-height: 76px; object-fit: contain; pointer-events: none; }
+.offer b { font-size: 15px; pointer-events: none; }
+.offer span { font-size: 12px; color: var(--ink-2); pointer-events: none; text-align: center; line-height: 1.25; }
+.offer .price { color: var(--ink); font-weight: 800; font-size: 13px; }
+.offer .price.short { color: var(--red); }
+.offer .new { font-size: 11px; color: #fff; background: var(--red); padding: 0 5px; border-radius: 6px; font-weight: 800; }
+.sheet-actions { flex: none; display: flex; gap: 6px; margin-top: 7px; }
+.sheet-actions .act { flex: 1; font-size: 15px; }
+
+/* Banner, toast: centred over the map area, toast low so it never hides the middle */
+.banner { position: absolute; left: var(--rail-l); right: var(--rail-r); width: fit-content; margin: 0 auto; top: 26%; transform: scale(.9); opacity: 0; pointer-events: none;
+  background: #29483de8; color: #fff; border-radius: 16px; padding: 10px 26px; text-align: center; font-weight: 800; font-size: 22px; transition: opacity .25s, transform .25s; z-index: 5; }
+.banner small { display: block; font-size: 14px; font-weight: 700; opacity: .85; }
+.banner.show { opacity: 1; transform: scale(1); }
+.toast { position: absolute; left: var(--rail-l); right: var(--rail-r); width: fit-content; max-width: calc(100vw - var(--rail-l) - var(--rail-r) - 24px); margin: 0 auto;
+  bottom: calc(58px + var(--safe-b)); transform: translateY(8px); opacity: 0; pointer-events: none;
+  background: #3b3a2cf0; color: #fff; padding: 8px 14px; border-radius: 12px; font-size: 15px; font-weight: 700; text-align: center; transition: opacity .2s, transform .2s; z-index: 6; }
+.toast.show { opacity: 1; transform: translateY(0); }
+
+/* Portrait phones: ask to rotate */
+.rotate-tip { display: none; position: fixed; inset: 0; z-index: 40; background: #20414b; color: #fff; align-items: center; justify-content: center; text-align: center; }
+.rotate-tip b { display: block; font-size: 22px; margin-top: 18px; }
+.rotate-tip small { display: block; font-size: 15px; opacity: .75; margin-top: 4px; }
+.rotate-tip .phone { width: 54px; height: 92px; margin: 0 auto; border: 5px solid var(--wood); border-radius: 12px; animation: rot-hint 2.4s ease-in-out infinite; }
+@keyframes rot-hint { 0%, 25% { transform: rotate(0); } 55%, 100% { transform: rotate(-90deg); } }
+@media (orientation: portrait) and (max-width: 820px) { .rotate-tip { display: flex; } }
+
+/* Tutorial spotlight */
+.tut { position: fixed; inset: 0; z-index: 30; pointer-events: none; }
+.tut-mask svg { position: absolute; left: 0; top: 0; }
+.tut-mask path { fill: rgba(6, 14, 18, .64); }
+.tut.no-mask .tut-mask { display: none; }
+.tut-ring { position: absolute; border: 3px solid #ffd36b; border-radius: 12px; box-shadow: 0 0 16px #ffd36b99; animation: tut-pulse 1.2s ease-in-out infinite; }
+@keyframes tut-pulse { 50% { opacity: .45; } }
+.tut-box { position: absolute; width: min(330px, 46vw); padding: 10px 14px 12px; background: #1f3a3f; border: 2px solid #ffd36b; border-radius: 12px; color: #f6efdb;
+  font-size: 17px; line-height: 1.45; pointer-events: auto; box-shadow: 0 10px 28px #0008; }
+.tut-box b { color: #ffd36b; }
+.tut-step { font-size: 12px; opacity: .65; margin-bottom: 2px; font-weight: 700; }
+.tut-ok { margin-top: 8px; float: right; min-height: 44px; min-width: 96px; }
+.tut-skip { position: absolute; left: calc(var(--rail-l) + 8px); bottom: calc(8px + var(--safe-b)); pointer-events: auto; min-height: 40px; font-size: 14px; background: #ffffffd9; }
+.tut-box.chip { pointer-events: none; padding: 8px 12px; font-size: 16px; border-color: #ffd36b99; }
+
+/* Codex */
+.modal-card.codex { width: min(860px, 100%); height: 100%; max-height: 640px; display: flex; flex-direction: column; padding: 10px 12px; overflow: hidden; }
+.codex-head { display: flex; align-items: center; gap: 6px; flex: none; }
+.codex-head h2 { margin: 0 8px 0 2px; font-size: 18px; }
+.tabs { display: flex; gap: 5px; flex: 1; }
+.tab { min-height: 40px; padding: 0 14px; border-radius: 10px; background: #fff8e6; font-weight: 800; box-shadow: 0 2px 0 var(--wood-3); }
+.tab[aria-selected="true"] { background: var(--pine); color: #fff; box-shadow: 0 2px 0 #18302a; }
+.codex-body { flex: 1 1 auto; min-height: 0; display: flex; gap: 10px; margin-top: 8px; }
+.codex-grid { flex: 0 0 auto; width: 46%; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 5px; align-content: start; padding: 2px; }
+.cx { border-radius: 10px; background: #fff8e6; box-shadow: 0 2px 0 var(--wood-3); padding: 3px 2px; display: flex; flex-direction: column; align-items: center; min-height: 64px; position: relative; }
+.cx canvas { width: 58px; height: 38px; pointer-events: none; }
+.cx span { font-size: 13px; font-weight: 800; }
+.cx[aria-selected="true"] { box-shadow: 0 0 0 3px var(--blue); }
+.cx.locked { opacity: .55; }
+.cx .tag { position: absolute; top: 2px; right: 3px; font-size: 10px; font-weight: 800; color: #fff; background: var(--pine); border-radius: 5px; padding: 0 3px; }
+.codex-detail { flex: 1 1 0; min-width: 0; overflow-y: auto; background: #fff8e6; border-radius: 12px; padding: 10px 12px; }
+.codex-detail h3 { margin: 0 0 4px; font-size: 19px; display: flex; gap: 8px; align-items: baseline; }
+.codex-detail h3 small { font-size: 13px; color: var(--ink-2); }
+.codex-detail .big-preview { width: 150px; height: 100px; }
+.codex-detail .rule { font-size: 15.5px; font-weight: 700; margin: 6px 0; }
+.facts { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; font-size: 13.5px; margin: 6px 0; }
+.facts dt { color: var(--ink-2); font-weight: 700; }
+.facts dd { margin: 0; font-weight: 700; }
+.terr-row { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+.terr { display: inline-flex; align-items: center; gap: 3px; font-size: 12.5px; background: #0000000d; border-radius: 6px; padding: 1px 6px 1px 2px; }
+.terr canvas { width: 18px; height: 18px; border-radius: 4px; }
+.codex-rules { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 7px; align-content: start; }
+.rule-card { background: #fff8e6; border-radius: 12px; padding: 8px 10px; font-size: 14px; display: flex; gap: 8px; }
+.rule-card canvas { width: 40px; height: 40px; flex: none; border-radius: 8px; }
+.rule-card b { display: block; font-size: 15.5px; margin-bottom: 2px; }
+.codex-close { min-width: 80px; }
+
+/* Modal */
+.modal { position: fixed; inset: 0; touch-action: auto; background: #142b33b0; display: flex; align-items: center; justify-content: center; z-index: 10; padding: calc(10px + var(--safe-t)) 10px calc(10px + var(--safe-b)); }
+.modal[hidden] { display: none; }
+.modal-card { touch-action: pan-y; background: var(--wood); border-radius: 18px; width: min(460px, 100%); max-height: 100%; overflow: auto; padding: 16px; box-shadow: 0 10px 40px #0007; }
+.modal-card h2 { margin: 0 0 6px; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+.modal-card h3 { margin: 12px 0 4px; font-size: 15px; }
+.modal-card p { margin: 4px 0; }
+.modal-card .muted { color: var(--ink-2); font-size: 13px; }
+.modal-actions { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; }
+.modal-actions .act { min-width: 110px; }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 6px; margin: 8px 0; }
+.stat { background: #fff8e6; border-radius: 10px; padding: 6px 8px; font-size: 12px; color: var(--ink-2); }
+.stat b { display: block; font-size: 18px; color: var(--ink); }
+.list { margin: 6px 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+.list li { background: #fff8e6; border-radius: 9px; padding: 6px 9px; font-size: 13.5px; display: flex; justify-content: space-between; gap: 8px; }
+.list li.good b { color: #3f7d3a; }
+.list li.bad b { color: var(--red); }
+.big-preview { display: block; width: 120px; height: 80px; margin: 2px auto 6px; }
+.title-card { text-align: center; }
+.title-card h1 { font-size: 34px; margin: 4px 0 0; letter-spacing: 3px; color: var(--pine); }
+.title-card .tag { color: var(--ink-2); margin: 2px 0 10px; }
+.modal-card.title .modal-actions { flex-direction: column; }
+.modal-card.title .modal-actions .act { width: 100%; }
+.stars { font-size: 30px; letter-spacing: 4px; color: var(--gold-2); text-align: center; margin: 4px 0; }
+.stars .off { color: #0002; }
+.score-total { text-align: center; font-size: 32px; font-weight: 900; }
+.rules-list { padding-left: 18px; margin: 6px 0; }
+.rules-list li { margin: 4px 0; font-size: 13.5px; }
+.region-row { display: flex; align-items: center; gap: 8px; font-size: 13px; margin: 4px 0; }
+.region-row .bar { flex: 1; height: 8px; background: #0001; border-radius: 4px; overflow: hidden; }
+.region-row .bar i { display: block; height: 100%; background: var(--grass); }
+
+@media (prefers-reduced-motion: reduce) { .banner, .toast, #dock { transition: none; } .tut-ring, .rotate-tip .phone { animation: none; } }
+
+/* Very short landscape screens */
+@media (max-height: 360px) {
+  .card .nm { font-size: 12px; }
+  .card canvas { height: calc(100% - 26px); }
+}
+/* Tablets / desktop */
+@media (min-height: 600px) and (min-width: 900px) {
+  :root { --top: calc(60px + var(--safe-t)); --rail-l: calc(200px + var(--safe-l)); --rail-r: calc(150px + var(--safe-r)); }
+  #hud { height: 50px; }
+  .res canvas { width: 28px; height: 28px; }
+  .res b { font-size: 18px; }
+  .card .nm { font-size: 15px; }
+  .card .cost { font-size: 12.5px; }
+  .card canvas { max-height: 64px; }
+  .act { font-size: 19px; }
+  .tut-box { font-size: 18px; }
+}
+.tut:not(.on) .tut-skip, .tut.last .tut-skip { display: none; }
+.modal-actions:empty { display: none; }
+.place-info .muted { color: var(--ink-2); font-size: 12px; }
+
+</style>
+</head>
+<body>
+<main id="game">
+  <canvas id="map" aria-label="王国地图：拖动平移，双指缩放，点建筑查看详情"></canvas>
+  <header id="hud">
+    <button id="season" class="chip season" aria-label="王国概况"></button>
+    <div id="resources" class="resources"></div>
+    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴">图鉴</button>
+    <button id="menu" class="icon-btn" aria-label="菜单">☰</button>
+  </header>
+  <aside id="dock" aria-label="建筑：常备与背包">
+    <div id="cards" class="cards"></div>
+  </aside>
+  <aside id="side">
+    <div class="actions" id="actions">
+      <button id="open-land" class="act">买地</button>
+      <button id="open-draft" class="act">选卡</button>
+      <button id="next-turn" class="act primary">下一季</button>
+    </div>
+    <div id="place-bar" class="place-bar" hidden>
+      <div id="place-info" class="place-info" role="status"></div>
+      <div class="place-buttons">
+        <button id="place-rotate" class="act">旋转</button>
+        <button id="place-cancel" class="act">取消</button>
+        <button id="place-confirm" class="act primary">放下</button>
+      </div>
+    </div>
+  </aside>
+  <div class="left-col"><div id="alerts" class="alerts"></div></div>
+  <div id="map-tools" class="map-tools">
+    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false">盾</button>
+    <button id="center" class="icon-btn" aria-label="回到领土">◎</button>
+    <button id="zoom-out" class="icon-btn" aria-label="缩小">−</button>
+    <button id="zoom-in" class="icon-btn" aria-label="放大">＋</button>
+  </div>
+  <section id="sheet" class="sheet" hidden role="dialog" aria-modal="false"></section>
+  <div id="banner" class="banner" aria-hidden="true"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</main>
+<div id="modal" class="modal" hidden><div class="modal-card" role="dialog" aria-modal="true"><div id="modal-body"></div></div></div>
+<div id="tut" class="tut" hidden></div>
+<div id="rotate-tip" class="rotate-tip"><div><div class="phone"></div><b>请把手机横过来</b><small>拼土王国是横屏游戏</small></div></div>
+<script type="module">
+const __m_rules = (() => {
+
+// 拼土王国 v3 — pure deterministic rules. One run = 6 years × 4 seasons.
+// Every function takes the state as its first argument; failed actions never mutate it.
+const W = 16, H = 16, YEARS = 6, SEASONS_PER_YEAR = 4, HAND_LIMIT = 4;
+const TERRAIN = Object.freeze({
+  grass: { name: '草地' }, forest: { name: '森林' }, water: { name: '水域' },
+  mountain: { name: '山地' }, fertile: { name: '沃土' },
+});
+const SEASONS = Object.freeze([
+  { name: '春', tip: '农田正常产粮' },
+  { name: '夏', tip: '渔港+2粮；蛮族开始集结' },
+  { name: '秋', tip: '农田×1.5；季末蛮族来袭' },
+  { name: '冬', tip: '农田×0.5；季末缴纳年贡' },
+]);
+const TRIBUTE = Object.freeze([15, 30, 50, 80, 120, 170]);
+const FARM_SEASON = [1, 1, 1.5, 0.5];
+const LAND = ['grass', 'fertile'];
+// cells are the rot=0 footprint. tags drive adjacency; basic = always available.
+const BUILDINGS = Object.freeze({
+  hall: { name: '王城', cells: [[0, 0], [1, 0], [0, 1], [1, 1]], gold: 0, wood: 0, workers: 0, terrains: LAND, unlock: 9, text: '金+10，木+2，人口+6，守卫2格。' },
+  house: { name: '民居', cells: [[0, 0], [1, 0]], gold: 10, wood: 2, workers: 0, terrains: LAND, basic: true, unlock: 1, text: '人口+4，金+1；挨着集市每座再+1。' },
+  farm: { name: '农田', cells: [[0, 0], [1, 0], [2, 0]], gold: 8, wood: 0, workers: 1, terrains: LAND, basic: true, unlock: 1, text: '草地格粮+2、沃土格粮+3，邻水+2。秋×1.5，冬×0.5。' },
+  lumber: { name: '伐木场', cells: [[0, 0], [1, 0]], gold: 10, wood: 0, workers: 1, terrains: ['grass', 'forest'], basic: true, unlock: 1, text: '木+2，每块相邻森林+1（最多+5）。' },
+  tower: { name: '哨塔', cells: [[0, 0]], gold: 12, wood: 3, workers: 1, terrains: ['grass', 'fertile', 'forest', 'mountain'], basic: true, unlock: 1, text: '守卫周围2格（3级为3格）。' },
+  fishery: { name: '渔港', cells: [[0, 0], [1, 0]], gold: 12, wood: 2, workers: 1, terrains: ['grass', 'fertile', 'forest', 'water'], need: { water: 1 }, unlock: 1, text: '须占1格水域。粮+2，占用及相邻水域每格+1（最多+6）；夏+2。' },
+  granary: { name: '粮仓', cells: [[0, 0]], gold: 10, wood: 2, workers: 0, terrains: LAND, unlock: 1, text: '粮食上限+25；相邻每片农田粮+1。' },
+  market: { name: '集市', cells: [[0, 0], [1, 0], [0, 1]], gold: 18, wood: 4, workers: 1, terrains: LAND, unlock: 1, text: '金+2，每座相邻民居+3，其它相邻建筑+1。' },
+  workshop: { name: '工坊', cells: [[0, 0], [1, 0], [1, 1]], gold: 16, wood: 4, workers: 1, terrains: ['grass', 'fertile', 'mountain'], unlock: 1, text: '木材多于6时，每季最多耗木3、每木换金2；挨着伐木场再+2金。' },
+  mine: { name: '矿场', cells: [[0, 0], [1, 0], [0, 1], [1, 1]], gold: 22, wood: 5, workers: 2, terrains: ['grass', 'mountain'], need: { mountain: 1 }, unlock: 2, text: '须占山地。金+4，占用山地每格+2，相邻山地每格+1。' },
+  temple: { name: '神庙', cells: [[1, 0], [0, 1], [1, 1], [2, 1]], gold: 28, wood: 6, workers: 1, terrains: LAND, unlock: 2, text: '声望+1，每座相邻民居/庄园+1（最多+4）。' },
+  barracks: { name: '兵营', cells: [[0, 0], [1, 0], [2, 0], [1, 1]], gold: 26, wood: 8, workers: 2, terrains: ['grass', 'mountain'], unlock: 3, text: '守卫周围3格；守住的进攻声望再+1。' },
+  manor: { name: '庄园', cells: [[1, 0], [2, 0], [0, 1], [1, 1]], gold: 26, wood: 8, workers: 0, terrains: LAND, unlock: 3, text: '人口+6，金+2，相邻森林/水域每格金+1（最多+4）。' },
+  guild: { name: '商会', cells: [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]], gold: 40, wood: 10, workers: 2, terrains: LAND, unlock: 4, text: '金+6，每座相邻集市/工坊/渔港/矿场+3。' },
+  wonder: { name: '星塔', cells: [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]], gold: 70, wood: 18, workers: 3, terrains: LAND, unlock: 5, text: '奇观。建成声望+10，之后每季声望+4。' },
+});
+const BASIC = Object.keys(BUILDINGS).filter(k => BUILDINGS[k].basic);
+const SPECIAL = Object.keys(BUILDINGS).filter(k => k !== 'hall' && !BUILDINGS[k].basic);
+const GUARD = { hall: 2, tower: 2, barracks: 3 };
+const LEVEL_MULT = [1, 1.5, 2];
+const REGION = Object.freeze({
+  grass: '草原', forest: '古林', water: '大湖', mountain: '群峰', fertile: '沃野',
+});
+const REGION_STEPS = [{ size: 6, fame: 2, gold: 6 }, { size: 10, fame: 3, gold: 10 }, { size: 15, fame: 5, gold: 16 }];
+const LAND_SHAPES = [
+  [[0, 0], [1, 0], [2, 0]], [[0, 0], [1, 0], [0, 1]],
+  [[0, 0], [1, 0], [0, 1], [1, 1]], [[0, 0], [1, 0], [2, 0], [1, 1]], [[0, 0], [1, 0], [1, 1], [2, 1]],
+  [[0, 0], [0, 1], [0, 2], [1, 2]], [[0, 0], [1, 0], [2, 0], [3, 0]],
+  [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]], [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]],
+  [[0, 0], [2, 0], [0, 1], [1, 1], [2, 1]], [[0, 0], [0, 1], [0, 2], [1, 2], [2, 2]],
+];
+const TERRAIN_WEIGHTS = [['grass', 30], ['fertile', 16], ['forest', 21], ['water', 15], ['mountain', 18]];
+const DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const ok = (extra = {}) => ({ ok: true, reason: '', ...extra });
+const fail = reason => ({ ok: false, reason });
+const key = (x, y) => `${x},${y}`;
+const clone = value => JSON.parse(JSON.stringify(value));
+
+const yearOf = state => Math.ceil(state.turn / SEASONS_PER_YEAR);
+const seasonOf = state => (state.turn - 1) % SEASONS_PER_YEAR;
+const tributeOf = state => TRIBUTE[yearOf(state) - 1];
+
+function rand(holder) {
+  holder.seed = (Math.imul(holder.seed, 1664525) + 1013904223) >>> 0;
+  return holder.seed / 4294967296;
+}
+const pick = (holder, list) => list[Math.floor(rand(holder) * list.length)];
+function hashSeed(text) {
+  let h = 2166136261;
+  for (const c of String(text)) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  return h >>> 0;
+}
+
+/** Island mask from the seed: '1' = land that can be bought, '0' = sea. Start area is always land. */
+const islandCache = new Map();
+function island(seed) {
+  if (islandCache.has(seed)) return islandCache.get(seed);
+  const r = { seed: seed ^ 0x9e3779b9 };
+  const waves = Array.from({ length: 4 }, (_, i) => ({ k: i + 2, a: 0.35 + rand(r) * 0.75, p: rand(r) * Math.PI * 2 }));
+  let mask = '';
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const dx = x - 7.5, dy = y - 7.5, angle = Math.atan2(dy, dx);
+    const radius = 6.3 + waves.reduce((sum, w) => sum + w.a * Math.sin(angle * w.k + w.p), 0) * 0.55;
+    const inside = Math.hypot(dx, dy) <= radius || (x >= 5 && x <= 10 && y >= 5 && y <= 10);
+    mask += inside && x > 0 && y > 0 && x < W - 1 && y < H - 1 ? '1' : '0';
+  }
+  islandCache.set(seed, mask);
+  return mask;
+}
+const isIsland = (state, x, y) => x >= 0 && y >= 0 && x < W && y < H && island(state.seed)[y * W + x] === '1';
+
+function rotateCells(cells, rot = 0) {
+  const turns = ((rot % 4) + 4) % 4;
+  const turned = cells.map(c => {
+    let x = Array.isArray(c) ? c[0] : c.x, y = Array.isArray(c) ? c[1] : c.y;
+    for (let i = 0; i < turns; i++) [x, y] = [-y, x];
+    return Array.isArray(c) ? { x, y } : { ...c, x, y };
+  });
+  const minX = Math.min(...turned.map(c => c.x)), minY = Math.min(...turned.map(c => c.y));
+  return turned.map(c => ({ ...c, x: c.x - minX, y: c.y - minY }));
+}
+const footprint = (type, x, y, rot) => rotateCells(BUILDINGS[type].cells, rot).map(c => ({ x: c.x + x, y: c.y + y }));
+const buildingCells = b => footprint(b.type, b.x, b.y, b.rot);
+
+function index(state) {
+  const tiles = new Map(state.tiles.map(t => [key(t.x, t.y), t]));
+  const owner = new Map();
+  for (const b of state.buildings) for (const c of buildingCells(b)) owner.set(key(c.x, c.y), b);
+  return { tiles, owner };
+}
+function tileAt(state, x, y) { return state.tiles.find(t => t.x === x && t.y === y) || null; }
+function buildingAt(state, x, y) {
+  return state.buildings.find(b => buildingCells(b).some(c => c.x === x && c.y === y)) || null;
+}
+/** Cells orthogonally touching the footprint from outside, plus the distinct buildings on them. */
+function surroundings(state, b, idx) {
+  const own = new Set(buildingCells(b).map(c => key(c.x, c.y)));
+  const cells = [], seen = new Set(), neighbors = new Map();
+  for (const c of buildingCells(b)) for (const [dx, dy] of DIRS) {
+    const k = key(c.x + dx, c.y + dy);
+    if (own.has(k) || seen.has(k)) continue;
+    seen.add(k);
+    const tile = idx.tiles.get(k);
+    if (tile) cells.push(tile);
+    const other = idx.owner.get(k);
+    if (other) neighbors.set(other.id, other);
+  }
+  return { cells, buildings: [...neighbors.values()] };
+}
+function adjacentCells(state, type, x, y, rot) {
+  const temp = { id: -1, type, x, y, rot };
+  const own = new Set(buildingCells(temp).map(c => key(c.x, c.y)));
+  const out = new Map();
+  for (const c of buildingCells(temp)) for (const [dx, dy] of DIRS) {
+    const k = key(c.x + dx, c.y + dy);
+    if (!own.has(k)) out.set(k, { x: c.x + dx, y: c.y + dy });
+  }
+  return [...out.values()];
+}
+
+function weightedTerrain(holder) {
+  let roll = rand(holder) * TERRAIN_WEIGHTS.reduce((s, [, w]) => s + w, 0);
+  for (const [t, w] of TERRAIN_WEIGHTS) if ((roll -= w) < 0) return t;
+  return 'grass';
+}
+const PURE_NAME = { grass: '草原', forest: '密林', water: '湖湾', mountain: '群山', fertile: '沃野' };
+const HEAD = { grass: '草', forest: '林', water: '水', mountain: '山', fertile: '田' };
+const TAIL = { grass: '原', forest: '林', water: '湾', mountain: '岭', fertile: '野' };
+function landName(cells) {
+  const n = {}; cells.forEach(c => n[c.t] = (n[c.t] || 0) + 1);
+  const [a, b] = Object.entries(n).sort((p, q) => q[1] - p[1]);
+  return !b || a[1] / cells.length > 0.6 ? PURE_NAME[a[0]] : HEAD[b[0]] + TAIL[a[0]];
+}
+function makeLandOffers(state) {
+  const year = yearOf(state);
+  return [0, 1, 2].map(i => {
+    const shape = pick(state, LAND_SHAPES);
+    // Terrain clusters: each cell copies an earlier neighbour half the time, so pieces read as patches.
+    const cells = [];
+    for (const [x, y] of shape) {
+      const near = cells.filter(c => Math.abs(c.x - x) + Math.abs(c.y - y) === 1);
+      const t = near.length && rand(state) < 0.55 ? pick(state, near).t : weightedTerrain(state);
+      cells.push({ x, y, t });
+    }
+    if (rand(state) < 0.2) cells[Math.floor(rand(state) * cells.length)].treasure = true;
+    const rotated = rotateCells(cells, Math.floor(rand(state) * 4));
+    return { id: `${state.turn}.${state.landRerolls}.${i}`, name: landName(cells), cost: 3 * cells.length + 2 * year, treasure: 6 + 4 * year, cells: rotated };
+  });
+}
+function makeDraft(state) {
+  const year = yearOf(state);
+  const pool = SPECIAL.filter(t => BUILDINGS[t].unlock <= year);
+  const fresh = SPECIAL.filter(t => BUILDINGS[t].unlock === year && year > 1);
+  const out = [];
+  // A freshly unlocked building is guaranteed in the first draft of its year.
+  if (seasonOf(state) === 0 && fresh.length && !state.draftRerolls) out.push(pick(state, fresh));
+  while (out.length < 3 && out.length < pool.length) {
+    const t = pick(state, pool);
+    if (!out.includes(t)) out.push(t);
+  }
+  return out;
+}
+
+function createGame(seed = Date.now(), mode = 'free') {
+  const s = typeof seed === 'number' ? seed >>> 0 : hashSeed(seed);
+  const state = {
+    version: 3, seed: s, mode, turn: 1, status: 'playing', endReason: '',
+    gold: 30, food: 12, wood: 6, fame: 0,
+    tiles: [], buildings: [], nextId: 1,
+    landOffers: [], landBought: false, landRerolls: 0,
+    draft: [], drafted: false, draftRerolls: 0, hand: [],
+    threats: [], regions: {}, stats: { defended: 0, plundered: 0, built: 0, lands: 0 },
+    log: [], report: null,
+  };
+  const layout = [
+    ['forest', 'forest', 'grass', 'water'],
+    ['grass', 'grass', 'grass', 'water'],
+    ['grass', 'grass', 'fertile', 'fertile'],
+    ['mountain', 'grass', 'fertile', 'grass'],
+  ];
+  layout.forEach((row, dy) => row.forEach((t, dx) => state.tiles.push({ x: 6 + dx, y: 6 + dy, t })));
+  state.buildings.push({ id: state.nextId++, type: 'hall', x: 6, y: 7, rot: 0, level: 1, damaged: false });
+  state.buildings.push({ id: state.nextId++, type: 'house', x: 8, y: 7, rot: 1, level: 1, damaged: false });
+  state.buildings.push({ id: state.nextId++, type: 'farm', x: 7, y: 9, rot: 0, level: 1, damaged: false });
+  state.landOffers = makeLandOffers(state);
+  state.draft = makeDraft(state);
+  log(state, '王城落成。六年内每个冬天都要缴纳年贡。');
+  return state;
+}
+function log(state, text) { state.log.push(text); state.log = state.log.slice(-30); }
+
+// ---------- economy ----------
+/** Population and worker assignment. Older buildings are staffed first; unstaffed ones idle. */
+function staffing(state) {
+  let population = 0;
+  for (const b of state.buildings) {
+    if (b.damaged) continue;
+    const m = LEVEL_MULT[b.level - 1];
+    if (b.type === 'hall') population += 6;
+    if (b.type === 'house') population += Math.floor(4 * m);
+    if (b.type === 'manor') population += Math.floor(6 * m);
+  }
+  let left = population;
+  const idle = new Set();
+  for (const b of [...state.buildings].sort((a, z) => a.id - z.id)) {
+    const need = BUILDINGS[b.type].workers;
+    if (!need || b.damaged) continue;
+    if (left >= need) left -= need; else idle.add(b.id);
+  }
+  return { population, free: left, idle };
+}
+function workers(state) { const s = staffing(state); return { population: s.population, free: s.free, used: s.population - s.free }; }
+function foodCap(state) {
+  return 30 + state.buildings.filter(b => b.type === 'granary' && !b.damaged).reduce((s, b) => s + Math.floor(25 * LEVEL_MULT[b.level - 1]), 0);
+}
+
+/** Next settlement without mutation. Per-building numbers feed the UI floaters and previews. */
+function forecast(state) {
+  const idx = index(state), season = seasonOf(state), { population, idle } = staffing(state);
+  const per = [];
+  let gold = Math.floor(population / 2), food = 0, wood = 0, fame = 0, woodUse = 0;
+  let woodStock = state.wood;
+  // Producers of wood settle before the workshop converts it.
+  const order = [...state.buildings].sort((a, z) => (a.type === 'workshop') - (z.type === 'workshop') || a.id - z.id);
+  for (const b of order) {
+    const out = { id: b.id, gold: 0, food: 0, wood: 0, fame: 0, idle: idle.has(b.id), damaged: b.damaged };
+    per.push(out);
+    if (b.damaged || idle.has(b.id)) continue;
+    const m = LEVEL_MULT[b.level - 1], around = surroundings(state, b, idx);
+    const own = buildingCells(b).map(c => idx.tiles.get(key(c.x, c.y)));
+    const near = t => around.cells.filter(c => c.t === t).length;
+    const nearB = (...types) => around.buildings.filter(o => types.includes(o.type)).length;
+    switch (b.type) {
+      case 'hall': out.gold = 10; out.wood = 2; break;
+      case 'house': out.gold = 1 + nearB('market'); break;
+      case 'farm': {
+        const base = own.reduce((s, t) => s + (t.t === 'fertile' ? 3 : 2), 0) + (near('water') ? 2 : 0);
+        out.food = Math.floor(base * m * FARM_SEASON[season]) + nearB('granary');
+        break;
+      }
+      case 'lumber': out.wood = Math.floor((2 + Math.min(5, near('forest'))) * m); break;
+      case 'fishery': {
+        const water = own.filter(t => t.t === 'water').length + near('water');
+        out.food = Math.floor((2 + Math.min(6, water)) * m) + (season === 1 ? 2 : 0);
+        break;
+      }
+      case 'granary': break;
+      case 'market': {
+        const homes = nearB('house'), others = around.buildings.length - homes;
+        out.gold = Math.floor((2 + 3 * homes + others) * m);
+        break;
+      }
+      case 'workshop': {
+        const available = woodStock + wood;
+        const use = Math.min(Math.floor(3 * m), Math.max(0, available - 6));
+        out.wood = -use; out.gold = use * 2 + (use && nearB('lumber') ? 2 : 0);
+        woodUse += use;
+        break;
+      }
+      case 'mine': {
+        const peaks = own.filter(t => t.t === 'mountain').length;
+        out.gold = Math.floor((4 + 2 * peaks + near('mountain')) * m);
+        break;
+      }
+      case 'temple': out.fame = Math.floor((1 + Math.min(4, nearB('house', 'manor'))) * m); break;
+      case 'manor': out.gold = Math.floor((2 + Math.min(4, near('forest') + near('water'))) * m); break;
+      case 'guild': out.gold = Math.floor((6 + 3 * nearB('market', 'workshop', 'fishery', 'mine')) * m); break;
+      case 'wonder': out.fame = Math.floor(4 * m); break;
+    }
+    gold += out.gold; food += out.food; wood += out.wood; fame += out.fame;
+  }
+  const eat = Math.ceil(population / 2);
+  const famine = state.food + food - eat < 0;
+  if (famine) gold = Math.floor(gold / 2);
+  const foodAfter = Math.min(foodCap(state), Math.max(0, state.food + food - eat));
+  return {
+    gold, food: foodAfter - state.food, produced: food, eat, wood, woodUse, fame: fame - (famine ? 1 : 0),
+    famine, spoiled: Math.max(0, state.food + food - eat - foodCap(state)), population, per,
+    tax: Math.floor(population / 2),
+  };
+}
+
+// ---------- land ----------
+function landCells(state, offerIndex, x, y, rot) {
+  const offer = state.landOffers[offerIndex];
+  return offer ? rotateCells(offer.cells, rot).map(c => ({ ...c, x: c.x + x, y: c.y + y })) : [];
+}
+function canPlaceLand(state, offerIndex, x, y, rot = 0) {
+  if (state.status !== 'playing') return fail('本局已结束。');
+  const offer = state.landOffers[offerIndex];
+  if (!offer) return fail('请选择一块土地。');
+  if (state.landBought) return fail('本季已经买过地。');
+  if (!Number.isInteger(x) || !Number.isInteger(y)) return fail('位置无效。');
+  const cells = landCells(state, offerIndex, x, y, rot);
+  const owned = new Set(state.tiles.map(t => key(t.x, t.y)));
+  if (cells.some(c => !isIsland(state, c.x, c.y))) return fail('不能拼到海里。');
+  if (cells.some(c => owned.has(key(c.x, c.y)))) return fail('和已有领土重叠。');
+  if (!cells.some(c => DIRS.some(([dx, dy]) => owned.has(key(c.x + dx, c.y + dy))))) return fail('要和领土边缘相连。');
+  if (state.gold < offer.cost) return fail(`金币不足，需要${offer.cost}。`);
+  return ok({ cells });
+}
+function largestRegion(state, terrain) {
+  const cells = new Set(state.tiles.filter(t => t.t === terrain).map(t => key(t.x, t.y)));
+  let best = 0;
+  while (cells.size) {
+    const [first] = cells; cells.delete(first);
+    const queue = [first.split(',').map(Number)];
+    let size = 0;
+    while (queue.length) {
+      const [x, y] = queue.pop(); size++;
+      for (const [dx, dy] of DIRS) if (cells.delete(key(x + dx, y + dy))) queue.push([x + dx, y + dy]);
+    }
+    best = Math.max(best, size);
+  }
+  return best;
+}
+function regionProgress(state) {
+  return Object.keys(TERRAIN).map(t => {
+    const size = largestRegion(state, t), step = state.regions[t] || 0, next = REGION_STEPS[step];
+    return { terrain: t, name: REGION[t], size, step, next: next ? next.size : null };
+  });
+}
+function claimRegions(state) {
+  const gained = [];
+  for (const t of Object.keys(TERRAIN)) {
+    const size = largestRegion(state, t);
+    while ((state.regions[t] || 0) < REGION_STEPS.length && size >= REGION_STEPS[state.regions[t] || 0].size) {
+      const step = REGION_STEPS[state.regions[t] || 0];
+      state.regions[t] = (state.regions[t] || 0) + 1;
+      state.fame += step.fame; state.gold += step.gold;
+      gained.push({ terrain: t, name: REGION[t], size: step.size, fame: step.fame, gold: step.gold });
+      log(state, `${REGION[t]}连成${step.size}格：声望+${step.fame}，金+${step.gold}。`);
+    }
+  }
+  return gained;
+}
+function placeLand(state, offerIndex, x, y, rot = 0) {
+  const check = canPlaceLand(state, offerIndex, x, y, rot);
+  if (!check.ok) return check;
+  const offer = state.landOffers[offerIndex];
+  state.gold -= offer.cost;
+  let treasure = 0;
+  for (const c of check.cells) {
+    state.tiles.push({ x: c.x, y: c.y, t: c.t });
+    if (c.treasure) treasure += offer.treasure;
+  }
+  state.gold += treasure;
+  state.landBought = true;
+  state.stats.lands++;
+  log(state, `拼入${offer.name}，领土+${check.cells.length}格${treasure ? `，挖到宝箱金+${treasure}` : ''}。`);
+  return ok({ cost: offer.cost, treasure, regions: claimRegions(state), cells: check.cells });
+}
+function rerollLand(state) {
+  if (state.status !== 'playing') return fail('本局已结束。');
+  if (state.landBought) return fail('本季已经买过地。');
+  const cost = 3 + 3 * state.landRerolls;
+  if (state.gold < cost) return fail(`刷新需要${cost}金。`);
+  state.gold -= cost; state.landRerolls++;
+  state.landOffers = makeLandOffers(state);
+  return ok({ cost });
+}
+const landRerollCost = state => 3 + 3 * state.landRerolls;
+
+// ---------- buildings ----------
+function canBuild(state, type, x, y, rot = 0, { from = 'auto' } = {}) {
+  if (state.status !== 'playing') return fail('本局已结束。');
+  const def = BUILDINGS[type];
+  if (!def || type === 'hall') return fail('未知建筑。');
+  if (!def.basic && !state.hand.includes(type)) return fail('背包里没有这张建筑卡。');
+  if (!Number.isInteger(x) || !Number.isInteger(y)) return fail('位置无效。');
+  const idx = index(state), cells = footprint(type, x, y, rot);
+  const tiles = cells.map(c => idx.tiles.get(key(c.x, c.y)));
+  if (tiles.some(t => !t)) return fail('要建在自己的领土上。');
+  if (cells.some(c => idx.owner.has(key(c.x, c.y)))) return fail('和其它建筑重叠。');
+  const bad = tiles.find(t => !def.terrains.includes(t.t));
+  if (bad) return fail(`${def.name}不能压在${TERRAIN[bad.t].name}上。`);
+  for (const [t, n] of Object.entries(def.need || {})) {
+    if (tiles.filter(tile => tile.t === t).length < n) return fail(`${def.name}至少要占${n}格${TERRAIN[t].name}。`);
+  }
+  if (type === 'fishery' && tiles.every(t => t.t === 'water')) return fail('渔港要有一格靠岸。');
+  if (state.gold < def.gold) return fail(`金币不足，需要${def.gold}。`);
+  if (state.wood < def.wood) return fail(`木材不足，需要${def.wood}。`);
+  if (def.workers > staffing(state).free) return fail(`空闲人口不足，需要${def.workers}人。先建民居。`);
+  return ok({ cells });
+}
+function build(state, type, x, y, rot = 0) {
+  const check = canBuild(state, type, x, y, rot);
+  if (!check.ok) return check;
+  const def = BUILDINGS[type];
+  state.gold -= def.gold; state.wood -= def.wood;
+  if (!def.basic) state.hand.splice(state.hand.indexOf(type), 1);
+  const b = { id: state.nextId++, type, x, y, rot: ((rot % 4) + 4) % 4, level: 1, damaged: false };
+  state.buildings.push(b);
+  state.stats.built++;
+  if (type === 'wonder') state.fame += 10;
+  log(state, `建成${def.name}。`);
+  return ok({ id: b.id, cost: def.gold });
+}
+/** Forecast difference if the building were placed now. Used for the drag preview. */
+function previewBuild(state, type, x, y, rot = 0) {
+  const check = canBuild(state, type, x, y, rot);
+  const before = forecast(state);
+  const temp = clone(state);
+  temp.gold = 1e9; temp.wood = 1e9;
+  if (!BUILDINGS[type].basic && !temp.hand.includes(type)) temp.hand.push(type);
+  const placed = canBuild(temp, type, x, y, rot);
+  if (!placed.ok) return { ...check, delta: null };
+  temp.gold = state.gold; temp.wood = state.wood;
+  temp.buildings.push({ id: temp.nextId++, type, x, y, rot, level: 1, damaged: false });
+  const after = forecast(temp);
+  const guard = GUARD[type] || 0;
+  return {
+    ...check,
+    delta: {
+      gold: after.gold - before.gold, food: after.produced - before.produced, wood: after.wood - before.wood,
+      fame: after.fame - before.fame + (type === 'wonder' ? 10 : 0), pop: after.population - before.population, guard,
+    },
+  };
+}
+function upgradeCost(b) {
+  if (!b || b.type === 'hall' || b.level >= 3) return null;
+  const def = BUILDINGS[b.type];
+  return { gold: Math.max(8, def.gold) * b.level, wood: def.wood + 2 * b.level };
+}
+function upgrade(state, id) {
+  const b = state.buildings.find(o => o.id === id);
+  if (!b) return fail('找不到建筑。');
+  if (b.damaged) return fail('先修复再升级。');
+  const cost = upgradeCost(b);
+  if (!cost) return fail(b.type === 'hall' ? '王城不能升级。' : '已是最高3级。');
+  if (state.gold < cost.gold || state.wood < cost.wood) return fail(`升级需要${cost.gold}金、${cost.wood}木。`);
+  state.gold -= cost.gold; state.wood -= cost.wood; b.level++;
+  log(state, `${BUILDINGS[b.type].name}升到${b.level}级。`);
+  return ok({ cost });
+}
+const repairCost = b => Math.max(5, Math.ceil(BUILDINGS[b.type].gold / 2));
+function repair(state, id) {
+  const b = state.buildings.find(o => o.id === id);
+  if (!b?.damaged) return fail('这座建筑完好。');
+  const cost = repairCost(b);
+  if (state.gold < cost) return fail(`修复需要${cost}金。`);
+  state.gold -= cost; b.damaged = false;
+  log(state, `修复${BUILDINGS[b.type].name}。`);
+  return ok({ cost });
+}
+function demolish(state, id) {
+  const b = state.buildings.find(o => o.id === id);
+  if (!b) return fail('找不到建筑。');
+  if (b.type === 'hall') return fail('王城不可拆除。');
+  const refund = b.damaged ? 0 : Math.floor(BUILDINGS[b.type].gold * 0.4);
+  state.buildings.splice(state.buildings.indexOf(b), 1);
+  state.gold += refund;
+  log(state, `拆除${BUILDINGS[b.type].name}${refund ? `，回收${refund}金` : ''}。`);
+  return ok({ refund });
+}
+
+// ---------- draft & hand ----------
+function takeDraft(state, i) {
+  if (state.status !== 'playing') return fail('本局已结束。');
+  if (state.drafted) return fail('本季已经选过建筑卡。');
+  const type = state.draft[i];
+  if (!type) return fail('请选择一张卡。');
+  if (state.hand.length >= HAND_LIMIT) return fail(`背包最多${HAND_LIMIT}张，先建造或丢弃一张。`);
+  state.hand.push(type); state.drafted = true;
+  return ok({ type });
+}
+function skipDraft(state) { if (state.drafted) return fail('本季已经选过。'); state.drafted = true; return ok(); }
+const draftRerollCost = state => 3 + 3 * state.draftRerolls;
+function rerollDraft(state) {
+  if (state.drafted) return fail('本季已经选过建筑卡。');
+  const cost = draftRerollCost(state);
+  if (state.gold < cost) return fail(`刷新需要${cost}金。`);
+  state.gold -= cost; state.draftRerolls++;
+  state.draft = makeDraft(state);
+  return ok({ cost });
+}
+function discard(state, handIndex) {
+  if (!state.hand[handIndex]) return fail('没有这张卡。');
+  const [type] = state.hand.splice(handIndex, 1);
+  state.gold += 3;
+  return ok({ type, refund: 3 });
+}
+
+// ---------- raids ----------
+function borderCells(state) {
+  const owned = new Set(state.tiles.map(t => key(t.x, t.y)));
+  return state.tiles.filter(t => DIRS.some(([dx, dy]) => !owned.has(key(t.x + dx, t.y + dy))));
+}
+function raidSize(state) { return yearOf(state) < 2 ? 0 : yearOf(state) - 1 + Math.floor(borderCells(state).length / 12); }
+const plunderOf = state => 3 + 2 * yearOf(state);
+/** Each guard building protects cells within its Chebyshev radius of any footprint cell. */
+function guardMap(state, extra = null) {
+  const covered = new Map();
+  const list = extra ? [...state.buildings, extra] : state.buildings;
+  for (const b of list) {
+    let r = GUARD[b.type];
+    if (!r || b.damaged) continue;
+    if (b.type === 'tower' && b.level >= 3) r = 3;
+    for (const c of buildingCells(b)) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+      const k = key(c.x + dx, c.y + dy);
+      if (!covered.has(k)) covered.set(k, []);
+      if (!covered.get(k).includes(b.id)) covered.get(k).push(b.id);
+    }
+  }
+  return covered;
+}
+function markThreats(state) {
+  const n = raidSize(state);
+  const pool = borderCells(state).map(t => ({ x: t.x, y: t.y }));
+  state.threats = [];
+  while (state.threats.length < n && pool.length) state.threats.push(pool.splice(Math.floor(rand(state) * pool.length), 1)[0]);
+  if (state.threats.length) log(state, `斥候来报：蛮族盯上${state.threats.length}处边境，秋末来袭。`);
+}
+function resolveRaid(state) {
+  const covered = guardMap(state), result = [];
+  for (const threat of state.threats) {
+    const k = key(threat.x, threat.y), guards = covered.get(k);
+    if (guards?.length) {
+      const barracks = guards.some(id => state.buildings.find(b => b.id === id)?.type === 'barracks');
+      const fame = 1 + (barracks ? 1 : 0);
+      state.fame += fame; state.stats.defended++;
+      result.push({ ...threat, defended: true, fame });
+      continue;
+    }
+    const loss = Math.min(state.gold, plunderOf(state));
+    state.gold -= loss; state.stats.plundered++;
+    const b = buildingAt(state, threat.x, threat.y);
+    const hit = b && b.type !== 'hall' && !b.damaged ? b : null;
+    if (hit) hit.damaged = true;
+    result.push({ ...threat, defended: false, loss, damaged: hit ? hit.id : null });
+  }
+  const held = result.filter(r => r.defended).length;
+  if (result.length) log(state, `蛮族来袭：守住${held}处，失守${result.length - held}处。`);
+  state.threats = [];
+  return result;
+}
+
+// ---------- season ----------
+function nextTurn(state) {
+  if (state.status !== 'playing') return fail('本局已结束。');
+  const season = seasonOf(state), year = yearOf(state);
+  const f = forecast(state);
+  state.gold += f.gold; state.food += f.food; state.wood += f.wood; state.fame += f.fame;
+  const report = { turn: state.turn, year, season, economy: f, raid: null, tribute: null, threats: 0 };
+  log(state, `${year}年${SEASONS[season].name}结算：金${f.gold >= 0 ? '+' : ''}${f.gold}，粮${f.food >= 0 ? '+' : ''}${f.food}，木${f.wood >= 0 ? '+' : ''}${f.wood}${f.famine ? '。饥荒！税收减半' : ''}。`);
+  if (season === 2 && state.threats.length) report.raid = resolveRaid(state);
+  if (season === 3) {
+    const due = TRIBUTE[year - 1];
+    if (state.gold < due) {
+      report.tribute = { due, paid: false };
+      state.status = 'lost';
+      state.endReason = `第${year}年年贡${due}金交不上，王国陷落。`;
+      log(state, state.endReason);
+      state.report = report;
+      return ok({ report });
+    }
+    state.gold -= due; state.fame += 2;
+    report.tribute = { due, paid: true };
+    log(state, `缴纳第${year}年年贡${due}金，声望+2。`);
+    if (year === YEARS) {
+      state.status = 'won';
+      state.endReason = '六年年贡全部交齐，王国屹立。';
+      log(state, state.endReason);
+      state.report = report;
+      return ok({ report });
+    }
+  }
+  state.turn++;
+  state.landBought = false; state.landRerolls = 0;
+  state.drafted = false; state.draftRerolls = 0;
+  state.landOffers = makeLandOffers(state);
+  state.draft = makeDraft(state);
+  if (seasonOf(state) === 1) { markThreats(state); report.threats = state.threats.length; }
+  state.report = report;
+  return ok({ report });
+}
+
+function score(state) {
+  const buildings = state.buildings.length;
+  const parts = [
+    { label: '声望', value: state.fame * 10 },
+    { label: '金币', value: state.gold },
+    { label: '人口', value: workers(state).population * 2 },
+    { label: '建筑', value: buildings * 5 },
+    { label: '存活', value: state.status === 'won' ? 200 : (yearOf(state) - 1) * 25 },
+  ];
+  const total = parts.reduce((s, p) => s + p.value, 0);
+  const stars = state.status !== 'won' ? 0 : total >= 1100 ? 3 : total >= 750 ? 2 : 1;
+  return { parts, total, stars };
+}
+
+// ---------- save validation ----------
+const isInt = (v, min, max) => Number.isSafeInteger(v) && v >= min && v <= max;
+function validateSave(raw) {
+  let s;
+  try { s = typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return fail('存档不是有效 JSON。'); }
+  if (!s || typeof s !== 'object' || s.version !== 3) return fail('不支持的存档版本。');
+  try {
+    if (!isInt(s.seed, 0, 4294967295) || !isInt(s.turn, 1, YEARS * 4) || !['playing', 'won', 'lost'].includes(s.status)) throw 0;
+    for (const k of ['gold', 'food', 'wood', 'fame', 'nextId', 'landRerolls', 'draftRerolls']) if (!isInt(s[k], 0, 1e9)) throw 0;
+    if (typeof s.landBought !== 'boolean' || typeof s.drafted !== 'boolean' || typeof s.mode !== 'string') throw 0;
+    const owned = new Set();
+    for (const t of s.tiles) {
+      if (!isInt(t.x, 0, W - 1) || !isInt(t.y, 0, H - 1) || !TERRAIN[t.t] || owned.has(key(t.x, t.y)) || !isIsland(s, t.x, t.y)) throw 0;
+      owned.add(key(t.x, t.y));
+    }
+    const used = new Set(), ids = new Set();
+    for (const b of s.buildings) {
+      if (!BUILDINGS[b.type] || !isInt(b.id, 1, s.nextId - 1) || ids.has(b.id) || !isInt(b.rot, 0, 3) || !isInt(b.level, 1, 3) || typeof b.damaged !== 'boolean') throw 0;
+      ids.add(b.id);
+      for (const c of buildingCells(b)) {
+        if (!owned.has(key(c.x, c.y)) || used.has(key(c.x, c.y))) throw 0;
+        used.add(key(c.x, c.y));
+      }
+    }
+    if (s.buildings.filter(b => b.type === 'hall').length !== 1) throw 0;
+    if (!Array.isArray(s.hand) || s.hand.length > HAND_LIMIT || s.hand.some(t => !BUILDINGS[t] || BUILDINGS[t].basic || t === 'hall')) throw 0;
+    if (!Array.isArray(s.draft) || s.draft.some(t => !SPECIAL.includes(t))) throw 0;
+    if (!Array.isArray(s.landOffers) || s.landOffers.length !== 3) throw 0;
+    for (const o of s.landOffers) if (!Array.isArray(o.cells) || o.cells.length < 3 || o.cells.length > 5 || !isInt(o.cost, 0, 999) || o.cells.some(c => !TERRAIN[c.t] || !isInt(c.x, 0, 4) || !isInt(c.y, 0, 4))) throw 0;
+    if (!Array.isArray(s.threats) || s.threats.some(c => !isInt(c.x, 0, W - 1) || !isInt(c.y, 0, H - 1))) throw 0;
+    if (!Array.isArray(s.log) || !s.stats || typeof s.regions !== 'object') throw 0;
+  } catch { return fail('存档数据损坏。'); }
+  return ok({ state: clone(s) });
+}
+
+return { W, H, YEARS, SEASONS_PER_YEAR, HAND_LIMIT, TERRAIN, SEASONS, TRIBUTE, BUILDINGS, BASIC, REGION, yearOf, seasonOf, tributeOf, hashSeed, island, isIsland, rotateCells, footprint, buildingCells, tileAt, buildingAt, adjacentCells, createGame, workers, foodCap, forecast, landCells, canPlaceLand, regionProgress, placeLand, rerollLand, landRerollCost, canBuild, build, previewBuild, upgradeCost, upgrade, repairCost, repair, demolish, takeDraft, skipDraft, draftRerollCost, rerollDraft, discard, borderCells, raidSize, plunderOf, guardMap, nextTurn, score, validateSave };
+})();
+
+const __m_art = (() => {
+
+// 拼土王国 · 纯程序化 Canvas 美术（无外部图片/字体/emoji）。
+// 所有绘制都在 32 单位 = 1 格的设计空间里完成，再按 s/32 缩放；每个导出函数 save/restore，不残留状态。
+// 随机全部由 seed 派生（mix + LCG），同参数结果稳定。
+
+const INK = '#3b3a2c';
+const GOLD = '#e3b65c', GOLD_L = '#f5d98e', GOLD_D = '#b5872f';
+const TAU = Math.PI * 2;
+
+/* ---------------- 随机 ---------------- */
+function toInt(seed) {
+  if (typeof seed === 'number' && Number.isFinite(seed)) return seed | 0;
+  if (typeof seed === 'string') { let h = 7; for (let i = 0; i < seed.length; i++) h = (Math.imul(h, 31) + seed.charCodeAt(i)) | 0; return h; }
+  return 0;
+}
+function mix(n) {
+  n |= 0; n ^= n >>> 16; n = Math.imul(n, 0x85ebca6b); n ^= n >>> 13; n = Math.imul(n, 0xc2b2ae35); n ^= n >>> 16; return n;
+}
+function rng(seed) {
+  let n = mix(toInt(seed) + 0x6d2b79f5);
+  return () => { n = (Math.imul(n, 1664525) + 1013904223) | 0; return (mix(n) >>> 0) / 4294967296; };
+}
+
+/* ---------------- 基础图元 ---------------- */
+function poly(c, pts) {
+  c.beginPath(); c.moveTo(pts[0], pts[1]);
+  for (let i = 2; i < pts.length; i += 2) c.lineTo(pts[i], pts[i + 1]);
+  c.closePath();
+}
+function fp(c, pts, fill, ink = INK, lw = 1) {
+  poly(c, pts); c.fillStyle = fill; c.fill();
+  if (ink) { c.strokeStyle = ink; c.lineWidth = lw; c.stroke(); }
+}
+function ell(c, x, y, rx, ry, fill, ink, lw = 1) {
+  c.beginPath(); c.ellipse(x, y, Math.max(.1, rx), Math.max(.1, ry), 0, 0, TAU);
+  if (fill) { c.fillStyle = fill; c.fill(); }
+  if (ink) { c.strokeStyle = ink; c.lineWidth = lw; c.stroke(); }
+}
+function rect(c, x, y, w, h, fill, ink, lw = 1) {
+  if (fill) { c.fillStyle = fill; c.fillRect(x, y, w, h); }
+  if (ink) { c.strokeStyle = ink; c.lineWidth = lw; c.strokeRect(x, y, w, h); }
+}
+function rr(c, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r);
+  c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath();
+}
+function line(c, x1, y1, x2, y2, color, lw = 1) {
+  c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.strokeStyle = color; c.lineWidth = lw; c.stroke();
+}
+function shadow(c, x, y, rx, ry, a = .26) { ell(c, x, y, rx, ry, `rgba(40,36,18,${a})`); }
+
+/* 3/4 视角山墙小屋：正面五边形 + 右侧墙 + 右坡屋面 */
+function gable(c, x, by, fw, wh, gh, dx, dy, wall, side, roof, roofD, o = {}) {
+  const ov = 1.4, top = by - wh, rx = x + fw / 2, ry = top - gh;
+  shadow(c, x + (fw + dx) / 2 + 1, by + .3, (fw + dx) / 2 + 1.5, 2.4);
+  fp(c, [x + fw, by, x + fw + dx, by + dy, x + fw + dx, top + dy, x + fw, top], side);
+  fp(c, [x, by, x + fw, by, x + fw, top, rx, ry, x, top], wall);
+  fp(c, [rx, ry, rx + dx, ry + dy, x + fw + dx + ov, top + dy + ov * .7, x + fw + ov, top + ov * .7], roof);
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  c.beginPath(); c.moveTo(x - ov, top + ov * .7); c.lineTo(rx, ry); c.lineTo(x + fw + ov, top + ov * .7);
+  c.strokeStyle = INK; c.lineWidth = 3.4; c.stroke(); c.strokeStyle = roofD; c.lineWidth = 1.6; c.stroke();
+  line(c, rx + .6, ry + .3, rx + dx + .4, ry + dy + .3, 'rgba(255,255,255,.35)', .8);
+  if (o.trim) { c.beginPath(); c.moveTo(x - ov + .6, top + ov * .7 - .4); c.lineTo(rx, ry + .6); c.lineTo(x + fw + ov - .6, top + ov * .7 - .4); c.strokeStyle = GOLD; c.lineWidth = .9; c.stroke(); }
+  if (o.door !== false) rect(c, rx - 1.8, by - (o.doorH || 5), 3.6, o.doorH || 5, o.doorC || '#5a3b24', INK, .8);
+  if (o.win !== false) {
+    const wx = x + fw + dx / 2, wy = by + dy / 2 - wh * .55;
+    fp(c, [wx - 1.3, wy - 1.2 + dy * .1, wx + 1.3, wy - 1.2 - dy * .1, wx + 1.3, wy + 1.4 - dy * .1, wx - 1.3, wy + 1.4 + dy * .1], o.winC || '#f7e3a1', INK, .7);
+  }
+  return [rx + dx / 2, ry + dy / 2];
+}
+
+/* 3/4 视角四坡顶大屋 */
+function hip(c, x, by, fw, wh, rh, dx, dy, wall, side, roof, roofS, o = {}) {
+  const ov = 1.4, top = by - wh;
+  shadow(c, x + (fw + dx) / 2 + 1, by + .3, (fw + dx) / 2 + 1.8, 2.6);
+  fp(c, [x + fw, by, x + fw + dx, by + dy, x + fw + dx, top + dy, x + fw, top], side);
+  fp(c, [x, by, x + fw, by, x + fw, top, x, top], wall);
+  const ry = top - rh + dy * .5, ins = Math.min(rh * .9, fw * .3);
+  const rx1 = x + dx * .5 + ins, rx2 = Math.max(rx1 + .5, x + fw + dx * .5 - ins);
+  fp(c, [x + fw + ov, top + ov * .5, x + fw + dx + ov * .6, top + dy + ov * .3, rx2, ry], roofS);
+  fp(c, [x - ov, top + ov * .5, x + fw + ov, top + ov * .5, rx2, ry, rx1, ry], roof);
+  line(c, x - ov + .8, top + ov * .5 - .6, x + fw + ov - .8, top + ov * .5 - .6, 'rgba(255,255,255,.28)', .8);
+  if (o.trim) line(c, rx1, ry + .4, rx2, ry + .4, GOLD, 1.2);
+  return { top, ry, rx1, rx2 };
+}
+
+/* 简单立方体（正面 + 右侧 + 顶面） */
+function box(c, x, by, w, h, dx, dy, front, side, topC) {
+  fp(c, [x + w, by, x + w + dx, by + dy, x + w + dx, by + dy - h, x + w, by - h], side);
+  fp(c, [x, by, x + w, by, x + w, by - h, x, by - h], front);
+  if (dx || dy) fp(c, [x, by - h, x + w, by - h, x + w + dx, by - h + dy, x + dx, by - h + dy], topC);
+}
+
+/* 圆塔：圆柱身 + 雉堞/锥顶 */
+function tower(c, cx, by, w, h, o) {
+  const x = cx - w / 2, ry = w * .24, top = by - h;
+  shadow(c, cx + 1.5, by + .4, w * .65, 2.4);
+  c.beginPath(); c.moveTo(x, top); c.lineTo(x, by); c.ellipse(cx, by, w / 2, ry, 0, Math.PI, 0, true); c.lineTo(x + w, top); c.closePath();
+  c.fillStyle = o.wall; c.fill();
+  c.save(); c.clip(); rect(c, cx + w * .16, top - 2, w, h + ry + 3, o.shade);
+  if (o.bricks) { c.strokeStyle = 'rgba(70,60,45,.28)'; c.lineWidth = .6; for (let yy = by - 3; yy > top + 1; yy -= 3.6) line(c, x, yy, x + w, yy, 'rgba(70,60,45,.25)', .6); }
+  c.restore();
+  c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  if (o.slit) { rect(c, cx - .8, top + h * .3, 1.6, 3.4, '#2e2a22'); if (h > 14) rect(c, cx - .8, top + h * .62, 1.6, 3, '#2e2a22'); }
+  let apex = top;
+  if (o.crenel) {
+    ell(c, cx, top, w / 2, ry, o.topC || o.shade, INK, .8);
+    for (let i = 0; i < 3; i++) { const tx = x + .4 + i * (w - 2.2) / 2; rect(c, tx, top - 2.4, 2.2, 2.6, i === 2 ? o.shade : o.wall, INK, .7); }
+    apex = top - 2.4;
+  }
+  if (o.roof) {
+    const rh = o.roofH, b = top + (o.crenel ? -1 : .5);
+    c.beginPath(); c.moveTo(x - 1.4, b); c.lineTo(cx, b - rh); c.lineTo(x + w + 1.4, b); c.ellipse(cx, b, w / 2 + 1.4, ry * .9, 0, 0, Math.PI, false); c.closePath();
+    c.fillStyle = o.roof; c.fill();
+    c.save(); c.clip(); fp(c, [cx, b - rh, x + w + 2, b, x + w + 2, b + ry + 1, cx + 1, b + ry + 1], o.roofS, null); c.restore();
+    c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+    if (o.gold) line(c, x - .6, b + .3, x + w + .6, b + .3, GOLD, 1.1);
+    apex = b - rh;
+  }
+  return apex;
+}
+
+function flag(c, x, yb, h, color, o = {}) {
+  const yt = yb - h;
+  line(c, x, yb, x, yt - .5, INK, 1);
+  const fw = o.w || 6, fh = o.h || 3.6;
+  if (o.tail) fp(c, [x + .4, yt, x + fw, yt + .3, x + fw - 1.6, yt + fh / 2, x + fw, yt + fh, x + .4, yt + fh], color, INK, .7);
+  else fp(c, [x + .4, yt, x + fw, yt + fh * .45, x + .4, yt + fh], color, INK, .7);
+  if (o.gold) ell(c, x, yt - .9, .9, .9, GOLD, INK, .5);
+}
+
+function puff(c, x, y, r) { ell(c, x, y, r, r * .85, '#ece8df', 'rgba(59,58,44,.55)', .7); ell(c, x - r * .3, y - r * .3, r * .35, r * .28, 'rgba(255,255,255,.8)'); }
+function smoke(c, x, y, t, n = 3, dark = false, sc = 1) {
+  const k = ((t || 0) * .6) % 1;
+  for (let i = 0; i < n; i++) {
+    const f = i + k, r = (1.7 + f * .7) * sc;
+    const px = x + (f * 1.6 + Math.sin(f * 2.1) * .8) * sc, py = y - f * 3.4 * sc;
+    if (dark) ell(c, px, py, r, r * .85, `rgba(92,86,78,${.92 - f * .2})`, `rgba(30,26,20,${.6 - f * .15})`, .7); else puff(c, px, py, r);
+  }
+}
+function sparkle(c, x, y, r, color = '#fffbe6') {
+  fp(c, [x, y - r, x + r * .28, y - r * .28, x + r, y, x + r * .28, y + r * .28, x, y + r, x - r * .28, y + r * .28, x - r, y, x - r * .28, y - r * .28], color, null);
+}
+function bush(c, x, y, r, col = '#5f9446', hi = '#7fb35a') {
+  shadow(c, x + .6, y + r * .6, r * 1.05, r * .45, .22);
+  ell(c, x, y, r, r * .88, col, INK, .8); ell(c, x - r * .3, y - r * .3, r * .45, r * .35, hi);
+}
+function coin(c, x, y, r) {
+  ell(c, x, y, r, r, GOLD, INK, Math.max(.7, r * .14)); ell(c, x, y, r * .66, r * .66, null, GOLD_D, Math.max(.5, r * .1));
+  ell(c, x - r * .3, y - r * .32, r * .26, r * .2, GOLD_L);
+}
+
+/* ---------------- 地形 ---------------- */
+function tileStart(ctx, px, py, s) {
+  ctx.save(); ctx.beginPath(); ctx.rect(px, py, s, s); ctx.clip();
+  ctx.translate(px, py); ctx.scale(s / 32, s / 32); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+}
+function bevel(c, strength = 1) {
+  rect(c, 0, 30.6, 32, 1.4, `rgba(30,40,20,${.16 * strength})`);
+  rect(c, 31.2, 0, .8, 32, `rgba(30,40,20,${.08 * strength})`);
+  rect(c, 0, 0, 32, .7, `rgba(255,255,240,${.18 * strength})`);
+}
+
+function drawSea(ctx, px, py, s, seed = 0, t = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, R = rng(seed);
+  rect(c, 0, 0, 32, 32, '#8bbbc1');
+  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2 + R() * 2, 'rgba(110,165,175,.35)');
+  const sh = (t || 0) * 3;
+  for (let i = 0; i < 2; i++) {
+    const wy = 7 + i * 14 + R() * 6, base = R() * 40, wx = ((base + sh * (i ? .7 : 1)) % 40) - 6;
+    c.beginPath(); c.moveTo(wx, wy); c.quadraticCurveTo(wx + 2.5, wy - 2.2, wx + 5, wy); c.quadraticCurveTo(wx + 7.5, wy - 2.2, wx + 10, wy);
+    c.strokeStyle = 'rgba(225,244,242,.75)'; c.lineWidth = 1.1; c.stroke();
+  }
+  if (R() < .35) sparkle(c, 4 + R() * 24, 4 + R() * 24, 1.3, 'rgba(255,255,255,.7)');
+  ctx.restore();
+}
+
+function drawWild(ctx, px, py, s, seed = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, R = rng(seed ^ 0x51ed);
+  // Unclaimed land: quiet, low-contrast so the owned kingdom reads first.
+  rect(c, 0, 0, 32, 32, '#a3a785');
+  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 6, 3 + R() * 3, R() < .5 ? 'rgba(140,146,110,.45)' : 'rgba(186,186,150,.45)');
+  for (let i = 0; i < 2; i++) {
+    const x = 6 + R() * 20, y = 8 + R() * 18;
+    c.beginPath(); c.moveTo(x - 1.4, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.4, y - 1.4);
+    c.strokeStyle = 'rgba(110,118,84,.5)'; c.lineWidth = .8; c.stroke();
+  }
+  c.strokeStyle = 'rgba(255,253,240,.16)'; c.lineWidth = .6; c.strokeRect(.3, .3, 31.4, 31.4);
+  ctx.restore();
+}
+
+function tree(c, x, y, h, kind, R) {
+  shadow(c, x + 1, y + .3, h * .32, h * .13, .3);
+  rect(c, x - .8, y - h * .3, 1.6, h * .3 + .3, '#7a5233');
+  if (kind === 0) { // 针叶
+    const w = h * .42;
+    fp(c, [x - w, y - h * .26, x, y - h * .72, x + w, y - h * .26], '#29483d');
+    fp(c, [x - w * .78, y - h * .55, x, y - h * 1.02, x + w * .78, y - h * .55], '#365e4c');
+    fp(c, [x, y - h * 1.02, x + w * .78, y - h * .55, x + .2, y - h * .55], '#24402f', null);
+    line(c, x - w * .5, y - h * .62, x - .4, y - h * .9, 'rgba(160,200,150,.45)', .8);
+  } else { // 阔叶
+    const r = h * .36;
+    ell(c, x, y - h * .55, r, r * .95, '#4c7f42', INK, 1);
+    ell(c, x + r * .35, y - h * .45, r * .55, r * .5, '#3e6c37');
+    ell(c, x - r * .32, y - h * .7, r * .45, r * .38, '#6fa45a');
+    if (R() < .3) ell(c, x + r * .2, y - h * .62, .9, .9, '#d9503f');
+  }
+}
+
+function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, R = rng(toInt(seed) * 7 + toInt(terrain).toString().length);
+  switch (terrain) {
+    case 'forest': {
+      rect(c, 0, 0, 32, 32, '#6f9a52');
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(60,100,55,.35)');
+      const n = 3 + (R() < .5 ? 1 : 0), pts = [];
+      const slots = [[8, 13], [22, 11], [14, 22], [26, 25], [7, 27], [18, 30]];
+      const off = Math.floor(R() * 6);
+      for (let i = 0; i < n; i++) { const sl = slots[(off + i * 2) % 6]; pts.push([sl[0] + (R() - .5) * 3, sl[1] + (R() - .5) * 2, 12 + R() * 4, R() < .62 ? 0 : 1]); }
+      pts.sort((a, b) => a[1] - b[1]);
+      for (const p of pts) tree(c, p[0], Math.min(29.5, p[1]), p[2], p[3], R);
+      break;
+    }
+    case 'water': {
+      rect(c, 0, 0, 32, 32, '#5ea6bb');
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 5, 2 + R() * 2, 'rgba(70,140,165,.45)');
+      for (let i = 0; i < 3; i++) {
+        const x = 3 + R() * 20, y = 5 + i * 9 + R() * 4, w = 5 + R() * 5;
+        line(c, x, y, x + w, y, 'rgba(200,236,240,.8)', 1.1);
+        if (R() < .6) line(c, x + 2, y + 2.2, x + w - 1.5, y + 2.2, 'rgba(200,236,240,.4)', .8);
+      }
+      sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.8, 'rgba(255,255,255,.95)');
+      if (R() < .5) sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.2, 'rgba(255,255,255,.8)');
+      break;
+    }
+    case 'mountain': {
+      rect(c, 0, 0, 32, 32, '#a9a389');
+      for (let i = 0; i < 5; i++) ell(c, R() * 32, R() * 32, 1 + R() * 1.4, .8 + R(), 'rgba(110,104,88,.45)');
+      const big = R() < .5;
+      const draw = (cx, by, w, h, snow) => {
+        shadow(c, cx + 2, by, w * .62, 2.2, .28);
+        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by], '#8a8678');
+        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx - w * .02, by], '#bdb8a8', null);
+        fp(c, [cx - w * .06, by - h, cx + w * .12, by - h * .55, cx + w * .02, by - h * .42], '#6f6c62', null);
+        poly(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+        if (snow) fp(c, [cx - w * .2, by - h * .62, cx - w * .06, by - h, cx + w * .13, by - h * .6, cx + .5, by - h * .68, cx - w * .08, by - h * .56], '#f6f3ea', INK, .7);
+      };
+      if (big) { draw(9 + R() * 2, 25, 13, 12, false); draw(19, 28, 21, 22, true); }
+      else { draw(14, 27, 20, 20, true); draw(25, 29, 11, 10, false); }
+      ell(c, 5 + R() * 4, 29, 1.6, 1.1, '#9a9585', INK, .6);
+      break;
+    }
+    case 'fertile': {
+      rect(c, 0, 0, 32, 32, '#8c6d44');
+      const ph = R() * 5;
+      for (let y = 2 + ph % 5; y < 32; y += 5) {
+        rect(c, 0, y, 32, 2.2, '#6a4f30');
+        rect(c, 0, y - 1, 32, .9, 'rgba(180,145,100,.55)');
+      }
+      for (let i = 0; i < 7; i++) {
+        const x = 2 + R() * 28, y = 3 + Math.floor(R() * 6) * 5 + ph % 5 - 1.5;
+        c.beginPath(); c.moveTo(x, y + 1); c.lineTo(x - 1.2, y - .8); c.moveTo(x, y + 1); c.lineTo(x + 1.3, y - .9);
+        c.strokeStyle = '#8fc35a'; c.lineWidth = 1; c.stroke();
+      }
+      break;
+    }
+    case 'grass':
+    default: {
+      rect(c, 0, 0, 32, 32, '#82ad61');
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2.5 + R() * 2.5, R() < .5 ? 'rgba(150,195,110,.4)' : 'rgba(105,150,80,.35)');
+      for (let i = 0; i < 6; i++) {
+        const x = 2 + R() * 28, y = 3 + R() * 26;
+        c.beginPath(); c.moveTo(x - 1.2, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.3, y - 1.5);
+        c.strokeStyle = '#668f4b'; c.lineWidth = .9; c.stroke();
+      }
+      if (R() < .45) { const x = 4 + R() * 24, y = 4 + R() * 24, col = R() < .5 ? '#f6f1dc' : '#f2cf5a'; ell(c, x, y, 1, 1, col); ell(c, x + 2.2, y + 1.4, .8, .8, col); }
+    }
+  }
+  bevel(c, 1);
+  ctx.restore();
+}
+
+/* ---------------- 建筑 ---------------- */
+const BUILDING_SHAPES = {
+  hall: [[0, 0], [1, 0], [0, 1], [1, 1]], house: [[0, 0], [1, 0]], farm: [[0, 0], [1, 0], [2, 0]],
+  lumber: [[0, 0], [1, 0]], tower: [[0, 0]], fishery: [[0, 0], [1, 0]], granary: [[0, 0]],
+  market: [[0, 0], [1, 0], [0, 1]], workshop: [[0, 0], [1, 0], [1, 1]], mine: [[0, 0], [1, 0], [0, 1], [1, 1]],
+  temple: [[1, 0], [0, 1], [1, 1], [2, 1]], barracks: [[0, 0], [1, 0], [2, 0], [1, 1]],
+  manor: [[1, 0], [2, 0], [0, 1], [1, 1]], guild: [[0, 0], [1, 0], [0, 1], [1, 1], [0, 2]],
+  wonder: [[1, 0], [0, 1], [1, 1], [2, 1], [1, 2]],
+};
+/** 默认形状按 (x,y)->(-y,x) 旋转 rot 次并平移到非负坐标。 */
+function rotateShape(cells, rot = 0) {
+  let out = cells.map(p => Array.isArray(p) ? { x: p[0], y: p[1] } : { x: p.x, y: p.y });
+  for (let i = 0; i < (((rot | 0) % 4) + 4) % 4; i++) out = out.map(p => ({ x: -p.y, y: p.x }));
+  const mx = Math.min(...out.map(p => p.x)), my = Math.min(...out.map(p => p.y));
+  return out.map(p => ({ x: p.x - mx, y: p.y - my }));
+}
+
+// [顶面, 侧面]
+const GROUND = {
+  stone: ['#d9cfb6', '#a3967a'], marble: ['#ece7dc', '#b4ad9d'], wood: ['#c69460', '#8a6038'],
+  dirt: ['#c9a774', '#94744a'], yard: ['#dccb9f', '#a8956a'], gravel: ['#b1a998', '#827a6a'],
+  field: ['#b98838', '#85602a'], garden: ['#9cc46a', '#6a9044'], harbor: ['#6db3c3', '#47899a'],
+  lilac: ['#e0d6ec', '#a596c0'], grey: ['#bdbab2', '#8a877e'],
+};
+const TYPE_GROUND = {
+  hall: 'stone', house: 'yard', farm: 'field', lumber: 'dirt', tower: 'stone', fishery: 'harbor', granary: 'yard',
+  market: 'stone', workshop: 'gravel', mine: 'gravel', temple: 'marble', barracks: 'dirt', manor: 'garden',
+  guild: 'stone', wonder: 'lilac',
+};
+
+function cellInfo(cells) {
+  const list = [];
+  for (const p of cells || []) {
+    const x = Array.isArray(p) ? p[0] : p && p.x, y = Array.isArray(p) ? p[1] : p && p.y;
+    if (Number.isFinite(x) && Number.isFinite(y)) list.push({ x: x | 0, y: y | 0 });
+  }
+  if (!list.length) list.push({ x: 0, y: 0 });
+  const set = new Set(list.map(p => p.x + ',' + p.y));
+  const has = (x, y) => set.has(x + ',' + y);
+  list.sort((a, b) => a.y - b.y || a.x - b.x);
+  for (const p of list) p.d = (has(p.x + 1, p.y) ? 1 : 0) + (has(p.x - 1, p.y) ? 1 : 0) + (has(p.x, p.y + 1) ? 1 : 0) + (has(p.x, p.y - 1) ? 1 : 0);
+  let sq = null;
+  for (const p of list) if (has(p.x + 1, p.y) && has(p.x, p.y + 1) && has(p.x + 1, p.y + 1)) { sq = p; break; }
+  const bw = Math.max(...list.map(p => p.x)) + 1, bh = Math.max(...list.map(p => p.y)) + 1;
+  let main = list[0]; for (const p of list) if (p.d > main.d) main = p;
+  return { cells: list, set, has, sq, bw, bh, main };
+}
+
+function footPath(c, I, l, t, r, b) {
+  c.beginPath();
+  for (const { x, y } of I.cells) {
+    const X = x * 32, Y = y * 32;
+    c.rect(X + l, Y + t, 32 - l - r, 32 - t - b);
+    const R = I.has(x + 1, y), D = I.has(x, y + 1);
+    if (R) c.rect(X + 32 - r - .01, Y + t, r + l + .02, 32 - t - b);
+    if (D) c.rect(X + l, Y + 32 - b - .01, 32 - l - r, b + t + .02);
+    if (R && D && I.has(x + 1, y + 1)) c.rect(X + 32 - r - .01, Y + 32 - b - .01, r + l + .02, b + t + .02);
+  }
+}
+const TOP = [3.2, 3.2, 3.2, 5.6];
+function clipTop(c, I) { footPath(c, I, TOP[0], TOP[1], TOP[2], TOP[3]); c.clip(); }
+
+function groundTex(c, I, g, R) {
+  const [top] = GROUND[g];
+  for (const { x, y } of I.cells) {
+    const X = x * 32, Y = y * 32;
+    if (g === 'stone' || g === 'marble' || g === 'lilac' || g === 'grey') {
+      const jc = g === 'marble' ? 'rgba(120,130,150,.28)' : g === 'lilac' ? 'rgba(181,135,47,.5)' : 'rgba(110,95,70,.32)';
+      for (let r = 0; r < 4; r++) {
+        const yy = Y + 3 + r * 7.5; line(c, X, yy, X + 32, yy, jc, .7);
+        const o = (r % 2) * 5;
+        for (let xx = X + o + 2; xx < X + 32; xx += 10) line(c, xx, yy, xx, yy + 7.5, jc, .7);
+      }
+      if (g !== 'lilac') for (let i = 0; i < 3; i++) rect(c, X + 3 + Math.floor(R() * 3) * 10, Y + 3.4 + Math.floor(R() * 3) * 7.5, 9, 6.8, 'rgba(255,255,255,.18)');
+    } else if (g === 'wood') {
+      for (let yy = Y + 4; yy < Y + 32; yy += 4.5) line(c, X, yy, X + 32, yy, 'rgba(90,60,30,.45)', .7);
+    } else if (g === 'dirt' || g === 'yard' || g === 'gravel') {
+      const dc = g === 'gravel' ? 'rgba(90,82,70,.4)' : 'rgba(120,90,50,.32)';
+      for (let i = 0; i < 9; i++) ell(c, X + 3 + R() * 26, Y + 3 + R() * 24, .9 + R() * .7, .6 + R() * .5, dc);
+      if (g === 'gravel') for (let i = 0; i < 5; i++) ell(c, X + 3 + R() * 26, Y + 3 + R() * 24, .8, .6, 'rgba(255,255,255,.35)');
+    } else if (g === 'garden') {
+      for (let i = 0; i < 6; i++) { const xx = X + 3 + R() * 26, yy = Y + 4 + R() * 22; c.beginPath(); c.moveTo(xx - 1, yy - 1.2); c.lineTo(xx, yy); c.lineTo(xx + 1.1, yy - 1.3); c.strokeStyle = '#6e9a4c'; c.lineWidth = .8; c.stroke(); }
+    } else if (g === 'harbor') {
+      for (let i = 0; i < 3; i++) { const xx = X + 3 + R() * 20, yy = Y + 6 + i * 8 + R() * 3; line(c, xx, yy, xx + 4 + R() * 4, yy, 'rgba(210,240,244,.7)', .9); }
+    }
+  }
+  void top;
+}
+
+function drawFoot(c, I, g, lvl, R) {
+  const [top, side] = GROUND[g] || GROUND.grey;
+  c.fillStyle = 'rgba(25,30,15,.22)'; footPath(c, I, 1.6, 4, 1.2, .2); c.fill();
+  c.fillStyle = INK; footPath(c, I, 1.8, 1.8, 1.8, 1.3); c.fill();
+  if (lvl >= 3) { c.fillStyle = GOLD; footPath(c, I, 2.5, 2.5, 2.5, 2); c.fill(); }
+  c.fillStyle = side; footPath(c, I, TOP[0], TOP[1], TOP[2], 2.4); c.fill();
+  c.fillStyle = top; footPath(c, I, TOP[0], TOP[1], TOP[2], TOP[3]); c.fill();
+  c.save(); clipTop(c, I); groundTex(c, I, g, R);
+  c.restore();
+}
+
+const XY = p => [p.x * 32, p.y * 32];
+// 一组按 y 排序的绘制项
+function painter() {
+  const items = [];
+  return { add(y, f) { items.push([y, f]); }, run() { items.sort((a, b) => a[0] - b[0]); for (const it of items) it[1](); } };
+}
+// T 形：中心格的对边臂 / 单独臂
+function tArms(I, C) {
+  const arms = I.cells.filter(p => p !== C && Math.abs(p.x - C.x) + Math.abs(p.y - C.y) === 1);
+  const paired = [], single = [];
+  for (const a of arms) (arms.some(b => b !== a && b.x - C.x === C.x - a.x && b.y - C.y === C.y - a.y) ? paired : single).push(a);
+  return { arms, paired, single };
+}
+
+/* --- 王城 --- */
+function castle(c, lvl, t) {
+  const st = '#d6cfbf', stS = '#a59d8d', stT = '#e8e2d4', navy = lvl >= 3 ? '#2f4f95' : '#3d5a9c', navyS = '#2a3f73';
+  const hh = (lvl - 1) * 3, gold = lvl >= 3;
+  const tw = { wall: st, shade: stS, roof: navy, roofS: navyS, roofH: 11, crenel: false, slit: true, bricks: true, gold };
+  // 后墙
+  rect(c, 13, 14, 38, 12, stS, INK, 1);
+  for (let x = 15; x < 50; x += 5) rect(c, x, 11.6, 2.6, 2.6, stS, INK, .7);
+  let a = tower(c, 13, 27, 11, 15 + hh, tw); if (lvl >= 2) flag(c, 13, a, 5, '#c8352b', { w: 4.5, h: 3 });
+  a = tower(c, 51, 27, 11, 15 + hh, tw); if (lvl >= 2) flag(c, 51, a, 5, '#c8352b', { w: 4.5, h: 3 });
+  // 主楼
+  const T = 45 - 22 - hh;
+  shadow(c, 34, 45, 14, 2.5);
+  box(c, 21, 45, 20, 22 + hh, 4, -3, st, stS, stT);
+  for (let yy = 41; yy > T + 2; yy -= 4) line(c, 21.5, yy, 40.5, yy, 'rgba(70,60,45,.22)', .6);
+  c.beginPath(); c.moveTo(29.3, T + 13); c.lineTo(29.3, T + 9); c.arc(31, T + 9, 1.7, Math.PI, 0); c.lineTo(32.7, T + 13); c.closePath(); c.fillStyle = gold ? '#f7d77a' : '#2e2a22'; c.fill();
+  fp(c, [45, T - 3, 33, T - 14, 42.5, T + 1], navyS);
+  fp(c, [19.5, T + 1, 42.5, T + 1, 33, T - 14], navy);
+  line(c, 21, T + .2, 41.5, T + .2, 'rgba(255,255,255,.3)', .8);
+  if (gold) { line(c, 19.8, T + 1.2, 42.3, T + 1.2, GOLD, 1.1); ell(c, 33, T - 14.5, 1.3, 1.3, GOLD, INK, .6); }
+  flag(c, 33, T - 14, 8, gold ? GOLD : '#c8352b', { w: 7.5, h: 4.4, tail: true, gold });
+  // 前墙 + 城门
+  rect(c, 12, 47, 40, 10, st, INK, 1);
+  rect(c, 12, 47, 40, 1.6, stT);
+  for (let x = 13; x < 51; x += 5) rect(c, x, 44.4, 2.8, 2.8, st, INK, .7);
+  c.beginPath(); c.moveTo(27.5, 57); c.lineTo(27.5, 52); c.arc(32, 52, 4.5, Math.PI, 0); c.lineTo(36.5, 57); c.closePath();
+  c.fillStyle = '#3a2c20'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  for (let x = 29; x < 36; x += 2) line(c, x, 49, x, 57, gold ? GOLD : '#7a6a58', .6);
+  if (lvl >= 2) for (const bx of [19, 42]) { fp(c, [bx - 2.2, 47.5, bx + 2.2, 47.5, bx + 2.2, 54, bx, 52.6, bx - 2.2, 54], '#c8352b', INK, .7); if (gold) rect(c, bx - 2.2, 47.5, 4.4, 1.2, GOLD); }
+  // 前塔
+  const ft = { ...tw, roofH: 12 };
+  tower(c, 12, 58, 12, 17 + hh, ft); tower(c, 52, 58, 12, 17 + hh, ft);
+  return [33, T - 12];
+}
+function hall(c, I, lvl, t) {
+  if (I.sq) { const [X, Y] = XY(I.sq); c.save(); c.translate(X, Y); const a = castle(c, lvl, t); c.restore(); return [X + a[0], Y + a[1]]; }
+  const [X, Y] = XY(I.main); c.save(); c.translate(X, Y + 2); c.scale(.5, .46); const a = castle(c, lvl, t); c.restore(); return [X + a[0] / 2, Y + 2 + a[1] * .46];
+}
+
+/* --- 民居 --- */
+const HOUSE_ROOF = [['#d4593b', '#9e3d28'], ['#e8893a', '#ad5f22'], ['#c9483f', '#8f2f29']];
+function house(c, I, lvl) {
+  let anchor = null;
+  I.cells.forEach((p, i) => {
+    const [X, Y] = XY(p), [roof, roofD] = HOUSE_ROOF[(i + p.x + p.y) % 3];
+    const wh = lvl >= 2 ? 12.5 : 9.5;
+    if (lvl >= 3 && i === 0) bush(c, X + 7, Y + 12, 2.6);
+    const a = gable(c, X + 4.2, Y + 25.5, 16, wh, 8.5, 7.5, -5, '#f4e6c6', '#d6c19a', roof, roofD, { trim: lvl >= 3 });
+    if (lvl >= 2) { rect(c, X + 22.5, Y + 25 - wh - 10, 2.8, 5, '#9a5a3a', INK, .7); rect(c, X + 10.6, Y + 25.5 - wh + 1.6, 2.8, 2.6, '#f7e3a1', INK, .6); }
+    bush(c, X + 4.8, Y + 25.4, 1.9);
+    if (lvl >= 3) { ell(c, X + 9, Y + 24.6, .8, .8, '#e86d8f'); ell(c, X + 16.6, Y + 24.6, .8, .8, '#f0d14a'); }
+    if (!anchor) anchor = a;
+  });
+  return anchor;
+}
+
+/* --- 农田 --- */
+function farm(c, I, lvl) {
+  const horiz = I.bw >= I.bh;
+  c.save(); clipTop(c, I);
+  const W = I.bw * 32, H = I.bh * 32;
+  if (horiz) for (let y = 0; y < H; y += 32) for (let r = 0; r < 4; r++) {
+    const yy = y + 5.6 + r * 5.3; rect(c, 0, yy, W, 3.4, '#e3b65c'); rect(c, 0, yy, W, 1, '#f5d88c');
+    for (let x = 1 + r % 2 * 1.5; x < W; x += 3) line(c, x, yy + 1.2, x + .6, yy + 3, '#c08a2e', .55);
+  } else for (let x = 0; x < W; x += 32) for (let r = 0; r < 4; r++) {
+    const xx = x + 6 + r * 5.3; rect(c, xx, 0, 3.4, H, '#e3b65c'); rect(c, xx, 0, 1, H, '#f5d88c');
+    for (let y = 1 + r % 2 * 1.5; y < H; y += 3) line(c, xx + 1.2, y, xx + 3, y + .6, '#c08a2e', .55);
+  }
+  c.restore();
+  const cs = I.cells, last = cs[cs.length - 1], first = cs[0], mid = cs[Math.floor(cs.length / 2)];
+  const P = painter();
+  if (cs.length >= 2) {
+    P.add(first.y, () => {
+      const [X, Y] = XY(first);
+      if (lvl >= 3) { // 风车
+        fp(c, [X + 11, Y + 25, X + 21, Y + 25, X + 19, Y + 11, X + 13, Y + 11], '#efe2c4');
+        fp(c, [X + 16, Y + 25, X + 21, Y + 25, X + 19, Y + 11, X + 16, Y + 11], '#cdbd98', null);
+        poly(c, [X + 11, Y + 25, X + 21, Y + 25, X + 19, Y + 11, X + 13, Y + 11]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+        fp(c, [X + 12, Y + 11.5, X + 16, Y + 6.5, X + 20, Y + 11.5], '#c8473a');
+        rect(c, X + 14.8, Y + 20.5, 2.4, 4.5, '#5a3b24', INK, .6);
+        const cx = X + 16, cy = Y + 10;
+        for (let k = 0; k < 4; k++) {
+          const an = Math.PI / 4 + k * Math.PI / 2, ex = cx + Math.cos(an) * 9, ey = cy + Math.sin(an) * 9;
+          line(c, cx, cy, ex, ey, INK, 1.4); line(c, cx, cy, ex, ey, GOLD, .7);
+        }
+        ell(c, cx, cy, 1.4, 1.4, GOLD, INK, .6);
+      } else if (lvl >= 2) {
+        shadow(c, X + 17, Y + 24.5, 7, 2);
+        c.beginPath(); c.moveTo(X + 9, Y + 24.5); c.quadraticCurveTo(X + 10, Y + 14, X + 16, Y + 14); c.quadraticCurveTo(X + 22, Y + 14, X + 23, Y + 24.5); c.closePath();
+        c.fillStyle = '#e8c068'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+        line(c, X + 11, Y + 20, X + 21, Y + 20, '#b98a3a', .7); line(c, X + 12.5, Y + 17, X + 19.5, Y + 17, '#b98a3a', .7);
+      }
+    });
+  }
+  if (cs.length >= 3) P.add(mid.y, () => {
+    const [X, Y] = XY(mid);
+    shadow(c, X + 16.5, Y + 24.5, 3, 1.2);
+    line(c, X + 16, Y + 25, X + 16, Y + 11, '#6b4426', 1.4);
+    line(c, X + 10.5, Y + 15.5, X + 21.5, Y + 15.5, '#6b4426', 1.2);
+    fp(c, [X + 13.4, Y + 14.5, X + 18.6, Y + 14.5, X + 18, Y + 20, X + 14, Y + 20], '#4f7fb8', INK, .7);
+    ell(c, X + 16, Y + 12, 2.2, 2.2, '#f1d48a', INK, .7);
+    fp(c, [X + 12.6, Y + 11, X + 19.4, Y + 11, X + 16, Y + 7.6], '#9a6a3a', INK, .7);
+  });
+  let anchor;
+  P.add(last.y + .1, () => {
+    const [X, Y] = XY(last);
+    anchor = gable(c, X + 8, Y + 25, 12, 8.5, 6, 6, -4, '#c14b38', '#97372a', '#5e4636', '#3e2c22', { doorC: '#f3e6c8', doorH: 5.4, win: false, trim: lvl >= 3 });
+    line(c, X + 12.4, Y + 19.8, X + 15.6, Y + 25, '#c14b38', .7); line(c, X + 15.6, Y + 19.8, X + 12.4, Y + 25, '#c14b38', .7);
+  });
+  P.run();
+  return anchor;
+}
+
+/* --- 伐木场 --- */
+function logPile(c, X, Y, rows) {
+  const L = 6, r = 3.1;
+  shadow(c, X + 17, Y + 25, 11, 2.2);
+  const lay = [[9, 22.5], [15.5, 22.5], [22, 22.5], [12.2, 17], [18.7, 17], [15.5, 11.5]];
+  for (let i = 0; i < Math.min(rows, lay.length); i++) {
+    const [lx, ly] = lay[i], x = X + lx, y = Y + ly;
+    fp(c, [x, y - r, x + L * .6, y - r - 1.6, x + L * .6, y + r - 1.6, x, y + r], '#7d4f2c');
+    ell(c, x, y, r * .78, r, '#e8cb93', INK, .8); ell(c, x, y, r * .38, r * .5, null, '#b98a50', .6);
+  }
+}
+function lumber(c, I, lvl) {
+  const cs = I.cells, A = cs[0], B = cs[cs.length - 1];
+  const P = painter(); let anchor;
+  P.add(A.y, () => {
+    const [X, Y] = XY(A);
+    anchor = gable(c, X + 4.5, Y + 25, 15, 9.5, 6, 7, -5, '#a8743f', '#82582f', '#6b4428', '#4b2f1b', { door: false, winC: '#d9b07a', trim: lvl >= 3 });
+    rect(c, X + 7, Y + 18, 10, 7, '#3f2a1a', INK, .8);
+    for (let x = X + 7.5; x < X + 17; x += 2.2) line(c, x, Y + 15.2, x, Y + 17.6, 'rgba(60,35,15,.5)', .5);
+    rect(c, X + 8.5, Y + 21.5, 7, 2, '#e8cb93');
+    // 圆锯
+    const sx = X + 25.2, sy = Y + 21.6, R0 = 3.6;
+    c.beginPath(); for (let k = 0; k < 20; k++) { const an = k / 20 * TAU, rr0 = k % 2 ? R0 : R0 + 1; c.lineTo(sx + Math.cos(an) * rr0, sy + Math.sin(an) * rr0); } c.closePath();
+    c.fillStyle = lvl >= 3 ? GOLD : '#d5d9dc'; c.fill(); c.strokeStyle = INK; c.lineWidth = .7; c.stroke();
+    ell(c, sx, sy, 1, 1, '#6b6f73');
+  });
+  if (B !== A) P.add(B.y + .1, () => {
+    const [X, Y] = XY(B);
+    logPile(c, X, Y, lvl >= 2 ? 6 : 5);
+    if (lvl >= 3) { ell(c, X + 26, Y + 25, 2.6, 1.3, '#9a6a3a', INK, .6); line(c, X + 26, Y + 25, X + 28, Y + 19.5, '#6b4426', 1); fp(c, [X + 27, Y + 19, X + 29.6, Y + 18, X + 29.6, Y + 21.2], GOLD, INK, .6); }
+  });
+  P.run();
+  return anchor;
+}
+
+/* --- 哨塔 --- */
+function towerB(c, I, lvl) {
+  const [X, Y] = XY(I.main);
+  const h = 19 + 3 * (lvl - 1);
+  if (lvl >= 2) { rect(c, X + 23.5, Y + 20, 4.8, 5.5, '#a07a4c', INK, .7); line(c, X + 23.5, Y + 22.7, X + 28.3, Y + 22.7, '#6b4426', .6); }
+  const apex = tower(c, X + 15, Y + 26.5, 16.5, h, { wall: '#c3beb2', shade: '#958f84', topC: '#a39d92', roof: '#4b5868', roofS: '#35404d', roofH: 8, crenel: true, slit: true, bricks: true, gold: lvl >= 3 });
+  flag(c, X + 15, apex, 7.5, lvl >= 3 ? GOLD : '#c8352b', { w: 6.5, h: 3.8, tail: lvl >= 2, gold: lvl >= 3 });
+  if (lvl >= 3) ell(c, X + 15, Y + 26.5 - h * .45, 1.4, 1.4, GOLD, INK, .5);
+  return [X + 15, apex - 2];
+}
+
+/* --- 渔港 --- */
+function fishery(c, I, lvl) {
+  const horiz = I.bw >= I.bh, cs = I.cells, A = cs[0], B = cs[cs.length - 1];
+  c.save(); clipTop(c, I);
+  const W = I.bw * 32, H = I.bh * 32;
+  if (horiz) {
+    for (let y = 0; y < H; y += 32) {
+      rect(c, 0, y + 5, W, 10.5, '#c79a63');
+      for (let x = 1.5; x < W; x += 3.2) line(c, x, y + 5, x, y + 15.5, 'rgba(90,58,28,.55)', .6);
+      rect(c, 0, y + 15.5, W, 1.4, '#7d5631');
+      for (let x = 4; x < W; x += 8) rect(c, x, y + 16.5, 1.4, 3, '#5d4026');
+    }
+  } else {
+    for (let x = 0; x < W; x += 32) {
+      rect(c, x + 3, 0, 11.5, H, '#c79a63');
+      for (let y = 1.5; y < H; y += 3.2) line(c, x + 3, y, x + 14.5, y, 'rgba(90,58,28,.55)', .6);
+      rect(c, x + 14.5, 0, 1.4, H, '#7d5631');
+      for (let y = 4; y < H; y += 8) rect(c, x + 15.5, y, 2.6, 1.3, '#5d4026');
+    }
+  }
+  c.restore();
+  const P = painter(); let anchor;
+  P.add(A.y, () => {
+    const [X, Y] = XY(A);
+    const hx = horiz ? X + 6 : X + 3.5, hb = horiz ? Y + 16 : Y + 22;
+    anchor = gable(c, hx, hb, 12, 7.5, 5.5, 5, -4, '#e2d3b2', '#bfae8a', '#5f8f97', '#3f6a72', { trim: lvl >= 3 });
+    if (lvl >= 2) { // 渔网架
+      const nx = horiz ? X + 24 : X + 23, ny = horiz ? Y + 25 : Y + 13;
+      if (horiz) { line(c, X + 22, Y + 14.5, X + 22, Y + 8, INK, .9); line(c, X + 29, Y + 14.5, X + 29, Y + 8, INK, .9); c.strokeStyle = 'rgba(59,58,44,.6)'; c.lineWidth = .5; c.beginPath(); for (let k = 0; k < 4; k++) { c.moveTo(X + 22, Y + 9 + k * 1.6); c.lineTo(X + 29, Y + 9 + k * 1.6); c.moveTo(X + 23.5 + k * 1.6, Y + 8.5); c.lineTo(X + 23.5 + k * 1.6, Y + 14); } c.stroke(); }
+      else { ell(c, nx, ny + 12, 2.4, 1.4, '#c8a978', INK, .6); }
+    }
+  });
+  P.add(B.y + .1, () => {
+    const [X, Y] = XY(B);
+    // 鱼篓
+    const kx = horiz ? (B === A ? X + 24 : X + 8) : X + 9, ky = horiz ? Y + 14 : (B === A ? Y + 27 : Y + 16);
+    shadow(c, kx + .5, ky + .4, 3.6, 1.2);
+    fp(c, [kx - 3, ky - 4.5, kx + 3, ky - 4.5, kx + 2.4, ky, kx - 2.4, ky], '#b98a50');
+    line(c, kx - 2.7, ky - 2.6, kx + 2.7, ky - 2.6, '#7d5631', .6);
+    fp(c, [kx - 2, ky - 4.6, kx - .5, ky - 8, kx + .6, ky - 4.6], '#c9d6dc', INK, .6);
+    fp(c, [kx + .2, ky - 4.6, kx + 2, ky - 7.4, kx + 2.6, ky - 4.6], '#aebfc7', INK, .6);
+    // 小船
+    const bx = horiz ? X + 16 : X + 22.5, by = horiz ? Y + 23 : Y + 26;
+    const bw = horiz ? 9 : 6.2;
+    fp(c, [bx - bw, by - 2.6, bx + bw, by - 2.6, bx + bw - 2.6, by + 1.6, bx - bw + 2.4, by + 1.6], '#9a5f35');
+    line(c, bx - bw + .8, by - 1.6, bx + bw - .8, by - 1.6, '#c9874c', .8);
+    line(c, bx, by - 2.6, bx, by - 13, INK, .9);
+    fp(c, [bx + .5, by - 12.5, bx + .5, by - 3.6, bx + bw * .85, by - 4.2], '#f7f2e6', INK, .7);
+    if (lvl >= 3) line(c, bx + 1, by - 7, bx + bw * .5, by - 6.2, GOLD, 1);
+    if (lvl >= 2) flag(c, bx, by - 13, 0, '#c8352b', { w: 3.5, h: 2 });
+    line(c, bx - bw + 1, by + 2.7, bx + bw - 2, by + 2.7, 'rgba(220,245,248,.7)', .8);
+  });
+  P.run();
+  return anchor;
+}
+
+/* --- 粮仓 --- */
+function silo(c, cx, by, w, h, lvl) {
+  return tower(c, cx, by, w, h, { wall: '#efdcaa', shade: '#cdb582', roof: '#c8692f', roofS: '#9c4d22', roofH: 8, bricks: true, gold: lvl >= 3 });
+}
+function granary(c, I, lvl) {
+  const [X, Y] = XY(I.main);
+  if (lvl >= 2) silo(c, X + 23.5, Y + 20, 10, 10, lvl);
+  const ap = silo(c, X + 13.5, Y + 26.5, 17.5, 14 + (lvl >= 2 ? 3 : 0), lvl);
+  rect(c, X + 11.8, Y + 21, 3.4, 5.5, '#6b4426', INK, .6);
+  if (lvl >= 3) { line(c, X + 13.5, ap, X + 13.5, ap - 3.5, INK, .8); ell(c, X + 13.5, ap - 3.8, 1.3, 1.3, GOLD, INK, .5); }
+  // 麦垛
+  const hx = X + 25, hy = Y + 26.5;
+  shadow(c, hx + .5, hy, 4.5, 1.4);
+  c.beginPath(); c.moveTo(hx - 4.5, hy); c.quadraticCurveTo(hx - 4, hy - 7, hx, hy - 7); c.quadraticCurveTo(hx + 4, hy - 7, hx + 4.5, hy); c.closePath();
+  c.fillStyle = '#e8c068'; c.fill(); c.strokeStyle = INK; c.lineWidth = .9; c.stroke();
+  line(c, hx - 3, hy - 3, hx + 3, hy - 3, '#b98a3a', .6);
+  return [X + 13.5, ap - 2];
+}
+
+/* --- 集市 --- */
+const AWN = ['#d9503f', '#3f7fc0', '#e9a23a', '#5aa36a'];
+function stall(c, X, Y, col, lvl, R) {
+  shadow(c, X + 16.5, Y + 25, 11, 2);
+  line(c, X + 7, Y + 25, X + 7, Y + 13, '#6b4426', 1.2); line(c, X + 25, Y + 25, X + 25, Y + 13, '#6b4426', 1.2);
+  rect(c, X + 6, Y + 19.5, 20, 5.5, '#b98250', INK, .9);
+  line(c, X + 12.6, Y + 19.5, X + 12.6, Y + 25, 'rgba(60,35,15,.4)', .6); line(c, X + 19.3, Y + 19.5, X + 19.3, Y + 25, 'rgba(60,35,15,.4)', .6);
+  rect(c, X + 5.6, Y + 17.6, 20.8, 2, '#dcae78', INK, .7);
+  const goods = ['#d9503f', '#f0a43a', '#8fbf4a', '#f2d34a', '#9b6fd0'];
+  for (let k = 0; k < 5; k++) ell(c, X + 8.5 + k * 3.8, Y + 16.6, 1.5, 1.4, goods[(k + Math.floor(R() * 5)) % 5], INK, .5);
+  const aw = [X + 4.2, Y + 13.6, X + 27.8, Y + 13.6, X + 25.6, Y + 6.8, X + 6.4, Y + 6.8];
+  c.save(); poly(c, aw); c.fillStyle = '#f8f1e2'; c.fill(); c.clip();
+  for (let k = 0; k < 7; k += 2) { const x0 = X + 4.2 + k * 3.4, x1 = x0 + 3.4; fp(c, [x0, Y + 13.6, x1, Y + 13.6, x1 - (x1 - X - 16) * .1, Y + 6.8, x0 - (x0 - X - 16) * .1, Y + 6.8], col, null); }
+  c.restore(); poly(c, aw); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  for (let k = 0; k < 7; k++) {
+    c.beginPath(); c.arc(X + 5.9 + k * 3.4, Y + 13.6, 1.7, 0, Math.PI); c.fillStyle = lvl >= 3 ? (k % 2 ? GOLD : col) : (k % 2 ? '#f8f1e2' : col); c.fill(); c.strokeStyle = INK; c.lineWidth = .6; c.stroke();
+  }
+  if (lvl >= 2) flag(c, X + 16, Y + 6.8, 4.5, lvl >= 3 ? GOLD : col, { w: 4.5, h: 2.6 });
+}
+function market(c, I, lvl, t, R) {
+  let anchor = null;
+  I.cells.forEach((p, i) => {
+    const [X, Y] = XY(p);
+    stall(c, X, Y, AWN[i % AWN.length], lvl, R);
+    if (p.d >= 2) { // 拐角格加木桶
+      ell(c, X + 4.5, Y + 26, 2.2, 1, 'rgba(40,36,18,.25)');
+      rect(c, X + 2.8, Y + 21.2, 3.6, 4.6, '#9a6a3a', INK, .6); line(c, X + 2.8, Y + 23.4, X + 6.4, Y + 23.4, '#5d4026', .6);
+    }
+    if (!anchor) anchor = [X + 16, Y + 5];
+  });
+  return anchor;
+}
+
+/* --- 工坊 --- */
+function gear(c, x, y, r, col) {
+  c.beginPath();
+  for (let k = 0; k < 32; k++) { const an = k / 32 * TAU + .2, rr0 = (k >> 1) % 2 ? r : r * 1.3; c.lineTo(x + Math.cos(an) * rr0, y + Math.sin(an) * rr0); }
+  c.closePath(); c.fillStyle = col; c.fill(); c.strokeStyle = INK; c.lineWidth = .9; c.stroke();
+  ell(c, x, y, r * .45, r * .45, '#5a4a3a', INK, .6); ell(c, x - r * .35, y - r * .4, r * .3, r * .2, 'rgba(255,255,255,.4)');
+}
+function workshop(c, I, lvl, t) {
+  const cs = I.cells; let C = cs[0]; for (const p of cs) if (p.d > C.d) C = p;
+  const arms = cs.filter(p => p !== C);
+  const P = painter(); let anchor;
+  P.add(C.y, () => {
+    const [X, Y] = XY(C), wh = lvl >= 2 ? 12 : 10;
+    rect(c, X + 19.2, Y + 25 - wh - 13, 5, 11, '#8e4a33', INK, .8); rect(c, X + 18.4, Y + 25 - wh - 14.5, 6.6, 2, '#5a3a2a', INK, .6);
+    if (lvl >= 2) { rect(c, X + 8.5, Y + 25 - wh - 9, 3.6, 7, '#8e4a33', INK, .7); }
+    anchor = gable(c, X + 3.6, Y + 25.5, 15.5, wh, 6, 7.5, -5, '#c97a52', '#a35d3c', '#545a63', '#3a3f47', { doorC: '#3a2a20', trim: lvl >= 3, winC: lvl >= 2 ? '#ffb347' : '#f7e3a1' });
+    rect(c, X + 19.2, Y + 25 - wh - 13, 5, 11, null, INK, .8);
+    for (let yy = Y + 25 - 2.5; yy > Y + 25 - wh; yy -= 2.6) line(c, X + 5, yy, X + 18, yy, 'rgba(110,50,30,.35)', .5);
+    if (lvl >= 2) { rect(c, X + 6.3, Y + 25 - wh + 2, 3, 3, '#ffb347', INK, .6); }
+    smoke(c, X + 21.7, Y + 25 - wh - 16.5, t, 3, false, 1.25);
+    anchor = [X + 16, Y + 25 - wh - 10];
+  });
+  arms.forEach((p, i) => P.add(p.y + .1 * i, () => {
+    const [X, Y] = XY(p);
+    if (i % 2 === 0) { // 铁砧
+      shadow(c, X + 16.5, Y + 25, 7, 1.8);
+      tower(c, X + 16, Y + 25, 9, 4.5, { wall: '#9a6a3a', shade: '#7a5030' });
+      ell(c, X + 16, Y + 20.5, 4.5, 1.1, '#c79a63', INK, .6);
+      fp(c, [X + 7, Y + 14, X + 24, Y + 14, X + 22.5, Y + 16.8, X + 19.5, Y + 16.8, X + 19.5, Y + 19.8, X + 12.5, Y + 19.8, X + 12.5, Y + 16.8, X + 10, Y + 16.8], '#5d626b', INK, 1);
+      rect(c, X + 10, Y + 14, 14, 1.1, '#b3bac4');
+      line(c, X + 22, Y + 23.5, X + 26.5, Y + 18, '#7a5030', 1.1); rect(c, X + 25, Y + 16, 3.6, 2.6, '#5d626b', INK, .6);
+      if (lvl >= 2) for (let k = 0; k < 3; k++) ell(c, X + 10 + k * 3, Y + 13 - k * .8, .6, .6, '#ffb347');
+    } else { // 齿轮
+      shadow(c, X + 16, Y + 25, 8, 1.8);
+      line(c, X + 11, Y + 25, X + 14.5, Y + 17, '#6b4426', 1.3); line(c, X + 21, Y + 25, X + 17.5, Y + 17, '#6b4426', 1.3);
+      gear(c, X + 16, Y + 14.5, 7.2, lvl >= 3 ? GOLD : '#b9895a');
+      rect(c, X + 22, Y + 21, 5, 4.5, '#b98250', INK, .7); line(c, X + 22, Y + 21, X + 27, Y + 25.5, '#7d5631', .6);
+    }
+  }));
+  P.run();
+  return anchor;
+}
+
+/* --- 矿场 --- */
+function mineBlock(c, lvl) {
+  fp(c, [4, 40, 5, 28, 12, 18, 21, 12, 30, 7, 40, 9, 48, 14, 56, 21, 60, 31, 60, 40], '#958b7c');
+  fp(c, [5, 28, 12, 18, 21, 12, 30, 7, 26, 20, 16, 26], '#b2a895', null);
+  fp(c, [40, 9, 48, 14, 56, 21, 60, 31, 50, 26, 44, 18], '#766c5f', null);
+  poly(c, [4, 40, 5, 28, 12, 18, 21, 12, 30, 7, 40, 9, 48, 14, 56, 21, 60, 31, 60, 40]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  line(c, 26, 20, 30, 7, 'rgba(59,58,44,.35)', .7); line(c, 44, 18, 50, 26, 'rgba(59,58,44,.35)', .7);
+  for (const [x, y] of [[14, 30], [48, 30], [38, 18], [20, 22]]) ell(c, x, y, 1.6, 1, '#6f8f4a');
+  // 洞口
+  c.beginPath(); c.moveTo(21, 40); c.lineTo(21, 31); c.arc(29, 31, 8, Math.PI, 0); c.lineTo(37, 40); c.closePath(); c.fillStyle = '#2a241e'; c.fill();
+  rect(c, 19, 28.5, 2.8, 11.5, '#8a5a32', INK, .8); rect(c, 36.2, 28.5, 2.8, 11.5, '#8a5a32', INK, .8);
+  rect(c, 17.5, 26, 23, 3, lvl >= 3 ? GOLD : '#9c6a3c', INK, .8);
+  // 轨道
+  for (let y = 42; y < 60; y += 3.6) { const k = (y - 40) / 20; line(c, 24.5 - k * 3.5, y, 33.5 + k * 3.5, y, '#7a5030', 1.3); }
+  line(c, 26, 40, 23, 60, '#6c7076', 1.2); line(c, 32, 40, 35, 60, '#6c7076', 1.2);
+  // 矿石堆
+  shadow(c, 50, 56, 8, 2);
+  const rocks = [[45, 55, 3.4], [51, 55.5, 3.6], [56, 54.5, 2.8], [48, 51, 3], [53.5, 51, 2.8], [50.5, 47.6, 2.6]];
+  for (const [x, y, r] of rocks) ell(c, x, y, r, r * .8, '#8f887c', INK, .8);
+  for (const [x, y] of [[46, 54], [52, 50.5], [55, 54], [50, 47]]) fp(c, [x, y - 2, x + 1.2, y, x, y + 1.6, x - 1.2, y], '#6fd0e0', INK, .5);
+  if (lvl >= 2) fp(c, [52.5, 56, 53.6, 54, 52.5, 52.4, 51.4, 54], '#b07ad8', INK, .5);
+  // 矿车
+  shadow(c, 29, 55, 8, 1.6);
+  fp(c, [21.5, 46, 36.5, 46, 35, 53.5, 23, 53.5], '#7d6a58');
+  rect(c, 22.2, 48.8, 13.6, 1.4, '#5a4a3a');
+  ell(c, 25, 54.5, 1.9, 1.9, '#3b3a2c'); ell(c, 33, 54.5, 1.9, 1.9, '#3b3a2c');
+  const ore = lvl >= 3 ? [GOLD, GOLD_L, GOLD] : ['#9a958a', '#6fd0e0', '#9a958a'];
+  ell(c, 25.5, 45.4, 2.6, 2, ore[0], INK, .7); ell(c, 29.5, 44.4, 2.8, 2.2, ore[1], INK, .7); ell(c, 33, 45.4, 2.4, 1.9, ore[2], INK, .7);
+  // 镐
+  line(c, 9, 57, 13, 46, '#7a5030', 1.3); c.beginPath(); c.moveTo(9, 46.5); c.quadraticCurveTo(13, 44, 17, 47.5); c.strokeStyle = '#5d626b'; c.lineWidth = 1.6; c.stroke();
+  if (lvl >= 2) { line(c, 42, 40, 42, 30, '#6b4426', 1); rect(c, 40.6, 30, 2.8, 3.2, '#ffd36a', INK, .6); }
+  return [29, 14];
+}
+function mine(c, I, lvl) {
+  if (I.sq) { const [X, Y] = XY(I.sq); c.save(); c.translate(X, Y); const a = mineBlock(c, lvl); c.restore(); return [X + a[0], Y + a[1]]; }
+  const [X, Y] = XY(I.main); c.save(); c.translate(X, Y); c.scale(.5, .5); const a = mineBlock(c, lvl); c.restore(); return [X + a[0] / 2, Y + a[1] / 2];
+}
+
+/* --- 神庙 --- */
+function column(c, x, yt, yb, w = 2.6) {
+  rect(c, x, yt, w, yb - yt, '#fbf8f0', INK, .7); rect(c, x + w * .62, yt + .4, w * .3, yb - yt - .8, '#d6cfbf');
+  rect(c, x - .6, yt - 1, w + 1.2, 1.2, '#f1ece2', INK, .5);
+}
+function templeMain(c, X, Y, lvl) {
+  shadow(c, X + 17, Y + 27, 13, 2);
+  rect(c, X + 4, Y + 23.5, 24, 3.5, '#efe9dd', INK, .8); rect(c, X + 5.5, Y + 21, 21, 2.6, '#f6f2e9', INK, .7);
+  rect(c, X + 7, Y + 12.5, 18, 8.5, '#b9b2a2');
+  rect(c, X + 14.4, Y + 15, 3.2, 6, lvl >= 2 ? '#f7d77a' : '#5d564a');
+  for (const cx of [7, 11.6, 17.8, 22.4]) column(c, X + cx, Y + 12.6, Y + 21, 2.6);
+  rect(c, X + 4.5, Y + 9.6, 23, 3, '#f8f5ee', INK, .8);
+  if (lvl >= 2) line(c, X + 5, Y + 11.1, X + 27, Y + 11.1, GOLD, .9);
+  const rx = lvl >= 2 ? 9.5 : 8.5, ry = lvl >= 2 ? 9 : 8, dc = lvl >= 3 ? GOLD : '#4f9fcf', dl = lvl >= 3 ? GOLD_L : '#8fc9e6', dd = lvl >= 3 ? GOLD_D : '#3a7fae';
+  c.beginPath(); c.ellipse(X + 16, Y + 9.6, rx, ry, 0, Math.PI, 0); c.closePath(); c.fillStyle = dc; c.fill();
+  c.save(); c.clip(); ell(c, X + 16 + rx * .55, Y + 9.6, rx * .6, ry, dd); ell(c, X + 16 - rx * .45, Y + 9.6 - ry * .55, rx * .28, ry * .3, dl); c.restore();
+  c.beginPath(); c.ellipse(X + 16, Y + 9.6, rx, ry, 0, Math.PI, 0); c.closePath(); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  rect(c, X + 16 - rx, Y + 8.4, rx * 2, 1.4, GOLD, INK, .5);
+  const tip = Y + 9.6 - ry;
+  line(c, X + 16, tip, X + 16, tip - 3.4, INK, 1.4); line(c, X + 16, tip, X + 16, tip - 3.4, GOLD, .7); ell(c, X + 16, tip - 3.6, 1.2, 1.2, GOLD, INK, .5);
+  return [X + 16, tip - 2];
+}
+function brazier(c, X, Y, lvl, t) {
+  shadow(c, X + 16.5, Y + 25, 5, 1.5);
+  rect(c, X + 13, Y + 18, 6, 7, '#efe9dd', INK, .8); rect(c, X + 17, Y + 18.4, 1.6, 6.2, '#cfc8b8');
+  fp(c, [X + 11, Y + 16, X + 21, Y + 16, X + 19, Y + 18.4, X + 13, Y + 18.4], GOLD, INK, .7);
+  const f = Math.sin((t || 0) * 7) * .6;
+  fp(c, [X + 13, Y + 16, X + 15.4, Y + 9.5 + f, X + 16.5, Y + 12, X + 17.8, Y + 8.4 - f, X + 19, Y + 16], lvl >= 3 ? '#6fd6f0' : '#f08a3a', INK, .6);
+  fp(c, [X + 14.6, Y + 16, X + 16.4, Y + 11.5, X + 17.4, Y + 16], lvl >= 3 ? '#e8fbff' : '#ffd36a', null);
+}
+function colonnade(c, X, Y, lvl) {
+  shadow(c, X + 16.5, Y + 25, 10, 1.6);
+  rect(c, X + 6.5, Y + 23, 19, 2.6, '#efe9dd', INK, .7);
+  column(c, X + 9, Y + 12, Y + 23, 2.8); column(c, X + 20.2, Y + 12, Y + 23, 2.8);
+  rect(c, X + 7, Y + 9.2, 18, 2.8, '#f8f5ee', INK, .8);
+  fp(c, [X + 7.5, Y + 9.2, X + 16, Y + 5.6, X + 24.5, Y + 9.2], '#f1ece2', INK, .8);
+  if (lvl >= 2) ell(c, X + 16, Y + 7.8, 1.2, 1.1, GOLD, INK, .5);
+}
+function temple(c, I, lvl, t) {
+  const C = I.main, { paired, single } = tArms(I, C);
+  const P = painter(); let anchor;
+  for (const a of paired) P.add(a.y, () => { const [X, Y] = XY(a); brazier(c, X, Y, lvl, t); });
+  for (const a of single) P.add(a.y, () => { const [X, Y] = XY(a); colonnade(c, X, Y, lvl); });
+  P.add(C.y + .05, () => { const [X, Y] = XY(C); anchor = templeMain(c, X, Y, lvl); });
+  P.run();
+  return anchor;
+}
+
+/* --- 兵营 --- */
+function tent(c, X, Y, lvl) {
+  shadow(c, X + 17, Y + 25, 10, 2);
+  fp(c, [X + 16, Y + 11, X + 21.5, Y + 7.5, X + 28, Y + 21, X + 24, Y + 24.5], '#cbbd96');
+  line(c, X + 18.6, Y + 9.4, X + 25.7, Y + 22.8, '#a8333a', 1.6);
+  fp(c, [X + 7.5, Y + 24.5, X + 16, Y + 11, X + 24, Y + 24.5], '#efe5c8');
+  fp(c, [X + 13.6, Y + 24.5, X + 16, Y + 17, X + 18.4, Y + 24.5], '#4a3a2a', null);
+  line(c, X + 9.3, Y + 21.6, X + 22.2, Y + 21.6, '#a8333a', 1.3);
+  line(c, X + 16, Y + 11, X + 16, Y + 6.5, INK, .8);
+  fp(c, [X + 16.3, Y + 6.5, X + 20, Y + 7.6, X + 16.3, Y + 8.8], lvl >= 3 ? GOLD : '#a8333a', INK, .5);
+}
+function shield(c, x, y, r, gold) {
+  c.beginPath(); c.moveTo(x - r, y - r * .9); c.lineTo(x + r, y - r * .9); c.lineTo(x + r, y); c.quadraticCurveTo(x + r * .8, y + r * .8, x, y + r * 1.25); c.quadraticCurveTo(x - r * .8, y + r * .8, x - r, y); c.closePath();
+  c.fillStyle = '#a8333a'; c.fill(); c.strokeStyle = INK; c.lineWidth = .8; c.stroke();
+  line(c, x, y - r * .7, x, y + r * .95, gold ? GOLD : '#f3e6c8', r * .32); line(c, x - r * .75, y - r * .2, x + r * .75, y - r * .2, gold ? GOLD : '#f3e6c8', r * .32);
+}
+function rack(c, X, Y, lvl) {
+  shadow(c, X + 16, Y + 25, 10, 1.6);
+  for (let k = 0; k < 4; k++) { const x = X + 9.5 + k * 3.6; line(c, x, Y + 25, x, Y + 9, '#7a5030', 1); fp(c, [x - 1.1, Y + 9, x, Y + 5.6, x + 1.1, Y + 9], lvl >= 3 ? GOLD : '#d5d9dc', INK, .5); }
+  line(c, X + 7.5, Y + 25, X + 7.5, Y + 15, '#6b4426', 1.4); line(c, X + 23.5, Y + 25, X + 23.5, Y + 15, '#6b4426', 1.4);
+  line(c, X + 6.5, Y + 16, X + 24.5, Y + 16, '#6b4426', 1.4);
+  shield(c, X + 24, Y + 20.5, 3.6, lvl >= 3);
+}
+function barracks(c, I, lvl) {
+  const C = I.main, { paired, single } = tArms(I, C);
+  const P = painter(); let anchor;
+  for (const a of paired) P.add(a.y, () => { const [X, Y] = XY(a); tent(c, X, Y, lvl); });
+  for (const a of single) P.add(a.y, () => { const [X, Y] = XY(a); rack(c, X, Y, lvl); });
+  P.add(C.y + .05, () => {
+    const [X, Y] = XY(C), wh = lvl >= 2 ? 12 : 9.5;
+    const r = hip(c, X + 4.5, Y + 25, 16, wh, 7, 7, -5, '#cdb48a', '#a88f66', '#9b3a2f', '#76281f', { trim: lvl >= 3 });
+    line(c, X + 4.5, Y + 25 - wh + 2, X + 20.5, Y + 25 - wh + 2, '#7a5a3a', .8);
+    rect(c, X + 6.5, Y + 19, 3.4, 6, '#4a3020', INK, .7);
+    rect(c, X + 22.2, Y + 25 - wh + 1.5, 2, 2.2, '#f7e3a1', INK, .5);
+    shield(c, X + 14.5, Y + 25 - wh * .5, 3.2, lvl >= 3);
+    if (lvl >= 2) flag(c, (r.rx1 + r.rx2) / 2, r.ry, 6, lvl >= 3 ? GOLD : '#a8333a', { w: 5.5, h: 3.4, tail: true, gold: lvl >= 3 });
+    anchor = [(r.rx1 + r.rx2) / 2, r.ry - 3];
+  });
+  P.run();
+  return anchor;
+}
+
+/* --- 庄园 --- */
+function hedgeGarden(c, X, Y, lvl, fountain, R) {
+  if (fountain) {
+    shadow(c, X + 16, Y + 22, 9, 2.6);
+    ell(c, X + 16, Y + 20, 9, 4.6, '#efe9dd', INK, .9); ell(c, X + 16, Y + 19.6, 7, 3.4, '#6fb7d0');
+    rect(c, X + 15, Y + 12.5, 2, 7, '#efe9dd', INK, .6);
+    ell(c, X + 16, Y + 12, 3, 1.3, lvl >= 3 ? GOLD : '#efe9dd', INK, .6);
+    line(c, X + 13.5, Y + 12, X + 11.5, Y + 17, 'rgba(210,240,250,.9)', .8); line(c, X + 18.5, Y + 12, X + 20.5, Y + 17, 'rgba(210,240,250,.9)', .8);
+    bush(c, X + 6, Y + 25, 2.6, '#3f7a42', '#62a25a'); bush(c, X + 26, Y + 25, 2.6, '#3f7a42', '#62a25a');
+  } else {
+    // 树篱 + 花坛
+    for (let k = 0; k < 3; k++) bush(c, X + 8 + k * 8, Y + 11, 3.4, '#3f7a42', '#62a25a');
+    rr(c, X + 7, Y + 17, 18, 6.5, 2.6); c.fillStyle = '#7d5a3a'; c.fill(); c.strokeStyle = INK; c.lineWidth = .8; c.stroke();
+    const fl = ['#e86d8f', '#f6f1dc', '#f0d14a', '#b07ad8'];
+    for (let k = 0; k < 7; k++) ell(c, X + 9 + k * 2.4, Y + 19.6 + (k % 2) * 1.6, 1, 1, fl[(k + Math.floor(R() * 4)) % 4]);
+    if (lvl >= 3) { line(c, X + 16, Y + 26, X + 16, Y + 22.5, '#7a5030', .9); ell(c, X + 16, Y + 21.6, 1.6, 1.6, GOLD, INK, .5); }
+  }
+}
+function manor(c, I, lvl, t, R) {
+  const cs = I.cells, pair = cs.filter(p => p.d === 2), ends = cs.filter(p => p.d !== 2);
+  const P = painter(); let anchor;
+  const purple = '#7d5aa9', purpleS = '#5d4185', wall = '#f3e8d2', wallS = '#d4c6a8';
+  if (pair.length === 2) {
+    const [A, B] = pair[0].y === pair[1].y ? (pair[0].x < pair[1].x ? pair : [pair[1], pair[0]]) : (pair[0].y < pair[1].y ? pair : [pair[1], pair[0]]);
+    c.save(); clipTop(c, I);
+    for (const p of pair) { const [X, Y] = XY(p); rect(c, X, Y, 32, 32, '#d8ccb2'); for (let r = 0; r < 4; r++) line(c, X, Y + 3 + r * 7.5, X + 32, Y + 3 + r * 7.5, 'rgba(110,95,70,.3)', .6); }
+    c.restore();
+    if (A.y === B.y) {
+      P.add(A.y + .05, () => {
+        const [X, Y] = XY(A), wh = lvl >= 2 ? 14 : 11;
+        const r = hip(c, X + 5, Y + 25, 34, wh, 9, 13, -7, wall, wallS, purple, purpleS, { trim: lvl >= 3 });
+        for (let k = 0; k < 6; k++) if (k !== 2 && k !== 3) rect(c, X + 7.5 + k * 5.2, Y + 25 - wh + 2.2, 2.6, 3.4, '#a9d3e8', INK, .5);
+        if (lvl >= 2) for (let k = 0; k < 6; k++) rect(c, X + 7.5 + k * 5.2, Y + 25 - wh + 7.5, 2.6, 3, '#a9d3e8', INK, .5);
+        c.beginPath(); c.moveTo(X + 19.5, Y + 25); c.lineTo(X + 19.5, Y + 20.5); c.arc(X + 22, Y + 20.5, 2.5, Math.PI, 0); c.lineTo(X + 24.5, Y + 25); c.closePath(); c.fillStyle = '#5a3b24'; c.fill(); c.strokeStyle = INK; c.lineWidth = .7; c.stroke();
+        rect(c, X + 47.8, Y + 18 - wh * .3, 2.2, 3, '#a9d3e8', INK, .5);
+        if (lvl >= 2) { rect(c, (r.rx1 + r.rx2) / 2 - 1.5, r.ry - 4, 3, 4.5, '#b3876a', INK, .6); }
+        anchor = [(r.rx1 + r.rx2) / 2, r.ry - 3];
+      });
+    } else {
+      P.add(A.y, () => {
+        const [X, Y] = XY(A);
+        const ap = tower(c, X + 15.5, Y + 25, 14.5, lvl >= 2 ? 18 : 15, { wall, shade: wallS, roof: purple, roofS: purpleS, roofH: 9, gold: lvl >= 3 });
+        rect(c, X + 14.4, Y + 13, 2.4, 3.6, '#a9d3e8', INK, .5);
+        if (lvl >= 2) flag(c, X + 15.5, ap, 5, lvl >= 3 ? GOLD : '#e86d8f', { w: 4.5, h: 2.8 });
+      });
+      P.add(B.y + .05, () => {
+        const [X, Y] = XY(B), wh = lvl >= 2 ? 15 : 12.5;
+        const r = hip(c, X + 3.4, Y + 26.5, 19, wh, 9.5, 6.4, -9, wall, wallS, purple, purpleS, { trim: lvl >= 3 });
+        rect(c, X + 5.6, Y + 26.5 - wh + 2.2, 2.6, 3.4, '#a9d3e8', INK, .5); rect(c, X + 16.4, Y + 26.5 - wh + 2.2, 2.6, 3.4, '#a9d3e8', INK, .5);
+        if (lvl >= 2) { rect(c, X + 5.6, Y + 26.5 - wh + 8, 2.6, 3, '#a9d3e8', INK, .5); rect(c, X + 16.4, Y + 26.5 - wh + 8, 2.6, 3, '#a9d3e8', INK, .5); }
+        c.beginPath(); c.moveTo(X + 10.6, Y + 26.5); c.lineTo(X + 10.6, Y + 22.4); c.arc(X + 12.9, Y + 22.4, 2.3, Math.PI, 0); c.lineTo(X + 15.2, Y + 26.5); c.closePath(); c.fillStyle = '#5a3b24'; c.fill(); c.strokeStyle = INK; c.lineWidth = .7; c.stroke();
+        anchor = [(r.rx1 + r.rx2) / 2, r.ry - 3];
+      });
+    }
+  } else {
+    const [X, Y] = XY(I.main);
+    P.add(I.main.y, () => { const r = hip(c, X + 4.5, Y + 25, 16, 10, 8, 7, -5, wall, wallS, purple, purpleS); anchor = [(r.rx1 + r.rx2) / 2, r.ry - 3]; });
+  }
+  ends.forEach((p, i) => { if (pair.length === 2 || p !== I.main) P.add(p.y + .1, () => { const [X, Y] = XY(p); hedgeGarden(c, X, Y, lvl, lvl >= 2 && i === 0, R); }); });
+  P.run();
+  return anchor;
+}
+
+/* --- 商会 --- */
+function guildBlock(c, lvl) {
+  const wh = 21 + (lvl - 1) * 5.5, by = 58, x = 7, fw = 36;
+  const r = hip(c, x, by, fw, wh, 10, 12, -9, '#f0e2c2', '#cdb991', '#2f8a80', '#216760', { trim: lvl >= 3 });
+  // 楼层腰线与窗
+  const floors = Math.floor((wh - 2) / 7.2);
+  for (let f = 0; f < floors; f++) {
+    const wy = by - 6.6 - f * 7.2;
+    if (f > 0) line(c, x, wy + 4.9, x + fw, wy + 4.9, '#b39b6b', .9);
+    for (let k = 0; k < 5; k++) { if (f === 0 && k === 2) continue; rect(c, x + 3 + k * 6.6, wy - 1.6, 3.2, 4, '#a9d3e8', INK, .5); }
+    rect(c, x + fw + 3.6, wy - 2.6 - 4.5, 2.6, 4, '#8fbcd0', INK, .5);
+  }
+  c.beginPath(); c.moveTo(x + 15.5, by); c.lineTo(x + 15.5, by - 5); c.arc(x + 18, by - 5, 2.5, Math.PI, 0); c.lineTo(x + 20.5, by); c.closePath(); c.fillStyle = '#5a3b24'; c.fill(); c.strokeStyle = INK; c.lineWidth = .7; c.stroke();
+  // 金币招牌（挂在正面）
+  line(c, x + fw - 2, by - wh + 5, x + fw + 4.5, by - wh + 5, INK, 1.1);
+  line(c, x + fw + 3.8, by - wh + 5, x + fw + 3.8, by - wh + 7, INK, .7);
+  coin(c, x + fw + 3.8, by - wh + 11, 4.2);
+  if (lvl >= 3) { const cx = (r.rx1 + r.rx2) / 2; line(c, cx, r.ry, cx, r.ry - 5, INK, 1); coin(c, cx, r.ry - 6.5, 2.2); }
+  else if (lvl >= 2) flag(c, (r.rx1 + r.rx2) / 2, r.ry, 6, '#2f8a80', { w: 5, h: 3 });
+  return [(r.rx1 + r.rx2) / 2, r.ry - 3];
+}
+function guild(c, I, lvl) {
+  const P = painter(); let anchor;
+  if (I.sq) {
+    const q = I.sq, inSq = p => p.x >= q.x && p.x <= q.x + 1 && p.y >= q.y && p.y <= q.y + 1;
+    P.add(q.y + 1, () => { const [X, Y] = XY(q); c.save(); c.translate(X, Y); const a = guildBlock(c, lvl); c.restore(); anchor = [X + a[0], Y + a[1]]; });
+    for (const p of I.cells) if (!inSq(p)) P.add(p.y + (p.y > q.y ? .5 : 0), () => {
+      const [X, Y] = XY(p);
+      shadow(c, X + 12, Y + 25, 4, 1.3);
+      line(c, X + 11, Y + 25, X + 11, Y + 15, '#6b4426', 1.6);
+      coin(c, X + 11, Y + 11.5, 6);
+      box(c, X + 17.5, Y + 25.4, 7, 6, 2.6, -2, '#b98250', '#8f6338', '#d3a26c');
+      line(c, X + 17.5, Y + 19.4, X + 24.5, Y + 25.4, '#7d5631', .6);
+      ell(c, X + 23.5, Y + 16.6, 2.6, 2.4, '#cdb27c', INK, .7); line(c, X + 22.4, Y + 14.6, X + 24.6, Y + 14.6, '#7d5631', .8);
+      if (lvl >= 2) coin(c, X + 6, Y + 24, 2);
+    });
+  } else {
+    const [X, Y] = XY(I.main); P.add(0, () => { c.save(); c.translate(X, Y); c.scale(.5, .5); const a = guildBlock(c, lvl); c.restore(); anchor = [X + a[0] / 2, Y + a[1] / 2]; });
+  }
+  P.run();
+  return anchor;
+}
+
+/* --- 星塔奇观 --- */
+function obelisk(c, X, Y, lvl) {
+  shadow(c, X + 16.5, Y + 25, 5, 1.5);
+  rect(c, X + 11.5, Y + 22, 9, 3.4, '#cbbfdf', INK, .7);
+  fp(c, [X + 13, Y + 22, X + 19, Y + 22, X + 17.6, Y + 11, X + 14.4, Y + 11], '#efe9f7');
+  fp(c, [X + 16, Y + 22, X + 19, Y + 22, X + 17.6, Y + 11, X + 16, Y + 11], '#c5b8de', null);
+  poly(c, [X + 13, Y + 22, X + 19, Y + 22, X + 17.6, Y + 11, X + 14.4, Y + 11]); c.strokeStyle = INK; c.lineWidth = .8; c.stroke();
+  fp(c, [X + 16, Y + 5.6, X + 18.2, Y + 9, X + 16, Y + 12, X + 13.8, Y + 9], lvl >= 3 ? GOLD_L : '#7fe6ff', INK, .6);
+  ell(c, X + 15.5, Y + 8.4, .6, .9, '#ffffff');
+}
+function spire(c, X, Y, lvl, t) {
+  const H = 30 + (lvl - 1) * 5, base = Y + 23, top = base - H;
+  shadow(c, X + 17, Y + 27.5, 13, 2.2);
+  box(c, X + 3.5, Y + 27.5, 23, 4.5, 2.2, -2, '#d9cdea', '#a99cc4', '#ece5f5');
+  rect(c, X + 3.5, Y + 24.6, 23, 1.1, GOLD);
+  fp(c, [X + 6.5, base, X + 25.5, base, X + 18.6, top, X + 13.4, top], '#f4f0fa');
+  fp(c, [X + 16.6, base, X + 25.5, base, X + 18.6, top, X + 16.4, top], '#c9bfe0', null);
+  poly(c, [X + 6.5, base, X + 25.5, base, X + 18.6, top, X + 13.4, top]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  for (let k = 1; k <= 3; k++) {
+    const yy = base - H * k / 4, hw = 9.5 - 6.9 * k / 4;
+    rect(c, X + 16 - hw - .4, yy - 1, 2 * hw + .8, 2, GOLD, INK, .6);
+  }
+  for (let k = 0; k < 3; k++) { const yy = base - 4 - k * H / 4; rect(c, X + 14.8, yy - 3.4, 2.4, 3.4, '#7fe6ff', INK, .5); }
+  const cy = top - 4.5, pulse = .5 + .5 * Math.sin((t || 0) * 2.4);
+  const g = c.createRadialGradient(X + 16, cy, 0, X + 16, cy, 11);
+  g.addColorStop(0, `rgba(170,245,255,${.75 + .2 * pulse})`); g.addColorStop(1, 'rgba(170,245,255,0)');
+  c.fillStyle = g; c.fillRect(X + 5, cy - 11, 22, 22);
+  if (lvl >= 2) { c.beginPath(); c.ellipse(X + 16, base - H * .5, 9, 2.4, 0, 0, TAU); c.strokeStyle = 'rgba(227,182,92,.95)'; c.lineWidth = 1.1; c.stroke(); }
+  fp(c, [X + 16, cy - 6.5, X + 19.6, cy, X + 16, cy + 4.5, X + 12.4, cy], lvl >= 3 ? '#9ff0ff' : '#7fe6ff', INK, .8);
+  fp(c, [X + 16, cy - 6.5, X + 19.6, cy, X + 16, cy + 4.5], '#4fc4e0', null);
+  poly(c, [X + 16, cy - 6.5, X + 19.6, cy, X + 16, cy + 4.5, X + 12.4, cy]); c.strokeStyle = INK; c.lineWidth = .8; c.stroke();
+  ell(c, X + 14.8, cy - 1.6, .8, 1.4, '#ffffff');
+  if (lvl >= 3) { fp(c, [X + 12, cy + 4.6, X + 13, cy + 1.6, X + 14.5, cy + 3.6, X + 16, cy + .8, X + 17.5, cy + 3.6, X + 19, cy + 1.6, X + 20, cy + 4.6], GOLD, INK, .6); sparkle(c, X + 7, cy - 4, 2.2); sparkle(c, X + 25, cy + 3, 1.8); }
+  sparkle(c, X + 21.5, cy - 6, 1.6 + pulse * .6);
+  return [X + 16, cy - 7];
+}
+function wonder(c, I, lvl, t) {
+  const C = I.main, P = painter(); let anchor;
+  c.save(); clipTop(c, I);
+  const [CX, CY] = XY(C);
+  for (const p of I.cells) if (p !== C) { const [X, Y] = XY(p); line(c, CX + 16, CY + 16, X + 16, Y + 16, 'rgba(227,182,92,.75)', 2.4); }
+  c.restore();
+  for (const p of I.cells) if (p !== C) P.add(p.y, () => { const [X, Y] = XY(p); obelisk(c, X, Y, lvl); });
+  P.add(C.y + .05, () => { anchor = spire(c, CX, CY, lvl, t); });
+  P.run();
+  return anchor;
+}
+
+/* --- 未知类型 --- */
+function generic(c, I) {
+  const [X, Y] = XY(I.main);
+  const r = hip(c, X + 5, Y + 25, 15, 10, 7, 7, -5, '#cfccc4', '#a8a59c', '#8a8780', '#6c6a64');
+  rect(c, X + 10.8, Y + 20, 3.4, 5, '#5d5a52', INK, .6);
+  return [(r.rx1 + r.rx2) / 2, r.ry - 3];
+}
+
+const BUILDERS = { hall, house, farm, lumber, tower: towerB, fishery, granary, market, workshop, mine, temple, barracks, manor, guild, wonder };
+
+function zz(c, x, y) {
+  rr(c, x - 5.2, y - 4.2, 10.4, 8, 3.6); c.fillStyle = 'rgba(255,253,244,.95)'; c.fill(); c.strokeStyle = INK; c.lineWidth = .9; c.stroke();
+  fp(c, [x - 1.2, y + 3.8, x - 3, y + 5.6, x + .6, y + 3.8], 'rgba(255,253,244,.95)', null);
+  c.lineJoin = 'miter';
+  c.beginPath(); c.moveTo(x - 3.4, y - 1.8); c.lineTo(x - .4, y - 1.8); c.lineTo(x - 3.4, y + 1.8); c.lineTo(x - .4, y + 1.8);
+  c.moveTo(x + .9, y - 2.4); c.lineTo(x + 3.2, y - 2.4); c.lineTo(x + .9, y + .4); c.lineTo(x + 3.2, y + .4);
+  c.strokeStyle = '#4f6f9a'; c.lineWidth = 1.1; c.stroke(); c.lineJoin = 'round';
+}
+
+let scratch = null;
+function getScratch(w, h) {
+  try {
+    if (!scratch) scratch = typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : (typeof document !== 'undefined' ? document.createElement('canvas') : null);
+    if (!scratch) return null;
+    if (scratch.width < w) scratch.width = w;
+    if (scratch.height < h) scratch.height = h;
+    const sc = scratch.getContext('2d');
+    return sc;
+  } catch { return null; }
+}
+
+function paintBuilding(c, type, I, lvl, t) {
+  const R = rng(toInt(type) ^ (I.cells.length * 977) ^ (I.bw * 31 + I.bh));
+  const g = TYPE_GROUND[type] || 'grey';
+  c.lineJoin = 'round'; c.lineCap = 'round';
+  drawFoot(c, I, g, lvl, R);
+  const f = BUILDERS[type] || generic;
+  let a;
+  try { a = f(c, I, lvl, t, R); } catch { a = null; }
+  return a || [I.main.x * 32 + 16, I.main.y * 32 + 8];
+}
+
+function drawBuilding(ctx, type, cells, s, opts = {}) {
+  const I = cellInfo(cells);
+  const lvl = Math.max(1, Math.min(3, (opts && opts.level) | 0 || 1));
+  const damaged = !!(opts && opts.damaged), idle = !!(opts && opts.idle), t = (opts && +opts.t) || 0;
+  const k = s / 32;
+  ctx.save();
+  ctx.scale(k, k);
+  let anchor;
+  if (damaged || idle) {
+    // 先画到复用的离屏层，再整体着色，避免染到周围地形
+    const m = typeof ctx.getTransform === 'function' ? ctx.getTransform() : { a: k, b: 0 };
+    const dpr = Math.max(.25, Math.hypot(m.a, m.b));
+    const pad = 20, W = I.bw * 32, H = I.bh * 32 + pad;
+    const sw = Math.ceil(W * dpr) + 2, sh = Math.ceil(H * dpr) + 2;
+    const sc = getScratch(sw, sh);
+    if (sc) {
+      sc.save(); sc.setTransform(1, 0, 0, 1, 0, 0); sc.clearRect(0, 0, sw, sh);
+      sc.setTransform(dpr, 0, 0, dpr, 0, pad * dpr);
+      anchor = paintBuilding(sc, type, I, lvl, t);
+      sc.setTransform(1, 0, 0, 1, 0, 0); sc.globalCompositeOperation = 'source-atop';
+      sc.fillStyle = damaged ? 'rgba(48,34,24,.52)' : 'rgba(178,178,168,.58)'; sc.fillRect(0, 0, sw, sh);
+      sc.restore();
+      ctx.drawImage(scratch, 0, 0, sw, sh, 0, -pad, sw / dpr, sh / dpr);
+    } else {
+      anchor = paintBuilding(ctx, type, I, lvl, t);
+      ctx.save(); footPath(ctx, I, 1.8, 1.8, 1.8, 1.3); ctx.fillStyle = damaged ? 'rgba(48,34,24,.45)' : 'rgba(178,178,168,.5)'; ctx.fill(); ctx.restore();
+    }
+  } else anchor = paintBuilding(ctx, type, I, lvl, t);
+
+  if (damaged) {
+    const R = rng(toInt(type) + 99);
+    ctx.lineJoin = 'round';
+    for (const p of I.cells) {
+      const X = p.x * 32, Y = p.y * 32;
+      for (let i = 0; i < 2; i++) {
+        const x = X + 6 + R() * 18, y = Y + 18 + R() * 7;
+        fp(ctx, [x - 3, y + 2, x - 1.6, y - 1.6, x + .6, y - 2.4, x + 3, y - .4, x + 2.6, y + 2], i ? '#8a7f70' : '#6f6558', INK, .7);
+      }
+      line(ctx, X + 8 + R() * 6, Y + 24, X + 18 + R() * 8, Y + 14 + R() * 4, '#2a2018', 1.6);
+      if (R() < .6) { ell(ctx, X + 10 + R() * 12, Y + 22 + R() * 3, 1.2, .9, '#ff8a3a'); }
+    }
+    ell(ctx, anchor[0] - 2, anchor[1] + 6, 2.2, 1.6, '#ff9a3a', '#c8352b', .6);
+    ell(ctx, anchor[0] - 2, anchor[1] + 6.4, 1, .8, '#ffe08a');
+    smoke(ctx, anchor[0] - 2, anchor[1] + 3, t, 3, true, 1.7);
+  }
+  if (idle) zz(ctx, Math.min(anchor[0] + 6, I.bw * 32 - 6), Math.max(-6, anchor[1] - 2));
+  ctx.restore();
+}
+
+function drawCard(ctx, type, w, h, opts = {}) {
+  const shape = BUILDING_SHAPES[type] || [[0, 0]];
+  const rot = (opts && opts.rot) | 0;
+  const cells = rotateShape(shape, rot);
+  const bw = Math.max(...cells.map(p => p.x)) + 1, bh = Math.max(...cells.map(p => p.y)) + 1;
+  const s = Math.min(w * .88 / bw, h * .86 / (bh + .3));
+  const ox = (w - bw * s) / 2, oy = (h - bh * s) / 2 + s * .14;
+  ctx.save();
+  ctx.translate(ox, oy);
+  const k = s / 32;
+  ctx.save(); ctx.scale(k, k);
+  for (const p of cells) { rr(ctx, p.x * 32 + .8, p.y * 32 + .8, 30.4, 30.4, 5); ctx.fillStyle = '#a9c886'; ctx.fill(); ctx.strokeStyle = 'rgba(59,58,44,.25)'; ctx.lineWidth = 1; ctx.stroke(); }
+  ctx.restore();
+  drawBuilding(ctx, type, cells, s, { level: (opts && opts.level) || 1, rot, t: (opts && opts.t) || 0 });
+  ctx.restore();
+}
+
+/* ---------------- 图标（24 单位） ---------------- */
+function person(c, x, shirt, hat) {
+  c.beginPath(); c.moveTo(x - 6.5, 21.5); c.quadraticCurveTo(x - 6.5, 13.5, x, 13.5); c.quadraticCurveTo(x + 6.5, 13.5, x + 6.5, 21.5); c.closePath();
+  c.fillStyle = shirt; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+  ell(c, x, 8.6, 4, 4, '#f1c9a0', INK, 1.4);
+  if (hat) { c.beginPath(); c.ellipse(x, 7.4, 4.6, 3.6, 0, Math.PI, 0); c.closePath(); c.fillStyle = hat; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.2; c.stroke(); rect(c, x - 5.6, 6.8, 11.2, 1.4, hat, INK, .9); }
+}
+const ICONS = {
+  gold(c) { coin(c, 9, 15, 6.5); coin(c, 15, 9.5, 7); },
+  food(c) {
+    c.beginPath(); c.moveTo(12, 6.5); c.bezierCurveTo(6, 3.5, 2.5, 9, 3.5, 13.5); c.bezierCurveTo(4.5, 19, 8.5, 22, 12, 20.5); c.bezierCurveTo(15.5, 22, 19.5, 19, 20.5, 13.5); c.bezierCurveTo(21.5, 9, 18, 3.5, 12, 6.5); c.closePath();
+    c.fillStyle = '#d9503f'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    ell(c, 7.6, 10.5, 1.8, 2.6, '#f08a7a');
+    line(c, 12, 7, 12.6, 2.8, '#6b4426', 1.5);
+    c.beginPath(); c.moveTo(13, 4.4); c.quadraticCurveTo(17, 1, 19.5, 3.6); c.quadraticCurveTo(16.5, 6.6, 13, 4.4); c.fillStyle = '#6fa84a'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+  },
+  wood(c) {
+    const log = (x, y) => { fp(c, [x, y - 4, x + 12, y - 4, x + 12, y + 4, x, y + 4], '#8a5a32', INK, 1.3); ell(c, x + 12, y, 2.6, 4, '#e8cb93', INK, 1.2); ell(c, x + 12, y, 1, 1.8, null, '#b98a50', .8); line(c, x + 2, y - 1, x + 8, y - 1, '#6b4426', .8); };
+    log(2.5, 16.5); log(7.5, 8.5);
+  },
+  pop(c) { person(c, 12, '#4f7fb8'); },
+  worker(c) {
+    person(c, 10.5, '#b98250', '#e3b65c');
+    line(c, 15, 21.5, 21, 11, '#7a5030', 2); fp(c, [17.4, 9, 22.8, 12.2, 21.6, 14.2, 16.2, 11], '#6c7076', INK, 1);
+  },
+  fame(c) {
+    const pts = []; for (let k = 0; k < 10; k++) { const an = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 4.4 : 10; pts.push(12 + Math.cos(an) * r, 12.8 + Math.sin(an) * r); }
+    fp(c, pts, '#f2c94c', INK, 1.4); ell(c, 9.6, 10, 1.6, 1.2, '#fff3c2');
+  },
+  guard(c) {
+    c.beginPath(); c.moveTo(3.5, 4); c.lineTo(20.5, 4); c.lineTo(20.5, 11); c.quadraticCurveTo(20, 18.5, 12, 22); c.quadraticCurveTo(4, 18.5, 3.5, 11); c.closePath();
+    c.fillStyle = '#4f7fb8'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    line(c, 12, 6.5, 12, 19, '#f3e6c8', 2.4); line(c, 6.5, 10.5, 17.5, 10.5, '#f3e6c8', 2.4);
+  },
+  threat(c) {
+    c.beginPath(); c.moveTo(12, 2); c.bezierCurveTo(14, 7, 20, 9, 19.5, 15); c.bezierCurveTo(19, 20, 15.5, 22, 12, 22); c.bezierCurveTo(8, 22, 4.5, 19.5, 4.5, 15); c.bezierCurveTo(4.5, 11, 8, 10, 8.5, 6.5); c.bezierCurveTo(10.5, 8.5, 10.5, 10, 10.5, 11); c.bezierCurveTo(12.5, 8.5, 12.5, 5, 12, 2); c.closePath();
+    c.fillStyle = '#d6402f'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    c.beginPath(); c.moveTo(12, 11); c.bezierCurveTo(14, 13.5, 16, 15, 15.5, 17.5); c.bezierCurveTo(15, 20, 9, 20, 8.6, 17.5); c.bezierCurveTo(8.4, 15.5, 10.5, 14, 12, 11); c.fillStyle = '#ffc24a'; c.fill();
+  },
+  treasure(c) { chest(c, 12, 20, 18, 13); },
+  tribute(c) {
+    c.beginPath(); c.moveTo(8.5, 8); c.bezierCurveTo(2, 12, 2.5, 21.5, 12, 21.5); c.bezierCurveTo(21.5, 21.5, 22, 12, 15.5, 8); c.closePath();
+    c.fillStyle = '#9b6fd0'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    fp(c, [8, 8, 9.5, 3.5, 12, 5.5, 14.5, 3.5, 16, 8], '#b48ae0', INK, 1.2);
+    line(c, 8, 8.2, 16, 8.2, GOLD, 1.8);
+    coin(c, 12, 15.2, 3.6);
+  },
+  rotate(c) {
+    c.beginPath(); c.arc(12, 12.5, 7.5, Math.PI * 1.15, Math.PI * .75); c.strokeStyle = INK; c.lineWidth = 4.6; c.stroke();
+    c.strokeStyle = '#f1e5c9'; c.lineWidth = 2; c.stroke();
+    const an = Math.PI * 1.15, ex = 12 + Math.cos(an) * 7.5, ey = 12.5 + Math.sin(an) * 7.5;
+    fp(c, [ex - 4.6, ey + 1.2, ex + 2.6, ey - 3.6, ex + 2.4, ey + 4.2], '#f1e5c9', INK, 1.3);
+  },
+  year(c) {
+    rr(c, 3.5, 5, 17, 16, 2.4); c.fillStyle = '#fbf6ea'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    c.save(); rr(c, 3.5, 5, 17, 16, 2.4); c.clip(); rect(c, 3.5, 5, 17, 5, '#d6402f'); c.restore();
+    rr(c, 3.5, 5, 17, 16, 2.4); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    line(c, 8, 3, 8, 7.2, INK, 1.8); line(c, 16, 3, 16, 7.2, INK, 1.8);
+    for (let r = 0; r < 2; r++) for (let k = 0; k < 3; k++) rect(c, 6.5 + k * 4.2, 12.5 + r * 4, 2.6, 2.4, r === 1 && k === 1 ? GOLD : '#9a9585');
+  },
+};
+function chest(c, cx, by, w, h) {
+  const x = cx - w / 2, lidH = h * .42, y = by - h;
+  shadow(c, cx + .8, by + .3, w * .55, h * .14, .3);
+  rect(c, x, y + lidH, w, h - lidH, '#a8693a', INK, Math.max(.8, w * .06));
+  c.beginPath(); c.moveTo(x, y + lidH); c.lineTo(x, y + lidH * .6); c.quadraticCurveTo(cx, y - lidH * .5, x + w, y + lidH * .6); c.lineTo(x + w, y + lidH); c.closePath();
+  c.fillStyle = '#c47e44'; c.fill(); c.strokeStyle = INK; c.lineWidth = Math.max(.8, w * .06); c.stroke();
+  rect(c, x + w * .14, y + lidH * .1, w * .14, h - lidH * .1, GOLD); rect(c, x + w * .72, y + lidH * .1, w * .14, h - lidH * .1, GOLD);
+  rect(c, x, y + lidH - h * .06, w, h * .12, GOLD_D);
+  rect(c, cx - w * .1, y + lidH - h * .08, w * .2, h * .26, GOLD_L, INK, Math.max(.5, w * .04));
+}
+
+function drawIcon(ctx, key, x, y, size) {
+  ctx.save();
+  ctx.translate(x, y); ctx.scale(size / 24, size / 24);
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  const f = ICONS[key];
+  if (f) f(ctx);
+  else { ell(ctx, 12, 12, 8, 8, '#bdbab2', INK, 1.4); ell(ctx, 12, 12, 2.4, 2.4, INK); }
+  ctx.restore();
+}
+
+/* ---------------- 标记 ---------------- */
+function drawThreat(ctx, px, py, s, t = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, p = .5 + .5 * Math.sin((t || 0) * 4);
+  rect(c, 0, 0, 32, 32, `rgba(205,45,30,${.14 + .14 * p})`);
+  c.strokeStyle = `rgba(214,52,36,${.55 + .4 * p})`; c.lineWidth = 2 + p; c.setLineDash([5, 3]); c.lineDashOffset = -(t || 0) * 6;
+  c.strokeRect(1.8, 1.8, 28.4, 28.4); c.setLineDash([]);
+  // 战旗 + 火把
+  shadow(c, 12, 28, 5, 1.4, .35);
+  line(c, 11, 28.5, 11, 6, '#5a3b24', 1.8);
+  fp(c, [11.8, 9, 25, 9, 22, 13.2, 25, 17.4, 11.8, 17.4], '#c8352b', INK, 1);
+  line(c, 15, 11, 20, 15.6, '#2a2018', 1.4); line(c, 20, 11, 15, 15.6, '#2a2018', 1.4);
+  rect(c, 9.4, 5.2, 3.2, 2.4, '#7a5030', INK, .7);
+  const fl = Math.sin((t || 0) * 13) * .8;
+  fp(c, [8.6, 5.4, 9.8, 1.2 + fl, 11, 3.2, 12.4, .2 - fl, 13.4, 5.4], '#ff9a3a', INK, .6);
+  fp(c, [10, 5.4, 11.2, 2.6, 12.2, 5.4], '#ffe08a', null);
+  ctx.restore();
+}
+
+function drawTreasure(ctx, px, py, s) {
+  tileStart(ctx, px, py, s);
+  const c = ctx;
+  chest(c, 16, 25.5, 15, 11);
+  sparkle(c, 24.5, 11.5, 2.6); sparkle(c, 8.5, 13, 1.6);
+  ctx.restore();
+}
+
+/** 兼容旧入口：新美术无需加载任何资源。 */
+async function loadArt() { return { loaded: 0, total: 0 }; }
+
+return { drawSea, drawWild, drawTerrain, BUILDING_SHAPES, rotateShape, drawBuilding, drawCard, drawIcon, drawThreat, drawTreasure, loadArt };
+})();
+
+const __m_storage = (() => {
+const { validateSave } = __m_rules;
+
+// v3 is a new game; the old v1/v2 sandbox save under its own key is left untouched.
+const SAVE_KEY = 'patchwork-kingdom.v3';
+const RECORD_KEY = 'patchwork-kingdom.v3.records';
+const EMPTY_RECORDS = { best: 0, runs: 0, wins: 0, daily: {} };
+
+function readSave(storage) {
+  try {
+    const raw = storage.getItem(SAVE_KEY);
+    if (raw === null) return { ok: true, state: null };
+    const checked = validateSave(raw);
+    return checked.ok ? { ok: true, state: checked.state } : { ok: false, reason: checked.reason, raw };
+  } catch (error) {
+    return { ok: false, reason: '无法读取存档：' + error.message };
+  }
+}
+/** Never overwrites an unreadable save; the player must explicitly start over (which backs it up). */
+function writeSave(storage, state) {
+  const checked = validateSave(state);
+  if (!checked.ok) return checked;
+  try {
+    const raw = storage.getItem(SAVE_KEY);
+    if (raw !== null && !validateSave(raw).ok) return { ok: false, reason: '原存档损坏，未覆盖。' };
+    storage.setItem(SAVE_KEY, JSON.stringify(state));
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: '浏览器没有保存成功。' };
+  }
+}
+function replaceSave(storage, state) {
+  try {
+    const old = storage.getItem(SAVE_KEY);
+    if (old !== null && !validateSave(old).ok) storage.setItem(SAVE_KEY + '.backup', old);
+    storage.setItem(SAVE_KEY, JSON.stringify(state));
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: '浏览器没有保存成功。' };
+  }
+}
+function readRecords(storage) {
+  try {
+    const value = JSON.parse(storage.getItem(RECORD_KEY) || 'null');
+    if (!value || typeof value !== 'object') return { ...EMPTY_RECORDS, daily: {} };
+    return { ...EMPTY_RECORDS, ...value, daily: value.daily && typeof value.daily === 'object' ? value.daily : {} };
+  } catch {
+    return { ...EMPTY_RECORDS, daily: {} };
+  }
+}
+function writeRecords(storage, records) {
+  try { storage.setItem(RECORD_KEY, JSON.stringify(records)); return true; } catch { return false; }
+}
+
+return { SAVE_KEY, RECORD_KEY, readSave, writeSave, replaceSave, readRecords, writeRecords };
+})();
+
+const __m_tutorial = (() => {
+
+// Spotlight tutorial, modelled on 奇兵列阵: an evenodd SVG mask cuts holes around the targets,
+// an input guard only lets the highlighted areas through, and each step advances on a tap,
+// a game event or a state check. Polling runs every 200ms but only touches the DOM on change.
+
+const PAD = 6;
+
+class Spotlight {
+  /**
+   * @param {HTMLElement} el   overlay root (#tut)
+   * @param {object[]} steps  {text, at?, allow?, until: 'tap'|event|fn, gate?, skip?, noMask?}
+   * @param {object} opts     {idle(): boolean, onDone(skipped), skippable, label}
+   */
+  constructor(el, steps, opts = {}) {
+    this.el = el; this.steps = steps; this.opts = opts;
+    this.i = 0; this.sig = ''; this.shown = false; this.rects = []; this.allowRects = []; this.avoidRects = [];
+    this.el.hidden = false;
+    this.el.innerHTML = '<div class="tut-mask"></div><div class="tut-rings"></div><div class="tut-box"></div>' +
+      (opts.skippable ? '<button class="act tut-skip">跳过教学</button>' : '');
+    this.mask = el.querySelector('.tut-mask'); this.ring = el.querySelector('.tut-rings'); this.box = el.querySelector('.tut-box');
+    el.querySelector('.tut-skip')?.addEventListener('click', () => this.finish(true));
+    this.guard = this.guard.bind(this);
+    for (const t of ['pointerdown', 'click', 'keydown', 'wheel', 'contextmenu']) window.addEventListener(t, this.guard, { capture: true, passive: false });
+    this.timer = setInterval(() => this.update(), 200);
+    this.update();
+  }
+
+  get done() { return this.i >= this.steps.length; }
+
+  notify(event) {
+    const s = this.steps[this.i];
+    if (s && s.until === event) this.next();
+  }
+
+  next() { this.i++; this.shown = false; this.sig = ''; if (this.done) this.finish(false); else this.update(); }
+
+  finish(skipped) {
+    if (this.disposed) return;
+    this.disposed = true;
+    clearInterval(this.timer);
+    for (const t of ['pointerdown', 'click', 'keydown', 'wheel', 'contextmenu']) window.removeEventListener(t, this.guard, { capture: true });
+    this.el.innerHTML = ''; this.el.hidden = true;
+    this.opts.onDone?.(skipped);
+  }
+
+  active(s) { return !!s && (this.opts.idle ? this.opts.idle() : true) && (!s.gate || s.gate()); }
+
+  resolve(t) {
+    const r = typeof t === 'function' ? t() : typeof t === 'string' ? document.querySelector(t) : t;
+    if (!r) return null;
+    if (r instanceof Element) {
+      if (!r.isConnected || !r.getClientRects().length) return null;
+      const b = r.getBoundingClientRect();
+      return b.width && b.height ? { x: b.left, y: b.top, w: b.width, h: b.height } : null;
+    }
+    return r;
+  }
+
+  update() {
+    if (this.disposed) return;
+    const s = this.steps[this.i];
+    if (!s) return;
+    if (s.skip?.() || (typeof s.until === 'function' && s.until())) { this.next(); return; }
+    const on = this.active(s);
+    this.el.classList.toggle('on', on);
+    this.el.classList.toggle('no-mask', !!s.noMask);
+    this.el.classList.toggle('last', this.i === this.steps.length - 1);
+    if (!on) {
+      if (this.sig !== 'off') { this.sig = 'off'; this.shown = false; this.mask.innerHTML = ''; this.ring.innerHTML = ''; this.box.style.display = 'none'; }
+      this.rects = this.allowRects = [];
+      return;
+    }
+    const pad = r => ({ x: r.x - PAD, y: r.y - PAD, w: r.w + PAD * 2, h: r.h + PAD * 2 });
+    this.rects = (s.at || []).map(t => this.resolve(t)).filter(Boolean).map(pad);
+    this.allowRects = [...this.rects, ...(s.allow || []).map(t => this.resolve(t)).filter(Boolean)];
+    // Soft obstacles for the text box: UI rails and whatever the player is working on (e.g. the ghost).
+    this.avoidRects = [...(s.avoid || []), ...(this.opts.avoid || [])].map(t => this.resolve(t)).filter(Boolean);
+    const text = typeof s.text === 'function' ? s.text() : s.text;
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const sig = `${this.i}|${text}|${vw}x${vh}|${this.rects.map(r => `${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.w)},${Math.round(r.h)}`).join(';')}|${this.avoidRects.map(r => `${Math.round(r.x)},${Math.round(r.y)}`).join(';')}`;
+    if (sig === this.sig) return;
+    this.sig = sig;
+    const holes = this.rects.map(r => `M${r.x},${r.y}h${r.w}v${r.h}h${-r.w}z`).join('');
+    this.mask.innerHTML = s.noMask ? '' : `<svg width="${vw}" height="${vh}" viewBox="0 0 ${vw} ${vh}"><path fill-rule="evenodd" d="M0,0H${vw}V${vh}H0z${holes}"/></svg>`;
+    this.ring.innerHTML = this.rects.map(r => `<div class="tut-ring" style="left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px"></div>`).join('');
+    if (!this.shown) {
+      this.shown = true;
+      const total = this.steps.length, last = this.i === total - 1;
+      this.box.innerHTML = `${this.opts.label === false ? '' : `<div class="tut-step">${this.opts.label || '教学'} ${this.i + 1}/${total}</div>`}<div class="tut-text">${text}</div>` +
+        (s.until === 'tap' ? `<button class="act primary tut-ok">${last ? '完成' : s.ok || '继续'}</button>` : '');
+      this.box.querySelector('.tut-ok')?.addEventListener('click', () => this.next());
+    }
+    this.box.style.display = '';
+    this.place();
+  }
+
+  /** Put the text box where it covers the highlights least (then the soft obstacles), close to the first highlight. */
+  place() {
+    const vw = window.innerWidth, vh = window.innerHeight, M = 10;
+    this.box.style.left = '0px'; this.box.style.top = '0px';
+    const W = this.box.offsetWidth, H = this.box.offsetHeight;
+    const cx = x => Math.max(8, Math.min(vw - W - 8, x)), cy = y => Math.max(8, Math.min(vh - H - 8, y));
+    const f = this.rects[0], cand = [];
+    if (f) {
+      cand.push({ x: cx(f.x + f.w + M), y: cy(f.y + f.h / 2 - H / 2) }, { x: cx(f.x - W - M), y: cy(f.y + f.h / 2 - H / 2) });
+      cand.push({ x: cx(f.x + f.w / 2 - W / 2), y: cy(f.y + f.h + M) }, { x: cx(f.x + f.w / 2 - W / 2), y: cy(f.y - H - M) });
+    }
+    for (const y of [vh * 0.18, vh / 2 - H / 2, vh - H - 8]) for (const x of [vw / 2 - W / 2, vw * 0.22, vw * 0.78 - W, 8, vw - W - 8]) cand.push({ x: cx(x), y: cy(y) });
+    const cover = (p, rs) => rs.reduce((a, r) =>
+      a + Math.max(0, Math.min(p.x + W, r.x + r.w) - Math.max(p.x, r.x)) * Math.max(0, Math.min(p.y + H, r.y + r.h) - Math.max(p.y, r.y)), 0);
+    const skip = this.resolve(this.el.querySelector('.tut-skip'));
+    const hard = skip ? [...this.rects, skip] : this.rects;
+    const overlap = p => cover(p, hard) * 4 + cover(p, this.avoidRects);
+    let best = cand[0] || { x: cx(vw / 2 - W / 2), y: cy(vh / 2 - H / 2) }, score = Infinity;
+    for (const p of cand) { const o = overlap(p); if (o < score - 1) { best = p; score = o; } }
+    this.box.style.left = `${Math.round(best.x)}px`; this.box.style.top = `${Math.round(best.y)}px`;
+  }
+
+  /** Input lock: only the highlighted/allowed rects, the box and the skip button get through. */
+  guard(e) {
+    const s = this.steps[this.i];
+    if (this.disposed || !this.active(s) || s.noMask) return;
+    if (e.target instanceof Node && this.el.contains(e.target)) return;
+    if (e instanceof KeyboardEvent) { if (e.key !== 'Escape') { e.stopPropagation(); e.preventDefault(); } return; }
+    if (e.clientX !== undefined && this.allowRects.some(r => e.clientX >= r.x && e.clientX <= r.x + r.w && e.clientY >= r.y && e.clientY <= r.y + r.h)) return;
+    e.stopPropagation(); e.preventDefault();
+  }
+}
+
+return { Spotlight };
+})();
+
+const __m_app = (() => {
+const R = __m_rules;
+const A = __m_art;
+const { readSave, writeSave, replaceSave, readRecords, writeRecords } = __m_storage;
+const { Spotlight } = __m_tutorial;
+
+
+
+
+const { BUILDINGS, TERRAIN, W, H } = R;
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const signed = n => (n > 0 ? '+' : '') + n;
+const S = 64;                      // resolution of the cached map layer, px per cell
+const BASE = 44;                   // CSS px per cell at zoom 1
+const RES_NAMES = { gold: '金', food: '粮', wood: '木', fame: '声望', pop: '人口' };
+const TUT_FLAG = 'patchwork-kingdom.v3.tutorial-done', TIPS_KEY = 'patchwork-kingdom.v3.tips', TUT_SEED = 20261020;
+
+// ---------- state ----------
+let storage = null;
+try { storage = window.localStorage; } catch { storage = null; }
+const memory = new Map();
+const store = storage || { getItem: k => memory.get(k) ?? null, setItem: (k, v) => memory.set(k, String(v)) };
+let records = readRecords(store);
+let loaded = readSave(store);
+let state = loaded.ok && loaded.state ? loaded.state : null;
+let saveBlocked = !loaded.ok;
+let liveRun = !!(loaded.ok && loaded.state);   // false while the map shows a placeholder kingdom behind the title
+
+let mode = null;          // {kind:'land', index, rot, ax, ay} | {kind:'build', type, rot, ax, ay}
+let drag = null;          // active pointer drag of a card or ghost
+let press = null;         // pointer pressed on a card, not yet a drag
+let pan = null;
+const pointers = new Map();
+let pinch = null;
+let sheet = null;         // 'land' | 'draft' | null
+const dismissed = { land: 0, draft: 0 };
+let guardView = false;
+let floaters = [];
+let cam = { x: 0, y: 0, z: 1 };
+let dirty = true, frameQueued = false, busy = false;
+let toastTimer = 0, bannerTimer = 0;
+let lastPointerType = 'touch';
+
+const canvas = $('#map'), ctx = canvas.getContext('2d');
+const cache = document.createElement('canvas'); cache.width = W * S; cache.height = H * S;
+const seaTile = document.createElement('canvas'); seaTile.width = seaTile.height = S * 4;
+let seaPattern = null;
+let dpr = 1, vw = 0, vh = 0;
+
+// ---------- helpers ----------
+const cellHash = (x, y) => ((x * 73856093) ^ (y * 19349663) ^ (state ? state.seed : 0)) >>> 0;
+const cp = () => BASE * cam.z;
+const year = () => R.yearOf(state), season = () => R.seasonOf(state);
+function iconHtml(key, cls = '') { return `<canvas class="ic ${cls}" data-icon="${key}" width="44" height="44" aria-hidden="true"></canvas>`; }
+function paintIcons(root) {
+  root.querySelectorAll('canvas[data-icon]').forEach(c => { const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height); A.drawIcon(g, c.dataset.icon, 0, 0, c.width); });
+  root.querySelectorAll('canvas[data-card]').forEach(c => {
+    const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+    A.drawCard(g, c.dataset.card, c.width, c.height, { rot: +(c.dataset.rot || 0) });
+  });
+  root.querySelectorAll('canvas[data-land]').forEach(c => paintLand(c, state.landOffers[+c.dataset.land]));
+}
+function paintLand(c, offer) {
+  if (!offer) return;
+  const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
+  const w = Math.max(...offer.cells.map(t => t.x)) + 1, h = Math.max(...offer.cells.map(t => t.y)) + 1;
+  const s = Math.floor(Math.min(c.width / (w + 0.4), c.height / (h + 0.4), c.height / 2.2));
+  const ox = Math.round((c.width - w * s) / 2), oy = Math.round((c.height - h * s) / 2);
+  offer.cells.forEach((t, i) => {
+    A.drawTerrain(g, t.t, ox + t.x * s, oy + t.y * s, s, i * 7 + 3);
+    if (t.treasure) A.drawTreasure(g, ox + t.x * s, oy + t.y * s, s);
+  });
+  g.strokeStyle = '#3b3a2c88'; g.lineWidth = Math.max(1, s / 16);
+  outline(g, offer.cells, ox, oy, s);
+}
+function outline(g, cells, ox, oy, s) {
+  const set = new Set(cells.map(c => `${c.x},${c.y}`));
+  g.beginPath();
+  for (const c of cells) {
+    const x = ox + c.x * s, y = oy + c.y * s;
+    if (!set.has(`${c.x},${c.y - 1}`)) { g.moveTo(x, y); g.lineTo(x + s, y); }
+    if (!set.has(`${c.x},${c.y + 1}`)) { g.moveTo(x, y + s); g.lineTo(x + s, y + s); }
+    if (!set.has(`${c.x - 1},${c.y}`)) { g.moveTo(x, y); g.lineTo(x, y + s); }
+    if (!set.has(`${c.x + 1},${c.y}`)) { g.moveTo(x + s, y); g.lineTo(x + s, y + s); }
+  }
+  g.stroke();
+}
+function toast(text, ms = 2600) {
+  const t = $('#toast'); t.textContent = text; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms);
+}
+function banner(title, sub = '') {
+  const b = $('#banner'); b.innerHTML = `${esc(title)}${sub ? `<small>${esc(sub)}</small>` : ''}`; b.classList.add('show');
+  clearTimeout(bannerTimer); bannerTimer = setTimeout(() => b.classList.remove('show'), 1300);
+}
+function costText(def) { return `${def.gold}金${def.wood ? ` ${def.wood}木` : ''}`; }
+function save() {
+  if (saveBlocked) return;
+  const r = writeSave(store, state);
+  if (!r.ok) toast('未保存：' + r.reason);
+}
+function invalidate() { dirty = true; requestFrame(); }
+function requestFrame() { if (!frameQueued) { frameQueued = true; requestAnimationFrame(frame); } }
+
+// ---------- modal ----------
+let modalResolve = null;
+function modal(html, buttons = [{ label: '好的', value: true, primary: true }], { onOpen, dismissable = true, cls = '' } = {}) {
+  return new Promise(resolve => {
+    modalResolve?.(null);
+    modalResolve = resolve;
+    const body = $('#modal-body');
+    body.innerHTML = html + `<div class="modal-actions">${buttons.map((b, i) => `<button class="act ${b.primary ? 'primary' : ''} ${b.danger ? 'danger' : ''}" data-i="${i}" ${b.disabled ? 'disabled' : ''}>${b.label}</button>`).join('')}</div>`;
+    $('#modal').hidden = false;
+    $('#modal .modal-card').className = 'modal-card ' + cls;
+    $('#modal').dataset.dismissable = dismissable ? '1' : '';
+    paintIcons(body);
+    body.querySelectorAll('.modal-actions [data-i]').forEach(el => el.onclick = () => closeModal(buttons[+el.dataset.i].value));
+    onOpen?.(body);
+    body.querySelector('.modal-actions .primary, .modal-actions button')?.focus({ preventScroll: true });
+  });
+}
+function closeModal(value) {
+  $('#modal').hidden = true;
+  const r = modalResolve; modalResolve = null; r?.(value);
+}
+$('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal' && $('#modal').dataset.dismissable) closeModal(null); });
+
+// ---------- layout & camera ----------
+// The map area is the space between the top bar and the two rails (the card rail slides away while a sheet is open).
+function viewArea() {
+  const top = $('#hud').offsetTop + $('#hud').offsetHeight + 4, bottom = 0;
+  const left = document.body.classList.contains('sheet-open') ? 0 : $('#dock').offsetWidth, right = $('#side').offsetWidth;
+  const w = vw - left - right, h = vh - top - bottom;
+  return { top, bottom, left, right, w, h, cx: left + w / 2, cy: top + h / 2 };
+}
+const mapRect = () => { const a = viewArea(); return { x: a.left, y: a.top, w: a.w, h: a.h }; };
+function resize() {
+  dpr = Math.min(2.5, window.devicePixelRatio || 1);
+  vw = window.innerWidth; vh = window.innerHeight;
+  canvas.width = Math.round(vw * dpr); canvas.height = Math.round(vh * dpr);
+  clampCam(); requestFrame();
+}
+function territoryBox() {
+  const xs = state.tiles.map(t => t.x), ys = state.tiles.map(t => t.y);
+  return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs) + 1, y1: Math.max(...ys) + 1 };
+}
+function centerCamera(fit = true) {
+  const box = territoryBox(), area = viewArea();
+  if (fit) {
+    const want = Math.min(area.w / (box.x1 - box.x0 + 3), area.h / (box.y1 - box.y0 + 3), 50);
+    cam.z = Math.max(0.6, Math.min(1.6, want / BASE));
+  }
+  const c = cp();
+  cam.x = ((box.x0 + box.x1) / 2) * c - area.cx;
+  cam.y = ((box.y0 + box.y1) / 2) * c - area.cy;
+  clampCam(); requestFrame();
+}
+function clampCam() {
+  const c = cp(), margin = 2 * c;
+  cam.x = Math.max(-vw + margin + 0, Math.min(W * c - margin, cam.x));
+  cam.y = Math.max(-vh + margin, Math.min(H * c - margin, cam.y));
+}
+function zoomAt(factor, sx, sy) {
+  const before = cp(), z = Math.max(0.55, Math.min(2.2, cam.z * factor));
+  const wx = (sx + cam.x) / before, wy = (sy + cam.y) / before;
+  cam.z = z;
+  cam.x = wx * cp() - sx; cam.y = wy * cp() - sy;
+  clampCam(); requestFrame();
+}
+const toCell = (sx, sy) => ({ x: Math.floor((sx + cam.x) / cp()), y: Math.floor((sy + cam.y) / cp()) });
+const toScreen = (x, y) => ({ x: x * cp() - cam.x, y: y * cp() - cam.y });
+
+// ---------- map drawing ----------
+function rebuildStatic() {
+  const g = cache.getContext('2d');
+  g.clearRect(0, 0, cache.width, cache.height);
+  const owned = new Map(state.tiles.map(t => [`${t.x},${t.y}`, t]));
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const tile = owned.get(`${x},${y}`), seed = cellHash(x, y);
+    if (tile) A.drawTerrain(g, tile.t, x * S, y * S, S, seed);
+    else if (R.isIsland(state, x, y)) { A.drawWild(g, x * S, y * S, S, seed); }
+    else A.drawSea(g, x * S, y * S, S, seed, 0);
+  }
+  g.save(); g.strokeStyle = '#fff6dc'; g.lineWidth = 4; g.lineCap = 'round';
+  outline(g, state.tiles, 0, 0, S); g.restore();
+  const f = R.forecast(state), idle = new Set(f.per.filter(p => p.idle).map(p => p.id));
+  const list = [...state.buildings].sort((a, b) => (a.y - b.y) || (a.x - b.x));
+  for (const b of list) drawBuildingAt(g, b.type, R.buildingCells(b), S, 0, 0, { level: b.level, damaged: b.damaged, idle: idle.has(b.id), rot: b.rot, t: 0 });
+  dirty = false;
+}
+function drawBuildingAt(g, type, cells, s, ox, oy, opts) {
+  const minX = Math.min(...cells.map(c => c.x)), minY = Math.min(...cells.map(c => c.y));
+  g.save(); g.translate(ox + minX * s, oy + minY * s);
+  A.drawBuilding(g, type, cells.map(c => ({ x: c.x - minX, y: c.y - minY })), s, opts);
+  g.restore();
+}
+function buildSeaPattern() {
+  const g = seaTile.getContext('2d');
+  for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) A.drawSea(g, x * S, y * S, S, x * 31 + y * 17, 0);
+  seaPattern = ctx.createPattern(seaTile, 'repeat');
+}
+function ghost() {
+  if (!mode) return null;
+  if (mode.kind === 'land') {
+    const cells = R.landCells(state, mode.index, mode.ax, mode.ay, mode.rot);
+    return { cells, check: R.canPlaceLand(state, mode.index, mode.ax, mode.ay, mode.rot) };
+  }
+  const cells = R.footprint(mode.type, mode.ax, mode.ay, mode.rot);
+  const preview = R.previewBuild(state, mode.type, mode.ax, mode.ay, mode.rot);
+  return { cells, check: preview, preview };
+}
+let ghostCache = null, ghostKey = '';
+function currentGhost() {
+  const k = mode ? `${mode.kind}|${mode.index}|${mode.type}|${mode.ax}|${mode.ay}|${mode.rot}|${state.gold}|${state.wood}|${state.turn}|${state.buildings.length}|${state.tiles.length}` : '';
+  if (k !== ghostKey) { ghostKey = k; ghostCache = ghost(); renderPlaceBar(); }
+  return ghostCache;
+}
+function frame(now) {
+  frameQueued = false;
+  const t = now / 1000;
+  if (dirty) rebuildStatic();
+  if (drag) edgePan();
+  const c = cp();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.save(); ctx.translate(-cam.x, -cam.y); ctx.scale(c / S, c / S);
+  ctx.fillStyle = seaPattern || '#5d9fb1';
+  ctx.fillRect((cam.x / c) * S - S, (cam.y / c) * S - S, (vw / c + 2) * S, (vh / c + 2) * S);
+  ctx.restore();
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(cache, -cam.x, -cam.y, W * c, H * c);
+  const g = currentGhost();
+  const showGuard = guardView || (mode?.kind === 'build' && ['tower', 'barracks'].includes(mode.type));
+  if (showGuard) drawGuard(g && mode.kind === 'build' && ['tower', 'barracks'].includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null);
+  drawThreats(t);
+  if (g) drawGhost(g);
+  drawFloaters(now);
+  if (state.threats.length || floaters.length || drag) requestFrame();
+}
+function drawGuard(extra) {
+  const covered = R.guardMap(state, extra), c = cp();
+  ctx.save(); ctx.fillStyle = '#4f86a83a'; ctx.strokeStyle = '#cfe6f5aa'; ctx.lineWidth = 1;
+  for (const k of covered.keys()) {
+    const [x, y] = k.split(',').map(Number);
+    if (!R.isIsland(state, x, y)) continue;
+    const p = toScreen(x, y); ctx.fillRect(p.x, p.y, c, c);
+  }
+  ctx.restore();
+}
+function drawThreats(t) {
+  if (!state.threats.length) return;
+  const covered = R.guardMap(state, mode?.kind === 'build' && GUARDS.includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null), c = cp();
+  for (const th of state.threats) {
+    const p = toScreen(th.x, th.y), safe = covered.has(`${th.x},${th.y}`);
+    A.drawThreat(ctx, p.x, p.y, c, safe ? 0 : t);
+    if (safe) A.drawIcon(ctx, 'guard', p.x + c * 0.52, p.y + c * 0.02, c * 0.46);
+  }
+}
+const GUARDS = ['tower', 'barracks'];
+function drawGhost(g) {
+  const c = cp(), okay = g.check.ok;
+  ctx.save();
+  if (mode.kind === 'build') {
+    // Neighbouring cells are where adjacency bonuses come from.
+    ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
+    for (const n of R.adjacentCells(state, mode.type, mode.ax, mode.ay, mode.rot)) {
+      if (!R.tileAt(state, n.x, n.y)) continue;
+      const p = toScreen(n.x, n.y); ctx.strokeRect(p.x + 3, p.y + 3, c - 6, c - 6);
+    }
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.92;
+    drawBuildingAt(ctx, mode.type, g.cells, c, -cam.x, -cam.y, { level: 1, damaged: false, idle: false, rot: mode.rot, t: 0 });
+    ctx.globalAlpha = 1;
+  } else {
+    ctx.globalAlpha = 0.95;
+    g.cells.forEach((cell, i) => {
+      const p = toScreen(cell.x, cell.y);
+      A.drawTerrain(ctx, cell.t, p.x, p.y, c, i * 7 + 3);
+      if (cell.treasure) A.drawTreasure(ctx, p.x, p.y, c);
+    });
+    ctx.globalAlpha = 1;
+  }
+  ctx.fillStyle = okay ? '#7fd36b40' : '#e0503c55';
+  for (const cell of g.cells) { const p = toScreen(cell.x, cell.y); ctx.fillRect(p.x, p.y, c, c); }
+  ctx.strokeStyle = okay ? '#e9ffd8' : '#ffd0c8'; ctx.lineWidth = 3;
+  outline(ctx, g.cells, -cam.x, -cam.y, c);
+  ctx.restore();
+}
+function addFloater(x, y, parts, delay = 0) {
+  const now = performance.now();
+  parts.filter(p => p.v).forEach((p, i) => floaters.push({ x, y, key: p.key, text: signed(p.v), bad: p.v < 0, t0: now + delay + i * 140 }));
+  requestFrame();
+}
+function drawFloaters(now) {
+  if (!floaters.length) return;
+  const c = cp(), size = Math.max(16, Math.min(24, c * 0.5));
+  floaters = floaters.filter(f => now - f.t0 < 1500);
+  ctx.save(); ctx.font = `800 ${size}px system-ui, sans-serif`; ctx.textBaseline = 'middle'; ctx.lineWidth = 4; ctx.lineJoin = 'round';
+  for (const f of floaters) {
+    const age = (now - f.t0) / 1500;
+    if (age < 0) continue;
+    const p = toScreen(f.x, f.y), y = p.y - age * c * 0.9;
+    ctx.globalAlpha = age < 0.75 ? 1 : 1 - (age - 0.75) / 0.25;
+    A.drawIcon(ctx, f.key, p.x - size * 1.05, y - size * 0.5, size);
+    ctx.strokeStyle = '#2b2a20'; ctx.fillStyle = f.bad ? '#ff9b8a' : '#fff4c2';
+    ctx.strokeText(f.text, p.x, y); ctx.fillText(f.text, p.x, y);
+  }
+  ctx.restore();
+}
+function edgePan() {
+  if (!drag || drag.sx == null) return;
+  const area = viewArea(), edge = 36, speed = 9;
+  let dx = 0, dy = 0;
+  const l = area.left, r = vw - area.right;
+  if (drag.sx < l + edge && drag.sx > l - 10) dx = -speed; else if (drag.sx > r - edge && drag.sx < r + 10) dx = speed;
+  if (drag.sy < area.top + edge && drag.sy > area.top - 30) dy = -speed; else if (drag.sy > vh - edge) dy = speed;
+  if (dx || dy) { cam.x += dx; cam.y += dy; clampCam(); updateDrag(drag.sx, drag.sy); }
+}
+
+// ---------- HUD & dock ----------
+function renderHud() {
+  const f = R.forecast(state), w = R.workers(state);
+  $('#season').innerHTML = `第${year()}年 · ${R.SEASONS[season()].name}<small>${R.SEASONS[season()].tip.split('；')[0]}</small>`;
+  const res = [
+    ['gold', state.gold, signed(f.gold), f.gold < 0],
+    ['food', state.food, signed(f.food), f.famine],
+    ['wood', state.wood, signed(f.wood), f.wood < 0],
+    ['worker', w.free, `/${w.population}`, w.free === 0],
+    ['fame', state.fame, '', false],
+  ];
+  $('#resources').innerHTML = res.map(([k, v, sub, bad]) => `<div class="res" data-res="${k}" aria-label="${RES_NAMES[k] || '空闲人口'} ${v} ${sub}" title="${k === 'food' ? `粮仓上限 ${R.foodCap(state)}` : ''}">${iconHtml(k)}<div><b>${v}</b>${sub ? `<small class="${bad ? 'neg' : ''}">${sub}</small>` : ''}</div></div>`).join('');
+  paintIcons($('#resources'));
+  renderAlerts(f);
+}
+function tributeProjection(f) {
+  const left = 4 - season();
+  return { due: R.tributeOf(state), projected: state.gold + f.gold * left, left };
+}
+function renderAlerts(f = R.forecast(state)) {
+  const out = [];
+  const tp = tributeProjection(f);
+  const short = tp.projected < tp.due;
+  out.push(`<div class="alert tribute ${season() === 3 && state.gold + f.gold < tp.due ? 'danger' : short ? 'warn' : ''}">${iconHtml('tribute')}年贡 ${tp.due} · ${tp.left === 1 ? '本季末' : `${tp.left}季后`}</div>`);
+  if (state.threats.length) {
+    const covered = R.guardMap(state), open = state.threats.filter(t => !covered.has(`${t.x},${t.y}`)).length;
+    out.push(`<div class="alert threat ${open ? 'danger' : ''}">${iconHtml('threat')}蛮族 ${state.threats.length}处 · ${season() === 2 ? '本季末' : '秋末'}${open ? ` · ${open}处无守` : ' · 全守住'}</div>`);
+  }
+  if (f.famine) out.push(`<div class="alert famine danger">${iconHtml('food')}粮食不够，会饥荒</div>`);
+  const broken = state.buildings.filter(b => b.damaged).length;
+  if (broken) out.push(`<div class="alert warn">${broken}座建筑损毁，点击修复</div>`);
+  $('#alerts').innerHTML = out.join('');
+  paintIcons($('#alerts'));
+}
+function renderDock() {
+  const basic = R.BASIC.map(type => cardHtml(type, 'basic')).join('');
+  let hand = state.hand.map((type, i) => cardHtml(type, 'hand', i)).join('');
+  for (let i = state.hand.length; i < R.HAND_LIMIT; i++) hand += '<div class="card slot">空</div>';
+  $('#cards').innerHTML = `<div class="col basic"><div class="col-h">常备</div>${basic}</div><div class="col hand"><div class="col-h">背包 ${state.hand.length}/${R.HAND_LIMIT}</div>${hand}</div>`;
+  paintIcons($('#cards'));
+  $('#cards').querySelectorAll('[data-type]').forEach(el => el.addEventListener('pointerdown', e => cardDown(e, { kind: 'build', type: el.dataset.type }, el)));
+  const playing = state.status === 'playing';
+  const land = $('#open-land'), draft = $('#open-draft');
+  land.disabled = !playing || state.landBought; draft.disabled = !playing || state.drafted;
+  land.innerHTML = state.landBought ? '已买地' : '买地<span class="badge"></span>';
+  draft.innerHTML = state.drafted ? '已选卡' : '选卡<span class="badge"></span>';
+  $('#next-turn').disabled = !playing;
+  $('#next-turn').innerHTML = season() === 3 ? `结算并交贡<small>${R.tributeOf(state)}金</small>` : '下一季';
+}
+function cardHtml(type, kind, handIndex) {
+  const def = BUILDINGS[type];
+  const short = state.gold < def.gold || state.wood < def.wood;
+  const active = mode?.kind === 'build' && mode.type === type;
+  return `<button class="card ${kind} ${short ? 'unaffordable' : ''} ${active ? 'active' : ''}" data-type="${type}" ${kind === 'hand' ? `data-hand="${handIndex}"` : ''} aria-label="${def.name}，${costText(def)}，${def.workers ? `需${def.workers}人，` : ''}拖到地图上建造，长按看图鉴">
+    <canvas data-card="${type}" width="116" height="76"></canvas><span class="nm">${def.name}</span><span class="cost ${short ? 'short' : ''}">${costText(def)}</span></button>`;
+}
+function renderPlaceBar() {
+  const bar = $('#place-bar');
+  if (!mode) { bar.hidden = true; $('#actions').hidden = false; return; }
+  bar.hidden = false; $('#actions').hidden = true;
+  const g = ghostCache || ghost();
+  let info = '';
+  if (mode.kind === 'land') {
+    const o = state.landOffers[mode.index];
+    info = `<b>${esc(o.name)}</b><span>${o.cells.length}格 · ${o.cost}金</span><span class="muted">点虚影旋转</span>`;
+  } else {
+    const def = BUILDINGS[mode.type];
+    info = `<b>${def.name}</b><span>${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span>`;
+    const d = g?.preview?.delta;
+    if (d) {
+      const parts = [['gold', d.gold], ['food', d.food], ['wood', d.wood], ['fame', d.fame], ['pop', d.pop]].filter(([, v]) => v);
+      info += `<div class="deltas">${parts.map(([k, v]) => `<span class="delta">${iconHtml(k)}${signed(v)}</span>`).join('')}${d.guard ? `<span class="delta">${iconHtml('guard')}守${d.guard}格</span>` : ''}${!parts.length && !d.guard ? '<span>本季无产出</span>' : ''}</div>`;
+    }
+  }
+  if (g && !g.check.ok) info += `<span class="bad">${esc(g.check.reason)}</span>`;
+  $('#place-info').innerHTML = info;
+  paintIcons($('#place-info'));
+  $('#place-confirm').disabled = !g?.check.ok;
+  $('#place-confirm').textContent = mode.kind === 'land' ? '买下' : '建造';
+}
+
+// ---------- sheets ----------
+function openSheet(kind) {
+  if (state.status !== 'playing') return;
+  if (kind === 'land' && state.landBought) return;
+  if (kind === 'draft' && state.drafted) return;
+  sheet = kind; renderSheet();
+}
+let camBeforeSheet = null;
+function closeSheet(remember = true) {
+  if (remember && sheet) dismissed[sheet] = state.turn;
+  sheet = null; $('#sheet').hidden = true; document.body.classList.remove('sheet-open');
+  restoreCam();
+}
+function restoreCam() {
+  if (camBeforeSheet) { cam = camBeforeSheet; camBeforeSheet = null; clampCam(); requestFrame(); }
+}
+function renderSheet() {
+  const el = $('#sheet');
+  const open = !!sheet && !mode;
+  if (document.body.classList.contains('sheet-open') !== open) { document.body.classList.toggle('sheet-open', open); clampCam(); }
+  if (!open) { el.hidden = true; return; }
+  el.hidden = false;
+  if (sheet === 'land') {
+    const cost = R.landRerollCost(state);
+    el.innerHTML = `<h2>选一块土地 <small>每季1块 · 拖到领土边上</small></h2>
+      <div class="offers">${state.landOffers.map((o, i) => {
+        const counts = {}; o.cells.forEach(c => counts[c.t] = (counts[c.t] || 0) + 1);
+        const desc = Object.entries(counts).map(([t, n]) => `${TERRAIN[t].name}${n}`).join(' ');
+        const treasure = o.cells.some(c => c.treasure);
+        return `<button class="offer" data-land-i="${i}" aria-label="${esc(o.name)}，${desc}，${o.cost}金"><canvas data-land="${i}" width="264" height="152"></canvas><b>${esc(o.name)}</b><span>${desc}${treasure ? ` · 宝箱+${o.treasure}` : ''}</span><span class="price ${state.gold < o.cost ? 'short' : ''}">${o.cost}金</span></button>`;
+      }).join('')}</div>
+      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-close">本季不买</button></div>`;
+    el.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
+    $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
+    $('#sheet-close').onclick = () => { closeSheet(); maybeAutoSheet(); };
+  } else {
+    const cost = R.draftRerollCost(state), full = state.hand.length >= R.HAND_LIMIT;
+    el.innerHTML = `<h2>选一张建筑卡 <small>放进背包 · 长按看图鉴</small></h2>
+      ${full ? '<p class="hint">背包满了：先建掉或丢弃一张</p>' : ''}
+      <div class="offers">${state.draft.map((type, i) => {
+        const def = BUILDINGS[type];
+        return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}><canvas data-card="${type}" width="264" height="152"></canvas><b>${def.name}</b>${def.unlock === year() && year() > 1 ? '<span class="new">新解锁</span>' : ''}<span>${esc(def.text)}</span><span class="price">${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span></button>`;
+      }).join('')}</div>
+      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
+    el.querySelectorAll('[data-draft-i]').forEach(b => {
+      b.onclick = () => {
+        if (b.dataset.longpressed) { delete b.dataset.longpressed; return; }
+        const r = R.takeDraft(state, +b.dataset.draftI);
+        if (!r.ok) return toast(r.reason);
+        buzz(); save(); closeSheet(); toast(`${BUILDINGS[r.type].name}放进背包`); renderAll(); tutNotify('draft');
+      };
+      longPress(b, () => { b.dataset.longpressed = '1'; openCodex({ type: state.draft[+b.dataset.draftI] }); });
+    });
+    $('#sheet-reroll').onclick = () => { const r = R.rerollDraft(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
+    $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
+    $('#sheet-close').onclick = () => closeSheet();
+  }
+  paintIcons(el);
+  keepTerritoryVisible(el.getBoundingClientRect());
+}
+function keepTerritoryVisible(rect) {
+  // The sheet covers the right of the map; nudge the camera so the kingdom (plus a ring for new land) stays left of it.
+  const area = viewArea(), box = territoryBox(), a = toScreen(box.x0 - 1, box.y0 - 1), z = toScreen(box.x1 + 1, box.y1 + 1);
+  if (z.x <= rect.left - 6 && a.x >= 4 && a.y >= area.top && z.y <= vh - 4) return;
+  if (!camBeforeSheet) camBeforeSheet = { ...cam };
+  const room = rect.left - 12, roomY = vh - area.top - 8;
+  const fit = Math.min(room / (z.x - a.x), roomY / (z.y - a.y));
+  if (fit < 1) cam.z = Math.max(0.4, cam.z * fit);
+  const c = cp();
+  cam.x = ((box.x0 + box.x1) / 2) * c - (6 + room / 2);
+  cam.y = ((box.y0 + box.y1) / 2) * c - (area.top + roomY / 2);
+  clampCam(); requestFrame();
+}
+function maybeAutoSheet() {
+  if (state.status !== 'playing' || mode || busy || !$('#modal').hidden) return;
+  if (!state.landBought && dismissed.land !== state.turn) openSheet('land');
+  else if (!state.drafted && dismissed.draft !== state.turn) openSheet('draft');
+}
+
+// ---------- placement ----------
+function shapeSize() {
+  const cells = mode.kind === 'land' ? R.landCells(state, mode.index, 0, 0, mode.rot) : R.footprint(mode.type, 0, 0, mode.rot);
+  return { w: Math.max(...cells.map(c => c.x)) + 1, h: Math.max(...cells.map(c => c.y)) + 1 };
+}
+function enterMode(spec, keepRot = true) {
+  const same = mode && mode.kind === spec.kind && mode.type === spec.type && mode.index === spec.index;
+  const rot = same && keepRot ? mode.rot : 0;
+  mode = { ...spec, rot, ax: 0, ay: 0 };
+  $('#sheet').hidden = true;
+  if (spec.kind === 'land') restoreCam();
+  renderDock();
+}
+function suggestSpot() {
+  // Nearest legal anchor to the view centre; otherwise just centre the ghost.
+  const area = viewArea(), centre = toCell(area.cx, area.cy), { w, h } = shapeSize();
+  let best = null;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const ok = mode.kind === 'land' ? R.canPlaceLand(state, mode.index, x, y, mode.rot).ok : R.canBuild(state, mode.type, x, y, mode.rot).ok;
+    if (!ok) continue;
+    const d = Math.hypot(x + w / 2 - centre.x, y + h / 2 - centre.y);
+    if (!best || d < best.d) best = { x, y, d };
+  }
+  if (best) { mode.ax = best.x; mode.ay = best.y; }
+  else {
+    mode.ax = centre.x - Math.floor(w / 2); mode.ay = centre.y - Math.floor(h / 2);
+    toast(mode.kind === 'land' ? '这块地拼不上：金币不够或没有空位' : whyNoSpot(mode.type));
+  }
+  ensureVisible();
+}
+function whyNoSpot(type) {
+  const def = BUILDINGS[type];
+  if (state.gold < def.gold) return `金币不足，需要${def.gold}`;
+  if (state.wood < def.wood) return `木材不足，需要${def.wood}`;
+  if (def.workers > R.workers(state).free) return `空闲人口不足，需要${def.workers}人，先建民居`;
+  return `领土上没有放得下${def.name}的空地，先买地`;
+}
+function ensureVisible() {
+  const { w, h } = shapeSize(), c = cp(), area = viewArea();
+  const p = toScreen(mode.ax, mode.ay);
+  const l = area.left + 12, r = vw - area.right - 12, t = area.top + 36, b = vh - 60;
+  if (p.x < l) cam.x += p.x - l; else if (p.x + w * c > r) cam.x += p.x + w * c - r;
+  if (p.y < t) cam.y += p.y - t; else if (p.y + h * c > b) cam.y += p.y + h * c - b;
+  clampCam();
+}
+function cancelMode() { mode = null; drag = null; renderAll(); maybeAutoSheet(); }
+function rotate() {
+  if (!mode) return;
+  const { w: w0, h: h0 } = shapeSize();
+  mode.rot = (mode.rot + 1) % 4;
+  const { w, h } = shapeSize();
+  // Rotate around the visual centre so the piece stays under the finger.
+  mode.ax += Math.round((w0 - w) / 2); mode.ay += Math.round((h0 - h) / 2);
+  renderDock(); requestFrame();
+}
+function commit() {
+  const g = currentGhost();
+  if (!g?.check.ok) { if (g) toast(g.check.reason); return; }
+  if (mode.kind === 'land') {
+    const r = R.placeLand(state, mode.index, mode.ax, mode.ay, mode.rot);
+    if (!r.ok) return toast(r.reason);
+    const cx = mode.ax + shapeSize().w / 2, cy = mode.ay + shapeSize().h / 2;
+    addFloater(cx, cy, [{ key: 'gold', v: -r.cost }]);
+    if (r.treasure) addFloater(cx, cy - 0.6, [{ key: 'treasure', v: r.treasure }], 400);
+    mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('land');
+    if (r.regions.length) {
+      for (const g2 of r.regions) addFloater(cx, cy - 1, [{ key: 'fame', v: g2.fame }, { key: 'gold', v: g2.gold }], 600);
+      banner(`${r.regions.map(x => x.name).join('、')}成形！`, r.regions.map(x => `连成${x.size}格 · 声望+${x.fame} 金+${x.gold}`).join('；'));
+    } else if (r.treasure) toast(`挖到宝箱，金+${r.treasure}`);
+    maybeAutoSheet();
+  } else {
+    const type = mode.type, d = g.preview?.delta;
+    const r = R.build(state, type, mode.ax, mode.ay, mode.rot);
+    if (!r.ok) return toast(r.reason);
+    const { w, h } = shapeSize(), cx = mode.ax + w / 2, cy = mode.ay + h / 2;
+    addFloater(cx, cy, [{ key: 'gold', v: -BUILDINGS[type].gold }, { key: 'wood', v: -BUILDINGS[type].wood }]);
+    if (d) addFloater(cx, cy - 0.5, [{ key: 'gold', v: d.gold }, { key: 'food', v: d.food }, { key: 'wood', v: d.wood }, { key: 'fame', v: d.fame }, { key: 'pop', v: d.pop }].map(p => ({ ...p })), 450);
+    mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('build');
+    toast(`${BUILDINGS[type].name}建成${d && (d.gold || d.food || d.wood || d.fame) ? '，每季产出见上方' : ''}`, 1600);
+  }
+}
+$('#place-rotate').onclick = rotate;
+$('#place-cancel').onclick = cancelMode;
+$('#place-confirm').onclick = commit;
+
+// ---------- pointer input ----------
+function cardDown(e, spec, el) {
+  if (state.status !== 'playing' || busy) return;
+  if (e.button !== undefined && e.button !== 0) return;
+  e.preventDefault();
+  lastPointerType = e.pointerType;
+  clearTimeout(press?.timer);
+  press = { id: e.pointerId, x0: e.clientX, y0: e.clientY, spec, el };
+  el.classList.add('pressing');
+  // Hold still on a building card to open its codex entry.
+  if (spec.kind === 'build') press.timer = setTimeout(() => {
+    if (!press || press.el !== el) return;
+    el.classList.remove('pressing'); press = null; buzz();
+    openCodex({ type: spec.type });
+  }, 480);
+}
+function releasePress() { if (press) { clearTimeout(press.timer); press.el.classList.remove('pressing'); } press = null; }
+// Generic long-press for plain buttons (draft offers); fires cb and lets the caller swallow the click.
+function longPress(el, cb) {
+  let t = 0, x0 = 0, y0 = 0;
+  el.addEventListener('pointerdown', e => { x0 = e.clientX; y0 = e.clientY; clearTimeout(t); t = setTimeout(() => { buzz(); cb(); }, 480); });
+  el.addEventListener('pointermove', e => { if (Math.hypot(e.clientX - x0, e.clientY - y0) > 9) clearTimeout(t); });
+  for (const ev of ['pointerup', 'pointercancel', 'pointerleave']) el.addEventListener(ev, () => clearTimeout(t));
+}
+function startDrag(spec, e, source) {
+  if (source === 'card') { enterMode(spec); buzz(); }
+  const lift = e.pointerType === 'mouse' ? 0 : cp() * 1.1;
+  drag = { id: e.pointerId, source, lift, sx: e.clientX, sy: e.clientY, x0: e.clientX, y0: e.clientY, moved: false, grabX: 0, grabY: 0 };
+  if (source === 'ghost') {
+    const cell = toCell(e.clientX, e.clientY);
+    drag.grabX = cell.x - mode.ax; drag.grabY = cell.y - mode.ay; drag.lift = 0;
+  }
+  updateDrag(e.clientX, e.clientY);
+}
+function updateDrag(sx, sy) {
+  drag.sx = sx; drag.sy = sy;
+  if (Math.hypot(sx - drag.x0, sy - drag.y0) > 8) drag.moved = true;
+  if (drag.source === 'ghost') {
+    if (!drag.moved) return;
+    const cell = toCell(sx, sy);
+    mode.ax = cell.x - drag.grabX; mode.ay = cell.y - drag.grabY;
+  } else {
+    const { w, h } = shapeSize(), c = cp();
+    mode.ax = Math.round((sx + cam.x) / c - w / 2);
+    mode.ay = Math.round((sy - drag.lift + cam.y) / c - h / 2);
+  }
+  requestFrame();
+}
+// Dropping a card back onto either rail cancels it.
+function overRail(sx) { const a = viewArea(); return sx < a.left - 4 || sx > vw - a.right + 4; }
+function endDrag(e) {
+  const d = drag; drag = null;
+  if (d.source === 'card' && overRail(e.clientX)) { cancelMode(); return; }
+  if (d.source === 'ghost' && !d.moved) { rotate(); return; }
+  const g = currentGhost();
+  if (g?.check.ok && d.source === 'card') commit();
+  else { renderAll(); requestFrame(); }
+}
+window.addEventListener('pointermove', e => {
+  if (press && e.pointerId === press.id && !drag) {
+    if (Math.hypot(e.clientX - press.x0, e.clientY - press.y0) > 9) { const p = press; releasePress(); startDrag(p.spec, e, 'card'); }
+    return;
+  }
+  if (drag && e.pointerId === drag.id) { updateDrag(e.clientX, e.clientY); return; }
+});
+window.addEventListener('pointerup', e => {
+  if (press && e.pointerId === press.id) { const p = press; releasePress(); tapCard(p.spec, p.el); return; }
+  if (drag && e.pointerId === drag.id) endDrag(e);
+});
+window.addEventListener('pointercancel', e => {
+  if (press && e.pointerId === press.id) releasePress();
+  if (drag && e.pointerId === drag.id) { drag = null; requestFrame(); renderAll(); }
+});
+function tapCard(spec, el) {
+  if (spec.kind === 'build' && el?.dataset.hand !== undefined && mode?.kind === 'build' && mode.type === spec.type) {
+    // Second tap on a selected backpack card offers to discard it.
+    handMenu(+el.dataset.hand); return;
+  }
+  enterMode(spec); suggestSpot(); renderAll(); requestFrame();
+}
+async function handMenu(i) {
+  const type = state.hand[i], def = BUILDINGS[type];
+  const v = await modal(`<h2>${def.name}</h2><canvas class="big-preview" data-card="${type}" width="240" height="160"></canvas><p>${esc(def.text)}</p><p class="muted">${costText(def)} · ${def.workers}人 · 可旋转</p>`,
+    [{ label: '去建造', value: 'build', primary: true }, { label: '图鉴', value: 'codex' }, { label: '丢弃 +3金', value: 'discard' }, { label: '关闭', value: null }]);
+  if (v === 'codex') { cancelMode(); openCodex({ type }); }
+  else if (v === 'discard') { mode = null; R.discard(state, i); save(); renderAll(); maybeAutoSheet(); }
+  else if (v === null) cancelMode();
+}
+
+canvas.addEventListener('pointerdown', e => {
+  if (busy) return;
+  canvas.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  lastPointerType = e.pointerType;
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: cam.z };
+    pan = null; if (drag?.source === 'ghost') drag = null;
+    return;
+  }
+  if (mode) {
+    const cell = toCell(e.clientX, e.clientY), g = currentGhost();
+    const hit = g?.cells.some(c => Math.abs(c.x - cell.x) <= (e.pointerType === 'mouse' ? 0 : 1) && Math.abs(c.y - cell.y) <= (e.pointerType === 'mouse' ? 0 : 1));
+    if (hit) { startDrag(null, e, 'ghost'); return; }
+  }
+  pan = { id: e.pointerId, x0: e.clientX, y0: e.clientY, cx: cam.x, cy: cam.y, moved: false };
+});
+canvas.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (pinch && pointers.size >= 2) {
+    const [a, b] = [...pointers.values()], d = Math.hypot(a.x - b.x, a.y - b.y);
+    zoomAt((pinch.z * d / pinch.d) / cam.z, (a.x + b.x) / 2, (a.y + b.y) / 2); return;
+  }
+  if (pan && e.pointerId === pan.id) {
+    const dx = e.clientX - pan.x0, dy = e.clientY - pan.y0;
+    if (Math.hypot(dx, dy) > 7) pan.moved = true;
+    if (pan.moved) { cam.x = pan.cx - dx; cam.y = pan.cy - dy; clampCam(); requestFrame(); }
+  }
+});
+function pointerEnd(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch = null;
+  if (pan && e.pointerId === pan.id) {
+    const p = pan; pan = null;
+    if (!p.moved && e.type === 'pointerup') tapMap(e.clientX, e.clientY);
+  }
+}
+canvas.addEventListener('pointerup', pointerEnd);
+canvas.addEventListener('pointercancel', pointerEnd);
+canvas.addEventListener('wheel', e => { e.preventDefault(); zoomAt(e.deltaY < 0 ? 1.12 : 1 / 1.12, e.clientX, e.clientY); }, { passive: false });
+
+function tapMap(sx, sy) {
+  const cell = toCell(sx, sy);
+  if (mode) {
+    const { w, h } = shapeSize();
+    mode.ax = cell.x - Math.floor(w / 2); mode.ay = cell.y - Math.floor(h / 2);
+    requestFrame(); return;
+  }
+  const b = R.buildingAt(state, cell.x, cell.y);
+  if (b) { inspect(b); return; }
+  const tile = R.tileAt(state, cell.x, cell.y);
+  const threat = state.threats.some(t => t.x === cell.x && t.y === cell.y);
+  if (tile) toast(`${TERRAIN[tile.t].name}${threat ? ' · 蛮族目标！在2格内建哨塔可守住' : ''}`);
+  else if (R.isIsland(state, cell.x, cell.y)) toast('未开拓的土地：买地拼到这里');
+}
+
+// ---------- inspector ----------
+function describeOutput(p) {
+  if (!p) return '';
+  if (p.damaged) return '<p class="muted">已损毁，不产出也不提供人口。</p>';
+  if (p.idle) return '<p class="muted">人手不足，停工中。建民居增加人口。</p>';
+  const parts = [['gold', p.gold], ['food', p.food], ['wood', p.wood], ['fame', p.fame]].filter(([, v]) => v);
+  return parts.length ? `<p>本季产出：${parts.map(([k, v]) => `${iconHtml(k, 'inline')}${signed(v)}`).join('　')}</p>` : '';
+}
+async function inspect(b) {
+  const def = BUILDINGS[b.type], f = R.forecast(state), p = f.per.find(x => x.id === b.id);
+  const up = R.upgradeCost(b), playing = state.status === 'playing';
+  const buttons = [];
+  if (b.damaged) buttons.push({ label: `修复 ${R.repairCost(b)}金`, value: 'repair', primary: true, disabled: !playing || state.gold < R.repairCost(b) });
+  else if (up) buttons.push({ label: `升到${b.level + 1}级 ${up.gold}金 ${up.wood}木`, value: 'upgrade', primary: true, disabled: !playing || state.gold < up.gold || state.wood < up.wood });
+  if (b.type !== 'hall') buttons.push({ label: '拆除', value: 'demolish', disabled: !playing });
+  buttons.push({ label: '图鉴', value: 'codex' }, { label: '关闭', value: null });
+  const v = await modal(`<h2>${def.name} <small class="muted">${b.type === 'hall' ? '' : `${b.level}级`}</small></h2>
+    <canvas class="big-preview" data-card="${b.type}" data-rot="${b.rot}" width="240" height="160"></canvas>
+    <p>${esc(def.text)}</p>${describeOutput(p)}${up && !b.damaged ? '<p class="muted">升级后产出×1.5（3级×2）。</p>' : ''}`, buttons);
+  if (v === 'codex') openCodex({ type: b.type });
+  if (v === 'upgrade') act(R.upgrade(state, b.id), `${def.name}升到${b.level}级`);
+  if (v === 'repair') act(R.repair(state, b.id), `${def.name}已修复`);
+  if (v === 'demolish') {
+    const sure = await modal(`<h2>拆除${def.name}？</h2><p>${b.damaged ? '损毁建筑拆除不退款。' : `回收${Math.floor(def.gold * 0.4)}金，背包卡不返还。`}</p>`, [{ label: '拆除', value: true, danger: true }, { label: '取消', value: false }]);
+    if (sure) act(R.demolish(state, b.id), `已拆除${def.name}`);
+  }
+}
+function act(r, ok) { if (!r.ok) { toast(r.reason); return false; } save(); invalidate(); renderAll(); if (ok) toast(ok); return true; }
+
+// ---------- season flow ----------
+async function nextSeason() {
+  if (busy || state.status !== 'playing') return;
+  if (mode) cancelMode();
+  closeSheet(false);
+  const f = R.forecast(state), due = R.tributeOf(state);
+  if (season() === 3 && state.gold + f.gold < due) {
+    const go = await modal(`<h2>${iconHtml('tribute', 'inline')}年贡不够</h2><p>结算后预计有 <b>${state.gold + f.gold}</b> 金，年贡要 <b>${due}</b> 金。交不上王国就会陷落。</p><p class="muted">还可以拆除建筑回收金币，或先别花钱。</p>`,
+      [{ label: '再想想', value: false, primary: true }, { label: '仍然结算', value: true, danger: true }]);
+    if (!go) return;
+  }
+  if (season() === 2 && state.threats.length) {
+    const covered = R.guardMap(state), open = state.threats.filter(t => !covered.has(`${t.x},${t.y}`)).length;
+    if (open) {
+      const go = await modal(`<h2>${iconHtml('threat', 'inline')}还有${open}处边境无人守</h2><p>本季末蛮族来袭。无人守卫的格子每处被抢 ${R.plunderOf(state)} 金，上面的建筑会损毁。</p><p class="muted">哨塔守周围2格，王城守2格。打开「盾」看守卫范围。</p>`,
+        [{ label: '去布防', value: false, primary: true }, { label: '仍然结算', value: true }]);
+      if (!go) { guardView = true; $('#guard-view').setAttribute('aria-pressed', 'true'); requestFrame(); return; }
+    }
+  }
+  busy = true; tutNotify('turn');
+  const r = R.nextTurn(state);
+  save();
+  const rep = r.report;
+  // Floating yields over every producing building.
+  for (const p of rep.economy.per) {
+    const b = state.buildings.find(x => x.id === p.id);
+    if (!b) continue;
+    const cells = R.buildingCells(b), cx = cells.reduce((s, c) => s + c.x, 0) / cells.length + 0.5, cy = Math.min(...cells.map(c => c.y)) + 0.3;
+    addFloater(cx, cy, [{ key: 'gold', v: p.gold }, { key: 'food', v: p.food }, { key: 'wood', v: p.wood }, { key: 'fame', v: p.fame }]);
+  }
+  const hall = state.buildings.find(b => b.type === 'hall');
+  if (rep.economy.tax) addFloater(hall.x + 1, hall.y - 0.2, [{ key: 'gold', v: rep.economy.tax }], 300);
+  invalidate(); renderAll();
+  await wait(rep.economy.per.length ? 900 : 300);
+  if (rep.economy.famine) toast('饥荒！税收减半，声望−1。多建农田或渔港。', 3400);
+  if (rep.raid) { buzz('heavy'); await raidReport(rep.raid); }
+  if (rep.tribute?.paid) {
+    await modal(`<h2>${iconHtml('tribute', 'inline')}第${rep.year}年年贡已缴</h2><p>上缴 <b>${rep.tribute.due}</b> 金，声望+2。</p>${state.status === 'playing' ? `<p class="muted">下一年年贡：${R.tributeOf(state)} 金。${unlockText()}</p>` : ''}`);
+  }
+  busy = false;
+  if (state.status !== 'playing') { await endScreen(); return; }
+  banner(`第${year()}年 · ${R.SEASONS[season()].name}`, R.SEASONS[season()].tip);
+  if (rep.threats) {
+    await wait(700);
+    toast(`斥候：蛮族盯上${rep.threats}处边境（红旗），秋末来袭`, 3600);
+    guardView = true; $('#guard-view').setAttribute('aria-pressed', 'true');
+  }
+  renderAll(); requestFrame();
+  setTimeout(() => { if (!contextTips()) maybeAutoSheet(); }, 500);
+}
+function unlockText() {
+  const fresh = Object.entries(BUILDINGS).filter(([, d]) => d.unlock === year()).map(([, d]) => d.name);
+  return fresh.length ? `新建筑卡：${fresh.join('、')}。` : '';
+}
+async function raidReport(raid) {
+  const held = raid.filter(r => r.defended), lost = raid.filter(r => !r.defended);
+  for (const r of raid) addFloater(r.x + 0.5, r.y + 0.3, r.defended ? [{ key: 'fame', v: r.fame }] : [{ key: 'gold', v: -r.loss }]);
+  invalidate(); requestFrame();
+  await wait(600);
+  await modal(`<h2>${iconHtml('threat', 'inline')}蛮族来袭</h2>
+    <ul class="list">${held.length ? `<li class="good"><span>守住</span><b>${held.length}处 · 声望+${held.reduce((s, r) => s + r.fame, 0)}</b></li>` : ''}
+    ${lost.length ? `<li class="bad"><span>失守</span><b>${lost.length}处 · 金−${lost.reduce((s, r) => s + r.loss, 0)}</b></li>` : ''}
+    ${lost.filter(r => r.damaged).map(r => `<li class="bad"><span>${BUILDINGS[state.buildings.find(b => b.id === r.damaged)?.type]?.name || '建筑'}损毁</span><b>点击修复</b></li>`).join('')}</ul>
+    <p class="muted">边境越长，下一年蛮族目标越多。</p>`);
+}
+const wait = ms => new Promise(r => setTimeout(r, matchMedia('(prefers-reduced-motion: reduce)').matches ? Math.min(ms, 150) : ms));
+
+// ---------- screens ----------
+function today() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function newRun(daily, tutorial = false) {
+  const seed = daily ? `daily-${today()}` : tutorial ? TUT_SEED : Math.floor(Math.random() * 4294967295);
+  state = R.createGame(seed, daily ? `daily:${today()}` : 'free'); liveRun = true;
+  const r = replaceSave(store, state);
+  saveBlocked = !r.ok;
+  if (!r.ok) toast('未能保存：' + r.reason);
+  mode = null; sheet = null; floaters = []; dismissed.land = dismissed.draft = 0; guardView = false;
+  $('#guard-view').setAttribute('aria-pressed', 'false');
+  invalidate(); centerCamera(); renderAll();
+  stopTutorial();
+  if (tutorial) { startTutorial(); return; }
+  banner('第1年 · 春', '拼地、建城，熬过六年年贡');
+  setTimeout(maybeAutoSheet, 700);
+}
+async function titleScreen() {
+  const daily = records.daily[today()];
+  const canContinue = liveRun && state && state.status === 'playing';
+  const v = await modal(`<div class="title-card"><h1>拼土王国</h1><p class="tag">拼地块 · 摆建筑 · 撑过六年年贡</p>
+    <div class="stat-grid"><div class="stat"><b>${records.best}</b>最高分</div><div class="stat"><b>${records.wins}/${records.runs}</b>胜/局</div><div class="stat"><b>${daily ?? '—'}</b>今日挑战</div></div></div>`,
+    [...(canContinue ? [{ label: '继续这一局', value: 'continue', primary: true }] : []),
+      { label: '新王国', value: 'new', primary: !canContinue }, { label: '今日挑战', value: 'daily' }, { label: '教学', value: 'tutorial' }, { label: '图鉴', value: 'codex' }],
+    { dismissable: false, cls: 'title' });
+  if (v === 'codex') { await openCodex({ tab: 'rules' }); return titleScreen(); }
+  if (v === 'tutorial') {
+    if (canContinue && !await modal('<h2>开始教学？</h2><p class="muted">当前这一局会被教学局覆盖。</p>', [{ label: '开始教学', value: true, primary: true }, { label: '返回', value: false }])) return titleScreen();
+    newRun(false, true); return;
+  }
+  if (v === 'new' || v === 'daily') {
+    if (canContinue) {
+      const sure = await modal('<h2>放弃当前这一局？</h2><p class="muted">当前进度会被新王国覆盖。</p>', [{ label: '开始新局', value: true, danger: true }, { label: '返回', value: false }]);
+      if (!sure) return titleScreen();
+    }
+    // The very first new kingdom (not the daily) runs the tutorial.
+    newRun(v === 'daily', v === 'new' && !tutorialDone());
+  } else { renderAll(); maybeAutoSheet(); }
+}
+async function endScreen() {
+  const sc = R.score(state), won = state.status === 'won';
+  if (!state.recorded) {
+    records.runs++; if (won) records.wins++;
+    records.best = Math.max(records.best, sc.total);
+    if (state.mode.startsWith('daily:')) { const k = state.mode.slice(6); records.daily[k] = Math.max(records.daily[k] || 0, sc.total); }
+    writeRecords(store, records);
+    state.recorded = true; save();
+  }
+  const v = await modal(`<h2>${won ? '王国屹立' : '王国陷落'}</h2><p class="muted">${esc(state.endReason)}</p>
+    ${won ? `<div class="stars">${[1, 2, 3].map(i => `<span class="${i <= sc.stars ? '' : 'off'}">★</span>`).join('')}</div>` : ''}
+    <div class="score-total">${sc.total}</div>
+    <ul class="list">${sc.parts.map(p => `<li><span>${p.label}</span><b>${p.value}</b></li>`).join('')}</ul>
+    <div class="stat-grid"><div class="stat"><b>${state.tiles.length}</b>领土格</div><div class="stat"><b>${state.buildings.length}</b>建筑</div><div class="stat"><b>${state.stats.defended}</b>守住进攻</div><div class="stat"><b>${records.best}</b>最高分</div></div>`,
+    [{ label: '再来一局', value: 'new', primary: true }, { label: '今日挑战', value: 'daily' }, { label: '看看王国', value: null }], { dismissable: false });
+  if (v === 'new' || v === 'daily') newRun(v === 'daily');
+  else renderAll();
+}
+async function overview() {
+  const f = R.forecast(state), w = R.workers(state);
+  const regions = R.regionProgress(state);
+  await modal(`<h2>第${year()}年 · ${R.SEASONS[season()].name}</h2><p class="muted">${esc(R.SEASONS[season()].tip)}</p>
+    <div class="stat-grid"><div class="stat"><b>${signed(f.gold)}</b>每季金（税${f.tax}）</div><div class="stat"><b>${signed(f.produced)}/−${f.eat}</b>产粮/吃粮</div><div class="stat"><b>${w.used}/${w.population}</b>在岗/人口</div><div class="stat"><b>${R.borderCells(state).length}</b>边境格</div></div>
+    <h3>年贡</h3><p>${R.TRIBUTE.map((t, i) => i + 1 === year() ? `<b>${t}</b>` : i + 1 < year() ? `<s>${t}</s>` : t).join(' → ')}</p>
+    <h3>地形连片</h3>${regions.map(r => `<div class="region-row">${iconHtml('year', 'inline')}<span style="width:44px">${r.name}</span><div class="bar"><i style="width:${Math.min(100, r.next ? r.size / r.next * 100 : 100)}%"></i></div><span>${r.next ? `${r.size}/${r.next}` : '已满'}</span></div>`).join('')}
+    <h3>最近</h3><ul class="list">${state.log.slice(-5).reverse().map(l => `<li>${esc(l)}</li>`).join('')}</ul>`, [{ label: '返回', value: null, primary: true }]);
+}
+async function menu() {
+  const v = await modal('<h2>菜单</h2>', [{ label: '王国概况', value: 'overview' }, { label: '图鉴', value: 'codex' }, { label: '重玩教学', value: 'tutorial' }, { label: '回到标题', value: 'title' }, { label: '继续', value: null, primary: true }], { cls: 'title' });
+  if (v === 'overview') overview();
+  if (v === 'codex') openCodex();
+  if (v === 'tutorial') {
+    const sure = await modal('<h2>重玩教学？</h2><p class="muted">会开一局新的教学局，当前进度被覆盖。</p>', [{ label: '开始教学', value: true, primary: true }, { label: '返回', value: false }]);
+    if (sure) newRun(false, true);
+  }
+  if (v === 'title') { stopTutorial(); titleScreen(); }
+}
+
+// ---------- codex ----------
+const TERRAIN_NOTE = {
+  grass: '大多数建筑都能建。', fertile: '农田每格粮+3（草地+2）。', forest: '伐木场旁的森林每块木+1。',
+  water: '渔港必须占1格水域；邻水的农田、庄园有加成。', mountain: '矿场必须占山地；挨着山地的工坊更好。',
+};
+const RULES = () => [
+  ['tribute', '年贡', `每年冬末交年贡：${R.TRIBUTE.join('→')}金。交不上王国陷落；撑满${R.YEARS}年获胜。`],
+  ['year', '四季', R.SEASONS.map(x => `${x.name}：${x.tip}`).join('<br>')],
+  ['gold', '买地', '每季可买1块地，拖到领土边上拼接，点虚影旋转。地形决定能建什么；宝箱地块拼上就给金币。'],
+  ['pop', '人口与粮', '民居、庄园提供人口；生产建筑要占人手，人手不够会停工。每2人每季吃1粮，粮不够就饥荒：税收减半、声望−1。'],
+  ['threat', '蛮族', '第2年起，夏季在边境插红旗，秋末来袭。王城、哨塔、兵营守卫范围内的格子能守住并得声望；失守被抢金币、建筑损毁。'],
+  ['guard', '守卫', '王城守2格，哨塔守2格（3级3格），兵营守3格。打开地图右下的「盾」可看全部范围。'],
+  ['fame', '连片', `同种地形连成6/10/15格时获得声望与金币：${Object.values(R.REGION).join('、')}。`],
+  ['wood', '升级与拆除', '点地图上的建筑可升级（产出×1.5，3级×2）、修复或拆除（回收40%金）。'],
+  ['food', '背包', `每季可选1张特殊建筑卡，背包最多${R.HAND_LIMIT}张；常备建筑随时可建。背包卡可丢弃换3金。`],
+];
+function codexDetail(type) {
+  const d = BUILDINGS[type], locked = state && d.unlock > year() && type !== 'hall';
+  const terr = d.terrains.map(t => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}</span>`).join('');
+  const need = d.need ? Object.entries(d.need).map(([t, n]) => `至少${n}格${TERRAIN[t].name}`).join('、') : '';
+  return `<h3>${d.name}<small>${type === 'hall' ? '开局自带' : d.basic ? '常备 · 随时可建' : `建筑卡 · 第${d.unlock}年起`}</small></h3>
+    <canvas class="big-preview" data-card="${type}" width="300" height="200"></canvas>
+    <p class="rule">${esc(d.text)}</p>
+    <dl class="facts"><dt>造价</dt><dd>${type === 'hall' ? '—' : costText(d)}</dd><dt>人手</dt><dd>${d.workers ? `${d.workers}人` : '不需要'}</dd>
+    <dt>占地</dt><dd>${d.cells.length}格 · 可旋转</dd><dt>地形</dt><dd><span class="terr-row">${terr}</span>${need ? `<br>${need}` : ''}</dd>
+    <dt>升级</dt><dd>${type === 'hall' ? '不可升级' : '2级产出×1.5，3级×2'}</dd></dl>${locked ? '<p class="muted">还没解锁，到那一年的选卡里会出现。</p>' : ''}`;
+}
+function paintTerrains(root) {
+  root.querySelectorAll('canvas[data-terrain]').forEach(c => { const g = c.getContext('2d'); A.drawTerrain(g, c.dataset.terrain, 0, 0, c.width, 5); });
+}
+function openCodex({ tab = 'build', type } = {}) {
+  let cur = type || (mode?.kind === 'build' ? mode.type : 'house');
+  let curTab = type ? 'build' : tab;
+  const order = Object.keys(BUILDINGS).sort((a, b) => (BUILDINGS[a].basic ? 0 : 1) - (BUILDINGS[b].basic ? 0 : 1) || BUILDINGS[a].unlock - BUILDINGS[b].unlock);
+  order.unshift(...order.splice(order.indexOf('hall'), 1));
+  const render = body => {
+    const content = curTab === 'build'
+      ? `<div class="codex-body"><div class="codex-grid" role="listbox">${order.map(t => {
+          const d = BUILDINGS[t], locked = state && d.unlock > year() && t !== 'hall';
+          return `<button class="cx ${locked ? 'locked' : ''}" data-cx="${t}" aria-selected="${t === cur}"><canvas data-card="${t}" width="116" height="76"></canvas><span>${d.name}</span>${d.basic ? '<i class="tag">常备</i>' : t !== 'hall' && d.unlock > 1 ? `<i class="tag">${d.unlock}年</i>` : ''}</button>`;
+        }).join('')}</div><div class="codex-detail">${codexDetail(cur)}</div></div>`
+      : curTab === 'terrain'
+        ? `<div class="codex-rules">${Object.keys(TERRAIN).map(t => `<div class="rule-card"><canvas data-terrain="${t}" width="80" height="80"></canvas><div><b>${TERRAIN[t].name}</b>${TERRAIN_NOTE[t]}<br><span class="muted">可建：${order.filter(k => k !== 'hall' && BUILDINGS[k].terrains.includes(t)).map(k => BUILDINGS[k].name).join('、')}</span></div></div>`).join('')}</div>`
+        : `<div class="codex-rules">${RULES().map(([ic, h, t]) => `<div class="rule-card">${iconHtml(ic)}<div><b>${h}</b>${t}</div></div>`).join('')}</div>`;
+    body.innerHTML = `<div class="codex-head"><h2>图鉴</h2><div class="tabs" role="tablist">${[['build', '建筑'], ['terrain', '地形'], ['rules', '规则']].map(([k, l]) => `<button class="tab" data-tab="${k}" role="tab" aria-selected="${k === curTab}">${l}</button>`).join('')}</div><button class="act primary codex-close">关闭</button></div>${content}<div class="modal-actions"></div>`;
+    paintIcons(body); paintTerrains(body);
+    body.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { curTab = b.dataset.tab; render(body); });
+    body.querySelectorAll('[data-cx]').forEach(b => b.onclick = () => {
+      cur = b.dataset.cx;
+      body.querySelectorAll('[data-cx]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+      const det = body.querySelector('.codex-detail'); det.innerHTML = codexDetail(cur); det.scrollTop = 0; paintIcons(det); paintTerrains(det);
+    });
+    body.querySelector('.codex-close').onclick = () => closeModal(null);
+    body.querySelector('[aria-selected="true"][data-cx]')?.scrollIntoView({ block: 'nearest' });
+  };
+  tutNotify('codex');
+  return modal('', [], { cls: 'codex', onOpen: render });
+}
+
+// ---------- tutorial & one-time tips ----------
+let tut = null;
+const tutorialDone = () => { try { return store.getItem(TUT_FLAG) === '1'; } catch { return true; } };
+const idle = () => !busy && $('#modal').hidden && !!state && state.status === 'playing';
+const terrRect = () => {
+  const b = territoryBox(), a = toScreen(b.x0, b.y0), z = toScreen(b.x1, b.y1), m = mapRect();
+  const x = Math.max(a.x, m.x), y = Math.max(a.y, m.y);
+  return { x, y, w: Math.min(z.x, m.x + m.w) - x, h: Math.min(z.y, m.y + m.h) - y };
+};
+/** Ghost footprint plus a one-cell ring (the neighbour highlights). */
+const ghostRect = () => {
+  if (!mode) return null;
+  const { w, h } = shapeSize(), c = cp(), p = toScreen(mode.ax - 1, mode.ay - 1);
+  return { x: p.x, y: p.y, w: (w + 2) * c, h: (h + 2) * c };
+};
+const TUT_AVOID = ['#dock', '#side', '#hud', '#map-tools'];
+function tutNotify(ev) { tut?.notify(ev); }
+function stopTutorial() { if (tut) { const t = tut; tut = null; t.opts.onDone = null; t.finish(true); } }
+function startTutorial() {
+  const steps = [
+    { at: ['#alerts .tribute', '#season'], until: 'tap', text: '目标：每年<b>冬末交年贡</b>，撑过6年就赢。<br>这里是季节和今年的年贡。' },
+    { at: ['#resources'], until: 'tap', text: '金、粮、木、空闲人口、声望。<br>小字是<b>每季变化</b>，红色说明在亏。' },
+    { at: [terrRect], until: 'tap', text: '这是你的领土。<b>拖动</b>平移地图，<b>双指</b>缩放；点建筑可以升级、拆除。' },
+    { skip: () => sheet === 'land' || state.landBought, at: ['#open-land'], until: () => sheet === 'land', text: '先扩张：点<b>买地</b>。' },
+    { gate: () => sheet === 'land', at: ['#sheet .offers'], until: () => mode?.kind === 'land' || state.landBought,
+      text: '每季可买1块地。<b>按住一块地，拖到领土边上</b>松手；也可以点一下。' },
+    { gate: () => mode?.kind === 'land', at: ['#place-bar', terrRect], allow: [mapRect], avoid: [ghostRect], until: () => state.landBought,
+      text: '拖虚影换位置，<b>点虚影旋转</b>。<br>绿色能放，点<b>买下</b>。' },
+    { skip: () => sheet === 'draft' || state.drafted, gate: () => state.landBought && !mode, at: ['#open-draft'], until: () => sheet === 'draft', text: '再点<b>选卡</b>。' },
+    { gate: () => sheet === 'draft', at: ['#sheet .offers'], until: () => state.drafted, text: '每季可选1张<b>特殊建筑卡</b>放进背包。<b>点一张</b>拿走；长按看规则。' },
+    { gate: () => state.drafted && !mode && !sheet, at: ['#dock'], until: () => mode?.kind === 'build',
+      text: '左边是建筑：<b>常备</b>随时可建，<b>背包</b>是选来的卡。<br><b>按住拖到地图上</b>，或点一下。长按看图鉴。' },
+    { gate: () => mode?.kind === 'build', at: ['#place-bar'], allow: [mapRect, '#dock'], avoid: [ghostRect], until: 'build',
+      text: '虚线圈出的是<b>邻居</b>，会带来加成；右边是这座建筑<b>每季产出</b>。<br>位置合适就点<b>建造</b>。' },
+    { gate: () => !mode && !sheet, at: ['#next-turn'], until: 'turn', text: '这一季做完了。点<b>下一季</b>：结算产出、吃粮，冬末交年贡。' },
+    { at: ['#codex'], until: 'codex', text: '每座建筑的规则、地形和玩法都在<b>图鉴</b>里，随时点开查。' },
+    { until: 'tap', ok: '开始', text: '教学完成！<br>第2年起夏天会有<b>蛮族</b>在边境插红旗、秋末来袭——用哨塔守住。祝王国长久。' },
+  ];
+  tut = new Spotlight($('#tut'), steps, {
+    idle, skippable: true, avoid: TUT_AVOID,
+    onDone: () => { try { store.setItem(TUT_FLAG, '1'); } catch {} tut = null; maybeAutoSheet(); },
+  });
+}
+function readTips() { try { return JSON.parse(store.getItem(TIPS_KEY) || '{}') || {}; } catch { return {}; } }
+/** One-time contextual tips; returns true when one is showing. */
+function contextTips() {
+  if (tut || !state || state.status !== 'playing') return false;
+  const seen = readTips(), f = R.forecast(state);
+  const tips = [
+    ['threat', state.threats.length > 0, ['#alerts .threat', '#guard-view'], '<b>红旗</b>是蛮族目标，<b>秋末</b>来袭。<br>王城、哨塔、兵营守卫范围内能守住。点<b>盾</b>看范围。'],
+    ['winter', season() === 3, ['#alerts .tribute', '#next-turn'], '冬天了：本季末结算时<b>交年贡</b>。<br>金币不够王国就会陷落，可以拆建筑回收金币。'],
+    ['famine', f.famine, ['[data-res="food"]'], '粮食不够了，会<b>饥荒</b>：税收减半、声望−1。<br>多建农田、渔港或粮仓。'],
+    ['unlock', year() > 1 && season() === 0, ['#open-draft'], () => `第${year()}年解锁新建筑卡，这一季的<b>选卡</b>里一定有。`],
+  ];
+  const t = tips.find(([k, on]) => on && !seen[k]);
+  if (!t) return false;
+  const [k, , at, text] = t;
+  seen[k] = 1; try { store.setItem(TIPS_KEY, JSON.stringify(seen)); } catch {}
+  tut = new Spotlight($('#tut'), [{ at, until: 'tap', ok: '知道了', text }], { idle, label: false, avoid: TUT_AVOID, onDone: () => { tut = null; maybeAutoSheet(); } });
+  return true;
+}
+
+// ---------- app shell: haptics, orientation, gestures ----------
+function buzz(kind = 'light') {
+  try { if (window.tap?.vibrateShort) { window.tap.vibrateShort({ type: kind }); return; } } catch {}
+  try { navigator.vibrate?.(kind === 'heavy' ? 30 : kind === 'medium' ? 16 : 8); } catch {}
+}
+function lockLandscape() { try { screen.orientation?.lock?.('landscape')?.catch?.(() => {}); } catch {} }
+window.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
+document.addEventListener('gesturestart', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+window.addEventListener('pointerdown', lockLandscape, { once: true });
+document.addEventListener('visibilitychange', () => { if (document.hidden && liveRun) save(); });
+window.addEventListener('pagehide', () => { if (liveRun) save(); });
+
+// ---------- wiring ----------
+function renderAll() { renderHud(); renderDock(); renderSheet(); renderPlaceBar(); requestFrame(); }
+$('#open-land').onclick = () => { if (mode) cancelMode(); openSheet('land'); };
+$('#open-draft').onclick = () => { if (mode) cancelMode(); openSheet('draft'); };
+$('#next-turn').onclick = nextSeason;
+$('#season').onclick = overview;
+$('#menu').onclick = menu;
+$('#zoom-in').onclick = () => zoomAt(1.2, viewArea().cx, viewArea().cy);
+$('#zoom-out').onclick = () => zoomAt(1 / 1.2, viewArea().cx, viewArea().cy);
+$('#codex').onclick = () => openCodex();
+$('#center').onclick = () => centerCamera();
+$('#guard-view').onclick = () => { guardView = !guardView; $('#guard-view').setAttribute('aria-pressed', String(guardView)); requestFrame(); };
+window.addEventListener('keydown', e => {
+  if (!$('#modal').hidden) { if (e.key === 'Escape' && $('#modal').dataset.dismissable) closeModal(null); return; }
+  if (mode) {
+    const moves = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+    if (moves[e.key]) { e.preventDefault(); mode.ax += moves[e.key][0]; mode.ay += moves[e.key][1]; ensureVisible(); requestFrame(); }
+    else if (e.key === 'r' || e.key === 'R') rotate();
+    else if (e.key === 'Enter') { e.preventDefault(); commit(); }
+    else if (e.key === 'Escape') cancelMode();
+  } else if (e.key === 'Escape' && sheet) closeSheet();
+});
+window.addEventListener('resize', () => { resize(); renderPlaceBar(); if (sheet) renderSheet(); });
+// Debug/QA hook: read-only snapshot of the running game.
+window.__pt = { get state() { return state; }, R, cam: () => ({ ...cam, cell: cp() }), toScreen, viewArea, get tutStep() { return tut ? tut.i : -1; } };
+
+async function boot() {
+  buildSeaPattern(); lockLandscape();
+  if (!loaded.ok) {
+    state = R.createGame(Math.floor(Math.random() * 4294967295));
+    resize(); centerCamera(); renderAll();
+    const v = await modal(`<h2>存档无法读取</h2><p>${esc(loaded.reason)}</p><p class="muted">原存档不会被自动覆盖。开始新王国时会先把它备份到 .backup。</p>`, [{ label: '开始新王国', value: true, primary: true }], { dismissable: false });
+    if (v) { saveBlocked = false; newRun(false); }
+    return;
+  }
+  if (!state) state = R.createGame(Math.floor(Math.random() * 4294967295));
+  resize(); centerCamera(); renderAll();
+  if (!loaded.state || state.status !== 'playing') { if (state.status !== 'playing' && loaded.state) { await endScreen(); return; } return titleScreen(); }
+  banner(`第${year()}年 · ${R.SEASONS[season()].name}`, '欢迎回来');
+  setTimeout(() => { if (!contextTips()) maybeAutoSheet(); }, 400);
+}
+boot();
+
+return {  };
+})();
+</script>
+</body>
+</html>

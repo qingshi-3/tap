@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8"><title>拼土王国 美术自检</title>
+<style>
+body{margin:0;background:#3b3a2c;color:#f1e5c9;font:13px/1.4 system-ui,sans-serif}
+section{padding:10px 14px;display:inline-block;vertical-align:top}
+h2{margin:4px 0 8px;font-size:15px}
+.lab{font-size:11px;color:#e3b65c}
+canvas{display:block;image-rendering:auto}
+</style></head><body>
+<script type="module">
+import * as A from '../dist/art.js';
+const TYPES=['hall','house','farm','lumber','tower','fishery','granary','market','workshop','mine','temple','barracks','manor','guild','wonder','unknownX'];
+const TERR=['grass','forest','water','mountain','fertile'];
+const errors=[];window.__errors=errors;
+function sec(id,title){const s=document.createElement('section');s.id=id;s.innerHTML=`<h2>${title}</h2>`;document.body.append(s);return s;}
+function cv(parent,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;parent.append(c);return c.getContext('2d');}
+function guard(f){try{f()}catch(e){errors.push(String(e&&e.stack||e));}}
+
+// 1 地形
+for(const s of [56,32]){
+  const S=sec('terrain'+s,`地形 / 海 / 未开拓 · s=${s}`);
+  const ctx=cv(S,(s+6)*5+10,(s+6)*7+10);
+  guard(()=>{
+    TERR.forEach((t,i)=>{for(let k=0;k<4;k++)A.drawTerrain(ctx,t,5+i*(s+6),5+k*(s+6),s,k*37+i);});
+    for(let k=0;k<5;k++){A.drawSea(ctx,5+k*(s+6),5+4*(s+6),s,k,0);A.drawWild(ctx,5+k*(s+6),5+5*(s+6),s,k*11);}
+    // 拼接对比：连续地块
+    for(let k=0;k<5;k++){A.drawTerrain(ctx,'grass',5+k*s,5+6*(s+6),s,k);}
+  });
+}
+// 2 建筑（自动换行布局）
+function shapeOf(t){return A.BUILDING_SHAPES[t]||[[0,0],[1,0]];}
+const VARS=[{rot:0},{rot:1},{rot:2},{rot:3},{rot:0,level:2},{rot:0,level:3},{rot:1,level:3},{rot:0,damaged:true},{rot:0,idle:true}];
+function layoutRow(type,s,maxW){
+  const out=[];let x=6,y=16,lineH=0;
+  for(const v of VARS){const cells=A.rotateShape(shapeOf(type),v.rot);const bw=Math.max(...cells.map(p=>p.x))+1,bh=Math.max(...cells.map(p=>p.y))+1;
+    const w=(bw+1)*s,h=(bh+1)*s;if(x+w>maxW){x=6;y+=lineH+8;lineH=0;}out.push({v,cells,bw,bh,x,y});x+=w+8;lineH=Math.max(lineH,h);}
+  return {out,h:y+lineH+6};
+}
+function drawRow(ctx,type,s,y0,L){
+  for(const {v,cells,bw,bh,x,y} of L.out){
+    const ox=x+s/2,oy=y0+y+s/2;
+    for(let yy=-1;yy<=bh;yy++)for(let xx=-1;xx<=bw;xx++){const px=ox+xx*s,py=oy+yy*s;ctx.save();ctx.beginPath();ctx.rect(x,y0+y,(bw+1)*s,(bh+1)*s);ctx.clip();
+      const inside=cells.some(p=>p.x===xx&&p.y===yy);A.drawTerrain(ctx,type==='fishery'&&inside&&(xx+yy)%2===1?'water':'grass',px,py,s,xx*3+yy*5+9);ctx.restore();}
+    ctx.save();ctx.translate(ox,oy);A.drawBuilding(ctx,type,cells,s,{level:v.level||1,damaged:!!v.damaged,idle:!!v.idle,rot:v.rot,t:0});ctx.restore();
+  }
+}
+for(const s of [32,56]){
+  const maxW=1360;
+  const groups=s===32?[TYPES.slice(0,8),TYPES.slice(8)]:[TYPES.slice(0,3),TYPES.slice(3,6),TYPES.slice(6,9),TYPES.slice(9,12),TYPES.slice(12)];
+  groups.forEach((g,gi)=>{
+    const S=sec(`b${s}_${gi}`,`建筑 s=${s} · rot0/1/2/3 · L2 · L3 · L3rot1 · 损毁 · 空闲`);
+    const Ls=g.map(t=>layoutRow(t,s,maxW));const H=Ls.reduce((a,l)=>a+l.h,0);
+    const ctx=cv(S,maxW,H);let y=0;
+    g.forEach((t,i)=>{ctx.fillStyle='#e3b65c';ctx.font='12px sans-serif';ctx.fillText(t,6,y+12);guard(()=>drawRow(ctx,t,s,y,Ls[i]));y+=Ls[i].h;});
+  });
+}
+// 3 场景
+{
+  const S=sec('scene','示例岛屿 s=48');const s=48,W=12,H=9;const ctx=cv(S,W*s,H*s);
+  guard(()=>{
+    const land={};const T=['grass','grass','forest','grass','fertile','grass','water','mountain','grass','fertile'];
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+      const d=Math.hypot((x-5.5)/5,(y-4)/3.6);
+      if(d>1.05){A.drawSea(ctx,x*s,y*s,s,x*13+y,0);continue;}
+      if(d>.82||(x>8&&y<3)){A.drawWild(ctx,x*s,y*s,s,x*5+y);continue;}
+      let t=T[(x*7+y*3)%T.length];if(x>=8&&y>=5)t='water';if(x<=2&&y>=3&&y<=5)t='forest';if(x===9&&y===3)t='mountain';
+      A.drawTerrain(ctx,t,x*s,y*s,s,x*31+y*17);
+    }
+    const B=[['hall',4,3,0,3],['house',2,2,0,2],['house',6,3,1,1],['farm',3,6,0,1],['market',7,2,0,2],['tower',1,5,0,1],['fishery',8,6,1,1],['temple',5,5,2,1],['granary',2,3,0,1],['lumber',1,3,1,1,{idle:true}],['workshop',6,1,0,1,{damaged:true}],['guild',9,3,0,2]];
+    for(const [t,x,y,r,l,o] of B){const cells=A.rotateShape(A.BUILDING_SHAPES[t],r);ctx.save();ctx.translate(x*s,y*s);A.drawBuilding(ctx,t,cells,s,{level:l,rot:r,t:0,...(o||{})});ctx.restore();}
+    A.drawThreat(ctx,10*s,4*s,s,0.3);A.drawTreasure(ctx,3*s,1*s,s);
+  });
+}
+// 4 卡片 / 图标 / 标记
+{
+  const S=sec('cards','drawCard 120×80（rot0 / rot1）');const ctx=cv(S,8*128,4*88);
+  guard(()=>TYPES.forEach((t,i)=>{for(const r of [0,1]){const x=(i%8)*128,y=Math.floor(i/8)*176+r*88;ctx.fillStyle='#f1e5c9';ctx.fillRect(x+2,y+2,120,80);ctx.save();ctx.translate(x+2,y+2);A.drawCard(ctx,t,120,80,{rot:r});ctx.restore();}}));
+  const S2=sec('icons','drawIcon 24 / 40 · threat / treasure');const keys=['gold','food','wood','pop','worker','fame','guard','threat','treasure','tribute','rotate','year','??'];
+  const c2=cv(S2,keys.length*52+10,170);
+  guard(()=>{c2.fillStyle='#f1e5c9';c2.fillRect(0,0,keys.length*52+10,110);keys.forEach((k,i)=>{A.drawIcon(c2,k,10+i*52,8,24);A.drawIcon(c2,k,10+i*52,44,40);});
+    c2.fillStyle='#3b3a2c';c2.fillRect(0,110,500,60);
+    for(let k=0;k<4;k++){A.drawTerrain(c2,'grass',10+k*60,112,56,k);A.drawThreat(c2,10+k*60,112,56,k*.4);}
+    A.drawTerrain(c2,'grass',260,112,56,3);A.drawTreasure(c2,260,112,56);A.drawTerrain(c2,'grass',330,128,32,3);A.drawTreasure(c2,330,128,32);A.drawTerrain(c2,'forest',370,128,32,3);A.drawThreat(c2,370,128,32,1);
+  });
+}
+// 确定性
+guard(()=>{const a=document.createElement('canvas');a.width=a.height=64;const b=a.cloneNode();for(const c of [a,b])A.drawTerrain(c.getContext('2d'),'forest',0,0,64,5);if(a.toDataURL()!==b.toDataURL())errors.push('nondeterministic terrain');
+  const c=document.createElement('canvas');c.width=c.height=200;const d=c.cloneNode();for(const x of [c,d])A.drawBuilding(x.getContext('2d'),'wonder',A.rotateShape(A.BUILDING_SHAPES.wonder,1),40,{level:3});if(c.toDataURL()!==d.toDataURL())errors.push('nondeterministic building');
+  // 状态残留检查
+  const e=document.createElement('canvas').getContext('2d');const tr=e.getTransform().toString();A.drawBuilding(e,'hall',A.BUILDING_SHAPES.hall.map(([x,y])=>({x,y})),40,{damaged:true});A.drawIcon(e,'gold',0,0,20);A.drawThreat(e,0,0,30,1);
+  if(e.getTransform().toString()!==tr||e.globalAlpha!==1||e.globalCompositeOperation!=='source-over')errors.push('state leak');});
+window.__done=true;
+</script></body></html>

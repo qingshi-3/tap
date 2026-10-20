@@ -1,5 +1,51 @@
-import {validateSave} from './rules.js';
-export const SAVE_KEY='patchwork-kingdom.save.v1';
-export function readSave(storage){try{const raw=storage.getItem(SAVE_KEY);if(raw===null)return{ok:true,state:null};const checked=validateSave(JSON.parse(raw));return checked.ok?{ok:true,state:checked.state}:{ok:false,reason:checked.reason,raw};}catch(error){return{ok:false,reason:'无法读取存档：'+error.message};}}
-export function writeSave(storage,state){const checked=validateSave(state);if(!checked.ok)return checked;const previous=readSave(storage);if(!previous.ok)return{ok:false,reason:'原存档无法读取，未覆盖。请导出备份或在存档中明确建立新王国。'};try{storage.setItem(SAVE_KEY,JSON.stringify(checked.state));return{ok:true};}catch{return{ok:false,reason:'浏览器没有保存成功，请导出备份后再离开。'};}}
-export function replaceSave(storage,state){const checked=validateSave(state);if(!checked.ok)return checked;try{const old=storage.getItem(SAVE_KEY);if(old!==null)storage.setItem(SAVE_KEY+'.backup',old);storage.setItem(SAVE_KEY,JSON.stringify(checked.state));return{ok:true};}catch{return{ok:false,reason:'未能备份或写入，原存档没有被主动清除。'};}}
+import { validateSave } from './rules.js';
+// v3 is a new game; the old v1/v2 sandbox save under its own key is left untouched.
+export const SAVE_KEY = 'patchwork-kingdom.v3';
+export const RECORD_KEY = 'patchwork-kingdom.v3.records';
+const EMPTY_RECORDS = { best: 0, runs: 0, wins: 0, daily: {} };
+
+export function readSave(storage) {
+  try {
+    const raw = storage.getItem(SAVE_KEY);
+    if (raw === null) return { ok: true, state: null };
+    const checked = validateSave(raw);
+    return checked.ok ? { ok: true, state: checked.state } : { ok: false, reason: checked.reason, raw };
+  } catch (error) {
+    return { ok: false, reason: '无法读取存档：' + error.message };
+  }
+}
+/** Never overwrites an unreadable save; the player must explicitly start over (which backs it up). */
+export function writeSave(storage, state) {
+  const checked = validateSave(state);
+  if (!checked.ok) return checked;
+  try {
+    const raw = storage.getItem(SAVE_KEY);
+    if (raw !== null && !validateSave(raw).ok) return { ok: false, reason: '原存档损坏，未覆盖。' };
+    storage.setItem(SAVE_KEY, JSON.stringify(state));
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: '浏览器没有保存成功。' };
+  }
+}
+export function replaceSave(storage, state) {
+  try {
+    const old = storage.getItem(SAVE_KEY);
+    if (old !== null && !validateSave(old).ok) storage.setItem(SAVE_KEY + '.backup', old);
+    storage.setItem(SAVE_KEY, JSON.stringify(state));
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: '浏览器没有保存成功。' };
+  }
+}
+export function readRecords(storage) {
+  try {
+    const value = JSON.parse(storage.getItem(RECORD_KEY) || 'null');
+    if (!value || typeof value !== 'object') return { ...EMPTY_RECORDS, daily: {} };
+    return { ...EMPTY_RECORDS, ...value, daily: value.daily && typeof value.daily === 'object' ? value.daily : {} };
+  } catch {
+    return { ...EMPTY_RECORDS, daily: {} };
+  }
+}
+export function writeRecords(storage, records) {
+  try { storage.setItem(RECORD_KEY, JSON.stringify(records)); return true; } catch { return false; }
+}
