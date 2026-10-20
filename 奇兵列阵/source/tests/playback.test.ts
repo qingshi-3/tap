@@ -7,6 +7,7 @@ const fake = vi.hoisted(() => {
   const animations: { duration: number; playbackRate: number; cancel: () => void; finished: Promise<void>; pause: () => void; play: () => void; playState: string; pending: boolean }[] = [];
   class Element {
     removed = false;
+    classList = { remove: vi.fn() };
     children: Element[] = [];
     idle = { animationName: 'idle', playbackRate: 1 };
     own: typeof animations = [];
@@ -36,10 +37,10 @@ const fake = vi.hoisted(() => {
     el = new Element();
     body = this.el;
     constructor(..._args: unknown[]) {}
-    setStats() {}
+    setStats = vi.fn();
     hit() { this.el.animate([], { duration: 280 }); }
   }
-  return { Element, Unit, animations, sfx: { start: vi.fn(), whoosh: vi.fn(), beat: vi.fn(), buff: vi.fn(), hit: vi.fn() } };
+  return { Element, Unit, animations, sfx: { freeze: vi.fn(), start: vi.fn(), whoosh: vi.fn(), beat: vi.fn(), buff: vi.fn(), hit: vi.fn() } };
 });
 vi.mock('../src/ui/audio', () => ({ sfx: fake.sfx }));
 vi.mock('../src/ui/dom', () => ({ h: () => new fake.Element() }));
@@ -201,5 +202,45 @@ describe('battle playback ownership and cancellation', () => {
     await playing;
     await flush();
     expect(f.playback.finished).toBe(true);
+  });
+});
+
+
+describe('round action feedback', () => {
+  it('identifies encounter feedback separately from unit skills, including rules without a source', async () => {
+    vi.useFakeTimers();
+    const f = fixture([{ t: 'rule', id: 'rally', label: '虚空战意', side: 1 }]);
+    const log = vi.fn();
+    f.playback.onLog = log;
+    await Promise.all([f.playback.play(), vi.runAllTimersAsync()]);
+    expect(log).toHaveBeenCalledWith({ text: '关卡 · 虚空战意', cls: 'k-boss' });
+  });
+  it('previews only the current wave and preserves an empty waiting side', async () => {
+    vi.useFakeTimers();
+    const f = fixture([{ t: 'beat', n: 4, round: 2, wave: 3, next: { player: [2], enemy: [] } }], units);
+    await Promise.all([f.playback.play(), vi.runAllTimersAsync()]);
+    expect(f.board.setOrder).toHaveBeenCalledWith({ player: ['u2'], enemy: [] }, 2, 3);
+    expect(f.board.setCenter).toHaveBeenCalledWith('4', '拍', 'beat');
+  });
+  it('shows gained action counts without presenting them as an immediate attack', async () => {
+    vi.useFakeTimers();
+    const f = fixture([{ t: 'actionGain', src: 1, uid: 2, n: 1, total: 2 }], units);
+    const log = vi.fn();
+    f.playback.onLog = log;
+    await Promise.all([f.playback.play(), vi.runAllTimersAsync()]);
+    expect(f.fx.float).not.toHaveBeenCalled();
+    expect(log).toHaveBeenCalledWith(expect.objectContaining({ text: expect.stringContaining('本回合行动 +1（剩余 2 次）') }));
+  });
+});
+
+
+describe('frozen action consumption', () => {
+  it('retires the actor preview when freezing consumes a regular action', async () => {
+    vi.useFakeTimers();
+    const f = fixture([{ t: 'frozenSkip', uid: 1 }], units);
+    const playing = f.playback.play();
+    const view = f.board.views.get('u1')!;
+    await Promise.all([playing, vi.runAllTimersAsync()]);
+    expect(view.el.classList.remove).toHaveBeenCalledWith('next-actor');
   });
 });

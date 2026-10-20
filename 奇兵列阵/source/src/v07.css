@@ -16,8 +16,24 @@
 .hud-general.arm-target { cursor: pointer; box-shadow: 0 0 0 2px var(--violet), 0 0 18px rgba(197, 144, 255, 0.6); animation: arm-pulse 1s ease-in-out infinite alternate; }
 @keyframes arm-pulse { from { filter: brightness(1); } to { filter: brightness(1.3); } }
 
-/* 主界面「整备」入口：盘面中线下方，角标是没用掉的资源数 */
-.prep-entry { position: absolute; z-index: 12; left: 640px; top: 418px; transform: translateX(-50%); }
+/* Keep the two actions in one right-hand column; tutorial exit occupies the last row. */
+.game { --prep-stack-offset: 0px; }
+.game:has(> .tut) { --prep-stack-offset: calc(var(--control-size) + 12px); }
+.prep-entry { position: absolute; z-index: 12; left: auto; top: auto; right: 22px; bottom: calc(18px + var(--prep-stack-offset)); width: 176px; transform: none; }
+.game:has(> .prep-entry:not(.hidden)) .tray-right { height: 208px; align-items: flex-start; }
+.game:has(> .prep-entry:not(.hidden)) .fight-controls {
+  position: absolute; right: 0; bottom: calc(var(--control-size) + 12px + var(--prep-stack-offset));
+  width: 176px; transform: none;
+}
+.prep-entry .prep-btn {
+  width: 100%; height: var(--control-size); min-height: var(--control-size);
+  font-size: 30px; letter-spacing: 0; border-image: none;
+  background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
+}
+.prep-entry .prep-btn.has { background: linear-gradient(180deg, #8272b5 0 4px, #51457c 4px 52%, #403562 52% calc(100% - 6px), #2b2346 calc(100% - 6px)); }
+.prep-entry .prep-btn.has::after { display: none; }
+.prep-entry .prep-btn > i { top: -6px; right: 0; }
+.prep-entry .prep-btn:active { transform: none; }
 .prep-entry.hidden, .in-battle .prep-entry { display: none; }
 .prep-btn {
   position: relative; height: 60px; min-width: 156px; padding: 0 20px; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -351,8 +367,22 @@
 .tut-box { position: absolute; padding: 14px 18px; background: #1d1a33; border: 2px solid #ffd36b; border-radius: 8px; color: #f4ecd8; font-size: 19px; line-height: 1.5; pointer-events: auto; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.55); }
 .tut-box b { color: #ffd36b; }
 .tut-step { font-size: 15px; opacity: 0.6; margin-bottom: 4px; }
-.tut-ok { margin-top: 10px; float: right; }
-.tut-skip { position: absolute; right: 16px; top: 84px; pointer-events: auto; display: block; }
+.tut-ok { margin-top: 10px; float: right; min-width: var(--control-size, 100px); min-height: var(--control-size, 100px); }
+.btn.tut-skip {
+  position: absolute; right: 22px; top: auto; bottom: 14px; z-index: 1;
+  width: 176px; height: var(--control-size); min-height: var(--control-size); padding: 0;
+  pointer-events: auto; display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; letter-spacing: 0;
+}
+.btn.tut-skip:active { transform: none; }
+.btn.tut-skip:focus-visible { outline: 4px solid #fff4d8; outline-offset: -5px; }
+/* Fallback for tutorial states without the preparation dock; the action stack above owns normal prep. */
+.game:has(> .tut) .fight-controls { transform: translateY(calc(80px - var(--control-size) * 1.5)); }
+/* 教学开战目标与退出按钮都显示原色，不受舞台暗角层（30）压暗。 */
+.game:has(> .tut.focus-fight) .tray { z-index: 31; }
+.game:has(> .tut) .battle-bar { right: 220px; }
+.game.prep-open:has(> .tut) .prep-ov .pp-tray { right: 220px; }
+.game:has(> .tut) .sh-roster { padding-right: 190px; }
 
 /* 拖动出售区：拖动己方单位时覆盖招募栏 */
 .sell-zone {
@@ -532,14 +562,31 @@
 .cx-unit b { font-size: 18px; white-space: nowrap; }
 .cx-unit > span:last-child { font-size: 15px; }
 .cx-unit.tier-1 > span:last-child { color: #d0d8df; } .cx-unit.tier-2 > span:last-child { color: #8fe6ff; }
-.cx-unit.tier-3 > span:last-child { color: #ddb0ff; } .cx-unit.tier-4 > span:last-child { color: #ffcf71; }
+.cx-unit.tier-3 > span:last-child { color: #ddb0ff; } .cx-unit.tier-4 > span:last-child { color: var(--rarity-legendary); }
 .cx-detail { padding: 2px 8px; background: rgba(10, 8, 30, 0.85); border-style: solid; border-width: 12px; border-image: var(--pxf-gold) 6 / 12px / 0 stretch; }
 .cx-d-head { display: flex; align-items: center; gap: 14px; }
 .cx-d-art { width: 96px; height: 96px; flex: none; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
 .cx-d-art .uart { width: 96px; }
 .cx-d-name { font-size: 28px; color: var(--fc); margin-right: 10px; }
 .cx-rar { font-size: 18px; }
-.cx-rar.rarity-1 { color: #d0d8df; } .cx-rar.rarity-2 { color: #8fe6ff; } .cx-rar.rarity-3 { color: #ddb0ff; } .cx-rar.rarity-4 { color: #ffcf71; }
+.cx-rar.rarity-1 { color: #d0d8df; } .cx-rar.rarity-2 { color: #8fe6ff; } .cx-rar.rarity-3 { color: #ddb0ff; } .cx-rar.rarity-4 { color: var(--rarity-legendary); }
+/* Recommendation details use viewport pixels so short-screen text and controls stay readable. */
+.cx-unit-modal { position: fixed; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
+.cx-unit-modal .modal { width: min(460px, 100%); max-height: 100%; padding: 14px 18px; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
+.cx-unit-modal .modal-x { width: 44px; height: 44px; right: 8px; top: 8px; }
+.cx-popup-head { display: flex; gap: 14px; align-items: center; padding-right: 42px; }
+.cx-popup-head .cx-d-art { width: 74px; height: 74px; }
+.cx-popup-head .cx-d-art .uart { width: 74px; }
+.cx-popup-name { font-size: 20px; color: var(--text); }
+.cx-popup-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; font-size: 14px; color: var(--muted); }
+.cx-popup-meta .cx-rar { font-size: 14px; }
+.cx-popup-stars { display: flex; gap: 8px; margin: 8px 0 12px; }
+.cx-popup-stars .cx-starbtn { min-width: 56px; min-height: 44px; font-size: 18px; background: #252044; }
+.cx-popup-stars .cx-starbtn.on { background: var(--gold); }
+.cx-popup-detail .tip-head { display: none; }
+.cx-popup-detail .tip-stats, .cx-popup-detail .ts { font-size: 18px; }
+.cx-popup-detail .tip-text { font-size: 16px; line-height: 1.6; }
+.cx-unit-modal button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .cx-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .cx-tags span { font-size: 16px; padding: 1px 8px; color: #cfd3f5; background: rgba(255, 255, 255, 0.08); }
 .cx-lv { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
@@ -570,7 +617,8 @@
 .cx-items { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
 .cx-item { display: flex; gap: 12px; align-items: flex-start; padding: 10px 14px; background: #15123a; border-style: solid; border-width: 0; border-image: var(--pxf-steel) 6 / 10px / 0 stretch; }
 .cx-item-icon { flex: none; width: 56px; height: 56px; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle, rgba(255, 255, 255, 0.1), transparent 70%); }
-.cx-item b { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--gold); }
+/* Only the title is a flex row; bold keywords inside descriptions must remain inline. */
+.cx-item > div > b { display: flex; align-items: center; gap: 10px; font-size: 20px; color: var(--gold); }
 .cx-price { margin-left: auto; font-style: normal; font-family: var(--num); font-size: 18px; color: #ffe7a8; }
 .cx-item p { margin: 4px 0 0; font-size: 18px; line-height: 1.4; color: #d8dcff; }
 

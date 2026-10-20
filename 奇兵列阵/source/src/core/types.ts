@@ -27,9 +27,9 @@ export interface Traits {
   guard?: boolean;
 }
 
-export type EffectOp = 'dmg' | 'heal' | 'block' | 'chill' | 'burn' | 'vuln' | 'buff' | 'grant' | 'summon' | 'extraAct';
+export type EffectOp = 'dmg' | 'heal' | 'block' | 'chill' | 'burn' | 'vuln' | 'buff' | 'grant' | 'summon' | 'extraAct' | 'addAction' | 'sacrifice';
 export type EffectTarget =
-  | 'self' | 'front' | 'rear' | 'allies' | 'adjacent' | 'behind' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
+  | 'self' | 'front' | 'rear' | 'allies' | 'adjacent' | 'behind' | 'ahead' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
   | 'guardAllies'
   | 'enemyFront' | 'enemyRear' | 'enemyAll' | 'enemyNext' | 'enemyLowest' | 'enemyHighestAtk' | 'enemyHighestHp'
   | 'attacker' | 'target' | 'burningEnemies' | 'otherEnemies';
@@ -44,6 +44,7 @@ export interface Effect {
   v2?: Tri;
   grant?: Grant;
   token?: string;
+  oncePerRound?: boolean;
 }
 
 export interface UnitDef {
@@ -65,6 +66,8 @@ export interface UnitDef {
   traits?: Traits;
   /** 施法：出手时执行，不普攻 */
   cast?: Effect[];
+  /** 每次技能结算前锁定各效果目标；后续效果不因死亡或属性变化重新选人。 */
+  lockTargets?: boolean;
   /** 本场施法次数上限，用完改普攻 */
   castUses?: number;
   onStart?: Effect[];
@@ -178,6 +181,8 @@ export interface UnitState {
   alive: boolean;
   /** 唤亡祭师等的剩余施法次数 */
   charges?: number;
+  /** 本回合尚未消耗的常规行动。 */
+  actionsLeft?: number;
   /** 当前护甲（含光环与位置条件），供 UI 显示 */
   armor?: number;
   /** 当前个人法强（含光环），供 UI 显示 */
@@ -195,8 +200,9 @@ export type TriggerKind =
 export type DmgKind = 'attack' | 'ability' | 'splash' | 'thorns' | 'burn' | 'fatigue';
 
 export type BattleEvent =
+  | { t: 'rule'; id: string; label: string; side: Side; src?: number }
   | { t: 'phase'; name: 'start' | 'battle' }
-  | { t: 'beat'; n: number; next: { player: number[]; enemy: number[] } }
+  | { t: 'beat'; n: number; round?: number; wave?: number; next: { player: number[]; enemy: number[] } }
   | { t: 'act'; side: Side; uid: number; mode: 'attack' | 'cast' | 'extra' }
   | { t: 'trigger'; src: number; side: Side; kind: TriggerKind; label: string; order?: number; general?: string }
   | { t: 'buff'; src?: number; tgt: number; atk: number; hp: number }
@@ -216,6 +222,8 @@ export type BattleEvent =
   | { t: 'summon'; uid: number; src?: number }
   | { t: 'pull'; uid: number; src?: number }
   | { t: 'frozenSkip'; uid: number }
+  | { t: 'actionGain'; src?: number; uid: number; n: number; total: number }
+  | { t: 'sacrifice'; src: number; tgt: number }
   | { t: 'fizzle'; src: number; reason: string }
   | { t: 'end'; result: BattleResult; beats: number };
 
@@ -239,4 +247,23 @@ export interface BattleOutput {
   triggers?: Record<string, number>;
   /** 战斗中获得的金币（赫克专属被动） */
   gold?: number;
+}
+
+/** Immutable encounter configuration; counters belong to each Battle instance/source. */
+export type BattleRuleEffect =
+  | { op: 'pullRearToFront'; oncePerTarget?: boolean; blockedBy?: string }
+  | { op: 'chillHighestAttack' }
+  | { op: 'recall'; hpRatio: number }
+  | { op: 'buff'; to: 'allies' | 'source' | 'recalled'; atk: number; hp?: number }
+  | { op: 'block'; to: 'allies' | 'source' | 'recalled'; amount: number };
+export interface BattleRule {
+  id: string;
+  label: string;
+  /** Intrinsic abilities already emit their existing boss feedback. */
+  intrinsic?: boolean;
+  side: Side;
+  source?: { side: Side; defId: string };
+  trigger: { on: 'beatEnd'; every: number } | { on: 'hpBelow'; ratio: number } | { on: 'afterRecall' };
+  maxTriggers?: number;
+  effects: readonly BattleRuleEffect[];
 }

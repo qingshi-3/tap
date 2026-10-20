@@ -1,9 +1,9 @@
+import { abilityText } from '../core/abilityText';
 import { FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
 import { levelStats } from '../core/engine';
-import { describe } from '../core/run';
 import { h } from './dom';
 import { icon } from './icons';
-import { kwRich, kwTag } from './kwtext';
+import { kwRich, kwTag, trigCap, type TrigId } from './kwtext';
 import { unitSvg } from './unitArt';
 import { CARD_SUMMARY } from './cardSummary';
 
@@ -17,8 +17,8 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   const d = unitDef(defId);
   const f = FACTION_INFO[d.faction];
   const st = levelStats(defId, 1);
-  // 卡面宽度只容两行大字：缺概括时退回描述的第一个分句，再按长度降字号并截断，保证不溢出卡框
-  const brief = CARD_SUMMARY[defId] ?? describe(defId, 1).split(/[；;]/)[0];
+  // 招募卡采用独立词条；非招募单位的复用入口只回退到已有机制，不压缩技能句子。
+  const labels = CARD_SUMMARY[defId]?.split('/') ?? d.keywords ?? [];
   return h(
     'div',
     { class: `card tier-${d.tier} fac-${d.faction}`, style: `--fc:${f.color};--fd:${f.dark};--pxf:var(--pxf-${d.faction});--pxm:var(--pxm-${d.faction});--pxs:var(--pxs-${d.faction})`, 'data-id': defId },
@@ -36,17 +36,16 @@ export function draftCard(defId: string, o: CardOpts = {}) {
       h('div', { class: 'card-art', html: unitSvg(defId) }),
       h('i', { class: 'card-gems', style: `--n:${d.tier}` }),
       h('div', { class: 'card-name' }, d.name),
-      h('div', { class: `card-brief${briefCls(brief)}` }, ...kwRich(brief)),
+      h('div', { class: 'card-brief card-keywords' }, ...labels.map(previewTag)),
       h(
         'div',
         { class: 'card-text' },
-        ...kwRich(describe(defId, 1)),
+        ...kwRich(abilityText(defId, 1)),
       ),
       h(
         'div',
         { class: 'card-stats' },
         h('span', { class: 'cs atk' }, icon('sword'), h('i', null, st.atk)),
-        d.keywords?.length ? h('span', { class: 'card-kw' }, d.keywords.map((k) => kwTag(k))) : h('span', { class: 'card-kw' }),
         h('span', { class: 'cs hp' }, icon('heart'), h('i', null, st.hp)),
       ),
     ),
@@ -58,7 +57,12 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   );
 }
 
-/** 卡面一行约 7 个大字：≤14 字两行原字号，更长降字号，三行封顶（余下截断，详情点开看） */
-function briefCls(text: string) {
-  return text.length <= 14 ? '' : text.length <= 20 ? ' sm' : ' xs';
+const PREVIEW_TRIG: Record<string, TrigId> = {
+  开战: 'start', 施法: 'cast', 普攻: 'attack', 受击: 'hurt',
+  击杀: 'kill', 阵亡: 'faint', 每拍: 'beat', 周期: 'beat',
+};
+
+function previewTag(label: string) {
+  const trigger = PREVIEW_TRIG[label];
+  return trigger ? trigCap(trigger, label, true) : kwTag(label);
 }

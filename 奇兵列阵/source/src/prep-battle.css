@@ -1,0 +1,90 @@
+/* 整备独立排列；战斗舞台与单位素材保持原样。尺寸沿用1280×720舞台。 */
+.game.prep-open > :is(.hud,.tray,.stage-banner,.bench,.board,.battle-bar,.arm-hint) { visibility:hidden; pointer-events:none; }
+.game .prep-ov { background:transparent; }
+.game .prep-ov .prep-panel { inset:0; padding:0; display:block; background:none; border:0; border-image:none; }
+.prep-ov .board { pointer-events:auto; }
+.prep-ov .unit { pointer-events:auto; cursor:pointer; }
+.prep-ov .unit:focus-visible, .prep-ov .pu-card.gen:focus-visible { outline:4px solid #ffe3a3; outline-offset:4px; }
+.prep-ov .pu-card.gen { position:absolute; z-index:3; left:24px; top:8px; width:350px; height:80px; min-height:0; padding:0 12px 0 88px; display:flex; align-items:flex-start; justify-content:center; gap:8px; border:0; border-image:none; box-shadow:none; background:none; }
+.prep-ov .pu-card.gen.target::after { display:none; }
+.prep-ov .pu-card.gen.target .pu-art { filter:drop-shadow(2px 0 #ffe3a3) drop-shadow(-2px 0 #ffe3a3); }
+.prep-ov .pu-card.gen .pu-art { position:absolute; left:4px; top:0; width:78px; height:78px; }
+.prep-ov .pu-card.gen .pu-lv { display:none; }
+.prep-ov .pu-card.gen .pu-name, .prep-ov .pu-card.gen .pu-stat { font-size:24px; }
+.prep-ov .pu-card.gen .pu-stat { min-height:0; }
+.prep-ov .pu-card.gen .prep-refunds { position:absolute; left:350px; top:0; width:var(--control-size,100px); }
+.prep-ov .prep-done { position:absolute; z-index:4; top:auto; bottom:8px; right:24px; min-width:var(--control-size,100px); min-height:var(--control-size,100px); padding:0 24px; font-size:28px; }
+.prep-ov .prep-enemies { inset:4px 24px auto 535px; height:84px; display:flex; justify-content:center; gap:4px; }
+.prep-ov .prep-enemy { position:relative; width:100px; height:84px; flex:0 1 100px; transform:scale(.54); transform-origin:top center; }
+.prep-ov .prep-enemy .unit { left:0!important; top:0!important; margin:0; }
+.prep-ov .prep-enemy .ped { top:84px; }
+.prep-ov .prep-enemy .u-kws { display:none; }
+.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemies { top:30px; }
+.prep-ov .prep-owned .u-pips { top:0; }
+/* One roster row: the five active seats lead, and the three smaller reserve seats stay on the right. */
+.prep-ov .prep-roster { inset:60px 24px 108px; display:grid; grid-template-columns:repeat(5,minmax(0,1.25fr)) repeat(3,minmax(0,.85fr)); column-gap:8px; align-content:start; align-items:start; overflow:visible; padding:76px 0 0; }
+.prep-ov .prep-allies, .prep-ov .prep-bench { display:contents; }
+.prep-ov .prep-seat { position:relative; min-width:0; display:flex; flex-direction:column; align-items:center; }
+.prep-ov .prep-figure { position:relative; width:140px; height:164px; flex:none; }
+.prep-ov .prep-figure .unit { left:20px!important; top:0!important; margin:0; }
+.prep-ov .prep-figure .ped { top:90px; left:24px; }
+.prep-ov .prep-bench .prep-figure { width:110px; }
+.prep-ov .prep-bench .prep-figure .unit { left:5px!important; }
+.prep-ov .prep-bench .u-body { transform:scale(.76); transform-origin:center 108px; }
+.prep-ov .prep-bench .prep-figure .ped, .prep-ov .prep-bench-empty .ped { left:3px; top:90px; transform:scale(.8); }
+.prep-ov .prep-bench-empty { position:relative; width:110px; height:164px; justify-self:center; }
+.prep-ov .prep-position { position:absolute; left:calc(50% - 24px); top:-30px; color:#d4d9ee; font-size:24px; line-height:30px; }
+.prep-ov .prep-refunds { display:grid; grid-template-columns:var(--control-size,100px); gap:0; width:max-content; pointer-events:auto; }
+.prep-ov .prep-refunds:empty { display:none; }
+/* Reuse the battlefield's authored stat gems; the invisible hit area is larger than the art. */
+.prep-ov .prep-refund { display:flex; align-items:center; justify-content:center; width:var(--control-size,100px); min-width:var(--control-size,100px); height:var(--control-size,100px); padding:0; border:0; border-radius:0; background:none; box-shadow:none; cursor:pointer; font:inherit; }
+.prep-ov .prep-refund-face { display:flex; align-items:center; justify-content:center; gap:2px; width:100%; background:none; box-shadow:none; border-radius:0; }
+.prep-ov .prep-refund:active .prep-refund-face { transform:translateY(2px); filter:brightness(1.35); }
+.prep-ov .prep-refund:focus-visible { outline:0; }
+.prep-ov .prep-refund:focus-visible .prep-refund-face { filter:drop-shadow(2px 0 #ffe3a3) drop-shadow(-2px 0 #ffe3a3); }
+/* 像素人物金色轮廓足够表达选择；移除遮挡人物的圆环与矩形。 */
+.prep-ov .u-glow, .prep-ov .u-bob::after { display:none!important; }
+.prep-ov .unit.selected:not(:focus-visible) { outline:none; box-shadow:none; background:none; }
+.prep-ov .prep-unit-actions { display:flex; align-items:center; gap:12px; flex:none; }
+.prep-ov .prep-unit-actions:empty { display:none; }
+.prep-ov .prep-unequip { min-width:var(--control-size,100px); min-height:var(--control-size,100px); height:var(--control-size,100px); padding:6px; font-size:24px; display:flex; align-items:center; gap:4px; flex:none; }
+.prep-ov .prep-unequip .px-item { width:40px; height:40px; }
+.prep-ov button:disabled { background:#373743; color:#8e8e9e; filter:grayscale(1); cursor:default; opacity:.65; }
+.prep-ov button:disabled b { color:#aaaab5; }
+.prep-ov .prep-refund:disabled { background:none; }
+.prep-ov .prep-refund:disabled .prep-added { color:#aaaab5; }
+
+.prep-ov .pp-say { position:absolute; left:490px; right:24px; top:2px; bottom:auto; height:26px; justify-content:flex-start; font-size:22px; white-space:nowrap; line-height:1.2; overflow:visible; background:none; }
+.prep-ov .pp-say:empty { display:none; }
+.prep-ov .pp-tray { position:absolute; left:24px; right:180px; top:auto; bottom:8px; height:100px; display:flex; flex-wrap:nowrap; justify-content:flex-start; align-items:flex-end; gap:20px; overflow-x:auto; overflow-y:hidden; touch-action:pan-x; }
+.prep-ov .pr-group { padding:0; border:0; border-image:none; background:none; flex:none; gap:8px; }
+.prep-ov .pr-label { display:none; }
+.prep-ov .pr-items { flex-wrap:nowrap; gap:12px; }
+.prep-ov .pr-chip { min-width:var(--control-size,100px); min-height:var(--control-size,100px); height:var(--control-size,100px); font-size:24px; padding:0 14px; }
+.prep-ov .pr-chip.pt { min-width:var(--control-size,100px); }
+.prep-ov .pr-chip.pt b { font-size:34px; }
+.prep-ov .pr-chip.on { transform:none; }
+.prep-ov .pr-chip.pt i { right:4px; bottom:4px; font-size:24px; min-width:28px; height:28px; box-shadow:none; }
+.prep-ov .pr-chip.sp.on::after { top:2px; right:4px; font-size:18px; }
+.prep-ov button:focus-visible { outline:4px solid #ffe3a3; outline-offset:-4px; }
+@media (prefers-reduced-motion: reduce) {
+ .prep-ov *, .prep-ov *::after { animation:none!important; transition:none!important; }
+}
+
+/* Short landscape screens keep four permanent 44px undo targets beneath each seat. Only sprite height changes. */
+@media (max-width:900px), (max-height:500px) {
+ .prep-ov .prep-roster { padding-top:44px; }
+ .prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemy { transform:scale(.32); }
+}
+@media (max-width:620px), (max-height:340px) {
+ .prep-ov .prep-roster { padding-top:14px; }
+ .prep-ov .prep-figure, .prep-ov .prep-bench-empty { height:140px; }
+ .prep-ov .prep-figure .unit { height:140px; }
+ .prep-ov .prep-allies .u-body { transform:scale(.8); transform-origin:center top; }
+ .prep-ov .prep-bench .u-body { transform:translateY(12px) scale(.58); transform-origin:center 70px; }
+ .prep-ov .prep-figure .u-stats { top:70px; }
+ .prep-ov .prep-figure .u-kws { top:106px; }
+ .prep-ov .prep-figure .ped, .prep-ov .prep-bench-empty .ped { top:70px; }
+ .prep-ov .prep-position { top:0; }
+ .prep-ov .prep-bench .u-pips { top:30px; }
+}

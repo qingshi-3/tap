@@ -271,7 +271,7 @@ export function consumeRewardedRetry(r: RunState) {
 
 const hasTag = (defId: string, tag: string) => (unitDef(defId).tags ?? []).some((t) => t === tag || tagFamily(t) === tag);
 /** 词条招募令可选的标签：职能标签 + 机制标签族 */
-export const ORDER_TAGS = [...ROLE_TAGS, '格挡', '复生', '连击', '狙击', '法强', '反击', '灼烧', '溅射', '寒意', '护甲', '护卫', '易伤', '立即出手']
+export const ORDER_TAGS = [...ROLE_TAGS, '格挡', '复生', '连击', '狙击', '法强', '反击', '灼烧', '溅射', '寒意', '护甲', '护卫', '易伤', '立即攻击', '行动次数', '献祭']
   .filter((t, i, a) => a.indexOf(t) === i);
 function orderPool(r: RunState, kind: OrderKind, choice: string) {
   const pool = draftPool(r);
@@ -553,7 +553,7 @@ function passiveNeedMet(r: RunState, p: PassiveDef) {
     case 'burn': return fam('灼烧') || eqs.includes('eq_flame') || r.general === 'vulkan';
     case 'chill': return fam('寒意') || eqs.includes('eq_frost') || r.general === 'faie';
     case 'cast': return units.some((u) => !!unitDef(u.defId).cast);
-    case 'extra': return fam('立即出手') || r.general === 'hank';
+    case 'extra': return fam('立即攻击') || r.general === 'hank';
     case 'equip2': return eqs.length >= 2;
   }
 }
@@ -590,6 +590,7 @@ export function buildBattle(r: RunState, slots: readonly (Slotted | null)[] = r.
   return {
     player: slots.map(cloneOwned),
     enemy: node.lineup,
+    rules: node.rules,
     general: { id: r.general, power: r.genPower, passives: [...r.passives] },
     spells: [...r.activeSpells],
     bench: bench.filter(Boolean).length,

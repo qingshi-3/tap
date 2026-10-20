@@ -1,0 +1,16 @@
+/* Round state stays in the existing order strip and unit presentation. */
+.unit.action-spent:not(.next-actor) .u-art { filter: saturate(.45) brightness(.74); }
+.unit.action-spent:not(.next-actor) .u-glow { opacity: .12; }
+.order-strip { top: 138px; flex-direction: column; gap: 8px; font-size: 25px; line-height: 1.2; }
+.order-strip .os-round { color: #fff0be; white-space: nowrap; }
+.order-strip .os-queues { display: flex; align-items: center; gap: 28px; }
+.order-strip .os-side { white-space: nowrap; gap: 8px; }
+.order-strip .os-wait { color: #b9c7d8; padding: 3px 8px; background: #233246; }
+.order-strip .os-u { min-width: 28px; height: 30px; padding: 0 5px; border: 0; border-radius: 0; background: #334b69; color: #eaf2ff; }
+.order-strip .os-u.first { background: #b59039; color: #fff7cd; }
+.order-strip .os-side.enemy .os-u { background: #633546; }
+.order-strip .os-side.enemy .os-u.first { background: #a84f5d; color: #fff0ef; }
+.vs.beat .vs-lbl { white-space: nowrap; font-size: 24px; letter-spacing: 0; color: #d7e5f8; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.next-actor::before { animation: none; }
+}

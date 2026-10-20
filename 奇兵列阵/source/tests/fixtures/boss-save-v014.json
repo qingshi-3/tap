@@ -1,0 +1,124 @@
+{
+  "saveVersion": 1,
+  "contentVersion": "0.8",
+  "seed": 41022,
+  "general": "hank",
+  "lives": 3,
+  "chapter": 0,
+  "node": 8,
+  "wins": 6,
+  "history": [
+    "win",
+    "win",
+    "win",
+    "win",
+    "win",
+    "win"
+  ],
+  "over": null,
+  "slots": [
+    {
+      "defId": "n_bulwark",
+      "ownedId": 1,
+      "copies": 2,
+      "train": {
+        "block": 2,
+        "hp": 10,
+        "atk": 2
+      },
+      "equips": [
+        "eq_belt"
+      ]
+    },
+    {
+      "defId": "n_merc",
+      "ownedId": 2,
+      "copies": 2,
+      "train": {
+        "atk": 2
+      },
+      "equips": [
+        "eq_combo"
+      ]
+    },
+    {
+      "defId": "n_envoy",
+      "ownedId": 3,
+      "copies": 2,
+      "train": {
+        "atk": 2
+      },
+      "equips": []
+    },
+    {
+      "defId": "n_breaker",
+      "ownedId": 4,
+      "copies": 2,
+      "train": {},
+      "equips": []
+    },
+    {
+      "defId": "n_marshal",
+      "ownedId": 5,
+      "copies": 2,
+      "train": {},
+      "equips": [
+        "eq_ice"
+      ]
+    }
+  ],
+  "bench": [
+    null,
+    null,
+    null
+  ],
+  "nextOwnedId": 6,
+  "activeFactions": [
+    "shadow",
+    "magma",
+    "frost",
+    "desert"
+  ],
+  "variantChoices": {
+    "0:4": 0,
+    "0:6": 0,
+    "1:4": 1,
+    "1:6": 0,
+    "2:4": 0,
+    "2:6": 1
+  },
+  "draft": [],
+  "picks": 0,
+  "rerolls": 1,
+  "rngState": -1105286919,
+  "rec": {
+    "recent": [
+      [
+        "d_howler",
+        "m_hide",
+        "n_archer"
+      ]
+    ],
+    "skipped": [],
+    "dry": 1
+  },
+  "rewardedRetryCount": 0,
+  "rewardedRerollCount": 0,
+  "gold": 9,
+  "shop": null,
+  "stash": {},
+  "allocLog": [],
+  "lastPower": 0,
+  "lastPoints": [],
+  "genPower": 0,
+  "passives": [],
+  "promo": null,
+  "promoCount": 0,
+  "bag": [],
+  "spells": [],
+  "activeSpells": [],
+  "orders": [],
+  "reward": null,
+  "forkPick": null,
+  "pending": null
+}

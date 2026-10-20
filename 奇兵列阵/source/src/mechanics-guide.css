@@ -1,0 +1,31 @@
+/* 说明沿用像素舞台与实体按钮；按主题分页，内容区可触摸滚动。 */
+.howto .ht-view { height: 370px; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
+.howto .ht-page { min-height: 100%; height: auto; gap: 24px; align-items: center; }
+.howto .ht-fig { width: 260px; height: 190px; background: none; border: 0; border-image: none; box-shadow: none; }
+.howto .ht-body { flex: 1; min-width: 0; padding: 8px 0; }
+.howto .ht-body p { font-size: max(22px, calc(var(--control-size, 64px) * .28)); line-height: 1.5; margin: 0 0 12px; }
+.howto .ht-body p:last-child { margin-bottom: 0; }
+.howto .ht-body h3 { font-size: max(26px, calc(var(--control-size, 64px) * .3)); }
+.howto .ht-page-number { min-width: 90px; text-align: center; font-size: max(22px, calc(var(--control-size, 64px) * .28)); color: var(--muted); }
+.howto .ht-nav .btn, .howto .ht-tab { min-height: var(--control-size, 64px); min-width: var(--control-size, 64px); }
+.howto .ht-tab { font-size: max(20px, calc(var(--control-size, 64px) * .26)); }
+.howto .ht-lbl { font-size: 20px; }
+.howto .ht-nav .btn:disabled { filter: grayscale(1); opacity: .45; cursor: default; }
+.howto .ht-nav .btn.ghost { background: #3c3659; border: 0; border-image: none; box-shadow: none; }
+.howto .ht-nav .btn:active, .codex .cx-back:active { transform: translateY(1px); }
+.howto .ht-nav .btn.ghost:active, .howto .ht-tab:active, .codex .cx-tab:active, .codex .cx-back:active { background: #60538a; }
+.howto .ht-tab { border-image: none; }
+.howto .ht-tab:focus-visible, .howto .ht-nav .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.cx-kw .cx-kw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.cx-kw .cx-kw-card { border-image: none; }
+.cx-kw .cx-rule-grid .cx-kw-card { padding: 10px 14px; }
+.cx-kw .cx-rule-grid .kc-tag { color: var(--gold); }
+.cx-kw .cx-kw-card p { font-size: max(22px, calc(var(--control-size, 64px) * .28)); }
+.cx-kw .cx-kw-card .kc-tag, .cx-kw .cx-kw-h span { font-size: max(26px, calc(var(--control-size, 64px) * .3)); }
+.codex .cx-tab, .codex .cx-back { min-height: var(--control-size, 64px); min-width: var(--control-size, 64px); font-size: max(20px, calc(var(--control-size, 64px) * .26)); border: 0; border-image: none; box-shadow: none; }
+.codex .cx-back { background: #3c3659; }
+.codex .cx-tab.on { background: #43356f; }
+.codex .cx-tab:focus-visible, .codex .cx-back:focus-visible { outline: 3px solid var(--gold); outline-offset: -3px; }
+@media (prefers-reduced-motion: reduce) {
+  .howto .ht-page, .howto .ht-arc { animation: none; transition: none; }
+}

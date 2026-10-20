@@ -1,8 +1,10 @@
+import { INTRINSIC_BOSS_RULES } from './encounterRules';
+import { effectAmount } from './power';
 import { unitDef } from './data';
 import { EQUIP_MAP, GENERAL_MAP, POINT_MAP, generalInterval, type EquipDef } from './content';
 import { unitLevel } from './types';
 import type {
-  BattleEvent, BattleOutput, BattleResult, DmgKind, Effect, EffectTarget, EnemyEntry, GeneralSetup, Grant, LoggedEvent, Side, Slotted, Snap, Tri,
+  BattleRule, BattleRuleEffect, BattleEvent, BattleOutput, BattleResult, DmgKind, Effect, EnemyEntry, GeneralSetup, Grant, LoggedEvent, Side, Slotted, Snap, Tri,
   TriggerKind, UnitDef, UnitState,
 } from './types';
 
@@ -25,6 +27,7 @@ export interface BattleSetup {
   /** 战斗内随机（后援）用的种子 */
   seed?: number;
   record?: boolean;
+  rules?: readonly BattleRule[];
 }
 export const levelStats = (defId: string, level: number) => {
   const d = unitDef(defId), up = Math.max(0, Math.min(2, level - 1));
@@ -38,20 +41,17 @@ const LABEL: Record<TriggerKind, string> = {
   faint: '阵亡', allyFaint: '友军阵亡', beatEnd: '拍末', aura: '被动', general: '主将', revive: '复活',
   guard: '护卫', boss: '首领', equip: '装备', spell: '法术',
 };
-/** 个人法强作用的数值 */
-const POWERED = new Set(['dmg', 'heal', 'burn', 'chill', 'vuln']);
-/** 群体效果只吃一半法强（向下取整），免得一次施法把全场叠满 */
-const GROUP_TARGETS = new Set<EffectTarget>(['allies', 'enemyAll', 'burningEnemies', 'otherEnemies', 'guardAllies']);
 const BOOL_GRANTS = new Set<Grant>(['snipe', 'combo', 'reborn', 'guard']);
 /** 敌方单体指定目标：会被护卫改选 */
 const GUARDED = new Set<Effect['to']>(['enemyRear', 'enemyLowest', 'enemyHighestAtk', 'enemyHighestHp']);
 
-interface Ctx { target?: UnitState; attacker?: UnitState; slot?: number; bonus?: number; cast?: boolean; probe?: boolean }
+interface Ctx { target?: UnitState; attacker?: UnitState; slot?: number; bonus?: number; cast?: boolean; probe?: boolean; unguarded?: boolean }
 interface ActOpts { force?: boolean; snipe?: boolean }
 class CombatFault extends Error {}
 
 /**
- * v0.7 轮转规则：每方一个出手指针，每拍双方各出手一次（我方先结算），
+ * 每回合每单位默认一次常规行动；双方每拍至多一人，同一行动轮每人至多一次。
+ * 一方用完等待，双方本轮结束才发放下一行动轮；全部次数耗尽进入新回合。
  * 先施法后普攻，普攻双方同时结算；触发效果进入 FIFO 队列，死亡在每个响应之间统一结算。
  * 每拍结束：主将技能 → 首领效果 → 灼烧 → 疲劳 → 其他「每拍结束时」。
  */
@@ -62,6 +62,11 @@ export class Battle {
   record: boolean;
   gen: GeneralSetup | null;
   beat = 0;
+  round = 1;
+  wave = 1;
+  private waveUsed = new Set<number>();
+  private actionGrants = new Map<number, Set<Effect>>();
+  private constructing = true;
   /** 各卡能力触发次数（按 defId），模拟器统计用 */
   triggers: Record<string, number> = {};
   ptr: [number, number] = [0, 0];
@@ -74,7 +79,7 @@ export class Battle {
   private killers = new Map<number, UnitState | undefined>();
   private pending: (UnitState | null)[] = [null, null];
   private extraUsed: [number, number] = [0, 0];
-  private pulled = new Set<number>();
+  private rules: { rule: BattleRule; source?: number; count: number; pulled: Set<number> }[] = [];
   private equipsOf = new Map<number, EquipDef[]>();
   private redirected = new Set<number>();
   private cliffBeat = new Map<number, number>();
@@ -90,7 +95,7 @@ export class Battle {
   /** 白霜巨龙每拍只吃第一次冻结 */
   private wyvernBeat = new Map<number, number>();
   private hankActor = 0;
-  private nightDone = false;
+
   private nextUid = 1;
   private events = 0;
   private responses = 0;
@@ -118,6 +123,12 @@ export class Battle {
         if (e.block) u.block = Math.min(MAX_BLOCK, e.block);
       });
     }
+    for (const rule of [...INTRINSIC_BOSS_RULES, ...(setup.rules ?? [])]) {
+      if (rule.source) {
+        for (const u of this.units.filter(u => u.side === rule.source!.side && u.defId === rule.source!.defId))
+          this.rules.push({ rule, source: u.uid, count: 0, pulled: new Set() });
+      } else this.rules.push({ rule, count: 0, pulled: new Set() });
+    }
     // 本场生效、开战前就决定的数值
     for (const u of this.units) {
       if (u.side === 0 && this.spells.has('sp_warsong')) u.atk += 2;
@@ -126,6 +137,7 @@ export class Battle {
     if (this.spells.has('sp_revive')) this.freeRevives++;
     if (this.passives.has('g_revive')) this.freeRevives++;
     if (this.passives.has('lilithe_4')) this.freeRevives++;
+    this.constructing = false;
     this.refreshArmor();
   }
 
@@ -166,11 +178,29 @@ export class Battle {
   snap(): Snap { this.refreshArmor(); return this.units.map(u => ({ ...u, grants: { ...u.grants } })); }
   def(u: UnitState): UnitDef { return unitDef(u.defId); }
 
-  /** 从指针起循环的出手顺序（不移动指针） */
+  /** 当前行动轮仍可出手的单位，按实际位置排列。 */
   order(side: Side): UnitState[] {
-    const out: UnitState[] = [];
-    for (let i = 0; i < SLOTS; i++) { const u = this.at(side, (this.ptr[side] + i) % SLOTS); if (u) out.push(u); }
-    return out;
+    return this.standing(side).filter(u => (u.actionsLeft ?? 0) > 0 && !this.waveUsed.has(u.uid));
+  }
+  /** 只读预测：当前轮、额外轮、下回合；不会为等待方重新派发。 */
+  private futureOrder(side: Side): UnitState[] {
+    const st = this.standing(side), now = this.order(side);
+    const later = st.filter(u => (u.actionsLeft ?? 0) > 0 && !now.includes(u));
+    return [...now, ...later, ...st.filter(u => !now.includes(u) && !later.includes(u))];
+  }
+  private prepareWave() {
+    if (this.order(0).length || this.order(1).length) return;
+    this.waveUsed.clear();
+    if (this.standing(0).some(u => (u.actionsLeft ?? 0) > 0) || this.standing(1).some(u => (u.actionsLeft ?? 0) > 0)) this.wave++;
+    else {
+      this.round++; this.wave = 1; this.actionGrants.clear();
+      for (const u of this.units) u.actionsLeft = u.alive && u.hp > 0 ? 1 : 0;
+    }
+  }
+  addAction(src: UnitState | undefined, t: UnitState, n: number) {
+    if (!t.alive || t.hp <= 0 || n <= 0) return;
+    t.actionsLeft = (t.actionsLeft ?? 0) + n;
+    this.emit({ t: 'actionGain', src: src?.uid, uid: t.uid, n, total: t.actionsLeft });
   }
   armor(u: UnitState) {
     const d = this.def(u);
@@ -209,7 +239,7 @@ export class Battle {
     const st = levelStats(defId, level), d = unitDef(defId);
     const u: UnitState = {
       uid: this.nextUid++, defId, side, slot, level, atk: Math.max(1, st.atk), hp: st.hp, maxHp: st.hp,
-      block: 0, chill: 0, burn: 0, vuln: 0, revived: false, grants: {}, alive: true,
+      actionsLeft: this.constructing ? 1 : 0, block: 0, chill: 0, burn: 0, vuln: 0, revived: false, grants: {}, alive: true,
       ...(d.castUses ? { charges: d.castUses } : {}),
     };
     this.units.push(u); this.grid[side][slot] = u.uid; return u;
@@ -308,7 +338,7 @@ export class Battle {
       }
       if (d.special === 'warden') {
         const v = tri(d.values, t.level);
-        this.enqueue(() => { if (t.alive && t.hp > 0) { this.label(t, 'aura'); this.heal(t, t, v); } });
+        this.enqueue(() => { if (t.alive && t.hp > 0) { this.label(t, 'aura'); this.grant(t, t, 'armor', v); } });
       }
       return true;
     }
@@ -335,10 +365,7 @@ export class Battle {
         this.glassGain.set(g.uid, got + 1); this.label(g, 'aura'); this.buff(g, g, 1, 0);
       });
     }
-    if (d.special === 'nightk' && !this.nightDone && t.hp > 0 && t.hp * 2 < t.maxHp) {
-      this.nightDone = true;
-      this.enqueue(() => this.recall(t));
-    }
+    this.triggerRules('hpBelow', t);
     if (d.onHurt) this.enqueue(() => {
       if (!t.alive || t.hp <= 0) return;
       this.respond(t, 'hurt', d.onHurt!, { attacker: src });
@@ -358,18 +385,23 @@ export class Battle {
     }
   }
   /** 永夜君王：召回本场阵亡的随从（生命减半），自己获得 3 层格挡 */
-  private recall(boss: UnitState) {
+  private recall(boss: UnitState, hpRatio = 0.5, grantBlock = true) {
     if (!boss.alive || boss.hp <= 0) return;
     this.label(boss, 'boss');
+    const recalled: UnitState[] = [];
     for (const m of this.units.filter(x => x.side === boss.side && !x.alive && x.uid !== boss.uid).sort((a, b) => a.uid - b.uid)) {
       const slot = this.grid[m.side][m.slot] == null ? m.slot : this.grid[m.side].findIndex(x => x == null);
       if (slot < 0) break;
-      m.alive = true; m.slot = slot; m.hp = Math.max(1, Math.ceil(m.maxHp / 2));
+      m.alive = true; m.slot = slot; m.hp = Math.max(1, Math.ceil(m.maxHp * hpRatio));
+      // 召回属于重新入场；与原位即时复生不同，本回合剩余机会不继承。
+      m.actionsLeft = 0; this.waveUsed.add(m.uid);
       m.block = m.chill = m.burn = m.vuln = 0;
       this.grid[m.side][slot] = m.uid;
       this.emit({ t: 'recall', uid: m.uid, src: boss.uid });
+      recalled.push(m);
     }
-    this.block(boss, boss, 3);
+    if (grantBlock) this.block(boss, boss, 3);
+    this.triggerRules('afterRecall', boss, recalled);
   }
 
   /** 统一结算濒死单位：阵亡 → 复生 → 阵亡时 / 友军阵亡时 / 击杀时 */
@@ -433,13 +465,14 @@ export class Battle {
   private targets(u: UnitState, to: Effect['to'], ctx: Ctx): UnitState[] {
     const foe = (1 - u.side) as Side, slot = ctx.slot ?? u.slot;
     const one = (x: UnitState | null | undefined) => (x && x.alive && x.hp > 0 ? [x] : []);
-    const g = (x: UnitState | null) => (GUARDED.has(to) ? this.guarded(x, ctx.probe) : x);
+    const g = (x: UnitState | null) => (GUARDED.has(to) && !ctx.unguarded ? this.guarded(x, ctx.probe) : x);
     switch (to) {
       case 'self': return one(u);
       case 'front': return one(this.front(u.side));
       case 'rear': return one(this.rear(u.side));
       case 'allies': return this.standing(u.side);
       case 'adjacent': return this.neighbors(u, slot);
+      case 'ahead': return one(this.standing(u.side).filter(x => x.slot < slot && x.uid !== u.uid).at(-1));
       case 'behind': return one(this.standing(u.side).find(x => x.slot > slot && x.uid !== u.uid));
       case 'lowest': return one(this.standing(u.side).filter(x => x.hp < x.maxHp).sort((a, b) => a.hp - b.hp || Battle.cmp(a, b))[0]);
       case 'highestAtk': return one(this.atk1(u.side, u.uid));
@@ -454,7 +487,7 @@ export class Battle {
       case 'enemyAll': return this.standing(foe);
       case 'enemyNext': {
         const p = this.pending[foe];
-        return one(p && p.alive && p.hp > 0 ? p : this.order(foe).find(x => x.hp > 0));
+        return one(p && p.alive && p.hp > 0 ? p : this.futureOrder(foe)[0]);
       }
       case 'attacker': return one(ctx.attacker && ctx.attacker.side !== u.side ? ctx.attacker : null);
       case 'target': return one(ctx.target);
@@ -465,14 +498,28 @@ export class Battle {
   private apply(u: UnitState, effects: Effect[], ctx: Ctx): boolean {
     let any = false;
     const pw = ctx.cast ? this.power(u) : 0;
+    // Resolve without side effects, then publish interception only when an effect
+    // actually runs. Captured references never retarget after damage or buffs.
+    const locked = this.def(u).lockTargets ? new Map(effects.map(e => [e,
+      this.targets(u, e.to, { ...ctx, probe: true, unguarded: true }).map(original => {
+        const target = GUARDED.has(e.to) ? this.guarded(original, true)! : original;
+        return { target, from: target.uid !== original.uid ? original.uid : undefined };
+      }),
+    ])) : undefined;
     for (const e of effects) {
-      let v = tri(e.v, u.level);
+      const captured = locked?.get(e)?.filter(x => x.target.alive && x.target.hp > 0);
+      if (!this.effectUseful(u, e, ctx, captured?.map(x => x.target))) continue;
+      const v = effectAmount(e, tri(e.v, u.level), pw, !!ctx.cast);
       const v2 = tri(e.v2, u.level);
-      if (POWERED.has(e.op) && v > 0) v += GROUP_TARGETS.has(e.to) ? Math.floor(pw / 2) : pw;
       if (e.op !== 'grant' && e.op !== 'extraAct' && e.op !== 'summon' && v <= 0 && v2 <= 0) continue;
       if (e.op === 'summon') { this.summon(u, u.side, ctx.slot ?? u.slot, e.token!, v, v2 || v); any = true; continue; }
-      const ts = this.targets(u, e.to, ctx);
+      const ts = captured ? captured.map(x => x.target) : this.targets(u, e.to, ctx);
       for (const t of ts) {
+        const interception = captured?.find(x => x.target === t && x.from !== undefined);
+        if (interception) {
+          this.emit({ t: 'guard', from: interception.from!, to: t.uid });
+          this.redirected.add(t.uid);
+        }
         any = true;
         switch (e.op) {
           case 'dmg': this.hit(u, t, v, 'ability'); break;
@@ -484,6 +531,18 @@ export class Battle {
           case 'buff': this.buff(u, t, v, v2); break;
           case 'grant': if (e.grant) this.grant(u, t, e.grant, v); break;
           case 'extraAct': this.extraAct(t, v); break;
+          case 'addAction':
+            this.addAction(u, t, v);
+            if (e.oncePerRound) { const used = this.actionGrants.get(u.uid) ?? new Set<Effect>(); used.add(e); this.actionGrants.set(u.uid, used); }
+            break;
+          case 'sacrifice': {
+            const receiver = this.standing(u.side).filter(x => x.uid !== u.uid && x.uid !== t.uid).sort((a, b) => b.atk - a.atk || Battle.cmp(a, b))[0];
+            if (!receiver) break;
+            t.hp = 0; this.killers.delete(t.uid);
+            this.emit({ t: 'sacrifice', src: u.uid, tgt: t.uid });
+            this.buff(u, receiver, v, 0);
+            break;
+          }
         }
       }
     }
@@ -493,7 +552,7 @@ export class Battle {
   private respond(u: UnitState, kind: TriggerKind, effects: Effect[], ctx: Ctx, dead = false) {
     if (!dead && (!u.alive || u.hp <= 0)) return;
     // 被动响应没有有效目标时静默跳过（落空提示只给施法）
-    if (!effects.some(e => e.op === 'summon' || this.targets(u, e.to, { ...ctx, probe: true }).length > 0)) return;
+    if (!effects.some(e => this.effectUseful(u, e, ctx))) return;
     this.label(u, kind);
     this.apply(u, effects, ctx);
   }
@@ -504,13 +563,18 @@ export class Battle {
   canCast(u: UnitState) {
     const d = this.def(u);
     if (!d.cast || (u.charges !== undefined && u.charges <= 0)) return false;
-    return d.cast.some(e => {
-      if (e.op === 'summon') return true;
-      if (e.op === 'extraAct' && this.extraUsed[u.side] >= this.extraCap(u.side)) return false;
-      return this.targets(u, e.to, { probe: true }).some(t =>
-        e.op === 'heal' ? t.hp < t.maxHp : e.op === 'block' ? t.block < MAX_BLOCK : true);
-    });
+    return d.cast.some(e => this.effectUseful(u, e, { probe: true }));
   }
+  private effectUseful(u: UnitState, e: Effect, ctx: Ctx, targets?: UnitState[]) {
+    if (e.op === 'summon') return true;
+    if (e.op === 'grant' && (!e.grant || (!BOOL_GRANTS.has(e.grant) && tri(e.v, u.level) === 0))) return false;
+    if (e.op === 'extraAct' && this.extraUsed[u.side] >= this.extraCap(u.side)) return false;
+    if (e.op === 'addAction' && (tri(e.v, u.level) <= 0 || (e.oncePerRound && this.actionGrants.get(u.uid)?.has(e)))) return false;
+    return (targets ?? this.targets(u, e.to, { ...ctx, probe: true })).some(t =>
+      e.op === 'heal' ? t.hp < t.maxHp : e.op === 'block' ? t.block < MAX_BLOCK :
+      e.op === 'sacrifice' ? this.standing(u.side).some(x => x.uid !== u.uid && x.uid !== t.uid) : true);
+  }
+
   /** 寒意检查：寒意 ≥ 当前攻击 → 冻结，跳过这次出手 */
   private frozen(u: UnitState, bonus = 0) {
     if (u.chill <= 0 || u.chill < u.atk + bonus) return false;
@@ -564,7 +628,7 @@ export class Battle {
       this.enqueue(() => this.respond(s, 'afterCast', [{ op: 'chill', to: 'enemyNext', v }], {}));
     }
   }
-  /** 立即出手：不移动指针；每方每拍最多 1 次（因此不能链式）；仍做寒意检查。force 不占次数（主将） */
+  /** 立即攻击：不施法、不消耗常规行动；每方每拍最多 1 次（因此不能链式）；仍做寒意检查。force 不占次数（主将） */
   private extraAct(u: UnitState, bonus: number, opts: ActOpts = {}) {
     if (!u.alive || u.hp <= 0) return;
     if (!opts.force) {
@@ -573,13 +637,12 @@ export class Battle {
     }
     this.emit({ t: 'act', side: u.side, uid: u.uid, mode: 'extra' });
     if (this.frozen(u, bonus)) return;
-    if (!opts.snipe && this.canCast(u)) { this.cast(u, {}); u.chill = 0; return; }
     this.attack([{ a: u, bonus, snipe: opts.snipe }]);
   }
 
   /** 普攻（可多人同时）：先锁定目标，所有段数交替结算，最后统一响应 */
   private attack(list: { a: UnitState; bonus: number; snipe?: boolean }[]) {
-    const plans = list.filter(p => p.a.alive && p.a.hp > 0).map(p => {
+    const plans = list.filter(p => p.a.alive && p.a.hp > 0 && !this.frozen(p.a, p.bonus)).map(p => {
       const a = p.a, foe = (1 - a.side) as Side, snipe = !!p.snipe || this.hasTrait(a, 'snipe');
       const tgt = snipe ? this.guarded(this.rear(foe)) : this.front(foe);
       const chilled = Math.min(a.chill, a.atk + p.bonus - 1);
@@ -642,7 +705,7 @@ export class Battle {
 
   private pick(side: Side) {
     const u = this.order(side)[0] ?? null;
-    if (u) this.ptr[side] = (u.slot + 1) % SLOTS;
+    if (u) { this.waveUsed.add(u.uid); u.actionsLeft = Math.max(0, (u.actionsLeft ?? 0) - 1); this.ptr[side] = (u.slot + 1) % SLOTS; }
     return u;
   }
 
@@ -700,7 +763,7 @@ export class Battle {
         break;
       }
       case 'faie': {
-        const ts = this.order(1).filter(x => x.hp > 0).slice(0, has('faie_1') ? 2 : 1);
+        const ts = this.futureOrder(1).slice(0, has('faie_1') ? 2 : 1);
         show(ts);
         let froze = false;
         for (const t of ts) { this.chill(undefined, t, base); if (t.chill >= t.atk) froze = true; }
@@ -744,6 +807,7 @@ export class Battle {
       const st = allies(); if (!st.length) break;
       this.buff(undefined, st[Math.floor(this.rnd() * st.length)], 1, 2);
     }
+    if (this.spells.has('sp_haste')) { const f = this.front(0); if (f) this.addAction(undefined, f, 1); }
     if (this.spells.has('sp_shield')) for (const a of allies()) this.block(undefined, a, 1);
     if (this.spells.has('sp_firerain')) for (const e of foes()) this.burn(undefined, e, 3);
     if (this.spells.has('sp_freeze')) { const f = this.front(1); if (f) this.chill(undefined, f, f.atk); }
@@ -763,27 +827,28 @@ export class Battle {
     }
   }
   private doBeat() {
+    this.prepareWave();
     this.beat++;
     this.responses = 0;
     this.extraUsed = [0, 0];
-    this.emit({ t: 'beat', n: this.beat, next: { player: this.order(0).map(u => u.uid), enemy: this.order(1).map(u => u.uid) } });
+    this.emit({ t: 'beat', n: this.beat, round: this.round, wave: this.wave, next: { player: this.order(0).map(u => u.uid), enemy: this.order(1).map(u => u.uid) } });
     const actors = [this.pick(0), this.pick(1)];
     this.pending = [...actors];
     const attackers: { a: UnitState; bonus: number }[] = [];
     for (const side of [0, 1] as Side[]) {
       const a = actors[side];
-      this.pending[side] = null;
-      if (!a || !a.alive || a.hp <= 0) continue;
-      if (this.frozen(a)) { this.flush(); continue; }
+      if (!a || !a.alive || a.hp <= 0) { this.pending[side] = null; continue; }
+      if (this.frozen(a)) { this.pending[side] = null; this.flush(); continue; }
       if (this.canCast(a)) {
         this.emit({ t: 'act', side, uid: a.uid, mode: 'cast' });
-        this.cast(a, {}); a.chill = 0; this.flush();
+        this.pending[side] = null;
+        a.chill = 0; this.cast(a, {}); this.flush();
       } else {
         this.emit({ t: 'act', side, uid: a.uid, mode: 'attack' });
         attackers.push({ a, bonus: 0 });
       }
     }
-    this.attack(attackers); this.flush();
+    this.attack(attackers); this.pending = [null, null]; this.flush();
     if (!this.outcome()) this.beatEnd();
   }
   private beatEnd() {
@@ -794,26 +859,9 @@ export class Battle {
       this.responses = 0;
       this.genCast();
     }
-    // 2. 首领效果
-    for (const boss of this.standing(1).filter(u => this.def(u).boss)) {
-      const sp = this.def(boss).special;
-      if (sp === 'void' && this.beat % 3 === 0 && !this.spells.has('sp_anchor')) {
-        // 虚空领主：把玩家队尾拉到队首，每个单位本场只被拉一次
-        const team = this.standing(0), r = team.at(-1);
-        if (r && team.length > 1 && !this.pulled.has(r.uid)) {
-          this.pulled.add(r.uid);
-          const slots = team.map(u => u.slot), order = [r, ...team.slice(0, -1)];
-          order.forEach((u, i) => { u.slot = slots[i]; this.grid[0][slots[i]] = u.uid; });
-          this.label(boss, 'boss');
-          this.emit({ t: 'pull', uid: r.uid, src: boss.uid });
-        }
-      }
-      if (sp === 'frostq' && this.beat % 3 === 0) {
-        // 霜魇女皇：你攻击最高的单位获得等同其攻击的寒意
-        const t = this.atk1(0);
-        if (t) { this.label(boss, 'boss'); this.chill(boss, t, t.atk); }
-      }
-    }
+    // 2. 固有规则先于关卡规则；每次规则之间结算死亡。
+    this.flush();
+    this.triggerRules('beatEnd');
     this.flush();
     // 3. 灼烧
     for (const u of this.units.filter(x => x.alive && x.hp > 0 && x.burn > 0).sort(Battle.cmp)) {
@@ -833,6 +881,51 @@ export class Battle {
       if (d.beatEvery && this.beat % d.beatEvery !== 0) continue;
       this.respond(u, 'beatEnd', d.onBeatEnd!, {});
       this.flush();
+    }
+  }
+  private triggerRules(on: 'beatEnd' | 'hpBelow' | 'afterRecall', target?: UnitState, recalled: UnitState[] = []) {
+    for (const state of this.rules) {
+      const r = state.rule, tr = r.trigger;
+      if (tr.on !== on || state.count >= (r.maxTriggers ?? Infinity)) continue;
+      const source = state.source === undefined ? undefined : this.u(state.source);
+      if (source && (!source.alive || source.hp <= 0)) continue;
+      if (tr.on === 'beatEnd' && (tr.every <= 0 || this.beat % tr.every !== 0)) continue;
+      if (tr.on === 'hpBelow' && (!source || target?.uid !== source.uid || source.hp >= source.maxHp * tr.ratio)) continue;
+      // 召回事件只归属本侧、本次来源；空召回不触发增强或消耗增强次数。
+      if (tr.on === 'afterRecall' && (!recalled.length || target?.side !== r.side || (source && target.uid !== source.uid))) continue;
+      // 入队前占用触发次数，防止同一批多次受伤重复排入一次性规则。
+      state.count++;
+      const execute = () => {
+        if (source && (!source.alive || source.hp <= 0)) return;
+        if (!r.intrinsic) this.emit({ t: 'rule', id: r.id, label: r.label, side: r.side, src: source?.uid });
+        for (const effect of r.effects) this.ruleEffect(effect, r.side, source, state.pulled, recalled);
+      };
+      if (on === 'hpBelow') this.enqueue(execute);
+      else { execute(); if (on === 'beatEnd') this.flush(); }
+    }
+  }
+  private ruleEffect(e: BattleRuleEffect, side: Side, source: UnitState | undefined, pulled: Set<number>, recalled: UnitState[]) {
+    const foe = (1 - side) as Side;
+    if (e.op === 'pullRearToFront') {
+      if (e.blockedBy && this.spells.has(e.blockedBy)) return;
+      const team = this.standing(foe), rear = team.at(-1);
+      if (!rear || team.length < 2 || (e.oncePerTarget && pulled.has(rear.uid))) return;
+      pulled.add(rear.uid);
+      const slots = team.map(u => u.slot);
+      [rear, ...team.slice(0, -1)].forEach((u, i) => { u.slot = slots[i]; this.grid[foe][slots[i]] = u.uid; });
+      if (source) this.label(source, 'boss');
+      this.emit({ t: 'pull', uid: rear.uid, src: source?.uid });
+    } else if (e.op === 'chillHighestAttack') {
+      const t = this.atk1(foe);
+      if (t) { if (source) this.label(source, 'boss'); this.chill(source, t, t.atk); }
+    } else if (e.op === 'recall') {
+      if (source) this.recall(source, e.hpRatio, false);
+    } else {
+      const targets = e.to === 'allies' ? this.standing(side) : e.to === 'source' ? (source ? [source] : []) : recalled;
+      for (const t of targets) {
+        if (e.op === 'buff') this.buff(source, t, e.atk, e.hp ?? 0);
+        else this.block(source, t, e.amount);
+      }
     }
   }
   outcome(): BattleResult | null {

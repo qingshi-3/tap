@@ -1,6 +1,8 @@
 // v0.7 远征路线：3 章 × 9 节点。每章：战斗 ×3 → 商店 → 战斗 → 分岔（精英/普通）→ 战斗 → 商店 → 首领。
 // 敌阵数值按「已培养」的预期设计，统一乘章节系数，模拟器调这几个系数即可。
-import type { EnemyEntry } from './types';
+import type { BattleRule, EnemyEntry } from './types';
+import { BOSS_ENCOUNTER_RULES } from './encounterRules';
+import { encounterRuleText } from './encounterText';
 
 export type BattleKind = 'normal' | 'elite' | 'boss';
 export interface RouteNode {
@@ -8,6 +10,8 @@ export interface RouteNode {
   name: string;
   lineup: (EnemyEntry | null)[];
   hint?: string;
+  /** 本场专属规则；与单位固有能力分开，运行状态由每场战斗持有。 */
+  rules?: readonly BattleRule[];
 }
 export type Stage =
   | { type: 'battle'; main: RouteNode; variant?: RouteNode }
@@ -28,7 +32,10 @@ const E = (defId: string, atk?: number, hp?: number, o: Partial<EnemyEntry> = {}
 const L = (...xs: (EnemyEntry | null)[]) => { const out = xs.slice(0, 5); while (out.length < 5) out.push(null); return out; };
 const N = (name: string, hint: string, lineup: (EnemyEntry | null)[]): RouteNode => ({ kind: 'normal', name, hint, lineup });
 const EL = (name: string, hint: string, lineup: (EnemyEntry | null)[]): RouteNode => ({ kind: 'elite', name, hint, lineup });
-const B = (name: string, hint: string, lineup: (EnemyEntry | null)[]): RouteNode => ({ kind: 'boss', name, hint, lineup });
+const B = (bossId: string, name: string, hint: string, lineup: (EnemyEntry | null)[]): RouteNode => {
+  const rules = BOSS_ENCOUNTER_RULES[bossId] ?? [];
+  return { kind: 'boss', name, hint: `${hint}。${encounterRuleText(rules)}`, lineup, rules };
+};
 const SHOP: Stage = { type: 'shop' };
 
 const RAW: Chapter[] = [
@@ -55,11 +62,11 @@ const RAW: Chapter[] = [
       { type: 'battle',
         main: N('荆棘与放逐', '放逐者击杀的单位不能复生',
           L(E('e_thorn', 3, 16), E('e_exile', 5, 13), E('e_brute', 6, 11), E('e_assassin', 5, 8))),
-        variant: N('孵化巢穴', '幼兽蛋与亡灵之种阵亡后原位召唤，收割者在友军阵亡时打你的队首',
+        variant: N('孵化巢穴', '幼兽蛋与幽火灵蛇阵亡后原位召唤，收割者在友军阵亡时打你的队首',
           L(E('m_egg', undefined, 7), E('a_seed', undefined, 5), E('a_reaper', 4, 9), E('e_crusher', 5, 11), E('e_pyre', 4, 10))) },
       SHOP,
-      { type: 'boss', main: B('虚空领主', '每第 3 拍结束时，把你的队尾拉到队首（每个单位只被拉一次）。锚定符可以免疫',
-        L(E('e_void', 5, 40), E('e_brute', 5, 13), E('e_assassin', 5, 9), E('e_thorn', 3, 13), E('e_brute', 5, 13))) },
+      { type: 'boss', main: B('e_void', '虚空领主', '每3拍拉队尾到队首，每单位限一次；锚定符免疫拉拽',
+        L(E('e_void', 4, 36), E('e_brute', 5, 13), E('e_assassin', 5, 9), E('e_thorn', 3, 13), E('e_brute', 5, 13))) },
     ],
   },
   {
@@ -85,10 +92,10 @@ const RAW: Chapter[] = [
       { type: 'battle',
         main: N('深渊法阵', '献祭术士带法强，唤亡祭师群伤；墓园守卫反击普攻',
           L(E('a_graveguard', 4, 22, { level: 2 }), E('a_brood', 4, 15, { level: 2 }), E('a_cult', 2, 13, { level: 2 }), E('a_ritualist', 2, 12, { level: 2 }), E('a_devour', 2, 12, { level: 2 }))),
-        variant: N('寒流战阵', '冰墙有护甲，寒冰卫士受击时冻攻击者，冰霜法师冻你的下一个出手者',
+        variant: N('寒流战阵', '冰墙有护甲，冰晶甲虫受击时冻攻击者，冰霜法师冻你的下一个出手者',
           L(E('v_wall', 4, 22, { level: 2 }), E('v_guard', 3, 18, { level: 2 }), E('v_mage', 2, 13, { level: 2 }), E('v_shard', 7, 14, { level: 2 }), E('e_brute', 8, 18))) },
       SHOP,
-      { type: 'boss', main: B('霜魇女皇', '每第 3 拍结束时，你攻击最高的单位获得等同其攻击的寒意。分散输出，或带净化之光',
+      { type: 'boss', main: B('e_frostq', '霜魇女皇', '每3拍给最高攻单位等同其攻击的寒意',
         L(E('e_frostq', 8, 70), E('e_guardian', 5, 24), E('v_mage', 3, 15, { level: 2 }), E('e_twin', 8, 18), E('e_curser', 3, 15))) },
     ],
   },
@@ -97,9 +104,9 @@ const RAW: Chapter[] = [
     stages: [
       { type: 'battle', main: N('墓园', '墓碑阵亡后召唤骷髅兵，亡魂骑士会复生',
         L(E('e_tomb', 1, 18), E('e_revenant', 9, 20), E('e_tomb', 1, 18), E('e_revenant', 9, 20), E('e_lich', 4, 16))) },
-      { type: 'battle', main: N('沙域军阵', '护卫挡下单体，沙嚎者给你的队首叠易伤，镜沙刺客越打越痛',
+      { type: 'battle', main: N('沙域军阵', '护卫挡下单体，沙嚎者给你的队首叠易伤，镜沙猎蜥越打越痛',
         L(E('d_sentry', 7, 24, { level: 2 }), E('d_keeper', 7, 22, { level: 2 }), E('d_howler', 3, 16, { level: 2 }), E('d_glass', 8, 18, { level: 2 }), E('d_pyro', 3, 17, { level: 2 }))) },
-      { type: 'battle', main: N('熔岩之潮', '暴龙溅射，燃血斗士与萨满叠灼烧',
+      { type: 'battle', main: N('熔岩之潮', '熔岩巨蜥溅射，熔甲兽与萨满叠灼烧',
         L(E('m_hide', 6, 26, { level: 2 }), E('m_rex', 9, 20, { level: 2 }), E('m_mender', 8, 19, { level: 2 }), E('m_shaman', 3, 16, { level: 2 }), E('m_bloodcaller', 7, 20, { level: 2 }))) },
       SHOP,
       { type: 'battle',
@@ -118,8 +125,8 @@ const RAW: Chapter[] = [
         variant: N('冰与火', '寒意控你的出手，灼烧持续掉血',
           L(E('v_wall', 6, 32, { level: 3 }), E('v_guard', 5, 26, { level: 2 }), E('n_alchemist', 4, 18, { level: 2 }), E('m_mender', 10, 22, { level: 2 }), E('v_mage', 4, 18, { level: 2 }))) },
       SHOP,
-      { type: 'boss', main: B('永夜君王', '生命首次低于一半时召回本场阵亡的随从，并获得 3 层格挡。留住群伤和持续输出',
-        L(E('e_nightk', 11, 110), E('e_guardian', 7, 34), E('e_revenant', 11, 24), E('e_lich', 5, 20), E('e_twin', 11, 24))) },
+      { type: 'boss', main: B('e_nightk', '永夜君王', '首次低于半血，随从以半血召回，君王获得3层格挡',
+        L(E('e_guardian', 7, 34), E('e_revenant', 11, 24), E('e_twin', 11, 24), E('e_nightk', 11, 110), E('e_lich', 5, 20))) },
     ],
   },
 ];

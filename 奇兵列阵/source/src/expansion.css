@@ -145,7 +145,7 @@
 .card.tier-3 .card-tier,.pool-unit.tier-3>span:last-child {
   color:#ddb0ff}
 .card.tier-4 .card-tier,.pool-unit.tier-4>span:last-child {
-  color:#ffcf71}
+  color:var(--rarity-legendary)}
 .btn:disabled {
   filter:grayscale(1);
   opacity:.4;
@@ -409,7 +409,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 .tip-rarity.rarity-1 { color: #d0d8df; }
 .tip-rarity.rarity-2 { color: #8fe6ff; }
 .tip-rarity.rarity-3 { color: #ddb0ff; }
-.tip-rarity.rarity-4 { color: #ffcf71; }
+.tip-rarity.rarity-4 { color: var(--rarity-legendary); }
 .tip-stars { color: var(--gold); }
 .bench-slot { height: 180px; }
 .bench-slot .bench-stats { top: 111px; left: 8px; right: 8px; pointer-events: none; }
@@ -543,7 +543,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
   top: -46px;
 }
 .card.tier-4 .card-name {
-  color: #ffe08a;
+  color: var(--rarity-legendary);
   text-shadow: 0 0 8px rgba(255, 194, 61, 0.55), 0 2px 0 #3a1e04;
 }
 .card.tier-4 .card-shine {

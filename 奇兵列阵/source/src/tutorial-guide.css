@@ -1,0 +1,7 @@
+/* The stage scales as a whole: keep teaching text readable on short phones. */
+.tut .tut-box { font-size: max(19px, calc(var(--control-size, 64px) * .3)); line-height: 1.5; border-radius: 0; }
+.tut .tut-step { font-size: max(15px, calc(var(--control-size, 64px) * .24)); }
+.tut .tut-ok { font-size: max(19px, calc(var(--control-size, 64px) * .3)); }
+.tut .tut-ring { border: 0; border-radius: 0; background: rgba(255, 211, 107, .09); box-shadow: 0 0 20px rgba(255, 211, 107, .4); }
+/* The tutorial reserves the lower-right exit; keep prep completion alongside it. */
+.game.prep-open:has(> .tut) .prep-ov .prep-done { right: 220px; }

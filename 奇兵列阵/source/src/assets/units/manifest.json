@@ -284,12 +284,12 @@
     "m_mender": {
       "image": "m_mender.png",
       "still": "m_mender-still.png",
+      "selectedImage": "m_mender-selected.png",
       "frames": 14,
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "f5_support",
-      "selectedImage": "m_mender-selected.png"
+      "source": "f5_magma"
     },
     "m_incubator": {
       "image": "m_incubator.png",
@@ -364,12 +364,12 @@
     "v_shard": {
       "image": "v_shard.png",
       "still": "v_shard-still.png",
+      "selectedImage": "v_shard-selected.png",
       "frames": 14,
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "f6_voiceofthewind",
-      "selectedImage": "v_shard-selected.png"
+      "source": "neutral_tribalranged1"
     },
     "v_conduit": {
       "image": "v_conduit.png",
@@ -594,12 +594,12 @@
     "e_skel": {
       "image": "e_skel.png",
       "still": "e_skel-still.png",
-      "frames": 12,
-      "durationMs": 1000,
+      "selectedImage": "e_skel-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "neutral_golem_crossbones",
-      "selectedImage": "e_skel-selected.png"
+      "source": "neutral_golemdragonbone"
     },
     "e_raider": {
       "image": "e_raider.png",
@@ -644,22 +644,22 @@
     "e_silencer": {
       "image": "e_silencer.png",
       "still": "e_silencer-still.png",
-      "frames": 16,
-      "durationMs": 1333,
-      "width": 100,
-      "height": 112,
-      "source": "neutral_mercarcanelimiter",
-      "selectedImage": "e_silencer-selected.png"
-    },
-    "e_crusher": {
-      "image": "e_crusher.png",
-      "still": "e_crusher-still.png",
+      "selectedImage": "e_silencer-selected.png",
       "frames": 14,
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "neutral_rook",
-      "selectedImage": "e_crusher-selected.png"
+      "source": "neutral_mercfrostbonenaga"
+    },
+    "e_crusher": {
+      "image": "e_crusher.png",
+      "still": "e_crusher-still.png",
+      "selectedImage": "e_crusher-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_golemstormmetal"
     },
     "e_exile": {
       "image": "e_exile.png",
@@ -732,24 +732,514 @@
       "selectedImage": "general_faie-selected.png"
     },
     "general_vulkan": {
-      "image": "m_titan.png",
-      "still": "m_titan-still.png",
-      "frames": 12,
-      "durationMs": 1000,
-      "width": 100,
-      "height": 112,
-      "source": "f5_grimrock",
-      "selectedImage": "m_titan-selected.png"
-    },
-    "e_shield": {
-      "image": "e_brute.png",
-      "still": "e_brute-still.png",
+      "image": "general_vulkan.png",
+      "still": "general_vulkan-still.png",
+      "selectedImage": "general_vulkan-selected.png",
       "frames": 14,
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "neutral_mercmelee4",
-      "selectedImage": "e_brute-selected.png"
+      "source": "f5_general"
+    },
+    "e_shield": {
+      "image": "e_shield.png",
+      "still": "e_shield-still.png",
+      "selectedImage": "e_shield-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_golemsteel"
+    },
+    "l_warden": {
+      "image": "l_warden.png",
+      "still": "l_warden-still.png",
+      "selectedImage": "l_warden-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_tank"
+    },
+    "l_lion": {
+      "image": "l_lion.png",
+      "still": "l_lion-still.png",
+      "selectedImage": "l_lion-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_azuritelion"
+    },
+    "l_cliff": {
+      "image": "l_cliff.png",
+      "still": "l_cliff-still.png",
+      "selectedImage": "l_cliff-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_ironcliffeguardian"
+    },
+    "l_sunriser": {
+      "image": "l_sunriser.png",
+      "still": "l_sunriser-still.png",
+      "selectedImage": "l_sunriser-selected.png",
+      "frames": 11,
+      "durationMs": 917,
+      "width": 100,
+      "height": 112,
+      "source": "f1_sunriser"
+    },
+    "s_fox": {
+      "image": "s_fox.png",
+      "still": "s_fox-still.png",
+      "selectedImage": "s_fox-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_lanternfox"
+    },
+    "s_monk": {
+      "image": "s_monk.png",
+      "still": "s_monk-still.png",
+      "selectedImage": "s_monk-selected.png",
+      "frames": 11,
+      "durationMs": 917,
+      "width": 100,
+      "height": 112,
+      "source": "f2_ogremonk02"
+    },
+    "s_caster": {
+      "image": "s_caster.png",
+      "still": "s_caster-still.png",
+      "selectedImage": "s_caster-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_caster"
+    },
+    "s_lord": {
+      "image": "s_lord.png",
+      "still": "s_lord-still.png",
+      "selectedImage": "s_lord-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_altgeneral"
+    },
+    "a_spine": {
+      "image": "a_spine.png",
+      "still": "a_spine-still.png",
+      "selectedImage": "a_spine-selected.png",
+      "frames": 15,
+      "durationMs": 1250,
+      "width": 100,
+      "height": 112,
+      "source": "f4_darkspine"
+    },
+    "a_jugg": {
+      "image": "a_jugg.png",
+      "still": "a_jugg-still.png",
+      "selectedImage": "a_jugg-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_juggernaut"
+    },
+    "a_engulf": {
+      "image": "a_engulf.png",
+      "still": "a_engulf-still.png",
+      "selectedImage": "a_engulf-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_engulfingshadow"
+    },
+    "a_solus": {
+      "image": "a_solus.png",
+      "still": "a_solus-still.png",
+      "selectedImage": "a_solus-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f4_blacksolus"
+    },
+    "m_raptor": {
+      "image": "m_raptor.png",
+      "still": "m_raptor-still.png",
+      "selectedImage": "m_raptor-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_silitharveteran"
+    },
+    "m_kujata": {
+      "image": "m_kujata.png",
+      "still": "m_kujata-still.png",
+      "selectedImage": "m_kujata-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_kujata"
+    },
+    "m_vindicator": {
+      "image": "m_vindicator.png",
+      "still": "m_vindicator-still.png",
+      "selectedImage": "m_vindicator-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_vindicator"
+    },
+    "m_mankator": {
+      "image": "m_mankator.png",
+      "still": "m_mankator-still.png",
+      "selectedImage": "m_mankator-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_mankatorwarbeast"
+    },
+    "v_chaser": {
+      "image": "v_chaser.png",
+      "still": "v_chaser-still.png",
+      "selectedImage": "v_chaser-selected.png",
+      "frames": 7,
+      "durationMs": 800,
+      "width": 100,
+      "height": 112,
+      "source": "f6_snowchaser"
+    },
+    "v_sentinel": {
+      "image": "v_sentinel.png",
+      "still": "v_sentinel-still.png",
+      "selectedImage": "v_sentinel-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_sentinel"
+    },
+    "v_drake": {
+      "image": "v_drake.png",
+      "still": "v_drake-still.png",
+      "selectedImage": "v_drake-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_frostdrake"
+    },
+    "v_wyvern": {
+      "image": "v_wyvern.png",
+      "still": "v_wyvern-still.png",
+      "selectedImage": "v_wyvern-selected.png",
+      "frames": 10,
+      "durationMs": 833,
+      "width": 100,
+      "height": 112,
+      "source": "f6_whitewyvern"
+    },
+    "d_howler": {
+      "image": "d_howler.png",
+      "still": "d_howler-still.png",
+      "selectedImage": "d_howler-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_sandhowler"
+    },
+    "d_glass": {
+      "image": "d_glass.png",
+      "still": "d_glass-still.png",
+      "selectedImage": "d_glass-selected.png",
+      "frames": 15,
+      "durationMs": 1250,
+      "width": 100,
+      "height": 112,
+      "source": "f3_glassmirage"
+    },
+    "d_pyro": {
+      "image": "d_pyro.png",
+      "still": "d_pyro-still.png",
+      "selectedImage": "d_pyro-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_pyromancer"
+    },
+    "d_onyx": {
+      "image": "d_onyx.png",
+      "still": "d_onyx-still.png",
+      "selectedImage": "d_onyx-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_onyxpantheran"
+    },
+    "n_archer": {
+      "image": "n_archer.png",
+      "still": "n_archer-still.png",
+      "selectedImage": "n_archer-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercranged1"
+    },
+    "n_thorn": {
+      "image": "n_thorn.png",
+      "still": "n_thorn-still.png",
+      "selectedImage": "n_thorn-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercneedler"
+    },
+    "n_alchemist": {
+      "image": "n_alchemist.png",
+      "still": "n_alchemist-still.png",
+      "selectedImage": "n_alchemist-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_bloodstonealchemist"
+    },
+    "n_paragon": {
+      "image": "n_paragon.png",
+      "still": "n_paragon-still.png",
+      "selectedImage": "n_paragon-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_sunsetparagon"
+    },
+    "e_guardian": {
+      "image": "e_guardian.png",
+      "still": "e_guardian-still.png",
+      "selectedImage": "e_guardian-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_primusshieldmaster"
+    },
+    "e_curser": {
+      "image": "e_curser.png",
+      "still": "e_curser-still.png",
+      "selectedImage": "e_curser-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_tribalcaster"
+    },
+    "e_pyre": {
+      "image": "e_pyre.png",
+      "still": "e_pyre-still.png",
+      "selectedImage": "e_pyre-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercflamebloodwarlock"
+    },
+    "e_twin": {
+      "image": "e_twin.png",
+      "still": "e_twin-still.png",
+      "selectedImage": "e_twin-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_merctwinbladewarmonger"
+    },
+    "e_lich": {
+      "image": "e_lich.png",
+      "still": "e_lich-still.png",
+      "selectedImage": "e_lich-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_bonereaper"
+    },
+    "e_dark_priest": {
+      "image": "e_dark_priest.png",
+      "still": "e_dark_priest-still.png",
+      "selectedImage": "e_dark_priest-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_darknemesis"
+    },
+    "e_revenant": {
+      "image": "e_revenant.png",
+      "still": "e_revenant-still.png",
+      "selectedImage": "e_revenant-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_astralcrusader"
+    },
+    "e_tomb": {
+      "image": "e_tomb.png",
+      "still": "e_tomb-still.png",
+      "selectedImage": "e_tomb-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_tombstone"
+    },
+    "e_warlord": {
+      "image": "e_warlord.png",
+      "still": "e_warlord-still.png",
+      "selectedImage": "e_warlord-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercswornavanger"
+    },
+    "e_frostq": {
+      "image": "e_frostq.png",
+      "still": "e_frostq-still.png",
+      "selectedImage": "e_frostq-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_altgeneraltier2"
+    },
+    "e_nightk": {
+      "image": "e_nightk.png",
+      "still": "e_nightk-still.png",
+      "selectedImage": "e_nightk-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_unseven"
+    },
+    "general_zirix": {
+      "image": "general_zirix.png",
+      "still": "general_zirix-still.png",
+      "selectedImage": "general_zirix-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_general"
+    },
+    "general_hank": {
+      "image": "general_hank.png",
+      "still": "general_hank-still.png",
+      "selectedImage": "general_hank-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_captainhankheart"
+    },
+    "general_argeon_2": {
+      "image": "general_argeon_2.png",
+      "still": "general_argeon_2-still.png",
+      "selectedImage": "general_argeon_2-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f1_tier2general"
+    },
+    "general_kaleos_2": {
+      "image": "general_kaleos_2.png",
+      "still": "general_kaleos_2-still.png",
+      "selectedImage": "general_kaleos_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_tier2general"
+    },
+    "general_lilithe_2": {
+      "image": "general_lilithe_2.png",
+      "still": "general_lilithe_2-still.png",
+      "selectedImage": "general_lilithe_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_tier2general"
+    },
+    "general_vulkan_2": {
+      "image": "general_vulkan_2.png",
+      "still": "general_vulkan_2-still.png",
+      "selectedImage": "general_vulkan_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_tier2general"
+    },
+    "general_faie_2": {
+      "image": "general_faie_2.png",
+      "still": "general_faie_2-still.png",
+      "selectedImage": "general_faie_2-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f6_tier2general"
+    },
+    "general_zirix_2": {
+      "image": "general_zirix_2.png",
+      "still": "general_zirix_2-still.png",
+      "selectedImage": "general_zirix_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_tier2general"
+    },
+    "n_envoy": {
+      "image": "n_envoy.png",
+      "still": "n_envoy-still.png",
+      "selectedImage": "n_envoy-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_merccaster1"
+    },
+    "n_ritualist": {
+      "image": "n_ritualist.png",
+      "still": "n_ritualist-still.png",
+      "selectedImage": "n_ritualist-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_shadowcaster"
     }
   }
 }

@@ -4,6 +4,7 @@ import './pixel.css';
 import './duelyst-units.css';
 import './expansion.css';
 import './v07.css';
+import './boss-rules.css';
 import { GENERALS, UNITS } from './core/data';
 import { App } from './ui/app';
 import { installPixelSprites } from './ui/pixel';

@@ -1,5 +1,6 @@
 /* ───────────── 基础 ───────────── */
 :root {
+  --rarity-legendary: #ffb33f;
   --gold: #ffd36b;
   --gold2: #e2a12b;
   --gold-soft: rgba(255, 211, 107, 0.28);

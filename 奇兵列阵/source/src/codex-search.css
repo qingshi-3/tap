@@ -1,0 +1,45 @@
+/* The stage is scaled: --control-size keeps search usable on short phones. */
+.codex .cx-search {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  flex: none;
+  min-width: 0;
+  min-height: var(--control-size, 100px);
+}
+.codex .cx-search-input {
+  flex: 1;
+  min-width: 0;
+  width: 0;
+  min-height: var(--control-size, 100px);
+  padding: 10px 18px;
+  border: 0;
+  border-radius: 0;
+  background: #41434b;
+  color: #fff;
+  font: inherit;
+  font-size: 28px;
+  line-height: 1.3;
+  box-shadow: none;
+  appearance: none;
+}
+.codex .cx-search-input::placeholder { color: #e0e0e4; opacity: 1; }
+.codex .cx-search-input::-webkit-search-cancel-button { display: none; }
+.codex .cx-search-clear {
+  flex: none;
+  min-width: var(--control-size, 100px);
+  min-height: var(--control-size, 100px);
+  border: 0;
+  border-radius: 0;
+  padding: 8px 20px;
+  background: #5d536f;
+  color: #fff;
+  font: inherit;
+  font-size: 26px;
+  cursor: pointer;
+}
+.codex .cx-search-clear[hidden] { display: none; }
+.codex .cx-search-clear:active { background: #817091; }
+.codex .cx-search-input:focus-visible,
+.codex .cx-search-clear:focus-visible { outline: 3px solid #ffe191; outline-offset: -3px; }
+.codex .cx-no-results { margin: 20px 12px; color: #e0e0e4; font-size: 26px; }

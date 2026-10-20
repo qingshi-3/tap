@@ -166,8 +166,9 @@
     0 -2px rgba(255, 220, 160, 0.75),
     0 0 18px rgba(255, 211, 107, 0.15);
 }
-/* 复盘的次要操作用实体色带区分，不再给按钮另套外框。 */
-.sp-btns .btn.ghost {
+/* 复盘与标题页的次要操作复用实体色带，不再给按钮另套外框。 */
+.sp-btns .btn.ghost,
+.title-btns .btn.ghost {
   background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
   box-shadow: none;
 }
@@ -249,6 +250,22 @@
 }
 .st.atk.zero {
   background-image: var(--px-atk-zero) !important;
+}
+/* 护甲与法强复用数值宝石，不再叠加词条图标框。 */
+.st.armor {
+  background-image: var(--px-atk-zero) !important;
+}
+.st.power {
+  background-image: var(--pxr-3) !important;
+}
+.st.block {
+  background-image: var(--px-hp-zero) !important;
+}
+.u-kws {
+  align-items: center;
+}
+.u-kws > .st {
+  flex: 0 0 34px;
 }
 .st .ic,
 .cs .ic {

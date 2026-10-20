@@ -1,3 +1,4 @@
+import './rounds.css';
 import '../battle-arrows.css';
 import '../unit-keywords.css';
 import { FACTION_INFO, unitDef } from '../core/data';
@@ -13,8 +14,8 @@ export const factionSigil = (f: Faction) => h('i', { class: `u-fac f-${f}`, styl
 export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-rune' }), h('div', { class: 'ped-top' }));
 
 /** The same pixel stat gem is used by combat units and owned bench units. */
-export const statArt = (kind: 'atk' | 'hp', value: number | HTMLElement, extra?: HTMLElement) =>
-  h('div', { class: `st ${kind}` }, icon(kind === 'atk' ? 'sword' : 'heart'), typeof value === 'number' ? h('i', null, value) : value, extra);
+export const statArt = (kind: 'atk' | 'hp' | 'armor' | 'power' | 'block', value: number | HTMLElement, extra?: HTMLElement) =>
+  h('div', { class: `st ${kind}` }, kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
 
 export const UNIT_Y = 300;
 export const SLOT_SPACING = 110;
@@ -31,6 +32,9 @@ export interface StatView {
   chill: number;
   burn: number;
   vuln?: number;
+  actionsLeft?: number;
+  /** 仅有限次施法单位拥有，0 表示本场已用完。 */
+  charges?: number;
   /** 常驻词条（含开战后获得的），缺省时不改动标记 */
   kw?: UnitKeywords;
 }
@@ -124,7 +128,7 @@ export class UnitView {
       h('div', { class: 'u-chill' }, icon('snow'), this.chEl),
       h('div', { class: 'u-burn' }, icon('fire'), this.bnEl),
       h('div', { class: 'u-vuln', title: '易伤' }, icon('target'), this.vnEl),
-      h('div', { class: 'u-stats' }, this.atkBox, factionSigil(d.faction), this.hpBox),
+      h('div', { class: 'u-stats' }, this.atkBox, d.faction === 'enemy' ? null : factionSigil(d.faction), this.hpBox),
       pips,
       this.kwEl,
       this.tags,
@@ -175,6 +179,7 @@ export class UnitView {
     // 寒意 ≥ 当前攻击：下次出手会被冻结
     this.el.classList.toggle('frozen', s.chill > 0 && s.chill >= s.atk);
     this.el.classList.toggle('has-burn', s.burn > 0);
+    this.el.classList.toggle('action-spent', s.actionsLeft === 0);
     if (s.kw) this.setKeywords(s.kw);
     const baseAtk = o.base?.atk ?? null;
     const baseHp = o.base?.hp ?? null;
@@ -217,8 +222,11 @@ export class UnitView {
     this.kwKey = key;
     this.kwEl.replaceChildren(...chips.map((c) => {
       const v = kw[c.k];
-      const el = h('span', { class: `kwc kw-${c.k}`, 'aria-label': typeof v === 'number' ? `${c.name} ${v}` : c.name },
-        icon(c.icon), typeof v === 'number' ? h('i', null, v) : null);
+      const el = (c.k === 'armor' || c.k === 'power') && typeof v === 'number'
+        ? statArt(c.k, v)
+        : h('span', { class: `kwc kw-${c.k}` }, icon(c.icon), typeof v === 'number' ? h('i', null, v) : null);
+      el.classList.add(`kw-${c.k}`);
+      el.setAttribute('aria-label', typeof v === 'number' ? `${c.name} ${v}` : c.name);
       // 战斗中新获得 / 数值变化的词条弹一下
       if (prev && !prev.has(`${c.k}${v}`)) popEl(el, true);
       return el;
@@ -312,10 +320,10 @@ function popEl(el: Element, good: boolean) {
 }
 
 export function statsOf(u: UnitState): StatView {
-  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, vuln: u.vuln, kw: keywordsOf(u) };
+  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, vuln: u.vuln, actionsLeft: u.actionsLeft, charges: u.charges, kw: keywordsOf(u) };
 }
 
-export function keywordsOf(u: UnitState): UnitKeywords {
+export function keywordsOf(u: Pick<UnitState, 'defId' | 'level' | 'grants'> & Partial<Pick<UnitState, 'armor' | 'power' | 'revived'>>): UnitKeywords {
   const t = unitDef(u.defId).traits ?? {};
   const g = u.grants;
   return {
@@ -434,17 +442,19 @@ export class Board {
   }
 
   /** 出手顺序预告：高亮双方本拍出手者，并列出接下来的轮转（按格位号）。null 清空。 */
-  setOrder(next: { player: string[]; enemy: string[] } | null) {
+  setOrder(next: { player: string[]; enemy: string[] } | null, round?: number, wave = 1) {
     for (const v of this.views.values()) v.el.classList.remove('next-actor');
     this.order.replaceChildren();
     if (!next) return;
-    const row = (keys: string[], cls: string, label: string) => h('div', { class: `os-side ${cls}` }, label,
+    const row = (keys: string[], cls: string, label: string) => h('div', { class: `os-side ${cls}${keys.length ? '' : ' waiting'}` }, label,
+      keys.length ? null : h('span', { class: 'os-wait' }, '等待'),
       keys.map((k, i) => {
         const v = this.views.get(k);
         if (i === 0) v?.el.classList.add('next-actor');
         return v ? h('span', { class: `os-u${i === 0 ? ' first' : ''}` }, String(v.slot + 1)) : null;
       }));
-    this.order.append(row(next.player, 'player', '我方出手'), row(next.enemy, 'enemy', '敌方出手'));
+    if (round != null) this.order.append(h('div', { class: 'os-round' }, `第${round}回合 · 第${wave}轮`));
+    this.order.append(h('div', { class: 'os-queues' }, row(next.player, 'player', '我方'), row(next.enemy, 'enemy', '敌方')));
   }
 
   setCenter(num: string, lbl = '', cls = '') {

@@ -29,20 +29,22 @@ export const MECH: Record<string, MechDef> = {
   冻结: { kind: 'status', icon: 'snow', color: '#c4f6ff' },
   灼烧: { kind: 'status', icon: 'fire', color: '#ff9a3d' },
   易伤: { kind: 'status', icon: 'target', color: '#ff7ad9' },
-  立即出手: { kind: 'action', icon: 'bolt', color: '#ffe36b' },
+  行动次数: { kind: 'status', icon: 'hourglass', color: '#ffe36b' },
+  献祭: { kind: 'action', icon: 'skull', color: '#d6a8ff' },
+  立即攻击: { kind: 'action', icon: 'bolt', color: '#ffe36b' },
   召唤: { kind: 'action', icon: 'star', color: '#d6a8ff' },
 };
 
 export type TrigId = 'start' | 'cast' | 'attack' | 'hurt' | 'kill' | 'faint' | 'beat' | 'cond';
 interface TrigDef { name: string; icon: IconName; color: string; gloss: string; sample: string }
 export const TRIG: Record<TrigId, TrigDef> = {
-  start: { name: '开战时', icon: 'flag', color: '#ffd36b', sample: '开战时', gloss: '战斗开始时结算一次：先结算将军，再按我1、敌1、我2、敌2……的顺序结算单位。' },
-  cast: { name: '施法', icon: 'wand', color: '#c9a4ff', sample: '施法', gloss: '轮到它出手时执行卡面效果，不普攻；没有有效目标时改为普攻。同一拍先施法、后普攻。' },
+  start: { name: '开战时', icon: 'flag', color: '#ffd36b', sample: '开战时', gloss: '战斗开始时结算一次。单位的开战效果按我1、敌1、我2、敌2……的站位顺序结算，之后才进入常规行动。' },
+  cast: { name: '施法', icon: 'wand', color: '#c9a4ff', sample: '施法', gloss: KEYWORDS.施法 },
   attack: { name: '普攻后', icon: 'sword', color: '#ffb46a', sample: '普攻后', gloss: '自己普攻结算后触发；「命中」类时机只在普攻打中目标时触发。' },
   hurt: { name: '受击时', icon: 'hit', color: '#ff9a6a', sample: '受击时', gloss: '自己受到伤害时触发，包括替友军承伤。' },
   kill: { name: '击杀时', icon: 'kill', color: '#ff6b78', sample: '击杀时', gloss: '自己击杀敌人时触发。' },
   faint: { name: '阵亡时', icon: 'tomb', color: '#c590ff', sample: '阵亡时', gloss: '阵亡（或复生复活）时触发；友军阵亡类时机看的是其他单位。' },
-  beat: { name: '每拍结束时', icon: 'hourglass', color: '#ff7a9a', sample: '每拍结束时', gloss: '双方都出手完算一拍，拍末结算；「每第 3 拍」即第 3、6、9……拍。灼烧也在拍末结算。' },
+  beat: { name: '每拍结束时', icon: 'hourglass', color: '#ff7a9a', sample: '每拍结束时', gloss: '每拍双方至多各一人常规行动；一方等待时，拍末仍照常结算。主将倒计时与灼烧都按拍计算；「每第 3 拍」指第 3、6、9……拍，不是回合。' },
   cond: { name: '条件触发', icon: 'eye', color: '#8cd4ff', sample: '普攻目标有寒意时', gloss: '满足写明的条件时触发，条件写在胶囊里。' },
 };
 

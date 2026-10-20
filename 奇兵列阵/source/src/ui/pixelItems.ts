@@ -220,6 +220,22 @@ const ICONS: Record<string, Grid> = {
     'b.............',
     'B.............',
   ],
+  sp_haste: [
+    '..yyyyyyyyyy..',
+    '.yYqqqqqqqqYy.',
+    '.yYqqqqqqqqYy.',
+    '..yqqqqFqqqy..',
+    '..yqqqFFqqqy..',
+    '..yqqFFFqqqy..',
+    '..yqFFFFFqqy..',
+    '..yqqqFFqqqy..',
+    '..yqqFFqqqqy..',
+    '..yqqFqqqqqy..',
+    '.yYqqqqqqqqYy.',
+    '.yYqqqqqqqqYy.',
+    '..yyyyyyyyyy..',
+    '..............',
+  ],
   // 法术先用通用卷轴占位，之后再逐个出图
   spell: [
     '..eeeeeeeeee..',

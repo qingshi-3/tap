@@ -1,14 +1,19 @@
+import '../title-actions.css';
+import { mountTitleAtmosphere } from './titleAtmosphere';
 import { unitLevel } from '../core/types';
 import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
 import { chapter, TOTAL_BATTLES } from '../core/route';
-import { battleNo, currentNode, generalChoices, newRun, randomSeed, type RunState } from '../core/run';
-import { clearRun, hasPlayed, loadRun, saveRun } from '../core/save';
-import { isMuted, setMuted, sfx, unlockAudio } from './audio';
+import { battleNo, currentNode, generalChoices, newRun, randomSeed, screen, type RunState } from '../core/run';
+import { clearRun, loadRun, saveRun } from '../core/save';
+import { getVolumes, isMuted, setAudioPaused, setTitleMusic, sfx, unlockAudio } from './audio';
+import { audioSettings } from './audioSettings';
 import { h, stageState } from './dom';
 import { ambient, FX } from './fx';
 import { Game } from './game';
 import { newTutorialRun } from './tutorial';
 import { codexScreen, keywordDoc } from './codex';
+import { BATTLE_RULES } from '../core/battleRules';
+import '../mechanics-guide.css';
 import { icon } from './icons';
 import { hideTip, initTip } from './tip';
 import { pedestalUrl } from './pixel';
@@ -22,10 +27,12 @@ export class App {
   fx: FX;
   private game: Game | null = null;
   private ambientControl: ReturnType<typeof ambient>;
+  private titleAtmosphere: ReturnType<typeof mountTitleAtmosphere> | null = null;
   private adDepth = 0;
 
   private syncRendering = () => {
     const paused = document.hidden || this.adDepth > 0;
+    setAudioPaused(paused);
     document.documentElement.toggleAttribute('data-render-paused', paused);
     this.ambientControl.setPaused(paused);
     this.fx.setPaused(paused);
@@ -100,7 +107,8 @@ export class App {
     }, 2100);
   }
 
-  private leaveGame() {
+  private leaveGame(keepTitleMusic = false) {
+    if (!keepTitleMusic) setTitleMusic(false);
     this.game?.dispose();
     this.game = null;
     this.fx.clear();
@@ -112,8 +120,11 @@ export class App {
 
   private show(el: HTMLElement) {
     hideTip();
+    this.titleAtmosphere?.dispose();
+    this.titleAtmosphere = null;
     const old = [...this.screenEl.children] as HTMLElement[];
     this.screenEl.appendChild(el);
+    if (el.classList.contains('title')) this.titleAtmosphere = mountTitleAtmosphere(el);
     el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease-out' });
     for (const o of old) {
       o.style.pointerEvents = 'none';
@@ -124,13 +135,12 @@ export class App {
   // ───────────── 标题 ─────────────
 
   toTitle() {
-    this.leaveGame();
-    const showcase = ['l_shield', 's_wind', 'a_seed', 'm_rex', 'v_mage', 'n_echo'];
-    const foes = ['e_brute', 'e_void', 'e_assassin'];
+    this.leaveGame(true);
+    setTitleMusic(true);
+    const showcase = ['l_cliff', 's_hunter', 'a_jugg', 'm_vindicator', 'v_keeper', 'd_sandblade'];
+    const foes = ['e_void', 'e_frostq', 'e_nightk'];
     const saved = loadRun();
-    // 没正式开过远征的设备：教程是主按钮，开始远征退为次按钮；否则教程降为底部文字入口
-    const fresh = !hasPlayed();
-    const start = h('button', { class: `btn ${saved.kind === 'ok' || fresh ? 'ghost' : 'primary'} big` }, h('span', null, saved.kind === 'ok' ? '新的远征' : '开始远征'), icon('play'));
+    const start = h('button', { class: 'btn primary big title-new' }, h('span', null, '新的游戏'), icon('play'));
     start.addEventListener('click', () => {
       sfx.start();
       if (saved.kind === 'ok') this.confirm('开始新的远征？', '当前远征进度将被覆盖。', '开始', () => this.toSelect());
@@ -139,30 +149,35 @@ export class App {
     let cont: HTMLElement | null = null;
     if (saved.kind === 'ok') {
       const r = saved.run;
-      const btn = h('button', { class: 'btn primary big' }, h('span', null, '继续游戏'), icon('play'));
+      const btn = h('button', { class: 'btn primary big title-continue' }, h('span', null, '继续游戏'), icon('play'));
       btn.addEventListener('click', () => { sfx.start(); this.continueRun(r); });
-      // 存档节点放按钮下方一行小字，按钮本身只留动作
-      cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `${chapter(r.chapter).name} · 第 ${battleNo(r) + 1} 战`));
+      const currentChapter = chapter(r.chapter);
+      const battleInChapter = currentChapter.stages.slice(0, r.node + 1).filter(stage => stage.type !== 'shop').length;
+      const phase = screen(r);
+      const location = phase === 'shop' ? '商店' : phase === 'fork' ? '路线选择'
+        : phase === 'promo' ? '主将升阶' : phase === 'reward' ? '奖励选择'
+          : phase === 'over' ? '远征结算' : `第${battleInChapter}战`;
+      cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `第${r.chapter + 1}章 · ${location}`));
     } else if (saved.kind === 'incompatible') {
       cont = h('button', { class: 'btn ghost big' }, h('span', null, '旧版存档无法继续'), icon('x'));
       cont.addEventListener('click', () => this.confirm('丢弃旧版存档？', '游戏版本已更新，旧存档无法继续。', '丢弃', () => { clearRun(); this.toTitle(); }));
     }
-    // 辅助入口：弱化为一排文字按钮，不和开局按钮抢视觉
-    const how = h('button', { class: 'title-link' }, icon('book'), h('span', null, '玩法说明'));
+    // 辅助入口与音量键共用右上角工具栏及像素按钮材质。
+    const how = h('button', { class: 'icon-btn title-tool' }, icon('book'), h('span', null, '玩法说明'));
     how.addEventListener('click', () => {
       sfx.click();
       this.showHowTo();
     });
-    const codex = h('button', { class: 'title-link' }, icon('diamond'), h('span', null, '图鉴'));
+    const codex = h('button', { class: 'icon-btn title-tool' }, icon('diamond'), h('span', null, '图鉴'));
     codex.addEventListener('click', () => { sfx.click(); this.toCodex(); });
-    const tut = fresh
-      ? h('button', { class: 'btn primary big' }, icon('star'), h('span', null, '新手教程'))
-      : h('button', { class: 'title-link' }, icon('star'), h('span', null, '新手教程'));
+    const tut = h('button', { class: 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
     tut.addEventListener('click', () => { sfx.start(); this.startTutorial(); });
-    const mute = h('button', { class: 'icon-btn corner' }, icon(isMuted() ? 'mute' : 'sound'));
-    mute.addEventListener('click', () => {
-      setMuted(!isMuted());
-      mute.replaceChildren(icon(isMuted() ? 'mute' : 'sound'));
+    const quiet = () => isMuted() || getVolumes().master === 0;
+    const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '声音设置' }, icon(quiet() ? 'mute' : 'sound'));
+    volume.addEventListener('click', () => {
+      sfx.click();
+      this.modal(h('div', { class: 'confirm', 'aria-label': '声音设置' }, h('h3', null, '声音设置'),
+        audioSettings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound')))), 'audio-dialog', document.body);
     });
     const el = h(
       'div',
@@ -175,16 +190,15 @@ export class App {
       h(
         'div',
         { class: 'title-army right' },
-        foes.map((id, i) => h('div', { class: `ta-unit${id === 'e_void' ? ' boss' : ''}`, style: `--i:${i}`, html: unitSvg(id, { enemy: true }) })),
+        foes.map((id, i) => h('div', { class: 'ta-unit boss', style: `--i:${i}`, html: unitSvg(id, { enemy: true }) })),
       ),
       h(
         'div',
         { class: 'title-center' },
         h('div', { class: 'logo', style: 'font-size:100px' }, h('span', null, '奇兵列阵')),
-        h('div', { class: 'title-btns' }, fresh ? tut : null, cont, start),
-        h('div', { class: 'title-links' }, fresh ? null : tut, how, codex),
+        h('div', { class: 'title-btns' }, cont, start),
       ),
-      mute,
+      h('div', { class: 'title-tools' }, tut, how, codex, volume),
     );
     this.show(el);
   }
@@ -192,14 +206,16 @@ export class App {
   // ───────────── 图鉴 ─────────────
 
   toCodex() {
-    this.leaveGame();
-    this.show(codexScreen(() => this.toTitle()));
+    this.leaveGame(true);
+    setTitleMusic(true);
+    this.show(codexScreen(() => this.toTitle(), content => this.modal(content, 'cx-unit-modal', document.body)));
   }
 
   // ───────────── 选将 ─────────────
 
   toSelect() {
-    this.leaveGame();
+    this.leaveGame(true);
+    setTitleMusic(true);
     const seed = randomSeed();
     const cards = generalChoices(seed).map((id, i) => {
       const g = GENERAL_MAP[id];
@@ -318,34 +334,35 @@ export class App {
 
   // ───────────── 弹窗 ─────────────
 
-  modal(content: HTMLElement, cls = '') {
+  modal(content: HTMLElement, cls = '', mount: HTMLElement = this.stage) {
     const origin = document.activeElement as HTMLElement | null;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let closing = false;
     const close = () => {
       if (closing) return;
       closing = true;
       if (origin?.isConnected) origin.focus({ preventScroll: true });
       sfx.click();
-      m.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160 }).onfinish = () => m.remove();
+      m.animate([{ opacity: 1 }, { opacity: 0 }], { duration: reduceMotion ? 0 : 160 }).onfinish = () => m.remove();
     };
-    const x = h('button', { class: 'icon-btn modal-x' }, icon('x'));
+    const x = h('button', { class: 'icon-btn modal-x', 'aria-label': '关闭' }, icon('x'));
     x.addEventListener('click', close);
-    const m = h('div', { class: `modal-ov ${cls}`, role: 'dialog', 'aria-modal': 'true' }, h('div', { class: 'modal' }, x, content));
+    const m = h('div', { class: `modal-ov ${cls}`, role: 'dialog', 'aria-modal': 'true', 'aria-label': content.getAttribute('aria-label') }, h('div', { class: 'modal' }, x, content));
     m.addEventListener('pointerdown', (e) => {
       if (e.target === m) close();
     });
     m.addEventListener('keydown', e => {
       if (e.key === 'Escape') { e.stopPropagation(); close(); return; }
       if (e.key !== 'Tab') return;
-      const buttons = [...m.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex="0"]')];
+      const buttons = [...m.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex="0"]')];
       const index = buttons.indexOf(document.activeElement as HTMLElement);
       if (e.shiftKey && index <= 0) { e.preventDefault(); buttons.at(-1)?.focus({ preventScroll: true }); }
       else if (!e.shiftKey && index === buttons.length - 1) { e.preventDefault(); buttons[0]?.focus({ preventScroll: true }); }
     });
-    this.stage.appendChild(m);
+    mount.appendChild(m);
     x.focus({ preventScroll: true });
-    m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
-    m.querySelector('.modal')!.animate([{ transform: 'scale(.92) translateY(10px)' }, { transform: 'none' }], { duration: 260, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+    m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduceMotion ? 0 : 200 });
+    m.querySelector('.modal')!.animate([{ transform: 'scale(.92) translateY(10px)' }, { transform: 'none' }], { duration: reduceMotion ? 0 : 260, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
     return close;
   }
 
@@ -371,24 +388,27 @@ export class App {
       ),
     );
     let idx = 0;
-    const dots = h('div', { class: 'ht-dots' }, pages.map((_, i) => h('span', { class: i === 0 ? 'on' : '' })));
+    const pageNumber = h('span', { class: 'ht-page-number', role: 'status', 'aria-live': 'polite' }, `1 / ${pages.length}`);
     const view = h('div', { class: 'ht-view' }, pages[0]);
     const prev = h('button', { class: 'btn ghost' }, h('span', null, '上一页'));
     const next = h('button', { class: 'btn primary' }, h('span', null, '下一页'));
     const go = (d: number) => {
       idx = Math.max(0, Math.min(pages.length - 1, idx + d));
       view.replaceChildren(pages[idx]);
-      pages[idx].animate([{ opacity: 0, transform: `translateX(${d * 30}px)` }, { opacity: 1, transform: 'none' }], { duration: 220, easing: 'ease-out' });
-      [...dots.children].forEach((c, i) => c.classList.toggle('on', i === idx));
-      prev.classList.toggle('disabled', idx === 0);
-      next.querySelector('span')!.textContent = idx === pages.length - 1 ? '开始吧' : '下一页';
+      view.scrollTop = 0;
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        pages[idx].animate([{ opacity: .5 }, { opacity: 1 }], { duration: 140 });
+      }
+      pageNumber.textContent = `${idx + 1} / ${pages.length}`;
+      prev.disabled = idx === 0;
+      next.querySelector('span')!.textContent = idx === pages.length - 1 ? '关闭' : '下一页';
       sfx.click();
     };
-    prev.classList.add('disabled');
+    prev.disabled = true;
     prev.addEventListener('click', () => go(-1));
     let close = () => {};
     next.addEventListener('click', () => (idx === pages.length - 1 ? close() : go(1)));
-    const nav = h('div', { class: 'ht-nav' }, prev, dots, next);
+    const nav = h('div', { class: 'ht-nav' }, prev, pageNumber, next);
     let doc: HTMLElement | null = null;
     const tabs = (['basic', 'kw'] as const).map((k) => h('button', { class: 'ht-tab', onclick: () => { sfx.click(); setTab(k); } }, k === 'basic' ? '基础玩法' : '词条'));
     const body = h('div', { class: 'ht-body-wrap' });
@@ -398,80 +418,125 @@ export class App {
       else body.replaceChildren(doc ??= h('div', { class: 'ht-doc' }, keywordDoc()));
     };
     setTab(tab);
-    close = this.modal(h('div', { class: 'howto' }, h('div', { class: 'ht-head' }, h('span', null, '玩法说明'), h('div', { class: 'ht-tabs' }, tabs)), body), 'wide');
+    close = this.modal(h('div', { class: 'howto', 'aria-label': '玩法说明' }, h('div', { class: 'ht-head' }, h('div', { class: 'ht-tabs' }, tabs)), body), 'wide');
   }
 }
 
 // 说明页使用原素材静帧；敌方仅在这个独立 SVG 中翻转一次。
-const mini = (id: string, x: number, o: { enemy?: boolean; dim?: boolean; label?: string } = {}) => {
+const mini = (id: string, x: number, o: { enemy?: boolean; dim?: boolean } = {}) => {
   const u = unitPxUrl(id);
   const art = `<image href="${u}" x="-50" y="-62" width="100" height="112" style="image-rendering:pixelated" transform="scale(${o.enemy ? -1 : 1} 1)"/>`;
-  return `<g transform="translate(${x} 70) scale(.5)" opacity="${o.dim ? 0.3 : 1}">${art}</g>${o.label ? `<text x="${x}" y="122" class="ht-lbl">${o.label}</text>` : ''}`;
+  return `<g transform="translate(${x} 82) scale(.85)" opacity="${o.dim ? 0.3 : 1}">${art}</g>`;
 };
 const pedUrl = [0, 1].map((e) => pedestalUrl(e === 1));
 const ped = (x: number, enemy = false) => `<image href="${pedUrl[enemy ? 1 : 0]}" x="${x - 23}" y="86" width="46" height="18" style="image-rendering:pixelated"/>`;
 
-// 惰性组装说明页插图。
-const howto = (): { title: string; lines: string[]; fig: string }[] => [
-  {
-    title: '轮转出手',
-    lines: [
-      '你和敌人各有 <b>5 个格位</b>，靠近中线的 <b>1 号位是队首</b>。',
-      '每一拍，双方<b>各出手一名单位</b>，从队首往后<b>轮流</b>：第 1 拍 1 号、第 2 拍 2 号……轮完一圈再回到队首。',
-      '阵亡留下空格，后面的单位<b>不会前移</b>；轮到空格时跳到下一个存活单位。战斗中头顶的<b>光标</b>和顶部的<b>出手顺序条</b>告诉你下一个出手的是谁。',
-    ],
-    fig: `<svg viewBox="70 -6 380 140">${[0, 1, 2].map((i) => ped(220 - i * 60)).join('')}${[0, 1, 2].map((i) => ped(300 + i * 60, true)).join('')}
-      ${mini('m_rex', 220, { label: '①' })}${mini('l_priest', 160, { label: '②' })}${mini('n_merc', 100, { label: '③' })}
-      ${mini('e_brute', 300, { enemy: true, label: '①' })}${mini('e_skel', 360, { enemy: true, label: '②' })}${mini('e_raider', 420, { enemy: true, label: '③' })}
-      <path d="M232 46 Q260 18 288 46" class="ht-arc red"/><path d="M288 52 Q260 80 232 52" class="ht-arc red"/></svg>`,
-  },
-  {
-    title: '普攻与施法',
-    lines: [
-      '卡面写着<b>「施法：」</b>的单位，轮到它时执行施法，<b>不普攻</b>；施法没有可用目标时改为普攻。',
-      '其他单位轮到时<b>普攻</b>：默认打敌方队首，带<b>狙击</b>的打队尾。',
-      '同一拍<b>先结算双方施法，再同时普攻</b>——施法可以抢先冻住或击杀对面的出手者，让它这次出手作废。',
-      '战斗拖到第 20 拍后双方开始受<b>疲劳</b>伤害，逐拍递增。',
-    ],
-    fig: `<svg viewBox="70 -6 380 140">${[0, 1].map((i) => ped(220 - i * 90)).join('')}${ped(320, true)}
-      ${mini('m_shaman', 130, { label: '施法' })}${mini('m_rex', 220, { label: '普攻' })}${mini('e_brute', 320, { enemy: true })}
-      <path d="M132 36 Q226 -10 318 36" class="ht-arc purple"/><text x="226" y="12" class="ht-num">① 先</text>
-      <path d="M232 50 Q276 30 310 50" class="ht-arc red"/><text x="276" y="62" class="ht-num">② 后</text></svg>`,
-  },
-  {
-    title: '10 个关键词',
-    lines: [
-      '<b>格挡 / 护甲</b>：格挡抵消下一次伤害；护甲让每次伤害 −N（最少 1）。灼烧无视两者。',
-      '<b>寒意 / 灼烧</b>：寒意削减下次出手的攻击，<b>寒意 ≥ 攻击时冻结</b>跳过出手；灼烧每拍结束掉血后 −1 层。',
-      '<b>连击 / 溅射</b>：连击打两下各半伤，能连剥格挡；溅射顺带打目标身后一名。',
-      '<b>狙击 / 反击</b>：狙击普攻打队尾；反击在被普攻直接命中时扎回去，连击每段都会被扎。',
-      '<b>复生 / 法强</b>：复生第一次阵亡原位 1 血复活；法强让自己施法的数值 +N（群体效果减半）。点卡面上的关键词随时查看。',
-    ],
-    fig: `<svg viewBox="70 -6 380 140">${[0, 1, 2, 3].map((i) => ped(130 + i * 80)).join('')}
-      ${mini('l_shield', 130, { label: '格挡' })}${mini('v_wall', 210, { label: '护甲' })}${mini('s_wind', 290, { label: '连击' })}${mini('m_rex', 370, { label: '溅射' })}</svg>`,
-  },
-  {
-    title: '敌人会出题',
-    lines: [
-      '敌阵会针对某个关键词出题：格挡、护甲、寒意、狙击、溅射、反击、放逐……',
-      '点击顶部的<b>路线节点</b>可以提前查看敌阵和题型，<b>提前为它调整阵型</b>。',
-      '打输了也没关系：结算后点<b>「复盘」</b>，用同样的阵容换站位重打，找出正解。',
-    ],
-    fig: `<svg viewBox="70 -6 380 140">${[0, 1, 2].map((i) => ped(230 - i * 70)).join('')}${ped(320, true)}
-      ${mini('e_silencer', 320, { enemy: true, label: '霜咒者' })}${mini('m_shaman', 230, { label: '1 被冻结', dim: true })}${mini('l_shield', 160, { label: '2' })}${mini('n_merc', 90, { label: '3' })}
-      <path d="M318 36 Q274 0 234 36" class="ht-arc purple"/></svg>`,
-  },
-  {
-    title: '远征',
-    lines: [
-      '远征共 <b>3 章 21 战</b>，每章有<b>两次商店</b>、一处<b>精英岔路</b>和一名<b>首领</b>。生命 3 条，击败首领恢复 1 条。',
-      '胜利获得<b>金币</b>和<b>培养点</b>：点选下方的培养点再点单位，永久提升攻击、生命、格挡；「法」点给主将，提升将军技能。',
-      '商店可买单位、<b>装备</b>、一次性<b>法术</b>和<b>招募令</b>；单位可出售换金。精英战胜利掉落装备三选一。',
-      '首章首领、第二章岔路后、第二章首领后，主将各<b>升阶</b>一次，三选一获得被动。进度自动保存。',
-    ],
-    fig: `<svg viewBox="70 -6 380 140">${[0, 1, 2].map((i) => ped(160 + i * 100)).join('')}
-      ${mini('n_merc', 160, { label: '培养' })}${mini('l_shield', 260, { label: '装备' })}${mini('m_rex', 360, { label: '升阶' })}</svg>`,
-  },
-];
-
-
+// 插图只复用实际单位；规则正文与图鉴来自同一份说明数据。
+const howto = (): { title: string; lines: string[]; fig: string }[] => {
+  const row = (...units: { id: string; enemy?: boolean; dim?: boolean }[]) =>
+    `<svg viewBox="0 0 ${units.length * 100} 140" aria-hidden="true">${units.map((u, i) => `${ped(50 + i * 100, u.enemy)}${mini(u.id, 50 + i * 100, u)}`).join('')}</svg>`;
+  const duel = row({ id: 'm_rex' }, { id: 'l_priest' }, { id: 'e_brute', enemy: true }, { id: 'e_skel', enemy: true });
+  const rules = BATTLE_RULES;
+  return [
+    {
+      title: '队首与站位',
+      lines: [
+        '双方各有 <b>5 个格位</b>；靠近中线的 <b>1 号位是队首</b>，常规行动从队首排向队尾。',
+        '阵亡后留下空格，后面的单位<b>不会前移</b>。出手顺序跳过空格，只看存活单位。',
+        '普通攻击默认打敌方队首；带<b>狙击</b>时改打队尾。',
+      ],
+      fig: duel,
+    },
+    {
+      title: '一拍怎样结算',
+      lines: [rules.beat.text,
+        '施法若先击杀或冻住对面的出手者，就能阻止它本拍原定的普攻。',
+        '同一拍并不是我方先打完、敌方再还手；已同时开始的双方普攻可互相击倒。',
+      ],
+      fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'e_brute', enemy: true }),
+    },
+    {
+      title: '回合与行动轮',
+      lines: [rules.round.text, rules.wave.text,
+        '双方都没有额外次数时，<b>5 人对 3 人</b>：前 3 拍双方各一人；第 4、5 拍只有 5 人方行动，3 人方等待。然后才进入新回合。',
+      ],
+      fig: row({ id: 'm_rex' }, { id: 'l_priest' }, { id: 'e_brute', enemy: true, dim: true }),
+    },
+    {
+      title: '额外行动排在哪里',
+      lines: [rules.extra.text,
+        '额外轮仍按队首到队尾排队；某方没有剩余次数就等待。等<b>双方常规行动次数全耗尽</b>，才补发下回合的基础次数。',
+      ],
+      fig: row({ id: 'n_marshal' }, { id: 'm_rex' }),
+    },
+    {
+      title: '行动时施法还是普攻',
+      lines: [rules.action.text,
+        '有<b>「施法：」</b>的单位，按卡面效果施法；没有有效目标时改为普攻。其他单位通常普攻。',
+        '施法通常<b>没有额外次数上限</b>，多一次行动就可再按自身规则施法。<b>唤亡祭师例外：本场最多施法 3 次</b>，用完后改为普攻，不会每回合重置。',
+      ],
+      fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'a_ritualist' }),
+    },
+    {
+      title: '立即攻击与连击',
+      lines: [
+        '<b>立即攻击</b>：当前拍内追加一次普攻，<b>不施法、不消耗常规行动次数</b>，也不改变后续行动顺序。仍受寒意影响。',
+        '普通立即攻击每方每拍默认最多 <b>1 次</b>；主将被动<b>「连锁」</b>把我方上限改为 2 次，主将直接命令的立即攻击不占此上限。',
+        '<b>连击</b>：一次普攻内打两段，各为本次攻击力的一半（向上取整）。立即攻击也能连击，但这仍不是两次行动。',
+      ],
+      fig: row({ id: 's_dancer' }, { id: 's_wind' }),
+    },
+    {
+      title: '寒意立即生效，也会保留',
+      lines: [
+        '获得寒意后，<b>接下来的出手就受影响</b>，不用等到下回合。普攻攻击减去寒意层数（最少 1），出手后清空。',
+        '出手前若<b>寒意 ≥ 本次攻击力</b>，则冻结：跳过这次出手、清空寒意。被冻结仍消耗本次常规行动机会；施法和立即攻击也检查冻结。',
+        '如果还没轮到它，寒意就继续留着，<b>不会在回合结束时自动消失</b>。',
+      ],
+      fig: row({ id: 'v_mage' }, { id: 'e_brute', enemy: true, dim: true }),
+    },
+    {
+      title: '拍末：主将、灼烧与疲劳',
+      lines: [rules.beatEnd.text,
+        '<b>灼烧 N 层</b>：每拍结束受 N 伤害，然后减少 1 层；无视格挡、护甲和易伤。',
+        '从<b>第 20 拍结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每拍递增。不会等到回合结束才结算。',
+      ],
+      fig: row({ id: 'm_shaman' }, { id: 'e_brute', enemy: true }),
+    },
+    {
+      title: '防御与攻击词条',
+      lines: [
+        '<b>格挡</b>抵消下一次伤害并消耗 1 层；<b>护甲</b>让每次伤害 −N，最少 1。灼烧无视两者。',
+        '<b>溅射</b>额外打目标身后一名；<b>反击</b>在被普攻直接命中时反伤，连击每段都可触发。',
+        '<b>复生</b>让第一次阵亡原位 1 血复活；<b>法强</b>强化自己的施法数值，群体效果加成减半。其他词条可切到「词条」查阅。',
+      ],
+      fig: row({ id: 'l_shield' }, { id: 'v_wall' }, { id: 'm_rex' }),
+    },
+    {
+      title: '看敌阵，再调站位',
+      lines: [
+        '点击顶部<b>路线节点</b>提前看敌阵，再为护甲、寒意、狙击等能力调整站位。',
+        '打输了可在结算后点<b>「复盘」</b>，使用同一阵容调整站位试打。',
+      ],
+      fig: row({ id: 'l_shield' }, { id: 'm_shaman' }, { id: 'e_silencer', enemy: true }),
+    },
+    {
+      title: '远征与培养',
+      lines: [
+        '远征共 <b>3 章 21 战</b>。每章有两次商店、一处精英岔路和一名首领。生命 3 条，击败首领恢复 1 条。',
+        '胜利获得<b>金币和培养点</b>。点培养点再点单位，永久提升攻击、生命、格挡；「法」点可给<b>施法单位或主将</b>，强化各自的施法。',
+        '商店出售单位、装备、一次性法术和招募令；可卖单位换金。精英胜利掉落装备三选一。',
+      ],
+      fig: row({ id: 'n_merc' }, { id: 'l_shield' }, { id: 'm_rex' }),
+    },
+    {
+      title: '主将升阶与保存',
+      lines: [
+        '首章首领后、第二章岔路后、第二章首领后，主将各<b>升阶一次</b>，从三个被动中选一个。',
+        '主将技能按拍自动发动；升阶被动按各自说明生效，不必消耗单位行动。',
+        '进度自动保存。返回标题后，可点<b>「继续游戏」</b>回到当前远征。',
+      ],
+      fig: row({ id: 'm_rex' }, { id: 'l_priest' }),
+    },
+  ];
+};

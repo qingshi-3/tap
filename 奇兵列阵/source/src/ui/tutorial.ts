@@ -1,20 +1,16 @@
-import { battleNo, newRun, screen, teamSize, stashTotal, type RunState } from '../core/run';
+import { battleNo, screen, stashTotal, type RunState } from '../core/run';
 import { slotX, UNIT_Y, SLOT_SPACING } from './board';
-import { h, STAGE_W, STAGE_H, toStage } from './dom';
+import { h, STAGE_W, STAGE_H, stageState, toStage } from './dom';
 import { sfx } from './audio';
+import '../tutorial-guide.css';
 
-// 新手教学：固定种子、固定候选，前 3 场 + 第一个商店。
+// 新手教学：固定种子、固定候选，前 3 场 + 第一个商店 + 装备后的第 4 战。
 // 蒙层镂空高亮目标；输入锁只放行高亮区域；每步按事件或状态推进。
 
 export const TUTORIAL_FLAG = 'zl_tutorial_done';
 export const tutorialDone = () => localStorage.getItem(TUTORIAL_FLAG) === '1';
-const TUTORIAL_SEED = 20261017;
-
-export function newTutorialRun(): RunState {
-  const r = newRun('argeon', TUTORIAL_SEED);
-  r.picks = 3;
-  return r;
-}
+import { newTutorialRun, scriptDraft, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../core/tutorialRoute';
+export { newTutorialRun, type TutAction };
 
 /** Game 发出的教学事件 */
 export type TutEvent =
@@ -35,6 +31,7 @@ type Target = string | Rect | (() => Rect | HTMLElement | null);
 /** 步骤可见的教学状态 */
 interface Ctx { hold: boolean }
 interface Step {
+  id?: string;
   /** 满足前不显示、不锁输入（等结算、过场） */
   gate?: (r: RunState, mode: string, x: Ctx) => boolean;
   text: string | ((r: RunState) => string);
@@ -62,19 +59,8 @@ const closePrep: Step = { gate: (_, m) => m === 'prep', skip: () => !prepOpen(),
 const slotRect = (side: 0 | 1, slot: number): Rect => ({ x: slotX(side, slot) - 52, y: UNIT_Y - 120, w: 104, h: 210 });
 const fieldRect: Rect = { x: slotX(0, 4) - 55, y: UNIT_Y - 120, w: SLOT_SPACING * 4 + 110, h: 210 };
 const enemyRect: Rect = { x: slotX(1, 0) - 55, y: UNIT_Y - 120, w: SLOT_SPACING * 4 + 110, h: 210 };
-/** 自由练习结束点：教学 3 场 + 自由 3 场 = 第 6 场打完 */
-const FREE_END = 6;
 const prep = (b: number) => (r: RunState, m: string) => m === 'prep' && battleNo(r) === b;
 const held = (_: RunState, m: string, x: Ctx) => m === 'battle' && x.hold;
-
-/** 固定候选：按（第几战, 剩余招募, 剩余刷新）给出 */
-function scriptDraft(r: RunState): string[] | null {
-  const b = battleNo(r);
-  if (b === 0) return r.picks >= 2 ? ['n_merc', 'l_vigil', 'n_archer'] : ['l_vigil', 'n_archer', 'n_medic'];
-  if (b === 1) return r.rerolls > 0 ? ['s_backstab', 'n_bulwark', 'm_hide'] : ['n_bulwark', 'd_sentry', 'n_medic'];
-  if (b === 2) return ['v_chaser', 'v_guard', 'n_bulwark'];
-  return null;
-}
 
 let actors: HTMLElement[] = [];
 
@@ -83,66 +69,81 @@ const STEPS: Step[] = [
     text: '左边 5 个格位是你的阵型，右边是敌阵。<br>靠近中线的 <b>1 号位是队首</b>：最先出手，也最先挨打。' },
   { gate: prep(0), at: ['.hud-general'], until: 'tap',
     text: '左上角是你的<b>主将</b>。主将不上场、不会被攻击，每场战斗在固定时机<b>自动释放技能</b>。<br>点头像可以查看技能；之后获得的「法强」培养点可以分给主将，让技能更强。' },
-  { gate: prep(0), at: ['.tray .cards > .card:nth-child(1)', fieldRect], until: (r, m) => m === 'prep' && r.picks < 3,
-    text: '这是本轮的候选卡，每轮能招 <b>2~3</b> 张。<br><b>按住「佣兵」</b>，拖到 1 号位松手。（点一下卡牌只是查看详情）' },
-  { gate: prep(0), at: ['.tray .cards > .card:nth-child(1)', fieldRect], until: 'merge',
+  { id: 'recruit-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: (r, m) => m === 'prep' && r.picks < 3,
+    text: '这次先招募 <b>3</b> 张卡。<br><b>按住「佣兵」</b>，拖到 1 号位松手。（点一下卡牌只是查看详情）' },
+  { id: 'merge-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: 'merge',
     text: '又来了一张<b>同名卡</b>。把它拖到已有的佣兵身上，<b>合并升星</b>：属性变强、能力升级。' },
-  { gate: prep(0), at: ['.tray .cards', fieldRect], until: (r) => r.picks <= 0,
-    text: '把剩下的招募机会用掉：挑一张放到 2 号位。' },
-  { gate: prep(0), at: ['.tray .fight'], until: 'battle-start',
+  { id: 'recruit-guard', gate: prep(0), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 0,
+    text: '把<b>守誓者</b>拖到 <b>2 号位</b>，保护佣兵。' },
+  { id: 'fight-first', gate: prep(0), at: ['.tray .fight'], until: 'battle-start',
     text: '准备好了就<b>开战</b>。战斗全自动，你只需要看。' },
-  { gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '先暂停一下。战斗按<b>拍</b>进行：每一拍，双方从队首往后<b>轮流出手</b>。<br>圈出的就是这一拍双方最先出手的单位。' },
-  { gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '带「施法」的单位轮到时执行施法，其余单位<b>普攻</b>对面的队首。<br>普攻双方<b>同时结算</b>；生命归零就会倒下，后面的单位往前补位。' },
-  { gate: held, hold: true, at: ['.order-strip'], until: 'tap',
-    text: '上方这条是双方本拍的<b>出手顺序</b>（数字是格位号），下一个出手的单位会发光。<br>一方全部倒下即分出胜负。点继续观看战斗。' },
+  { id: 'learn-beat', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
+    text: '这次交锋叫一<b>拍</b>：双方按站位，至多各选 <b>1 名单位</b>行动。<br>同拍先结算施法，再让普攻<b>同时结算</b>。' },
+  { id: 'learn-round', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
+    text: '每个<b>回合</b>，每名单位默认有 <b>1 次行动</b>。用完就等待，不会提前从队首重来。<br>双方的行动次数全部用完，才进入新回合。' },
+  { id: 'learn-action', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
+    text: '轮到单位，按自身能力<b>施法或普攻</b>。施法通常不限次数，例外会写在卡面上。<br>普攻默认打敌方队首；阵亡后，其他单位不前移。' },
+  { id: 'learn-order', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
+    text: '上方显示<b>回合、行动轮</b>和本轮剩余的出手顺序，数字是<b>格位号</b>。<br>发光者即将行动；一方全倒下就分出胜负。点继续观看。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
     text: '战斗进行中。底部可以<b>加速</b>或<b>跳过</b>。' },
 
-  { gate: prep(1), at: [() => slotRect(0, 0)], until: 'tip',
+  { id: 'inspect-unit', gate: prep(1), at: [() => slotRect(0, 0)], until: 'tap',
     text: '<b>点一下</b>你的单位，可以看到它的属性、能力和关键词说明。' },
   { gate: prep(1), at: [enemyRect], until: 'tap',
     text: '敌人也一样可以点开查看。角标是它们的<b>关键词</b>：格挡抵消一次伤害、护甲减伤……<br>这一关的影袭者带<b>狙击</b>，会打你的队尾。' },
-  { gate: prep(1), at: ['.prep-entry', '.prep-ov .pt-power', '.prep-ov .pu-card.gen'], until: (r) => !(r.stash.power > 0),
+  { id: 'train-general', gate: prep(1), at: ['.prep-entry', '.prep-ov .pt-power', '.prep-ov .pu-card.gen'], until: (r) => !(r.stash.power > 0),
     text: '赢下战斗会获得<b>培养点</b>。打开<b>「整备」</b>，先点<b>「法」</b>，再点<b>主将</b>，把法强分给主将。' },
-  { gate: prep(1), at: ['.prep-entry', '.prep-ov .pp-tray', '.prep-ov .pp-units'], until: (r) => stashTotal(r) === 0,
-    text: '其余培养点：点一下点数，再点一个单位。单位上会显示分配后的属性。把点数都分完。' },
+  { id: 'train-unit', gate: prep(1), at: ['.prep-ov .pp-tray', '.prep-owned[data-slot="0"]'], until: (r) => stashTotal(r) === 0,
+    text: '把剩余的<b>生命、格挡、攻击</b>培养点都分给 <b>1 号位佣兵</b>：点培养点，再点佣兵。' },
   closePrep,
-  { gate: prep(1), at: ['.tray .reroll'], until: 'reroll',
+  { id: 'reroll', gate: prep(1), at: ['.tray .reroll'], until: 'reroll',
     text: '候选不满意？点<b>刷新</b>换一批（每轮 1 次）。' },
-  { gate: prep(1), at: ['.tray .cards', fieldRect, '.bench'], until: (r) => r.picks <= 0,
-    text: '招两张卡上场。' },
-  { gate: prep(1), skip: (r) => teamSize(r) < 2, at: [fieldRect], until: 'move',
-    text: '站位很重要：把一个单位<b>拖到另一个单位上</b>，两者换位。' },
-  { gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战，留意主将技能什么时候发动。' },
+  { id: 'recruit-bulwark', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 2)], until: (r) => r.picks <= 1,
+    text: '把<b>铁甲卫士</b>拖到 <b>3 号位</b>。' },
+  { id: 'recruit-sentry', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 3)], until: (r) => r.picks <= 0,
+    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>，护卫能挡下狙击。' },
+  { id: 'swap-front', gate: prep(1), at: [() => slotRect(0, 0), () => slotRect(0, 2)], until: 'move',
+    text: '把 <b>1 号位佣兵</b>拖到 <b>3 号位铁甲卫士</b>身上，两者换位，让护甲单位顶在队首。' },
+  { id: 'fight-second', gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战，留意主将技能什么时候发动。' },
+  { id: 'learn-wait', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
+    text: '这次我方 <b>4 人</b>，敌方 <b>3 人</b>。敌方本轮用完会显示<b>「等待」</b>，等我方剩余单位行动。<br>主将技能、灼烧仍按<b>拍</b>计时，等待时也照常结算。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
     text: '主将技能会画出指向目标的弹道。' },
 
-  { gate: prep(2), at: [fieldRect, '.bench', '.tray .cards'], until: 'sell',
-    text: '用不上的单位可以<b>卖掉</b>：按住单位，<b>拖到下方招募栏</b>松手。<br>每份换 1 金，培养点和装备会退回。' },
-  { gate: prep(2), at: ['.tray .cards > .card:nth-child(1)', fieldRect], until: (r) => r.picks <= 1,
-    text: '<b>雪原学徒</b>施法给敌方队首<b>寒意</b>：下次出手攻击降低；寒意 ≥ 攻击时直接<b>冻结</b>，跳过出手。招它上场。' },
-  { gate: prep(2), at: ['.tray .cards', fieldRect, '.bench'], until: (r) => r.picks <= 0, text: '再招一张。' },
-  { gate: prep(2), at: ['.tray .fight'], until: 'battle-start', text: '开战，看敌人被冻住。' },
+  { id: 'sell-guard', gate: prep(2), at: [() => slotRect(0, 1), '.tray .cards'], until: 'sell',
+    text: '把 <b>2 号位守誓者</b>拖到下方招募栏卖掉，腾出位置。每份换 1 金，培养点和装备会退回。' },
+  { id: 'recruit-chaser', gate: prep(2), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 1,
+    text: '把<b>雪原小妖</b>拖到 <b>2 号位</b>。施法叠加寒意；寒意达到敌人攻击时，会冻结它、跳过出手。' },
+  { id: 'merge-chaser', gate: prep(2), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 0,
+    text: '再把一张<b>雪原小妖</b>拖到 <b>2 号位小妖</b>身上，合并升星，增强寒意。' },
+  { id: 'fight-third', gate: prep(2), at: ['.tray .fight'], until: 'battle-start', text: '开战，看敌人被冻住。' },
+  { id: 'learn-chill', gate: held, hold: true, at: [() => slotRect(0, 1), '.order-strip'], until: 'tap',
+    text: '<b>寒意</b>会影响接下来的出手机会；本回合还没出手的敌人，现在就会受影响。<br>敌人已行动完？寒意会保留，不会因换回合而白白消失。' },
+  { id: 'learn-freeze', gate: held, hold: true, at: [() => slotRect(0, 1)], until: 'tap',
+    text: '寒意让下次普攻临时减攻；达到当前攻击时，<b>冻结并跳过这次出手</b>。<br>被冻结跳过的行动也会消耗次数，用于这次出手的寒意随后清空。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
     text: '冰蓝色的<b>寒意</b>角标就是要被减攻 / 冻结的单位。' },
 
-  // 商店：只讲一次怎么买 / 怎么卖，然后放开让玩家自己逛，离开商店才推进；不强制购买，也不拦着不让买
-  { gate: (r, m) => m === 'phase' && screen(r) === 'shop', at: ['.sh-goods', '.sh-detail'], until: 'tap',
-    text: '每章会遇到两次<b>商店</b>，用金币买单位、装备、法术。<br><b>点一件商品</b>看说明，再点说明栏里的<b>「购买」</b>；点下方阵容里的单位可以查看它的现状。' },
-  { gate: (r, m) => m === 'phase' && screen(r) === 'shop', noMask: true, chip: true, until: (_, m) => m === 'prep',
-    text: '随便逛逛，买好了点右上角<b>「离开商店」</b>。' },
-  { gate: (_, m) => m === 'prep', at: ['.prep-entry', '.prep-ov .pp-tray', '.prep-ov .pp-units'], until: 'equip', skip: (r) => !r.bag.length,
-    text: '买到的装备也在<b>「整备」</b>里：点装备，再点一个单位装上。' },
+  { id: 'shop-buy', gate: (r, m) => m === 'phase' && screen(r) === 'shop', at: ['.sh-item.eq', '.sh-detail'], until: 'buy-equips',
+    text: '点第一件装备<b>战旗</b>，再点说明里的<b>购买</b>，花费 5 金。' },
+  { id: 'shop-leave', gate: (r, m) => m === 'prep' || (m === 'phase' && screen(r) === 'shop'), at: ['.sh-leave'], until: (_, m) => m === 'prep',
+    text: '战旗已放入背包。点<b>离开商店</b>。' },
+  { id: 'equip-banner', gate: (_, m) => m === 'prep', at: ['.prep-entry', '.prep-ov .pp-tray', '.prep-owned[data-slot="2"]'], until: 'equip',
+    text: '打开<b>整备</b>，点背包里的<b>战旗</b>，再点 <b>3 号位佣兵</b>装备。战旗会让相邻友军开战加攻。' },
+  { id: 'use-haste', gate: prep(3), at: ['.prep-entry', '.prep-ov .pr-chip.sp'], until: r => r.activeSpells.includes('sp_haste'),
+    text: '再试一张赠送的<b>号令卷轴</b>。点它为本场启用，让队首在<b>首回合行动次数 +1</b>。<br>卷轴只用一次，开战后消耗。' },
   closePrep,
-  { gate: (_, m) => m === 'prep', until: 'tap',
-    text: '该教的都教完了。<br>接下来<b>自己打 3 场</b>练练手：怎么招募、怎么站位、要不要卖都由你决定。' },
-  // 自由练习：不加蒙层、不锁输入，只在角落提示进度；打完 3 场（走到本章第二个商店前）结束
-  { noMask: true, chip: true, until: (r) => battleNo(r) >= FREE_END,
-    text: (r) => `自由练习 <b>${Math.min(3, Math.max(1, battleNo(r) - FREE_END + 4))}/3</b>` },
-  { until: 'tap',
-    text: '教学完成！<br>正式远征共 3 章 21 战，3 条命，打赢首领回 1 条命。祝你好运。' },
+  { id: 'fight-final', gate: prep(3), at: ['.tray .fight'], until: 'battle-start',
+    text: '战旗和卷轴已就绪。点<b>开战</b>，留意队首的额外行动，赢下这关完成教学。' },
+  { id: 'learn-extra-action', gate: held, hold: true, at: [() => slotRect(0, 0), '.order-strip'], until: 'tap',
+    text: '队首本回合有 <b>2 次行动</b>，但不会连续用完。<br>双方第 1 轮结束后，有剩余次数的单位进入<b>第 2 轮</b>，再按站位行动。' },
+  { id: 'learn-immediate', gate: held, hold: true, at: [() => slotRect(0, 0)], until: 'tap',
+    text: '<b>立即攻击</b>在当前拍追加普攻，不施法，也不扣常规行动次数。<br><b>连击</b>是一次普攻打两段；<b>额外行动</b>则到后续轮次，照常判断施法还是普攻。' },
+  { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
+    text: '看上方<b>第 2 轮</b>：队首再次行动，次数用完的单位等待。' },
+  { id: 'complete', gate: tutorialComplete, until: 'tap',
+    text: '<b>通关结束</b>！点<b>完成</b>返回主界面，开始正式远征。' },
 ];
 
 export class Tutorial {
@@ -160,11 +161,12 @@ export class Tutorial {
   private ctx: Ctx = { hold: false };
   private release: (() => void) | null = null;
   private gavePower = false;
+  private gaveActionScroll = false;
   /** 上次落到 DOM 的高亮签名，没变就不重画 */
   private sig = '';
 
   constructor(private host: TutHost) {
-    const skip = h('button', { class: 'btn ghost tut-skip' }, h('span', null, '跳过教学'));
+    const skip = h('button', { class: 'btn primary tut-skip' }, h('span', null, '跳过教学'));
     skip.addEventListener('click', () => { sfx.click(); this.finish(); });
     this.el.append(this.mask, this.ring, this.box, skip);
     host.el.appendChild(this.el);
@@ -185,9 +187,33 @@ export class Tutorial {
   fixDraft(r: RunState) {
     if (this.host.mode() !== 'prep') return;
     if (battleNo(r) === 1 && !this.gavePower) { this.gavePower = true; r.stash.power = (r.stash.power ?? 0) + 1; }
-    if (r.picks <= 0) return;
+    // 最后一战用原阵容学习额外行动；一次性赠送卷轴，不改正式奖励或商店。
+    if (!this.gaveActionScroll && giveTutorialActionScroll(r)) this.gaveActionScroll = true;
+    if (battleNo(r) >= 3) { r.picks = 0; r.rerolls = 0; }
     const d = scriptDraft(r);
-    if (d && d.join() !== r.draft.join()) r.draft = d;
+    if (d.join() !== r.draft.join()) r.draft = d;
+  }
+
+  allows(action: TutAction): boolean {
+    const step = STEPS[this.i];
+    return !this.disposed && this.active(step) && tutorialAllows(step?.id ?? '', this.host.run, action);
+  }
+
+  isCompleteResult(): boolean {
+    return !this.disposed && STEPS[this.i]?.id === 'complete'
+      && tutorialComplete(this.host.run, this.host.mode());
+  }
+
+  /** The game owns the final result card; refresh immediately when its mode changes. */
+  refreshResult(): boolean {
+    this.update();
+    return this.isCompleteResult();
+  }
+
+  finishResult(): boolean {
+    if (!this.isCompleteResult()) return false;
+    this.finish();
+    return true;
   }
 
   /** 回放每拍出手前调用：当前是暂停讲解步时返回一个等待讲解结束的 Promise */
@@ -245,9 +271,17 @@ export class Tutorial {
   private update() {
     if (this.disposed) return;
     const s = STEPS[this.i];
+    this.el.hidden = this.isCompleteResult();
+    if (this.el.hidden) {
+      this.el.classList.remove('on');
+      this.rects = this.allowRects = [];
+      return;
+    }
+    this.el.dataset.step = s?.id ?? `step-${this.i + 1}`;
     if (s && this.active(s) && (s.skip?.(this.host.run) || (typeof s.until === 'function' && s.until(this.host.run, this.host.mode())))) { this.next(); return; }
     const on = this.active(s);
     this.el.classList.toggle('on', on);
+    this.el.classList.toggle('focus-fight', on && s.until === 'battle-start');
     this.el.classList.toggle('no-mask', !!s?.noMask);
     this.box.classList.toggle('chip', !!s?.chip);
     if (!on) { this.shown = false; this.sig = ''; this.rects = this.allowRects = []; return; }
@@ -258,7 +292,8 @@ export class Tutorial {
     // 每 200ms 轮询一次高亮位置，但只在位置或步骤变化时才改 DOM：整屏蒙层 SVG 和呼吸光圈
     // 反复重建会让整屏每秒重绘 5 次并重启动画，手机上是持续发热源
     const text = typeof s.text === 'function' ? s.text(this.host.run) : s.text;
-    const sig = `${this.i}|${text}|${s.noMask ? 1 : 0}|${this.rects.map((r) => `${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.w)},${Math.round(r.h)}`).join(';')}`;
+    const tip = this.resolve(() => document.querySelector<HTMLElement>('.tip.on'));
+    const sig = `${this.i}|${text}|${s.noMask ? 1 : 0}|${[...this.rects, ...(tip ? [tip] : [])].map((r) => `${Math.round(r.x)},${Math.round(r.y)},${Math.round(r.w)},${Math.round(r.h)}`).join(';')}`;
     if (sig === this.sig && this.shown) return;
     this.sig = sig;
     // 蒙层：整屏减去高亮矩形（evenodd 镂空）
@@ -278,7 +313,7 @@ export class Tutorial {
 
   /** 说明框：在候选位置里挑与高亮区域重叠最少的，尽量贴近第一个高亮 */
   private place() {
-    const W = 440, M = 12;
+    const W = Math.max(440, Math.min(720, 320 / stageState.scale)), M = 12;
     this.box.style.width = `${W}px`;
     const H = this.box.offsetHeight || 150;
     const f = this.rects[0];
@@ -291,7 +326,13 @@ export class Tutorial {
       cand.push({ x: clampX(f.x + f.w + M), y: clampY(f.y + f.h / 2 - H / 2) }, { x: clampX(f.x - W - M), y: clampY(f.y + f.h / 2 - H / 2) });
     }
     for (const y of [92, STAGE_H / 2 - H / 2, STAGE_H - H - 12]) for (const x of [cx, 16, STAGE_W - W - 16]) cand.push({ x, y: clampY(y) });
-    const overlap = (p: { x: number; y: number }) => this.rects.reduce((a, r) =>
+    // 固定退出入口也参与避让，不能被移动中的讲解框盖住。
+    const skip = this.resolve('.tut-skip');
+    const avoid = skip ? [...this.rects, { x: skip.x - 12, y: skip.y - 12, w: skip.w + 24, h: skip.h + 24 }] : [...this.rects];
+    // 查看详情时仍需读说明并点继续；详情出现、移动或关闭后重新避让。
+    const tip = this.resolve(() => document.querySelector<HTMLElement>('.tip.on'));
+    if (tip) avoid.push(tip);
+    const overlap = (p: { x: number; y: number }) => avoid.reduce((a, r) =>
       a + Math.max(0, Math.min(p.x + W, r.x + r.w) - Math.max(p.x, r.x)) * Math.max(0, Math.min(p.y + H, r.y + r.h) - Math.max(p.y, r.y)), 0);
     let best = cand[0], score = Infinity;
     for (const p of cand) { const o = overlap(p); if (o < score - 1) { best = p; score = o; } }
@@ -301,7 +342,7 @@ export class Tutorial {
   /** 输入锁：只放行高亮区域、说明框和跳过按钮 */
   private guard = (e: Event) => {
     const s = STEPS[this.i];
-    if (this.disposed || !this.active(s) || s.noMask) return;
+    if (this.disposed || this.isCompleteResult() || !this.active(s) || s.noMask) return;
     const t = e.target as HTMLElement | null;
     if (t && this.el.contains(t)) return;
     if (e instanceof KeyboardEvent) { if (e.key !== 'Escape') { e.stopPropagation(); e.preventDefault(); } return; }

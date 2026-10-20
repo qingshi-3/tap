@@ -11,7 +11,7 @@ export interface PointWeightCtx {
   lastPower: number;
 }
 export interface PointType {
-  id: string;
+  id: 'atk' | 'hp' | 'power' | 'block';
   name: string;
   /** 角标用的单字 */
   short: string;
@@ -79,6 +79,7 @@ export const SPELLS: SpellDef[] = [
   { id: 'sp_firerain', name: '火雨', text: '开战时：全体敌人获得 3 层灼烧', price: 3 },
   { id: 'sp_shield', name: '圣盾术', text: '开战时：全体友军获得 1 层格挡', price: 3 },
   { id: 'sp_sunder', name: '破甲药剂', text: '本场敌方全体护甲 −2', price: 2 },
+  { id: 'sp_haste', name: '号令卷轴', text: '开战时：我方队首首回合行动次数 +1', price: 3 },
   { id: 'sp_warsong', name: '战歌', text: '本场全体友军 +2 攻', price: 4 },
   { id: 'sp_revive', name: '复苏药', text: '本场第一个阵亡的友军复生', price: 3 },
 ];
@@ -111,7 +112,7 @@ export const GENERALS: GeneralDef[] = [
   { id: 'zirix', name: '齐瑞克斯', title: '星行者', faction: 'desert', base: 3, art: 'f3_general', art2: 'f3_tier2general',
     text: '每第 3 拍结束：敌方队首获得 3+法强 层易伤' },
   { id: 'hank', name: '赫克', title: '佣兵团长', faction: 'neutral', base: 0, art: 'neutral_captainhankheart',
-    text: '每第 3 拍结束：攻击最高的友军立即出手一次，本次攻击 +法强' },
+    text: '每第 3 拍结束：攻击最高的友军立即攻击一次，本次攻击 +法强' },
 ];
 export const GENERAL_MAP: Record<string, GeneralDef> = Object.fromEntries(GENERALS.map((g) => [g.id, g]));
 
@@ -132,7 +133,7 @@ export const PASSIVES: PassiveDef[] = [
   X('argeon', 4, '迅捷祷言', '技能改为每 2 拍'),
   X('kaleos', 1, '连环处决', '技能击杀时立即再释放一次（每拍 1 次）'),
   X('kaleos', 2, '影分身', '技能额外命中敌方队尾'),
-  X('kaleos', 3, '先发制人', '技能前，攻击最高的友军立即出手一次'),
+  X('kaleos', 3, '先发制人', '技能前，攻击最高的友军立即攻击一次'),
   X('kaleos', 4, '破绽', '技能目标获得 2 层易伤'),
   X('lilithe', 1, '血债', '友军阵亡时立即释放一次技能'),
   X('lilithe', 2, '深渊潮汐', '技能改为命中全体敌人，伤害 −1'),
@@ -150,10 +151,10 @@ export const PASSIVES: PassiveDef[] = [
   X('zirix', 2, '星盾', '技能同时使我方队首获得 1 层格挡'),
   X('zirix', 3, '蚀甲', '技能目标本场护甲 −1'),
   X('zirix', 4, '星轨', '带易伤的敌人阵亡时，下次技能提前 1 拍'),
-  X('hank', 1, '重金悬赏', '立即出手的友军本次攻击额外 +2'),
+  X('hank', 1, '重金悬赏', '立即攻击的友军本次攻击额外 +2'),
   X('hank', 2, '战利品', '该次出手击杀时获得 1 金币（每场最多 2）'),
   X('hank', 3, '号令', '技能改为每 2 拍'),
-  X('hank', 4, '斩首', '立即出手改为攻击敌方队尾（视为狙击）'),
+  X('hank', 4, '斩首', '立即攻击改为攻击敌方队尾（视为狙击）'),
   { id: 'g_wall', name: '坚壁', text: '开战时：全体友军获得 1 层格挡' },
   { id: 'g_morale', name: '战意', text: '友军击杀后：全体友军本场 +1 攻（每场最多 +3）' },
   { id: 'g_ember', name: '余烬', text: '敌人受到的灼烧伤害 +1', need: 'burn' },
@@ -165,8 +166,8 @@ export const PASSIVES: PassiveDef[] = [
   { id: 'g_drill', name: '练兵', text: '之后每场胜利培养点 +1' },
   { id: 'g_revive', name: '复苏', text: '每场第一个阵亡的友军复生' },
   { id: 'g_breach', name: '破阵', text: '开战时：敌方全体失去格挡，本场护甲 −1' },
-  { id: 'g_first', name: '先机', text: '第 1 拍开始前：攻击最高的友军立即出手一次' },
-  { id: 'g_chain', name: '连锁', text: '你每拍「立即出手」上限 1 → 2', need: 'extra' },
+  { id: 'g_first', name: '先机', text: '第 1 拍开始前：攻击最高的友军立即攻击一次' },
+  { id: 'g_chain', name: '连锁', text: '你每拍「立即攻击」上限 1 → 2', need: 'extra' },
   { id: 'g_core', name: '中坚', text: '队首受到的普攻伤害 −1（最少 1）' },
   { id: 'g_weak', name: '噬弱', text: '开战时：全体敌人获得 2 层易伤' },
   { id: 'g_pay', name: '军饷', text: '每场胜利 +2 金币' },

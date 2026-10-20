@@ -154,6 +154,11 @@ export class Playback {
   private key(uid: number) {
     return `u${uid}`;
   }
+  /** Bind an inspection opened during the preparation-to-playback transition. */
+  initialViewKey(side: number, slot: number): string | undefined {
+    const unit = this.out.initial.find(u => u.side === side && u.slot === slot);
+    return unit ? this.key(unit.uid) : undefined;
+  }
   private v(uid: number) {
     return this.board.view(this.key(uid));
   }
@@ -270,13 +275,19 @@ export class Playback {
       });
   }
 
-  private callout(uid: number, snap: Snap, text: string, color: string) {
+  private callout(uid: number, snap: Snap, text: string, color: string, encounter = false) {
     const u = this.st(snap, uid);
-    const p = headPos(u.side, u.slot);
-    const el = h('div', { class: 'callout', style: `left:${p.x}px;top:${p.y - 34}px;--c:${color}` }, text);
+    const p = encounter ? { x: 640, y: 470 } : headPos(u.side, u.slot);
+    const el = h('div', { class: `callout${encounter ? ' encounter-callout' : ''}`, style: `left:${p.x}px;top:${p.y - 34}px;--c:${color}` }, text);
     this.addTemporary(el);
+    const reduce = encounter && typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
     this.animate(el,
-      [
+      reduce ? [
+        { transform: 'translate(-50%,0)', opacity: 0 },
+        { transform: 'translate(-50%,0)', opacity: 1, offset: 0.15 },
+        { transform: 'translate(-50%,0)', opacity: 1, offset: 0.75 },
+        { transform: 'translate(-50%,0)', opacity: 0 },
+      ] : [
         { transform: 'translate(-50%,0) scale(.5)', opacity: 0 },
         { transform: 'translate(-50%,-6px) scale(1.08)', opacity: 1, offset: 0.15 },
         { transform: 'translate(-50%,-8px) scale(1)', opacity: 1, offset: 0.75 },
@@ -317,7 +328,7 @@ export class Playback {
           if (this.cancelled) return;
         } else {
           sfx.whoosh();
-          this.banner('交锋', '双方从队首往后轮流出手：先施法，后普攻', 'fight');
+          this.banner('交锋', '每回合各行动一次；额外次数在下一轮行动', 'fight');
           await this.w(900);
           await this.waitUntilResumed();
           if (this.cancelled) return;
@@ -328,8 +339,9 @@ export class Playback {
         this.onBeat(ev.n);
         await this.waitUntilResumed();
         if (this.cancelled) return;
+        this.sync(snap);
         this.board.setCenter(String(ev.n), '拍', 'beat');
-        this.board.setOrder({ player: ev.next.player.map((u) => this.key(u)), enemy: ev.next.enemy.map((u) => this.key(u)) });
+        this.board.setOrder({ player: ev.next.player.map((u) => this.key(u)), enemy: ev.next.enemy.map((u) => this.key(u)) }, ev.round, ev.wave);
         if (this.onHold && !this.skipping) {
           const actors = [ev.next.player[0], ev.next.enemy[0]].map((u) => (u ? this.v(u)?.el : null)).filter((e): e is HTMLElement => !!e);
           const hold = this.onHold(ev.n, actors);
@@ -343,6 +355,14 @@ export class Playback {
         await this.w(160);
         await this.waitUntilResumed();
         if (this.cancelled) return;
+        return;
+      }
+      case 'rule': {
+        // 关卡来源单独标明；后续属性事件沿用原有数值变化和增益表现。
+        const anchor = ev.src ?? snap.find(u => u.side === ev.side && u.alive && u.hp > 0)?.uid;
+        if (anchor !== undefined) this.callout(anchor, snap, `关卡·${ev.label}`, '#ffd36b', true);
+        this.onLog({ text: `关卡 · ${ev.label}`, cls: 'k-boss' });
+        await this.w(380);
         return;
       }
       case 'trigger': {
@@ -380,7 +400,12 @@ export class Playback {
           if (this.cancelled) return;
         }
         sfx.buff();
-        fx.float(tp.x, tp.y - 30, `+${ev.atk}/+${ev.hp}`, 'buff');
+        const armorGain = !ev.atk && !ev.hp
+          ? (t.armor ?? 0) - (this.v(ev.tgt)?.getStats()?.kw?.armor ?? t.armor ?? 0) : 0;
+        const gainText = !ev.atk && !ev.hp && armorGain
+          ? `${armorGain > 0 ? '+' : ''}${armorGain} 护甲`
+          : `+${ev.atk}/+${ev.hp}`;
+        fx.float(tp.x, tp.y - 30, gainText, 'buff');
         fx.burst(tp.x, tp.y + 30, '#7dffb0', { n: 14, speed: 2.4, kind: 'mote', size: 2.2, up: 2.5, gravity: -0.04, life: 40 });
         this.sync(snap);
         await this.w(300);
@@ -389,6 +414,7 @@ export class Playback {
         return;
       }
       case 'act': {
+        this.sync(snap);
         const v = this.v(ev.uid);
         if (!v) return;
         if (ev.mode === 'cast') {
@@ -401,9 +427,32 @@ export class Playback {
           v.setTag(null);
         } else if (ev.mode === 'extra') {
           v.pulse('#ffe58a');
-          this.callout(ev.uid, snap, '立即出手', '#ffe58a');
+          this.callout(ev.uid, snap, '立即攻击', '#ffe58a');
           await this.w(240);
         }
+        // Once its regular action is consumed, retire the preview marker.
+        // An immediate attack is independent and must not alter that preview.
+        if (ev.mode !== 'extra') v.el.classList.remove('next-actor');
+        return;
+      }
+      case 'actionGain': {
+        const t = this.st(snap, ev.uid);
+        sfx.buff();
+        this.callout(ev.uid, snap, `行动 +${ev.n}`, '#ffe58a');
+        this.sync(snap);
+        this.onLog({ text: `${this.name(t)} 本回合行动 +${ev.n}（剩余 ${ev.total} 次）`, cls: 'buff' });
+        await this.w(260);
+        return;
+      }
+      case 'sacrifice': {
+        const t = this.st(snap, ev.tgt), p = bodyPos(t.side, t.slot);
+        this.callout(ev.tgt, snap, '献祭', '#d6a8ff');
+        fx.burst(p.x, p.y, '#b77bff', { n: 18, speed: 3, kind: 'mote', size: 3, gravity: -0.08, life: 32 });
+        this.onLog({ text: `${this.name(this.st(snap, ev.src))} 献祭 ${this.name(t)}`, cls: 'death' });
+        // The engine emits the normal death event next: keep its owned view for
+        // death/rebirth effects rather than removing a sacrifice as an exile.
+        this.sync(snap);
+        await this.w(320);
         return;
       }
       case 'block': {
@@ -694,6 +743,7 @@ export class Playback {
         const tp = bodyPos(t.side, t.slot);
         sfx.freeze();
         const frozenView = this.v(ev.uid);
+        frozenView?.el.classList.remove('next-actor');
         if (frozenView) this.animate(frozenView.body, 
           [{ transform: 'translateX(0)' }, { transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(0)' }],
           { duration: 200 / this.speed, iterations: 2 },

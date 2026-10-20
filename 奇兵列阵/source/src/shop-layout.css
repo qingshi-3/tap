@@ -1,0 +1,56 @@
+/* Shop layout reuses the existing pixel cards, item tiles and detail surface.
+   The stage scales as a whole; --control-size preserves 44px touch targets. */
+.game:has(> .ph-shop) > .hud { visibility: hidden; }
+.phase-ov.ph-shop { inset: 0; }
+.ph-card.shop {
+  --shop-head-size: var(--control-size, 100px);
+  height: 704px;
+  padding: 8px 18px;
+  gap: 10px;
+  display: grid;
+  grid-template-rows: var(--shop-head-size) minmax(0, 1fr) 122px;
+}
+.shop .ph-head { min-width: 0; }
+.shop .ph-head .btn { min-height: var(--shop-head-size); height: var(--shop-head-size); min-width: var(--control-size, 100px); font-size: 26px; }
+.shop .btn:disabled { filter: grayscale(1); opacity: .5; cursor: default; }
+.shop .sh-market { display: grid; grid-template-columns: 698px minmax(0, 1fr); gap: 16px; min-height: 0; }
+.shop .sh-catalog { display: grid; grid-template-rows: minmax(0, 1fr) 110px; gap: 8px; min-height: 0; }
+.shop .sh-units { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: center; }
+.shop .sh-unit { min-width: var(--control-size, 100px); min-height: var(--control-size, 100px); padding: 0; gap: 2px; border-radius: 0; }
+.shop .sh-unit .card, .shop .sh-unit.on .card { transform: none; margin-bottom: 0; }
+.shop .sh-unit.on { background: rgba(255, 211, 107, .12); box-shadow: none; }
+.shop .sh-unit.on .card { filter: drop-shadow(0 0 12px rgba(255, 211, 107, .5)); }
+.shop .sh-goods { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.shop .sh-item { width: 100%; height: 110px; min-width: var(--control-size, 100px); min-height: var(--control-size, 100px); padding: 6px 4px; }
+.shop .sh-item .sh-icon { height: 42px; }
+.shop .sh-item .sh-icon .px-item { width: 40px; height: 40px; }
+.shop .sh-item b { font-size: 20px; line-height: 1.15; white-space: normal; overflow: visible; text-overflow: clip; }
+.shop .sh-item.on { transform: none; box-shadow: none; background: #343052; }
+.shop .sh-detail { height: auto; min-height: 0; display: grid; grid-template-columns: 64px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) auto; align-items: start; gap: 10px; padding: 16px; }
+.shop .sh-detail.empty { display: flex; align-items: center; justify-content: center; }
+.shop .sh-detail.empty p { font-size: 24px; }
+.shop .sh-detail .sh-icon { width: 64px; height: 64px; }
+.shop .sh-detail .sh-icon.art .uart { width: 64px; }
+.shop .sh-desc { min-height: 0; height: 100%; overflow-y: auto; overscroll-behavior: contain; padding-right: 6px; }
+.shop .sh-desc > b { display: block; font-size: 26px; line-height: 1.2; }
+.shop .sh-desc p { display: block; -webkit-line-clamp: unset; overflow: visible; font-size: 24px; line-height: 1.4; margin-top: 8px; overflow-wrap: anywhere; }
+.shop .sh-held, .shop .sh-pos, .shop .sh-st { display: block; margin: 6px 0 0; font-size: 21px; }
+.shop .sh-st { display: flex; }
+.shop .sh-buy { grid-column: 1 / -1; width: 100%; min-height: var(--control-size, 100px); font-size: 26px; }
+.shop .sh-sellhint { grid-column: 1 / -1; flex-direction: row; justify-content: space-between; align-items: center; min-height: 40px; font-size: 22px; }
+.shop .sh-roster { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 3fr) 126px; gap: 10px; min-width: 0; }
+.shop .sh-grp { gap: 6px; }
+.shop .sh-grp + .sh-grp { border: none; padding: 0; }
+.shop .sh-grp .dk-label { font-size: 20px; line-height: 1; }
+.shop .sh-owns { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.shop .sh-grp + .sh-grp .sh-owns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.shop .sh-own { width: 100%; height: max(96px, var(--control-size, 100px)); min-width: var(--control-size, 100px); }
+.shop .sh-own-art { transform: translateX(-50%) scale(.55); }
+.shop .sh-own.match::after { top: 3px; left: auto; right: 3px; transform: none; }
+.shop .sh-own-st { font-size: 21px; }
+.shop .sh-own i { font-size: 16px; }
+.shop .sh-bin { min-width: 0; min-height: var(--control-size, 100px); flex-direction: column; gap: 4px; font-size: 22px; text-align: center; padding: 8px; }
+.shop :is(.sh-unit, .sh-item, .sh-own):focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+@media (min-width: 1280px) and (min-height: 720px) {
+  .ph-card.shop { --shop-head-size: 44px; }
+}

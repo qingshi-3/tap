@@ -22,5 +22,8 @@
     "vite-node": "^3.2.4",
     "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^3.2.7"
+  },
+  "dependencies": {
+    "pinyin-pro": "3.29.5"
   }
 }

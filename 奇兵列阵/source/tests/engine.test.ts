@@ -26,9 +26,9 @@ describe('轮转出手', () => {
     const acts = [1, 2, 3, 4].map(n => evs(beatLog(o, n), 'act').find(a => a.side === 0)!.uid);
     expect(acts).toEqual([1, 2, 3, 1]);
   });
-  it('拍事件预告下一轮双方出手顺序', () => {
+  it('拍事件只预告当前行动轮剩余的出手顺序', () => {
     const o = play([P('n_merc'), P('n_bulwark')], [E('e_skel', { hp: 99 }), E('e_raider', { hp: 99 })]);
-    expect(evs(beatLog(o, 2), 'beat')[0].next).toEqual({ player: [2, 1], enemy: [4, 3] });
+    expect(evs(beatLog(o, 2), 'beat')[0].next).toEqual({ player: [2], enemy: [4] });
   });
   it('阵亡留空格，后排不前移', () => {
     const o = play([E('e_skel', { hp: 1 }), P('n_bulwark')], [E('e_brute', { hp: 99 })]);
@@ -112,7 +112,7 @@ describe('复生 / 放逐 / 立即出手 / 法强', () => {
   });
   it('法强只加施法数值', () => {
     const cast = play([P('a_cult')], [E('e_skel', { hp: 99 })]);
-    expect(evs(cast, 'dmg').find(d => d.kind === 'ability')!.n).toBe(3);
+    expect(evs(cast, 'dmg').find(d => d.kind === 'ability')!.n).toBe(4); // 基础3 + 固有法强1
     const atk = play([P('n_merc'), P('n_obelisk')], [E('e_skel', { hp: 99 })]);
     expect(evs(atk, 'dmg').find(d => d.kind === 'attack' && d.src === 1)!.n).toBe(3);
   });

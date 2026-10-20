@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { ACTIVE_FACTIONS, DRAFT_POOL, FACTION_ORDER, GENERALS, KEYWORDS, RARITY_NAMES, ROUTE, ROUTE_VARIANTS, UNITS, unitDef } from '../src/core/data';
+import { ACTIVE_FACTIONS, DRAFT_POOL, FACTION_ORDER, GENERALS, KEYWORDS, RARITY_NAMES, UNITS, unitDef } from '../src/core/data';
+import { chapter, CHAPTER_COUNT, TOTAL_BATTLES } from '../src/core/route';
 import { CARD_SUMMARY } from '../src/ui/cardSummary';
 
 interface ArtMeta { frames: number; width: number; height: number; image: string; still: string; selectedImage: string }
@@ -8,17 +9,17 @@ const art = manifests['../src/assets/units/manifest.json'].units;
 const pngs = import.meta.glob('../src/assets/units/*.png');
 const CORE_KEYWORDS = ['格挡', '护甲', '复生', '寒意', '灼烧', '溅射', '连击', '狙击', '反击', '法强'];
 
-describe('v0.6 初版卡表', () => {
-  it('5 阵营 + 中立各 8 张，品质 3/2/2/1；召唤物、沙域与敌军不进招募池', () => {
-    expect(ACTIVE_FACTIONS).toEqual(['light', 'shadow', 'abyss', 'magma', 'frost']);
+describe('当前远征内容契约', () => {
+  it('六阵营与中立均可招募，召唤物和敌军不会混入', () => {
+    expect(ACTIVE_FACTIONS).toEqual(['light', 'shadow', 'abyss', 'magma', 'frost', 'desert']);
     expect(FACTION_ORDER).toEqual([...ACTIVE_FACTIONS, 'neutral']);
     expect(RARITY_NAMES).toEqual({ 1: '普通', 2: '稀有', 3: '史诗', 4: '传说' });
-    expect(DRAFT_POOL).toHaveLength(48);
     for (const faction of FACTION_ORDER) {
       const cards = DRAFT_POOL.filter(u => u.faction === faction);
-      expect([1, 2, 3, 4].map(t => cards.filter(u => u.tier === t).length), faction).toEqual([3, 2, 2, 1]);
+      for (const tier of [1, 2, 3, 4]) expect(cards.some(u => u.tier === tier), `${faction}/${tier}`).toBe(true);
     }
-    expect(DRAFT_POOL.some(u => u.token || u.enemyOnly || u.faction === 'desert')).toBe(false);
+    expect(DRAFT_POOL.some(u => u.token || u.enemyOnly)).toBe(false);
+    for (const id of ['n_envoy', 'n_ritualist']) expect(DRAFT_POOL.find(u => u.id === id)?.faction).toBe('neutral');
     expect(new Set(UNITS.map(u => u.id)).size).toBe(UNITS.length);
   });
 
@@ -51,16 +52,17 @@ describe('v0.6 初版卡表', () => {
     }
   });
 
-  it('5 名将军，各对应一个启用阵营', () => {
-    expect(GENERALS.map(g => g.faction).sort()).toEqual([...ACTIVE_FACTIONS].sort());
+  it('六阵营与中立各有可用主将', () => {
+    expect(GENERALS.map(g => g.faction).sort()).toEqual([...FACTION_ORDER].sort());
   });
 
-  it('路线 10 关（前 4 关教学）与变体均为 5 格合法配置', () => {
-    expect(ROUTE).toHaveLength(10);
-    expect(ROUTE.map(n => n.kind)).toEqual(['normal', 'normal', 'normal', 'normal', 'normal', 'elite', 'normal', 'normal', 'elite', 'boss']);
-    expect(ROUTE.slice(0, 4).map(n => n.name)).toEqual(['轮转出手', '盾卫', '石魔', '霜咒者']);
-    expect(Object.keys(ROUTE_VARIANTS).map(Number)).toEqual([6, 7, 8]);
-    for (const node of [...ROUTE, ...Object.values(ROUTE_VARIANTS)]) {
+  it('三章21战含分岔和变体均为合法五格敌阵', () => {
+    expect(CHAPTER_COUNT).toBe(3);
+    expect(TOTAL_BATTLES).toBe(21);
+    const stages = Array.from({ length: CHAPTER_COUNT }, (_, i) => chapter(i).stages).flat();
+    const nodes = stages.flatMap(s => s.type === 'shop' ? [] : s.type === 'fork' ? [s.elite, s.normal] : s.type === 'battle' && s.variant ? [s.main, s.variant] : [s.main]);
+    expect(stages.filter(s => s.type === 'boss')).toHaveLength(CHAPTER_COUNT);
+    for (const node of nodes) {
       expect(node.lineup, node.name).toHaveLength(5);
       expect(node.hint, node.name).toBeTruthy();
       for (const entry of node.lineup) if (entry) {
@@ -70,7 +72,6 @@ describe('v0.6 初版卡表', () => {
         expect(entry.hp ?? unitDef(entry.defId).hp).toBeGreaterThan(0);
       }
     }
-    expect(ROUTE[9].lineup[0]?.defId).toBe('e_void');
   });
 
   it('所有单位与将军都有美术，三张运行 PNG 齐全', () => {

@@ -31,6 +31,21 @@ b.kwt[class] {
 .kwtrig.mini { padding: 0 .26em 0 .18em; margin: 0 .12em; font-weight: 700; }
 .kwtrig-note { color: #a9adcf; font-size: .86em; margin-right: .2em; }
 
+/* 招募预览：词条整体换行，不再把短句拆字或截成半个机制名。 */
+.card-brief.card-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  align-items: baseline;
+  gap: 3px 6px;
+  overflow: visible;
+  word-break: normal;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+}
+.card-keywords > .kwtrig.mini { padding: 0 .12em; margin: 0; white-space: nowrap; }
+.card-keywords .kw-ic { display: none; }
+
 /* 数值：属性图标 + 着色数字，不加粗 */
 .kwn { --nc: #ff7a45; color: var(--nc); font-weight: 500; white-space: nowrap; }
 .kwn-hp { --nc: #ff7a88; }
