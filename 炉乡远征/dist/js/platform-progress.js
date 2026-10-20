@@ -1,6 +1,5 @@
 import { EXPEDITION_LEVELS } from './expedition-data.js';
 import { CARD_ACQUISITION } from './campaign-content.js';
-import { rankedChallengeScore } from './ranked-challenge.js';
 
 // Public application binding only. The leaderboard currently requires whitelist
 // access; this module does not publish it or store authentication/player data.
@@ -15,28 +14,30 @@ export const CONFIRMED_ACHIEVEMENTS = Object.freeze({
 const levels=new Set(EXPEDITION_LEVELS.map(level=>level.id));
 const cards=new Set(CARD_ACQUISITION.map(card=>card.id));
 const countLegal=values=>new Set((Array.isArray(values)?values:[]).filter(id=>levels.has(id))).size;
+// Campaign progress is account-wide in safe-v2; the faction-* keys keep their
+// platform IDs and count cleared levels for the account.
 export function platformProgressStats(state={}) {
-  const factions=Array.from({length:6},(_,index)=>countLegal(state?.factionCompleted?.[index+1]));
+  const completed=countLegal(state?.completed);
   const collection=new Set([...(state?.inventory?.units??[]),...(state?.inventory?.spells??[])].filter(id=>cards.has(id))).size;
-  return {factions,score:factions.reduce((sum,count)=>sum+count,0),collection};
+  return {completed,score:completed,collection};
 }
 export const ACHIEVEMENT_CATALOG = Object.freeze([
   Object.freeze({key:'first-victory',name:'首场胜利',target:1,metric:'total'}),
-  ...[3,15,30].map(target=>Object.freeze({key:`faction-${target}`,name:target===3?'初露锋芒（单阵营3关）':`任一阵营通关${target}关`,target,metric:'faction'})),
-  Object.freeze({key:'all-factions',name:'六阵营全通',target:180,metric:'total'}),
+  ...[3,15,30].map(target=>Object.freeze({key:`faction-${target}`,name:target===3?'初露锋芒（通关3关）':`远征通关${target}关`,target,metric:'total'})),
+  Object.freeze({key:'all-factions',name:'远征全通',target:EXPEDITION_LEVELS.length,metric:'total'}),
   Object.freeze({key:'collection-150',name:'收藏150张卡牌',target:150,metric:'collection'}),
 ]);
 export function localAchievements(state,confirmed=CONFIRMED_ACHIEVEMENTS) {
   const stats=platformProgressStats(state);
   return ACHIEVEMENT_CATALOG.map(item=>{
-    const progress=item.metric==='faction'?Math.max(...stats.factions):item.metric==='collection'?stats.collection:stats.score;
+    const progress=item.metric==='collection'?stats.collection:stats.score;
     return {...item,progress:Math.min(progress,item.target),achieved:progress>=item.target,configured:typeof confirmed[item.key]==='string'&&!!confirmed[item.key].trim()};
   });
 }
 const errorText=error=>typeof error==='string'?error:error?.message||error?.errMsg||'平台操作失败，请重试。';
 
 /** In-memory adapter: readState is evaluated on every sync after profile refresh. */
-export function createPlatformProgress({readState,readChallengeResult=()=>null,getTap=()=>globalThis.tap,confirmedAchievements=CONFIRMED_ACHIEVEMENTS,timeoutMs=10000,setTimer=setTimeout,clearTimer=clearTimeout}={}) {
+export function createPlatformProgress({readState,readScore=()=>0,getTap=()=>globalThis.tap,confirmedAchievements=CONFIRMED_ACHIEVEMENTS,timeoutMs=10000,setTimer=setTimeout,clearTimer=clearTimeout}={}) {
   if(typeof readState!=='function')throw new TypeError('readState must be a function');
   let submitted=-1,leaderPending=null,achievementManager=null,disposed=false;
   const unlocked=new Set(),pending=new Map(),confirmed={...confirmedAchievements};
@@ -59,7 +60,7 @@ export function createPlatformProgress({readState,readChallengeResult=()=>null,g
   }
   async function syncLeaderboard({force=false}={}) {
     if(disposed)return {ok:false,error:'平台同步已停止。'};
-    let score;try{score=rankedChallengeScore(readChallengeResult());}catch(error){return {ok:false,error:errorText(error)};}
+    let score;try{score=Math.max(0,Math.floor(Number(readScore())||0));}catch(error){return {ok:false,error:errorText(error)};}
     if(score===0)return {ok:true,skipped:true};
     if(leaderPending){const active=leaderPending,result=await active.promise;return score<=active.score?result:syncLeaderboard({force});}
     if(!force&&score<=submitted)return {ok:true,skipped:true};
@@ -135,7 +136,7 @@ export function createPlatformProgress({readState,readChallengeResult=()=>null,g
   }
   return {
     syncLeaderboard,openLeaderboard,syncAchievements,showAchievements,openAchievements:showAchievements,
-    score(){return rankedChallengeScore(readChallengeResult());},
+    score(){return Math.max(0,Math.floor(Number(readScore())||0));},
     async sync(options){const [leaderboard,achievements]=await Promise.all([syncLeaderboard(options),syncAchievements()]);return {leaderboard,achievements};},
     getStatus(){return {leaderboard:{...leaderboardStatus},achievements:{...achievementStatus},submittedScore:submitted};},
     getAchievements(){return localAchievements(readState(),confirmed).map(item=>({...item,synced:item.configured&&unlocked.has(confirmed[item.key])}));},

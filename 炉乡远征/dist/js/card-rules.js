@@ -1,5 +1,5 @@
 import { EXPANSION_IDS } from './expansion-mechanics.js';
-import { RECRUITMENT_CARD_IDS } from './recruitment-cards.js';
+import { RECRUITMENT_CARD_IDS } from './premium-cards.js';
 import { cardKeywords, cleanCardCopy } from './card-keywords.js';
 import { getHero } from './factions.js';
 import { cardAttackRange } from './attack-range.js';

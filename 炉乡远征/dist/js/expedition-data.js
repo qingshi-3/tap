@@ -1,32 +1,3 @@
-import { CARD_ACQUISITION } from './campaign-content.js';
-import { CARDS } from './cards.js';
-import { FACTIONS } from './factions.js';
-
-export const TRAINABLE_IDS = Object.freeze(CARD_ACQUISITION.filter(c=>c.type==='unit').map(c=>c.id));
-export const TRAINING_COSTS = Object.freeze([40, 70, 110, 160]);
-export const DEPLOYMENT_BUDGET = 4;
-
-export function deploymentCost(squad) {
-  if (!Array.isArray(squad)) return Number.POSITIVE_INFINITY;
-  return squad.slice(0, 2).reduce((total, cardId) => total + (CARDS[cardId]?.cost ?? Number.POSITIVE_INFINITY), 0);
-}
-
-const TRAINING_STEPS = Object.freeze([
-  Object.freeze({ attack: 0, health: 0 }),
-  Object.freeze({ attack: 0, health: 1 }),
-  Object.freeze({ attack: 1, health: 2 }),
-  Object.freeze({ attack: 1, health: 3 }),
-  Object.freeze({ attack: 2, health: 4 })
-]);
-
-const LOW_TRAINING_STEPS = Object.freeze([{attack:0,health:0},{attack:0,health:1},{attack:0,health:1},{attack:1,health:1},{attack:1,health:2}]);
-export function trainingBonus(cardId, rank, growthVersion = 'legacy-v1') {
-  if (!TRAINABLE_IDS.includes(cardId) || !Number.isInteger(rank) || rank < 0 || rank >= TRAINING_STEPS.length) {
-    return { attack: 0, health: 0 };
-  }
-  return { ...(growthVersion==='low-v2'?LOW_TRAINING_STEPS:TRAINING_STEPS)[rank] };
-}
-
 const gate = (index) => `assets/metagame/original/challenge-gate-00${index}.jpg`;
 
 const EXPANSION_CHAPTERS = [
@@ -1979,129 +1950,69 @@ export const EXPEDITION_LEVELS = Object.freeze([
   L({
       "id": "frost-03",
       "chapterId": "frost-siege",
-      "title": "终夜会战",
-      "subtitle": "冰霜与熔岩争夺城垒",
-      "goal": "存活 12 回合并守住主将。",
-      "hint": "两支敌军也会互相攻击，保护主将存活12回合即可获胜。",
-      "columns": 13,
-      "rows": 9,
-      "tiles": [
-          {
-              "x": 6,
-              "y": 4,
-              "type": "outpost"
-          },
-          {
-              "x": 6,
-              "y": 1,
-              "type": "wall"
-          },
-          {
-              "x": 6,
-              "y": 7,
-              "type": "wall"
-          },
-          {
-              "x": 5,
-              "y": 3,
-              "type": "rough"
-          },
-          {
-              "x": 7,
-              "y": 5,
-              "type": "rough"
-          },
-          {
-              "x": 3,
-              "y": 2,
-              "type": "wall"
-          },
-          {
-              "x": 3,
-              "y": 6,
-              "type": "wall"
-          }
-      ],
+      "title": "霜墙女王",
+      "subtitle": "冰棱环绕的王座",
+      "goal": "击败霜墙女王。",
+      "hint": "冰棱护住女王：打碎她身边的冰棱，碎冰会伤到相邻的所有人。别停在冰封标记上。",
+      "columns": 9,
+      "rows": 5,
+      "tiles": [],
       "objective": {
-          "type": "survive",
-          "rounds": 12
+          "type": "eliminate"
       },
-      "mana": 6,
+      "mana": 3,
       "playerStart": {
           "x": 1,
-          "y": 4
+          "y": 2
       },
-      "allyStarts": [
-          {
-              "x": 2,
-              "y": 3
-          },
-          {
-              "x": 2,
-              "y": 5
-          }
-      ],
+      "allyStarts": [],
       "enemies": [
           {
               "cardId": 527,
               "owner": 1,
-              "x": 10,
+              "x": 7,
               "y": 2,
-              "health": 28
+              "health": 22
           },
           {
-              "cardId": 505,
+              "cardId": 9001,
               "owner": 1,
-              "x": 8,
+              "x": 6,
+              "y": 1
+          },
+          {
+              "cardId": 9001,
+              "owner": 1,
+              "x": 6,
               "y": 2
           },
           {
-              "cardId": 506,
+              "cardId": 9001,
               "owner": 1,
-              "x": 9,
+              "x": 6,
               "y": 3
           },
           {
-              "cardId": 418,
-              "owner": 2,
-              "x": 10,
-              "y": 6,
-              "health": 28
-          },
-          {
-              "cardId": 406,
-              "owner": 2,
-              "x": 8,
-              "y": 6
-          },
-          {
-              "cardId": 412,
-              "owner": 2,
-              "x": 9,
-              "y": 5
+              "cardId": 503,
+              "owner": 1,
+              "x": 6,
+              "y": 4
           }
       ],
       "enemyDecks": {
           "1": [
               505,
-              506,
-              20139,
               503,
-              20149
-          ],
-          "2": [
-              406,
-              412,
-              20116,
-              410,
-              20117
+              20139,
+              511
           ]
       },
       "reward": {
-          "first": 270,
+          "first": 300,
           "repeat": 70
       },
-      "turnLimit": 12
+      "turnLimit": 30,
+      "boss": true
   }),
   ...EXPANSION_LEVELS.map(L)
 ]);

@@ -3,7 +3,6 @@ import { getHero } from './factions.js';
 import { battleCardIds } from './battle-assets.js';
 import { getCard } from './cards.js';
 import { createBattleTips } from './battle-tips.js';
-import { getTrialBackground } from './trial-backgrounds.js';
 
 const BACKGROUNDS = [
   'battlemap2_background.png', 'battlemap2_middleground.png',
@@ -12,11 +11,10 @@ const BACKGROUNDS = [
 const absoluteAsset = path => new URL(path, document.baseURI).href;
 const nextPaint = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-// Authored battle shell only. Hidden collection, recruitment and other-faction
+// Authored battle shell only. Hidden collection and other-faction
 // card frames belong to their own visible UI, not to the battle entry gate.
 function sceneImages(state) {
-  const backdrop = state?.mode === 'challenge' ? getTrialBackground(state.levelId) : null;
-  const paths = new Set(backdrop ? Object.values(backdrop).filter(Boolean).map(absoluteAsset) : BACKGROUNDS);
+  const paths = new Set(BACKGROUNDS);
   for (const path of ['ui/portrait-frame.png', 'ui/icon-mana.png', 'ui/button-secondary.png', 'ui/overview-frame.png', 'ui/keywords/keyword-attack.svg', 'ui/keywords/health.svg']) paths.add(absoluteAsset('./assets/' + path));
   for (const player of state?.players ?? []) {
     const hero = getHero(player.generalId);

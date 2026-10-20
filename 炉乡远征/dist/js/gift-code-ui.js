@@ -62,7 +62,7 @@ export class GiftCodeUI {
       if (receipt.ok) {
         this.claimedInput = this.normalizedInput();
         this.result.dataset.state = 'success';
-        this.result.textContent = `${receipt.orbs}宝石 + ${receipt.coins}金币已到账`;
+        this.result.textContent = `${receipt.coins}金币已到账`;
         this.onReward?.(receipt);
       } else {
         this.result.dataset.state = 'error';

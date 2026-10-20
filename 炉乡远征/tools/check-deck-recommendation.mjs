@@ -17,12 +17,6 @@ for(const inventory of [starterInventory(),full])for(const faction of FACTIONS)f
   assert(bodies.filter(id=>getCard(id).cost<=2).length>=9,'early turns have playable bodies');
   assert(bodies.filter(id=>getCard(id).cost>=5).length<=3,'finishers cannot crowd out the curve');cases++;
 }
-const baseline=recommendDeck({heroId:1,inventory:starterInventory()});
-const trained=recommendDeck({heroId:1,inventory:starterInventory(),training:{10021:4},growthVersion:{10021:'legacy-v1'}});
-assert(trained.deck.filter(id=>id===10021).length>baseline.deck.filter(id=>id===10021).length,'training can promote an owned substitute');
-const spellsBase=recommendDeck({heroId:1,inventory:full});
-const spellsPower=recommendDeck({heroId:1,inventory:full,spellTraining:{20066:2},spellModes:{20066:'power'}});
-assert(spellsPower.deck.filter(id=>id===20066).length>spellsBase.deck.filter(id=>id===20066).length,'active spell training affects selection');
 const heroA=recommendDeck({heroId:301,inventory:full}),heroB=recommendDeck({heroId:323,inventory:full});
 assert.notDeepEqual(heroA.deck,heroB.deck,'same-faction heroes receive different engine plans');
 assert(heroA.deck.includes(310)&&heroB.deck.includes(316),'summon and corruption engines are represented');
@@ -33,4 +27,4 @@ assert(validatePlayerDeck(foreign.deck,1,full),'unknown, general and foreign car
 // Unusual but legal collections relax the role split instead of inventing cards.
 const onlyUnits={units:full.units,spells:[]},relaxed=recommendDeck({heroId:1,inventory:onlyUnits});
 assert(relaxed.ok&&validatePlayerDeck(relaxed.deck,1,onlyUnits));
-console.log(`deck recommendation: ${cases} starter/full hero cases; training, engines, legality, failure, purity and fallback passed`);
+console.log(`deck recommendation: ${cases} starter/full hero cases; engines, legality, failure, purity and fallback passed`);

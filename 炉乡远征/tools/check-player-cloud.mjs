@@ -1,16 +1,16 @@
 import assert from 'node:assert/strict';
 import { PlayerCloud } from '../dist/js/player-cloud.js';
-import { ExpeditionProgress } from '../dist/js/expedition-progress.js';
+import { PlayerProfile } from '../dist/js/profile.js';
+import { SAVE_KEYS, CLOUD_META_KEY } from '../dist/js/storage-keys.js';
 
-const EXPEDITION = 'duelyst-h5.safe-v1.expedition';
-const META = 'duelyst-h5.safe-v1.cloud-meta';
+const PROFILE = SAVE_KEYS.profile;
+const META = CLOUD_META_KEY;
 const LOCAL_BACKUP = `${META}.local-backup`;
 const REMOTE_BACKUP = `${META}.remote-backup`;
-const UNKNOWN_META_BACKUP = `${META}.unknown-backup`;
 const JOURNAL = `${META}.restore-journal`;
 
 class MemoryStorage {
-  data = new Map([['duelyst-h5.safe-v1.namespace', '{"version":1}']]);
+  data = new Map();
   getItem(key) { return this.data.get(key) ?? null; }
   setItem(key, value) { this.data.set(key, String(value)); }
   removeItem(key) { this.data.delete(key); }
@@ -42,25 +42,26 @@ class FailableReadTransport extends FakeTransport {
   async read() { if (this.failRead) throw new Error('offline'); return super.read(); }
 }
 
-function expedition(coins = 80) {
-  const storage = new MemoryStorage(), state = new ExpeditionProgress(storage).state;
+function profile(coins = 80) {
+  const storage = new MemoryStorage(), state = new PlayerProfile(storage).state;
   state.coins = coins; return state;
 }
-function putExpedition(storage, coins) { storage.setItem(EXPEDITION, JSON.stringify(expedition(coins))); }
+function putProfile(storage, coins) { storage.setItem(PROFILE, JSON.stringify(profile(coins))); }
 function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
-  return { game: 'duelyst-h5', appId: 970030, schemaVersion: 1, saveId, savedAt: 100,
-    data: { expedition: expedition(coins), campaign: null, match: null } };
+  return { game: 'duelyst-h5', appId: 970030, schemaVersion: 2, saveId, savedAt: 100,
+    data: { profile: profile(coins) } };
 }
+const starterCards = (() => { const s = profile(); return s.inventory.units.length + s.inventory.spells.length; })();
 
 // A new cloud slot is established only by an explicit sync, then round-trips.
 {
-  const storage = new MemoryStorage(), transport = new FakeTransport(); putExpedition(storage, 111);
+  const storage = new MemoryStorage(), transport = new FakeTransport(); putProfile(storage, 111);
   const cloud = new PlayerCloud({ storage, transport });
   assert.deepEqual(Object.keys(cloud.state).sort(), ['available', 'blocked', 'cloudSummary', 'conflict', 'error', 'hasRemote', 'label', 'localSummary', 'status'].sort());
-  assert.deepEqual(cloud.state.localSummary, { coins: 111, completed: 0, trials: 0, training: 0, savedAt: null, hasBattle: false });
+  assert.deepEqual(cloud.state.localSummary, { coins: 111, completed: 0, cards: starterCards, savedAt: null, hasBattle: false });
   assert.equal((await cloud.initialize()).ok, true); assert.equal(cloud.state.status, 'unlinked');
   assert.equal(transport.writes.length, 0);
-  assert.equal((await cloud.sync()).ok, true); assert.equal(transport.remote.data.data.expedition.coins, 111);
+  assert.equal((await cloud.sync()).ok, true); assert.equal(transport.remote.data.data.profile.coins, 111);
   assert.ok(storage.getItem(META)); assert.equal(cloud.state.status, 'synced');
 }
 
@@ -69,7 +70,7 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
   const storage = new MemoryStorage(), transport = new FakeTransport(); transport.remote = { token: 'remote-1', data: envelope(222) };
   let restored = 0; const cloud = new PlayerCloud({ storage, transport, onRestore: () => { restored += 1; } });
   assert.equal((await cloud.initialize()).ok, true);
-  assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 222); assert.equal(restored, 1);
+  assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 222); assert.equal(restored, 1);
   assert.ok(storage.getItem(LOCAL_BACKUP)); assert.equal(cloud.state.status, 'synced');
 }
 
@@ -79,25 +80,25 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
   transport.remote = { token: 'slow-init', data: envelope(230) }; transport.deferRead = true;
   const cloud = new PlayerCloud({ storage, transport }); const initializing = cloud.initialize();
   while (!transport.readGate) await new Promise((resolve) => setTimeout(resolve, 0));
-  putExpedition(storage, 231); transport.readGate();
+  putProfile(storage, 231); transport.readGate();
   await initializing;
-  assert.equal(cloud.state.conflict, true); assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 231);
+  assert.equal(cloud.state.conflict, true); assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 231);
 }
 
 // Conflicting nonempty local data is preserved until the player explicitly chooses local.
 {
-  const storage = new MemoryStorage(), transport = new FakeTransport(); putExpedition(storage, 333);
+  const storage = new MemoryStorage(), transport = new FakeTransport(); putProfile(storage, 333);
   transport.remote = { token: 'remote-old', data: envelope(444) };
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
-  assert.equal(cloud.state.conflict, true); assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 333);
+  assert.equal(cloud.state.conflict, true); assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 333);
   assert.equal((await cloud.sync({ useLocal: true })).ok, true);
-  assert.equal(transport.remote.data.data.expedition.coins, 333);
-  assert.equal(JSON.parse(storage.getItem(REMOTE_BACKUP)).envelope.data.expedition.coins, 444);
+  assert.equal(transport.remote.data.data.profile.coins, 333);
+  assert.equal(JSON.parse(storage.getItem(REMOTE_BACKUP)).envelope.data.profile.coins, 444);
 }
 
 // A recovered refresh clears old errors; a failed read invalidates the displayed overwrite token.
 {
-  const storage = new MemoryStorage(), transport = new FailableReadTransport(); putExpedition(storage, 340);
+  const storage = new MemoryStorage(), transport = new FailableReadTransport(); putProfile(storage, 340);
   transport.remote = { token: 'read-health', data: envelope(341) };
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
   transport.failRead = true; assert.equal((await cloud.refresh()).ok, false);
@@ -111,38 +112,38 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
 
 // Two devices sharing a baseline cannot overwrite an unseen token.
 {
-  const transport = new FakeTransport(), first = new MemoryStorage(); putExpedition(first, 100);
+  const transport = new FakeTransport(), first = new MemoryStorage(); putProfile(first, 100);
   const a = new PlayerCloud({ storage: first, transport }); await a.initialize(); await a.sync();
   const second = new MemoryStorage(), b = new PlayerCloud({ storage: second, transport }); await b.initialize();
-  putExpedition(first, 150); a.notifyLocalChange(); await a.sync();
-  putExpedition(second, 175); b.notifyLocalChange();
+  putProfile(first, 150); a.notifyLocalChange(); await a.sync();
+  putProfile(second, 175); b.notifyLocalChange();
   const result = await b.sync();
   assert.equal(result.ok, false); assert.equal(result.conflict, true);
-  assert.equal(JSON.parse(second.getItem(EXPEDITION)).coins, 175); assert.equal(transport.remote.data.data.expedition.coins, 150);
+  assert.equal(JSON.parse(second.getItem(PROFILE)).coins, 175); assert.equal(transport.remote.data.data.profile.coins, 150);
 }
 
 // Refresh recognizes a local descendant of the displayed baseline and queues upload without conflict.
 {
-  const storage = new MemoryStorage(), transport = new FakeTransport(); putExpedition(storage, 180);
+  const storage = new MemoryStorage(), transport = new FakeTransport(); putProfile(storage, 180);
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize(); await cloud.sync();
-  putExpedition(storage, 181); cloud.paused = true;
+  putProfile(storage, 181); cloud.paused = true;
   assert.equal((await cloud.refresh()).ok, true); assert.equal(cloud.state.status, 'pending'); assert.equal(cloud.state.conflict, false);
   cloud.dispose();
 }
 
 // Unknown cloud and metadata formats never rewrite their originals.
 {
-  const storage = new MemoryStorage(), transport = new FakeTransport(); putExpedition(storage, 500);
+  const storage = new MemoryStorage(), transport = new FakeTransport(); putProfile(storage, 500);
   const unknownMeta = '{"schemaVersion":99}'; storage.setItem(META, unknownMeta);
   transport.remote = { token: 'bad', data: { game: 'somebody-else' } };
   const cloud = new PlayerCloud({ storage, transport }); const result = await cloud.initialize();
   assert.equal(result.ok, false); assert.equal(storage.getItem(META), unknownMeta);
-  assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 500); assert.equal(transport.writes.length, 0);
+  assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 500); assert.equal(transport.writes.length, 0);
 }
 
 // Future metadata is read-only even for an explicit first sync.
 {
-  const storage = new MemoryStorage(), transport = new FakeTransport(); putExpedition(storage, 510);
+  const storage = new MemoryStorage(), transport = new FakeTransport(); putProfile(storage, 510);
   const raw = ' {"schemaVersion":99}\n'; storage.setItem(META, raw);
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
   assert.equal((await cloud.sync()).ok, false); assert.equal(storage.getItem(META), raw); assert.equal(transport.writes.length, 0);
@@ -168,44 +169,44 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
 {
   class FailOnceStorage extends MemoryStorage {
     failed = false;
-    setItem(key, value) { if (key === EXPEDITION && !this.failed) { this.failed = true; throw new Error('disk full'); } super.setItem(key, value); }
+    setItem(key, value) { if (key === PROFILE && !this.failed) { this.failed = true; throw new Error('disk full'); } super.setItem(key, value); }
   }
-  const storage = new FailOnceStorage(); storage.data.set(EXPEDITION, ` ${JSON.stringify(expedition(610))}\n`);
-  const original = storage.getItem(EXPEDITION), transport = new FakeTransport(); transport.remote = { token: 'restore-fail', data: envelope(620) };
+  const storage = new FailOnceStorage(); storage.data.set(PROFILE, ` ${JSON.stringify(profile(610))}\n`);
+  const original = storage.getItem(PROFILE), transport = new FakeTransport(); transport.remote = { token: 'restore-fail', data: envelope(620) };
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
   const result = await cloud.restore(); assert.equal(result.ok, false);
-  assert.equal(storage.getItem(EXPEDITION), original, 'rollback must restore exact original bytes');
+  assert.equal(storage.getItem(PROFILE), original, 'rollback must restore exact original bytes');
 }
 
 // Local edits made while restore rechecks the token make the displayed choice stale.
 {
-  const storage = new MemoryStorage(), transport = new DeferredReadTransport(); putExpedition(storage, 630);
+  const storage = new MemoryStorage(), transport = new DeferredReadTransport(); putProfile(storage, 630);
   transport.remote = { token: 'slow-restore', data: envelope(640) };
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
   transport.deferRead = true; const restoring = cloud.restore();
   while (!transport.readGate) await new Promise((resolve) => setTimeout(resolve, 0));
-  putExpedition(storage, 631); transport.readGate();
+  putProfile(storage, 631); transport.readGate();
   const result = await restoring;
   assert.equal(result.ok, false); assert.equal(result.stale, true);
-  assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 631);
+  assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 631);
 }
 
 // A transient read failure while collecting rollback bytes aborts before creating a journal.
 {
   class FailRawReadStorage extends MemoryStorage {
-    expeditionReads = 0; throwAt = Infinity;
+    profileReads = 0; throwAt = Infinity;
     getItem(key) {
-      if (key === EXPEDITION && ++this.expeditionReads === this.throwAt) throw new Error('transient read failure');
+      if (key === PROFILE && ++this.profileReads === this.throwAt) throw new Error('transient read failure');
       return super.getItem(key);
     }
   }
-  const storage = new FailRawReadStorage(); storage.data.set(EXPEDITION, JSON.stringify(expedition(650)));
+  const storage = new FailRawReadStorage(); storage.data.set(PROFILE, JSON.stringify(profile(650)));
   const transport = new FakeTransport(); transport.remote = { token: 'raw-read-fail', data: envelope(660) };
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
-  storage.throwAt = storage.expeditionReads + 3;
+  storage.throwAt = storage.profileReads + 3;
   const result = await cloud.restore();
   assert.equal(result.ok, false); assert.match(result.error, /transient read failure/);
-  assert.equal(storage.getItem(JOURNAL), null); assert.equal(JSON.parse(storage.getItem(EXPEDITION)).coins, 650);
+  assert.equal(storage.getItem(JOURNAL), null); assert.equal(JSON.parse(storage.getItem(PROFILE)).coins, 650);
 }
 
 // The upload owns an immutable capture; edits made while it is pending remain eligible for the next sync.
@@ -220,15 +221,15 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
       this.remote = { token: `token-${++this.sequence}`, data: snapshot }; return { ok: true, token: this.remote.token };
     }
   }
-  const storage = new MemoryStorage(), transport = new DeferredTransport(); putExpedition(storage, 700);
+  const storage = new MemoryStorage(), transport = new DeferredTransport(); putProfile(storage, 700);
   const cloud = new PlayerCloud({ storage, transport }); await cloud.initialize();
   const pending = cloud.sync();
   while (!transport.gate) await new Promise((resolve) => setTimeout(resolve, 0));
-  putExpedition(storage, 701); cloud.notifyLocalChange(); transport.gate();
-  assert.equal((await pending).ok, true); assert.equal(transport.remote.data.data.expedition.coins, 700);
+  putProfile(storage, 701); cloud.notifyLocalChange(); transport.gate();
+  assert.equal((await pending).ok, true); assert.equal(transport.remote.data.data.profile.coins, 700);
   transport.gate = null; const next = cloud.sync();
   while (!transport.gate) await new Promise((resolve) => setTimeout(resolve, 0));
-  transport.gate(); assert.equal((await next).ok, true); assert.equal(transport.remote.data.data.expedition.coins, 701);
+  transport.gate(); assert.equal((await next).ok, true); assert.equal(transport.remote.data.data.profile.coins, 701);
   cloud.dispose();
 }
 
@@ -239,26 +240,26 @@ function envelope(coins, saveId = '123e4567-e89b-42d3-a456-426614174000') {
   const cloud = new PlayerCloud({ storage, transport }); const pending = cloud.initialize();
   while (!transport.readGate) await new Promise((resolve) => setTimeout(resolve, 0));
   cloud.dispose(); transport.readGate();
-  assert.equal((await pending).ok, false); assert.equal(storage.getItem(EXPEDITION), null);
+  assert.equal((await pending).ok, false); assert.equal(storage.getItem(PROFILE), null);
 }
 
 
-// New profile fields take part in synchronization identity even when old summary fields are unchanged.
+// Profile fields outside the summary take part in synchronization identity.
 {
- const storage=new MemoryStorage(),transport=new FakeTransport();putExpedition(storage,800);
+ const storage=new MemoryStorage(),transport=new FakeTransport();putProfile(storage,800);
  const cloud=new PlayerCloud({storage,transport});assert.ok((await cloud.initialize()).ok);assert.ok((await cloud.sync()).ok);
- const initial=JSON.parse(storage.getItem(EXPEDITION));
- const changed=structuredClone(initial);changed.spellTraining[20174]=1;changed.spellModes[20174]='power';changed.factionSpells[1]=[20043,20174];
- changed.recruitment.focus=17;changed.recruitment.misses[17]=3;changed.growthVersion[14]='legacy-v1';changed.completed=['border-01'];changed.accountStageClaims={'border-01':'legacy'};changed.factionCompleted[1]=['border-01'];changed.legacyUnlockedLevels=['border-01','border-02'];
- changed.recruitment.tickets=7;changed.recruitment.fragments[10021]=3;changed.inventory.units.push(19037);changed.factionDecks[1].reverse();
- changed.settlements['recruitment-cloud']={levelId:'border-01',amount:100,firstClear:true};
- changed.recruitment.victoryClaims['recruitment-cloud']=1;
- changed.recruitment.adClaims['recruitment-cloud']={status:'claimed',requestId:'cloud-ad',amount:2,requestIds:['cloud-ad']};
- storage.setItem(EXPEDITION,JSON.stringify(changed));cloud.notifyLocalChange();assert.ok((await cloud.sync()).ok);
- assert.deepEqual(transport.remote.data.data.expedition,changed,'complete schema8 state must upload despite unchanged coins/unit-training/completed summary');
+ const initial=JSON.parse(storage.getItem(PROFILE));
+ const changed=structuredClone(initial);changed.selectedHeroId=101;changed.decks[1].reverse();
+ changed.settlements['cloud-run']={levelId:'border-01',amount:100,firstClear:false};
+ changed.giftCodeClaims={'return-20261016':{code:'LX2026',coins:1800}};
+ changed.dailyAds.gold={claimedDay:'2026-10-13',roll:null,pending:null,lastClaim:{day:'2026-10-13',amount:100,requestId:'cloud-ad'}};
+ changed.imported={source:'safe-v1',coins:800,units:0,spells:0};
+ storage.setItem(PROFILE,JSON.stringify(changed));cloud.notifyLocalChange();assert.ok((await cloud.sync()).ok);
+ assert.equal(cloud.state.localSummary.coins,800);assert.equal(cloud.state.localSummary.completed,0);assert.equal(cloud.state.localSummary.cards,starterCards);
+ assert.deepEqual(transport.remote.data.data.profile,changed,'complete profile must upload despite an unchanged coins/completed/cards summary');
  const remote=new MemoryStorage(),restore=new PlayerCloud({storage:remote,transport});assert.ok((await restore.initialize()).ok);
- assert.deepEqual(JSON.parse(remote.getItem(EXPEDITION)),changed,'cloud restore must preserve every schema8 field including faction/growth/pity/decks/tickets/fragments/ownership/receipts');
- assert.deepEqual(JSON.parse(remote.getItem(META)).baseData.expedition,changed);
+ assert.deepEqual(JSON.parse(remote.getItem(PROFILE)),changed,'cloud restore must preserve every profile field');
+ assert.deepEqual(JSON.parse(remote.getItem(META)).baseData.profile,changed);
  cloud.dispose();restore.dispose();
 }
 console.log('player cloud checks passed');

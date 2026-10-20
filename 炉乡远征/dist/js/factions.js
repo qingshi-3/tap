@@ -1,4 +1,4 @@
-import { RECRUITMENT_CARDS, RECRUITMENT_UNIT_IDS } from './recruitment-cards.js';
+import { RECRUITMENT_CARDS, RECRUITMENT_UNIT_IDS } from './premium-cards.js';
 const BBS_IDS = {1:20174,23:20175,101:20176,123:20177,201:20178,223:20179,301:20180,323:20181,401:20182,418:20183,501:20184,527:20185};
 export const HEROES = {
   1: hero(1,1,'阿杰农','狮王怒吼','使主将附近一名友军 +2 攻击。','皇家护卫','每回合首次在主将附近召唤随从时，该随从永久 +1 生命。','ally'),

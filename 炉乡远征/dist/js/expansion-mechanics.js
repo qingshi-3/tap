@@ -790,15 +790,12 @@ export const EXPANSION_CARDS={
 export const EXPANSION_IDS=Object.freeze(Object.keys(EXPANSION_CARDS).map(Number));
 export const RECRUITMENT_VERSION='campaign-2026-10-14-v3';
 export const TURN_START_DRAW_VERSION='campaign-2026-10-15-v4';
-export const usesTurnStartDraw=state=>state?.schemaVersion===7&&state.contentVersion===TURN_START_DRAW_VERSION;
-export const isRecruitmentExpansion=state=>state?.schemaVersion===7&&[RECRUITMENT_VERSION,TURN_START_DRAW_VERSION].includes(state.contentVersion);
-export const isExpansion=state=>state?.schemaVersion===7&&[EXPANSION_VERSION,RECRUITMENT_VERSION,TURN_START_DRAW_VERSION].includes(state.contentVersion);
 
 export const EXPANSION_UNIT_IDS=Object.freeze(EXPANSION_IDS.filter(id=>EXPANSION_CARDS[id].type==='unit'&&!EXPANSION_CARDS[id].token));
 export const EXPANSION_SPELL_IDS=Object.freeze(EXPANSION_IDS.filter(id=>EXPANSION_CARDS[id].type==='spell'));
 export const EXPANSION_RACES=Object.freeze({211:'dervish',212:'dervish',217:'dervish',225:'dervish',505:'vespyr',525:'vespyr',526:'vespyr',510:'vespyr',512:'vespyr',518:'vespyr',519:'vespyr'});
 export function enemyHalf(state,unit) {const middle=(state.board.columns-1)/2;return unit.owner===0?unit.x>middle:unit.x<middle;}
-export function actionQuota(state,unit,rule) {return isExpansion(state)&&(rule?.celerity||rule?.infiltrateCelerity&&enemyHalf(state,unit))?2:1;}
+export function actionQuota(state,unit,rule) {return (rule?.celerity||rule?.infiltrateCelerity&&enemyHalf(state,unit))?2:1;}
 export function randomIndex(state,length) {
   if(!length)return -1;
   state.expansionRandom=(Math.imul(state.expansionRandom,1664525)+1013904223)>>>0;
@@ -809,7 +806,7 @@ const near=(a,b)=>b&&Math.max(Math.abs(a.x-b.x),Math.abs(a.y-b.y))<=1;
 export function buff(unit,attack=0,health=0) {unit.attackBuff+=attack;unit.healthBuff+=health;unit.health+=health;}
 export function generatedCardId(state,owner,sourceId) {
   const source=state.battleCards?.[owner]?.[sourceId];
-  return source?.damageGenerate ?? (source?.infiltrateReturn || isRecruitmentExpansion(state)&&source?.startBounceSelf ? Number(sourceId) : null);
+  return source?.damageGenerate ?? (source?.infiltrateReturn || source?.startBounceSelf ? Number(sourceId) : null);
 }
 export function putCard(state,owner,id,sourceId=null,presentation={}) {
   const p=state.players[owner];
@@ -822,10 +819,10 @@ export function putCard(state,owner,id,sourceId=null,presentation={}) {
     // is not card provenance. Extend the frozen pile bound only when a return
     // actually exceeds it. Replaying and returning that card cannot mint credit.
     const source=state.battleCards[owner][sourceId];
-    const original=owner===0?state.loadout.deck:state.enemyPlan.players[owner].deck;
+    const original=owner===0?state.playerDeck:state.enemyPlan.players[owner].deck;
     const allowance=original.filter(cardId=>cardId===id).length+Object.entries(p.generatedBySource??{})
       .reduce((sum,[generator,count])=>sum+(generatedCardId(state,owner,generator)===id?count:0),0);
-    const extend=!(source.infiltrateReturn || isRecruitmentExpansion(state)&&source.startBounceSelf)||[...p.hand,...p.deck].filter(cardId=>cardId===id).length+1>allowance;
+    const extend=!(source.infiltrateReturn || source.startBounceSelf)||[...p.hand,...p.deck].filter(cardId=>cardId===id).length+1>allowance;
     // Tutors transfer existing cards; full-hand burns return before this point.
     if(extend){p.generatedBySource??={};p.generatedBySource[sourceId]=(p.generatedBySource[sourceId]??0)+1;}
   }
@@ -841,8 +838,8 @@ export function openingFollowup(state,card,cell,owner,primaryId,api) {
   if(card.openingCopy)targets=minions.filter(u=>u.owner!==owner);
   if(card.openingSwap)targets=living(state);
   if(card.openingDamageTarget)targets=living(state).filter(u=>u.owner!==owner&&(!card.openingTargetNearby||near(cell,u))&&(!card.openingTargetMinion||api.rule(u)?.type==='unit'));
-  if(isRecruitmentExpansion(state)&&card.openingVespyrBuff)targets=minions.filter(u=>u.owner===owner&&api.rule(u)?.race==='vespyr');
-  if(isRecruitmentExpansion(state)&&card.openingControlMaxAttack)targets=minions.filter(u=>u.owner!==owner&&near(cell,u)&&api.attack(u)<=card.openingControlMaxAttack);
+  if(card.openingVespyrBuff)targets=minions.filter(u=>u.owner===owner&&api.rule(u)?.race==='vespyr');
+  if(card.openingControlMaxAttack)targets=minions.filter(u=>u.owner!==owner&&near(cell,u)&&api.attack(u)<=card.openingControlMaxAttack);
   if(card.openingAttackDebuff)targets=living(state).filter(u=>u.owner!==owner&&near(cell,u));
   if(card.openingKillMaxAttack)targets=minions.filter(u=>u.owner!==owner&&near(cell,u)&&api.attack(u)<=card.openingKillMaxAttack);
   if(card.openingTeleport) {
@@ -854,7 +851,7 @@ export function openingFollowup(state,card,cell,owner,primaryId,api) {
 }
 export function resolveOpening(state,unit,card,choice,api) {
   const target=state.units.find(u=>u.unitId===(choice?.unitId??choice?.primaryId));const cell=choice?.cell??choice;
-  if(isRecruitmentExpansion(state)) {
+  {
     if(card.openingVespyrBuff&&target){buff(target,card.openingVespyrBuff,card.openingVespyrBuff);target.flyingBuff=true;}
     if(card.openingControlMaxAttack&&target)api.control(target,unit.owner);
     if(card.openingGrantDyingSpawnToAllies)for(const ally of living(state).filter(u=>u!==unit&&u.owner===unit.owner&&api.rule(u)?.type==='unit'))(ally.grantedDyingSpawns??=[]).push(card.openingGrantDyingSpawnToAllies);
@@ -875,12 +872,11 @@ export function resolveOpening(state,unit,card,choice,api) {
   if(card.openingSpellTax)for(const p of state.players.filter(p=>p.id!==unit.owner)){p.spellTax=(p.spellTax??0)+card.openingSpellTax;p.spellTaxEndsAfter=p.turnsStarted+1;}
 }
 export function expansionEvent(state,type,event,api) {
-  if(!isExpansion(state))return;
   // Snapshot listeners: derived summons never re-enter the hand-summon event.
   for(const watcher of [...living(state)]) {
     if(!state.units.includes(watcher))continue;const c=api.rule(watcher);if(!c)continue;
     if(type==='summon'&&watcher!==event.unit&&watcher.owner===event.unit.owner) {
-      if(isRecruitmentExpansion(state)&&c.nearbySummonBuff&&near(watcher,event.unit)&&api.rule(event.unit)?.type==='unit')buff(event.unit,c.nearbySummonBuff,c.nearbySummonBuff);
+      if(c.nearbySummonBuff&&near(watcher,event.unit)&&api.rule(event.unit)?.type==='unit')buff(event.unit,c.nearbySummonBuff,c.nearbySummonBuff);
       if(c.summonWatchAttack)buff(watcher,c.summonWatchAttack);
       if(c.summonWraithAttack&&event.unit.cardId===315)buff(watcher,c.summonWraithAttack);
       if(c.summonRaceAttack&&api.rule(event.unit)?.race==='vespyr')buff(watcher,c.summonRaceAttack);
@@ -891,11 +887,11 @@ export function expansionEvent(state,type,event,api) {
     if(type==='death'&&watcher!==event.unit){if(watcher.deathWatchBuff)buff(watcher,watcher.deathWatchBuff,watcher.deathWatchBuff);if(c.deathWatchLeech){for(const p of state.players.filter(p=>p.id!==watcher.owner))api.damage(api.general(p.id),c.deathWatchLeech,{sourceOwner:watcher.owner});api.heal(api.general(watcher.owner),c.deathWatchLeech);}}
     if(type==='draw'&&c.enemyDrawBuff&&event.owner!==watcher.owner)buff(watcher,c.enemyDrawBuff,c.enemyDrawBuff);
   }
-  if(type==='damageTaken'){const {unit,card}=event;if(isRecruitmentExpansion(state)){
+  if(type==='damageTaken'){const {unit,card}=event;{
     if(card.damageAllEnemies)for(const victim of [...living(state)].filter(u=>u.owner!==unit.owner))api.damage(victim,card.damageAllEnemies,{sourceOwner:unit.owner,sourceId:unit.unitId});
     if(card.mirrorDamageToEnemyGeneral)for(const victim of [...living(state)].filter(u=>u.owner!==unit.owner&&api.rule(u)?.type==='general'))api.damage(victim,event.amount,{sourceOwner:unit.owner,sourceId:unit.unitId});
   }if(card.damageGenerate)putCard(state,unit.owner,card.damageGenerate,card.id);if(card.damageEnemyRandom){const targets=living(state).filter(u=>u.owner!==unit.owner&&api.rule(u)?.type==='unit');const victim=targets[randomIndex(state,targets.length)];if(victim)api.damage(victim,card.damageEnemyRandom,{sourceOwner:unit.owner,sourceId:unit.unitId});}}
-  if(type==='damageDealt'){const c=event.card??api.rule(event.source);if(isRecruitmentExpansion(state)&&c?.damageEnemyGeneralOnMinionDamage&&event.target.owner!==event.source.owner&&event.targetCard?.type==='unit')for(const victim of [...living(state)].filter(u=>u.owner!==event.source.owner&&api.rule(u)?.type==='general'))api.damage(victim,c.damageEnemyGeneralOnMinionDamage,{sourceOwner:event.source.owner,sourceId:event.source.unitId});if(c?.damageHeal)api.heal(api.general(event.source.owner),c.damageHeal);if(c?.damageKill&&api.rule(event.target)?.type==='unit'&&state.units.includes(event.target))api.kill(event.target,event.source.owner);}
+  if(type==='damageDealt'){const c=event.card??api.rule(event.source);if(c?.damageEnemyGeneralOnMinionDamage&&event.target.owner!==event.source.owner&&event.targetCard?.type==='unit')for(const victim of [...living(state)].filter(u=>u.owner!==event.source.owner&&api.rule(u)?.type==='general'))api.damage(victim,c.damageEnemyGeneralOnMinionDamage,{sourceOwner:event.source.owner,sourceId:event.source.unitId});if(c?.damageHeal)api.heal(api.general(event.source.owner),c.damageHeal);if(c?.damageKill&&api.rule(event.target)?.type==='unit'&&state.units.includes(event.target))api.kill(event.target,event.source.owner);}
   if(type==='death') {
     const {unit,card}=event;const p=state.players[unit.owner];if(p.deathDraw)api.draw(unit.owner);
     if(card.infiltrateReturn&&enemyHalf(state,unit))putCard(state,unit.owner,unit.cardId,card.id,{kind:'return'});
@@ -904,8 +900,7 @@ export function expansionEvent(state,type,event,api) {
   }
 }
 export function expansionEnd(state,owner,api) {
-  if(!isExpansion(state))return;
-  for(const unit of [...living(state)].filter(u=>u.owner===owner)) {if(!state.units.includes(unit))continue;const c=api.rule(unit);if(isRecruitmentExpansion(state)){
+  for(const unit of [...living(state)].filter(u=>u.owner===owner)) {if(!state.units.includes(unit))continue;const c=api.rule(unit);{
     if(c.endHealNearby)for(const ally of [...living(state)].filter(u=>u!==unit&&u.owner===owner&&api.rule(u)?.type==='unit'&&near(unit,u)))api.heal(ally,c.endHealNearby);
     if(c.endDamageNearbyEnemyMinions)for(const enemy of [...living(state)].filter(u=>u.owner!==owner&&api.rule(u)?.type==='unit'&&near(unit,u)))api.damage(enemy,c.endDamageNearbyEnemyMinions,{sourceOwner:owner,sourceId:unit.unitId});
   }if(c.endSpawnEgg){const pos=api.free(unit)[0];if(pos)api.summon(411,owner,pos.x,pos.y,{token:true,hatchCardId:unit.cardId});}if(c.endDamageAllMinions)for(const victim of [...living(state)].filter(u=>u!==unit&&api.rule(u)?.type==='unit'))api.damage(victim,c.endDamageAllMinions,{sourceOwner:owner,sourceId:unit.unitId});}
@@ -913,7 +908,6 @@ export function expansionEnd(state,owner,api) {
   const p=state.players[owner];if(p.spellTax&&p.turnsStarted>=p.spellTaxEndsAfter){delete p.spellTax;delete p.spellTaxEndsAfter;}
 }
 export function recruitmentStart(state,owner,api) {
-  if(!isRecruitmentExpansion(state))return;
   for(const unit of [...living(state)].filter(u=>u.owner===owner)) {
     if(state.phase==='over')break;
     if(!state.units.includes(unit))continue;
@@ -924,12 +918,10 @@ export function recruitmentStart(state,owner,api) {
 }
 export function validateExpansionState(state) {
   const integer=(v,max=100)=>Number.isInteger(v)&&v>=0&&v<=max;
-  if(!isExpansion(state))return state.expansionRandom===undefined&&state.units.every(u=>['movesUsed','attacksUsed','deathWatchBuff','tempDebuff','debuffOwner','generalImmuneBuff','flyingBuff','frenzyBuff','copiedCardId','grantedDyingSpawns','controlledFromOwner'].every(k=>u[k]===undefined))&&state.players.every(p=>['spellTax','spellTaxEndsAfter','drawBonus','deathDraw','generatedBySource'].every(k=>p[k]===undefined));
-  const recruited=isRecruitmentExpansion(state);
-  const frozenAbility = key => Object.values(state.battleCards??{}).some(table=>Object.values(table).some(card=>card?.[key]));
+    const frozenAbility = key => Object.values(state.battleCards??{}).some(table=>Object.values(table).some(card=>card?.[key]));
   for(const unit of state.units) {
-    if(unit.grantedDyingSpawns!==undefined&&(!recruited||state.phase==='mulligan'||state.battleCards?.[unit.controlledFromOwner??unit.owner]?.[unit.cardId]?.type!=='unit'||!frozenAbility('openingGrantDyingSpawnToAllies')||!Array.isArray(unit.grantedDyingSpawns)||unit.grantedDyingSpawns.length<1||unit.grantedDyingSpawns.length>10000||unit.grantedDyingSpawns.some(id=>id!==516||state.battleCards?.[unit.owner]?.[id]?.type!=='unit')))return false;
-    if(unit.controlledFromOwner!==undefined&&(!recruited||state.phase==='mulligan'||!frozenAbility('openingControlMaxAttack')||!Number.isInteger(unit.controlledFromOwner)||!state.players[unit.controlledFromOwner]||state.battleCards?.[unit.controlledFromOwner]?.[unit.cardId]?.type!=='unit'))return false;
+    if(unit.grantedDyingSpawns!==undefined&&(state.phase==='mulligan'||state.battleCards?.[unit.controlledFromOwner??unit.owner]?.[unit.cardId]?.type!=='unit'||!frozenAbility('openingGrantDyingSpawnToAllies')||!Array.isArray(unit.grantedDyingSpawns)||unit.grantedDyingSpawns.length<1||unit.grantedDyingSpawns.length>10000||unit.grantedDyingSpawns.some(id=>id!==516||state.battleCards?.[unit.owner]?.[id]?.type!=='unit')))return false;
+    if(unit.controlledFromOwner!==undefined&&(state.phase==='mulligan'||!frozenAbility('openingControlMaxAttack')||!Number.isInteger(unit.controlledFromOwner)||!state.players[unit.controlledFromOwner]||state.battleCards?.[unit.controlledFromOwner]?.[unit.cardId]?.type!=='unit'))return false;
   }
   if(!integer(state.expansionRandom,4294967295))return false;
   for(const p of state.players){for(const k of ['spellTax','spellTaxEndsAfter','drawBonus'])if(p[k]!==undefined&&!integer(p[k],k==='spellTaxEndsAfter'?1000:100))return false;if((p.spellTax===undefined)!==(p.spellTaxEndsAfter===undefined))return false;if(p.deathDraw!==undefined&&typeof p.deathDraw!=='boolean')return false;}

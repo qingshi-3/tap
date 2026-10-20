@@ -3,7 +3,6 @@ import { CARDS } from './cards.js';
 import { getHero } from './factions.js';
 import { getEnemyPlan } from './enemy-plans.js';
 import { createGameCard } from './game-card.js';
-import { getSpellUpgrade } from './campaign-rules.js';
 import { cardRuleSections } from './card-rules.js';
 import { EXPANSION_RACES } from './expansion-mechanics.js';
 
@@ -19,7 +18,7 @@ function shape(tag, attrs) { const n = document.createElementNS(SVG, tag); for (
 export function atlasEnemyCard(id, army) {
   const base = CARDS[id];
   if (!base) return null;
-  const card = base.type === 'spell' ? getSpellUpgrade(id, army.spellRank ?? 0, 'power') : { ...base };
+  const card = { ...base };
   if (EXPANSION_RACES[id]) card.race = EXPANSION_RACES[id];
   if (army.unitStats?.[id]) Object.assign(card, army.unitStats[id]);
   if (Number(id) === Number(army.generalId)) {
@@ -139,7 +138,7 @@ export function buildCampaignAtlas(ui) {
   });
   for (const id of chapter.levelIds) {
     const level = EXPEDITION_LEVELS.find(l => l.id === id), unlocked = ui.progress.isUnlocked(id), selected = id === ui.levelId;
-    const plan = getEnemyPlan(id,3,ui.faction.id), status = ui.completed(id) ? '已完成' : unlocked ? '可出征' : '未解锁';
+    const plan = getEnemyPlan(id), status = ui.completed(id) ? '已完成' : unlocked ? '可出征' : '未解锁';
     const b = choice(`atlas-level${selected ? ' is-selected' : ''}${unlocked ? '' : ' is-locked'}${ui.completed(id) ? ' is-complete' : ''}`,'level'); b.dataset.levelId = id;
     b.setAttribute('aria-pressed',String(selected)); b.setAttribute('aria-label',`${level.title}，${status}${selected ? '，当前选择' : ''}`);
     const caption = node('div','atlas-level-caption'), title = node('strong','atlas-level-name');
@@ -152,22 +151,22 @@ export function buildCampaignAtlas(ui) {
     }
     caption.append(title,meta,portraits); b.append(miniature(level,plan),caption); levels.append(b);
   }
-  const level = EXPEDITION_LEVELS.find(l => l.id === ui.levelId), payout = ui.progress.rewardPreview(level.id,ui.faction.id);
+  const level = EXPEDITION_LEVELS.find(l => l.id === ui.levelId), payout = ui.progress.rewardPreview(level.id);
   const summary = node('footer','atlas-summary'), copy = node('div','atlas-summary-copy');
   copy.append(node('p','atlas-goal',level.goal));
   const rewards = node('div','atlas-rewards');
-  rewards.append(node('span','atlas-reward-kind',payout.accountFirst || payout.factionFirst ? '首通' : '重打'));
-  for (const [amount,file,label] of [[payout.coins,'resource-gold.png','金币'],[payout.tickets,'spirit-orb.png','宝珠']]) if (amount) {
+  rewards.append(node('span','atlas-reward-kind',payout.firstClear ? '首通' : '重打'));
+  for (const [amount,file,label] of [[payout.coins,'resource-gold.png','金币']]) if (amount) {
     const reward = node('span','atlas-reward'), icon = node('img',''); icon.src = `./assets/metagame/original/${file}`; icon.alt = label; reward.append(icon,document.createTextNode(String(amount))); rewards.append(reward);
   }
-  const unlocks = [...(payout.cards?.units || []),...(payout.cards?.spells || [])].filter(id => CARDS[id]?.faction === ui.faction.id || CARDS[id]?.faction === 0).map(id => CARDS[id]?.name).filter(Boolean);
+  const unlocks = [...payout.units,...payout.spells].filter(id => CARDS[id]?.faction === ui.faction.id || CARDS[id]?.faction === 0).map(id => CARDS[id]?.name).filter(Boolean);
   if (unlocks.length) rewards.append(node('span','atlas-unlocks',`解锁：${unlocks.join('、')}`));
   copy.append(rewards);
   const intel = node('button','atlas-intel','敌情'); intel.type = 'button'; intel.setAttribute('aria-haspopup','dialog');
   const dialog = node('dialog','atlas-dialog atlas-intel-dialog'); dialog.setAttribute('aria-label',`${level.title}敌情`);
   const dialogHead = node('div','atlas-dialog-heading'), close = node('button','atlas-dialog-close','关闭'); close.type = 'button';
   dialogHead.append(node('h3','',level.title),close);
-  const body = node('div','atlas-dialog-body'), plan = getEnemyPlan(level.id,3,ui.faction.id);
+  const body = node('div','atlas-dialog-body'), plan = getEnemyPlan(level.id);
   body.tabIndex = 0;
   body.setAttribute('aria-label','敌军与奖励详情');
   for (const [owner,army] of Object.entries(plan.players || {})) {

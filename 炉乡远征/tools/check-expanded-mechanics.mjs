@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { CARDS } from '../dist/js/cards.js';
-import { attackUnit, castSpell, createExpeditionMatch, effectiveAttack, endTurn, findGeneral, moveUnit, movementPositions, occupiedUnit, playCard, restoreMatch, useBattleCommand, validateMatch } from '../dist/js/engine.js';
+import { attackUnit, castSpell, effectiveAttack, endTurn, findGeneral, moveUnit, movementPositions, occupiedUnit, playCard, restoreMatch, useBattleCommand, validateMatch } from '../dist/js/engine.js';
+import { campaignMatch } from './battle-fixture.mjs';
 const clone = value => JSON.parse(JSON.stringify(value));
 function fixture(hero=1) {
- const s=createExpeditionMatch('border-01',{},null,hero);
+ const s=campaignMatch({heroId:hero});
  s.units=s.units.filter(u=>CARDS[u.cardId].type==='general');
  s.players[0].mana=s.players[0].maxMana=9;
  return s;

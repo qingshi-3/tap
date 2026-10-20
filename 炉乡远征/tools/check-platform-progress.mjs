@@ -2,18 +2,19 @@ import assert from 'node:assert/strict';
 import {createPlatformProgress,platformProgressStats,localAchievements,PLATFORM_PROGRESS_BINDING} from '../dist/js/platform-progress.js';
 import {EXPEDITION_LEVELS} from '../dist/js/expedition-data.js';
 import {CARD_ACQUISITION} from '../dist/js/campaign-content.js';
-import {readFileSync} from 'node:fs';
-const baseline=JSON.parse(readFileSync(new URL('./fixtures/ranked-challenge-v1-current.json',import.meta.url),'utf8')).bestResult;
-let best=structuredClone(baseline);
+// Ranked challenges were removed; the leaderboard score is now an injected readScore number.
+const baseline={score:4321};
+let best=baseline.score;
 const ids=EXPEDITION_LEVELS.map(level=>level.id);
-const state={factionCompleted:{1:[ids[0],ids[0],'forged'],2:[ids[0]],7:ids},legacyUnlockedLevels:ids,inventory:{units:[14,14,999999],spells:[]}};
-assert.deepEqual(platformProgressStats(state),{score:2,factions:[1,1,0,0,0,0],collection:1});
-const complete={factionCompleted:Object.fromEntries([1,2,3,4,5,6].map(id=>[id,ids])),inventory:{units:CARD_ACQUISITION.filter(c=>c.type==='unit').map(c=>c.id),spells:CARD_ACQUISITION.filter(c=>c.type==='spell').map(c=>c.id)}};
-assert.equal(platformProgressStats(complete).score,180);assert(localAchievements(complete).every(a=>a.achieved&&a.configured));
+const state={completed:[ids[0],ids[0],'forged'],inventory:{units:[14,14,999999],spells:[]}};
+assert.deepEqual(platformProgressStats(state),{completed:1,score:1,collection:1});
+assert.deepEqual(platformProgressStats({completed:'not-a-list',inventory:null}),{completed:0,score:0,collection:0});
+const complete={completed:[...ids],inventory:{units:CARD_ACQUISITION.filter(c=>c.type==='unit').map(c=>c.id),spells:CARD_ACQUISITION.filter(c=>c.type==='spell').map(c=>c.id)}};
+assert.equal(platformProgressStats(complete).score,ids.length);assert.equal(ids.length,30);assert(localAchievements(complete).every(a=>a.achieved&&a.configured));
 assert(localAchievements(complete,{}).every(a=>a.achieved&&!a.configured));
 let current=structuredClone(state),calls=[],openCalls=[],host={getLeaderboardManager:()=>({submitScores:options=>calls.push(options),openLeaderboard:options=>{openCalls.push(options);options.callback.onSuccess();}})};
 const timers=new Map();let tick=0;
-const service=createPlatformProgress({readState:()=>current,readChallengeResult:()=>best,getTap:()=>host,confirmedAchievements:{},setTimer:fn=>{timers.set(++tick,fn);return tick;},clearTimer:id=>timers.delete(id)});
+const service=createPlatformProgress({readState:()=>current,readScore:()=>best,getTap:()=>host,confirmedAchievements:{},setTimer:fn=>{timers.set(++tick,fn);return tick;},clearTimer:id=>timers.delete(id)});
 const before=JSON.stringify(current);
 let request=service.syncLeaderboard();assert.equal(calls.length,1);assert.equal(service.getStatus().submittedScore,-1);
 const concurrent=service.syncLeaderboard();assert.equal(calls.length,1,'in-flight requests coalesce');
@@ -23,11 +24,11 @@ calls[1].callback.onSuccess();calls[1].callback.onFailure('duplicate');assert((a
 assert((await service.syncLeaderboard()).skipped);assert.equal(calls.length,2);
 request=service.syncLeaderboard({force:true});assert.equal(calls.length,3);[...timers.values()][0]();assert.equal((await request).ok,false);
 request=service.syncLeaderboard({force:true});calls[2].callback.onSuccess();assert.equal(calls.length,4);calls[3].callback.onSuccess();assert((await request).ok);
-current={...current,factionCompleted:{1:[ids[0]]}};
-best={...baseline,round:baseline.round+1,score:baseline.score-1000};
+current={...current,completed:[]};
+best=baseline.score-1000;
 request=service.syncLeaderboard({force:true});assert.equal(calls[4].scores[0].score,baseline.score,'best score cannot regress');calls[4].callback.onSuccess();await request;
 assert((await service.openLeaderboard()).ok);assert.equal(openCalls[0].leaderboardId,PLATFORM_PROGRESS_BINDING.leaderboardId);assert.equal(openCalls[0].collection,'public');
-const nativeFailure=createPlatformProgress({readState:()=>state,readChallengeResult:()=>baseline,getTap:()=>({getLeaderboardManager:()=>({
+const nativeFailure=createPlatformProgress({readState:()=>state,readScore:()=>baseline.score,getTap:()=>({getLeaderboardManager:()=>({
   submitScores:options=>options.callback.onFailure(500,'提交失败，请重试。'),
   openLeaderboard:options=>options.callback.onFailure(500,'打开失败，请重试。'),
 })})});
@@ -35,12 +36,12 @@ assert.equal((await nativeFailure.syncLeaderboard()).error,'提交失败，请�
 assert.equal((await nativeFailure.openLeaderboard()).error,'打开失败，请重试。');
 current=structuredClone(state);assert.equal(JSON.stringify(current),before);
 assert((await service.syncAchievements()).unconfigured);assert(service.openAchievements().unconfigured);
-const absent=createPlatformProgress({readState:()=>state,readChallengeResult:()=>baseline,getTap:()=>undefined});assert.equal((await absent.syncLeaderboard()).ok,false);assert.equal((await absent.openLeaderboard()).ok,false);
-const throwing=createPlatformProgress({readState:()=>state,readChallengeResult:()=>baseline,getTap:()=>({getLeaderboardManager(){throw new Error('host failure');}})});assert.match((await throwing.syncLeaderboard()).error,/host failure/);
+const absent=createPlatformProgress({readState:()=>state,readScore:()=>baseline.score,getTap:()=>undefined});assert.equal((await absent.syncLeaderboard()).ok,false);assert.equal((await absent.openLeaderboard()).ok,false);
+const throwing=createPlatformProgress({readState:()=>state,readScore:()=>baseline.score,getTap:()=>({getLeaderboardManager(){throw new Error('host failure');}})});assert.match((await throwing.syncLeaderboard()).error,/host failure/);
 const zero=createPlatformProgress({readState:()=>({}),getTap:()=>{throw new Error('must not touch host');}});assert((await zero.syncLeaderboard()).skipped);
-const progressOnly=createPlatformProgress({readState:()=>complete,getTap:()=>{throw new Error('180 progress is not a challenge result');}});assert((await progressOnly.syncLeaderboard()).skipped);
-for(const invalid of [{...baseline,challengeId:'another-edition'},{...baseline,score:baseline.score+1},{...baseline,won:false},null]) {
- const rejected=createPlatformProgress({readState:()=>state,readChallengeResult:()=>invalid,getTap:()=>{throw new Error('invalid receipt must not submit');}});
+const progressOnly=createPlatformProgress({readState:()=>complete,getTap:()=>{throw new Error('campaign progress is not a leaderboard score');}});assert((await progressOnly.syncLeaderboard()).skipped);
+for(const invalid of [-5,NaN,'abc',null,undefined,0.5]) {
+ const rejected=createPlatformProgress({readState:()=>state,readScore:()=>invalid,getTap:()=>{throw new Error('invalid score must not submit');}});
  assert((await rejected.syncLeaderboard()).skipped);assert.equal(rejected.score(),0);
 }
 let listener,unlocks=[],shown=0;

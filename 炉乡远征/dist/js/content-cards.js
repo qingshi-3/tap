@@ -1,4 +1,4 @@
-import { RECRUITMENT_CARDS } from './recruitment-cards.js';
+import { RECRUITMENT_CARDS } from './premium-cards.js';
 import { EXPANSION_CARDS } from './expansion-mechanics.js';
 // Authored from the audited Duelyst 1.97.13 source; runtime rules, not planning imports.
 export const CONTENT_CARDS = {
@@ -153,7 +153,7 @@ export const CONTENT_CARDS = {
     "attack": 7,
     "health": 4,
     "frenzy": true,
-    "description": "狂暴：主动近战同时攻击相邻其他敌人，每个目标各自反击。"
+    "description": "狂暴：主动近战同时攻击相邻其他敌人，只有主目标会反击。"
   },
   "19042": {
     "id": 19042,

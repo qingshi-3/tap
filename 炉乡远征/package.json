@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "node serve.mjs",
     "package": "node tools/package.mjs",
+    "build:html": "node tools/build-single-html.mjs",
     "check:save-compatibility": "node tools/check-save-compatibility.mjs"
   }
 }

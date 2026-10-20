@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { CloudArchive } from '../dist/js/cloud-archive.js';
+import { CLOUD_ARCHIVE_NAME } from '../dist/js/storage-keys.js';
 
 function fakeTap({ mutation = 'success', list = 'success', afterMutationData } = {}) {
   const files = new Map();
@@ -127,11 +128,22 @@ function fakeTap({ mutation = 'success', list = 'success', afterMutationData } =
 {
   const fake = fakeTap();
   fake.saves.push(
+    { name: CLOUD_ARCHIVE_NAME, uuid: 'a', fileId: '1', data: '{}' },
+    { name: CLOUD_ARCHIVE_NAME, uuid: 'b', fileId: '2', data: '{}' }
+  );
+  const archive = new CloudArchive({ tap: fake.tap, timeoutMs: 30 });
+  await assert.rejects(archive.read(), /Multiple cloud archives/);
+}
+
+{
+  // Archives of the old safe-v1 slot are not part of the safe-v2 slot.
+  const fake = fakeTap();
+  fake.saves.push(
     { name: 'duelyst_player_safe_v1', uuid: 'a', fileId: '1', data: '{}' },
     { name: 'duelyst_player_safe_v1', uuid: 'b', fileId: '2', data: '{}' }
   );
   const archive = new CloudArchive({ tap: fake.tap, timeoutMs: 30 });
-  await assert.rejects(archive.read(), /Multiple cloud archives/);
+  assert.equal(await archive.read(), null);
 }
 
 console.log('cloud archive checks passed');

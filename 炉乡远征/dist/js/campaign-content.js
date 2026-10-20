@@ -1,4 +1,4 @@
-import { RECRUITMENT_CARDS, RECRUITMENT_UNIT_IDS } from './recruitment-cards.js';
+import { RECRUITMENT_CARDS, RECRUITMENT_UNIT_IDS } from './premium-cards.js';
 // Campaign content revisions are copied into new battles; older matches retain their frozen snapshots.
 export const CONTENT_VERSION = "campaign-2026-10-15-v4";
 export const PRE_EXPANSION_UNIT_IDS = Object.freeze([9,11,14,15,16,17,108,109,110,111,115,116,209,211,213,214,215,216,308,309,310,311,316,317,402,404,406,410,412,413,503,505,506,511,513,526,10012,10019,10021,10981,19027,19037,19050,10001,10018,19026,10204,10013,10982,10017,10978,10020,19033,19034,19049,10207,10307,19042,10959]);
@@ -1059,29113 +1059,4351 @@ export const CARD_ACQUISITION = [
   }
 ];
 
+// One authored enemy plan per level (faction-specific variants removed in safe-v2).
 export const AUTHORED_ENEMY_PLANS = {
-  "border-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "前排与集火",
-    "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-    "chapter": 1,
-    "players": {
-      "1": {
-        "mana": 2,
-        "maxMana": 2,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "assault",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 12,
-        "generalAttack": 1,
-        "generalId": 23,
-        "deck": [
-          14,
-          9,
-          14,
-          14,
-          9,
-          10021,
-          14,
-          9,
-          10021,
-          14,
-          9,
-          10021
-        ],
-        "unitStats": {
-          "14": {
-            "cost": 1,
-            "attack": 1,
-            "health": 4
-          },
-          "9": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 1,
-            "health": 2
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 7,
-            "y": 2,
-            "attack": 1,
-            "health": 12
-          },
-          {
-            "id": 14,
-            "x": 6,
-            "y": 2,
-            "attack": 1,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "border-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "侧翼远程",
-    "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-    "chapter": 1,
-    "players": {
-      "1": {
-        "mana": 2,
-        "maxMana": 2,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "flank",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 16,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          10021,
-          14,
-          9,
-          14,
-          9,
-          10021,
-          10019,
-          14,
-          9,
-          10021,
-          10019,
-          14,
-          10021,
-          10019
-        ],
-        "unitStats": {
-          "14": {
-            "cost": 1,
-            "attack": 1,
-            "health": 4
-          },
-          "9": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 1,
-            "health": 2
-          },
-          "10019": {
-            "cost": 1,
-            "attack": 2,
-            "health": 1
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 7,
-            "y": 2,
-            "attack": 2,
-            "health": 16
-          },
-          {
-            "id": 9,
-            "x": 6,
-            "y": 0,
-            "attack": 2,
-            "health": 3
-          },
-          {
-            "id": 14,
-            "x": 6,
-            "y": 4,
-            "attack": 1,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "border-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "守住前哨",
-    "hint": "保护主将，存活7回合即可获胜。",
-    "chapter": 1,
-    "players": {
-      "1": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "assault",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 18,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          14,
-          10021,
-          9,
-          14,
-          9,
-          10021,
-          19027,
-          14,
-          9,
-          10021,
-          19027,
-          14,
-          9,
-          10021,
-          19027,
-          14
-        ],
-        "unitStats": {
-          "14": {
-            "cost": 1,
-            "attack": 1,
-            "health": 5
-          },
-          "9": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 1,
-            "health": 2
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 2,
-            "health": 6
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 8,
-            "y": 2,
-            "attack": 2,
-            "health": 18
-          },
-          {
-            "id": 14,
-            "x": 6,
-            "y": 1,
-            "attack": 1,
-            "health": 5
-          },
-          {
-            "id": 9,
-            "x": 7,
-            "y": 2,
-            "attack": 2,
-            "health": 3
-          }
-        ]
-      }
-    }
-  },
-  "road-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "护卫与射手",
-    "hint": "先击败挡路的护卫，或从侧面接近射手。",
-    "chapter": 2,
-    "players": {
-      "1": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 20,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          14,
-          11,
-          10021,
-          11,
-          14,
-          10021,
-          20043,
-          9,
-          11,
-          14,
-          10021,
-          20043,
-          9,
-          11,
-          14,
-          10021,
-          9,
-          9
-        ],
-        "unitStats": {
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 6
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 5
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          },
-          "9": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 9,
-            "y": 3,
-            "attack": 2,
-            "health": 20
-          },
-          {
-            "id": 11,
-            "x": 7,
-            "y": 3,
-            "attack": 2,
-            "health": 6
-          },
-          {
-            "id": 9,
-            "x": 8,
-            "y": 1,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "road-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "治疗支援",
-    "hint": "敌军会治疗逐光者，尽量在一回合内击败它。",
-    "chapter": 2,
-    "players": {
-      "1": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "support",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 22,
-        "generalAttack": 2,
-        "generalId": 1,
-        "deck": [
-          15,
-          10981,
-          11,
-          15,
-          10981,
-          11,
-          14,
-          20043,
-          10021,
-          15,
-          10981,
-          11,
-          14,
-          20043,
-          10021,
-          10981,
-          14,
-          20043
-        ],
-        "unitStats": {
-          "15": {
-            "cost": 2,
-            "attack": 3,
-            "health": 3
-          },
-          "10981": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 6
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 5
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          }
-        },
-        "garrison": [
-          {
-            "id": 1,
-            "x": 9,
-            "y": 3,
-            "attack": 2,
-            "health": 22
-          },
-          {
-            "id": 15,
-            "x": 8,
-            "y": 2,
-            "attack": 3,
-            "health": 3
-          },
-          {
-            "id": 14,
-            "x": 8,
-            "y": 4,
-            "attack": 2,
-            "health": 5
-          }
-        ]
-      }
-    }
-  },
-  "road-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "重装关隘",
-    "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-    "chapter": 2,
-    "players": {
-      "1": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 26,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          14,
-          11,
-          10021,
-          20066,
-          11,
-          19027,
-          10021,
-          16,
-          20066,
-          20043,
-          14,
-          11,
-          19027,
-          10021,
-          16,
-          20066,
-          20043,
-          14,
-          11,
-          19027,
-          10021
-        ],
-        "unitStats": {
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 3,
-            "health": 7
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          },
-          "16": {
-            "cost": 4,
-            "attack": 3,
-            "health": 7
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 5
-          },
-          "17": {
-            "cost": 5,
-            "attack": 3,
-            "health": 8
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 9,
-            "y": 3,
-            "attack": 2,
-            "health": 26
-          },
-          {
-            "id": 17,
-            "x": 7,
-            "y": 3,
-            "attack": 3,
-            "health": 8
-          },
-          {
-            "id": 11,
-            "x": 8,
-            "y": 2,
-            "attack": 2,
-            "health": 7
-          }
-        ]
-      }
-    }
-  },
-  "banners-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "两军交战",
-    "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-    "chapter": 3,
-    "players": {
-      "1": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 20,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          14,
-          11,
-          15,
-          11,
-          15,
-          10981,
-          14,
-          20043,
-          11,
-          15,
-          10981,
-          14,
-          20043,
-          11,
-          10981,
-          14,
-          20043,
-          14
-        ],
-        "unitStats": {
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "15": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "10981": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 6
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 11,
-            "y": 1,
-            "attack": 2,
-            "health": 20
-          },
-          {
-            "id": 11,
-            "x": 9,
-            "y": 1,
-            "attack": 2,
-            "health": 7
-          }
-        ]
-      },
-      "2": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "flank",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 16,
-        "generalAttack": 2,
-        "generalId": 1,
-        "deck": [
-          9,
-          10021,
-          10019,
-          9,
-          10019,
-          10021,
-          20066,
-          9,
-          10019,
-          10021,
-          20066,
-          9,
-          10019,
-          10021,
-          20066,
-          9,
-          10021,
-          20066
-        ],
-        "unitStats": {
-          "9": {
-            "cost": 2,
-            "attack": 3,
-            "health": 5
-          },
-          "10019": {
-            "cost": 1,
-            "attack": 3,
-            "health": 2
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 1,
-            "x": 11,
-            "y": 5,
-            "attack": 2,
-            "health": 16
-          },
-          {
-            "id": 9,
-            "x": 9,
-            "y": 5,
-            "attack": 3,
-            "health": 5
-          }
-        ]
-      }
-    }
-  },
-  "banners-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "争夺渡口",
-    "hint": "两侧都有敌军，可以先集中攻击一侧。",
-    "chapter": 3,
-    "players": {
-      "1": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "support",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 22,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          11,
-          10981,
-          15,
-          11,
-          15,
-          16,
-          10981,
-          20043,
-          14,
-          11,
-          15,
-          16,
-          10981,
-          20043,
-          14,
-          11,
-          16,
-          10981,
-          20043,
-          14
-        ],
-        "unitStats": {
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "15": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "16": {
-            "cost": 4,
-            "attack": 3,
-            "health": 8
-          },
-          "10981": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 6
-          },
-          "17": {
-            "cost": 5,
-            "attack": 3,
-            "health": 10
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 11,
-            "y": 2,
-            "attack": 2,
-            "health": 22
-          },
-          {
-            "id": 17,
-            "x": 9,
-            "y": 2,
-            "attack": 3,
-            "health": 10
-          },
-          {
-            "id": 15,
-            "x": 10,
-            "y": 3,
-            "attack": 3,
-            "health": 4
-          },
-          {
-            "id": 14,
-            "x": 8,
-            "y": 3,
-            "attack": 2,
-            "health": 6
-          }
-        ]
-      },
-      "2": {
-        "mana": 3,
-        "maxMana": 3,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "flank",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 18,
-        "generalAttack": 2,
-        "generalId": 1,
-        "deck": [
-          10019,
-          9,
-          10021,
-          10019,
-          9,
-          10021,
-          19037,
-          20066,
-          10019,
-          9,
-          10021,
-          19037,
-          20066,
-          10019,
-          9,
-          10021,
-          19037,
-          20066,
-          10021,
-          20066
-        ],
-        "unitStats": {
-          "10019": {
-            "cost": 1,
-            "attack": 3,
-            "health": 2
-          },
-          "9": {
-            "cost": 2,
-            "attack": 3,
-            "health": 5
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "19037": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 6
-          }
-        },
-        "garrison": [
-          {
-            "id": 1,
-            "x": 11,
-            "y": 6,
-            "attack": 2,
-            "health": 18
-          },
-          {
-            "id": 11,
-            "x": 9,
-            "y": 6,
-            "attack": 2,
-            "health": 7
-          },
-          {
-            "id": 14,
-            "x": 10,
-            "y": 5,
-            "attack": 2,
-            "health": 6
-          }
-        ]
-      }
-    }
-  },
-  "banners-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "三旗坚守",
-    "hint": "保护主将，存活10回合即可获胜。",
-    "chapter": 3,
-    "players": {
-      "1": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 24,
-        "generalAttack": 2,
-        "generalId": 23,
-        "deck": [
-          11,
-          15,
-          10981,
-          20043,
-          11,
-          17,
-          16,
-          15,
-          10981,
-          20043,
-          14,
-          11,
-          17,
-          16,
-          15,
-          10981,
-          20043,
-          14,
-          11,
-          16,
-          10981,
-          14
-        ],
-        "unitStats": {
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "17": {
-            "cost": 5,
-            "attack": 3,
-            "health": 10
-          },
-          "16": {
-            "cost": 4,
-            "attack": 3,
-            "health": 8
-          },
-          "15": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "10981": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          },
-          "14": {
-            "cost": 1,
-            "attack": 2,
-            "health": 6
-          }
-        },
-        "garrison": [
-          {
-            "id": 23,
-            "x": 11,
-            "y": 2,
-            "attack": 2,
-            "health": 24
-          },
-          {
-            "id": 17,
-            "x": 9,
-            "y": 2,
-            "attack": 3,
-            "health": 10
-          },
-          {
-            "id": 16,
-            "x": 10,
-            "y": 3,
-            "attack": 3,
-            "health": 8
-          }
-        ]
-      },
-      "2": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 3,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "assault",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 20,
-        "generalAttack": 2,
-        "generalId": 1,
-        "deck": [
-          9,
-          10019,
-          10021,
-          9,
-          10012,
-          10019,
-          10021,
-          20066,
-          19037,
-          9,
-          10012,
-          10019,
-          10021,
-          20066,
-          19037,
-          9,
-          10019,
-          10021,
-          20066,
-          19037,
-          9,
-          10021
-        ],
-        "unitStats": {
-          "9": {
-            "cost": 2,
-            "attack": 3,
-            "health": 5
-          },
-          "10012": {
-            "cost": 4,
-            "attack": 3,
-            "health": 3
-          },
-          "10019": {
-            "cost": 1,
-            "attack": 3,
-            "health": 2
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "19037": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "11": {
-            "cost": 3,
-            "attack": 2,
-            "health": 7
-          },
-          "15": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 1,
-            "x": 9,
-            "y": 8,
-            "attack": 2,
-            "health": 20
-          },
-          {
-            "id": 11,
-            "x": 9,
-            "y": 7,
-            "attack": 2,
-            "health": 7
-          },
-          {
-            "id": 15,
-            "x": 8,
-            "y": 7,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "sand-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "沙魔援军",
-    "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-    "chapter": 4,
-    "players": {
-      "1": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 26,
-        "generalAttack": 2,
-        "generalId": 201,
-        "deck": [
-          214,
-          213,
-          211,
-          20095,
-          214,
-          213,
-          211,
-          10021,
-          20095,
-          20151,
-          214,
-          213,
-          211,
-          10021,
-          20095,
-          20151,
-          214,
-          213,
-          211,
-          10021,
-          20151,
-          213,
-          10021,
-          213
-        ],
-        "unitStats": {
-          "214": {
-            "cost": 2,
-            "attack": 0,
-            "health": 7
-          },
-          "213": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "211": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "10021": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 201,
-            "x": 9,
-            "y": 3,
-            "attack": 2,
-            "health": 26
-          },
-          {
-            "id": 213,
-            "x": 7,
-            "y": 3,
-            "attack": 3,
-            "health": 4
-          },
-          {
-            "id": 211,
-            "x": 8,
-            "y": 1,
-            "attack": 2,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "sand-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "双塔协同",
-    "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-    "chapter": 4,
-    "players": {
-      "1": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "support",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 28,
-        "generalAttack": 2,
-        "generalId": 223,
-        "deck": [
-          214,
-          213,
-          211,
-          20095,
-          215,
-          214,
-          213,
-          211,
-          10981,
-          20095,
-          20151,
-          215,
-          214,
-          213,
-          211,
-          10981,
-          20095,
-          20151,
-          214,
-          213,
-          211,
-          20151,
-          213,
-          213
-        ],
-        "unitStats": {
-          "215": {
-            "cost": 3,
-            "attack": 0,
-            "health": 8
-          },
-          "214": {
-            "cost": 2,
-            "attack": 0,
-            "health": 7
-          },
-          "213": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "211": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "10981": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          }
-        },
-        "garrison": [
-          {
-            "id": 223,
-            "x": 11,
-            "y": 3,
-            "attack": 2,
-            "health": 28
-          },
-          {
-            "id": 211,
-            "x": 9,
-            "y": 1,
-            "attack": 2,
-            "health": 4
-          },
-          {
-            "id": 211,
-            "x": 9,
-            "y": 5,
-            "attack": 2,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "sand-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "沙海军团",
-    "hint": "避开爆破单位所在的行，给主将留出退路。",
-    "chapter": 4,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 30,
-        "generalAttack": 2,
-        "generalId": 201,
-        "deck": [
-          214,
-          213,
-          211,
-          20095,
-          215,
-          214,
-          213,
-          209,
-          211,
-          19027,
-          20151,
-          20095,
-          215,
-          214,
-          213,
-          209,
-          211,
-          19027,
-          20151,
-          20095,
-          214,
-          213,
-          209,
-          20151,
-          213,
-          213,
-          213
-        ],
-        "unitStats": {
-          "215": {
-            "cost": 3,
-            "attack": 0,
-            "health": 9
-          },
-          "214": {
-            "cost": 2,
-            "attack": 0,
-            "health": 7
-          },
-          "213": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "209": {
-            "cost": 5,
-            "attack": 5,
-            "health": 8
-          },
-          "211": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 3,
-            "health": 8
-          }
-        },
-        "garrison": [
-          {
-            "id": 201,
-            "x": 11,
-            "y": 4,
-            "attack": 2,
-            "health": 30
-          },
-          {
-            "id": 213,
-            "x": 8,
-            "y": 3,
-            "attack": 3,
-            "health": 4
-          },
-          {
-            "id": 214,
-            "x": 9,
-            "y": 5,
-            "attack": 0,
-            "health": 7
-          },
-          {
-            "id": 211,
-            "x": 10,
-            "y": 2,
-            "attack": 2,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "shadow-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "后排突袭",
-    "hint": "敌军能从背后攻击，注意主将身后的空格。",
-    "chapter": 5,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "flank",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 28,
-        "generalAttack": 3,
-        "generalId": 101,
-        "deck": [
-          110,
-          109,
-          115,
-          20086,
-          110,
-          109,
-          111,
-          10019,
-          115,
-          20081,
-          20086,
-          110,
-          109,
-          111,
-          10019,
-          115,
-          20081,
-          20086,
-          110,
-          109,
-          10019,
-          20081,
-          110,
-          10019
-        ],
-        "unitStats": {
-          "110": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "109": {
-            "cost": 3,
-            "attack": 3,
-            "health": 4
-          },
-          "111": {
-            "cost": 5,
-            "attack": 3,
-            "health": 6
-          },
-          "10019": {
-            "cost": 1,
-            "attack": 3,
-            "health": 2
-          },
-          "115": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 101,
-            "x": 3,
-            "y": 9,
-            "attack": 3,
-            "health": 28
-          },
-          {
-            "id": 110,
-            "x": 4,
-            "y": 7,
-            "attack": 3,
-            "health": 4
-          },
-          {
-            "id": 115,
-            "x": 2,
-            "y": 8,
-            "attack": 2,
-            "health": 4
-          },
-          {
-            "id": 109,
-            "x": 5,
-            "y": 8,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "shadow-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "腐化与亡愿",
-    "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-    "chapter": 5,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "support",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 30,
-        "generalAttack": 3,
-        "generalId": 301,
-        "deck": [
-          317,
-          308,
-          316,
-          20072,
-          317,
-          308,
-          311,
-          316,
-          19050,
-          20072,
-          20052,
-          317,
-          308,
-          311,
-          316,
-          19050,
-          20072,
-          20052,
-          317,
-          308,
-          311,
-          19050,
-          20072,
-          20052,
-          317,
-          308
-        ],
-        "unitStats": {
-          "317": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "308": {
-            "cost": 1,
-            "attack": 3,
-            "health": 3
-          },
-          "311": {
-            "cost": 3,
-            "attack": 2,
-            "health": 5
-          },
-          "316": {
-            "cost": 2,
-            "attack": 1,
-            "health": 6
-          },
-          "19050": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          }
-        },
-        "garrison": [
-          {
-            "id": 301,
-            "x": 11,
-            "y": 3,
-            "attack": 3,
-            "health": 30
-          },
-          {
-            "id": 308,
-            "x": 8,
-            "y": 2,
-            "attack": 3,
-            "health": 3
-          },
-          {
-            "id": 317,
-            "x": 9,
-            "y": 4,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "shadow-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "暗影会战",
-    "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-    "chapter": 5,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "flank",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 28,
-        "generalAttack": 3,
-        "generalId": 123,
-        "deck": [
-          110,
-          109,
-          115,
-          20086,
-          110,
-          111,
-          109,
-          115,
-          20081,
-          20086,
-          110,
-          111,
-          109,
-          115,
-          20081,
-          20086,
-          110,
-          111,
-          109,
-          20081,
-          20086,
-          110,
-          109,
-          20081
-        ],
-        "unitStats": {
-          "110": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "111": {
-            "cost": 5,
-            "attack": 3,
-            "health": 6
-          },
-          "109": {
-            "cost": 3,
-            "attack": 3,
-            "health": 4
-          },
-          "115": {
-            "cost": 2,
-            "attack": 2,
-            "health": 4
-          }
-        },
-        "garrison": [
-          {
-            "id": 123,
-            "x": 10,
-            "y": 2,
-            "attack": 3,
-            "health": 28
-          },
-          {
-            "id": 115,
-            "x": 8,
-            "y": 2,
-            "attack": 2,
-            "health": 4
-          },
-          {
-            "id": 109,
-            "x": 9,
-            "y": 3,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      },
-      "2": {
-        "mana": 4,
-        "maxMana": 4,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "support",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 26,
-        "generalAttack": 3,
-        "generalId": 323,
-        "deck": [
-          317,
-          308,
-          311,
-          20072,
-          317,
-          308,
-          311,
-          316,
-          19050,
-          20072,
-          20052,
-          317,
-          308,
-          311,
-          316,
-          19050,
-          20072,
-          20052,
-          317,
-          308,
-          311,
-          316,
-          19050,
-          317
-        ],
-        "unitStats": {
-          "317": {
-            "cost": 2,
-            "attack": 3,
-            "health": 4
-          },
-          "308": {
-            "cost": 1,
-            "attack": 3,
-            "health": 3
-          },
-          "311": {
-            "cost": 3,
-            "attack": 2,
-            "health": 5
-          },
-          "316": {
-            "cost": 2,
-            "attack": 1,
-            "health": 6
-          },
-          "19050": {
-            "cost": 2,
-            "attack": 2,
-            "health": 5
-          }
-        },
-        "garrison": [
-          {
-            "id": 323,
-            "x": 10,
-            "y": 6,
-            "attack": 3,
-            "health": 26
-          },
-          {
-            "id": 317,
-            "x": 8,
-            "y": 6,
-            "attack": 3,
-            "health": 4
-          },
-          {
-            "id": 308,
-            "x": 9,
-            "y": 5,
-            "attack": 3,
-            "health": 3
-          }
-        ]
-      }
-    }
-  },
-  "frost-01": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "冰墙封路",
-    "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-    "chapter": 6,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 32,
-        "generalAttack": 3,
-        "generalId": 501,
-        "deck": [
-          505,
-          511,
-          20149,
-          503,
-          505,
-          503,
-          511,
-          19027,
-          513,
-          20149,
-          20139,
-          505,
-          503,
-          511,
-          19027,
-          513,
-          20149,
-          20139,
-          505,
-          503,
-          511,
-          19027,
-          20149,
-          20139,
-          505,
-          20149,
-          20139,
-          505
-        ],
-        "unitStats": {
-          "505": {
-            "cost": 2,
-            "attack": 3,
-            "health": 6
-          },
-          "503": {
-            "cost": 3,
-            "attack": 4,
-            "health": 4
-          },
-          "511": {
-            "cost": 3,
-            "attack": 2,
-            "health": 6
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 3,
-            "health": 9
-          },
-          "513": {
-            "cost": 4,
-            "attack": 4,
-            "health": 5
-          },
-          "506": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          }
-        },
-        "garrison": [
-          {
-            "id": 501,
-            "x": 1,
-            "y": 3,
-            "attack": 3,
-            "health": 32
-          },
-          {
-            "id": 505,
-            "x": 4,
-            "y": 2,
-            "attack": 3,
-            "health": 6
-          },
-          {
-            "id": 506,
-            "x": 3,
-            "y": 4,
-            "attack": 2,
-            "health": 3
-          },
-          {
-            "id": 503,
-            "x": 2,
-            "y": 1,
-            "attack": 4,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "frost-02": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "重生攻坚",
-    "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-    "chapter": 6,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "assault",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 34,
-        "generalAttack": 3,
-        "generalId": 401,
-        "deck": [
-          412,
-          402,
-          410,
-          20116,
-          412,
-          413,
-          402,
-          19027,
-          410,
-          20116,
-          20117,
-          412,
-          413,
-          402,
-          19027,
-          410,
-          20116,
-          20117,
-          412,
-          413,
-          402,
-          19027,
-          20116,
-          20117,
-          412,
-          413,
-          20117,
-          412
-        ],
-        "unitStats": {
-          "412": {
-            "cost": 2,
-            "attack": 3,
-            "health": 5
-          },
-          "413": {
-            "cost": 4,
-            "attack": 5,
-            "health": 6
-          },
-          "402": {
-            "cost": 3,
-            "attack": 4,
-            "health": 6
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 3,
-            "health": 9
-          },
-          "410": {
-            "cost": 3,
-            "attack": 3,
-            "health": 4
-          },
-          "406": {
-            "cost": 2,
-            "attack": 6,
-            "health": 2
-          }
-        },
-        "garrison": [
-          {
-            "id": 401,
-            "x": 11,
-            "y": 4,
-            "attack": 3,
-            "health": 34
-          },
-          {
-            "id": 406,
-            "x": 8,
-            "y": 3,
-            "attack": 6,
-            "health": 2
-          },
-          {
-            "id": 412,
-            "x": 9,
-            "y": 5,
-            "attack": 3,
-            "health": 5
-          },
-          {
-            "id": 410,
-            "x": 10,
-            "y": 2,
-            "attack": 3,
-            "health": 4
-          }
-        ]
-      }
-    }
-  },
-  "frost-03": {
-    "version": 3,
-    "contentVersion": "campaign-2026-10-13-v1",
-    "label": "冰原围城",
-    "hint": "保护主将，存活12回合即可获胜。",
-    "chapter": 6,
-    "players": {
-      "1": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 5,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "defend",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 32,
-        "generalAttack": 3,
-        "generalId": 527,
-        "deck": [
-          505,
-          503,
-          511,
-          20149,
-          20139,
-          505,
-          503,
-          511,
-          513,
-          19027,
-          20149,
-          20139,
-          505,
-          503,
-          511,
-          513,
-          19027,
-          20149,
-          20139,
-          505,
-          503,
-          511,
-          513,
-          19027,
-          20149,
-          20139,
-          505,
-          511,
-          20149,
-          505
-        ],
-        "unitStats": {
-          "505": {
-            "cost": 2,
-            "attack": 3,
-            "health": 6
-          },
-          "503": {
-            "cost": 3,
-            "attack": 4,
-            "health": 4
-          },
-          "511": {
-            "cost": 3,
-            "attack": 2,
-            "health": 6
-          },
-          "513": {
-            "cost": 4,
-            "attack": 4,
-            "health": 5
-          },
-          "19027": {
-            "cost": 4,
-            "attack": 3,
-            "health": 9
-          },
-          "506": {
-            "cost": 2,
-            "attack": 2,
-            "health": 3
-          }
-        },
-        "garrison": [
-          {
-            "id": 527,
-            "x": 10,
-            "y": 2,
-            "attack": 3,
-            "health": 32
-          },
-          {
-            "id": 505,
-            "x": 8,
-            "y": 2,
-            "attack": 3,
-            "health": 6
-          },
-          {
-            "id": 506,
-            "x": 9,
-            "y": 3,
-            "attack": 2,
-            "health": 3
-          }
-        ]
-      },
-      "2": {
-        "mana": 5,
-        "maxMana": 5,
-        "manaGrowth": 1,
-        "manaCap": 9,
-        "openingHandSize": 4,
-        "drawPerTurn": 1,
-        "handLimit": 8,
-        "fatigueDamage": 2,
-        "replacePerTurn": 0,
-        "shuffleDeck": false,
-        "behavior": "assault",
-        "spellRank": 0,
-        "spellMode": "base",
-        "attackBonus": 0,
-        "healthBonus": 0,
-        "generalHealth": 30,
-        "generalAttack": 3,
-        "generalId": 418,
-        "deck": [
-          412,
-          402,
-          410,
-          20116,
-          412,
-          413,
-          402,
-          410,
-          19050,
-          20116,
-          20117,
-          412,
-          413,
-          402,
-          410,
-          19050,
-          20116,
-          20117,
-          412,
-          413,
-          402,
-          410,
-          19050,
-          20116,
-          20117,
-          412,
-          413,
-          402,
-          20117,
-          412
-        ],
-        "unitStats": {
-          "412": {
-            "cost": 2,
-            "attack": 3,
-            "health": 5
-          },
-          "413": {
-            "cost": 4,
-            "attack": 5,
-            "health": 6
-          },
-          "402": {
-            "cost": 3,
-            "attack": 4,
-            "health": 6
-          },
-          "410": {
-            "cost": 3,
-            "attack": 3,
-            "health": 4
-          },
-          "19050": {
-            "cost": 2,
-            "attack": 2,
-            "health": 6
-          },
-          "406": {
-            "cost": 2,
-            "attack": 6,
-            "health": 2
-          }
-        },
-        "garrison": [
-          {
-            "id": 418,
-            "x": 10,
-            "y": 6,
-            "attack": 3,
-            "health": 30
-          },
-          {
-            "id": 406,
-            "x": 8,
-            "y": 6,
-            "attack": 6,
-            "health": 2
-          },
-          {
-            "id": 412,
-            "x": 9,
-            "y": 5,
-            "attack": 3,
-            "health": 5
-          }
-        ]
-      }
-    }
+ "border-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "前排与集火",
+  "hint": "让随从挡在主将前方，集中攻击一名敌人。",
+  "chapter": 1,
+  "players": {
+   "1": {
+    "mana": 2,
+    "maxMana": 2,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "assault",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 12,
+    "generalAttack": 1,
+    "generalId": 23,
+    "deck": [
+     14,
+     9,
+     14,
+     14,
+     9,
+     10021,
+     14,
+     9,
+     10021,
+     14,
+     9,
+     10021
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 2
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 7,
+      "y": 2,
+      "attack": 1,
+      "health": 12
+     },
+     {
+      "id": 14,
+      "x": 6,
+      "y": 2,
+      "attack": 1,
+      "health": 4
+     }
+    ]
+   }
   }
-};
-
-// Fully authored encounter snapshots selected only when creating a new battle.
-export const AUTHORED_ENEMY_PLAN_VARIANTS = {
-  "border-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            14,
-            9,
-            14,
-            14,
-            9,
-            10021,
-            14,
-            9,
-            10021,
-            14,
-            9,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 14,
-              "x": 6,
-              "y": 2,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            14,
-            505,
-            14,
-            14,
-            505,
-            10021,
-            14,
-            505,
-            10021,
-            14,
-            505,
-            10021
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 14,
-              "x": 6,
-              "y": 2,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            10981,
-            9,
-            10981,
-            10981,
-            9,
-            10021,
-            10981,
-            9,
-            10021,
-            10981,
-            9,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 10981,
-              "x": 6,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            211,
-            10981,
-            211,
-            211,
-            10981,
-            10021,
-            211,
-            10981,
-            10021,
-            211,
-            10981,
-            10021
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 211,
-              "x": 6,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            108,
-            10021,
-            108,
-            108,
-            10021,
-            10021,
-            108,
-            10021,
-            10021,
-            108,
-            10021,
-            10021
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 108,
-              "x": 6,
-              "y": 2,
-              "attack": 1,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "前排与集火",
-      "hint": "让随从挡在主将前方，集中攻击一名敌人。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 12,
-          "generalAttack": 1,
-          "generalId": 23,
-          "deck": [
-            15,
-            211,
-            15,
-            15,
-            211,
-            10021,
-            15,
-            211,
-            10021,
-            15,
-            211,
-            10021
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 1,
-              "health": 12
-            },
-            {
-              "id": 15,
-              "x": 6,
-              "y": 2,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    }
-  },
-  "border-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10021,
-            14,
-            9,
-            14,
-            9,
-            10021,
-            10019,
-            14,
-            9,
-            10021,
-            10019,
-            14,
-            10021,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 14,
-              "x": 6,
-              "y": 4,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            505,
-            10021,
-            9,
-            10021,
-            9,
-            505,
-            10019,
-            10021,
-            9,
-            505,
-            10019,
-            10021,
-            505,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 10021,
-              "x": 6,
-              "y": 4,
-              "attack": 1,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            9,
-            110,
-            9,
-            110,
-            9,
-            9,
-            10019,
-            110,
-            9,
-            9,
-            10019,
-            110,
-            9,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 110,
-              "x": 6,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10981,
-            213,
-            9,
-            213,
-            9,
-            10981,
-            10019,
-            213,
-            9,
-            10981,
-            10019,
-            213,
-            10981,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 213,
-              "x": 6,
-              "y": 4,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10021,
-            10019,
-            9,
-            10019,
-            9,
-            10021,
-            10019,
-            10019,
-            9,
-            10021,
-            10019,
-            10019,
-            10021,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 10019,
-              "x": 6,
-              "y": 4,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "侧翼远程",
-      "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 2,
-          "maxMana": 2,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            211,
-            213,
-            9,
-            213,
-            9,
-            211,
-            10019,
-            213,
-            9,
-            211,
-            10019,
-            213,
-            211,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 0,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 213,
-              "x": 6,
-              "y": 4,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    }
-  },
-  "border-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            10021,
-            9,
-            14,
-            9,
-            10021,
-            19027,
-            14,
-            9,
-            10021,
-            19027,
-            14,
-            9,
-            10021,
-            19027,
-            14
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 14,
-              "x": 6,
-              "y": 1,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10021,
-            10981,
-            9,
-            10021,
-            9,
-            10981,
-            19027,
-            10021,
-            9,
-            10981,
-            19027,
-            10021,
-            9,
-            10981,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 10021,
-              "x": 6,
-              "y": 1,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            110,
-            10019,
-            9,
-            110,
-            9,
-            10019,
-            19027,
-            110,
-            9,
-            10019,
-            19027,
-            110,
-            9,
-            10019,
-            19027,
-            110
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 110,
-              "x": 6,
-              "y": 1,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            213,
-            211,
-            9,
-            213,
-            9,
-            211,
-            19027,
-            213,
-            9,
-            211,
-            19027,
-            213,
-            9,
-            211,
-            19027,
-            213
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 213,
-              "x": 6,
-              "y": 1,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10019,
-            108,
-            9,
-            10019,
-            9,
-            108,
-            19027,
-            10019,
-            9,
-            108,
-            19027,
-            10019,
-            9,
-            108,
-            19027,
-            10019
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 10019,
-              "x": 6,
-              "y": 1,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "守住前哨",
-      "hint": "保护主将，存活7回合即可获胜。",
-      "chapter": 1,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            213,
-            14,
-            9,
-            213,
-            9,
-            14,
-            19027,
-            213,
-            9,
-            14,
-            19027,
-            213,
-            9,
-            14,
-            19027,
-            213
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 213,
-              "x": 6,
-              "y": 1,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    }
-  },
-  "road-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            11,
-            10021,
-            11,
-            14,
-            10021,
-            20043,
-            9,
-            11,
-            14,
-            10021,
-            20043,
-            9,
-            11,
-            14,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            505,
-            10021,
-            10021,
-            10021,
-            505,
-            10021,
-            20043,
-            9,
-            10021,
-            505,
-            10021,
-            20043,
-            9,
-            10021,
-            505,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 10021,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10019,
-            15,
-            10021,
-            15,
-            10019,
-            10021,
-            20043,
-            9,
-            15,
-            10019,
-            10021,
-            20043,
-            9,
-            15,
-            10019,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 15,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 2
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            213,
-            211,
-            10021,
-            211,
-            213,
-            10021,
-            20043,
-            9,
-            211,
-            213,
-            10021,
-            20043,
-            9,
-            211,
-            213,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 211,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            503,
-            108,
-            10021,
-            108,
-            503,
-            10021,
-            20043,
-            9,
-            108,
-            503,
-            10021,
-            20043,
-            9,
-            108,
-            503,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 108,
-              "x": 7,
-              "y": 3,
-              "attack": 1,
-              "health": 1
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "护卫与射手",
-      "hint": "先击败挡路的护卫，或从侧面接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            9,
-            10021,
-            9,
-            14,
-            10021,
-            20043,
-            9,
-            9,
-            14,
-            10021,
-            20043,
-            9,
-            9,
-            14,
-            10021,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 9,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "road-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军会治疗逐光者，尽量在一回合内击败它。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            15,
-            10981,
-            11,
-            15,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            15,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            10981,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军以远程与治疗支援守线，先接近射手。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            10021,
-            10981,
-            11,
-            10021,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            10021,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            10981,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军会治疗逐光者，尽量在一回合内击败它。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            15,
-            10981,
-            11,
-            15,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            15,
-            10981,
-            11,
-            14,
-            20043,
-            10021,
-            10981,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军会治疗受伤部队，集中火力击破前排。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            211,
-            11,
-            11,
-            211,
-            11,
-            11,
-            14,
-            20043,
-            10021,
-            211,
-            11,
-            11,
-            14,
-            20043,
-            10021,
-            11,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军部署多名远程射手，可从侧路接近。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            108,
-            10021,
-            11,
-            108,
-            10021,
-            11,
-            14,
-            20043,
-            10021,
-            108,
-            10021,
-            11,
-            14,
-            20043,
-            10021,
-            10021,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 108,
-              "x": 8,
-              "y": 2,
-              "attack": 1,
-              "health": 1
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "治疗支援",
-      "hint": "敌军会治疗逐光者，尽量在一回合内击败它。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            9,
-            15,
-            11,
-            9,
-            15,
-            11,
-            14,
-            20043,
-            10021,
-            9,
-            15,
-            11,
-            14,
-            20043,
-            10021,
-            15,
-            14,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    }
-  },
-  "road-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            11,
-            10021,
-            20066,
-            11,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            14,
-            11,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            14,
-            11,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10981,
-            14,
-            10021,
-            20066,
-            14,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10981,
-            14,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10981,
-            14,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 5
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10981,
-            9,
-            10021,
-            20066,
-            9,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10981,
-            9,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10981,
-            9,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            11,
-            19027,
-            10021,
-            20066,
-            19027,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            11,
-            19027,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            11,
-            19027,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 19027,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10021,
-            10019,
-            10021,
-            20066,
-            10019,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10021,
-            10019,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            10021,
-            10019,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 10019,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重装关隘",
-      "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
-      "chapter": 2,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            15,
-            211,
-            10021,
-            20066,
-            211,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            15,
-            211,
-            19027,
-            10021,
-            16,
-            20066,
-            20043,
-            15,
-            211,
-            19027,
-            10021
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 17,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    }
-  },
-  "banners-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            11,
-            15,
-            11,
-            15,
-            10981,
-            14,
-            20043,
-            11,
-            15,
-            10981,
-            14,
-            20043,
-            11,
-            10981,
-            14,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 7
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            9,
-            10021,
-            10019,
-            9,
-            10019,
-            10021,
-            20066,
-            9,
-            10019,
-            10021,
-            20066,
-            9,
-            10019,
-            10021,
-            20066,
-            9,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            11,
-            15,
-            11,
-            15,
-            10981,
-            14,
-            20043,
-            11,
-            15,
-            10981,
-            14,
-            20043,
-            11,
-            10981,
-            14,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 7
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            14,
-            11,
-            10019,
-            14,
-            10019,
-            11,
-            20066,
-            14,
-            10019,
-            11,
-            20066,
-            14,
-            10019,
-            11,
-            20066,
-            14,
-            11,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 14,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            9,
-            110,
-            15,
-            110,
-            15,
-            10981,
-            9,
-            20043,
-            110,
-            15,
-            10981,
-            9,
-            20043,
-            110,
-            10981,
-            9,
-            20043,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 110,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            9,
-            110,
-            10019,
-            9,
-            10019,
-            110,
-            20066,
-            9,
-            10019,
-            110,
-            20066,
-            9,
-            10019,
-            110,
-            20066,
-            9,
-            110,
-            20066
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            19027,
-            10981,
-            15,
-            10981,
-            15,
-            10981,
-            19027,
-            20043,
-            10981,
-            15,
-            10981,
-            19027,
-            20043,
-            10981,
-            10981,
-            19027,
-            20043,
-            19027
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            19027,
-            10981,
-            10019,
-            19027,
-            10019,
-            10981,
-            20066,
-            19027,
-            10019,
-            10981,
-            20066,
-            19027,
-            10019,
-            10981,
-            20066,
-            19027,
-            10981,
-            20066
-          ],
-          "unitStats": {
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 19027,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10019,
-            511,
-            15,
-            511,
-            15,
-            10981,
-            10019,
-            20043,
-            511,
-            15,
-            10981,
-            10019,
-            20043,
-            511,
-            10981,
-            10019,
-            20043,
-            10019
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 511,
-              "x": 9,
-              "y": 1,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            10019,
-            511,
-            10019,
-            10019,
-            10019,
-            511,
-            20066,
-            10019,
-            10019,
-            511,
-            20066,
-            10019,
-            10019,
-            511,
-            20066,
-            10019,
-            511,
-            20066
-          ],
-          "unitStats": {
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "两军交战",
-      "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            211,
-            213,
-            15,
-            213,
-            15,
-            10981,
-            211,
-            20043,
-            213,
-            15,
-            10981,
-            211,
-            20043,
-            213,
-            10981,
-            211,
-            20043,
-            211
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 213,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 16,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            211,
-            213,
-            10019,
-            211,
-            10019,
-            213,
-            20066,
-            211,
-            10019,
-            213,
-            20066,
-            211,
-            10019,
-            213,
-            20066,
-            211,
-            213,
-            20066
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 5,
-              "attack": 2,
-              "health": 16
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    }
-  },
-  "banners-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            11,
-            10981,
-            15,
-            11,
-            15,
-            16,
-            10981,
-            20043,
-            14,
-            11,
-            15,
-            16,
-            10981,
-            20043,
-            14,
-            11,
-            16,
-            10981,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            10019,
-            9,
-            10021,
-            10019,
-            9,
-            10021,
-            19037,
-            20066,
-            10019,
-            9,
-            10021,
-            19037,
-            20066,
-            10019,
-            9,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            11,
-            505,
-            15,
-            11,
-            15,
-            16,
-            505,
-            20043,
-            14,
-            11,
-            15,
-            16,
-            505,
-            20043,
-            14,
-            11,
-            16,
-            505,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            11,
-            505,
-            10021,
-            11,
-            505,
-            10021,
-            19037,
-            20066,
-            11,
-            505,
-            10021,
-            19037,
-            20066,
-            11,
-            505,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            110,
-            10019,
-            15,
-            110,
-            15,
-            16,
-            10019,
-            20043,
-            14,
-            110,
-            15,
-            16,
-            10019,
-            20043,
-            14,
-            110,
-            16,
-            10019,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            110,
-            10019,
-            10021,
-            110,
-            10019,
-            10021,
-            19037,
-            20066,
-            110,
-            10019,
-            10021,
-            19037,
-            20066,
-            110,
-            10019,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10981,
-            213,
-            15,
-            10981,
-            15,
-            16,
-            213,
-            20043,
-            14,
-            10981,
-            15,
-            16,
-            213,
-            20043,
-            14,
-            10981,
-            16,
-            213,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            10981,
-            213,
-            10021,
-            10981,
-            213,
-            10021,
-            19037,
-            20066,
-            10981,
-            213,
-            10021,
-            19037,
-            20066,
-            10981,
-            213,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            511,
-            503,
-            15,
-            511,
-            15,
-            16,
-            503,
-            20043,
-            14,
-            511,
-            15,
-            16,
-            503,
-            20043,
-            14,
-            511,
-            16,
-            503,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            511,
-            503,
-            10021,
-            511,
-            503,
-            10021,
-            19037,
-            20066,
-            511,
-            503,
-            10021,
-            19037,
-            20066,
-            511,
-            503,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "争夺渡口",
-      "hint": "两侧都有敌军，可以先集中攻击一侧。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 22,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            213,
-            14,
-            15,
-            213,
-            15,
-            16,
-            14,
-            20043,
-            14,
-            213,
-            15,
-            16,
-            14,
-            20043,
-            14,
-            213,
-            16,
-            14,
-            20043,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 22
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 3,
-          "maxMana": 3,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 18,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            213,
-            14,
-            10021,
-            213,
-            14,
-            10021,
-            19037,
-            20066,
-            213,
-            14,
-            10021,
-            19037,
-            20066,
-            213,
-            14,
-            10021,
-            19037,
-            20066,
-            10021,
-            20066
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 11,
-              "y": 6,
-              "attack": 2,
-              "health": 18
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 6,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 6
-            }
-          ]
-        }
-      }
-    }
-  },
-  "banners-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            11,
-            15,
-            10981,
-            20043,
-            11,
-            17,
-            16,
-            15,
-            10981,
-            20043,
-            14,
-            11,
-            17,
-            16,
-            15,
-            10981,
-            20043,
-            14,
-            11,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            9,
-            10019,
-            10021,
-            9,
-            10012,
-            10019,
-            10021,
-            20066,
-            19037,
-            9,
-            10012,
-            10019,
-            10021,
-            20066,
-            19037,
-            9,
-            10019,
-            10021,
-            20066,
-            19037,
-            9,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            505,
-            10021,
-            10981,
-            20043,
-            505,
-            17,
-            16,
-            10021,
-            10981,
-            20043,
-            14,
-            505,
-            17,
-            16,
-            10021,
-            10981,
-            20043,
-            14,
-            505,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            505,
-            10021,
-            10021,
-            505,
-            10012,
-            10021,
-            10021,
-            20066,
-            19037,
-            505,
-            10012,
-            10021,
-            10021,
-            20066,
-            19037,
-            505,
-            10021,
-            10021,
-            20066,
-            19037,
-            505,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            10019,
-            15,
-            10981,
-            20043,
-            10019,
-            17,
-            16,
-            15,
-            10981,
-            20043,
-            14,
-            10019,
-            17,
-            16,
-            15,
-            10981,
-            20043,
-            14,
-            10019,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            10019,
-            15,
-            10021,
-            10019,
-            10012,
-            15,
-            10021,
-            20066,
-            19037,
-            10019,
-            10012,
-            15,
-            10021,
-            20066,
-            19037,
-            10019,
-            15,
-            10021,
-            20066,
-            19037,
-            10019,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            213,
-            211,
-            10981,
-            20043,
-            213,
-            17,
-            16,
-            211,
-            10981,
-            20043,
-            14,
-            213,
-            17,
-            16,
-            211,
-            10981,
-            20043,
-            14,
-            213,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            213,
-            211,
-            10021,
-            213,
-            10012,
-            211,
-            10021,
-            20066,
-            19037,
-            213,
-            10012,
-            211,
-            10021,
-            20066,
-            19037,
-            213,
-            211,
-            10021,
-            20066,
-            19037,
-            213,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            503,
-            108,
-            10981,
-            20043,
-            503,
-            17,
-            16,
-            108,
-            10981,
-            20043,
-            14,
-            503,
-            17,
-            16,
-            108,
-            10981,
-            20043,
-            14,
-            503,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            503,
-            108,
-            10021,
-            503,
-            10012,
-            108,
-            10021,
-            20066,
-            19037,
-            503,
-            10012,
-            108,
-            10021,
-            20066,
-            19037,
-            503,
-            108,
-            10021,
-            20066,
-            19037,
-            503,
-            10021
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三旗坚守",
-      "hint": "保护主将，存活10回合即可获胜。",
-      "chapter": 3,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 24,
-          "generalAttack": 2,
-          "generalId": 23,
-          "deck": [
-            14,
-            9,
-            10981,
-            20043,
-            14,
-            17,
-            16,
-            9,
-            10981,
-            20043,
-            14,
-            14,
-            17,
-            16,
-            9,
-            10981,
-            20043,
-            14,
-            14,
-            16,
-            10981,
-            14
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 2,
-              "health": 6
-            },
-            "16": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            },
-            "17": {
-              "cost": 5,
-              "attack": 3,
-              "health": 10
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 2,
-              "health": 24
-            },
-            {
-              "id": 17,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 10
-            },
-            {
-              "id": 16,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 8
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 3,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 20,
-          "generalAttack": 2,
-          "generalId": 1,
-          "deck": [
-            14,
-            9,
-            10021,
-            14,
-            10012,
-            9,
-            10021,
-            20066,
-            19037,
-            14,
-            10012,
-            9,
-            10021,
-            20066,
-            19037,
-            14,
-            9,
-            10021,
-            20066,
-            19037,
-            14,
-            10021
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "11": {
-              "cost": 3,
-              "attack": 2,
-              "health": 7
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "10012": {
-              "cost": 4,
-              "attack": 3,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19037": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 1,
-              "x": 9,
-              "y": 8,
-              "attack": 2,
-              "health": 20
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 7
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "sand-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            214,
-            213,
-            211,
-            20095,
-            214,
-            213,
-            211,
-            10021,
-            20095,
-            20151,
-            214,
-            213,
-            211,
-            10021,
-            20095,
-            20151,
-            214,
-            213,
-            211,
-            10021,
-            20151,
-            213,
-            10021,
-            213
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "214": {
-              "cost": 2,
-              "attack": 0,
-              "health": 7
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 213,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            10021,
-            10981,
-            211,
-            20095,
-            10021,
-            10981,
-            211,
-            10021,
-            20095,
-            20151,
-            10021,
-            10981,
-            211,
-            10021,
-            20095,
-            20151,
-            10021,
-            10981,
-            211,
-            10021,
-            20151,
-            10981,
-            10021,
-            10981
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 10981,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            15,
-            10981,
-            211,
-            20095,
-            15,
-            10981,
-            211,
-            10021,
-            20095,
-            20151,
-            15,
-            10981,
-            211,
-            10021,
-            20095,
-            20151,
-            15,
-            10981,
-            211,
-            10021,
-            20151,
-            10981,
-            10021,
-            10981
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 10981,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            211,
-            11,
-            211,
-            20095,
-            211,
-            11,
-            211,
-            10021,
-            20095,
-            20151,
-            211,
-            11,
-            211,
-            10021,
-            20095,
-            20151,
-            211,
-            11,
-            211,
-            10021,
-            20151,
-            11,
-            10021,
-            11
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 11,
-              "x": 7,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            108,
-            10021,
-            211,
-            20095,
-            108,
-            10021,
-            211,
-            10021,
-            20095,
-            20151,
-            108,
-            10021,
-            211,
-            10021,
-            20095,
-            20151,
-            108,
-            10021,
-            211,
-            10021,
-            20151,
-            10021,
-            10021,
-            10021
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 10021,
-              "x": 7,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙魔援军",
-      "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            9,
-            15,
-            211,
-            20095,
-            9,
-            15,
-            211,
-            10021,
-            20095,
-            20151,
-            9,
-            15,
-            211,
-            10021,
-            20095,
-            20151,
-            9,
-            15,
-            211,
-            10021,
-            20151,
-            15,
-            10021,
-            15
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 26
-            },
-            {
-              "id": 15,
-              "x": 7,
-              "y": 3,
-              "attack": 3,
-              "health": 2
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "sand-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            214,
-            213,
-            211,
-            20095,
-            215,
-            214,
-            213,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            214,
-            213,
-            211,
-            10981,
-            20095,
-            20151,
-            214,
-            213,
-            211,
-            20151,
-            213,
-            213
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "214": {
-              "cost": 2,
-              "attack": 0,
-              "health": 7
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            10981,
-            14,
-            211,
-            20095,
-            215,
-            10981,
-            14,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            10981,
-            14,
-            211,
-            10981,
-            20095,
-            20151,
-            10981,
-            14,
-            211,
-            20151,
-            14,
-            14
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            10981,
-            9,
-            211,
-            20095,
-            215,
-            10981,
-            9,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            10981,
-            9,
-            211,
-            10981,
-            20095,
-            20151,
-            10981,
-            9,
-            211,
-            20151,
-            9,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            11,
-            19027,
-            211,
-            20095,
-            215,
-            11,
-            19027,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            11,
-            19027,
-            211,
-            10981,
-            20095,
-            20151,
-            11,
-            19027,
-            211,
-            20151,
-            19027,
-            19027
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            10021,
-            10019,
-            211,
-            20095,
-            215,
-            10021,
-            10019,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            10021,
-            10019,
-            211,
-            10981,
-            20095,
-            20151,
-            10021,
-            10019,
-            211,
-            20151,
-            10019,
-            10019
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双塔协同",
-      "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 2,
-          "generalId": 223,
-          "deck": [
-            15,
-            211,
-            211,
-            20095,
-            215,
-            15,
-            211,
-            211,
-            10981,
-            20095,
-            20151,
-            215,
-            15,
-            211,
-            211,
-            10981,
-            20095,
-            20151,
-            15,
-            211,
-            211,
-            20151,
-            211,
-            211
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 8
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 223,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 28
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "sand-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            214,
-            213,
-            211,
-            20095,
-            215,
-            214,
-            213,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            214,
-            213,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            214,
-            213,
-            209,
-            20151,
-            213,
-            213,
-            213
-          ],
-          "unitStats": {
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "214": {
-              "cost": 2,
-              "attack": 0,
-              "health": 7
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 213,
-              "x": 8,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 214,
-              "x": 9,
-              "y": 5,
-              "attack": 0,
-              "health": 7
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            14,
-            11,
-            211,
-            20095,
-            215,
-            14,
-            11,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            14,
-            11,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            14,
-            11,
-            209,
-            20151,
-            11,
-            11,
-            11
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 14,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            9,
-            110,
-            211,
-            20095,
-            215,
-            9,
-            110,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            9,
-            110,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            9,
-            110,
-            209,
-            20151,
-            110,
-            110,
-            110
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            19027,
-            10981,
-            211,
-            20095,
-            215,
-            19027,
-            10981,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            19027,
-            10981,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            19027,
-            10981,
-            209,
-            20151,
-            10981,
-            10981,
-            10981
-          ],
-          "unitStats": {
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 10981,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 19027,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 8
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            10019,
-            511,
-            211,
-            20095,
-            215,
-            10019,
-            511,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            10019,
-            511,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            10019,
-            511,
-            209,
-            20151,
-            511,
-            511,
-            511
-          ],
-          "unitStats": {
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 511,
-              "x": 8,
-              "y": 3,
-              "attack": 1,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "沙海军团",
-      "hint": "避开爆破单位所在的行，给主将留出退路。",
-      "chapter": 4,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 2,
-          "generalId": 201,
-          "deck": [
-            211,
-            213,
-            211,
-            20095,
-            215,
-            211,
-            213,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            215,
-            211,
-            213,
-            209,
-            211,
-            19027,
-            20151,
-            20095,
-            211,
-            213,
-            209,
-            20151,
-            213,
-            213,
-            213
-          ],
-          "unitStats": {
-            "209": {
-              "cost": 5,
-              "attack": 5,
-              "health": 8
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "215": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 8
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 30
-            },
-            {
-              "id": 213,
-              "x": 8,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 211,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "shadow-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            109,
-            115,
-            20086,
-            110,
-            109,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            110,
-            109,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            110,
-            109,
-            10019,
-            20081,
-            110,
-            10019
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 110,
-              "x": 4,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 109,
-              "x": 5,
-              "y": 8,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            11,
-            505,
-            115,
-            20086,
-            11,
-            505,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            11,
-            505,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            11,
-            505,
-            10019,
-            20081,
-            11,
-            10019
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 11,
-              "x": 4,
-              "y": 7,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 505,
-              "x": 5,
-              "y": 8,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            10019,
-            115,
-            20086,
-            110,
-            10019,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            110,
-            10019,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            110,
-            10019,
-            10019,
-            20081,
-            110,
-            10019
-          ],
-          "unitStats": {
-            "110": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 110,
-              "x": 4,
-              "y": 7,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 5,
-              "y": 8,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            10981,
-            213,
-            115,
-            20086,
-            10981,
-            213,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            10981,
-            213,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            10981,
-            213,
-            10019,
-            20081,
-            10981,
-            10019
-          ],
-          "unitStats": {
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 7,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 213,
-              "x": 5,
-              "y": 8,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            511,
-            503,
-            115,
-            20086,
-            511,
-            503,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            511,
-            503,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            511,
-            503,
-            10019,
-            20081,
-            511,
-            10019
-          ],
-          "unitStats": {
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 511,
-              "x": 4,
-              "y": 7,
-              "attack": 1,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 503,
-              "x": 5,
-              "y": 8,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "后排突袭",
-      "hint": "敌军能从背后攻击，注意主将身后的空格。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            213,
-            14,
-            115,
-            20086,
-            213,
-            14,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            213,
-            14,
-            111,
-            10019,
-            115,
-            20081,
-            20086,
-            213,
-            14,
-            10019,
-            20081,
-            213,
-            10019
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 3,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 3,
-              "y": 9,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 213,
-              "x": 4,
-              "y": 7,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 8,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 14,
-              "x": 5,
-              "y": 8,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "shadow-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            317,
-            308,
-            316,
-            20072,
-            317,
-            308,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            317,
-            308,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            317,
-            308,
-            311,
-            19050,
-            20072,
-            20052,
-            317,
-            308
-          ],
-          "unitStats": {
-            "308": {
-              "cost": 1,
-              "attack": 3,
-              "health": 3
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "317": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 308,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 317,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            505,
-            10021,
-            316,
-            20072,
-            505,
-            10021,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            505,
-            10021,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            505,
-            10021,
-            311,
-            19050,
-            20072,
-            20052,
-            505,
-            10021
-          ],
-          "unitStats": {
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 10021,
-              "x": 8,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 505,
-              "x": 9,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            10019,
-            15,
-            316,
-            20072,
-            10019,
-            15,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            10019,
-            15,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            10019,
-            15,
-            311,
-            19050,
-            20072,
-            20052,
-            10019,
-            15
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 4,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            213,
-            211,
-            316,
-            20072,
-            213,
-            211,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            213,
-            211,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            213,
-            211,
-            311,
-            19050,
-            20072,
-            20052,
-            213,
-            211
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 213,
-              "x": 9,
-              "y": 4,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            503,
-            108,
-            316,
-            20072,
-            503,
-            108,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            503,
-            108,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            503,
-            108,
-            311,
-            19050,
-            20072,
-            20052,
-            503,
-            108
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 8,
-              "y": 2,
-              "attack": 1,
-              "health": 1
-            },
-            {
-              "id": 503,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "腐化与亡愿",
-      "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 301,
-          "deck": [
-            14,
-            9,
-            316,
-            20072,
-            14,
-            9,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            14,
-            9,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            14,
-            9,
-            311,
-            19050,
-            20072,
-            20052,
-            14,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 301,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 14,
-              "x": 9,
-              "y": 4,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "shadow-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            110,
-            109,
-            115,
-            20086,
-            110,
-            111,
-            109,
-            115,
-            20081,
-            20086,
-            110,
-            111,
-            109,
-            115,
-            20081,
-            20086,
-            110,
-            111,
-            109,
-            20081,
-            20086,
-            110,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 109,
-              "x": 9,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            317,
-            308,
-            311,
-            20072,
-            317,
-            308,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            317,
-            308,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            317,
-            308,
-            311,
-            316,
-            19050,
-            317
-          ],
-          "unitStats": {
-            "308": {
-              "cost": 1,
-              "attack": 3,
-              "health": 3
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "317": {
-              "cost": 2,
-              "attack": 3,
-              "health": 4
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 317,
-              "x": 8,
-              "y": 6,
-              "attack": 3,
-              "health": 4
-            },
-            {
-              "id": 308,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            10021,
-            10981,
-            115,
-            20086,
-            10021,
-            111,
-            10981,
-            115,
-            20081,
-            20086,
-            10021,
-            111,
-            10981,
-            115,
-            20081,
-            20086,
-            10021,
-            111,
-            10981,
-            20081,
-            20086,
-            10021,
-            10981,
-            20081
-          ],
-          "unitStats": {
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            10021,
-            10981,
-            311,
-            20072,
-            10021,
-            10981,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            10021,
-            10981,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            10021,
-            10981,
-            311,
-            316,
-            19050,
-            10021
-          ],
-          "unitStats": {
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 10021,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            15,
-            10981,
-            115,
-            20086,
-            15,
-            111,
-            10981,
-            115,
-            20081,
-            20086,
-            15,
-            111,
-            10981,
-            115,
-            20081,
-            20086,
-            15,
-            111,
-            10981,
-            20081,
-            20086,
-            15,
-            10981,
-            20081
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            15,
-            10981,
-            311,
-            20072,
-            15,
-            10981,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            15,
-            10981,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            15,
-            10981,
-            311,
-            316,
-            19050,
-            15
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 6,
-              "attack": 3,
-              "health": 2
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            211,
-            11,
-            115,
-            20086,
-            211,
-            111,
-            11,
-            115,
-            20081,
-            20086,
-            211,
-            111,
-            11,
-            115,
-            20081,
-            20086,
-            211,
-            111,
-            11,
-            20081,
-            20086,
-            211,
-            11,
-            20081
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            211,
-            11,
-            311,
-            20072,
-            211,
-            11,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            211,
-            11,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            211,
-            11,
-            311,
-            316,
-            19050,
-            211
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 211,
-              "x": 8,
-              "y": 6,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            108,
-            10021,
-            115,
-            20086,
-            108,
-            111,
-            10021,
-            115,
-            20081,
-            20086,
-            108,
-            111,
-            10021,
-            115,
-            20081,
-            20086,
-            108,
-            111,
-            10021,
-            20081,
-            20086,
-            108,
-            10021,
-            20081
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10021,
-              "x": 9,
-              "y": 3,
-              "attack": 1,
-              "health": 2
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            108,
-            10021,
-            311,
-            20072,
-            108,
-            10021,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            108,
-            10021,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            108,
-            10021,
-            311,
-            316,
-            19050,
-            108
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 1
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 108,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 1
-            },
-            {
-              "id": 10021,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 2
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "暗影会战",
-      "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
-      "chapter": 5,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 28,
-          "generalAttack": 3,
-          "generalId": 123,
-          "deck": [
-            9,
-            15,
-            115,
-            20086,
-            9,
-            111,
-            15,
-            115,
-            20081,
-            20086,
-            9,
-            111,
-            15,
-            115,
-            20081,
-            20086,
-            9,
-            111,
-            15,
-            20081,
-            20086,
-            9,
-            15,
-            20081
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "111": {
-              "cost": 5,
-              "attack": 3,
-              "health": 6
-            },
-            "115": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 123,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 28
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 15,
-              "x": 9,
-              "y": 3,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        },
-        "2": {
-          "mana": 4,
-          "maxMana": 4,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 26,
-          "generalAttack": 3,
-          "generalId": 323,
-          "deck": [
-            9,
-            15,
-            311,
-            20072,
-            9,
-            15,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            9,
-            15,
-            311,
-            316,
-            19050,
-            20072,
-            20052,
-            9,
-            15,
-            311,
-            316,
-            19050,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "311": {
-              "cost": 3,
-              "attack": 2,
-              "health": 5
-            },
-            "316": {
-              "cost": 2,
-              "attack": 1,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 323,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 26
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 6,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 15,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 2
-            }
-          ]
-        }
-      }
-    }
-  },
-  "frost-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            505,
-            511,
-            20149,
-            503,
-            505,
-            503,
-            511,
-            19027,
-            513,
-            20149,
-            20139,
-            505,
-            503,
-            511,
-            19027,
-            513,
-            20149,
-            20139,
-            505,
-            503,
-            511,
-            19027,
-            20149,
-            20139,
-            505,
-            20149,
-            20139,
-            505
-          ],
-          "unitStats": {
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 3,
-              "health": 6
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 505,
-              "x": 4,
-              "y": 2,
-              "attack": 3,
-              "health": 6
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            10981,
-            14,
-            20149,
-            503,
-            10981,
-            503,
-            14,
-            19027,
-            513,
-            20149,
-            20139,
-            10981,
-            503,
-            14,
-            19027,
-            513,
-            20149,
-            20139,
-            10981,
-            503,
-            14,
-            19027,
-            20149,
-            20139,
-            10981,
-            20149,
-            20139,
-            10981
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            10981,
-            9,
-            20149,
-            503,
-            10981,
-            503,
-            9,
-            19027,
-            513,
-            20149,
-            20139,
-            10981,
-            503,
-            9,
-            19027,
-            513,
-            20149,
-            20139,
-            10981,
-            503,
-            9,
-            19027,
-            20149,
-            20139,
-            10981,
-            20149,
-            20139,
-            10981
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            11,
-            19027,
-            20149,
-            503,
-            11,
-            503,
-            19027,
-            19027,
-            513,
-            20149,
-            20139,
-            11,
-            503,
-            19027,
-            19027,
-            513,
-            20149,
-            20139,
-            11,
-            503,
-            19027,
-            19027,
-            20149,
-            20139,
-            11,
-            20149,
-            20139,
-            11
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 4,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            10021,
-            10019,
-            20149,
-            503,
-            10021,
-            503,
-            10019,
-            19027,
-            513,
-            20149,
-            20139,
-            10021,
-            503,
-            10019,
-            19027,
-            513,
-            20149,
-            20139,
-            10021,
-            503,
-            10019,
-            19027,
-            20149,
-            20139,
-            10021,
-            20149,
-            20139,
-            10021
-          ],
-          "unitStats": {
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 2
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 10021,
-              "x": 4,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰墙封路",
-      "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            15,
-            211,
-            20149,
-            503,
-            15,
-            503,
-            211,
-            19027,
-            513,
-            20149,
-            20139,
-            15,
-            503,
-            211,
-            19027,
-            513,
-            20149,
-            20139,
-            15,
-            503,
-            211,
-            19027,
-            20149,
-            20139,
-            15,
-            20149,
-            20139,
-            15
-          ],
-          "unitStats": {
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 2
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 15,
-              "x": 4,
-              "y": 2,
-              "attack": 3,
-              "health": 2
-            },
-            {
-              "id": 506,
-              "x": 3,
-              "y": 4,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 503,
-              "x": 2,
-              "y": 1,
-              "attack": 4,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "frost-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            412,
-            402,
-            410,
-            20116,
-            412,
-            413,
-            402,
-            19027,
-            410,
-            20116,
-            20117,
-            412,
-            413,
-            402,
-            19027,
-            410,
-            20116,
-            20117,
-            412,
-            413,
-            402,
-            19027,
-            20116,
-            20117,
-            412,
-            413,
-            20117,
-            412
-          ],
-          "unitStats": {
-            "402": {
-              "cost": 3,
-              "attack": 4,
-              "health": 6
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "412": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 412,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            14,
-            11,
-            410,
-            20116,
-            14,
-            413,
-            11,
-            19027,
-            410,
-            20116,
-            20117,
-            14,
-            413,
-            11,
-            19027,
-            410,
-            20116,
-            20117,
-            14,
-            413,
-            11,
-            19027,
-            20116,
-            20117,
-            14,
-            413,
-            20117,
-            14
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 14,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            9,
-            110,
-            410,
-            20116,
-            9,
-            413,
-            110,
-            19027,
-            410,
-            20116,
-            20117,
-            9,
-            413,
-            110,
-            19027,
-            410,
-            20116,
-            20117,
-            9,
-            413,
-            110,
-            19027,
-            20116,
-            20117,
-            9,
-            413,
-            20117,
-            9
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            19027,
-            10981,
-            410,
-            20116,
-            19027,
-            413,
-            10981,
-            19027,
-            410,
-            20116,
-            20117,
-            19027,
-            413,
-            10981,
-            19027,
-            410,
-            20116,
-            20117,
-            19027,
-            413,
-            10981,
-            19027,
-            20116,
-            20117,
-            19027,
-            413,
-            20117,
-            19027
-          ],
-          "unitStats": {
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 19027,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 9
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            10019,
-            511,
-            410,
-            20116,
-            10019,
-            413,
-            511,
-            19027,
-            410,
-            20116,
-            20117,
-            10019,
-            413,
-            511,
-            19027,
-            410,
-            20116,
-            20117,
-            10019,
-            413,
-            511,
-            19027,
-            20116,
-            20117,
-            10019,
-            413,
-            20117,
-            10019
-          ],
-          "unitStats": {
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "重生攻坚",
-      "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 34,
-          "generalAttack": 3,
-          "generalId": 401,
-          "deck": [
-            211,
-            213,
-            410,
-            20116,
-            211,
-            413,
-            213,
-            19027,
-            410,
-            20116,
-            20117,
-            211,
-            413,
-            213,
-            19027,
-            410,
-            20116,
-            20117,
-            211,
-            413,
-            213,
-            19027,
-            20116,
-            20117,
-            211,
-            413,
-            20117,
-            211
-          ],
-          "unitStats": {
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 401,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 34
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 3,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 211,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 410,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "frost-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            505,
-            503,
-            511,
-            20149,
-            20139,
-            505,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            505,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            505,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            505,
-            511,
-            20149,
-            505
-          ],
-          "unitStats": {
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "505": {
-              "cost": 2,
-              "attack": 3,
-              "health": 6
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 505,
-              "x": 8,
-              "y": 2,
-              "attack": 3,
-              "health": 6
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            412,
-            402,
-            410,
-            20116,
-            412,
-            413,
-            402,
-            410,
-            19050,
-            20116,
-            20117,
-            412,
-            413,
-            402,
-            410,
-            19050,
-            20116,
-            20117,
-            412,
-            413,
-            402,
-            410,
-            19050,
-            20116,
-            20117,
-            412,
-            413,
-            402,
-            20117,
-            412
-          ],
-          "unitStats": {
-            "402": {
-              "cost": 3,
-              "attack": 4,
-              "health": 6
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "412": {
-              "cost": 2,
-              "attack": 3,
-              "health": 5
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 412,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            505,
-            511,
-            20149,
-            20139,
-            11,
-            505,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            11,
-            505,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            11,
-            505,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            11,
-            511,
-            20149,
-            11
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 3,
-              "health": 6
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            11,
-            505,
-            410,
-            20116,
-            11,
-            413,
-            505,
-            410,
-            19050,
-            20116,
-            20117,
-            11,
-            413,
-            505,
-            410,
-            19050,
-            20116,
-            20117,
-            11,
-            413,
-            505,
-            410,
-            19050,
-            20116,
-            20117,
-            11,
-            413,
-            505,
-            20117,
-            11
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            110,
-            10019,
-            511,
-            20149,
-            20139,
-            110,
-            10019,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            110,
-            10019,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            110,
-            10019,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            110,
-            511,
-            20149,
-            110
-          ],
-          "unitStats": {
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            110,
-            10019,
-            410,
-            20116,
-            110,
-            413,
-            10019,
-            410,
-            19050,
-            20116,
-            20117,
-            110,
-            413,
-            10019,
-            410,
-            19050,
-            20116,
-            20117,
-            110,
-            413,
-            10019,
-            410,
-            19050,
-            20116,
-            20117,
-            110,
-            413,
-            10019,
-            20117,
-            110
-          ],
-          "unitStats": {
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 1
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            10981,
-            213,
-            511,
-            20149,
-            20139,
-            10981,
-            213,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            10981,
-            213,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            10981,
-            213,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            10981,
-            511,
-            20149,
-            10981
-          ],
-          "unitStats": {
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 10981,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 3
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            10981,
-            213,
-            410,
-            20116,
-            10981,
-            413,
-            213,
-            410,
-            19050,
-            20116,
-            20117,
-            10981,
-            413,
-            213,
-            410,
-            19050,
-            20116,
-            20117,
-            10981,
-            413,
-            213,
-            410,
-            19050,
-            20116,
-            20117,
-            10981,
-            413,
-            213,
-            20117,
-            10981
-          ],
-          "unitStats": {
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            511,
-            503,
-            511,
-            20149,
-            20139,
-            511,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            511,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            511,
-            503,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            511,
-            511,
-            20149,
-            511
-          ],
-          "unitStats": {
-            "503": {
-              "cost": 3,
-              "attack": 4,
-              "health": 4
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 511,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 6
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            511,
-            503,
-            410,
-            20116,
-            511,
-            413,
-            503,
-            410,
-            19050,
-            20116,
-            20117,
-            511,
-            413,
-            503,
-            410,
-            19050,
-            20116,
-            20117,
-            511,
-            413,
-            503,
-            410,
-            19050,
-            20116,
-            20117,
-            511,
-            413,
-            503,
-            20117,
-            511
-          ],
-          "unitStats": {
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 2
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 4
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 511,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "冰原围城",
-      "hint": "保护主将，存活12回合即可获胜。",
-      "chapter": 6,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 5,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            213,
-            14,
-            511,
-            20149,
-            20139,
-            213,
-            14,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            213,
-            14,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            213,
-            14,
-            511,
-            513,
-            19027,
-            20149,
-            20139,
-            213,
-            511,
-            20149,
-            213
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "506": {
-              "cost": 2,
-              "attack": 2,
-              "health": 3
-            },
-            "511": {
-              "cost": 3,
-              "attack": 2,
-              "health": 6
-            },
-            "513": {
-              "cost": 4,
-              "attack": 4,
-              "health": 5
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 9
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 2,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 213,
-              "x": 8,
-              "y": 2,
-              "attack": 2,
-              "health": 1
-            },
-            {
-              "id": 506,
-              "x": 9,
-              "y": 3,
-              "attack": 2,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            213,
-            14,
-            410,
-            20116,
-            213,
-            413,
-            14,
-            410,
-            19050,
-            20116,
-            20117,
-            213,
-            413,
-            14,
-            410,
-            19050,
-            20116,
-            20117,
-            213,
-            413,
-            14,
-            410,
-            19050,
-            20116,
-            20117,
-            213,
-            413,
-            14,
-            20117,
-            213
-          ],
-          "unitStats": {
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 4
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 1
-            },
-            "406": {
-              "cost": 2,
-              "attack": 6,
-              "health": 2
-            },
-            "410": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "413": {
-              "cost": 4,
-              "attack": 5,
-              "health": 6
-            },
-            "19050": {
-              "cost": 2,
-              "attack": 2,
-              "health": 6
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 406,
-              "x": 8,
-              "y": 6,
-              "attack": 6,
-              "health": 2
-            },
-            {
-              "id": 213,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 1
-            }
-          ]
-        }
-      }
-    }
-  },
-  "crossroads-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 5,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 4,
-              "y": 6,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 6,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 4,
-              "y": 6,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 6,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 5,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 6,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 6,
-              "y": 6,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 6,
-              "y": 6,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "四岔渡口",
-      "hint": "绕过断开的中轴，选择一翼推进。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 4,
-              "y": 6,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 6,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "crossroads-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 11,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 11,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 9,
-              "y": 1,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 9,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "错位桥头",
-      "hint": "绕开错位墙体，夺取中央前哨。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "crossroads-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 2,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 3,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 1,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 7,
-              "y": 7,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 3,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 1,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 7,
-              "y": 7,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 2,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 1,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 7,
-              "y": 7,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 9,
-              "y": 5,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 7,
-              "y": 7,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 9,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 1,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 6,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 7,
-              "y": 7,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "三面来敌",
-      "hint": "从两军之间撤向一侧，守住主将。",
-      "chapter": 7,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 3,
-              "y": 1,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 1,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 8,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 7,
-              "y": 7,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 9,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "citadel-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 10,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 10,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 10,
-              "y": 4,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 5,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "外堡回廊",
-      "hint": "沿堡垒两侧绕行，拆除远程支援。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 4,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 5,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "citadel-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 5,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 6,
-              "y": 2,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 6,
-              "y": 2,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 5,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 6,
-              "y": 2,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 6,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 4,
-              "y": 2,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 5,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 6,
-              "y": 2,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 4,
-              "y": 2,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "双门换防",
-      "hint": "两门间轮换部队，避免堵住自己的退路。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 5,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 5,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 6,
-              "y": 2,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 4,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "citadel-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 2,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 2,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 8,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 505,
-              "x": 2,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 8,
-              "y": 5,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 2,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 110,
-              "x": 2,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 8,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 8,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 8,
-              "y": 3,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 19027,
-              "x": 2,
-              "y": 5,
-              "attack": 3,
-              "health": 7
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 8,
-              "y": 4,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 8,
-              "y": 5,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 8,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10021,
-              "x": 2,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 8,
-              "y": 4,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 8,
-              "y": 5,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "孤堡突围",
-      "hint": "集中突破一侧，再转向另一名敌将。",
-      "chapter": 8,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 2,
-              "y": 3,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 9,
-              "x": 2,
-              "y": 5,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 9,
-              "y": 4,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 8,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 8,
-              "y": 5,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 109,
-              "x": 8,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ruins-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 11,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 9,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 11,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 9,
-              "y": 1,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 9,
-              "y": 1,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 9,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 9,
-              "y": 1,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "裂隙遗城",
-      "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 1,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 11,
-              "y": 3,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 9,
-              "y": 1,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ruins-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 5,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 4,
-              "y": 6,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 6,
-              "y": 6,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 4,
-              "y": 6,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 6,
-              "y": 6,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 5,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 6,
-              "y": 6,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 6,
-              "y": 6,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 6,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 6,
-              "y": 6,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "回响祭阵",
-      "hint": "主动拆掉侧翼生产和支援节点。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 5,
-              "y": 7,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 5,
-              "y": 6,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 4,
-              "y": 6,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 6,
-              "y": 6,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    }
-  },
-  "ruins-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 3,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 4,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 2,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 8,
-              "y": 1,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 3,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 4,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 9,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 8,
-              "y": 1,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 3,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 3,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 4,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 2,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 8,
-              "y": 1,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 3,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 4,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 2,
-              "y": 3,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 3,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "遗城守夜",
-      "hint": "在两侧前哨之间转移，保护主将。",
-      "chapter": 9,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 2,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 3,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 4,
-              "y": 1,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 2,
-              "y": 3,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 9,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 8,
-              "y": 1,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "confluence-01": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 11,
-              "y": 4,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 12,
-              "y": 3,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 10,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 9,
-              "y": 0,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 11,
-              "y": 4,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 12,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 9,
-              "y": 0,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 9,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 12,
-              "y": 3,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 10,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 9,
-              "y": 0,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 12,
-              "y": 3,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 10,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 9,
-              "y": 0,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 11,
-              "y": 4,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 9,
-              "y": 2,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 12,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 10,
-              "y": 1,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 9,
-              "y": 0,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "寒沙交界",
-      "hint": "选择一翼推进，利用两軍交火窗口。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 2,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 11,
-              "y": 4,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 9,
-              "y": 2,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 6,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 12,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 10,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 9,
-              "y": 0,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
-  },
-  "confluence-02": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 110,
-              "x": 2,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 2,
-              "y": 5,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 2,
-              "y": 3,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 2,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 9,
-              "x": 2,
-              "y": 4,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 2,
-              "y": 5,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 2,
-              "y": 5,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 108,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 2,
-              "y": 3,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 2,
-              "y": 5,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "反转战线",
-      "hint": "从右向左推进，保护主将身后的位置。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 30,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 1,
-              "y": 4,
-              "attack": 3,
-              "health": 30
-            },
-            {
-              "id": 14,
-              "x": 2,
-              "y": 4,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 2,
-              "y": 3,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 2,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    }
-  },
-  "confluence-03": {
-    "1": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 2,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 3,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 9,
-              "y": 7,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 11,
-              "y": 5,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "2": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "defend",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 527,
-          "deck": [
-            11,
-            10021,
-            505,
-            20149,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            10981,
-            512,
-            20139,
-            14,
-            505,
-            519,
-            11,
-            20149,
-            10021,
-            10981,
-            20139,
-            11,
-            10021,
-            505,
-            20149
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "505": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "512": {
-              "cost": 2,
-              "attack": 1,
-              "health": 4
-            },
-            "519": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 527,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10021,
-              "x": 3,
-              "y": 1,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 512,
-              "x": 1,
-              "y": 3,
-              "attack": 1,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 10,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 11,
-              "y": 5,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "3": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 23,
-          "deck": [
-            9,
-            10019,
-            110,
-            20043,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            15,
-            10,
-            20066,
-            10981,
-            110,
-            21,
-            9,
-            20043,
-            10019,
-            15,
-            20066,
-            9,
-            10019,
-            110,
-            20043
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10": {
-              "cost": 2,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "21": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            }
-          },
-          "garrison": [
-            {
-              "id": 23,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 9,
-              "x": 2,
-              "y": 2,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 10019,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 10,
-              "x": 1,
-              "y": 3,
-              "attack": 1,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 10,
-              "y": 6,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 11,
-              "y": 5,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    },
-    "4": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "support",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 201,
-          "deck": [
-            11,
-            10981,
-            19027,
-            20095,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            213,
-            210,
-            20151,
-            211,
-            19027,
-            221,
-            11,
-            20095,
-            10981,
-            213,
-            20151,
-            11,
-            10981,
-            19027,
-            20095
-          ],
-          "unitStats": {
-            "11": {
-              "cost": 3,
-              "attack": 1,
-              "health": 6
-            },
-            "210": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "221": {
-              "cost": 3,
-              "attack": 0,
-              "health": 9
-            },
-            "10981": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "19027": {
-              "cost": 4,
-              "attack": 3,
-              "health": 7
-            }
-          },
-          "garrison": [
-            {
-              "id": 201,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 11,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 6
-            },
-            {
-              "id": 10981,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 210,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 10,
-              "y": 6,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 9,
-              "y": 7,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 11,
-              "y": 5,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        }
-      }
-    },
-    "5": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 501,
-          "deck": [
-            108,
-            10019,
-            10021,
-            20139,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            511,
-            507,
-            20149,
-            503,
-            10021,
-            517,
-            108,
-            20139,
-            10019,
-            511,
-            20149,
-            108,
-            10019,
-            10021,
-            20139
-          ],
-          "unitStats": {
-            "108": {
-              "cost": 1,
-              "attack": 1,
-              "health": 2
-            },
-            "503": {
-              "cost": 3,
-              "attack": 3,
-              "health": 3
-            },
-            "507": {
-              "cost": 5,
-              "attack": 6,
-              "health": 6
-            },
-            "511": {
-              "cost": 3,
-              "attack": 1,
-              "health": 5
-            },
-            "517": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 501,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 108,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 2
-            },
-            {
-              "id": 10019,
-              "x": 3,
-              "y": 1,
-              "attack": 2,
-              "health": 2
-            },
-            {
-              "id": 507,
-              "x": 1,
-              "y": 3,
-              "attack": 6,
-              "health": 6
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 10,
-              "y": 6,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 9,
-              "y": 7,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 11,
-              "y": 5,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        }
-      }
-    },
-    "6": {
-      "version": 3,
-      "contentVersion": "campaign-2026-10-14-v2",
-      "label": "炉乡决战",
-      "hint": "先击破一军，避免两侧终结部队同时逼近。",
-      "chapter": 10,
-      "players": {
-        "1": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "assault",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 418,
-          "deck": [
-            14,
-            15,
-            9,
-            20151,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            211,
-            403,
-            20043,
-            213,
-            9,
-            407,
-            14,
-            20151,
-            15,
-            211,
-            20043,
-            14,
-            15,
-            9,
-            20151
-          ],
-          "unitStats": {
-            "9": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "14": {
-              "cost": 1,
-              "attack": 1,
-              "health": 5
-            },
-            "15": {
-              "cost": 2,
-              "attack": 3,
-              "health": 3
-            },
-            "211": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "213": {
-              "cost": 2,
-              "attack": 2,
-              "health": 2
-            },
-            "403": {
-              "cost": 4,
-              "attack": 3,
-              "health": 5
-            },
-            "407": {
-              "cost": 4,
-              "attack": 5,
-              "health": 5
-            }
-          },
-          "garrison": [
-            {
-              "id": 418,
-              "x": 1,
-              "y": 1,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 14,
-              "x": 2,
-              "y": 2,
-              "attack": 1,
-              "health": 5
-            },
-            {
-              "id": 15,
-              "x": 3,
-              "y": 1,
-              "attack": 3,
-              "health": 3
-            },
-            {
-              "id": 403,
-              "x": 1,
-              "y": 3,
-              "attack": 3,
-              "health": 5
-            }
-          ]
-        },
-        "2": {
-          "mana": 5,
-          "maxMana": 5,
-          "manaGrowth": 1,
-          "manaCap": 9,
-          "openingHandSize": 4,
-          "drawPerTurn": 1,
-          "handLimit": 8,
-          "fatigueDamage": 2,
-          "replacePerTurn": 0,
-          "shuffleDeck": false,
-          "behavior": "flank",
-          "spellRank": 0,
-          "spellMode": "base",
-          "attackBonus": 0,
-          "healthBonus": 0,
-          "generalHealth": 32,
-          "generalAttack": 3,
-          "generalId": 101,
-          "deck": [
-            110,
-            115,
-            109,
-            20081,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            10021,
-            112,
-            20086,
-            10019,
-            109,
-            120,
-            110,
-            20081,
-            115,
-            10021,
-            20086,
-            110,
-            115,
-            109,
-            20081
-          ],
-          "unitStats": {
-            "109": {
-              "cost": 3,
-              "attack": 2,
-              "health": 4
-            },
-            "110": {
-              "cost": 2,
-              "attack": 2,
-              "health": 4
-            },
-            "112": {
-              "cost": 3,
-              "attack": 3,
-              "health": 4
-            },
-            "115": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            },
-            "120": {
-              "cost": 4,
-              "attack": 5,
-              "health": 4
-            },
-            "10019": {
-              "cost": 1,
-              "attack": 2,
-              "health": 2
-            },
-            "10021": {
-              "cost": 2,
-              "attack": 1,
-              "health": 3
-            }
-          },
-          "garrison": [
-            {
-              "id": 101,
-              "x": 11,
-              "y": 7,
-              "attack": 3,
-              "health": 32
-            },
-            {
-              "id": 110,
-              "x": 10,
-              "y": 6,
-              "attack": 2,
-              "health": 4
-            },
-            {
-              "id": 115,
-              "x": 9,
-              "y": 7,
-              "attack": 1,
-              "health": 3
-            },
-            {
-              "id": 112,
-              "x": 11,
-              "y": 5,
-              "attack": 3,
-              "health": 4
-            }
-          ]
-        }
-      }
-    }
+ },
+ "border-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "侧翼远程",
+  "hint": "敌方射手生命较低，可以绕到侧面或空投接近。",
+  "chapter": 1,
+  "players": {
+   "1": {
+    "mana": 2,
+    "maxMana": 2,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 16,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     10021,
+     14,
+     9,
+     14,
+     9,
+     10021,
+     10019,
+     14,
+     9,
+     10021,
+     10019,
+     14,
+     10021,
+     10019
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 1
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 2
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 7,
+      "y": 2,
+      "attack": 2,
+      "health": 16
+     },
+     {
+      "id": 9,
+      "x": 6,
+      "y": 0,
+      "attack": 2,
+      "health": 3
+     },
+     {
+      "id": 14,
+      "x": 6,
+      "y": 4,
+      "attack": 1,
+      "health": 4
+     }
+    ]
+   }
   }
+ },
+ "border-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "守住前哨",
+  "hint": "保护主将，存活7回合即可获胜。",
+  "chapter": 1,
+  "players": {
+   "1": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "assault",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 18,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     14,
+     10021,
+     9,
+     14,
+     9,
+     10021,
+     19027,
+     14,
+     9,
+     10021,
+     19027,
+     14,
+     9,
+     10021,
+     19027,
+     14
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 2
+     },
+     "19027": {
+      "cost": 4,
+      "attack": 2,
+      "health": 6
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 8,
+      "y": 2,
+      "attack": 2,
+      "health": 18
+     },
+     {
+      "id": 14,
+      "x": 6,
+      "y": 1,
+      "attack": 1,
+      "health": 5
+     },
+     {
+      "id": 9,
+      "x": 7,
+      "y": 2,
+      "attack": 2,
+      "health": 3
+     }
+    ]
+   }
+  }
+ },
+ "road-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "护卫与射手",
+  "hint": "先击败挡路的护卫，或从侧面接近射手。",
+  "chapter": 2,
+  "players": {
+   "1": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 20,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     14,
+     11,
+     10021,
+     11,
+     14,
+     10021,
+     20043,
+     9,
+     11,
+     14,
+     10021,
+     20043,
+     9,
+     11,
+     14,
+     10021,
+     9,
+     9
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 5
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 9,
+      "y": 3,
+      "attack": 2,
+      "health": 20
+     },
+     {
+      "id": 11,
+      "x": 7,
+      "y": 3,
+      "attack": 2,
+      "health": 6
+     },
+     {
+      "id": 9,
+      "x": 8,
+      "y": 1,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "road-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "治疗支援",
+  "hint": "敌军会治疗逐光者，尽量在一回合内击败它。",
+  "chapter": 2,
+  "players": {
+   "1": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "support",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 22,
+    "generalAttack": 2,
+    "generalId": 1,
+    "deck": [
+     15,
+     10981,
+     11,
+     15,
+     10981,
+     11,
+     14,
+     20043,
+     10021,
+     15,
+     10981,
+     11,
+     14,
+     20043,
+     10021,
+     10981,
+     14,
+     20043
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 5
+     },
+     "15": {
+      "cost": 2,
+      "attack": 3,
+      "health": 3
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 1,
+      "x": 9,
+      "y": 3,
+      "attack": 2,
+      "health": 22
+     },
+     {
+      "id": 15,
+      "x": 8,
+      "y": 2,
+      "attack": 3,
+      "health": 3
+     },
+     {
+      "id": 14,
+      "x": 8,
+      "y": 4,
+      "attack": 2,
+      "health": 5
+     }
+    ]
+   }
+  }
+ },
+ "road-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "重装关隘",
+  "hint": "护卫身后的射手可以远程攻击，注意保护受伤单位。",
+  "chapter": 2,
+  "players": {
+   "1": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 26,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     14,
+     11,
+     10021,
+     20066,
+     11,
+     19027,
+     10021,
+     16,
+     20066,
+     20043,
+     14,
+     11,
+     19027,
+     10021,
+     16,
+     20066,
+     20043,
+     14,
+     11,
+     19027,
+     10021
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 5
+     },
+     "16": {
+      "cost": 4,
+      "attack": 3,
+      "health": 7
+     },
+     "17": {
+      "cost": 5,
+      "attack": 3,
+      "health": 8
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "19027": {
+      "cost": 4,
+      "attack": 3,
+      "health": 7
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 9,
+      "y": 3,
+      "attack": 2,
+      "health": 26
+     },
+     {
+      "id": 17,
+      "x": 7,
+      "y": 3,
+      "attack": 3,
+      "health": 8
+     },
+     {
+      "id": 11,
+      "x": 8,
+      "y": 2,
+      "attack": 2,
+      "health": 7
+     }
+    ]
+   }
+  }
+ },
+ "banners-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "两军交战",
+  "hint": "两支敌军也会互相攻击，避免同时被两边围攻。",
+  "chapter": 3,
+  "players": {
+   "1": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 20,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     14,
+     11,
+     15,
+     11,
+     15,
+     10981,
+     14,
+     20043,
+     11,
+     15,
+     10981,
+     14,
+     20043,
+     11,
+     10981,
+     14,
+     20043,
+     14
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 6
+     },
+     "15": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 11,
+      "y": 1,
+      "attack": 2,
+      "health": 20
+     },
+     {
+      "id": 11,
+      "x": 9,
+      "y": 1,
+      "attack": 2,
+      "health": 7
+     }
+    ]
+   },
+   "2": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 16,
+    "generalAttack": 2,
+    "generalId": 1,
+    "deck": [
+     9,
+     10021,
+     10019,
+     9,
+     10019,
+     10021,
+     20066,
+     9,
+     10019,
+     10021,
+     20066,
+     9,
+     10019,
+     10021,
+     20066,
+     9,
+     10021,
+     20066
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 3,
+      "health": 5
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 3,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 1,
+      "x": 11,
+      "y": 5,
+      "attack": 2,
+      "health": 16
+     },
+     {
+      "id": 9,
+      "x": 9,
+      "y": 5,
+      "attack": 3,
+      "health": 5
+     }
+    ]
+   }
+  }
+ },
+ "banners-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "争夺渡口",
+  "hint": "两侧都有敌军，可以先集中攻击一侧。",
+  "chapter": 3,
+  "players": {
+   "1": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "support",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 22,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     11,
+     10981,
+     15,
+     11,
+     15,
+     16,
+     10981,
+     20043,
+     14,
+     11,
+     15,
+     16,
+     10981,
+     20043,
+     14,
+     11,
+     16,
+     10981,
+     20043,
+     14
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 6
+     },
+     "15": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "16": {
+      "cost": 4,
+      "attack": 3,
+      "health": 8
+     },
+     "17": {
+      "cost": 5,
+      "attack": 3,
+      "health": 10
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 11,
+      "y": 2,
+      "attack": 2,
+      "health": 22
+     },
+     {
+      "id": 17,
+      "x": 9,
+      "y": 2,
+      "attack": 3,
+      "health": 10
+     },
+     {
+      "id": 15,
+      "x": 10,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     },
+     {
+      "id": 14,
+      "x": 8,
+      "y": 3,
+      "attack": 2,
+      "health": 6
+     }
+    ]
+   },
+   "2": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 18,
+    "generalAttack": 2,
+    "generalId": 1,
+    "deck": [
+     10019,
+     9,
+     10021,
+     10019,
+     9,
+     10021,
+     19037,
+     20066,
+     10019,
+     9,
+     10021,
+     19037,
+     20066,
+     10019,
+     9,
+     10021,
+     19037,
+     20066,
+     10021,
+     20066
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 3,
+      "health": 5
+     },
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 6
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 3,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "19037": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 1,
+      "x": 11,
+      "y": 6,
+      "attack": 2,
+      "health": 18
+     },
+     {
+      "id": 11,
+      "x": 9,
+      "y": 6,
+      "attack": 2,
+      "health": 7
+     },
+     {
+      "id": 14,
+      "x": 10,
+      "y": 5,
+      "attack": 2,
+      "health": 6
+     }
+    ]
+   }
+  }
+ },
+ "banners-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "三旗坚守",
+  "hint": "保护主将，存活10回合即可获胜。",
+  "chapter": 3,
+  "players": {
+   "1": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 24,
+    "generalAttack": 2,
+    "generalId": 23,
+    "deck": [
+     11,
+     15,
+     10981,
+     20043,
+     11,
+     17,
+     16,
+     15,
+     10981,
+     20043,
+     14,
+     11,
+     17,
+     16,
+     15,
+     10981,
+     20043,
+     14,
+     11,
+     16,
+     10981,
+     14
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "14": {
+      "cost": 1,
+      "attack": 2,
+      "health": 6
+     },
+     "15": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "16": {
+      "cost": 4,
+      "attack": 3,
+      "health": 8
+     },
+     "17": {
+      "cost": 5,
+      "attack": 3,
+      "health": 10
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 23,
+      "x": 11,
+      "y": 2,
+      "attack": 2,
+      "health": 24
+     },
+     {
+      "id": 17,
+      "x": 9,
+      "y": 2,
+      "attack": 3,
+      "health": 10
+     },
+     {
+      "id": 16,
+      "x": 10,
+      "y": 3,
+      "attack": 3,
+      "health": 8
+     }
+    ]
+   },
+   "2": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 3,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "assault",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 20,
+    "generalAttack": 2,
+    "generalId": 1,
+    "deck": [
+     9,
+     10019,
+     10021,
+     9,
+     10012,
+     10019,
+     10021,
+     20066,
+     19037,
+     9,
+     10012,
+     10019,
+     10021,
+     20066,
+     19037,
+     9,
+     10019,
+     10021,
+     20066,
+     19037,
+     9,
+     10021
+    ],
+    "unitStats": {
+     "9": {
+      "cost": 2,
+      "attack": 3,
+      "health": 5
+     },
+     "11": {
+      "cost": 3,
+      "attack": 2,
+      "health": 7
+     },
+     "15": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "10012": {
+      "cost": 4,
+      "attack": 3,
+      "health": 3
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 3,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "19037": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 1,
+      "x": 9,
+      "y": 8,
+      "attack": 2,
+      "health": 20
+     },
+     {
+      "id": 11,
+      "x": 9,
+      "y": 7,
+      "attack": 2,
+      "health": 7
+     },
+     {
+      "id": 15,
+      "x": 8,
+      "y": 7,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "sand-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "沙魔援军",
+  "hint": "方尖碑会不断召唤沙魔，击败它可阻止增援。",
+  "chapter": 4,
+  "players": {
+   "1": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 26,
+    "generalAttack": 2,
+    "generalId": 201,
+    "deck": [
+     214,
+     213,
+     211,
+     20095,
+     214,
+     213,
+     211,
+     10021,
+     20095,
+     20151,
+     214,
+     213,
+     211,
+     10021,
+     20095,
+     20151,
+     214,
+     213,
+     211,
+     10021,
+     20151,
+     213,
+     10021,
+     213
+    ],
+    "unitStats": {
+     "211": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "213": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "214": {
+      "cost": 2,
+      "attack": 0,
+      "health": 7
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 201,
+      "x": 9,
+      "y": 3,
+      "attack": 2,
+      "health": 26
+     },
+     {
+      "id": 213,
+      "x": 7,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     },
+     {
+      "id": 211,
+      "x": 8,
+      "y": 1,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "sand-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "双塔协同",
+  "hint": "金焰方尖碑会强化沙魔，可以优先击败它。",
+  "chapter": 4,
+  "players": {
+   "1": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "support",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 28,
+    "generalAttack": 2,
+    "generalId": 223,
+    "deck": [
+     214,
+     213,
+     211,
+     20095,
+     215,
+     214,
+     213,
+     211,
+     10981,
+     20095,
+     20151,
+     215,
+     214,
+     213,
+     211,
+     10981,
+     20095,
+     20151,
+     214,
+     213,
+     211,
+     20151,
+     213,
+     213
+    ],
+    "unitStats": {
+     "211": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "213": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "214": {
+      "cost": 2,
+      "attack": 0,
+      "health": 7
+     },
+     "215": {
+      "cost": 3,
+      "attack": 0,
+      "health": 8
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 223,
+      "x": 11,
+      "y": 3,
+      "attack": 2,
+      "health": 28
+     },
+     {
+      "id": 211,
+      "x": 9,
+      "y": 1,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 211,
+      "x": 9,
+      "y": 5,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "sand-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "沙海军团",
+  "hint": "避开爆破单位所在的行，给主将留出退路。",
+  "chapter": 4,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 2,
+    "generalId": 201,
+    "deck": [
+     214,
+     213,
+     211,
+     20095,
+     215,
+     214,
+     213,
+     209,
+     211,
+     19027,
+     20151,
+     20095,
+     215,
+     214,
+     213,
+     209,
+     211,
+     19027,
+     20151,
+     20095,
+     214,
+     213,
+     209,
+     20151,
+     213,
+     213,
+     213
+    ],
+    "unitStats": {
+     "209": {
+      "cost": 5,
+      "attack": 5,
+      "health": 8
+     },
+     "211": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "213": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "214": {
+      "cost": 2,
+      "attack": 0,
+      "health": 7
+     },
+     "215": {
+      "cost": 3,
+      "attack": 0,
+      "health": 9
+     },
+     "19027": {
+      "cost": 4,
+      "attack": 3,
+      "health": 8
+     }
+    },
+    "garrison": [
+     {
+      "id": 201,
+      "x": 11,
+      "y": 4,
+      "attack": 2,
+      "health": 30
+     },
+     {
+      "id": 213,
+      "x": 8,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     },
+     {
+      "id": 214,
+      "x": 9,
+      "y": 5,
+      "attack": 0,
+      "health": 7
+     },
+     {
+      "id": 211,
+      "x": 10,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "shadow-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "后排突袭",
+  "hint": "敌军能从背后攻击，注意主将身后的空格。",
+  "chapter": 5,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 28,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     109,
+     115,
+     20086,
+     110,
+     109,
+     111,
+     10019,
+     115,
+     20081,
+     20086,
+     110,
+     109,
+     111,
+     10019,
+     115,
+     20081,
+     20086,
+     110,
+     109,
+     10019,
+     20081,
+     110,
+     10019
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "111": {
+      "cost": 5,
+      "attack": 3,
+      "health": 6
+     },
+     "115": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 3,
+      "health": 2
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 3,
+      "y": 9,
+      "attack": 3,
+      "health": 28
+     },
+     {
+      "id": 110,
+      "x": 4,
+      "y": 7,
+      "attack": 3,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 2,
+      "y": 8,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 109,
+      "x": 5,
+      "y": 8,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "shadow-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "腐化与亡愿",
+  "hint": "暗灵死亡会强化敌方单位，先处理带有死亡监视的敌人。",
+  "chapter": 5,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "support",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 301,
+    "deck": [
+     317,
+     308,
+     316,
+     20072,
+     317,
+     308,
+     311,
+     316,
+     19050,
+     20072,
+     20052,
+     317,
+     308,
+     311,
+     316,
+     19050,
+     20072,
+     20052,
+     317,
+     308,
+     311,
+     19050,
+     20072,
+     20052,
+     317,
+     308
+    ],
+    "unitStats": {
+     "308": {
+      "cost": 1,
+      "attack": 3,
+      "health": 3
+     },
+     "311": {
+      "cost": 3,
+      "attack": 2,
+      "health": 5
+     },
+     "316": {
+      "cost": 2,
+      "attack": 1,
+      "health": 6
+     },
+     "317": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "19050": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 301,
+      "x": 11,
+      "y": 3,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 308,
+      "x": 8,
+      "y": 2,
+      "attack": 3,
+      "health": 3
+     },
+     {
+      "id": 317,
+      "x": 9,
+      "y": 4,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "shadow-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "暗影会战",
+  "hint": "两支敌军也会互相攻击，溅射能同时伤害相邻敌人。",
+  "chapter": 5,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 28,
+    "generalAttack": 3,
+    "generalId": 123,
+    "deck": [
+     110,
+     109,
+     115,
+     20086,
+     110,
+     111,
+     109,
+     115,
+     20081,
+     20086,
+     110,
+     111,
+     109,
+     115,
+     20081,
+     20086,
+     110,
+     111,
+     109,
+     20081,
+     20086,
+     110,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "111": {
+      "cost": 5,
+      "attack": 3,
+      "health": 6
+     },
+     "115": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 123,
+      "x": 10,
+      "y": 2,
+      "attack": 3,
+      "health": 28
+     },
+     {
+      "id": 115,
+      "x": 8,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 109,
+      "x": 9,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 4,
+    "maxMana": 4,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "support",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 26,
+    "generalAttack": 3,
+    "generalId": 323,
+    "deck": [
+     317,
+     308,
+     311,
+     20072,
+     317,
+     308,
+     311,
+     316,
+     19050,
+     20072,
+     20052,
+     317,
+     308,
+     311,
+     316,
+     19050,
+     20072,
+     20052,
+     317,
+     308,
+     311,
+     316,
+     19050,
+     317
+    ],
+    "unitStats": {
+     "308": {
+      "cost": 1,
+      "attack": 3,
+      "health": 3
+     },
+     "311": {
+      "cost": 3,
+      "attack": 2,
+      "health": 5
+     },
+     "316": {
+      "cost": 2,
+      "attack": 1,
+      "health": 6
+     },
+     "317": {
+      "cost": 2,
+      "attack": 3,
+      "health": 4
+     },
+     "19050": {
+      "cost": 2,
+      "attack": 2,
+      "health": 5
+     }
+    },
+    "garrison": [
+     {
+      "id": 323,
+      "x": 10,
+      "y": 6,
+      "attack": 3,
+      "health": 26
+     },
+     {
+      "id": 317,
+      "x": 8,
+      "y": 6,
+      "attack": 3,
+      "health": 4
+     },
+     {
+      "id": 308,
+      "x": 9,
+      "y": 5,
+      "attack": 3,
+      "health": 3
+     }
+    ]
+   }
+  }
+ },
+ "frost-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "冰墙封路",
+  "hint": "飞行和空投可以绕过冰墙，驱散能移除冰墙。",
+  "chapter": 6,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 501,
+    "deck": [
+     505,
+     511,
+     20149,
+     503,
+     505,
+     503,
+     511,
+     19027,
+     513,
+     20149,
+     20139,
+     505,
+     503,
+     511,
+     19027,
+     513,
+     20149,
+     20139,
+     505,
+     503,
+     511,
+     19027,
+     20149,
+     20139,
+     505,
+     20149,
+     20139,
+     505
+    ],
+    "unitStats": {
+     "503": {
+      "cost": 3,
+      "attack": 4,
+      "health": 4
+     },
+     "505": {
+      "cost": 2,
+      "attack": 3,
+      "health": 6
+     },
+     "506": {
+      "cost": 2,
+      "attack": 2,
+      "health": 3
+     },
+     "511": {
+      "cost": 3,
+      "attack": 2,
+      "health": 6
+     },
+     "513": {
+      "cost": 4,
+      "attack": 4,
+      "health": 5
+     },
+     "19027": {
+      "cost": 4,
+      "attack": 3,
+      "health": 9
+     }
+    },
+    "garrison": [
+     {
+      "id": 501,
+      "x": 1,
+      "y": 3,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 505,
+      "x": 4,
+      "y": 2,
+      "attack": 3,
+      "health": 6
+     },
+     {
+      "id": 506,
+      "x": 3,
+      "y": 4,
+      "attack": 2,
+      "health": 3
+     },
+     {
+      "id": 503,
+      "x": 2,
+      "y": 1,
+      "attack": 4,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "frost-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "重生攻坚",
+  "hint": "重生之卵只有1生命，及时击败它可阻止敌人复活。",
+  "chapter": 6,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "assault",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 34,
+    "generalAttack": 3,
+    "generalId": 401,
+    "deck": [
+     412,
+     402,
+     410,
+     20116,
+     412,
+     413,
+     402,
+     19027,
+     410,
+     20116,
+     20117,
+     412,
+     413,
+     402,
+     19027,
+     410,
+     20116,
+     20117,
+     412,
+     413,
+     402,
+     19027,
+     20116,
+     20117,
+     412,
+     413,
+     20117,
+     412
+    ],
+    "unitStats": {
+     "402": {
+      "cost": 3,
+      "attack": 4,
+      "health": 6
+     },
+     "406": {
+      "cost": 2,
+      "attack": 6,
+      "health": 2
+     },
+     "410": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "412": {
+      "cost": 2,
+      "attack": 3,
+      "health": 5
+     },
+     "413": {
+      "cost": 4,
+      "attack": 5,
+      "health": 6
+     },
+     "19027": {
+      "cost": 4,
+      "attack": 3,
+      "health": 9
+     }
+    },
+    "garrison": [
+     {
+      "id": 401,
+      "x": 11,
+      "y": 4,
+      "attack": 3,
+      "health": 34
+     },
+     {
+      "id": 406,
+      "x": 8,
+      "y": 3,
+      "attack": 6,
+      "health": 2
+     },
+     {
+      "id": 412,
+      "x": 9,
+      "y": 5,
+      "attack": 3,
+      "health": 5
+     },
+     {
+      "id": 410,
+      "x": 10,
+      "y": 2,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "frost-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "霜墙女王",
+  "hint": "冰棱护住女王：打碎她身边的冰棱，碎冰会伤到相邻的所有人。别停在冰封标记上。",
+  "chapter": 6,
+  "boss": {
+   "id": "frost-queen"
+  },
+  "players": {
+   "1": {
+    "mana": 3,
+    "maxMana": 3,
+    "manaGrowth": 1,
+    "manaCap": 5,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 6,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 22,
+    "generalAttack": 2,
+    "generalId": 527,
+    "deck": [
+     505,
+     503,
+     511,
+     20139,
+     505,
+     503,
+     511,
+     513,
+     20139,
+     505,
+     503,
+     511,
+     513,
+     20139,
+     505,
+     503,
+     511,
+     513,
+     505,
+     503
+    ],
+    "unitStats": {"503":{"cost":3,"attack":3,"health":2},"505":{"cost":2,"attack":2,"health":3},"511":{"cost":3,"attack":1,"health":4},"513":{"cost":4,"attack":4,"health":3}},
+    "garrison": [
+     {
+      "id": 527,
+      "x": 7,
+      "y": 2,
+      "attack": 2,
+      "health": 22
+     },
+     {
+      "id": 9001,
+      "x": 6,
+      "y": 1,
+      "attack": 0,
+      "health": 3
+     },
+     {
+      "id": 9001,
+      "x": 6,
+      "y": 2,
+      "attack": 0,
+      "health": 3
+     },
+     {
+      "id": 9001,
+      "x": 6,
+      "y": 3,
+      "attack": 0,
+      "health": 3
+     },
+     {
+      "id": 503,
+      "x": 6,
+      "y": 4,
+      "attack": 3,
+      "health": 2
+     }
+    ]
+   }
+  }
+ },
+ "crossroads-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "四岔渡口",
+  "hint": "绕过断开的中轴，选择一翼推进。",
+  "chapter": 7,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 5,
+      "y": 7,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 5,
+      "y": 6,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 4,
+      "y": 6,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 6,
+      "y": 6,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "crossroads-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "错位桥头",
+  "hint": "绕开错位墙体，夺取中央前哨。",
+  "chapter": 7,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 11,
+      "y": 1,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 10,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 11,
+      "y": 3,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 9,
+      "y": 1,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "crossroads-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "三面来敌",
+  "hint": "从两军之间撤向一侧，守住主将。",
+  "chapter": 7,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 1,
+      "y": 1,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 110,
+      "x": 2,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 3,
+      "y": 1,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 1,
+      "y": 3,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 527,
+    "deck": [
+     11,
+     10021,
+     505,
+     20149,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     11,
+     10021,
+     505,
+     20149
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 1,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "505": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "512": {
+      "cost": 2,
+      "attack": 1,
+      "health": 4
+     },
+     "519": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 527,
+      "x": 9,
+      "y": 7,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 11,
+      "x": 8,
+      "y": 6,
+      "attack": 1,
+      "health": 6
+     },
+     {
+      "id": 10021,
+      "x": 7,
+      "y": 7,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 505,
+      "x": 9,
+      "y": 5,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "citadel-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "外堡回廊",
+  "hint": "沿堡垒两侧绕行，拆除远程支援。",
+  "chapter": 8,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 11,
+      "y": 4,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 10,
+      "y": 4,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 10,
+      "y": 5,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 10,
+      "y": 3,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "citadel-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "双门换防",
+  "hint": "两门间轮换部队，避免堵住自己的退路。",
+  "chapter": 8,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 5,
+      "y": 1,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 5,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 6,
+      "y": 2,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 4,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "citadel-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "孤堡突围",
+  "hint": "集中突破一侧，再转向另一名敌将。",
+  "chapter": 8,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 1,
+      "y": 4,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 110,
+      "x": 2,
+      "y": 4,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 2,
+      "y": 3,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 109,
+      "x": 2,
+      "y": 5,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 527,
+    "deck": [
+     11,
+     10021,
+     505,
+     20149,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     11,
+     10021,
+     505,
+     20149
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 1,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "505": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "512": {
+      "cost": 2,
+      "attack": 1,
+      "health": 4
+     },
+     "519": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 527,
+      "x": 9,
+      "y": 4,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 11,
+      "x": 8,
+      "y": 4,
+      "attack": 1,
+      "health": 6
+     },
+     {
+      "id": 10021,
+      "x": 8,
+      "y": 5,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 505,
+      "x": 8,
+      "y": 3,
+      "attack": 2,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "ruins-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "裂隙遗城",
+  "hint": "沿斜向通路接近火力，及时清理重生与召唤。",
+  "chapter": 9,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 11,
+      "y": 1,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 10,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 11,
+      "y": 3,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 9,
+      "y": 1,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "ruins-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "回响祭阵",
+  "hint": "主动拆掉侧翼生产和支援节点。",
+  "chapter": 9,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 5,
+      "y": 7,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 5,
+      "y": 6,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 4,
+      "y": 6,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 6,
+      "y": 6,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "ruins-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "遗城守夜",
+  "hint": "在两侧前哨之间转移，保护主将。",
+  "chapter": 9,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 2,
+      "y": 1,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 110,
+      "x": 3,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 4,
+      "y": 1,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 2,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 527,
+    "deck": [
+     11,
+     10021,
+     505,
+     20149,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     11,
+     10021,
+     505,
+     20149
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 1,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "505": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "512": {
+      "cost": 2,
+      "attack": 1,
+      "health": 4
+     },
+     "519": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 527,
+      "x": 10,
+      "y": 1,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 11,
+      "x": 9,
+      "y": 2,
+      "attack": 1,
+      "health": 6
+     },
+     {
+      "id": 10021,
+      "x": 10,
+      "y": 3,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 512,
+      "x": 8,
+      "y": 1,
+      "attack": 1,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "confluence-01": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "寒沙交界",
+  "hint": "选择一翼推进，利用两軍交火窗口。",
+  "chapter": 10,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 11,
+      "y": 2,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 10,
+      "y": 3,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 11,
+      "y": 4,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 9,
+      "y": 2,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 527,
+    "deck": [
+     11,
+     10021,
+     505,
+     20149,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     11,
+     10021,
+     505,
+     20149
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 1,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "505": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "512": {
+      "cost": 2,
+      "attack": 1,
+      "health": 4
+     },
+     "519": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 527,
+      "x": 11,
+      "y": 6,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 11,
+      "x": 12,
+      "y": 3,
+      "attack": 1,
+      "health": 6
+     },
+     {
+      "id": 10021,
+      "x": 10,
+      "y": 1,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 512,
+      "x": 9,
+      "y": 0,
+      "attack": 1,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "confluence-02": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "反转战线",
+  "hint": "从右向左推进，保护主将身后的位置。",
+  "chapter": 10,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 30,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 1,
+      "y": 4,
+      "attack": 3,
+      "health": 30
+     },
+     {
+      "id": 110,
+      "x": 2,
+      "y": 4,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 2,
+      "y": 3,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 2,
+      "y": 5,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   }
+  }
+ },
+ "confluence-03": {
+  "version": 3,
+  "contentVersion": "campaign-2026-10-14-v2",
+  "label": "炉乡决战",
+  "hint": "先击破一军，避免两侧终结部队同时逼近。",
+  "chapter": 10,
+  "players": {
+   "1": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "flank",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 101,
+    "deck": [
+     110,
+     115,
+     109,
+     20081,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     10021,
+     112,
+     20086,
+     10019,
+     109,
+     120,
+     110,
+     20081,
+     115,
+     10021,
+     20086,
+     110,
+     115,
+     109,
+     20081
+    ],
+    "unitStats": {
+     "109": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "110": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "112": {
+      "cost": 3,
+      "attack": 3,
+      "health": 4
+     },
+     "115": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "120": {
+      "cost": 4,
+      "attack": 5,
+      "health": 4
+     },
+     "10019": {
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     }
+    },
+    "garrison": [
+     {
+      "id": 101,
+      "x": 1,
+      "y": 1,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 110,
+      "x": 2,
+      "y": 2,
+      "attack": 2,
+      "health": 4
+     },
+     {
+      "id": 115,
+      "x": 3,
+      "y": 1,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 112,
+      "x": 1,
+      "y": 3,
+      "attack": 3,
+      "health": 4
+     }
+    ]
+   },
+   "2": {
+    "mana": 5,
+    "maxMana": 5,
+    "manaGrowth": 1,
+    "manaCap": 9,
+    "openingHandSize": 4,
+    "drawPerTurn": 1,
+    "handLimit": 8,
+    "fatigueDamage": 2,
+    "replacePerTurn": 0,
+    "shuffleDeck": false,
+    "behavior": "defend",
+    "spellRank": 0,
+    "spellMode": "base",
+    "attackBonus": 0,
+    "healthBonus": 0,
+    "generalHealth": 32,
+    "generalAttack": 3,
+    "generalId": 527,
+    "deck": [
+     11,
+     10021,
+     505,
+     20149,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     10981,
+     512,
+     20139,
+     14,
+     505,
+     519,
+     11,
+     20149,
+     10021,
+     10981,
+     20139,
+     11,
+     10021,
+     505,
+     20149
+    ],
+    "unitStats": {
+     "11": {
+      "cost": 3,
+      "attack": 1,
+      "health": 6
+     },
+     "14": {
+      "cost": 1,
+      "attack": 1,
+      "health": 5
+     },
+     "505": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     },
+     "512": {
+      "cost": 2,
+      "attack": 1,
+      "health": 4
+     },
+     "519": {
+      "cost": 3,
+      "attack": 2,
+      "health": 4
+     },
+     "10021": {
+      "cost": 2,
+      "attack": 1,
+      "health": 3
+     },
+     "10981": {
+      "cost": 2,
+      "attack": 2,
+      "health": 4
+     }
+    },
+    "garrison": [
+     {
+      "id": 527,
+      "x": 11,
+      "y": 7,
+      "attack": 3,
+      "health": 32
+     },
+     {
+      "id": 11,
+      "x": 10,
+      "y": 6,
+      "attack": 1,
+      "health": 6
+     },
+     {
+      "id": 10021,
+      "x": 9,
+      "y": 7,
+      "attack": 1,
+      "health": 3
+     },
+     {
+      "id": 512,
+      "x": 11,
+      "y": 5,
+      "attack": 1,
+      "health": 4
+     }
+    ]
+   }
+  }
+ }
 };

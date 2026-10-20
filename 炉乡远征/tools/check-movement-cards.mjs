@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { createChallengeMatch, castSpell, moveUnit, playCard } from '../dist/js/engine.js';
+import { castSpell, moveUnit, playCard } from '../dist/js/engine.js';
+import { scenarioMatch as createChallengeMatch } from './battle-fixture.mjs';
 
 function setup(hand, mana) {
   const state = createChallengeMatch('roar-lethal');

@@ -13,7 +13,7 @@ export function installQibingMotion(doc = document) {
   const media = win.matchMedia('(prefers-reduced-motion: reduce)');
   const animations = new Map();
   const dialogs = new Map();
-  const roots = [...doc.querySelectorAll('#expedition-home,#lobby,#match')];
+  const roots = [...doc.querySelectorAll('#expedition-home,#match')];
   const rootStates = new Map();
   let disposed = false;
   const permitted = () => !disposed && !doc.hidden && !media.matches;

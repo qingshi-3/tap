@@ -11,7 +11,7 @@ class MemoryStorage {
   setItem(key,value) {
     if (this.fail) throw new Error('quota full');
     this.data.set(key,String(value));
-    if (this.mutateThenThrow && key.includes('.local-decks-v1.')) throw new Error('adapter failed after write');
+    if (this.mutateThenThrow && key.startsWith(localDeckKey(''))) throw new Error('adapter failed after write');
   }
   removeItem(key) { this.data.delete(key); }
 }
@@ -71,7 +71,7 @@ assert.equal(adapterStorage.getItem(localDeckKey(1)),null,'guard restores failed
 // Exercise actual add/remove/return/default/start handlers, not source strings.
 function harness(store = new MemoryStorage()) {
   const ui = Object.create(ExpeditionUI.prototype);
-  ui.progress = {state:{selectedHeroId:faction.heroIds[0],inventory,factionDecks:{[faction.id]:original}},setBattleDeck:cards => ({ok:validatePlayerDeck(cards,faction.heroIds[0],inventory),error:'必须30张'})};
+  ui.progress = {state:{selectedHeroId:faction.heroIds[0],inventory,decks:{[faction.id]:original}},setBattleDeck:cards => ({ok:validatePlayerDeck(cards,faction.heroIds[0],inventory),error:'必须30张'})};
   ui.localDecks = new LocalDecks(store); ui.page = 'prep'; ui.returnMission = EXPEDITION_LEVELS[0].id;
   ui.render = () => { ui.rendered = (ui.rendered || 0) + 1; };
   ui.navigate = page => { ui.page = page; };

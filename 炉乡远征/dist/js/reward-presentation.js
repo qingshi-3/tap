@@ -25,7 +25,7 @@ export class RewardPresentation {
     document.body.append(this.dialog);
   }
   show({ kind, amount, requestId, duplicate = false }) {
-    if (duplicate || !requestId || this.seen.has(requestId) || !['gold', 'orb'].includes(kind) || !Number.isSafeInteger(amount) || amount <= 0) return false;
+    if (duplicate || !requestId || this.seen.has(requestId) || kind !== 'gold' || !Number.isSafeInteger(amount) || amount <= 0) return false;
     this.seen.add(requestId);
     if (!this.dialog.open) {
       this.returnFocus = document.activeElement;
@@ -34,8 +34,8 @@ export class RewardPresentation {
       if (this.returnFocus === document.body && this.returnDialog) this.returnFocus = null;
     }
     this.dialog.dataset.kind = kind;
-    this.image.src = `./assets/metagame/original/${kind === 'gold' ? 'resource-gold.png' : 'spirit-orb.png'}`;
-    this.amount.textContent = `+${amount} ${kind === 'gold' ? '金币' : '灵魂宝珠'}`;
+    this.image.src = './assets/metagame/original/resource-gold.png';
+    this.amount.textContent = `+${amount} 金币`;
     if (!this.dialog.open) this.dialog.showModal();
     this.button.focus({ preventScroll:true });
     return true;

@@ -1,9 +1,11 @@
 import { EXPANSION_RACES } from './expansion-mechanics.js';
 import { CONTENT_CARDS } from './content-cards.js';
 import { EFFECT_MANIFEST } from './effect-manifest.js';
+import { BOSS_CARDS } from './boss-mechanics.js';
 
 export const CARDS = {
   ...CONTENT_CARDS,
+  ...BOSS_CARDS,
   10021: { id:10021,name:'山谷猎手',type:'unit',faction:0,cost:2,attack:1,health:2,ranged:true,attackRange:3,description:'远程。' },
   19027: { id:19027,name:'普里姆斯盾卫',type:'unit',faction:0,cost:4,attack:3,health:6,provoke:true,description:'嘲讽。' },
   10981: { id:10981,name:'疗愈秘术师',type:'unit',faction:0,cost:2,attack:2,health:3,openingHeal:2,description:'登场：为损失生命最多的友军恢复2生命，可治疗主将。' },
@@ -124,7 +126,9 @@ export const CARDS = {
 // Body animation names and timings come from the original RSX, including Ziran's separate atlas.
 for (const card of Object.values(CARDS)) {
   if(EXPANSION_RACES[card.id])card.race=EXPANSION_RACES[card.id];
-  const body = EFFECT_MANIFEST.bodies[card.id];
+  // Boss tokens borrow an original unit's body and effect recipes.
+  if (card.spriteFrom) EFFECT_MANIFEST.cardRecipes[card.id] ??= EFFECT_MANIFEST.cardRecipes[card.spriteFrom];
+  const body = EFFECT_MANIFEST.bodies[card.spriteFrom ?? card.id];
   if (card.type === 'spell' && EFFECT_MANIFEST.spellArt?.[card.id]) card.art = EFFECT_MANIFEST.spellArt[card.id];
   if (!body) continue;
   card.sprite = { sheet: body.sheet, plist: body.plist };

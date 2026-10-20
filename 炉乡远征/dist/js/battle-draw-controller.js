@@ -19,7 +19,7 @@ export function createBattleDrawController(host, hand, hooks) {
       const rarity=getCardRarity(card.id);
       if(rarity) {
         const gem=document.createElement('span');gem.className='battle-card-rarity';
-        gem.style.backgroundImage=`url('./assets/ui/rarity/${rarity.key==='basic'?'common':rarity.key}.png')`;
+        gem.style.setProperty('background-image',`url('./assets/ui/rarity/${rarity.key==='basic'?'common':rarity.key}.png')`);
         gem.title=rarity.label;face.append(gem);
       }
       if(Number.isInteger(card.trainingLevel)) {

@@ -3,11 +3,10 @@ import {
   getBattleCard, getUnitBattleCard, summonPositions, getOpeningFollowup,
   spellPositions, spellTargets, getSpellFollowup, battleCommandTargets,
 } from './engine.js';
-import { isExpansion, enemyHalf, EXPANSION_SPELL_IDS } from './expansion-mechanics.js';
+import { enemyHalf, EXPANSION_SPELL_IDS } from './expansion-mechanics.js';
 
 function canSummon(state, card, owner) {
   return summonPositions(state, owner, card.id).some(cell => {
-    if (!isExpansion(state)) return true;
     const choice = getOpeningFollowup(state, card.id, cell, owner);
     if (!choice || choice.optional) return true;
     if (choice.type === 'cell') return choice.cells.length > 0;
@@ -17,13 +16,13 @@ function canSummon(state, card, owner) {
 }
 
 function canCast(state, spell, owner) {
-  const expanded = isExpansion(state) && EXPANSION_SPELL_IDS.includes(spell.id);
+  const expanded = EXPANSION_SPELL_IDS.includes(spell.id);
   if (expanded) {
     if (spell.effect === 'twinStrike' && state.units.filter(unit => unit.owner !== owner && getUnitBattleCard(state, unit)?.type === 'unit').length < 2) return false;
     if (spell.effect === 'spiritWild' && !state.units.some(unit => unit.owner === owner && getUnitBattleCard(state, unit)?.type === 'unit' && enemyHalf(state, unit))) return false;
     if (spell.target === 'none') return true;
   }
-  if (spell.summon || ['cell', 'areaCell'].includes(spell.target) || state.schemaVersion === 7 && spell.effect === 'chromaticCold') return spellPositions(state, spell, owner).length > 0;
+  if (spell.summon || ['cell', 'areaCell'].includes(spell.target) || spell.effect === 'chromaticCold') return spellPositions(state, spell, owner).length > 0;
   // These legacy area spells deliberately allow spending mana with no victims.
   if (!expanded && (spell.effect === 'tempest' || spell.target === 'enemyArea')) return true;
   return spellTargets(state, spell, owner).some(unit => {

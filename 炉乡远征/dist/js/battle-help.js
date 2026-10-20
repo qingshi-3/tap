@@ -45,28 +45,13 @@ export function battleRuleEntries(match = null) {
     ['选格', '自动召唤按从上到下、从左到右选择空格，没有合适空格时不召唤。卡牌另有说明时按卡牌效果执行。'],
     ['被动', '主将被动的“每回合首次”在己方回合开始重置，敌方回合也可触发。'],
   ];
-  if (match?.mode === 'challenge') return [
-    ['试炼', '使用本关提供的单位、手牌和法力。胜利条件与回合限制见本局目标。'],
-    ...actionRules,
-  ];
-  if (match?.campaignSupply) return [
-    ['出牌', '本局每张牌有固定使用次数，使用时消耗法力。'],
-    ['补给', '回合不会自动抽牌。抽牌效果消耗1点补给，恢复第一张尚未补满的牌1次使用次数。'],
-    ...actionRules,
-  ];
-  if (match && ![6, 7].includes(match.schemaVersion)) return [
-    ['抽牌', `回合开始抽1张牌。手牌上限${HAND_LIMIT}张，满手时暂停抽牌。${match.mode === 'expedition' ? '牌库为空时不再抽牌。' : '牌库为空时，每次抽牌使主将受到1点伤害。'}`],
-    ...actionRules,
-  ];
   const rules = match?.deckRules?.[0] ?? { openingHandSize: 5, drawPerTurn: 1, handLimit: HAND_LIMIT, fatigueDamage: 1, replacePerTurn: 1 };
   return [
     ['牌组', `${PLAYER_DECK_SIZE}张牌，同一张最多${MAX_CARD_COPIES}张。可使用本阵营和中立卡牌。`],
     ['起手', `抽${rules.openingHandSize}张牌，可选择最多2张替换。`],
     ['换牌', `每回合可换${rules.replacePerTurn}张手牌，换下的牌放回牌库。牌库为空时不能换牌。`],
-    ['抽牌', `己方回合结束抽${rules.drawPerTurn}张。手牌最多${rules.handLimit}张，满手时新抽到的牌会被弃掉。`],
-    ['疲劳', !match || match.fatigueVersion === 1
-      ? '牌库为空时，首次抽牌受到1点疲劳伤害，此后每次抽空增加1点（1、2、3……）。同回合额外抽牌也递增，双方分别累计，无法减免。用过的牌不会自动回到牌库。'
-      : `用过的牌不会自动回到牌库。牌库为空后，每次抽牌使主将受到${rules.fatigueDamage}点伤害，无法减免。`],
+    ['抽牌', `己方回合开始抽${rules.drawPerTurn}张。手牌最多${rules.handLimit}张，满手时新抽到的牌会被弃掉。`],
+    ['疲劳', '牌库为空时，首次抽牌受到1点疲劳伤害，此后每次抽空增加1点（1、2、3……）。双方分别累计，无法减免。用过的牌不会自动回到牌库。'],
     ...actionRules,
   ];
 }
@@ -75,6 +60,7 @@ export function battleObjectiveCopy(match, level) {
   if (match.objective?.type === 'survive') return {
     goal: `存活${match.objective.rounds}回合`, limit: '己方主将阵亡即失败',
   };
+  if (match.boss) return { goal: `击败${match.players[match.boss.owner].name}`, limit: '首领有专属规则，见下方；己方主将阵亡即失败' };
   const enemies = match.players.filter(player => player.id !== 0).length;
   return {
     goal: enemies > 1 ? '击败所有敌方主将' : '击败敌方主将',

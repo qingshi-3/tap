@@ -1,7 +1,8 @@
 import { battleDelay, battleElapsed } from './battle-motion.js';
 import { getCard } from './cards.js';
-import { BOARD, boardOf, isTacticalMatch, MANA_TILES, effectiveAttack, summonPositions, spellTargets, spellPositions, occupiedUnit, getBattleCard, getUnitBattleCard } from './engine.js';
+import { BOARD, boardOf, isTacticalMatch, MANA_TILES, effectiveAttack, summonPositions, spellTargets, spellPositions, occupiedUnit, findGeneral, getBattleCard, getUnitBattleCard } from './engine.js';
 import { EFFECT_MANIFEST } from './effect-manifest.js';
+import { bossMarks, bossArmored } from './boss-mechanics.js';
 import { EffectsPlayer } from './effects-player.js';
 import { CardAssetLoader } from './card-asset-loader.js';
 import { drawAtlasFrame } from './atlas.js';
@@ -444,6 +445,7 @@ export class BoardRenderer {
 
     ctx.clearRect(0, 0, width, height);
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
+    const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
 
     for (let y = 0; y < metrics.rows; y++) {
       for (let x = 0; x < metrics.columns; x++) {
@@ -458,6 +460,7 @@ export class BoardRenderer {
         if (isMana && !occupied) this.drawManaRune(ctx, cell.center.x, cell.center.y, cell.width * .19);
         if (terrain) this.drawTerrain(ctx, cell, terrain, occupied);
         if (state.creepCells?.[`${x},${y}`] != null) this.drawCreep(ctx, cell, state.creepCells[`${x},${y}`]);
+        if (marks.has(`${x},${y}`)) this.drawBossMark(ctx, cell);
         if (isTarget) drawTexturedQuad(ctx, this.images.get('tile-spell'), cell.points, .34);
       }
     }
@@ -523,6 +526,7 @@ export class BoardRenderer {
     statsContext.save();
     if (isTacticalMatch(state)) { statsContext.beginPath(); statsContext.rect(0, 0, width, height); statsContext.clip(); }
     for (const unit of orderedUnits) this.drawUnitStats(statsContext, visualState, unit, metrics);
+    if (state.boss) { this.drawBossArmor(statsContext, visualState, metrics); this.drawBossMarkBadges(statsContext, visualState, metrics); }
     statsContext.restore();
     this.attackPreviewLayout = [];
     drawAttackResults(this, statsContext, metrics, targetingOptions.attackPreview, targetingOptions.attackGesture);
@@ -611,6 +615,47 @@ export class BoardRenderer {
       ctx.strokeStyle = 'rgba(229,202,148,.6)'; ctx.lineWidth=2;
       for (let i=-1;i<=1;i++) { ctx.beginPath();ctx.moveTo(cell.center.x+i*cell.width*.18-4,cell.center.y+3);ctx.lineTo(cell.center.x+i*cell.width*.18+4,cell.center.y-4);ctx.stroke(); }
     }
+    ctx.restore();
+  }
+
+  // Telegraphed boss intent: a frosted cell that resolves on the boss's next turn.
+  drawBossMark(ctx, cell) {
+    const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 260) * .5;
+    ctx.save();
+    ctx.beginPath(); cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
+    ctx.fillStyle = `rgba(120,210,255,${.34 + pulse * .2})`; ctx.fill();
+    ctx.strokeStyle = '#dff6ff'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.restore();
+  }
+
+  // Drawn with the stats pass so units standing on a mark never hide the warning.
+  drawBossMarkBadges(ctx, state, metrics) {
+    for (const mark of bossMarks(state)) {
+      const cell = this.cellGeometry(metrics, mark.x, mark.y), r = Math.max(13, cell.width * .17);
+      const x = cell.center.x - cell.width * .3, y = cell.center.y - cell.height * .95;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(16,52,86,.94)'; ctx.fill(); ctx.strokeStyle = '#8fdcff'; ctx.lineWidth = 2.5; ctx.stroke();
+      ctx.strokeStyle = '#eafaff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+      for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * .62, y - Math.sin(a) * r * .62); ctx.lineTo(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62); ctx.stroke(); }
+      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0d2840'; ctx.lineWidth = 3.5; ctx.font = `800 ${Math.round(r * 1.05)}px "Luxiang UI", sans-serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.strokeText('3', x + r * .95, y + r * .55); ctx.fillText('3', x + r * .95, y + r * .55);
+      ctx.restore();
+    }
+  }
+
+  drawBossArmor(ctx, state, metrics) {
+    const boss = findGeneral(state, state.boss.owner);
+    if (!boss || !bossArmored(state, { general: owner => findGeneral(state, owner) })) return;
+    const cell = this.cellGeometry(metrics, boss.x, boss.y), size = Math.max(18, cell.width * .26);
+    const x = cell.center.x + cell.width * .34, y = cell.center.y - cell.height * 1.15;
+    ctx.save();
+    ctx.beginPath(); ctx.moveTo(x, y - size * .55); ctx.lineTo(x + size * .45, y - size * .35); ctx.lineTo(x + size * .38, y + size * .2);
+    ctx.lineTo(x, y + size * .55); ctx.lineTo(x - size * .38, y + size * .2); ctx.lineTo(x - size * .45, y - size * .35); ctx.closePath();
+    ctx.fillStyle = 'rgba(120,205,255,.92)'; ctx.fill(); ctx.strokeStyle = '#f2fbff'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#0d2840'; ctx.font = `700 ${Math.round(size * .5)}px "Luxiang UI", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('1', x, y + 1);
     ctx.restore();
   }
 

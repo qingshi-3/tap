@@ -11,16 +11,13 @@
   <link rel="stylesheet" href="./fonts.css">
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./game-card.css">
-  <link rel="stylesheet" href="./metagame.css">
   <link rel="stylesheet" href="./expedition.css">
   <link rel="stylesheet" href="./expedition-battle.css">
   <link rel="stylesheet" href="./keyword-ui.css">
   <link rel="stylesheet" href="./safe-area.css">
-  <link rel="stylesheet" href="./trial-lesson.css">
   <link rel="stylesheet" href="./battle-command-preview.css">
   <link rel="stylesheet" href="./battle-objective.css">
   <link rel="stylesheet" href="./hand-layout.css">
-  <link rel="stylesheet" href="./recruitment.css">
   <link rel="stylesheet" href="./resource-rewards.css">
   <link rel="stylesheet" href="./scene-loading.css">
   <link rel="stylesheet" href="./reward-presentation.css">
@@ -44,53 +41,6 @@
   <div class="scene-backdrop" aria-hidden="true"></div>
   <main id="app" class="app">
     <section id="expedition-home" aria-label="远征营地"></section>
-    <section id="lobby" class="lobby metagame" aria-labelledby="game-title" data-screen="home" hidden>
-      <div class="meta-world" aria-hidden="true"></div>
-      <header class="meta-topbar">
-        <button id="return-expedition" class="game-button game-button-quiet" type="button">远征营地</button>
-        <button class="game-back" data-meta-back type="button" aria-label="返回章节首页" hidden></button>
-        <div class="meta-brand"><img src="./assets/metagame/original/crest-f1.png" alt=""><div><h1 id="game-title">狮心试炼</h1><p data-screen-subtitle>单人战术演武</p></div></div>
-        <div class="meta-top-actions"><button id="resume-local" class="game-button game-button-quiet" hidden>继续试炼</button><button id="resume-cloud" class="game-button game-button-quiet" hidden>云端继续</button></div>
-        <div class="meta-completion" aria-label="章节完成进度"><img src="./assets/metagame/original/crest-f1.png" alt=""><span data-complete-count>0 / 3</span></div>
-      </header>
-
-      <div class="meta-stage">
-        <section class="meta-page meta-campaign-page" data-meta-panel="campaign" aria-label="章节与关卡">
-          <div class="chapter-view chapter-home" data-chapter-view="overview">
-            <div class="chapter-intro"><span class="chapter-kicker">第一章</span><h2>狮心试炼</h2><p>站位、联结，一击制胜。</p><div class="chapter-medal" data-chapter-medal><img src="./assets/metagame/original/crest-f1.png" alt=""><div><strong>狮心勋章</strong><small>完成全部试炼获得</small></div></div><button class="game-button chapter-enter" type="button" data-open-chapter>进入章节</button></div>
-            <button class="chapter-banner" type="button" data-open-chapter aria-label="打开狮心试炼章节"><img class="chapter-crest" src="./assets/metagame/original/crest-f1-deck-select.png" alt="白银狮心徽记"><span class="chapter-banner-caption">狮心试炼<small><span data-level-progress>0 / 3</span> 关已完成</small></span></button>
-          </div>
-          <div class="chapter-view level-view" data-chapter-view="levels" hidden>
-            <div class="level-heading"><span>第一章 · 狮心试炼</span><p>选择试炼</p><small>固定手牌 · 一回合解局</small></div>
-            <div id="level-list" class="meta-level-list" aria-label="试炼关卡"></div>
-          </div>
-        </section>
-
-        <section class="meta-page codex-page" data-meta-panel="codex" aria-label="卡牌图鉴" hidden>
-          <div class="codex-toolbar"><div class="codex-filters" role="group" aria-label="筛选卡牌"><button type="button" class="is-active" data-card-filter="all" aria-pressed="true">全部</button><button type="button" data-card-filter="unit" aria-pressed="false">随从</button><button type="button" data-card-filter="spell" aria-pressed="false">法术</button><button type="button" data-card-filter="general" aria-pressed="false">主将</button></div><span data-codex-count></span></div>
-          <div class="codex-grid" data-codex-grid aria-label="左右滑动浏览卡牌" tabindex="0"></div>
-          <div class="codex-pager"><button class="game-arrow" data-codex-prev type="button" aria-label="上一页卡牌">‹</button><span data-codex-page aria-live="polite">左右滑动 · 点按查看</span><button class="game-arrow" data-codex-next type="button" aria-label="下一页卡牌">›</button></div>
-        </section>
-      </div>
-
-      <footer class="meta-footer">
-        <nav class="meta-nav" aria-label="游戏功能"><button class="meta-nav-button is-active" type="button" data-meta-page="campaign" aria-pressed="true"><img src="./assets/metagame/original/crest-f1.png" alt=""><span>战术试炼</span></button><button class="meta-nav-button" type="button" data-meta-page="codex" aria-pressed="false"><img src="./assets/metagame/original/shop-tab-card-backs.png" alt=""><span>卡牌图鉴</span></button></nav>
-        <div class="save-indicator"><span id="cloud-status">进度自动保存</span><button id="sync-cloud" class="text-button" hidden>同步进度</button></div><span class="meta-progress-error" data-progress-error role="alert" hidden></span>
-      </footer>
-
-      <dialog id="mission-dialog" class="game-dialog mission-dialog" aria-labelledby="mission-dialog-title">
-        <button class="game-close" type="button" data-close-mission aria-label="关闭出战预览">×</button>
-        <div class="mission-brief">
-          <div class="brief-emblem" aria-hidden="true"><img src="./assets/metagame/original/crest-f1-deck-select.png" alt=""><span data-brief-number>01</span></div>
-          <div class="brief-main"><div class="brief-heading"><small data-brief-state></small><h2 id="mission-dialog-title" data-brief-title></h2></div><p class="brief-subtitle" data-brief-subtitle></p><dl class="brief-rules"><div><dt>胜利目标</dt><dd data-brief-goal></dd></div><div><dt>回合限制</dt><dd data-brief-turns></dd></div></dl><h3 class="brief-roster-title">本局手牌与单位 <small>点按查看</small></h3><div class="brief-roster" data-brief-roster aria-label="本局卡牌"></div><p class="brief-reward" data-brief-reward></p><button id="new-game" class="game-button">开始试炼</button></div>
-        </div>
-      </dialog>
-      <dialog id="card-dialog" class="card-dialog" aria-label="卡牌详情">
-        <button class="game-close" type="button" data-close-card aria-label="关闭卡牌详情">×</button>
-        <button class="game-arrow" type="button" data-card-prev aria-label="查看上一张卡牌">‹</button><div data-card-dossier></div><button class="game-arrow" type="button" data-card-next aria-label="查看下一张卡牌">›</button>
-      </dialog>
-      <div class="turn-device" role="status">请旋转设备，以横屏进入战场</div>
-    </section>
 
     <section id="match" class="match" hidden aria-label="战术试炼">
       <div class="battle-layers" aria-hidden="true">
@@ -180,7 +130,6 @@
 
       <div class="match-footer">
         <div id="battle-log" class="battle-log" aria-live="polite">战斗开始。</div>
-        <button id="match-sync" class="text-button" hidden>同步进度</button>
         <button id="bbs-button" class="button button-bbs" aria-label="狮王怒吼，消耗1法力"><canvas id="bbs-icon" width="96" height="96" aria-hidden="true"></canvas><span id="bbs-name">狮王怒吼</span><b>1</b></button>
         <div class="mana-track" aria-label="可用法力">
           <span class="mana-glyph" aria-hidden="true"></span>
@@ -199,10 +148,6 @@
           <p id="result-copy"></p>
           <p id="result-reward"></p>
           <p id="result-progress"></p>
-          <details id="trial-result-guide" hidden>
-            <summary>查看解法</summary>
-            <p id="trial-result-solution"></p>
-          </details>
           </div>
           <div class="result-controls">
           <button id="result-ad-reward" class="button button-primary" type="button" hidden></button>
@@ -210,7 +155,6 @@
           <button id="next-level" class="button button-primary" hidden>下一关</button>
           <button id="play-again" class="button button-primary">重试本关</button>
           <button id="result-prep" class="button button-secondary" hidden>返回战前整备</button>
-          <button id="result-collection" class="button button-secondary" hidden>查看收藏培养</button>
           <button id="back-to-lobby" class="button button-secondary">返回章节</button>
           </div>
         </div>
@@ -226,13 +170,7 @@
         <div class="objective-body" tabindex="0" aria-label="可滚动阅读">
         <p id="objective-goal" class="objective-goal"></p>
         <p id="objective-limit" class="objective-limit"></p>
-        <section id="trial-lesson" hidden>
-          <p id="trial-lesson-summary"></p>
-          <details id="trial-lesson-details">
-            <summary>操作提示</summary>
-            <ol id="trial-lesson-steps"></ol>
-          </details>
-        </section>
+        <dl id="objective-boss" class="objective-boss" aria-label="首领规则" hidden></dl>
         <div id="battle-rules-panel" role="tabpanel" aria-labelledby="rule-tab-keywords" tabindex="0" hidden><dl id="battle-rules"></dl></div>
         </div>
         <div class="objective-actions"><button id="objective-rules" class="button button-secondary" type="button">战斗规则</button></div>
@@ -264,17 +202,6 @@
         <button id="cloud-choice-back" class="button button-secondary" type="button" hidden>返回</button>
         <button id="cloud-choice-confirm" class="button button-primary" type="button" hidden>确认</button>
       </footer>
-    </dialog>
-    <dialog id="ad-self-test-dialog" class="cloud-dialog ad-self-test-dialog" aria-labelledby="ad-self-test-title">
-      <header><h2 id="ad-self-test-title">广告自测</h2><button id="ad-self-test-close" type="button" aria-label="关闭广告自测">×</button></header>
-      <p id="ad-self-test-status" role="status" aria-live="polite"></p>
-      <dl class="ad-self-test-checks">
-        <div><dt>TapTap 宿主</dt><dd id="ad-self-test-host"></dd></div>
-        <div><dt>激励视频接口</dt><dd id="ad-self-test-api"></dd></div>
-        <div><dt>广告位配置</dt><dd id="ad-self-test-config"></dd></div>
-        <div><dt>实际播放</dt><dd id="ad-self-test-playback">未试播</dd></div>
-      </dl>
-      <footer><button id="ad-self-test-refresh" class="button button-secondary" type="button">重新检测</button><button id="ad-self-test-play" class="button button-primary" type="button">播放广告</button></footer>
     </dialog>
     <div class="app-turn-device" role="status">请旋转设备，以横屏进入远征</div>
   </main>

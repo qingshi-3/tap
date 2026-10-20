@@ -41,3 +41,7 @@
   #objective-dialog .objective-limit { margin-top:8px; }
   #objective-dialog .objective-actions { padding:7px 16px 8px; }
 }
+#objective-dialog .objective-boss { display:grid; grid-template-columns:auto 1fr; gap:6px 10px; margin:12px 0 0; padding:10px 12px; border:1px solid rgba(150,220,255,.4); border-radius:8px; background:rgba(40,90,130,.28); }
+#objective-dialog .objective-boss[hidden] { display:none; }
+#objective-dialog .objective-boss dt { color:#bfeaff; font:700 13px/1.5 var(--font-ui); white-space:nowrap; }
+#objective-dialog .objective-boss dd { margin:0; color:#e4eef3; font:400 13px/1.5 var(--font-ui); }

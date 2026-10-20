@@ -32,7 +32,7 @@ export class ResourceRewardsUI {
   render() {
     const header = element('header'), title = element('h2', '每日补给'), back = element('button', '返回'); back.type = 'button'; back.onclick = () => this.close(); header.append(back, title);
     const grid = element('section'); grid.className = 'resource-rewards-options';
-    for (const [kind, name, icon] of [['gold', '金币', 'resource-gold.png'], ['orb', '灵魂宝珠', 'spirit-orb.png']]) {
+    for (const [kind, name, icon] of [['gold', '金币', 'resource-gold.png']]) {
       const offer = this.progress.resourceRewardOffer(kind), card = element('article'); card.dataset.rewardKind = kind;
       const image = element('img'); image.src = `./assets/metagame/original/${icon}`; image.alt = '';
       const saved = this.session?.kind === kind && this.session.earned;
@@ -40,7 +40,7 @@ export class ResourceRewardsUI {
       const button = element('button', saved ? '重试保存奖励' : this.session?.busy && this.session.kind === kind ? '广告播放中…' : offer.claimed ? '今日已领取' : '看广告领取');
       button.type = 'button'; button.dataset.rewardAction = kind; button.disabled = !!this.session?.busy || (!saved && !offer.eligible) || !!(this.session && this.session.kind !== kind);
       button.onclick = () => void this.watch(kind);
-      card.append(image, element('h3', name), element('p', `${amount} ${kind === 'orb' ? '枚' : '金币'}`), element('p', offer.reason), button); grid.append(card);
+      card.append(image, element('h3', name), element('p', `${amount} 金币`), element('p', offer.reason), button); grid.append(card);
     }
     const notice = element('p', this.notice || '奖励随机，完整观看后到账。'); notice.className = 'resource-rewards-notice'; notice.setAttribute('role', 'status'); notice.setAttribute('aria-live', 'polite');
     this.dialog.replaceChildren(header, grid, notice);
@@ -62,7 +62,7 @@ export class ResourceRewardsUI {
         session.earned = true;
       }
       const result = this.progress.completeDailyAd(kind,session.requestId);
-      if (result.ok) { this.session = null; this.notice = `${kind === 'orb' ? '灵魂宝珠' : '金币'} +${result.amount}，已保存。`; if (!result.duplicate) this.onReward({ kind, amount:result.amount, requestId:session.requestId }); }
+      if (result.ok) { this.session = null; this.notice = `金币 +${result.amount}，已保存。`; if (!result.duplicate) this.onReward({ kind, amount:result.amount, requestId:session.requestId }); }
       else this.notice = `${result.error} 本次已看完，可重试保存；关闭后需要重新观看。`;
     } catch (error) { if (valid()) { this.notice = `奖励未保存：${error.message}`; if (!session.earned) { this.cancel(session); this.session = null; } } }
     finally { session.busy = false; if (this.dialog.open) this.render(); }

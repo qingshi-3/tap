@@ -1,13 +1,10 @@
-import { SAVE_KEYS, CLOUD_META_KEY, LEGACY_ARCHIVE_NAME, ensureSaveNamespace, validMatchRecord, validCampaignRecord, guardedWrite } from './storage-contract.js';
+import { SAVE_KEYS, CLOUD_META_KEY, ensureStorage, guardedWrite } from './storage-contract.js';
 import { CloudArchive } from './cloud-archive.js';
-import { CampaignProgress } from './campaign-progress.js';
-import { LEVELS } from './levels.js';
-import { validateMatch } from './engine.js';
-import { normalizeExpeditionState } from './expedition-progress.js';
+import { normalizeProfile } from './profile.js';
 
 const GAME = 'duelyst-h5';
 const APP_ID = 970030;
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 const MIN_SYNC_INTERVAL = 60_000;
 const KEYS = SAVE_KEYS;
 const META_KEY = CLOUD_META_KEY;
@@ -20,14 +17,14 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 export class PlayerCloud {
   constructor({ storage, transport = new CloudArchive(), legacyTransport, onChange = () => {}, onRestore = () => {} } = {}) {
     if (storage === undefined) { try { storage = globalThis.localStorage; } catch { storage = null; } }
-    this.legacyTransport = legacyTransport ?? (transport instanceof CloudArchive ? new CloudArchive({ tap: transport.tap, archiveName: LEGACY_ARCHIVE_NAME }) : null);
+    this.legacyTransport = legacyTransport ?? null;
     this.legacyRemote = false;
     this.storage = storage; this.transport = transport; this.onChange = onChange; this.onRestore = onRestore;
     this.paused = false; this.disposed = false; this.timer = null; this.busy = false; this.queued = false; this.lastSyncAt = 0;
     this.remote = null; this.remoteLocalFingerprint = null; this.meta = null; this.unknownMetaRaw = null; this.blocked = false;
     this.view = { status: 'idle', label: '云存档尚未连接', error: '', available: Boolean(transport?.available), localSummary: null,
       cloudSummary: null, hasRemote: false, conflict: false, blocked: false };
-    try { ensureSaveNamespace(storage); } catch { this.blocked = true; }
+    try { ensureStorage(storage); } catch { this.blocked = true; }
     if (this.blocked) Object.assign(this.view, { status: 'error', label: '本地恢复日志无法回滚，云同步已停用。', error: '本地恢复日志无法回滚，云同步已停用。', blocked: true });
     this.meta = this.#readMeta();
     try { this.metaRaw = this.storage.getItem(META_KEY); } catch { this.blocked = true; }
@@ -277,7 +274,7 @@ export class PlayerCloud {
 
   #capture() {
     const raws = {};
-    try { ensureSaveNamespace(this.storage); if (this.metaRaw !== undefined && this.storage.getItem(META_KEY) !== this.metaRaw) throw new Error('云同步元数据已被其他页面更新，请刷新。'); } catch (error) { return { ok: false, error: message(error) }; }
+    try { ensureStorage(this.storage); if (this.metaRaw !== undefined && this.storage.getItem(META_KEY) !== this.metaRaw) throw new Error('云同步元数据已被其他页面更新，请刷新。'); } catch (error) { return { ok: false, error: message(error) }; }
     try { for (const [name, key] of Object.entries(KEYS)) raws[name] = this.storage.getItem(key); }
     catch (error) { return { ok: false, error: `读取本地进度失败：${message(error)}` }; }
     const parsed = {};
@@ -285,11 +282,9 @@ export class PlayerCloud {
       if (raws[name] === null) { parsed[name] = null; continue; }
       try { parsed[name] = JSON.parse(raws[name]); } catch { return { ok: false, error: `本地${name}存档格式不支持，原件已保留。` }; }
     }
-    const expedition = parsed.expedition === null ? null : normalizeExpeditionState(parsed.expedition);
-    if (parsed.expedition !== null && !expedition) return { ok: false, error: '本地远征存档格式不支持，原件已保留。' };
-    if (parsed.campaign !== null && !validCampaign(parsed.campaign)) return { ok: false, error: '本地战役进度格式不支持，原件已保留。' };
-    if (parsed.match !== null && !validMatchRecord(parsed.match)) return { ok: false, error: '本地棋局格式不支持，原件已保留。' };
-    const data = { expedition, campaign: parsed.campaign, match: parsed.match };
+    const profile = parsed.profile === null ? null : normalizeProfile(parsed.profile);
+    if (parsed.profile !== null && !profile) return { ok: false, error: '本地存档格式不支持，原件已保留。' };
+    const data = { profile };
     return { ok: true, data, raws, pristine: Object.values(raws).every((raw) => raw === null), fingerprint: fingerprint(data) };
   }
 
@@ -348,34 +343,30 @@ function validateRemote(remote) {
   const value = remote.data;
   if (!plain(value) || !exact(value, ['appId', 'data', 'game', 'saveId', 'savedAt', 'schemaVersion']) || value.game !== GAME
     || value.appId !== APP_ID || value.schemaVersion !== SCHEMA_VERSION || !uuid(value.saveId) || !Number.isFinite(value.savedAt) || value.savedAt < 0
-    || !plain(value.data) || !exact(value.data, ['campaign', 'expedition', 'match'])) return { ok: false, error: '云存档格式不受支持，原件未修改。' };
+    || !plain(value.data) || !exact(value.data, ['profile'])) return { ok: false, error: '云存档格式不受支持，原件未修改。' };
   const data = normalizeCloudData(value.data);
   if (!data) return { ok: false, error: '云端进度内容格式不受支持。' };
   return { ok: true, envelope: { ...clone(value), data } };
 }
 
 function normalizeCloudData(value) {
-  if (!plain(value) || !exact(value, ['campaign', 'expedition', 'match'])) return null;
-  const expedition = value.expedition === null ? null : normalizeExpeditionState(value.expedition);
-  if (value.expedition !== null && !expedition) return null;
-  if (value.campaign !== null && !validCampaign(value.campaign)) return null;
-  if (value.match !== null && !validMatchRecord(value.match)) return null;
-  return { expedition, campaign: cloneNullable(value.campaign), match: cloneNullable(value.match) };
+  if (!plain(value) || !exact(value, ['profile'])) return null;
+  const profile = value.profile === null ? null : normalizeProfile(value.profile);
+  if (value.profile !== null && !profile) return null;
+  return { profile };
 }
 
-function validCampaign(record) { return validCampaignRecord(record); }
-function summary(data, savedAt) { return { coins: data.expedition?.coins ?? 80, completed: data.expedition?.completed?.length ?? 0,
-  trials: data.campaign?.completedLevelIds?.length ?? 0, training: Object.values(data.expedition?.training ?? {}).reduce((sum, rank) => sum + rank, 0),
+function summary(data, savedAt) { return { coins: data.profile?.coins ?? 0, completed: data.profile?.completed?.length ?? 0,
+  cards: (data.profile?.inventory?.units?.length ?? 0) + (data.profile?.inventory?.spells?.length ?? 0),
   savedAt: Number.isFinite(savedAt) ? savedAt : null,
-  hasBattle: Boolean(data.expedition?.activeBattle && data.expedition.activeBattle.phase !== 'over')
-    || Boolean(data.match?.snapshot && data.match.snapshot.phase !== 'over') }; }
-function localSavedAt(data) { return Math.max(0, Number(data.campaign?.updatedAt) || 0, Number(data.match?.savedAt) || 0) || null; }
+  hasBattle: Boolean(data.profile?.activeBattle && data.profile.activeBattle.phase !== 'over') }; }
+function localSavedAt() { return null; }
 function validMeta(value) { return plain(value) && exact(value, ['baseData', 'fingerprint', 'schemaVersion', 'syncedAt', 'token']) && value.schemaVersion === 1
   && (value.token === null || typeof value.token === 'string') && typeof value.fingerprint === 'string' && plain(value.baseData)
   && Number.isFinite(value.syncedAt) && value.syncedAt >= 0
   && [fingerprint(value.baseData), legacyFingerprint(value.baseData)].includes(value.fingerprint); }
 function validJournal(value) {
-  const entries = rows => Array.isArray(rows) && rows.length === 3 && rows.every((entry,i) => plain(entry) && exact(entry,['key','name','raw'])
+  const entries = rows => Array.isArray(rows) && rows.length === Object.keys(KEYS).length && rows.every((entry,i) => plain(entry) && exact(entry,['key','name','raw'])
     && entry.name === Object.keys(KEYS)[i] && entry.key === Object.values(KEYS)[i] && (entry.raw === null || typeof entry.raw === 'string'));
   return plain(value) && ((value.schemaVersion === 1 && exact(value,['originals','schemaVersion']))
     || (value.schemaVersion === 2 && exact(value,['originals','intended','schemaVersion']) && entries(value.intended))) && entries(value.originals);
@@ -387,7 +378,6 @@ function canonical(value) {
   if (!plain(value)) return value;
   return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
 }
-function cloneNullable(value) { return value === null ? null : clone(value); }
 function plain(value) { return value !== null && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype; }
 function exact(value, keys) { const actual = Object.keys(value).sort(), expected = [...keys].sort(); return actual.length === expected.length && actual.every((key, i) => key === expected[i]); }
 function uuid(value) { return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }

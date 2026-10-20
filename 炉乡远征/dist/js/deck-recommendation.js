@@ -1,8 +1,6 @@
 import { getCard } from './cards.js';
 import { getHero, getFaction } from './factions.js';
 import { CARD_ACQUISITION } from './campaign-content.js';
-import { trainingBonus } from './expedition-data.js';
-import { getSpellUpgrade, getUnitSpecializations } from './campaign-rules.js';
 import { MAX_CARD_COPIES, PLAYER_DECK_SIZE, validatePlayerDeck } from './battle-deck.js';
 
 // Authored local archetypes, not imported competitive lists or measured win rates.
@@ -26,21 +24,18 @@ const neutrals = new Set(CARD_ACQUISITION.filter(c=>c.type==='unit'&&c.faction==
 const band = card => card.cost<=2 ? 0 : card.cost<=4 ? 1 : 2;
 const priority = (ids,id) => { const index=ids.indexOf(id);return index<0?0:4-index*.22; };
 
-/** Pure recommendation. Accepts ExpeditionProgress.state fields; no writes. */
-export function recommendDeck({heroId, selectedHeroId, inventory, training={}, growthVersion={}, specializations={}, spellTraining={}, spellModes={}} = {}) {
+/** Pure recommendation. Accepts PlayerProfile.state fields; no writes. */
+export function recommendDeck({heroId, selectedHeroId, inventory} = {}) {
   heroId ??= selectedHeroId;
   const hero=getHero(heroId), faction=getFaction(hero?.faction), plan=PLANS[heroId];
   if(!hero||!faction||!plan)return {ok:false,error:'未知主将，无法推荐配牌。'};
   const units=new Set(inventory?.units??[]),spells=new Set(inventory?.spells??[]);
-  const pool=[...units,...spells].filter((id,index,all)=>all.indexOf(id)===index).map(getCard).filter(c=>c&&(c.type==='unit'?units.has(c.id)&&(faction.unitIds.includes(c.id)||neutrals.has(c.id)):c.type==='spell'&&spells.has(c.id)&&faction.spellIds.includes(c.id))).map(c=>c.type==='spell'?getSpellUpgrade(c.id,spellTraining[c.id],spellModes[c.id]):c);
+  const pool=[...units,...spells].filter((id,index,all)=>all.indexOf(id)===index).map(getCard).filter(c=>c&&(c.type==='unit'?units.has(c.id)&&(faction.unitIds.includes(c.id)||neutrals.has(c.id)):c.type==='spell'&&spells.has(c.id)&&faction.spellIds.includes(c.id)));
   if(pool.length*MAX_CARD_COPIES<PLAYER_DECK_SIZE)return {ok:false,error:'已拥有的可用卡牌不足，无法组成30张牌组。'};
   const owned=new Set(pool.map(c=>c.id)),counts=new Map(),deck=[];
   const score=c=>{
     let value=priority(plan[c.type==='unit'?'units':'spells'],c.id);
     if(c.type==='unit'){
-      const bonus=trainingBonus(c.id,training[c.id]??0,growthVersion[c.id]);
-      value+=bonus.attack*.9+bonus.health*.45;
-      if(getUnitSpecializations(c.id,growthVersion[c.id]).some(s=>s.id===specializations[c.id]&&(training[c.id]??0)>=s.rank))value+=.6;
       // Small utility floor keeps neutral substitutes useful without ranking
       // giant bodies above an authored engine solely by printed attack/health.
       value+=(c.ranged||c.rush||c.provoke||c.openingHeal)?.7:0;
@@ -48,7 +43,6 @@ export function recommendDeck({heroId, selectedHeroId, inventory, training={}, g
       if(c.id===211&&![214,215,216].some(id=>owned.has(id))&&heroId!==201)value-=3;
       if([309,316].includes(c.id)&&!owned.has(308)&&!owned.has(20051)&&heroId!==323)value-=3;
     }else{
-      value+=c.campaignMode==='power'?(c.campaignRank??0)*.65:c.tactical?.4:0;
       if(c.id===20097&&!owned.has(212)&&![214,215,216].some(id=>owned.has(id))&&heroId!==201)value-=5;
     }
     return value;

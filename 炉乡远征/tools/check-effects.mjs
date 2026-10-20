@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { createChallengeMatch, castSpell, useBattleCommand, attackUnit, playCard, restoreMatch } from '../dist/js/engine.js';
+import { castSpell, useBattleCommand, attackUnit, playCard, restoreMatch } from '../dist/js/engine.js';
+import { scenarioMatch as createChallengeMatch } from './battle-fixture.mjs';
 import { EFFECT_MANIFEST } from '../dist/js/effect-manifest.js';
 import { CARDS } from '../dist/js/cards.js';
 
@@ -63,7 +64,7 @@ const anyHeal = createChallengeMatch('lightchaser-bond');
 const ownChaser = anyHeal.units.find((unit) => unit.cardId === 15);
 const enemyGeneral = anyHeal.units.find((unit) => unit.cardId === 23);
 enemyGeneral.health = 24;
-const enemyChaser = { ...ownChaser, unitId: 4, owner: 1, x: 7, y: 4, health: 2 };
+const enemyChaser = { ...ownChaser, unitId: 199, owner: 1, x: 7, y: 4, health: 2 };
 anyHeal.units.push(enemyChaser);
 assert.equal(castSpell(anyHeal, 0, enemyGeneral.unitId), true);
 assert.equal(enemyGeneral.health, 25);

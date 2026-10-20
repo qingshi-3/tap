@@ -1,27 +1,18 @@
 import { buildCampaignAtlas } from './campaign-atlas.js';
 import { SESSION_HOME_BACKGROUND } from './home-background.js';
 import { findGiftCode } from './gift-codes.js';
-import { LocalDecks, validateLocalDeck } from './local-decks.js';
+import { LocalDecks } from './local-decks.js';
 import { DECK_COST_FILTERS, toggleDeckCost, matchesDeckInventory } from './deck-filters.js';
 import { recommendDeck } from './deck-recommendation.js';
-import { TRIAL_GROUPS } from './levels.js';
-import { getTrialBackground } from './trial-backgrounds.js';
 import { createGameCard } from './game-card.js';
 import { CARDS } from './cards.js';
 import { cardRuleSections } from './card-rules.js';
 import { FACTIONS, getFaction, getHero } from './factions.js';
-import { NEUTRAL_IDS, CAMPAIGN_UNIT_IDS, SPELL_IDS, SPELL_TRAINING_COSTS, getUnitSpecializations, getSpellUpgrade, getSpellTrainingPolicy, getUnlockRewards, getUnlockLabel } from './campaign-rules.js';
+import { NEUTRAL_IDS, CAMPAIGN_UNIT_IDS, SPELL_IDS, getUnlockLabel } from './campaign-rules.js';
+import { shopCatalog } from './shop.js';
 import { getEnemyPlan } from './enemy-plans.js';
 import { makeStarterDeck, validatePlayerDeck, PLAYER_DECK_SIZE, MAX_CARD_COPIES } from './battle-deck.js';
-import {
-  EXPEDITION_CHAPTERS,
-  EXPEDITION_LEVELS,
-  TRAINABLE_IDS,
-  TRAINING_COSTS,
-  DEPLOYMENT_BUDGET,
-  deploymentCost,
-  trainingBonus
-} from './expedition-data.js';
+import { EXPEDITION_CHAPTERS, EXPEDITION_LEVELS } from './expedition-data.js';
 
 const $ = (root, selector) => root?.querySelector(selector);
 const all = (root, selector) => [...(root?.querySelectorAll(selector) || [])];
@@ -47,48 +38,24 @@ function goldAmount(amount, className = '') {
   return value;
 }
 
-function rewardText(reward) {
-  if (reward == null) return '—';
-  if (typeof reward === 'number') return `${reward} 金币`;
-  if (typeof reward === 'string') return reward;
-  const coins = reward.coins ?? reward.gold;
-  return coins != null ? `${coins} 金币` : String(reward.label || '奖励');
-}
-
-function shortChapterTitle(title) {
-  return String(title || '').replace(/^第[一二三四五六七八九十\d]+章\s*[·・:：—-]?\s*/, '') || title;
-}
-
-function trainedCard(base, bonus) {
-  const description = String(base.description || '').replace(/^\d+\s*\/\s*\d+。?\s*/, '');
-  return { ...base, attack: base.attack + bonus.attack, health: base.health + bonus.health, description };
-}
-
 export class ExpeditionUI {
-  constructor({ root, progress, drawCardArt, drawCardIdle, onStart, onResume, trials, onCloud, onAdSelfTest, onRecruitment, onResourceRewards, onAudioSettings, onMusicToggle, musicPreferences, onLeaderboard, onAchievements }) {
+  constructor({ root, progress, drawCardArt, drawCardIdle, onStart, onResume, onCloud, onResourceRewards, onAudioSettings, onMusicToggle, musicPreferences, onLeaderboard, onAchievements }) {
     this.root = root;
     this.progress = progress;
     this.drawCardArt = typeof drawCardArt === 'function' ? drawCardArt : () => {};
     this.drawCardIdle = typeof drawCardIdle === 'function' ? drawCardIdle : () => 0;
     this.onStart = typeof onStart === 'function' ? onStart : () => {};
     this.onResume = typeof onResume === 'function' ? onResume : () => {};
-    this.trials = trials;
     this.onCloud = onCloud || (() => {});
-    this.onAdSelfTest = onAdSelfTest || (() => {});
-    this.onRecruitment = onRecruitment || (() => {});
     this.onResourceRewards = onResourceRewards || (() => {});
     this.onLeaderboard = onLeaderboard || (() => {});
     this.onAchievements = onAchievements || (() => {});
     this.onAudioSettings=onAudioSettings||(()=>{});this.onMusicToggle=onMusicToggle||(()=>{});this.musicPreferences=musicPreferences||(()=>({muted:true,volume:0}));
     this.page = 'menu';
-    this.trialGroupId = null;
-    this.trialScroll = new Map();
     this.codexFilter = 'all';
     this.chapterId = null;
     this.levelId = null;
     this.detailCardId = null;
-    this.keyboardDrag = null;
-    this.pointerDrag = null;
     this.suppressClickUntil = 0;
     this.idleCanvases = new Set();
     this.idleTimer = 0;
@@ -100,12 +67,10 @@ export class ExpeditionUI {
     this.root.addEventListener('pointerdown', (event) => this.handlePointerDown(event));
     this.root.addEventListener('pointermove', (event) => this.handlePointerMove(event));
     this.root.addEventListener('pointerup', (event) => this.handlePointerEnd(event));
-    this.root.addEventListener('pointercancel', (event) => this.cancelPointerDrag(event));
-    this.root.addEventListener('lostpointercapture', (event) => this.cancelPointerDrag(event));
+    this.root.addEventListener('pointercancel', (event) => this.handlePointerEnd(event));
     this.root.addEventListener('keydown', (event) => this.handleKeyDown(event));
     this.root.addEventListener('scroll', () => this.syncIdle(), { passive: true, capture: true });
-    document.addEventListener('visibilitychange', () => { if (document.hidden) this.cancelDrag(); this.syncIdle(); });
-    window.addEventListener('blur', () => this.cancelDrag());
+    document.addEventListener('visibilitychange', () => this.syncIdle());
     this.reducedMotion.addEventListener('change', () => { this.deckCountMotion?.cancel(); this.deckCountMotion = null; this.syncIdle(); });
     this.visibilityObserver = new IntersectionObserver((entries) => {
       for (const entry of entries) {
@@ -117,52 +82,9 @@ export class ExpeditionUI {
     this.render();
   }
 
-  get state() { return this.challengeSession?.state || this.progress?.state || {}; }
+  get state() { return this.progress?.state || {}; }
   get hero() { return getHero(this.state.selectedHeroId ?? 1); }
   get faction() { return getFaction(this.hero.faction); }
-
-  openChallengePreparation({ challengeId, title = '远征挑战', heroId = 1, levelId, inventory, initialDeck, onStart, onExit } = {}) {
-    if (!challengeId || heroId !== 1 || !levelId) return {ok:false,error:'挑战配置无效。'};
-    const pool = {units:[...(inventory?.units || [])], spells:[...(inventory?.spells || [])]};
-    const invalid = validateLocalDeck(initialDeck,1,pool);
-    if (invalid) return {ok:false,error:invalid};
-    if (!this.challengeSession) {
-      const fields = ['page','chapterId','levelId','returnMission','detailCardId','heroPickerOpen','heroPickerFaction','inventoryTab','deckShowUnowned','deckSelectedCost','deckMessage','dialogError','notice','deckDrafts','localDecks','deckRecommendationUndo','pendingFocus','menuReturnFocus','cardReturnFocus','codexFaction','codexFilter','renderedMission'];
-      this.challengeReturn = {fields:Object.fromEntries(fields.map(key=>[key,this[key]])),focus:document.activeElement,hidden:this.root.hidden,scroll:[...this.root.querySelectorAll('.training-roster,.deck-card-list,.deck-cost-filters,.atlas-chapters,.expedition-codex-rail')].map(node=>({selector:'.'+node.classList[0],left:node.scrollLeft,top:node.scrollTop}))};
-    }
-    const freeze = object => { for (const value of Object.values(object)) if (value && typeof value === 'object') freeze(value); return Object.freeze(object); };
-    const cardIds = [...pool.units,...pool.spells];
-    const state = freeze({selectedHeroId:1,inventory:pool,training:{},spellTraining:{},specializations:{},spellModes:{},growthVersion:Object.fromEntries(cardIds.map(id=>[id,'low-v2'])),factionDecks:{1:[...initialDeck]}});
-    this.challengeSession = {challengeId,title,state,initialDeck:[...initialDeck],onStart:typeof onStart === 'function'?onStart:()=>{},onExit:typeof onExit === 'function'?onExit:()=>{}};
-    // This adapter has no storage dependency. Reusing the editor must never
-    // instantiate LocalDecks or touch the player's ordinary deck namespace.
-    this.localDecks = {get:()=>[...initialDeck],error:()=>'',save:()=>({ok:true}),set:(factionId,deck)=>{const error=validateLocalDeck(deck,1,pool);return factionId!==1?{ok:false,error:'挑战主将固定。'}:error?{ok:false,error}:{ok:true};}};
-    this.deckDrafts = new Map([[1,[...initialDeck]]]); this.deckRecommendationUndo = new Map();
-    this.page='prep'; this.returnMission=levelId; this.levelId=levelId; this.detailCardId=null; this.heroPickerOpen=false;
-    this.inventoryTab='units'; this.deckSelectedCost=null; this.deckShowUnowned=false; this.deckMessage=''; this.dialogError=''; this.notice='';
-    this.root.hidden=false; this.root.setAttribute('aria-hidden','false'); this.render();
-    return {ok:true};
-  }
-
-  closeChallengePreparation() {
-    if (!this.challengeSession) return;
-    const restore=this.challengeReturn;
-    this.challengeSession=null; this.challengeReturn=null;
-    Object.assign(this,restore.fields); this.render();
-    this.root.hidden=restore.hidden; this.root.setAttribute('aria-hidden',String(restore.hidden));
-    requestAnimationFrame(()=>{
-      for(const saved of restore.scroll){const node=this.root.querySelector(saved.selector);if(node){node.scrollLeft=saved.left;node.scrollTop=saved.top;}}
-      if(restore.focus?.isConnected) restore.focus.focus({preventScroll:true});
-      else if(restore.focus?.dataset?.action){
-        const attrs=Object.entries(restore.focus.dataset).filter(([key])=>['action','cardId','cost','tab','page','factionId'].includes(key)).map(([key,value])=>`[data-${key.replace(/[A-Z]/g,letter=>'-'+letter.toLowerCase())}="${CSS.escape(value)}"]`).join('');
-        this.root.querySelector(attrs)?.focus({preventScroll:true});
-      }
-    });
-  }
-
-  unitTrainingBonus(id, rank) {
-    return this.challengeSession ? trainingBonus(id,0,'low-v2') : this.progress.getUnitTrainingBonus(id,rank);
-  }
 
   show() {
     if (!this.root) return;
@@ -176,7 +98,7 @@ export class ExpeditionUI {
     if (!this.root) return;
     this.root.hidden = true;
     this.root.setAttribute('aria-hidden', 'true');
-    this.cancelDrag();
+    this.handlePointerEnd();
     this.stopIdle();
   }
 
@@ -189,7 +111,7 @@ export class ExpeditionUI {
 
   render() {
     this.deckCountMotion?.cancel(); this.deckCountMotion = null;
-    this.cancelDrag();
+    this.handlePointerEnd();
     const scrollState = Object.fromEntries(['.chapter-rail', '.atlas-chapters', '.training-roster', '.deck-cost-filters', '.deck-card-list', '.barracks', '.mission-copy', '.expedition-codex-rail', '.codex-faction-buttons'].map((selector) => [selector, { left: $(this.root, selector)?.scrollLeft || 0, top: $(this.root, selector)?.scrollTop || 0 }]));
     if (this.renderedMission !== this.levelId) scrollState['.mission-copy'].top = 0;
     this.renderedMission = this.levelId;
@@ -205,17 +127,13 @@ export class ExpeditionUI {
     this.visibilityObserver?.disconnect();
     this.idleCanvases.clear();
     this.root.dataset.page = this.page;
-    this.root.dataset.challenge = String(Boolean(this.challengeSession));
     this.root.dataset.inlineChrome = String(this.page === 'prep' || (this.page === 'expedition' && Boolean(this.chapterId)));
     this.root.replaceChildren(this.buildTopbar(), this.buildStage(), this.buildCardDialog(), this.buildHeroDialog());
     requestAnimationFrame(() => {
       for (const [selector, position] of Object.entries(scrollState)) {
         const track = $(this.root, selector);
         if (track) {
-          if (this.page === 'trials' && selector === '.chapter-rail') {
-            const resume = track.querySelector('.is-resumable');
-            track.scrollLeft = this.trialScroll.has(this.trialGroupId) ? this.trialScroll.get(this.trialGroupId) : resume ? Math.max(0, resume.offsetLeft - track.offsetLeft - 16) : 0;
-          } else if (selector === '.atlas-chapters') {
+          if (selector === '.atlas-chapters') {
             track.scrollLeft = this.atlasScrollLeft || 0;
             // A newly entered chapter should be visible, even on a progressed save.
             if (this.atlasVisibleChapter !== this.chapterId) {
@@ -248,7 +166,7 @@ export class ExpeditionUI {
 
   buildTopbar() {
     const bar = el('header', 'expedition-topbar');
-    bar.hidden = this.page === 'menu' || this.page === 'codex' || this.page === 'trials' || this.page === 'prep' || (this.page === 'expedition' && Boolean(this.chapterId));
+    bar.hidden = this.page === 'menu' || this.page === 'codex' || this.page === 'shop' || this.page === 'prep' || (this.page === 'expedition' && Boolean(this.chapterId));
     if (bar.hidden) return bar;
     const back = button('expedition-back', '返回章节', 'back');
     back.hidden = (this.page !== 'expedition' || !this.chapterId) && this.page !== 'prep';
@@ -269,11 +187,11 @@ export class ExpeditionUI {
     if (this.page === 'menu') main.append(this.buildMenu());
     else if (this.page === 'prep') main.append(this.buildBarracks());
     else if (this.page === 'codex') main.append(this.buildCodex());
-    else if (this.page === 'trials') main.append(this.buildTrials());
+    else if (this.page === 'shop') main.append(this.buildShop());
     else if (this.chapterId) main.append(this.buildChapter());
     else main.append(this.buildChapterHome());
     if (this.notice) main.append(el('p', 'expedition-notice', this.notice));
-    const error = this.challengeSession ? '' : this.progress?.error;
+    const error = this.progress?.error;
     if (error) main.append(el('p', 'expedition-error', error));
     return main;
   }
@@ -286,7 +204,6 @@ export class ExpeditionUI {
     resources.setAttribute('aria-label', '资源余额');
     for (const [resource, label, amount, asset] of [
       ['gold', '金币', this.state.coins ?? 0, 'resource-gold.png'],
-      ['orb', '宝珠', this.state.recruitment?.tickets ?? 0, 'spirit-orb.png'],
     ]) {
       const balance = el('div', 'menu-resource'); balance.dataset.resource = resource;
       balance.setAttribute('aria-label', `${label} ${amount}`);
@@ -307,7 +224,7 @@ export class ExpeditionUI {
     const save = button('menu-utility', '存档', 'cloud'); save.setAttribute('aria-haspopup', 'dialog'); resources.append(save);
     const rules = button('menu-utility', '规则', 'battle-rules'); rules.setAttribute('aria-label', '战斗规则'); rules.setAttribute('aria-haspopup', 'dialog'); resources.append(rules);
     const supply = button('menu-utility menu-supply', '每日补给', 'resource-rewards');
-    supply.setAttribute('aria-label', '每日补给，观看广告领取金币或宝珠');
+    supply.setAttribute('aria-label', '每日补给，观看广告领取金币');
     supply.setAttribute('aria-haspopup', 'dialog'); resources.append(supply);
     const factions = el('aside', 'menu-faction-picker'); factions.setAttribute('aria-label', '选择阵营');
     const grid = el('div', 'menu-faction-grid');
@@ -351,11 +268,10 @@ export class ExpeditionUI {
     const play = button('menu-play expedition-primary', battleFaction === this.faction.id ? '继续战斗' : journeyLabel, battleFaction === this.faction.id ? 'resume' : 'nav');
     if (battleFaction !== this.faction.id) play.dataset.page = 'expedition';
     const journeys = el('div', 'menu-journeys');
-    const trial = button('menu-destination menu-trials', '试炼', 'nav'); trial.dataset.page = 'trials';
-    journeys.append(play, trial);
+    journeys.append(play);
     const links = el('nav', 'menu-destinations');
     const collection = button('menu-destination', '收藏', 'nav'); collection.dataset.page = 'codex'; links.append(collection);
-    links.append(button('menu-destination', '招募', 'recruitment'));
+    const shop = button('menu-destination', '军需', 'nav'); shop.dataset.page = 'shop'; links.append(shop);
     links.append(button('menu-destination', '排行', 'leaderboard'), button('menu-destination', '成就', 'achievements'));
     selected.append(story, emblem, journeys, links);
     view.append(resources, factions, selected); return view;
@@ -364,59 +280,6 @@ export class ExpeditionUI {
   setMusicControl(target){const p=this.musicPreferences(),silent=p.muted||p.volume===0;target.setAttribute('aria-pressed',String(!silent));target.setAttribute('aria-label',silent?'开启主菜单音乐':'静音主菜单音乐');target.title=silent?'音乐：静音':'音乐：有声';target.innerHTML=`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M3 8h4l6-5v18l-6-5H3z"/>${silent?'<path fill="currentColor" d="m17 7 2 3 2-3 2 2-3 3 3 3-2 2-2-3-2 3-2-2 3-3-3-3z"/>':'<path fill="currentColor" d="M15 7v3a3 3 0 0 1 0 4v3a6 6 0 0 0 0-10M18 3v3a8 8 0 0 1 0 12v3a11 11 0 0 0 0-18"/>'}</svg>`;}
   refreshMusicControl(){for(const target of this.root.querySelectorAll('[data-action="music-toggle"]'))this.setMusicControl(target);}
 
-  buildTrials() {
-    const view = el('section', 'expedition-chapters expedition-trials');
-    view.setAttribute('aria-label', '战术试炼');
-    const state = this.trials.read();
-    if (!TRIAL_GROUPS.some((group) => group.id === this.trialGroupId)) {
-      this.trialGroupId = this.trials.levels.find((level) => level.id === state.resumeLevelId)?.group || 'basics';
-    }
-    const heading = el('div', 'trials-heading');
-    heading.append(this.buildMenuReturn(), el('h2', '', '战术试炼'), el('span', 'trials-progress', `${this.trials.levels.filter((level) => state.completed.has(level.id)).length} / ${this.trials.levels.length} 完成`));
-    if (state.cloudAvailable && state.hasCloudArchive) heading.append(button('trial-save', '云端续玩', 'trial-cloud'));
-    if (state.cloudAvailable && state.hasLocal) heading.append(button('trial-save', '同步进度', 'trial-sync'));
-    const groups = el('div', 'trial-groups');
-    groups.setAttribute('role', 'group');
-    groups.setAttribute('aria-label', '选择试炼课程');
-    for (const group of TRIAL_GROUPS) {
-      const levels = this.trials.levels.filter((level) => level.group === group.id);
-      const complete = levels.filter((level) => state.completed.has(level.id)).length;
-      const choice = button('trial-group', '', 'trial-group');
-      choice.dataset.groupId = group.id;
-      choice.setAttribute('aria-pressed', String(group.id === this.trialGroupId));
-      choice.append(el('strong', '', group.title), el('small', '', `${complete} / ${levels.length}`));
-      groups.append(choice);
-    }
-    const group = TRIAL_GROUPS.find((item) => item.id === this.trialGroupId);
-    const description = el('p', 'trial-group-description', `${group?.description || ''}`);
-    const track = el('div', 'chapter-rail');
-    track.setAttribute('aria-label', `${group?.title || '试炼'}课程`);
-    track.addEventListener('scroll', () => this.trialScroll.set(this.trialGroupId, track.scrollLeft), { passive: true });
-    this.trials.levels.filter((level) => level.group === this.trialGroupId).forEach((level, index) => {
-      const complete = state.completed.has(level.id);
-      const resume = state.resumeLevelId === level.id;
-      const status = resume ? '继续试炼' : complete ? '已完成 · 再练一次' : '开始练习';
-      const card = button(`expedition-chapter trial-card${resume ? ' is-resumable' : ''}`, '', 'trial');
-      card.dataset.levelId = level.id;
-      const lesson = level.lesson?.summary || level.subtitle || level.goal;
-      card.setAttribute('aria-label', `${level.title}，学习${lesson}，${status}`);
-      const art = el('span', 'chapter-art trial-cover');
-      art.setAttribute('aria-hidden', 'true');
-      // The course cover previews the same authored scenery as its battlefield.
-      const scenery = getTrialBackground(level.id);
-      art.style.backgroundImage = [scenery?.middleground, scenery?.background].filter(Boolean).map(path => `url("${path}")`).join(', ');
-      const copy = el('span', 'chapter-copy');
-      copy.append(el('small', '', `练习 ${index + 1}${complete ? '　✓ 已完成' : ''}`), el('strong', '', level.title), el('span', 'trial-lesson', lesson), el('em', '', status));
-      card.append(art, copy); track.append(card);
-    });
-    view.append(heading, groups, description, track);
-    if (state.error) {
-      const error = el('p', 'expedition-error', state.error);
-      error.setAttribute('role', 'status'); view.append(error);
-    }
-    return view;
-  }
-
   buildChapterHome() { return buildCampaignAtlas(this); }
 
   buildChapter() { return buildCampaignAtlas(this); }
@@ -424,7 +287,7 @@ export class ExpeditionUI {
   buildMission(level) {
     const panel = el('aside', 'mission-preview');
     if (!level) return panel;
-    const plan = getEnemyPlan(level.id, 3, this.faction.id);
+    const plan = getEnemyPlan(level.id);
     const grid = el('div', 'mission-map');
     grid.style.setProperty('--cols', level.columns || 9);
     grid.style.setProperty('--rows', level.rows || 5);
@@ -448,10 +311,8 @@ export class ExpeditionUI {
     const copy = el('div', 'mission-copy');
     copy.append(el('h3', '', level.title), el('p', '', level.goal || '完成本关目标。'));
     const rewards = el('dl', 'mission-rewards');
-    const payout = this.progress.rewardPreview(level.id, this.faction.id);
-    rewards.append(el('div', '', (payout.accountFirst || payout.factionFirst ? '首通奖励' : '再次挑战') + '：' + payout.coins + ' 金币' + (payout.tickets ? ' / ' + payout.tickets + ' 宝珠' : '')));
-    if (payout.chapterCoins) rewards.append(el('small', '', '含本阵营章末奖励 ' + payout.chapterCoins + ' 金币'));
-    if (payout.compensationCoins) rewards.append(el('small', '', '含宝珠转金币 ' + payout.compensationCoins));
+    const payout = this.progress.rewardPreview(level.id);
+    rewards.append(el('div', '', `${payout.firstClear ? '首通奖励' : '再次挑战'}：${payout.coins} 金币`));
     const start = button('expedition-primary', '战前准备', 'adjust-loadout');
     start.dataset.levelId = level.id;
     start.disabled = !this.progress?.isUnlocked?.(level.id);
@@ -464,11 +325,10 @@ export class ExpeditionUI {
       intel.append(el('p', '', `${Number(owner) === 2 ? '第三方' : '敌方'}：主将 ${enemy.generalAttack} 攻 / ${enemy.generalHealth} 血；起手 ${enemy.openingHandSize} 张，法力 ${enemy.mana} 起步、每轮 +${enemy.manaGrowth}、上限 ${enemy.manaCap}`));
       intel.append(el('p', 'enemy-deck-summary', [...counts].map(([id, count]) => {
         const card = CARDS[id], stats = enemy.unitStats?.[id];
-        return `${card?.name || id}${stats ? `（${stats.cost}费 ${stats.attack}/${stats.health}）` : card?.type === 'spell' ? `（${enemy.spellRank}阶）` : ''} ×${count}`;
+        return `${card?.name || id}${stats ? `（${stats.cost}费 ${stats.attack}/${stats.health}）` : ''} ×${count}`;
       }).join('、')));
     }
-    const unlocks = payout.cards;
-    const unlockNames = [...unlocks.units, ...unlocks.spells].filter((id) => CARDS[id]?.faction === this.faction.id || NEUTRAL_IDS.includes(id)).map((id) => CARDS[id]?.name || String(id));
+    const unlockNames = [...payout.units, ...payout.spells].filter((id) => CARDS[id]?.faction === this.faction.id || NEUTRAL_IDS.includes(id)).map((id) => CARDS[id]?.name || String(id));
     copy.append(rewards);
     if (unlockNames.length) copy.append(el('p', 'mission-unlocks', `解锁：${unlockNames.join('、')}`));
     copy.append(intel);
@@ -481,7 +341,7 @@ export class ExpeditionUI {
     return panel;
   }
 
-  battleDeck() { return this.state.factionDecks?.[this.faction.id] || this.progress.getBattleLoadout().deck; }
+  battleDeck() { return this.state.decks?.[this.faction.id] || this.progress.getBattleLoadout().deck; }
 
   draftDeck() {
     this.deckDrafts ||= new Map();
@@ -527,7 +387,6 @@ export class ExpeditionUI {
 
   buildBarracks() {
     const section = el('section', 'barracks deck-barracks');
-    if (this.challengeSession) section.setAttribute('aria-label', `远征挑战 · ${this.challengeSession.title}`);
     const deck = this.draftDeck(), editor = el('aside', 'deck-editor');
     const valid = validatePlayerDeck(deck, this.hero.id, this.state.inventory);
     const heading = el('div', 'deck-heading');
@@ -536,7 +395,6 @@ export class ExpeditionUI {
     const total = el('strong', `deck-total${deck.length < PLAYER_DECK_SIZE ? ' is-incomplete' : ''}`, deck.length + '/30');
     total.setAttribute('role', 'status'); total.setAttribute('aria-live', 'polite'); total.setAttribute('aria-atomic', 'true');
     heading.append(back, total);
-    if (this.challengeSession) { back.textContent='‹ 返回';back.setAttribute('aria-label','返回远征挑战');heading.insertBefore(el('strong','challenge-prep-title','远征挑战'),total); }
     const actions = el('div', 'deck-prep-actions');
     actions.append(button('', '推荐配牌', 'deck-recommend'), button('', '恢复默认', 'deck-default'));
     if (this.deckRecommendationUndo?.has(this.faction.id)) actions.append(button('', '撤销推荐', 'deck-undo-recommend'));
@@ -567,7 +425,7 @@ export class ExpeditionUI {
     }
     const ownership = button('deck-owned-toggle', '显示未拥有', 'deck-show-unowned');
     ownership.setAttribute('aria-pressed', String(Boolean(this.deckShowUnowned)));
-    if (!this.challengeSession) tabs.append(ownership);
+    tabs.append(ownership);
     const costs = el('nav', 'deck-cost-filters'); costs.setAttribute('aria-label', '费用筛选');
     for (const cost of DECK_COST_FILTERS) {
       const label = cost === 8 ? '8+' : String(cost);
@@ -582,7 +440,7 @@ export class ExpeditionUI {
     const ids = spells ? this.faction.spellIds : [...this.faction.unitIds, ...NEUTRAL_IDS];
     for (const id of ids) {
       if (!matchesDeckInventory({ owned: this.owns(id, spells ? 'spells' : 'units'), cost: spells ? this.spellCard(id).cost : CARDS[id].cost }, { showUnowned: this.deckShowUnowned, selectedCost: this.deckSelectedCost })) continue;
-      roster.append(spells ? this.buildSpellCard(id) : this.buildTrainingCard(id, deck));
+      roster.append(spells ? this.buildSpellCard(id) : this.buildTrainingCard(id));
     }
     if (!roster.childElementCount) roster.append(el('p', 'deck-inventory-empty', '没有符合筛选的卡牌'));
     inventory.append(tabs, costs, roster);
@@ -626,11 +484,9 @@ export class ExpeditionUI {
       const open = button('expedition-codex-card', '', 'card-detail');
       open.dataset.cardId = card.id;
       open.setAttribute('aria-label', `查看${card.name}详情`);
-      const display = card.type === 'unit' ? trainedCard(card, this.progress.getUnitTrainingBonus(card.id)) : card.type === 'spell' ? this.spellCard(card.id) : card;
-      open.append(createGameCard(display, { drawArt: (canvas, cardId) => this.paint(canvas, cardId), presentation: 'collection' }));
+      open.append(createGameCard(card, { drawArt: (canvas, cardId) => this.paint(canvas, cardId), presentation: 'collection' }));
       if (card.type !== 'general') {
-        const rank = this.state[card.type === 'spell' ? 'spellTraining' : 'training']?.[card.id] || 0;
-        open.append(el('small', 'collection-card-status', this.owns(card.id, card.type === 'spell' ? 'spells' : 'units') ? `已拥有${rank > 0 ? ` · ${rank} 阶` : ''}` : getUnlockLabel(card.id)));
+        open.append(el('small', 'collection-card-status', this.owns(card.id, card.type === 'spell' ? 'spells' : 'units') ? '已拥有' : getUnlockLabel(card.id)));
       }
       rail.append(open);
     });
@@ -638,35 +494,52 @@ export class ExpeditionUI {
     return section;
   }
 
-  buildTrainingCard(id, squad) {
+  buildShop() {
+    const section = el('section', 'expedition-codex expedition-shop');
+    const filters = el('aside', 'expedition-codex-filters');
+    const balance = goldAmount(this.state.coins ?? 0, 'shop-balance');
+    balance.setAttribute('aria-label', `持有金币 ${this.state.coins ?? 0}`);
+    balance.setAttribute('aria-live', 'polite');
+    const tab = this.shopTab || 'faction';
+    const tabs = el('nav', 'codex-types'); tabs.setAttribute('aria-label', '军需分类');
+    for (const [id, label] of [['faction', this.faction.name], ['neutral', '中立'], ['all', '全部']]) {
+      const choice = button('', label, 'shop-tab'); choice.dataset.tab = id;
+      choice.setAttribute('aria-pressed', String(tab === id)); tabs.append(choice);
+    }
+    filters.append(this.buildMenuReturn(), balance, tabs);
+    const rail = el('div', 'expedition-codex-rail shop-rail');
+    rail.tabIndex = 0;
+    rail.setAttribute('aria-label', '军需卡牌');
+    const offers = shopCatalog(this.state.inventory).filter(({ id }) => tab === 'all' || (tab === 'neutral' ? NEUTRAL_IDS.includes(id) : CARDS[id].faction === this.faction.id));
+    for (const { id } of offers) {
+      const item = el('article', 'shop-card');
+      const open = button('expedition-codex-card', '', 'card-detail');
+      open.dataset.cardId = id;
+      open.setAttribute('aria-label', `查看${CARDS[id].name}详情`);
+      open.append(createGameCard(CARDS[id], { drawArt: (canvas, cardId) => this.paint(canvas, cardId), presentation: 'collection' }));
+      item.append(open, this.buyButton(id));
+      rail.append(item);
+    }
+    if (!offers.length) rail.append(el('p', 'deck-inventory-empty', '这一类卡牌已全部拥有'));
+    section.append(filters, rail);
+    return section;
+  }
+
+  buildTrainingCard(id) {
     const base = CARDS[id] || { id, name: `单位 ${id}`, type: 'unit', attack: 0, health: 0, description: '' };
-    const rank = Math.max(0, Math.min(4, this.state.training?.[id] ?? 0));
-    const bonus = this.unitTrainingBonus(id, rank) || { attack: 0, health: 0 };
-    const selected = squad.includes(id);
     const unlocked = this.owns(id, 'units');
-    const wrap = el('article', `training-card${selected ? ' is-in-squad' : ''}${unlocked ? '' : ' is-locked'}`);
+    const wrap = el('article', `training-card${this.draftDeck().includes(id) ? ' is-in-squad' : ''}${unlocked ? '' : ' is-locked'}`);
     const open = button('training-card-open', '', 'card-detail'); open.dataset.cardId = id;
-    open.dataset.locked = String(!unlocked);
     open.setAttribute('aria-label', `查看${base.name}详情`);
-    open.append(createGameCard(trainedCard(base, bonus), { drawArt: (canvas, cardId) => this.paint(canvas, cardId) }));
-    const caption = el('div', 'training-caption');
-    if (!unlocked) caption.append(el('span', '', this.page === 'prep' ? '未解锁' : getUnlockLabel(id)));
-    else if (this.page !== 'prep' || rank > 0) caption.append(el('span', '', this.page === 'prep' ? `${rank} 阶` : `培养 ${rank} 阶${NEUTRAL_IDS.includes(id) ? ' · 中立' : ''}`));
-    if (selected && this.page !== 'prep') caption.append(el('strong', '', `牌组 ×${squad.filter(cardId => cardId === id).length}`));
-    if (this.page === 'prep') {
-      wrap.append(open, this.deckCardControls(id));
-      if (caption.childElementCount) wrap.append(caption);
-    } else wrap.append(open, caption);
+    open.append(createGameCard(base, { drawArt: (canvas, cardId) => this.paint(canvas, cardId) }));
+    wrap.append(open, this.deckCardControls(id));
+    if (!unlocked) { const caption = el('div', 'training-caption'); caption.append(el('span', '', '未拥有')); wrap.append(caption); }
     return wrap;
   }
 
   owns(id, type) { return (this.state.inventory?.[type] || []).includes(id); }
 
-  modeLabel(mode) { return { base: '原式', power: '强效', tactical: '战术' }[mode || 'base'] || '原式'; }
-
-  selectedSpells() { return this.state.factionSpells?.[this.faction.id] || []; }
-
-  spellCard(id) { return getSpellUpgrade(id, this.state.spellTraining?.[id] || 0, this.state.spellModes?.[id] || 'base'); }
+  spellCard(id) { return CARDS[id]; }
 
   buildSpellCard(id) {
     const card = this.spellCard(id), unlocked = this.owns(id, 'spells');
@@ -674,15 +547,8 @@ export class ExpeditionUI {
     const wrap = el('article', `training-card spell-inventory-card${selected ? ' is-in-squad' : ''}${unlocked ? '' : ' is-locked'}`);
     const open = button('spell-card-open', '', 'card-detail'); open.dataset.cardId = id;
     open.append(createGameCard(card, { drawArt: (canvas, cardId) => this.paint(canvas, cardId) }));
-    const caption = el('div', 'training-caption');
-    const rank = this.state.spellTraining?.[id] || 0;
-    if (!unlocked) caption.append(el('span', '', this.page === 'prep' ? '未解锁' : getUnlockLabel(id)));
-    else if (this.page !== 'prep' || rank > 0) caption.append(el('span', '', `${rank} 阶 · ${this.modeLabel(this.state.spellModes?.[id])}`));
-    if (selected && this.page !== 'prep') caption.append(el('strong', '', '牌组 ×' + this.draftDeck().filter(cardId => cardId === id).length));
-    if (this.page === 'prep') {
-      wrap.append(open, this.deckCardControls(id));
-      if (caption.childElementCount) wrap.append(caption);
-    } else wrap.append(open, caption);
+    wrap.append(open, this.deckCardControls(id));
+    if (!unlocked) { const caption = el('div', 'training-caption'); caption.append(el('span', '', '未拥有')); wrap.append(caption); }
     return wrap;
   }
 
@@ -734,169 +600,43 @@ export class ExpeditionUI {
   }
 
   buildCardDialog() {
-    const card = CARDS[this.detailCardId];
-    if (this.challengeSession) {
-      const dialog=el('dialog','expedition-card-dialog challenge-card-dialog');
-      if (!card || !this.owns(card.id,card.type==='spell'?'spells':'units')) return dialog;
-      const copy=el('div','codex-detail-copy');copy.tabIndex=0;copy.setAttribute('aria-label','卡牌规则');
-      const name=el('h2','',card.name); name.id='challenge-card-name';dialog.setAttribute('aria-labelledby',name.id);copy.append(name);
-      for(const {label,text} of cardRuleSections(card)){const rule=el('section','codex-detail-rule');if(label)rule.append(el('h3','',label));rule.append(el('p','',text));copy.append(rule);}
-      const object=el('div','challenge-card-object');
-      object.append(createGameCard(card.type==='spell'?this.spellCard(card.id):card,{drawArt:(canvas,id)=>this.paint(canvas,id)}),this.deckCardControls(card.id));
-      dialog.append(button('card-dialog-close','关闭','close-card'),object,copy);
-      requestAnimationFrame(()=>{if(dialog.isConnected&&!dialog.open)dialog.showModal();});
-      dialog.addEventListener('cancel',event=>{event.preventDefault();this.closeCard();});
-      return dialog;
+    const base = CARDS[this.detailCardId];
+    const dialog = el('dialog', 'expedition-card-dialog is-codex');
+    if (!base) return dialog;
+    dialog.setAttribute('aria-labelledby', 'codex-detail-name');
+    const copy = el('div', 'codex-detail-copy');
+    copy.tabIndex = 0;
+    copy.setAttribute('aria-label', '卡牌规则');
+    const name = el('h2', '', base.name); name.id = 'codex-detail-name';
+    const type = { general: '主将', unit: '随从', spell: '法术' }[base.type];
+    copy.append(name, el('p', 'codex-detail-meta', `${getFaction(base.faction)?.name || '中立'} ${type}${base.cost == null ? '' : `　${base.cost} 费`}`));
+    for (const { label, text } of cardRuleSections(base)) {
+      const rule = el('section', 'codex-detail-rule');
+      if (label) rule.append(el('h3', '', label));
+      rule.append(el('p', '', text)); copy.append(rule);
     }
-    const canGrow = card && ['unit', 'spell'].includes(card.type) && (!card.faction || card.faction === this.faction.id) && this.owns(card.id, card.type === 'spell' ? 'spells' : 'units');
-    const isCodex = this.page === 'codex' && !canGrow;
-    const dialog = el('dialog', `expedition-card-dialog${isCodex ? ' is-codex' : ''}`);
-    if (this.detailCardId && CARDS[this.detailCardId]) {
-      const base = CARDS[this.detailCardId];
-      if (isCodex) {
-        dialog.setAttribute('aria-labelledby', 'codex-detail-name');
-        const copy = el('div', 'codex-detail-copy');
-        copy.tabIndex = 0;
-        copy.setAttribute('aria-label', '卡牌规则');
-        const name = el('h2', '', base.name); name.id = 'codex-detail-name';
-        const type = { general: '主将', unit: '随从', spell: '法术' }[base.type];
-        copy.append(name, el('p', 'codex-detail-meta', `${getFaction(base.faction)?.name || ''} ${type}${base.cost == null ? '' : `　${base.cost} 费`}`));
-        for (const { label, text } of cardRuleSections(base)) {
-          const rule = el('section', 'codex-detail-rule');
-          if (label) rule.append(el('h3', '', label));
-          rule.append(el('p', '', text)); copy.append(rule);
-        }
-        if (base.type !== 'general') {
-          copy.append(el('p', 'inventory-lock-note', this.owns(base.id, base.type === 'spell' ? 'spells' : 'units') ? '已拥有 · 切换对应阵营后可培养' : getUnlockLabel(base.id)));
-          if (base.faction && base.faction !== this.faction.id) { const change = button('mission-adjust', '切换阵营并培养', 'collection-faction'); change.dataset.factionId = base.faction; copy.append(change); }
-        }
-        dialog.append(button('card-dialog-close', '关闭', 'close-card'), createGameCard(base, { drawArt: (canvas, id) => this.paint(canvas, id) }), copy);
-        requestAnimationFrame(() => { if (dialog.isConnected && !dialog.open) dialog.showModal(); });
-        dialog.addEventListener('cancel', (event) => { event.preventDefault(); this.closeCard(); });
-        return dialog;
-      }
-      if (base.type === 'spell') return this.buildSpellDialog(dialog, base);
-      const rank = this.state.training?.[this.detailCardId] ?? 0;
-      const bonus = this.progress.getUnitTrainingBonus(this.detailCardId, rank) || { attack: 0, health: 0 };
-      const next = rank < 4 ? (this.progress.getUnitTrainingBonus(this.detailCardId, rank + 1) || bonus) : null;
-      const trained = trainedCard(base, bonus);
-      const note = el('div', 'training-detail');
-      note.tabIndex = 0; note.setAttribute('aria-label', '完整效果与专精');
-      note.append(el('h2', '', base.name));
-      const object = el('div', 'training-object');
-      object.tabIndex = 0; object.setAttribute('aria-label', '卡牌与培养');
-      const cultivation = el('div', 'training-cultivation');
-      const cost = rank < 4 ? Number(TRAINING_COSTS?.[rank] ?? TRAINING_COSTS?.[this.detailCardId]?.[rank] ?? 0) : 0;
-      const availability = this.progress.getTrainingAvailability(base.id);
-      cultivation.append(this.buildTrainingPurchase(base.id, rank < 4 ? cost : null, 'train', availability));
-      const steps = el('div', 'training-steps');
-      steps.setAttribute('role', 'img');
-      steps.setAttribute('aria-label', `培养 ${rank} / 4 阶`);
-      for (let step = 1; step <= 4; step += 1) steps.append(el('i', step <= rank ? 'is-complete' : step === rank + 1 ? 'is-next' : ''));
-      cultivation.append(steps);
-      const stats = el('div', 'training-stat-comparison');
-      for (const [key, label] of [['attack', '攻击'], ['health', '生命']]) {
-        const row = el('div', 'training-stat-row');
-        const image = el('span', `training-stat-icon is-${key}`); image.setAttribute('aria-hidden', 'true');
-        const current = trained[key];
-        const following = next ? base[key] + next[key] : current;
-        row.setAttribute('aria-label', `${label} ${current}${next ? `，下阶 ${following}` : '，已满阶'}`);
-        row.append(image, el('strong', '', current));
-        if (next) row.append(el('span', 'training-stat-arrow', '→'), el('strong', following > current ? 'is-improved' : '', following));
-        stats.append(row);
-      }
-      cultivation.append(stats, el('p', 'training-detail-note', next ? '下次出战生效' : '已满阶'));
-      note.append(this.buildDetailRules(trained));
-      const unlocked = this.owns(base.id, 'units');
-      if (availability.growthVersion !== 'legacy-v1') cultivation.append(el('p', 'training-detail-note', '满阶 +1攻击 / +2生命；2阶解锁专精。'));
-      if (rank === 1 && availability.growthVersion !== 'legacy-v1') cultivation.append(el('p', 'training-detail-note', '下一阶开放：' + getUnitSpecializations(base.id, availability.growthVersion).map(spec => spec.name).join(' / ') + '，培养后免费选择。'));
-      if (!unlocked) cultivation.append(el('p', 'inventory-lock-note', getUnlockLabel(base.id)));
-      if (this.page === 'prep') cultivation.append(this.deckCardControls(base.id));
-      const specialties = el('div', 'specialization-choices');
-      specialties.append(el('h3', '', '专精 · 战前免费切换'));
-      const none = button('', '不启用专精', 'specialization'); none.dataset.cardId = base.id; none.dataset.spec = 'none';
-      none.disabled = !unlocked; none.setAttribute('aria-pressed', String(this.state.specializations?.[base.id] === 'none')); specialties.append(none);
-      for (const spec of getUnitSpecializations(base.id, this.state.growthVersion[base.id])) {
-        const choice = button('', `${spec.name} · ${spec.rank} 阶解锁`, 'specialization');
-        choice.dataset.cardId = base.id; choice.dataset.spec = spec.id; choice.disabled = !unlocked || rank < spec.rank;
-        choice.setAttribute('aria-pressed', String(this.state.specializations?.[base.id] === spec.id));
-        choice.append(el('small', '', spec.description)); specialties.append(choice);
-      }
-      note.append(specialties);
-      if (this.dialogError) cultivation.append(el('p', 'training-detail-error', this.dialogError));
-      object.append(createGameCard(trained, { drawArt: (canvas, id) => this.paint(canvas, id) }), cultivation);
-      dialog.append(button('card-dialog-close', '关闭', 'close-card'), object, note);
-      requestAnimationFrame(() => { if (dialog.isConnected && !dialog.open) dialog.showModal(); });
+    if (base.type !== 'general') {
+      const owned = this.owns(base.id, base.type === 'spell' ? 'spells' : 'units');
+      const playable = NEUTRAL_IDS.includes(base.id) || base.faction === this.faction.id;
+      if (owned && this.page === 'prep' && playable) copy.append(this.deckCardControls(base.id));
+      else if (owned) copy.append(el('p', 'inventory-lock-note', playable ? '已拥有' : `已拥有 · ${getFaction(base.faction)?.name}可用`));
+      else copy.append(el('p', 'inventory-lock-note', getUnlockLabel(base.id)), this.buyButton(base.id));
     }
-    dialog.addEventListener('cancel', (event) => { event.preventDefault(); this.closeCard(); });
-    return dialog;
-  }
-
-  buildDetailRules(card) {
-    const rules = el('div', 'training-rules');
-    for (const { label, text } of cardRuleSections(card)) {
-      const rule = el('p');
-      const hasLabel = label && !['规则', '法术'].includes(label);
-      const prefix = String(text).match(/^([^：:]+)[：:]\s*/);
-      // A descriptive effect label already conveys its leading trigger (e.g. 登场强化).
-      const copy = hasLabel && prefix && (label === prefix[1] || label.startsWith(prefix[1])) ? String(text).slice(prefix[0].length) : text;
-      if (hasLabel) rule.append(el('strong', '', `${label}：`));
-      rule.append(document.createTextNode(copy)); rules.append(rule);
-    }
-    return rules;
-  }
-
-  buildTrainingPurchase(id, cost, action, availability, unavailableLabel = '已满阶') {
-    const purchase = el('div', 'training-purchase');
-    const balance = goldAmount(this.state.coins ?? 0, 'training-balance');
-    balance.setAttribute('aria-label', `持有金币 ${this.state.coins ?? 0}`);
-    balance.setAttribute('aria-live', 'polite');
-    const upgrade = button('training-upgrade', cost == null ? unavailableLabel : '培养', action);
-    if (cost != null) upgrade.append(goldAmount(cost));
-    upgrade.setAttribute('aria-label', cost == null ? unavailableLabel : `培养，费用 ${cost} 金币`);
-    upgrade.dataset.cardId = id; upgrade.disabled = !availability.canTrain;
-    purchase.append(balance, upgrade);
-    if (availability.reason && (cost != null || unavailableLabel !== '已满阶')) {
-      let reason = availability.reason;
-      if (reason === '尚未开放此阶培养。' && action === 'train') reason = (NEUTRAL_IDS.includes(id) ? '任一阵营' : getFaction(CARDS[id]?.faction)?.name || '所属阵营') + '完成第' + ({2:3,3:9,4:15}[availability.nextRank] || 0) + '关解锁下一阶。';
-      const message = el('p', 'training-detail-note', reason);
-      message.id = 'training-purchase-reason'; upgrade.setAttribute('aria-describedby', message.id);
-      purchase.append(message);
-    }
-    return purchase;
-  }
-
-  buildSpellDialog(dialog, base) {
-    const rank = this.state.spellTraining?.[base.id] || 0;
-    const unlocked = this.owns(base.id, 'spells');
-    const card = this.spellCard(base.id);
-    const note = el('div', 'training-detail spell-training-detail');
-    const availability = this.progress.getTrainingAvailability(base.id);
-    const policy = getSpellTrainingPolicy(base.id);
-    note.tabIndex = 0; note.setAttribute('aria-label', '完整效果与施法模式');
-    note.append(el('h2', '', base.name), this.buildDetailRules(card));
-    const object = el('div', 'training-object');
-    object.tabIndex = 0; object.setAttribute('aria-label', '卡牌与培养');
-    const cultivation = el('div', 'training-cultivation');
-    cultivation.append(this.buildTrainingPurchase(base.id, policy.trainable && rank < 2 ? SPELL_TRAINING_COSTS[rank] : null, 'train-spell', availability, policy.trainable ? '已满阶' : '不可培养'), ...(policy.trainable ? [el('p', '', `法术培养 ${rank} / 2 阶`)] : []));
-    if (!unlocked) cultivation.append(el('p', 'inventory-lock-note', getUnlockLabel(base.id)));
-    if (policy.trainable) cultivation.append(el('p', 'training-detail-note', rank < 2 ? (getFaction(base.faction)?.name || '所属阵营') + '第' + (rank === 0 ? 3 : 6) + '关开放此阶；下次出战生效。' : '下次出战生效。'));
-    if (this.page === 'prep') cultivation.append(this.deckCardControls(base.id));
-    const modes = el('div', 'specialization-choices'); modes.append(el('h3', '', '施法模式 · 战前免费切换'));
-    for (const [mode, gate] of [['base', 0], ['power', 1], ['tactical', 2]]) {
-      const choice = button('', `${this.modeLabel(mode)}${gate ? ` · ${gate} 阶解锁` : ''}`, 'spell-mode');
-      choice.dataset.cardId = base.id; choice.dataset.mode = mode; choice.disabled = !unlocked || rank < gate;
-      choice.setAttribute('aria-pressed', String((this.state.spellModes?.[base.id] || 'base') === mode));
-      const preview = getSpellUpgrade(base.id, Math.max(gate, rank), mode);
-      choice.append(el('small', '', `${preview.cost} 费 · ${preview.description}`)); modes.append(choice);
-    }
-    if (policy.trainable) note.append(modes);
-    if (this.dialogError) cultivation.append(el('p', 'training-detail-error', this.dialogError));
-    object.append(createGameCard(card, { drawArt: (canvas, id) => this.paint(canvas, id) }), cultivation);
-    dialog.append(button('card-dialog-close', '关闭', 'close-card'), object, note);
+    if (this.dialogError) copy.append(el('p', 'training-detail-error', this.dialogError));
+    dialog.append(button('card-dialog-close', '关闭', 'close-card'), createGameCard(base, { drawArt: (canvas, id) => this.paint(canvas, id) }), copy);
     requestAnimationFrame(() => { if (dialog.isConnected && !dialog.open) dialog.showModal(); });
     dialog.addEventListener('cancel', (event) => { event.preventDefault(); this.closeCard(); });
     return dialog;
+  }
+
+  buyButton(id) {
+    const offer = this.progress.shopOffer(id);
+    const buy = button('shop-buy', offer.owned ? '已拥有' : '购买', 'buy-card');
+    buy.dataset.cardId = id;
+    if (offer.price != null && !offer.owned) buy.append(goldAmount(offer.price));
+    buy.disabled = !offer.eligible;
+    buy.setAttribute('aria-label', offer.owned ? '已拥有' : offer.price == null ? offer.reason : `购买，${offer.price} 金币${offer.reason ? `，${offer.reason}` : ''}`);
+    return buy;
   }
 
   closeCard() {
@@ -912,7 +652,6 @@ export class ExpeditionUI {
     if (!target) return;
     const action = target.dataset.action;
     if (target.disabled) return;
-    if (this.challengeSession && !['deck-add','deck-remove','deck-default','deck-recommend','deck-undo-recommend','inventory-tab','deck-cost','start','return-mission','card-detail','close-card'].includes(action)) return;
     if (action === 'deck-add' || action === 'deck-remove') {
       const id = Number(target.dataset.cardId), deck = [...this.draftDeck()];
       const count = deck.filter(cardId => cardId === id).length;
@@ -924,7 +663,7 @@ export class ExpeditionUI {
     }
     if (action === 'deck-default') {
       try {
-        const deck = this.challengeSession ? [...this.challengeSession.initialDeck] : makeStarterDeck(this.hero.id,this.state.inventory);
+        const deck = makeStarterDeck(this.hero.id,this.state.inventory);
         const result = this.localDecks.set(this.faction.id,deck,this.state.inventory);
         if (!result.ok) throw new Error(result.error);
         this.deckDrafts.set(this.faction.id,deck); this.deckMessage = '';
@@ -984,11 +723,6 @@ export class ExpeditionUI {
         this.signalIncompleteDeck(); return;
       }
       if (!this.saveLocalDeck()) return;
-      if (this.challengeSession) {
-        this.root.querySelector('dialog[open]')?.close();
-        this.challengeSession.onStart({deck:[...this.draftDeck()],challengeId:this.challengeSession.challengeId});
-        return;
-      }
       const result = this.progress.setBattleDeck([...this.draftDeck()]);
       if (!result.ok) { this.deckMessage = result.error; this.render(); return; }
       this.root.querySelector('dialog[open]')?.close();
@@ -997,30 +731,11 @@ export class ExpeditionUI {
     else if (action === 'resume') this.onResume(this.state.activeBattle);
     else if (action === 'cloud') this.onCloud();
     else if (action === 'battle-rules') document.dispatchEvent(new CustomEvent('open-battle-rules'));
-    else if (action === 'ad-self-test') this.onAdSelfTest();
     else if (action === 'audio-settings') this.onAudioSettings(target);
     else if (action === 'music-toggle') this.onMusicToggle(event);
-    else if (action === 'recruitment') this.onRecruitment();
     else if (action === 'leaderboard') this.onLeaderboard(target);
     else if (action === 'achievements') this.onAchievements(target);
     else if (action === 'resource-rewards') this.onResourceRewards();
-    else if (action === 'trial-group') {
-      this.trialGroupId = target.dataset.groupId;
-      this.pendingFocus = { action: 'trial-group', groupId: this.trialGroupId };
-      this.render();
-    }
-    else if (action === 'trial-intro') {
-      this.trialGroupId = 'basics';
-      this.navigate('trials', target);
-    }
-    else if (action === 'trial') this.trials.start(target.dataset.levelId);
-    else if (action === 'trial-cloud') this.trials.resumeCloud();
-    else if (action === 'trial-sync') this.trials.sync();
-    else if (action === 'slot') {
-      if (this.keyboardDrag) this.dropCard(this.keyboardDrag.cardId, Number(target.dataset.slot), this.keyboardDrag.sourceSlot);
-      else { this.cardReturnFocus = { action: 'slot', slot: target.dataset.slot, cardId: target.dataset.cardId }; this.dialogError = ''; this.detailCardId = Number(target.dataset.cardId); this.render(); }
-    }
-    else if (action === 'train') this.train(Number(target.dataset.cardId));
     else if (action === 'inventory-tab') { this.inventoryTab = target.dataset.tab; this.render(); }
     else if (action === 'deck-show-unowned') { this.deckShowUnowned = !this.deckShowUnowned; this.render(); }
     else if (action === 'deck-cost') { this.deckSelectedCost = toggleDeckCost(this.deckSelectedCost, Number(target.dataset.cost)); this.render(); }
@@ -1028,24 +743,18 @@ export class ExpeditionUI {
     else if (action === 'collection-faction') { const result = this.progress.selectHero(getFaction(Number(target.dataset.factionId)).heroIds[0]); if (!result.ok) this.dialogError = result.error; this.codexFaction = this.faction.id; this.render(); }
     else if (action === 'adjust-loadout') { this.returnMission = target.dataset.levelId; this.navigate('prep'); }
     else if (action === 'return-mission') {
-      if (this.challengeSession) { this.challengeSession.onExit(); return; }
       if (!this.saveLocalDeck()) return;
       const level = EXPEDITION_LEVELS.find((item) => item.id === this.returnMission);
       this.chapterId = level?.chapterId; this.levelId = level?.id; this.navigate('expedition');
     }
-    else if (action === 'choose-unit') {
-      const squad = this.squadAfterDrop(Number(target.dataset.cardId), Number(target.dataset.slot));
-      this.profileAction(this.progress.setSquad(squad));
+    else if (action === 'buy-card') {
+      const id = Number(target.dataset.cardId), result = this.progress.buyCard(id);
+      this.dialogError = result.ok ? '' : result.error;
+      this.flash(result.ok ? `已购入${CARDS[id].name}` : result.error);
+      this.pendingFocus = { action: this.detailCardId ? 'close-card' : 'nav', page: 'menu' };
+      this.render();
     }
-    else if (action === 'choose-spell') {
-      const spells = [...this.selectedSpells()], id = Number(target.dataset.cardId), slot = Number(target.dataset.slot);
-      const old = spells.indexOf(id);
-      if (old >= 0) [spells[slot], spells[old]] = [spells[old], spells[slot]]; else spells[slot] = id;
-      this.profileAction(this.progress.setSpells(spells));
-    }
-    else if (action === 'train-spell') this.profileAction(this.progress.trainSpell(Number(target.dataset.cardId)));
-    else if (action === 'spell-mode') this.profileAction(this.progress.setSpellMode(Number(target.dataset.cardId), target.dataset.mode));
-    else if (action === 'specialization') this.profileAction(this.progress.setSpecialization(Number(target.dataset.cardId), target.dataset.spec));
+    else if (action === 'shop-tab') { this.shopTab = target.dataset.tab; this.render(); }
     else if (action === 'card-detail') { this.cardReturnFocus = { action: 'card-detail', cardId: target.dataset.cardId }; this.dialogError = ''; this.detailCardId = Number(target.dataset.cardId); this.render(); }
     else if (action === 'close-card') this.closeCard();
     else if (action === 'codex-faction') {
@@ -1063,27 +772,9 @@ export class ExpeditionUI {
     else if (action === 'nav') this.navigate(target.dataset.page, target);
   }
 
+  // Card rails scroll by touch; a drag that moved must not open the card it started on.
   handlePointerDown(event) {
-    if (this.page === 'codex' && event.isPrimary && event.button === 0 && event.target.closest('.expedition-codex-card')) {
-      this.codexPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
-      return;
-    }
-    if (!event.isPrimary || event.button !== 0 || this.pointerDrag || this.page !== 'barracks' || this.deckDrafts) return;
-    const source = event.target.closest('.training-card-open[data-card-id], .squad-slot[data-card-id]');
-    if (!source || !this.root.contains(source) || source.dataset.locked === 'true') return;
-    const sourceSlot = source.matches('.squad-slot') ? Number(source.dataset.slot) : null;
-    this.pointerDrag = {
-      pointerId: event.pointerId,
-      pointerType: event.pointerType,
-      source,
-      cardId: Number(source.dataset.cardId),
-      sourceSlot,
-      x: event.clientX,
-      y: event.clientY,
-      active: false,
-      roster: source.matches('.training-card-open')
-    };
-    source.setPointerCapture?.(event.pointerId);
+    if (event.isPrimary && event.button === 0 && event.target.closest('.expedition-codex-card, .shop-card')) this.codexPointer = { id: event.pointerId, x: event.clientX, y: event.clientY };
   }
 
   handlePointerMove(event) {
@@ -1092,205 +783,34 @@ export class ExpeditionUI {
       this.suppressClickUntil = performance.now() + 450;
       codex.moved = true;
     }
-    const drag = this.pointerDrag;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    const dx = event.clientX - drag.x;
-    const dy = event.clientY - drag.y;
-    if (!drag.active) {
-      if (Math.hypot(dx, dy) < 9) return;
-      if (drag.roster && drag.pointerType === 'touch' && Math.abs(dx) > Math.abs(dy)) { this.cancelPointerDrag(event); return; }
-      this.startPointerDrag(event);
-    }
-    event.preventDefault();
-    this.moveDragGhost(event.clientX, event.clientY);
-    this.markDropTarget(this.slotAtPoint(event.clientX, event.clientY));
-  }
-
-  startPointerDrag(event) {
-    const drag = this.pointerDrag;
-    if (!drag) return;
-    drag.active = true;
-    this.stopIdle();
-    const ghost = drag.source.cloneNode(true);
-    ghost.className = 'squad-drag-ghost';
-    ghost.removeAttribute('id');
-    ghost.setAttribute('aria-hidden', 'true');
-    ghost.querySelectorAll('canvas').forEach((canvas, index) => {
-      const original = drag.source.querySelectorAll('canvas')[index];
-      if (!original) return;
-      canvas.width = original.width;
-      canvas.height = original.height;
-      try { canvas.getContext('2d')?.drawImage(original, 0, 0); } catch (_) {}
-    });
-    document.body.append(ghost);
-    drag.ghost = ghost;
-    const sourceRect = drag.source.getBoundingClientRect();
-    const ghostRect = ghost.getBoundingClientRect();
-    drag.ghostWidth = ghostRect.width || Math.min(104, sourceRect.width) || 104;
-    drag.ghostHeight = ghostRect.height || (sourceRect.height * drag.ghostWidth / Math.max(1, sourceRect.width)) || 144;
-    this.moveDragGhost(event.clientX, event.clientY);
-    drag.source.classList.add('squad-drag-source');
-  }
-
-  moveDragGhost(x, y) {
-    const ghost = this.pointerDrag?.ghost;
-    if (!ghost) return;
-    ghost.style.position = 'fixed';
-    const width = this.pointerDrag.ghostWidth || 104;
-    const height = this.pointerDrag.ghostHeight || 144;
-    ghost.style.left = `${Math.max(4, Math.min(innerWidth - width - 4, x - width / 2))}px`;
-    ghost.style.top = `${Math.max(4, y - height + 20)}px`;
-    ghost.style.pointerEvents = 'none';
-  }
-
-  slotAtPoint(x, y) {
-    return document.elementsFromPoint(x, y).map((node) => node.closest?.('.squad-slot[data-slot]')).find((node) => node && this.root.contains(node)) || null;
-  }
-
-  markDropTarget(target) {
-    const drag = this.pointerDrag;
-    all(this.root, '.squad-slot').forEach((slot) => slot.classList.remove('is-drop-valid', 'is-drop-invalid', 'is-drop-over'));
-    if (!drag || !target) return;
-    const candidate = this.squadAfterDrop(drag.cardId, Number(target.dataset.slot), drag.sourceSlot);
-    const valid = deploymentCost(candidate) <= DEPLOYMENT_BUDGET;
-    target.classList.add(valid ? 'is-drop-valid' : 'is-drop-invalid', 'is-drop-over');
   }
 
   handlePointerEnd(event) {
-    if (this.codexPointer?.id === event.pointerId) {
-      if (this.codexPointer.moved) this.suppressClickUntil = performance.now() + 450;
-      this.codexPointer = null;
-    }
-    const drag = this.pointerDrag;
-    if (!drag || drag.pointerId !== event.pointerId) return;
-    const active = drag.active;
-    const target = active ? this.slotAtPoint(event.clientX, event.clientY) : null;
-    const cardId = drag.cardId;
-    const sourceSlot = drag.sourceSlot;
-    this.cancelPointerDrag(event);
-    if (!active) return;
-    event.preventDefault();
-    this.suppressClickUntil = performance.now() + 450;
-    if (target) this.dropCard(cardId, Number(target.dataset.slot), sourceSlot);
-  }
-
-  cancelPointerDrag(event) {
     if (this.codexPointer && (!event || this.codexPointer.id === event.pointerId)) {
       if (this.codexPointer.moved) this.suppressClickUntil = performance.now() + 450;
       this.codexPointer = null;
     }
-    const drag = this.pointerDrag;
-    if (!drag || (event?.pointerId != null && drag.pointerId !== event.pointerId)) return;
-    if (drag.active) this.suppressClickUntil = performance.now() + 450;
-    drag.ghost?.remove();
-    drag.source?.classList.remove('squad-drag-source');
-    all(this.root, '.squad-slot').forEach((slot) => slot.classList.remove('is-drop-valid', 'is-drop-invalid', 'is-drop-over'));
-    if (drag.source?.hasPointerCapture?.(drag.pointerId)) drag.source.releasePointerCapture(drag.pointerId);
-    this.pointerDrag = null;
-    this.syncIdle();
-  }
-
-  cancelDrag(message = '') {
-    this.cancelPointerDrag();
-    if (this.keyboardDrag) {
-      this.clearKeyboardDrag();
-      this.announce(message || '已取消编队。');
-    }
   }
 
   handleKeyDown(event) {
-    if (event.key === 'Tab') {
-      const dialog = event.target.closest('dialog[open]');
-      if (dialog) {
-        const choices = [...dialog.querySelectorAll('button:not(:disabled), [tabindex="0"]')].filter((node) => node.getClientRects().length);
-        const index = choices.indexOf(document.activeElement);
-        if (choices.length && ((!event.shiftKey && index === choices.length - 1) || (event.shiftKey && index === 0))) {
-          event.preventDefault(); choices[event.shiftKey ? choices.length - 1 : 0].focus(); return;
-        }
-      }
+    if (event.key !== 'Tab') return;
+    const dialog = event.target.closest('dialog[open]');
+    if (!dialog) return;
+    const choices = [...dialog.querySelectorAll('button:not(:disabled), [tabindex="0"]')].filter((node) => node.getClientRects().length);
+    const index = choices.indexOf(document.activeElement);
+    if (choices.length && ((!event.shiftKey && index === choices.length - 1) || (event.shiftKey && index === 0))) {
+      event.preventDefault(); choices[event.shiftKey ? choices.length - 1 : 0].focus();
     }
-    if (event.key === 'Escape' && (this.pointerDrag || this.keyboardDrag)) {
-      event.preventDefault();
-      this.cancelDrag();
-      return;
-    }
-    if (event.key === 'Tab' && this.keyboardDrag) {
-      const slots = all(this.root, '.squad-slot[data-slot]');
-      if (!slots.length) return;
-      event.preventDefault();
-      const current = slots.indexOf(document.activeElement);
-      const step = event.shiftKey ? -1 : 1;
-      slots[(current + step + slots.length) % slots.length].focus();
-      return;
-    }
-    if (event.key !== ' ' && event.key !== 'Enter') return;
-    if (this.deckDrafts) return;
-    const source = event.target.closest('.training-card-open[data-card-id], .squad-slot[data-card-id]');
-    if (!source || source.dataset.locked === 'true') return;
-    if (this.keyboardDrag && source.matches('.squad-slot')) {
-      event.preventDefault();
-      this.dropCard(this.keyboardDrag.cardId, Number(source.dataset.slot), this.keyboardDrag.sourceSlot);
-      return;
-    }
-    if (event.key === ' ' && !this.keyboardDrag) {
-      event.preventDefault();
-      this.keyboardDrag = {
-        cardId: Number(source.dataset.cardId),
-        sourceSlot: source.matches('.squad-slot') ? Number(source.dataset.slot) : null,
-        source
-      };
-      source.classList.add('is-keyboard-dragging');
-      this.announce(`已拿起${CARDS[this.keyboardDrag.cardId]?.name || '单位'}。按 Tab 选择编队位置，再按 Enter 或空格放置。`);
-    }
-  }
-
-  squadAfterDrop(id, slot, sourceSlot = null) {
-    const squad = this.validSquad();
-    const existing = sourceSlot == null ? squad.indexOf(id) : sourceSlot;
-    if (existing === slot) return squad;
-    if (existing >= 0) [squad[slot], squad[existing]] = [squad[existing], squad[slot]];
-    else squad[slot] = id;
-    return squad;
-  }
-
-  dropCard(id, slot, sourceSlot = null) {
-    const squad = this.squadAfterDrop(id, slot, sourceSlot);
-    const name = CARDS[id]?.name || '单位';
-    this.clearKeyboardDrag();
-    const result = this.progress?.setSquad?.(squad);
-    if (result?.ok === false) {
-      const fallback = deploymentCost(squad) > DEPLOYMENT_BUDGET ? '开局费用超出上限，无法调整编队。' : '无法调整出征队伍。';
-      this.announce(result.error || fallback);
-      this.flash(result.error || fallback);
-      this.refresh();
-      return;
-    }
-    this.pendingFocus = { action: 'slot', slot: String(slot) };
-    this.announce(`${name}已放入${slot === 0 ? '前锋' : slot === 1 ? '护卫' : '援军'}。`);
-    this.refresh();
-  }
-
-  announce(message) {
-    this.liveMessage = message;
-    const live = $(this.root, '.barracks-live');
-    if (live) live.textContent = message;
-  }
-
-  clearKeyboardDrag() {
-    this.keyboardDrag?.source?.classList.remove('is-keyboard-dragging');
-    all(this.root, '.is-keyboard-dragging').forEach((node) => node.classList.remove('is-keyboard-dragging'));
-    this.keyboardDrag = null;
   }
 
   navigate(page, source = document.activeElement) {
-    if (page === 'barracks') page = 'prep';
-    if (!['menu', 'expedition', 'prep', 'codex', 'trials'].includes(page)) return;
+    if (!['menu', 'expedition', 'prep', 'codex', 'shop'].includes(page)) return;
     if (this.page === 'menu' && page !== 'menu') {
       this.menuReturnFocus = source && this.root.contains(source) && source.dataset.action
         ? { action: source.dataset.action, page: source.dataset.page }
         : { action: 'nav', page };
     }
-    this.cancelDrag();
+    this.handlePointerEnd();
     this.detailCardId = null;
     this.heroPickerOpen = false;
     this.dialogError = '';
@@ -1299,34 +819,10 @@ export class ExpeditionUI {
     this.render();
   }
 
-  train(id) {
-    this.pendingFocus = { action: 'train', cardId: String(id) };
-    const result = this.progress?.train?.(id);
-    if (result?.ok === false) {
-      const shortfall = result.error === '金币不足。' ? '金币不足。重复挑战已通关关卡可继续获得金币。' : result.error;
-      this.dialogError = shortfall || '无法培养该单位。';
-    } else {
-      this.dialogError = '';
-    }
-    this.refresh();
-  }
-
-  profileAction(result) {
-    this.dialogError = result?.ok === false ? result.error || '调整失败。' : '';
-    this.refresh();
-  }
-
   flash(message) {
     this.notice = message;
     clearTimeout(this.noticeTimer);
     this.noticeTimer = setTimeout(() => { this.notice = ''; this.render(); }, 2600);
-  }
-
-  validSquad() {
-    const stateSquad = Array.isArray(this.state.squad) ? this.state.squad : [];
-    const unique = [...new Set(stateSquad)].filter((id) => (this.faction.unitIds.includes(id) || NEUTRAL_IDS.includes(id)) && this.owns(id, 'units')).slice(0, 3);
-    for (const id of this.faction.defaultSquad) if (unique.length < 3 && !unique.includes(id)) unique.push(id);
-    return unique;
   }
 
   chapter() { return EXPEDITION_CHAPTERS.find((chapter) => chapter.id === this.chapterId); }
@@ -1338,12 +834,12 @@ export class ExpeditionUI {
 
   syncIdle() {
     this.stopIdle();
-    if (this.root.hidden || document.hidden || this.pointerDrag?.active || this.reducedMotion.matches || !this.root.isConnected) return;
+    if (this.root.hidden || document.hidden || this.reducedMotion.matches || !this.root.isConnected) return;
     this.tickIdle();
   }
 
   tickIdle() {
-    if (this.root.hidden || document.hidden || this.pointerDrag?.active || this.reducedMotion.matches || !this.root.isConnected) return;
+    if (this.root.hidden || document.hidden || this.reducedMotion.matches || !this.root.isConnected) return;
     let next = Infinity;
     const now = performance.now();
     const openDialog = $(this.root, 'dialog[open]');

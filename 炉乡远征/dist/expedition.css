@@ -197,7 +197,7 @@
 
 /* The menu owns utility actions; collection gives its full height to the cards. */
 .expedition-topbar[hidden] { display:none; }
-.expedition-ui[data-page="menu"], .expedition-ui[data-page="codex"], .expedition-ui[data-page="trials"] { grid-template-rows:minmax(0,1fr); }
+.expedition-ui[data-page="menu"], .expedition-ui[data-page="codex"], .expedition-ui[data-page="shop"] { grid-template-rows:minmax(0,1fr); }
 
 .expedition-menu { position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(230px,1fr); grid-template-rows:32px minmax(0,1fr); align-items:center; gap:12px 20px; height:100%; max-width:1000px; margin:auto; padding:16px 32px; }
 .menu-resources { grid-column:1 / -1; display:flex; justify-content:flex-end; align-items:center; gap:20px; min-width:0; }
@@ -233,7 +233,7 @@
 .expedition-codex-rail { grid-template-columns:repeat(auto-fill,minmax(156px,1fr)); align-items:stretch; padding-top:4px; row-gap:18px; }
 .expedition-primary:disabled { filter:grayscale(1); opacity:.5; }
 @media(max-width:650px),(max-height:350px) {
- .expedition-ui[data-page="menu"], .expedition-ui[data-page="codex"], .expedition-ui[data-page="trials"] { grid-template-rows:minmax(0,1fr); }
+ .expedition-ui[data-page="menu"], .expedition-ui[data-page="codex"], .expedition-ui[data-page="shop"] { grid-template-rows:minmax(0,1fr); }
  .expedition-menu { gap:4px 8px; grid-template-columns:minmax(0,1fr) minmax(210px,1fr); grid-template-rows:28px minmax(0,1fr); padding:6px 16px; }
  .menu-title { font-size:32px; }.menu-subtitle { font-size:14px; margin-bottom:6px; }.menu-content { gap:5px; }
  .menu-play { width:210px; min-height:48px; font-size:13px; }.menu-hero-name { font-size:12px; }
@@ -444,10 +444,10 @@
 
 /* Centre and right are native host chrome; chapter tools occupy a left pocket. */
 .expedition-topbar{padding-top:54px;flex-wrap:nowrap;gap:6px;justify-content:flex-start}
-.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="trials"]):not([data-inline-chrome="true"]){grid-template-rows:104px minmax(0,1fr)}
+.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="shop"]):not([data-inline-chrome="true"]){grid-template-rows:104px minmax(0,1fr)}
 
 .expedition-topbar .expedition-purse{margin-left:auto}.expedition-topbar .expedition-commander{margin-right:0}
-@media(max-height:350px){.expedition-topbar{padding-top:52px}.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="trials"]):not([data-inline-chrome="true"]){grid-template-rows:100px minmax(0,1fr)}.chapter-heading h2{font-size:16px}.mission-copy h3{font-size:15px}.mission-copy>p,.mission-rewards{font-size:11px}}
+@media(max-height:350px){.expedition-topbar{padding-top:52px}.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="shop"]):not([data-inline-chrome="true"]){grid-template-rows:100px minmax(0,1fr)}.chapter-heading h2{font-size:16px}.mission-copy h3{font-size:15px}.mission-copy>p,.mission-rewards{font-size:11px}}
 
 .mission-copy>*{flex-shrink:0}.mission-copy h3{position:relative}.mission-preview{background:#10263ae8;box-shadow:0 8px 24px #0005;border:0;border-radius:6px}
 
@@ -468,7 +468,7 @@
 .deck-heading{display:flex;align-items:center;justify-content:space-between;gap:4px}.deck-editor .prep-start{font-size:11px}
 
 /* Compact local chrome leaves the centre and native right capsule clear. */
-.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="trials"]):not([data-inline-chrome="true"]){grid-template-rows:52px minmax(0,1fr)}
+.expedition-ui:not([data-page="menu"]):not([data-page="codex"]):not([data-page="shop"]):not([data-inline-chrome="true"]){grid-template-rows:52px minmax(0,1fr)}
 .expedition-topbar{padding-top:4px;gap:6px}.expedition-topbar .compact-commander{width:44px;min-width:44px;padding:0}.compact-commander span{display:none}.compact-commander img{width:36px;height:36px}.expedition-topbar .expedition-purse{font-size:11px;gap:3px}.expedition-purse .resource-icon{width:22px;height:22px}
 .prep-commander{min-height:36px;min-width:44px;padding:3px 6px;border:0;background:#26495e;color:#d4e5ee;border-radius:4px;font-size:10px}.deck-heading{min-height:36px}.deck-heading h2,.deck-total{font-size:12px}
 .deck-card-row{grid-template-columns:minmax(0,1fr) 94px;min-height:40px}.deck-card-controls{gap:0}.deck-card-controls button{flex-basis:36px;min-width:36px;min-height:36px;font-size:17px;background:linear-gradient(#305369,#26465b);border:3px solid #132d41;border-radius:7px}.deck-card-row>.deck-card-detail{min-height:40px}.deck-card-controls span{min-width:22px}
@@ -552,3 +552,8 @@
  #expedition-home .faction-menu .menu-resources { gap:6px; }
  #expedition-home .faction-menu .resource-icon { width:24px; height:24px; }
 }
+/* 军需 */
+.shop-card { display:flex; flex-direction:column; align-items:stretch; gap:6px; min-width:0; }
+.shop-card .expedition-codex-card { height:auto; }
+.shop-card .shop-buy { min-height:44px; display:flex; align-items:center; justify-content:center; gap:6px; font-size:15px; }
+.expedition-shop .shop-balance { display:flex; align-items:center; justify-content:center; gap:6px; min-height:44px; color:#f2d98d; font-size:16px; }
