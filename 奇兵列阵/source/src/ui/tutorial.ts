@@ -344,8 +344,28 @@ export class Tutorial {
     const s = STEPS[this.i];
     if (this.disposed || this.isCompleteResult() || !this.active(s) || s.noMask) return;
     const t = e.target as HTMLElement | null;
+    if (e instanceof KeyboardEvent) {
+      // The mask restricts actions, not focus navigation. Keep Tab inside the
+      // current teaching controls and highlighted targets, including after a
+      // step removes the previously focused Continue button.
+      const targets = [...this.host.el.querySelectorAll<HTMLElement>('button:not(:disabled),[href],input:not(:disabled),select:not(:disabled),textarea:not(:disabled),[tabindex]:not([tabindex="-1"])')]
+        .filter((el) => {
+          if (!el.getClientRects().length || getComputedStyle(el).visibility !== 'visible' || el.closest('[hidden],[inert]')) return false;
+          if (this.el.contains(el)) return true;
+          const b = el.getBoundingClientRect(), p = toStage(b.left + b.width / 2, b.top + b.height / 2);
+          return this.allowRects.some((r) => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h);
+        });
+      if (e.key === 'Tab') {
+        e.stopPropagation(); e.preventDefault();
+        const i = targets.indexOf(document.activeElement as HTMLElement);
+        const next = i < 0 ? (e.shiftKey ? targets.length - 1 : 0) : (i + (e.shiftKey ? -1 : 1) + targets.length) % targets.length;
+        targets[next]?.focus();
+      } else if (e.key !== 'Escape' && !(t && (this.el.contains(t) || targets.some((el) => el === t || el.contains(t))))) {
+        e.stopPropagation(); e.preventDefault();
+      }
+      return;
+    }
     if (t && this.el.contains(t)) return;
-    if (e instanceof KeyboardEvent) { if (e.key !== 'Escape') { e.stopPropagation(); e.preventDefault(); } return; }
     const p = e instanceof MouseEvent ? toStage(e.clientX, e.clientY) : null;
     if (p && this.allowRects.some((r) => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h)) return;
     e.stopPropagation();

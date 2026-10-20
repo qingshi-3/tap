@@ -1,4 +1,6 @@
 // 规则层类型。core/ 下不允许依赖任何 DOM / 渲染代码，模拟器与 UI 共用。
+import type { BattleMetrics } from './battleStats';
+export type { BattleMetrics } from './battleStats';
 
 export type Side = 0 | 1; // 0 = 玩家, 1 = 敌方
 export type Faction = 'light' | 'shadow' | 'abyss' | 'magma' | 'frost' | 'desert' | 'neutral' | 'enemy';
@@ -235,6 +237,8 @@ export interface LoggedEvent {
 }
 
 export interface BattleOutput {
+  /** 玩家侧单场指标，与日志录制无关；拍数见 beats。 */
+  metrics?: BattleMetrics;
   result: BattleResult;
   beats: number;
   log: LoggedEvent[];

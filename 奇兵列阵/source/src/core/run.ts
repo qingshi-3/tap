@@ -1,5 +1,6 @@
 // v0.7 远征局内状态：章节与节点、招募、金币与商店、培养点、主将升阶、装备与法术。
 // 纯数据 + 纯函数，UI 与模拟器共用；所有随机只走 rngState。
+import { ensureRunCareer, type CareerBattle } from './career';
 import { ALL_FACTIONS, DRAFT_POOL, ROLE_TAGS, tagFamily, unitDef } from './data';
 import {
   EQUIPS, EQUIP_MAP, GENERALS, ORDERS, ORDER_MAP, PASSIVES, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELLS,
@@ -44,6 +45,14 @@ export interface AllocEntry { to: number | 'general'; type: string }
 export interface PendingBattle { result: BattleResult; gold: number }
 
 export interface RunState {
+  /** Persistent identity is unrelated to seed; old saves are assigned one on load. */
+  runId?: string;
+  /** Durable outbox, replayed only after run storage commits. */
+  careerPending?: CareerBattle;
+  /** New-game replacement outbox: previous expedition closes only after this save commits. */
+  /** Explicit new-game transition token; ordinary callbacks cannot activate another run. */
+  careerActivateFrom?: string | null;
+  careerPrevious?: { id: string; general: string; outcome: 'victory' | 'defeat' | 'abandon' };
   saveVersion: number;
   contentVersion: string;
   seed: number;
@@ -125,6 +134,7 @@ export function newRun(general: string, seed = randomSeed()): RunState {
     genPower: 0, passives: [], promo: null, promoCount: 0,
     bag: [], spells: [], activeSpells: [], orders: [], reward: null, forkPick: null, pending: null,
   };
+  ensureRunCareer(r);
   const fs = shuffle(r, [...ALL_FACTIONS]);
   r.activeFactions = ALL_FACTIONS.filter((f) => fs.slice(0, 4).includes(f));
   for (const k of VARIANT_KEYS) r.variantChoices[k] = rand(r) < 0.5 ? 0 : 1;
@@ -244,6 +254,13 @@ export function rollDraft(r: RunState): boolean {
   const ids = recommend(r, recInput(r), r.rec, 3);
   if (ids.length < 3) return false;
   r.draft = ids;
+  return true;
+}
+/** 兼容已卖空且耗尽招募的旧存档；只补一次招募，不重置局内进度。 */
+export function recoverEmptyRoster(r: RunState): boolean {
+  if (r.over || r.pending || screen(r) !== 'prep' || r.picks > 0 || allOwned(r).some(Boolean)) return false;
+  if (!rollDraft(r)) return false;
+  r.picks = 1;
   return true;
 }
 export function reroll(r: RunState) {
@@ -371,9 +388,14 @@ export function moveSlot(r: RunState, from: number, to: number, mode: 'auto' | '
 }
 /** 卖出价：每份 1 金 */
 export const sellPrice = (u: Slotted) => u.copies;
+/** 招募耗尽后保留最后一名持有单位，避免备战中无兵可用。 */
+export function canSell(r: RunState, slot: number): boolean {
+  if (!getOwned(r, slot) || r.over || r.pending) return false;
+  return screen(r) !== 'prep' || r.picks > 0 || allOwned(r).filter(Boolean).length > 1;
+}
 export function sell(r: RunState, slot: number) {
-  const u = getOwned(r, slot);
-  if (!u || r.over) return false;
+  if (!canSell(r, slot)) return false;
+  const u = getOwned(r, slot)!;
   r.gold += sellPrice(u);
   for (const [k, n] of Object.entries(u.train ?? {})) if (n) r.stash[k] = (r.stash[k] ?? 0) + n;
   r.bag.push(...(u.equips ?? []));
@@ -553,14 +575,20 @@ function passiveNeedMet(r: RunState, p: PassiveDef) {
     case 'burn': return fam('灼烧') || eqs.includes('eq_flame') || r.general === 'vulkan';
     case 'chill': return fam('寒意') || eqs.includes('eq_frost') || r.general === 'faie';
     case 'cast': return units.some((u) => !!unitDef(u.defId).cast);
-    case 'extra': return fam('立即攻击') || r.general === 'hank';
+    case 'extra': return units.some(u => {
+      const d = unitDef(u.defId);
+      // General force commands have their own allowance and cannot benefit from chain.
+      const effects = [d.cast, d.onStart, d.afterAttack, d.onHurt, d.onKill, d.onFaint, d.onAllyFaint, d.onBeatEnd, d.onRevive];
+      return d.special === 'wyvern' || effects.some(es => es?.some(e => e.op === 'extraAct')) ||
+        (u.equips ?? []).some(id => [EQUIP_MAP[id]?.onStart, EQUIP_MAP[id]?.afterAttack].some(es => es?.some(e => e.op === 'extraAct')));
+    });
     case 'equip2': return eqs.length >= 2;
   }
 }
 /** 1 个专属 + 2 个通用 */
 function makePromo(r: RunState) {
   const own = PASSIVES.filter((p) => p.general === r.general && !r.passives.includes(p.id));
-  const generic = PASSIVES.filter((p) => !p.general && !r.passives.includes(p.id));
+  const generic = PASSIVES.filter((p) => !p.general && !r.passives.includes(p.id) && (p.id !== 'g_chain' || passiveNeedMet(r, p)));
   const out: string[] = [];
   if (own.length) out.push(own[randInt(r, own.length)].id);
   const pool = [...generic];
@@ -617,6 +645,9 @@ export function applyResult(r: RunState, res: BattleResult, battleGold = 0) {
   if (r.over) return;
   const node = currentBattle(r);
   if (!node) return;
+  // 正式结算即消耗本场法术，包含留在原节点的首领败局/平局和终局。
+  // 重打读取独立的战前快照；战前撤销仍由 unuseSpell 处理。
+  r.activeSpells = [];
   r.history.push(res);
   r.gold += battleGold;
   r.lastPoints = [];
@@ -667,7 +698,8 @@ export function settleRewardedRetry(
 ): RewardedRetrySettlement {
   if (retrySlots.length !== 5 || retryBench.length !== BENCH_SLOTS || !retrySlots.some(Boolean)
     || inventoryKey([...retrySlots, ...retryBench]) !== inventoryKey(allOwned(checkpoint))
-    || r.seed !== checkpoint.seed || r.general !== checkpoint.general) {
+    || r.seed !== checkpoint.seed || r.general !== checkpoint.general
+    || (!!r.runId && !!checkpoint.runId && r.runId !== checkpoint.runId)) {
     throw new Error('重打阵容与原始快照不一致');
   }
   const next = cloneRun(checkpoint);

@@ -72,7 +72,8 @@
   visibility: hidden;
 }
 .board .unit:is(.selected, .focus, .inspected) .duelyst-selected {
-  visibility: visible;
+  /* Selection must not reveal a sprite inside a battlefield hidden by preparation. */
+  visibility: inherit;
 }
 .board .unit:is(.selected, .focus, .inspected, .linked) .u-art {
   filter: drop-shadow(0 6px 6px #0008);

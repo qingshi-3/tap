@@ -166,7 +166,7 @@ export const PASSIVES: PassiveDef[] = [
   { id: 'g_drill', name: '练兵', text: '之后每场胜利培养点 +1' },
   { id: 'g_revive', name: '复苏', text: '每场第一个阵亡的友军复生' },
   { id: 'g_breach', name: '破阵', text: '开战时：敌方全体失去格挡，本场护甲 −1' },
-  { id: 'g_first', name: '先机', text: '第 1 拍开始前：攻击最高的友军立即攻击一次' },
+  { id: 'g_first', name: '先机', text: '开战时：攻击最高的友军立即攻击一次' },
   { id: 'g_chain', name: '连锁', text: '你每拍「立即攻击」上限 1 → 2', need: 'extra' },
   { id: 'g_core', name: '中坚', text: '队首受到的普攻伤害 −1（最少 1）' },
   { id: 'g_weak', name: '噬弱', text: '开战时：全体敌人获得 2 层易伤' },

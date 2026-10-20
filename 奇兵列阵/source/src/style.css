@@ -348,26 +348,6 @@ b {
 .unit.frozen .u-art {
   filter: drop-shadow(0 0 8px #8feaff) saturate(0.6) brightness(1.15);
 }
-.unit .u-bob::after {
-  content: '';
-  position: absolute;
-  inset: 4px 4px 8px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 224, 138, 0.9);
-  background: radial-gradient(circle at 35% 30%, rgba(255, 245, 200, 0.35), rgba(255, 210, 100, 0.08) 55%, transparent 70%);
-  box-shadow: 0 0 16px rgba(255, 210, 100, 0.55), inset 0 0 14px rgba(255, 220, 140, 0.5);
-  opacity: 0;
-  transform: scale(0.7);
-  transition: 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
-}
-.unit.has-shield .u-bob::after {
-  opacity: 1;
-  transform: scale(1);
-  animation: shieldShimmer 2.4s ease-in-out infinite;
-}
-@keyframes shieldShimmer {
-  50% { box-shadow: 0 0 24px rgba(255, 210, 100, 0.8), inset 0 0 18px rgba(255, 220, 140, 0.7); }
-}
 .u-shield {
   position: absolute;
   right: -6px;
@@ -2219,6 +2199,7 @@ b {
   position: absolute;
   z-index: 60;
   pointer-events: none;
+  visibility: hidden;
   opacity: 0;
   transform: translateY(6px);
   transition: opacity 0.15s, transform 0.15s;
@@ -2228,6 +2209,7 @@ b {
   box-shadow: 0 0 0 1px var(--line), 0 16px 40px rgba(0, 0, 0, 0.6);
 }
 .tip.on {
+  visibility: visible;
   opacity: 1;
   transform: none;
 }

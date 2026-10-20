@@ -5,6 +5,9 @@ import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
 import { chapter, TOTAL_BATTLES } from '../core/route';
 import { battleNo, currentNode, generalChoices, newRun, randomSeed, screen, type RunState } from '../core/run';
 import { clearRun, loadRun, saveRun } from '../core/save';
+import { recordRunOutcome, stageRunReplacement } from '../core/career';
+import { recordsScreen } from './records';
+import { openCareerLeaderboard, syncCareerLeaderboards } from './leaderboard';
 import { getVolumes, isMuted, setAudioPaused, setTitleMusic, sfx, unlockAudio } from './audio';
 import { audioSettings } from './audioSettings';
 import { h, stageState } from './dom';
@@ -143,7 +146,7 @@ export class App {
     const start = h('button', { class: 'btn primary big title-new' }, h('span', null, '新的游戏'), icon('play'));
     start.addEventListener('click', () => {
       sfx.start();
-      if (saved.kind === 'ok') this.confirm('开始新的远征？', '当前远征进度将被覆盖。', '开始', () => this.toSelect());
+      if (saved.kind === 'ok') this.confirm('开始新的远征？', saved.run.over ? '本次远征已结束，将开始新的远征。' : '开始新局会放弃当前远征，计为一次失败。', '开始', () => this.toSelect());
       else this.toSelect();
     });
     let cont: HTMLElement | null = null;
@@ -160,7 +163,10 @@ export class App {
       cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `第${r.chapter + 1}章 · ${location}`));
     } else if (saved.kind === 'incompatible') {
       cont = h('button', { class: 'btn ghost big' }, h('span', null, '旧版存档无法继续'), icon('x'));
-      cont.addEventListener('click', () => this.confirm('丢弃旧版存档？', '游戏版本已更新，旧存档无法继续。', '丢弃', () => { clearRun(); this.toTitle(); }));
+      cont.addEventListener('click', () => this.confirm('丢弃旧版存档？', '游戏版本已更新，旧存档无法继续。', '丢弃', () => {
+        if (clearRun({ discardIncompatible: true })) this.toTitle();
+        else this.showRewardNotice('旧存档已保留', '本地存储暂不可用，请稍后重试。', 'error');
+      }));
     }
     // 辅助入口与音量键共用右上角工具栏及像素按钮材质。
     const how = h('button', { class: 'icon-btn title-tool' }, icon('book'), h('span', null, '玩法说明'));
@@ -170,6 +176,8 @@ export class App {
     });
     const codex = h('button', { class: 'icon-btn title-tool' }, icon('diamond'), h('span', null, '图鉴'));
     codex.addEventListener('click', () => { sfx.click(); this.toCodex(); });
+    const records = h('button', { class: 'icon-btn title-tool' }, icon('flag'), h('span', null, '战绩'));
+    records.addEventListener('click', () => { sfx.click(); this.toRecords(); });
     const tut = h('button', { class: 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
     tut.addEventListener('click', () => { sfx.start(); this.startTutorial(); });
     const quiet = () => isMuted() || getVolumes().master === 0;
@@ -198,7 +206,7 @@ export class App {
         h('div', { class: 'logo', style: 'font-size:100px' }, h('span', null, '奇兵列阵')),
         h('div', { class: 'title-btns' }, cont, start),
       ),
-      h('div', { class: 'title-tools' }, tut, how, codex, volume),
+      h('div', { class: 'title-tools' }, tut, how, codex, records, volume),
     );
     this.show(el);
   }
@@ -209,6 +217,15 @@ export class App {
     this.leaveGame(true);
     setTitleMusic(true);
     this.show(codexScreen(() => this.toTitle(), content => this.modal(content, 'cx-unit-modal', document.body)));
+  }
+
+  toRecords() {
+    this.leaveGame(true);
+    setTitleMusic(true);
+    this.show(recordsScreen(() => this.toTitle(), async key => {
+      const error = await openCareerLeaderboard(key);
+      if (error) this.showRewardNotice('排行榜暂不可用', error, 'error');
+    }));
   }
 
   // ───────────── 选将 ─────────────
@@ -255,8 +272,17 @@ export class App {
   }
 
   startRun(general: string, seed?: number) {
+    const previous = loadRun();
+    if (previous.kind === 'incompatible') {
+      this.showRewardNotice('旧存档已保留', '请先返回首页，确认丢弃旧版存档后再开始。', 'error');
+      return;
+    }
     const run = newRun(general, seed);
-    saveRun(run);
+    stageRunReplacement(previous.kind === 'ok' ? previous.run : null, run);
+    if (!saveRun(run)) {
+      this.showRewardNotice('远征未能保存', '原记录已保留，请检查本地存储后重试。', 'error');
+      return;
+    }
     this.continueRun(run);
   }
 
@@ -284,7 +310,11 @@ export class App {
   toEnd(run: RunState) {
     this.leaveGame();
     const win = run.over === 'victory';
-    clearRun();
+    const profile = recordRunOutcome(run, win ? 'victory' : 'defeat');
+    void syncCareerLeaderboards();
+    if (profile.storageStatus !== 'ok' || !clearRun()) {
+      this.showRewardNotice('战绩尚未保存', '本局存档已保留，请检查本地存储后重试。', 'error');
+    }
     const reached = Math.min(battleNo(run) + 1, TOTAL_BATTLES);
     const again = h('button', { class: 'btn primary big' }, h('span', null, '再来一局'), icon('replay'));
     again.addEventListener('click', () => {

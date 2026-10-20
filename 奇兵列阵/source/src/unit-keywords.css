@@ -1,4 +1,4 @@
-/* 常驻词条标记：护卫 / 复生是身上光效，其余词条是脚下一排小标。
+/* 常驻词条标记：护卫使用脚下标记，复生保留身上光效。
    常驻动画只动 transform / opacity。 */
 
 /* 词条小标：位于数值下方 */
@@ -45,29 +45,8 @@
 .kw-splash { --kc: #ffb340; }
 .kw-power { --kc: #c99bff; }
 
-/* 护卫：朝向敌方一侧的半透明大盾（静态） */
-.u-guard {
-  position: absolute;
-  top: 6px;
-  width: 54px;
-  height: 78px;
-  opacity: 0;
-  transform: scale(0.7);
-  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
-  clip-path: polygon(50% 0, 100% 12%, 100% 52%, 50% 100%, 0 52%, 0 12%);
-  background: linear-gradient(180deg, rgba(255, 236, 160, 0.95), rgba(240, 170, 50, 0.7) 70%, rgba(240, 170, 50, 0.3));
-  pointer-events: none;
-}
-.u-guard::after {
-  content: '';
-  position: absolute;
-  inset: 4px;
-  clip-path: inherit;
-  background: linear-gradient(180deg, rgba(90, 60, 10, 0.75), rgba(60, 40, 10, 0.45) 70%, rgba(60, 40, 10, 0.15));
-}
-.side-0 .u-guard { right: -14px; }
-.side-1 .u-guard { left: -14px; }
-.unit.kw-guard .u-guard { opacity: 1; transform: scale(1); }
+/* 护卫与格挡含义不同；只留实心标记，不再叠大盾与外框。 */
+.kwc.kw-guard { padding:0; background:none; box-shadow:none; border-radius:0; }
 
 /* 复生：脚下旋转的青色符文圈 + 身后青光 */
 .u-reborn {

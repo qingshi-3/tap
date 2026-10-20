@@ -380,7 +380,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 .bench-slot[data-drop=merge] .ped { filter: brightness(1.6) drop-shadow(0 0 14px #ffe19b); }
 .bench-slot[data-drop=replace] .ped { filter: brightness(1.4) drop-shadow(0 0 12px #f99878); }
 .bench-slot.selected .duelyst-normal { visibility: hidden; }
-.bench-slot.selected .duelyst-selected { visibility: visible; }
+.bench-slot.selected .duelyst-selected { visibility: inherit; }
 .board .u-pips span { width: 14px; height: 14px; transform: none; background: none; box-shadow: none; color: #ffdf8a; font-size: 14px; }
 /* The fixed, scaled stage is a clipped canvas, never a browser focus-scroll container. */
 #stage, #viewport { overflow: clip; }
@@ -389,7 +389,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 .tray-left { top: 52px; gap: 12px; }
 .tray-left > .reroll { min-height: var(--control-size); font-size: 24px; letter-spacing: 0; padding: 0 16px; }
 .tray-left .reroll i { font-size: 20px; }
-.tip.interactive { pointer-events: auto; overflow-y: auto; touch-action: pan-y; }
+.tip.on.interactive { pointer-events: auto; overflow-y: auto; touch-action: pan-y; }
 .board.dropping .slot.side-0[data-drop=reserve] .slot-num { visibility: hidden; }
 .bench-slot[data-drop]:not([data-drop=''])::after {
   top: 180px; bottom: auto; left: 50%; transform: translateX(-50%);

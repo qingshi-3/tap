@@ -1,5 +1,6 @@
 /* 整备独立排列；战斗舞台与单位素材保持原样。尺寸沿用1280×720舞台。 */
-.game.prep-open > :is(.hud,.tray,.stage-banner,.bench,.board,.battle-bar,.arm-hint) { visibility:hidden; pointer-events:none; }
+/* Hide the composed layer too: status chips may still be transitioning inherited visibility. */
+.game.prep-open > :is(.hud,.tray,.stage-banner,.bench,.board,.battle-bar,.arm-hint) { visibility:hidden; pointer-events:none; opacity:0; }
 .game .prep-ov { background:transparent; }
 .game .prep-ov .prep-panel { inset:0; padding:0; display:block; background:none; border:0; border-image:none; }
 .prep-ov .board { pointer-events:auto; }
@@ -24,6 +25,13 @@
 /* One roster row: the five active seats lead, and the three smaller reserve seats stay on the right. */
 .prep-ov .prep-roster { inset:60px 24px 108px; display:grid; grid-template-columns:repeat(5,minmax(0,1.25fr)) repeat(3,minmax(0,.85fr)); column-gap:8px; align-content:start; align-items:start; overflow:visible; padding:76px 0 0; }
 .prep-ov .prep-allies, .prep-ov .prep-bench { display:contents; }
+/* Match the battlefield: front (slot 0) is on the right. Reserve seats stay separate. */
+.prep-ov .prep-allies > .prep-seat { grid-row:1; }
+.prep-ov .prep-allies > .prep-seat:nth-child(1) { grid-column:5; }
+.prep-ov .prep-allies > .prep-seat:nth-child(2) { grid-column:4; }
+.prep-ov .prep-allies > .prep-seat:nth-child(3) { grid-column:3; }
+.prep-ov .prep-allies > .prep-seat:nth-child(4) { grid-column:2; }
+.prep-ov .prep-allies > .prep-seat:nth-child(5) { grid-column:1; }
 .prep-ov .prep-seat { position:relative; min-width:0; display:flex; flex-direction:column; align-items:center; }
 .prep-ov .prep-figure { position:relative; width:140px; height:164px; flex:none; }
 .prep-ov .prep-figure .unit { left:20px!important; top:0!important; margin:0; }
@@ -39,6 +47,9 @@
 /* Reuse the battlefield's authored stat gems; the invisible hit area is larger than the art. */
 .prep-ov .prep-refund { display:flex; align-items:center; justify-content:center; width:var(--control-size,100px); min-width:var(--control-size,100px); height:var(--control-size,100px); padding:0; border:0; border-radius:0; background:none; box-shadow:none; cursor:pointer; font:inherit; }
 .prep-ov .prep-refund-face { display:flex; align-items:center; justify-content:center; gap:2px; width:100%; background:none; box-shadow:none; border-radius:0; }
+.prep-ov .prep-refund .st.block { width:auto; gap:3px; background:none!important; }
+.prep-ov .prep-refund .st.block .ic { display:inline-flex; width:22px; height:26px; color:#ffe28b; }
+.prep-ov .prep-refund .st.block i { color:#ffe28b; }
 .prep-ov .prep-refund:active .prep-refund-face { transform:translateY(2px); filter:brightness(1.35); }
 .prep-ov .prep-refund:focus-visible { outline:0; }
 .prep-ov .prep-refund:focus-visible .prep-refund-face { filter:drop-shadow(2px 0 #ffe3a3) drop-shadow(-2px 0 #ffe3a3); }

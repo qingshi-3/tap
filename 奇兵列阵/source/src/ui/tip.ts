@@ -31,9 +31,16 @@ export function initTip(stage: HTMLElement) {
 
 type TipStats = Pick<UnitState, 'atk' | 'hp' | 'block' | 'chill' | 'burn'> & { actionsLeft?: number; charges?: number; armor?: number; power?: number; kw?: { power: number; armor?: number } };
 
-/** 实例显示剩余次数；没有实例的图鉴仍保留定义中的本场总次数。 */
+/** 实例采用状态行的总护甲与剩余次数；图鉴保留静态能力。 */
 export function unitAbilityText(defId: string, level: number, st?: TipStats | null) {
-  const text = abilityText(defId, level, st?.power ?? st?.kw?.power);
+  let text = abilityText(defId, level, st?.power ?? st?.kw?.power);
+  // 只移除独立的基础护甲句。0也是已知总值，不能退回展示已经失效的基础护甲。
+  // 条件、光环和成长（如“在队首时护甲再 +2”）仍是必须解释的能力。
+  if ((st?.armor ?? st?.kw?.armor) != null) {
+    const clauses = text.split(/(?<=[；;。])/);
+    const kept = clauses.filter(clause => !/^\s*护甲\s*\d+\s*[；;。]?\s*$/.test(clause));
+    if (kept.length !== clauses.length) text = kept.join('').replace(/[；;]\s*$/, '');
+  }
   if (!unitDef(defId).castUses || st?.charges == null) return text;
   const uses = st.charges > 0 ? `本场剩余 ${st.charges} 次，用完改普攻` : '本场已用完，改普攻';
   return text.replace(/施法（[^）]*）/, `施法（${uses}）`);
@@ -50,6 +57,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   const ability = describe(defId, level);
   let currentAbility = unitAbilityText(defId, level, st);
   const abilityEl = h('div', { class: 'tip-text' }, ...kwRich(currentAbility));
+  abilityEl.hidden = !currentAbility;
   const upText = withUp && !d.enemyOnly && !d.token && level < 3 ? describe(defId, level + 1) : '';
   const next = upText ? levelStats(defId, level + 1) : null;
   // 升星只做一行弱提示：属性增量 + 技能里变化的部分，不抢当前状态的视觉
@@ -99,6 +107,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     if (text === currentAbility) return;
     currentAbility = text;
     abilityEl.replaceChildren(...kwRich(text));
+    abilityEl.hidden = !text;
   });
   return content;
 }
@@ -157,11 +166,12 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
 
 export function hideTip() {
   stopLiveTip();
-  tipEl?.classList.remove('on');
+  // Closing a scrollable/actionable detail must also retire its input surface.
+  tipEl?.classList.remove('on', 'interactive');
   root?.querySelectorAll('.unit.inspected').forEach((unit) => unit.classList.remove('inspected'));
 }
 
 /** A selected tooltip may live in document.body on touch screens. */
 export function isTipTarget(target: EventTarget | null) {
-  return target instanceof Node && !!tipEl?.contains(target);
+  return target instanceof Node && !!tipEl?.classList.contains('on') && tipEl.contains(target);
 }

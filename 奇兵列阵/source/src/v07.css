@@ -450,8 +450,6 @@
 @keyframes tutPulseO { 50% { opacity: 0.45; } }
 .vs-ring { animation: vsPulseT 2.4s steps(4) infinite; }
 @keyframes vsPulseT { 50% { transform: rotate(45deg) scale(1.12); opacity: 0.4; } }
-.unit.has-shield .u-bob::after { animation: shieldShimmerO 2.4s ease-in-out infinite; }
-@keyframes shieldShimmerO { 50% { opacity: 0.6; } }
 .smark.silence { animation: silPulseO 1.6s ease-in-out infinite; }
 @keyframes silPulseO { 50% { opacity: 0.7; } }
 /* 遮罩下方单位仍在播待机动画，背景模糊会被逐帧重算；改用纯色压暗 */

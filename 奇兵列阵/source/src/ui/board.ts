@@ -15,7 +15,7 @@ export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-r
 
 /** The same pixel stat gem is used by combat units and owned bench units. */
 export const statArt = (kind: 'atk' | 'hp' | 'armor' | 'power' | 'block', value: number | HTMLElement, extra?: HTMLElement) =>
-  h('div', { class: `st ${kind}` }, kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
+  h('div', { class: `st ${kind}` }, kind === 'block' ? icon('shield') : kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
 
 export const UNIT_Y = 300;
 export const SLOT_SPACING = 110;
@@ -121,7 +121,6 @@ export class UnitView {
         'data-slot': slot,
       },
       h('div', { class: 'u-glow' }),
-      h('div', { class: 'u-guard' }),
       h('div', { class: 'u-reborn' }, h('i')),
       this.body,
       h('div', { class: 'u-shield' }, icon('shield'), this.shEl),
@@ -211,7 +210,7 @@ export class UnitView {
     this.last = { ...s };
   }
 
-  /** 常驻词条：护卫、复生是身上的光效，其余是脚下一排小标；只在变化时重建 */
+  /** 护卫等常驻词条只保留脚下一排标记，避免与格挡次数重复叠盾。 */
   private setKeywords(kw: UnitKeywords) {
     this.el.classList.toggle('kw-guard', kw.guard);
     this.el.classList.toggle('kw-reborn', kw.reborn);

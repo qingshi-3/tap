@@ -1,4 +1,5 @@
 import { INTRINSIC_BOSS_RULES } from './encounterRules';
+import { emptyBattleMetrics } from './battleStats';
 import { effectAmount } from './power';
 import { unitDef } from './data';
 import { EQUIP_MAP, GENERAL_MAP, POINT_MAP, generalInterval, type EquipDef } from './content';
@@ -56,6 +57,7 @@ class CombatFault extends Error {}
  * 每拍结束：主将技能 → 首领效果 → 灼烧 → 疲劳 → 其他「每拍结束时」。
  */
 export class Battle {
+  readonly metrics = emptyBattleMetrics();
   units: UnitState[] = [];
   grid: (number | null)[][] = [Array(SLOTS).fill(null), Array(SLOTS).fill(null)];
   log: LoggedEvent[] = [];
@@ -278,6 +280,7 @@ export class Battle {
   }
   heal(src: UnitState | undefined, t: UnitState, n: number) {
     n = Math.min(n, t.maxHp - t.hp); if (!t.alive || t.hp <= 0 || n <= 0) return;
+    if (t.side === 0 && (!src || src.side === 0)) this.metrics.healing += n;
     t.hp += n; this.emit({ t: 'heal', src: src?.uid, tgt: t.uid, n });
   }
   block(src: UnitState | undefined, t: UnitState, n: number) {
@@ -315,7 +318,7 @@ export class Battle {
     if (!t || this.hasTrait(t, 'guard')) return t;
     const g = this.neighbors(t).filter(x => this.hasTrait(x, 'guard')).sort(Battle.cmp)[0];
     if (!g) return t;
-    if (!probe) { this.emit({ t: 'guard', from: t.uid, to: g.uid }); this.redirected.add(g.uid); }
+    if (!probe) { if (g.side === 0) this.metrics.guards++; this.emit({ t: 'guard', from: t.uid, to: g.uid }); this.redirected.add(g.uid); }
     return g;
   }
 
@@ -323,12 +326,17 @@ export class Battle {
    * 伤害管线：格挡 → 易伤（+1，消耗 1 层）→ 护甲（最少 1）→ 扣血 → 受击时。
    * 灼烧、疲劳跳过格挡、易伤与护甲。返回是否命中（含被格挡）。
    */
-  hit(src: UnitState | undefined, t: UnitState, n: number, kind: DmgKind): boolean {
+  hit(src: UnitState | undefined, t: UnitState, n: number, kind: DmgKind, spell = false): boolean {
     if (!t.alive || t.hp <= 0 || n <= 0) return false;
     const direct = kind !== 'burn' && kind !== 'fatigue';
+    const hostile = !src || src.side !== t.side;
+    const playerDamage = hostile && t.side === 1 && kind !== 'fatigue';
+    const playerDefense = hostile && t.side === 0;
+    const coreReduction = kind === 'attack' && t.side === 0 && this.passives.has('g_core') && this.front(0)?.uid === t.uid;
     const d = this.def(t);
     if (this.redirected.delete(t.uid)) this.onGuarded(t, src);
     if (direct && t.block > 0) {
+      if (playerDefense) { this.metrics.blocks++; this.metrics.mitigated += coreReduction ? Math.max(1, n - 1) : n; }
       t.block--;
       this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n: 0, kind, blocked: true });
       this.emit({ t: 'blockBroken', uid: t.uid });
@@ -346,14 +354,30 @@ export class Battle {
     let vulnUsed = 0;
     if (direct && t.vuln > 0) {
       n += 1; t.vuln--; vulnUsed = 1;
-      const onyx = kind === 'attack' && src ? this.standing(src.side).find(x => this.def(x).special === 'onyx') : undefined;
+      const onyx = kind === 'attack' && src ? this.standing(src.side)
+        .filter(x => this.def(x).special === 'onyx')
+        .reduce<UnitState | undefined>((best, x) => !best || tri(this.def(x).values, x.level) > tri(this.def(best).values, best.level) ? x : best, undefined) : undefined;
       if (onyx) {
         if (t.vuln > 0) { t.vuln--; vulnUsed++; }
         n += tri(this.def(onyx).values, onyx.level);
       }
     }
+    const beforeArmor = n;
     if (direct) n = Math.max(1, n - this.armor(t));
-    if (kind === 'attack' && t.side === 0 && this.passives.has('g_core') && this.front(0)?.uid === t.uid) n = Math.max(1, n - 1);
+    if (coreReduction) n = Math.max(1, n - 1);
+    // Keep other reductions in both paths so their contribution is not credited to armor.
+    if (direct && playerDefense) this.metrics.mitigated += Math.max(0, (coreReduction ? Math.max(1, beforeArmor - 1) : beforeArmor) - n);
+    const actual = Math.min(t.hp, n);
+    if (playerDamage) {
+      this.metrics.singleHit = Math.max(this.metrics.singleHit, actual);
+      if (kind === 'attack' || kind === 'splash') this.metrics.attackDamage += actual;
+      if (spell) this.metrics.spellDamage += actual;
+      if (kind === 'burn') this.metrics.burnDamage += actual;
+      if (kind === 'thorns') this.metrics.thornsDamage += actual;
+      if (kind === 'splash') this.metrics.splashDamage += actual;
+      this.metrics.vulnConsumed += vulnUsed;
+      if (n >= t.hp) this.metrics.kills++;
+    }
     t.hp -= n;
     this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n, kind, ...(vulnUsed ? { vuln: vulnUsed } : {}) });
     if (t.hp <= 0 && !this.killers.has(t.uid)) this.killers.set(t.uid, src);
@@ -398,6 +422,7 @@ export class Battle {
       m.block = m.chill = m.burn = m.vuln = 0;
       this.grid[m.side][slot] = m.uid;
       this.emit({ t: 'recall', uid: m.uid, src: boss.uid });
+      if (m.side === 0) this.metrics.revives++;
       recalled.push(m);
     }
     if (grantBlock) this.block(boss, boss, 3);
@@ -418,6 +443,7 @@ export class Battle {
       if (!exiled && (byTrait || (u.side === 0 && this.freeRevives > 0))) {
         if (byTrait) u.revived = true; else this.freeRevives--;
         u.alive = true; u.hp = 1;
+        if (u.side === 0) this.metrics.revives++;
         this.emit({ t: 'revive', uid: u.uid });
         if (d.onRevive) this.enqueue(() => this.respond(u, 'revive', d.onRevive!, {}));
       } else this.grid[u.side][u.slot] = null;
@@ -453,6 +479,7 @@ export class Battle {
     if (this.grid[side][slot] == null) {
       const s = this.spawn(side, slot, token, 1);
       s.atk = Math.max(1, atk); s.hp = s.maxHp = hp;
+      if (side === 0) this.metrics.summons++;
       this.emit({ t: 'summon', uid: s.uid, src: src?.uid });
       return;
     }
@@ -517,12 +544,13 @@ export class Battle {
       for (const t of ts) {
         const interception = captured?.find(x => x.target === t && x.from !== undefined);
         if (interception) {
+          if (t.side === 0) this.metrics.guards++;
           this.emit({ t: 'guard', from: interception.from!, to: t.uid });
           this.redirected.add(t.uid);
         }
         any = true;
         switch (e.op) {
-          case 'dmg': this.hit(u, t, v, 'ability'); break;
+          case 'dmg': this.hit(u, t, v, 'ability', !!ctx.cast); break;
           case 'heal': this.heal(u, t, v); break;
           case 'block': this.block(u, t, v); break;
           case 'chill': this.chill(u, t, v); break;
@@ -539,6 +567,7 @@ export class Battle {
             const receiver = this.standing(u.side).filter(x => x.uid !== u.uid && x.uid !== t.uid).sort((a, b) => b.atk - a.atk || Battle.cmp(a, b))[0];
             if (!receiver) break;
             t.hp = 0; this.killers.delete(t.uid);
+            if (u.side === 0 && t.side === 0) this.metrics.sacrifices++;
             this.emit({ t: 'sacrifice', src: u.uid, tgt: t.uid });
             this.buff(u, receiver, v, 0);
             break;
@@ -579,6 +608,7 @@ export class Battle {
   private frozen(u: UnitState, bonus = 0) {
     if (u.chill <= 0 || u.chill < u.atk + bonus) return false;
     u.chill = 0;
+    if (u.side === 1) this.metrics.freezes++;
     this.emit({ t: 'frozenSkip', uid: u.uid });
     const foe = (1 - u.side) as Side;
     for (const q of this.standing(foe)) {
@@ -604,13 +634,14 @@ export class Battle {
     return true;
   }
   private cast(u: UnitState, ctx: Ctx) {
+    if (u.side === 0) this.metrics.casts++;
     const d = this.def(u);
     if (u.charges !== undefined) u.charges--;
     if (!this.apply(u, d.cast!, { ...ctx, cast: true })) this.emit({ t: 'fizzle', src: u.uid, reason: '没有有效目标' });
     this.triggers[u.defId] = (this.triggers[u.defId] ?? 0) + 1;
     if (u.side === 0 && this.passives.has('g_surge') && !this.surgeUsed.has(u.uid)) {
       this.surgeUsed.add(u.uid);
-      this.enqueue(() => { if (u.alive && u.hp > 0 && this.canCast(u)) { this.label(u, 'general'); this.apply(u, d.cast!, { cast: true }); } });
+      this.enqueue(() => { if (u.alive && u.hp > 0 && this.canCast(u)) { this.metrics.casts++; this.label(u, 'general'); this.apply(u, d.cast!, { cast: true }); } });
     }
     for (const m of this.standing(u.side)) {
       const md = this.def(m);
@@ -637,6 +668,7 @@ export class Battle {
     }
     this.emit({ t: 'act', side: u.side, uid: u.uid, mode: 'extra' });
     if (this.frozen(u, bonus)) return;
+    if (u.side === 0 && this.standing(1).length) this.metrics.extraActions++;
     this.attack([{ a: u, bonus, snipe: opts.snipe }]);
   }
 
@@ -736,7 +768,7 @@ export class Battle {
         const ts = [t, r && r.uid !== t?.uid ? r : null].filter((x): x is UnitState => !!x);
         if (!ts.length) return;
         show(ts);
-        for (const x of ts) { this.hit(undefined, x, base, 'ability'); if (has('kaleos_4')) this.vuln(undefined, x, 2); }
+        for (const x of ts) { this.hit(undefined, x, base, 'ability', true); if (has('kaleos_4')) this.vuln(undefined, x, 2); }
         this.redirected.clear();
         this.flush();
         if (has('kaleos_1') && ts.some(x => !x.alive) && this.recastBeat !== this.beat) { this.recastBeat = this.beat; this.genCast(); }
@@ -747,12 +779,12 @@ export class Battle {
         const n = has('lilithe_2') ? Math.max(1, base - 1) : base;
         const hs = has('lilithe_3') ? this.standing(0) : [this.front(0)].filter((x): x is UnitState => !!x);
         show(ts);
-        for (const t of ts) this.hit(undefined, t, n, 'ability');
+        for (const t of ts) this.hit(undefined, t, n, 'ability', true);
         for (const h of hs) this.heal(undefined, h, n);
         break;
       }
       case 'vulkan': {
-        if (has('vulkan_2')) for (const b of this.standing(1).filter(x => x.burn > 0)) this.hit(undefined, b, b.burn, 'ability');
+        if (has('vulkan_2')) for (const b of this.standing(1).filter(x => x.burn > 0)) this.hit(undefined, b, b.burn, 'ability', true);
         this.flush();
         const st = this.standing(1);
         const ts = has('vulkan_1') ? st.slice(0, 2) : st.slice(0, 1);
@@ -801,7 +833,7 @@ export class Battle {
     const allies = () => this.standing(0), foes = () => this.standing(1);
     if (this.passives.has('g_elite') && allies().length <= 4) for (const a of allies()) this.buff(undefined, a, 2, 4);
     if (this.passives.has('g_wall')) for (const a of allies()) this.block(undefined, a, 1);
-    if (this.passives.has('g_breach')) for (const e of foes()) { e.block = 0; this.grant(undefined, e, 'armor', -1); }
+    if (this.passives.has('g_breach')) for (const e of foes()) this.grant(undefined, e, 'armor', -1);
     if (this.passives.has('g_weak')) for (const e of foes()) this.vuln(undefined, e, 2);
     if (this.passives.has('g_reserve')) for (let i = 0; i < this.benchCount; i++) {
       const st = allies(); if (!st.length) break;
@@ -820,6 +852,8 @@ export class Battle {
       for (const e of this.equipsOf.get(u.uid) ?? []) if (e.onStart) this.respond(u, 'equip', e.onStart, {});
       this.flush();
     }
+    // Strip shields after every unit/equipment opening effect, before the opening command.
+    if (this.passives.has('g_breach')) for (const e of foes()) e.block = 0;
     if (this.passives.has('g_first')) {
       this.responses = 0;
       const a = this.atk1(0);
@@ -947,7 +981,7 @@ export class Battle {
       fault = e.message; afterStart = this.beat === 0 ? this.snap() : afterStart;
     }
     return {
-      result, beats: this.beat, log: this.log, afterStart, initial, triggers: this.triggers,
+      result, beats: this.beat, log: this.log, afterStart, initial, triggers: this.triggers, metrics: { ...this.metrics },
       ...(this.gold ? { gold: this.gold } : {}), ...(fault ? { fault } : {}),
     };
   }

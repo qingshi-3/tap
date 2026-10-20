@@ -10,14 +10,14 @@ import { resolve } from 'node:path';
 // @ts-expect-error Node supplies this module when vite-node executes the benchmark.
 import { createHash } from 'node:crypto';
 declare const process: { argv: string[]; cwd(): string };
-import { simulate as oldSim } from '../../../../qibing-boss-encounters/before/core/engine';
-import { chapter as oldChapter } from '../../../../qibing-boss-encounters/before/core/route';
-import { unitDef } from '../../../../qibing-boss-encounters/before/core/data';
-import { EQUIP_MAP } from '../../../../qibing-boss-encounters/before/core/content';
-import { newRun, rollPoints, tierCap } from '../../../../qibing-boss-encounters/before/core/run';
+import { simulate as oldSim } from './fixtures/qibing-boss-encounters/before/core/engine';
+import { chapter as oldChapter } from './fixtures/qibing-boss-encounters/before/core/route';
+import { unitDef } from './fixtures/qibing-boss-encounters/before/core/data';
+import { EQUIP_MAP } from './fixtures/qibing-boss-encounters/before/core/content';
+import { newRun, rollPoints, tierCap } from './fixtures/qibing-boss-encounters/before/core/run';
 
 const mode = process.argv.includes('compare') ? 'compare' : 'before';
-const output = resolve(process.cwd(), '../../../qibing-boss-encounters/benchmark');
+const output = resolve(process.cwd(), 'output/qibing-boss-encounters/benchmark');
 mkdirSync(output, { recursive: true });
 const clone = <T>(x: T): T => structuredClone(x);
 const mean = (xs: number[]) => xs.length ? xs.reduce((a,b)=>a+b,0)/xs.length : 0;

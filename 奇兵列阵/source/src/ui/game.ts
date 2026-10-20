@@ -7,12 +7,14 @@ import { chapter, type RouteNode, type Stage } from '../core/route';
 import { SLOTS, levelStats, simulate } from '../core/engine';
 import {
   allocPoint, applyRewardedReroll, battleNo, beginBattle, buildBattle, buy, canRewardedReroll, chooseReward, choosePromo, cloneRun, consumeRewardedRetry,
-  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
+  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
   MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
   remainingRewardedRetries, settleRewardedRetry, takeDraft, teamSize,
   type RewardedRetrySettlement, type RunState, type Screen,
 } from '../core/run';
 import { clearRun, saveRun } from '../core/save';
+import { recordOfficialBattle, recordRunOutcome } from '../core/career';
+import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
 import { unitLevel, type BattleOutput, type BattleResult, type Side, type Slotted } from '../core/types';
 import type { App } from './app';
@@ -252,8 +254,14 @@ export class Game {
     if (!this.sandbox) this.persist();
   }
   /** 教学局不落存档，不覆盖正式远征 */
+  private storageWarningShown = false;
   private persist() {
-    if (!this.tutorial) saveRun(this.run);
+    if (this.tutorial) return;
+    if (saveRun(this.run)) this.storageWarningShown = false;
+    else if (!this.storageWarningShown) {
+      this.storageWarningShown = true;
+      this.app.showRewardNotice('进度尚未保存', '本地存储暂不可用，请勿关闭游戏。', 'error');
+    }
   }
   private tut: Tutorial | null = null;
   /** 教学约束在实际提交操作时检查；拖动松手不能绕过蒙层的起点限制。 */
@@ -383,7 +391,17 @@ export class Game {
     });
     quit.addEventListener('click', () => {
       close(); sfx.click();
-      this.app.confirm('放弃本次远征？', '进度会自动保存；放弃后存档将被清除。', '放弃', () => { if (!this.tutorial) clearRun(); this.app.toTitle(); });
+      this.app.confirm('放弃本次远征？', '放弃将计为远征失败，并结束当前连胜。', '放弃', () => {
+        if (!this.tutorial) {
+          const profile = recordRunOutcome(this.run, this.run.over ?? 'abandon');
+          if (profile.storageStatus !== 'ok' || !clearRun()) {
+            this.app.showRewardNotice('战绩尚未保存', '本局存档已保留，请检查本地存储后重试。', 'error');
+            return;
+          }
+          void syncCareerLeaderboards();
+        }
+        this.app.toTitle();
+      });
     });
   }
 
@@ -825,7 +843,7 @@ export class Game {
     if (!this.allowTutorial({ kind: 'sell', slot: index })) return;
     const u = this.owned(index);
     const cards = this.tray.querySelector<HTMLElement>('.cards');
-    if (!u || this.mode !== 'prep' || this.sandbox || !cards) return;
+    if (!u || this.mode !== 'prep' || this.sandbox || !cards || !canSell(this.run, index)) return;
     const b = cards.getBoundingClientRect();
     const a = toStage(b.left, b.top), z = toStage(b.right, b.bottom);
     const rect = { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
@@ -844,7 +862,7 @@ export class Game {
   private sellOwned(index: number) {
     if (!this.allowTutorial({ kind: 'sell', slot: index })) return;
     const u = this.owned(index);
-    if (!u || !this.editable || this.sandbox) return;
+    if (!u || !this.editable || this.sandbox || !canSell(this.run, index)) return;
     const done = () => {
       if (!this.editable || !this.allowTutorial({ kind: 'sell', slot: index }) || !sell(this.run, index)) return;
       sfx.reward();
@@ -1864,7 +1882,12 @@ export class Game {
       return;
     }
     // 正式战：结果先算出并存档，中途退出也按这一结果结算
-    if (ctx.kind === 'official') { beginBattle(this.run, out.result, out.gold ?? 0); this.persist(); this.emit('battle-start'); }
+    if (ctx.kind === 'official') {
+      beginBattle(this.run, out.result, out.gold ?? 0);
+      if (!this.tutorial) recordOfficialBattle(this.run, out, ctx.checkpoint!, ctx.slots, ctx.bench);
+      this.persist();
+      this.emit('battle-start');
+    }
     const pb = new Playback(this.board, this.app.fx, out);
     pb.speed = this.speed;
     pb.genEl = () => this.el.querySelector<HTMLElement>('.hud-general');
@@ -1930,10 +1953,13 @@ export class Game {
       this.emit('battle-end');
       finishBattle(this.run);
       this.persist();
+      if (!this.tutorial) void syncCareerLeaderboards();
       this.fight = { slots: cloneSlots(ctx.slots), bench: cloneSlots(ctx.bench), checkpoint: ctx.checkpoint!, result: res };
     } else if (ctx.kind === 'retry') {
       retry = settleRewardedRetry(this.run, ctx.checkpoint!, ctx.slots, res, ctx.bench, out.gold ?? 0);
+      if (!this.tutorial) recordOfficialBattle(this.run, out, ctx.checkpoint!, ctx.slots, ctx.bench);
       this.persist();
+      if (!this.tutorial) void syncCareerLeaderboards();
       this.sandbox = null;
       // 连续重打同一败局始终从原战前快照结算，不能把上次重打的结算当成下一次起点。
       this.fight = { slots: cloneSlots(ctx.slots), bench: cloneSlots(ctx.bench), checkpoint: ctx.checkpoint!, result: retry.authoritativeResult };
