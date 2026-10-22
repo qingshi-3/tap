@@ -1,4 +1,4 @@
-// v0.7 远征的局内内容表：培养点、装备、一次性法术、招募令、主将与被动。
+// v0.8 远征的局内内容表：培养点、装备、一次性法术、招募令、主将与被动。
 // 引擎按 id 解释效果；新增类型优先在这里加一行。
 import type { Effect, GeneralDef, UnitGrants, UnitState } from './types';
 
@@ -48,7 +48,7 @@ export interface EquipDef {
   onStart?: Effect[];
   afterAttack?: Effect[];
   /** 引擎专属逻辑 */
-  special?: 'hammer';
+  special?: 'hammer' | 'hourglass';
   /** 推荐与过滤用的机制标签 */
   tags: string[];
 }
@@ -57,14 +57,17 @@ export const EQUIPS: EquipDef[] = [
   { id: 'eq_combo', name: '连环刃', text: '获得连击，攻击 −1', price: 6, atk: -1, grants: { combo: true }, tags: ['给连击'] },
   { id: 'eq_bow', name: '鹰眼弓', text: '获得狙击', price: 5, grants: { snipe: true }, tags: ['给狙击'] },
   { id: 'eq_thorn', name: '荆棘甲', text: '反击 2', price: 4, grants: { thorns: 2 }, tags: ['反击'] },
-  { id: 'eq_guard', name: '守护盾', text: '获得护卫', price: 5, grants: { guard: true }, tags: ['护卫'] },
+  { id: 'eq_guard', name: '挑衅盾', text: '获得嘲讽', price: 5, grants: { taunt: true }, tags: ['嘲讽'] },
   { id: 'eq_ice', name: '冰甲', text: '护甲 1', price: 4, grants: { armor: 1 }, tags: ['护甲'] },
-  { id: 'eq_halo', name: '不灭圣徽', text: '每场一次复生', price: 6, grants: { reborn: true }, tags: ['复生'] },
+  { id: 'eq_halo', name: '不灭圣徽', text: '获得复生（已有复生则无效）', price: 6, grants: { reborn: true }, tags: ['复生'] },
   { id: 'eq_flame', name: '炽焰刃', text: '普攻后：目标获得 2 层灼烧', price: 5, afterAttack: [fx('burn', 'target', 2)], tags: ['给灼烧'] },
   { id: 'eq_frost', name: '霜刃', text: '普攻后：目标获得 1 层寒意', price: 4, afterAttack: [fx('chill', 'target', 1)], tags: ['给寒意'] },
   { id: 'eq_hammer', name: '破甲锤', text: '普攻带护甲的敌人时，伤害 +2', price: 4, special: 'hammer', tags: [] },
   { id: 'eq_tome', name: '法典', text: '法强 +2', price: 5, grants: { power: 2 }, tags: ['法强'] },
   { id: 'eq_belt', name: '巨人腰带', text: '生命 +6', price: 4, hp: 6, tags: [] },
+  { id: 'eq_boots', name: '风行靴', text: '获得轮换', price: 5, grants: { rotate: true }, tags: ['轮换'] },
+  { id: 'eq_duel', name: '决斗剑', text: '获得决斗', price: 5, grants: { duel: true }, tags: ['决斗'] },
+  { id: 'eq_hourglass', name: '沙漏坠', text: '蓄力需求 −1（最少 1）', price: 5, special: 'hourglass', tags: ['蓄力'] },
   { id: 'eq_banner', name: '战旗', text: '开战时：相邻友军 +1 攻', price: 5, onStart: [fx('buff', 'adjacent', 1)], tags: [] },
 ];
 export const EQUIP_MAP: Record<string, EquipDef> = Object.fromEntries(EQUIPS.map((e) => [e.id, e]));
@@ -73,7 +76,7 @@ export const EQUIP_MAP: Record<string, EquipDef> = Object.fromEntries(EQUIPS.map
 
 export interface SpellDef { id: string; name: string; text: string; price: number }
 export const SPELLS: SpellDef[] = [
-  { id: 'sp_anchor', name: '锚定符', text: '本场敌方不能移动、拉拽你的单位', price: 3 },
+  { id: 'sp_anchor', name: '锚定符', text: '本场敌方的换位、调动效果对你无效', price: 3 },
   { id: 'sp_freeze', name: '冰封卷轴', text: '开战时：敌方队首获得等同其攻击的寒意（冻结一次）', price: 3 },
   { id: 'sp_purify', name: '净化之光', text: '本场你的单位每次获得寒意时减少 2 层', price: 3 },
   { id: 'sp_firerain', name: '火雨', text: '开战时：全体敌人获得 3 层灼烧', price: 3 },
@@ -82,6 +85,7 @@ export const SPELLS: SpellDef[] = [
   { id: 'sp_haste', name: '号令卷轴', text: '开战时：我方队首首回合行动次数 +1', price: 3 },
   { id: 'sp_warsong', name: '战歌', text: '本场全体友军 +2 攻', price: 4 },
   { id: 'sp_revive', name: '复苏药', text: '本场第一个阵亡的友军复生', price: 3 },
+  { id: 'sp_soul', name: '召魂符', text: '本场你的第一个亡语触发两次', price: 3 },
 ];
 export const SPELL_MAP: Record<string, SpellDef> = Object.fromEntries(SPELLS.map((s) => [s.id, s]));
 
@@ -99,20 +103,32 @@ export const ORDER_MAP: Record<string, OrderDef> = Object.fromEntries(ORDERS.map
 // ───────────── 主将 ─────────────
 
 export const GENERALS: GeneralDef[] = [
-  { id: 'argeon', name: '阿尔吉昂', title: '圣光统帅', faction: 'light', base: 2, art: 'f1_general', art2: 'f1_tier2general',
-    text: '每第 3 拍结束：生命最低的友军获得 1 层格挡，并恢复 2+法强 生命' },
-  { id: 'kaleos', name: '卡雷奥斯', title: '影之刃', faction: 'shadow', base: 3, art: 'f2_general', art2: 'f2_tier2general',
-    text: '每第 3 拍结束：敌方生命最低的单位受 3+法强 伤害' },
-  { id: 'lilithe', name: '莉莉丝', title: '深渊之母', faction: 'abyss', base: 2, art: 'f4_general', art2: 'f4_tier2general',
-    text: '每第 3 拍结束：敌方队首受 2+法强 伤害，我方队首恢复等量生命' },
-  { id: 'vulkan', name: '瓦尔坎', title: '熔岩之主', faction: 'magma', base: 2, art: 'f5_general', art2: 'f5_tier2general',
-    text: '每第 3 拍结束：敌方队首获得 2+法强 层灼烧' },
-  { id: 'faie', name: '法伊', title: '寒冰女王', faction: 'frost', base: 2, art: 'f6_general', art2: 'f6_tier2general',
-    text: '每第 3 拍结束：敌方下一个出手者获得 2+法强 层寒意' },
-  { id: 'zirix', name: '齐瑞克斯', title: '星行者', faction: 'desert', base: 3, art: 'f3_general', art2: 'f3_tier2general',
-    text: '每第 3 拍结束：敌方队首获得 3+法强 层易伤' },
-  { id: 'hank', name: '赫克', title: '佣兵团长', faction: 'neutral', base: 0, art: 'neutral_captainhankheart',
-    text: '每第 3 拍结束：攻击最高的友军立即攻击一次，本次攻击 +法强' },
+  { id: 'argeon', name: '阿尔吉昂', title: '圣光统帅', faction: 'light', skill: '亲征', base: 2, art: 'f1_general', art2: 'f1_tier2general',
+    text: '阿尔吉昂作为单位上场（3/8，每章 +1/+3），不能出售；每场第一次受到致命伤害时保留 1 生命' },
+  { id: 'zilan', name: '齐兰', title: '轮转剑主', faction: 'light', skill: '轮番上阵', base: 2, art: 'f1_altgeneral', art2: 'f1_altgeneraltier2',
+    text: '每回合结束时：全队轮转一格，队首去队尾，其余前移' },
+  { id: 'kaleos', name: '卡雷奥斯', title: '影之刃', faction: 'shadow', skill: '压轴', base: 0, art: 'f2_general', art2: 'f2_tier2general',
+    text: '每回合我方最后一个完成常规行动的友军，行动后追击一次，本次攻击 +法强' },
+  { id: 'reva', name: '蕾娃', title: '幻影谋士', faction: 'shadow', skill: '调虎离山', base: 1, art: 'f2_altgeneral', art2: 'f2_altgeneraltier2',
+    text: '每场开战前：在布阵界面选两个敌人交换位置（每场一次）' },
+  { id: 'lilithe', name: '莉莉丝', title: '深渊之母', faction: 'abyss', skill: '魂潮', base: 4, art: 'f4_general', art2: 'f4_tier2general',
+    text: '双方任一单位阵亡时获得 1 魂；每攒满 3 魂：全体友军本场 +1/+1' },
+  { id: 'kasiva', name: '卡西瓦', title: '血祭司', faction: 'abyss', skill: '血祭', base: 0, art: 'f4_altgeneral', art2: 'f4_altgeneraltier2',
+    text: '开战时：献祭我方队尾单位，其余友军平分它 2 倍的攻击和生命（本场）' },
+  { id: 'vulkan', name: '瓦尔坎', title: '熔岩之主', faction: 'magma', skill: '火山战场', base: 2, art: 'f5_general', art2: 'f5_tier2general',
+    text: '每回合结束时：敌方队首获得 2+法强 层灼烧' },
+  { id: 'xingjiao', name: '星角', title: '驭龙者', faction: 'magma', skill: '龙蛋', base: 0, art: 'f5_altgeneral', art2: 'f5_altgeneraltier2',
+    text: '开局获得一颗龙蛋（不行动）；战斗事件（阵亡/灼烧/冻结/换位/召唤）跨场累积，任一类满 12 孵化成对应的龙' },
+  { id: 'faie', name: '法伊', title: '寒冰女王', faction: 'frost', skill: '先机', base: 2, art: 'f6_general', art2: 'f6_tier2general',
+    text: '第 1 回合：敌方全体推迟一个行动轮，我方先全部出手一遍' },
+  { id: 'kara', name: '卡拉', title: '棱镜术士', faction: 'frost', skill: '棱镜', base: 0, art: 'f6_altgeneral', art2: 'f6_altgeneraltier2',
+    text: '开战时：我方场上每种不同关键词使全体友军 +1 生命；每满 3 种再 +1 攻（最多 +3）' },
+  { id: 'zirix', name: '齐瑞克斯', title: '星行者', faction: 'desert', skill: '星轨', base: 3, art: 'f3_general', art2: 'f3_tier2general',
+    text: '每次交锋结束时积 1 星能；满 4 时：交换敌方的队首和队尾，然后清零' },
+  { id: 'sajj', name: '萨吉', title: '沙域统领', faction: 'desert', skill: '预备队', base: 2, art: 'f3_altgeneral', art2: 'f3_altgeneraltier2',
+    text: '获得第 6 格预备位：预备单位不行动、不能被选中；我方出现空位时立即补进，当回合可以行动' },
+  { id: 'hank', name: '赫克', title: '佣兵团长', faction: 'neutral', skill: '佣兵团', base: 0, art: 'neutral_captainhankheart',
+    text: '每场战斗前可免费招 1 名临时佣兵（随机二阶，只参加本场）；每场胜利 +1 金' },
 ];
 export const GENERAL_MAP: Record<string, GeneralDef> = Object.fromEntries(GENERALS.map((g) => [g.id, g]));
 
@@ -123,38 +139,62 @@ export interface PassiveDef {
   /** 专属被动所属主将 */
   general?: string;
   /** 通用被动的过滤条件（阵容标签族）；不满足时出现权重 0.2 */
-  need?: 'burn' | 'chill' | 'cast' | 'extra' | 'equip2';
+  need?: 'burn' | 'chill' | 'cast' | 'extra' | 'equip2' | 'rotate' | 'duel' | 'charge' | 'rattle' | 'summon' | 'taunt';
 }
 const X = (general: string, i: number, name: string, text: string): PassiveDef => ({ id: `${general}_${i}`, general, name, text });
 export const PASSIVES: PassiveDef[] = [
-  X('argeon', 1, '圣光普照', '技能改为作用于全体友军，恢复量减半（向上取整）'),
-  X('argeon', 2, '坚守誓言', '技能给的格挡 +1 层'),
-  X('argeon', 3, '战意鼓舞', '技能目标本场攻击 +1'),
-  X('argeon', 4, '迅捷祷言', '技能改为每 2 拍'),
-  X('kaleos', 1, '连环处决', '技能击杀时立即再释放一次（每拍 1 次）'),
-  X('kaleos', 2, '影分身', '技能额外命中敌方队尾'),
-  X('kaleos', 3, '先发制人', '技能前，攻击最高的友军立即攻击一次'),
-  X('kaleos', 4, '破绽', '技能目标获得 2 层易伤'),
-  X('lilithe', 1, '血债', '友军阵亡时立即释放一次技能'),
-  X('lilithe', 2, '深渊潮汐', '技能改为命中全体敌人，伤害 −1'),
-  X('lilithe', 3, '母性', '恢复改为作用于全体友军'),
-  X('lilithe', 4, '轮回', '每场第一个阵亡的友军复生'),
-  X('vulkan', 1, '燎原', '灼烧同时施加给敌方第二位'),
-  X('vulkan', 2, '引爆', '技能前，带灼烧的敌人立即受等同灼烧层数的伤害（不减层）'),
-  X('vulkan', 3, '熔火之心', '技能同时使攻击最高的友军本场 +2 攻'),
-  X('vulkan', 4, '烈焰之主', '主将每点法强额外 +1 层灼烧'),
-  X('faie', 1, '冰风', '技能改为敌方前两个出手者'),
-  X('faie', 2, '凛冬', '技能使目标冻结时，全体敌人获得 1 层寒意'),
-  X('faie', 3, '冰铠', '技能同时使我方队首本场护甲 +1（最多 +3）'),
-  X('faie', 4, '急冻', '技能改为每 2 拍'),
-  X('zirix', 1, '星辰坠落', '技能改为全体敌人各获得 1 + 法强/2 层易伤'),
-  X('zirix', 2, '星盾', '技能同时使我方队首获得 1 层格挡'),
-  X('zirix', 3, '蚀甲', '技能目标本场护甲 −1'),
-  X('zirix', 4, '星轨', '带易伤的敌人阵亡时，下次技能提前 1 拍'),
-  X('hank', 1, '重金悬赏', '立即攻击的友军本次攻击额外 +2'),
-  X('hank', 2, '战利品', '该次出手击杀时获得 1 金币（每场最多 2）'),
-  X('hank', 3, '号令', '技能改为每 2 拍'),
-  X('hank', 4, '斩首', '立即攻击改为攻击敌方队尾（视为狙击）'),
+  X('argeon', 1, '盾誓', '阿尔吉昂获得嘲讽；每次被普攻后：身后的友军获得 1 层格挡'),
+  X('argeon', 2, '剑誓', '阿尔吉昂获得决斗和连击；击败对手时：全体友军本场 +1 攻'),
+  X('argeon', 3, '光誓', '阿尔吉昂的常规行动改为施法：全体友军恢复 2+法强 生命'),
+  X('argeon', 4, '王誓', '阿尔吉昂获得轮换；他成为队首时：全体友军获得 1 层格挡'),
+  X('zilan', 1, '回马枪', '轮转前：离开队首的友军先追击一次，本次 +2 攻'),
+  X('zilan', 2, '接力', '因轮转成为队首的友军，下回合 +2+法强 攻'),
+  X('zilan', 3, '换防', '被轮转到队尾的友军恢复 3+法强 生命，并获得 1 层格挡'),
+  X('zilan', 4, '急转', '改为每次交锋结束时都轮转（每回合最多 3 次）'),
+  X('kaleos', 1, '首发', '改为每回合第一个出手的友军'),
+  X('kaleos', 2, '余韵', '压轴者如果是施法单位，改为再施法一次，不追击'),
+  X('kaleos', 3, '双幕', '倒数第二个出手的友军也追击，但伤害减半'),
+  X('kaleos', 4, '影步', '压轴者追击后和我方队首交换位置'),
+  X('reva', 1, '二度', '每场可以交换两次'),
+  X('reva', 2, '惊扰', '被你调动的敌人本场攻击 −(1+法强/2)'),
+  X('reva', 3, '抢拍', '被你调到队首的敌人首回合最后出手'),
+  X('reva', 4, '孤立', '被你调到队尾的敌人本场不能被其友军治疗或增益'),
+  X('lilithe', 1, '收割', '改为每 3 魂：敌方队首受 4+法强 伤害'),
+  X('lilithe', 2, '魂火', '改为每 3 魂：在我方队尾召唤一个 2/2 暗影'),
+  X('lilithe', 3, '噬魂', '只有敌人阵亡才计魂，但每个计 2'),
+  X('lilithe', 4, '冥约', '每 3 魂：额外让第一个阵亡的友军以一半生命复活，插到队尾（每场最多 2 次）'),
+  X('kasiva', 1, '双祭', '改为献祭队尾两个单位'),
+  X('kasiva', 2, '哀悼', '被献祭者的亡语触发两次（和深渊主母不叠加）'),
+  X('kasiva', 3, '血债', '改为只把属性给队首，但给的是全额（2 倍）'),
+  X('kasiva', 4, '余烬', '被献祭者在第 2 回合开始时以一半生命回到队尾'),
+  X('vulkan', 1, '浴火', '我方队首也获得 1 层灼烧；我方单位每次受到灼烧伤害后，本场 +1 攻'),
+  X('vulkan', 2, '地裂', '改为敌方队尾'),
+  X('vulkan', 3, '余烬扩散', '带灼烧的单位阵亡时，剩余灼烧转给它身后的单位'),
+  X('vulkan', 4, '熔岩护体', '每回合结束时：我方队首获得 1 层格挡'),
+  X('xingjiao', 1, '早孵', '孵化阈值降为 8'),
+  X('xingjiao', 2, '双黄', '孵化时再得一颗新蛋'),
+  X('xingjiao', 3, '龙血', '龙本场 +法强/+法强×2'),
+  X('xingjiao', 4, '硬壳', '龙蛋获得嘲讽和护甲 2'),
+  X('faie', 1, '凝滞', '先机期间被我方命中的敌人获得 2+法强 层寒意'),
+  X('faie', 2, '长冬', '先机延长到第 2 回合，但只推迟敌方的最后两个单位'),
+  X('faie', 3, '后发', '改为我方首回合后发，但我方本回合全体 +3 攻'),
+  X('faie', 4, '冰封时刻', '先机期间，我方蓄力单位每次行动多 +1 蓄力'),
+  X('kara', 1, '纯色', '改为：最多友军共有的关键词，带它的友军各 +X/+X（X=带它的友军数+3）'),
+  X('kara', 2, '折射', '每种关键词改为让我方队首获得 1 层格挡（最多 3 层），其余收益不变'),
+  X('kara', 3, '分光', '关键词种类 ≥6 时，全体友军获得「法强 +1」'),
+  X('kara', 4, '共鸣', '改为统计双方的关键词种类'),
+  X('zirix', 1, '星痕', '被交换的敌人各获得 2+法强 层寒意'),
+  X('zirix', 2, '轨迹', '双方每发生一次换位（星轨、轮换等都算）：全体友军本场 +1 攻'),
+  X('zirix', 3, '引力', '被交换的单位各受 3+法强 伤害'),
+  X('zirix', 4, '近轨', '改为交换队首和第 2 位'),
+  X('sajj', 1, '待命', '预备单位每次交锋 +1 蓄力；没有蓄力的改为每次交锋 +1 攻（最多 +3）'),
+  X('sajj', 2, '援军', '补位者入场时本场 +2+法强/+2+法强'),
+  X('sajj', 3, '双预备', '预备位增加到 2 个，按顺序补位'),
+  X('sajj', 4, '收容', '召唤因满员失败时，召唤物进入预备位'),
+  X('hank', 1, '长约', '临时佣兵可以花 3 金转正'),
+  X('hank', 2, '抚恤', '临时佣兵阵亡时 +1 金'),
+  X('hank', 3, '精锐合同', '临时佣兵改为随机三阶单位'),
+  X('hank', 4, '军需官', '每场开战前额外获得 1 张随机一次性法术'),
   { id: 'g_wall', name: '坚壁', text: '开战时：全体友军获得 1 层格挡' },
   { id: 'g_morale', name: '战意', text: '友军击杀后：全体友军本场 +1 攻（每场最多 +3）' },
   { id: 'g_ember', name: '余烬', text: '敌人受到的灼烧伤害 +1', need: 'burn' },
@@ -162,18 +202,19 @@ export const PASSIVES: PassiveDef[] = [
   { id: 'g_surge', name: '法涌', text: '每个友军每场第一次施法重复一次', need: 'cast' },
   { id: 'g_martyr', name: '殉道', text: '友军阵亡时：身后一名友军本场 +2/+2' },
   { id: 'g_elite', name: '精兵', text: '开战时场上友军 ≤ 4：全体友军 +2 攻、+4 生命' },
-  { id: 'g_reserve', name: '后援', text: '开战时：每个备战位单位使一名随机场上友军本场 +1/+2' },
   { id: 'g_drill', name: '练兵', text: '之后每场胜利培养点 +1' },
   { id: 'g_revive', name: '复苏', text: '每场第一个阵亡的友军复生' },
   { id: 'g_breach', name: '破阵', text: '开战时：敌方全体失去格挡，本场护甲 −1' },
-  { id: 'g_first', name: '先机', text: '开战时：攻击最高的友军立即攻击一次' },
-  { id: 'g_chain', name: '连锁', text: '你每拍「立即攻击」上限 1 → 2', need: 'extra' },
+  { id: 'g_haste', name: '抢攻', text: '开战时：攻击最高的友军追击一次' },
+  { id: 'g_chain', name: '连锁', text: '你的追击可以再引发一次追击', need: 'extra' },
   { id: 'g_core', name: '中坚', text: '队首受到的普攻伤害 −1（最少 1）' },
-  { id: 'g_weak', name: '噬弱', text: '开战时：全体敌人获得 2 层易伤' },
   { id: 'g_pay', name: '军饷', text: '每场胜利 +2 金币' },
   { id: 'g_dual', name: '双持', text: '每个单位可以装备 2 件', need: 'equip2' },
+  { id: 'g_relay', name: '接力', text: '友军成为队首时：本回合 +1 攻', need: 'rotate' },
+  { id: 'g_arena', name: '擂台', text: '友军击败对手时：该友军恢复 3 生命', need: 'duel' },
+  { id: 'g_store', name: '厚积', text: '开战时：所有带蓄力的友军 +1 蓄力', need: 'charge' },
+  { id: 'g_rattle', name: '回魂', text: '每场第一次亡语触发两次', need: 'rattle' },
+  { id: 'g_horde', name: '扩编', text: '召唤物 +1/+1', need: 'summon' },
+  { id: 'g_taunt', name: '铁壁', text: '嘲讽友军受到的普攻伤害 −1', need: 'taunt' },
 ];
 export const PASSIVE_MAP: Record<string, PassiveDef> = Object.fromEntries(PASSIVES.map((p) => [p.id, p]));
-/** 主将技能间隔：部分专属被动改为每 2 拍 */
-export const generalInterval = (passives: readonly string[]) =>
-  passives.some((p) => p === 'argeon_4' || p === 'faie_4' || p === 'hank_3') ? 2 : 3;

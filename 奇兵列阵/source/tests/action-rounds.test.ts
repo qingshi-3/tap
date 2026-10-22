@@ -82,8 +82,8 @@ describe('立即攻击与有限施法', () => {
   it('施法单位立即攻击绝不施法，也不消耗常规行动', () => {
     const b=game(); customize(b,1,{cast:[{op:'dmg',to:'enemyFront',v:[8,8,8]}]});
     intern(b).extraAct(b.u(1),0); intern(b).extraAct(b.u(1),0);
-    expect(b.u(1).actionsLeft).toBe(1); expect(events(b,'attack')).toHaveLength(1); expect(events(b,'dmg')[0].kind).toBe('attack');
-    step(b); expect(events(b,'act').filter(x=>x.uid===1).map(x=>x.mode)).toEqual(['extra','cast']);
+    expect(b.u(1).actionsLeft).toBe(1); expect(events(b,'attack')).toHaveLength(2); expect(events(b,'dmg').map(x=>x.kind)).toEqual(['attack','attack']);
+    step(b); expect(events(b,'act').filter(x=>x.uid===1).map(x=>x.mode)).toEqual(['extra','extra','cast']);
   });
   it('有限施法三次耗尽后改普攻，额外次数也走同一判断', () => {
     const b=game(); customize(b,1,{cast:[{op:'dmg',to:'enemyFront',v:[1,1,1]}]}); b.u(1).charges=3; b.addAction(undefined,b.u(1),3); step(b,4);
@@ -115,7 +115,7 @@ describe('寒意按实际行动机会消耗', () => {
 describe('献祭', () => {
   const sacrifice: Effect={op:'sacrifice',to:'ahead',v:[2,2,2]};
   it('无视盾甲、正常亡语复生、不是敌方击杀，祭司死亡后奖励仍在', () => {
-    const b=game(3); customize(b,2,{cast:[sacrifice]}); customize(b,1,{traits:{reborn:true,armor:[99,99,99]},onFaint:[{op:'buff',to:'rear',v:[1,1,1]}]});
+    const b=game(3); customize(b,2,{cast:[sacrifice]}); customize(b,1,{traits:{reborn:true,armor:[99,99,99]},onRattle:[{op:'buff',to:'rear',v:[1,1,1]}]});
     b.u(1).block=3; b.u(3).atk=10; step(b,2);
     expect(events(b,'sacrifice')).toEqual([{t:'sacrifice',src:2,tgt:1}]); expect(b.u(1).alive).toBe(true); expect(b.u(1).hp).toBe(1);
     expect(b.u(3).atk).toBe(13); b.u(2).hp=0; intern(b).flush(); expect(b.u(3).atk).toBe(13);

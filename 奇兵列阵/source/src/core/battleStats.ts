@@ -13,12 +13,12 @@ export interface BattleMetrics {
   healing: number;
   /** 友方实际消耗的格挡层数。 */
   blocks: number;
-  /** 友方实际发生的护卫改选次数。 */
-  guards: number;
+  /** 敌方普攻被我方嘲讽改选的次数。 */
+  taunts: number;
   revives: number;
   summons: number;
   sacrifices: number;
-  /** 未被冻结阻止的立即攻击次数。 */
+  /** 未被冻结阻止的追击次数。 */
   extraActions: number;
   /** 实际执行的单位施法次数，含再次施法。 */
   casts: number;
@@ -26,11 +26,18 @@ export interface BattleMetrics {
   kills: number;
   thornsDamage: number;
   splashDamage: number;
-  vulnConsumed: number;
+  /** 我方亡语触发次数（触发两次计 2）。 */
+  rattles: number;
+  /** 我方蓄力技释放次数。 */
+  charges: number;
+  /** 我方轮换、换位次数。 */
+  rotations: number;
+  /** 我方击败对手次数。 */
+  duelKills: number;
 }
 
 export const emptyBattleMetrics = (): BattleMetrics => ({
   singleHit: 0, attackDamage: 0, spellDamage: 0, burnDamage: 0, freezes: 0, mitigated: 0,
-  healing: 0, blocks: 0, guards: 0, revives: 0, summons: 0, sacrifices: 0,
-  extraActions: 0, casts: 0, kills: 0, thornsDamage: 0, splashDamage: 0, vulnConsumed: 0,
+  healing: 0, blocks: 0, taunts: 0, revives: 0, summons: 0, sacrifices: 0,
+  extraActions: 0, casts: 0, kills: 0, thornsDamage: 0, splashDamage: 0, rattles: 0, charges: 0, rotations: 0, duelKills: 0,
 });

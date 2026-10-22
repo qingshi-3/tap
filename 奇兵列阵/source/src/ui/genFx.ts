@@ -1,7 +1,8 @@
 // 主将技能的专属像素演出。每位主将四拍：起手（压暗/氛围）→ 蓄势（预兆）→ 命中（大件+震屏）→ 余韵（残留印记）。
 // 每位都有一个占画面 1/3 以上的「大件」，并占用不同的画面方向：
-//   阿尔吉昂 天→地光柱 · 卡雷奥斯 全屏斜斩 · 莉莉丝 跨两军锁链 · 瓦尔坎 屏外陨石
+//   阿尔吉昂 天→地光柱 · 卡雷奥斯 影刃纹章 · 莉莉丝 空中魂渊 · 瓦尔坎 屏外陨石
 //   法伊 地面冰封 · 齐瑞克斯 夜空星座 · 赫克 阵地中央插旗
+// 按技能标签分派（同一主将的被动会改写技能语义，演出跟着换）；没登记的标签走通用弹道。
 // 精灵首次使用时逐像素生成并缓存；1 个精灵像素 = 4 个舞台像素，同屏颗粒统一。
 // 演出只动 transform/opacity；lite（2 倍速及以上）跳过起手与蓄势，只留大件与命中。
 import { h } from './dom';
@@ -73,7 +74,7 @@ const gash = () => sprite('gash', 320, 7, (x, y) => {
 });
 const wound = () => sprite('wound', 15, 15, (x, y) => {
   const d = Math.min(Math.abs(x - y), Math.abs(x + y - 14));
-  return d <= 0.6 ? '#ff8a95' : d <= 1.6 ? '#c41a30' : null;
+  return d <= 0.6 ? '#ffffff' : d <= 1.3 ? '#ff8a95' : d <= 2.1 ? '#ff2a44' : null;
 });
 
 // 渊
@@ -83,7 +84,6 @@ const vortex = () => sprite('vortex', 45, 45, (x, y) => {
   if (Math.abs(Math.sin(Math.atan2(dy, dx) + r * 0.26)) < 0.55 - dith(x, y) * 0.3) return null;
   return r < 5 ? '#ffffff' : r < 11 ? '#e2b8ff' : r < 17 ? '#b77bff' : '#4a1f88';
 });
-const link = () => art('link', ['..hhhhh..', '.hhwwwhh.', 'hm.....mh', 'mm.....mm', '.mmmmmmm.', '..ddddd..'], { h: '#f0d6ff', w: '#ffffff', m: '#9d5cf0', d: '#4a1f88' });
 const heart = () => {
   const ins = (x: number, y: number) => {
     const X = ((x - 5) / 5.2) * 1.3, Y = ((4.5 - y) / 4.5) * 1.3 + 0.2;
@@ -218,8 +218,9 @@ const shakeL = (g: GfxHost) => g.fx.shake(11, 320);
 const stagger = (g: GfxHost, a: GenFxArgs, gap: number, fn: (p: Pt, i: number) => Promise<void>) =>
   Promise.all(a.tgts.map(async (p, i) => { await g.wait(i * gap); await fn(p, i); }));
 
-// ───────── 阿尔吉昂：云开天光，圣光柱落下，六边形圣盾合拢 ─────────
-async function argeon(g: GfxHost, a: GenFxArgs) {
+// ───────── 阿尔吉昂：云开天光，圣光柱落下；护盾类合拢圣盾，治疗洒绿十字，剑誓迸金色剑芒 ─────────
+type ArgeonMode = 'shield' | 'heal' | 'blade';
+const argeon = (mode: ArgeonMode) => async (g: GfxHost, a: GenFxArgs) => {
   if (!g.lite) { void backdrop(g, '#1a1206', 1400, 0.35); void vignette(g, 'rgba(255,211,107,.5)', 1400); }
   await stagger(g, a, 90, async (p) => {
     const f = feet(p);
@@ -246,7 +247,17 @@ async function argeon(g: GfxHost, a: GenFxArgs) {
     shakeS(g);
     g.fx.flash('#fff3b0', 0.12, 200);
     g.fx.burst(p.x, f.y, '#fff3b0', { n: 20, speed: 1.4, kind: 'mote', size: 2.6, up: 3.2, gravity: -0.04, life: 44 });
-    g.fx.burst(p.x, p.y, '#7dff9a', { n: 8, speed: 1, kind: 'plus', size: 3, up: 2.2, gravity: -0.03, life: 50 });
+    if (mode === 'heal') {
+      g.fx.burst(p.x, p.y, '#7dff9a', { n: 16, speed: 1.2, kind: 'plus', size: 3.4, up: 2.6, gravity: -0.03, life: 56 });
+      await g.wait(560);
+      return;
+    }
+    if (mode === 'blade') {
+      g.fx.burst(p.x, p.y, '#ffd36b', { n: 22, speed: 5.5, kind: 'spark', size: 2.8, life: 20, gravity: 0 });
+      g.fx.burst(p.x, p.y - 20, '#fff3c8', { n: 8, speed: 1, kind: 'mote', size: 2.6, up: 3, gravity: -0.05, life: 36 });
+      await g.wait(480);
+      return;
+    }
     await g.play(node(dome(), 24, 28, { x: p.x, y: p.y - 4 }), [
       { opacity: 0, transform: 'scale(1.7)' },
       { opacity: 1, transform: 'scale(.94)', offset: 0.22 },
@@ -255,100 +266,108 @@ async function argeon(g: GfxHost, a: GenFxArgs) {
     ], 820, { easing: 'cubic-bezier(.2,.9,.3,1)' });
     g.fx.burst(p.x, p.y, '#ffe08a', { n: 10, speed: 2, kind: 'mote', size: 2.4, life: 20, gravity: 0 });
   });
-}
+};
 
-// ───────── 卡雷奥斯：画面骤暗，两道贯穿全屏的血色斩痕 ─────────
+// ───────── 卡雷奥斯：画面骤暗，影刃在压轴者身后交叉成纹章，血色残影收进体内（随后的追击才是伤害） ─────────
 async function kaleos(g: GfxHost, a: GenFxArgs) {
-  if (!g.lite) {
-    void backdrop(g, '#05000a', 1000, 0.62);
-    a.units.forEach((u) => u.pulse('#ffffff'));
-    await g.wait(160);
-  }
-  await stagger(g, a, 140, async (p) => {
-    const L = 640;
+  if (!g.lite) void backdrop(g, '#05000a', 1400, 0.6);
+  await stagger(g, a, 140, async (p, i) => {
+    a.units[i]?.pulse('#ff5f6d');
+    const L = 150;
     const cut = (d: number) => {
       const r = (d * Math.PI) / 180;
-      const s = node(gash(), 320, 7, { x: p.x - Math.cos(r) * L, y: p.y - Math.sin(r) * L }, '0% 50%');
+      const s = node(gash(), 320, 7, { x: p.x - Math.cos(r) * L, y: p.y - 10 - Math.sin(r) * L }, '0% 50%');
       return g.play(s, [
-        { opacity: 1, transform: `rotate(${d}deg) scaleX(0) scaleY(1)` },
-        { opacity: 1, transform: `rotate(${d}deg) scaleX(1) scaleY(1)`, offset: 0.18 },
-        { opacity: 1, transform: `rotate(${d}deg) scaleX(1) scaleY(.6)`, offset: 0.55 },
-        { opacity: 0, transform: `rotate(${d}deg) scaleX(1) scaleY(0)` },
-      ], 540, { easing: 'cubic-bezier(.2,.9,.3,1)' });
+        { opacity: 0, transform: `rotate(${d}deg) scaleX(0) scaleY(.8)` },
+        { opacity: 1, transform: `rotate(${d}deg) scaleX(.235) scaleY(2)`, offset: 0.15 },
+        { opacity: 1, transform: `rotate(${d}deg) scaleX(.235) scaleY(1.4)`, offset: 0.7 },
+        { opacity: 0, transform: `rotate(${d}deg) scaleX(.235) scaleY(0)` },
+      ], 980, { easing: 'cubic-bezier(.2,.9,.3,1)' });
     };
-    const spill = (d: number) => {
-      const r = (d * Math.PI) / 180;
-      for (const k of [-120, -50, 0, 50, 120])
-        g.fx.burst(p.x + Math.cos(r) * k, p.y + Math.sin(r) * k, '#ff5f6d', { n: k ? 4 : 14, speed: k ? 2.5 : 6, kind: 'shard', size: 4, life: 24, gravity: 0.2 });
-    };
-    void cut(32);
-    await g.wait(110);
-    shakeM(g); spill(32);
-    void cut(148);
-    await g.wait(110);
-    shakeL(g); spill(148);
-    g.fx.flash('#ff2a40', 0.14, 220);
-    g.fx.burst(p.x, p.y, '#2a0b18', { n: 12, speed: 3, kind: 'mote', size: 3, life: 30, gravity: 0 });
-    await g.play(node(wound(), 15, 15, p), [
-      { opacity: 0, transform: 'scale(1.4)' },
-      { opacity: 1, transform: 'scale(1)', offset: 0.15 },
-      { opacity: 1, transform: 'scale(1)', offset: 0.6 },
-      { opacity: 0, transform: 'scale(1)' },
-    ], 640);
+    void cut(35);
+    await g.wait(90);
+    void cut(145);
+    shakeS(g);
+    g.fx.burst(p.x, p.y, '#ff5f6d', { n: 22, speed: 2.8, kind: 'mote', size: 3, up: -0.5, gravity: 0, life: 34 });
+    g.fx.ring(p.x, feet(p).y, '#ff3b4f', 110, 28);
+    await g.play(node(wound(), 15, 15, head(p)), [
+      { opacity: 0, transform: 'scale(2.6) rotate(45deg)' },
+      { opacity: 1, transform: 'scale(1.6) rotate(0deg)', offset: 0.2 },
+      { opacity: 1, transform: 'scale(1.6)', offset: 0.72 },
+      { opacity: 0, transform: 'translateY(40px) scale(.5)' },
+    ], 1000, { easing: 'cubic-bezier(.2,.9,.3,1)' });
   });
 }
 
-// ───────── 莉莉丝：深渊漩涡张开，紫色锁链跨越两军把生命抽回我方 ─────────
+// ───────── 莉莉丝：我方上空张开魂渊，阵亡者的魂火沿弧线落进每个友军（魂潮）；
+//            收割＝魂渊在敌方队首脚下撕开；冥约＝魂火在友军脚下聚成漩涡把它拉回 ─────────
 const bez = (a: Pt, m: Pt, b: Pt, t: number) => ({
   x: (1 - t) ** 2 * a.x + 2 * (1 - t) * t * m.x + t * t * b.x,
   y: (1 - t) ** 2 * a.y + 2 * (1 - t) * t * m.y + t * t * b.y,
 });
-async function lilithe(g: GfxHost, a: GenFxArgs) {
-  if (!g.lite) void vignette(g, 'rgba(90,20,150,.75)', 1700);
-  a.tgts.forEach((p) => {
-    void g.play(node(vortex(), 45, 45, feet(p)), [
-      { opacity: 0, transform: 'scaleY(.42) rotate(0deg) scale(.3)' },
-      { opacity: 1, transform: 'scaleY(.42) rotate(-200deg) scale(1)', offset: 0.3 },
-      { opacity: 1, transform: 'scaleY(.42) rotate(-420deg) scale(1.05)', offset: 0.7 },
-      { opacity: 0, transform: 'scaleY(.42) rotate(-600deg) scale(.6)' },
-    ], 1400);
-    g.fx.burst(p.x, p.y, '#b77bff', { n: 12, speed: 2, kind: 'mote', size: 2.6, up: -1, gravity: 0.05, life: 34 });
-  });
-  await g.wait(g.lite ? 120 : 320);
-  const src = a.tgts[0], dst = a.allies[0];
-  if (!src || !dst) { await g.wait(400); return; }
-  const m = { x: (src.x + dst.x) / 2, y: Math.min(src.y, dst.y) - 240 };
-  const n = Math.max(8, Math.round(Math.hypot(dst.x - src.x, dst.y - src.y) / 22));
-  for (let k = 0; k <= n; k++) {
-    const t = k / n, q = bez(src, m, dst, t), q2 = bez(src, m, dst, Math.min(1, t + 0.01));
-    const r = deg(Math.atan2(q2.y - q.y, q2.x - q.x));
-    void g.play(node(link(), 9, 6, q), [
-      { opacity: 0, transform: `rotate(${r}deg) scale(.4)` },
-      { opacity: 1, transform: `rotate(${r}deg) scale(1)`, offset: 0.12 },
-      { opacity: 1, transform: `rotate(${r}deg) scale(1)`, offset: 0.8 },
-      { opacity: 0, transform: `rotate(${r}deg) scale(.6)` },
-    ], 1100, { delay: k * 18 });
+const spin = (sy: number, s0: number, s1: number): Keyframe[] => [
+  { opacity: 0, transform: `scaleY(${sy}) rotate(0deg) scale(${s0})` },
+  { opacity: 1, transform: `scaleY(${sy}) rotate(-220deg) scale(${s1})`, offset: 0.3 },
+  { opacity: 1, transform: `scaleY(${sy}) rotate(-440deg) scale(${s1 * 1.05})`, offset: 0.72 },
+  { opacity: 0, transform: `scaleY(${sy}) rotate(-620deg) scale(${s0 * 1.5})` },
+];
+/** 一团魂火从 a 沿弧线飞到 b */
+function wisp(g: GfxHost, a: Pt, b: Pt, bend: number, ms: number) {
+  const m = { x: (a.x + b.x) / 2 + bend, y: Math.min(a.y, b.y) - 40 };
+  const o = h('div', { class: 'gfx gfx-dot', style: `left:${a.x - 6}px;top:${a.y - 6}px` });
+  const frames: Keyframe[] = [];
+  for (let k = 0; k <= 10; k++) {
+    const q = bez(a, m, b, k / 10);
+    frames.push({ opacity: k === 0 ? 0 : k === 10 ? 0.4 : 1, transform: `translate(${q.x - a.x}px,${q.y - a.y}px) scale(${1.2 - (k / 10) * 0.5})` });
   }
-  shakeM(g);
-  g.fx.burst(src.x, src.y, '#d77bff', { n: 16, speed: 4.5, kind: 'shard', size: 3.4, life: 26, gravity: 0.12 });
-  await Promise.all(Array.from({ length: 8 }, async (_, i) => {
-    await g.wait(140 + i * 60);
-    const o = h('div', { class: 'gfx gfx-dot', style: `left:${src.x - 6}px;top:${src.y - 6}px` });
-    const frames: Keyframe[] = [];
-    for (let k = 0; k <= 10; k++) {
-      const q = bez(src, m, dst, k / 10);
-      frames.push({ opacity: k === 0 ? 0 : 1, transform: `translate(${q.x - src.x}px,${q.y - src.y}px) scale(${1 + Math.sin((k / 10) * Math.PI) * 0.4})` });
-    }
-    await g.play(o, frames, 520, { easing: 'ease-in' });
-  }));
-  g.fx.ring(dst.x, feet(dst).y, '#d77bff', 80);
-  g.fx.burst(dst.x, dst.y, '#ffd6ff', { n: 12, speed: 2, kind: 'mote', size: 2.4, up: 1.5, gravity: -0.03, life: 34 });
-  await g.play(node(heart(), 11, 10, head(dst)), [
-    { opacity: 0, transform: 'scale(.3)' },
-    { opacity: 1, transform: 'scale(1.3)', offset: 0.25 },
-    { opacity: 1, transform: 'scale(1)', offset: 0.55 },
-    { opacity: 0, transform: 'translateY(-18px) scale(1)' },
-  ], 700);
+  return g.play(o, frames, ms, { easing: 'ease-in' });
+}
+async function lilitheTide(g: GfxHost, a: GenFxArgs) {
+  if (!g.lite) void vignette(g, 'rgba(90,20,150,.6)', 1500);
+  const xs = a.tgts.map((p) => p.x);
+  const c = { x: Math.max(240, Math.min(520, (Math.min(...xs) + Math.max(...xs)) / 2)), y: Math.min(...a.tgts.map((p) => p.y)) - 150 };
+  void g.play(node(vortex(), 45, 45, c), spin(0.5, 0.3, 1.15), g.lite ? 1000 : 1500);
+  g.fx.burst(c.x, c.y, '#b77bff', { n: 16, speed: 2.4, kind: 'mote', size: 2.6, gravity: 0, life: 30 });
+  await g.wait(g.lite ? 120 : 380);
+  shakeS(g);
+  await stagger(g, a, 70, async (p, i) => {
+    await Promise.all([-1, 0, 1].map(async (k) => { await g.wait((k + 1) * 80); await wisp(g, c, p, k * 50, 440); }));
+    a.units[i]?.pulse('#d77bff');
+    g.fx.ring(p.x, feet(p).y, '#b77bff', 74, 22);
+    g.fx.burst(p.x, p.y, '#e2b8ff', { n: 10, speed: 1.4, kind: 'mote', size: 2.4, up: 2.4, gravity: -0.04, life: 40 });
+  });
+  await g.wait(200);
+}
+async function lilitheReap(g: GfxHost, a: GenFxArgs) {
+  if (!g.lite) void vignette(g, 'rgba(90,20,150,.75)', 1200);
+  await stagger(g, a, 120, async (p) => {
+    void g.play(node(vortex(), 45, 45, feet(p)), spin(0.42, 0.3, 1), 1100);
+    await g.wait(g.lite ? 120 : 300);
+    shakeM(g);
+    g.fx.flash('#b77bff', 0.12, 200);
+    g.fx.burst(p.x, p.y, '#d77bff', { n: 22, speed: 5, kind: 'shard', size: 3.4, life: 26, gravity: 0.12 });
+    g.fx.burst(p.x, feet(p).y, '#4a1f88', { n: 12, speed: 1.2, kind: 'mote', size: 3, up: 3, gravity: -0.05, life: 40 });
+    await g.wait(520);
+  });
+}
+async function lilithePact(g: GfxHost, a: GenFxArgs) {
+  if (!g.lite) void vignette(g, 'rgba(90,20,150,.6)', 1400);
+  await stagger(g, a, 120, async (p) => {
+    const f = feet(p);
+    void g.play(node(vortex(), 45, 45, f), spin(0.42, 0.3, 1.1), 1300);
+    await Promise.all([-1, 1, -0.5, 0.5].map(async (k, n) => {
+      await g.wait(n * 90);
+      await wisp(g, { x: p.x + k * 220, y: p.y - 40 }, f, 0, 420);
+    }));
+    g.fx.ring(p.x, f.y, '#d77bff', 90, 26);
+    g.fx.burst(p.x, f.y, '#ffd6ff', { n: 18, speed: 1.4, kind: 'mote', size: 2.6, up: 3.4, gravity: -0.05, life: 46 });
+    await g.play(node(heart(), 11, 10, head(p)), [
+      { opacity: 0, transform: 'scale(.3)' },
+      { opacity: 1, transform: 'scale(1.3)', offset: 0.25 },
+      { opacity: 1, transform: 'scale(1)', offset: 0.55 },
+      { opacity: 0, transform: 'translateY(-18px) scale(1)' },
+    ], 700);
+  });
 }
 
 // ───────── 瓦尔坎：地面阴影扩大，巨型陨石从屏外砸下，火坑与火柱 ─────────
@@ -528,6 +547,49 @@ async function hank(g: GfxHost, a: GenFxArgs) {
   await g.wait(total * (0.85 - drop) - 560);
 }
 
-const PLAYS: Record<string, (g: GfxHost, a: GenFxArgs) => Promise<void>> = { argeon, kaleos, lilithe, vulkan, faie, zirix, hank };
-export const hasGenFx = (id: string) => id in PLAYS;
-export const playGenFx = (id: string, g: GfxHost, a: GenFxArgs) => PLAYS[id](g, a);
+// ───────── 法伊·后发：我方脚下凝出冰晶，碎裂时迸出金色锋芒（推迟行动，换来 +攻） ─────────
+async function faieHold(g: GfxHost, a: GenFxArgs) {
+  if (!g.lite) void backdrop(g, '#02121c', 1200, 0.28);
+  await stagger(g, a, 80, async (p, i) => {
+    const f = feet(p);
+    const block = g.play(node(crystal(), 22, 34, { x: f.x, y: f.y + 4 }, '50% 100%'), [
+      { opacity: 0, transform: 'scaleY(0)', easing: 'cubic-bezier(.2,1.2,.4,1)' },
+      { opacity: 0.75, transform: 'scaleY(1.05)', offset: 0.25 },
+      { opacity: 0.75, transform: 'scaleY(1)', offset: 0.6 },
+      { opacity: 0, transform: 'scale(1.2)' },
+    ], 820);
+    await g.wait(500);
+    a.units[i]?.pulse('#ffd36b');
+    g.fx.burst(p.x, p.y, '#e6fbff', { n: 14, speed: 4, kind: 'shard', size: 3, life: 24, gravity: 0.14 });
+    g.fx.burst(p.x, p.y - 10, '#ffb340', { n: 12, speed: 4.5, kind: 'spark', size: 2.6, life: 18, gravity: 0 });
+    await block;
+  });
+}
+
+// ───────── 齐瑞克斯·轨迹：每次换位都会触发，只在友军头顶亮一颗星，不压暗、不铺星座 ─────────
+async function zirixTrail(g: GfxHost, a: GenFxArgs) {
+  await Promise.all(a.tgts.map(async (p, i) => {
+    await g.wait(i * 40);
+    g.fx.burst(p.x, head(p).y + 10, '#ffe2a0', { n: 6, speed: 1.6, kind: 'mote', size: 2.2, gravity: 0, life: 20 });
+    await g.play(node(star(), 7, 7, head(p)), [
+      { opacity: 0, transform: 'scale(.4) rotate(0deg)' },
+      { opacity: 1, transform: 'scale(1) rotate(90deg)', offset: 0.3 },
+      { opacity: 0, transform: 'translateY(-14px) scale(.8) rotate(180deg)' },
+    ], 460);
+  }));
+}
+
+type Play = (g: GfxHost, a: GenFxArgs) => Promise<void>;
+/** 主将 → 技能标签 → 演出；'*' 为该主将其余标签的默认演出 */
+const PLAYS: Record<string, Record<string, Play>> = {
+  argeon: { 亲征: argeon('shield'), 盾誓: argeon('shield'), 王誓: argeon('shield'), 光誓: argeon('heal'), 剑誓: argeon('blade') },
+  kaleos: { 压轴: kaleos, 首发: kaleos, 双幕: kaleos },
+  lilithe: { 魂潮: lilitheTide, 收割: lilitheReap, 冥约: lilithePact },
+  vulkan: { 火山战场: vulkan },
+  faie: { 先机: faie, 长冬: faie, 后发: faieHold },
+  zirix: { 星轨: zirix, 轨迹: zirixTrail },
+  hank: { '*': hank },
+};
+const pick = (id: string, label: string) => PLAYS[id]?.[label] ?? PLAYS[id]?.['*'];
+export const hasGenFx = (id: string, label: string) => !!pick(id, label);
+export const playGenFx = (id: string, label: string, g: GfxHost, a: GenFxArgs) => pick(id, label)!(g, a);

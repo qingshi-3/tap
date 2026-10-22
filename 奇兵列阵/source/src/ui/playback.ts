@@ -9,7 +9,7 @@ import { hasGenFx, playGenFx, type GfxHost } from './genFx';
 /** 主将特效配套音效 */
 const GEN_SFX: Record<string, () => void> = {
   argeon: () => { sfx.shield(); sfx.buff(); },
-  kaleos: () => sfx.hit(true),
+  kaleos: () => { sfx.whoosh(); sfx.buff(); },
   lilithe: () => sfx.summon(),
   vulkan: () => sfx.hit(true),
   faie: () => sfx.freeze(),
@@ -133,9 +133,12 @@ export class Playback {
     finally { this.cancelWaiters.delete(wake); }
   }
   onLog: (l: LogLine) => void = () => undefined;
-  onBeat: (n: number) => void = () => undefined;
+  onBeat: (n: number, round: number) => void = () => undefined;
+  /** 当前回合与本回合已进行的交锋数（中线大字 + 圆点） */
+  private round = 0;
+  private roundBeats = 0;
   onPhase: (p: 'start' | 'battle') => void = () => undefined;
-  /** 某拍出手前暂停（教学讲解用）；参数为双方本拍首个出手者的单位节点 */
+  /** 某次交锋出手前暂停（教学讲解用）；参数为双方本次交锋首个出手者的单位节点 */
   onHold: ((n: number, actors: HTMLElement[]) => Promise<void> | null) | null = null;
 
   /** 主将头像节点（HUD 上），主将技能从这里发出弹道 */
@@ -193,7 +196,7 @@ export class Playback {
     if (this.cancelled) return;
     this.board.clearUnits();
     for (const u of snap) {
-      if (!u.alive) continue;
+      if (!u.alive || u.reserve) continue;
       const v = new UnitView(u.defId, u.side, u.slot, u.level);
       v.setStats(statsOf(u));
       this.board.add(this.key(u.uid), v);
@@ -202,7 +205,7 @@ export class Playback {
 
   private sync(snap: Snap) {
     for (const u of snap) {
-      if (!u.alive) continue;
+      if (!u.alive || u.reserve) continue;
       const v = this.v(u.uid);
       if (v) this.unitAction(v.el, () => v.setStats(statsOf(u), { pop: true }));
     }
@@ -213,9 +216,16 @@ export class Playback {
       if (this.paused) await this.waitUntilResumed();
       if (this.cancelled) return;
       this.build(this.out.initial);
-      for (const { ev, snap } of this.out.log) {
+      const log = this.out.log;
+      for (let i = 0; i < log.length; i++) {
         if (this.cancelled || this.skipping) break;
-        await this.step(ev, snap);
+        const { ev, snap } = log[i];
+        // 主将 / 光环一次给多名友军同样的加成（轨迹、纯色等）：合并成一拍同时飘字，不逐个排队刷屏
+        const group = Playback.groupBuff(log, i);
+        if (group > 1) {
+          await this.buffGroup(log.slice(i, i + group));
+          i += group - 1;
+        } else await this.step(ev, snap);
         await this.waitUntilResumed();
         if (this.cancelled) return;
       }
@@ -223,12 +233,38 @@ export class Playback {
         const last = this.out.log.at(-1)?.snap ?? this.out.initial;
         this.build(last);
         this.board.clearArrows();
-        this.board.setCenter(String(this.out.beats), '拍', 'beat');
+        const lastBeat = [...this.out.log].reverse().find(l => l.ev.t === 'beat')?.ev;
+        this.board.setCenter(String(lastBeat?.t === 'beat' ? lastBeat.round ?? 1 : 1), '回合', 'beat');
       }
       if (!this.cancelled) this.board.setOrder(null);
     } finally {
       this.done = true;
     }
+  }
+
+  /** 从 i 起连续多少条「无来源、数值相同」的加成可以合并播放 */
+  static groupBuff(log: BattleOutput['log'], i: number): number {
+    const a = log[i].ev;
+    if (a.t !== 'buff' || a.src || (!a.atk && !a.hp)) return 1;
+    let n = 1;
+    for (; i + n < log.length; n++) {
+      const b = log[i + n].ev;
+      if (b.t !== 'buff' || b.src || b.atk !== a.atk || b.hp !== a.hp || b.tgt === a.tgt) break;
+    }
+    return n;
+  }
+
+  private async buffGroup(items: BattleOutput['log']) {
+    sfx.buff();
+    for (const { ev, snap } of items) {
+      if (ev.t !== 'buff') continue;
+      const t = this.st(snap, ev.tgt), tp = bodyPos(t.side, t.slot);
+      this.fx.float(tp.x, tp.y - 30, `+${ev.atk}/+${ev.hp}`, 'buff');
+      this.fx.burst(tp.x, tp.y + 30, '#7dffb0', { n: 10, speed: 2.4, kind: 'mote', size: 2.2, up: 2.5, gravity: -0.04, life: 40 });
+    }
+    this.sync(items[items.length - 1].snap);
+    await this.w(320);
+    await this.waitUntilResumed();
   }
 
   get finished() {
@@ -336,11 +372,14 @@ export class Playback {
         return;
       }
       case 'beat': {
-        this.onBeat(ev.n);
+        this.onBeat(ev.n, ev.round ?? 1);
         await this.waitUntilResumed();
         if (this.cancelled) return;
         this.sync(snap);
-        this.board.setCenter(String(ev.n), '拍', 'beat');
+        if (ev.round !== this.round) { this.round = ev.round ?? 1; this.roundBeats = 0; }
+        this.roundBeats++;
+        this.board.setCenter(String(this.round), '回合', 'beat');
+        this.board.setPips(this.roundBeats);
         this.board.setOrder({ player: ev.next.player.map((u) => this.key(u)), enemy: ev.next.enemy.map((u) => this.key(u)) }, ev.round, ev.wave);
         if (this.onHold && !this.skipping) {
           const actors = [ev.next.player[0], ev.next.enemy[0]].map((u) => (u ? this.v(u)?.el : null)).filter((e): e is HTMLElement => !!e);
@@ -373,7 +412,7 @@ export class Playback {
         if (ev.general) {
           const g = GENERAL_MAP[ev.general];
           const color = FACTION_INFO[g.faction].color;
-          this.generalCallout(g.name, g.text, color);
+          this.generalCallout(g.name, g.skill, color);
           this.genPulse(color);
           this.onLog({ text: `${ev.order ? circled(ev.order) : ''}将军 ${g.name}：${g.text}`, cls: 'general' });
           await this.w(700);
@@ -403,9 +442,9 @@ export class Playback {
         const armorGain = !ev.atk && !ev.hp
           ? (t.armor ?? 0) - (this.v(ev.tgt)?.getStats()?.kw?.armor ?? t.armor ?? 0) : 0;
         const gainText = !ev.atk && !ev.hp && armorGain
-          ? `${armorGain > 0 ? '+' : ''}${armorGain} 护甲`
+          ? `${armorGain > 0 ? '+' : ''}${armorGain}`
           : `+${ev.atk}/+${ev.hp}`;
-        fx.float(tp.x, tp.y - 30, gainText, 'buff');
+        fx.float(tp.x, tp.y - 30, gainText, 'buff', 900, !ev.atk && !ev.hp && armorGain ? 'armor' : undefined);
         fx.burst(tp.x, tp.y + 30, '#7dffb0', { n: 14, speed: 2.4, kind: 'mote', size: 2.2, up: 2.5, gravity: -0.04, life: 40 });
         this.sync(snap);
         await this.w(300);
@@ -427,7 +466,8 @@ export class Playback {
           v.setTag(null);
         } else if (ev.mode === 'extra') {
           v.pulse('#ffe58a');
-          this.callout(ev.uid, snap, '立即攻击', '#ffe58a');
+          this.unitAction(v.el, () => v.dash(this.st(snap, ev.uid).side === 0 ? 1 : -1, 260 / this.speed));
+          this.callout(ev.uid, snap, '追击！', '#ffe58a');
           await this.w(240);
         }
         // Once its regular action is consumed, retire the preview marker.
@@ -466,7 +506,7 @@ export class Playback {
         }
         sfx.shield();
         fx.ring(tp.x, tp.y + 10, '#ffe08a', 70);
-        fx.float(tp.x, tp.y - 30, `+${ev.n} 格挡`, 'shield');
+        fx.float(tp.x, tp.y - 30, `+${ev.n}`, 'shield', 900, 'block');
         this.onLog({ text: `${this.name(t)} 获得 ${ev.n} 层格挡`, cls: 'shield' });
         this.sync(snap);
         await this.w(280);
@@ -492,7 +532,7 @@ export class Playback {
         }
         if (chill) sfx.freeze(); else sfx.hit(false);
         fx.burst(tp.x, tp.y, chill ? '#bff4ff' : '#ffb46a', { n: 12, speed: 3, kind: chill ? 'shard' : 'mote', size: 2.4, gravity: chill ? 0.05 : -0.05 });
-        fx.float(tp.x, tp.y - 38, `+${ev.n} ${chill ? '寒意' : '灼烧'}`, chill ? 'freeze' : 'dmg splash');
+        fx.float(tp.x, tp.y - 38, `+${ev.n}`, chill ? 'freeze' : 'dmg splash', 900, chill ? 'chill' : 'burn');
         this.sync(snap);
         this.onLog({ text: `${this.name(t)} 获得 ${ev.n} 层${chill ? '寒意' : '灼烧'}（共 ${ev.total}）`, cls: chill ? 'freeze' : 'dmg' });
         await this.w(240);
@@ -500,33 +540,58 @@ export class Playback {
         if (this.cancelled) return;
         return;
       }
-      case 'vuln': {
+      case 'charge': {
         const t = this.st(snap, ev.uid);
         const tp = bodyPos(t.side, t.slot);
-        if (ev.src && ev.src !== ev.uid) {
-          const s = this.st(snap, ev.src);
-          await this.projectile(headPos(s.side, s.slot), tp, '#ff7ad9', 300);
-          await this.waitUntilResumed();
-          if (this.cancelled) return;
-        }
-        sfx.hit(false);
-        fx.float(tp.x, tp.y - 38, `+${ev.n} 易伤`, 'dmg splash');
+        sfx.charge(ev.total / Math.max(1, t.chargeMax ?? ev.total));
+        fx.burst(tp.x, tp.y, '#ffe58a', { n: 8, speed: 2, kind: 'spark', size: 2.2, life: 20, gravity: -0.03 });
         this.sync(snap);
-        this.onLog({ text: `${this.name(t)} 获得 ${ev.n} 层易伤（共 ${ev.total}）`, cls: 'dmg' });
-        await this.w(220);
+        if (ev.src && ev.src !== ev.uid) this.onLog({ text: `${this.name(t)} 蓄力 +${ev.n}（${ev.total}/${t.chargeMax ?? ev.total}）`, cls: 'buff' });
+        await this.w(120);
         await this.waitUntilResumed();
         if (this.cancelled) return;
         return;
       }
-      case 'guard': {
+      case 'taunt': {
         const a = this.st(snap, ev.from), g = this.st(snap, ev.to);
         const gp = bodyPos(g.side, g.slot);
         this.projectile(bodyPos(a.side, a.slot), gp, '#ffe08a', 200, 10);
-        fx.float(gp.x, gp.y - 50, '护卫', 'absorb');
-        this.onLog({ text: `${this.name(g)} 替 ${this.name(a)} 挡下攻击`, cls: 'shield' });
+        fx.float(gp.x, gp.y - 50, '嘲讽', 'absorb');
+        this.onLog({ text: `${this.name(g)} 嘲讽，吸引了攻击`, cls: 'shield' });
         await this.w(160);
         await this.waitUntilResumed();
         if (this.cancelled) return;
+        return;
+      }
+      case 'move': {
+        sfx.swap();
+        const ps: Promise<void>[] = [];
+        for (const m of ev.moves) {
+          const u = this.st(snap, m.uid);
+          if (!u.alive || u.reserve) continue;
+          let v = this.v(m.uid);
+          if (!v) {
+            v = new UnitView(u.defId, u.side, u.slot, u.level);
+            v.setStats(statsOf(u));
+            this.board.add(this.key(u.uid), v);
+            this.unitAction(v.el, () => v!.appear());
+            continue;
+          }
+          const view = v;
+          if (view.slot !== u.slot) ps.push(this.unitAction(view.el, () => view.moveTo(u.slot, 420 / this.speed, m.to > m.from ? 40 : -16), false));
+        }
+        if (!this.skipping) await this.untilCancelled(Promise.all(ps));
+        await this.waitUntilResumed();
+        if (this.cancelled) return;
+        this.sync(snap);
+        return;
+      }
+      case 'genCount': {
+        const g = GENERAL_MAP[ev.id];
+        if (g) {
+          this.genPulse(FACTION_INFO[g.faction].color);
+          this.onLog({ text: `主将 ${g.name}：${ev.n}/${ev.max}`, cls: 'general' });
+        }
         return;
       }
       case 'gen': {
@@ -536,11 +601,12 @@ export class Playback {
         this.generalCallout(g.name, ev.label, color);
         const from = this.genPulse(color);
         this.onLog({ text: `主将 ${g.name}：${ev.label}`, cls: 'general' });
-        if (hasGenFx(ev.id) && ev.tgts.length) {
+        if (hasGenFx(ev.id, ev.label) && ev.tgts.length) {
           // 主将专属像素演出：头像先射出一道光，再播放招牌特效（2 倍速及以上用精简版）
           const ts = ev.tgts.map((uid) => this.st(snap, uid));
           const pos = ts.map((t) => bodyPos(t.side, t.slot));
-          if (from) { sfx.whoosh(); await this.projectile(from, pos[0], color, 300, 16); }
+          // 轨迹每次换位都触发，省掉头像弹道免得刷屏
+          if (from && ev.label !== '轨迹') { sfx.whoosh(); await this.projectile(from, pos[0], color, 300, 16); }
           const allies = snap.filter((u) => u.side === 0 && u.hp > 0).sort((a, b) => a.slot - b.slot).map((u) => bodyPos(0, u.slot));
           const units = ts.map((t) => {
             const v = this.v(t.uid);
@@ -549,8 +615,8 @@ export class Playback {
               pulse: (c: string) => { if (v) this.unitAction(v.el, () => v.pulse(c)); },
             };
           });
-          GEN_SFX[ev.id]?.();
-          if (!this.skipping && !this.cancelled) await this.untilCancelled(playGenFx(ev.id, this.gfxHost(), { tgts: pos, units, allies, color }));
+          if (ev.label === '轨迹') sfx.buff(); else GEN_SFX[ev.id]?.();
+          if (!this.skipping && !this.cancelled) await this.untilCancelled(playGenFx(ev.id, ev.label, this.gfxHost(), { tgts: pos, units, allies, color }));
           await this.w(120);
           await this.waitUntilResumed();
           if (this.cancelled) return;
@@ -621,7 +687,7 @@ export class Playback {
         if (hitView) this.unitAction(hitView.el, () => hitView.hit(dir));
         if (ev.blocked) {
           sfx.shieldHit();
-          fx.float(tp.x + 14, tp.y - 44, '格挡', 'absorb');
+          fx.float(tp.x + 14, tp.y - 44, '', 'absorb', 900, 'block');
           fx.burst(tp.x, tp.y, '#ffe08a', { n: 10, speed: 4, size: 2 });
         }
         if (hpLoss > 0) {
@@ -811,7 +877,7 @@ export class Playback {
   }
 
   private generalCallout(name: string, text: string, color: string) {
-    const el = h('div', { class: 'gen-callout', style: `--c:${color}` }, h('b', null, `将军 · ${name}`), h('span', null, text));
+    const el = h('div', { class: 'gen-callout', style: `--c:${color}` }, h('b', null, name), h('span', null, text));
     this.addTemporary(el);
     this.animate(el,
       [

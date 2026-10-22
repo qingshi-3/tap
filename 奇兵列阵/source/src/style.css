@@ -997,11 +997,10 @@ b {
 }
 .pb-line {
   position: absolute;
-  top: 50%;
+  top: -12px;
+  bottom: -14px;
   left: 0;
   right: 0;
-  height: 70px;
-  transform: translateY(-62%);
   background: linear-gradient(90deg, transparent, rgba(10, 8, 30, 0.85) 25%, rgba(10, 8, 30, 0.85) 75%, transparent);
   border-top: 1px solid;
   border-bottom: 1px solid;
@@ -1027,31 +1026,38 @@ b {
 }
 .pb-sub {
   position: relative;
-  font-size: 13px;
+  margin-top: 4px;
+  font-size: 18px;
   color: #c5c0e8;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.08em;
 }
 .gen-callout {
   position: absolute;
   left: 640px;
-  top: 160px;
+  top: 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2px;
-  padding: 10px 22px;
-  border-radius: 14px;
-  background: rgba(10, 8, 30, 0.92);
-  box-shadow: 0 0 0 1.5px var(--c), 0 0 26px color-mix(in srgb, var(--c) 40%, transparent);
+  padding: 8px 26px 10px;
+  background: #0d0b26;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--pxf-steel) 6 / 10px / 0 stretch;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--c) 70%, #000), 0 0 26px color-mix(in srgb, var(--c) 35%, transparent);
 }
 .gen-callout b {
-  color: var(--c);
-  font-size: 16px;
-  letter-spacing: 0.1em;
+  color: #c9c6ec;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
 }
 .gen-callout span {
-  font-size: 13px;
-  color: #ddd;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--c);
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000;
 }
 
 /* ───────────── HUD ───────────── */
@@ -1428,13 +1434,14 @@ b {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: 18px;
   font-weight: 700;
   color: #9fe8ff;
-  padding: 3px 12px;
-  border-radius: 12px;
-  background: rgba(20, 90, 130, 0.5);
-  box-shadow: 0 0 0 1px rgba(140, 220, 255, 0.4);
+  padding: 2px 12px;
+  background: #0d2a3c;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--pxf-teal) 6 / 8px / 0 stretch;
 }
 .stage-intro {
   position: absolute;
@@ -2161,13 +2168,23 @@ b {
 .coach::after {
   content: '';
   position: absolute;
-  left: 50%;
+  left: clamp(18px, calc(50% + var(--ax, 0px)), calc(100% - 18px));
   width: 14px;
   height: 14px;
   margin-left: -7px;
   transform: rotate(45deg);
   background: #2a1f08;
   box-shadow: 1.5px 1.5px 0 var(--gold);
+}
+.coach.dir-left {
+  transform: translate(calc(-100% - 14px), -50%);
+}
+.coach.dir-left::after {
+  left: auto;
+  right: -7px;
+  top: 50%;
+  margin: -7px 0 0;
+  box-shadow: 1.5px -1.5px 0 var(--gold);
 }
 .coach.dir-down::after {
   bottom: -7px;
@@ -3001,8 +3018,8 @@ body.portrait #rotate-hint:not(.dismissed) {
 }
 .sb-retry {
   color: #ffe2b0;
-  background: rgba(120, 70, 20, 0.55);
-  box-shadow: 0 0 0 1px rgba(255, 211, 107, 0.45);
+  background: #3a2408;
+  border-image-source: var(--pxf-gold);
 }
 
 /* 奖励到账通知 */

@@ -4,8 +4,11 @@ import { levelStats } from '../core/engine';
 import { describe } from '../core/run';
 import type { UnitState } from '../core/types';
 import { h, STAGE_W } from './dom';
-import { icon } from './icons';
 import { kwInline, kwRich, kwUpgrade } from './kwtext';
+import { statArt } from './board';
+
+/** 状态数值：与场上同一套像素图标（--pxk-*）+ 右下角数字 */
+const pxStat = (k: 'armor' | 'block' | 'chill' | 'freeze' | 'burn', v: number) => h('span', { class: `kwic kw-${k}` }, h('i', null, v));
 
 // 单例悬浮说明框：单位 / 将军 / 关键词
 
@@ -42,8 +45,8 @@ export function unitAbilityText(defId: string, level: number, st?: TipStats | nu
     if (kept.length !== clauses.length) text = kept.join('').replace(/[；;]\s*$/, '');
   }
   if (!unitDef(defId).castUses || st?.charges == null) return text;
-  const uses = st.charges > 0 ? `本场剩余 ${st.charges} 次，用完改普攻` : '本场已用完，改普攻';
-  return text.replace(/施法（[^）]*）/, `施法（${uses}）`);
+  const left = st.charges;
+  return text.replace(/（本场最多 \d+ 次([^）]*)）/, (_, rest: string) => `（${left > 0 ? `本场剩余 ${left} 次${rest}` : '本场已用完，改普攻'}）`);
 }
 
 /** withUp：附带升一星的变化（只改数字时并进同一句写成「2→3」，多了效果才另起一行） */
@@ -89,13 +92,13 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     h(
       'div',
       { class: 'tip-stats' },
-      h('span', { class: 'ts atk' }, icon('sword'), atk),
-      h('span', { class: 'ts hp' }, icon('heart'), hp),
-      st?.actionsLeft != null ? h('span', { class: 'ts' }, `本回合行动 ${st.actionsLeft}`) : null,
-      st && st.block ? h('span', { class: 'ts sh' }, icon('shield'), `格挡 ${st.block} 次`) : null,
-      armor ? h('span', { class: 'ts ar' }, icon('plate'), `护甲 ${armor}`) : null,
-      st && st.chill ? h('span', { class: 'ts fr' }, icon('snow'), `寒意 ${st.chill}${st.chill >= st.atk ? '（将被冻结）' : ''}`) : null,
-      st && st.burn ? h('span', { class: 'ts bn' }, icon('fire'), `灼烧 ${st.burn}`) : null,
+      statArt('atk', atk),
+      statArt('hp', hp),
+      armor ? pxStat('armor', armor) : null,
+      st && st.block ? pxStat('block', st.block) : null,
+      st && st.chill ? pxStat(st.chill >= st.atk ? 'freeze' : 'chill', st.chill) : null,
+      st && st.burn ? pxStat('burn', st.burn) : null,
+      st?.actionsLeft != null ? h('span', { class: 'ts-act' }, '行动', h('i', null, st.actionsLeft)) : null,
     ),
     abilityEl,
     nextRow,

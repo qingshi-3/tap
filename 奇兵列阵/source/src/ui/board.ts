@@ -5,7 +5,7 @@ import { FACTION_INFO, unitDef } from '../core/data';
 import { SLOTS, tri } from '../core/engine';
 import type { Faction, Side, UnitState } from '../core/types';
 import { h } from './dom';
-import { icon, type IconName } from './icons';
+import { icon } from './icons';
 import { unitSvg } from './unitArt';
 
 // 场上单位、备战位共用的阵营徽记（精灵见 pixel.ts SIGILS）
@@ -15,7 +15,7 @@ export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-r
 
 /** The same pixel stat gem is used by combat units and owned bench units. */
 export const statArt = (kind: 'atk' | 'hp' | 'armor' | 'power' | 'block', value: number | HTMLElement, extra?: HTMLElement) =>
-  h('div', { class: `st ${kind}` }, kind === 'block' ? icon('shield') : kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
+  h('div', { class: `st ${kind}${kind === 'atk' || kind === 'hp' ? '' : ' st-px'}` }, kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
 
 export const UNIT_Y = 300;
 export const SLOT_SPACING = 110;
@@ -31,7 +31,11 @@ export interface StatView {
   block: number;
   chill: number;
   burn: number;
-  vuln?: number;
+  /** 蓄力 / 节拍进度 */
+  charge?: number;
+  chargeMax?: number;
+  pulse?: number;
+  pulseMax?: number;
   actionsLeft?: number;
   /** 仅有限次施法单位拥有，0 表示本场已用完。 */
   charges?: number;
@@ -42,24 +46,31 @@ export interface StatView {
 export interface UnitKeywords {
   armor: number;
   thorns: number;
-  splash: number;
+  splash: boolean;
   power: number;
   combo: boolean;
   snipe: boolean;
-  guard: boolean;
+  taunt: boolean;
+  rotate: boolean;
+  duel: boolean;
+  idle: boolean;
   /** 复生尚未用掉 */
   reborn: boolean;
 }
 
 // 词条小标：顺序即显示顺序，数值类只在 >0 时显示
-const KW_CHIPS: { k: keyof UnitKeywords; icon: IconName; name: string }[] = [
-  { k: 'guard', icon: 'guard', name: '护卫' },
-  { k: 'armor', icon: 'plate', name: '护甲' },
-  { k: 'thorns', icon: 'spikes', name: '反击' },
-  { k: 'combo', icon: 'combo', name: '连击' },
-  { k: 'snipe', icon: 'snipe', name: '狙击' },
-  { k: 'splash', icon: 'burst', name: '溅射' },
-  { k: 'power', icon: 'sparkle', name: '法强' },
+// 场上词条：数值类用像素图标 + 数字，其余用短词牌（与说明文字的两种写法一致）
+const KW_CHIPS: { k: keyof UnitKeywords; px?: 'armor' | 'thorns' | 'power'; name: string }[] = [
+  { k: 'taunt', name: '嘲讽' },
+  { k: 'splash', name: '溅射' },
+  { k: 'combo', name: '连击' },
+  { k: 'snipe', name: '狙击' },
+  { k: 'rotate', name: '轮换' },
+  { k: 'duel', name: '决斗' },
+  { k: 'idle', name: '不行动' },
+  { k: 'armor', px: 'armor', name: '护甲' },
+  { k: 'thorns', px: 'thorns', name: '反击' },
+  { k: 'power', px: 'power', name: '法强' },
 ];
 
 export class UnitView {
@@ -123,10 +134,10 @@ export class UnitView {
       h('div', { class: 'u-glow' }),
       h('div', { class: 'u-reborn' }, h('i')),
       this.body,
-      h('div', { class: 'u-shield' }, icon('shield'), this.shEl),
-      h('div', { class: 'u-chill' }, icon('snow'), this.chEl),
-      h('div', { class: 'u-burn' }, icon('fire'), this.bnEl),
-      h('div', { class: 'u-vuln', title: '易伤' }, icon('target'), this.vnEl),
+      h('div', { class: 'u-shield u-px' }, this.shEl),
+      h('div', { class: 'u-chill u-px' }, this.chEl),
+      h('div', { class: 'u-burn u-px' }, this.bnEl),
+      h('div', { class: 'u-charge u-px' }, this.vnEl),
       h('div', { class: 'u-stats' }, this.atkBox, d.faction === 'enemy' ? null : factionSigil(d.faction), this.hpBox),
       pips,
       this.kwEl,
@@ -171,8 +182,10 @@ export class UnitView {
     this.shEl.textContent = String(s.block);
     this.chEl.textContent = String(s.chill);
     this.bnEl.textContent = String(s.burn);
-    this.vnEl.textContent = String(s.vuln ?? 0);
-    this.el.classList.toggle('has-vuln', (s.vuln ?? 0) > 0);
+    // 蓄力优先显示，其次节拍（距离下次触发）
+    const cnt = s.chargeMax ? `${s.charge ?? 0}/${s.chargeMax}` : s.pulseMax ? `${s.pulse ?? 0}/${s.pulseMax}` : '';
+    this.vnEl.textContent = cnt;
+    this.el.classList.toggle('has-charge', !!cnt);
     this.el.classList.toggle('has-shield', s.block > 0);
     this.el.classList.toggle('has-chill', s.chill > 0);
     // 寒意 ≥ 当前攻击：下次出手会被冻结
@@ -210,9 +223,9 @@ export class UnitView {
     this.last = { ...s };
   }
 
-  /** 护卫等常驻词条只保留脚下一排标记，避免与格挡次数重复叠盾。 */
+  /** 嘲讽等常驻词条只保留脚下一排标记，避免与格挡次数重复叠盾。 */
   private setKeywords(kw: UnitKeywords) {
-    this.el.classList.toggle('kw-guard', kw.guard);
+    this.el.classList.toggle('kw-taunt', kw.taunt);
     this.el.classList.toggle('kw-reborn', kw.reborn);
     const chips = KW_CHIPS.filter((c) => kw[c.k]);
     const key = chips.map((c) => `${c.k}${kw[c.k]}`).join();
@@ -221,10 +234,9 @@ export class UnitView {
     this.kwKey = key;
     this.kwEl.replaceChildren(...chips.map((c) => {
       const v = kw[c.k];
-      const el = (c.k === 'armor' || c.k === 'power') && typeof v === 'number'
-        ? statArt(c.k, v)
-        : h('span', { class: `kwc kw-${c.k}` }, icon(c.icon), typeof v === 'number' ? h('i', null, v) : null);
-      el.classList.add(`kw-${c.k}`);
+      const el = c.px
+        ? h('span', { class: `kwic kw-${c.k}` }, typeof v === 'number' ? h('i', null, v) : null)
+        : h('span', { class: `kwtx kw-${c.k}` }, c.name);
       el.setAttribute('aria-label', typeof v === 'number' ? `${c.name} ${v}` : c.name);
       // 战斗中新获得 / 数值变化的词条弹一下
       if (prev && !prev.has(`${c.k}${v}`)) popEl(el, true);
@@ -256,6 +268,23 @@ export class UnitView {
       { duration: dur, easing: 'ease-out' },
     );
     return a;
+  }
+
+  /** 追击：冲出队列的一闪，原位留一道渐隐残影（只动 transform/opacity） */
+  dash(dir: number, dur = 260) {
+    const ghost = this.body.cloneNode(true) as HTMLElement;
+    ghost.classList.add('u-ghost');
+    this.body.after(ghost);
+    ghost.animate([{ opacity: 0.55 }, { opacity: 0 }], { duration: dur * 1.4, easing: 'ease-out' }).finished
+      .catch(() => undefined).finally(() => ghost.remove());
+    return this.body.animate(
+      [
+        { transform: 'translate(0,0)' },
+        { transform: `translate(${dir * 34}px,-4px) scale(1.06)`, offset: 0.45 },
+        { transform: 'translate(0,0)' },
+      ],
+      { duration: dur, easing: 'cubic-bezier(.2,.8,.3,1)' },
+    );
   }
 
   hit(dir: number) {
@@ -319,7 +348,7 @@ function popEl(el: Element, good: boolean) {
 }
 
 export function statsOf(u: UnitState): StatView {
-  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, vuln: u.vuln, actionsLeft: u.actionsLeft, charges: u.charges, kw: keywordsOf(u) };
+  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, charge: u.charge, chargeMax: u.chargeMax, pulse: u.pulse, pulseMax: u.pulseMax, actionsLeft: u.actionsLeft, charges: u.charges, kw: keywordsOf(u) };
 }
 
 export function keywordsOf(u: Pick<UnitState, 'defId' | 'level' | 'grants'> & Partial<Pick<UnitState, 'armor' | 'power' | 'revived'>>): UnitKeywords {
@@ -328,11 +357,14 @@ export function keywordsOf(u: Pick<UnitState, 'defId' | 'level' | 'grants'> & Pa
   return {
     armor: Math.max(0, u.armor ?? tri(t.armor, u.level) + (g.armor ?? 0)),
     thorns: tri(t.thorns, u.level) + (g.thorns ?? 0),
-    splash: tri(t.splash, u.level) + (g.splash ?? 0),
+    splash: !!(t.splash || g.splash),
     power: Math.max(0, u.power ?? tri(t.power, u.level) + (g.power ?? 0)),
     combo: !!(t.combo || g.combo),
     snipe: !!(t.snipe || g.snipe),
-    guard: !!(t.guard || g.guard),
+    taunt: !!(t.taunt || g.taunt),
+    rotate: !!(t.rotate || g.rotate),
+    duel: !!(t.duel || g.duel),
+    idle: !!t.idle,
     reborn: !!(t.reborn || g.reborn) && !u.revived,
   };
 }
@@ -407,6 +439,7 @@ export class Board {
   marks: HTMLElement;
   views = new Map<string, UnitView>();
   center: HTMLElement;
+  private pips: HTMLElement;
   centerNum: HTMLElement;
   centerLbl: HTMLElement;
   order: HTMLElement;
@@ -428,7 +461,8 @@ export class Board {
     }
     this.centerNum = h('div', { class: 'vs-num' }, 'VS');
     this.centerLbl = h('div', { class: 'vs-lbl' }, '');
-    this.center = h('div', { class: 'vs' }, h('div', { class: 'vs-ring' }), h('div', { class: 'vs-ring r2' }), this.centerNum, this.centerLbl);
+    this.pips = h('div', { class: 'vs-pips' });
+    this.center = h('div', { class: 'vs' }, h('div', { class: 'vs-ring' }), h('div', { class: 'vs-ring r2' }), this.centerNum, this.centerLbl, this.pips);
     this.units = h('div', { class: 'units' });
     this.arrows = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.arrows.setAttribute('class', 'arrows');
@@ -440,20 +474,29 @@ export class Board {
     this.el = h('div', { class: 'board' }, h('div', { class: 'arena-floor' }), slotsLayer, this.center, this.units, this.marks, this.arrows, this.labels, this.order);
   }
 
-  /** 出手顺序预告：高亮双方本拍出手者，并列出接下来的轮转（按格位号）。null 清空。 */
-  setOrder(next: { player: string[]; enemy: string[] } | null, round?: number, wave = 1) {
-    for (const v of this.views.values()) v.el.classList.remove('next-actor');
+  /**
+   * 出手顺序预告：双方本轮剩余出手者脚下标 1、2、3…，同号在同一次交锋同时出手；
+   * 本轮已出完的一方在预告条显示「等待」。null 清空。
+   */
+  setOrder(next: { player: string[]; enemy: string[] } | null, _round?: number, wave = 1) {
+    for (const v of this.views.values()) { v.el.classList.remove('next-actor'); delete v.el.dataset.order; }
     this.order.replaceChildren();
+    this.el.classList.toggle('ordering', !!next);
     if (!next) return;
-    const row = (keys: string[], cls: string, label: string) => h('div', { class: `os-side ${cls}${keys.length ? '' : ' waiting'}` }, label,
-      keys.length ? null : h('span', { class: 'os-wait' }, '等待'),
-      keys.map((k, i) => {
-        const v = this.views.get(k);
-        if (i === 0) v?.el.classList.add('next-actor');
-        return v ? h('span', { class: `os-u${i === 0 ? ' first' : ''}` }, String(v.slot + 1)) : null;
-      }));
-    if (round != null) this.order.append(h('div', { class: 'os-round' }, `第${round}回合 · 第${wave}轮`));
-    this.order.append(h('div', { class: 'os-queues' }, row(next.player, 'player', '我方'), row(next.enemy, 'enemy', '敌方')));
+    for (const keys of [next.player, next.enemy]) keys.forEach((k, i) => {
+      const v = this.views.get(k);
+      if (!v) return;
+      if (i === 0) v.el.classList.add('next-actor');
+      v.el.dataset.order = String(i + 1);
+    });
+    const waiting = [next.player.length ? null : '我方', next.enemy.length ? null : '敌方'].filter(Boolean);
+    if (wave > 1) this.order.append(h('div', { class: 'os-round' }, `第${wave}轮`));
+    if (waiting.length) this.order.append(h('div', { class: 'os-side waiting' }, waiting.join('、'), h('span', { class: 'os-wait' }, '等待')));
+  }
+
+  /** 中线下方的交锋圆点：本回合已进行的交锋数，最新一点高亮 */
+  setPips(n: number) {
+    this.pips.replaceChildren(...Array.from({ length: n }, (_, i) => h('i', { class: i === n - 1 ? 'on' : '' })));
   }
 
   setCenter(num: string, lbl = '', cls = '') {

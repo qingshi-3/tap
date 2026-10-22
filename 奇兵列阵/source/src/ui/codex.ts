@@ -11,7 +11,8 @@ import type { Faction, UnitDef } from '../core/types';
 import { sfx } from './audio';
 import { h } from './dom';
 import { icon } from './icons';
-import { kwInline, kwRich, kwTag, MECH, MECH_KIND_NAME, mechGloss, TRIG, trigCap, type MechKind, type TrigId } from './kwtext';
+import { statArt } from './board';
+import { kwInline, kwRich, kwTag, MECH, pxIcon, MECH_KIND_NAME, mechGloss, TRIG, trigCap, type MechKind, type TrigId } from './kwtext';
 import { describe } from '../core/run';
 import { levelStats } from '../core/engine';
 import { itemIcon } from './pixelItems';
@@ -19,7 +20,7 @@ import { generalTip, unitTip } from './tip';
 import { unitSvg } from './unitArt';
 
 const TIPS = [
-  '前排放血厚、带护卫或护甲的单位；施法单位放后排。',
+  '前排放血厚、带嘲讽或护甲的单位；施法单位放后排。',
   '两张同名同星卡合并升星，星级越高能力数值越大。',
   '「给X」与「吃X」是一对：比如给格挡的单位，配吃格挡的单位。',
   '中立卡每局都会出现，缺前排或缺输出时用它补位。',
@@ -148,7 +149,7 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
       detail.replaceChildren(
         h('div', { class: 'cx-combo-head' }, h('b', null, c.name), h('span', { class: 'cx-fac' }, f.name), h('span', { class: 'cx-gen' }, `推荐将军：${g.name} · ${g.title}`)),
         h('p', { class: 'cx-idea' }, c.idea),
-        h('div', { class: 'cx-line' }, c.units.map((id, k) => h('div', { class: 'cx-slot' }, h('span', { class: 'cx-no' }, `${k + 1}号位`), unitChip(id), h('p', null, c.roles[k])))),
+        h('div', { class: 'cx-line' }, c.units.map((id, k) => h('div', { class: 'cx-slot' }, h('span', { class: 'cx-no' }, `${k + 1}号位`), unitChip(id), h('p', null, ...kwInline(c.roles[k]))))),
         h('div', { class: 'cx-extras' }, h('span', null, '可搭配：'), c.extras.map(itemChip)),
         h('p', { class: 'cx-note' }, '点头像查看单位详情。阵营每局随机开放，抽不到时用同机制的卡替换即可。'),
       );
@@ -194,7 +195,7 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
     };
     grid.replaceChildren(...defs.map((d) => h('button', { class: `cx-unit tier-${d.tier}`, 'data-id': d.id, onclick: () => { sfx.click(); show(d.id); } },
       h('span', { class: 'cx-unit-art', html: unitSvg(d.id) }), h('b', null, d.name),
-      h('span', null, RARITY_NAMES[d.tier], h('span', { class: 'cx-unit-st' }, icon('sword'), h('i', null, levelStats(d.id, star).atk), icon('heart'), h('i', null, levelStats(d.id, star).hp))))));
+      h('span', null, RARITY_NAMES[d.tier], h('span', { class: 'cx-unit-st px' }, statArt('atk', levelStats(d.id, star).atk), statArt('hp', levelStats(d.id, star).hp))))));
     show(unitSel && defs.some((d) => d.id === unitSel) ? unitSel : defs[0].id);
     return h('div', { class: 'cx-units', style: `--fc:${FACTION_INFO[fac].color}` }, facs, h('div', { class: 'cx-split' }, grid, detail));
   };
@@ -253,12 +254,12 @@ export function keywordDoc(query = '') {
     h('div', { class: 'cx-kw-grid' }, trigIds.map((id) => card(trigCap(id, TRIG[id].sample), kwInline(TRIG[id].gloss)))),
     ...kinds.flatMap((kd) => [
       h('h3', { class: 'cx-kw-h' }, h('span', null, MECH_KIND_NAME[kd])),
-      h('div', { class: 'cx-kw-grid' }, Object.keys(MECH).filter((k) => MECH[k].kind === kd).map((k) => card(kwTag(k), kwInline(mechGloss(k))))),
+      h('div', { class: 'cx-kw-grid' }, Object.keys(MECH).filter((k) => MECH[k].kind === kd).map((k) => card(kwTag(k, '', '', true), kwInline(mechGloss(k))))),
     ]),
     h('h3', { class: 'cx-kw-h' }, h('span', null, '数值')),
     h('div', { class: 'cx-kw-grid' },
-      card(h('span', null, ...kwRich('攻击 +2')), ['普攻的基础伤害。', ...kwRich('寒意'), '会压低接下来一次普攻的攻击力。']),
-      card(h('span', null, ...kwRich('生命 +3')), ['降到 0 阵亡。恢复生命不超过上限。']),
+      card(h('span', { class: 'kwn kwn-atk' }, pxIcon('atk'), h('span', { class: 'kwi-name' }, '攻击')), ['普攻的基础伤害。', ...kwRich('寒意'), '会压低接下来一次普攻的攻击力。']),
+      card(h('span', { class: 'kwn kwn-hp' }, pxIcon('hp'), h('span', { class: 'kwi-name' }, '生命')), ['降到 0 阵亡。恢复生命不超过上限。']),
       card(h('span', null, ...kwRich('+2/+2')), ['同时加攻击和生命，前一个是攻击、后一个是生命。']),
       card(h('span', null, ...kwRich('3+法强')), ['施法数值写成「N+法强」，会加上自己的', ...kwRich('法强'), '。']),
       card(h('span', null, ...kwRich('格挡 2→3')), ['说明框里的「→」和绿色数字：升一星后的数值。'])));

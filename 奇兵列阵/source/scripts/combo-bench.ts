@@ -1,3 +1,4 @@
+// 场景只取不饱和的章节/星级；饱和列自动排除出综合百分位。
 // 推荐阵容强度校验：固定 5 人 + 推荐主将，不带装备和培养，打每章全部战斗节点。
 // 与同条件下的随机同阵营阵容（4 本阵营 + 1 中立，前排按坦度排）比较，给出百分位。
 // 另做推荐阵容两两互打（双方都不带主将）。
@@ -10,7 +11,7 @@ import { chapter, type RouteNode } from '../src/core/route';
 import type { Copies, EnemyEntry, Faction } from '../src/core/types';
 
 const RANDOM = Number(process.env.RANDOM ?? 300);
-const SEEDS = [11, 23, 37];
+const SEEDS = [11, 23, 37, 41, 53, 67];
 
 const nodesOf = (ch: number): RouteNode[] => chapter(ch).stages.flatMap((s) =>
   s.type === 'shop' ? [] : s.type === 'fork' ? [s.elite, s.normal] : s.type === 'boss' ? [s.main] : [s.main, ...(s.variant ? [s.variant] : [])]);
@@ -42,7 +43,7 @@ function randomTeam(f: Faction) {
 }
 
 const SCEN: { name: string; ch: number; lv: number }[] = [
-  { name: '1章1星', ch: 0, lv: 1 }, { name: '2章2星', ch: 1, lv: 2 }, { name: '3章2星', ch: 2, lv: 2 }, { name: '3章3星', ch: 2, lv: 3 },
+  { name: '1章1星', ch: 0, lv: 1 }, { name: '1章2星', ch: 0, lv: 2 }, { name: '2章2星', ch: 1, lv: 2 }, { name: '2章3星', ch: 1, lv: 3 },
 ];
 const facGen: Partial<Record<Faction, string>> = {};
 for (const c of COMBOS) facGen[c.faction] ??= c.general;
@@ -66,11 +67,14 @@ const f2 = (v: number) => (v * 100).toFixed(0).padStart(3) + '%';
 const mean = (a: number[]) => a.reduce((x, y) => x + y, 0) / (a.length || 1);
 
 console.log(`随机阵容 ${dist[0].length} 个；各场景随机阵容中位得分：` + SCEN.map((sc, k) => `${sc.name} ${f2(dist[k][dist[k].length >> 1])}`).join('  '));
+// 饱和场景（随机阵容中位 ≤5% 或 ≥95%）百分位没有区分度，不计入综合
+const live = dist.map((d) => { const m = d[d.length >> 1]; return m > 0.05 && m < 0.95; });
+console.log('计入综合的场景：' + SCEN.filter((_, k) => live[k]).map((s) => s.name).join('、'));
 console.log('\n阵容　　　　　 ' + SCEN.map((s) => `${s.name}(百分位)`.padEnd(14)).join(''));
 const totals: { name: string; avg: number }[] = [];
 for (const c of COMBOS) {
   const row = SCEN.map((sc, k) => { const v = score(c.units, c.general, sc.ch, sc.lv); return { v, p: pctile(k, v) }; });
-  totals.push({ name: c.name, avg: mean(row.map((x) => x.p)) });
+  totals.push({ name: c.name, avg: mean(row.filter((_, k) => live[k]).map((x) => x.p)) });
   console.log(`${c.name.padEnd(7, '　')} ` + row.map((x) => `${f2(x.v)} (P${String(x.p).padStart(3)})`.padEnd(14)).join(''));
 }
 console.log('\n随机阵容按阵营平均：');

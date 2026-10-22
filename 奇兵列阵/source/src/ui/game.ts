@@ -1,6 +1,8 @@
 import { abilityText, ownedPower } from '../core/abilityText';
+import '../tutorial-guide.css';
 import '../prep-battle.css';
 import '../shop-layout.css';
+import '../v08.css';
 import { DRAFT_POOL, FACTION_INFO, GENERAL_MAP, RARITY_NAMES, unitDef } from '../core/data';
 import { EQUIP_MAP, ORDER_MAP, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELL_MAP } from '../core/content';
 import { chapter, type RouteNode, type Stage } from '../core/route';
@@ -10,21 +12,23 @@ import {
   allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
   MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
   remainingRewardedRetries, settleRewardedRetry, takeDraft, teamSize,
+  addSwap, clearSwaps, eggThreshold, hireMerc, reserveSlots, signMerc, swapCap, SIGN_PRICE,
   type RewardedRetrySettlement, type RunState, type Screen,
 } from '../core/run';
 import { clearRun, saveRun } from '../core/save';
 import { recordOfficialBattle, recordRunOutcome } from '../core/career';
 import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
-import { unitLevel, type BattleOutput, type BattleResult, type Side, type Slotted } from '../core/types';
+import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Side, type Slotted } from '../core/types';
 import type { App } from './app';
 import { setMusicRun, setMusicDucked, sfx } from './audio';
 import { audioSettings } from './audioSettings';
 import { type ArrowKind, Board, bodyPos, headPos, factionSigil, seatArt, statArt, SLOT_SPACING, slotX, statsOf, keywordsOf, UNIT_Y, UnitView } from './board';
 import { draftCard } from './card';
-import { append, h, toStage, wait } from './dom';
+import { append, h, STAGE_H, STAGE_W, toStage, wait } from './dom';
+import { markHint, seenHints } from './hints';
 import { icon } from './icons';
-import { kwRich } from './kwtext';
+import { kwRich, kwTag, pxIcon } from './kwtext';
 import { circled, type LogLine, Playback } from './playback';
 import { generalTip, hideTip, isTipTarget, showTip, unitTip } from './tip';
 import { unitSvg } from './unitArt';
@@ -109,6 +113,12 @@ function analyze(out: BattleOutput): Preview {
         break;
     }
   }
+  // 嘲讽：最靠前的嘲讽单位替身后每个友军挡普攻；聚焦时连到被保护的友军
+  for (const side of [0, 1] as Side[]) {
+    const st = out.afterStart.filter((u) => u.alive && u.side === side).sort((x, y) => x.slot - y.slot);
+    const g = st.find((u) => unitDef(u.defId).traits?.taunt || u.grants.taunt);
+    if (g) for (const u of st) if (u !== g) p.arrows.push({ from: g.uid, to: u.uid, kind: 'block', label: '护', hideSourceBadge: true });
+  }
   return p;
 }
 
@@ -139,6 +149,10 @@ export class Game {
   private sandbox: { slots: (Slotted | null)[]; bench: (Slotted | null)[]; base: RunState } | null = null;
   /** 主界面的「整备」入口 */
   private dock = h('div', { class: 'prep-entry' });
+  /** 蕾娃换位：是否进入点选模式、已选的第一个敌方格 */
+  private swapArm = false;
+  private swapPick: number | null = null;
+  private hatchNoted = '';
   /** 整备弹层（盖住盘面，教学蒙层仍在它上面） */
   private prep: HTMLElement | null = null;
   private prepFocus: number | 'general' | null = null;
@@ -295,6 +309,7 @@ export class Game {
     this.renderBoard(intro);
     this.renderBench();
     this.syncMusicState();
+    if (!intro) requestAnimationFrame(() => this.coach());
   }
 
   private renderHud() {
@@ -322,7 +337,7 @@ export class Game {
       if (allocPoint(this.run, 'general', s.type)) {
         sfx.merge();
         const r = genBadge.getBoundingClientRect(), p = toStage(r.left + r.width / 2, r.top);
-        this.app.fx.float(p.x, p.y + 20, `法强 ${this.run.genPower}`, 'levelup', 1000);
+        this.app.fx.float(p.x, p.y + 20, `${this.run.genPower}`, 'levelup', 1000, 'power');
         if (!(this.run.stash[s.type] > 0)) this.sel = null;
         this.save(); this.renderAll(); this.emit('alloc');
       } else sfx.fizzle();
@@ -538,11 +553,12 @@ export class Game {
       const u = this.owned(index);
       const base = u ? levelStats(u.defId, unitLevel(u)) : null;
       const atk = base ? statArt('atk', base.atk) : null;
-      const button = h('button', { class: `bench-slot${this.sel?.kind === 'unit' && this.sel.slot === index ? ' selected' : ''}`, 'data-index': index, 'aria-label': `备战${index - 4}${u ? ' ' + unitDef(u.defId).name : ' 空位'}` },
+      const reserve = index - 5 < reserveSlots(this.base);
+      const button = h('button', { class: `bench-slot${this.sel?.kind === 'unit' && this.sel.slot === index ? ' selected' : ''}${reserve ? ' reserve' : ''}${u?.temp ? ' temp' : ''}`, 'data-index': index, 'aria-label': `备战${index - 4}${u ? ' ' + unitDef(u.defId).name : ' 空位'}` },
         h('span', { class: 'bench-seat' }, seatArt()),
         u ? h('span', { class: 'bench-art', html: unitSvg(u.defId) }) : null,
         base && u ? h('div', { class: 'u-stats bench-stats' }, atk, factionSigil(unitDef(u.defId).faction), statArt('hp', base.hp)) : null,
-        h('span', { class: 'bench-label' }, u ? '★'.repeat(unitLevel(u)) : `备战${index - 4}`));
+        h('span', { class: 'bench-label' }, u?.temp ? '佣兵' : u ? '★'.repeat(unitLevel(u)) : reserve ? '预备' : `备战${index - 4}`));
       button.addEventListener('pointerdown', e => {
         if (!this.editable) return;
         if (this.drag) { e.preventDefault(); e.stopPropagation(); return; }
@@ -646,7 +662,7 @@ export class Game {
     this.drawLinks(intro);
     for (const s of pv.summons) b.slotMark(s.side, s.slot, h('span', null, s.text), 'summon');
 
-    // 第 1 拍双方队首出手：普攻打敌方队首，狙击打队尾；施法单位第 1 拍不普攻
+    // 第 1 次交锋双方队首出手：普攻打敌方队首，狙击打队尾；施法单位第 1 次交锋不普攻
     const alive = (side: Side) => out.afterStart.filter((u) => u.alive && u.side === side).sort((x, y) => x.slot - y.slot);
     for (const side of [0, 1] as Side[]) {
       const a = alive(side)[0];
@@ -1092,6 +1108,20 @@ export class Game {
       }
       const es = this.enemySlotAt(p.x, p.y);
       if (es == null || !this.board.view(this.viewKey(1, es))) return;
+      if (this.editable && this.swapArm && !this.sandbox) {
+        // 蕾娃：先后点两个敌方格完成一次换位
+        if (this.swapPick == null || this.swapPick === es) {
+          this.swapPick = this.swapPick === es ? null : es;
+          this.board.views.forEach((v) => v.el.classList.toggle('swap-pick', v.side === 1 && v.slot === this.swapPick));
+          sfx.click();
+          return;
+        }
+        const a = this.swapPick;
+        this.swapPick = null; this.swapArm = false;
+        if (!addSwap(this.run, a, es)) { sfx.fizzle(); return; }
+        sfx.swap(); this.save(); this.renderAll();
+        return;
+      }
       this.showUnitTip(1, es);
       if (!this.editable) return;
       const again = this.focus?.side === 1 && this.focus.slot === es;
@@ -1286,13 +1316,75 @@ export class Game {
     const r = this.run;
     const d = this.dock;
     this.armHint.classList.add('hidden');
-    if (this.mode !== 'prep' || this.sandbox) { d.classList.add('hidden'); this.closePrep(); return; }
+    if (this.mode !== 'prep' || this.sandbox) { this.swapArm = false; this.swapPick = null; d.classList.add('hidden'); this.closePrep(); return; }
     const left = stashTotal(r) + r.bag.length + r.spells.length + r.orders.length;
     const btn = h('button', { class: `prep-btn${left ? ' has' : ''}`, 'aria-label': '整备' }, icon('plate'), h('span', null, '整备'), left ? h('i', null, left) : null);
     btn.addEventListener('click', (e) => { e.stopPropagation(); if (this.editable && !this.adPending) { sfx.click(); this.openPrep(); } });
-    d.replaceChildren(btn);
+    const acts = h('div', { class: 'gen-acts' }, this.genActions());
+    d.replaceChildren(acts, btn);
     d.classList.remove('hidden');
+    // 主将专属按钮堆在「整备」上方：把开战键再往上让出同样高度，避免互相压住
+    this.el.style.setProperty('--gen-stack', acts.childElementCount ? `${[...acts.children].reduce((t, c) => t + (c.classList.contains('egg-prog') ? 48 : 56) + 8, 2)}px` : '0px');
+    const hk = r.lastHatch ? `${battleNo(r)}:${r.lastHatch}` : '';
+    if (hk && hk !== this.hatchNoted) {
+      this.hatchNoted = hk;
+      this.app.showRewardNotice('龙蛋孵化', `${unitDef(r.lastHatch!).name}破壳而出`);
+    }
     if (this.prep) this.renderPrep();
+  }
+
+  /** 主将专属的备战操作：蕾娃换位、赫克佣兵、星角龙蛋进度 */
+  private genActions(): HTMLElement[] {
+    const r = this.run, out: HTMLElement[] = [];
+    const act = (ic: Parameters<typeof icon>[0], label: string, n: string, on: boolean, fn: () => void) => {
+      const b = h('button', { class: `gen-act${on ? ' on' : ''}`, 'aria-label': label }, icon(ic), h('span', null, label), n ? h('i', null, n) : null);
+      b.addEventListener('click', (e) => { e.stopPropagation(); if (this.editable && !this.adPending) fn(); });
+      return b;
+    };
+    if (r.general === 'reva') {
+      const cap = swapCap(r), n = r.swaps?.length ?? 0;
+      out.push(n >= cap
+        ? act('replay', '撤销', `${n}/${cap}`, false, () => {
+          sfx.click(); clearSwaps(r); this.swapArm = false; this.swapPick = null; this.save(); this.renderAll();
+        })
+        : act('swap', '换位', `${n}/${cap}`, this.swapArm, () => {
+          sfx.click(); this.swapArm = !this.swapArm; this.swapPick = null; this.renderDock(); this.renderBoard();
+        }));
+    }
+    if (r.general === 'hank') {
+      const m = r.merc;
+      // 先看详情再雇：说明框底部带雇用按钮，金币不足时按钮置灰
+      if (m && !m.sold) {
+        const b = act('flag', unitDef(m.id).name, m.price ? `${m.price}金` : '免费', false, () => {
+          sfx.click();
+          const short = r.gold < m.price;
+          const hire = h('button', { class: 'btn merc-hire', disabled: short }, short ? `金币不足（需 ${m.price}）` : m.price ? `雇用 · ${m.price} 金` : '雇用');
+          hire.addEventListener('click', (e) => {
+            e.stopPropagation();
+            hideTip();
+            if (!hireMerc(r)) { sfx.fizzle(); return; }
+            sfx.place(); this.save(); this.renderAll();
+          });
+          const content = unitTip(m.id, 1);
+          content.append(h('p', { class: 'merc-note' }, '临时佣兵，只参加本场'), hire);
+          const rc = b.getBoundingClientRect(), p0 = toStage(rc.left + rc.width / 2, rc.bottom), q = toStage(0, rc.top);
+          showTip(content, p0.x, p0.y, 'below', q.y);
+        });
+        out.push(b);
+      }
+      const temp = allOwned(r).findIndex((u) => u?.temp);
+      if (temp >= 0 && r.passives.includes('hank_1')) out.push(act('check', '长约', `${SIGN_PRICE}金`, false, () => {
+        if (!signMerc(r, temp)) { sfx.fizzle(); return; }
+        sfx.merge(); this.save(); this.renderAll();
+      }));
+    }
+    if (r.general === 'xingjiao' && allOwned(r).some((u) => u?.defId === 'x_egg')) {
+      const acc = r.eggStats, max = eggThreshold(r);
+      const EGG_ICONS: [EggStat, Parameters<typeof icon>[0]][] = [['death', 'skull'], ['burn', 'fire'], ['freeze', 'snow'], ['move', 'swap'], ['summon', 'sparkle']];
+      out.push(h('div', { class: 'egg-prog', 'aria-label': `龙蛋 满${max}孵化` },
+        EGG_ICONS.map(([k, ic]) => h('span', { class: `egg-${k}` }, icon(ic), h('i', null, acc?.[k] ?? 0))), h('b', null, `/${max}`)));
+    }
+    return out;
   }
 
   private openPrep() {
@@ -1304,6 +1396,7 @@ export class Game {
     this.el.classList.add('prep-open');
     this.syncMusicState();
     this.renderPrep();
+    this.coach();
   }
 
   private closePrep() {
@@ -1313,6 +1406,7 @@ export class Game {
     this.prep = null;
     this.syncMusicState();
     this.el.classList.remove('prep-open');
+    requestAnimationFrame(() => this.coach());
     if (this.sel?.kind === 'point' || this.sel?.kind === 'equip') this.sel = null;
   }
 
@@ -1347,14 +1441,12 @@ export class Game {
       const buttons = POINT_TYPES.filter(p => allocRefundable(r, owner, p.id) > 0).map(p => {
         const count = allocRefundable(r, owner, p.id);
         const delta = p.id === 'hp' ? count * 2 : count;
-        const label = p.id === 'block' ? `${count}点` : `+${delta}`;
-        const value = h('i', { class: 'prep-added' }, label);
-        // Reuse the original stat/keyword components, including their numeral styling.
-        const art = statArt(p.id, value);
+        // 本轮分配的点数：像素图标 + 绿色增量，右侧小箭头表示可退回
+        const art = [pxIcon(p.id), h('i', { class: 'prep-added' }, `+${delta}`), h('s', { class: 'prep-undo' }, '↩')];
         const b = h('button', { class: `prep-refund pt-${p.id}`, 'data-owner': owner, 'data-point': p.id,
           disabled: !!this.tut || !this.editable || this.adPending,
           'aria-label': `本轮${p.name}${p.id === 'block' ? `分配${count}点（有效格挡最多3层）` : `增加${delta}`}，退回一点${p.name}` },
-          h('span', { class: 'prep-refund-face', 'aria-hidden': 'true' }, art));
+          h('span', { class: 'prep-refund-face', 'aria-hidden': 'true' }, ...art));
         b.addEventListener('click', act(() => !this.tut && deallocPoint(r, owner, p.id)));
         b.addEventListener('keydown', e => e.stopPropagation());
         b.addEventListener('keyup', e => e.stopPropagation());
@@ -1419,7 +1511,7 @@ export class Game {
     const bench = h('div', { class: 'prep-bench', 'aria-label': '备战' });
     for (const slot of [5, 6, 7]) {
       const u = getOwned(r, slot);
-      if (!u) { bench.append(h('div', { class: 'prep-bench-empty' }, seatArt())); continue; }
+      if (!u) { bench.append(h('div', { class: 'prep-bench-empty' }, seatArt(), h('div', { class: 'prep-position' }, '备战'))); continue; }
       const v = new UnitView(u.defId, 0, slot, unitLevel(u));
       const st = this.ownedStats(u);
       v.setStats({ ...st, maxHp: st.hp, chill: 0, burn: 0,
@@ -1449,7 +1541,7 @@ export class Game {
       h('div', { class: 'pu-art', html: unitSvg(null, { general: g.id, tier2: promoted(r) }) }),
       h('div', { class: 'pu-lv' }, '主将'),
       h('b', { class: 'pu-name' }, g.name),
-      h('div', { class: 'pu-stat' }, h('span', { class: 'p' }, icon('wand'), '法强', num(r.genPower, r.genPower))),
+      h('div', { class: 'pu-stat', 'aria-label': `主将法强 ${r.genPower}` }, h('span', { class: 'p' }, pxIcon('power'), num(r.genPower, r.genPower))),
       refunds('general'),
     );
     gen.addEventListener('click', (e) => {
@@ -1478,7 +1570,7 @@ export class Game {
     const group = (cls: string, label: string, items: HTMLElement[]) =>
       items.length ? h('div', { class: `pr-group ${cls}` }, h('span', { class: 'pr-label' }, label), h('div', { class: 'pr-items' }, items)) : null;
     const pts = POINT_TYPES.filter((p) => r.stash[p.id] > 0).map((p) =>
-      chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [h('b', null, p.short), h('i', null, r.stash[p.id])], act(pick({ kind: 'point', type: p.id }))));
+      chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [pxIcon(p.id), h('i', null, r.stash[p.id])], act(pick({ kind: 'point', type: p.id }))));
     const eqs = r.bag.map((id, i) =>
       chip('eq', sel?.kind === 'equip' && sel.idx === i, [itemIcon(id, 'spell'), h('span', null, EQUIP_MAP[id]?.name ?? id)], act(pick({ kind: 'equip', idx: i }))));
     const sps = [
@@ -1541,6 +1633,7 @@ export class Game {
   }
 
   private showPhase(sc: Exclude<Screen, 'over' | 'prep'>) {
+    if (sc === 'shop') this.tut?.fixDraft(this.run);
     this.mode = 'phase';
     this.tray.classList.add('hidden');
     this.dock.classList.add('hidden');
@@ -1550,6 +1643,7 @@ export class Game {
     this.panel = h('div', { class: `phase-ov ph-${sc}` }, body);
     this.el.appendChild(this.panel);
     this.syncMusicState();
+    if (sc === 'promo') requestAnimationFrame(() => this.coach());
   }
 
   private phaseDone() {
@@ -1607,7 +1701,7 @@ export class Game {
         h('div', { class: 'sh-desc' },
           h('b', null, d.name, h('i', { class: 'sh-stars' }, '★'.repeat(lv))),
           h('span', { class: 'sh-pos' }, ownSel < 5 ? `战斗席 ${ownSel + 1} 号位` : '备战席'),
-          h('span', { class: 'sh-st' }, h('i', { class: 'a' }, icon('sword'), st.atk), h('i', { class: 'h' }, icon('heart'), st.hp), st.block ? h('i', { class: 'k' }, icon('shield'), st.block) : null),
+          h('span', { class: 'sh-st px' }, statArt('atk', st.atk), statArt('hp', st.hp), st.block ? h('span', { class: 'kwic kw-block' }, h('i', null, st.block)) : null),
           h('p', null, ...kwRich(abilityText(ownU.defId, lv, ownedPower(ownU.defId, lv, ownU))), extra ? h('span', { class: 'sh-extra' }, `　${extra}`) : null)),
         h('div', { class: 'sh-sellhint' }, h('span', null, '拖进出售框卖出'), h('b', null, itemIcon('coin', 'coin', 'sm'), `+${sellPrice(ownU)}`)));
     } else if (sel) {
@@ -1617,10 +1711,10 @@ export class Game {
       detail = h('div', { class: `sh-detail ${sel.cls}` },
         sel.kind === 'units' ? h('span', { class: 'sh-icon art', html: unitSvg(s.units[sel.i].id) }) : h('span', { class: 'sh-icon' }, itemIcon(sel.key.startsWith('equips') ? s.equips[sel.i].id : sel.kind === 'spells' ? s.spells[sel.i].id : sel.kind, sel.kind === 'order' ? 'order' : sel.kind === 'pack' ? 'pack' : 'spell')),
         h('div', { class: 'sh-desc' }, h('b', null, sel.name), matchId ? this.heldNote(matchId) : null,
-          sel.unitStats ? h('span', { class: 'sh-st' }, h('i', { class: 'a' }, icon('sword'), sel.unitStats.atk), h('i', { class: 'h' }, icon('heart'), sel.unitStats.hp)) : null,
+          sel.unitStats ? h('span', { class: 'sh-st px' }, statArt('atk', sel.unitStats.atk), statArt('hp', sel.unitStats.hp)) : null,
           h('p', null, why ? h('em', null, why, '。') : null, ...kwRich(sel.text))),
         go);
-    } else detail = h('div', { class: 'sh-detail empty' }, h('p', null, '选择商品'));
+    } else detail = h('div', { class: 'sh-detail empty' }, h('span', { class: 'sh-icon' }, itemIcon('pack', 'pack')), h('p', null, '点选商品查看说明'));
 
     const refresh = h('button', { class: 'btn ghost', disabled: r.gold < s.refreshCost }, icon('refresh'), h('span', null, `刷新 ${s.refreshCost} 金`));
     refresh.addEventListener('click', () => {
@@ -1641,7 +1735,7 @@ export class Game {
         h('span', { class: 'sh-seat' }, tag),
         u.equips?.length ? h('span', { class: 'sh-own-eq' }, itemIcon(u.equips[0], 'spell', 'sm')) : null,
         h('i', null, '★'.repeat(lv)),
-        h('span', { class: 'sh-own-st' }, h('b', { class: 'a' }, st.atk), h('b', { class: 'h' }, st.hp)));
+        h('span', { class: 'sh-own-st px' }, statArt('atk', st.atk), statArt('hp', st.hp)));
       b.addEventListener('keydown', e => {
         if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(ownSel === i ? null : `own:${i}`); }
       });
@@ -1780,9 +1874,9 @@ export class Game {
           'div',
           { class: 'rp-unit' },
           h('div', { class: 'rp-art', html: unitSvg(e.defId, { enemy: true }) }),
-          h('div', { class: 'rp-stats' }, h('span', { class: 'a' }, e.atk ?? d.atk), h('span', { class: 'h' }, e.hp ?? d.hp)),
+          h('div', { class: 'rp-stats' }, statArt('atk', e.atk ?? d.atk), statArt('hp', e.hp ?? d.hp)),
           h('div', { class: 'rp-name' }, d.name),
-          d.keywords?.length ? h('div', { class: 'rp-kw' }, d.keywords[0]) : null,
+          d.keywords?.length ? h('div', { class: 'rp-kw' }, kwTag(d.keywords[0])) : null,
         );
       }),
     );
@@ -1883,7 +1977,7 @@ export class Game {
     }
     // 正式战：结果先算出并存档，中途退出也按这一结果结算
     if (ctx.kind === 'official') {
-      beginBattle(this.run, out.result, out.gold ?? 0);
+      beginBattle(this.run, out.result, out.gold ?? 0, out.eggStats);
       if (!this.tutorial) recordOfficialBattle(this.run, out, ctx.checkpoint!, ctx.slots, ctx.bench);
       this.persist();
       this.emit('battle-start');
@@ -1892,7 +1986,7 @@ export class Game {
     pb.speed = this.speed;
     pb.genEl = () => this.el.querySelector<HTMLElement>('.hud-general');
     pb.onLog = (l) => this.pushLog(l);
-    pb.onBeat = (n) => this.setBarPhase(`第 ${n} 拍`);
+    pb.onBeat = (n, round) => this.setBarPhase(`第 ${round} 回合\n第 ${n} 次交锋`);
     pb.onPhase = (ph) => this.setBarPhase(ph === 'start' ? '开战阶段' : '交锋');
     if (this.tut && ctx.kind === 'official') pb.onHold = (n, els) => this.tut?.hold(n, els) ?? null;
     this.pb = pb;
@@ -1956,7 +2050,7 @@ export class Game {
       if (!this.tutorial) void syncCareerLeaderboards();
       this.fight = { slots: cloneSlots(ctx.slots), bench: cloneSlots(ctx.bench), checkpoint: ctx.checkpoint!, result: res };
     } else if (ctx.kind === 'retry') {
-      retry = settleRewardedRetry(this.run, ctx.checkpoint!, ctx.slots, res, ctx.bench, out.gold ?? 0);
+      retry = settleRewardedRetry(this.run, ctx.checkpoint!, ctx.slots, res, ctx.bench, out.gold ?? 0, out.eggStats);
       if (!this.tutorial) recordOfficialBattle(this.run, out, ctx.checkpoint!, ctx.slots, ctx.bench);
       this.persist();
       if (!this.tutorial) void syncCareerLeaderboards();
@@ -1998,7 +2092,7 @@ export class Game {
         : '补救未成功，但没有再失去生命';
     } else if (this.run.over === 'victory') sub = '最终首领倒下了，远征完成！';
     else if (this.run.over === 'defeat') sub = '最后一条命也失去了。';
-    else if (res === 'win') sub = `${node.name} 已击破，${out.beats} 拍结束战斗${bossHeal ? ' · 恢复 1 条命' : ''}`;
+    else if (res === 'win') sub = `${node.name} 已击破，${out.rounds ?? 0} 回合 · ${out.beats} 次交锋结束战斗${bossHeal ? ' · 恢复 1 条命' : ''}`;
     else if (res === 'lose') sub = node.kind === 'boss' ? `失去 1 条命 · 首领战可以重新挑战` : `失去 1 条命 · 远征继续`;
     else sub = node.kind === 'boss' ? '首领战平局 · 不扣命，调整后再战' : '双方都无法再出手 · 不扣命，+1 金，远征继续';
 
@@ -2049,7 +2143,7 @@ export class Game {
           (res === 'win' || retry?.authoritativeResult === 'win') && this.run.lastPoints.length
             ? h('span', { class: 'rg-pts' }, '培养点 ', ...POINT_TYPES.map(pt => {
                 const n = this.run.lastPoints.filter(x => x === pt.id).length;
-                return n ? h('b', { class: `pt-${pt.id}` }, `${pt.short}×${n}`) : null;
+                return n ? h('b', { class: `pt-${pt.id}`, 'aria-label': `${pt.name}×${n}` }, pxIcon(pt.id), `×${n}`) : null;
               }))
             : null,
         )
@@ -2249,20 +2343,31 @@ export class Game {
   private coachEl: HTMLElement | null = null;
 
   coach() {
-    if (this.mode !== 'prep' || this.tutorial) return;
-    const done = new Set((localStorage.getItem('zl_coach') || '').split(',').filter(Boolean));
-    const step = (id: string, text: string, x: number, y: number, dir: 'up' | 'down') => {
+    if (this.tutorial || this.disposed) return;
+    if (this.el.querySelector('.stage-intro')) return;
+    if (this.prep) { this.coachEl?.remove(); this.coachEl = null; return; }
+    const promo = this.mode === 'phase' && !!this.panel?.classList.contains('ph-promo');
+    if (this.mode !== 'prep' && !promo) { this.coachEl?.remove(); this.coachEl = null; return; }
+    const done = seenHints();
+    // 已经在显示同一条：不重建，免得每次重绘都重播入场动画
+    const live = this.coachEl?.isConnected ? this.coachEl.dataset.id : undefined;
+    const show = (id: string, text: string, x: number, y: number, dir: 'up' | 'down' | 'left') => {
       if (done.has(id)) return false;
+      if (live === id) return true;
       this.coachEl?.remove();
+      // 框被夹回屏内时，箭头仍对准目标
+      const cx = Math.max(220, Math.min(STAGE_W - 220, x));
       const el = h(
         'div',
-        { class: `coach dir-${dir}`, style: `left:${x}px;top:${y}px` },
+        dir === 'left'
+          ? { class: 'coach dir-left', style: `left:${x}px;top:${Math.max(110, Math.min(STAGE_H - 110, y))}px`, 'data-id': id }
+          : { class: `coach dir-${dir}`, style: `left:${cx}px;top:${y}px;--ax:${x - cx}px`, 'data-id': id },
         h('div', { class: 'coach-text', html: text }),
         h('button', { class: 'coach-ok' }, '知道了'),
       );
-      el.querySelector('button')!.addEventListener('click', () => {
-        done.add(id);
-        localStorage.setItem('zl_coach', [...done].join(','));
+      el.querySelector('button')!.addEventListener('click', (e) => {
+        e.stopPropagation();
+        markHint(id);
         el.remove();
         this.coachEl = null;
         sfx.click();
@@ -2272,12 +2377,39 @@ export class Game {
       this.coachEl = el;
       return true;
     };
-    if (teamSize(this.run) === 0) {
-      step('drag', '按住一张卡，<b>拖到左侧格位</b>招募（点一下只看详情）。<br>靠近中线的 <b>1 号位是队首</b>，最先出手、也最先挨打。', 620, 452, 'down');
+    /** 指向某个元素：目标在上半屏就把框放在下面，反之放上面，箭头不压住目标 */
+    const at = (id: string, text: string, target: HTMLElement | null) => {
+      if (done.has(id) || !target || !target.getClientRects().length) return false;
+      const b = target.getBoundingClientRect();
+      const top = toStage(b.left + b.width / 2, b.top), bottom = toStage(b.left + b.width / 2, b.bottom);
+      // 右下角操作区（开战键所在列）：框放到目标左侧，不压住开战
+      const left = toStage(b.left, b.top + b.height / 2);
+      if (top.x > STAGE_W - 300 && top.y > STAGE_H / 2) return show(id, text, left.x, left.y, 'left');
+      return bottom.y < STAGE_H / 2 ? show(id, text, top.x, bottom.y, 'up') : show(id, text, top.x, top.y, 'down');
+    };
+    if (promo) {
+      if (!at('promo', '晋升被动<b>只对当前主将</b>生效', this.panel!.querySelector<HTMLElement>('.ph-opts'))) { this.coachEl?.remove(); this.coachEl = null; }
       return;
     }
-    if (step('preview6', '盘面显示的是<b>开战时效果之后</b>的数值，拖动时实时预演。<br>每回合默认每人<b>行动一次</b>，双方按站位行动；一方本轮用完就等待。带「施法」的施法，其余普攻。<b>准星</b>标出第 1 拍双方会打谁。', 340, 112, 'up')) return;
-    if (battleNo(this.run) >= 3 && step('hint', '从这里开始敌人会出题。<br>点击顶部<b>路线节点</b>可以提前查看之后的敌人。', 640, 84, 'up')) return;
+    const empty = teamSize(this.run) === 0;
+    if (empty) {
+      if (show('drag', '按住一张卡，<b>拖到左侧格位</b>招募（点一下只看详情）。<br>靠近中线的 <b>1 号位是队首</b>，最先出手、也最先挨打。', 620, 452, 'down')) return;
+    } else if (show('preview6', '盘面显示的是<b>开战时效果之后</b>的数值，拖动时实时预演。<br>每回合默认每人<b>行动一次</b>，双方按站位行动；一方本轮用完就等待。带「施法」的施法，其余普攻。<b>准星</b>标出第 1 次交锋双方会打谁。', 340, 112, 'up')) return;
+    // 首遇提示：主将专属交互和新流派词条，各只出一次
+    const r = this.run, q = <T extends HTMLElement>(sel: string) => this.el.querySelector<T>(sel);
+    const unitWith = (pick: (d: ReturnType<typeof unitDef>) => boolean) => {
+      const i = r.slots.findIndex((u) => !!u && pick(unitDef(u.defId)));
+      return i < 0 ? null : q(`.board .unit[data-side="0"][data-slot="${i}"]`);
+    };
+    if (r.general === 'reva' && at('g_reva', '点<b>换位</b>，再点两个敌人<b>交换位置</b>', q('.gen-acts .gen-act'))) return;
+    if (r.general === 'sajj' && at('g_sajj', '最右<b>预备</b>格：有人阵亡时<b>补上</b>', q('.bench-slot.reserve'))) return;
+    if (r.general === 'xingjiao' && at('g_xingjiao', '任一类事件攒满，<b>龙蛋孵化</b>成对应的龙', q('.egg-prog'))) return;
+    if (r.general === 'hank' && r.merc && !r.merc.sold && at('g_hank', '免费的临时佣兵，点开看详情，<b>只打本场</b>', q('.gen-acts .gen-act'))) return;
+    if (r.general === 'argeon' && at('g_argeon', '主将<b>本人也占一格</b>上场，不能出售', q('.board .unit[data-side="0"][data-slot="0"]'))) return;
+    if (at('k_charge', '<b>蓄力</b>：圆点攒满时释放强力效果', unitWith((d) => !!d.traits?.charge))) return;
+    if (at('k_rotate', '<b>轮换</b>：行动后退到队尾，换下一个上', unitWith((d) => !!d.traits?.rotate))) return;
+    if (battleNo(this.run) >= 3 && show('hint', '从这里开始敌人会出题。<br>点击顶部<b>路线节点</b>可以提前查看之后的敌人。', 640, 84, 'up')) return;
+    this.coachEl?.remove(); this.coachEl = null;
   }
 }
 

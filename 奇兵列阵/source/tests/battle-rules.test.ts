@@ -18,7 +18,7 @@ describe('declarative boss rules', () => {
   });
   it('preserves freeze amount and independent identical sources', () => {
     const b = game(['e_frostq', 'e_frostq']); b.u(2).atk = 7;
-    end(b, 3); expect(b.u(2).chill).toBe(14);
+    end(b, 5); expect(b.u(2).chill).toBe(14);
   });
   it('half-health is strict, one-shot, and direct lethal damage skips recall', () => {
     const b = game(['e_skel', 'e_nightk']); b.u(4).hp = 0; intern(b).flush();

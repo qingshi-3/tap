@@ -179,3 +179,11 @@
   outline: 2px solid var(--ice);
   outline-offset: 2px;
 }
+
+/* 设置弹层底部：提示与存档管理 */
+.audio-dialog .data-tools { display: flex; gap: 12px; justify-content: flex-end; margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255, 255, 255, .12); }
+.audio-dialog .data-tools .btn { font-size: 18px; min-height: 44px; }
+@media (max-height: 360px) {
+  .audio-dialog .modal { padding: 10px 18px; }
+  .audio-dialog .data-tools { margin-top: 6px; padding-top: 6px; }
+}

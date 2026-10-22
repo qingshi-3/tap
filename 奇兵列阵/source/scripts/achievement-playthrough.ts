@@ -49,20 +49,20 @@ const sourceHash = createHash('sha256').update(ACHIEVEMENTS.map(a=>`${a.id}:${a.
 const owned = (r:RunState) => allOwned(r).map((u,i)=>({u,i})).filter((x):x is {u:Slotted;i:number}=>!!x.u);
 const star = (u:Slotted) => levelFromCopies(u.copies);
 const tri = (v:readonly number[]|undefined,l:number) => v?.[l-1] ?? 0;
-const deathSummoner = (d:UnitDef) => (d.onFaint ?? []).some(e=>e.op==='summon');
+const deathSummoner = (d:UnitDef) => (d.onRattle ?? []).some(e=>e.op==='summon');
 const healingUnit = (d:UnitDef) => [...(d.cast??[]),...(d.onHurt??[]),...(d.afterAttack??[])].some(e=>e.op==='heal');
 const growingAttacker = (d:UnitDef) => d.special==='monk'||[...(d.onHurt??[]),...(d.afterAttack??[])].some(e=>e.op==='buff'&&e.to==='self');
 const healQuality = (d:UnitDef) => (d.cast??[]).filter(e=>e.op==='heal').reduce((n,e)=>n+(e.to==='allies'?20:e.to==='adjacent'?12:5),0);
 const splashUnit = (d:UnitDef) => !!d.traits?.splash || (d.onStart??[]).some(e=>e.op==='grant'&&e.grant==='splash');
 function affinity(d:UnitDef,p:Policy) {
- const effects = [...(d.cast ?? []),...(d.onStart ?? []),...(d.onFaint ?? []),...(d.onHurt ?? []),...(d.afterAttack ?? [])];
+ const effects = [...(d.cast ?? []),...(d.onStart ?? []),...(d.onRattle ?? []),...(d.onHurt ?? []),...(d.afterAttack ?? [])];
  const has = (op:string) => effects.some(e=>e.op===op);
  const text = [d.text,...(d.tags ?? [])].join(' ');
  switch(p) {
   case 'burn': return has('burn') || text.includes('灼烧') ? 12 : 0;
   case 'frost': return has('chill') || text.includes('寒意') ? 12 : 0;
   case 'spell': return d.cast ? 12 : 0;
-  case 'defense': return (d.traits?.guard?7:0)+(d.traits?.armor?6:0)+(has('block')?5:0)+(d.traits?.thorns?5:0)+(has('heal')?4:0);
+  case 'defense': return (d.traits?.taunt?7:0)+(d.traits?.armor?6:0)+(has('block')?5:0)+(d.traits?.thorns?5:0)+(has('heal')?4:0);
   case 'summon': return (has('summon')?10:0)+(has('sacrifice')?10:0)+(d.traits?.reborn?6:0);
   case 'strike': return (d.traits?.splash?8:0)+(d.traits?.combo?7:0)+(has('extraAct')?8:0)+(has('vuln')?5:0);
   case 'neutral': return d.faction==='neutral'?13:0;

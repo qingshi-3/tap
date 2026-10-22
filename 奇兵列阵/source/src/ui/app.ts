@@ -4,7 +4,8 @@ import { unitLevel } from '../core/types';
 import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
 import { chapter, TOTAL_BATTLES } from '../core/route';
 import { battleNo, currentNode, generalChoices, newRun, randomSeed, screen, type RunState } from '../core/run';
-import { clearRun, loadRun, saveRun } from '../core/save';
+import { clearAllData, clearRun, loadRun, saveRun } from '../core/save';
+import { resetHints } from './hints';
 import { recordRunOutcome, stageRunReplacement } from '../core/career';
 import { recordsScreen } from './records';
 import { openCareerLeaderboard, syncCareerLeaderboards } from './leaderboard';
@@ -15,6 +16,7 @@ import { ambient, FX } from './fx';
 import { Game } from './game';
 import { newTutorialRun } from './tutorial';
 import { codexScreen, keywordDoc } from './codex';
+import { kwTag, MECH } from './kwtext';
 import { BATTLE_RULES } from '../core/battleRules';
 import '../mechanics-guide.css';
 import { icon } from './icons';
@@ -22,6 +24,16 @@ import { hideTip, initTip } from './tip';
 import { pedestalUrl } from './pixel';
 import { TapTapRewardedAds, type RewardedAds, type RewardedPlacement, type RewardedResult } from './rewarded';
 import { unitPxUrl, unitSvg } from './unitArt';
+
+/** 说明正文里加粗的词条名换成统一写法：图标类出图标 + 名字，其余出「」短词 */
+function htLine(l: string): HTMLElement {
+  const p = h('p', { html: l });
+  for (const b of Array.from(p.querySelectorAll('b'))) {
+    const k = b.textContent ?? '';
+    if (MECH[k]) b.replaceWith(kwTag(k, '', '', !!MECH[k].px));
+  }
+  return p;
+}
 
 export class App {
   stage: HTMLElement;
@@ -181,11 +193,26 @@ export class App {
     const tut = h('button', { class: 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
     tut.addEventListener('click', () => { sfx.start(); this.startTutorial(); });
     const quiet = () => isMuted() || getVolumes().master === 0;
-    const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '声音设置' }, icon(quiet() ? 'mute' : 'sound'));
+    const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '设置' }, icon(quiet() ? 'mute' : 'sound'));
     volume.addEventListener('click', () => {
       sfx.click();
-      this.modal(h('div', { class: 'confirm', 'aria-label': '声音设置' }, h('h3', null, '声音设置'),
-        audioSettings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound')))), 'audio-dialog', document.body);
+      const resetTips = h('button', { class: 'btn ghost' }, h('span', null, '重置提示'));
+      const wipe = h('button', { class: 'btn danger' }, h('span', null, '清除全部数据'));
+      resetTips.addEventListener('click', () => {
+        sfx.click(); resetHints();
+        resetTips.replaceChildren(h('span', null, '已重置'));
+        resetTips.disabled = true;
+      });
+      wipe.addEventListener('click', () => {
+        sfx.click();
+        this.confirm('清除全部数据？', '远征存档、战绩、成就和教学进度都会删除，无法恢复。声音设置保留。', '清除', () => {
+          clearAllData();
+          location.reload();
+        });
+      });
+      this.modal(h('div', { class: 'confirm', 'aria-label': '设置' }, h('h3', null, '设置'),
+        audioSettings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound'))),
+        h('div', { class: 'data-tools' }, resetTips, wipe)), 'audio-dialog', document.body);
     });
     const el = h(
       'div',
@@ -264,7 +291,7 @@ export class App {
       h(
         'div',
         { class: 'screen select' },
-        h('div', { class: 'sel-head' }, h('div', { class: 'sel-title' }, '选择你的将军'), h('div', { class: 'sel-sub' }, '本局随机三位将军可选 · 将军能力每场开战自动生效，决定这一局的打法倾向')),
+        h('div', { class: 'sel-head' }, h('div', { class: 'sel-title' }, '选择你的将军'), h('div', { class: 'sel-sub' }, '将军能力每场开战自动生效')),
         h('div', { class: 'gen-row' }, cards),
         h('div', { class: 'sel-foot' }, back),
       ),
@@ -321,7 +348,7 @@ export class App {
       sfx.click();
       this.toSelect();
     });
-    const home = h('button', { class: 'btn ghost big', style: 'background:#34304d;border:none' }, h('span', null, '返回标题'));
+    const home = h('button', { class: 'btn ghost big' }, h('span', null, '返回标题'));
     home.addEventListener('click', () => {
       sfx.click();
       this.toTitle();
@@ -414,7 +441,7 @@ export class App {
         'div',
         { class: 'ht-page' },
         h('div', { class: 'ht-fig', html: p.fig }),
-        h('div', { class: 'ht-body' }, h('h3', null, p.title), p.lines.map((l) => h('p', { html: l }))),
+        h('div', { class: 'ht-body' }, h('h3', null, p.title), p.lines.map(htLine)),
       ),
     );
     let idx = 0;
@@ -473,22 +500,23 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       lines: [
         '双方各有 <b>5 个格位</b>；靠近中线的 <b>1 号位是队首</b>，常规行动从队首排向队尾。',
         '阵亡后留下空格，后面的单位<b>不会前移</b>。出手顺序跳过空格，只看存活单位。',
-        '普通攻击默认打敌方队首；带<b>狙击</b>时改打队尾。',
+        '普通攻击默认打敌方队首；<b>狙击</b>改打队尾，<b>决斗</b>改打本次交锋的对手。敌方有<b>嘲讽</b>时，普攻都先打它。',
       ],
       fig: duel,
     },
     {
-      title: '一拍怎样结算',
+      title: '一次交锋怎样结算',
       lines: [rules.beat.text,
-        '施法若先击杀或冻住对面的出手者，就能阻止它本拍原定的普攻。',
-        '同一拍并不是我方先打完、敌方再还手；已同时开始的双方普攻可互相击倒。',
+        '施法若先击杀或冻住对面的出手者，就能阻止它本次交锋原定的普攻。',
+        '同一次交锋并不是我方先打完、敌方再还手；已同时开始的双方普攻可互相击倒。双方同时施法时，我方先结算。',
+        '盘面上双方单位标 <b>①–⑤</b> 表示本回合出手顺序，<b>同号同时出手</b>。',
       ],
       fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'e_brute', enemy: true }),
     },
     {
       title: '回合与行动轮',
       lines: [rules.round.text, rules.wave.text,
-        '双方都没有额外次数时，<b>5 人对 3 人</b>：前 3 拍双方各一人；第 4、5 拍只有 5 人方行动，3 人方等待。然后才进入新回合。',
+        '双方都没有额外次数时，<b>5 人对 3 人</b>：前 3 次交锋双方各一人；第 4、5 次交锋只有 5 人方行动，3 人方等待。然后才进入新回合。',
       ],
       fig: row({ id: 'm_rex' }, { id: 'l_priest' }, { id: 'e_brute', enemy: true, dim: true }),
     },
@@ -503,16 +531,16 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '行动时施法还是普攻',
       lines: [rules.action.text,
         '有<b>「施法：」</b>的单位，按卡面效果施法；没有有效目标时改为普攻。其他单位通常普攻。',
-        '施法通常<b>没有额外次数上限</b>，多一次行动就可再按自身规则施法。<b>唤亡祭师例外：本场最多施法 3 次</b>，用完后改为普攻，不会每回合重置。',
+        '施法通常<b>没有额外次数上限</b>，多一次行动就可再按自身规则施法。<b>例外写在卡面上</b>：如唤亡祭师、构装学徒有本场次数上限，用完后改为普攻，不会每回合重置。',
       ],
       fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'a_ritualist' }),
     },
     {
-      title: '立即攻击与连击',
+      title: '追击与连击',
       lines: [
-        '<b>立即攻击</b>：当前拍内追加一次普攻，<b>不施法、不消耗常规行动次数</b>，也不改变后续行动顺序。仍受寒意影响。',
-        '普通立即攻击每方每拍默认最多 <b>1 次</b>；主将被动<b>「连锁」</b>把我方上限改为 2 次，主将直接命令的立即攻击不占此上限。',
-        '<b>连击</b>：一次普攻内打两段，各为本次攻击力的一半（向上取整）。立即攻击也能连击，但这仍不是两次行动。',
+        '<b>追击</b>：冲出队列立刻普攻一次，<b>不施法、不消耗行动次数</b>，也不改变出手顺序；仍受寒意影响。',
+        '<b>追击引发的效果不会再引发追击</b>：例如追击击杀了敌人，「击杀时：追击」不会再触发。主将被动<b>「连锁」</b>允许再引发一次；主将直接命令的追击总能发动。',
+        '<b>连击</b>：一次攻击打两下。<b>追击</b>：马上插队打一下，不能施法、不算行动。<b>再动一次</b>（行动次数 +1）：本回合稍后再行动，可以施法、算行动。',
       ],
       fig: row({ id: 's_dancer' }, { id: 's_wind' }),
     },
@@ -520,16 +548,16 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '寒意立即生效，也会保留',
       lines: [
         '获得寒意后，<b>接下来的出手就受影响</b>，不用等到下回合。普攻攻击减去寒意层数（最少 1），出手后清空。',
-        '出手前若<b>寒意 ≥ 本次攻击力</b>，则冻结：跳过这次出手、清空寒意。被冻结仍消耗本次常规行动机会；施法和立即攻击也检查冻结。',
+        '出手前若<b>寒意 ≥ 本次攻击力</b>，则冻结：跳过这次出手、清空寒意。被冻结仍消耗本次常规行动机会；施法和追击也检查冻结。',
         '如果还没轮到它，寒意就继续留着，<b>不会在回合结束时自动消失</b>。',
       ],
       fig: row({ id: 'v_mage' }, { id: 'e_brute', enemy: true, dim: true }),
     },
     {
-      title: '拍末：主将、灼烧与疲劳',
+      title: '交锋结束：主将、灼烧与疲劳',
       lines: [rules.beatEnd.text,
-        '<b>灼烧 N 层</b>：每拍结束受 N 伤害，然后减少 1 层；无视格挡、护甲和易伤。',
-        '从<b>第 20 拍结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每拍递增。不会等到回合结束才结算。',
+        '<b>灼烧 N 层</b>：每次交锋结束受 N 伤害，然后减少 1 层；无视格挡和护甲。',
+        '从<b>第 20 次交锋结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每次交锋递增。不会等到回合结束才结算。',
       ],
       fig: row({ id: 'm_shaman' }, { id: 'e_brute', enemy: true }),
     },
@@ -537,7 +565,7 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '防御与攻击词条',
       lines: [
         '<b>格挡</b>抵消下一次伤害并消耗 1 层；<b>护甲</b>让每次伤害 −N，最少 1。灼烧无视两者。',
-        '<b>溅射</b>额外打目标身后一名；<b>反击</b>在被普攻直接命中时反伤，连击每段都可触发。',
+        '<b>溅射</b>额外打目标身后一名（伤害减半）；<b>反击</b>在被普攻直接命中时反伤，连击每段都可触发。',
         '<b>复生</b>让第一次阵亡原位 1 血复活；<b>法强</b>强化自己的施法数值，群体效果加成减半。其他词条可切到「词条」查阅。',
       ],
       fig: row({ id: 'l_shield' }, { id: 'v_wall' }, { id: 'm_rex' }),
@@ -563,7 +591,7 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '主将升阶与保存',
       lines: [
         '首章首领后、第二章岔路后、第二章首领后，主将各<b>升阶一次</b>，从三个被动中选一个。',
-        '主将技能按拍自动发动；升阶被动按各自说明生效，不必消耗单位行动。',
+        '主将技能按各自写明的时机自动发动；升阶被动按各自说明生效，不必消耗单位行动。',
         '进度自动保存。返回标题后，可点<b>「继续游戏」</b>回到当前远征。',
       ],
       fig: row({ id: 'm_rex' }, { id: 'l_priest' }),

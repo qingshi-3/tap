@@ -160,7 +160,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
   left:24px;
   top:55px}
 .sandbox-panel {
-  left:270px;
+  left:368px;
   right:24px;
   top:30px;
   height:220px;
@@ -669,7 +669,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 .unit.has-burn .u-art { filter: drop-shadow(0 0 6px #ff7a2a); }
 .unit.frozen .u-chill { color: #fff; filter: drop-shadow(0 0 6px #8feaff); }
 
-/* 本拍即将出手的单位 */
+/* 本次交锋即将出手的单位 */
 .unit.next-actor .u-glow {
   opacity: 1;
   background: radial-gradient(ellipse at 50% 85%, rgba(255, 240, 160, 0.55), transparent 65%);
@@ -725,13 +725,16 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 .utag.trg-frozen { background: #1e5a78; color: #d8f6ff; }
 .utag.trg-revive { background: #7a5a13; color: #fff2c4; }
 
-/* v0.7 易伤角标（左上） */
-.u-vuln {
-  position: absolute; left: -6px; top: 12px; width: 28px; height: 28px;
-  display: flex; align-items: center; justify-content: center; color: #ff7ad9;
-  opacity: 0; transform: scale(0.4); transition: 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
-  filter: drop-shadow(0 2px 3px #000a); pointer-events: none;
+/* v0.8 蓄力 / 节拍进度角标（左上），数字形如「2/3」 */
+.u-charge {
+  position: absolute; left: -6px; top: 12px; min-width: 28px; height: 24px; padding: 0 5px 0 2px; gap: 1px;
+  display: flex; align-items: center; justify-content: center; color: #ffcf4a;
+  border-radius: 12px; background: #0d1020e6; box-shadow: 0 0 0 1.5px #ffcf4a, 0 2px 3px #000a;
+  opacity: 0; transform: scale(0.4); transform-origin: left center;
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.2, 1.6, 0.4, 1);
+  pointer-events: none; white-space: nowrap;
 }
-.u-vuln .ic { position: absolute; inset: 0; width: 28px; height: 28px; }
-.u-vuln i { position: relative; font: 15px var(--num); font-style: normal; color: #fff; text-shadow: 0 0 2px #000, 0 1px 0 #000; margin-top: 2px; }
-.unit.has-vuln .u-vuln { opacity: 1; transform: scale(1); }
+.u-charge .ic { width: 18px; height: 18px; flex: none; }
+.u-charge .ic svg { width: 100%; height: 100%; display: block; }
+.u-charge i { font: 14px var(--num); font-style: normal; line-height: 1; color: #fff; text-shadow: 0 0 2px #000, 0 1px 0 #000; }
+.unit.has-charge .u-charge { opacity: 1; transform: scale(1); }

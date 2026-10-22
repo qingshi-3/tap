@@ -19,7 +19,7 @@ describe('实时技能描述', () => {
   it('群体奇数法强向下取整，多项施法分别计算', () => {
     expect(abilityText('v_drake', 1, 3)).toContain('2 层寒意（1+⌊3法强/2⌋）');
     expect(abilityText('n_alchemist', 1, 2)).toContain('4 层灼烧（2+2法强）和 3 层寒意（1+2法强）');
-    expect(abilityText('s_caster', 1, 2)).toContain('5 伤害（3+2法强），并获得 4 层易伤（2+2法强）');
+    expect(abilityText('s_caster', 1, 2)).toContain('5 伤害（3+2法强），本场攻击 −1');
   });
   it('不强化非施法、格挡、加攻、额外出手或零基础', () => {
     for (const id of ['m_raptor', 'a_spine', 'l_shield', 'd_artificer', 's_dancer', 'a_engulf']) {
@@ -32,7 +32,7 @@ describe('实时技能描述', () => {
   });
   it('当前卡表所有受法强施法均有对应描述，失败不静默漏算', () => {
     for (const d of UNITS) for (const level of [1, 2, 3]) {
-      const effects = (d.cast ?? []).filter(e => ['dmg', 'heal', 'burn', 'chill', 'vuln'].includes(e.op) && tri(e.v, level) > 0);
+      const effects = (d.cast ?? []).filter(e => ['dmg', 'heal', 'burn', 'chill'].includes(e.op) && tri(e.v, level) > 0);
       if (!effects.length) continue;
       const text = abilityText(d.id, level, 3);
       expect((text.match(/法强[\/）]/g) ?? []).length, `${d.id} ★${level}`).toBe(effects.length);
@@ -48,20 +48,24 @@ describe('实时技能描述', () => {
   });
 });
 describe('主将沿用实际公式', () => {
-  it('七名主将基础效果均显示已代入法强', () => {
-    for (const [id, value] of [['argeon', 4], ['kaleos', 5], ['lilithe', 4], ['vulkan', 4], ['faie', 4], ['zirix', 5]] as const) {
-      expect(generalAbilityText(id, 2)).toContain(String(value));
-      expect(generalAbilityText(id, 2)).toContain('2法强');
+  it('带「N+法强」的主将技能显示已代入法强，无法强时只留基础值', () => {
+    expect(generalAbilityText('vulkan', 2)).toContain('敌方队首获得 4（2+2法强） 层灼烧');
+    expect(generalAbilityText('vulkan', 0)).toContain('敌方队首获得 2 层灼烧');
+    expect(generalAbilityText('kaleos', 2)).toContain('本次攻击 +2');
+    expect(generalAbilityText('kaleos', 0)).not.toContain('法强');
+    for (const id of ['argeon', 'zilan', 'reva', 'lilithe', 'kasiva', 'xingjiao', 'faie', 'kara', 'zirix', 'sajj', 'hank']) {
+      expect(generalAbilityText(id, 2), id).not.toContain('2法强');
     }
-    expect(generalAbilityText('hank', 2)).toContain('攻击 +2（2法强）');
   });
-  it('主将专属公式、作用对象、频率正确', () => {
-    expect(generalAbilityText('argeon', 3, ['argeon_1', 'argeon_2', 'argeon_4'])).toBe('每第 2 拍结束：全体友军获得 2 层格挡，并恢复 3 生命（⌈(2+3法强)/2⌉）');
-    expect(generalAbilityText('lilithe', 2, ['lilithe_2', 'lilithe_3'])).toContain('全体敌人受 3 伤害（max(1,2+2法强−1)），全体友军恢复等量生命');
-    expect(generalAbilityText('vulkan', 3, ['vulkan_1', 'vulkan_4'])).toContain('敌方前两位获得 8 层灼烧（2+3法强×2）');
-    expect(generalAbilityText('zirix', 3, ['zirix_1'])).toContain('全体敌人获得 2 层易伤（1+⌊3法强/2⌋）');
-    expect(generalAbilityText('faie', 2, ['faie_1', 'faie_4'])).toContain('每第 2 拍结束：敌方前两个出手者');
-    expect(generalAbilityText('hank', 3, ['hank_1', 'hank_3', 'hank_4'])).toContain('攻击 +5（2+3法强）；立即攻击改为攻击敌方队尾');
-    expect(generalAbilityText('kaleos', 2, ['kaleos_2', 'kaleos_4'])).toContain('技能额外命中敌方队尾；技能目标获得 2 层易伤');
+  it('主将专属被动公式代入法强，只拼接本主将的被动', () => {
+    expect(generalAbilityText('argeon', 3, ['argeon_3'])).toContain('光誓：阿尔吉昂的常规行动改为施法：全体友军恢复 5（2+3法强） 生命');
+    expect(generalAbilityText('lilithe', 2, ['lilithe_1'])).toContain('敌方队首受 6（4+2法强） 伤害');
+    expect(generalAbilityText('zilan', 2, ['zilan_2', 'zilan_3'])).toContain('下回合 +4（2+2法强） 攻；换防：被轮转到队尾的友军恢复 5（3+2法强） 生命');
+    expect(generalAbilityText('zirix', 3, ['zirix_3'])).toContain('各受 6（3+3法强） 伤害');
+    expect(generalAbilityText('faie', 2, ['faie_1'])).toContain('获得 4（2+2法强） 层寒意');
+    expect(generalAbilityText('sajj', 2, ['sajj_2'])).toContain('本场 +4（2+2法强）/+4（2+2法强）');
+    expect(generalAbilityText('xingjiao', 2, ['xingjiao_3'])).toContain('龙本场 +2/+4');
+    expect(generalAbilityText('hank', 3, ['hank_1', 'vulkan_1'])).toBe(
+      '每场战斗前可免费招 1 名临时佣兵（随机二阶，只参加本场）；每场胜利 +1 金；长约：临时佣兵可以花 3 金转正');
   });
 });

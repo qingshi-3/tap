@@ -1,3 +1,4 @@
+import { EQUIP_MAP } from './content';
 import { battleNo, newRun, type RunState } from './run';
 
 export type TutAction =
@@ -10,7 +11,8 @@ export type TutAction =
   | { kind: 'equip'; index: number; slot: number };
 
 export function newTutorialRun(): RunState {
-  const r = newRun('argeon', 20261017);
+  // 教学用不上场的主将：卡雷奥斯「压轴」吃法强，培养主将一步立刻有收益
+  const r = newRun('kaleos', 20261017);
   r.picks = 3;
   return r;
 }
@@ -20,6 +22,12 @@ export function giveTutorialActionScroll(r: RunState): boolean {
   if (battleNo(r) !== 3) return false;
   if (!r.spells.includes('sp_haste') && !r.activeSpells.includes('sp_haste')) r.spells.push('sp_haste');
   return true;
+}
+
+/** 商店课固定第一件装备为战旗：只换可见货架，不动随机数 */
+export function scriptShop(r: RunState) {
+  if (battleNo(r) !== 3 || !r.shop || r.shop.equips[0]?.id === 'eq_banner') return;
+  r.shop.equips = [{ id: 'eq_banner', price: EQUIP_MAP.eq_banner.price, sold: false }, ...r.shop.equips.filter((e) => e.id !== 'eq_banner')].slice(0, Math.max(2, r.shop.equips.length));
 }
 
 /** Keep core draft rolls intact: overriding only the visible choice preserves reward RNG. */

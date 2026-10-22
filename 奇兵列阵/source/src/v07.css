@@ -22,7 +22,7 @@
 .prep-entry { position: absolute; z-index: 12; left: auto; top: auto; right: 22px; bottom: calc(18px + var(--prep-stack-offset)); width: 176px; transform: none; }
 .game:has(> .prep-entry:not(.hidden)) .tray-right { height: 208px; align-items: flex-start; }
 .game:has(> .prep-entry:not(.hidden)) .fight-controls {
-  position: absolute; right: 0; bottom: calc(var(--control-size) + 12px + var(--prep-stack-offset));
+  position: absolute; right: 0; bottom: calc(var(--control-size) + 12px + var(--prep-stack-offset) + var(--gen-stack, 0px));
   width: 176px; transform: none;
 }
 .prep-entry .prep-btn {

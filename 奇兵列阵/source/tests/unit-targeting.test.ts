@@ -15,21 +15,18 @@ const firstBeat = (out: BattleOutput) => {
 const enemy = (atk: number, hp: number): EnemyEntry => ({ defId: 'e_skel', atk, hp });
 
 describe('单次关联技能目标锁定', () => {
-  it('四风术士杀死原目标后不向其他敌人转移易伤', () => {
-    const out = play([{ defId: 's_caster' }], [enemy(9, 4), enemy(8, 99)]);
+  it('四风术士杀死原目标后不向其他敌人转移攻击削弱', () => {
+    const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)]);
     expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 4, kind: 'ability' });
-    expect(firstBeat(out).some(x => x.ev.t === 'vuln')).toBe(false);
+    expect(firstBeat(out).some(x => x.ev.t === 'buff' && x.ev.src === 1)).toBe(false);
   });
 
-  it('沙焰术士伤害改变生命排序后仍向同一存活目标给易伤', () => {
-    const out = play([{ defId: 'd_pyro' }], [enemy(1, 10), enemy(1, 9)]);
-    expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'vuln', src: 1, uid: 2, n: 3, total: 3 });
-    expect(firstBeat(out).some(x => x.ev.t === 'vuln' && x.ev.uid === 3)).toBe(false);
-  });
-
-  it('沙焰术士杀死仅有的原最高血目标后不转移易伤', () => {
-    const out = play([{ defId: 'd_pyro' }], [enemy(1, 4), enemy(1, 3)]);
-    expect(firstBeat(out).some(x => x.ev.t === 'vuln')).toBe(false);
+  it('四风术士未击杀时伤害与削弱落在同一目标', () => {
+    const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 30), enemy(8, 99)]);
+    const log = firstBeat(out).map(x => x.ev);
+    expect(log).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 4, kind: 'ability' });
+    expect(log).toContainEqual({ t: 'buff', src: 1, tgt: 2, atk: -1, hp: 0 });
+    expect(log.some(ev => ev.t === 'buff' && ev.src === 1 && ev.tgt === 3)).toBe(false);
   });
 
   it('落日灵驹在任何增益前分别选择最高攻击与最高生命', () => {
@@ -44,50 +41,42 @@ describe('单次关联技能目标锁定', () => {
     expect(out.afterStart[2]).toMatchObject({ atk: 1, hp: 11 });
   });
 
-  it('护卫实际承伤及铁崖给挡仍触发，锁定探测不多发护卫事件', () => {
-    const out = play([{ defId: 's_caster' }], [{ defId: 'l_cliff', atk: 1, hp: 20 }, enemy(9, 30)]);
+  it('嘲讽不改变技能目标，锁定探测不发嘲讽事件', () => {
+    const out = play([{ defId: 's_caster', hp: 99 }], [{ defId: 'l_cliff', atk: 1, hp: 20 }, enemy(9, 30)]);
     const log = firstBeat(out);
-    expect(log.filter(x => x.ev.t === 'guard').map(x => x.ev)).toEqual([
-      { t: 'guard', from: 3, to: 2 }, { t: 'guard', from: 3, to: 2 },
-    ]);
-    expect(log.map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 4, kind: 'ability' });
-    expect(log.map(x => x.ev)).toContainEqual({ t: 'vuln', src: 1, uid: 2, n: 3, total: 3 });
-    expect(log.some(x => x.ev.t === 'block' && x.ev.src === 2)).toBe(true);
-  });
-
-  it('护卫被杀后不改选被护卫对象且不额外发护卫事件', () => {
-    const out = play([{ defId: 's_caster' }], [{ defId: 'l_cliff', atk: 1, hp: 4 }, enemy(9, 30)]);
-    const log = firstBeat(out);
-    expect(log.filter(x => x.ev.t === 'guard')).toHaveLength(1);
-    expect(log.some(x => x.ev.t === 'vuln')).toBe(false);
+    expect(log.some(x => x.ev.t === 'taunt')).toBe(false);
+    expect(log.map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 3, n: 4, kind: 'ability' });
+    expect(log.map(x => x.ev)).toContainEqual({ t: 'buff', src: 1, tgt: 3, atk: -1, hp: 0 });
+    expect(log.some(x => x.ev.t === 'dmg' && x.ev.src === 1 && x.ev.tgt === 2)).toBe(false);
   });
 
   it('法涌免费复制单独重新锁定，不跨本次技能缓存目标', () => {
-    const out = play([{ defId: 'd_pyro' }], [enemy(1, 10), enemy(1, 9)], true);
+    const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)], true);
     const log = firstBeat(out);
     expect(log.filter(x => x.ev.t === 'dmg' && x.ev.src === 1).map(x => x.ev)).toMatchObject([
       { tgt: 2, n: 4 }, { tgt: 3, n: 4 },
     ]);
-    expect(log.filter(x => x.ev.t === 'vuln').map(x => x.ev)).toMatchObject([{ uid: 2 }, { uid: 3 }]);
+    expect(log.filter(x => x.ev.t === 'buff' && x.ev.src === 1).map(x => x.ev)).toMatchObject([{ tgt: 3, atk: -1 }]);
     expect(log.filter(x => x.ev.t === 'act' && x.ev.uid === 1 && x.ev.mode === 'cast')).toHaveLength(1);
   });
 
   it('未开启锁定的定义保持原来逐效果重选语义', () => {
-    const def = unitDef('d_pyro'), prior = def.lockTargets;
+    const def = unitDef('s_caster'), prior = def.lockTargets;
     try {
       def.lockTargets = false;
-      const out = play([{ defId: 'd_pyro' }], [enemy(1, 10), enemy(1, 9)]);
-      expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'vuln', src: 1, uid: 3, n: 3, total: 3 });
+      const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)]);
+      expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'buff', src: 1, tgt: 3, atk: -1, hp: 0 });
     } finally { def.lockTargets = prior; }
   });
 
   it('后续施法和下一场分别重新选目标', () => {
-    const run = () => play([{ defId: 'd_pyro', hp: 99 }], [enemy(1, 20), enemy(1, 19)]);
+    const run = () => play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)]);
     const first = run();
     const damage = first.log.filter(x => x.ev.t === 'dmg' && x.ev.src === 1 && x.ev.kind === 'ability');
     expect(damage.slice(0, 2).map(x => x.ev)).toMatchObject([{ tgt: 2 }, { tgt: 3 }]);
     const next = run();
-    expect(firstBeat(next).filter(x => x.ev.t === 'vuln').map(x => x.ev)).toMatchObject([{ uid: 2 }]);
+    expect(firstBeat(next).filter(x => x.ev.t === 'dmg' && x.ev.src === 1).map(x => x.ev)).toMatchObject([{ tgt: 2 }]);
+    expect(firstBeat(next).some(x => x.ev.t === 'buff' && x.ev.src === 1)).toBe(false);
   });
 
   it('数值授予0不触发技能或无效buff，布尔授予无数值仍有效', () => {

@@ -129,7 +129,7 @@ export function observeRun(run: RunState): CareerProfile {
     const challenges: Record<string, number> = { winSmall: (b.facts.fullRoster ?? 9) <= 4 ? 1 : 0,
       winNoSpell: b.facts.spells === 0 ? 1 : 0, winFast: b.beats <= 10 ? 1 : 0,
       winZero: b.beats === 0 ? 1 : 0, burnAndFreeze: b.metrics.burnDamage > 0 && b.metrics.freezes > 0 ? 1 : 0,
-      guardAndBlock: b.metrics.guards > 0 && b.metrics.blocks > 0 ? 1 : 0,
+      guardAndBlock: (b.metrics.taunts ?? 0) > 0 && b.metrics.blocks > 0 ? 1 : 0,
       reviveAndSummon: b.metrics.revives > 0 && b.metrics.summons > 0 ? 1 : 0,
       spellAndStrike: b.metrics.spellDamage > 0 && b.metrics.attackDamage > 0 ? 1 : 0,
       bossNoLegendary: b.node === 8 && b.facts.fieldNoLegendary === 1 ? 1 : 0,

@@ -49,7 +49,6 @@ describe('基础机制修复：真实内容组合，不代表远征已取得', (
 
   it.each([
     ['hank', 'n_merc', []],
-    ['kaleos', 'n_merc', ['kaleos_3']],
     ['argeon', 'a_seed', []],
   ] as [string, string, string[]][])('连锁排除无普通立即攻击来源：%s/%s', (id, source, forced) => {
     expect(chainOffer(id, source, forced)).not.toContain('g_chain');
@@ -59,18 +58,8 @@ describe('基础机制修复：真实内容组合，不代表远征已取得', (
     expect(chainOffer('argeon', source)).toContain('g_chain');
   });
 
-  it.each([[1, 4], [4, 1]] as [Copies, Copies][])('多个黑曜豹神按最强星级取值且不叠加：%s/%s份', (frontCopies, rearCopies) => {
-    const stage = chapter(0).stages[0];
-    if (stage.type !== 'battle') throw new Error('expected stone golem encounter');
-    const out = simulate({ player: [card('d_onyx', 1, frontCopies), card('d_onyx', 2, rearCopies)], enemy: stage.main.lineup, general: general('argeon', ['g_weak']) });
-    expect(out.fault).toBeUndefined();
-    const hit = firstAttack(out, 1);
-    if (hit.t !== 'dmg') throw new Error('expected damage');
-    const actor = out.initial.find(u => u.uid === 1)!;
-    const target = out.initial.find(u => u.uid === hit.tgt)!;
-    const strongest = unitDef('d_onyx').values![2];
-    expect(hit.n).toBe(Math.max(1, actor.atk + 1 + strongest - target.armor!));
-    expect(hit.vuln).toBe(2);
+  it('压轴主将本身就是追击来源：kaleos/n_merc 可获连锁', () => {
+    expect(chainOffer('kaleos', 'n_merc')).toContain('g_chain');
   });
 
 });

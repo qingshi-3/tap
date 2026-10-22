@@ -17,7 +17,7 @@ export function encounterRuleText(rules: readonly BattleRule[]): string {
   return rules.map(rule => {
     const trigger = rule.trigger;
     const when = trigger.on === 'beatEnd'
-      ? `${rule.source ? '首领存活时，' : ''}每${trigger.every}拍`
+      ? `${rule.source ? '首领存活时，' : ''}每${trigger.every}次交锋`
       : trigger.on === 'hpBelow' ? `生命低于${Math.round(trigger.ratio * 100)}%时，` : '';
     const limit = rule.maxTriggers !== undefined ? `（最多${rule.maxTriggers}次）` : '';
     return `关卡：${when}${rule.effects.map(e => effectText(e, rule)).join('，')}${limit}`;

@@ -1,41 +1,44 @@
 import { describe,expect,it } from 'vitest';
-import { DRAFT_POOL, unitDef } from '../src/core/data';
-import { allOwned, applyResult, cloneRun, currentNode, getOwned, moveSlot, newRun, placeKind, reroll, rollDraft, settleRewardedRetry, takeDraft, tierCap } from '../src/core/run';
+import { ALL_FACTIONS, unitDef } from '../src/core/data';
+import { allOwned, applyResult, battleNo, cloneRun, currentNode, getOwned, moveSlot, newRun, placeKind, reroll, rollDraft, settleRewardedRetry, takeDraft, tierCap } from '../src/core/run';
+import { CHAPTER_COUNT, STAGES_PER_CHAPTER } from '../src/core/route';
 import { unitLevel, type ActiveFaction, type Copies, type Slotted } from '../src/core/types';
 const owned=(id:string,copies:Copies=1,ownedId=1):Slotted=>({defId:id,copies,ownedId});
 
 describe('run failure paths',()=>{
-  it('natural seeds cover all 5 four-faction pools and every draft obeys faction/rarity eligibility',()=>{
+  it('natural seeds cover every four-of-six faction pool and every draft obeys faction/rarity eligibility',()=>{
     const pools=new Set<string>();
     for(let seed=1;seed<=250;seed++){
-      const r=newRun('argeon',seed),key=r.activeFactions.join('+');pools.add(key);
+      const r=newRun('lilithe',seed),key=r.activeFactions.join('+');pools.add(key);
       expect(new Set(r.activeFactions).size).toBe(4);
-      for(let stage=0;stage<10;stage++){
-        r.stage=stage;
-        for(let n=0;n<5;n++){
+      for(let ch=0;ch<CHAPTER_COUNT;ch++)for(let node=0;node<STAGES_PER_CHAPTER;node++){
+        r.chapter=ch;r.node=node;
+        for(let n=0;n<2;n++){
           expect(rollDraft(r)).toBe(true);expect(new Set(r.draft).size).toBe(3);
-          for(const id of r.draft){const d=unitDef(id);expect(d.tier).toBeLessThanOrEqual(tierCap(stage));expect(d.faction==='neutral' || r.activeFactions.includes(d.faction as ActiveFaction)).toBe(true);}
+          for(const id of r.draft){const d=unitDef(id);expect(d.tier).toBeLessThanOrEqual(tierCap(battleNo(r)));expect(d.faction==='neutral' || r.activeFactions.includes(d.faction as ActiveFaction)).toBe(true);}
         }
       }
       expect(r.activeFactions.join('+')).toBe(key);
     }
-    expect(pools.size).toBe(5);
+    expect(ALL_FACTIONS).toHaveLength(6);
+    expect(pools.size).toBe(15);
+  },20000); // 250 局 × 全章抽卡，单跑约 5 秒，全量并行时会超默认 5 秒
+  it('refresh spends exactly one reroll and keeps the draft eligible',()=>{
+    const r=newRun('faie',8);
+    expect(r.rerolls).toBe(1);
+    expect(reroll(r)).toBe(true);expect(r.rerolls).toBe(0);
+    expect(new Set(r.draft).size).toBe(3);
+    for(const id of r.draft)expect(unitDef(id).tier).toBe(1);
   });
-  it('early targeted refresh exposes exactly that faction’s three commons',()=>{
-    const r=newRun('faie',8),focus=r.activeFactions[0];
-    expect(reroll(r,focus)).toBe(true);
-    expect([...r.draft].sort()).toEqual(DRAFT_POOL.filter(d=>d.faction===focus && d.tier===1).map(d=>d.id).sort());
-  });
-  it('illegal faction refresh and invalid placement leave every field and RNG untouched',()=>{
-    const r=newRun('faie',8),before=cloneRun(r);
-    const unavailable=(['light','shadow','abyss','magma','frost','desert'] as ActiveFaction[]).find(f=>!r.activeFactions.includes(f))!;
-    expect(reroll(r,unavailable)).toBe(false);
-    for(const [draft,to] of [[-1,0],[0,-1],[0,7],[3,0],[0,1.2]])expect(takeDraft(r,draft,to)).toBe('invalid');
+  it('refresh without rerolls and invalid placement leave every field and RNG untouched',()=>{
+    const r=newRun('faie',8);r.rerolls=0;const before=cloneRun(r);
+    expect(reroll(r)).toBe(false);
+    for(const [draft,to] of [[-1,0],[0,-1],[0,8],[3,0],[0,1.2]])expect(takeDraft(r,draft,to)).toBe('invalid');
     expect(r).toEqual(before);
   });
   for(const [a,b] of [[1,1],[2,2]] as const)it(`${a}+${b} copies merge exactly and preserve destination identity`,()=>{
     const r=newRun('argeon',1);r.slots[0]=owned('n_merc',a,1);r.bench[0]=owned('n_merc',b,2);
-    expect(moveSlot(r,5,0)).toBe('merge');expect(getOwned(r,0)).toEqual(owned('n_merc',a===1?2:4,1));expect(getOwned(r,5)).toBeNull();
+    expect(moveSlot(r,5,0)).toBe('merge');expect(getOwned(r,0)).toEqual({...owned('n_merc',a===1?2:4,1),equips:[]});expect(getOwned(r,5)).toBeNull();
     expect(unitLevel(getOwned(r,0)!)).toBe(a+b===4?3:2);
   });
   for(const [a,b] of [[2,1],[4,1],[4,2],[4,4]] as const)it(`${a} and ${b} copies swap intact rather than merge`,()=>{
@@ -62,7 +65,7 @@ describe('run failure paths',()=>{
     r.draft=['n_merc','n_medic','n_bulwark'];
     expect(takeDraft(r,0,5)).toBe('merge');expect(r.bench[0]!.copies).toBe(2);
     const rng=r.rngState,picks=r.picks;
-    expect(moveSlot(r,5,0)).toBe('merge');expect(r.slots[0]).toEqual(owned('n_merc',4,10));expect(r.bench[0]).toBeNull();
+    expect(moveSlot(r,5,0)).toBe('merge');expect(r.slots[0]).toEqual({...owned('n_merc',4,10),equips:[]});expect(r.bench[0]).toBeNull();
     expect(r.rngState).toBe(rng);expect(r.picks).toBe(picks);
   });
   it('retry settlement preserves legal paired individuals and rejects a fabricated merge or illegal intermediate state',()=>{
@@ -92,12 +95,12 @@ describe('run failure paths',()=>{
     expect(takeDraft(r,0,5)).toBe('place');expect(r.bench[0]!.ownedId).not.toBe(10);
   });
   it('boss draw consumes no life and grants no recruits, refresh, reroll or RNG advance',()=>{
-    const r=newRun('argeon',2);r.stage=9;r.picks=0;r.rerolls=0;const before=cloneRun(r);
+    const r=newRun('argeon',2);r.chapter=0;r.node=STAGES_PER_CHAPTER-1;r.picks=0;r.rerolls=0;const before=cloneRun(r);
     expect(currentNode(r).kind).toBe('boss');applyResult(r,'draw');
     expect({...r,history:[]}).toEqual({...before,history:[]});expect(r.history).toEqual(['draw']);
   });
   it('bench identities never enter battle input through the battlefield API',()=>{
-    const r=newRun('argeon',4);const before=r.rngState;
+    const r=newRun('lilithe',4);const before=r.rngState;
     expect(takeDraft(r,0,5)).toBe('place');expect(allOwned(r).filter(Boolean)).toHaveLength(1);expect(r.slots.some(Boolean)).toBe(false);expect(r.rngState).not.toBe(before);
   });
 });

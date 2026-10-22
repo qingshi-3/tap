@@ -9,7 +9,7 @@ import '../tutorial-guide.css';
 
 export const TUTORIAL_FLAG = 'zl_tutorial_done';
 export const tutorialDone = () => localStorage.getItem(TUTORIAL_FLAG) === '1';
-import { newTutorialRun, scriptDraft, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../core/tutorialRoute';
+import { newTutorialRun, scriptDraft, scriptShop, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../core/tutorialRoute';
 export { newTutorialRun, type TutAction };
 
 /** Game 发出的教学事件 */
@@ -68,21 +68,21 @@ const STEPS: Step[] = [
   { gate: prep(0), at: [fieldRect, () => slotRect(1, 0)], until: 'tap',
     text: '左边 5 个格位是你的阵型，右边是敌阵。<br>靠近中线的 <b>1 号位是队首</b>：最先出手，也最先挨打。' },
   { gate: prep(0), at: ['.hud-general'], until: 'tap',
-    text: '左上角是你的<b>主将</b>。主将不上场、不会被攻击，每场战斗在固定时机<b>自动释放技能</b>。<br>点头像可以查看技能；之后获得的「法强」培养点可以分给主将，让技能更强。' },
+    text: '左上角是你的<b>主将</b>。主将通常不上场（阿尔吉昂例外），每场战斗在固定时机<b>自动释放技能</b>。<br>点头像可以查看技能；之后获得的「法强」培养点可以分给主将，让技能更强。' },
   { id: 'recruit-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: (r, m) => m === 'prep' && r.picks < 3,
     text: '这次先招募 <b>3</b> 张卡。<br><b>按住「佣兵」</b>，拖到 1 号位松手。（点一下卡牌只是查看详情）' },
   { id: 'merge-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: 'merge',
     text: '又来了一张<b>同名卡</b>。把它拖到已有的佣兵身上，<b>合并升星</b>：属性变强、能力升级。' },
   { id: 'recruit-guard', gate: prep(0), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 0,
-    text: '把<b>守誓者</b>拖到 <b>2 号位</b>，保护佣兵。' },
+    text: '把<b>守誓者</b>拖到 <b>2 号位</b>。它站在<b>队尾</b>时，每次交锋结束给队首佣兵加<b>格挡</b>。' },
   { id: 'fight-first', gate: prep(0), at: ['.tray .fight'], until: 'battle-start',
     text: '准备好了就<b>开战</b>。战斗全自动，你只需要看。' },
   { id: 'learn-beat', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '这次交锋叫一<b>拍</b>：双方按站位，至多各选 <b>1 名单位</b>行动。<br>同拍先结算施法，再让普攻<b>同时结算</b>。' },
+    text: '这叫一次<b>交锋</b>：双方<b>同号位</b>的单位一起出手，每方至多 <b>1 名</b>。<br>先结算施法，再让普攻<b>同时结算</b>。' },
   { id: 'learn-round', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
     text: '每个<b>回合</b>，每名单位默认有 <b>1 次行动</b>。用完就等待，不会提前从队首重来。<br>双方的行动次数全部用完，才进入新回合。' },
   { id: 'learn-action', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '轮到单位，按自身能力<b>施法或普攻</b>。施法通常不限次数，例外会写在卡面上。<br>普攻默认打敌方队首；阵亡后，其他单位不前移。' },
+    text: '轮到单位，按自身能力<b>施法或普攻</b>。施法通常不限次数，例外会写在卡面上。<br>普攻默认打敌方队首；阵亡后其他单位不挪格，最前面还活着的就是队首。' },
   { id: 'learn-order', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
     text: '上方显示<b>回合、行动轮</b>和本轮剩余的出手顺序，数字是<b>格位号</b>。<br>发光者即将行动；一方全倒下就分出胜负。点继续观看。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
@@ -102,12 +102,12 @@ const STEPS: Step[] = [
   { id: 'recruit-bulwark', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 2)], until: (r) => r.picks <= 1,
     text: '把<b>铁甲卫士</b>拖到 <b>3 号位</b>。' },
   { id: 'recruit-sentry', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 3)], until: (r) => r.picks <= 0,
-    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>，护卫能挡下狙击。' },
+    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>。它有<b>嘲讽</b>，敌人的普攻和狙击都会先打它。' },
   { id: 'swap-front', gate: prep(1), at: [() => slotRect(0, 0), () => slotRect(0, 2)], until: 'move',
     text: '把 <b>1 号位佣兵</b>拖到 <b>3 号位铁甲卫士</b>身上，两者换位，让护甲单位顶在队首。' },
   { id: 'fight-second', gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战，留意主将技能什么时候发动。' },
   { id: 'learn-wait', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
-    text: '这次我方 <b>4 人</b>，敌方 <b>3 人</b>。敌方本轮用完会显示<b>「等待」</b>，等我方剩余单位行动。<br>主将技能、灼烧仍按<b>拍</b>计时，等待时也照常结算。' },
+    text: '这次我方 <b>4 人</b>，敌方 <b>3 人</b>。敌方本轮用完会显示<b>「等待」</b>，等我方剩余单位行动。<br>灼烧和「每次交锋结束时」的效果等待时也照常结算。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
     text: '主将技能会画出指向目标的弹道。' },
 
@@ -139,7 +139,7 @@ const STEPS: Step[] = [
   { id: 'learn-extra-action', gate: held, hold: true, at: [() => slotRect(0, 0), '.order-strip'], until: 'tap',
     text: '队首本回合有 <b>2 次行动</b>，但不会连续用完。<br>双方第 1 轮结束后，有剩余次数的单位进入<b>第 2 轮</b>，再按站位行动。' },
   { id: 'learn-immediate', gate: held, hold: true, at: [() => slotRect(0, 0)], until: 'tap',
-    text: '<b>立即攻击</b>在当前拍追加普攻，不施法，也不扣常规行动次数。<br><b>连击</b>是一次普攻打两段；<b>额外行动</b>则到后续轮次，照常判断施法还是普攻。' },
+    text: '<b>追击</b>：马上冲出去普攻一下，不施法，也不扣行动次数；追击引发的效果不会再追击。<br><b>连击</b>是一次普攻打两段；<b>额外行动</b>则到后续轮次，照常判断施法还是普攻。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
     text: '看上方<b>第 2 轮</b>：队首再次行动，次数用完的单位等待。' },
   { id: 'complete', gate: tutorialComplete, until: 'tap',
@@ -185,6 +185,7 @@ export class Tutorial {
 
   /** 按脚本替换候选；第 2 战送 1 点法强，用来教「分给主将」 */
   fixDraft(r: RunState) {
+    scriptShop(r);
     if (this.host.mode() !== 'prep') return;
     if (battleNo(r) === 1 && !this.gavePower) { this.gavePower = true; r.stash.power = (r.stash.power ?? 0) + 1; }
     // 最后一战用原阵容学习额外行动；一次性赠送卷轴，不改正式奖励或商店。
@@ -216,7 +217,7 @@ export class Tutorial {
     return true;
   }
 
-  /** 回放每拍出手前调用：当前是暂停讲解步时返回一个等待讲解结束的 Promise */
+  /** 回放每次交锋出手前调用：当前是暂停讲解步时返回一个等待讲解结束的 Promise */
   hold(n: number, els: HTMLElement[]): Promise<void> | null {
     if (this.disposed || n !== 1 || !STEPS[this.i]?.hold) return null;
     actors = els;

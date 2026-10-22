@@ -20,9 +20,8 @@ describe('instance armor details avoid repeating static armor', () => {
   it('preserves conditional armor, aura and armor growth mechanisms', () => {
     expect(unitAbilityText('v_keeper', 2, { ...stats, armor: 3 })).toBe('在队首时护甲再 +2');
     expect(unitAbilityText('v_sentinel', 2, { ...stats, armor: 1 })).toBe('相邻友军施法后：敌方下一个出手者获得 2 层寒意');
-    expect(unitAbilityText('l_warden', 2, { ...stats, armor: 2 })).toContain('自己每消耗 1 层格挡：本场护甲 +2（可叠加）');
+    expect(unitAbilityText('l_warden', 2, { ...stats, armor: 2 })).toContain('自己每消耗 1 层格挡：本场护甲 +1');
     expect(unitAbilityText('v_conduit', 2, { ...stats, armor: 0 })).toBe('相邻友军护甲 +2');
-    expect(unitAbilityText('l_sunriser', 3, { ...stats, armor: 1 })).toContain('本场护甲 +1（可叠加）');
   });
 
   it('uses real battle total armor including an adjacent aura', () => {

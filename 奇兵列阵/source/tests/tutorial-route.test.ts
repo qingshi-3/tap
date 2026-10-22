@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { simulate } from '../src/core/engine';
 import * as R from '../src/core/run';
-import { newTutorialRun, scriptDraft, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../src/core/tutorialRoute';
+import { newTutorialRun, scriptDraft, scriptShop, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../src/core/tutorialRoute';
 
 describe('fixed tutorial route', () => {
   it('wins four real battles, demonstrates the scroll extra wave, and completes after settlement', () => {
@@ -58,6 +58,7 @@ describe('fixed tutorial route', () => {
     expect(r.slots.map(u => u?.defId ?? null)).toEqual(['n_bulwark', 'v_chaser', 'n_merc', 'd_sentry', null]);
     fight('fight-third', true);
     expect(r.gold).toBe(10);
+    scriptShop(r);
     expect(r.shop?.equips[0]).toMatchObject({ id: 'eq_banner', price: 5, sold: false });
     act('shop-buy', { kind: 'buy', category: 'equips', index: 0 });
     expect(R.buy(r, 'equips', 0)).toBe(true);

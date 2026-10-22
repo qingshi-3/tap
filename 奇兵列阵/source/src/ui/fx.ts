@@ -61,8 +61,9 @@ export class FX {
   }
 
   /** 漂浮文字（伤害、加成、落空提示） */
-  float(x: number, y: number, text: string, cls: string, dur = 900) {
-    const el = h('div', { class: `float ${cls}`, style: `left:${x}px;top:${y}px` }, text);
+  /** px：像素词条图标（护甲/格挡/寒意/灼烧/法强），跟在数字后面，代替词条文字 */
+  float(x: number, y: number, text: string, cls: string, dur = 900, px?: string) {
+    const el = h('div', { class: `float ${cls}`, style: `left:${x}px;top:${y}px` }, text, px ? h('span', { class: `kpx px-${px}` }) : null);
     this.layer.appendChild(el);
     const dx = (Math.random() - 0.5) * 24;
     this.track(el.animate(

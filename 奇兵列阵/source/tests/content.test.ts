@@ -7,7 +7,7 @@ interface ArtMeta { frames: number; width: number; height: number; image: string
 const manifests = import.meta.glob<{ units: Record<string, ArtMeta> }>('../src/assets/units/manifest.json', { eager: true, import: 'default' });
 const art = manifests['../src/assets/units/manifest.json'].units;
 const pngs = import.meta.glob('../src/assets/units/*.png');
-const CORE_KEYWORDS = ['格挡', '护甲', '复生', '寒意', '灼烧', '溅射', '连击', '狙击', '反击', '法强'];
+const CORE_KEYWORDS = ['格挡', '护甲', '复生', '寒意', '灼烧', '溅射', '连击', '狙击', '法强', '嘲讽', '轮换', '决斗', '蓄力', '节拍', '亡语', '召唤'];
 
 describe('当前远征内容契约', () => {
   it('六阵营与中立均可招募，召唤物和敌军不会混入', () => {
@@ -23,8 +23,10 @@ describe('当前远征内容契约', () => {
     expect(new Set(UNITS.map(u => u.id)).size).toBe(UNITS.length);
   });
 
-  it('10 个核心关键词各至少出现在 2 张招募卡上，所有标签都有说明', () => {
+  it('v0.8 核心关键词各至少出现在 2 张招募卡上，反击只留针对卡，所有标签都有说明', () => {
     for (const k of CORE_KEYWORDS) expect(DRAFT_POOL.filter(u => u.keywords?.includes(k)).length, k).toBeGreaterThanOrEqual(2);
+    expect(DRAFT_POOL.filter(u => u.keywords?.includes('反击')).map(u => u.id)).toEqual(['n_thorn']);
+    for (const k of ['护卫', '易伤', '破绽']) expect(KEYWORDS[k], k).toBeUndefined();
     for (const card of UNITS) for (const k of card.keywords ?? []) expect(KEYWORDS[k], `${card.id}/${k}`).toBeTruthy();
   });
 
@@ -32,16 +34,16 @@ describe('当前远征内容契约', () => {
     for (const card of UNITS) {
       const texts = card.starText ?? [card.text];
       for (const t of texts) {
-        expect(t, card.id).not.toMatch(/护盾|换位|沉默|指定|开战末|\[\d/);
+        expect(t, card.id).not.toMatch(/护盾|沉默|易伤|破绽|护卫|开战末|\[\d/);
         expect(t.length, card.id).toBeGreaterThan(1);
       }
     }
     for (const card of DRAFT_POOL) {
       expect(card.starText, card.id).toHaveLength(3);
       expect(CARD_SUMMARY[card.id], card.id).toBeTruthy();
-      expect(CARD_SUMMARY[card.id], card.id).not.toMatch(/护盾|换位|沉默|指定/);
+      expect(CARD_SUMMARY[card.id], card.id).not.toMatch(/护盾|沉默|易伤|破绽|护卫/);
     }
-    for (const g of GENERALS) expect(g.text).not.toMatch(/护盾|换位|沉默|指定/);
+    for (const g of GENERALS) expect(g.text).not.toMatch(/护盾|沉默|易伤|破绽|护卫/);
   });
 
   it('带施法的卡都有施法效果，trigger 与声明字段一致', () => {
@@ -52,8 +54,10 @@ describe('当前远征内容契约', () => {
     }
   });
 
-  it('六阵营与中立各有可用主将', () => {
-    expect(GENERALS.map(g => g.faction).sort()).toEqual([...FACTION_ORDER].sort());
+  it('六阵营各两名主将，中立一名', () => {
+    expect(GENERALS).toHaveLength(13);
+    for (const f of ACTIVE_FACTIONS) expect(GENERALS.filter(g => g.faction === f).length, f).toBe(2);
+    expect(GENERALS.filter(g => g.faction === 'neutral').map(g => g.id)).toEqual(['hank']);
   });
 
   it('三章21战含分岔和变体均为合法五格敌阵', () => {

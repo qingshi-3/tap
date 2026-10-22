@@ -2,6 +2,10 @@
 
 用户于 2026-10-10 确认本地 Duelyst 素材可直接商用；源素材库仅只读。
 
+2026-10-21 按用户要求另整理通用完整动画整图，存于仓库根 `assets/duelyst-unit-sheets/`。共345张原始PNG、25,535帧、19,277,581字节，每个单位的多动作保留在原来同一张图中；没有缩放、裁切或重排，逐文件SHA-256与原件一致。包括Boss、六阵营、中立单位和两种生物，排除一个明确道具prop_cranewisp。此目录只放PNG，不加入游戏运行包，不替换下方已有加工素材。
+
+提取入口为仓库根 `tools/export-duelyst-unit-sheets.py`。来源为同一源库 `app/original_resources/units/*.png`，用 `app/resources/units/*.plist` 核对尺寸及全部帧范围。另350份配置缺少对应PNG；已检查全源库及3份ZIP，ZIP只含已有图，不宣称覆盖所有原作单位。桌面原包未修改；本地明细在工作区 `output/duelyst-unit-sheets-export/manifest.json`。
+
 源库：`C:\Users\qs\Desktop\游戏素材\duelyst-main (1)\duelyst-main`。
 原图集：`app/original_resources/units/<source>.png`；帧元数据：`app/resources/units/<source>.plist`。
 仅导出 breathing / idle 序列，按全序列联合包围盒最近邻缩放；100×112 透明画布，脚底 y=104。

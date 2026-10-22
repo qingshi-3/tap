@@ -392,6 +392,7 @@ export const sfx = {
     tone(988, 0.12, 'sine', 0.1);
     tone(1318, 0.18, 'sine', 0.08, undefined, 0.05);
   },
+  charge: (ratio = 0.5) => tone(520 + 520 * Math.min(1, ratio), 0.05, 'sine', 0.06),
   fizzle: () => tone(300, 0.2, 'sawtooth', 0.05, 150),
   death: () => {
     noise(0.35, 0.3, 400, 0.7, 0, 'lowpass');

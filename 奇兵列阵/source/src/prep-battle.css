@@ -47,9 +47,6 @@
 /* Reuse the battlefield's authored stat gems; the invisible hit area is larger than the art. */
 .prep-ov .prep-refund { display:flex; align-items:center; justify-content:center; width:var(--control-size,100px); min-width:var(--control-size,100px); height:var(--control-size,100px); padding:0; border:0; border-radius:0; background:none; box-shadow:none; cursor:pointer; font:inherit; }
 .prep-ov .prep-refund-face { display:flex; align-items:center; justify-content:center; gap:2px; width:100%; background:none; box-shadow:none; border-radius:0; }
-.prep-ov .prep-refund .st.block { width:auto; gap:3px; background:none!important; }
-.prep-ov .prep-refund .st.block .ic { display:inline-flex; width:22px; height:26px; color:#ffe28b; }
-.prep-ov .prep-refund .st.block i { color:#ffe28b; }
 .prep-ov .prep-refund:active .prep-refund-face { transform:translateY(2px); filter:brightness(1.35); }
 .prep-ov .prep-refund:focus-visible { outline:0; }
 .prep-ov .prep-refund:focus-visible .prep-refund-face { filter:drop-shadow(2px 0 #ffe3a3) drop-shadow(-2px 0 #ffe3a3); }
@@ -99,3 +96,26 @@
  .prep-ov .prep-position { top:0; }
  .prep-ov .prep-bench .u-pips { top:30px; }
 }
+
+/* 本轮分配：像素短牌（图标 + 绿色增量 + 退回箭头），触控区仍是整格 */
+.prep-ov .prep-refunds { grid-auto-rows:52px; }
+.prep-ov .prep-refund { height:52px; }
+.prep-ov .prep-refund-face {
+  width:auto; height:36px; padding:0 6px 0 4px; gap:3px;
+  background:#0c0a22;
+  box-shadow:0 0 0 2px #05040f, inset 0 0 0 2px #2c3a2a, 0 3px 0 2px rgba(0,0,0,.45);
+  clip-path:polygon(0 2px,2px 2px,2px 0,calc(100% - 2px) 0,calc(100% - 2px) 2px,100% 2px,100% calc(100% - 2px),calc(100% - 2px) calc(100% - 2px),calc(100% - 2px) 100%,2px 100%,2px calc(100% - 2px),0 calc(100% - 2px));
+}
+.prep-ov .prep-refund-face .kpx { width:28px; height:28px; vertical-align:0; }
+.prep-ov .prep-refund-face .kpx.px-atk, .prep-ov .prep-refund-face .kpx.px-hp { width:24px; height:24px; margin:0; }
+.prep-ov .prep-added { font:20px/1 var(--num); font-style:normal; color:#9dff8a; text-shadow:0 2px 0 #000; }
+.prep-ov .prep-undo { text-decoration:none; font-size:18px; line-height:1; color:#8d91b8; margin-left:2px; }
+.prep-ov .prep-refund:disabled .prep-undo { display:none; }
+.prep-ov .pu-card.gen .prep-refunds { left:150px; top:36px; }
+/* 主将法强：图标 + 数字 */
+.prep-ov .pu-card.gen .pu-stat .p { display:inline-flex; align-items:center; gap:4px; color:#e2c8ff; }
+.prep-ov .pu-card.gen .pu-stat .kpx { width:30px; height:30px; vertical-align:0; }
+.prep-ov .pu-card.gen .pu-stat em { font:26px/1 var(--num); font-style:normal; color:#fff; text-shadow:0 2px 0 #000; }
+/* 培养托盘：图标代替「攻/血/法/挡」 */
+.prep-ov .pr-chip.pt .kpx { width:44px; height:44px; vertical-align:0; }
+.prep-ov .pr-chip.pt .kpx.px-atk, .prep-ov .pr-chip.pt .kpx.px-hp { width:40px; height:40px; margin:0; }

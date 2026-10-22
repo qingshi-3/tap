@@ -1,8 +1,28 @@
 // Run save is the durable outbox for career metrics and replacement settlements.
-import { SAVE_VERSION, finishBattle, recoverEmptyRoster, type RunState } from './run';
-import { activateCareerRun, ensureRunCareer, loadCareer, observeRun } from './career';
+import { CONTENT_STRUCTURE, CONTENT_VERSION, SAVE_VERSION, finishBattle, recoverEmptyRoster, type RunState } from './run';
+import { GENERAL_MAP, UNIT_MAP } from './data';
+import { EQUIP_MAP, PASSIVE_MAP, SPELL_MAP } from './content';
+import { activateCareerRun, CAREER_KEY, ensureRunCareer, loadCareer, observeRun } from './career';
 
 export const SAVE_KEY = 'zl_expedition_v1';
+/** 0.8.1 之前的存档没有 contentStructure 字段：0.8.0 就是结构 1 */
+const structureOf = (r: RunState) => r.contentStructure ?? (r.contentVersion === '0.8.0' ? 1 : 0);
+/** 存档里引用的每个 ID 都还在当前内容里，才允许续玩（兜底：忘记升结构版本时不至于崩） */
+export function runFitsContent(r: RunState): boolean {
+  const units = [...(r.slots ?? []), ...(r.bench ?? [])].filter((u): u is NonNullable<typeof u> => !!u);
+  return !!GENERAL_MAP[r.general]
+    && units.every((u) => !!UNIT_MAP[u.defId] && (u.equips ?? []).every((e) => !!EQUIP_MAP[e]))
+    && (r.draft ?? []).every((id) => !!UNIT_MAP[id])
+    && [...(r.passives ?? []), ...(r.promo ?? [])].every((id) => !!PASSIVE_MAP[id])
+    && (r.bag ?? []).every((id) => !!EQUIP_MAP[id])
+    && [...(r.spells ?? []), ...(r.activeSpells ?? [])].every((id) => !!SPELL_MAP[id]);
+}
+/** 设置里的「清除全部数据」：远征、生涯、教学和提示进度；声音偏好保留 */
+export function clearAllData() {
+  const s = store(); if (!s) return;
+  for (const k of [SAVE_KEY, PLAYED_KEY, CAREER_KEY, 'zl_tutorial_done', 'zl_coach']) { try { s.removeItem(k); } catch { /* ignore */ } }
+  accessedRunId = null;
+}
 export type LoadResult = { kind: 'none' } | { kind: 'ok'; run: RunState } | { kind: 'incompatible' };
 const store = (): Storage | null => { try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; } };
 const PLAYED_KEY = 'zl_played';
@@ -58,7 +78,9 @@ export function loadRun(): LoadResult {
   if (!raw) return { kind: 'none' };
   try {
     const r = JSON.parse(raw) as RunState;
-    if (!r || r.saveVersion !== SAVE_VERSION) return { kind: 'incompatible' };
+    if (!r || r.saveVersion !== SAVE_VERSION || structureOf(r) !== CONTENT_STRUCTURE || !runFitsContent(r)) return { kind: 'incompatible' };
+    // 只改数值的更新：沿用存档，记下当前版本号
+    r.contentVersion = CONTENT_VERSION; r.contentStructure = CONTENT_STRUCTURE;
     const hadId = !!r.runId; ensureRunCareer(r);
     if (!hadId) {
       // Never publish a legacy identity to career storage until the identity itself is durable.

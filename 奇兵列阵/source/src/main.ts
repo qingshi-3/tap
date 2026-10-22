@@ -8,6 +8,7 @@ import './boss-rules.css';
 import { GENERALS, UNITS } from './core/data';
 import { App } from './ui/app';
 import { installPixelSprites } from './ui/pixel';
+import './ui-audit.css';
 import { installItemSprites } from './ui/pixelItems';
 import { rasterize } from './ui/unitArt';
 import { STAGE_H, STAGE_W, stageState } from './ui/dom';

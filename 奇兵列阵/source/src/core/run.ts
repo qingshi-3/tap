@@ -1,4 +1,4 @@
-// v0.7 远征局内状态：章节与节点、招募、金币与商店、培养点、主将升阶、装备与法术。
+// v0.8 远征局内状态：章节与节点、招募、金币与商店、培养点、主将升阶、装备与法术。
 // 纯数据 + 纯函数，UI 与模拟器共用；所有随机只走 rngState。
 import { ensureRunCareer, type CareerBattle } from './career';
 import { ALL_FACTIONS, DRAFT_POOL, ROLE_TAGS, tagFamily, unitDef } from './data';
@@ -10,12 +10,15 @@ import { chapter, battleIndex, CHAPTER_COUNT, STAGES_PER_CHAPTER, VARIANT_KEYS, 
 import { filtered, markSkipped, newRec, recommend, type RecState } from './recommend';
 import { rand, randInt, shuffle, weighted } from './rng';
 import type { BattleSetup } from './engine';
-import { isCopies, unitLevel, type ActiveFaction, type BattleResult, type Faction, type Slotted } from './types';
+import { isCopies, unitLevel, type ActiveFaction, type BattleResult, type EggStat, type Faction, type Slotted } from './types';
 
 export { mulberry32 } from './rng';
 
 export const SAVE_VERSION = 1;
-export const CONTENT_VERSION = '0.8';
+/** 显示用版本号：只改数值时升这个，进行中的远征照常续玩 */
+export const CONTENT_VERSION = '0.8.1';
+/** 内容结构版本：增删单位/主将/被动/装备、改 RunState 结构时才升；升了旧远征作废，生涯保留 */
+export const CONTENT_STRUCTURE = 1;
 export const MAX_LIVES = 3;
 export const MAX_REWARDED_RETRIES = 3;
 export const MAX_REWARDED_REROLLS = 2;
@@ -42,7 +45,7 @@ export interface ShopState {
 }
 /** 本次备战中的分配记录（开战前可撤销） */
 export interface AllocEntry { to: number | 'general'; type: string }
-export interface PendingBattle { result: BattleResult; gold: number }
+export interface PendingBattle { result: BattleResult; gold: number; eggStats?: Record<EggStat, number> }
 
 export interface RunState {
   /** Persistent identity is unrelated to seed; old saves are assigned one on load. */
@@ -55,6 +58,8 @@ export interface RunState {
   careerPrevious?: { id: string; general: string; outcome: 'victory' | 'defeat' | 'abandon' };
   saveVersion: number;
   contentVersion: string;
+  /** 缺省视为 0.8.0 的结构 1 */
+  contentStructure?: number;
   seed: number;
   general: string;
   lives: number;
@@ -111,20 +116,35 @@ export interface RunState {
   forkPick: null | 'elite' | 'normal';
   /** 已算出、尚未播放完的战斗（防退出重打） */
   pending: PendingBattle | null;
+
+  /** 蕾娃：本场开战前交换的敌方格位 */
+  swaps?: [number, number][];
+  /** 星角：龙蛋事件累计 */
+  eggStats?: Record<EggStat, number>;
+  /** 星角：上一场孵出的龙（结算提示用） */
+  lastHatch?: string | null;
+  /** 赫克：本场的临时佣兵 */
+  merc?: ShopItem | null;
 }
 
 // ───────────── 开局 ─────────────
 
-/** 开局主将 3 选 1（随局种子） */
+/** 本局 4 个阵营：和 newRun 用同一段随机 */
+export function runFactions(seed: number): ActiveFaction[] {
+  const fs = shuffle({ rngState: seed }, [...ALL_FACTIONS]);
+  return ALL_FACTIONS.filter((f) => fs.slice(0, 4).includes(f));
+}
+/** 开局主将 3 选 1：本局阵营里的 2 名主将 + 赫克 */
 export function generalChoices(seed: number): string[] {
-  const h = { rngState: (seed ^ 0x51ed27) | 0 };
-  return shuffle(h, GENERALS.map((g) => g.id)).slice(0, 3);
+  const h = { rngState: (seed ^ 0x51ed27) | 0 }, fs = runFactions(seed);
+  const pool = GENERALS.filter((g) => fs.includes(g.faction as ActiveFaction)).map((g) => g.id);
+  return [...shuffle(h, pool).slice(0, 2), 'hank'];
 }
 export const randomSeed = () => (Math.random() * 2 ** 31) | 0;
 
 export function newRun(general: string, seed = randomSeed()): RunState {
   const r: RunState = {
-    saveVersion: SAVE_VERSION, contentVersion: CONTENT_VERSION, seed, general,
+    saveVersion: SAVE_VERSION, contentVersion: CONTENT_VERSION, contentStructure: CONTENT_STRUCTURE, seed, general,
     lives: MAX_LIVES, chapter: 0, node: 0, wins: 0, history: [], over: null,
     slots: Array(5).fill(null), bench: Array(BENCH_SLOTS).fill(null), nextOwnedId: 1,
     activeFactions: [], variantChoices: {}, draft: [], picks: PICKS_PER_ROUND, rerolls: 1, rngState: seed, rec: newRec(),
@@ -135,9 +155,11 @@ export function newRun(general: string, seed = randomSeed()): RunState {
     bag: [], spells: [], activeSpells: [], orders: [], reward: null, forkPick: null, pending: null,
   };
   ensureRunCareer(r);
-  const fs = shuffle(r, [...ALL_FACTIONS]);
-  r.activeFactions = ALL_FACTIONS.filter((f) => fs.slice(0, 4).includes(f));
+  r.activeFactions = runFactions(seed);
+  shuffle(r, [...ALL_FACTIONS]);
   for (const k of VARIANT_KEYS) r.variantChoices[k] = rand(r) < 0.5 ? 0 : 1;
+  if (general === 'argeon') r.slots[0] = newOwned(r, 'x_argeon');
+  if (general === 'xingjiao') { r.slots[0] = newOwned(r, 'x_egg'); r.eggStats = emptyEgg(); }
   enterNode(r);
   return r;
 }
@@ -199,13 +221,24 @@ function enterNode(r: RunState) {
   r.forkPick = null;
   r.allocLog = [];
   r.activeSpells = [];
+  r.swaps = [];
   if (currentStage(r).type === 'shop') {
     r.shop = makeShop(r, 1);
     r.draft = []; r.picks = 0; r.rerolls = 0;
+    r.merc = null;
   } else {
     r.shop = null;
     newDraftRound(r);
+    prepareBattleExtras(r);
   }
+}
+/** 赫克：每场战斗前刷新临时佣兵；军需官再送一张法术 */
+function prepareBattleExtras(r: RunState) {
+  if (r.general !== 'hank') { r.merc = null; return; }
+  const tier = r.passives.includes('hank_3') ? 3 : 2;
+  const pool = DRAFT_POOL.filter((d) => d.tier === tier && factionAvailable(r, d.faction));
+  r.merc = pool.length ? { id: pool[randInt(r, pool.length)].id, price: 0, sold: false } : null;
+  if (r.passives.includes('hank_4')) r.spells.push(SPELLS[randInt(r, SPELLS.length)].id);
 }
 function newDraftRound(r: RunState) {
   r.picks = PICKS_PER_ROUND;
@@ -250,9 +283,11 @@ function recInput(r: RunState) {
 }
 /** 推荐算法生成本轮 3 张候选；上一轮没拿的卡记为跳过 */
 export function rollDraft(r: RunState): boolean {
-  markSkipped(r.rec, r.draft);
+  const savedRng = r.rngState;
+  const savedRec = structuredClone(r.rec);
   const ids = recommend(r, recInput(r), r.rec, 3);
-  if (ids.length < 3) return false;
+  if (ids.length < 3) { r.rngState = savedRng; r.rec = savedRec; return false; }
+  markSkipped(r.rec, r.draft);
   r.draft = ids;
   return true;
 }
@@ -288,7 +323,7 @@ export function consumeRewardedRetry(r: RunState) {
 
 const hasTag = (defId: string, tag: string) => (unitDef(defId).tags ?? []).some((t) => t === tag || tagFamily(t) === tag);
 /** 词条招募令可选的标签：职能标签 + 机制标签族 */
-export const ORDER_TAGS = [...ROLE_TAGS, '格挡', '复生', '连击', '狙击', '法强', '反击', '灼烧', '溅射', '寒意', '护甲', '护卫', '易伤', '立即攻击', '行动次数', '献祭']
+export const ORDER_TAGS = [...ROLE_TAGS, '嘲讽', '轮换', '决斗', '蓄力', '节拍', '格挡', '复生', '连击', '狙击', '法强', '反击', '灼烧', '溅射', '寒意', '护甲', '追击', '行动次数', '献祭']
   .filter((t, i, a) => a.indexOf(t) === i);
 function orderPool(r: RunState, kind: OrderKind, choice: string) {
   const pool = draftPool(r);
@@ -332,8 +367,9 @@ export function placeKind(r: RunState, defId: string, slot: number): PlaceResult
   if (!validSlot(slot) || !DRAFT_POOL.some((d) => d.id === defId)) return 'invalid';
   const cur = getOwned(r, slot);
   if (!cur) return 'place';
-  if (cur.defId === defId) return cur.copies === 1 ? 'merge' : 'invalid';
-  return reserveDestination(r, slot) === null ? 'replace' : 'reserve';
+  if (cur.defId === defId && !cur.temp) return cur.copies === 1 ? 'merge' : 'invalid';
+  if (reserveDestination(r, slot) !== null) return 'reserve';
+  return canSell(r, slot) ? 'replace' : 'invalid';
 }
 const newOwned = (r: RunState, defId: string): Slotted => ({ defId, ownedId: r.nextOwnedId++, copies: 1 });
 /** 被覆盖的单位按卖出处理（金币、培养点、装备全额返还） */
@@ -362,7 +398,7 @@ export function moveKind(r: RunState, from: number, to: number, mode: 'auto' | '
   const a = getOwned(r, from), b = getOwned(r, to);
   if (!a || !isCopies(a.copies) || (b && !isCopies(b.copies))) return 'invalid';
   if (!b) return 'move';
-  if (mode === 'swap' || a.defId !== b.defId || a.copies !== b.copies || a.copies === MAX_COPIES) return 'swap';
+  if (mode === 'swap' || a.temp || b.temp || a.defId !== b.defId || a.copies !== b.copies || a.copies === MAX_COPIES) return 'swap';
   return 'merge';
 }
 export const equipCap = (r: RunState) => (r.passives.includes('g_dual') ? 2 : 1);
@@ -386,11 +422,14 @@ export function moveSlot(r: RunState, from: number, to: number, mode: 'auto' | '
   else { putOwned(r, to, a); putOwned(r, from, b); }
   return kind;
 }
-/** 卖出价：每份 1 金 */
-export const sellPrice = (u: Slotted) => u.copies;
+/** 卖出价：每份 1 金；临时佣兵不值钱 */
+export const sellPrice = (u: Slotted) => (u.temp ? 0 : u.copies);
+/** 阿尔吉昂本人不能出售 */
+export const sellable = (u: Slotted) => u.defId !== 'x_argeon';
 /** 招募耗尽后保留最后一名持有单位，避免备战中无兵可用。 */
 export function canSell(r: RunState, slot: number): boolean {
-  if (!getOwned(r, slot) || r.over || r.pending) return false;
+  const u = getOwned(r, slot);
+  if (!u || !sellable(u) || r.over || r.pending) return false;
   return screen(r) !== 'prep' || r.picks > 0 || allOwned(r).filter(Boolean).length > 1;
 }
 export function sell(r: RunState, slot: number) {
@@ -564,6 +603,80 @@ export function buy(r: RunState, kind: ShopKind, i = 0) {
   return true;
 }
 
+// ───────────── 主将专属 ─────────────
+
+/** 赫克：雇佣本场的临时佣兵（只参加本场） */
+export function hireMerc(r: RunState) {
+  const m = r.merc;
+  if (!m || m.sold || r.gold < m.price || r.pending || screen(r) !== 'prep') return false;
+  const f = r.slots.findIndex((u) => !u), b = r.bench.findIndex((u) => !u);
+  const dst = f >= 0 ? f : b >= 0 ? b + 5 : -1;
+  if (dst < 0) return false;
+  putOwned(r, dst, { ...newOwned(r, m.id), temp: true });
+  r.gold -= m.price;
+  m.sold = true;
+  return true;
+}
+export const SIGN_PRICE = 3;
+/** 赫克「长约」：临时佣兵花 3 金转正 */
+export function signMerc(r: RunState, slot: number) {
+  const u = getOwned(r, slot);
+  if (!u?.temp || !r.passives.includes('hank_1') || r.gold < SIGN_PRICE || r.pending) return false;
+  r.gold -= SIGN_PRICE;
+  delete u.temp;
+  return true;
+}
+/** 战后遣散临时佣兵：培养点与装备退回 */
+function dismissTemps(r: RunState) {
+  for (let i = 0; i < OWNED_SLOTS; i++) {
+    const u = getOwned(r, i);
+    if (!u?.temp) continue;
+    for (const [k, n] of Object.entries(u.train ?? {})) if (n) r.stash[k] = (r.stash[k] ?? 0) + n;
+    r.bag.push(...(u.equips ?? []));
+    putOwned(r, i, null);
+  }
+}
+
+/** 蕾娃：本场可交换次数 */
+export const swapCap = (r: RunState) => (r.general !== 'reva' ? 0 : r.passives.includes('reva_1') ? 2 : 1);
+/** 蕾娃：记录一次开战前的敌方换位；超过次数时替换最早的一次 */
+export function addSwap(r: RunState, a: number, b: number) {
+  if (!swapCap(r) || a === b || r.pending || ![a, b].every((i) => Number.isInteger(i) && i >= 0 && i < 5)) return false;
+  const swaps = [...(r.swaps ?? []), [a, b] as [number, number]];
+  r.swaps = swaps.slice(-swapCap(r));
+  return true;
+}
+export function clearSwaps(r: RunState) { r.swaps = []; }
+
+/** 萨吉：预备位格数；预备位即备战区最前面的格子 */
+export const reserveSlots = (r: RunState) => (r.general !== 'sajj' ? 0 : r.passives.includes('sajj_3') ? 2 : 1);
+
+const EGG_ORDER: EggStat[] = ['death', 'burn', 'freeze', 'move', 'summon'];
+export const DRAGON_OF: Record<EggStat, string> = { death: 'x_bone', burn: 'x_fire', freeze: 'x_frostd', move: 'x_wind', summon: 'x_brood' };
+const emptyEgg = (): Record<EggStat, number> => ({ death: 0, burn: 0, freeze: 0, move: 0, summon: 0 });
+export const eggThreshold = (r: RunState) => (r.passives.includes('xingjiao_1') ? 8 : 12);
+/** 星角：战后累计龙蛋事件，任一类满阈值就孵化持有的第一颗蛋 */
+function growEgg(r: RunState, stats?: Record<EggStat, number>) {
+  if (r.lastHatch != null) delete r.lastHatch;
+  if (r.general !== 'xingjiao' || !stats) return;
+  const eggAt = allOwned(r).findIndex((u) => u?.defId === 'x_egg');
+  if (eggAt < 0) return;
+  const acc = r.eggStats ?? emptyEgg();
+  for (const k of EGG_ORDER) acc[k] += stats[k] ?? 0;
+  r.eggStats = acc;
+  const top = EGG_ORDER.reduce((a, b) => (acc[b] > acc[a] ? b : a));
+  if (acc[top] < eggThreshold(r)) return;
+  const egg = getOwned(r, eggAt)!;
+  egg.defId = DRAGON_OF[top];
+  r.lastHatch = egg.defId;
+  r.eggStats = emptyEgg();
+  if (r.passives.includes('xingjiao_2')) {
+    const b = r.bench.findIndex((u) => !u), f = r.slots.findIndex((u) => !u);
+    const dst = b >= 0 ? b + 5 : f >= 0 ? f : -1;
+    if (dst >= 0) putOwned(r, dst, newOwned(r, 'x_egg'));
+  }
+}
+
 // ───────────── 主将升阶 ─────────────
 
 function passiveNeedMet(r: RunState, p: PassiveDef) {
@@ -578,11 +691,18 @@ function passiveNeedMet(r: RunState, p: PassiveDef) {
     case 'extra': return units.some(u => {
       const d = unitDef(u.defId);
       // General force commands have their own allowance and cannot benefit from chain.
-      const effects = [d.cast, d.onStart, d.afterAttack, d.onHurt, d.onKill, d.onFaint, d.onAllyFaint, d.onBeatEnd, d.onRevive];
-      return d.special === 'wyvern' || effects.some(es => es?.some(e => e.op === 'extraAct')) ||
+      const effects = [d.cast, d.chargeSkill, d.onStart, d.afterAttack, d.onHurt, d.onKill, d.onDuelKill, d.onRattle, d.onAllyFaint,
+        d.onBeatEnd, d.onRevive, d.onEnemyFreeze, d.onFront, d.onPulse];
+      return r.general === 'kaleos' || d.special === 'wyvern' || d.special === 'viper' || effects.some(es => es?.some(e => e.op === 'extraAct')) ||
         (u.equips ?? []).some(id => [EQUIP_MAP[id]?.onStart, EQUIP_MAP[id]?.afterAttack].some(es => es?.some(e => e.op === 'extraAct')));
     });
     case 'equip2': return eqs.length >= 2;
+    case 'rotate': return fam('轮换') || eqs.includes('eq_boots') || r.general === 'zilan' || r.passives.includes('argeon_4');
+    case 'duel': return fam('决斗') || eqs.includes('eq_duel') || r.passives.includes('argeon_2');
+    case 'charge': return fam('蓄力') || eqs.includes('eq_hourglass');
+    case 'rattle': return fam('亡语') || r.general === 'kasiva';
+    case 'summon': return fam('召唤') || r.passives.includes('lilithe_2');
+    case 'taunt': return fam('嘲讽') || eqs.includes('eq_guard') || r.passives.includes('argeon_1');
   }
 }
 /** 1 个专属 + 2 个通用 */
@@ -615,19 +735,23 @@ export const promoted = (r: RunState) => r.promoCount > 0;
 export function buildBattle(r: RunState, slots: readonly (Slotted | null)[] = r.slots,
   bench: readonly (Slotted | null)[] = r.bench): BattleSetup {
   const node = currentBattle(r) ?? currentNode(r);
+  const reserve = reserveSlots(r);
   return {
     player: slots.map(cloneOwned),
     enemy: node.lineup,
     rules: node.rules,
     general: { id: r.general, power: r.genPower, passives: [...r.passives] },
     spells: [...r.activeSpells],
+    chapter: r.chapter + 1,
+    ...(r.swaps?.length ? { swaps: r.swaps.map((s) => [...s] as [number, number]) } : {}),
+    ...(reserve ? { reserve: bench.slice(0, reserve).map(cloneOwned) } : {}),
     bench: bench.filter(Boolean).length,
     seed: (r.seed ^ Math.imul(battleNo(r) + 1, 0x2545f491) ^ r.history.length) | 0,
   };
 }
 /** 点「开战」：结果先算出、连同进行中标记一起存档；之后锁定本次分配 */
-export function beginBattle(r: RunState, result: BattleResult, gold = 0) {
-  r.pending = { result, gold };
+export function beginBattle(r: RunState, result: BattleResult, gold = 0, eggStats?: Record<EggStat, number>) {
+  r.pending = { result, gold, ...(eggStats ? { eggStats } : {}) };
   r.allocLog = [];
 }
 /** 播放完（或重进时）结算进行中的战斗 */
@@ -635,25 +759,29 @@ export function finishBattle(r: RunState) {
   const p = r.pending;
   if (!p) return false;
   r.pending = null;
-  applyResult(r, p.result, p.gold);
+  applyResult(r, p.result, p.gold, p.eggStats);
   return true;
 }
 
 export const WIN_GOLD = { normal: 3, elite: 5, boss: 6 } as const;
 export const LOSE_GOLD = 1;
-export function applyResult(r: RunState, res: BattleResult, battleGold = 0) {
+export function applyResult(r: RunState, res: BattleResult, battleGold = 0, eggStats?: Record<EggStat, number>) {
   if (r.over) return;
   const node = currentBattle(r);
   if (!node) return;
   // 正式结算即消耗本场法术，包含留在原节点的首领败局/平局和终局。
   // 重打读取独立的战前快照；战前撤销仍由 unuseSpell 处理。
   r.activeSpells = [];
+  r.swaps = [];
   r.history.push(res);
   r.gold += battleGold;
   r.lastPoints = [];
+  dismissTemps(r);
+  if (r.merc) r.merc.sold = true;
+  growEgg(r, eggStats);
   if (res === 'win') {
     r.wins++;
-    r.gold += WIN_GOLD[node.kind] + (r.passives.includes('g_pay') ? 2 : 0);
+    r.gold += WIN_GOLD[node.kind] + (r.passives.includes('g_pay') ? 2 : 0) + (r.general === 'hank' ? 1 : 0);
     const pts = rollPoints(r, (node.kind === 'elite' ? 4 : 3) + (r.passives.includes('g_drill') ? 1 : 0));
     r.lastPower = pts.filter((p) => p === 'power').length;
     r.lastPoints = pts;
@@ -672,12 +800,12 @@ export function applyResult(r: RunState, res: BattleResult, battleGold = 0) {
     r.lives--;
     if (r.lives <= 0) { r.over = 'defeat'; return; }
     // 首领战败：留在原地，重新招募一轮再打
-    if (node.kind === 'boss') { newDraftRound(r); r.allocLog = []; return; }
+    if (node.kind === 'boss') { newDraftRound(r); prepareBattleExtras(r); r.allocLog = []; return; }
     advance(r);
     return;
   }
   // 平局：首领留在原地只能继续调阵；其他节点 +1 金、不扣命，前进
-  if (node.kind === 'boss') return;
+  if (node.kind === 'boss') { prepareBattleExtras(r); return; }
   r.gold += 1;
   advance(r);
 }
@@ -695,6 +823,7 @@ function inventoryKey(units: readonly (Slotted | null)[]) {
 export function settleRewardedRetry(
   r: RunState, checkpoint: RunState, retrySlots: readonly (Slotted | null)[],
   actualResult: BattleResult, retryBench: readonly (Slotted | null)[] = checkpoint.bench, battleGold = 0,
+  eggStats?: Record<EggStat, number>,
 ): RewardedRetrySettlement {
   if (retrySlots.length !== 5 || retryBench.length !== BENCH_SLOTS || !retrySlots.some(Boolean)
     || inventoryKey([...retrySlots, ...retryBench]) !== inventoryKey(allOwned(checkpoint))
@@ -709,7 +838,7 @@ export function settleRewardedRetry(
   next.slots = retrySlots.map(cloneOwned);
   next.bench = retryBench.map(cloneOwned);
   const authoritativeResult = actualResult === 'win' ? 'win' : 'lose';
-  applyResult(next, authoritativeResult, battleGold);
+  applyResult(next, authoritativeResult, battleGold, eggStats);
   const lifeRestored = next.lives > r.lives;
   Object.assign(r, next);
   return { actualResult, authoritativeResult, lifeRestored };

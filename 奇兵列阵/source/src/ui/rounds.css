@@ -10,7 +10,37 @@
 .order-strip .os-u.first { background: #b59039; color: #fff7cd; }
 .order-strip .os-side.enemy .os-u { background: #633546; }
 .order-strip .os-side.enemy .os-u.first { background: #a84f5d; color: #fff0ef; }
-.vs.beat .vs-lbl { white-space: nowrap; font-size: 24px; letter-spacing: 0; color: #d7e5f8; }
+.vs.beat .vs-lbl {
+  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%);
+  height: 26px; padding: 0 9px; display: flex; align-items: center; white-space: nowrap;
+  font-size: 18px; font-weight: 700; letter-spacing: .1em; color: #ffe9a8; background: #120e34;
+  border-style: solid; border-width: 0; border-image: var(--pxf-gold) 6 / 8px / 0 stretch;
+}
+.vs.beat .vs-lbl:empty { display: none; }
 @media (prefers-reduced-motion: reduce) {
   .unit.next-actor::before { animation: none; }
 }
+
+/* 中线：大字回合，下方圆点为本回合已进行的交锋 */
+.vs-pips { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
+.vs-pips i { width: 9px; height: 9px; background: #8a7a4a; transform: rotate(45deg); }
+.vs-pips i.on { background: #ffe58a; box-shadow: 0 0 6px #ffcf40; }
+
+/* 出手顺序：双方同号同时出手。像素号牌占用槽位编号那一行，槽位号让位，「队首」下移 */
+.unit[data-order]::after {
+  content: attr(data-order);
+  position: absolute; left: 50%; bottom: -60px; transform: translateX(-50%);
+  min-width: 30px; height: 28px; box-sizing: border-box; padding: 0 7px;
+  display: flex; align-items: center; justify-content: center;
+  font: 19px/1 var(--num, sans-serif); color: #dfe6ff; background: #1b1846;
+  border-style: solid; border-width: 0; border-image: var(--pxf-steel) 6 / 8px / 0 stretch;
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000;
+  pointer-events: none; z-index: 5;
+}
+.unit.side-1[data-order]::after { background: #2a0e1c; color: #ffd9de; border-image-source: var(--pxf-red); }
+.unit.next-actor[data-order]::after { background: #3a2408; color: #fff3c4; border-image-source: var(--pxf-gold); }
+.board.ordering .slot-num b { display: none; }
+.board.ordering .slot .slot-num { top: 128px; }
+
+/* 追击残影 */
+.u-ghost { position: absolute; inset: 0; pointer-events: none; filter: none; }

@@ -53,9 +53,9 @@ for(const hero of heroes){const list:number[]=[];for(let index=start;list.length
 write('manifest.json',{schema:1,created:new Date().toISOString(),policyRevision:POLICY_REVISION,parameters:{SEEDS_PER_CELL:sampleCount,START:start,BOSS_OPT:optCount,FLOWS:flows,HEROES:heroes},flows:FLOW_NAMES,sourceHashes,seeds:seedGroups,scope:'Each hero is actually offered by both versions. No official-recommended roster list. Strategy labels are priorities, not evidence of pure or formed builds. Own-route results and same-acquired-inventory tactical searches have separate denominators.'});
 
 const level=(u:Slotted)=>u.copies===4?3:u.copies===2?2:1;
-const effects=(d:UnitDef):Effect[]=>[...(d.cast??[]),...(d.onStart??[]),...(d.afterAttack??[]),...(d.onHurt??[]),...(d.onKill??[]),...(d.onFaint??[]),...(d.onAllyFaint??[]),...(d.onBeatEnd??[]),...(d.onRevive??[])];
+const effects=(d:UnitDef):Effect[]=>[...(d.cast??[]),...(d.onStart??[]),...(d.afterAttack??[]),...(d.onHurt??[]),...(d.onKill??[]),...(d.onRattle??[]),...(d.onAllyFaint??[]),...(d.onBeatEnd??[]),...(d.onRevive??[])];
 const has=(d:UnitDef,op:Effect['op'])=>effects(d).some(e=>e.op===op);
-const deathSummoner=(d:UnitDef)=>(d.onFaint??[]).some(e=>e.op==='summon');
+const deathSummoner=(d:UnitDef)=>(d.onRattle??[]).some(e=>e.op==='summon');
 const healing=(d:UnitDef)=>has(d,'heal');
 const healerValue=(d:UnitDef)=>(d.cast??[]).filter(e=>e.op==='heal').reduce((n,e)=>n+(e.to==='allies'?18:e.to==='adjacent'?10:4),0);
 const tri=(values:readonly number[]|undefined,l:number)=>values?.[l-1]??0;
@@ -65,11 +65,11 @@ function affinity(d:UnitDef,flow:Flow):number{
  case 'burn':return (has(d,'burn')?15:0)+(d.traits?.combo?5:0)+(healing(d)?3:0);
  case 'frost':return (has(d,'chill')?15:0)+(has(d,'extraAct')?4:0)+(d.traits?.armor?3:0);
  case 'spell':return ((d.cast??[]).some(e=>e.op==='dmg')?23:d.cast?5:0)+((d.cast??[]).some(e=>e.op==='dmg'&&e.to==='enemyAll')?8:0)+(d.special==='matriarch'?18:0)+(d.special==='solus'?20:0)+(d.special==='brood'?10:0)+(healing(d)?4:0);
- case 'defense':return (d.traits?.armor?9:0)+(d.traits?.thorns?8:0)+(d.traits?.guard?7:0)+(has(d,'block')?6:0)+(healing(d)?5:0);
+ case 'defense':return (d.traits?.armor?9:0)+(d.traits?.thorns?8:0)+(d.traits?.taunt?7:0)+(has(d,'block')?6:0)+(healing(d)?5:0);
  case 'healing':return (healing(d)?10:0)+healerValue(d)+(d.traits?.reborn?10:0)+(d.hp>=8?3:0);
  case 'summon':return (deathSummoner(d)?13:0)+(d.onAllyFaint?.length?12:0)+(d.traits?.reborn?4:0)+(healing(d)?3:0);
  case 'sacrifice':return (has(d,'sacrifice')?14:0)+(deathSummoner(d)?10:0)+(d.traits?.reborn?9:0)+(d.onAllyFaint?.length?9:0);
- case 'vuln':return (has(d,'vuln')?13:0)+(d.traits?.combo?11:0)+(has(d,'extraAct')?7:0)+(d.special==='monk'?10:0)+(healing(d)?5:0);
+ case 'vuln':return (has(d,'weaken')?13:0)+(d.traits?.combo?11:0)+(has(d,'extraAct')?7:0)+(d.special==='monk'?10:0)+(healing(d)?5:0);
  }
 }
 interface ResourceCost {goldSpent:number;saleGold:number;recruited:number;merges:number;rerolls:number;shopPurchases:number;spellsUsed:number;allocations:Record<string,number>}

@@ -87,7 +87,7 @@ export function recommend(h: RngHolder, inp: RecInput, rec: RecState, n = 3, upd
     if (!d) break;
     out.push(d.id); taken.add(d.id);
   }
-  if (update) {
+  if (update && out.length === n) {
     rec.recent = [out, ...rec.recent].slice(0, 2);
     rec.dry = out.some((id) => ctx.owned.has(id)) ? 0 : rec.dry + 1;
     rec.skipped = rec.skipped.map((s) => ({ ...s, left: s.left - 1 })).filter((s) => s.left > 0);

@@ -3,32 +3,42 @@
 .kw-ic { display: inline-block; width: 1em; height: 1em; vertical-align: -.15em; flex: none; }
 .kw-ic svg { width: 100%; height: 100%; display: block; overflow: visible; }
 
-/* 机制：图标 + 彩色加粗 */
+/* 像素图标：词条图标（--pxk-*）与属性宝石（--px-atk/hp），1 精灵像素 = 2 屏幕像素附近 */
+.kpx { display: inline-block; width: 1.3em; height: 1.3em; vertical-align: -.32em; flex: none; background: center / contain no-repeat; image-rendering: pixelated; }
+.kpx.px-armor { background-image: var(--pxk-armor); }
+.kpx.px-block { background-image: var(--pxk-block); }
+.kpx.px-power { background-image: var(--pxk-power); }
+.kpx.px-thorns { background-image: var(--pxk-thorns); }
+.kpx.px-chill { background-image: var(--pxk-chill); }
+.kpx.px-freeze { background-image: var(--pxk-freeze); }
+.kpx.px-burn { background-image: var(--pxk-burn); }
+.kpx.px-charge { background-image: var(--pxk-charge); }
+.kpx.px-atk { background-image: var(--px-atk); width: 1.05em; height: 1.05em; vertical-align: -.16em; margin-right: .06em; }
+.kpx.px-hp { background-image: var(--px-hp); width: 1.05em; height: 1.05em; vertical-align: -.16em; margin-right: .06em; }
+
+/* 图标类机制：只有图标 + 数字 */
+b.kwi[class] { color: var(--kc); font-weight: 900; white-space: nowrap; text-shadow: 0 1px 0 rgba(0, 0, 0, .7); }
+.kwi .kv { margin-left: .04em; }
+.kwi-name { margin-left: .2em; font-weight: 800; }
+
+/* 短词类机制：「」+ 颜色 */
 b.kwt[class] {
   color: var(--kc, #ffe7a8);
   font-weight: 800;
   white-space: nowrap;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .55);
 }
-.kwt .kw-ic { margin-right: .12em; filter: drop-shadow(0 0 3px var(--kg)); }
 .kwt .kv { font-style: normal; font-weight: 900; font-variant-numeric: tabular-nums; }
-/* 时机：浅色胶囊，放在效果之前（唯一带底色的词条） */
+/* 时机：同样是「」短词，放在效果之前 */
 .kwtrig {
   display: inline;
-  padding: .02em .36em .02em .26em;
-  margin: 0 .3em 0 0;
-  border-radius: 4px;
-  background: var(--ka);
-  box-shadow: inset 0 0 0 1px var(--ka);
+  margin: 0 .1em 0 0;
   color: var(--kc);
   font-weight: 800;
   text-shadow: 0 1px 0 rgba(0, 0, 0, .65);
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
   white-space: normal;
 }
-.kwtrig > .kw-ic { margin-right: .16em; }
-.kwtrig.mini { padding: 0 .26em 0 .18em; margin: 0 .12em; font-weight: 700; }
+.kwtrig.mini { margin: 0; font-weight: 800; }
 .kwtrig-note { color: #a9adcf; font-size: .86em; margin-right: .2em; }
 
 /* 招募预览：词条整体换行，不再把短句拆字或截成半个机制名。 */
@@ -43,13 +53,12 @@ b.kwt[class] {
   -webkit-line-clamp: unset;
   line-clamp: unset;
 }
-.card-keywords > .kwtrig.mini { padding: 0 .12em; margin: 0; white-space: nowrap; }
-.card-keywords .kw-ic { display: none; }
+.card-keywords > .kwtrig.mini { margin: 0; white-space: nowrap; }
+.card-keywords .kpx { width: 1.45em; height: 1.45em; vertical-align: -.36em; }
 
 /* 数值：属性图标 + 着色数字，不加粗 */
 .kwn { --nc: #ff7a45; color: var(--nc); font-weight: 500; white-space: nowrap; }
 .kwn-hp { --nc: #ff7a88; }
-.kwn .kw-ic { width: .9em; height: .9em; margin-right: .1em; vertical-align: -.1em; }
 .kv { font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
 .kwn-pair { white-space: nowrap; font-weight: 700; }
 .kwn-pair .kv.a { color: #ff7a45; }
@@ -58,7 +67,7 @@ b.kwt[class] {
 .kv.x { color: #fff; }
 /* 数字里的「+法强」 */
 .kwp { color: var(--kc); font-weight: 600; white-space: nowrap; }
-.kwp .kw-ic { width: .85em; height: .85em; margin: 0 .04em; vertical-align: -.08em; }
+.kwp .kpx { width: 1.15em; height: 1.15em; margin: 0 .02em; vertical-align: -.26em; }
 
 /* 升星变化「2→3」 */
 .kwup { text-decoration: none; color: #8d91b8; margin: 0 .08em; font-weight: 400; }
@@ -103,3 +112,10 @@ b.kwt[class] {
 .tip-next .tn-ab { flex: 1 1 100%; }
 .tip-next .kwup-v { color: #b7d8ad; font-weight: normal; }
 .tip-next .kw, .tip-next .kv { filter: saturate(.55); }
+
+/* 「」收紧：字形墨迹只占半格 */
+.kq { font-style: normal; font-weight: 700; opacity: .85; }
+.kq.l { margin-left: -.42em; }
+.kq.r { margin-right: -.42em; }
+.kwt, .kwtrig { padding: 0 .42em; }
+.card-keywords .kwplain { color: #b8bce0; font-weight: 600; }

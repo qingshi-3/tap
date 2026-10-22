@@ -5,3 +5,7 @@
 .tut .tut-ring { border: 0; border-radius: 0; background: rgba(255, 211, 107, .09); box-shadow: 0 0 20px rgba(255, 211, 107, .4); }
 /* The tutorial reserves the lower-right exit; keep prep completion alongside it. */
 .game.prep-open:has(> .tut) .prep-ov .prep-done { right: 220px; }
+
+/* 首遇提示与备战引导：舞台缩放后仍需 ≥18px，按钮够手指点 */
+.game .coach { width: 400px; font-size: max(19px, calc(var(--control-size, 64px) * .3)); line-height: 1.5; pointer-events: auto; }
+.game .coach-ok { font-size: max(18px, calc(var(--control-size, 64px) * .28)); padding: 8px 22px; min-height: 44px; }

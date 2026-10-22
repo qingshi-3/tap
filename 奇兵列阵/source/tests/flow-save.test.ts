@@ -13,7 +13,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 it('已保存的空队伍可恢复、招募、保存并重进，补员机会不重复发放', () => {
-  const run = newRun('argeon', 9701);
+  const run = newRun('lilithe', 9701);
   run.picks = 0; run.draft = []; run.gold = 8; run.lives = 2;
   localStorage.setItem(SAVE_KEY, JSON.stringify(run));
   const loaded = loadRun();

@@ -5,31 +5,43 @@ import type { Copies, Slotted } from '../src/core/types';
 const owned = (defId: string, level = 1, ownedId = 1): Slotted => ({ defId, ownedId, copies: [1, 2, 4][level - 1] as Copies });
 
 describe('定向单位调整：真实内容能力结算', () => {
-  it.each([1, 2, 3])('幽火灵蛇 %i 星阵亡后召唤偏输出暗影', level => {
+  it.each([1, 2, 3])('幽火灵蛇 %i 星亡语召唤 2 个对应星级暗影', level => {
     const out = simulate({ player: [owned('a_seed', level)], enemy: [{ defId: 'e_void' }] });
-    const summoned = out.log.find(line => line.ev.t === 'summon' && line.ev.src === 1);
-    expect(summoned).toBeDefined();
-    if (!summoned || summoned.ev.t !== 'summon') throw new Error('灵蛇没有生成暗影');
-    const summonedUid = summoned.ev.uid;
-    expect(summoned.snap.find(unit => unit.uid === summonedUid)).toMatchObject({
-      defId: 't_shade', atk: [4, 5, 7][level - 1], hp: [2, 3, 4][level - 1], maxHp: [2, 3, 4][level - 1],
-    });
+    const summoned = out.log.filter(line => line.ev.t === 'summon' && line.ev.src === 1);
+    expect(summoned).toHaveLength(2);
+    expect(out.log.some(line => line.ev.t === 'trigger' && line.ev.src === 1 && line.ev.kind === 'rattle')).toBe(true);
+    const last = summoned.at(-1)!;
+    const shades = last.snap.filter(unit => unit.defId === 't_shade' && unit.side === 0);
+    expect(shades.map(u => u.slot)).toEqual([0, 1]);
+    for (const shade of shades) expect(shade).toMatchObject({ atk: level, hp: level, maxHp: level, summoned: true });
   });
 
-  it.each([1, 2, 3])('沙灵塑师 %i 星加挡同时增加当前与最大生命', level => {
+  it.each([1, 2, 3])('沙灵塑师 %i 星施法召唤嘲讽沙像，本场最多 2 次', level => {
     const out = simulate({ player: [owned('d_dunecaster', level)], enemy: [{ defId: 'e_golem' }] });
-    const growth = out.log.find(line => line.ev.t === 'buff' && line.ev.src === 1 && line.ev.hp > 0);
-    expect(growth?.ev).toMatchObject({ t: 'buff', src: 1, tgt: 1, atk: 0, hp: level });
-    const base = levelStats('d_dunecaster', level);
-    expect(growth?.snap.find(unit => unit.uid === 1)).toMatchObject({ hp: base.hp + level, maxHp: base.hp + level, block: level });
+    const summons = out.log.filter(line => line.ev.t === 'summon' && line.ev.src === 1);
+    expect(summons).toHaveLength(2);
+    const hp = [6, 8, 10][level - 1];
+    for (const line of summons) {
+      if (line.ev.t !== 'summon') continue;
+      const uid = line.ev.uid;
+      expect(line.snap.find(unit => unit.uid === uid)).toMatchObject({ defId: 't_statue', atk: 0, hp, maxHp: hp, slot: 1 });
+    }
+    expect(out.log.filter(line => line.ev.t === 'act' && line.ev.uid === 1 && line.ev.mode === 'cast')).toHaveLength(2);
+    expect(out.log.some(line => line.ev.t === 'taunt' && line.ev.from === 1)).toBe(true);
+    expect(out.log.some(line => line.ev.t === 'attack' && line.ev.pairs.some(p => p.atk === 2 && p.tgt === 1))).toBe(false);
   });
 
-  it.each([1, 2, 3])('唤亡祭师 %i 星首轮群伤随星级成长', level => {
-    const out = simulate({ player: [owned('a_ritualist', level)], enemy: [{ defId: 'e_nightk' }, { defId: 'e_void' }] });
-    const hits = out.log.filter(line => line.ev.t === 'dmg' && line.ev.src === 1 && line.ev.kind === 'ability');
-    expect(hits.slice(0, 2).map(line => line.ev)).toMatchObject([{ n: level }, { n: level }]);
-    const casts = out.log.filter(line => line.ev.t === 'act' && line.ev.uid === 1 && line.ev.mode === 'cast');
-    expect(casts.length).toBeLessThanOrEqual(3);
+  it.each([[1, 1], [2, 1], [3, 2]])('唤亡祭师 %i 星复活第一个阵亡友军（半血、插到身后），本场最多 %i 次', (level, uses) => {
+    const out = simulate({ player: [owned('n_merc', 1, 1), owned('a_ritualist', level, 2)], enemy: [{ defId: 'e_brute', atk: 6, hp: 99 }] });
+    const revive = out.log.find(line => line.ev.t === 'revive' && line.ev.uid === 1);
+    expect(revive).toBeDefined();
+    const merc = revive!.snap.find(unit => unit.uid === 1)!;
+    const base = levelStats('n_merc', 1);
+    expect(merc).toMatchObject({ alive: true, hp: Math.max(1, Math.ceil(base.hp / 2)), slot: 1 });
+    expect(revive!.snap.find(unit => unit.uid === 2)?.slot).toBe(0);
+    const casts = out.log.filter(line => line.ev.t === 'act' && line.ev.uid === 2 && line.ev.mode === 'cast');
+    expect(casts.length).toBeLessThanOrEqual(uses);
+    expect(out.afterStart.find(unit => unit.uid === 2)?.charges).toBe(uses);
   });
 
   it.each([1, 2, 3])('永夜吟诵者 %i 星在友军施法后赋予对应法强', level => {
@@ -51,7 +63,7 @@ describe('定向单位调整：真实内容能力结算', () => {
     const amount = level + 1;
     expect(out.afterStart.find(unit => unit.ownedId === 2)).toMatchObject({ atk: 7 + amount, hp: 14 + amount });
     expect(out.afterStart.find(unit => unit.ownedId === 2)?.grants.armor).toBeUndefined();
-    expect(out.afterStart.find(unit => unit.ownedId === 3)).toMatchObject({ atk: 5 + amount, hp: 15 + amount, grants: { armor: level } });
+    expect(out.afterStart.find(unit => unit.ownedId === 3)).toMatchObject({ atk: 5 + amount, hp: 15 + amount, grants: { armor: [1, 2, 2][level - 1] } });
   });
 
   it.each([1, 2, 3])('棘背兽 %i 星以更高生命区分墓园守卫', level => {

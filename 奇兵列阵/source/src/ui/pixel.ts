@@ -511,6 +511,64 @@ function backdrop() {
   return c;
 }
 
+
+/* ───────── 词条图标 13×13（自动描边 → 15×15，显示 30px） ─────────
+   只给「图标能单独读懂」的数值类词条：护甲/格挡/法强/反击/寒意/冻结/灼烧，以及蓄力进度。
+   其余词条一律用「」短词，不做图标。 */
+type GlyphPal = Record<string, string>;
+const GLYPH_MAP: Record<string, string[]> = {
+  armor: ['....hhhhs....', '..hhmmmmmss..', '.hmmmmmmmmms.', '.hmmmmmmmmms.', 'hmmmmmmmmmmms', 'hmdddddddddms', 'hmmmmmdmmmmms', 'hmmmmmdmmmmms', 'hmmmmmdmmmmms', '.hmmmmdmmmms.', '.hmmmmmmmmss.', '..sssssssss..', '.............'],
+  block: ['.hhhhhhhhhhs.', 'hwmmmmdmmmmms', 'hmmmmmdmmmmms', 'hmmmmmdmmmmms', 'hmdddddddddms', 'hmmmmmdmmmmms', '.hmmmmdmmmms.', '.hmmmmdmmmms.', '..hmmmdmmms..', '..hmmmdmmms..', '...hmmdmms...', '....hmdms....', '......s......'],
+  power: ['......h......', '......h......', '.....hms.....', '.....hms.....', '....hmmms....', '..hhmmwmmss..', 'hhmmmwwwmmmss', '..hsmmwmmss..', '....smmms....', '.....sms.....', '.....sms.....', '......s......', '......s......'],
+  burn: ['.....h.......', '.....hh......', '....hmh......', '....hmmh..h..', '...hmmmh.hh..', '..hmmmmmhmh..', '..hmmymmmmmh.', '.hmmyymmmmmh.', '.hmyywymmmms.', '.hmyywwymmms.', '.hmmyywymmms.', '..smmyymmss..', '...sssssss...'],
+  charge: ['.......hhhh..', '......hmms...', '.....hmms....', '....hmms.....', '...hmmmhhhh..', '..hmmmmmmms..', '..sssmmmms...', '.....hmms....', '....hmms.....', '...hmms......', '..hms........', '.hs..........', '.............'],
+};
+function glyphFn(id: string): (x: number, y: number) => string | null {
+  const m = GLYPH_MAP[id];
+  if (m) return (x, y) => (m[y][x] === '.' ? null : m[y][x]);
+  const c = 6;
+  if (id === 'thorns') return (x, y) => {
+    const dx = x - c, dy = y - c, r = Math.hypot(dx, dy);
+    if (r <= 3.3) return r < 1.5 ? 'w' : dx + dy < 0 ? 'h' : dx + dy > 2 ? 's' : 'm';
+    if ((dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy)) && r <= 6.1) return r > 5 ? 'h' : 'm';
+    return null;
+  };
+  if (id === 'chill') return (x, y) => {
+    const dx = x - c, dy = y - c, ax = Math.abs(dx), ay = Math.abs(dy);
+    if (!dx && !dy) return 'w';
+    if ((!dx || !dy || ax === ay) && Math.max(ax, ay) <= 6) return Math.max(ax, ay) >= 5 ? 'h' : 'm';
+    if ((ax === 1 && ay === 4) || (ay === 1 && ax === 4)) return 'h';
+    return null;
+  };
+  // freeze：冰块
+  return (x, y) => {
+    if (x < 1 || y < 1 || x > 11 || y > 11) return null;
+    if (x === 11 || y === 11) return 's';
+    if (x === 1 || y === 1) return 'h';
+    if (x + y === 7 || x + y === 8 || x + y === 15) return 'w';
+    return 'm';
+  };
+}
+function glyph(id: string, pal: GlyphPal, o = '#0b0612') {
+  const f = glyphFn(id);
+  const at = (x: number, y: number) => (x < 0 || y < 0 || x > 12 || y > 12 ? null : f(x, y));
+  return paint(15, 15, (x, y) => {
+    const v = at(x - 1, y - 1);
+    if (v) return pal[v] ?? pal.m;
+    return at(x - 2, y - 1) || at(x, y - 1) || at(x - 1, y - 2) || at(x - 1, y) ? o : null;
+  });
+}
+const GLYPH_PAL: Record<string, GlyphPal> = {
+  armor: { h: '#eef3fb', m: '#9aa8c0', s: '#56627c', d: '#1a1e2c' },
+  block: { h: '#fff1b8', m: '#e0a63a', s: '#8a5414', d: '#6a3a0c', w: '#ffffff' },
+  power: { h: '#f2dcff', m: '#b46cff', s: '#5e2a9e', w: '#ffffff' },
+  thorns: { h: '#ffd0b8', m: '#e8603a', s: '#8a2a14', w: '#ffe9a8' },
+  chill: { h: '#e8fdff', m: '#6fdcff', s: '#3a9ec0', w: '#ffffff' },
+  freeze: { h: '#ffffff', m: '#9fe4ff', s: '#3f8fbf', w: '#e8fbff' },
+  burn: { h: '#ffb347', m: '#f0522a', s: '#8a1a10', y: '#ffd84a', w: '#fffbe0' },
+  charge: { h: '#fff6b0', m: '#ffcf4a', s: '#a8700e' },
+};
+
 /* ───────── 调色板 ───────── */
 const P = {
   gold: { o: '#0b0716', h: '#fff1b8', m: '#e0a63a', s: '#8a5414', d: '#2a1a08', g: '#fff1b8' },
@@ -560,6 +618,7 @@ export function installPixelSprites() {
     { o: '#1a0c02', h: '#fff6cc', m: '#ffc23d', s: '#a8620e', d: '#3a1e04' },
   ];
   RARITY_PAL.forEach((p, i) => (vars[`--pxr-${i + 1}`] = url(gem(p, 7, 7))));
+  for (const [k, p] of Object.entries(GLYPH_PAL)) vars[`--pxk-${k}`] = url(glyph(k, p));
   vars['--px-crown'] = url(crown());
   vars['--px-heart'] = url(heart('#ffc0c6', '#ff4d64', '#b01c38'));
   vars['--px-heart-off'] = url(heart('#3a3450', '#2a2540', '#1f1b30', '#0c0a18'));

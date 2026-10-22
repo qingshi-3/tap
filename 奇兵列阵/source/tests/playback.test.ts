@@ -57,7 +57,7 @@ function fixture(events: BattleEvent[], initial: Snap = []) {
   const views = new Map<string, InstanceType<typeof fake.Unit>>();
   const board = { el: new fake.Element(), center: new fake.Element(),
     clearUnits: vi.fn(() => views.clear()), add: (key: string, value: InstanceType<typeof fake.Unit>) => views.set(key, value),
-    view: (key: string) => views.get(key), clearArrows: vi.fn(), setCenter: vi.fn(), setOrder: vi.fn(), views };
+    view: (key: string) => views.get(key), clearArrows: vi.fn(), setCenter: vi.fn(), setPips: vi.fn(), setOrder: vi.fn(), views };
   const fx = { layer: new fake.Element(), burst: vi.fn(), float: vi.fn(), ring: vi.fn(), shake: vi.fn(), flash: vi.fn() };
   const out = { initial, afterStart: initial, log: events.map((ev) => ({ ev, snap: initial })), beats: 4, result: 'win' } as BattleOutput;
   const playback = new Playback(board as unknown as Board, fx as unknown as FX, out);
@@ -174,7 +174,7 @@ describe('battle playback ownership and cancellation', () => {
     expect(f.playback.cancelled).toBe(false);
     expect(f.board.views.size).toBe(1);
     expect(f.board.clearArrows).toHaveBeenCalledOnce();
-    expect(f.board.setCenter).toHaveBeenCalledWith('4', '拍', 'beat');
+    expect(f.board.setCenter).toHaveBeenCalledWith('1', '回合', 'beat');
   });
 
   it('1→2→3→1 changes only the next battle animation, leaving CSS and document animations untouched', async () => {
@@ -220,7 +220,8 @@ describe('round action feedback', () => {
     const f = fixture([{ t: 'beat', n: 4, round: 2, wave: 3, next: { player: [2], enemy: [] } }], units);
     await Promise.all([f.playback.play(), vi.runAllTimersAsync()]);
     expect(f.board.setOrder).toHaveBeenCalledWith({ player: ['u2'], enemy: [] }, 2, 3);
-    expect(f.board.setCenter).toHaveBeenCalledWith('4', '拍', 'beat');
+    expect(f.board.setCenter).toHaveBeenCalledWith('2', '回合', 'beat');
+    expect(f.board.setPips).toHaveBeenCalledWith(1);
   });
   it('shows gained action counts without presenting them as an immediate attack', async () => {
     vi.useFakeTimers();

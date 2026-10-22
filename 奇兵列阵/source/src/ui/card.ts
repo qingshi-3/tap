@@ -50,7 +50,7 @@ export function draftCard(defId: string, o: CardOpts = {}) {
       ),
     ),
     o.mergeTo
-      ? h('div', { class: 'card-badge' }, icon('arrowUp'), `合成 ${o.mergeTo}星`)
+      ? h('div', { class: 'card-badge' }, icon('arrowUp'), `升 ${o.mergeTo}星`)
       : o.maxed
         ? h('div', { class: 'card-badge maxed' }, '已有三星')
         : null,
@@ -59,7 +59,7 @@ export function draftCard(defId: string, o: CardOpts = {}) {
 
 const PREVIEW_TRIG: Record<string, TrigId> = {
   开战: 'start', 施法: 'cast', 普攻: 'attack', 受击: 'hurt',
-  击杀: 'kill', 阵亡: 'faint', 每拍: 'beat', 周期: 'beat',
+  击杀: 'kill', 阵亡: 'faint', 每次交锋: 'beat', 周期: 'beat',
 };
 
 function previewTag(label: string) {

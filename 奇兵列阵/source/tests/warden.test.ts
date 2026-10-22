@@ -11,25 +11,25 @@ const gains = (out: BattleOutput) => out.log.filter(({ ev }) => ev.t === 'buff' 
 const attacks = (out: BattleOutput) => out.log.filter(({ ev }) => ev.t === 'dmg' && ev.tgt === 1 && ev.kind === 'attack');
 
 describe('晨光盾卫：格挡转本场护甲', () => {
-  it.each([[1, 1], [2, 2], [3, 2]])('%i星默认获得%i层格挡，每次固定加2护甲且满血有效', (level, blocks) => {
+  it.each([[1, 1], [2, 2], [3, 2]])('%i星默认获得%i层格挡，每次固定加1护甲且满血有效', (level, blocks) => {
     const out = play(owned(level));
     expect(out.fault).toBeUndefined();
     expect(out.initial[0].block).toBe(0);
     expect(out.afterStart[0].block).toBe(blocks);
     const first = gains(out)[0];
     expect(first).toBeDefined();
-    expect(first.snap[0].grants.armor).toBe(2);
-    expect(first.snap[0].armor).toBe(2);
-    expect(gains(out).map(x => x.snap[0].grants.armor)).toEqual(blocks === 1 ? [2] : [2, 4]);
+    expect(first.snap[0].grants.armor).toBe(1);
+    expect(first.snap[0].armor).toBe(1);
+    expect(gains(out).map(x => x.snap[0].grants.armor)).toEqual(blocks === 1 ? [1] : [1, 2]);
     expect(first.snap[0].hp).toBe(first.snap[0].maxHp);
     expect(out.log.some(({ ev }) => ev.t === 'heal' && ev.src === 1 && ev.tgt === 1)).toBe(false);
   });
 
   it('多层格挡分别触发并叠加，之后的直接伤害使用累计护甲', () => {
     const out = play(owned(3));
-    expect(gains(out).slice(0, 2).map(x => x.snap[0].grants.armor)).toEqual([2, 4]);
+    expect(gains(out).slice(0, 2).map(x => x.snap[0].grants.armor)).toEqual([1, 2]);
     expect(attacks(out).slice(0, 3).map(x => x.ev)).toMatchObject([
-      { blocked: true, n: 0 }, { blocked: true, n: 0 }, { n: 2 },
+      { blocked: true, n: 0 }, { blocked: true, n: 0 }, { n: 4 },
     ]);
     expect(gains(out)).toHaveLength(2);
   });
@@ -43,7 +43,7 @@ describe('晨光盾卫：格挡转本场护甲', () => {
   it('默认格挡耗尽后受击不再触发加甲', () => {
     const out = play(owned(1));
     expect(gains(out)).toHaveLength(1);
-    expect(attacks(out)[1].ev).toMatchObject({ n: 4 });
+    expect(attacks(out)[1].ev).toMatchObject({ n: 5 });
     expect(attacks(out)[1].snap[0].block).toBe(0);
   });
 
@@ -52,7 +52,7 @@ describe('晨光盾卫：格挡转本场护甲', () => {
     expect(out.initial[0].block).toBe(trained);
     expect(out.afterStart[0].block).toBe(total);
     expect(gains(out)).toHaveLength(total);
-    expect(gains(out).at(-1)!.snap[0].grants.armor).toBe(total * 2);
+    expect(gains(out).at(-1)!.snap[0].grants.armor).toBe(total);
   });
 
   it('灼烧绕过格挡和护甲，不触发转甲', () => {
@@ -80,12 +80,12 @@ describe('晨光盾卫：格挡转本场护甲', () => {
     const unit = owned(3);
     const before = structuredClone(unit);
     const first = play(unit);
-    expect(gains(first).at(-1)!.snap[0].grants.armor).toBe(4);
+    expect(gains(first).at(-1)!.snap[0].grants.armor).toBe(2);
     const second = play(unit);
     expect(second.initial[0].grants.armor ?? 0).toBe(0);
     expect(second.afterStart[0].armor).toBe(0);
     expect(second.afterStart[0].block).toBe(2);
-    expect(gains(second)[0].snap[0].grants.armor).toBe(2);
+    expect(gains(second)[0].snap[0].grants.armor).toBe(1);
     expect(unit).toEqual(before);
   });
 });

@@ -464,12 +464,12 @@
     "d_sandblade": {
       "image": "d_sandblade.png",
       "still": "d_sandblade-still.png",
+      "selectedImage": "d_sandblade-selected.png",
       "frames": 14,
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "f3_altgeneral",
-      "selectedImage": "d_sandblade-selected.png"
+      "source": "neutral_swordofakrane"
     },
     "d_pharaoh": {
       "image": "d_pharaoh.png",
@@ -825,11 +825,11 @@
       "image": "s_lord.png",
       "still": "s_lord-still.png",
       "selectedImage": "s_lord-selected.png",
-      "frames": 14,
-      "durationMs": 1167,
+      "frames": 12,
+      "durationMs": 1000,
       "width": 100,
       "height": 112,
-      "source": "f2_altgeneral"
+      "source": "neutral_wartalon"
     },
     "a_spine": {
       "image": "a_spine.png",
@@ -1129,7 +1129,7 @@
       "durationMs": 1167,
       "width": 100,
       "height": 112,
-      "source": "f6_altgeneraltier2"
+      "source": "boss_borealjuggernaut"
     },
     "e_nightk": {
       "image": "e_nightk.png",
@@ -1240,6 +1240,536 @@
       "width": 100,
       "height": 112,
       "source": "neutral_shadowcaster"
+    },
+    "l_windblade": {
+      "image": "l_windblade.png",
+      "still": "l_windblade-still.png",
+      "selectedImage": "l_windblade-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_windbladecommander"
+    },
+    "l_archer": {
+      "image": "l_archer.png",
+      "still": "l_archer-still.png",
+      "selectedImage": "l_archer-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_ranged"
+    },
+    "l_storm": {
+      "image": "l_storm.png",
+      "still": "l_storm-still.png",
+      "selectedImage": "l_storm-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f1_xylestormblade"
+    },
+    "l_caliber": {
+      "image": "l_caliber.png",
+      "still": "l_caliber-still.png",
+      "selectedImage": "l_caliber-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_caliber-o"
+    },
+    "s_step": {
+      "image": "s_step.png",
+      "still": "s_step-still.png",
+      "selectedImage": "s_step-selected.png",
+      "frames": 15,
+      "durationMs": 1250,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_silhouettetracer"
+    },
+    "s_viper": {
+      "image": "s_viper.png",
+      "still": "s_viper-still.png",
+      "selectedImage": "s_viper-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_support"
+    },
+    "s_xyle": {
+      "image": "s_xyle.png",
+      "still": "s_xyle-still.png",
+      "selectedImage": "s_xyle-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_xyle01"
+    },
+    "s_panda": {
+      "image": "s_panda.png",
+      "still": "s_panda-still.png",
+      "selectedImage": "s_panda-selected.png",
+      "frames": 10,
+      "durationMs": 833,
+      "width": 100,
+      "height": 112,
+      "source": "f2_pandabear"
+    },
+    "a_imp": {
+      "image": "a_imp.png",
+      "still": "a_imp-still.png",
+      "selectedImage": "a_imp-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterredsynja"
+    },
+    "a_chanter": {
+      "image": "a_chanter.png",
+      "still": "a_chanter-still.png",
+      "selectedImage": "a_chanter-selected.png",
+      "frames": 16,
+      "durationMs": 1333,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_beastrepulsion"
+    },
+    "a_nightmare": {
+      "image": "a_nightmare.png",
+      "still": "a_nightmare-still.png",
+      "selectedImage": "a_nightmare-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_shadow3"
+    },
+    "a_void": {
+      "image": "a_void.png",
+      "still": "a_void-still.png",
+      "selectedImage": "a_void-selected.png",
+      "frames": 16,
+      "durationMs": 1333,
+      "width": 100,
+      "height": 112,
+      "source": "f4_daemonvoid"
+    },
+    "m_whelp": {
+      "image": "m_whelp.png",
+      "still": "m_whelp-still.png",
+      "selectedImage": "m_whelp-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_gro"
+    },
+    "m_harvester": {
+      "image": "m_harvester.png",
+      "still": "m_harvester-still.png",
+      "selectedImage": "m_harvester-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_spiritharvester"
+    },
+    "m_rager": {
+      "image": "m_rager.png",
+      "still": "m_rager-still.png",
+      "selectedImage": "m_rager-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_support"
+    },
+    "m_heart": {
+      "image": "m_heart.png",
+      "still": "m_heart-still.png",
+      "selectedImage": "m_heart-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_tank"
+    },
+    "v_snowman": {
+      "image": "v_snowman.png",
+      "still": "v_snowman-still.png",
+      "selectedImage": "v_snowman-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_snowman"
+    },
+    "v_rhyno": {
+      "image": "v_rhyno.png",
+      "still": "v_rhyno-still.png",
+      "selectedImage": "v_rhyno-selected.png",
+      "frames": 8,
+      "durationMs": 800,
+      "width": 100,
+      "height": 112,
+      "source": "f6_arcticrhyno"
+    },
+    "v_bear": {
+      "image": "v_bear.png",
+      "still": "v_bear-still.png",
+      "selectedImage": "v_bear-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_waterbear"
+    },
+    "v_stag": {
+      "image": "v_stag.png",
+      "still": "v_stag-still.png",
+      "selectedImage": "v_stag-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_voiceofthewind"
+    },
+    "d_goldob": {
+      "image": "d_goldob.png",
+      "still": "d_goldob-still.png",
+      "selectedImage": "d_goldob-selected.png",
+      "frames": 13,
+      "durationMs": 1083,
+      "width": 100,
+      "height": 112,
+      "source": "f3_obelyskgoldenflame"
+    },
+    "d_shriek": {
+      "image": "d_shriek.png",
+      "still": "d_shriek-still.png",
+      "selectedImage": "d_shriek-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_windshriek"
+    },
+    "d_hourglass": {
+      "image": "d_hourglass.png",
+      "still": "d_hourglass-still.png",
+      "selectedImage": "d_hourglass-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_zodiac02"
+    },
+    "d_worm": {
+      "image": "d_worm.png",
+      "still": "d_worm-still.png",
+      "selectedImage": "d_worm-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterblacksandburrower"
+    },
+    "n_gladiator": {
+      "image": "n_gladiator.png",
+      "still": "n_gladiator-still.png",
+      "selectedImage": "n_gladiator-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_tribalmelee1"
+    },
+    "n_tether": {
+      "image": "n_tether.png",
+      "still": "n_tether-still.png",
+      "selectedImage": "n_tether-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_tethermancer"
+    },
+    "t_night": {
+      "image": "t_night.png",
+      "still": "t_night-still.png",
+      "selectedImage": "t_night-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_shadow1"
+    },
+    "t_flame": {
+      "image": "t_flame.png",
+      "still": "t_flame-still.png",
+      "selectedImage": "t_flame-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterexplodingdemon"
+    },
+    "t_wolf": {
+      "image": "t_wolf.png",
+      "still": "t_wolf-still.png",
+      "selectedImage": "t_wolf-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_ghostlynx"
+    },
+    "t_wisp": {
+      "image": "t_wisp.png",
+      "still": "t_wisp-still.png",
+      "selectedImage": "t_wisp-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_dreamgazer"
+    },
+    "t_statue": {
+      "image": "t_statue.png",
+      "still": "t_statue-still.png",
+      "selectedImage": "t_statue-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_golemstone"
+    },
+    "t_worm": {
+      "image": "t_worm.png",
+      "still": "t_worm-still.png",
+      "selectedImage": "t_worm-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "critter_1"
+    },
+    "x_egg": {
+      "image": "x_egg.png",
+      "still": "x_egg-still.png",
+      "selectedImage": "x_egg-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mystery"
+    },
+    "x_bone": {
+      "image": "x_bone.png",
+      "still": "x_bone-still.png",
+      "selectedImage": "x_bone-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_serpenti"
+    },
+    "x_fire": {
+      "image": "x_fire.png",
+      "still": "x_fire-still.png",
+      "selectedImage": "x_fire-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_zurael"
+    },
+    "x_frostd": {
+      "image": "x_frostd.png",
+      "still": "x_frostd-still.png",
+      "selectedImage": "x_frostd-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_luxignis"
+    },
+    "x_wind": {
+      "image": "x_wind.png",
+      "still": "x_wind-still.png",
+      "selectedImage": "x_wind-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterdragonhawk"
+    },
+    "x_brood": {
+      "image": "x_brood.png",
+      "still": "x_brood-still.png",
+      "selectedImage": "x_brood-selected.png",
+      "frames": 15,
+      "durationMs": 1250,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterflamewing"
+    },
+    "t_drakelet": {
+      "image": "t_drakelet.png",
+      "still": "t_drakelet-still.png",
+      "selectedImage": "t_drakelet-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_monsterdragonhawk"
+    },
+    "general_zilan": {
+      "image": "general_zilan.png",
+      "still": "general_zilan-still.png",
+      "selectedImage": "general_zilan-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_altgeneral"
+    },
+    "general_zilan_2": {
+      "image": "general_zilan_2.png",
+      "still": "general_zilan_2-still.png",
+      "selectedImage": "general_zilan_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_altgeneraltier2"
+    },
+    "general_reva": {
+      "image": "general_reva.png",
+      "still": "general_reva-still.png",
+      "selectedImage": "general_reva-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_altgeneral"
+    },
+    "general_reva_2": {
+      "image": "general_reva_2.png",
+      "still": "general_reva_2-still.png",
+      "selectedImage": "general_reva_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_altgeneraltier2"
+    },
+    "general_kasiva": {
+      "image": "general_kasiva.png",
+      "still": "general_kasiva-still.png",
+      "selectedImage": "general_kasiva-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_altgeneral"
+    },
+    "general_kasiva_2": {
+      "image": "general_kasiva_2.png",
+      "still": "general_kasiva_2-still.png",
+      "selectedImage": "general_kasiva_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_altgeneraltier2"
+    },
+    "general_xingjiao": {
+      "image": "general_xingjiao.png",
+      "still": "general_xingjiao-still.png",
+      "selectedImage": "general_xingjiao-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_altgeneral"
+    },
+    "general_xingjiao_2": {
+      "image": "general_xingjiao_2.png",
+      "still": "general_xingjiao_2-still.png",
+      "selectedImage": "general_xingjiao_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f5_altgeneraltier2"
+    },
+    "general_kara": {
+      "image": "general_kara.png",
+      "still": "general_kara-still.png",
+      "selectedImage": "general_kara-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f6_altgeneral"
+    },
+    "general_kara_2": {
+      "image": "general_kara_2.png",
+      "still": "general_kara_2-still.png",
+      "selectedImage": "general_kara_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_altgeneraltier2"
+    },
+    "general_sajj": {
+      "image": "general_sajj.png",
+      "still": "general_sajj-still.png",
+      "selectedImage": "general_sajj-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_altgeneral"
+    },
+    "general_sajj_2": {
+      "image": "general_sajj_2.png",
+      "still": "general_sajj_2-still.png",
+      "selectedImage": "general_sajj_2-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_altgeneraltier2"
+    },
+    "x_argeon": {
+      "image": "general_argeon.png",
+      "still": "general_argeon-still.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f1_general",
+      "selectedImage": "general_argeon-selected.png"
+    },
+    "t_bonelet": {
+      "image": "t_shade.png",
+      "still": "t_shade-still.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_crawler",
+      "selectedImage": "t_shade-selected.png"
     }
   }
 }

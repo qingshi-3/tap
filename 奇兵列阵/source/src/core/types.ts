@@ -7,7 +7,9 @@ export type Faction = 'light' | 'shadow' | 'abyss' | 'magma' | 'frost' | 'desert
 export type ActiveFaction = Exclude<Faction, 'neutral' | 'enemy'>;
 export type Rarity = 1 | 2 | 3 | 4;
 /** 卡面主时机：只用于卡面标签与说明分组，规则以效果字段为准。 */
-export type Trigger = 'cast' | 'start' | 'attack' | 'hurt' | 'kill' | 'faint' | 'ally' | 'beat' | 'passive' | 'none';
+export type Trigger =
+  | 'cast' | 'start' | 'attack' | 'hurt' | 'kill' | 'rattle' | 'ally' | 'beat' | 'passive'
+  | 'front' | 'rear' | 'duel' | 'charge' | 'pulse' | 'round' | 'none';
 /** 一个持有个体只可能是一、二、三星；不能保存未配对的半成品。 */
 export type Copies = 1 | 2 | 4;
 export const isCopies = (copies: number): copies is Copies => copies === 1 || copies === 2 || copies === 4;
@@ -15,28 +17,42 @@ export const isCopies = (copies: number): copies is Copies => copies === 1 || co
 /** 按星级取值 [1★, 2★, 3★] */
 export type Tri = [number, number, number];
 
-/** 常驻特性（v0.6 §5.1）；数值按星级取。 */
+/** 常驻特性（v0.8 §2）；数值按星级取。 */
 export interface Traits {
   armor?: Tri;
-  splash?: Tri;
   thorns?: Tri;
-  /** 法强：友方施法的伤害、治疗、灼烧、寒意数值 +N */
+  /** 法强：自己施法（含蓄力技）的伤害、治疗、灼烧、寒意数值 +N */
   power?: Tri;
+  /** 溅射：普攻时目标身后一名敌人受本次攻击力一半伤害 */
+  splash?: boolean;
   combo?: boolean;
   snipe?: boolean;
   reborn?: boolean;
-  /** 护卫：敌方单体指定效果选中相邻友军时改选自己 */
-  guard?: boolean;
+  /** 嘲讽：敌方普攻改打最靠前的嘲讽单位 */
+  taunt?: boolean;
+  /** 轮换：常规行动后退到我方队尾 */
+  rotate?: boolean;
+  /** 决斗：普攻打本次交锋的对手 */
+  duel?: boolean;
+  /** 不行动 */
+  idle?: boolean;
+  /** 蓄力 N */
+  charge?: number;
+  /** 节拍 N */
+  pulse?: number;
+  /** 免疫灼烧 */
+  burnImmune?: boolean;
 }
 
-export type EffectOp = 'dmg' | 'heal' | 'block' | 'chill' | 'burn' | 'vuln' | 'buff' | 'grant' | 'summon' | 'extraAct' | 'addAction' | 'sacrifice';
+export type EffectOp =
+  | 'dmg' | 'heal' | 'block' | 'chill' | 'freeze' | 'burn' | 'buff' | 'weaken' | 'grant' | 'summon'
+  | 'extraAct' | 'addAction' | 'sacrifice' | 'charge' | 'rotate' | 'revive' | 'die';
 export type EffectTarget =
-  | 'self' | 'front' | 'rear' | 'allies' | 'adjacent' | 'behind' | 'ahead' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
-  | 'guardAllies'
+  | 'self' | 'front' | 'rear' | 'allies' | 'others' | 'adjacent' | 'behind' | 'ahead' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
   | 'enemyFront' | 'enemyRear' | 'enemyAll' | 'enemyNext' | 'enemyLowest' | 'enemyHighestAtk' | 'enemyHighestHp'
-  | 'attacker' | 'target' | 'burningEnemies' | 'otherEnemies';
-/** 布尔授予：snipe/combo/reborn/guard；数值授予（按 v 叠加）：splash/armor/power/thorns */
-export type Grant = 'snipe' | 'combo' | 'reborn' | 'guard' | 'splash' | 'armor' | 'power' | 'thorns';
+  | 'attacker' | 'target' | 'opponent' | 'burningEnemies' | 'otherEnemies';
+/** 布尔授予：snipe/combo/reborn/taunt/rotate/duel/splash；数值授予（按 v 叠加）：armor/power/thorns */
+export type Grant = 'snipe' | 'combo' | 'reborn' | 'taunt' | 'rotate' | 'duel' | 'splash' | 'armor' | 'power' | 'thorns';
 
 /** 声明式效果：引擎按 op 解释。v 为主数值，v2 为召唤/加血等的第二数值。 */
 export interface Effect {
@@ -46,7 +62,26 @@ export interface Effect {
   v2?: Tri;
   grant?: Grant;
   token?: string;
+  /** 召唤数量 */
+  count?: number;
+  /** 召唤到我方队尾 */
+  rear?: boolean;
+  /** buff 只持续到本回合结束 */
+  temp?: boolean;
   oncePerRound?: boolean;
+  /** 每回合（同一来源）最多生效次数 */
+  cap?: Tri;
+  /** 每场（同一来源）最多生效次数 */
+  capBattle?: Tri;
+}
+
+/** 蓄力技为强化普攻时的参数 */
+export interface ChargeAttack {
+  /** 伤害倍率 */
+  mult?: number;
+  bonus?: Tri;
+  splash?: boolean;
+  after?: Effect[];
 }
 
 export interface UnitDef {
@@ -70,17 +105,38 @@ export interface UnitDef {
   cast?: Effect[];
   /** 每次技能结算前锁定各效果目标；后续效果不因死亡或属性变化重新选人。 */
   lockTargets?: boolean;
-  /** 本场施法次数上限，用完改普攻 */
-  castUses?: number;
+  /** 本场施法次数上限（按星级），用完改普攻 */
+  castUses?: Tri;
+  /** 蓄力满时的蓄力技（按施法结算，吃法强） */
+  chargeSkill?: Effect[];
+  /** 蓄力满时改为强化普攻 */
+  chargeAttack?: ChargeAttack;
   onStart?: Effect[];
   afterAttack?: Effect[];
+  /** 被普攻命中后 */
+  onAttacked?: Effect[];
   onHurt?: Effect[];
   onKill?: Effect[];
-  onFaint?: Effect[];
+  /** 击败对手时 */
+  onDuelKill?: Effect[];
+  /** 亡语 */
+  onRattle?: Effect[];
   onAllyFaint?: Effect[];
+  /** 成为我方队首时 */
+  onFront?: Effect[];
+  /** 任一友军成为队首时 */
+  onAllyFront?: Effect[];
+  /** 每次交锋结束时位于队尾 */
+  onRear?: Effect[];
+  /** 友军召唤单位时 */
+  onAllySummon?: Effect[];
+  /** 任一敌人被冻结时 */
+  onEnemyFreeze?: Effect[];
   onBeatEnd?: Effect[];
-  /** onBeatEnd 只在每第 N 拍结束时触发 */
-  beatEvery?: number;
+  /** 节拍触发 */
+  onPulse?: Effect[];
+  /** 每回合开始时 */
+  onRoundStart?: Effect[];
   /** 复生复活时 */
   onRevive?: Effect[];
   /** 职能 + 机制标签（推荐算法、词条招募令） */
@@ -93,6 +149,8 @@ export interface UnitDef {
   token?: boolean;
   /** 不进招募池（敌方专属） */
   enemyOnly?: boolean;
+  /** 主将专属单位（阿尔吉昂、龙蛋与龙）：不进招募池 */
+  unique?: boolean;
 }
 
 /** 玩家阵容中的一格 */
@@ -105,6 +163,8 @@ export interface Slotted {
   train?: Partial<Record<string, number>>;
   /** 已装备（通常 1 件，「双持」后 2 件） */
   equips?: string[];
+  /** 赫克的临时佣兵：只参加本场 */
+  temp?: boolean;
 }
 
 export const levelFromCopies = (copies: Copies): 1 | 2 | 3 => {
@@ -134,9 +194,11 @@ export interface GeneralDef {
   name: string;
   title: string;
   faction: Faction;
-  /** 技能说明（每第 3 拍结束） */
+  /** 核心技能名 */
+  skill: string;
+  /** 核心技能说明 */
   text: string;
-  /** 技能基础值 */
+  /** 技能基础值（文案里的「N+法强」中的 N） */
   base: number;
   /** 美术：一阶 / 二阶 */
   art: string;
@@ -154,9 +216,11 @@ export interface UnitGrants {
   snipe?: boolean;
   combo?: boolean;
   reborn?: boolean;
-  guard?: boolean;
+  taunt?: boolean;
+  rotate?: boolean;
+  duel?: boolean;
+  splash?: boolean;
   armor?: number;
-  splash?: number;
   power?: number;
   thorns?: number;
 }
@@ -175,14 +239,22 @@ export interface UnitState {
   block: number;
   chill: number;
   burn: number;
-  /** 易伤层数 */
-  vuln: number;
   /** 复生已用 */
   revived: boolean;
   grants: UnitGrants;
   alive: boolean;
-  /** 唤亡祭师等的剩余施法次数 */
+  /** 剩余施法次数（castUses） */
   charges?: number;
+  /** 蓄力层数 */
+  charge?: number;
+  /** 蓄力需求（含装备修正），供 UI 显示圆点 */
+  chargeMax?: number;
+  /** 节拍计数 */
+  pulse?: number;
+  /** 节拍阈值（含沙漏修正），供 UI 显示 */
+  pulseMax?: number;
+  /** 本回合临时攻击（回合结束时扣回） */
+  tempAtk?: number;
   /** 本回合尚未消耗的常规行动。 */
   actionsLeft?: number;
   /** 当前护甲（含光环与位置条件），供 UI 显示 */
@@ -192,12 +264,20 @@ export interface UnitState {
   /** 装备与培养（显示用） */
   equips?: string[];
   train?: Partial<Record<string, number>>;
+  /** 召唤物 */
+  summoned?: boolean;
+  /** 临时佣兵 */
+  temp?: boolean;
+  /** 萨吉预备位（不在场上） */
+  reserve?: boolean;
 }
 
 export type Snap = UnitState[];
 
 export type TriggerKind =
-  | 'start' | 'cast' | 'afterAttack' | 'afterCast' | 'hurt' | 'kill' | 'faint' | 'allyFaint' | 'beatEnd' | 'aura' | 'general' | 'revive' | 'guard' | 'boss' | 'equip' | 'spell';
+  | 'start' | 'cast' | 'afterAttack' | 'afterCast' | 'attacked' | 'hurt' | 'kill' | 'duelKill' | 'rattle' | 'allyFaint'
+  | 'front' | 'rear' | 'summon' | 'freeze' | 'charge' | 'pulse' | 'roundStart'
+  | 'beatEnd' | 'aura' | 'general' | 'revive' | 'boss' | 'equip' | 'spell';
 
 export type DmgKind = 'attack' | 'ability' | 'splash' | 'thorns' | 'burn' | 'fatigue';
 
@@ -205,7 +285,7 @@ export type BattleEvent =
   | { t: 'rule'; id: string; label: string; side: Side; src?: number }
   | { t: 'phase'; name: 'start' | 'battle' }
   | { t: 'beat'; n: number; round?: number; wave?: number; next: { player: number[]; enemy: number[] } }
-  | { t: 'act'; side: Side; uid: number; mode: 'attack' | 'cast' | 'extra' }
+  | { t: 'act'; side: Side; uid: number; mode: 'attack' | 'cast' | 'extra' | 'charge' }
   | { t: 'trigger'; src: number; side: Side; kind: TriggerKind; label: string; order?: number; general?: string }
   | { t: 'buff'; src?: number; tgt: number; atk: number; hp: number }
   | { t: 'heal'; src?: number; tgt: number; n: number }
@@ -213,10 +293,14 @@ export type BattleEvent =
   | { t: 'blockBroken'; uid: number }
   | { t: 'chill'; src?: number; uid: number; n: number; total: number }
   | { t: 'burn'; src?: number; uid: number; n: number; total: number }
-  | { t: 'vuln'; src?: number; uid: number; n: number; total: number }
-  | { t: 'dmg'; src?: number; tgt: number; n: number; kind: DmgKind; blocked?: boolean; vuln?: number; chilled?: number }
-  | { t: 'guard'; from: number; to: number }
+  | { t: 'charge'; src?: number; uid: number; n: number; total: number }
+  | { t: 'dmg'; src?: number; tgt: number; n: number; kind: DmgKind; blocked?: boolean; chilled?: number }
+  | { t: 'taunt'; from: number; to: number }
   | { t: 'gen'; id: string; label: string; tgts: number[] }
+  /** 主将计数（魂、星能）变化 */
+  | { t: 'genCount'; id: string; n: number; max: number }
+  /** 队列位移：轮换、插入、换位、补位 */
+  | { t: 'move'; side: Side; moves: { uid: number; from: number; to: number }[] }
   | { t: 'recall'; uid: number; src: number }
   | { t: 'attack'; pairs: { atk: number; tgt: number; chill?: number }[] }
   | { t: 'death'; tgt: number; exiled?: boolean }
@@ -236,11 +320,16 @@ export interface LoggedEvent {
   snap: Snap;
 }
 
+/** 星角龙蛋的 5 类事件 */
+export type EggStat = 'death' | 'burn' | 'freeze' | 'move' | 'summon';
+
 export interface BattleOutput {
-  /** 玩家侧单场指标，与日志录制无关；拍数见 beats。 */
+  /** 玩家侧单场指标，与日志录制无关；交锋数见 beats。 */
   metrics?: BattleMetrics;
   result: BattleResult;
   beats: number;
+  /** 结束时所在回合；开战阶段取胜为 0 */
+  rounds?: number;
   log: LoggedEvent[];
   /** 开战阶段结束后的快照（备战预览用） */
   afterStart: Snap;
@@ -251,6 +340,8 @@ export interface BattleOutput {
   triggers?: Record<string, number>;
   /** 战斗中获得的金币（赫克专属被动） */
   gold?: number;
+  /** 星角：本场龙蛋事件计数 */
+  eggStats?: Record<EggStat, number>;
 }
 
 /** Immutable encounter configuration; counters belong to each Battle instance/source. */

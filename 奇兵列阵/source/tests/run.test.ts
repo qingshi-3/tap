@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
-import { DRAFT_POOL, ROUTE } from '../src/core/data';
+import { DRAFT_POOL } from '../src/core/data';
+import { STAGES_PER_CHAPTER } from '../src/core/route';
 import {
   applyResult,
   applyRewardedReroll,
@@ -102,10 +103,12 @@ describe('奖励刷新', () => {
     const run = newRun('argeon', 404);
     run.rerolls = 0;
     expect(applyRewardedReroll(run)).toBe(true);
-    const rewardedAt = run.stage;
+    const rewardedChapter = run.chapter;
+    const rewardedNode = run.node;
 
     applyResult(run, 'win');
-    expect(run.stage).toBe(rewardedAt + 1);
+    expect(run.chapter).toBe(rewardedChapter);
+    expect(run.node).toBe(rewardedNode + 1);
     expect(run.rewardedRerollCount).toBe(1);
     expect(canRewardedReroll(run)).toBe(false);
     expect(reroll(run)).toBe(true);
@@ -120,12 +123,14 @@ describe('奖励刷新', () => {
 
   it('Boss 失败保留已用次数，原来剩余的一次仍可在正常刷新后使用', () => {
     const run = newRun('argeon', 505);
-    run.stage = ROUTE.length - 1;
+    run.chapter = 0;
+    run.node = STAGES_PER_CHAPTER - 1;
     run.rerolls = 0;
     expect(applyRewardedReroll(run)).toBe(true);
 
     applyResult(run, 'lose');
-    expect(run.stage).toBe(ROUTE.length - 1);
+    expect(run.chapter).toBe(0);
+    expect(run.node).toBe(STAGES_PER_CHAPTER - 1);
     expect(reroll(run)).toBe(true);
     expect(run.rewardedRerollCount).toBe(1);
     expect(canRewardedReroll(run)).toBe(true);
@@ -190,17 +195,18 @@ describe('奖励重打资格', () => {
 });
 
 const retryContexts = [
-  { label: '普通关', stage: 2, lives: 3 },
-  { label: 'Boss', stage: ROUTE.length - 1, lives: 3 },
-  { label: '最后一命', stage: 2, lives: 1 },
+  { label: '普通关', chapter: 0, node: 2, lives: 3 },
+  { label: 'Boss', chapter: 0, node: STAGES_PER_CHAPTER - 1, lives: 3 },
+  { label: '最后一命', chapter: 0, node: 2, lives: 1 },
 ] as const;
 
 const actualResults: BattleResult[] = ['win', 'lose', 'draw'];
 
-describe.each(retryContexts)('$label奖励重打', ({ stage, lives }) => {
+describe.each(retryContexts)('$label奖励重打', ({ chapter, node, lives }) => {
   it.each(actualResults)('实际结果 %s 只从战前 checkpoint 权威结算一次', (actualResult) => {
-    const checkpoint = newRun('argeon', 800 + stage + lives);
-    checkpoint.stage = stage;
+    const checkpoint = newRun('argeon', 800 + node + lives);
+    checkpoint.chapter = chapter;
+    checkpoint.node = node;
     checkpoint.lives = lives;
     checkpoint.wins = 2;
     checkpoint.history = ['win', 'lose'];
@@ -250,10 +256,11 @@ describe.each(retryContexts)('$label奖励重打', ({ stage, lives }) => {
   });
 });
 
-describe.each(retryContexts)('$label连续奖励重打', ({ stage, lives }) => {
+describe.each(retryContexts)('$label连续奖励重打', ({ chapter, node, lives }) => {
   it('同一原始 checkpoint 失败、平局、胜利仅替换一次结算，累计消耗三次额度', () => {
-    const checkpoint = newRun('argeon', 900 + stage + lives);
-    checkpoint.stage = stage;
+    const checkpoint = newRun('argeon', 900 + node + lives);
+    checkpoint.chapter = chapter;
+    checkpoint.node = node;
     checkpoint.lives = lives;
     checkpoint.slots = replayLineup();
     checkpoint.history = ['win'];
@@ -276,7 +283,8 @@ describe.each(retryContexts)('$label连续奖励重打', ({ stage, lives }) => {
       expect(run).toEqual(expected);
       expect(run.history).toHaveLength(checkpoint.history.length + 1);
       expect(run.rngState).toBe(expected.rngState);
-      expect(run.stage).toBe(expected.stage);
+      expect(run.chapter).toBe(expected.chapter);
+      expect(run.node).toBe(expected.node);
       expect(run.rewardedRetryCount).toBe(index + 1);
       expect(remainingRewardedRetries(run)).toBe(MAX_REWARDED_RETRIES - index - 1);
       expect(run.lives).toBe(result === 'win' ? checkpoint.lives : originalLoss.lives);

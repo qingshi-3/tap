@@ -4,27 +4,31 @@ import { unitAbilityText } from '../src/ui/tip';
 import { statsOf } from '../src/ui/board';
 
 describe('finite spell use details follow actual battle state', () => {
-  it.each([1, 2, 3])('shows 3/2/1 remaining and exhausted at star %i', level => {
+  it.each([1, 2, 3])('counts down remaining uses and exhausts at star %i', level => {
     const b = new Battle({
-      player: [{ defId: 'a_ritualist', ownedId: 1, copies: [1, 2, 4][level - 1], train: { hp: 100 } }],
+      player: [{ defId: 'd_artificer', ownedId: 1, copies: [1, 2, 4][level - 1], train: { hp: 100 } }],
       enemy: [{ defId: 'e_skel', atk: 1, hp: 999 }],
     });
     const caster = b.at(0, 0)!;
     const advance = b as unknown as { startPhase(): void; doBeat(): void };
     advance.startPhase();
-    for (const remaining of [3, 2, 1, 0]) {
+    const uses = 3;
+    for (let remaining = uses; remaining >= 0; remaining--) {
       expect(caster.charges).toBe(remaining);
       const text = unitAbilityText(caster.defId, caster.level, statsOf(caster));
       if (remaining) expect(text).toContain(`本场剩余 ${remaining} 次`);
       else expect(text).toContain('本场已用完，改普攻');
-      advance.doBeat();
+      // 召唤物也占行动轮：推进到施法者本人再出手一次
+      const acted = () => b.log.filter(l => l.ev.t === 'act' && l.ev.uid === caster.uid).length;
+      const n = acted();
+      for (let i = 0; i < 30 && acted() === n; i++) advance.doBeat();
     }
     expect(caster.charges).toBe(0);
-    expect(b.log.filter(l => l.ev.t === 'act' && l.ev.side === 0).map(l => l.ev.t === 'act' ? l.ev.mode : '')).toEqual(['cast', 'cast', 'cast', 'attack']);
+    expect(b.log.filter(l => l.ev.t === 'act' && l.ev.uid === caster.uid).map(l => l.ev.t === 'act' ? l.ev.mode : '')).toEqual([...Array(uses).fill('cast'), 'attack']);
   });
 
   it('retains total uses without a battle instance and does not invent limits for unlimited casters', () => {
-    expect(unitAbilityText('a_ritualist', 1)).toContain('本场 3 次');
+    expect(unitAbilityText('a_ritualist', 1)).toContain('本场最多 1 次');
     const b = new Battle({ player: [{ defId: 'a_devour' }], enemy: [{ defId: 'e_skel' }] });
     const caster = b.at(0, 0)!;
     expect(statsOf(caster).charges).toBeUndefined();
