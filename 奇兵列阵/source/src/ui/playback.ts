@@ -1,20 +1,20 @@
 import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
 import type { BattleEvent, BattleOutput, Snap, UnitState } from '../core/types';
-import { sfx } from './audio';
+import { sfx as liveSfx } from './audio';
 import { Board, bodyPos, headPos, statsOf, UnitView } from './board';
 import { h, toStage } from './dom';
 import type { FX } from './fx';
 import { hasGenFx, playGenFx, type GfxHost } from './genFx';
 
 /** 主将特效配套音效 */
-const GEN_SFX: Record<string, () => void> = {
-  argeon: () => { sfx.shield(); sfx.buff(); },
-  kaleos: () => { sfx.whoosh(); sfx.buff(); },
-  lilithe: () => sfx.summon(),
-  vulkan: () => sfx.hit(true),
-  faie: () => sfx.freeze(),
-  zirix: () => sfx.silence(),
-  hank: () => sfx.beat(),
+const GEN_SFX: Record<string, (sfx: typeof liveSfx) => void> = {
+  argeon: (sfx) => { sfx.shield(); sfx.buff(); },
+  kaleos: (sfx) => { sfx.whoosh(); sfx.buff(); },
+  lilithe: (sfx) => sfx.summon(),
+  vulkan: (sfx) => sfx.hit(true),
+  faie: (sfx) => sfx.freeze(),
+  zirix: (sfx) => sfx.silence(),
+  hank: (sfx) => sfx.beat(),
 };
 
 const KIND_COLOR: Record<string, string> = {
@@ -22,6 +22,8 @@ const KIND_COLOR: Record<string, string> = {
   faint: '#c590ff', allyFaint: '#b77bff', beatEnd: '#ff4b6e', aura: '#a7d9db', general: '#ffe9a8',
 };
 const CIRCLED = ['', '①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫', '⑬', '⑭', '⑮'];
+const SILENT_SFX = new Proxy(liveSfx, { get: () => () => undefined }) as typeof liveSfx;
+
 export const circled = (n: number) => CIRCLED[n] ?? `(${n})`;
 
 export interface LogLine {
@@ -31,7 +33,14 @@ export interface LogLine {
 
 export class Playback {
   /** Changes apply to the next wait/instantaneous animation; idle CSS is never retimed. */
-  speed = 1;
+  private _speed = 1;
+  /** 图鉴演示循环播放：不出声 */
+  silent = false;
+  /** 图鉴演示：不放开战/交锋横幅 */
+  banners = true;
+  private get sfx() { return this.silent ? SILENT_SFX : liveSfx; }
+  get speed() { return this._speed; }
+  set speed(v: number) { this._speed = v; this.fx.rate = v; }
   private skipping = false;
   private done = false;
   private isCancelled = false;
@@ -255,7 +264,7 @@ export class Playback {
   }
 
   private async buffGroup(items: BattleOutput['log']) {
-    sfx.buff();
+    this.sfx.buff();
     for (const { ev, snap } of items) {
       if (ev.t !== 'buff') continue;
       const t = this.st(snap, ev.tgt), tp = bodyPos(t.side, t.slot);
@@ -356,14 +365,15 @@ export class Playback {
         this.onPhase(ev.name);
         await this.waitUntilResumed();
         if (this.cancelled) return;
+        if (!this.banners) return;
         if (ev.name === 'start') {
-          sfx.start();
+          this.sfx.start();
           this.banner('开战阶段', '将军 → 双方「开战时」效果');
           await this.w(900);
           await this.waitUntilResumed();
           if (this.cancelled) return;
         } else {
-          sfx.whoosh();
+          this.sfx.whoosh();
           this.banner('交锋', '每回合各行动一次；额外次数在下一轮行动', 'fight');
           await this.w(900);
           await this.waitUntilResumed();
@@ -390,7 +400,7 @@ export class Playback {
           duration: 260 / this.speed,
           easing: 'ease-out',
         });
-        sfx.beat();
+        this.sfx.beat();
         await this.w(160);
         await this.waitUntilResumed();
         if (this.cancelled) return;
@@ -414,7 +424,7 @@ export class Playback {
         const u = this.st(snap, ev.src);
         const c = KIND_COLOR[ev.kind] ?? '#fff';
         const v = this.v(ev.src);
-        sfx.trigger();
+        this.sfx.trigger();
         if (ev.general) {
           const g = GENERAL_MAP[ev.general];
           const color = FACTION_INFO[g.faction].color;
@@ -439,12 +449,12 @@ export class Playback {
         const tp = bodyPos(t.side, t.slot);
         if (ev.src && ev.src !== ev.tgt) {
           const s = this.st(snap, ev.src);
-          sfx.whoosh();
+          this.sfx.whoosh();
           await this.projectile(headPos(s.side, s.slot), tp, '#7dffb0');
           await this.waitUntilResumed();
           if (this.cancelled) return;
         }
-        sfx.buff();
+        this.sfx.buff();
         const armorGain = !ev.atk && !ev.hp
           ? (t.armor ?? 0) - (this.v(ev.tgt)?.getStats()?.kw?.armor ?? t.armor ?? 0) : 0;
         const gainText = !ev.atk && !ev.hp && armorGain
@@ -452,6 +462,7 @@ export class Playback {
           : `+${ev.atk}/+${ev.hp}`;
         fx.float(tp.x, tp.y - 30, gainText, 'buff', 900, !ev.atk && !ev.hp && armorGain ? 'armor' : undefined);
         fx.burst(tp.x, tp.y + 30, '#7dffb0', { n: 14, speed: 2.4, kind: 'mote', size: 2.2, up: 2.5, gravity: -0.04, life: 40 });
+        if (!this.skipping) fx.rise(tp.x, tp.y + 50, '#7dffb0', 5, 50);
         this.sync(snap);
         await this.w(300);
         await this.waitUntilResumed();
@@ -483,7 +494,7 @@ export class Playback {
       }
       case 'actionGain': {
         const t = this.st(snap, ev.uid);
-        sfx.buff();
+        this.sfx.buff();
         this.callout(ev.uid, snap, `行动 +${ev.n}`, '#ffe58a');
         this.sync(snap);
         this.onLog({ text: `${this.name(t)} 本回合行动 +${ev.n}（剩余 ${ev.total} 次）`, cls: 'buff' });
@@ -510,8 +521,9 @@ export class Playback {
           await this.waitUntilResumed();
           if (this.cancelled) return;
         }
-        sfx.shield();
+        this.sfx.shield();
         fx.ring(tp.x, tp.y + 10, '#ffe08a', 70);
+        if (!this.skipping) fx.dome(tp.x, tp.y + 6, '#ffe08a');
         fx.float(tp.x, tp.y - 30, `+${ev.n}`, 'shield', 900, 'block');
         this.onLog({ text: `${this.name(t)} 获得 ${ev.n} 层格挡`, cls: 'shield' });
         this.sync(snap);
@@ -536,8 +548,12 @@ export class Playback {
           await this.waitUntilResumed();
           if (this.cancelled) return;
         }
-        if (chill) sfx.freeze(); else sfx.hit(false);
+        if (chill) this.sfx.freeze(); else this.sfx.hit(false);
         fx.burst(tp.x, tp.y, chill ? '#bff4ff' : '#ffb46a', { n: 12, speed: 3, kind: chill ? 'shard' : 'mote', size: 2.4, gravity: chill ? 0.05 : -0.05 });
+        if (!this.skipping) {
+          if (chill) { fx.impact(tp.x, tp.y, '#bff4ff'); fx.wave(tp.x, tp.y + 52, '#9fe8ff', 140); }
+          else fx.rise(tp.x, tp.y + 44, '#ff9a4a', 8, 50);
+        }
         fx.float(tp.x, tp.y - 38, `+${ev.n}`, chill ? 'freeze' : 'dmg splash', 900, chill ? 'chill' : 'burn');
         this.sync(snap);
         this.onLog({ text: `${this.name(t)} 获得 ${ev.n} 层${chill ? '寒意' : '灼烧'}（共 ${ev.total}）`, cls: chill ? 'freeze' : 'dmg' });
@@ -549,7 +565,7 @@ export class Playback {
       case 'charge': {
         const t = this.st(snap, ev.uid);
         const tp = bodyPos(t.side, t.slot);
-        sfx.charge(ev.total / Math.max(1, t.chargeMax ?? ev.total));
+        this.sfx.charge(ev.total / Math.max(1, t.chargeMax ?? ev.total));
         fx.burst(tp.x, tp.y, '#ffe58a', { n: 8, speed: 2, kind: 'spark', size: 2.2, life: 20, gravity: -0.03 });
         this.sync(snap);
         if (ev.src && ev.src !== ev.uid) this.onLog({ text: `${this.name(t)} 蓄力 +${ev.n}（${ev.total}/${t.chargeMax ?? ev.total}）`, cls: 'buff' });
@@ -570,7 +586,7 @@ export class Playback {
         return;
       }
       case 'move': {
-        sfx.swap();
+        this.sfx.swap();
         const ps: Promise<void>[] = [];
         for (const m of ev.moves) {
           const u = this.st(snap, m.uid);
@@ -603,7 +619,7 @@ export class Playback {
       case 'gen': {
         const g = GENERAL_MAP[ev.id];
         const color = FACTION_INFO[g.faction].color;
-        sfx.trigger();
+        this.sfx.trigger();
         this.generalCallout(g.name, ev.label, color);
         const from = this.genPulse(color);
         this.onLog({ text: `主将 ${g.name}：${ev.label}`, cls: 'general' });
@@ -612,7 +628,7 @@ export class Playback {
           const ts = ev.tgts.map((uid) => this.st(snap, uid));
           const pos = ts.map((t) => bodyPos(t.side, t.slot));
           // 轨迹每次换位都触发，省掉头像弹道免得刷屏
-          if (from && ev.label !== '轨迹') { sfx.whoosh(); await this.projectile(from, pos[0], color, 300, 16); }
+          if (from && ev.label !== '轨迹') { this.sfx.whoosh(); await this.projectile(from, pos[0], color, 300, 16); }
           const allies = snap.filter((u) => u.side === 0 && u.hp > 0).sort((a, b) => a.slot - b.slot).map((u) => bodyPos(0, u.slot));
           const units = ts.map((t) => {
             const v = this.v(t.uid);
@@ -621,7 +637,7 @@ export class Playback {
               pulse: (c: string) => { if (v) this.unitAction(v.el, () => v.pulse(c)); },
             };
           });
-          if (ev.label === '轨迹') sfx.buff(); else GEN_SFX[ev.id]?.();
+          if (ev.label === '轨迹') this.sfx.buff(); else GEN_SFX[ev.id]?.(this.sfx);
           if (!this.skipping && !this.cancelled) await this.untilCancelled(playGenFx(ev.id, ev.label, this.gfxHost(), { tgts: pos, units, allies, color }));
           await this.w(120);
           await this.waitUntilResumed();
@@ -654,8 +670,9 @@ export class Playback {
         this.board.add(this.key(u.uid), v);
         this.unitAction(v.el, () => v.appear());
         const p = bodyPos(u.side, u.slot);
-        sfx.summon();
+        this.sfx.summon();
         fx.ring(p.x, p.y + 40, '#b77bff', 80);
+        if (!this.skipping) fx.pillar(p.x, p.y + 52, '#b77bff', 260, 600);
         fx.float(p.x, p.y - 44, '召回', 'exile', 1100);
         this.onLog({ text: `${this.name(u)} 被召回战场`, cls: 'summon' });
         await this.w(360);
@@ -665,8 +682,13 @@ export class Playback {
       }
       case 'heal': {
         const t = this.st(snap, ev.tgt), p = bodyPos(t.side, t.slot);
-        sfx.buff();
+        this.sfx.buff();
         fx.float(p.x, p.y - 32, `恢复 +${ev.n}`, 'buff');
+        if (!this.skipping) {
+          fx.rise(p.x, p.y + 50, '#7dffb0', 9, 56);
+          fx.burst(p.x, p.y + 10, '#9dffc4', { n: 7, speed: 1.6, kind: 'plus', size: 2, up: 1.8, gravity: -0.05, life: 42 });
+          fx.wave(p.x, p.y + 52, '#7dffb0', 130);
+        }
         this.onLog({ text: `${this.name(t)} 恢复 ${ev.n}`, cls: 'buff' });
         this.sync(snap);
         await this.w(260); return;
@@ -677,7 +699,7 @@ export class Playback {
         const dir = t.side === 0 ? -1 : 1;
         if (ev.kind === 'ability' && ev.src) {
           const s = this.st(snap, ev.src);
-          sfx.whoosh();
+          this.sfx.whoosh();
           await this.projectile(headPos(s.side, s.slot), tp, '#ff6a5a', 360, 16);
           await this.waitUntilResumed();
           if (this.cancelled) return;
@@ -692,14 +714,22 @@ export class Playback {
         const hitView = this.v(ev.tgt);
         if (hitView) this.unitAction(hitView.el, () => hitView.hit(dir));
         if (ev.blocked) {
-          sfx.shieldHit();
+          this.sfx.shieldHit();
           fx.float(tp.x + 14, tp.y - 44, '', 'absorb', 900, 'block');
           fx.burst(tp.x, tp.y, '#ffe08a', { n: 10, speed: 4, size: 2 });
+          if (!this.skipping) fx.dome(tp.x, tp.y + 6, '#ffe08a');
         }
         if (hpLoss > 0) {
-          sfx.hit(big);
+          this.sfx.hit(big);
           fx.float(tp.x, tp.y - 20, `-${hpLoss}`, `dmg${big ? ' big' : ''}${ev.kind === 'splash' ? ' splash' : ''}`);
-          fx.burst(tp.x, tp.y, ev.kind === 'splash' || ev.kind === 'burn' ? '#ffb46a' : '#ff6a5a', { n: big ? 24 : 14, speed: big ? 7 : 5, size: 2.6 });
+          const hc = ev.kind === 'splash' || ev.kind === 'burn' ? '#ffb46a' : ev.kind === 'thorns' ? '#c6ff6a' : '#ff6a5a';
+          fx.burst(tp.x, tp.y, hc, { n: big ? 24 : 14, speed: big ? 7 : 5, size: 2.6 });
+          if (!this.skipping) {
+            if (ev.kind === 'attack') fx.slash(tp.x, tp.y, dir, big ? '#ffd2a0' : '#fff0e0', big);
+            if (ev.kind === 'burn') fx.rise(tp.x, tp.y + 40, '#ff9a4a', 6, 40);
+            fx.impact(tp.x + dir * 6, tp.y, hc, big);
+            if (big) fx.wave(tp.x, tp.y + 52, hc, 200);
+          }
           fx.shake(big ? 9 : ev.kind === 'attack' ? 5 : 3, big ? 320 : 220);
           if (big) fx.flash('#ff4b4b', 0.12);
         }
@@ -730,7 +760,7 @@ export class Playback {
             this.projectile(headPos(a.side, a.slot), bodyPos(t.side, t.slot), '#ff5f6d', 200, 10);
           }
         }
-        sfx.whoosh();
+        this.sfx.whoosh();
         await this.w(180);
         await this.waitUntilResumed();
         if (this.cancelled) return;
@@ -741,10 +771,15 @@ export class Playback {
         const tp = bodyPos(t.side, t.slot);
         const v = this.v(ev.tgt);
         const color = FACTION_INFO[unitDef(t.defId).faction].color;
-        sfx.death();
+        this.sfx.death();
         fx.burst(tp.x, tp.y, color, { n: 26, speed: 6, kind: 'shard', size: 4, up: 2, gravity: 0.25, life: 50 });
         fx.burst(tp.x, tp.y, '#ffffff', { n: 10, speed: 3, kind: 'mote', size: 3, gravity: -0.03, life: 30 });
         fx.ring(tp.x, tp.y + 40, color, 70);
+        if (!this.skipping) {
+          fx.pillar(tp.x, tp.y + 52, ev.exiled ? '#b77bff' : color, 300, 700);
+          fx.wave(tp.x, tp.y + 52, color, 220, 560);
+          fx.impact(tp.x, tp.y, '#ffffff', true);
+        }
         if (ev.exiled) fx.float(tp.x, tp.y - 50, '放逐', 'exile', 1200);
         this.onLog({ text: `${this.name(t)} 阵亡${ev.exiled ? '（放逐）' : ''}`, cls: 'death' });
         if (v) {
@@ -758,7 +793,7 @@ export class Playback {
       }
       case 'pull': {
         const u = this.st(snap, ev.uid);
-        sfx.swap();
+        this.sfx.swap();
         this.onLog({ text: `虚空领主把 ${this.name(u)} 拉到了队首`, cls: 'swap' });
         if (ev.src) this.callout(ev.src, snap, '虚空牵引!', '#ff4b6e');
         const ps: Promise<void>[] = [];
@@ -785,8 +820,9 @@ export class Playback {
         this.board.add(this.key(u.uid), v);
         this.unitAction(v.el, () => v.appear());
         const p = bodyPos(u.side, u.slot);
-        sfx.summon();
+        this.sfx.summon();
         fx.ring(p.x, p.y + 40, '#ffe9a8', 80);
+        if (!this.skipping) { fx.pillar(p.x, p.y + 52, '#ffe9a8', 320, 760); fx.rise(p.x, p.y + 50, '#fff2c0', 10, 60); }
         fx.float(p.x, p.y - 44, '复生', 'buff', 1100);
         this.onLog({ text: `${this.name(u)} 复生`, cls: 'summon' });
         await this.w(420);
@@ -801,8 +837,9 @@ export class Playback {
         this.board.add(this.key(u.uid), v);
         this.unitAction(v.el, () => v.appear());
         const p = bodyPos(u.side, u.slot);
-        sfx.summon();
+        this.sfx.summon();
         fx.ring(p.x, p.y + 40, '#d6a8ff', 80);
+        if (!this.skipping) { fx.pillar(p.x, p.y + 52, '#d6a8ff', 240, 560); fx.wave(p.x, p.y + 52, '#d6a8ff', 170); }
         fx.burst(p.x, p.y, '#d6a8ff', { n: 18, speed: 3, kind: 'mote', size: 3, gravity: -0.05 });
         this.onLog({ text: `召唤 ${unitDef(u.defId).name} ${u.atk}/${u.hp}`, cls: 'summon' });
         await this.w(420);
@@ -813,7 +850,7 @@ export class Playback {
       case 'frozenSkip': {
         const t = this.st(snap, ev.uid);
         const tp = bodyPos(t.side, t.slot);
-        sfx.freeze();
+        this.sfx.freeze();
         const frozenView = this.v(ev.uid);
         frozenView?.el.classList.remove('next-actor');
         if (frozenView) this.animate(frozenView.body, 
@@ -822,6 +859,7 @@ export class Playback {
         );
         fx.float(tp.x, tp.y - 40, '冻结 · 跳过出手', 'freeze');
         fx.burst(tp.x, tp.y, '#bff4ff', { n: 12, speed: 3, kind: 'shard', size: 2 });
+        if (!this.skipping) fx.dome(tp.x, tp.y + 6, '#bff4ff');
         this.sync(snap);
         this.onLog({ text: `${this.name(t)} 寒意 ≥ 攻击，被冻结，跳过出手`, cls: 'freeze' });
         await this.w(260);
@@ -832,7 +870,7 @@ export class Playback {
       case 'fizzle': {
         const u = this.st(snap, ev.src);
         const p = headPos(u.side, u.slot);
-        sfx.fizzle();
+        this.sfx.fizzle();
         fx.float(p.x, p.y - 10, `落空 · ${ev.reason}`, 'fizzle', 1300);
         this.onLog({ text: `${this.name(u)} 落空：${ev.reason}`, cls: 'fizzle' });
         await this.w(420);
@@ -861,6 +899,8 @@ export class Playback {
       { duration: 620 / this.speed, easing: 'ease-out' },
     ).onfinish = () => this.removeTemporary(el);
     this.fx.burst(p.x, p.y + 40, '#c9a4ff', { n: 14, speed: 1.6, kind: 'mote', size: 2.4, up: 2.6, gravity: -0.05, life: 36 });
+    this.fx.pillar(p.x, p.y + 52, '#c9a4ff', 200, 520);
+    this.fx.rise(p.x, p.y + 50, '#e2ccff', 6, 50);
   }
 
   /** 主将头像亮一下，返回它在舞台坐标里的中心（弹道起点） */

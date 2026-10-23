@@ -389,6 +389,7 @@ export class App {
         setTimeout(() => this.fx.burst(200 + Math.random() * 880, 150 + Math.random() * 250, ['#ffd36b', '#7dffb0', '#6fe6ff', '#ff9a3d', '#b77bff', '#fff'][i], { n: 50, speed: 9, size: 3 }), i * 220);
     }
     this.show(el);
+    setTimeout(() => { if (el.isConnected) this.askFeedback('firstRun', win); }, win ? 1800 : 900);
   }
 
   // ───────────── 弹窗 ─────────────
@@ -423,6 +424,22 @@ export class App {
     m.animate([{ opacity: 0 }, { opacity: 1 }], { duration: reduceMotion ? 0 : 200 });
     m.querySelector('.modal')!.animate([{ transform: 'scale(.92) translateY(10px)' }, { transform: 'none' }], { duration: reduceMotion ? 0 : 260, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
     return close;
+  }
+
+  /** H5 接不了官方评价组件：关键节点只弹一次，恳请玩家去 TapTap 评论区留言。 */
+  askFeedback(kind: 'tutorial' | 'firstRun', win = false) {
+    const key = `zl_fb_${kind}`;
+    try {
+      if (localStorage.getItem(key)) return;
+      localStorage.setItem(key, '1');
+    } catch { return; }
+    const title = kind === 'tutorial' ? '教程完成，感谢试玩！' : win ? '恭喜完成第一次远征！' : '第一次远征辛苦了！';
+    const text = kind === 'tutorial'
+      ? '游戏还在打磨中。上手体验如何？哪里没看懂、哪里希望我们改进，恳请到 TapTap 评论区告诉我们。'
+      : '我们是小团队，正靠玩家的声音打磨这款游戏。能否花一分钟，在 TapTap 评论区留下评价？好玩的、困惑的、卡住的地方，我们都会认真看。';
+    const ok = h('button', { class: 'btn primary' }, h('span', null, '好的'));
+    const close = this.modal(h('div', { class: 'confirm', 'aria-label': title }, h('h3', null, title), h('p', null, text), h('div', { class: 'confirm-btns' }, ok)), 'small');
+    ok.addEventListener('click', close);
   }
 
   confirm(title: string, text: string, okText: string, ok: () => void) {
@@ -468,13 +485,13 @@ export class App {
     let close = () => {};
     next.addEventListener('click', () => (idx === pages.length - 1 ? close() : go(1)));
     const nav = h('div', { class: 'ht-nav' }, prev, pageNumber, next);
-    let doc: HTMLElement | null = null;
     const tabs = (['basic', 'kw'] as const).map((k) => h('button', { class: 'ht-tab', onclick: () => { sfx.click(); setTab(k); } }, k === 'basic' ? '基础玩法' : '词条'));
     const body = h('div', { class: 'ht-body-wrap' });
     const setTab = (k: 'basic' | 'kw') => {
       tabs.forEach((b, i) => b.classList.toggle('on', (i === 0) === (k === 'basic')));
       if (k === 'basic') body.replaceChildren(view, nav);
-      else body.replaceChildren(doc ??= h('div', { class: 'ht-doc' }, keywordDoc()));
+      // 每次重建：演示动画离开页面即停止
+      else body.replaceChildren(h('div', { class: 'ht-doc' }, keywordDoc()));
     };
     setTab(tab);
     close = this.modal(h('div', { class: 'howto', 'aria-label': '玩法说明' }, h('div', { class: 'ht-head' }, h('div', { class: 'ht-tabs' }, tabs)), body), 'wide');

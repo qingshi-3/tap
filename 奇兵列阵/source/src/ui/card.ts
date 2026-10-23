@@ -11,12 +11,14 @@ export interface CardOpts {
   /** 若与已上阵单位同名：合并后的等级 */
   mergeTo?: number;
   maxed?: boolean;
+  /** 图鉴按星级浏览时显示对应星级的数值 */
+  level?: number;
 }
 
 export function draftCard(defId: string, o: CardOpts = {}) {
   const d = unitDef(defId);
   const f = FACTION_INFO[d.faction];
-  const st = levelStats(defId, 1);
+  const st = levelStats(defId, o.level ?? 1);
   // 招募卡采用独立词条；非招募单位的复用入口只回退到已有机制，不压缩技能句子。
   const labels = CARD_SUMMARY[defId]?.split('/') ?? d.keywords ?? [];
   return h(
@@ -57,7 +59,7 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   );
 }
 
-const PREVIEW_TRIG: Record<string, TrigId> = {
+export const PREVIEW_TRIG: Record<string, TrigId> = {
   开战: 'start', 施法: 'cast', 普攻: 'attack', 受击: 'hurt',
   击杀: 'kill', 阵亡: 'faint', 每次交锋: 'beat', 周期: 'beat',
 };

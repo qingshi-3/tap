@@ -5,7 +5,7 @@ import '../shop-layout.css';
 import '../v08.css';
 import '../economy-bindings.css';
 import { modernEconomy, previewPreparation } from '../core/preparation';
-import { DRAFT_POOL, FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
+import { FACTION_INFO, unitDef } from '../core/data';
 import { generalDefinition, EQUIP_MAP, ORDER_MAP, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELL_MAP } from '../core/content';
 import { chapter, type RouteNode, type Stage } from '../core/route';
 import { SLOTS, fatigueStartForChapter, levelStats, previewAttackTarget, simulate } from '../core/engine';
@@ -21,7 +21,8 @@ import { clearRun, saveRun } from '../core/save';
 import { recordOfficialBattle, recordRunOutcome } from '../core/career';
 import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
-import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Side, type Slotted, type UnitState } from '../core/types';
+import { unitBrowser } from './unitBrowser';
+import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Faction, type Side, type Slotted, type UnitState } from '../core/types';
 import type { App } from './app';
 import { setMusicRun, setMusicDucked, sfx } from './audio';
 import { audioSettings } from './audioSettings';
@@ -243,7 +244,7 @@ export class Game {
     // 入场后约 350ms 才挂关卡告示：这段空档里也算「告示中」，免得教学蒙层先亮
     const introDue = sc === 'prep' ? performance.now() + 700 : 0;
     if (tutorial) this.tut = new Tutorial({
-      el: this.el, run, mode: () => this.mode, finishTutorial: () => this.app.toTitle(),
+      el: this.el, run, mode: () => this.mode, finishTutorial: () => { this.app.toTitle(); this.app.askFeedback('tutorial'); },
       busy: () => performance.now() < introDue || !!this.el.querySelector('.stage-intro'),
     });
     this.renderAll(true);
@@ -640,22 +641,12 @@ export class Game {
 
   private showPool() {
     hideTip();
-    const groups = [...this.run.activeFactions, 'neutral'] as const;
-    const list = h('div', { class: 'pool-list' });
-    const detail = h('div', { class: 'pool-detail' });
-    const show = (id: string) => {
-      const d = unitDef(id);
-      detail.replaceChildren(h('div', { class: 'pool-art', html: unitSvg(id) }), h('b', null, `${d.name} · `, h('span', { class: `tip-rarity rarity-${d.tier}` }, RARITY_NAMES[d.tier])), ...[1, 2, 3].map(level => h('section', null, h('b', null, '★'.repeat(level)), unitTip(id, level, null, false))));
-    };
-    const tabs = groups.map(f => h('button', { class: 'btn ghost', onclick: () => select(f) }, FACTION_INFO[f].name));
-    const select = (f: typeof groups[number]) => {
-      tabs.forEach((b, i) => b.classList.toggle('active', groups[i] === f));
-      const defs = DRAFT_POOL.filter(d => d.faction === f);
-      list.replaceChildren(...defs.map(d => h('button', { class: `pool-unit tier-${d.tier}${d.tier > tierCap(battleNo(this.run)) ? ' locked' : ''}`, onclick: () => show(d.id) }, h('span', { class: 'pool-unit-art', html: unitSvg(d.id) }), h('b', null, d.name), h('span', null, `${RARITY_NAMES[d.tier]}${d.tier > tierCap(battleNo(this.run)) ? ` · 第${[0, 1, 3, 6, 9, 12, 15][d.tier]}战开放` : ''}`))));
-      show(defs[0].id);
-    };
-    select(groups[0]);
-    this.app.modal(h('div', { class: 'content-dialog pool-dialog' }, h('div', { class: 'pool-tabs' }, tabs), h('div', { class: 'pool-body' }, list, detail)), 'wide');
+    const factions = [...this.run.activeFactions, 'neutral'] as Faction[];
+    const cap = tierCap(battleNo(this.run));
+    this.app.modal(h('div', { class: 'content-dialog pool-dialog' }, unitBrowser({
+      factions, state: { fac: factions[0], star: 1, sel: null },
+      lockNote: d => (d.tier > cap ? `第${[0, 1, 3, 6, 9, 12, 15][d.tier]}战开放` : null),
+    })), 'wide');
   }
 
   private cardsIn() {

@@ -94,7 +94,7 @@ const STEPS: Step[] = [
     text: '敌人也一样可以点开查看。角标是它们的<b>关键词</b>：格挡抵消一次伤害、护甲减伤……<br>这一关的影袭者带<b>狙击</b>，会打你的队尾。' },
   { id: 'train-general', gate: prep(1), at: ['.prep-entry', '.prep-ov .pt-power', '.prep-ov .pu-card.gen'], until: (r) => !(r.stash.power > 0),
     text: '赢下战斗会获得<b>培养点</b>。打开<b>「整备」</b>，先点<b>「法」</b>，再点<b>主将</b>，把法强分给主将。' },
-  { id: 'train-unit', gate: prep(1), at: ['.prep-ov .pp-tray', '.prep-owned[data-slot="0"]'], until: (r) => stashTotal(r) === 0,
+  { id: 'train-unit', gate: prep(1), at: ['.prep-ov .pp-tray', '.prep-owned[data-slot="0"]', '.prep-ov .prep-seat[data-slot="0"] .prep-refunds'], until: (r) => stashTotal(r) === 0,
     text: '把剩余的<b>生命、格挡、攻击</b>培养点都分给 <b>1 号位佣兵</b>：点培养点，再点佣兵。' },
   closePrep,
   { id: 'reroll', gate: prep(1), at: ['.tray .reroll'], until: 'reroll',
