@@ -1,23 +1,27 @@
 // 图鉴：标题页进入。单位 / 将军 / 装备 / 法术与招募令，外加按阵营整理的推荐阵容。
 // 全部点按操作；推荐只给思路，不影响局内抽卡。
+import { KW_DEMOS } from '../core/kwDemos';
+import { battleDemo } from './battleDemo';
 import '../codex-search.css';
 import '../mechanics-guide.css';
+import '../kw-doc.css';
 import { BATTLE_RULES } from '../core/battleRules';
 import { matchesCodex } from '../core/codexSearch';
 import { EQUIPS, GENERALS, ORDERS, SPELLS } from '../core/content';
 import { DRAFT_POOL, FACTION_INFO, FACTION_ORDER, RARITY_NAMES, ROLE_TAGS, tagFamily, unitDef } from '../core/data';
 import { COMBOS } from '../core/combos';
-import type { Faction, UnitDef } from '../core/types';
+import type { UnitDef } from '../core/types';
 import { sfx } from './audio';
 import { h } from './dom';
 import { icon } from './icons';
-import { statArt } from './board';
 import { kwInline, kwRich, kwTag, MECH, pxIcon, MECH_KIND_NAME, mechGloss, TRIG, trigCap, type MechKind, type TrigId } from './kwtext';
 import { describe } from '../core/run';
-import { levelStats } from '../core/engine';
 import { itemIcon } from './pixelItems';
 import { generalTip, unitTip } from './tip';
 import { unitSvg } from './unitArt';
+import { unitBrowser, type BrowserState } from './unitBrowser';
+import { PREVIEW_TRIG } from './card';
+import { CARD_SUMMARY } from './cardSummary';
 
 const TIPS = [
   '前排放血厚、带嘲讽或护甲的单位；施法单位放后排。',
@@ -84,10 +88,6 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
   clearSearch.addEventListener('click', () => { searchInput.value = ''; applySearch(); searchInput.focus({ preventScroll: true }); });
   const body = h('div', { class: 'cx-body' });
   const tabBtns = TABS.map(([k, name]) => h('button', { class: 'cx-tab', onclick: () => { sfx.click(); go(k); } }, name));
-  let fac: Faction = 'light';
-  let unitSel: string | null = null;
-  /** 单位页的星级维度：网格和详情都按这个星级显示 */
-  let star = 1;
   let comboSel = 0;
 
   const go = (tab: Tab) => {
@@ -95,13 +95,13 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
     searchInput.value = queries[tab];
     clearSearch.hidden = searchInput.value.length === 0;
     tabBtns.forEach((b, i) => b.classList.toggle('on', TABS[i][0] === tab));
-    body.replaceChildren(tab === 'rec' ? recView() : tab === 'unit' ? unitView() : tab === 'gen' ? genView() : tab === 'kw' ? keywordDoc(queries.kw) : itemView(tab));
+    body.replaceChildren(tab === 'rec' ? recView() : tab === 'unit' ? unitView() : tab === 'gen' ? genView() : tab === 'kw' ? keywordDoc(queries.kw, openUnit) : itemView(tab));
     body.scrollTop = 0;
   };
   const openUnit = (id: string) => {
     sfx.click();
     const d = unitDef(id);
-    let level = star;
+    let level = unitState.star;
     const detail = h('div', { class: 'cx-popup-detail' });
     const levels = [1, 2, 3].map(lv => h('button', {
       class: 'cx-starbtn', 'aria-label': `${lv} 星`,
@@ -162,43 +162,17 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
       h('div', { class: 'cx-main' }, detail, h('div', { class: 'cx-tips' }, h('b', null, '组队要点'), h('ul', null, TIPS.map((t) => h('li', null, t))))));
   };
 
-  // ── 单位 ──
-  const unitView = () => {
-    const facs = h('div', { class: 'cx-facs' }, FACTION_ORDER.map((k) => h('button', {
-      class: `cx-facbtn${!queries.unit.trim() && k === fac ? ' on' : ''}`, style: `--fc:${FACTION_INFO[k].color}`,
-      onclick: () => { sfx.click(); fac = k; unitSel = null; queries.unit = ''; go('unit'); },
-    }, FACTION_INFO[k].name)),
-    h('div', { class: 'cx-stars' }, [1, 2, 3].map((lv) => h('button', {
-      class: `cx-starbtn${lv === star ? ' on' : ''}`, 'aria-label': `${lv} 星`,
-      onclick: () => { if (lv === star) return; sfx.click(); star = lv; go('unit'); },
-    }, '★'.repeat(lv)))));
-    const defs = DRAFT_POOL.filter(d => (queries.unit.trim() ? matchesCodex(queries.unit, ...unitSearchTexts(d)) : d.faction === fac)).sort((a, b) => a.tier - b.tier);
-    if (!defs.length) {
-      unitSel = null;
-      return h('div', { class: 'cx-units', style: `--fc:${FACTION_INFO[fac].color}` }, facs, noResults());
-    }
-    const grid = h('div', { class: 'cx-grid' });
-    const detail = h('div', { class: 'cx-detail' });
-    const show = (id: string) => {
-      unitSel = id;
-      grid.querySelectorAll<HTMLElement>('.cx-unit').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
-      const d = unitDef(id);
+  // ── 单位 ──（与局内「本局卡池」共用 unitBrowser）
+  const unitState: BrowserState = { fac: 'light', star: 1, sel: null };
+  const unitView = () => unitBrowser({
+    factions: FACTION_ORDER, state: unitState,
+    filter: queries.unit.trim() ? (d) => matchesCodex(queries.unit, ...unitSearchTexts(d)) : undefined,
+    extra: (d) => {
       const mates = partners(d);
-      detail.replaceChildren(
-        h('div', { class: 'cx-d-head' }, h('div', { class: 'cx-d-art', html: unitSvg(id) }),
-          h('div', null, h('b', { class: 'cx-d-name' }, d.name), h('span', { class: `cx-rar rarity-${d.tier}` }, RARITY_NAMES[d.tier]),
-            h('div', { class: 'cx-tags' }, (d.tags ?? []).map((t) => h('span', null, t))))),
-        h('section', { class: 'cx-lv' }, unitTip(id, star, null, false)),
-        ...(mates.length ? [h('div', { class: 'cx-mates' }, h('b', null, '搭配推荐'), h('div', null, mates.map((m) => unitChip(m.id))))] : []),
-      );
-      detail.scrollTop = 0;
-    };
-    grid.replaceChildren(...defs.map((d) => h('button', { class: `cx-unit tier-${d.tier}`, 'data-id': d.id, onclick: () => { sfx.click(); show(d.id); } },
-      h('span', { class: 'cx-unit-art', html: unitSvg(d.id) }), h('b', null, d.name),
-      h('span', null, RARITY_NAMES[d.tier], h('span', { class: 'cx-unit-st px' }, statArt('atk', levelStats(d.id, star).atk), statArt('hp', levelStats(d.id, star).hp))))));
-    show(unitSel && defs.some((d) => d.id === unitSel) ? unitSel : defs[0].id);
-    return h('div', { class: 'cx-units', style: `--fc:${FACTION_INFO[fac].color}` }, facs, h('div', { class: 'cx-split' }, grid, detail));
-  };
+      return mates.length ? h('div', { class: 'cx-mates' }, h('b', null, '搭配推荐'), h('div', null, mates.map((m) => unitChip(m.id)))) : null;
+    },
+    empty: noResults,
+  });
 
   // ── 将军 ──
   const genView = () => {
@@ -241,37 +215,63 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
   return el;
 }
 
-/** 词条说明：图鉴「词条」页和玩法说明共用；释义只在这里出现，不跟着单位走 */
-export function keywordDoc(query = '') {
-  const card = (tag: HTMLElement, body: (string | Node)[]) =>
-    h('div', { class: 'cx-kw-card' }, h('div', { class: 'kc-tag' }, tag), h('p', null, ...body));
+/** 词条说明：图鉴「词条」页和玩法说明共用；释义只在这里出现，不跟着单位走。
+ * 左侧按类别排词条（图标或彩色短词），右侧是选中词条的大图标、释义和代表单位。 */
+export function keywordDoc(query = '', onUnit?: (id: string) => void) {
+  interface Entry { key: string; group: string; tag: () => HTMLElement; big: () => HTMLElement; gloss: () => (string | Node)[]; units?: string[] }
   const trigIds = Object.keys(TRIG) as TrigId[];
   const kinds: MechKind[] = ['trait', 'status', 'action'];
-  const doc = h('div', { class: 'cx-kw' },
-    h('h3', { class: 'cx-kw-h' }, h('span', null, '基础规则')),
-    h('div', { class: 'cx-kw-grid cx-rule-grid' }, Object.values(BATTLE_RULES).map(rule => card(h('b', null, rule.name), kwInline(rule.text)))),
-    h('h3', { class: 'cx-kw-h' }, h('span', null, '触发时机')),
-    h('div', { class: 'cx-kw-grid' }, trigIds.map((id) => card(trigCap(id, TRIG[id].sample), kwInline(TRIG[id].gloss)))),
-    ...kinds.flatMap((kd) => [
-      h('h3', { class: 'cx-kw-h' }, h('span', null, MECH_KIND_NAME[kd])),
-      h('div', { class: 'cx-kw-grid' }, Object.keys(MECH).filter((k) => MECH[k].kind === kd).map((k) => card(kwTag(k, '', '', true), kwInline(mechGloss(k))))),
-    ]),
-    h('h3', { class: 'cx-kw-h' }, h('span', null, '数值')),
-    h('div', { class: 'cx-kw-grid' },
-      card(h('span', { class: 'kwn kwn-atk' }, pxIcon('atk'), h('span', { class: 'kwi-name' }, '攻击')), ['普攻的基础伤害。', ...kwRich('寒意'), '会压低接下来一次普攻的攻击力。']),
-      card(h('span', { class: 'kwn kwn-hp' }, pxIcon('hp'), h('span', { class: 'kwi-name' }, '生命')), ['降到 0 阵亡。恢复生命不超过上限。']),
-      card(h('span', null, ...kwRich('+2/+2')), ['同时加攻击和生命，前一个是攻击、后一个是生命。']),
-      card(h('span', null, ...kwRich('3+法强')), ['施法数值写成「N+法强」，会加上自己的', ...kwRich('法强'), '。']),
-      card(h('span', null, ...kwRich('格挡 2→3')), ['说明框里的「→」和绿色数字：升一星后的数值。'])));
-  if (query.trim()) {
-    doc.querySelectorAll<HTMLElement>('.cx-kw-grid').forEach(grid => {
-      const heading = grid.previousElementSibling;
-      grid.querySelectorAll<HTMLElement>('.cx-kw-card').forEach(card => {
-        if (!matchesCodex(query, card.textContent ?? '', heading?.textContent ?? '')) card.remove();
-      });
-      if (!grid.children.length) { heading?.remove(); grid.remove(); }
-    });
-    if (!doc.querySelector('.cx-kw-card')) doc.replaceChildren(noResults());
-  }
-  return doc;
+  const summary = (id: string) => CARD_SUMMARY[id]?.split('/') ?? [];
+  const examples = (hit: (labels: string[], id: string) => boolean) =>
+    DRAFT_POOL.filter(d => hit(summary(d.id), d.id)).sort((a, b) => a.tier - b.tier || a.faction.localeCompare(b.faction)).slice(0, 6).map(d => d.id);
+  const num = (stat: 'atk' | 'hp', name: string) => () => h('span', { class: `kwn kwn-${stat}` }, pxIcon(stat), h('span', { class: 'kwi-name' }, name));
+  const entries: Entry[] = [
+    ...Object.values(BATTLE_RULES).map((rule): Entry => ({ key: rule.name, group: '基础规则', tag: () => h('b', { class: 'kd-rule' }, rule.name), big: () => h('b', { class: 'kd-rule' }, rule.name), gloss: () => kwInline(rule.text) })),
+    ...trigIds.map((id): Entry => ({
+      key: TRIG[id].name, group: '触发时机', tag: () => trigCap(id, TRIG[id].name, true), big: () => trigCap(id, TRIG[id].sample), gloss: () => kwInline(TRIG[id].gloss),
+      units: examples(labels => labels.some(l => l === TRIG[id].name || PREVIEW_TRIG[l] === id || TRIG[id].name.startsWith(l))),
+    })),
+    ...kinds.flatMap(kd => Object.keys(MECH).filter(k => MECH[k].kind === kd).map((k): Entry => ({
+      key: k, group: MECH_KIND_NAME[kd], tag: () => kwTag(k, '', '', true), big: () => kwTag(k, '', '', true), gloss: () => kwInline(mechGloss(k)),
+      units: examples((labels, id) => labels.includes(k) || (unitDef(id).keywords ?? []).includes(k)),
+    }))),
+    { key: '攻击', group: '数值', tag: num('atk', '攻击'), big: num('atk', '攻击'), gloss: () => ['普攻的基础伤害。', ...kwRich('寒意'), '会压低接下来一次普攻的攻击力。'] },
+    { key: '生命', group: '数值', tag: num('hp', '生命'), big: num('hp', '生命'), gloss: () => ['降到 0 阵亡。恢复生命不超过上限。'] },
+    { key: '+2/+2', group: '数值', tag: () => h('span', null, ...kwRich('+2/+2')), big: () => h('span', null, ...kwRich('+2/+2')), gloss: () => ['同时加攻击和生命，前一个是攻击、后一个是生命。'] },
+    { key: '3+法强', group: '数值', tag: () => h('span', null, ...kwRich('3+法强')), big: () => h('span', null, ...kwRich('3+法强')), gloss: () => ['施法数值写成「N+法强」，会加上自己的', ...kwRich('法强'), '。'] },
+    { key: '格挡 2→3', group: '数值', tag: () => h('span', null, ...kwRich('格挡 2→3')), big: () => h('span', null, ...kwRich('格挡 2→3')), gloss: () => ['说明框里的「→」和绿色数字：升一星后的数值。'] },
+  ];
+  const text = (e: Entry) => [e.key, e.group, ...e.gloss().map(x => (typeof x === 'string' ? x : x.textContent ?? ''))];
+  const visible = query.trim() ? entries.filter(e => matchesCodex(query, ...text(e))) : entries;
+  if (!visible.length) return h('div', { class: 'kd' }, noResults());
+
+  const nav = h('div', { class: 'kd-nav' });
+  const detail = h('div', { class: 'kd-detail' });
+  const chips: HTMLElement[] = [];
+  const show = (e: Entry) => {
+    chips.forEach(c => c.classList.toggle('on', c.dataset.key === e.key));
+    const demo = KW_DEMOS[e.key];
+    detail.replaceChildren(
+      ...(demo ? [h('div', { class: 'kd-head' }, h('div', { class: 'kd-group' }, e.group), h('div', { class: 'kd-name' }, e.big())),
+        battleDemo(demo)]
+        : [h('div', { class: 'kd-group' }, e.group), h('div', { class: 'kd-big' }, e.big())]),
+      h('p', { class: 'kd-gloss' }, ...e.gloss()),
+      ...(e.units?.length ? [h('div', { class: 'kd-eg' }, h('b', null, '代表单位'), h('div', { class: 'kd-units' }, e.units.map(id => {
+        const d = unitDef(id);
+        return h(onUnit ? 'button' : 'div', { class: `kd-unit tier-${d.tier}`, style: `--fc:${FACTION_INFO[d.faction].color}`, onclick: onUnit ? () => onUnit(id) : null },
+          h('span', { class: 'kd-unit-art', html: unitSvg(id) }), h('span', { class: 'kd-unit-name' }, d.name));
+      })))] : []),
+    );
+    detail.scrollTop = 0;
+  };
+  const groups = [...new Set(visible.map(e => e.group))];
+  nav.replaceChildren(...groups.map(g => h('section', { class: 'kd-sec' },
+    h('h3', { class: 'kd-sec-h' }, g),
+    h('div', { class: 'kd-chips' }, visible.filter(e => e.group === g).map(e => {
+      const c = h('button', { class: 'kd-chip', 'data-key': e.key, onclick: () => { sfx.click(); show(e); } }, e.tag());
+      chips.push(c);
+      return c;
+    })))));
+  show(visible[0]);
+  return h('div', { class: 'kd' }, nav, detail);
 }

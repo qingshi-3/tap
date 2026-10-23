@@ -1,0 +1,162 @@
+/* ═════════════════════════════════════════════════════════════
+   招募卡面 + 招募主界面（2026-10-22）
+   卡面：放大到 188×252，立绘放大，词条一行一个居中排列。
+   招募栏：左栏收窄，卡区 / 备战席 / 右侧按钮之间留出固定间距，选中卡不再压住备战席。
+   ═════════════════════════════════════════════════════════════ */
+
+/* ───────── 卡面 ───────── */
+.card {
+  --cw: 188px;
+  --ch: 262px;
+  width: var(--cw);
+  height: var(--ch);
+}
+.card .card-in { padding: 0; }
+.card .card-in > .card-top {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  height: 26px;
+  margin: 0;
+  align-items: center;
+}
+.card .card-in > .card-sigil {
+  left: 50%;
+  top: 40px;
+  width: 92px;
+  height: 92px;
+  margin-left: -46px;
+}
+.card .card-in > .card-art {
+  position: absolute;
+  left: 0;
+  right: 0;
+  width: auto;
+  top: 40px;
+  height: 92px;
+  margin: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.card .card-in > .card-art .uart {
+  transform: none;
+  width: 96px;
+}
+.card .card-in > .card-stats {
+  top: 52px;
+  bottom: auto;
+  left: 10px;
+  right: 10px;
+}
+.card .card-in > .card-name {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 136px;
+  margin: 0;
+  font-size: 24px;
+  line-height: 28px;
+  text-align: center;
+}
+/* 词条：一行一个，整体在固定区域里垂直居中，不再左右参差地换行 */
+.card .card-in > .card-brief.card-keywords {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 168px;
+  height: 66px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-size: 18px;
+  line-height: 21px;
+  text-align: center;
+  white-space: nowrap;
+}
+.card .card-in > .card-keywords > * { margin: 0; white-space: nowrap; }
+/* 两枚以内词条时稍大一号 */
+.card .card-in > .card-keywords:not(:has(> :nth-child(3))) { font-size: 20px; line-height: 25px; gap: 3px; }
+.card .card-in > .card-gems { top: auto; bottom: 4px; }
+.card > .card-badge { top: -22px; }
+
+/* ───────── 招募栏 ───────── */
+.tray { height: 290px; }
+.tray::before { top: 22px; }
+.tray-left {
+  left: 18px;
+  top: 60px;
+  width: 128px;
+  gap: 10px;
+  align-items: stretch;
+}
+.tray-left .tl-title { font-size: 22px; letter-spacing: .3em; text-align: center; }
+.tray-left .tl-row {
+  flex-direction: column;
+  gap: 6px;
+  font-size: 18px;
+  text-align: center;
+}
+.tray-left > .reroll {
+  align-self: stretch;
+  justify-content: center;
+  padding: 0 8px;
+}
+.cards {
+  left: 158px;
+  top: 20px;
+  width: 588px;
+  height: 262px;
+  gap: 12px;
+  justify-content: flex-start;
+}
+.cards-done { width: 588px; }
+.tray-right { left: 772px; top: 58px; }
+.tray-right > .bench { gap: 6px; }
+
+/* ── 整备：装备位 + 分配结果框 ── */
+.prep-ov .prep-gear { display: flex; gap: 8px; margin-top: 6px; pointer-events: auto; }
+.prep-ov .prep-gear-it, .prep-ov .prep-gear-empty {
+  width: 64px; height: 64px; flex: none; padding: 0; display: flex; align-items: center; justify-content: center;
+  background: #0c0a22; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #6b5a2c, 0 3px 0 2px rgba(0,0,0,.45);
+}
+.prep-ov .prep-gear-it { cursor: pointer; }
+.prep-ov .prep-gear-it .px-item { width: 52px; height: 52px; }
+.prep-ov .prep-gear-it:active { transform: translateY(2px); }
+.prep-ov .prep-gear-empty { background: rgba(12,10,34,.45); box-shadow: inset 0 0 0 2px rgba(160,150,200,.35); outline: 2px dashed rgba(160,150,200,.35); outline-offset: -6px; }
+.prep-ov .prep-gear-it:disabled { background: #0c0a22; filter: none; opacity: 1; }
+
+.prep-ov .prep-seat .prep-refunds {
+  display: flex; flex-direction: column; align-items: center; gap: 6px; width: 132px; min-height: 56px; margin-top: 8px; padding: 6px;
+  grid-auto-rows: auto; background: rgba(12,10,34,.5); box-shadow: inset 0 0 0 2px rgba(110,140,110,.35);
+}
+.prep-ov .prep-bench-seat .prep-refunds { width: 104px; margin-top: 8px; }
+.prep-ov .prep-seat .prep-refunds:empty { display: flex; }
+.prep-ov .pu-card.gen .prep-refunds { display: flex; flex-direction: column; gap: 6px; width: auto; }
+.prep-ov .prep-alloc-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 8px; }
+.prep-ov .prep-alloc { display: inline-flex; align-items: center; gap: 2px; }
+.prep-ov .prep-alloc .kpx { width: 26px; height: 26px; vertical-align: 0; }
+.prep-ov .prep-alloc .kpx.px-atk, .prep-ov .prep-alloc .kpx.px-hp { width: 22px; height: 22px; margin: 0; }
+.prep-ov .prep-undo-all { min-height: 40px; padding: 0 10px; font-size: 18px; display: flex; align-items: center; gap: 4px; }
+.prep-ov .prep-undo-all s { text-decoration: none; }
+
+/* 拖放 */
+.prep-ov .prep-ghost { position: absolute; left: 0; top: 0; width: 72px; height: 72px; z-index: 60; pointer-events: none; display: flex; align-items: center; justify-content: center; opacity: .9; }
+.prep-ov .prep-ghost > * { width: 60px; height: 60px; }
+.prep-ov.prep-dragging .prep-seat[data-slot] .prep-figure { outline: 2px dashed rgba(255,227,163,.4); outline-offset: -2px; }
+.prep-ov .prep-seat.drop-on .prep-figure, .prep-ov .pu-card.gen.drop-on { outline: 3px solid #ffe3a3; outline-offset: -2px; }
+.prep-ov .pr-chip { touch-action: pan-x; }
+
+/* 数值上涨飘字 */
+.prep-ov .prep-float {
+  position: absolute; left: 50%; top: 20px; margin-left: -36px; width: 72px; z-index: 30; pointer-events: none;
+  display: flex; align-items: center; justify-content: center; gap: 2px;
+  font: 26px/1 var(--num); color: #9dff8a; text-shadow: 0 2px 0 #000, 0 0 6px #000; opacity: 0;
+}
+.prep-ov .prep-float .kpx { width: 28px; height: 28px; vertical-align: 0; }
+.prep-ov .prep-bench-seat .prep-gear { margin-top: 40px; }

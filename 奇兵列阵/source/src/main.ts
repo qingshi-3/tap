@@ -12,6 +12,8 @@ import './ui-audit.css';
 import { installItemSprites } from './ui/pixelItems';
 import { rasterize } from './ui/unitArt';
 import { STAGE_H, STAGE_W, stageState } from './ui/dom';
+import './art-pass.css';
+import './prep-main.css';
 
 installPixelSprites();
 installItemSprites();

@@ -58,7 +58,7 @@ function fixture(events: BattleEvent[], initial: Snap = []) {
   const board = { el: new fake.Element(), center: new fake.Element(),
     clearUnits: vi.fn(() => views.clear()), add: (key: string, value: InstanceType<typeof fake.Unit>) => views.set(key, value),
     view: (key: string) => views.get(key), clearArrows: vi.fn(), setCenter: vi.fn(), setPips: vi.fn(), setOrder: vi.fn(), views };
-  const fx = { layer: new fake.Element(), burst: vi.fn(), float: vi.fn(), ring: vi.fn(), shake: vi.fn(), flash: vi.fn() };
+  const fx = { layer: new fake.Element(), burst: vi.fn(), float: vi.fn(), ring: vi.fn(), shake: vi.fn(), flash: vi.fn(), slash: vi.fn(), impact: vi.fn(), pillar: vi.fn(), wave: vi.fn(), dome: vi.fn(), rise: vi.fn(), rate: 1 };
   const out = { initial, afterStart: initial, log: events.map((ev) => ({ ev, snap: initial })), beats: 4, result: 'win' } as BattleOutput;
   const playback = new Playback(board as unknown as Board, fx as unknown as FX, out);
   return { playback, board, fx, out };

@@ -3,13 +3,13 @@ import '../tutorial-guide.css';
 import '../prep-battle.css';
 import '../shop-layout.css';
 import '../v08.css';
-import { DRAFT_POOL, FACTION_INFO, GENERAL_MAP, RARITY_NAMES, unitDef } from '../core/data';
+import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
 import { EQUIP_MAP, ORDER_MAP, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELL_MAP } from '../core/content';
 import { chapter, type RouteNode, type Stage } from '../core/route';
 import { SLOTS, levelStats, simulate } from '../core/engine';
 import {
   allocPoint, applyRewardedReroll, battleNo, beginBattle, buildBattle, buy, canRewardedReroll, chooseReward, choosePromo, cloneRun, consumeRewardedRetry,
-  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
+  allocRefundable, deallocPoint, equip, equipCap, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
   MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
   remainingRewardedRetries, settleRewardedRetry, takeDraft, teamSize,
   addSwap, clearSwaps, eggThreshold, hireMerc, reserveSlots, signMerc, swapCap, SIGN_PRICE,
@@ -19,12 +19,13 @@ import { clearRun, saveRun } from '../core/save';
 import { recordOfficialBattle, recordRunOutcome } from '../core/career';
 import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
-import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Side, type Slotted } from '../core/types';
+import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Faction, type Side, type Slotted } from '../core/types';
 import type { App } from './app';
 import { setMusicRun, setMusicDucked, sfx } from './audio';
 import { audioSettings } from './audioSettings';
 import { type ArrowKind, Board, bodyPos, headPos, factionSigil, seatArt, statArt, SLOT_SPACING, slotX, statsOf, keywordsOf, UNIT_Y, UnitView } from './board';
 import { draftCard } from './card';
+import { unitBrowser } from './unitBrowser';
 import { append, h, STAGE_H, STAGE_W, toStage, wait } from './dom';
 import { markHint, seenHints } from './hints';
 import { icon } from './icons';
@@ -156,6 +157,8 @@ export class Game {
   /** 整备弹层（盖住盘面，教学蒙层仍在它上面） */
   private prep: HTMLElement | null = null;
   private prepFocus: number | 'general' | null = null;
+  /** 刚分配的资源：整备重绘后在目标上播放一次「数值上涨」反馈 */
+  private prepPulse: { owner: number | 'general'; kind: 'point' | 'equip'; type: string } | null = null;
   /** 旧的操作提示，现已并入整备弹层 */
   private armHint = h('div', { class: 'arm-hint hidden' });
   private panel: HTMLElement | null = null;
@@ -239,7 +242,7 @@ export class Game {
     // 入场后约 350ms 才挂关卡告示：这段空档里也算「告示中」，免得教学蒙层先亮
     const introDue = sc === 'prep' ? performance.now() + 700 : 0;
     if (tutorial) this.tut = new Tutorial({
-      el: this.el, run, mode: () => this.mode, finishTutorial: () => this.app.toTitle(),
+      el: this.el, run, mode: () => this.mode, finishTutorial: () => { this.app.toTitle(); this.app.askFeedback('tutorial'); },
       busy: () => performance.now() < introDue || !!this.el.querySelector('.stage-intro'),
     });
     this.renderAll(true);
@@ -591,22 +594,12 @@ export class Game {
 
   private showPool() {
     hideTip();
-    const groups = [...this.run.activeFactions, 'neutral'] as const;
-    const list = h('div', { class: 'pool-list' });
-    const detail = h('div', { class: 'pool-detail' });
-    const show = (id: string) => {
-      const d = unitDef(id);
-      detail.replaceChildren(h('div', { class: 'pool-art', html: unitSvg(id) }), h('b', null, `${d.name} · `, h('span', { class: `tip-rarity rarity-${d.tier}` }, RARITY_NAMES[d.tier])), ...[1, 2, 3].map(level => h('section', null, h('b', null, '★'.repeat(level)), unitTip(id, level, null, false))));
-    };
-    const tabs = groups.map(f => h('button', { class: 'btn ghost', onclick: () => select(f) }, FACTION_INFO[f].name));
-    const select = (f: typeof groups[number]) => {
-      tabs.forEach((b, i) => b.classList.toggle('active', groups[i] === f));
-      const defs = DRAFT_POOL.filter(d => d.faction === f);
-      list.replaceChildren(...defs.map(d => h('button', { class: `pool-unit tier-${d.tier}${d.tier > tierCap(battleNo(this.run)) ? ' locked' : ''}`, onclick: () => show(d.id) }, h('span', { class: 'pool-unit-art', html: unitSvg(d.id) }), h('b', null, d.name), h('span', null, `${RARITY_NAMES[d.tier]}${d.tier > tierCap(battleNo(this.run)) ? ` · 第${[0, 1, 3, 6, 9][d.tier]}战开放` : ''}`))));
-      show(defs[0].id);
-    };
-    select(groups[0]);
-    this.app.modal(h('div', { class: 'content-dialog pool-dialog' }, h('div', { class: 'pool-tabs' }, tabs), h('div', { class: 'pool-body' }, list, detail)), 'wide');
+    const factions = [...this.run.activeFactions, 'neutral'] as Faction[];
+    const cap = tierCap(battleNo(this.run));
+    this.app.modal(h('div', { class: 'content-dialog pool-dialog' }, unitBrowser({
+      factions, state: { fac: factions[0], star: 1, sel: null },
+      lockNote: d => (d.tier > cap ? `第${[0, 1, 3, 6, 9][d.tier]}战开放` : null),
+    })), 'wide');
   }
 
   private cardsIn() {
@@ -1301,6 +1294,7 @@ export class Game {
     }
     if (!ok) { sfx.fizzle(); return; }
     sfx.merge();
+    if (this.prep) this.prepPulse = s.kind === 'point' ? { owner: slot, kind: 'point', type: s.type } : { owner: slot, kind: 'equip', type: '' };
     const p = slot < 5 && !this.prep ? bodyPos(0, slot) : null;
     if (p) {
       this.app.fx.ring(p.x, p.y + 40, s.kind === 'equip' ? '#ffd36b' : '#7dffb0', 70);
@@ -1399,6 +1393,84 @@ export class Game {
     this.coach();
   }
 
+  /** 整备托盘里的培养点 / 装备：按住拖到单位（培养点也可拖给主将）直接分配；轻点仍是「选中再点目标」 */
+  private prepDrag(chip: HTMLElement, next: Sel, art: HTMLElement) {
+    let start: { x: number; y: number; id: number } | null = null;
+    let ghost: HTMLElement | null = null;
+    let over: HTMLElement | null = null;
+    let swallow = false;
+    const targetAt = (x: number, y: number) => {
+      const el = document.elementFromPoint(x, y) as HTMLElement | null;
+      const seat = el?.closest<HTMLElement>('.prep-seat[data-slot]');
+      if (seat) return seat;
+      const gen = el?.closest<HTMLElement>('.pu-card.gen');
+      return gen && next.kind === 'point' && POINT_MAP[next.type]?.toGeneral ? gen : null;
+    };
+    const mark = (t: HTMLElement | null) => {
+      if (t === over) return;
+      over?.classList.remove('drop-on');
+      over = t; over?.classList.add('drop-on');
+    };
+    const end = () => {
+      ghost?.remove(); ghost = null; mark(null); start = null;
+      this.prep?.classList.remove('prep-dragging');
+    };
+    chip.addEventListener('pointerdown', (e) => {
+      if (!this.editable || this.adPending || e.button > 0) return;
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      chip.setPointerCapture(e.pointerId);
+    });
+    chip.addEventListener('pointermove', (e) => {
+      if (!start || e.pointerId !== start.id) return;
+      if (!ghost) {
+        if (Math.hypot(e.clientX - start.x, e.clientY - start.y) < 10) return;
+        hideTip();
+        ghost = h('div', { class: 'prep-ghost' }, art.cloneNode(true));
+        this.prep?.append(ghost);
+        this.prep?.classList.add('prep-dragging');
+      }
+      const p = toStage(e.clientX, e.clientY);
+      ghost.style.transform = `translate(${p.x - 36}px, ${p.y - 36}px)`;
+      mark(targetAt(e.clientX, e.clientY));
+    });
+    chip.addEventListener('pointerup', (e) => {
+      if (!start || e.pointerId !== start.id) return;
+      if (!ghost) { start = null; return; }
+      const t = over;
+      end();
+      swallow = true;
+      if (!t) return;
+      this.sel = next;
+      if (t.dataset.slot != null) this.applyArm(Number(t.dataset.slot));
+      else t.click();
+    });
+    chip.addEventListener('pointercancel', end);
+    // 拖放结束时浏览器还会补一次 click，吞掉它免得变成「选中」
+    chip.addEventListener('click', (e) => { if (swallow) { swallow = false; e.stopImmediatePropagation(); } }, true);
+    return chip;
+  }
+
+  /** 分配后的反馈：目标上飘出 +N，结果框里对应条目弹一下（只动 transform / opacity） */
+  private playPrepPulse(ov: HTMLElement) {
+    const pulse = this.prepPulse;
+    this.prepPulse = null;
+    if (!pulse || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const host = pulse.owner === 'general' ? ov.querySelector<HTMLElement>('.pu-card.gen') : ov.querySelector<HTMLElement>(`.prep-seat[data-slot="${pulse.owner}"]`);
+    if (!host) return;
+    const pop = (el: Element | null | undefined) => (el as HTMLElement | null)?.animate(
+      [{ transform: 'scale(1.7)', opacity: 0.4 }, { transform: 'scale(.92)', opacity: 1, offset: 0.6 }, { transform: 'scale(1)', opacity: 1 }],
+      { duration: 420, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+    if (pulse.kind === 'equip') { pop(host.querySelector('.prep-gear-it:last-of-type')); return; }
+    pop(host.querySelector(`.prep-alloc[data-point="${pulse.type}"]`));
+    const stat = pulse.type === 'atk' ? host.querySelector('.u-stats > :first-child') : pulse.type === 'hp' ? host.querySelector('.u-stats > :last-child') : null;
+    pop(stat);
+    const fig = host.querySelector<HTMLElement>('.prep-figure') ?? host;
+    const f = h('div', { class: `prep-float pt-${pulse.type}` }, pxIcon(pulse.type as 'atk'), `+${pulse.type === 'hp' ? 2 : 1}`);
+    fig.append(f);
+    f.animate([{ transform: 'translateY(10px)', opacity: 0 }, { transform: 'translateY(-14px)', opacity: 1, offset: 0.25 }, { transform: 'translateY(-54px)', opacity: 0 }],
+      { duration: 900, easing: 'ease-out' }).onfinish = () => f.remove();
+  }
+
   private closePrep() {
     if (!this.prep) return;
     hideTip();
@@ -1432,27 +1504,39 @@ export class Game {
       showTip(content, p.x, p.y, 'below', q.y);
     };
     const trayLeft = ov.querySelector<HTMLElement>('.pp-tray')?.scrollLeft ?? 0;
-    const active = document.activeElement as HTMLElement | null;
-    const focusOwner = active?.closest<HTMLElement>('.prep-refund')?.dataset.owner;
-    const focusPoint = active?.closest<HTMLElement>('.prep-refund')?.dataset.point;
     const choosingResource = sel?.kind === 'point' || sel?.kind === 'equip';
+    const locked = !!this.tut || !this.editable || this.adPending;
+    // 分配结果框：本轮给这个单位加的点（图标 + 绿色增量），整单位一键撤销。
     // The UID-backed round ledger excludes lifetime training and battle-start buffs.
-    const refunds = (owner: number | 'general') => {
-      const buttons = POINT_TYPES.filter(p => allocRefundable(r, owner, p.id) > 0).map(p => {
+    const allocBox = (owner: number | 'general') => {
+      const items = POINT_TYPES.filter(p => allocRefundable(r, owner, p.id) > 0).map(p => {
         const count = allocRefundable(r, owner, p.id);
-        const delta = p.id === 'hp' ? count * 2 : count;
-        // 本轮分配的点数：像素图标 + 绿色增量，右侧小箭头表示可退回
-        const art = [pxIcon(p.id), h('i', { class: 'prep-added' }, `+${delta}`), h('s', { class: 'prep-undo' }, '↩')];
-        const b = h('button', { class: `prep-refund pt-${p.id}`, 'data-owner': owner, 'data-point': p.id,
-          disabled: !!this.tut || !this.editable || this.adPending,
-          'aria-label': `本轮${p.name}${p.id === 'block' ? `分配${count}点（有效格挡最多3层）` : `增加${delta}`}，退回一点${p.name}` },
-          h('span', { class: 'prep-refund-face', 'aria-hidden': 'true' }, ...art));
-        b.addEventListener('click', act(() => !this.tut && deallocPoint(r, owner, p.id)));
-        b.addEventListener('keydown', e => e.stopPropagation());
-        b.addEventListener('keyup', e => e.stopPropagation());
+        return h('span', { class: `prep-alloc pt-${p.id}`, 'data-point': p.id, 'aria-label': `本轮${p.name}+${p.id === 'hp' ? count * 2 : count}` },
+          pxIcon(p.id), h('i', { class: 'prep-added' }, `+${p.id === 'hp' ? count * 2 : count}`));
+      });
+      const box = h('div', { class: 'prep-refunds', 'data-owner': owner });
+      if (!items.length) return box;
+      const undo = h('button', { class: 'prep-undo-all', disabled: locked, 'aria-label': '撤销本轮分配给它的培养点' }, h('s', null, '↩'), '撤销');
+      undo.addEventListener('click', act(() => {
+        if (this.tut) return false;
+        let any = false;
+        for (const p of POINT_TYPES) while (allocRefundable(r, owner, p.id) > 0 && deallocPoint(r, owner, p.id)) any = true;
+        return any;
+      }));
+      box.append(h('div', { class: 'prep-alloc-list' }, items), undo);
+      return box;
+    };
+    // 装备位：大图标，点一下卸下；空位是虚线框，也是拖放目标
+    const gear = (slot: number) => {
+      const u = getOwned(r, slot);
+      const eqs = u?.equips ?? [];
+      const cells: HTMLElement[] = eqs.map((id, i) => {
+        const b = h('button', { class: 'prep-gear-it', 'data-eq': id, disabled: !this.editable || this.adPending, 'aria-label': `卸下${EQUIP_MAP[id]?.name ?? id}` }, itemIcon(id, 'spell'));
+        b.addEventListener('click', act(() => this.allowTutorial({ kind: 'unequip' }) && unequip(r, slot, i)));
         return b;
       });
-      return h('div', { class: 'prep-refunds' }, ...buttons);
+      for (let i = eqs.length; i < equipCap(r); i++) cells.push(h('span', { class: 'prep-gear-empty', 'aria-hidden': 'true' }));
+      return h('div', { class: 'prep-gear' }, cells);
     };
     const markOwned = (el: HTMLElement, slot: number) => {
       if (this.prepFocus === slot && !choosingResource) el.classList.add('prep-focused');
@@ -1503,7 +1587,8 @@ export class Game {
       if (u.side === 0) {
         const seat = seats.get(u.slot)!;
         seat.querySelector('.prep-figure')!.append(v.el);
-        seat.append(refunds(u.slot));
+        seat.dataset.slot = String(u.slot);
+        seat.append(gear(u.slot), allocBox(u.slot));
       } else {
         enemies.append(h('div', { class: 'prep-enemy' }, seatArt(), v.el));
       }
@@ -1521,19 +1606,8 @@ export class Game {
       v.el.classList.toggle('selected', this.prepFocus === slot || sel?.kind === 'point' || sel?.kind === 'equip');
       v.el.setAttribute('aria-label', `备战${slot - 4} ${unitDef(u.defId).name}`);
       activate(v.el, e => selectOwned(slot, v.el, e));
-      bench.append(h('div', { class: 'prep-seat prep-bench-seat' }, h('div', { class: 'prep-figure' }, seatArt(), v.el), refunds(slot), h('div', { class: 'prep-position' }, '备战')));
+      bench.append(h('div', { class: 'prep-seat prep-bench-seat', 'data-slot': slot }, h('div', { class: 'prep-figure' }, seatArt(), v.el), gear(slot), allocBox(slot), h('div', { class: 'prep-position' }, '备战')));
     }
-    const focused = typeof this.prepFocus === 'number' ? getOwned(r, this.prepFocus) : null;
-    const actions = h('div', { class: 'prep-unit-actions' });
-    if (focused && typeof this.prepFocus === 'number') {
-      const slot = this.prepFocus;
-      (focused.equips ?? []).forEach((id, i) => {
-        const b = h('button', { class: 'prep-unequip pr-chip eq', 'aria-label': `卸下${EQUIP_MAP[id]?.name ?? id}` }, itemIcon(id, 'spell'), '卸下');
-        b.addEventListener('click', act(() => this.allowTutorial({ kind: 'unequip' }) && unequip(r, slot, i)));
-        actions.append(b);
-      });
-    }
-
     // 主将：只收法强
     const g = GENERAL_MAP[r.general];
     const genOn = sel?.kind === 'point' && !!POINT_MAP[sel.type]?.toGeneral;
@@ -1542,7 +1616,7 @@ export class Game {
       h('div', { class: 'pu-lv' }, '主将'),
       h('b', { class: 'pu-name' }, g.name),
       h('div', { class: 'pu-stat', 'aria-label': `主将法强 ${r.genPower}` }, h('span', { class: 'p' }, pxIcon('power'), num(r.genPower, r.genPower))),
-      refunds('general'),
+      allocBox('general'),
     );
     gen.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -1557,6 +1631,7 @@ export class Game {
       if (!this.allowTutorial({ kind: 'alloc', to: 'general', type: s.type })) return;
       if (!allocPoint(r, 'general', s.type)) { sfx.fizzle(); return; }
       sfx.merge();
+      this.prepPulse = { owner: 'general', kind: 'point', type: s.type };
       if (!(r.stash[s.type] > 0)) this.sel = null;
       this.save(); this.renderAll(); this.emit('alloc');
     });
@@ -1570,9 +1645,9 @@ export class Game {
     const group = (cls: string, label: string, items: HTMLElement[]) =>
       items.length ? h('div', { class: `pr-group ${cls}` }, h('span', { class: 'pr-label' }, label), h('div', { class: 'pr-items' }, items)) : null;
     const pts = POINT_TYPES.filter((p) => r.stash[p.id] > 0).map((p) =>
-      chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [pxIcon(p.id), h('i', null, r.stash[p.id])], act(pick({ kind: 'point', type: p.id }))));
+      this.prepDrag(chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [pxIcon(p.id), h('i', null, r.stash[p.id])], act(pick({ kind: 'point', type: p.id }))), { kind: 'point', type: p.id }, pxIcon(p.id)));
     const eqs = r.bag.map((id, i) =>
-      chip('eq', sel?.kind === 'equip' && sel.idx === i, [itemIcon(id, 'spell'), h('span', null, EQUIP_MAP[id]?.name ?? id)], act(pick({ kind: 'equip', idx: i }))));
+      this.prepDrag(chip('eq', sel?.kind === 'equip' && sel.idx === i, [itemIcon(id, 'spell'), h('span', null, EQUIP_MAP[id]?.name ?? id)], act(pick({ kind: 'equip', idx: i }))), { kind: 'equip', idx: i }, itemIcon(id, 'spell')));
     const sps = [
       ...r.activeSpells.map((id) => chip('sp', true, [itemIcon(id, 'spell'), h('span', null, SPELL_MAP[id]?.name ?? id)], act(() => this.allowTutorial({ kind: 'spell' }) && unuseSpell(r, id)))),
       ...r.spells.map((id, i) => chip('sp', false, [itemIcon(id, 'spell'), h('span', null, SPELL_MAP[id]?.name ?? id)], act(() => this.allowTutorial({ kind: 'spell' }) && useSpell(r, i), () => sfx.trigger()))),
@@ -1597,14 +1672,10 @@ export class Game {
     ov.replaceChildren(h('div', { class: 'prep-panel' },
       enemies, gen, done, roster,
       h('div', { class: `pp-say${sel?.kind === 'point' || sel?.kind === 'equip' ? ' on' : ''}` }, ...say),
-      h('div', { class: 'pp-tray' }, actions, groups.length ? groups : null)));
+      h('div', { class: 'pp-tray' }, groups.length ? groups : null)));
     roster.append(allies, bench);
     ov.querySelector<HTMLElement>('.pp-tray')!.scrollLeft = trayLeft;
-    if (focusOwner && focusPoint) {
-      const button = ov.querySelector<HTMLElement>(`.prep-refund[data-owner="${focusOwner}"][data-point="${focusPoint}"]`);
-      const fallback = focusOwner === 'general' ? ov.querySelector<HTMLElement>('.pu-card.gen') : ov.querySelector<HTMLElement>(`.prep-owned[data-slot="${focusOwner}"]`);
-      (button ?? fallback)?.focus({ preventScroll: true });
-    }
+    this.playPrepPulse(ov);
 
   }
 
