@@ -1,10 +1,11 @@
+import { tierBadge } from './card';
 import { abilityText, generalAbilityText } from '../core/abilityText';
-import { FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
+import { FACTION_INFO, unitDef } from '../core/data';
 import { generalDefinition, generalPowerSources } from '../core/content';
 import { levelStats } from '../core/engine';
 import { describe } from '../core/run';
 import type { UnitState } from '../core/types';
-import { h, STAGE_W } from './dom';
+import { h, STAGE_H, STAGE_W } from './dom';
 import { kwInline, kwRich, kwUpgrade } from './kwtext';
 import { statArt } from './board';
 
@@ -88,7 +89,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
       { class: 'tip-head' },
       h('div', { class: 'tip-name' }, d.name),
       d.token ? h('span', { class: 'tip-fac' }, '召唤物') : h('span', { class: 'tip-fac' }, f.name),
-      !d.enemyOnly && !d.token ? h('span', { class: 'tip-lv' }, h('span', { class: `tip-rarity rarity-${d.tier}` }, RARITY_NAMES[d.tier]), ' ', h('span', { class: 'tip-stars' }, '★'.repeat(level))) : null,
+      !d.enemyOnly && !d.token ? h('span', { class: 'tip-lv' }, tierBadge(d.tier), ' ', h('span', { class: 'tip-stars' }, '★'.repeat(level))) : null,
     ),
     h(
       'div',
@@ -144,7 +145,7 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
   tipEl.style.bottom = '';
   tipEl.style.maxHeight = 'none';
   const need = tipEl.offsetHeight;
-  const room = { above: top0 - gap - pad, below: 720 - y - gap - pad };
+  const room = { above: top0 - gap - pad, below: STAGE_H - y - gap - pad };
   const other = prefer === 'above' ? 'below' : 'above';
   const side = need <= room[prefer] ? prefer : need <= room[other] ? other : null;
   let top: number, max: number;
@@ -155,13 +156,13 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
     // 上下都放不下：挪到目标左右两侧，按整屏高度放，不盖住目标
     const off = 64;
     tipEl.style.left = `${Math.max(pad, Math.min(STAGE_W - w - pad, x < STAGE_W / 2 ? x + off : x - off - w))}px`;
-    max = Math.min(need, 720 - pad * 2);
+    max = Math.min(need, STAGE_H - pad * 2);
     top = (top0 + y) / 2 - max / 2;
   }
   tipEl.style.maxHeight = `${max}px`;
   // 实在太长时可以滑动查看，所以要能接收触摸
   tipEl.classList.toggle('interactive', need > max || content.classList.contains('selected-tip') || !!content.querySelector('button'));
-  tipEl.style.top = `${Math.max(pad, Math.min(720 - max - pad, top))}px`;
+  tipEl.style.top = `${Math.max(pad, Math.min(STAGE_H - max - pad, top))}px`;
   // 播放不因查看单位暂停；只在有限施法者的详情可见期间跟随播放快照。
   if (update) liveTimer = setInterval(() => {
     if (!tipEl?.isConnected || !tipEl.classList.contains('on') || !tipEl.contains(content)) { stopLiveTip(); return; }

@@ -21,9 +21,13 @@ export interface DemoSpec {
   /** 目标出现后再播几次交锋（默认 1） */
   tail?: number;
   seed?: number;
+  /** 镜头主角：默认取事件本身的单位；'clash' 看中线下方的「交锋 m/n」；null 看中线 */
+  focus?: (ev: BattleEvent, snap: Snap) => number | 'clash' | null;
+  /** 主角头顶的说话气泡（替代词条名气泡），如等待 */
+  bubble?: string;
 }
 
-const COPIES = { 1: 1, 2: 2, 3: 4 } as const;
+const COPIES = { 1: 1, 2: 3, 3: 6 } as const;
 
 const enemyEntry = (u: DemoUnit): EnemyEntry =>
   ({ defId: u.id, level: u.lv ?? 1, ...(u.atk != null ? { atk: u.atk } : {}), ...(u.hp != null ? { hp: u.hp } : {}), ...(u.block ? { block: u.block } : {}) });

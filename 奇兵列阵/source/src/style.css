@@ -876,13 +876,15 @@ b {
   z-index: 3;
 }
 .target-glow {
-  position: absolute; width: 96px; height: 116px; margin: -60px 0 0 -48px;
-  color: #ff8e91; background: radial-gradient(ellipse at 50% 62%, #ff4b6e65 0%, #ff4b6e20 46%, transparent 73%);
+  position: absolute; width: 78px; height: 78px; margin: -39px 0 0 -39px;
+  color: #ff4b6e; opacity: .8; filter: drop-shadow(0 0 6px currentColor);
+  animation: aim 3s linear infinite, aimPulse 1.4s ease-in-out infinite;
 }
-.target-glow.ally-aim { color: #fff0ad; background: radial-gradient(ellipse at 50% 62%, #ffce5866 0%, #ffce581c 46%, transparent 73%); }
-.target-badge { position: absolute; right: 4px; top: 3px; width: 28px; height: 28px; display: grid; place-items: center; background: #792b40; box-shadow: 0 3px 0 #351628; }
-.ally-aim .target-badge { background: #79541c; box-shadow: 0 3px 0 #352716; }
-.target-badge .ic { width: 21px; height: 21px; }
+.target-glow .ic { width: 78px; height: 78px; }
+.target-glow.ally-aim { color: #ffd36b; opacity: .6; }
+@keyframes aim { to { transform: rotate(360deg); } }
+@keyframes aimPulse { 50% { opacity: .35; } }
+@media (prefers-reduced-motion: reduce) { .target-glow { animation: none; } }
 
 /* ───────────── 战斗特效 DOM ───────────── */
 .float {
@@ -1672,26 +1674,6 @@ b {
 .card.selected .card-in {
   box-shadow: 0 0 0 2px var(--gold), 0 0 30px rgba(255, 211, 107, 0.55), 0 18px 36px rgba(0, 0, 0, 0.6);
 }
-.card.tier-3 .card-in::after {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: 16px;
-  padding: 2px;
-  background: conic-gradient(from var(--ang, 0deg), transparent 0 70%, #fff8 80%, transparent 90%);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  animation: tierSpin 4s linear infinite;
-}
-@property --ang {
-  syntax: '<angle>';
-  inherits: false;
-  initial-value: 0deg;
-}
-@keyframes tierSpin {
-  to { --ang: 360deg; }
-}
 .card-shine {
   position: absolute;
   inset: 0;
@@ -1719,13 +1701,6 @@ b {
   color: var(--fc);
   background: color-mix(in srgb, var(--fc) 16%, transparent);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fc) 40%, transparent);
-}
-.card-tier {
-  display: flex;
-  gap: 2px;
-  font-size: 10px;
-  color: var(--gold);
-  filter: drop-shadow(0 0 3px rgba(255, 200, 90, 0.7));
 }
 .card-art {
   position: relative;

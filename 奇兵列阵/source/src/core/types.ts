@@ -11,8 +11,11 @@ export type Trigger =
   | 'cast' | 'start' | 'attack' | 'hurt' | 'kill' | 'rattle' | 'ally' | 'beat' | 'passive'
   | 'front' | 'rear' | 'duel' | 'charge' | 'pulse' | 'round' | 'none';
 /** 一个持有个体只可能是一、二、三星；不能保存未配对的半成品。 */
-export type Copies = 1 | 2 | 4;
-export const isCopies = (copies: number): copies is Copies => copies === 1 || copies === 2 || copies === 4;
+/** 同名份数（超级自动动物式经验）：3 份二星、6 份三星 */
+export type Copies = 1 | 2 | 3 | 4 | 5 | 6;
+export const isCopies = (copies: number): copies is Copies => Number.isInteger(copies) && copies >= 1 && copies <= 6;
+/** 每级所需份数：[二星, 三星] */
+export const LEVEL_COPIES = [3, 6] as const;
 
 /** 按星级取值 [1★, 2★, 3★] */
 export type Tri = [number, number, number];
@@ -28,7 +31,7 @@ export interface Traits {
   combo?: boolean;
   snipe?: boolean;
   reborn?: boolean;
-  /** 嘲讽：拦截紧邻身后友军受到的普攻 */
+  /** 嘲讽：拦截前后紧邻友军受到的普攻 */
   taunt?: boolean;
   /** 轮换：常规行动后退到我方队尾 */
   rotate?: boolean;
@@ -204,8 +207,8 @@ export interface Slotted {
 }
 
 export const levelFromCopies = (copies: Copies): 1 | 2 | 3 => {
-  if (!isCopies(copies)) throw new Error('非法星级份数：仅支持1、2、4');
-  return copies === 4 ? 3 : copies === 2 ? 2 : 1;
+  if (!isCopies(copies)) throw new Error('非法星级份数：仅支持1—6');
+  return copies >= LEVEL_COPIES[1] ? 3 : copies >= LEVEL_COPIES[0] ? 2 : 1;
 };
 export const unitLevel = (unit: { copies?: Copies; level?: number }): number =>
   unit.copies === undefined ? Math.max(1, Math.min(3, unit.level ?? 1)) : levelFromCopies(unit.copies);
@@ -328,17 +331,17 @@ export type DmgKind = 'attack' | 'ability' | 'splash' | 'thorns' | 'burn' | 'fat
 export type BattleEvent =
   | { t: 'rule'; id: string; label: string; side: Side; src?: number; provider?: number }
   | { t: 'phase'; name: 'start' | 'battle' }
-  | { t: 'beat'; n: number; round?: number; wave?: number; next: { player: number[]; enemy: number[] } }
+  | { t: 'beat'; n: number; round?: number; wave?: number; /** 本回合剩余交锋（含本次） */ left?: number; next: { player: number[]; enemy: number[] } }
   | { t: 'act'; side: Side; uid: number; mode: 'attack' | 'cast' | 'extra' | 'charge' }
   | { t: 'trigger'; src: number; side: Side; kind: TriggerKind; label: string; order?: number; general?: string }
-  | { t: 'buff'; src?: number; tgt: number; atk: number; hp: number }
+  | { t: 'buff'; src?: number; tgt: number; atk: number; hp: number; /** 授予的词条（Grant）与数值变化 */ kw?: Grant; v?: number }
   | { t: 'heal'; src?: number; tgt: number; n: number }
   | { t: 'block'; src?: number; uid: number; n: number }
   | { t: 'blockBroken'; uid: number }
   | { t: 'chill'; src?: number; uid: number; n: number; total: number }
   | { t: 'burn'; src?: number; uid: number; n: number; total: number }
   | { t: 'charge'; src?: number; uid: number; n: number; total: number }
-  | { t: 'dmg'; src?: number; tgt: number; n: number; kind: DmgKind; blocked?: boolean; chilled?: number }
+  | { t: 'dmg'; src?: number; tgt: number; n: number; kind: DmgKind; blocked?: boolean; chilled?: number; /** 能力带来的静默额外伤害 */ bonus?: number; /** 连击第几段 */ seg?: number }
   | { t: 'taunt'; from: number; to: number }
   | { t: 'gen'; id: string; label: string; tgts: number[] }
   /** 主将计数（魂、星能）变化 */
@@ -352,7 +355,7 @@ export type BattleEvent =
   | { t: 'summon'; uid: number; src?: number }
   | { t: 'pull'; uid: number; src?: number }
   | { t: 'frozenSkip'; uid: number }
-  | { t: 'actionGain'; src?: number; uid: number; n: number; total: number }
+  | { t: 'actionGain'; src?: number; uid: number; n: number; total: number; /** 本回合本次交锋之后还剩的交锋 */ left?: number }
   | { t: 'sacrifice'; src: number; tgt: number }
   | { t: 'fizzle'; src: number; reason: string }
   | { t: 'end'; result: BattleResult; beats: number };

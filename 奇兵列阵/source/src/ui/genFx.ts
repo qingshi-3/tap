@@ -579,14 +579,117 @@ async function zirixTrail(g: GfxHost, a: GenFxArgs) {
   }));
 }
 
+// ───────── 补全：原先走通用弹道的标签，各给一个小号专属（只用 FX 的一次性光效） ─────────
+/** 齐兰·轮番上阵：剑光依次划过各友军，相邻两人之间连一道剑气 */
+async function zilanRelay(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, g.lite ? 40 : 90, async (p, i) => {
+    g.fx.slash(p.x, p.y, 1, '#bfe4ff', true);
+    const n = a.tgts[i + 1];
+    if (n) g.fx.link(p, n, '#bfe4ff', 360);
+    a.units[i]?.pulse('#bfe4ff');
+    await g.wait(200);
+  });
+}
+/** 齐兰·回马枪 / 接力：剑光一斩 + 脚下行动环 */
+async function zilanStrike(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 60, async (p, i) => {
+    g.fx.slash(p.x, p.y, -1, '#bfe4ff', true);
+    g.fx.spin(feet(p).x, feet(p).y + 12, '#bfe4ff');
+    a.units[i]?.lunge();
+    await g.wait(260);
+  });
+}
+/** 齐兰·轮换援护：剑气从天而落，落到新队首身上化成护罩 */
+async function zilanGuard(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 60, async (p, i) => {
+    g.fx.link({ x: p.x - 40, y: p.y - 200 }, p, '#bfe4ff', 300);
+    await g.wait(200);
+    g.fx.dome(p.x, p.y + 6, '#bfe4ff');
+    g.fx.rise(p.x, p.y + 40, '#7dffb0', 6, 50);
+    a.units[i]?.pulse('#7dffb0');
+    await g.wait(240);
+  });
+}
+/** 卡雷奥斯·战术突击：影刃标记落在脚下，目标闪身 */
+async function kaleosMark(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 60, async (p, i) => {
+    await g.play(node(wound(), 15, 15, feet(p)), [
+      { opacity: 0, transform: 'scaleY(.4) scale(1.6)' },
+      { opacity: 1, transform: 'scaleY(.4) scale(1)', offset: 0.3 },
+      { opacity: 0, transform: 'scaleY(.4) scale(1.1)' },
+    ], 420);
+    g.fx.spin(feet(p).x, feet(p).y + 12, '#ff5f6d');
+    a.units[i]?.lunge();
+  });
+}
+/** 卡雷奥斯·影步：两人之间红色影线往返，各自脚下一团暗影 */
+async function kaleosStep(g: GfxHost, a: GenFxArgs) {
+  const [p, q] = a.tgts;
+  if (!p || !q) return;
+  g.fx.link(p, q, '#ff2a4a', 340);
+  g.fx.link(q, p, '#ff5f6d', 340);
+  for (const x of [p, q]) g.fx.burst(x.x, x.y + 20, '#2a0a18', { n: 12, speed: 2, kind: 'mote', size: 4, gravity: -0.02, life: 26 });
+  await g.wait(320);
+}
+/** 蕾娃·调虎离山 / 惊扰：红色幻影弧线绕目标一圈（削弱数字随后由削弱表现给出） */
+async function revaLure(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 50, async (p) => {
+    g.fx.flow({ x: p.x - 70, y: p.y }, { x: p.x + 70, y: p.y }, '#ff4b6e', { n: 14, arc: 60, life: 20, size: 3 });
+    g.fx.spin(feet(p).x, feet(p).y + 12, '#ff4b6e');
+    await g.wait(280);
+  });
+}
+/** 卡希娃·血祭：祭品化成血色粒子流进队首 */
+async function kasivaRite(g: GfxHost, a: GenFxArgs) {
+  const sink = a.allies[0];
+  await stagger(g, a, 60, async (p) => {
+    g.fx.burst(p.x, p.y, '#c4365a', { n: 12, speed: 3, kind: 'mote', size: 3, gravity: -0.06 });
+    if (sink) g.fx.flow(p, sink, '#ff5f6d', { n: 16, arc: 70, life: 24, size: 3 });
+    await g.wait(380);
+  });
+  if (sink) g.fx.implode(sink.x, sink.y, '#ff5f6d', { n: 12, r: 50 });
+}
+/** 萨吉·援军 / 收容：预备位跳进场，沙尘落地 */
+async function sajjReserve(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 60, async (p, i) => {
+    g.fx.wave(feet(p).x, feet(p).y + 12, '#e9bd72', 160);
+    g.fx.burst(feet(p).x, feet(p).y + 8, '#c9954a', { n: 14, speed: 3, kind: 'shard', size: 3, up: 2, gravity: 0.22 });
+    g.fx.float(p.x, p.y - 60, '+1', 'grant', 800);
+    a.units[i]?.pulse('#e9bd72');
+    await g.wait(260);
+  });
+}
+/** 瓦尔坎·余烬 / 余烬扩散：小号熔火柱 */
+async function vulkanEmber(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 60, async (p, i) => {
+    g.fx.pillar(feet(p).x, feet(p).y + 12, '#ff7a2a', 200, 460);
+    g.fx.burst(p.x, p.y, '#ffb46a', { n: 12, speed: 3, kind: 'mote', size: 3, gravity: -0.06 });
+    a.units[i]?.pulse('#ff9a3d');
+    await g.wait(240);
+  });
+}
+/** 法伊·乘胜：每名友军脚下一圈冰花 */
+async function faieWin(g: GfxHost, a: GenFxArgs) {
+  await stagger(g, a, 50, async (p, i) => {
+    g.fx.ring(feet(p).x, feet(p).y + 12, '#bff4ff', 70);
+    g.fx.burst(p.x, p.y - 30, '#e6fbff', { n: 8, speed: 2.4, kind: 'shard', size: 2.4, gravity: 0.05 });
+    a.units[i]?.pulse('#8feaff');
+    await g.wait(200);
+  });
+}
+
 type Play = (g: GfxHost, a: GenFxArgs) => Promise<void>;
 /** 主将 → 技能标签 → 演出；'*' 为该主将其余标签的默认演出 */
 const PLAYS: Record<string, Record<string, Play>> = {
   argeon: { 亲征: argeon('shield'), 盾誓: argeon('shield'), 王誓: argeon('shield'), 光誓: argeon('heal'), 剑誓: argeon('blade') },
-  kaleos: { 压轴: kaleos, 首发: kaleos, 双幕: kaleos },
+  kaleos: { 压轴: kaleos, 首发: kaleos, 双幕: kaleos, 战术突击: kaleosMark, 影步: kaleosStep },
+  zilan: { 轮番上阵: zilanRelay, 回马枪: zilanStrike, 接力: zilanStrike, 轮换援护: zilanGuard },
+  reva: { 调虎离山: revaLure, 惊扰: revaLure },
+  kasiva: { 血祭: kasivaRite },
+  sajj: { 援军: sajjReserve, 收容: sajjReserve },
   lilithe: { 魂潮: lilitheTide, 收割: lilitheReap, 冥约: lilithePact },
-  vulkan: { 火山战场: vulkan },
-  faie: { 先机: faie, 长冬: faie, 后发: faieHold },
+  vulkan: { 火山战场: vulkan, 余烬: vulkanEmber, 余烬扩散: vulkanEmber },
+  faie: { 先机: faie, 长冬: faie, 后发: faieHold, 乘胜: faieWin },
   zirix: { 星轨: zirix, 轨迹: zirixTrail },
   hank: { '*': hank },
 };

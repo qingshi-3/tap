@@ -12,9 +12,10 @@ export type TutAction =
 
 export function newTutorialRun(): RunState {
   // 教学用不上场的主将：卡雷奥斯「压轴」吃法强，培养主将一步立刻有收益
-  const r = newRun('kaleos', 20261017, { legacyEconomy: true });
+  const r = newRun('kaleos', 20261017);
   r.tutorialMode = true;
-  r.picks = 3;
+  // 金币货架：每战 10 金、每张 3 金；第一战脚本招募 3 张
+  r.picks = 3; r.rerolls = 0;
   return r;
 }
 

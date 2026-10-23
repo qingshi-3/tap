@@ -606,6 +606,14 @@ export function installItemSprites() {
   for (const [id, g] of Object.entries(ICONS)) root.setProperty(`--pxi-${id}`, `url("${iconCanvas(g).toDataURL()}")`);
   root.setProperty('--px-vine', `url("${vine(96, 64, 3).toDataURL()}")`);
   root.setProperty('--px-rune', `url("${rune('#b46cff', '#f2dcff', '#3a1466').toDataURL()}")`);
+  // 施法法阵按阵营上色：图案一致，颜色说明是谁在施法
+  const RUNES: Record<string, [string, string, string]> = {
+    light: ['#ffd36b', '#fff6d6', '#6b4a10'], shadow: ['#ff5f6d', '#ffd6da', '#5e1220'],
+    abyss: ['#b46cff', '#f2dcff', '#3a1466'], magma: ['#ff8a2a', '#ffe0b8', '#5e2206'],
+    frost: ['#5fdcff', '#e0fbff', '#0c4058'], desert: ['#e9bd72', '#fff0cc', '#664418'],
+    neutral: ['#c8d0e2', '#ffffff', '#353c4e'], enemy: ['#ff4b6e', '#ffd0da', '#3a0b19'],
+  };
+  for (const [f, c] of Object.entries(RUNES)) root.setProperty(`--px-rune-${f}`, `url("${rune(...c).toDataURL()}")`);
   root.setProperty('--px-vine-b', `url("${vine(80, 40, 8).toDataURL()}")`);
 }
 

@@ -11,9 +11,14 @@ import { installPixelSprites } from './ui/pixel';
 import './ui-audit.css';
 import { installItemSprites } from './ui/pixelItems';
 import { rasterize } from './ui/unitArt';
-import { STAGE_H, STAGE_W, stageState } from './ui/dom';
+import { COMPACT_H, STAGE_H, STAGE_W, setStageH, stageState } from './ui/dom';
+import { setUnitY } from './ui/board';
 import './art-pass.css';
 import './prep-main.css';
+import './ui-review.css';
+import './compact.css';
+import './card-tiers.css';
+import './cultivate-fx.css';
 
 installPixelSprites();
 installItemSprites();
@@ -23,6 +28,13 @@ const app = new App(stage);
 function fit() {
   const vw = window.innerWidth;
   const vh = window.innerHeight;
+  // 短屏横屏（高 ≤ 450）：逻辑高度压到 640，字和单位放大约 12%
+  const compact = vh <= 450 && vw > vh;
+  if (compact !== stage.classList.contains('compact')) {
+    stage.classList.toggle('compact', compact);
+    setStageH(compact ? COMPACT_H : 720);
+    setUnitY(compact ? 240 : 300, stage);
+  }
   const scale = Math.min(vw / STAGE_W, vh / STAGE_H);
   const left = (vw - STAGE_W * scale) / 2;
   const top = (vh - STAGE_H * scale) / 2;

@@ -267,12 +267,6 @@
     linear-gradient(180deg, #1a1642, #100d2c);
   transition: transform 0.12s ease-out;
 }
-.cx-unit.tier-2 { --rc: 110, 200, 255; }
-.cx-unit.tier-3 { --rc: 205, 140, 255; }
-.cx-unit.tier-4 { --rc: 255, 190, 70; }
-.cx-unit.tier-2, .cx-unit.tier-3, .cx-unit.tier-4 {
-  box-shadow: inset 0 0 18px rgba(var(--rc), 0.28), 0 0 10px rgba(var(--rc), 0.22);
-}
 /* 底部稀有度色带 */
 .cx-unit::before {
   content: '';
@@ -283,23 +277,6 @@
   height: 3px;
   background: linear-gradient(90deg, transparent, rgba(var(--rc), 0.9), transparent);
   pointer-events: none;
-}
-/* 传说：一道斜光循环扫过 */
-.cx-unit.tier-4::after {
-  content: '';
-  position: absolute;
-  top: -20%;
-  bottom: -20%;
-  left: 0;
-  width: 40%;
-  background: linear-gradient(100deg, transparent, rgba(255, 236, 170, 0.28) 45%, rgba(255, 255, 255, 0.45) 50%, rgba(255, 236, 170, 0.28) 55%, transparent);
-  transform: translateX(-160%) skewX(-16deg);
-  animation: legendSheen 3.6s ease-in-out infinite;
-  pointer-events: none;
-}
-@keyframes legendSheen {
-  0%, 55% { transform: translateX(-160%) skewX(-16deg); }
-  100% { transform: translateX(360%) skewX(-16deg); }
 }
 .cx-unit-art { position: relative; }
 .cx-unit-art .uart { position: relative; filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.45)); }
@@ -330,7 +307,6 @@
 }
 .cx-detail .cx-d-art { width: 116px; height: 116px; }
 .cx-detail .cx-d-art .uart { width: 104px; }
-.cx-detail .cx-d-art::before,
 .cx-gen-art::before {
   content: '';
   position: absolute;
@@ -370,10 +346,6 @@
   50% { transform: translateY(-5px); }
 }
 
-/* 稀有度字样：彩色辉光 */
-.cx-rar.rarity-2 { text-shadow: 0 0 10px rgba(110, 200, 255, 0.7); }
-.cx-rar.rarity-3 { text-shadow: 0 0 10px rgba(205, 140, 255, 0.75); }
-.cx-rar.rarity-4 { text-shadow: 0 0 12px rgba(255, 190, 70, 0.85); }
 
 /* 推荐阵容格位：整格按稀有度描边，传说的斜光扫过整格而不是只扫头像 */
 .cx-slot {
@@ -381,41 +353,6 @@
   overflow: hidden;
   --rc: 150, 160, 200;
   box-shadow: inset 0 0 0 1px rgba(var(--rc), 0.22);
-}
-.cx-slot:has(.cx-chip.tier-2) { --rc: 110, 200, 255; }
-.cx-slot:has(.cx-chip.tier-3) { --rc: 205, 140, 255; }
-.cx-slot:has(.cx-chip.tier-4) { --rc: 255, 190, 70; }
-.cx-slot:has(.cx-chip.tier-2), .cx-slot:has(.cx-chip.tier-3), .cx-slot:has(.cx-chip.tier-4) {
-  background:
-    linear-gradient(180deg, rgba(var(--rc), 0.12), transparent 38%),
-    rgba(255, 255, 255, 0.04);
-  box-shadow: inset 0 0 0 2px rgba(var(--rc), 0.6), inset 0 0 24px rgba(var(--rc), 0.16), 0 0 12px rgba(var(--rc), 0.18);
-}
-.cx-slot:has(.cx-chip.tier-4) {
-  box-shadow: inset 0 0 0 2px rgba(var(--rc), 0.85), inset 0 0 0 4px rgba(60, 30, 0, 0.6), inset 0 0 28px rgba(var(--rc), 0.22), 0 0 16px rgba(var(--rc), 0.3);
-}
-.cx-slot:has(.cx-chip.tier-4)::after {
-  content: '';
-  position: absolute;
-  top: -10%;
-  bottom: -10%;
-  left: 0;
-  width: 46%;
-  background: linear-gradient(100deg, transparent, rgba(255, 236, 170, 0.16) 40%, rgba(255, 255, 255, 0.34) 50%, rgba(255, 236, 170, 0.16) 60%, transparent);
-  transform: translateX(-160%) skewX(-16deg);
-  animation: legendSheen 3.6s ease-in-out infinite;
-  pointer-events: none;
-}
-/* 顶边一道金线收口 */
-.cx-slot:has(.cx-chip.tier-4)::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, rgb(var(--rc)), #fff6d0 50%, rgb(var(--rc)), transparent);
-  pointer-events: none;
 }
 
 /* 搭配 / 阵容头像 */
@@ -444,7 +381,6 @@
 .cx-item-icon { filter: drop-shadow(0 0 8px rgba(255, 211, 107, 0.35)); }
 
 @media (prefers-reduced-motion: reduce) {
-  .cx-unit.tier-4::after, .cx-slot::after,
   .cx-detail .cx-d-art::before, .cx-gen-art::before,
   .cx-detail .cx-d-art .uart, .cx-gen-art .uart,
   .unit.next-actor .u-body::before, .slots::before { animation: none; }

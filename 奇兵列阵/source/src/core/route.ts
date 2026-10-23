@@ -55,7 +55,7 @@ const RAW: Chapter[] = [
         variant: N('亡魂骑士', '复生：亡魂骑士第一次阵亡会以 1 生命复活',
           L(E('e_revenant', 3, 8), E('e_shield', 2, 6), E('e_assassin', 2, 5))) },
       { type: 'fork',
-        elite: EL('暗巷伏击', '盾卫开战带格挡，影袭者狙击你的队尾，霜咒者冻你的下一个出手者',
+        elite: EL('暗巷伏击', '盾卫开战时带格挡，影袭者狙击你的队尾，霜咒者冻你的下一个出手者',
           L(E('e_shield', 4, 12), E('e_brute', 5, 11), E('e_assassin', 5, 7), E('e_silencer', 2, 7), E('e_brute', 5, 10))),
         normal: N('荆棘守卫', '反击：普攻荆棘守卫会被扎；施法不会',
           L(E('e_thorn', 3, 14), E('e_brute', 5, 10), E('e_raider', 4, 8), E('e_skel', 4, 6))) },
@@ -72,7 +72,7 @@ const RAW: Chapter[] = [
   {
     name: '第二章 · 霜原', theme: '新词与玩家卡组成的敌阵',
     stages: [
-      { type: 'battle', main: N('护卫兵', '嘲讽只替紧邻身后的友军拦截普攻；可绕开护卫兵攻击其他位置',
+      { type: 'battle', main: N('护卫兵', '嘲讽替前后紧邻的友军拦截普攻；可绕开护卫兵攻击其他位置',
         L(E('e_brute', 7, 16), E('e_guardian', 3, 18), E('e_assassin', 7, 11), E('e_lich', 2, 10))) },
       { type: 'battle', main: N('咒沙者', '削弱：咒沙者施法让你的队首本场攻击 −2，可以叠加',
         L(E('e_twin', 6, 15), E('e_curser', 2, 11), E('e_brute', 7, 16), E('e_curser', 2, 11))) },
@@ -85,7 +85,7 @@ const RAW: Chapter[] = [
         variant: N('圣光壁垒', '晨光盾卫消耗格挡后增加护甲，骑士复生，牧师治疗伤员',
           L(E('l_warden', 5, 17, { level: 2 }), E('l_knight', 6, 16, { level: 2 }), E('l_priest', 2, 13, { level: 2 }), E('l_lion', 7, 13, { level: 2 }), E('l_shield', 3, 12))) },
       { type: 'fork',
-        elite: EL('战帅亲卫', '战帅开战让全体敌人 +1 攻；护卫兵嘲讽，咒沙者削弱你的队首',
+        elite: EL('战帅亲卫', '战帅开战时让全体敌人 +1 攻；护卫兵嘲讽，咒沙者削弱你的队首',
           L(E('e_warlord', 7, 22), E('e_guardian', 4, 22), E('e_twin', 8, 15), E('e_curser', 2, 13), E('e_lich', 3, 13))),
         normal: N('暗祭司', '暗祭司会持续治疗前排；集火或群伤',
           L(E('e_brute', 8, 18), E('e_dark_priest', 2, 13), E('e_shield', 5, 18), E('e_dark_priest', 2, 13))) },

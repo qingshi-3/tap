@@ -1,0 +1,83 @@
+/* ═════════════════════════════════════════════════════════════
+   整备 / 培养特效（2026-10-23）
+   分配培养点：像素法球飞向目标 → 目标弹跳 + 「+1 攻」像素牌 + 数值跳动
+   单位技能成长：来源连线（或原地光柱）+ 「+N」像素牌
+   装备：图标砸下 + 冲击环；升星：星芒 + 升起小星 + 单位弹跳
+   一次性 DOM，全部只动 transform / opacity。
+   ═════════════════════════════════════════════════════════════ */
+
+/* 法球：16px 像素方块，亮芯 + 两级硬边描边 */
+.fx-orb {
+  width: 16px;
+  height: 16px;
+  background: #fff;
+  box-shadow: 0 0 0 3px var(--c), 0 0 0 5px rgba(0, 0, 0, 0.55);
+  image-rendering: pixelated;
+}
+
+/* 物品落下：放大的像素物品图标 */
+.fx-drop { display: flex; align-items: flex-end; justify-content: center; }
+.fx-drop > .px-item {
+  width: 52px;
+  height: 52px;
+  filter: drop-shadow(0 4px 0 rgba(0, 0, 0, 0.6));
+}
+
+/* 升星星芒：两枚错开 45° 的四角像素星 */
+.fx-starburst {
+  width: 150px;
+  height: 150px;
+}
+.fx-starburst::before,
+.fx-starburst::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--c);
+  clip-path: polygon(50% 0, 56% 44%, 100% 50%, 56% 56%, 50% 100%, 44% 56%, 0 50%, 44% 44%);
+}
+.fx-starburst::after {
+  inset: 22%;
+  background: #fff;
+  transform: rotate(45deg);
+}
+
+/* 升起的小星：像素四角星 */
+.fx-star {
+  width: 20px;
+  height: 20px;
+  background: var(--c);
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+
+/* 培养数值：无底框，与伤害飘字同一套写法——渐变填色 + 硬描边 + 属性色辉光 */
+.cul-pop {
+  --c: #ffd36b; --l: #fff3c4; --d: #b06a10;
+  position: absolute;
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 3;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+  line-height: 1;
+}
+.cul-pop > * {
+  color: transparent;
+  background: linear-gradient(180deg, #fff 0%, var(--l) 30%, var(--c) 58%, var(--d) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(3px 0 0 #120818) drop-shadow(-3px 0 0 #120818) drop-shadow(0 3px 0 #120818) drop-shadow(0 -3px 0 #120818)
+    drop-shadow(0 4px 0 rgba(0, 0, 0, .6)) drop-shadow(0 0 10px color-mix(in srgb, var(--c) 70%, transparent));
+}
+.cul-pop > b { font-size: 46px; letter-spacing: -1px; }
+.cul-pop > span { font-size: 28px; }
+.cul-pop.pt-atk { --c: #ff7a3a; --l: #ffd2a8; --d: #c42a14; }
+.cul-pop.pt-hp { --c: #5ef08e; --l: #d4ffe2; --d: #138a46; }
+.cul-pop.pt-power { --c: #c08cff; --l: #eedcff; --d: #6a2ab8; }
+.cul-pop.pt-block { --c: #6fdcff; --l: #d8f6ff; --d: #1a78b0; }
+.cul-pop.eq > span { font-size: 30px; }
+.cul-spark { position: absolute; width: 9px; height: 9px; background: var(--c, #ffd36b); box-shadow: 0 0 0 3px #000; pointer-events: none; z-index: 3; }
+.cul-spark.pt-atk { --c: #ff7a3a; } .cul-spark.pt-hp { --c: #5ef08e; } .cul-spark.pt-power { --c: #c08cff; } .cul-spark.pt-block { --c: #6fdcff; }

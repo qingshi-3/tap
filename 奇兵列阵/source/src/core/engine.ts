@@ -67,8 +67,9 @@ export function previewAttackTarget(attacker: UnitState, foes: readonly UnitStat
   if (!st.length) return null;
   const natural = trait(attacker, 'duel') ? st.find(u => u.slot === attacker.slot) ?? st[0]
     : forceSnipe || trait(attacker, 'snipe') ? st.at(-1)! : st[0];
-  const guard = st[st.indexOf(natural) - 1];
-  return !trait(natural, 'taunt') && guard && trait(guard, 'taunt') ? guard : natural;
+  if (trait(natural, 'taunt')) return natural;
+  const i = st.indexOf(natural);
+  return [st[i - 1], st[i + 1]].find(g => g && trait(g, 'taunt')) ?? natural;
 }
 
 interface Ctx { front?: UnitState; target?: UnitState; attacker?: UnitState; slot?: number; cast?: boolean; inherit?: number }
@@ -347,10 +348,28 @@ export class Battle {
     }
     return true;
   }
+  /** 本回合还剩几次交锋（含尚未结算的本次）：当前行动轮取双方可出手数的较大者，之后每轮同理。 */
+  clashesLeft(): number {
+    const rest: number[][] = [[], []];
+    const now = [0, 0];
+    for (const side of [0, 1] as Side[]) for (const u of this.standing(side)) {
+      if (this.isIdle(u) || !((u.actionsLeft ?? 0) > 0)) continue;
+      const inWave = !this.waveUsed.has(u.uid);
+      if (inWave) now[side]++;
+      rest[side].push((u.actionsLeft ?? 0) - (inWave ? 1 : 0));
+    }
+    let total = Math.max(now[0], now[1]);
+    for (let w = 1; ; w++) {
+      const c = Math.max(rest[0].filter(x => x >= w).length, rest[1].filter(x => x >= w).length);
+      if (!c) break;
+      total += c;
+    }
+    return total;
+  }
   addAction(src: UnitState | undefined, t: UnitState, n: number) {
     if (!t.alive || t.hp <= 0 || n <= 0 || this.isIdle(t) || this.blocksAllyBenefit(src, t)) return;
     t.actionsLeft = (t.actionsLeft ?? 0) + n;
-    this.emit({ t: 'actionGain', src: src?.uid, uid: t.uid, n, total: t.actionsLeft });
+    this.emit({ t: 'actionGain', src: src?.uid, uid: t.uid, n, total: t.actionsLeft, left: this.clashesLeft() });
   }
   armor(u: UnitState) {
     const d = this.def(u);
@@ -632,13 +651,19 @@ export class Battle {
       if (!v) return;
       (t.grants as Record<string, number>)[g] = ((t.grants as Record<string, number>)[g] ?? 0) + v;
     }
-    this.emit({ t: 'buff', src: src?.uid, tgt: t.uid, atk: 0, hp: 0 });
+    this.emit({ t: 'buff', src: src?.uid, tgt: t.uid, atk: 0, hp: 0, kw: g, ...(BOOL_GRANTS.has(g) ? {} : { v }) });
   }
 
   /**
    * 伤害管线：格挡 → 护甲（最少 1）→ 其他减伤 → 扣血 → 受击时。
    * 灼烧、疲劳跳过格挡与护甲。返回是否命中（含被格挡）。
    */
+  /** 当前普攻段的展示信息（静默加成、连击段数），只用于回放 */
+  private hitTag: { bonus: number; seg: number } | null = null;
+  private tagOf(kind: DmgKind) {
+    const h = kind === 'attack' ? this.hitTag : null;
+    return { ...(h?.bonus ? { bonus: h.bonus } : {}), ...(h?.seg ? { seg: h.seg } : {}) };
+  }
   hit(src: UnitState | undefined, t: UnitState, n: number, kind: DmgKind, spell = false): boolean {
     if (!t.alive || t.hp <= 0 || n <= 0) return false;
     const direct = kind !== 'burn' && kind !== 'fatigue';
@@ -651,7 +676,7 @@ export class Battle {
     if (direct && t.block > 0) {
       if (playerDefense) { this.metrics.blocks++; this.metrics.mitigated += reduce ? Math.max(1, n - reduce) : n; }
       t.block--;
-      this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n: 0, kind, blocked: true });
+      this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n: 0, kind, blocked: true, ...this.tagOf(kind) });
       this.emit({ t: 'blockBroken', uid: t.uid });
       for (const b of this.standing(t.side)) if (this.def(b).special === 'banner') {
         const v = tri(this.def(b).values, b.level);
@@ -689,7 +714,7 @@ export class Battle {
     }
     if (kind === 'burn' && t.side === 1) this.eggStats.burn++;
     t.hp -= n;
-    this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n, kind });
+    this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n, kind, ...this.tagOf(kind) });
     if (t.hp <= 0 && !this.killers.has(t.uid)) {
       if (kind === 'attack' && src && this.attackTargets.get(src.uid) === t.uid) this.duelVictims.set(t.uid, src.uid);
       this.killers.set(t.uid, src); this.killKind.set(t.uid, kind); this.deathChain.set(t.uid, this.chain); this.deathAction.set(t.uid, this.masterAction); }
@@ -1282,7 +1307,7 @@ export class Battle {
     this.flush();
   }
 
-  /** 普攻选目标：先决斗 / 狙击 / 队首，再由目标前邻嘲讽拦截 */
+  /** 普攻选目标：先决斗 / 狙击 / 队首，再由目标前后紧邻的嘲讽拦截（身前优先） */
   private pickTarget(a: UnitState, snipe: boolean, announce: boolean): UnitState | null {
     const foe = (1 - a.side) as Side, st = this.standing(foe);
     if (!st.length) return null;
@@ -1320,10 +1345,12 @@ export class Battle {
         if (!t.alive || t.hp <= 0) continue;
         const a = p.a, ad = this.def(a), td = this.def(t);
         let n = p.hits[i];
+        const raw = n;
 
         if (ad.special === 'armorPiercer' && this.armor(t) > 0) n += tri(ad.values, a.level);
         if (ad.special === 'monk' && t.atk > a.atk) n += tri(ad.values, a.level);
         if (this.hasEquip(a, 'hammer') && this.armor(t) > 0) n += 2;
+        this.hitTag = { bonus: n - raw, seg: p.hits.length > 1 ? i + 1 : 0 };
         const hitTargets = [t];
         // Count the committed segment before emitting its damage snapshot. A blocked
         // segment still lands; target validity was checked above, and no other
@@ -1333,6 +1360,7 @@ export class Battle {
           this.masterAction.eligible.add(a.side);
         }
         const landed = this.hit(a, t, n, 'attack');
+        this.hitTag = null;
         if (landed && !p.struck.includes(t)) p.struck.push(t);
         if (landed && td.special === 'cliff' && this.cliffBeat.get(t.uid) !== this.beat) {
           this.cliffBeat.set(t.uid, this.beat);
@@ -1623,7 +1651,7 @@ export class Battle {
     this.beat++;
     this.lastCasts.clear(); this.attackTargets.clear();
     this.responses = 0;
-    this.emit({ t: 'beat', n: this.beat, round: this.round, wave: this.wave, next: { player: this.order(0).map(u => u.uid), enemy: this.order(1).map(u => u.uid) } });
+    this.emit({ t: 'beat', n: this.beat, round: this.round, wave: this.wave, left: this.clashesLeft(), next: { player: this.order(0).map(u => u.uid), enemy: this.order(1).map(u => u.uid) } });
     const actors = [this.pick(0), this.pick(1)];
     this.pending = [...actors];
     const attackers: { a: UnitState; bonus: number; ca?: ChargeAttack }[] = [];

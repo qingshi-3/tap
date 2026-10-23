@@ -7,6 +7,8 @@ import { icon } from './icons';
 import { sfx } from './audio';
 
 type Board = (typeof BOARD_DEFS)[number];
+/** 排行榜尚未开通：隐藏标签页，只保留成就。开通后改为 true 即恢复。 */
+const SHOW_BOARDS = false;
 type BoardGroup = '全部' | '总榜' | '主将' | '挑战' | '成就';
 
 /** 打开时读取同一份本地记录；屏幕不驱动战局记录、奖励或后台轮询。 */
@@ -14,7 +16,7 @@ export function recordsScreen(onBack: () => void, onOpenBoard: (key: string) => 
   const profile = loadCareer();
   const achievements = getAchievementProgress(profile);
   const scores = new Map(getBoardScores(profile).map(score => [score.key, score]));
-  let active: 'boards' | 'achievements' = 'boards';
+  let active: 'boards' | 'achievements' = SHOW_BOARDS ? 'boards' : 'achievements';
   let boardGroup: BoardGroup = '全部';
   let category = '全部类别';
   let completion = '全部';
@@ -93,20 +95,21 @@ export function recordsScreen(onBack: () => void, onOpenBoard: (key: string) => 
       controls.replaceChildren(
         select('成就类别', ['全部类别', ...new Set(achievements.map(item => item.category))], category, value => { category = value; }),
         select('完成状态', ['全部', '已完成', '未完成'], completion, value => { completion = value; }),
-        h('p', { class: 'records-summary' }, `${achievements.filter(item => item.completed).length} / ${achievements.length} 已完成　${number(profile.achievementPoints)} 积分`));
+        h('p', { class: 'records-summary' }, `${achievements.filter(item => item.completed).length} / ${achievements.length} 已完成　${number(profile.achievementPoints)} 积分`
+          + (SHOW_BOARDS ? '' : `　通关 ${number(profile.totals.wins)} / ${number(profile.totals.played)} 局`)));
     }
     renderRows();
   }
   const screen = h('section', { class: 'screen records', 'aria-label': '战绩与成就' },
     h('header', { class: 'records-head' },
       h('button', { class: 'records-button records-back', type: 'button', onclick: click(onBack) }, icon('x'), '返回'),
-      h('nav', { class: 'records-tabs', 'aria-label': '战绩浏览' }, boardTab, achievementTab)),
+      h('nav', { class: 'records-tabs', 'aria-label': '战绩浏览' }, SHOW_BOARDS ? boardTab : null, achievementTab)),
     controls,
     profile.storageStatus !== 'ok' ? h('p', { class: 'records-storage-warning', role: 'status' }, profile.storageStatus === 'corrupt'
       ? '本地战绩无法读取，原记录已保留。当前页面不代表历史成绩。'
       : '当前无法保存本地战绩，离开后成绩可能丢失。') : null,
     message, body);
-  show('boards');
+  show(active);
   return screen;
 }
 

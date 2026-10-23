@@ -20,7 +20,7 @@ export const COMBOS: Combo[] = [
     roles: ['开场与接棒时本场加攻', '开场得盾，轮换后给新队首盾', '新队首回血并得格挡，每回合限一次', '友军接棒时本场加攻', '轮换后强化新队首'],
     extras: ['eq_boots', 'sp_shield', 'eq_banner'] },
   { name: '决斗点将', faction: 'shadow', general: 'reva', units: ['s_fox', 'n_gladiator', 's_backstab', 's_viper', 's_panda'],
-    idea: '开战前交换敌人位置，安排决斗对位。灯笼狐削弱目标，背刺者与赤蛇追击，武尊兑现击败对手，后期可用宗主让获胜核心继续追击。紧邻目标身前的嘲讽可护卫。',
+    idea: '开战前交换敌人位置，安排决斗对位。灯笼狐削弱目标，背刺者与赤蛇追击，武尊兑现击败对手，后期可用宗主让获胜核心继续追击。紧邻目标前后的嘲讽可护卫。',
     roles: ['决斗命中后削攻', '可用净培养长期成长的决斗载体', '击败锁定目标后成长并追击', '锁定对手阵亡后追击', '友军赢得决斗后全队加攻'],
     extras: ['eq_duel', 'eq_combo', 'sp_warsong'] },
   { name: '沙兵接力', faction: 'desert', general: 'sajj', units: ['d_dune', 'd_keeper', 'd_goldob', 'd_howler', 'm_incubator'],

@@ -11,26 +11,27 @@ import { chapter, type RouteNode, type Stage } from '../core/route';
 import { SLOTS, fatigueStartForChapter, levelStats, previewAttackTarget, simulate } from '../core/engine';
 import {
   allocPoint, applyRewardedReroll, battleNo, beginBattle, buildBattle, buy, canRewardedReroll, chooseReward, choosePromo, cloneRun, consumeRewardedRetry,
-  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellBlockReason, shopUnitBuysRemaining, canTrainGeneral, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
+  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellBlockReason, shopUnitBuysRemaining, canTrainGeneral, sellPrice, unequip, unitDestination, type ShopKind, unuseSpell, useOrder, useSpell,
   MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, currentStage, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
   remainingRewardedRetries, settleRewardedRetry, takeDraft, takeUpgradeOffer, freezeUpgradeOffer, upgradeOfferBuyBlockReason, teamSize, freezeDraft, draftBuyBlockReason,
   modernTactics, setGeneralOrder, addSwap, clearSwaps, eggThreshold, hireMerc, reserveSlots, signMerc, swapCap, SIGN_PRICE,
   type RewardedRetrySettlement, type RunState, type Screen,
+  shopSize,
 } from '../core/run';
 import { clearRun, saveRun } from '../core/save';
 import { recordOfficialBattle, recordRunOutcome } from '../core/career';
 import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
 import { unitBrowser } from './unitBrowser';
-import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Faction, type Side, type Slotted, type UnitState } from '../core/types';
+import { unitLevel, LEVEL_COPIES, type BattleOutput, type EggStat, type BattleResult, type Faction, type Side, type Slotted, type UnitState } from '../core/types';
 import type { App } from './app';
 import { setMusicRun, setMusicDucked, sfx } from './audio';
 import { audioSettings } from './audioSettings';
 import { type ArrowKind, Board, bodyPos, headPos, factionSigil, seatArt, statArt, SLOT_SPACING, slotX, statsOf, keywordsOf, UNIT_Y, UnitView } from './board';
-import { draftCard } from './card';
+import { draftCard, tierArt } from './card';
 import { append, h, STAGE_H, STAGE_W, toStage, wait } from './dom';
 import { markHint, seenHints } from './hints';
-import { icon } from './icons';
+import { icon, type IconName } from './icons';
 import { kwRich, kwTag, pxIcon } from './kwtext';
 import { circled, type LogLine, Playback } from './playback';
 import { generalTip, hideTip, isTipTarget, showTip, unitTip } from './tip';
@@ -116,17 +117,23 @@ function analyze(out: BattleOutput): Preview {
         break;
     }
   }
-  // Match combat's local guard: only the next living friend, with no chained taunt redirection.
+  // Match combat's local guard: the adjacent living friend in front first, then behind; no chained redirection.
   for (const side of [0, 1] as Side[]) {
     const st = out.afterStart.filter(u => u.alive && u.hp > 0 && !u.reserve && u.side === side).sort((x, y) => x.slot - y.slot);
-    const taunt = (u: UnitState) => unitDef(u.defId).traits?.taunt || u.grants.taunt;
-    for (let i = 0; i + 1 < st.length; i++) if (taunt(st[i]) && !taunt(st[i + 1]))
-      p.arrows.push({ from: st[i].uid, to: st[i + 1].uid, kind: 'block', label: '护', hideSourceBadge: true });
+    const taunt = (u?: UnitState) => !!u && !!(unitDef(u.defId).traits?.taunt || u.grants.taunt);
+    st.forEach((u, i) => {
+      const g = taunt(u) ? undefined : [st[i - 1], st[i + 1]].find(taunt);
+      if (g) p.arrows.push({ from: g.uid, to: u.uid, kind: 'block', label: '护', hideSourceBadge: true });
+    });
   }
   return p;
 }
 
 const KIND_TEXT: Record<RouteNode['kind'], string> = { normal: '', elite: '精英', boss: '首领' };
+/** 培养点 / 成长的属性色（与托盘 pt-* 一致） */
+const CUL_COLOR: Record<string, string> = { atk: '#ff6a33', hp: '#7dffb0', power: '#c590ff', block: '#8feaff' };
+type Pt = { x: number; y: number };
+type GrowthSnap = { units: Map<number, { defId: string; copies: number; g: Required<Pick<NonNullable<Slotted['growth']>, 'atk' | 'hp' | 'power'>> }>; uses: Record<string, number> };
 
 export class Game {
   el: HTMLElement;
@@ -246,9 +253,50 @@ export class Game {
     if (tutorial) this.tut = new Tutorial({
       el: this.el, run, mode: () => this.mode, finishTutorial: () => { this.app.toTitle(); this.app.askFeedback('tutorial'); },
       busy: () => performance.now() < introDue || !!this.el.querySelector('.stage-intro'),
+      camera: (focus) => this.camera(focus),
+      stageMap: (r) => this.stageMap(r),
     });
     this.renderAll(true);
     if (sc !== 'prep' && sc !== 'over') this.showPhase(sc);
+  }
+
+  // ───────────── 讲解运镜 ─────────────
+  /** 盘面与特效层同步缩放平移（transform-origin 0 0），震屏仍作用在外层 world 上 */
+  private camShot = { x: STAGE_W / 2, y: 0, z: 1 };
+  private camTargets() { return [this.board.el, this.app.fx.canvas, this.app.fx.layer]; }
+  private camMatrix() { return new DOMMatrix(getComputedStyle(this.board.el).transform === 'none' ? undefined : getComputedStyle(this.board.el).transform); }
+  /** 盘面固定坐标 → 当前画面坐标 */
+  private stageMap(r: { x: number; y: number; w: number; h: number }) {
+    const m = this.camMatrix();
+    if (m.isIdentity) return r;
+    const a = m.transformPoint(new DOMPoint(r.x, r.y)), b = m.transformPoint(new DOMPoint(r.x + r.w, r.y + r.h));
+    return { x: a.x, y: a.y, w: b.x - a.x, h: b.y - a.y };
+  }
+  /** 推近框住 focus（当前画面坐标），null 拉回全景 */
+  camera(focus: { x: number; y: number; w: number; h: number } | null) {
+    const H = STAGE_H, from = this.camMatrix();
+    let to = 'none', z = 1;
+    if (focus) {
+      // 先换回盘面坐标，再按目标大小定倍数：单个单位约 1.45 倍，多个目标适度拉远
+      const inv = from.inverse();
+      const a = inv.transformPoint(new DOMPoint(focus.x, focus.y)), b = inv.transformPoint(new DOMPoint(focus.x + focus.w, focus.y + focus.h));
+      const w = Math.max(80, b.x - a.x), hh = Math.max(80, b.y - a.y);
+      z = Math.max(1, Math.min(1.45, (STAGE_W * 0.62) / w, (H * 0.5) / hh));
+      if (z > 1.02) {
+        const vw = STAGE_W / z, vh = H / z;
+        const cx = Math.max(vw / 2, Math.min(STAGE_W - vw / 2, (a.x + b.x) / 2));
+        const cy = Math.max(vh / 2, Math.min(H - vh / 2, (a.y + b.y) / 2 + 30));
+        to = `translate(${STAGE_W / 2 - cx * z}px,${H / 2 - cy * z}px) scale(${z})`;
+      }
+    }
+    this.camShot.z = z;
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    for (const el of this.camTargets()) {
+      el.style.transformOrigin = '0 0';
+      el.style.transform = to === 'none' ? '' : to;
+      if (!reduced) el.animate([{ transform: from.toString() }, { transform: to === 'none' ? 'matrix(1,0,0,1,0,0)' : to }], { duration: focus ? 380 : 480, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    }
+    this.el.classList.toggle('cam-on', to !== 'none');
   }
 
   // ───────────── 数据 ─────────────
@@ -271,6 +319,7 @@ export class Game {
   }
   private save() {
     if (!this.sandbox) this.persist();
+    this.growthCheck();
   }
   /** 教学局不落存档，不覆盖正式远征 */
   private storageWarningShown = false;
@@ -308,6 +357,7 @@ export class Game {
     // A full render replaces gesture sources; no preview may outlive that inventory view.
     this.clearDrag();
     this.tut?.fixDraft(this.run);
+    this.growthSnap ??= this.takeGrowth();
     this.renderHud();
     this.renderBanner();
     this.renderTray();
@@ -339,12 +389,11 @@ export class Game {
       const s = this.sel;
       if (s?.kind !== 'point' || !POINT_MAP[s.type]?.toGeneral || !canTrainGeneral(this.run) || !this.editable || this.sandbox) { showGenTip(); return; }
       if (!this.allowTutorial({ kind: 'alloc', to: 'general', type: s.type })) return;
+      const from = this.chipPos(s.type);
       if (allocPoint(this.run, 'general', s.type)) {
         sfx.merge();
-        const r = genBadge.getBoundingClientRect(), p = toStage(r.left + r.width / 2, r.top);
-        this.app.fx.float(p.x, p.y + 20, `${this.run.genPower}`, 'levelup', 1000, 'power');
         if (!(this.run.stash[s.type] > 0)) this.sel = null;
-        this.save(); this.renderAll(); this.emit('alloc');
+        this.save(); this.renderAll(); this.allocFx(s.type, from, 'general'); this.emit('alloc');
       } else sfx.fizzle();
     });
     const lives = h(
@@ -403,8 +452,10 @@ export class Game {
   private showMenu() {
     const busy = this.mode === 'battle' || this.mode === 'sandboxBattle' || this.mode === 'rewardedAd';
     const home = h('button', { class: `btn ghost${busy ? ' disabled' : ''}`, disabled: busy }, icon('menu'), h('span', null, busy ? '战斗中无法返回' : '保存并返回标题'));
+    const fb = h('button', { class: 'btn ghost' }, h('span', null, '反馈'));
+    fb.addEventListener('click', () => { sfx.click(); close(); this.app.showFeedback(); });
     const quit = h('button', { class: 'btn danger' }, icon('flag'), h('span', null, '放弃远征'));
-    const close = this.app.modal(h('div', { class: 'confirm game-menu', 'aria-label': '菜单' }, h('h3', null, '菜单'), audioSettings(), h('div', { class: 'menu-btns' }, home, quit)), 'audio-dialog', document.body);
+    const close = this.app.modal(h('div', { class: 'confirm game-menu', 'aria-label': '菜单' }, h('h3', null, '菜单'), audioSettings(), h('div', { class: 'menu-btns' }, home, fb, quit)), 'audio-dialog', document.body);
     home.addEventListener('click', () => {
       if (this.mode === 'battle' || this.mode === 'sandboxBattle' || this.mode === 'rewardedAd') return;
       close(); sfx.click(); this.save(); this.app.toTitle();
@@ -463,24 +514,13 @@ export class Game {
     if (!item) return '商品不可购买';
     return item.groupId === undefined ? draftBuyBlockReason(r, index, slot) : upgradeOfferBuyBlockReason(r, item.groupId, item.choiceIdx!, slot);
   }
-  private seenUpgradeOffers = new Set<number>();
-  private shelfPage = 0;
-  private shelfRound = '';
   private renderTray() {
     this.renderDock();
     if (this.mode === 'phase') { this.tray.classList.add('hidden'); return; }
     if (this.mode === 'sandbox') return this.renderSandboxTray();
     const r = this.run;
     const paid = modernEconomy(r);
-    const roundKey = `${r.runId}:${r.chapter}:${r.node}:${r.history.length}`;
-    if (roundKey !== this.shelfRound) { this.shelfRound = roundKey; this.shelfPage = 0; }
     const groups = paid ? r.upgradeOffers ?? [] : [];
-    const pageCount = 2 + groups.length;
-    const newest = groups.reduce((latest, group, index) => this.seenUpgradeOffers.has(group.id) ? latest : index, -1);
-    if (newest >= 0) this.shelfPage = newest + 2;
-    groups.forEach(g => this.seenUpgradeOffers.add(g.id));
-    this.shelfPage = Math.min(this.shelfPage, pageCount - 1);
-    const offer = groups[this.shelfPage - 2];
     this.tray.classList.toggle('paid-shelf', paid);
     const picks = h(
       'div',
@@ -507,24 +547,30 @@ export class Game {
     const left = h(
       'div',
       { class: 'tray-left' },
-      paid ? h('div', { class: 'tl-row', 'aria-label': `可用金币 ${r.gold}` }, offer ? '升星二选一 · 3 金' : `${r.gold} 金 · 每张 3 金`) : h('div', { class: 'tl-title' }, '招募'),
+      paid ? h('div', { class: 'tl-row', 'aria-label': `可用金币 ${r.gold}` }, `${r.gold} 金 · 每张 3 金`) : h('div', { class: 'tl-title' }, '招募'),
       paid ? null : h('div', { class: 'tl-row' }, h('span', null, '本轮可选'), picks),
       rerollBtn,
-      paid ? h('button', { class: 'btn shelf-page', 'aria-label': `${this.shelfPage === pageCount - 1 ? '回到货架' : '下一页'}，当前第${this.shelfPage + 1}页，共${pageCount}页`, onclick: () => {
-        this.shelfPage = (this.shelfPage + 1) % pageCount; this.sel = null; hideTip(); this.renderTray();
-        this.tray.querySelector<HTMLButtonElement>('.shelf-page')?.focus({ preventScroll: true });
-      } }, h('span', null, this.shelfPage === pageCount - 1 ? '回到货架' : '下一页'), h('i', null, `${this.shelfPage + 1}/${pageCount}`), icon('play')) : null,
+      paid ? this.benchEl : null,
     );
-    const cards = h('div', { class: `cards${!paid && r.picks <= 0 ? ' exhausted' : ''}` });
-    const goods = offer ? offer.choices.map((id, choice) => ({ id, index: -1 - (offer.id * 2 + choice) })) : r.draft.map((id, index) => ({ id, index }));
-    goods.forEach(({ id, index: i }) => {
-      if (paid && !offer && Math.floor(i / 3) !== this.shelfPage) return;
+    const goods = [
+      ...r.draft.slice(0, paid ? shopSize(r) : r.draft.length).map((id, index) => ({ id, index, bonus: false })),
+      ...groups.map(g => ({ id: g.choices[0], index: -1 - g.id * 2, bonus: true })),
+    ];
+    const cards = h('div', { class: `cards${!paid && r.picks <= 0 ? ' exhausted' : ''}`, 'data-count': goods.length });
+    goods.forEach(({ id, index: i, bonus }) => {
       const item = this.draftItem(r, i);
       if (!id) { cards.appendChild(h('div', { class: 'shelf-empty' }, '已购买')); return; }
-      const same = allOwned(this.inventory).map((s, k) => ({ s, k })).filter((x) => x.s?.defId === id);
-      const mergeable = same.find((x) => x.s!.copies === 1);
-      const c = draftCard(id, { mergeTo: mergeable ? 2 : undefined, maxed: same.some(x => x.s!.copies === MAX_COPIES) });
+      const same = allOwned(this.inventory).filter((s): s is Slotted => !!s && s.defId === id && !s.temp);
+      const target = same.filter(s => s.copies < MAX_COPIES).sort((x, y) => y.copies - x.copies)[0];
+      const next = target ? target.copies + 1 : 0;
+      const goal = next <= LEVEL_COPIES[0] ? LEVEL_COPIES[0] : LEVEL_COPIES[1];
+      const c = draftCard(id, {
+        mergeTo: target && next === goal ? unitLevel(target) + 1 : undefined,
+        stack: target && next !== goal ? `叠加 ${next}/${goal}` : undefined,
+        maxed: !target && same.length > 0,
+      });
       c.dataset.draftIndex = String(i);
+      if (bonus) { c.classList.add('bonus-card'); c.append(h('span', { class: 'bonus-tag' }, icon('star'), '升星奖励')); }
       if (paid && item?.locked) c.append(h('span', { class: 'card-badge' }, '已锁定'));
       if (paid && r.gold < 3) c.classList.add('unaffordable');
       if (this.sel?.kind === 'card' && this.sel.idx === i) c.classList.add('selected');
@@ -532,7 +578,7 @@ export class Game {
       c.setAttribute('role', 'button');
       c.setAttribute('aria-label', `${unitDef(id).name}，招募`);
       c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.tap('card', i, { x: 0, y: 0 }); } });
-      c.setAttribute('aria-label', `${unitDef(id).name}，${paid ? `3 金${item?.locked ? '，已锁定' : ''}${offer ? '，升星二选一' : ''}，` : ''}拖到位置招募`);
+      c.setAttribute('aria-label', `${unitDef(id).name}，${paid ? `3 金${item?.locked ? '，已锁定' : ''}${bonus ? '，升星奖励' : ''}，` : ''}拖到位置招募`);
       c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
       c.addEventListener('pointerenter', () => {
         if (this.drag) return;
@@ -551,7 +597,7 @@ export class Game {
     const right = h(
       'div',
       { class: 'tray-right' },
-      this.benchEl,
+      paid ? null : this.benchEl,
       h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${SLOTS}`), fight),
     );
     this.tray.replaceChildren(left, cards, right);
@@ -578,8 +624,8 @@ export class Game {
       ? h('button', { class: 'btn primary ad-retry', disabled: !this.slots.some(Boolean) }, icon('play'), h('span', null, '看广告重打'))
       : null;
     retryBtn?.addEventListener('click', () => void this.requestRewardedRetry(retryBtn));
+    // 备战席与备战界面一致放右下，试打占开战键的位置
     this.tray.replaceChildren(
-      this.benchEl,
       h(
         'div',
         { class: 'sandbox-panel' },
@@ -590,14 +636,17 @@ export class Game {
           canRetry ? h('br') : null,
           canRetry ? `广告重打胜利可挽回生命，本局剩余 ${remainingRewardedRetries(this.run)} 次。` : null,
         ),
-        h('div', { class: 'sp-btns' }, reset, back, retryBtn, tryBtn),
+        h('div', { class: 'sp-btns' }, reset, back, retryBtn),
       ),
+      this.benchEl,
+      h('div', { class: 'sb-fight' }, tryBtn),
     );
     this.tray.classList.remove('hidden');
   }
 
   private renderBench() {
-    this.benchEl.replaceChildren(...[5, 6, 7].map(index => {
+    this.benchEl.classList.toggle('hidden', !this.inventory.bench.length);
+    this.benchEl.replaceChildren(...this.inventory.bench.map((_, k) => 5 + k).map(index => {
       const u = this.owned(index);
       const base = u ? levelStats(u.defId, unitLevel(u)) : null;
       const atk = base ? statArt('atk', base.atk) : null;
@@ -684,11 +733,14 @@ export class Game {
       v.setStats(statsOf(after), { base: { atk: u.atk, hp: u.hp } });
       v.el.classList.toggle('doomed', !after.alive);
       v.el.classList.toggle('selected', this.sel?.kind === 'unit' && u.side === 0 && this.sel.slot === u.slot);
+      v.el.classList.toggle('cmd-ok', this.commandArm && u.side === 0);
       v.el.setAttribute('tabindex', '0');
       v.el.setAttribute('role', 'button');
       v.el.setAttribute('aria-label', `${u.side ? '敌方' : '我方'}${u.slot + 1}格 ${unitDef(u.defId).name}`);
       v.el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (this.editable && !u.side) this.tap('unit', u.slot, { x: 0, y: 0 }); else this.showUnitTip(u.side, u.slot); } };
       v.setTag(null);
+      const own = u.side === 0 ? this.owned(u.slot) : null;
+      v.setExp(own && !own.temp && modernEconomy(this.run) ? own.copies : null);
       if (u.side === 0 && modernTactics(this.run) && this.run.commandTarget === this.owned(u.slot)?.ownedId) v.addTag(generalDefinition(this.run.general, 1).skill, 'buff');
       if (!after.alive) v.addTag('开战时阵亡', 'death');
       const fz = pv.fizzles.get(u.uid);
@@ -696,6 +748,7 @@ export class Game {
     }
     for (const v of keep.values()) v.el.remove();
     fresh.forEach((v, i) => v.appear(intro ? 80 * i : 0));
+    this.el.classList.toggle('command-arm', this.commandArm);
 
     // 箭头、徽记：默认只挂序号牌，点选 / 拖拽时才画出相关连线
     b.clearMarks();
@@ -1047,13 +1100,24 @@ export class Game {
     // Purchase details show the offered one-star ability; owned units retain
     // their upgrade preview. Repeating long next-star text hides the choices.
     const tip = unitTip(item.id, 1, null, false);
-    if (modernEconomy(this.run)) {
-      const index = this.sel.idx;
-      tip.appendChild(h('button', { class: 'btn shelf-lock', onclick: () => {
-        if (!this.editable || !(item.groupId === undefined ? freezeDraft(this.run, index) : freezeUpgradeOffer(this.run, item.groupId))) return;
-        this.save(); this.renderTray(); this.restoreTip();
-      } }, item.locked ? (item.groupId === undefined ? '解锁商品' : '解锁二选一') : (item.groupId === undefined ? '锁定商品' : '锁定二选一')));
+    const index = this.sel.idx;
+    const acts = h('div', { class: 'shelf-acts' });
+    // 「招募」与拖拽招募走同一条 doPlace：价格、金币、空位规则不另写一套。
+    if (this.editable && !this.tut) {
+      acts.appendChild(h('button', { class: 'btn primary shelf-recruit', onclick: () => {
+        if (!this.editable) return;
+        const slot = this.recruitSlot(item.id);
+        if (slot === null) { this.app.showRewardNotice('没有空位', '场上满了：拖到同名单位上叠加，拖到别的单位上替换，或先卖掉一个。', 'error'); sfx.fizzle(); return; }
+        this.doPlace(index, slot);
+      } }, '招募'));
     }
+    if (modernEconomy(this.run)) {
+      acts.appendChild(h('button', { class: 'btn ghost shelf-lock', onclick: () => {
+        if (!this.editable || !(item.groupId === undefined ? freezeDraft(this.run, index) : freezeUpgradeOffer(this.run, item.groupId))) return;
+        this.sel = null; hideTip(); sfx.click(); this.save(); this.renderTray();
+      } }, item.locked ? (item.groupId === undefined ? '解锁' : '解锁二选一') : (item.groupId === undefined ? '锁定' : '锁定二选一')));
+    }
+    if (acts.childElementCount) tip.appendChild(acts);
     // Keep purchase details above the shelf and left of the battle controls.
     showTip(tip, 690, 440, 'above');
   }
@@ -1071,7 +1135,7 @@ export class Game {
       this.board.views.forEach((v) => v.el.classList.remove('selected'));
       this.focus = this.hover = null; this.drawLinks();
       this.dropHints();
-      // 点卡牌只看详情，不进入“再点位置”的放置模式：招募必须拖，避免手机上误点买下
+      // 点卡牌只看详情，不进入“再点位置”的放置模式；详情里的「招募」按钮自动找空位
       this.restoreTip();
       return;
     }
@@ -1243,11 +1307,19 @@ export class Game {
     else showTip(content, p.x, p.y - 30, 'above');
   }
 
+  /** 点「招募」时的落点：第一个空战位，其次预备格；都满时才叠加到同名单位 */
+  private recruitSlot(defId: string): number | null {
+    const r = this.run;
+    for (let s = 0; s < 5 + r.bench.length; s++) if (!this.owned(s) && placeKind(r, defId, s) === 'place') return s;
+    for (let s = 0; s < 5 + r.bench.length; s++) if (placeKind(r, defId, s) === 'merge') return s;
+    return null;
+  }
+
   private doPlace(idx: number, slot: number, confirmed = false) {
     if (!this.allowTutorial({ kind: 'place', idx, slot })) return false;
     if (modernEconomy(this.run)) {
       const reason = this.shelfBuyReason(this.run, idx, slot);
-      if (reason) { this.app.showRewardNotice('无法购买', reason); return false; }
+      if (reason) { this.app.showRewardNotice('无法购买', reason, 'error'); return false; }
     }
     const defId = this.draftItem(this.run, idx)?.id;
     if (!defId) return false;
@@ -1257,20 +1329,21 @@ export class Game {
       this.app.confirm(`替换${unitDef(old.defId).name}？`, `${unitDef(defId).name}会占这个位置，${unitDef(old.defId).name}移到备战席。`, '替换', () => { if (this.editable) this.doPlace(idx, slot, true); });
       return false;
     }
+    const lvBefore = this.owned(slot) ? unitLevel(this.owned(slot)!) : 0;
     const kind = this.takeShelf(this.run, idx, slot, confirmed);
     if (kind === 'confirm') {
       const old = this.owned(slot)!;
-      this.app.confirm(`遣散${unitDef(old.defId).name}？`, `场上和备战席都满了，${unitDef(defId).name}会顶掉这名${unitLevel(old)}星单位（按出售退还金币、培养点和装备）。`, '遣散并招募', () => { if (this.editable) this.doPlace(idx, slot, true); });
+      this.app.confirm(`遣散${unitDef(old.defId).name}？`, `场上满了，${unitDef(defId).name}会顶掉这名${unitLevel(old)}星单位（按出售退还金币、培养点和装备）。`, '遣散并招募', () => { if (this.editable) this.doPlace(idx, slot, true); });
       return false;
     }
-    if (kind === 'invalid') { const why = sellBlockReason(this.run, slot); if (why) this.app.showRewardNotice('无法替换', why); sfx.fizzle(); if (slot < 5) this.flashSlot(slot, 'bad'); return false; }
+    if (kind === 'invalid') { const why = sellBlockReason(this.run, slot); if (why) this.app.showRewardNotice('无法替换', why, 'error'); sfx.fizzle(); if (slot < 5) this.flashSlot(slot, 'bad'); return false; }
     hideTip(); this.sel = null;
     if (kind === 'merge') sfx.merge(); else sfx.place();
     if (slot < 5) this.armFocus(slot);
     this.save();
     this.renderAll();
-    this.placementEffect(slot, defId, kind === 'merge');
-    if (this.run.picks > 0) this.cardsIn();
+    this.placementEffect(slot, defId, kind === 'merge', lvBefore);
+    if (this.run.picks > 0 || this.run.upgradeOffers?.length) this.cardsIn();
     this.emit(kind === 'merge' ? 'merge' : 'place');
     return true;
   }
@@ -1279,6 +1352,7 @@ export class Game {
     if (!this.allowTutorial({ kind: 'move', from, to })) return false;
     const va = from < 5 ? this.board.view(`p0-${from}`) : null;
     const vb = to < 5 ? this.board.view(`p0-${to}`) : null;
+    const lvBefore = this.owned(to) ? unitLevel(this.owned(to)!) : 0;
     const kind = moveSlot(this.inventory, from, to, mode);
     if (kind === 'invalid') { sfx.fizzle(); return false; }
     hideTip(); this.sel = null;
@@ -1294,27 +1368,202 @@ export class Game {
     }
     this.save();
     this.renderAll();
-    if (kind === 'merge') this.placementEffect(to, this.owned(to)!.defId, true);
+    if (kind === 'merge') this.placementEffect(to, this.owned(to)!.defId, true, lvBefore);
     this.emit(kind === 'merge' ? 'merge' : 'move');
     return true;
   }
 
-  private placementEffect(index: number, defId: string, merge: boolean) {
+  private placementEffect(index: number, defId: string, merge: boolean, lvBefore = 0) {
     const p = index < 5 ? bodyPos(0, index) : (() => {
       const rect = this.benchEl.querySelector<HTMLElement>(`[data-index="${index}"]`)!.getBoundingClientRect();
       const scale = this.el.getBoundingClientRect().width / 1280;
       return toStage(rect.left + rect.width / 2, rect.top + 70 * scale);
     })();
     const fx = this.app.fx;
+    const u = this.owned(index);
+    if (merge && u && unitLevel(u) <= lvBefore) {
+      // 叠加未升星：+1/+1 小反馈，显示离下一星还差几份
+      const goal = u.copies < LEVEL_COPIES[0] ? LEVEL_COPIES[0] : LEVEL_COPIES[1];
+      fx.burst(p.x, p.y, '#fff6cc', { n: 10, speed: 3, kind: 'plus', size: 4, up: 2.5, life: 30, gravity: 0.02 });
+      fx.ring(p.x, p.y + 40, '#ffe08a', 70, 18);
+      fx.pulse(this.unitArt(this.unitNode(index)), 1.16, 300);
+      fx.float(p.x, p.y - 70, u.copies >= MAX_COPIES ? '+1/+1 · 满' : `+1/+1 · ${u.copies}/${goal}`, 'levelup', 700);
+      return;
+    }
     if (merge) {
-      fx.burst(p.x, p.y, '#ffe08a', { n: 30, speed: 6, size: 3 });
-      fx.ring(p.x, p.y + 40, '#ffe08a', 90);
-      fx.float(p.x, p.y - 60, `升级 ${'★'.repeat(unitLevel(this.owned(index)!))}`, 'levelup', 1200);
+      // 升星：星芒炸开 → 小星升起 → 单位弹一下；全程 ≤700ms
+      fx.stars(p.x, p.y - 10);
+      fx.burst(p.x, p.y, '#ffe08a', { n: 22, speed: 6, size: 3, life: 30 });
+      fx.burst(p.x, p.y, '#fff6cc', { n: 8, speed: 3, kind: 'plus', size: 4, up: 2.5, life: 34, gravity: 0.02 });
+      fx.ring(p.x, p.y + 40, '#ffe08a', 90, 22);
+      fx.wave(p.x, p.y + 44, '#ffe08a', 180, 420);
+      fx.pulse(this.unitArt(this.unitNode(index)), 1.28, 380);
+      fx.float(p.x, p.y - 70, `升级 ${'★'.repeat(unitLevel(this.owned(index)!))}`, 'levelup', 700);
     } else {
       const color = FACTION_INFO[unitDef(defId).faction].color;
       fx.ring(p.x, p.y + 40, color, 70);
       fx.burst(p.x, p.y + 40, color, { n: 16, speed: 4, kind: 'mote', size: 2.5, up: 2 });
       if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) fx.shake(3, 160);
+    }
+  }
+
+  // ───────────── 培养特效 ─────────────
+
+  /** 已拥有单位当前显示的节点：整备弹层 > 战位 > 备战席 */
+  private unitNode(slot: number): HTMLElement | null {
+    if (this.prep?.isConnected) return this.prep.querySelector<HTMLElement>(`.prep-owned[data-slot="${slot}"]`);
+    if (slot < 5) return this.board.view(`p0-${slot}`)?.el ?? null;
+    return this.benchEl.querySelector<HTMLElement>(`[data-index="${slot}"]`);
+  }
+  private genNode(): HTMLElement | null {
+    return (this.prep?.isConnected ? this.prep.querySelector<HTMLElement>('.pu-card.gen') : null) ?? this.el.querySelector<HTMLElement>('.hud-general');
+  }
+  private unitArt(n: HTMLElement | null) {
+    return n?.querySelector<HTMLElement>('.u-art, .bench-art, .pu-art, .hg-portrait') ?? n;
+  }
+  /** 节点（立绘）中心与脚下，舞台坐标 */
+  private nodePos(n: HTMLElement) {
+    const r = (this.unitArt(n) ?? n).getBoundingClientRect();
+    return { c: toStage(r.left + r.width / 2, r.top + r.height / 2), feet: toStage(r.left + r.width / 2, r.bottom), top: toStage(r.left + r.width / 2, r.top) };
+  }
+  private slotPos(slot: number) {
+    const n = this.unitNode(slot);
+    if (n) return this.nodePos(n);
+    if (slot >= 5) return null;
+    const p = bodyPos(0, slot);
+    return { c: p, feet: { x: p.x, y: p.y + 44 }, top: { x: p.x, y: p.y - 50 } };
+  }
+  /** 托盘里培养点按钮的位置（在重绘之前取） */
+  private chipPos(type: string): Pt | null {
+    const el = this.prep?.querySelector<HTMLElement>(`.pr-chip.pt-${type}`) ?? (this.prep ? null : this.dock.querySelector<HTMLElement>('.prep-btn'));
+    if (!el) return null;
+    const r = el.getBoundingClientRect();
+    return r.width ? toStage(r.left + r.width / 2, r.top + r.height / 2) : null;
+  }
+  /** 数值牌下的显示值：先回退到旧值，法球到达时再跳到新值 */
+  private statBox(n: HTMLElement | null, type: string, general: boolean) {
+    if (!n) return null;
+    if (general) return n.querySelector<HTMLElement>('.pu-stat em');
+    if (type === 'atk') return n.querySelector<HTMLElement>('.u-stats .st.atk, .bench-stats .st.atk');
+    if (type === 'hp') return n.querySelector<HTMLElement>('.u-stats .st.hp, .bench-stats .st.hp');
+    if (type === 'block') return n.querySelector<HTMLElement>('.u-shield');
+    return null;
+  }
+  private preRoll(box: HTMLElement | null, delta: number) {
+    const i = box && (box.tagName === 'EM' ? box : box.querySelector<HTMLElement>(':scope > i'));
+    if (!i || !this.prep || i.childElementCount) return;
+    const now = Number(i.textContent);
+    if (!Number.isFinite(now) || now - delta < 0) return;
+    i.dataset.to = String(now);
+    i.textContent = String(now - delta);
+  }
+  private tickTo(box: HTMLElement | null) {
+    if (!box) return;
+    const i = box.tagName === 'EM' ? box : box.querySelector<HTMLElement>(':scope > i');
+    if (i?.dataset.to) { i.textContent = i.dataset.to; delete i.dataset.to; }
+    this.app.fx.bump(box);
+  }
+
+  /** 分配培养点：法球从托盘飞向目标 → 目标弹跳 + 属性牌 + 数值跳动 */
+  private allocFx(type: string, from: Pt | null, to: number | 'general') {
+    const fx = this.app.fx, color = CUL_COLOR[type] ?? '#ffd36b', general = to === 'general';
+    const node = () => (general ? this.genNode() : this.unitNode(to));
+    const n0 = node();
+    if (!n0) return;
+    const b = this.nodePos(n0).c;
+    const delta = type === 'hp' ? 2 : 1;
+    if (type !== 'block') this.preRoll(this.statBox(n0, type, general), delta);
+    const start = from ?? { x: b.x, y: b.y - 170 };
+    const fly = 300;
+    fx.orb(start, b, color, fly);
+    this.later(() => {
+      const n = node();
+      if (!n) return;
+      const p = this.nodePos(n);
+      fx.ring(p.c.x, p.c.y, color, 56, 18);
+      fx.burst(p.c.x, p.c.y, color, { n: 14, speed: 4.5, size: 3, up: 1.5, life: 24 });
+      fx.burst(p.c.x, p.c.y, '#ffffff', { n: 4, speed: 2.5, kind: 'plus', size: 3, up: 2, life: 26, gravity: 0.02 });
+      fx.pulse(this.unitArt(n), 1.2, 320);
+      fx.statPop(p.top.x, p.top.y - 4, `+${delta}`, POINT_MAP[type]?.short ?? '', `pt-${type}`);
+      this.tickTo(this.statBox(n, type, general));
+    }, fly);
+  }
+
+  /** 装备：图标砸到单位身上 + 冲击环 */
+  private equipFx(id: string, slot: number) {
+    const fx = this.app.fx, gold = '#ffd36b';
+    const p0 = this.slotPos(slot);
+    if (!p0) return;
+    const dur = 440;
+    fx.drop(p0.feet, itemIcon(id, 'spell'), dur);
+    this.later(() => {
+      const p = this.slotPos(slot) ?? p0;
+      fx.wave(p.feet.x, p.feet.y, gold, 190, 420);
+      fx.ring(p.c.x, p.c.y, gold, 70, 18);
+      fx.burst(p.feet.x, p.feet.y - 6, gold, { n: 14, speed: 5, kind: 'shard', size: 3, up: 3, life: 24 });
+      fx.pulse(this.unitArt(this.unitNode(slot)), 1.16, 300);
+      fx.statPop(p.top.x, p.top.y - 4, '', EQUIP_MAP[id]?.name ?? '装备', 'eq');
+    }, Math.round(dur * 0.62));
+  }
+
+  private growthSnap: GrowthSnap | null = null;
+  private takeGrowth(): GrowthSnap {
+    const units: GrowthSnap['units'] = new Map();
+    for (const u of [...this.run.slots, ...this.run.bench]) if (u) units.set(u.ownedId, { defId: u.defId, copies: u.copies, g: { atk: u.growth?.atk ?? 0, hp: u.growth?.hp ?? 0, power: u.growth?.power ?? 0 } });
+    return { units, uses: { ...(this.run.prepUses ?? {}) } };
+  }
+  /** 每次落存档后比较远征成长：单位能力带来的成长都给一个看得见的来源 */
+  private growthCheck() {
+    const prev = this.growthSnap, next = this.takeGrowth();
+    this.growthSnap = next;
+    if (!prev || this.mode !== 'prep' || this.sandbox || this.run.prepCommitted) return;
+    // 本次触发的能力来源（仍在场上的单位）
+    const sources: number[] = [];
+    for (const [k, v] of Object.entries(next.uses)) if (v > (prev.uses[k] ?? 0)) {
+      const id = Number(k.split(':')[0]);
+      if (next.units.has(id) && !sources.includes(id)) sources.push(id);
+    }
+    const gone = [...prev.units.entries()].filter(([id]) => !next.units.has(id));
+    const all = [...this.run.slots, ...this.run.bench];
+    let order = 0;
+    for (const [id, now] of next.units) {
+      const was = prev.units.get(id);
+      if (!was) continue;
+      const d = { atk: now.g.atk - was.g.atk, hp: now.g.hp - was.g.hp, power: now.g.power - was.g.power };
+      // 合并升星：被合并那份的成长并入，不算新成长
+      if (now.copies > was.copies) for (const [, v] of gone) if (v.defId === now.defId) { d.atk -= v.g.atk; d.hp -= v.g.hp; d.power -= v.g.power; }
+      const stats = (['atk', 'hp', 'power'] as const).filter(k => d[k] > 0);
+      if (!stats.length) continue;
+      const slot = all.findIndex(u => u?.ownedId === id);
+      if (slot < 0) continue;
+      const src = sources.find(s => s !== id);
+      const srcSlot = src === undefined ? -1 : all.findIndex(u => u?.ownedId === src);
+      const delay = 40 + order++ * 110;
+      this.later(() => stats.forEach((k, i) => this.later(() => this.growthFx(slot, srcSlot, k, d[k], i), i * 120)), delay);
+    }
+  }
+  private growthFx(slot: number, srcSlot: number, stat: 'atk' | 'hp' | 'power', n: number, row: number) {
+    const fx = this.app.fx, color = CUL_COLOR[stat];
+    const p = this.slotPos(slot);
+    if (!p) return;
+    const s = srcSlot >= 0 ? this.slotPos(srcSlot) : null;
+    const tag = () => {
+      const q = this.slotPos(slot) ?? p;
+      fx.statPop(q.top.x, q.top.y - 4 - row * 46, `+${n}`, POINT_MAP[stat]?.short ?? '', `pt-${stat}`);
+      fx.pulse(this.unitArt(this.unitNode(slot)), 1.14, 300);
+      fx.bump(this.statBox(this.unitNode(slot), stat, false));
+    };
+    if (s) {
+      // 来源可知：从来源单位拉一道属性色光线，粒子顺线流过去
+      fx.link(s.c, p.c, color, 380);
+      fx.flow(s.c, p.c, color, { n: 8, life: 18, arc: 36, size: 2.5 });
+      fx.ring(s.c.x, s.c.y, color, 44, 14);
+      this.later(() => { fx.burst(p.c.x, p.c.y, color, { n: 10, speed: 3.5, size: 2.5, up: 1.5, life: 22 }); tag(); }, 300);
+    } else {
+      // 来源不可知（已出售等）：原地升起像素光柱
+      fx.pillar(p.feet.x, p.feet.y, color, 150, 520);
+      fx.rise(p.c.x, p.feet.y - 10, color, 8, 44);
+      this.later(tag, 140);
     }
   }
 
@@ -1356,6 +1605,8 @@ export class Game {
     const s = this.sel;
     if (!s || this.sandbox || this.mode !== 'prep') return;
     let ok = false;
+    const from = s.kind === 'point' ? this.chipPos(s.type) : null;
+    const item = s.kind === 'equip' ? this.run.bag[s.idx] : '';
     if (s.kind === 'point') {
       if (!this.allowTutorial({ kind: 'alloc', to: slot, type: s.type })) return;
       ok = allocPoint(this.run, slot, s.type);
@@ -1367,13 +1618,10 @@ export class Game {
     }
     if (!ok) { sfx.fizzle(); return; }
     sfx.merge();
-    const p = slot < 5 && !this.prep ? bodyPos(0, slot) : null;
-    if (p) {
-      this.app.fx.ring(p.x, p.y + 40, s.kind === 'equip' ? '#ffd36b' : '#7dffb0', 70);
-      this.app.fx.float(p.x, p.y - 60, s.kind === 'point' ? `${POINT_MAP[s.type]?.name ?? ''} +1` : '装备', 'levelup', 900);
-    }
     this.save();
     this.renderAll();
+    if (s.kind === 'point') this.allocFx(s.type, from, slot);
+    else if (item) this.equipFx(item, slot);
     this.emit(s.kind === 'equip' ? 'equip' : 'alloc');
   }
 
@@ -1382,7 +1630,9 @@ export class Game {
     const r = this.run;
     const d = this.dock;
     this.armHint.classList.add('hidden');
-    if (this.mode !== 'prep' || this.sandbox) { this.commandArm = false; this.swapArm = false; this.swapPick = null; d.classList.add('hidden'); this.closePrep(); return; }
+    if (this.mode !== 'prep' || this.sandbox) { this.commandArm = false; this.el.classList.remove('command-arm'); this.swapArm = false; this.swapPick = null; d.classList.add('hidden'); this.closePrep(); return; }
+    this.el.classList.toggle('command-arm', this.commandArm);
+    if (this.commandArm) { this.armHint.textContent = '选择战位友军'; this.armHint.classList.remove('hidden'); }
     const left = stashTotal(r) + r.bag.length + r.spells.length + r.orders.length;
     const btn = h('button', { class: `prep-btn${left ? ' has' : ''}`, 'aria-label': '整备' }, icon('plate'), h('span', null, '整备'), left ? h('i', null, left) : null);
     btn.addEventListener('click', (e) => { e.stopPropagation(); if (this.editable && !this.adPending) { sfx.click(); this.openPrep(); } });
@@ -1390,15 +1640,28 @@ export class Game {
     d.replaceChildren(acts, btn);
     d.classList.remove('hidden');
     // 主将专属按钮堆在「整备」上方：把开战键再往上让出同样高度，避免互相压住
-    const rows = [...acts.children], buttons = rows.filter(c => !c.classList.contains('egg-prog')).length;
-    this.el.style.setProperty('--gen-stack', rows.length
-      ? `calc(${2 + (rows.length - buttons) * 56 + buttons * 8}px + ${buttons} * max(56px, var(--control-size, 64px)))` : '0px');
+    // 每位主将预留固定行数（整局不变），状态变化只换内容，开战键不再上下跳
+    const rows = [...acts.children], live = rows.filter(c => !c.classList.contains('egg-prog')).length;
+    const [rb, re] = this.genReserve();
+    const buttons = Math.max(live, rb), eggs = Math.max(rows.length - live, re);
+    this.el.style.setProperty('--gen-stack', buttons + eggs
+      ? `calc(${2 + eggs * 56 + buttons * 8}px + ${buttons} * max(56px, var(--control-size, 64px)))` : '0px');
     const hk = r.lastHatch ? `${battleNo(r)}:${r.lastHatch}` : '';
     if (hk && hk !== this.hatchNoted) {
       this.hatchNoted = hk;
       this.app.showRewardNotice('龙蛋孵化', `${unitDef(r.lastHatch!).name}破壳而出`);
     }
     if (this.prep) this.renderPrep();
+  }
+
+  /** 主将专属按钮列预留的 [按钮行, 龙蛋行] */
+  private genReserve(): [number, number] {
+    const r = this.run;
+    if (modernTactics(r) && (r.general === 'zilan' || r.general === 'kaleos')) return [2, 0];
+    if (r.general === 'reva') return [1, 0];
+    if (r.general === 'hank') return [r.passives.includes('hank_1') ? 2 : 1, 0];
+    if (r.general === 'xingjiao') return [0, (r.pendingEggs ?? 0) > 0 ? 2 : 1];
+    return [0, 0];
   }
 
   private chooseCommand(slot: number) {
@@ -1428,7 +1691,6 @@ export class Game {
         if (!setGeneralOrder(r, null)) return;
         this.commandArm = false; sfx.click(); this.save(); this.renderAll();
       }));
-      if (this.commandArm) out.push(h('span', { class: 'command-prompt', role: 'status' }, '选择战位友军'));
     }
     if (r.general === 'reva') {
       const cap = swapCap(r), n = r.swaps?.length ?? 0;
@@ -1600,11 +1862,11 @@ export class Game {
         seat.querySelector('.prep-figure')!.append(v.el);
         seat.append(refunds(u.slot));
       } else {
-        enemies.append(h('div', { class: 'prep-enemy' }, seatArt(), v.el));
+        enemies.append(h('div', { class: 'prep-enemy', style: `--s:${u.slot}` }, seatArt(), v.el));
       }
     }
     const bench = h('div', { class: 'prep-bench', 'aria-label': '备战' });
-    for (const slot of [5, 6, 7]) {
+    for (const slot of r.bench.map((_, k) => 5 + k)) {
       const u = getOwned(r, slot);
       if (!u) { bench.append(h('div', { class: 'prep-bench-empty' }, seatArt(), h('div', { class: 'prep-position' }, '备战'))); continue; }
       const v = new UnitView(u.defId, 0, slot, unitLevel(u));
@@ -1650,10 +1912,11 @@ export class Game {
       }
       hideTip();
       if (!this.allowTutorial({ kind: 'alloc', to: 'general', type: s.type })) return;
+      const from = this.chipPos(s.type);
       if (!allocPoint(r, 'general', s.type)) { sfx.fizzle(); return; }
       sfx.merge();
       if (!(r.stash[s.type] > 0)) this.sel = null;
-      this.save(); this.renderAll(); this.emit('alloc');
+      this.save(); this.renderAll(); this.allocFx(s.type, from, 'general'); this.emit('alloc');
     });
 
     // 资源托盘
@@ -1665,7 +1928,8 @@ export class Game {
     const group = (cls: string, label: string, items: HTMLElement[]) =>
       items.length ? h('div', { class: `pr-group ${cls}` }, h('span', { class: 'pr-label' }, label), h('div', { class: 'pr-items' }, items)) : null;
     const pts = POINT_TYPES.filter((p) => r.stash[p.id] > 0).map((p) =>
-      chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [pxIcon(p.id), h('i', null, r.stash[p.id])], act(pick({ kind: 'point', type: p.id }))));
+      chip(`pt pt-${p.id}`, sel?.kind === 'point' && sel.type === p.id, [pxIcon(p.id), h('i', null, r.stash[p.id]),
+        h('span', { class: 'pr-cap' }, `${p.name} ${p.text.match(/\+\s*\d+/)?.[0].replace(/\s/g, '') ?? ''}`.trim())], act(pick({ kind: 'point', type: p.id }))));
     const eqs = r.bag.map((id, i) =>
       chip('eq', sel?.kind === 'equip' && sel.idx === i, [itemIcon(id, 'spell'), h('span', null, EQUIP_MAP[id]?.name ?? id)], act(pick({ kind: 'equip', idx: i }))));
     const sps = [
@@ -1682,6 +1946,7 @@ export class Game {
     if (sel?.kind === 'point') { const p = POINT_MAP[sel.type]; say = [h('b', null, p.name), ...kwRich(p.text)]; }
     else if (sel?.kind === 'equip') { const e = EQUIP_MAP[r.bag[sel.idx]]; say = [h('b', null, e?.name ?? ''), ...kwRich(e?.text ?? '')]; }
     else if (r.activeSpells.length) say = [h('b', null, '本场法术'), r.activeSpells.map((id) => SPELL_MAP[id]?.name ?? id).join('、')];
+    else if (pts.length || eqs.length) say = ['选资源，再点单位'];
 
 
     const done = h('button', { class: 'btn primary prep-done' }, h('span', null, '完成'));
@@ -1692,7 +1957,7 @@ export class Game {
     ov.replaceChildren(h('div', { class: 'prep-panel' },
       enemies, gen, done, roster,
       h('div', { class: `pp-say${sel?.kind === 'point' || sel?.kind === 'equip' ? ' on' : ''}` }, ...say),
-      h('div', { class: 'pp-tray' }, actions, groups.length ? groups : null)));
+      h('div', { class: 'pp-tray' }, actions, groups.length ? groups : h('div', { class: 'pp-empty' }, '战斗胜利获得培养点'))));
     roster.append(allies, bench);
     ov.querySelector<HTMLElement>('.pp-tray')!.scrollLeft = trayLeft;
     if (focusOwner && focusPoint) {
@@ -1746,7 +2011,7 @@ export class Game {
       // Scope the trap to this dialog so independently focused coach/modal controls keep their own input.
       panel.addEventListener('keydown', e => {
         if (e.key !== 'Tab') return;
-        const options = [...panel.querySelectorAll<HTMLButtonElement>('.ph-opt.passive:not(:disabled)')];
+        const options = [...panel.querySelectorAll<HTMLButtonElement>(':is(.ph-opt.passive, .promo-ok):not(:disabled)')];
         if (!options.length) return;
         e.preventDefault(); e.stopPropagation();
         const i = options.indexOf(document.activeElement as HTMLButtonElement);
@@ -1775,10 +2040,13 @@ export class Game {
     // 手机防误触：点一下只选中并在右侧说明栏展开详情，再点「购买」才扣金币；出售改为把阵容头像拖进出售框
     type Good = { key: string; kind: Parameters<typeof buy>[1]; i: number; name: string; text: string; unitStats?: { atk: number; hp: number }; price: number; sold: boolean; cls: string; icon: HTMLElement; block?: string };
     const doBuy = (g: Good) => {
+      const sig = () => allOwned(r).map(u => u ? `${u.ownedId}:${u.copies}` : '');
+      const before = sig(), from = this.panel?.querySelector('.sh-buy')?.getBoundingClientRect();
       if (this.mode !== 'phase' || !this.allowTutorial({ kind: 'buy', category: g.kind, index: g.i }) || !buy(r, g.kind, g.i)) { sfx.fizzle(); return; }
       this.shopSel = null;
       sfx.reward(); this.save(); this.renderAll(); this.showPhase('shop');
       if (g.kind === 'equips') this.emit('buy-equips');
+      this.buyFeedback(g.kind, g.kind === 'units' ? s.units[g.i].id : null, before, sig(), from);
     };
     const pick = (key: string | null) => { sfx.click(); this.shopSel = key; this.showPhase('shop'); };
     const price = (n: number, sold: boolean) => h('span', { class: `sh-price${sold ? ' sold' : r.gold < n ? ' poor' : ''}` }, sold ? '已售' : h('span', null, itemIcon('coin', 'coin', 'sm'), `${n}`));
@@ -1786,7 +2054,7 @@ export class Game {
       ...s.units.map((it, i) => {
         const d = unitDef(it.id), st = levelStats(it.id, 1);
         return { key: `units:${i}`, kind: 'units' as const, i, name: d.name, text: abilityText(it.id, 1), unitStats: st, price: it.price, sold: it.sold, cls: 'un', icon: h('span'),
-          block: !it.sold && unitBuys <= 0 ? '本店已购买2名单位' : !it.sold && unitDestination(r, it.id) === null ? '没有空位：先把阵容里的单位拖进出售框' : undefined };
+          block: !it.sold && unitBuys <= 0 ? '本店已购买2名单位' : !it.sold && unitDestination(r, it.id) === null ? '没空位了：先拖一个单位去出售' : undefined };
       }),
       ...s.equips.map((it, i) => ({ key: `equips:${i}`, kind: 'equips' as const, i, name: EQUIP_MAP[it.id].name, text: EQUIP_MAP[it.id].text, price: it.price, sold: it.sold, cls: 'eq', icon: itemIcon(it.id) })),
       ...s.spells.map((it, i) => ({ key: `spells:${i}`, kind: 'spells' as const, i, name: SPELL_MAP[it.id].name, text: SPELL_MAP[it.id].text, price: it.price, sold: it.sold, cls: 'sp', icon: itemIcon(it.id, 'spell') })),
@@ -1816,7 +2084,7 @@ export class Game {
       const train = Object.entries(ownU.train ?? {}).filter(([, n]) => n).map(([k, n]) => `${POINT_MAP[k]?.short ?? k}+${n}`);
       const extra = [eqs.length ? `装备：${eqs.join('、')}` : '', train.length ? `培养：${train.join(' ')}` : ''].filter(Boolean).join('　');
       detail = h('div', { class: 'sh-detail own' },
-        h('span', { class: 'sh-icon art', html: unitSvg(ownU.defId) }),
+        tierArt('sh-icon art', ownU.defId, unitDef(ownU.defId).tier, 'span'),
         h('div', { class: 'sh-desc' },
           h('b', null, d.name, h('i', { class: 'sh-stars' }, '★'.repeat(lv))),
           h('span', { class: 'sh-pos' }, ownSel < 5 ? `战斗席 ${ownSel + 1} 号位` : '备战席'),
@@ -1828,7 +2096,7 @@ export class Game {
       const go = h('button', { class: 'btn primary sh-buy', disabled: !!why }, h('span', null, '购买'), h('span', { class: 'sh-buy-p' }, itemIcon('coin', 'coin', 'sm'), `${sel.price}`));
       go.addEventListener('click', () => doBuy(sel));
       detail = h('div', { class: `sh-detail ${sel.cls}` },
-        sel.kind === 'units' ? h('span', { class: 'sh-icon art', html: unitSvg(s.units[sel.i].id) }) : h('span', { class: 'sh-icon' }, itemIcon(sel.key.startsWith('equips') ? s.equips[sel.i].id : sel.kind === 'spells' ? s.spells[sel.i].id : sel.kind, sel.kind === 'order' ? 'order' : sel.kind === 'pack' ? 'pack' : 'spell')),
+        sel.kind === 'units' ? tierArt('sh-icon art', s.units[sel.i].id, unitDef(s.units[sel.i].id).tier, 'span') : h('span', { class: 'sh-icon' }, itemIcon(sel.key.startsWith('equips') ? s.equips[sel.i].id : sel.kind === 'spells' ? s.spells[sel.i].id : sel.kind, sel.kind === 'order' ? 'order' : sel.kind === 'pack' ? 'pack' : 'spell')),
         h('div', { class: 'sh-desc' }, h('b', null, sel.name), matchId ? this.heldNote(matchId) : null,
           sel.unitStats ? h('span', { class: 'sh-st px' }, statArt('atk', sel.unitStats.atk), statArt('hp', sel.unitStats.hp)) : null,
           h('p', null, why ? h('em', null, why, '。') : null, ...kwRich(sel.text))),
@@ -1843,14 +2111,14 @@ export class Game {
     });
 
     // 阵容：按住头像拖进出售框才卖出；点一下只提示
-    // 阵容：战斗席 5 格 + 备战席 3 格都列出来（空格也画），点一下看现状，按住拖进出售框才卖出
+    // 阵容：战斗席 5 格 + 预备格（萨吉）都列出来（空格也画），点一下看现状，按住拖进出售框才卖出
     const bin = h('div', { class: 'sh-bin' }, itemIcon('coin', 'coin'), h('span', null, '拖入出售'));
     const seat = (u: Slotted | null, i: number) => {
       const tag = i < 5 ? `${i + 1}` : '备';
       if (!u) return h('div', { class: 'sh-own empty' }, h('span', { class: 'sh-seat' }, tag), h('span', { class: 'sh-none' }, '空'));
       const st = this.ownedStats(u), lv = unitLevel(u);
       const b = h('div', { class: `sh-own${ownSel === i ? ' on' : ''}${matchId === u.defId ? ' match' : ''}`, role: 'button', tabindex: 0, 'aria-pressed': String(ownSel === i), 'aria-label': `${unitDef(u.defId).name} ${lv} 星，${st.atk} 攻 ${st.hp} 血，${sellBlockReason(r, i) ?? `拖到出售框卖出 ${sellPrice(u, this.run)} 金`}` },
-        h('span', { class: 'sh-own-art', html: unitSvg(u.defId) }),
+        tierArt('sh-own-art', u.defId, unitDef(u.defId).tier, 'span'),
         h('span', { class: 'sh-seat' }, tag),
         u.equips?.length ? h('span', { class: 'sh-own-eq' }, itemIcon(u.equips[0], 'spell', 'sm')) : null,
         h('i', null, '★'.repeat(lv)),
@@ -1874,8 +2142,31 @@ export class Game {
         detail),
       h('div', { class: 'sh-roster' },
         h('div', { class: 'sh-grp' }, h('span', { class: 'dk-label' }, '战斗席'), h('div', { class: 'sh-owns' }, field)),
-        h('div', { class: 'sh-grp' }, h('span', { class: 'dk-label' }, '备战席'), h('div', { class: 'sh-owns' }, reserve)),
+        reserve.length ? h('div', { class: 'sh-grp' }, h('span', { class: 'dk-label' }, '预备'), h('div', { class: 'sh-owns' }, reserve)) : null,
         bin));
+  }
+
+  /** 商店购买去向：单位飞进落脚的席位并闪一下；有空战位时点亮它；其他商品提示放进了整备 */
+  private buyFeedback(kind: ShopKind, defId: string | null, before: string[], after: string[], from?: DOMRect) {
+    if (kind !== 'units' || !defId) {
+      const where: Partial<Record<ShopKind, string>> = { equips: '已放入整备', spells: '已放入整备', pack: '培养点已放入整备', order: '已放入整备，招募时使用' };
+      if (where[kind]) this.app.showRewardNotice('购买成功', where[kind]!);
+      return;
+    }
+    const seats = [...(this.panel?.querySelectorAll<HTMLElement>('.sh-roster .sh-own') ?? [])];
+    const dest = after.findIndex((v, k) => v && v !== before[k]);
+    const seat = seats[dest];
+    if (!seat) return;
+    seat.classList.add('just-in');
+    const free = dest >= 5 ? after.slice(0, 5).findIndex(v => !v) : -1;
+    if (free >= 0) seats[free]?.classList.add('slot-free');
+    if (!from) return;
+    const a = toStage(from.left + from.width / 2, from.top + from.height / 2), rc = seat.getBoundingClientRect();
+    const b = toStage(rc.left + rc.width / 2, rc.top + rc.height / 2);
+    const ghost = h('div', { class: 'buy-fly', html: unitSvg(defId), style: `left:${a.x}px;top:${a.y}px` });
+    this.el.appendChild(ghost);
+    ghost.animate([{ transform: 'translate(-50%,-50%) scale(1)', opacity: 1 }, { transform: `translate(calc(-50% + ${b.x - a.x}px),calc(-50% + ${b.y - a.y}px)) scale(.5)`, opacity: 0.6 }],
+      { duration: 420, easing: 'cubic-bezier(.3,.7,.4,1)' }).onfinish = () => ghost.remove();
   }
 
   private preparedOwned(u: Slotted): Slotted {
@@ -1899,8 +2190,8 @@ export class Game {
   private heldNote(defId: string) {
     const same = allOwned(this.run).filter((u): u is Slotted => !!u && u.defId === defId);
     if (!same.length) return null;
-    const mergeable = same.some(u => u.copies < 4);
-    return h('span', { class: 'sh-held' }, `已持有 ${same.map(u => '★'.repeat(unitLevel(u))).join(' / ')}${mergeable ? '，可合并' : ''}`);
+    const mergeable = same.some(u => !u.temp && u.copies < MAX_COPIES);
+    return h('span', { class: 'sh-held' }, `已持有 ${same.map(u => '★'.repeat(unitLevel(u))).join(' / ')}${mergeable ? '，可叠加' : ''}`);
   }
 
   private shopSellDrag(e: PointerEvent, src: HTMLElement, bin: HTMLElement, idx: number, defId: string, onTap: () => void) {
@@ -1973,14 +2264,26 @@ export class Game {
   private promoPanel() {
     const r = this.run;
     const g = generalDefinition(r.general, r.tacticsVersion);
+    // 先选中、再按「确定」才生效，防误触
+    let pick = -1;
+    const ok = h('button', { class: 'btn primary promo-ok', disabled: true }, h('span', null, '确定'));
+    ok.addEventListener('click', () => { if (pick >= 0 && choosePromo(r, pick)) { sfx.reward(); this.renderHud(); this.phaseDone(); } });
+    const opts = r.promo!.map((id, i) => {
+      const p = PASSIVE_MAP[id];
+      const b = h('button', { class: `ph-opt passive${p.general ? ' own' : ''}`, 'aria-pressed': 'false' },
+        h('span', { class: 'promo-ic' }, icon(tacticIcon(p))),
+        p.general ? h('span', { class: 'sb-kind' }, '专属') : null, h('b', null, p.name), h('p', null, ...kwRich(p.text)));
+      b.addEventListener('click', () => {
+        sfx.click(); pick = i;
+        opts.forEach((o, k) => { o.classList.toggle('on', k === i); o.setAttribute('aria-pressed', String(k === i)); });
+        ok.disabled = false;
+      });
+      return b;
+    });
     return h('div', { class: 'ph-card promo', style: `--fc:${FACTION_INFO[g.faction].color}` },
       h('div', { class: 'ph-head' }, h('div', { class: 'promo-art', html: unitSvg(null, { general: g.id, tier2: true }) }), h('b', null, modernTactics(r) ? '选择战术' : `${g.name} 升阶`), modernTactics(r) ? null : h('span', null, '选择一个主将被动')),
-      h('div', { class: 'ph-opts' }, r.promo!.map((id, i) => {
-        const p = PASSIVE_MAP[id];
-        const b = h('button', { class: `ph-opt passive${p.general ? ' own' : ''}` }, p.general ? h('span', { class: 'sb-kind' }, '专属') : null, h('b', null, p.name), h('p', null, ...kwRich(p.text)));
-        b.addEventListener('click', () => { if (choosePromo(r, i)) { sfx.reward(); this.renderHud(); this.phaseDone(); } });
-        return b;
-      })));
+      h('div', { class: 'ph-opts' }, opts),
+      h('div', { class: 'promo-foot' }, ok));
   }
 
   // ───────────── 路线预览 ─────────────
@@ -2067,8 +2370,7 @@ export class Game {
           });
     if (!ctx.slots.some(Boolean)) return;
     this.clearDrag();
-    this.coachEl?.remove();
-    this.coachEl = null;
+    this.dropCoach();
    
     this.mode = ctx.kind === 'sandbox' ? 'sandboxBattle' : 'battle';
     this.sel = null;
@@ -2098,7 +2400,7 @@ export class Game {
       if (ctx.kind === 'retry') { this.mode = 'sandbox'; this.run.rewardedRetryCount = Math.max(0, this.run.rewardedRetryCount - 1); this.persist(); }
       else this.mode = ctx.kind === 'sandbox' ? 'sandbox' : 'prep';
       this.resetBattleUi(); this.renderAll();
-      this.app.showRewardNotice('战斗中止', '已返回战前，生命和招募未结算。请调整阵容后重试。', 'error');
+      this.app.showRewardNotice('战斗中止', '已回到战前，生命和招募都没结算。调整阵容再打。', 'error');
       console.error('battle fault', { seed: this.run.seed, chapter: ctx.base.chapter, node: ctx.base.node, fault: out.fault });
       return;
     }
@@ -2220,7 +2522,7 @@ export class Game {
     else if (retry) {
       if (retry.authoritativeResult === 'win')
         sub = this.run.over === 'victory' ? '首领被击败，生命已挽回——远征完成！' : '这一战按胜利重新结算 · 生命已挽回';
-      else if (res === 'draw') sub = '平局不算取胜 · 这一战仍按败北结算，但没有再失去生命';
+      else if (res === 'draw') sub = '平局算输，但不扣生命';
       else sub = this.run.over === 'defeat'
         ? remainingRewardedRetries(this.run) > 0 ? '补救未成功 · 仍可复盘后看广告重打' : '补救未成功 · 远征到此为止'
         : '补救未成功，但没有再失去生命';
@@ -2265,9 +2567,9 @@ export class Game {
         )
       : null;
     const tip = retryChance
-      ? h('div', { class: 'res-tip' }, '提示：进入「复盘」调整站位并试打，看广告可以正式重打这一战——胜利即挽回生命。')
+      ? h('div', { class: 'res-tip' }, '提示：「复盘」可换站位试打；看广告可正式重打，赢了挽回生命。')
       : !sandbox && res !== 'win' && !this.run.over
-        ? h('div', { class: 'res-tip' }, '提示：「复盘」可以用同样的阵容换站位重打这一战，帮你找出问题。')
+        ? h('div', { class: 'res-tip' }, '提示：「复盘」可以用同一阵容换站位再打一次。')
         : null;
     const gains = !sandbox && settled
       ? h(
@@ -2311,6 +2613,7 @@ export class Game {
     this.clearDrag();
     this.bar.classList.remove('on');
     this.el.classList.remove('in-battle');
+    if (this.el.classList.contains('cam-on')) this.camera(null);
     this.board.clearUnits();
   }
 
@@ -2321,6 +2624,7 @@ export class Game {
     this.sel = null; this.focus = this.hover = null;
     this.mode = 'prep';
     this.sandbox = null;
+    this.growthSnap = this.takeGrowth();
     this.resetBattleUi();
     const sc = screen(this.run);
     if (sc === 'over') { this.end(); return; }
@@ -2367,7 +2671,7 @@ export class Game {
   private buildRewardedRerollBtn() {
     const btn = h(
       'button',
-      { class: 'btn ghost reroll rewarded', 'aria-label': `看广告，重新生成本轮招募（整局最多 ${MAX_REWARDED_REROLLS} 次）` },
+      { class: 'btn ghost reroll rewarded', 'aria-label': `看广告换一批卡（每局最多 ${MAX_REWARDED_REROLLS} 次）` },
       icon('play'),
       h('span', null, '广告刷新'),
       h('i', { 'aria-hidden': 'true' }, remainingRewardedRerolls(this.run)),
@@ -2437,7 +2741,7 @@ export class Game {
     if (result === 'rewarded' && consumeRewardedRetry(this.run)) {
       this.persist();
       sfx.reward();
-      this.app.showRewardNotice('正式重打已激活', '用当前站位重打刚才那一战 · 胜利才挽回生命');
+      this.app.showRewardNotice('正式重打已激活', '用当前站位重打这一战 · 赢了才挽回生命');
       void this.startBattle({ kind: 'retry', base: fight.checkpoint, slots: retrySlots, bench: retryBench, checkpoint: fight.checkpoint });
       return;
     }
@@ -2475,22 +2779,32 @@ export class Game {
   // ───────────── 新手引导 ─────────────
 
   private coachEl: HTMLElement | null = null;
+  /** 引导框指向的目标外圈脉冲；与引导框同生同灭 */
+  private coachPulse: HTMLElement | null = null;
+
+  private dropCoach() {
+    this.coachEl?.remove();
+    this.coachEl = null;
+    this.coachPulse?.remove();
+    this.coachPulse = null;
+  }
 
   coach() {
     if (this.tutorial || this.disposed) return;
     if (this.el.querySelector('.stage-intro')) return;
-    if (this.prep) { this.coachEl?.remove(); this.coachEl = null; return; }
+    if (this.prep) { this.dropCoach(); return; }
     const promo = this.mode === 'phase' && !!this.panel?.classList.contains('ph-promo');
-    if (this.mode !== 'prep' && !promo) { this.coachEl?.remove(); this.coachEl = null; return; }
+    if (this.mode !== 'prep' && !promo) { this.dropCoach(); return; }
     const done = seenHints();
     // 已经在显示同一条：不重建，免得每次重绘都重播入场动画
     const live = this.coachEl?.isConnected ? this.coachEl.dataset.id : undefined;
-    const show = (id: string, text: string, x: number, y: number, dir: 'up' | 'down' | 'left') => {
+    type Rect = { x: number; y: number; w: number; h: number };
+    const show = (id: string, text: string, x: number, y: number, dir: 'up' | 'down' | 'left', pulse?: Rect, boxX?: number) => {
       if (done.has(id)) return false;
       if (live === id) return true;
-      this.coachEl?.remove();
+      this.dropCoach();
       // 框被夹回屏内时，箭头仍对准目标
-      const cx = Math.max(220, Math.min(STAGE_W - 220, x));
+      const cx = Math.max(220, Math.min(STAGE_W - 220, boxX ?? x));
       const el = h(
         'div',
         dir === 'left'
@@ -2502,13 +2816,21 @@ export class Game {
       el.querySelector('button')!.addEventListener('click', (e) => {
         e.stopPropagation();
         markHint(id);
-        el.remove();
-        this.coachEl = null;
+        this.dropCoach();
         sfx.click();
         this.coach();
       });
+      if (pulse) {
+        this.coachPulse = h('div', { class: 'coach-pulse', 'aria-hidden': 'true', style: `left:${pulse.x}px;top:${pulse.y}px;width:${pulse.w}px;height:${pulse.h}px` });
+        this.el.appendChild(this.coachPulse);
+      }
       this.el.appendChild(el);
       this.coachEl = el;
+      // 上方放不下（短屏紧凑布局）：翻到目标下方，仍不压住目标
+      if (dir === 'down' && y - el.offsetHeight - 12 < 4) {
+        el.classList.replace('dir-down', 'dir-up');
+        el.style.top = `${pulse ? pulse.y + pulse.h : y + 140}px`;
+      }
       return true;
     };
     /** 指向某个元素：目标在上半屏就把框放在下面，反之放上面，箭头不压住目标 */
@@ -2522,28 +2844,47 @@ export class Game {
       return bottom.y < STAGE_H / 2 ? show(id, text, top.x, bottom.y, 'up') : show(id, text, top.x, top.y, 'down');
     };
     if (promo) {
-      if (!at('promo', modernTactics(this.run) ? '选择的战术对<b>本次远征</b>持续生效' : '晋升被动<b>只对当前主将</b>生效', this.panel!.querySelector<HTMLElement>('.ph-opts'))) { this.coachEl?.remove(); this.coachEl = null; }
+      if (!at('promo', modernTactics(this.run) ? '战术<b>整局远征</b>有效' : '升阶被动<b>只对当前主将</b>有效', this.panel!.querySelector<HTMLElement>('.ph-opts'))) this.dropCoach();
       return;
     }
+    // 框放在我方格位上方（目标在下），目标本身加脉冲外圈；框不压格位与单位。
+    const allyRow: Rect = { x: slotX(0, SLOTS - 1) - 58, y: UNIT_Y + 2, w: slotX(0, 0) - slotX(0, SLOTS - 1) + 116, h: 62 };
+    const front: Rect = { x: slotX(0, 0) - 58, y: UNIT_Y - 100, w: 116, h: 166 };
     const empty = teamSize(this.run) === 0;
     if (empty) {
-      if (show('drag', '按住一张卡，<b>拖到左侧格位</b>招募（点一下只看详情）。<br>靠近中线的 <b>1 号位是队首</b>，最先出手、也最先挨打。', 620, 452, 'down')) return;
-    } else if (show('preview6', '盘面显示的是<b>开战时效果之后</b>的数值，拖动时实时预演。<br>每回合默认每人<b>行动一次</b>，双方按站位行动；一方本轮用完就等待。带「施法」的施法，其余普攻。<b>光晕</b>标出普攻目标，点选单位可查看它当前会打谁。', 340, 112, 'up')) return;
+      if (show('drag', '把卡<b>拖到左边格位</b>招募。<br>挨着中线的 <b>1 号位是队首</b>：最先出手，也最先挨打。', 320, UNIT_Y - 6, 'down', allyRow)) return;
+    } else {
+      if (show('preview6', '盘面数值已算上<b>开战时</b>效果，拖动时实时变化。', slotX(0, 0), UNIT_Y - 104, 'down', front, 350)) return;
+      if (show('preview7', '每回合每人<b>行动一次</b>。<b>准星</b>标出普攻目标。', slotX(0, 0), UNIT_Y - 104, 'down', front, 350)) return;
+    }
     // 首遇提示：主将专属交互和新流派词条，各只出一次
     const r = this.run, q = <T extends HTMLElement>(sel: string) => this.el.querySelector<T>(sel);
     const unitWith = (pick: (d: ReturnType<typeof unitDef>) => boolean) => {
       const i = r.slots.findIndex((u) => !!u && pick(unitDef(u.defId)));
       return i < 0 ? null : q(`.board .unit[data-side="0"][data-slot="${i}"]`);
     };
-    if (r.general === 'reva' && at('g_reva', '点<b>换位</b>，再点两个敌人<b>交换位置</b>', q('.gen-acts .gen-act'))) return;
-    if (r.general === 'sajj' && at('g_sajj', '最右<b>预备</b>格：有人阵亡时<b>补上</b>', q('.bench-slot.reserve'))) return;
-    if (r.general === 'xingjiao' && at('g_xingjiao', '任一类事件攒满，<b>龙蛋孵化</b>成对应的龙', q('.egg-prog'))) return;
-    if (r.general === 'hank' && r.merc && !r.merc.sold && at('g_hank', '免费的临时佣兵，点开看详情，<b>只打本场</b>', q('.gen-acts .gen-act'))) return;
-    if (r.general === 'argeon' && at('g_argeon', '主将<b>本人也占一格</b>上场，不能出售', q('.board .unit[data-side="0"][data-slot="0"]'))) return;
-    if (at('k_charge', '<b>蓄力</b>：行动积满圆点时，立即释放蓄力技', unitWith((d) => !!d.traits?.charge))) return;
-    if (at('k_rotate', '<b>轮换</b>：行动后退到队尾，换下一个上', unitWith((d) => !!d.traits?.rotate))) return;
-    if (battleNo(this.run) >= 3 && show('hint', '从这里开始敌人会出题。<br>点击顶部<b>路线节点</b>可以提前查看之后的敌人。', 640, 84, 'up')) return;
-    this.coachEl?.remove(); this.coachEl = null;
+    if (r.general === 'reva' && at('g_reva', '点<b>换位</b>，再点两个敌人，让他们<b>对调</b>', q('.gen-acts .gen-act'))) return;
+    if (r.general === 'sajj' && at('g_sajj', '最右是<b>预备</b>格：有人阵亡就<b>补上</b>', q('.bench-slot.reserve'))) return;
+    if (r.general === 'xingjiao' && at('g_xingjiao', '任一项攒满，<b>龙蛋孵化</b>成对应的龙', q('.egg-prog'))) return;
+    if (r.general === 'hank' && r.merc && !r.merc.sold && at('g_hank', '免费临时佣兵，<b>只打这一场</b>', q('.gen-acts .gen-act'))) return;
+    if (r.general === 'argeon' && at('g_argeon', '主将<b>亲自上场</b>占一格，不能出售', q('.board .unit[data-side="0"][data-slot="0"]'))) return;
+    if (at('k_charge', '<b>蓄力</b>：圆点攒满，立刻放蓄力技', unitWith((d) => !!d.traits?.charge))) return;
+    if (at('k_rotate', '<b>轮换</b>：行动后退到队尾，后面的人顶上', unitWith((d) => !!d.traits?.rotate))) return;
+    if (battleNo(this.run) >= 3 && show('hint', '敌人开始有针对性了。<br>点顶部<b>路线节点</b>可以提前看敌阵。', 640, 84, 'up')) return;
+    this.dropCoach();
   }
 }
 
+/** 战术卡图标：按战术本身，其次按所属流派 */
+const TACTIC_ICON: Record<string, IconName> = {
+  g_martyr: 'tomb', g_elite: 'crown', g_drill: 'arrowUp', g_revive: 'replay', g_breach: 'spikes', g_pay: 'diamond',
+  g_dual: 'combo', g_relay: 'swap', g_arena: 'kill', g_surge: 'wand', g_horde: 'sparkle', g_taunt: 'guard',
+  g_ember: 'fire', g_tide: 'snow', g_chain: 'bolt',
+};
+const NEED_ICON: Record<string, IconName> = {
+  burn: 'fire', chill: 'snow', cast: 'wand', extra: 'bolt', equip2: 'combo', rotate: 'swap', duel: 'kill',
+  charge: 'hourglass', rattle: 'tomb', summon: 'sparkle', taunt: 'guard',
+};
+function tacticIcon(p: (typeof PASSIVE_MAP)[string]): IconName {
+  return TACTIC_ICON[p.id] ?? (p.need ? NEED_ICON[p.need] : undefined) ?? (p.general ? 'flag' : 'star');
+}

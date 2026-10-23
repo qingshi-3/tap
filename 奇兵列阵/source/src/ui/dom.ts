@@ -46,7 +46,10 @@ export function clear(el: Element) {
 
 /** 舞台坐标换算：舞台为固定 1280×720，整体缩放 */
 export const STAGE_W = 1280;
-export const STAGE_H = 720;
+export let STAGE_H = 720;
+/** 短屏紧凑布局：逻辑高度 720 → 640，单位行上移 60、下方托盘上移 80 */
+export const COMPACT_H = 640;
+export function setStageH(h: number) { STAGE_H = h; }
 export const stageState = { scale: 1, left: 0, top: 0 };
 
 export function toStage(clientX: number, clientY: number) {

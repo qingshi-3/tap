@@ -1,0 +1,243 @@
+/* ═════════════════════════════════════════════════════════════
+   六阶稀有度卡面（2026-10-23）
+   一阶 铜  → 二阶 青绿 → 三阶 蓝 → 四阶 紫 → 五阶 橙金 → 六阶 赤金
+   阶数越高，外框台阶越多：单线 → 双色 → 三层 → 角钉 → 角宝石双框 → 冠饰 + 边宝石 + 流光。
+   像素风：只用硬边 box-shadow 台阶，不用柔光模糊；
+   常驻动画只动 transform / opacity（六阶的流光与内框呼吸）。
+   旧的 tier-2/3/4 规则已从 expansion / v07 / style / pixel / art-pass 移除，统一在这里。
+   ═════════════════════════════════════════════════════════════ */
+
+/* ───────── 调色：--tc 主色 / --tl 高光 / --ts 暗面 / --td 描边底 ───────── */
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-1, .tier-badge.rarity-1 { --tc: #bf9a70; --tl: #f6e6c8; --ts: #6e5236; --td: #2e2214; }
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-2, .tier-badge.rarity-2 { --tc: #46d890; --tl: #d8ffe8; --ts: #1a7a4c; --td: #0c3220; }
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-3, .tier-badge.rarity-3 { --tc: #4a9cff; --tl: #d6ecff; --ts: #1c4fa8; --td: #0a2050; }
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-4, .tier-badge.rarity-4 { --tc: #b46cff; --tl: #f2dcff; --ts: #5e2a9e; --td: #260c44; }
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-5, .tier-badge.rarity-5 { --tc: #ffac2e; --tl: #fff6cc; --ts: #a8580e; --td: #3a1e04; }
+:is(.card, .cx-chip, .kd-unit, .card-aura).tier-6, .tier-badge.rarity-6 { --tc: #ff4a4a; --tl: #fff2b0; --ts: #a8162a; --td: #4a0610; --tg: #ffd36b; }
+.card.tier-1 { --pxg: var(--pxr-1); } .card.tier-2 { --pxg: var(--pxr-2); } .card.tier-3 { --pxg: var(--pxr-3); }
+.card.tier-4 { --pxg: var(--pxr-4); } .card.tier-5 { --pxg: var(--pxr-5); } .card.tier-6 { --pxg: var(--pxr-6); }
+.cx-chip.tier-5, .kd-unit.tier-5 { --pxg: var(--pxr-5); } .cx-chip.tier-6, .kd-unit.tier-6 { --pxg: var(--pxr-6); }
+
+/* ═════════ 招募卡 / 图鉴卡（draftCard） ═════════ */
+
+/* 阶层靠单位身后的光效区分，不用外框圈，也不用旋转光轮。逐阶加层：
+   二阶 脚下光晕 → 三阶 + 一股上升光点 → 四阶 + 背光柱、两股光点
+   → 五阶 + 闪烁星芒、三股光点 → 六阶 赤金：金芯光柱、余烬、金星芒。
+   硬边色阶（像素风）；常驻动画只动 transform / opacity。
+   尺寸以招募卡立绘为基准（132×120），其它容器用 --as 等比缩放。 */
+:where(.has-aura) { position: relative; }
+.has-aura { isolation: isolate; }
+.has-aura > .uart { position: relative; z-index: 1; }
+.card-aura {
+  position: absolute; left: 50%; bottom: -4px; z-index: 0;
+  width: 132px; height: 120px; margin-left: -66px;
+  transform: scale(var(--as, 1)); transform-origin: 50% 100%;
+  pointer-events: none;
+}
+.card-aura > b { position: absolute; display: none; }
+/* 脚下光晕：四阶起更宽更亮 */
+.card-aura .a-glow {
+  display: block; left: 10px; right: 10px; bottom: 0; height: 36px;
+  background: radial-gradient(ellipse 50% 50% at 50% 60%,
+    color-mix(in srgb, var(--tc) 75%, transparent) 0 30%,
+    color-mix(in srgb, var(--tc) 40%, transparent) 30% 56%,
+    color-mix(in srgb, var(--tc) 16%, transparent) 56% 80%, transparent 80%);
+  animation: auraBreath 2.2s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+.card-aura:is(.tier-4, .tier-5, .tier-6) .a-glow { left: 0; right: 0; height: 46px;
+  background: radial-gradient(ellipse 50% 50% at 50% 60%,
+    color-mix(in srgb, var(--tl) 80%, transparent) 0 14%,
+    color-mix(in srgb, var(--tc) 80%, transparent) 14% 34%,
+    color-mix(in srgb, var(--tc) 42%, transparent) 34% 58%,
+    color-mix(in srgb, var(--tc) 18%, transparent) 58% 82%, transparent 82%); }
+@keyframes auraBreath { from { opacity: .5; } to { opacity: 1; } }
+/* 背光柱：从脚下升起、向上渐隐的竖光，左右硬边分三档 */
+.card-aura:is(.tier-4, .tier-5, .tier-6) .a-pillar {
+  display: block; left: 50%; bottom: 10px; width: 84px; height: 112px; margin-left: -42px;
+  background:
+    linear-gradient(90deg, transparent 0 8%, color-mix(in srgb, var(--tc) 14%, transparent) 8% 24%, color-mix(in srgb, var(--tc) 30%, transparent) 24% 38%, color-mix(in srgb, var(--tl) 30%, transparent) 38% 62%, color-mix(in srgb, var(--tc) 30%, transparent) 62% 76%, color-mix(in srgb, var(--tc) 14%, transparent) 76% 92%, transparent 92%);
+  -webkit-mask: linear-gradient(0deg, #000 0 30%, rgba(0,0,0,.6) 30% 55%, rgba(0,0,0,.25) 55% 80%, transparent 80%);
+  mask: linear-gradient(0deg, #000 0 30%, rgba(0,0,0,.6) 30% 55%, rgba(0,0,0,.25) 55% 80%, transparent 80%);
+  animation: auraBreath 2.8s ease-in-out infinite alternate;
+  will-change: opacity;
+}
+.card-aura.tier-6 .a-pillar {
+  background:
+    linear-gradient(90deg, transparent 0 6%, color-mix(in srgb, var(--tc) 22%, transparent) 6% 22%, color-mix(in srgb, var(--tc) 42%, transparent) 22% 38%, color-mix(in srgb, var(--tg) 55%, transparent) 38% 46%, color-mix(in srgb, #fff 45%, transparent) 46% 54%, color-mix(in srgb, var(--tg) 55%, transparent) 54% 62%, color-mix(in srgb, var(--tc) 42%, transparent) 62% 78%, color-mix(in srgb, var(--tc) 22%, transparent) 78% 94%, transparent 94%);
+}
+/* 上升光点：每股一组像素点（大小两档），各自速度错开，边升边轻摆 */
+.card-aura .a-motes { left: 50%; bottom: 8px; width: 4px; height: 4px; }
+.card-aura:is(.tier-3, .tier-4, .tier-5, .tier-6) .a-motes.m1 { display: block; background: var(--tl);
+  box-shadow: -32px -4px 0 0 var(--tc), 24px -16px 0 1px var(--tl), -12px -30px 0 0 var(--tl), 36px -38px 0 0 var(--tc), -38px -50px 0 1px var(--tc), 10px -58px 0 0 var(--tl);
+  animation: auraRise 2.8s linear infinite; }
+.card-aura:is(.tier-4, .tier-5, .tier-6) .a-motes.m2 { display: block; width: 2px; height: 2px; background: var(--tc);
+  box-shadow: 28px -2px 0 0 var(--tl), -22px -18px 0 1px var(--tl), 44px -28px 0 0 var(--tc), -46px -36px 0 0 var(--tl), 16px -46px 0 1px var(--tc), -6px -66px 0 0 var(--tl);
+  animation: auraRise2 3.6s linear -1.4s infinite; }
+.card-aura:is(.tier-5, .tier-6) .a-motes.m3 { display: block; width: 3px; height: 3px; background: var(--tl);
+  box-shadow: -50px -10px 0 0 var(--tl), 50px -20px 0 1px var(--tc), -28px -44px 0 1px var(--tl), 30px -54px 0 0 var(--tl), -2px -24px 0 0 var(--tc);
+  animation: auraRise 2.2s linear -.9s infinite; }
+.card-aura .a-motes { will-change: transform, opacity; }
+@keyframes auraRise {
+  0% { transform: translate(0, 14px); opacity: 0; } 18% { opacity: 1; }
+  50% { transform: translate(3px, -10px); } 82% { opacity: .9; }
+  100% { transform: translate(0, -36px); opacity: 0; } }
+@keyframes auraRise2 {
+  0% { transform: translate(0, 10px); opacity: 0; } 18% { opacity: 1; }
+  50% { transform: translate(-3px, -14px); } 82% { opacity: .9; }
+  100% { transform: translate(0, -40px); opacity: 0; } }
+/* 星芒：四角星在身侧一明一灭 */
+.card-aura:is(.tier-5, .tier-6) .a-spark { display: block; width: 12px; height: 12px; background: var(--tl);
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  animation: tbTwinkle 1.8s steps(4) infinite; }
+.card-aura .a-spark.s1 { left: 18px; top: 26px; }
+.card-aura .a-spark.s2 { right: 16px; top: 46px; width: 9px; height: 9px; animation-delay: -.9s; }
+/* 六阶：光点改金、混入赤色余烬，升得更快 */
+.card-aura.tier-6 .a-motes.m1 { background: var(--tg); animation-duration: 2.2s; }
+.card-aura.tier-6 .a-motes.m2 { background: #ff6a3a; animation-duration: 2.8s;
+  box-shadow: 28px -2px 0 0 #ff6a3a, -22px -18px 0 1px var(--tg), 44px -28px 0 0 #ff9a4a, -46px -36px 0 0 var(--tg), 16px -46px 0 1px #ff6a3a, -6px -66px 0 0 var(--tg); }
+.card-aura.tier-6 .a-motes.m3 { background: #fff; }
+.card-aura.tier-6 .a-spark { background: var(--tg); }
+/* 各容器缩放 */
+.cx-d-art { --as: .95; }
+.cx-chip-art, .kd-unit-art { --as: .55; }
+.sh-icon.art, .sh-own-art { --as: .45; }
+.eu-art { --as: .6; }
+/* 三阶起单位描边光随阶变色 */
+.card:is(.tier-3, .tier-4, .tier-5, .tier-6) .card-art .uart { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tc) 75%, transparent)); }
+
+/* 卡名：五阶起换稀有色 */
+.card.tier-5 .card-name { color: #ffd890; text-shadow: 0 2px 0 var(--td), 2px 0 0 var(--td), -2px 0 0 var(--td); }
+.card.tier-6 .card-name { color: var(--tl); text-shadow: 0 2px 0 var(--td), 2px 0 0 var(--td), -2px 0 0 var(--td), 0 -2px 0 var(--td); }
+
+/* 卡底宝石：颗数 = 阶数，颜色随阶 */
+.card .card-gems { --pxr: var(--pxg); }
+
+/* 六阶：一道赤金流光周期扫过卡面（只动 transform） */
+.card.tier-6 .card-shine { background: none; overflow: hidden; }
+.card.tier-6 .card-shine::before {
+  content: '';
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 55%;
+  background: linear-gradient(105deg, transparent 12%, rgba(255, 120, 120, 0.16) 34%, rgba(255, 236, 170, 0.34) 46%, rgba(255, 255, 255, 0.42) 50%, rgba(255, 200, 120, 0.2) 58%, transparent 82%);
+  transform: translateX(-120%);
+  animation: tierSweep 3.8s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes tierSweep { 0%, 58% { transform: translateX(-120%); } 100% { transform: translateX(200%); } }
+
+
+/* ═════════ 阶级徽记 tierBadge()：宝石 + 羽翼 + 冠 ═════════ */
+.tier-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  height: 30px;
+  line-height: 1;
+  font-size: 18px;
+  filter: none;
+}
+.tb-gem { position: relative; display: grid; place-items: center; width: 30px; height: 30px; flex: none; }
+/* 宝石：旋转方块，上亮下暗两截 + 黑描边 + 内高光 */
+.tb-gem::before {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, var(--tl) 0 18%, var(--tc) 18% 52%, var(--ts) 52%);
+  box-shadow: 0 0 0 2px var(--td), 0 0 0 4px #05040f;
+}
+.tb-gem em {
+  position: relative;
+  font-style: normal;
+  font-weight: 900;
+  font-size: 18px;
+  color: #fff;
+  text-shadow: 0 2px 0 var(--td), 2px 0 0 var(--td), -2px 0 0 var(--td), 0 -2px 0 var(--td);
+}
+/* 羽翼：一阶无，二阶起每阶多一片，越往外越短越淡 */
+.tb-w { display: flex; align-items: center; gap: 1px; }
+.tb-w.l { flex-direction: row-reverse; margin-right: 1px; }
+.tb-w.r { margin-left: 1px; }
+.tb-w > i {
+  display: block;
+  width: 7px;
+  height: 18px;
+  background: var(--tc);
+  filter: drop-shadow(0 2px 0 #05040f);
+}
+.tb-w.l > i { clip-path: polygon(100% 0, 100% 100%, 0 50%); }
+.tb-w.r > i { clip-path: polygon(0 0, 100% 50%, 0 100%); }
+.tb-w > i:nth-child(2) { height: 13px; width: 6px; background: color-mix(in srgb, var(--tc) 70%, var(--tl)); }
+.tb-w > i:nth-child(3) { height: 9px; width: 5px; background: var(--tl); }
+/* 五阶起头顶一枚三齿冠 */
+.tier-badge:is(.rarity-5, .rarity-6) .tb-gem::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -7px;
+  width: 16px;
+  height: 8px;
+  margin-left: -8px;
+  background: var(--tg, var(--tl));
+  clip-path: polygon(0 100%, 0 0, 25% 50%, 50% 0, 75% 50%, 100% 0, 100% 100%);
+  filter: drop-shadow(0 -1px 0 var(--td));
+}
+/* 六阶：赤宝石金边，冠上星芒呼吸（只动 opacity） */
+.tier-badge.rarity-6 .tb-gem::before { box-shadow: 0 0 0 2px var(--tg), 0 0 0 4px var(--td); }
+.tier-badge.rarity-6 .tb-w > i:nth-child(3) { background: var(--tg); }
+.tier-badge.rarity-6::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -13px;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  background: #fff;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+  animation: tbTwinkle 1.6s steps(4) infinite;
+}
+@keyframes tbTwinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tier-badge.rarity-6::after { animation: none; opacity: .8; } }
+/* 说明框里的阶徽与图鉴/阵容浏览标题重复，那里只留标题的 */
+:is(.cx-popup-detail, .cx-lv) .tip-lv .tier-badge { display: none; }
+
+/* ═════════ 推荐阵容头像（cx-chip）/ 词条代表单位（kd-unit） ═════════ */
+.cx-chip[class*='tier-'] .cx-chip-art {
+  position: relative;
+  background: radial-gradient(ellipse 60% 45% at 50% 82%, color-mix(in srgb, var(--tc) 42%, transparent) 0 50%, color-mix(in srgb, var(--tc) 18%, transparent) 50% 100%, transparent 100%), #100d2c;
+  box-shadow: inset 0 0 0 2px var(--td);
+}
+.cx-chip.tier-1 .cx-chip-art { background: #100d2c; }
+.kd-unit[class*='tier-'] { position: relative; overflow: hidden; background: radial-gradient(ellipse 60% 45% at 50% 82%, color-mix(in srgb, var(--tc) 36%, transparent) 0 50%, color-mix(in srgb, var(--tc) 14%, transparent) 50% 100%, transparent 100%), #1a1644; box-shadow: inset 0 0 0 2px var(--td); }
+.kd-unit.tier-1 { background: #1a1644; }
+
+/* 六阶流光 */
+.cx-chip.tier-6 .cx-chip-art::after,
+.kd-unit.tier-6::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  bottom: -10%;
+  left: 0;
+  width: 60%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 15%, rgba(255, 236, 170, 0.3) 45%, rgba(255, 255, 255, 0.4) 50%, transparent 80%);
+  transform: translateX(-120%);
+  animation: tierSweep 3.8s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-aura *, .tier-badge.rarity-6::after, .card.tier-6 .card-shine::before,
+  .cx-chip.tier-6 .cx-chip-art::after, .kd-unit.tier-6::after { animation: none; }
+  .card.tier-6 .card-shine::before, .cx-chip.tier-6 .cx-chip-art::after, .kd-unit.tier-6::after { opacity: 0; }
+}
+/* 头像下的阶徽：带冠的留出冠高，免得压到名字 */
+.cx-chip .tier-badge:is(.rarity-5, .rarity-6) { margin-top: 8px; }

@@ -611,11 +611,14 @@ export function installPixelSprites() {
   vars['--px-atk-zero'] = url(statGem('atk', zero));
   vars['--px-hp-zero'] = url(statGem('hp', zero));
   // 稀有度宝石：普通灰 / 稀有蓝 / 史诗紫 / 传说金，卡底按星数排列
+  // 六阶稀有度：铜 / 青绿 / 蓝 / 紫 / 橙金 / 赤金（与 card-tiers.css 的 --tc 系列一致）
   const RARITY_PAL: Pal[] = [
-    { o: '#0b0716', h: '#f2f4f8', m: '#a9b1c2', s: '#5c6378', d: '#2a2e3a' },
-    { o: '#04101e', h: '#d6f8ff', m: '#46c4f0', s: '#1a6a9a', d: '#0a2a40' },
+    { o: '#140b04', h: '#f6e6c8', m: '#bf9a70', s: '#6e5236', d: '#2e2214' },
+    { o: '#03140c', h: '#d8ffe8', m: '#46d890', s: '#1a7a4c', d: '#0c3220' },
+    { o: '#040c1e', h: '#d6ecff', m: '#4a9cff', s: '#1c4fa8', d: '#0a2050' },
     { o: '#10061e', h: '#f2dcff', m: '#b46cff', s: '#5e2a9e', d: '#260c44' },
-    { o: '#1a0c02', h: '#fff6cc', m: '#ffc23d', s: '#a8620e', d: '#3a1e04' },
+    { o: '#1a0c02', h: '#fff6cc', m: '#ffac2e', s: '#a8580e', d: '#3a1e04' },
+    { o: '#1e0206', h: '#fff2b0', m: '#ff4a4a', s: '#a8162a', d: '#4a0610' },
   ];
   RARITY_PAL.forEach((p, i) => (vars[`--pxr-${i + 1}`] = url(gem(p, 7, 7))));
   for (const [k, p] of Object.entries(GLYPH_PAL)) vars[`--pxk-${k}`] = url(glyph(k, p));

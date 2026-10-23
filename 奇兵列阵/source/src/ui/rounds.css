@@ -44,3 +44,23 @@
 
 /* 追击残影 */
 .u-ghost { position: absolute; inset: 0; pointer-events: none; filter: none; }
+
+/* 中线「交锋 m/n」：像素绶带，m 大字金色是主角，/n 小字退后 */
+.vs-pips.clash {
+  top: calc(100% + 10px); gap: 0; align-items: baseline; white-space: nowrap;
+  padding: 3px 18px 5px; color: #e8dcff;
+  font: 18px/1 var(--num, sans-serif);
+}
+/* 绶带底放在伪元素上裁形，不裁到图鉴演示挂上来的框选 */
+.vs-pips.clash::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(#2a2160, #15103a);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+}
+.vs-pips.clash::after { content: ''; position: absolute; inset: 3px 12px; z-index: -1; border-top: 2px solid rgba(255, 211, 107, .35); border-bottom: 2px solid rgba(255, 211, 107, .35); pointer-events: none; }
+.vs-pips.clash span { align-self: center; font-size: 18px; letter-spacing: .1em; margin-right: 8px; color: #b9aee6; }
+.vs-pips.clash em { font-style: normal; font-size: 34px; color: #ffe58a; text-shadow: 0 3px 0 #7a4a10, 0 0 10px rgba(255, 200, 80, .55); }
+.vs-pips.clash i { width: auto; height: auto; background: none; transform: none; margin: 0 2px 0 4px; font-size: 18px; color: #7d74a8; font-style: normal; }
+.vs-pips.clash b { display: inline-block; font-size: 18px; color: #c9c1ea; }
+/* 等待提示收到中线下方 */
+.order-strip { top: 404px; font-size: 20px; gap: 4px; }

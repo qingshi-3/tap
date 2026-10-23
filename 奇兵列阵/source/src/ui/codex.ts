@@ -12,6 +12,7 @@ import { DRAFT_POOL, FACTION_INFO, FACTION_ORDER, RARITY_NAMES, ROLE_TAGS, tagFa
 import { COMBOS } from '../core/combos';
 import type { UnitDef } from '../core/types';
 import { sfx } from './audio';
+import { tierArt, tierBadge } from './card';
 import { h } from './dom';
 import { icon } from './icons';
 import { kwInline, kwRich, kwTag, MECH, pxIcon, MECH_KIND_NAME, mechGloss, TRIG, trigCap, type MechKind, type TrigId } from './kwtext';
@@ -26,10 +27,10 @@ import { CARD_SUMMARY } from './cardSummary';
 const CODEX_GENERALS = ACTIVE_GENERAL_IDS.map(id => generalDefinition(id, 1));
 
 const TIPS = [
-  '前排放血厚、带嘲讽或护甲的单位；施法单位放后排。',
-  '两张同名同星卡合并升星，星级越高能力数值越大。',
-  '「给X」与「吃X」是一对：比如给格挡的单位，配吃格挡的单位。',
-  '中立卡每局都会出现，缺前排或缺输出时用它补位。',
+  '血厚、带嘲讽或护甲的放前排，施法的放后排。',
+  '同名卡叠在一起：3 份升二星，6 份升三星。',
+  '「给 X」配「吃 X」：给格挡的，配吃格挡的。',
+  '中立卡每局都有，缺前排或输出时补位。',
 ];
 
 /** 单位的机制族：给X → 提供 X，吃X / 读X → 需要 X，裸 X → 自带 */
@@ -72,7 +73,7 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
   let activeTab: Tab = 'rec';
   const queries: Record<Tab, string> = { rec: '', unit: '', gen: '', kw: '', eq: '', sp: '' };
   let composing = false;
-  const searchInput = h('input', { class: 'cx-search-input', type: 'search', placeholder: '搜索：中文 / 拼音 / 首字母', 'aria-label': '搜索图鉴', enterkeyhint: 'search', autocomplete: 'off', spellcheck: 'false' });
+  const searchInput = h('input', { class: 'cx-search-input', type: 'search', placeholder: '搜索（可用拼音）', 'aria-label': '搜索图鉴', enterkeyhint: 'search', autocomplete: 'off', spellcheck: 'false' });
   const clearSearch = h('button', { class: 'cx-search-clear', type: 'button', 'aria-label': '清除搜索', hidden: true }, '清除');
   const applySearch = () => {
     queries[activeTab] = searchInput.value;
@@ -118,18 +119,18 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
     };
     refresh();
     showUnitModal(h('div', { class: 'cx-unit-popup', 'aria-label': `${d.name}详情` },
-      h('div', { class: 'cx-popup-head' }, h('div', { class: 'cx-d-art', html: unitSvg(id) }),
+      h('div', { class: 'cx-popup-head' }, tierArt('cx-d-art', id, d.tier),
         h('div', null, h('b', { class: 'cx-popup-name' }, d.name),
           h('div', { class: 'cx-popup-meta' }, FACTION_INFO[d.faction].name,
-            h('span', { class: `cx-rar rarity-${d.tier}` }, RARITY_NAMES[d.tier])))),
+            tierBadge(d.tier)))),
       h('div', { class: 'cx-popup-stars', 'aria-label': '查看星级' }, levels), detail));
   };
 
   const unitChip = (id: string, sub?: string) => {
     const d = unitDef(id);
     return h('button', { class: `cx-chip tier-${d.tier}`, style: `--fc:${FACTION_INFO[d.faction].color}`, onclick: (event: Event) => { (event.currentTarget as HTMLElement).focus({ preventScroll: true }); openUnit(id); } },
-      h('span', { class: 'cx-chip-art', html: unitSvg(id) }), h('b', null, d.name),
-      h('span', { class: `cx-rar rarity-${d.tier}` }, RARITY_NAMES[d.tier]), sub ? h('span', null, sub) : null);
+      tierArt('cx-chip-art', id, d.tier, 'span'), h('b', null, d.name),
+      tierBadge(d.tier), sub ? h('span', null, sub) : null);
   };
   const itemChip = (id: string) =>
     h('span', { class: 'cx-item-chip' }, itemIcon(id, 'spell', 'sm'), ITEM_NAME[id] ?? id);
@@ -153,7 +154,7 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
         h('p', { class: 'cx-idea' }, c.idea),
         h('div', { class: 'cx-line' }, c.units.map((id, k) => h('div', { class: 'cx-slot' }, h('span', { class: 'cx-no' }, `${k + 1}号位`), unitChip(id), h('p', null, ...kwInline(c.roles[k]))))),
         h('div', { class: 'cx-extras' }, h('span', null, '可搭配：'), c.extras.map(itemChip)),
-        h('p', { class: 'cx-note' }, '点头像查看单位详情。全阵营开放，招募阶级随进度提高；按实际货架调整阵容。'),
+        h('p', { class: 'cx-note' }, '点头像看详情。高阶卡随进度解锁，按货架灵活调整。'),
       );
     };
     list.replaceChildren(...visible.map(({ c, i }) => h('button', { class: 'cx-combo-btn', 'data-index': i, style: `--fc:${FACTION_INFO[c.faction].color}`, onclick: () => { sfx.click(); show(i); } },
@@ -200,19 +201,20 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
     const orders = ORDERS.filter(o => matchesCodex(queries[tab], o.name, o.text, '招募令'));
     if (tab === 'eq' ? !equips.length : !spells.length && !orders.length) return noResults();
     if (tab === 'eq') return h('div', null,
-      h('p', { class: 'cx-intro' }, '商店里购买，拖到单位身上装备；每个单位一般只能带一件，出售单位时装备退回背包。'),
+      h('p', { class: 'cx-intro' }, '商店购买，在「整备」里点装备再点单位。一般每人一件，卖掉单位时装备退回。'),
       h('div', { class: 'cx-items' }, equips.map((e) => tile(e.id, e.name, e.text, `${e.price}`, 'spell'))));
     return h('div', null,
-      spells.length ? h('p', { class: 'cx-intro' }, '法术在布阵时使用，只对下一场战斗生效。') : null,
+      spells.length ? h('p', { class: 'cx-intro' }, '法术在备战时用，只管下一场。') : null,
       h('div', { class: 'cx-items' }, spells.map((s) => tile(s.id, s.name, s.text, `${s.price}`, 'spell'))),
-      orders.length ? h('p', { class: 'cx-intro' }, '招募令在招募时使用，重新生成本轮候选卡。') : null,
+      orders.length ? h('p', { class: 'cx-intro' }, '招募令：换一批货架上的卡。') : null,
       h('div', { class: 'cx-items' }, orders.map((o) => tile(o.id, o.name, o.text, o.price[0] === o.price[1] ? `${o.price[0]}` : `${o.price[0]}~${o.price[1]}`, 'order'))));
   };
 
   const back = h('button', { class: 'btn ghost cx-back', onclick: () => { sfx.click(); onBack(); } }, icon('x'), h('span', null, '返回'));
   const el = h('div', { class: 'screen codex' },
-    h('div', { class: 'cx-head' }, back, h('div', { class: 'cx-title' }, '图鉴'), h('div', { class: 'cx-tabs' }, tabBtns)),
-    h('div', { class: 'cx-search' }, searchInput, clearSearch), body);
+    // 搜索框并入页签行，不单独占一行。
+    h('div', { class: 'cx-head' }, back, h('div', { class: 'cx-title' }, '图鉴'), h('div', { class: 'cx-search' }, searchInput, clearSearch), h('div', { class: 'cx-tabs' }, tabBtns)),
+    body);
   go('rec');
   return el;
 }
@@ -239,9 +241,9 @@ export function keywordDoc(query = '', onUnit?: (id: string) => void) {
     }))),
     { key: '攻击', group: '数值', tag: num('atk', '攻击'), big: num('atk', '攻击'), gloss: () => ['普攻的基础伤害。', ...kwRich('寒意'), '会压低接下来一次普攻的攻击力。'] },
     { key: '生命', group: '数值', tag: num('hp', '生命'), big: num('hp', '生命'), gloss: () => ['降到 0 阵亡。恢复生命不超过上限。'] },
-    { key: '+2/+2', group: '数值', tag: () => h('span', null, ...kwRich('+2/+2')), big: () => h('span', null, ...kwRich('+2/+2')), gloss: () => ['同时加攻击和生命，前一个是攻击、后一个是生命。'] },
+    { key: '+2/+2', group: '数值', tag: () => h('span', null, ...kwRich('+2/+2')), big: () => h('span', null, ...kwRich('+2/+2')), gloss: () => ['同时加攻击和生命：前攻后血。'] },
     { key: '3+法强', group: '数值', tag: () => h('span', null, ...kwRich('3+法强')), big: () => h('span', null, ...kwRich('3+法强')), gloss: () => ['施法数值写成「N+法强」，会加上自己的', ...kwRich('法强'), '。'] },
-    { key: '格挡 2→3', group: '数值', tag: () => h('span', null, ...kwRich('格挡 2→3')), big: () => h('span', null, ...kwRich('格挡 2→3')), gloss: () => ['说明框里的「→」和绿色数字：升一星后的数值。'] },
+    { key: '格挡 2→3', group: '数值', tag: () => h('span', null, ...kwRich('格挡 2→3')), big: () => h('span', null, ...kwRich('格挡 2→3')), gloss: () => ['「→」后的绿色数字：升一星后的数值。'] },
   ];
   const text = (e: Entry) => [e.key, e.group, ...e.gloss().map(x => (typeof x === 'string' ? x : x.textContent ?? ''))];
   const visible = query.trim() ? entries.filter(e => matchesCodex(query, ...text(e))) : entries;
@@ -255,13 +257,13 @@ export function keywordDoc(query = '', onUnit?: (id: string) => void) {
     const demo = KW_DEMOS[e.key];
     detail.replaceChildren(
       ...(demo ? [h('div', { class: 'kd-head' }, h('div', { class: 'kd-group' }, e.group), h('div', { class: 'kd-name' }, e.big())),
-        battleDemo(demo)]
+        battleDemo(demo, e.key)]
         : [h('div', { class: 'kd-group' }, e.group), h('div', { class: 'kd-big' }, e.big())]),
       h('p', { class: 'kd-gloss' }, ...e.gloss()),
       ...(e.units?.length ? [h('div', { class: 'kd-eg' }, h('b', null, '代表单位'), h('div', { class: 'kd-units' }, e.units.map(id => {
         const d = unitDef(id);
         return h(onUnit ? 'button' : 'div', { class: `kd-unit tier-${d.tier}`, style: `--fc:${FACTION_INFO[d.faction].color}`, onclick: onUnit ? () => onUnit(id) : null },
-          h('span', { class: 'kd-unit-art', html: unitSvg(id) }), h('span', { class: 'kd-unit-name' }, d.name));
+          tierArt('kd-unit-art', id, d.tier, 'span'), h('span', { class: 'kd-unit-name' }, d.name));
       })))] : []),
     );
     detail.scrollTop = 0;

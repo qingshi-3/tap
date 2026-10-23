@@ -19,17 +19,17 @@ export { mulberry32 } from './rng';
 
 export const SAVE_VERSION = 1;
 /** 显示用版本号：只改数值时升这个，进行中的远征照常续玩 */
-export const CONTENT_VERSION = '0.12.1';
+export const CONTENT_VERSION = '0.13.0';
 /** 内容结构版本：增删单位/主将/被动/装备、改 RunState 结构时才升；升了旧远征作废，生涯保留 */
-export const CONTENT_STRUCTURE = 1;
+export const CONTENT_STRUCTURE = 2;
 export const MAX_LIVES = 3;
 export const MAX_REWARDED_RETRIES = 3;
 export const MAX_REWARDED_REROLLS = 2;
 export const MAX_LEVEL = 3;
-export const MAX_COPIES = 4;
+export const MAX_COPIES = 6;
 export const PICKS_PER_ROUND = 2;
+/** 旧经济的备战席；新经济没有备战席，只有萨吉的预备格 */
 export const BENCH_SLOTS = 3;
-export const OWNED_SLOTS = 5 + BENCH_SLOTS;
 export const UNIT_PRICE: Record<number, number> = { 1: 3, 2: 4, 3: 5, 4: 7 };
 export const PACK_PRICE = 4;
 export const PACK_POINTS = 2;
@@ -169,10 +169,10 @@ export const randomSeed = () => (Math.random() * 2 ** 31) | 0;
 export function newRun(general: string, seed = randomSeed(), options: { legacyEconomy?: boolean; legacyRules?: boolean } = {}): RunState {
   const r: RunState = {
     ...(!options.legacyRules && !options.legacyEconomy && TACTICAL_GENERALS.some(id => id === general) ? { tacticsVersion: 1 as const } : {}),
-    ...(options.legacyEconomy ? {} : { economyVersion: 2 as const, draftLocked: Array(5).fill(false), budgetBonus: 0 }),
+    ...(options.legacyEconomy ? {} : { economyVersion: 2 as const, draftLocked: Array(SHOP_SIZE).fill(false), budgetBonus: 0 }),
     saveVersion: SAVE_VERSION, contentVersion: CONTENT_VERSION, contentStructure: CONTENT_STRUCTURE, seed, general,
     lives: MAX_LIVES, chapter: 0, node: 0, wins: 0, history: [], over: null,
-    slots: Array(5).fill(null), bench: Array(BENCH_SLOTS).fill(null), nextOwnedId: 1,
+    slots: Array(5).fill(null), bench: Array(options.legacyEconomy ? BENCH_SLOTS : general === 'sajj' ? 1 : 0).fill(null), nextOwnedId: 1,
     activeFactions: [], variantChoices: {}, draft: [], picks: PICKS_PER_ROUND, rerolls: 1, rngState: seed, rec: newRec(),
     rewardedRetryCount: 0, rewardedRerollCount: 0,
     gold: 0, shop: null,
@@ -198,10 +198,11 @@ export function cloneRun(r: RunState): RunState {
 
 // ───────────── 持有位 ─────────────
 
-/** 统一地址：0..4 战场，5..7 备战 */
-const validSlot = (slot: number) => Number.isInteger(slot) && slot >= 0 && slot < OWNED_SLOTS;
+/** 统一地址：0..4 战场，5.. 备战（新经济里只有萨吉的预备格） */
+export const ownedSlots = (r: RunState) => 5 + r.bench.length;
+const validSlot = (r: RunState, slot: number) => Number.isInteger(slot) && slot >= 0 && slot < ownedSlots(r);
 export const getOwned = (r: RunState, slot: number): Slotted | null =>
-  validSlot(slot) ? (slot < 5 ? r.slots[slot] : r.bench[slot - 5]) ?? null : null;
+  validSlot(r, slot) ? (slot < 5 ? r.slots[slot] : r.bench[slot - 5]) ?? null : null;
 export const allOwned = (r: RunState): (Slotted | null)[] => [...r.slots, ...r.bench];
 function putOwned(r: RunState, slot: number, u: Slotted | null) {
   if (slot < 5) r.slots[slot] = u;
@@ -272,7 +273,8 @@ function prepareBattleExtras(r: RunState) {
   if (r.passives.includes('hank_4')) r.spells.push(SPELLS[randInt(r, SPELLS.length)].id);
 }
 function newDraftRound(r: RunState) {
-  if (modernEconomy(r)) { r.picks = 1; r.rerolls = 0; rollDraft(r); return; }
+  // 教学沿用金币货架，但用 picks / rerolls 记录脚本里剩几张卡、能否刷新
+  if (modernEconomy(r)) { r.picks = r.tutorialMode ? PICKS_PER_ROUND : 1; r.rerolls = r.tutorialMode ? 1 : 0; rollDraft(r); return; }
   r.picks = PICKS_PER_ROUND;
   r.rerolls = 1;
   rollDraft(r);
@@ -318,19 +320,33 @@ function recInput(r: RunState) {
 function clearUpgradeOffers(r: RunState, refresh = false) {
   if (r.upgradeOffers) r.upgradeOffers = r.upgradeOffers.filter(group => group.locked || (!refresh && group.battle >= battleNo(r)));
 }
+/** 升星奖励：货架末尾追加一张高一阶的卡（超级自动动物式），刷新或离开本场即消失，可锁定 */
 function createUpgradeOffer(r: RunState) {
   if (!modernEconomy(r) || r.tutorialMode) return;
   const tier = Math.min(6, tierCap(battleNo(r)) + 1);
   const pool = DRAFT_POOL.filter(d => d.tier === tier && factionAvailable(r, d.faction)).map(d => d.id);
-  // Every supported faction set has at least two ordinary cards at each tier.
-  // Draw without replacement; do not involve recommendations or the merged card's tier.
-  if (pool.length < 2) throw new Error('Upgrade offer pool requires two distinct units');
-  const first = pool.splice(randInt(r, pool.length), 1)[0];
-  const second = pool[randInt(r, pool.length)];
+  if (!pool.length) return;
+  const offers = (r.upgradeOffers ??= []);
+  // 货架一排最多 SHOP_SLOTS 张：奖励卡挤满时顶掉最早一张未锁定的
+  while (offers.length >= bonusSlots(r)) {
+    const i = offers.findIndex(g => !g.locked);
+    if (i < 0) return;
+    offers.splice(i, 1);
+  }
   const id = r.nextUpgradeOfferId ?? 1;
   r.nextUpgradeOfferId = id + 1;
-  (r.upgradeOffers ??= []).push({ id, choices: [first, second], tier, locked: false, battle: battleNo(r) });
+  offers.push({ id, choices: [pool[randInt(r, pool.length)]], tier, locked: false, battle: battleNo(r) });
 }
+/** 货架格位上限（固定数组长度）与一排可展示的总张数 */
+export const SHOP_SIZE = 5;
+export const SHOP_SLOTS = 6;
+/** 渐进货架：一二阶 3 张、三四阶 4 张、五六阶 5 张 */
+export const shopSize = (r: RunState) => {
+  if (!modernEconomy(r) || r.tutorialMode) return 3;
+  const cap = tierCap(battleNo(r));
+  return cap <= 2 ? 3 : cap <= 4 ? 4 : 5;
+};
+const bonusSlots = (r: RunState) => Math.max(1, SHOP_SLOTS - shopSize(r));
 /** 推荐算法生成本轮 3 张候选；上一轮没拿的卡记为跳过 */
 export function rollDraft(r: RunState): boolean {
   if (modernEconomy(r)) {
@@ -338,10 +354,11 @@ export function rollDraft(r: RunState): boolean {
     if (!pool.length) return false;
     const savedRng = r.rngState;
     const rec = structuredClone(r.rec); rec.skipped = [];
-    const ids = recommend(r, recInput(r), rec, 5);
-    if (ids.length < 5) { r.rngState = savedRng; return false; }
+    const size = shopSize(r);
+    const ids = recommend(r, recInput(r), rec, size);
+    if (ids.length < size) { r.rngState = savedRng; return false; }
     r.rec = rec;
-    r.draft = ids.map((id,i) => r.draftLocked?.[i] && r.draft[i] ? r.draft[i] : id);
+    r.draft = Array.from({ length: SHOP_SIZE }, (_, i) => r.draftLocked?.[i] && r.draft[i] ? r.draft[i] : ids[i] ?? '');
     r.draftLocked = r.draft.map((id,i) => !!id && !!r.draftLocked?.[i]);
     clearUpgradeOffers(r);
     return true;
@@ -366,6 +383,7 @@ export function reroll(r: RunState) {
     if (r.over || r.pending || screen(r) !== 'prep' || r.gold < 1 || !hasRefreshableDraft(r)) return false;
     if (!rollDraft(r)) return false;
     clearUpgradeOffers(r, true);
+    if (r.tutorialMode) r.rerolls--;
     r.gold--; return true;
   }
   if (r.over || r.rerolls <= 0 || r.picks <= 0) return false;
@@ -374,7 +392,7 @@ export function reroll(r: RunState) {
   return true;
 }
 export const remainingRewardedRerolls = (r: RunState) => Math.max(0, MAX_REWARDED_REROLLS - r.rewardedRerollCount);
-const hasRefreshableDraft = (r: RunState) => r.draft.some((id,i) => !id || !r.draftLocked?.[i]);
+const hasRefreshableDraft = (r: RunState) => r.draft.some((id,i) => i < shopSize(r) && (!id || !r.draftLocked?.[i]));
 export const canRewardedReroll = (r: RunState) => !r.over && !r.pending && screen(r) === 'prep' && r.picks > 0 && remainingRewardedRerolls(r) > 0
   && (modernEconomy(r) ? r.gold < 1 && hasRefreshableDraft(r) : r.rerolls === 0);
 export function applyRewardedReroll(r: RunState) {
@@ -412,7 +430,7 @@ export function orderOptions(r: RunState, kind: OrderKind): string[] {
     case 'o_tag': return ORDER_TAGS.filter((t) => (!modernTactics(r) || (t !== '蓄力' && t !== '节拍')) && orderPool(r, kind, t).length >= (modernEconomy(r) ? 1 : 3));
     case 'o_named': {
       const pool = new Set(draftPool(r).map((d) => d.id));
-      return [...new Set(allOwned(r).filter((u): u is Slotted => !!u && u.copies < 4 && pool.has(u.defId)).map((u) => u.defId))];
+      return [...new Set(allOwned(r).filter((u): u is Slotted => !!u && u.copies < MAX_COPIES && pool.has(u.defId)).map((u) => u.defId))];
     }
   }
 }
@@ -422,12 +440,12 @@ export function useOrder(r: RunState, index: number, choice: string) {
   if (!kind || r.over || r.pending || r.picks <= 0 || screen(r) !== 'prep' || !orderOptions(r, kind).includes(choice)) return false;
   const pool = orderPool(r, kind, choice).map(d => modernEconomy(r) ? d : ({...d, tier: LEGACY_TIERS[d.id] as typeof d.tier}));
   if (modernEconomy(r)) {
-    const writable = Array.from({length:5},(_,i)=>i).filter(i => !r.draftLocked?.[i] || !r.draft[i]);
+    const writable = Array.from({length:shopSize(r)},(_,i)=>i).filter(i => !r.draftLocked?.[i] || !r.draft[i]);
     if (!writable.length || !pool.length) return false;
     const savedRng = r.rngState;
     const ids = filtered(r, pool, qualityWeights(battleNo(r)), Math.min(writable.length,pool.length), kind === 'o_named' ? choice : undefined);
     if (!ids.length || (kind === 'o_named' && !ids.includes(choice))) { r.rngState = savedRng; return false; }
-    const next = Array.from({length:5},(_,i)=>r.draft[i] ?? '');
+    const next = Array.from({length:SHOP_SIZE},(_,i)=>r.draft[i] ?? '');
     writable.forEach((slot,i)=> { next[slot] = ids[i] ?? ''; });
     r.draft = next;
     r.draftLocked = next.map((id,i) => !!id && !!r.draftLocked?.[i]);
@@ -448,11 +466,11 @@ export function reserveDestination(r: RunState, target: number): number | null {
   return i < 0 ? null : i + 5;
 }
 export function placeKind(r: RunState, defId: string, slot: number): PlaceResult {
-  if (!validSlot(slot) || !DRAFT_POOL.some((d) => d.id === defId)) return 'invalid';
+  if (!validSlot(r, slot) || !DRAFT_POOL.some((d) => d.id === defId)) return 'invalid';
   const cur = getOwned(r, slot);
   if (!cur) return 'place';
-  if (cur.defId === defId && !cur.temp) return cur.copies === 1 ? 'merge' : 'invalid';
-  if (reserveDestination(r, slot) !== null) return 'reserve';
+  if (cur.defId === defId && !cur.temp) return cur.copies < MAX_COPIES ? 'merge' : 'invalid';
+  if (!modernEconomy(r) && reserveDestination(r, slot) !== null) return 'reserve';
   return canSell(r, slot) ? 'replace' : 'invalid';
 }
 const newOwned = (r: RunState, defId: string): Slotted => ({ defId, ownedId: r.nextOwnedId++, copies: 1 });
@@ -468,13 +486,14 @@ export function takeDraft(r: RunState, draftIdx: number, slot: number, confirmDi
   const bought = newOwned(r, id);
   if (modernEconomy(r)) {
     r.gold -= 3; r.draft[draftIdx] = ''; if (r.draftLocked) r.draftLocked[draftIdx] = false;
+    if (r.tutorialMode) r.picks--;
   } else { r.picks--; r.draft.splice(draftIdx, 1); }
   if (kind === 'reserve') putOwned(r, reserveDestination(r, slot)!, getOwned(r, slot));
   if (kind === 'replace') sellOwned(r, slot);
   if (kind !== 'merge') putOwned(r, slot, bought);
   // Buy hooks observe the newly bought one-star individual, before upgrade hooks.
   prepEvent(r, 'buy', bought);
-  if (kind === 'merge') { mergeInto(r, bought, getOwned(r, slot)!); prepEvent(r, 'upgrade', getOwned(r, slot)!); }
+  if (kind === 'merge' && mergeInto(r, bought, getOwned(r, slot)!)) prepEvent(r, 'upgrade', getOwned(r, slot)!);
   if (!modernEconomy(r)) {
     if (r.picks > 0) rollDraft(r);
     else { markSkipped(r.rec, r.draft); r.draft = []; }
@@ -485,19 +504,23 @@ export function takeDraft(r: RunState, draftIdx: number, slot: number, confirmDi
 }
 export type MoveResult = 'move' | 'swap' | 'merge' | 'invalid';
 export function moveKind(r: RunState, from: number, to: number, mode: 'auto' | 'swap' = 'auto'): MoveResult {
-  if (!validSlot(from) || !validSlot(to) || from === to) return 'invalid';
+  if (!validSlot(r, from) || !validSlot(r, to) || from === to) return 'invalid';
   const a = getOwned(r, from), b = getOwned(r, to);
   if (!a || !isCopies(a.copies) || (b && !isCopies(b.copies))) return 'invalid';
   if (!b) return 'move';
-  if (mode === 'swap' || a.temp || b.temp || a.defId !== b.defId || a.copies !== b.copies || a.copies === MAX_COPIES) return 'swap';
+  if (mode === 'swap' || a.temp || b.temp || a.defId !== b.defId || a.copies === MAX_COPIES || b.copies === MAX_COPIES) return 'swap';
   return 'merge';
 }
 export const equipCap = (r: RunState) => (r.passives.includes('g_dual') ? 2 : 1);
-/** 合并：份数相加，培养点相加，装备保留到上限、多余回背包 */
-function mergeInto(r: RunState, src: Slotted, dst: Slotted) {
-  const earnsOffer = src.copies === 1 && dst.copies === 1;
+/** 合并：份数相加（上限 6），每份 +1 攻 +1 血，培养点相加，装备保留到上限、多余回背包 */
+function mergeInto(r: RunState, src: Slotted, dst: Slotted): boolean {
+  const before = unitLevel(dst);
   if (r.commandTarget === src.ownedId) r.commandTarget = dst.ownedId;
-  dst.copies = dst.copies === 1 ? 2 : 4;
+  dst.copies = Math.min(MAX_COPIES, dst.copies + src.copies) as Slotted['copies'];
+  if (modernEconomy(r)) {
+    dst.growth ??= {};
+    dst.growth.atk = (dst.growth.atk ?? 0) + src.copies; dst.growth.hp = (dst.growth.hp ?? 0) + src.copies;
+  }
   if (src.train) {
     dst.train = { ...(dst.train ?? {}) };
     for (const [k, n] of Object.entries(src.train)) dst.train[k] = (dst.train[k] ?? 0) + (n ?? 0);
@@ -514,14 +537,16 @@ function mergeInto(r: RunState, src: Slotted, dst: Slotted) {
   dst.equips = eqs.slice(0, equipCap(r));
   r.bag.push(...eqs.slice(equipCap(r)));
   for (const e of r.allocLog) if (e.to === src.ownedId) e.to = dst.ownedId;
-  if (earnsOffer) createUpgradeOffer(r);
+  if (unitLevel(dst) <= before) return false;
+  createUpgradeOffer(r);
+  return true;
 }
 export function moveSlot(r: RunState, from: number, to: number, mode: 'auto' | 'swap' = 'auto'): MoveResult {
   if (r.pending || r.over) return 'invalid';
   const kind = moveKind(r, from, to, mode);
   if (kind === 'invalid') return kind;
   const a = getOwned(r, from)!, b = getOwned(r, to);
-  if (kind === 'merge') { mergeInto(r, a, b!); putOwned(r, from, null); prepEvent(r, 'upgrade', b!); }
+  if (kind === 'merge') { const up = mergeInto(r, a, b!); putOwned(r, from, null); if (up) prepEvent(r, 'upgrade', b!); }
   else { putOwned(r, to, a); putOwned(r, from, b); }
   claimPendingEggs(r);
   preparationChanged(r);
@@ -725,8 +750,14 @@ export function refreshShop(r: RunState) {
   r.shop = makeShop(r, modernEconomy(r) ? 1 : r.shop.refreshCost + 1);
   return true;
 }
-/** 买到的单位：先放第一个空备战位，再放空战位；都满时并入同名一星 */
+/** 买到的单位：新经济先放空战位、再叠到同名；旧经济先放备战位，再放空战位，都满时并入同名一星 */
 export function unitDestination(r: RunState, defId: string): number | null {
+  if (modernEconomy(r)) {
+    const f = r.slots.findIndex((u) => !u);
+    if (f >= 0) return f;
+    const m = r.slots.findIndex((u) => u?.defId === defId && !u.temp && u.copies < MAX_COPIES);
+    return m >= 0 ? m : null;
+  }
   const b = r.bench.findIndex((u) => !u);
   if (b >= 0) return b + 5;
   const f = r.slots.findIndex((u) => !u);
@@ -763,7 +794,7 @@ export function buy(r: RunState, kind: ShopKind, i = 0) {
     r.gold -= item.price; item.sold = true;
     if (!cur) putOwned(r, dst, purchased);
     prepEvent(r, 'buy', purchased);
-    if (cur) { mergeInto(r, purchased, cur); prepEvent(r, 'upgrade', cur); }
+    if (cur && mergeInto(r, purchased, cur)) prepEvent(r, 'upgrade', cur);
     preparationChanged(r); return true;
   } else if (kind === 'equips') r.bag.push((item as ShopItem).id);
   else if (kind === 'spells') r.spells.push((item as ShopItem).id);
@@ -801,7 +832,7 @@ export function signMerc(r: RunState, slot: number) {
 }
 /** 战后遣散临时佣兵：培养点与装备退回 */
 function dismissTemps(r: RunState) {
-  for (let i = 0; i < OWNED_SLOTS; i++) {
+  for (let i = 0; i < ownedSlots(r); i++) {
     const u = getOwned(r, i);
     if (!u?.temp) continue;
     for (const [k, n] of Object.entries(u.train ?? {})) if (n) r.stash[k] = (r.stash[k] ?? 0) + n;
@@ -821,7 +852,7 @@ export function addSwap(r: RunState, a: number, b: number) {
 }
 export function clearSwaps(r: RunState) { r.swaps = []; }
 
-/** 萨吉：预备位格数；预备位即备战区最前面的格子 */
+/** 萨吉：预备位格数；新经济里备战区只剩这几格预备位 */
 export const reserveSlots = (r: RunState) => (r.general !== 'sajj' ? 0 : r.passives.includes('sajj_3') ? 2 : 1);
 
 const EGG_ORDER: EggStat[] = ['death', 'burn', 'freeze', 'move', 'summon'];
@@ -920,6 +951,7 @@ export function choosePromo(r: RunState, i: number) {
   r.passives.push(id);
   r.promo = null;
   r.promoCount++;
+  if (modernEconomy(r)) while (r.bench.length < reserveSlots(r)) r.bench.push(null);
   if (r.general === 'xingjiao' && id === 'xingjiao_2'
     && !allOwned(r).some((u) => u?.defId === 'x_egg')
     && allOwned(r).some((u) => u && Object.values(DRAGON_OF).includes(u.defId))) {
@@ -993,7 +1025,8 @@ export function applyResult(r: RunState, res: BattleResult, battleGold = 0, eggS
     r.wins++;
     const bonus = (modernEconomy(r) ? 0 : WIN_GOLD[node.kind]) + (r.passives.includes('g_pay') ? 2 : 0) + (r.general === 'hank' ? 1 : 0);
     if (modernEconomy(r)) r.budgetBonus = (r.budgetBonus ?? 0) + bonus; else r.gold += bonus;
-    const pts = rollPoints(r, (node.kind === 'elite' ? 4 : 3) + (r.passives.includes('g_drill') ? 1 : 0));
+    // 教学第一战固定给血 / 挡 / 攻，第二战的培养步骤按这三种讲
+    const pts = r.tutorialMode && r.history.length === 1 ? ['hp', 'block', 'atk'] : rollPoints(r, (node.kind === 'elite' ? 4 : 3) + (r.passives.includes('g_drill') ? 1 : 0));
     r.lastPower = pts.filter((p) => p === 'power').length;
     r.lastPoints = pts;
     grantPoints(r, pts);
@@ -1043,7 +1076,7 @@ export function settleRewardedRetry(
   actualResult: BattleResult, retryBench: readonly (Slotted | null)[] = checkpoint.bench, battleGold = 0,
   eggStats?: Record<EggStat, number>,
 ): RewardedRetrySettlement {
-  if (retrySlots.length !== 5 || retryBench.length !== BENCH_SLOTS || !retrySlots.some(Boolean)
+  if (retrySlots.length !== 5 || retryBench.length !== checkpoint.bench.length || !retrySlots.some(Boolean)
     || inventoryKey([...retrySlots, ...retryBench]) !== inventoryKey(allOwned(checkpoint))
     || r.seed !== checkpoint.seed || r.general !== checkpoint.general
     || (!!r.runId && !!checkpoint.runId && r.runId !== checkpoint.runId)) {
@@ -1073,7 +1106,7 @@ export { ORDER_MAP };
 /** Stable shelf positions survive purchases and frozen goods survive node transitions. */
 export function freezeDraft(r: RunState, index: number): boolean {
   if (!modernEconomy(r) || r.pending || r.over || screen(r) !== 'prep' || !Number.isInteger(index) || !r.draft[index]) return false;
-  r.draftLocked ??= Array(5).fill(false); r.draftLocked[index] = !r.draftLocked[index]; return true;
+  r.draftLocked ??= Array(SHOP_SIZE).fill(false); r.draftLocked[index] = !r.draftLocked[index]; return true;
 }
 export function draftBuyBlockReason(r: RunState, index: number, slot?: number): string | null {
   if (r.pending || r.over || screen(r) !== 'prep' || !Number.isInteger(index) || !r.draft[index]) return '商品不可购买';
@@ -1092,7 +1125,7 @@ export function freezeUpgradeOffer(r: RunState, groupId: number): boolean {
 }
 export function upgradeOfferBuyBlockReason(r: RunState, groupId: number, choiceIdx: number, slot?: number): string | null {
   if (!modernEconomy(r) || r.tutorialMode || r.pending || r.over || screen(r) !== 'prep'
-    || !Number.isSafeInteger(groupId) || !Number.isInteger(choiceIdx) || choiceIdx < 0 || choiceIdx > 1) return '商品不可购买';
+    || !Number.isSafeInteger(groupId) || !Number.isInteger(choiceIdx) || choiceIdx < 0) return '商品不可购买';
   const id = r.upgradeOffers?.find(g => g.id === groupId)?.choices[choiceIdx];
   if (!id) return '商品不可购买';
   if (r.gold < 3) return '金币不足';
@@ -1115,7 +1148,7 @@ export function takeUpgradeOffer(r: RunState, groupId: number, choiceIdx: number
   if (kind === 'replace') sellOwned(r, slot);
   if (kind !== 'merge') putOwned(r, slot, bought);
   prepEvent(r, 'buy', bought);
-  if (kind === 'merge') { mergeInto(r, bought, getOwned(r, slot)!); prepEvent(r, 'upgrade', getOwned(r, slot)!); }
+  if (kind === 'merge' && mergeInto(r, bought, getOwned(r, slot)!)) prepEvent(r, 'upgrade', getOwned(r, slot)!);
   claimPendingEggs(r); preparationChanged(r);
   return kind;
 }

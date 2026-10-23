@@ -24,9 +24,13 @@ export interface TutHost {
   finishTutorial(): void;
   /** 关卡告示等过场还在播：教学步先不出 */
   busy?(): boolean;
+  /** 战斗讲解运镜：推近框住这些高亮（舞台坐标），null 拉回全景 */
+  camera?(focus: Rect | null): void;
+  /** 盘面固定坐标随镜头变换到当前画面 */
+  stageMap?(r: Rect): Rect;
 }
 
-interface Rect { x: number; y: number; w: number; h: number }
+export interface Rect { x: number; y: number; w: number; h: number }
 type Target = string | Rect | (() => Rect | HTMLElement | null);
 /** 步骤可见的教学状态 */
 interface Ctx { hold: boolean }
@@ -66,84 +70,84 @@ let actors: HTMLElement[] = [];
 
 const STEPS: Step[] = [
   { gate: prep(0), at: [fieldRect, () => slotRect(1, 0)], until: 'tap',
-    text: '左边 5 个格位是你的阵型，右边是敌阵。<br>靠近中线的 <b>1 号位是队首</b>：最先出手，也最先挨打。' },
+    text: '左边 5 格是你的队伍，右边是敌人。<br>挨着中线的 <b>1 号位是队首</b>：最先出手，也最先挨打。' },
   { gate: prep(0), at: ['.hud-general'], until: 'tap',
-    text: '左上角是你的<b>主将</b>。主将通常不上场（阿尔吉昂例外），每场战斗在固定时机<b>自动释放技能</b>。<br>点头像可以查看技能；之后获得的「法强」培养点可以分给主将，让技能更强。' },
+    text: '左上角是你的<b>主将</b>。主将不上场（阿尔吉昂例外），每场战斗<b>自动放技能</b>。<br>点头像看技能。「法」培养点可以分给主将。' },
   { id: 'recruit-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: (r, m) => m === 'prep' && r.picks < 3,
-    text: '这次先招募 <b>3</b> 张卡。<br><b>按住「佣兵」</b>，拖到 1 号位松手。（点一下卡牌只是查看详情）' },
+    text: '每场战斗前有 <b>10 金</b>，一张卡 <b>3 金</b>。<br><b>按住「佣兵」</b>，拖到 1 号位松手。（点一下只看详情）' },
   { id: 'merge-first', gate: prep(0), at: ['.tray .cards > .card:first-child', () => slotRect(0, 0)], until: 'merge',
-    text: '又来了一张<b>同名卡</b>。把它拖到已有的佣兵身上，<b>合并升星</b>：属性变强、能力升级。' },
+    text: '又来一张<b>同名卡</b>。拖到佣兵身上<b>叠加</b>：每份 <b>+1 攻 +1 血</b>，<b>3 份升二星</b>，<b>6 份升三星</b>。' },
   { id: 'recruit-guard', gate: prep(0), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 0,
-    text: '把<b>守誓者</b>拖到 <b>2 号位</b>。它站在<b>队尾</b>时，每次交锋结束给队首佣兵加<b>格挡</b>。' },
+    text: '把<b>守誓者</b>拖到 <b>2 号位</b>。它在<b>队尾</b>时，每次交锋后给队首加<b>格挡</b>。' },
   { id: 'fight-first', gate: prep(0), at: ['.tray .fight'], until: 'battle-start',
-    text: '准备好了就<b>开战</b>。战斗全自动，你只需要看。' },
+    text: '点<b>开战</b>。战斗全自动，看着就行。' },
   { id: 'learn-beat', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '这叫一次<b>交锋</b>：双方<b>同号位</b>的单位一起出手，每方至多 <b>1 名</b>。<br>先结算施法，再让普攻<b>同时结算</b>。' },
-  { id: 'learn-round', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
-    text: '每个<b>回合</b>，每名单位默认有 <b>1 次行动</b>。用完就等待，不会提前从队首重来。<br>双方的行动次数全部用完，才进入新回合。' },
+    text: '这是一次<b>交锋</b>：双方<b>同号位</b>各出一人。<br>先施法，再普攻；普攻<b>同时落下</b>。' },
+  { id: 'learn-round', gate: held, hold: true, at: ['.board .vs'], until: 'tap',
+    text: '每<b>回合</b>每人 <b>1 次行动</b>，用完就等。<br>双方都用完，进入下一回合。' },
   { id: 'learn-action', gate: held, hold: true, at: [() => actors[0] ?? null, () => actors[1] ?? null], until: 'tap',
-    text: '轮到单位，按自身能力<b>施法或普攻</b>。施法通常不限次数，例外会写在卡面上。<br>普攻默认打敌方队首；阵亡后其他单位不挪格，最前面还活着的就是队首。' },
-  { id: 'learn-order', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
-    text: '上方显示<b>回合、行动轮</b>和本轮剩余的出手顺序，数字是<b>格位号</b>。<br>发光者即将行动；一方全倒下就分出胜负。点继续观看。' },
+    text: '轮到谁，谁就<b>施法或普攻</b>。<br>普攻打敌方队首。有人阵亡不挪格，最前面活着的就是队首。' },
+  { id: 'learn-order', gate: held, hold: true, at: ['.board .vs', () => actors[0] ?? null], until: 'tap',
+    text: '中线写着<b>回合</b>和<b>交锋 m/n</b>：本回合第 m 次，共 n 次；有人多行动，n 会变大。<br>脚下的数字是出手顺序。一方全灭就分胜负。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
-    text: '战斗进行中。底部可以<b>加速</b>或<b>跳过</b>。' },
+    text: '底部可以<b>加速</b>或<b>跳过</b>。' },
 
   { id: 'inspect-unit', gate: prep(1), at: [() => slotRect(0, 0)], until: 'tap',
-    text: '<b>点一下</b>你的单位，可以看到它的属性、能力和关键词说明。' },
+    text: '<b>点一下</b>你的单位，看它的属性和能力。' },
   { gate: prep(1), at: [enemyRect], until: 'tap',
-    text: '敌人也一样可以点开查看。角标是它们的<b>关键词</b>：格挡抵消一次伤害、护甲减伤……<br>这一关的影袭者带<b>狙击</b>，会打你的队尾。' },
+    text: '敌人也能点开看。头上的角标是<b>词条</b>。<br>这关的影袭者有<b>狙击</b>，专打你的队尾。' },
   { id: 'train-general', gate: prep(1), at: ['.prep-entry', '.prep-ov .pt-power', '.prep-ov .pu-card.gen'], until: (r) => !(r.stash.power > 0),
-    text: '赢下战斗会获得<b>培养点</b>。打开<b>「整备」</b>，先点<b>「法」</b>，再点<b>主将</b>，把法强分给主将。' },
-  { id: 'train-unit', gate: prep(1), at: ['.prep-ov .pp-tray', '.prep-owned[data-slot="0"]', '.prep-ov .prep-seat[data-slot="0"] .prep-refunds'], until: (r) => stashTotal(r) === 0,
-    text: '把剩余的<b>生命、格挡、攻击</b>培养点都分给 <b>1 号位佣兵</b>：点培养点，再点佣兵。' },
+    text: '打赢得到<b>培养点</b>。打开<b>「整备」</b>，点<b>「法」</b>，再点<b>主将</b>。' },
+  { id: 'train-unit', gate: prep(1), at: ['.prep-ov .g-pt', '.prep-owned[data-slot="0"]', '.prep-ov .prep-seat[data-slot="0"] .prep-refunds'], until: (r) => stashTotal(r) === 0,
+    text: '剩下的<b>生命、格挡、攻击</b>点都给 <b>1 号位佣兵</b>：点培养点，再点佣兵。' },
   closePrep,
   { id: 'reroll', gate: prep(1), at: ['.tray .reroll'], until: 'reroll',
-    text: '候选不满意？点<b>刷新</b>换一批（每轮 1 次）。' },
+    text: '不满意就花 <b>1 金</b><b>刷新</b>。<br>金币不留到下一战。' },
   { id: 'recruit-bulwark', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 2)], until: (r) => r.picks <= 1,
     text: '把<b>铁甲卫士</b>拖到 <b>3 号位</b>。' },
   { id: 'recruit-sentry', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 3)], until: (r) => r.picks <= 0,
-    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>。它有<b>嘲讽</b>，能替紧邻身后的友军拦截普攻；放在队尾时只保护自己。' },
+    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>。<b>嘲讽</b>：替紧挨前后的友军挡普攻。' },
   { id: 'swap-front', gate: prep(1), at: [() => slotRect(0, 0), () => slotRect(0, 2)], until: 'move',
-    text: '把 <b>1 号位佣兵</b>拖到 <b>3 号位铁甲卫士</b>身上，两者换位，让护甲单位顶在队首。' },
-  { id: 'fight-second', gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战，留意主将技能什么时候发动。' },
-  { id: 'learn-wait', gate: held, hold: true, at: ['.order-strip'], until: 'tap',
-    text: '这次我方 <b>4 人</b>，敌方 <b>3 人</b>。敌方本轮用完会显示<b>「等待」</b>，等我方剩余单位行动。<br>灼烧和「每次交锋结束时」的效果等待时也照常结算。' },
+    text: '把 <b>1 号位佣兵</b>拖到<b>铁甲卫士</b>身上，两人换位，让有护甲的顶在队首。' },
+  { id: 'fight-second', gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战。看主将什么时候放技能。' },
+  { id: 'learn-wait', gate: held, hold: true, at: ['.board .vs', '.order-strip'], until: 'tap',
+    text: '我方 <b>4 人</b>，敌方 <b>3 人</b>。敌方走完就<b>「等待」</b>，等我方最后一人。<br>等待时，交锋后的效果照常结算。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
-    text: '主将技能会画出指向目标的弹道。' },
+    text: '主将技能的弹道指向目标。' },
 
   { id: 'sell-guard', gate: prep(2), at: [() => slotRect(0, 1), '.tray .cards'], until: 'sell',
-    text: '把 <b>2 号位守誓者</b>拖到下方招募栏卖掉，腾出位置。每份换 1 金，培养点和装备会退回。' },
+    text: '把<b>守誓者</b>拖到下方招募栏卖掉，腾出 2 号位。培养点和装备会退回。' },
   { id: 'recruit-chaser', gate: prep(2), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 1,
-    text: '把<b>雪原小妖</b>拖到 <b>2 号位</b>。施法叠加寒意；寒意达到敌人攻击时，会冻结它、跳过出手。' },
+    text: '把<b>雪原小妖</b>拖到 <b>2 号位</b>。它施法给敌人加寒意；寒意够了，敌人被冻住。' },
   { id: 'merge-chaser', gate: prep(2), at: ['.tray .cards', () => slotRect(0, 1)], until: (r) => r.picks <= 0,
-    text: '再把一张<b>雪原小妖</b>拖到 <b>2 号位小妖</b>身上，合并升星，增强寒意。' },
-  { id: 'fight-third', gate: prep(2), at: ['.tray .fight'], until: 'battle-start', text: '开战，看敌人被冻住。' },
-  { id: 'learn-chill', gate: held, hold: true, at: [() => slotRect(0, 1), '.order-strip'], until: 'tap',
-    text: '<b>寒意</b>会影响接下来的出手机会；本回合还没出手的敌人，现在就会受影响。<br>敌人已行动完？寒意会保留，不会因换回合而白白消失。' },
+    text: '再拖一张<b>雪原小妖</b>到它身上，叠一份。' },
+  { id: 'fight-third', gate: prep(2), at: ['.tray .fight'], until: 'battle-start', text: '开战。看敌人被冻住。' },
+  { id: 'learn-chill', gate: held, hold: true, at: [() => slotRect(0, 1)], until: 'tap',
+    text: '<b>寒意</b>马上生效，没出手的敌人这回合就受影响。<br>已经出过手？寒意留到它下次出手。' },
   { id: 'learn-freeze', gate: held, hold: true, at: [() => slotRect(0, 1)], until: 'tap',
-    text: '寒意让下次普攻临时减攻；达到当前攻击时，<b>冻结并跳过这次出手</b>。<br>被冻结跳过的行动也会消耗次数，用于这次出手的寒意随后清空。' },
+    text: '寒意让下次普攻减攻；寒意 ≥ 攻击时，<b>冻结，跳过这次出手</b>。<br>冻结也算用掉一次行动，寒意随后清空。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
-    text: '冰蓝色的<b>寒意</b>角标就是要被减攻 / 冻结的单位。' },
+    text: '带冰蓝<b>寒意</b>角标的，就是要被减攻或冻住的敌人。' },
 
   { id: 'shop-buy', gate: (r, m) => m === 'phase' && screen(r) === 'shop', at: ['.sh-item.eq', '.sh-detail'], until: 'buy-equips',
-    text: '点第一件装备<b>战旗</b>，再点说明里的<b>购买</b>，花费 5 金。' },
+    text: '点装备<b>战旗</b>，再点<b>购买</b>（5 金）。' },
   { id: 'shop-leave', gate: (r, m) => m === 'prep' || (m === 'phase' && screen(r) === 'shop'), at: ['.sh-leave'], until: (_, m) => m === 'prep',
-    text: '战旗已放入背包。点<b>离开商店</b>。' },
+    text: '战旗进了背包。点<b>离开商店</b>。' },
   { id: 'equip-banner', gate: (_, m) => m === 'prep', at: ['.prep-entry', '.prep-ov .pp-tray', '.prep-owned[data-slot="2"]'], until: 'equip',
-    text: '打开<b>整备</b>，点背包里的<b>战旗</b>，再点 <b>3 号位佣兵</b>装备。战旗会让相邻友军开战加攻。' },
+    text: '打开<b>整备</b>，点<b>战旗</b>，再点<b>佣兵</b>。战旗：开战时相邻友军加攻。' },
   { id: 'use-haste', gate: prep(3), at: ['.prep-entry', '.prep-ov .pr-chip.sp'], until: r => r.activeSpells.includes('sp_haste'),
-    text: '再试一张赠送的<b>号令卷轴</b>。点它为本场启用，让队首在<b>首回合行动次数 +1</b>。<br>卷轴只用一次，开战后消耗。' },
+    text: '再点送你的<b>号令卷轴</b>：本场队首<b>首回合行动 +1</b>。<br>卷轴开战后用掉。' },
   closePrep,
   { id: 'fight-final', gate: prep(3), at: ['.tray .fight'], until: 'battle-start',
-    text: '战旗和卷轴已就绪。点<b>开战</b>，留意队首的额外行动，赢下这关完成教学。' },
-  { id: 'learn-extra-action', gate: held, hold: true, at: [() => slotRect(0, 0), '.order-strip'], until: 'tap',
-    text: '队首本回合有 <b>2 次行动</b>，但不会连续用完。<br>双方第 1 轮结束后，有剩余次数的单位进入<b>第 2 轮</b>，再按站位行动。' },
+    text: '点<b>开战</b>，看队首多行动一次。赢下这关就完成教学。' },
+  { id: 'learn-extra-action', gate: held, hold: true, at: [() => slotRect(0, 0), '.board .vs'], until: 'tap',
+    text: '队首这回合有 <b>2 次行动</b>，但不连着用。<br>第 1 轮走完，有剩余次数的人进入<b>第 2 轮</b>。中线的 n 也变大了。' },
   { id: 'learn-immediate', gate: held, hold: true, at: [() => slotRect(0, 0)], until: 'tap',
-    text: '<b>追击</b>：马上冲出去普攻一下，不施法，也不扣行动次数；追击引发的效果不会再追击。<br><b>连击</b>是一次普攻打两段；<b>额外行动</b>则到后续轮次，照常判断施法还是普攻。' },
+    text: '<b>追击</b>：马上普攻一次，不施法，不用行动次数。<br><b>连击</b>：一次普攻打两下。<b>行动 +1</b>：下一轮再行动，可以施法。' },
   { gate: (_, m) => m === 'battle', at: ['.battle-bar'], until: 'battle-end', noMask: true,
-    text: '看上方<b>第 2 轮</b>：队首再次行动，次数用完的单位等待。' },
+    text: '<b>第 2 轮</b>：队首再行动一次，其他人等待。' },
   { id: 'complete', gate: tutorialComplete, until: 'tap',
-    text: '<b>通关结束</b>！点<b>完成</b>返回主界面，开始正式远征。' },
+    text: '<b>教学完成！</b>点<b>完成</b>，开始远征。' },
 ];
 
 export class Tutorial {
@@ -166,7 +170,7 @@ export class Tutorial {
   private sig = '';
 
   constructor(private host: TutHost) {
-    const skip = h('button', { class: 'btn primary tut-skip' }, h('span', null, '跳过教学'));
+    const skip = h('button', { class: 'tut-skip' }, '跳过教学');
     skip.addEventListener('click', () => { sfx.click(); this.finish(); });
     this.el.append(this.mask, this.ring, this.box, skip);
     host.el.appendChild(this.el);
@@ -176,6 +180,7 @@ export class Tutorial {
   }
 
   dispose() {
+    this.aim(undefined, []);
     this.disposed = true;
     this.resume();
     clearInterval(this.timer);
@@ -262,9 +267,11 @@ export class Tutorial {
 
   private resolve(t: Target): Rect | null {
     const e = typeof t === 'string' ? this.host.el.querySelector<HTMLElement>(t) : typeof t === 'function' ? t() : t;
-    if (!e || !(e instanceof HTMLElement)) return e;
+    if (!e) return null;
+    if (!(e instanceof HTMLElement)) return this.host.stageMap ? this.host.stageMap(e) : e;
     if (!e.isConnected || !e.getClientRects().length) return null;
     const b = e.getBoundingClientRect();
+    if (b.width < 2 && b.height < 2) return null;
     const a = toStage(b.left, b.top), z = toStage(b.right, b.bottom);
     return { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
   }
@@ -285,8 +292,9 @@ export class Tutorial {
     this.el.classList.toggle('focus-fight', on && s.until === 'battle-start');
     this.el.classList.toggle('no-mask', !!s?.noMask);
     this.box.classList.toggle('chip', !!s?.chip);
-    if (!on) { this.shown = false; this.sig = ''; this.rects = this.allowRects = []; return; }
+    if (!on) { this.shown = false; this.sig = ''; this.rects = this.allowRects = []; this.aim(undefined, []); return; }
     const rects = (s.at ?? []).map((t) => this.resolve(t)).filter((r): r is Rect => !!r);
+    this.aim(s, rects);
     const pad = (r: Rect) => ({ x: r.x - 6, y: r.y - 6, w: r.w + 12, h: r.h + 12 });
     this.rects = rects.map(pad);
     this.allowRects = [...this.rects, ...(s.allow ?? []).map((t) => this.resolve(t)).filter((r): r is Rect => !!r).map(pad)];
@@ -310,6 +318,18 @@ export class Tutorial {
     }
     if (s.chip) this.box.style.cssText = '';
     else this.place();
+  }
+
+  /** 战斗讲解步换步时运镜：以本步高亮的单位为主角推近；离开讲解拉回全景 */
+  private camStep = -1;
+  private aim(s: Step | undefined, rects: Rect[]) {
+    const want = !!s?.hold && this.el.classList.contains('on');
+    if (!want) { if (this.camStep !== -1) { this.camStep = -1; this.host.camera?.(null); } return; }
+    if (this.camStep === this.i || !rects.length) return;
+    this.camStep = this.i;
+    const x = Math.min(...rects.map(r => r.x)), y = Math.min(...rects.map(r => r.y));
+    const x2 = Math.max(...rects.map(r => r.x + r.w)), y2 = Math.max(...rects.map(r => r.y + r.h));
+    this.host.camera?.({ x, y, w: x2 - x, h: y2 - y });
   }
 
   /** 说明框：在候选位置里挑与高亮区域重叠最少的，尽量贴近第一个高亮 */

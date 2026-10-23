@@ -1,6 +1,7 @@
 import './rounds.css';
 import '../battle-arrows.css';
 import '../unit-keywords.css';
+import '../unit-fx.css';
 import { FACTION_INFO, unitDef } from '../core/data';
 import { SLOTS, tri } from '../core/engine';
 import type { Faction, Side, UnitState } from '../core/types';
@@ -17,7 +18,12 @@ export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-r
 export const statArt = (kind: 'atk' | 'hp' | 'armor' | 'power' | 'block', value: number | HTMLElement, extra?: HTMLElement) =>
   h('div', { class: `st ${kind}${kind === 'atk' || kind === 'hp' ? '' : ' st-px'}` }, kind === 'atk' || kind === 'hp' ? icon(kind === 'atk' ? 'sword' : 'heart') : null, typeof value === 'number' ? h('i', null, value) : value, extra);
 
-export const UNIT_Y = 300;
+export let UNIT_Y = 300;
+/** 紧凑布局切换时调整单位行高度，并把已存在的格位 / 单位挪过去 */
+export function setUnitY(y: number, root: ParentNode) {
+  UNIT_Y = y;
+  for (const el of root.querySelectorAll<HTMLElement>('.board .slot, .board .unit')) el.style.top = `${y}px`;
+}
 export const SLOT_SPACING = 110;
 export const slotX = (side: Side, slot: number) => (side === 0 ? 540 - slot * SLOT_SPACING : 740 + slot * SLOT_SPACING);
 /** 单位身体中心（特效、箭头锚点） */
@@ -91,6 +97,11 @@ export class UnitView {
   private dHp: HTMLElement;
   private kwEl: HTMLElement;
   private kwKey = '';
+  /** 蓄力格、节拍牌：只在数值变化时重建 */
+  private cpEl: HTMLElement;
+  private cpKey = '';
+  private plEl: HTMLElement;
+  private plKey = '';
   tags: HTMLElement;
   side: Side;
   slot: number;
@@ -117,10 +128,13 @@ export class UnitView {
     this.art = h('div', { class: 'u-art', html: unitSvg(defId, { enemy: side === 1, small: o.token || d.token }) });
     this.tags = h('div', { class: 'u-tags' });
     this.kwEl = h('div', { class: 'u-kws' });
+    this.cpEl = h('div', { class: 'u-cpips' });
+    this.plEl = h('div', { class: 'u-pulse' }, h('i'));
+    const egg = defId === 'm_egg' || defId === 'x_egg';
     this.body = h(
       'div',
       { class: 'u-body' },
-      h('div', { class: 'u-bob' }, this.art, h('div', { class: 'u-ice' })),
+      h('div', { class: 'u-bob' }, this.art, h('div', { class: 'u-ice' }), egg ? h('div', { class: 'u-crack' }) : null),
     );
     const pips =
       !d.enemyOnly && !d.token
@@ -135,13 +149,17 @@ export class UnitView {
       },
       h('div', { class: 'u-glow' }),
       h('div', { class: 'u-reborn' }, h('i')),
+      h('div', { class: 'u-taunt' }),
       this.body,
+      h('div', { class: 'u-mat' }),
+      this.plEl,
       h('div', { class: 'u-shield u-px' }, this.shEl),
       h('div', { class: 'u-chill u-px' }, this.chEl),
       h('div', { class: 'u-burn u-px' }, this.bnEl),
       h('div', { class: 'u-charge u-px' }, this.vnEl),
       h('div', { class: 'u-stats' }, this.atkBox, d.faction === 'enemy' ? null : factionSigil(d.faction), this.hpBox),
       pips,
+      this.cpEl,
       this.kwEl,
       this.tags,
     );
@@ -184,10 +202,12 @@ export class UnitView {
     this.shEl.textContent = String(s.block);
     this.chEl.textContent = String(s.chill);
     this.bnEl.textContent = String(s.burn);
-    // 沿用单位上的进度位置，不为单卡计数增加面板。
-    const cnt = s.masterHits !== undefined ? `${s.masterHits}/6` : s.chargeMax ? `${s.charge ?? 0}/${s.chargeMax}` : s.pulseMax ? `${s.pulse ?? 0}/${s.pulseMax}` : '';
+    // 千刃宗师的共享计数留在角标；蓄力用脚下小格，节拍用头顶倒计时牌。
+    const cnt = s.masterHits !== undefined ? `${s.masterHits}/6` : '';
     this.vnEl.textContent = cnt;
     this.el.classList.toggle('has-charge', !!cnt);
+    this.setChargePips(s.charge ?? 0, s.chargeMax ?? 0);
+    this.setPulse(s.pulse ?? 0, s.pulseMax ?? 0);
     this.el.classList.toggle('has-shield', s.block > 0);
     this.el.classList.toggle('has-chill', s.chill > 0);
     // 寒意 ≥ 当前攻击：下次出手会被冻结
@@ -225,6 +245,63 @@ export class UnitView {
     this.last = { ...s };
   }
 
+  /** 蓄力：一排小格，差一格就满时整排轻跳，表示下次出手就会释放 */
+  private setChargePips(n: number, max: number) {
+    const key = `${n}/${max}`;
+    if (key === this.cpKey) return;
+    const prev = this.cpKey ? Number(this.cpKey.split('/')[0]) : -1;
+    this.cpKey = key;
+    this.el.classList.toggle('has-cpips', max > 0);
+    this.el.classList.toggle('charge-ready', max > 0 && n >= max - 1);
+    if (!max) { this.cpEl.replaceChildren(); return; }
+    this.cpEl.replaceChildren(...Array.from({ length: max }, (_, i) => {
+      const el = h('span', { class: i < n ? 'on' : '' });
+      if (prev >= 0 && i >= prev && i < n) popEl(el, true);
+      return el;
+    }));
+  }
+
+  /** 节拍：头顶倒计时牌 3→2→1，归零（重置）时爆开；幼兽蛋按进度出现裂纹 */
+  private setPulse(n: number, max: number) {
+    const key = `${n}/${max}`;
+    if (key === this.plKey) return;
+    const prevLeft = this.plKey ? Number(this.plKey.split('/')[1]) - Number(this.plKey.split('/')[0]) : -1;
+    this.plKey = key;
+    this.el.classList.toggle('has-pulse', max > 0);
+    if (!max) return;
+    const left = Math.max(1, max - n);
+    this.plEl.firstElementChild!.textContent = String(left);
+    this.el.dataset.crack = String(Math.min(3, Math.round((n / max) * 3)));
+    this.plEl.classList.toggle('last', left === 1);
+    if (prevLeft === 1 && left > 1) {
+      this.plEl.animate([
+        { transform: 'translateX(-50%) scale(1.8)', opacity: 0.2 },
+        { transform: 'translateX(-50%) scale(1)', opacity: 1 },
+      ], { duration: 360, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+    } else if (prevLeft > 0 && left !== prevLeft) {
+      this.plEl.animate([
+        { transform: 'translateX(-50%) scale(1)' },
+        { transform: 'translateX(-50%) scale(1.45)', offset: 0.35 },
+        { transform: 'translateX(-50%) scale(1)' },
+      ], { duration: 380, easing: 'cubic-bezier(.3,1.6,.5,1)' });
+    }
+  }
+
+  /** 深渊主母在场：带亡语的友军身上一枚紫色标记 */
+  setMatriarch(on: boolean) {
+    this.el.classList.toggle('mat-on', on);
+  }
+
+  /** 蓄力释放前的蓄势：后仰、发光，250ms */
+  async windup(dir: number, dur = 250) {
+    const a = this.body.animate([
+      { transform: 'translate(0,0) rotate(0)', filter: 'none' },
+      { transform: `translate(${-dir * 10}px,2px) rotate(${-dir * 9}deg) scale(1.06)`, filter: 'brightness(1.9) drop-shadow(0 0 8px #ffe58a)', offset: 0.8 },
+      { transform: 'translate(0,0) rotate(0)', filter: 'brightness(1.4)' },
+    ], { duration: dur, easing: 'ease-in' });
+    await a.finished.catch(() => undefined);
+  }
+
   /** 嘲讽等常驻词条只保留脚下一排标记，避免与格挡次数重复叠盾。 */
   private setKeywords(kw: UnitKeywords) {
     this.el.classList.toggle('kw-taunt', kw.taunt);
@@ -248,6 +325,15 @@ export class UnitView {
 
   getStats(): StatView | null {
     return this.last ? { ...this.last } : null;
+  }
+
+  /** 超级自动动物式经验条：本星级已叠份数 / 升下一星所需（三星或非己方不显示） */
+  setExp(copies: number | null) {
+    this.el.querySelector('.u-exp')?.remove();
+    if (copies === null || copies >= 6) return;
+    const have = copies >= 3 ? copies - 3 : copies, need = 3;
+    this.el.appendChild(h('div', { class: 'u-exp', 'aria-label': `升星进度 ${have}/${need}` },
+      Array.from({ length: need }, (_, i) => h('span', { class: i < have ? 'on' : '' }))));
   }
 
   setTag(text: string | null, cls = '') {
@@ -501,10 +587,23 @@ export class Board {
     this.pips.replaceChildren(...Array.from({ length: n }, (_, i) => h('i', { class: i === n - 1 ? 'on' : '' })));
   }
 
+  /** 中线下方「交锋 m/n」：m 本回合第几次交锋，n 本回合交锋上限（获得行动时会变大） */
+  setClash(m: number, n: number) {
+    const prev = this.pips.querySelector('b')?.textContent;
+    const total = `${Math.max(m, n)}`;
+    // 图鉴演示挂在框上的框选 / 气泡留着
+    const keep = [...this.pips.querySelectorAll(':scope > .bdemo-focus, :scope > .bdemo-tag')];
+    this.pips.replaceChildren(h('span', null, '交锋'), h('em', null, `${m}`), h('i', null, '/'), h('b', null, total), ...keep);
+    this.pips.classList.add('clash');
+    if (prev && prev !== total && !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+      this.pips.querySelector('b')!.animate([{ transform: 'scale(1.6)', color: '#7dffb0' }, { transform: 'scale(1)' }], { duration: 420, easing: 'ease-out' });
+  }
+
   setCenter(num: string, lbl = '', cls = '') {
     this.centerNum.textContent = num;
     this.centerLbl.textContent = lbl;
     this.center.className = `vs ${cls}`;
+    if (cls !== 'beat') { this.pips.replaceChildren(); this.pips.classList.remove('clash'); }
   }
 
   view(key: string) {
@@ -613,7 +712,7 @@ export class Board {
   /** 瞄准标记：敌方第一下打谁 */
   target(side: Side, slot: number, cls = '') {
     const p = bodyPos(side, slot);
-    this.marks.appendChild(h('div', { class: `target-glow ${cls}`, 'aria-label': '普攻目标', 'data-side': String(side), 'data-slot': String(slot), style: `left:${p.x}px;top:${p.y}px` }, h('span', { class: 'target-badge' }, icon('sword'))));
+    this.marks.appendChild(h('div', { class: `target-glow ${cls}`, 'aria-label': '普攻目标', 'data-side': String(side), 'data-slot': String(slot), style: `left:${p.x}px;top:${p.y}px` }, icon('target')));
   }
 
   slotMark(side: Side, slot: number, content: Node, cls = '') {

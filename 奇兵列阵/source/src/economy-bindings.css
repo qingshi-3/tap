@@ -19,3 +19,33 @@
 .paid-shelf .shelf-page.previous .ic { transform: rotate(180deg); }
 .shop .sh-unit-budget { font-size: 24px; white-space: nowrap; color: #eee3c6; }
 .shop .sh-unit.unavailable .card { filter: grayscale(.9) brightness(.65); }
+/* 有升星二选一时，切换按钮用金色提示，呼吸只动 opacity */
+.paid-shelf .shelf-page.has-offer { position: relative; background: linear-gradient(#b8862f, #7a5418); color: #fff6dc; }
+.paid-shelf .shelf-page.has-offer::after { content: ''; position: absolute; inset: -3px; border: 3px solid #ffe08a; pointer-events: none; animation: offer-breathe 1.4s ease-in-out infinite; }
+@keyframes offer-breathe { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
+
+/* SAP 式经验条：星星下方三段 */
+.board .u-exp, .u-exp {
+  position: absolute; top: -4px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 3px; pointer-events: none; z-index: 3;
+}
+.board .u-exp, .u-exp { top: -8px; gap: 2px; padding: 2px; background: #0d0a1c; box-shadow: 0 0 0 2px #c9a35a, 0 0 0 4px #05040f, 0 2px 8px rgba(0, 0, 0, .7); }
+.u-exp span { width: 14px; height: 6px; background: #2a2236; box-shadow: inset 0 2px 0 rgba(0, 0, 0, .55); }
+.u-exp span.on { background: linear-gradient(#fff0b0 0 2px, #ffc93e 2px); box-shadow: 0 0 6px rgba(255, 201, 62, .7); }
+.in-battle .u-exp { display: none; }
+/* 升星奖励卡：金色光效，不加外框圈 */
+.tray .card.bonus-card { filter: drop-shadow(0 0 10px rgba(255, 214, 107, .75)); }
+.tray .card .bonus-tag {
+  position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 4;
+  display: flex; align-items: center; gap: 3px; white-space: nowrap;
+  padding: 2px 8px; font-size: 16px; color: #2a1800; background: linear-gradient(#ffe79a, #e9a93a);
+}
+.tray .card .bonus-tag svg { width: 14px; height: 14px; }
+.card-badge.stack { color: #ffe9a8; }
+/* 渐进货架 3→5 张 + 升星奖励卡，一排放下不翻页 */
+.tray.paid-shelf .cards { width: 912px; }
+.tray.paid-shelf .cards[data-count="5"] > * { zoom: .9; }
+.tray.paid-shelf .cards[data-count="6"] > *, .tray.paid-shelf .cards[data-count="7"] > * { zoom: .75; }
+/* 萨吉预备格放左栏刷新下方 */
+.tray.paid-shelf .tray-left > .bench { justify-content: center; margin-top: -6px; }
+.tray.paid-shelf .tray-left > .bench.hidden { display: none; }

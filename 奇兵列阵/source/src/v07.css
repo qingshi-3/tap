@@ -18,7 +18,6 @@
 
 /* Keep the two actions in one right-hand column; tutorial exit occupies the last row. */
 .game { --prep-stack-offset: 0px; }
-.game:has(> .tut) { --prep-stack-offset: calc(var(--control-size) + 12px); }
 .prep-entry { position: absolute; z-index: 12; left: auto; top: auto; right: 22px; bottom: calc(18px + var(--prep-stack-offset)); width: 176px; transform: none; }
 .game:has(> .prep-entry:not(.hidden)) .tray-right { height: 208px; align-items: flex-start; }
 .game:has(> .prep-entry:not(.hidden)) .fight-controls {
@@ -368,21 +367,16 @@
 .tut-box b { color: #ffd36b; }
 .tut-step { font-size: 15px; opacity: 0.6; margin-bottom: 4px; }
 .tut-ok { margin-top: 10px; float: right; min-width: var(--control-size, 100px); min-height: var(--control-size, 100px); }
-.btn.tut-skip {
-  position: absolute; right: 22px; top: auto; bottom: 14px; z-index: 1;
-  width: 176px; height: var(--control-size); min-height: var(--control-size); padding: 0;
-  pointer-events: auto; display: flex; align-items: center; justify-content: center;
-  font-size: 28px; font-weight: 700; letter-spacing: 0;
+/* 跳过教学：放在顶栏下方左侧，远离右下角的开战/整备/完成热区；弱化成文字按钮 */
+.tut-skip {
+  position: absolute; left: 22px; top: 76px; z-index: 1; pointer-events: auto;
+  min-width: 96px; height: 44px; padding: 0 12px; border: 0; background: rgba(10, 8, 24, .45);
+  color: rgba(244, 236, 216, .55); font: inherit; font-size: 18px; letter-spacing: 0;
 }
-.btn.tut-skip:active { transform: none; }
-.btn.tut-skip:focus-visible { outline: 4px solid #fff4d8; outline-offset: -5px; }
-/* Fallback for tutorial states without the preparation dock; the action stack above owns normal prep. */
-.game:has(> .tut) .fight-controls { transform: translateY(calc(80px - var(--control-size) * 1.5)); }
+.tut-skip:active { color: #f4ecd8; }
+.tut-skip:focus-visible { outline: 2px solid #fff4d8; }
 /* 教学开战目标与退出按钮都显示原色，不受舞台暗角层（30）压暗。 */
 .game:has(> .tut.focus-fight) .tray { z-index: 31; }
-.game:has(> .tut) .battle-bar { right: 220px; }
-.game.prep-open:has(> .tut) .prep-ov .pp-tray { right: 220px; }
-.game:has(> .tut) .sh-roster { padding-right: 190px; }
 
 /* 拖动出售区：拖动己方单位时覆盖招募栏 */
 .sell-zone {
@@ -431,15 +425,6 @@
 /* ───────── 手机负载：常驻无限动画只动 transform / opacity（合成层完成，不触发重绘） ─────────
    原先这些动画逐帧改 box-shadow / filter / left / inset / background-position / 注册属性，
    每帧都要整块重绘（卡牌还带 drop-shadow 滤镜，重绘代价翻倍），是备战界面持续发热的主因。 */
-.card.tier-3 .card-in::after { animation: tierGlow 2.4s ease-in-out infinite alternate; --ang: 220deg; will-change: opacity; }
-@keyframes tierGlow { from { opacity: 0.35; } to { opacity: 1; } }
-.card.tier-4 .card-shine { animation: none; background: none; overflow: hidden; }
-.card.tier-4 .card-shine::before {
-  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 60%;
-  background: linear-gradient(115deg, transparent 10%, rgba(255, 230, 160, 0.22) 38%, rgba(255, 255, 255, 0.32) 50%, transparent 80%);
-  transform: translateX(-110%); animation: legendSweep 3.6s ease-in-out infinite; will-change: transform;
-}
-@keyframes legendSweep { 0%, 55% { transform: translateX(-110%); } 100% { transform: translateX(190%); } }
 .btn.fight::after { left: -60%; animation: sheenX 3.2s ease-in-out infinite; will-change: transform; }
 @keyframes sheenX { 0%, 60% { transform: translateX(0); } 100% { transform: translateX(475%); } }
 .rnode.cur { animation: curPulseT 1.8s ease-in-out infinite; }
@@ -455,7 +440,7 @@
 /* 遮罩下方单位仍在播待机动画，背景模糊会被逐帧重算；改用纯色压暗 */
 .result-ov, .modal-ov, .rewarded-ov { backdrop-filter: none; -webkit-backdrop-filter: none; }
 @media (prefers-reduced-motion: reduce) {
-  .card.tier-3 .card-in::after, .card.tier-4 .card-shine::before, .btn.fight::after, .rnode.cur, .hud-general.arm-target,
+  .btn.fight::after, .rnode.cur, .hud-general.arm-target,
   .tut-ring, .vs-ring, .unit.has-shield .u-bob::after, .smark.silence, .arw, .ht-arc, :root .arrows .direction-flow .arw-flow { animation: none; }
 }
 /* 卡牌立绘在遮罩 + 投影滤镜里，逐帧播放会连带整张卡重新栅格化；卡面只显示静帧，选中时才动 */
@@ -559,15 +544,11 @@
 .cx-unit-art .uart { width: 84px; }
 .cx-unit b { font-size: 18px; white-space: nowrap; }
 .cx-unit > span:last-child { font-size: 15px; }
-.cx-unit.tier-1 > span:last-child { color: #d0d8df; } .cx-unit.tier-2 > span:last-child { color: #8fe6ff; }
-.cx-unit.tier-3 > span:last-child { color: #ddb0ff; } .cx-unit.tier-4 > span:last-child { color: var(--rarity-legendary); }
 .cx-detail { padding: 2px 8px; background: rgba(10, 8, 30, 0.85); border-style: solid; border-width: 12px; border-image: var(--pxf-gold) 6 / 12px / 0 stretch; }
 .cx-d-head { display: flex; align-items: center; gap: 14px; }
 .cx-d-art { width: 96px; height: 96px; flex: none; display: flex; align-items: flex-end; justify-content: center; overflow: hidden; }
 .cx-d-art .uart { width: 96px; }
 .cx-d-name { font-size: 28px; color: var(--fc); margin-right: 10px; }
-.cx-rar { font-size: 18px; }
-.cx-rar.rarity-1 { color: #d0d8df; } .cx-rar.rarity-2 { color: #8fe6ff; } .cx-rar.rarity-3 { color: #ddb0ff; } .cx-rar.rarity-4 { color: var(--rarity-legendary); }
 /* Recommendation details use viewport pixels so short-screen text and controls stay readable. */
 .cx-unit-modal { position: fixed; padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left)); }
 .cx-unit-modal .modal { width: min(460px, 100%); max-height: 100%; padding: 14px 18px; overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; }
@@ -577,7 +558,6 @@
 .cx-popup-head .cx-d-art .uart { width: 74px; }
 .cx-popup-name { font-size: 20px; color: var(--text); }
 .cx-popup-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 5px; font-size: 14px; color: var(--muted); }
-.cx-popup-meta .cx-rar { font-size: 14px; }
 .cx-popup-stars { display: flex; gap: 8px; margin: 8px 0 12px; }
 .cx-popup-stars .cx-starbtn { min-width: 56px; min-height: 44px; font-size: 18px; background: #252044; }
 .cx-popup-stars .cx-starbtn.on { background: var(--gold); }
@@ -636,3 +616,8 @@
 .gfx-bar { position: absolute; left: 0; right: 0; height: 64px; background: #07070c; pointer-events: none; }
 .gfx-bar.t { top: 0; border-bottom: 4px solid var(--c); }
 .gfx-bar.b { bottom: 0; border-top: 4px solid var(--c); }
+
+/* 反馈弹窗：群号大字可读 */
+.feedback-dialog .fb-group { white-space: nowrap; display: flex; align-items: baseline; justify-content: center; gap: 16px; margin: 6px 0 14px; font-size: 22px; color: var(--muted); }
+.feedback-dialog .fb-group b { font-size: 36px; color: var(--gold); letter-spacing: 2px; user-select: text; }
+.feedback-dialog .danger-zone p { margin: 0 0 8px; font-size: 18px; color: var(--muted); }

@@ -3,6 +3,8 @@ import { h, STAGE_H, STAGE_W } from './dom';
 interface P {
   x: number; y: number; vx: number; vy: number; life: number; max: number;
   size: number; color: string; kind: 'spark' | 'shard' | 'mote' | 'ring' | 'plus' | 'streak'; rot: number; vr: number; g: number;
+  /** 每步阻尼，缺省 0.96；汇聚类粒子用 1 保证落点准确 */
+  d?: number;
 }
 
 const snap = (v: number) => Math.round(v / 2) * 2;
@@ -121,6 +123,114 @@ export class FX {
     ], 560, `--c:${color}`);
   }
 
+  /** 因果连线：从 a 向 b 展开一道光线再淡出（召唤、传令、献祭、授予） */
+  link(a: { x: number; y: number }, b: { x: number; y: number }, color: string, dur = 420) {
+    const dx = b.x - a.x, dy = b.y - a.y, len = Math.max(8, Math.hypot(dx, dy)), ang = Math.atan2(dy, dx);
+    const r = `translate(0,-50%) rotate(${ang}rad)`;
+    this.sprite('fx-link', a.x, a.y, [
+      { opacity: 0, transform: `${r} scaleX(0)` },
+      { opacity: 1, transform: `${r} scaleX(1)`, offset: 0.45 },
+      { opacity: 0, transform: `${r} scaleX(1)` },
+    ], dur, `--c:${color};width:${len}px`, 'ease-out');
+  }
+
+  /** 削弱：一串下坠的像素箭头 */
+  debuff(x: number, y: number, color: string) {
+    this.sprite('fx-debuff', x, y, [
+      { opacity: 0, transform: 'translate(-50%,-110%)' },
+      { opacity: 1, transform: 'translate(-50%,-70%)', offset: 0.25 },
+      { opacity: 1, transform: 'translate(-50%,-40%)', offset: 0.7 },
+      { opacity: 0, transform: 'translate(-50%,-10%)' },
+    ], 560, `--c:${color}`, 'ease-in');
+  }
+
+  /** 冰壳：整个单位罩进冰块，停留后碎开 */
+  shell(x: number, y: number, dur = 700) {
+    this.sprite('fx-shell', x, y, [
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(1.25)' },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1)', offset: 0.18 },
+      { opacity: 0.9, transform: 'translate(-50%,-50%) scale(1)', offset: 0.8 },
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(1.08)' },
+    ], dur, '', 'ease-out');
+  }
+
+  /** 行动环：脚下一圈顺时针转一周的箭头 */
+  spin(x: number, y: number, color: string) {
+    this.sprite('fx-spin', x, y, [
+      { opacity: 0, transform: 'translate(-50%,-50%) scaleY(.42) rotate(0deg) scale(.6)' },
+      { opacity: 1, transform: 'translate(-50%,-50%) scaleY(.42) rotate(120deg) scale(1)', offset: 0.3 },
+      { opacity: 1, transform: 'translate(-50%,-50%) scaleY(.42) rotate(300deg) scale(1)', offset: 0.8 },
+      { opacity: 0, transform: 'translate(-50%,-50%) scaleY(.42) rotate(360deg) scale(1.1)' },
+    ], 560, `--c:${color}`, 'ease-in-out');
+  }
+
+  /** 横扫：一道光带从 x0 扫到 x1（全体技能，代替逐个弹道） */
+  sweep(x0: number, x1: number, y: number, color: string, dur = 460, h = 200) {
+    const dir = x1 >= x0 ? 1 : -1;
+    this.sprite('fx-sweep', x0, y, [
+      { opacity: 0, transform: `translate(-50%,-50%) translateX(0) scaleX(${dir})` },
+      { opacity: 1, transform: `translate(-50%,-50%) translateX(${(x1 - x0) * 0.25}px) scaleX(${dir})`, offset: 0.2 },
+      { opacity: 1, transform: `translate(-50%,-50%) translateX(${(x1 - x0) * 0.8}px) scaleX(${dir})`, offset: 0.75 },
+      { opacity: 0, transform: `translate(-50%,-50%) translateX(${x1 - x0}px) scaleX(${dir})` },
+    ], dur, `--c:${color};height:${h}px`, 'ease-in-out');
+  }
+
+  /** 词条图标 / 短词：从 a 飞到 b 上方，停一下再缩进单位 */
+  token(a: { x: number; y: number }, b: { x: number; y: number }, node: HTMLElement, dur = 760) {
+    if (this.blocked) return;
+    const el = h('div', { class: 'fxs fx-token', style: `left:0;top:0` }, node);
+    this.layer.appendChild(el);
+    const top = b.y - 70;
+    const p = (x: number, y: number, s: number) => `translate(${x}px,${y}px) translate(-50%,-50%) scale(${s})`;
+    this.track(el.animate([
+      { opacity: 0, transform: p(a.x, a.y, 0.5) },
+      { opacity: 1, transform: p((a.x + b.x) / 2, Math.min(a.y, top) - 40, 1), offset: 0.3 },
+      { opacity: 1, transform: p(b.x, top, 1.25), offset: 0.5 },
+      { opacity: 1, transform: p(b.x, top, 1.15), offset: 0.8 },
+      { opacity: 0, transform: p(b.x, b.y + 40, 0.4) },
+    ], { duration: dur / this.rate, easing: 'ease-out', fill: 'both' }), el);
+  }
+
+  /** 汇聚：一圈粒子向中心收拢（吸回、渗入） */
+  implode(x: number, y: number, color: string, o: { n?: number; r?: number; life?: number; size?: number } = {}) {
+    const n = o.n ?? 16, r = o.r ?? 70, life = o.life ?? 22;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + Math.random() * 0.4;
+      const rr = r * (0.7 + Math.random() * 0.5);
+      this.ps.push({
+        x: x + Math.cos(a) * rr, y: y + Math.sin(a) * rr * 0.7, vx: -Math.cos(a) * rr / life, vy: -Math.sin(a) * rr * 0.7 / life,
+        life, max: life, size: (o.size ?? 3) * (0.7 + Math.random() * 0.6), color, kind: 'mote', rot: 0, vr: 0, g: 0, d: 1,
+      });
+    }
+    this.kick();
+  }
+
+  /** 粒子流：沿弧线从 a 流向 b（献祭吞噬、金沙落下、沙丘钻行） */
+  flow(a: { x: number; y: number }, b: { x: number; y: number }, color: string, o: { n?: number; life?: number; arc?: number; size?: number; kind?: P['kind'] } = {}) {
+    const n = o.n ?? 18, arc = o.arc ?? 60;
+    for (let i = 0; i < n; i++) {
+      const life = (o.life ?? 26) * (0.85 + Math.random() * 0.3);
+      // 抛物线：初速向上，重力拉回，life 帧后正好落到 b
+      const g = (2 * arc) / (life * life / 4);
+      const sx = a.x + (Math.random() - 0.5) * 16, sy = a.y + (Math.random() - 0.5) * 16;
+      this.ps.push({
+        x: sx, y: sy, vx: (b.x - sx) / life, vy: (b.y - sy) / life - g * life / 2,
+        life, max: life, size: (o.size ?? 3) * (0.7 + Math.random() * 0.6), color, kind: o.kind ?? 'mote', rot: 0, vr: 0, g, d: 1,
+      });
+    }
+    this.kick();
+  }
+
+  /** 骨手：自地面伸出、握拳、缩回（唤亡复活） */
+  hand(x: number, y: number) {
+    this.sprite('fx-hand', x, y, [
+      { opacity: 0, transform: 'translate(-50%,-10%) scaleY(.2)' },
+      { opacity: 1, transform: 'translate(-50%,-100%) scaleY(1.05)', offset: 0.35 },
+      { opacity: 1, transform: 'translate(-50%,-100%) scaleY(.92)', offset: 0.7 },
+      { opacity: 0, transform: 'translate(-50%,-30%) scaleY(.3)' },
+    ], 640, '', 'cubic-bezier(.2,.9,.3,1)');
+  }
+
   /** 上升光丝（治疗、增益） */
   rise(x: number, y: number, color: string, n = 8, spread = 60) {
     for (let i = 0; i < n; i++) {
@@ -131,6 +241,79 @@ export class FX {
       });
     }
     this.kick();
+  }
+
+  // ───────── 整备 / 培养特效（只动 transform / opacity，全程 ≤700ms） ─────────
+
+  /** 培养法球：像素方块沿弧线从 a 飞向 b，身后拖一串同色像素尘 */
+  orb(a: { x: number; y: number }, b: { x: number; y: number }, color: string, dur = 300) {
+    if (this.blocked) return;
+    const el = h('div', { class: 'fxs fx-orb', style: `left:0;top:0;--c:${color}` });
+    this.layer.appendChild(el);
+    const cx = (a.x + b.x) / 2, cy = Math.min(a.y, b.y) - 90;
+    const at = (t: number) => ({ x: (1 - t) ** 2 * a.x + 2 * (1 - t) * t * cx + t * t * b.x, y: (1 - t) ** 2 * a.y + 2 * (1 - t) * t * cy + t * t * b.y });
+    const frames: Keyframe[] = [0, 0.2, 0.4, 0.6, 0.8, 1].map((t, i) => {
+      const p = at(t), s = [0.5, 1.25, 1.15, 1.05, 1, 0.7][i];
+      return { offset: t, opacity: t === 0 ? 0 : 1, transform: `translate(${p.x}px,${p.y}px) translate(-50%,-50%) rotate(${Math.round(t * 270)}deg) scale(${s})` };
+    });
+    this.track(el.animate(frames, { duration: dur / this.rate, easing: 'cubic-bezier(.5,0,.75,1)', fill: 'both' }), el);
+    this.flow(a, b, color, { n: 7, life: Math.max(10, Math.round(dur / 17)), arc: 45, size: 2.5 });
+  }
+
+  /** 物品落下：图标从单位头顶砸下、压扁回弹后消失 */
+  drop(b: { x: number; y: number }, node: HTMLElement, dur = 460) {
+    if (this.blocked) return;
+    const el = h('div', { class: 'fxs fx-drop', style: 'left:0;top:0' }, node);
+    this.layer.appendChild(el);
+    const p = (y: number, sx: number, sy: number) => `translate(${b.x}px,${b.y + y}px) translate(-50%,-100%) scale(${sx},${sy})`;
+    this.track(el.animate([
+      { offset: 0, opacity: 0, transform: p(-170, 1.3, 1.3) },
+      { offset: 0.12, opacity: 1, transform: p(-160, 1.3, 1.3), easing: 'cubic-bezier(.55,0,1,.45)' },
+      { offset: 0.6, opacity: 1, transform: p(0, 1, 1.15) },
+      { offset: 0.7, opacity: 1, transform: p(0, 1.35, 0.7) },
+      { offset: 0.84, opacity: 1, transform: p(-10, 0.95, 1.08) },
+      { offset: 1, opacity: 0, transform: p(0, 0.6, 0.6) },
+    ], { duration: dur / this.rate, fill: 'both' }), el);
+  }
+
+  /** 升星：像素星芒炸开 + 一串小星升起 */
+  stars(x: number, y: number, color = '#ffe08a', n = 7) {
+    this.sprite('fx-starburst', x, y, [
+      { opacity: 1, transform: 'translate(-50%,-50%) rotate(0deg) scale(.2)' },
+      { opacity: 1, transform: 'translate(-50%,-50%) rotate(30deg) scale(1.2)', offset: 0.35 },
+      { opacity: 0, transform: 'translate(-50%,-50%) rotate(45deg) scale(1.5)' },
+    ], 440, `--c:${color}`);
+    for (let i = 0; i < n; i++) {
+      const dx = Math.round((i - (n - 1) / 2) * 18 + (Math.random() - 0.5) * 10);
+      const up = 90 + Math.random() * 60, lag = 0.05 + (i % 3) * 0.08, s = 0.7 + Math.random() * 0.6;
+      this.sprite('fx-star', x + dx, y + 10, [
+        { opacity: 0, transform: `translate(-50%,-50%) scale(.2)` },
+        { opacity: 0, transform: `translate(-50%,-50%) scale(.2)`, offset: lag },
+        { opacity: 1, transform: `translate(-50%,${-50 - up * 0.35}px) scale(${s * 1.3})`, offset: lag + 0.2 },
+        { opacity: 0, transform: `translate(${-50 + dx * 0.3}%,${-50 - up}px) scale(${s * 0.6})` },
+      ], 600 + Math.random() * 100, `--c:${color}`);
+    }
+  }
+
+  /** 目标受强化：单次缩放弹跳（不改布局） */
+  pulse(el: Element | null | undefined, scale = 1.18, dur = 320) {
+    if (!el || this.blocked) return;
+    this.track(el.animate([
+      { transform: 'scale(1)' },
+      { transform: `scale(${scale})`, offset: 0.35 },
+      { transform: 'scale(1)' },
+    ], { duration: dur, easing: 'cubic-bezier(.3,1.6,.5,1)' }));
+  }
+
+  /** 数值跳动：向上一顿再落回 */
+  bump(el: Element | null | undefined, dur = 340) {
+    if (!el || this.blocked) return;
+    this.track(el.animate([
+      { transform: 'translateY(0) scale(1)' },
+      { transform: 'translateY(-8px) scale(1.5)', offset: 0.3 },
+      { transform: 'translateY(2px) scale(.92)', offset: 0.65 },
+      { transform: 'translateY(0) scale(1)' },
+    ], { duration: dur, easing: 'ease-out' }));
   }
 
   /** 漂浮文字（伤害、加成、落空提示） */
@@ -148,6 +331,37 @@ export class FX {
       ],
       { duration: dur, easing: 'cubic-bezier(.2,.8,.3,1)' },
     ), el);
+  }
+
+  /** 培养数值：无底框的描边大字，弹出 → 回弹 → 上浮淡出，四颗像素火花向外蹦 */
+  statPop(x: number, y: number, num: string, label: string, cls: string, dur = 900) {
+    const el = h('div', { class: `cul-pop ${cls}`, style: `left:${x}px;top:${y}px` },
+      num ? h('b', { 'data-t': num }, num) : null, h('span', { 'data-t': label }, label));
+    this.layer.appendChild(el);
+    const tilt = (Math.random() - 0.5) * 10;
+    this.track(el.animate(
+      [
+        { transform: `translate(-50%,-30%) scale(.2,.2) rotate(${tilt}deg)`, opacity: 0 },
+        { transform: `translate(-50%,-70%) scale(1.45,.8) rotate(${tilt}deg)`, opacity: 1, offset: 0.12 },
+        { transform: 'translate(-50%,-85%) scale(.88,1.18) rotate(0deg)', opacity: 1, offset: 0.22 },
+        { transform: 'translate(-50%,-80%) scale(1.06,.96)', opacity: 1, offset: 0.32 },
+        { transform: 'translate(-50%,-82%) scale(1)', opacity: 1, offset: 0.62 },
+        { transform: 'translate(-50%,-170%) scale(.92)', opacity: 0 },
+      ],
+      { duration: dur, easing: 'cubic-bezier(.2,.7,.3,1)' },
+    ), el);
+    for (let i = 0; i < 4; i++) {
+      const sp = h('i', { class: `cul-spark ${cls}`, style: `left:${x}px;top:${y}px` });
+      this.layer.appendChild(sp);
+      const a = -Math.PI / 2 + (i - 1.5) * 0.7, r = 34 + Math.random() * 12;
+      this.track(sp.animate(
+        [
+          { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+          { transform: `translate(calc(-50% + ${Math.cos(a) * r}px), calc(-50% + ${Math.sin(a) * r}px)) scale(.4)`, opacity: 0 },
+        ],
+        { duration: 420, delay: 70, easing: 'cubic-bezier(.1,.8,.4,1)', fill: 'backwards' },
+      ), sp);
+    }
   }
 
   shake(power = 6, dur = 260, xOnly = false) {
@@ -231,7 +445,7 @@ export class FX {
         const step = Math.min(1, remaining);
         p.x += p.vx * step; p.y += p.vy * step;
         p.vy += p.g * step;
-        const damping = Math.pow(0.96, step);
+        const damping = Math.pow(p.d ?? 0.96, step);
         p.vx *= damping; p.vy *= damping; p.rot += p.vr * step;
         remaining -= step;
       }

@@ -1,13 +1,13 @@
 // 单位浏览器：图鉴「单位」页和局内「本局卡池」共用。
 // 左侧网格直接用招募卡面，右侧是选中单位的详情；两处入口看到的是同一套样子。
 import '../unit-browser.css';
-import { DRAFT_POOL, FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
+import { DRAFT_POOL, FACTION_INFO, unitDef } from '../core/data';
 import type { Faction, UnitDef } from '../core/types';
 import { sfx } from './audio';
 import { draftCard } from './card';
+import { tierArt, tierBadge } from './card';
 import { h } from './dom';
 import { unitTip } from './tip';
-import { unitSvg } from './unitArt';
 
 export interface BrowserState { fac: Faction; star: number; sel: string | null }
 
@@ -54,11 +54,11 @@ export function unitBrowser(o: BrowserOpts): HTMLElement {
       const lock = o.lockNote?.(d);
       detail.replaceChildren(
         h('div', { class: 'cx-d-head' },
-          h('div', { class: 'cx-d-art', html: unitSvg(id) }),
+          tierArt('cx-d-art', id, d.tier),
           h('div', { class: 'ub-d-title' },
             h('b', { class: 'cx-d-name' }, d.name),
             h('div', { class: 'ub-d-meta' }, h('span', { class: 'ub-d-fac', style: `--fc:${FACTION_INFO[d.faction].color}` }, FACTION_INFO[d.faction].name),
-              h('span', { class: `cx-rar rarity-${d.tier}` }, RARITY_NAMES[d.tier]),
+              tierBadge(d.tier),
               lock ? h('span', { class: 'ub-d-lock' }, lock) : null))),
         h('section', { class: 'cx-lv' }, unitTip(id, s.star, null, false)),
       );

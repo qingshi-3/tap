@@ -33,7 +33,7 @@ const mech = (d: UnitDef, tacticsVersion?: 1) => (d.tags ?? []).filter((t) => !R
 /** 已持有且未满三星的同名份数列表 */
 function ownedCopies(owned: readonly (Slotted | null)[]) {
   const m = new Map<string, number[]>();
-  for (const u of owned) if (u && u.copies < 4) m.set(u.defId, [...(m.get(u.defId) ?? []), u.copies]);
+  for (const u of owned) if (u && u.copies < 6) m.set(u.defId, [...(m.get(u.defId) ?? []), u.copies]);
   return m;
 }
 
@@ -43,7 +43,7 @@ function roleWeight(role: Role, d: UnitDef, inp: RecInput, rec: RecState, ctx: R
     const cs = ctx.owned.get(d.id);
     if (cs?.length) {
       w *= 2.5;
-      if (cs.includes(1)) w *= 1.3;
+      if (cs.some(c => c === 2 || c === 5)) w *= 1.3;
       w *= Math.min(4, 1 + 0.5 * rec.dry);
     }
   } else if (role === 'related') {

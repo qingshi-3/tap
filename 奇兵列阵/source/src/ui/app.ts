@@ -7,6 +7,9 @@ import { generalDefinition } from '../core/content';
 import { chapter, TOTAL_BATTLES } from '../core/route';
 import { battleNo, currentNode, generalChoices, newRun, randomSeed, screen, type RunState } from '../core/run';
 import { clearAllData, clearRun, loadRun, saveRun } from '../core/save';
+
+/** 玩家反馈 QQ 群号 */
+const QQ_GROUP = 'QQ_GROUP_TBD';
 import { resetHints } from './hints';
 import { recordRunOutcome, stageRunReplacement } from '../core/career';
 import { recordsScreen } from './records';
@@ -16,7 +19,7 @@ import { audioSettings } from './audioSettings';
 import { h, stageState } from './dom';
 import { ambient, FX } from './fx';
 import { Game } from './game';
-import { newTutorialRun } from './tutorial';
+import { newTutorialRun, tutorialDone } from './tutorial';
 import { codexScreen, keywordDoc } from './codex';
 import { kwTag, MECH } from './kwtext';
 import { BATTLE_RULES } from '../core/battleRules';
@@ -26,6 +29,7 @@ import { hideTip, initTip } from './tip';
 import { pedestalUrl } from './pixel';
 import { TapTapRewardedAds, type RewardedAds, type RewardedPlacement, type RewardedResult } from './rewarded';
 import { unitPxUrl, unitSvg } from './unitArt';
+import { tierArt } from './card';
 
 /** 说明正文里加粗的词条名换成统一写法：图标类出图标 + 名字，其余出「」短词 */
 function htLine(l: string): HTMLElement {
@@ -157,10 +161,14 @@ export class App {
     const showcase = ['l_cliff', 's_hunter', 'a_jugg', 'm_vindicator', 'v_keeper', 'd_sandblade'];
     const foes = ['e_void', 'e_frostq', 'e_nightk'];
     const saved = loadRun();
-    const start = h('button', { class: 'btn primary big title-new' }, h('span', null, '新的游戏'), icon('play'));
+    // 有可继续的远征时「继续游戏」是主按钮，新局退为次要并在覆盖前确认。
+    const start = h('button', { class: `btn ${saved.kind === 'ok' ? 'ghost' : 'primary'} big title-new` }, h('span', null, '新的游戏'), icon('play'));
     start.addEventListener('click', () => {
       sfx.start();
       if (saved.kind === 'ok') this.confirm('开始新的远征？', saved.run.over ? '本次远征已结束，将开始新的远征。' : '开始新局会放弃当前远征，计为一次失败。', '开始', () => this.toSelect());
+      else if (saved.kind === 'incompatible') this.confirm('开始新的远征？', '旧版存档无法继续，开始新局会丢弃它。', '开始', () => {
+        if (this.discardIncompatible()) this.toSelect();
+      });
       else this.toSelect();
     });
     let cont: HTMLElement | null = null;
@@ -178,8 +186,7 @@ export class App {
     } else if (saved.kind === 'incompatible') {
       cont = h('button', { class: 'btn ghost big' }, h('span', null, '旧版存档无法继续'), icon('x'));
       cont.addEventListener('click', () => this.confirm('丢弃旧版存档？', '游戏版本已更新，旧存档无法继续。', '丢弃', () => {
-        if (clearRun({ discardIncompatible: true })) this.toTitle();
-        else this.showRewardNotice('旧存档已保留', '本地存储暂不可用，请稍后重试。', 'error');
+        if (this.discardIncompatible()) this.toTitle();
       }));
     }
     // 辅助入口与音量键共用右上角工具栏及像素按钮材质。
@@ -191,18 +198,23 @@ export class App {
     const codex = h('button', { class: 'icon-btn title-tool' }, icon('diamond'), h('span', null, '图鉴'));
     codex.addEventListener('click', () => { sfx.click(); this.toCodex(); });
     const records = h('button', { class: 'icon-btn title-tool' }, icon('flag'), h('span', null, '战绩'));
+    const feedback = h('button', { class: 'icon-btn title-tool title-feedback' }, h('span', null, '反馈'));
+    feedback.addEventListener('click', () => { sfx.click(); this.showFeedback(); });
     records.addEventListener('click', () => { sfx.click(); this.toRecords(); });
-    const tut = h('button', { class: 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
+    // 教程完成前保留绿色高亮；完成后与其他工具键同款。
+    const tut = tutorialDone()
+      ? h('button', { class: 'icon-btn title-tool title-tut-done' }, h('span', null, '新手教程'))
+      : h('button', { class: 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
     tut.addEventListener('click', () => { sfx.start(); this.startTutorial(); });
     const quiet = () => isMuted() || getVolumes().master === 0;
     const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '设置' }, icon(quiet() ? 'mute' : 'sound'));
     volume.addEventListener('click', () => {
       sfx.click();
-      const resetTips = h('button', { class: 'btn ghost' }, h('span', null, '重置提示'));
+      const resetTips = h('button', { class: 'btn ghost' }, h('span', null, '重新显示新手提示'));
       const wipe = h('button', { class: 'btn danger' }, h('span', null, '清除全部数据'));
       resetTips.addEventListener('click', () => {
         sfx.click(); resetHints();
-        resetTips.replaceChildren(h('span', null, '已重置'));
+        resetTips.replaceChildren(h('span', null, '提示将重新显示'));
         resetTips.disabled = true;
       });
       wipe.addEventListener('click', () => {
@@ -214,7 +226,8 @@ export class App {
       });
       this.modal(h('div', { class: 'confirm', 'aria-label': '设置' }, h('h3', null, '设置'),
         audioSettings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound'))),
-        h('div', { class: 'data-tools' }, resetTips, wipe)), 'audio-dialog', document.body);
+        h('div', { class: 'data-tools' }, resetTips),
+        h('div', { class: 'data-tools danger-zone' }, wipe)), 'audio-dialog', document.body);
     });
     const el = h(
       'div',
@@ -235,7 +248,7 @@ export class App {
         h('div', { class: 'logo', style: 'font-size:100px' }, h('span', null, '奇兵列阵')),
         h('div', { class: 'title-btns' }, cont, start),
       ),
-      h('div', { class: 'title-tools' }, tut, how, codex, records, volume),
+      h('div', { class: 'title-tools' }, tut, how, codex, records, feedback, volume),
     );
     this.show(el);
   }
@@ -293,7 +306,7 @@ export class App {
       h(
         'div',
         { class: 'screen select' },
-        h('div', { class: 'sel-head' }, h('div', { class: 'sel-title' }, '选择你的将军'), h('div', { class: 'sel-sub' }, '将军能力每场开战自动生效')),
+        h('div', { class: 'sel-head' }, h('div', { class: 'sel-title' }, '选择你的将军'), h('div', { class: 'sel-sub' }, '将军能力会在每场战斗中生效')),
         h('div', { class: 'gen-row' }, cards),
         h('div', { class: 'sel-foot' }, back),
       ),
@@ -303,13 +316,13 @@ export class App {
   startRun(general: string, seed?: number) {
     const previous = loadRun();
     if (previous.kind === 'incompatible') {
-      this.showRewardNotice('旧存档已保留', '请先返回首页，确认丢弃旧版存档后再开始。', 'error');
-      return;
+      // 旧版存档无法续玩：直接丢弃，绝不让玩家卡在开局
+      if (!this.discardIncompatible()) return;
     }
     const run = newRun(general, seed);
     stageRunReplacement(previous.kind === 'ok' ? previous.run : null, run);
     if (!saveRun(run)) {
-      this.showRewardNotice('远征未能保存', '原记录已保留，请检查本地存储后重试。', 'error');
+      this.showRewardNotice('远征未能保存', '可在首页「反馈」里清除本地数据后重开。', 'error');
       return;
     }
     this.continueRun(run);
@@ -360,7 +373,7 @@ export class App {
         ? h(
             'div',
             { class: 'end-unit' },
-            h('div', { class: 'eu-art', html: unitSvg(s.defId) }),
+            tierArt('eu-art', s.defId, unitDef(s.defId).tier),
             h('div', { class: 'eu-name' }, unitDef(s.defId).name),
             h('div', { class: 'eu-lv' }, `${unitLevel(s)}星`),
           )
@@ -371,7 +384,7 @@ export class App {
       { class: `screen end ${win ? 'victory' : 'defeat'}` },
       h('div', { class: 'end-rays' }),
       h('div', { class: 'end-title' }, win ? '远征胜利' : '远征终止'),
-      h('div', { class: 'end-sub' }, win ? '三章远征全部完成。你的阵型经受住了所有考验。' : `止步${chapter(run.chapter).name} · 第 ${reached} 战 · ${currentNode(run).name}`),
+      h('div', { class: 'end-sub' }, win ? '三章远征全部通关！' : `止步${chapter(run.chapter).name} · 第 ${reached} 战 · ${currentNode(run).name}`),
       h(
         'div',
         { class: 'end-stats' },
@@ -440,6 +453,36 @@ export class App {
     const ok = h('button', { class: 'btn primary' }, h('span', null, '好的'));
     const close = this.modal(h('div', { class: 'confirm', 'aria-label': title }, h('h3', null, title), h('p', null, text), h('div', { class: 'confirm-btns' }, ok)), 'small');
     ok.addEventListener('click', close);
+  }
+
+  /** 丢弃无法续玩的旧存档；连这也失败时引导清除本地数据 */
+  private discardIncompatible(): boolean {
+    if (clearRun({ discardIncompatible: true }) || clearAllData()) return true;
+    this.showRewardNotice('存档无法丢弃', '请在「反馈」里清除本地数据后重开。', 'error');
+    return false;
+  }
+
+  /** 反馈：QQ 群 + 兜底的清除本地数据重开（本作没有局外养成，清掉只丢战绩与教学进度） */
+  showFeedback() {
+    const copy = h('button', { class: 'btn primary' }, h('span', null, '复制群号'));
+    copy.addEventListener('click', () => {
+      sfx.click();
+      const done = () => copy.replaceChildren(h('span', null, '已复制'));
+      navigator.clipboard?.writeText(QQ_GROUP).then(done, () => copy.replaceChildren(h('span', null, QQ_GROUP)));
+    });
+    const wipe = h('button', { class: 'btn danger' }, h('span', null, '清除本地数据重开'));
+    wipe.addEventListener('click', () => {
+      sfx.click();
+      this.confirm('清除本地数据重开？', '删除远征存档、战绩和教学进度，保留声音设置。存档出错进不去时用这个。', '清除并重开', () => {
+        clearAllData();
+        location.reload();
+      });
+    });
+    this.modal(h('div', { class: 'confirm feedback-dialog', 'aria-label': '反馈' }, h('h3', null, '反馈'),
+      h('p', null, '有问题或建议？欢迎加 QQ 群：'),
+      h('div', { class: 'fb-group' }, h('span', null, 'QQ 群'), h('b', null, QQ_GROUP)),
+      h('div', { class: 'confirm-btns' }, copy),
+      h('div', { class: 'data-tools danger-zone' }, h('p', null, '存档出问题、卡住玩不了？'), wipe)), 'audio-dialog', document.body);
   }
 
   confirm(title: string, text: string, okText: string, ok: () => void) {
@@ -517,101 +560,101 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
     {
       title: '队首与站位',
       lines: [
-        '双方各有 <b>5 个格位</b>；靠近中线的 <b>1 号位是队首</b>，常规行动从队首排向队尾。',
-        '阵亡后留下空格，后面的单位<b>不会前移</b>。出手顺序跳过空格，只看存活单位。',
-        '普通攻击默认打敌方队首；<b>狙击</b>改打队尾，<b>决斗</b>改打本次交锋的对手。<b>嘲讽</b>只替紧邻身后的友军拦截普攻，不会吸走其他位置的攻击。',
+        '每方 <b>5 格</b>，挨着中线的 <b>1 号位是队首</b>。行动从队首排到队尾。',
+        '有人阵亡就空出一格，后面的人<b>不前移</b>。',
+        '普攻打敌方队首。<b>狙击</b>打队尾，<b>决斗</b>打本次交锋的对手。<b>嘲讽</b>替紧挨前后的友军挡普攻。',
       ],
       fig: duel,
     },
     {
-      title: '一次交锋怎样结算',
+      title: '一次交锋',
       lines: [rules.beat.text,
-        '施法若先击杀或冻住对面的出手者，就能阻止它本次交锋原定的普攻。',
-        '同一次交锋并不是我方先打完、敌方再还手；已同时开始的双方普攻可互相击倒。双方同时施法时，我方先结算。',
-        '盘面上双方单位标 <b>①–⑤</b> 表示本回合出手顺序，<b>同号同时出手</b>。',
+        '施法先击杀或冻住对手，对手这次就打不出普攻。',
+        '双方同时施法时，我方先结算。',
+        '单位脚下的 <b>1–5</b> 是本回合出手顺序，<b>同号同时出手</b>。',
       ],
       fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'e_brute', enemy: true }),
     },
     {
       title: '回合与行动轮',
       lines: [rules.round.text, rules.wave.text,
-        '双方都没有额外次数时，<b>5 人对 3 人</b>：前 3 次交锋双方各一人；第 4、5 次交锋只有 5 人方行动，3 人方等待。然后才进入新回合。',
+        '例：<b>5 人打 3 人</b>，前 3 次交锋双方各出一人；第 4、5 次只有 5 人方行动，3 人方等待。之后进入下一回合。',
       ],
       fig: row({ id: 'm_rex' }, { id: 'l_priest' }, { id: 'e_brute', enemy: true, dim: true }),
     },
     {
-      title: '额外行动排在哪里',
+      title: '额外行动',
       lines: [rules.extra.text,
-        '额外轮仍按队首到队尾排队；某方没有剩余次数就等待。等<b>双方常规行动次数全耗尽</b>，才补发下回合的基础次数。',
+        '额外轮同样从队首排到队尾，没有次数的一方等待。<b>双方次数都用完</b>才进入下一回合。',
       ],
       fig: row({ id: 'n_marshal' }, { id: 'm_rex' }),
     },
     {
-      title: '行动时施法还是普攻',
+      title: '施法还是普攻',
       lines: [rules.action.text,
-        '有<b>「施法：」</b>的单位，按卡面效果施法；没有有效目标时改为普攻。其他单位通常普攻。',
-        '施法通常<b>没有额外次数上限</b>，多一次行动就可再按自身规则施法。<b>例外写在卡面上</b>：如唤亡祭师、构装学徒有本场次数上限，用完后改为普攻，不会每回合重置。',
+        '<b>「施法：」</b>没有可选目标时，改为普攻。',
+        '施法不限次数，多一次行动就多施一次。<b>卡面写了次数的例外</b>：如唤亡祭师、构装学徒，本场用完后只普攻。',
       ],
       fig: row({ id: 'm_shaman' }, { id: 'm_rex' }, { id: 'a_ritualist' }),
     },
     {
       title: '追击与连击',
       lines: [
-        '<b>追击</b>：冲出队列立刻普攻一次，<b>不施法、不消耗行动次数</b>，也不改变出手顺序；仍受寒意影响。',
-        '<b>追击引发的效果不会再引发追击</b>：例如追击击杀了敌人，「击杀时：追击」不会再触发。主将被动<b>「连锁」</b>允许再引发一次；主将直接命令的追击总能发动。',
-        '<b>连击</b>：一次攻击打两下。<b>追击</b>：马上插队打一下，不能施法、不算行动。<b>再动一次</b>（行动次数 +1）：本回合稍后再行动，可以施法、算行动。',
+        '<b>追击</b>：立刻普攻一次。不施法，不用行动次数，不改顺序。寒意照样生效。',
+        '<b>追击引发的效果不再引发追击</b>。例：追击击杀敌人，「击杀时：追击」不触发。主将被动<b>「连锁」</b>可再引发一次；主将直接下令的追击总会发动。',
+        '<b>连击</b>：一次攻击打两下。<b>行动 +1</b>：本回合稍后多行动一次，可以施法。',
       ],
       fig: row({ id: 's_dancer' }, { id: 's_wind' }),
     },
     {
-      title: '寒意立即生效，也会保留',
+      title: '寒意与冻结',
       lines: [
-        '获得寒意后，<b>接下来的出手就受影响</b>，不用等到下回合。普攻攻击减去寒意层数（最少 1），出手后清空。',
-        '出手前若<b>寒意 ≥ 本次攻击力</b>，则冻结：跳过这次出手、清空寒意。被冻结仍消耗本次常规行动机会；施法和追击也检查冻结。',
-        '如果还没轮到它，寒意就继续留着，<b>不会在回合结束时自动消失</b>。',
+        '寒意<b>马上生效</b>：下次普攻的攻击减去寒意层数（最少 1），出手后清空。',
+        '出手前<b>寒意 ≥ 攻击</b>就冻结：跳过这次出手，清空寒意，仍算用掉一次行动。施法和追击同样会被冻结。',
+        '没轮到出手前，寒意<b>一直保留</b>，回合结束也不消失。',
       ],
       fig: row({ id: 'v_mage' }, { id: 'e_brute', enemy: true, dim: true }),
     },
     {
-      title: '交锋结束：主将、灼烧与疲劳',
+      title: '交锋后：灼烧与疲劳',
       lines: [rules.beatEnd.text,
-        '<b>灼烧 N 层</b>：每次交锋结束受 N 伤害，然后减少 1 层；无视格挡和护甲。',
-        `第一至三章分别从<b>第 ${[1, 2, 3].map(fatigueStartForChapter).join('／')} 次交锋结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每次交锋递增。不会等到回合结束才结算。`,
+        '<b>灼烧 N 层</b>：每次交锋后受 N 伤害，再减 1 层。无视格挡和护甲。',
+        `<b>疲劳</b>：第一至三章分别从第 <b>${[1, 2, 3].map(fatigueStartForChapter).join('／')}</b> 次交锋后开始，双方全体每次交锋受伤，从 1 点起逐次加 1。`,
       ],
       fig: row({ id: 'm_shaman' }, { id: 'e_brute', enemy: true }),
     },
     {
       title: '防御与攻击词条',
       lines: [
-        '<b>格挡</b>抵消下一次伤害并消耗 1 层；<b>护甲</b>让每次伤害 −N，最少 1。灼烧无视两者。',
-        '<b>溅射</b>额外打目标身后一名（伤害减半）；<b>反击</b>在被普攻直接命中时反伤，连击每段都可触发。',
-        '<b>复生</b>让第一次阵亡原位 1 血复活；<b>法强</b>强化自己的施法数值，群体效果加成减半。其他词条可切到「词条」查阅。',
+        '<b>格挡</b>：挡掉下一次伤害，用掉 1 层。<b>护甲 N</b>：每次受伤 −N，最少 1。灼烧无视两者。',
+        '<b>溅射</b>：顺带打目标身后一人，伤害减半。<b>反击</b>：被普攻打中时反伤，连击每段都反。',
+        '<b>复生</b>：第一次阵亡时原地 1 血复活。<b>法强</b>：提高自己的施法数值，群体效果只加一半。其余见「词条」页。',
       ],
       fig: row({ id: 'l_shield' }, { id: 'v_wall' }, { id: 'm_rex' }),
     },
     {
-      title: '看敌阵，再调站位',
+      title: '看敌阵调站位',
       lines: [
-        '点击顶部<b>路线节点</b>提前看敌阵，再为护甲、寒意、狙击等能力调整站位。',
-        '打输了可在结算后点<b>「复盘」</b>，使用同一阵容调整站位试打。',
+        '点顶部<b>路线节点</b>可提前看敌阵，按对面的护甲、寒意、狙击调站位。',
+        '输了在结算页点<b>「复盘」</b>，用同一阵容换站位再打。',
       ],
       fig: row({ id: 'l_shield' }, { id: 'm_shaman' }, { id: 'e_silencer', enemy: true }),
     },
     {
       title: '远征与培养',
       lines: [
-        '远征共 <b>3 章 21 战</b>。每章有两次商店、一处精英岔路和一名首领。生命 3 条，击败首领恢复 1 条。',
-        '胜利获得<b>金币和培养点</b>。点培养点再点单位，永久提升攻击、生命、格挡；「法」点用于<b>有法强收益的单位</b>；旧远征的部分主将也可使用。',
-        '商店出售单位、装备、一次性法术和招募令；可卖单位换金。精英胜利掉落装备三选一。',
+        '远征 <b>3 章 21 战</b>，每章 2 次商店、1 处精英岔路、1 名首领。生命 3 条，打赢首领回 1 条。',
+        '打赢得<b>金币和培养点</b>。在「整备」里选培养点再点单位，永久加攻击、生命或格挡；「法」点给吃法强的单位。',
+        '商店卖单位、装备、法术和招募令；单位可拖去出售。精英战胜利后装备三选一。',
       ],
       fig: row({ id: 'n_merc' }, { id: 'l_shield' }, { id: 'm_rex' }),
     },
     {
       title: '主将、战术与保存',
       lines: [
-        '新远征在<b>第一、二章第4场之后</b>各进行一次战术三选一。旧远征保留原主将晋升。',
-        '齐兰与卡雷奥斯在<b>备战指定友军</b>，目标会保留，可随时改选或取消；战斗中自动执行。',
-        '进度自动保存。返回标题后，可点<b>「继续游戏」</b>回到当前远征。',
+        '第一、二章<b>第 4 场后</b>各选一次战术（三选一）。旧存档仍是主将升阶。',
+        '齐兰、卡雷奥斯在备战时<b>指定一名友军</b>，指定会保留，随时可改；战斗中自动生效。',
+        '进度自动保存。回标题点<b>「继续游戏」</b>即可接着打。',
       ],
       fig: row({ id: 'm_rex' }, { id: 'l_priest' }),
     },

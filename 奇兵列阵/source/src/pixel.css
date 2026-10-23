@@ -100,11 +100,6 @@
 .card.selected .card-in {
   box-shadow: 0 0 0 2px #ffd36b, 0 0 30px rgba(255, 211, 107, 0.55), 0 18px 36px rgba(0, 0, 0, 0.6);
 }
-.card.tier-3 .card-in::after {
-  border-radius: 4px;
-  padding: 4px;
-  inset: 0;
-}
 .card-fac,
 .card-badge {
   border-radius: 0;
@@ -256,7 +251,7 @@
   background-image: var(--px-atk-zero) !important;
 }
 .st.power {
-  background-image: var(--pxr-3) !important;
+  background-image: var(--pxr-4) !important;
 }
 .st.block {
   background-image: var(--px-hp-zero) !important;

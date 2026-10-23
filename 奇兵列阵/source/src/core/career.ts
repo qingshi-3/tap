@@ -1,5 +1,5 @@
 import type { RunState } from './run';
-import type { BattleOutput, Slotted } from './types';
+import { unitLevel, type BattleOutput, type Slotted } from './types';
 import { unitDef } from './data';
 import { ACHIEVEMENTS, getAchievementProgress } from './achievements';
 
@@ -86,14 +86,14 @@ function growth(run: RunState, slots: readonly (Slotted | null)[], bench: readon
   const field = slots.filter((u): u is Slotted => !!u);
   const defs = field.map(u => unitDef(u.defId));
   return { gold: run.gold, genPower: run.genPower, promotions: run.promoCount, passives: run.passives.length,
-    equips: units.reduce((n,u) => n + (u.equips?.length ?? 0), 0), maxStars: Math.max(0, ...units.map(u => u.copies === 4 ? 3 : u.copies)),
+    equips: units.reduce((n,u) => n + (u.equips?.length ?? 0), 0), maxStars: Math.max(0, ...units.map(u => unitLevel(u))),
     trained: Math.max(0, ...units.map(u => Object.values(u.train ?? {}).reduce<number>((a,b) => a + (b ?? 0), 0))),
     fullRoster: units.length, spells: run.activeSpells.length,
     fieldCount: field.length, fieldNoLegendary: defs.every(d => d.tier < 4) ? 1 : 0,
     fieldFactions: new Set(defs.map(d => d.faction)).size,
     fieldNeutral: defs.filter(d => d.faction === 'neutral').length,
     fieldDual: field.some(u => (u.equips?.length ?? 0) >= 2) ? 1 : 0,
-    fieldThreeStar: field.filter(u => u.copies === 4).length };
+    fieldThreeStar: field.filter(u => unitLevel(u) === 3).length };
 }
 /** Stage on the authoritative run; saveRun commits this only after the run itself is durable. */
 export function recordOfficialBattle(run: RunState, out: BattleOutput, checkpoint: RunState,

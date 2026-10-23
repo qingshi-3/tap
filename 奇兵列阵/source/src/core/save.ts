@@ -2,7 +2,7 @@
 import { CONTENT_STRUCTURE, CONTENT_VERSION, SAVE_VERSION, battleNo, tierCap, claimPendingEggs, finishBattle, recoverEmptyRoster, type RunState } from './run';
 import { DRAFT_POOL, GENERAL_MAP, UNIT_MAP } from './data';
 import { EQUIP_MAP, PASSIVE_MAP, SPELL_MAP, POINT_MAP, ORDER_MAP } from './content';
-import { activateCareerRun, CAREER_KEY, ensureRunCareer, loadCareer, observeRun } from './career';
+import { activateCareerRun, ensureRunCareer, loadCareer, observeRun } from './career';
 
 export const SAVE_KEY = 'zl_expedition_v1';
 /** 0.8.1 之前的存档没有 contentStructure 字段：0.8.0 就是结构 1 */
@@ -21,8 +21,7 @@ function validUpgradeOffers(r: RunState): boolean {
       || !Number.isSafeInteger(group.id) || group.id <= previous || group.id >= counter!
       || !Number.isSafeInteger(group.battle) || group.battle < 0 || group.battle > battleNo(r)
       || !Number.isSafeInteger(group.tier) || group.tier !== Math.min(6, tierCap(group.battle) + 1)
-      || typeof group.locked !== 'boolean' || !Array.isArray(group.choices) || group.choices.length !== 2
-      || group.choices[0] === group.choices[1]
+      || typeof group.locked !== 'boolean' || !Array.isArray(group.choices) || group.choices.length !== 1
       || !group.choices.every(id => typeof id === 'string' && DRAFT_POOL.some(d => d.id === id && d.tier === group.tier))) return false;
     previous = group.id;
   }
@@ -47,11 +46,17 @@ export function runFitsContent(r: RunState): boolean {
     && (r.bag ?? []).every((id) => !!EQUIP_MAP[id])
     && [...(r.spells ?? []), ...(r.activeSpells ?? [])].every((id) => !!SPELL_MAP[id]);
 }
-/** 设置里的「清除全部数据」：远征、生涯、教学和提示进度；声音偏好保留 */
-export function clearAllData() {
-  const s = store(); if (!s) return;
-  for (const k of [SAVE_KEY, PLAYED_KEY, CAREER_KEY, 'zl_tutorial_done', 'zl_coach']) { try { s.removeItem(k); } catch { /* ignore */ } }
+/** 「清除本地数据重开」：删掉本游戏的全部进度键（含无法解析的坏档）；声音/速度偏好保留。返回存档是否已确实删除 */
+const KEEP_KEYS = new Set(['zl_audio_volumes', 'zl_muted', 'zl_speed', 'zl_music_run', 'zl_music_selection']);
+export function clearAllData(): boolean {
   accessedRunId = null;
+  const s = store(); if (!s) return false;
+  try {
+    const keys: string[] = [];
+    for (let i = 0; i < s.length; i++) { const k = s.key(i); if (k && k.startsWith('zl_') && !KEEP_KEYS.has(k)) keys.push(k); }
+    for (const k of keys) { try { s.removeItem(k); } catch { /* ignore */ } }
+    return s.getItem(SAVE_KEY) === null;
+  } catch { return false; }
 }
 export type LoadResult = { kind: 'none' } | { kind: 'ok'; run: RunState } | { kind: 'incompatible' };
 const store = (): Storage | null => { try { return typeof localStorage === 'undefined' ? null : localStorage; } catch { return null; } };
@@ -91,8 +96,11 @@ export function clearRun(options: { discardIncompatible?: boolean } = {}): boole
     const raw = s.getItem(SAVE_KEY); if (!raw) return true;
     let run: RunState | undefined;
     try { run = JSON.parse(raw) as RunState; } catch { /* Explicit incompatible discard below. */ }
-    if (!run || run.saveVersion !== SAVE_VERSION || !run.runId) {
-      if (!options.discardIncompatible) return false;
+    // 玩家明确丢弃无法续玩的存档：不再要求它是本页加载过的那份（loadRun 判不兼容时不会记录 runId），尽力结算后直接删除
+    if (options.discardIncompatible) {
+      if (run?.runId) { try { observeRun(run); } catch { /* 坏档不阻止丢弃 */ } }
+    } else if (!run || run.saveVersion !== SAVE_VERSION || !run.runId) {
+      return false;
     } else {
       if (run.runId !== accessedRunId) return false;
       if (run.pending) finishBattle(run);
