@@ -1,0 +1,34 @@
+{
+  "samples": 16,
+  "clear": 13,
+  "firstThree": 16,
+  "everFormed": 16,
+  "switched": 16,
+  "drawstop": 1,
+  "stages": [
+    {
+      "chapter": 1,
+      "passed": 16,
+      "bossReached": 16,
+      "ever": 12,
+      "current": 12
+    },
+    {
+      "chapter": 2,
+      "passed": 14,
+      "bossReached": 16,
+      "ever": 16,
+      "current": 15
+    },
+    {
+      "chapter": 3,
+      "passed": 13,
+      "bossReached": 14,
+      "ever": 16,
+      "current": 14
+    }
+  ],
+  "bridgeRuns": 16,
+  "lastStillFormed": 15,
+  "lastSummonRuns": 15
+}

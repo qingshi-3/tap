@@ -1,0 +1,396 @@
+{
+  "shots": [
+    {
+      "file": "01-主菜单.png",
+      "note": "主菜单",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "02-玩法说明.png",
+      "note": "玩法说明",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "03-词条说明.png",
+      "note": "词条说明",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "04-推荐阵容图鉴.png",
+      "note": "推荐阵容图鉴",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "05-单位列表.png",
+      "note": "单位列表",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "06-将军图鉴.png",
+      "note": "将军图鉴",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "07-装备图鉴.png",
+      "note": "装备图鉴",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "08-法术与招募令.png",
+      "note": "法术与招募令",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "09-战绩空态.png",
+      "note": "战绩空态",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "10-成就.png",
+      "note": "成就",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "11-设置.png",
+      "note": "设置",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "12-主将选择.png",
+      "note": "主将选择",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "13-首次备战引导.png",
+      "note": "首次备战引导",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "14-招募单位详情.png",
+      "note": "点击货架查看单位效果及锁定按钮",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "15-拖拽购买后.png",
+      "note": "把货架第一张卡拖到我方一号位，完成真实招募",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "16-整备养成.png",
+      "note": "实际招募两名单位后打开整备",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "17-主将指定目标.png",
+      "note": "备战 → 换防，进入主将目标选择",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "18-备战阵容.png",
+      "note": "两名单位已购买、主将换防目标已指定",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "19-本局卡池.png",
+      "note": "备战 → 本局卡池",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "20-战斗进行中.png",
+      "note": "实际点击开战，正常播放战斗",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "21-战斗胜利结算.png",
+      "note": "首战正常播放至胜利结算",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "22-战斗复盘.png",
+      "note": "胜利结算 → 复盘",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "23-获得资源后的整备.png",
+      "note": "首战胜利后，整备中显示可分配培养点",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "24-培养目标选择.png",
+      "note": "整备 → 选择攻击培养点，等待选择友军",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "25-培养完成.png",
+      "note": "攻、生命、格挡培养分别实际分配给灯笼狐",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "26-合并升星后.png",
+      "note": "同名吞噬者拖到现有吞噬者，真实合并升星",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "27-提前高阶招募.png",
+      "note": "升星奖励二选一中购买二阶碎骨武僧",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "28-多单位战斗.png",
+      "note": "第二战，包含轮换主将、决斗和施法单位",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "29-手机横屏备战844.png",
+      "note": "同一真实远征，第3战备战，844×390",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "30-手机横屏整备844.png",
+      "note": "844×390，打开整备",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "31-短屏备战568.png",
+      "note": "同一远征，568×320短屏备战",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      }
+    },
+    {
+      "file": "32-第三战阵容战斗.png",
+      "note": "第三战实际战斗；截图时四名单位上阵，未将失败的拖拽计为成功购买",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "33-节点商店.png",
+      "note": "打完前三战自然进入第一处商店",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "34-商店商品详情.png",
+      "note": "商店 → 选择培养包，查看效果及购买按钮",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "35-商店购买后.png",
+      "note": "实际购买培养包，金币10→6",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "36-商店装备详情.png",
+      "note": "选择炽焰刃查看装备效果",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "37-手机横屏商店844.png",
+      "note": "844×390，商店装备详情",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "38-短屏商店568.png",
+      "note": "568×320，商店装备详情",
+      "viewport": {
+        "width": 568,
+        "height": 320
+      }
+    },
+    {
+      "file": "39-商店单位详情.png",
+      "note": "选择影舞者，显示单位效果与购买入口",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "40-商店单位购买后.png",
+      "note": "实际购买影舞者，查看安置及单位购买剩余额度",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "41-商店购买额度用尽.png",
+      "note": "第二次购买单位后，单位可购0/2，金币0",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "42-离店后界面.png",
+      "note": "实际离开第一处节点商店",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "43-战术选择.png",
+      "note": "第四战后自然出现的战术三选一",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "44-路线分岔.png",
+      "note": "选择战术后出现普通与精英路线",
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      }
+    },
+    {
+      "file": "45-手机横屏路线844.png",
+      "note": "844×390路线选择",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "46-手机局内菜单844.png",
+      "note": "844×390实际点击普通路线，然后打开局内菜单",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "47-有存档主菜单844.png",
+      "note": "手机横屏，实际保存并返回标题后出现继续游戏",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    },
+    {
+      "file": "48-继续游戏恢复844.png",
+      "note": "实际继续游戏，恢复第5战阵容与培养资源",
+      "viewport": {
+        "width": 844,
+        "height": 390
+      }
+    }
+  ],
+  "uiErrors": [],
+  "coverage": "Real UI play through four victories, shop purchases, tactics, route and save/resume; no state injection; desktop 1280x720 plus resized touch-enabled 844x390 and 568x320 viewports. Not a full 21-battle clear.",
+  "scope": "0.12.1本地单文件包。独立浏览器空存档，真实输入走完前四战胜利、第一处商店、战术选择、普通路线和保存继续。未注入阵容或战斗结果。前13张为第一次独立启动；其余为第二次独立启动的连续远征。",
+  "limitations": [
+    "本次不是21战全通，不覆盖后续章节、精英奖励、失败和远征结束界面。",
+    "844×390和568×320为桌面浏览器触控视口模拟，不等于真机测试。",
+    "截图记录现状，不代表所有界面已完成视觉或可访问性验收；现有小字号、边框和密集信息保留供评审。"
+  ]
+}

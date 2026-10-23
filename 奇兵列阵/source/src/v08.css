@@ -2,7 +2,7 @@
 .gen-acts { position: absolute; right: 0; bottom: calc(100% + 10px); width: 100%; display: flex; flex-direction: column; gap: 8px; align-items: stretch; }
 .gen-acts:empty { display: none; }
 .gen-act {
-  position: relative; height: 56px; display: flex; align-items: center; justify-content: center; gap: 6px;
+  position: relative; height: max(56px, var(--control-size, 64px)); display: flex; align-items: center; justify-content: center; gap: 6px;
   font-size: 22px; color: var(--text); cursor: pointer; border: 0;
   background: linear-gradient(180deg, #6b5a8f 0 4px, #45396a 4px 52%, #372d56 52% calc(100% - 6px), #241d3b calc(100% - 6px));
 }
@@ -16,6 +16,10 @@
 .egg-prog .ic { width: 18px; height: 18px; }
 .egg-prog i, .egg-prog b { font: 18px var(--num); font-style: normal; color: #fff; }
 .egg-prog b { color: #ffe58a; }
-.unit.swap-pick .u-body { outline: 3px solid #ffe58a; outline-offset: 4px; }
+.unit.swap-pick .u-body { outline: none; filter: brightness(1.2) drop-shadow(0 0 14px #ffe58a); }
 .bench-slot.reserve .bench-label { color: #e9bd72; }
 .bench-slot.temp .bench-label { color: #ffe58a; }
+
+.egg-pending { height: 48px; gap: 6px; font-size: max(22px, calc(var(--control-size, 64px) * .28)); white-space: nowrap; }
+
+.gen-act:focus-visible { outline: 3px solid #ffe58a; outline-offset: -3px; }

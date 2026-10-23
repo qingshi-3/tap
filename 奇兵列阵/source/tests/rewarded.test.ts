@@ -1,6 +1,7 @@
+import { legacyRun } from './legacyRun';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { REWARDED_AD_UNIT_ID, TapTapRewardedAds, type RewardedVideoAd } from '../src/ui/rewarded';
-import { applyRewardedReroll, cloneRun, newRun } from '../src/core/run';
+import { applyRewardedReroll, cloneRun } from '../src/core/run';
 
 function fixture(configure?: (ad: ReturnType<typeof fakeAd>) => void) {
   const lifecycle = new EventTarget();
@@ -30,7 +31,7 @@ afterEach(() => vi.useRealTimers());
 
 describe('TapTap rewarded video', () => {
   it('only completed distinct ads spend the two run-wide rerolls; duplicate or stale close events do not',async()=>{
-    const f=fixture(),run=newRun('argeon',712);run.rerolls=0;
+    const f=fixture(),run=legacyRun('argeon',712);run.rerolls=0;
     const watch=async()=>{const result=await f.service.showRewarded('extra-reroll');if(result==='rewarded')applyRewardedReroll(run);};
     const first=watch();await flush();f.ads[0].close({isEnded:true});f.ads[0].close({isEnded:true});await first;
     expect(run.rewardedRerollCount).toBe(1);
@@ -40,7 +41,7 @@ describe('TapTap rewarded video', () => {
     const before=cloneRun(run);f.ads[0].close({isEnded:true});f.ads[1].close({isEnded:true});await flush();expect(run).toEqual(before);
   });
   it.each(['cancelled','failed'] as const)('%s ads preserve run-wide reroll count and RNG',async outcome=>{
-    const f=fixture(),run=newRun('argeon',713);run.rerolls=0;const before=cloneRun(run);
+    const f=fixture(),run=legacyRun('argeon',713);run.rerolls=0;const before=cloneRun(run);
     const result=f.service.showRewarded('extra-reroll');await flush();
     if(outcome==='cancelled')f.ads[0].close({isEnded:false});else f.ads[0].error();
     const settled=await result;if(settled==='rewarded')applyRewardedReroll(run);

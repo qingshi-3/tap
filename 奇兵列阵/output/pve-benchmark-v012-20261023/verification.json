@@ -1,0 +1,16 @@
+{
+  "version": "0.12.0",
+  "sourceStrategyHashesCompared": 29,
+  "sourceStrategyMismatches": [],
+  "manifestEntries": 1350,
+  "manifestMismatches": [],
+  "singleBytes": 23704142,
+  "singleSHA256": "e2079f2f00f0c93215a2f905e2647fc92f705509dae057ee7bb4e297b56dfc1d",
+  "unitChecksPassed": 688,
+  "packageRealInputRuns": 2,
+  "fatiguePlaybackRuns": 3,
+  "preview8788HTTP": 200,
+  "branch": "master",
+  "published": false,
+  "playerStorageTouched": false
+}

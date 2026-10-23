@@ -14,7 +14,7 @@ import { EQUIP_MAP, PASSIVE_MAP } from '../src/core/content';
 import { simulate, levelStats } from '../src/core/engine';
 import { allOwned, allocPoint, beginBattle, buildBattle, buy, choosePromo, chooseReward, cloneRun,
  currentNode, equip, equipCap, finishBattle, generalChoices, getOwned, leaveShop, moveSlot, newRun,
- orderOptions, pickFork, placeKind, reroll, screen, sell, takeDraft, useOrder, useSpell, type RunState } from '../src/core/run';
+ shopUnitBuysRemaining, orderOptions, pickFork, placeKind, reroll, screen, sell, takeDraft, useOrder, useSpell, type RunState } from '../src/core/run';
 import { loadCareer, recordOfficialBattle, stageRunReplacement } from '../src/core/career';
 import { saveRun } from '../src/core/save';
 import { ACHIEVEMENTS, getAchievementProgress } from '../src/core/achievements';
@@ -237,9 +237,9 @@ for(let runIndex=0;runIndex<seeds.length;runIndex++) {
    if(sc==='shop'){
     const s=r.shop!;
     for(const x of s.units.map((x,i)=>({...x,i})).sort((a,b)=>draftScore(r,b.id,policy)-draftScore(r,a.id,policy)))
-     if(!x.sold&&r.gold>=x.price&&(owned(r).length<8||owned(r).some(y=>y.u.defId===x.id&&y.u.copies===1))&&(policy!=='economy'||owned(r).some(y=>y.u.defId===x.id))) {act('buy',['units',x.i],()=>buy(r,'units',x.i),{item:x});merge();}
+     if(shopUnitBuysRemaining(r)>0&&!x.sold&&r.gold>=x.price&&(owned(r).length<8||owned(r).some(y=>y.u.defId===x.id&&y.u.copies===1))&&(policy!=='economy'||owned(r).some(y=>y.u.defId===x.id))) {act('buy',['units',x.i],()=>buy(r,'units',x.i),{item:x});merge();}
     if(policy!=='economy'){
-     if(!s.pack.sold&&r.gold>=s.pack.price)act('buy',['pack'],()=>buy(r,'pack'));
+     if(s.pack&&!s.pack.sold&&r.gold>=s.pack.price)act('buy',['pack'],()=>buy(r,'pack'));
      const equipmentPreference=(id:string)=>policy==='healing'&&['eq_guard','eq_ice'].includes(id)?-20:policy==='healing'&&['eq_tome','eq_belt'].includes(id)?30:['splash','vuln'].includes(policy)&&id==='eq_combo'?30:['single-hit','opening'].includes(policy)&&['eq_banner','eq_hammer','eq_bow'].includes(id)?30:policy==='single-hit'&&id==='eq_combo'?-20:5;
      for(const i of s.equips.map((_,i)=>i).sort((a,b)=>equipmentPreference(s.equips[b].id)-equipmentPreference(s.equips[a].id)))if(equipmentPreference(s.equips[i].id)>=0&&!s.equips[i].sold&&r.gold>=s.equips[i].price&&r.bag.length+owned(r).reduce((n,x)=>n+(x.u.equips?.length??0),0)<5*equipCap(r))act('buy',['equips',i],()=>buy(r,'equips',i),{item:s.equips[i]});
      for(let i=0;i<s.spells.length;i++)if(!s.spells[i].sold&&r.gold>=s.spells[i].price+3)act('buy',['spells',i],()=>buy(r,'spells',i),{item:s.spells[i]});

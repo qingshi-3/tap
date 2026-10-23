@@ -1,0 +1,385 @@
+{
+  "groups": {
+    "multi": {
+      "count": 32,
+      "clears": 30,
+      "earlyThreePassed": 32,
+      "everFormed": 31,
+      "drawStops": 0,
+      "stagePasses": [
+        31,
+        31,
+        30
+      ],
+      "everBeforeBossOrTermination": [
+        19,
+        31,
+        31
+      ],
+      "stillAtBoss": [
+        11,
+        22,
+        9
+      ],
+      "bossArrivals": [
+        32,
+        31,
+        31
+      ]
+    },
+    "splash": {
+      "count": 32,
+      "clears": 17,
+      "earlyThreePassed": 32,
+      "everFormed": 30,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        30,
+        17
+      ],
+      "everBeforeBossOrTermination": [
+        20,
+        29,
+        30
+      ],
+      "stillAtBoss": [
+        14,
+        2,
+        0
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        30
+      ]
+    },
+    "burn": {
+      "count": 32,
+      "clears": 30,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        32,
+        30
+      ],
+      "everBeforeBossOrTermination": [
+        20,
+        32,
+        32
+      ],
+      "stillAtBoss": [
+        19,
+        23,
+        16
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "rotation": {
+      "count": 32,
+      "clears": 32,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        32,
+        32
+      ],
+      "everBeforeBossOrTermination": [
+        31,
+        32,
+        32
+      ],
+      "stillAtBoss": [
+        30,
+        32,
+        32
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "duel": {
+      "count": 32,
+      "clears": 23,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 3,
+      "stagePasses": [
+        30,
+        28,
+        23
+      ],
+      "everBeforeBossOrTermination": [
+        29,
+        32,
+        32
+      ],
+      "stillAtBoss": [
+        6,
+        26,
+        28
+      ],
+      "bossArrivals": [
+        32,
+        30,
+        28
+      ]
+    },
+    "spell": {
+      "count": 32,
+      "clears": 23,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        32,
+        23
+      ],
+      "everBeforeBossOrTermination": [
+        28,
+        31,
+        32
+      ],
+      "stillAtBoss": [
+        10,
+        1,
+        5
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "retaliation": {
+      "count": 32,
+      "clears": 29,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        32,
+        29
+      ],
+      "everBeforeBossOrTermination": [
+        21,
+        30,
+        32
+      ],
+      "stillAtBoss": [
+        20,
+        29,
+        28
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "shield": {
+      "count": 32,
+      "clears": 31,
+      "earlyThreePassed": 32,
+      "everFormed": 31,
+      "drawStops": 0,
+      "stagePasses": [
+        32,
+        32,
+        31
+      ],
+      "everBeforeBossOrTermination": [
+        23,
+        31,
+        31
+      ],
+      "stillAtBoss": [
+        20,
+        29,
+        29
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "sacrifice": {
+      "count": 32,
+      "clears": 17,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 0,
+      "stagePasses": [
+        31,
+        31,
+        17
+      ],
+      "everBeforeBossOrTermination": [
+        6,
+        25,
+        32
+      ],
+      "stillAtBoss": [
+        6,
+        17,
+        27
+      ],
+      "bossArrivals": [
+        32,
+        31,
+        31
+      ]
+    },
+    "summon": {
+      "count": 32,
+      "clears": 31,
+      "earlyThreePassed": 32,
+      "everFormed": 32,
+      "drawStops": 1,
+      "stagePasses": [
+        32,
+        32,
+        31
+      ],
+      "everBeforeBossOrTermination": [
+        24,
+        32,
+        32
+      ],
+      "stillAtBoss": [
+        22,
+        32,
+        29
+      ],
+      "bossArrivals": [
+        32,
+        32,
+        32
+      ]
+    },
+    "frost": {
+      "count": 32,
+      "clears": 23,
+      "earlyThreePassed": 32,
+      "everFormed": 28,
+      "drawStops": 4,
+      "stagePasses": [
+        25,
+        25,
+        23
+      ],
+      "everBeforeBossOrTermination": [
+        20,
+        28,
+        28
+      ],
+      "stillAtBoss": [
+        14,
+        6,
+        2
+      ],
+      "bossArrivals": [
+        32,
+        25,
+        25
+      ]
+    },
+    "casual": {
+      "count": 32,
+      "clears": 13,
+      "earlyThreePassed": 32,
+      "everFormed": 0,
+      "drawStops": 1,
+      "stagePasses": [
+        25,
+        24,
+        13
+      ],
+      "everBeforeBossOrTermination": [
+        0,
+        0,
+        0
+      ],
+      "stillAtBoss": [
+        0,
+        0,
+        0
+      ],
+      "bossArrivals": [
+        32,
+        25,
+        24
+      ]
+    },
+    "anti3": {
+      "count": 32,
+      "clears": 17,
+      "earlyThreePassed": 32,
+      "everFormed": 0,
+      "drawStops": 2,
+      "stagePasses": [
+        28,
+        26,
+        17
+      ],
+      "everBeforeBossOrTermination": [
+        0,
+        0,
+        0
+      ],
+      "stillAtBoss": [
+        0,
+        0,
+        0
+      ],
+      "bossArrivals": [
+        32,
+        28,
+        26
+      ]
+    }
+  },
+  "gates": {
+    "completeUniqueSamples": true,
+    "same32PairsEachGroup": true,
+    "balancedGenerals": true,
+    "freshSeeds": true,
+    "engineAndActionSafety": true,
+    "anti3Safety": true,
+    "sourceFrozen": true,
+    "productUnchanged": true,
+    "openingFairness": true,
+    "formationBySecondBoss": true,
+    "lateBuildTransition": true,
+    "eachDirectionHasReliablePath": true,
+    "mostDirectionsClearHalf": true,
+    "constructionAdvantage": true,
+    "noExcessiveDrawStops": true
+  },
+  "automatedAcceptancePassed": true,
+  "sourceMismatches": [],
+  "productFilesChecked": 1163,
+  "productMismatches": [],
+  "battles": 8605,
+  "remainingHumanReview": "Completed by primary agent for this local acceptance; later real-player feedback and physical-device/TapTap validation remain outside this delivery.",
+  "manualReviewCompleted": {
+    "directionEffects": "Reviewed player-side engine counters, named caster and damage source evidence; summon 30/31 exception disclosed",
+    "actualInput": "4 isolated flows across HTML/HTTP and 844x390/568x320; purchase, reload, battle, settlement, next preparation and reload passed",
+    "visual": "Screenshots reviewed with design-slop; no blocking overlap in tested flow; existing small short-screen text remains",
+    "tests": "63 files / 808 checks passed",
+    "verdict": "Local playable first version accepted; fun, physical phones and TapTap host are not certified"
+  }
+}

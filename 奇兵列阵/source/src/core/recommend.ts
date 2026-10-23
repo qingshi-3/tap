@@ -15,6 +15,8 @@ export interface RecState {
 export const newRec = (): RecState => ({ recent: [], skipped: [], dry: 0 });
 
 export interface RecInput {
+  /** New rules keep charge as individual timing, never a related-build affinity. */
+  tacticsVersion?: 1;
   /** 已按阵营与品质上限过滤的卡池 */
   pool: readonly UnitDef[];
   /** 品质权重 [普通, 稀有, 史诗, 传说] */
@@ -26,7 +28,8 @@ export interface RecInput {
 }
 type Role = 'close' | 'related' | 'explore';
 
-const mech = (d: UnitDef) => (d.tags ?? []).filter((t) => !ROLE_TAGS.includes(t));
+const mech = (d: UnitDef, tacticsVersion?: 1) => (d.tags ?? []).filter((t) => !ROLE_TAGS.includes(t)
+  && (tacticsVersion !== 1 || tagFamily(t) !== '蓄力'));
 /** 已持有且未满三星的同名份数列表 */
 function ownedCopies(owned: readonly (Slotted | null)[]) {
   const m = new Map<string, number[]>();
@@ -44,11 +47,11 @@ function roleWeight(role: Role, d: UnitDef, inp: RecInput, rec: RecState, ctx: R
       w *= Math.min(4, 1 + 0.5 * rec.dry);
     }
   } else if (role === 'related') {
-    const fams = new Set(mech(d).map(tagFamily));
+    const fams = new Set(mech(d, inp.tacticsVersion).map(tagFamily));
     let shared = 0;
     for (const f of fams) if (ctx.teamFam.has(f)) shared++;
     w += Math.min(2.4, 0.8 * shared);
-    const pair = mech(d).some((t) => (t.startsWith('给') && ctx.teamTags.has('吃' + t.slice(1)))
+    const pair = mech(d, inp.tacticsVersion).some((t) => (t.startsWith('给') && ctx.teamTags.has('吃' + t.slice(1)))
       || (t.startsWith('吃') && ctx.teamTags.has('给' + t.slice(1))));
     if (pair) w *= 1.5;
   }
@@ -61,7 +64,7 @@ function context(inp: RecInput) {
   for (const u of inp.field) {
     if (!u) continue;
     const d = inp.pool.find((x) => x.id === u.defId);
-    for (const t of d ? mech(d) : []) { teamTags.add(t); teamFam.add(tagFamily(t)); }
+    for (const t of d ? mech(d, inp.tacticsVersion) : []) { teamTags.add(t); teamFam.add(tagFamily(t)); }
   }
   return { owned: ownedCopies(inp.owned), teamTags, teamFam };
 }
@@ -69,7 +72,7 @@ function context(inp: RecInput) {
 /** 先抽品质（只在该品质还有可选卡时计权），再在品质内按 wfn 抽卡 */
 export function drawOne(h: RngHolder, pool: readonly UnitDef[], weights: readonly number[], wfn: (d: UnitDef) => number,
   exclude: ReadonlySet<string>): UnitDef | null {
-  const groups = [1, 2, 3, 4].map((t) => pool.filter((d) => d.tier === t && !exclude.has(d.id)));
+  const groups = Array.from({ length: weights.length }, (_, i) => i + 1).map((t) => pool.filter((d) => d.tier === t && !exclude.has(d.id)));
   const qi = weighted(h, weights.map((w, i) => (groups[i].some((d) => wfn(d) > 0) ? w : 0)));
   if (qi < 0) return null;
   const g = groups[qi], i = weighted(h, g.map(wfn));

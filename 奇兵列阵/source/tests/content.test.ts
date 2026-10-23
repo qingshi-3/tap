@@ -13,19 +13,19 @@ describe('当前远征内容契约', () => {
   it('六阵营与中立均可招募，召唤物和敌军不会混入', () => {
     expect(ACTIVE_FACTIONS).toEqual(['light', 'shadow', 'abyss', 'magma', 'frost', 'desert']);
     expect(FACTION_ORDER).toEqual([...ACTIVE_FACTIONS, 'neutral']);
-    expect(RARITY_NAMES).toEqual({ 1: '普通', 2: '稀有', 3: '史诗', 4: '传说' });
+    expect(RARITY_NAMES).toEqual({ 1: '一阶', 2: '二阶', 3: '三阶', 4: '四阶', 5: '五阶', 6: '六阶' });
     for (const faction of FACTION_ORDER) {
       const cards = DRAFT_POOL.filter(u => u.faction === faction);
-      for (const tier of [1, 2, 3, 4]) expect(cards.some(u => u.tier === tier), `${faction}/${tier}`).toBe(true);
+      for (const tier of [1, 2, 3, 4, 5, 6]) expect(cards.some(u => u.tier === tier), `${faction}/${tier}`).toBe(true);
     }
     expect(DRAFT_POOL.some(u => u.token || u.enemyOnly)).toBe(false);
     for (const id of ['n_envoy', 'n_ritualist']) expect(DRAFT_POOL.find(u => u.id === id)?.faction).toBe('neutral');
     expect(new Set(UNITS.map(u => u.id)).size).toBe(UNITS.length);
   });
 
-  it('v0.8 核心关键词各至少出现在 2 张招募卡上，反击只留针对卡，所有标签都有说明', () => {
+  it('v0.8 核心关键词各至少出现在 2 张招募卡上，反击覆盖承伤和亡语接力卡，所有标签都有说明', () => {
     for (const k of CORE_KEYWORDS) expect(DRAFT_POOL.filter(u => u.keywords?.includes(k)).length, k).toBeGreaterThanOrEqual(2);
-    expect(DRAFT_POOL.filter(u => u.keywords?.includes('反击')).map(u => u.id)).toEqual(['n_thorn']);
+    expect(DRAFT_POOL.filter(u => u.keywords?.includes('反击')).map(u => u.id)).toEqual(['a_nightmare', 'v_bear', 'n_thorn']);
     for (const k of ['护卫', '易伤', '破绽']) expect(KEYWORDS[k], k).toBeUndefined();
     for (const card of UNITS) for (const k of card.keywords ?? []) expect(KEYWORDS[k], `${card.id}/${k}`).toBeTruthy();
   });

@@ -12,7 +12,8 @@ export type TutAction =
 
 export function newTutorialRun(): RunState {
   // 教学用不上场的主将：卡雷奥斯「压轴」吃法强，培养主将一步立刻有收益
-  const r = newRun('kaleos', 20261017);
+  const r = newRun('kaleos', 20261017, { legacyEconomy: true });
+  r.tutorialMode = true;
   r.picks = 3;
   return r;
 }

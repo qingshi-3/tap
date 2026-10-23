@@ -1,0 +1,11 @@
+{
+  "sourceFilesCompared": 608,
+  "sourceChanged": [],
+  "sourceAdded": [],
+  "syntheticFixtures": 42,
+  "faults": [],
+  "manifestEntries": 1288,
+  "manifestErrors": [],
+  "reportsPresent": true,
+  "scope": "Research and deterministic current-engine diagnostics only. No candidate implementation, game build, UI or SAP-client acceptance."
+}

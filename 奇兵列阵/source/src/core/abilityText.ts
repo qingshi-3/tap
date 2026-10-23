@@ -7,20 +7,21 @@ import type { Slotted } from './types';
 
 /** 无场上实例时只计算该单位自身的法强，不借用同名单位或场上光环。 */
 export function ownedPower(defId: string, level: number, owned?: Slotted) {
-  return tri(unitDef(defId).traits?.power, level) + (owned?.train?.power ?? 0)
+  return tri(unitDef(defId).traits?.power, level) + (owned?.train?.power ?? 0) + (owned?.growth?.power ?? 0)
     + (owned?.equips ?? []).reduce((n, id) => n + Number(EQUIP_MAP[id]?.grants?.power ?? 0), 0);
 }
 
 /** 只替换施法分句中与真实effect按顺序及基础值一致的语义数字。未知文案原样保留。 */
 export function abilityText(defId: string, level: number, power = ownedPower(defId, level)) {
   const text = describe(defId, level), d = unitDef(defId);
-  if (!d.cast || !power) return text;
-  const start = text.search(/施法(?:（[^）]*）)?：/);
+  const spell = d.cast ?? d.chargeSkill;
+  if (!spell || !power) return text;
+  const start = text.search(/(?:施法|蓄力技)(?:（[^）]*）)?：/);
   if (start < 0) return text;
   const end = text.indexOf('；', start), stop = end < 0 ? text.length : end;
   const clause = text.slice(start, stop);
   const labels: Record<string, string> = { dmg: '伤害', heal: '生命', burn: '灼烧', chill: '寒意' };
-  const effects = d.cast.filter(e => labels[e.op] && tri(e.v, level) > 0);
+  const effects = spell.filter(e => labels[e.op] && tri(e.v, level) > 0);
   let idx = 0, valid = true;
   const replaced = clause.replace(/(\d+)(\s*(?:伤害|生命|层(?:灼烧|寒意)))/g, (whole, n, label) => {
     const e = effects[idx++];
@@ -36,10 +37,10 @@ export function abilityText(defId: string, level: number, power = ownedPower(def
 export function generalAbilityText(id: string, power = 0, passives: readonly string[] = []) {
   const g = GENERAL_MAP[id];
   const extra = passives.filter(s => PASSIVE_MAP[s]?.general === id).map(s => `${PASSIVE_MAP[s].name}：${PASSIVE_MAP[s].text}`);
-  const text = [g.text, ...extra].join('；');
-  if (!power) return text.replace(/(\d+)\+法强/g, '$1').replace(/[ ]?\+法强(\/\+法强×2)?/g, '');
+  const text = [g.text, ...extra].join('；').replace(/1\+⌊法强\/2⌋/g, `${1 + Math.floor(power / 2)}`);
+  if (!power) return text.replace(/(\d+)\+(?:主将)?法强/g, '$1').replace(/[ ]?\+法强(\/\+法强×2)?/g, '');
   return text
-    .replace(/(\d+)\+法强/g, (_, n) => `${Number(n) + power}（${n}+${power}法强）`)
+    .replace(/(\d+)\+(?:主将)?法强/g, (_, n) => `${Number(n) + power}（${n}+${power}法强）`)
     .replace(/\+法强\/\+法强×2/g, `+${power}/+${power * 2}`)
     .replace(/\+法强/g, `+${power}`);
 }

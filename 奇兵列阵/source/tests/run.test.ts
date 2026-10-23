@@ -1,3 +1,4 @@
+import { legacyRun } from './legacyRun';
 import { describe, expect, it, vi } from 'vitest';
 import { DRAFT_POOL } from '../src/core/data';
 import { STAGES_PER_CHAPTER } from '../src/core/route';
@@ -7,7 +8,7 @@ import {
   canRewardedReroll,
   cloneRun,
   consumeRewardedRetry,
-  newRun,
+  
   MAX_REWARDED_RETRIES,
   MAX_REWARDED_REROLLS,
   remainingRewardedRetries,
@@ -29,7 +30,7 @@ const replayLineup = (): (Slotted | null)[] => [
 
 describe('RunState 快照', () => {
   it('newRun 初始化奖励资格，cloneRun 深复制所有可变成员', () => {
-    const run = newRun('argeon', 101);
+    const run = legacyRun('argeon', 101);
     expect(run.rewardedRetryCount).toBe(0);
     expect(run.rewardedRerollCount).toBe(0);
 
@@ -61,7 +62,7 @@ describe('RunState 快照', () => {
 
 describe('奖励刷新', () => {
   it('只在免费刷新耗尽后发放，且不消耗 picks/rerolls', () => {
-    const run = newRun('argeon', 202);
+    const run = legacyRun('argeon', 202);
     const unavailable = cloneRun(run);
     expect(canRewardedReroll(run)).toBe(false);
     expect(applyRewardedReroll(run)).toBe(false);
@@ -83,7 +84,7 @@ describe('奖励刷新', () => {
   });
 
   it('同一关可成功刷新两次，第三次拒绝且不推进 RNG 或修改候选', () => {
-    const run = newRun('argeon', 303);
+    const run = legacyRun('argeon', 303);
     run.rerolls = 0;
     expect(applyRewardedReroll(run)).toBe(true);
     expect(run.rewardedRerollCount).toBe(1);
@@ -96,11 +97,11 @@ describe('奖励刷新', () => {
     expect(canRewardedReroll(run)).toBe(false);
     expect(applyRewardedReroll(run)).toBe(false);
     expect(run).toEqual(twice);
-    expect(newRun('argeon',303).rewardedRerollCount).toBe(0);
+    expect(legacyRun('argeon',303).rewardedRerollCount).toBe(0);
   });
 
   it('跨关累计且不恢复额度，下一关仍需先用完免费刷新', () => {
-    const run = newRun('argeon', 404);
+    const run = legacyRun('argeon', 404);
     run.rerolls = 0;
     expect(applyRewardedReroll(run)).toBe(true);
     const rewardedChapter = run.chapter;
@@ -122,7 +123,7 @@ describe('奖励刷新', () => {
   });
 
   it('Boss 失败保留已用次数，原来剩余的一次仍可在正常刷新后使用', () => {
-    const run = newRun('argeon', 505);
+    const run = legacyRun('argeon', 505);
     run.chapter = 0;
     run.node = STAGES_PER_CHAPTER - 1;
     run.rerolls = 0;
@@ -147,7 +148,7 @@ describe('奖励刷新', () => {
     ['远征已结束', (run: RunState) => { run.over = 'defeat'; }],
     ['整局两次已耗尽', (run: RunState) => { run.rewardedRerollCount = 2; }],
   ] as const)('%s 时不修改牌组或 RNG', (_label, arrange) => {
-    const run = newRun('argeon', 606);
+    const run = legacyRun('argeon', 606);
     run.rerolls = 0;
     arrange(run);
     const before = cloneRun(run);
@@ -157,13 +158,13 @@ describe('奖励刷新', () => {
     expect(run).toEqual(before);
   });
   it('生成候选失败不扣广告额度、不推进 RNG',()=>{
-    const run=newRun('argeon',607);run.rerolls=0;const before=cloneRun(run);
+    const run=legacyRun('argeon',607);run.rerolls=0;const before=cloneRun(run);
     const filter=vi.spyOn(DRAFT_POOL,'filter').mockReturnValueOnce([]);
     try {expect(applyRewardedReroll(run)).toBe(false);expect(run).toEqual(before);}
     finally {filter.mockRestore();}
   });
   it.each(['win','lose','draw'] as const)('旧快照的奖励重打%s不返还广告刷新，复盘克隆也不影响正式额度',result=>{
-    const checkpoint=newRun('argeon',608);checkpoint.slots=replayLineup();
+    const checkpoint=legacyRun('argeon',608);checkpoint.slots=replayLineup();
     const run=cloneRun(checkpoint);run.rerolls=0;
     expect(applyRewardedReroll(run)).toBe(true);expect(applyRewardedReroll(run)).toBe(true);
     const sandbox=cloneRun(checkpoint);sandbox.slots.reverse();
@@ -177,7 +178,7 @@ describe('奖励刷新', () => {
 
 describe('奖励重打资格', () => {
   it('每局最多消费三次，跨关保留次数，新局重置', () => {
-    const run = newRun('argeon', 707);
+    const run = legacyRun('argeon', 707);
     expect(remainingRewardedRetries(run)).toBe(MAX_REWARDED_RETRIES);
     for (let count = 1; count <= MAX_REWARDED_RETRIES; count++) {
       expect(consumeRewardedRetry(run)).toBe(true);
@@ -190,7 +191,7 @@ describe('奖励重打资格', () => {
 
     expect(consumeRewardedRetry(run)).toBe(false);
     expect(run).toEqual(consumed);
-    expect(remainingRewardedRetries(newRun('argeon', 708))).toBe(MAX_REWARDED_RETRIES);
+    expect(remainingRewardedRetries(legacyRun('argeon', 708))).toBe(MAX_REWARDED_RETRIES);
   });
 });
 
@@ -204,7 +205,7 @@ const actualResults: BattleResult[] = ['win', 'lose', 'draw'];
 
 describe.each(retryContexts)('$label奖励重打', ({ chapter, node, lives }) => {
   it.each(actualResults)('实际结果 %s 只从战前 checkpoint 权威结算一次', (actualResult) => {
-    const checkpoint = newRun('argeon', 800 + node + lives);
+    const checkpoint = legacyRun('argeon', 800 + node + lives);
     checkpoint.chapter = chapter;
     checkpoint.node = node;
     checkpoint.lives = lives;
@@ -258,7 +259,7 @@ describe.each(retryContexts)('$label奖励重打', ({ chapter, node, lives }) =>
 
 describe.each(retryContexts)('$label连续奖励重打', ({ chapter, node, lives }) => {
   it('同一原始 checkpoint 失败、平局、胜利仅替换一次结算，累计消耗三次额度', () => {
-    const checkpoint = newRun('argeon', 900 + node + lives);
+    const checkpoint = legacyRun('argeon', 900 + node + lives);
     checkpoint.chapter = chapter;
     checkpoint.node = node;
     checkpoint.lives = lives;

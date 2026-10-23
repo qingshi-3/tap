@@ -1,0 +1,20 @@
+declare const process:any;
+// @ts-ignore Node
+import {mkdirSync,readFileSync,readdirSync,writeFileSync,openSync,writeSync,closeSync} from 'node:fs';
+// @ts-ignore Node
+import {createHash} from 'node:crypto';
+import {Battle} from '../../output/sap-rework-v011-20261023/before/src/core/engine';
+import {DRAFT_POOL} from '../../output/sap-rework-v011-20261023/before/src/core/data';
+const version=process.env.REWORK_VERSION??'before',folder=`../output/sap-rework-v011-20261023/validation/${version}/controlled`;mkdirSync(folder,{recursive:true});
+const path='../output/sap-rework-v011-20261023/before/src/core';const sha=(p:string)=>createHash('sha256').update(readFileSync(p)).digest('hex');const files=readdirSync(path).filter((f:string)=>f.endsWith('.ts')).map((f:string)=>`${path}/${f}`);files.push('scripts/rework-v011-controlled.ts');const hashes=Object.fromEntries(files.map((f:string)=>[f,sha(f)]));
+if(DRAFT_POOL.length!==112)throw Error('expected112 ordinary cards');
+const fd=openSync(`${folder}/cells.jsonl`,'w');let cells=0,faults=0,bounds=0;const start=Date.now();
+const named=['l_shield','l_windblade','m_harvester','d_howler','l_caliber','n_envoy','a_solus','s_choreo','n_paragon'];
+const scenes=[{name:'physical',enemy:[{defId:'e_brute',atk:4,hp:18},{defId:'e_assassin',atk:3,hp:14}]},{name:'spell',enemy:[{defId:'e_brute',atk:3,hp:16},{defId:'e_lich',atk:2,hp:10},{defId:'e_pyre',atk:2,hp:10}]},{name:'swarm',enemy:['n_merc','n_archer','n_bulwark','n_merc','n_archer'].map(defId=>({defId,atk:2,hp:7}))}];
+function strip(d:any){const r={...d,traits:undefined,cast:undefined,chargeSkill:undefined,chargeAttack:undefined,special:undefined,prep:undefined,afterAttack:undefined};for(const k of Object.keys(r))if(k.startsWith('on'))r[k]=undefined;return r;}
+for(const d of DRAFT_POOL)for(const layout of ['front','rear',...(named.includes(d.id)?['synergy']:[])])for(const scene of scenes)for(const seed of [733101,733103,733107,733109]){
+ const support=layout!=='synergy'?['n_bulwark','n_merc','n_archer','n_medic']:d.id==='m_harvester'?['n_bulwark','m_shaman','m_shaman','n_archer']:d.id==='d_howler'?['d_keeper','n_bulwark','n_medic','n_archer']:['l_shield','l_windblade','v_mage','n_archer'];const slot=layout==='front'?0:4;support.splice(slot,0,d.id);
+ for(const variant of ['full','sameBodyMuted',...(named.includes(d.id)?['sameTierReplacement']:[])]){const ids=[...support];if(variant==='sameTierReplacement')ids[slot]=DRAFT_POOL.find(x=>x.id!==d.id&&x.tier===d.tier&&x.id.startsWith('n_'))?.id??DRAFT_POOL.find(x=>x.id!==d.id&&x.tier===d.tier)!.id;const setup={player:ids.map((defId,i)=>({defId,ownedId:i+1,copies:1 as const})),enemy:scene.enemy,chapter:1,seed,record:true};const b=new Battle(setup);const uid=b.at(0,slot)!.uid;if(variant==='sameBodyMuted'){const orig=b.def.bind(b);b.def=u=>u.uid===uid?strip(orig(u)):orig(u);}const out=b.run_();cells++;if(out.fault)faults++;for(const f of out.log)if(f.snap.some(u=>!Number.isFinite(u.hp)||!Number.isFinite(u.atk)))bounds++;if(out.log.length>50000||out.beats>2000)bounds++;const events=out.log.map(x=>x.ev);writeSync(fd,JSON.stringify({id:d.id,name:d.name,tier:d.tier,layout,scene:scene.name,seed,variant,budget:15,synthetic:true,setup,result:out.result,beats:out.beats,rounds:out.rounds,metrics:out.metrics,fault:out.fault,acts:events.filter(e=>e.t==='act'&&e.uid===uid).length,events:events.filter((e:any)=>e.src===uid||e.uid===uid),fatigue:events.some(e=>e.t==='dmg'&&e.kind==='fatigue')})+'\n');}
+}
+closeSync(fd);const changed=files.filter((f:string)=>sha(f)!==hashes[f]);writeFileSync(`${folder}/summary.json`,JSON.stringify({version,cells,faults,bounds,changed,hashes,elapsedMs:Date.now()-start,limitations:['Synthetic one-star five-slot 15-gold fixed acquisition; no training or legal tier window.','Before/current paired difference contains engine and shared enemy card changes; not pure card causality.','Battle-muted prep-only cards have no prep history; legal runs must cover their growth.']},null,2));console.log({version,cells,faults,bounds,changed,elapsedMs:Date.now()-start});if(faults||bounds||changed.length)throw Error('gate');
+

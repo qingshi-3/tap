@@ -1,0 +1,11 @@
+{
+  "sourceShaIssues": [],
+  "evidenceFiles": 51,
+  "details": "Gate summaries have failed=illegal=faults=bounds=0 and changed=[]; current holdout first and frozen run. Harness copies archived for source SHA provenance.",
+  "positionAwareSupplement": {
+    "cells": 72,
+    "faults": 0,
+    "bounds": 0,
+    "oldFrozenGridUnmodified": true
+  }
+}

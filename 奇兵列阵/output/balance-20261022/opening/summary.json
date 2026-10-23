@@ -1,0 +1,266 @@
+{
+  "policy": "two real picks, second refreshed by takeDraft; no reroll/ads/selling/training/progression; compact permutations; legal duplicate merge/separate, first-card bench offer variation, Sajj reserve, Hank free merc, all Reva single swaps; draws not wins",
+  "normalPolicy": "uniform first and refreshed second choices, duplicates auto-merge, uniform compact roster order, no reserve; Hank free merc included; Reva uniform legal single swaps including no swap",
+  "groups": {
+    "argeon": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 99.8888888888889,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11076,
+        "faults": 0,
+        "randomNormalWinRate": 0.998888888888889
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11076,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "zilan": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 39.555555555555564,
+        "seedsWithWin": 98,
+        "noWin": 2,
+        "cases": 3741,
+        "faults": 0,
+        "randomNormalWinRate": 0.39555555555555566
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3741,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "kaleos": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 74.1111111111111,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3734,
+        "faults": 0,
+        "randomNormalWinRate": 0.741111111111111
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3734,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "reva": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 71.50000000000004,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 29992,
+        "faults": 0,
+        "randomNormalWinRate": 0.7150000000000004
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 18745,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "lilithe": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 37.83333333333332,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3759,
+        "faults": 0,
+        "randomNormalWinRate": 0.3783333333333332
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3759,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "kasiva": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 74.16666666666666,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3737,
+        "faults": 0,
+        "randomNormalWinRate": 0.7416666666666666
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3737,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "vulkan": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 69.7222222222222,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3744,
+        "faults": 0,
+        "randomNormalWinRate": 0.697222222222222
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3744,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "xingjiao": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 63.16666666666664,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11098,
+        "faults": 0,
+        "randomNormalWinRate": 0.6316666666666664
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11098,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "faie": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 42.44444444444445,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3757,
+        "faults": 0,
+        "randomNormalWinRate": 0.4244444444444445
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3757,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "kara": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 86.11111111111101,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3747,
+        "faults": 0,
+        "randomNormalWinRate": 0.8611111111111102
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3747,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "zirix": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 30.611111111111118,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3755,
+        "faults": 0,
+        "randomNormalWinRate": 0.30611111111111117
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 3755,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "sajj": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 32.88888888888889,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 7339,
+        "faults": 0,
+        "randomNormalWinRate": 0.32888888888888895
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 7339,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    },
+    "hank": {
+      "current": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 94.29629629629629,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11142,
+        "faults": 0,
+        "randomNormalWinRate": 0.9429629629629629
+      },
+      "candidate": {
+        "seeds": 100,
+        "randomNormalWinProbabilitySum": 100.00000000000001,
+        "seedsWithWin": 100,
+        "noWin": 0,
+        "cases": 11142,
+        "faults": 0,
+        "randomNormalWinRate": 1.0000000000000002
+      }
+    }
+  }
+}

@@ -121,15 +121,16 @@ describe('献祭', () => {
     expect(b.u(3).atk).toBe(13); b.u(2).hp=0; intern(b).flush(); expect(b.u(3).atk).toBe(13);
     expect(events(b,'trigger').filter(x=>x.kind==='kill')).toEqual([]);
   });
-  it('真实核心→传令使→祭仪师组合：核心保留辅助授予次数与献祭攻击加成', () => {
+  it('真实核心→传令使→祭仪师：立即行动保留原预算且安全献祭不会吃辅助', () => {
     const b=new Battle({player:[{defId:'e_skel',atk:10,hp:999},{defId:'n_envoy',hp:999},{defId:'n_ritualist',hp:999}],enemy:[{defId:'e_skel',atk:1,hp:999}]});
-    step(b,4);
-    expect(acts(b,0)).toEqual([1,2,3,1]); expect(b.round).toBe(1); expect(b.wave).toBe(2);
-    expect(events(b,'actionGain')).toEqual([{t:'actionGain',src:2,uid:1,n:1,total:1}]);
-    expect(events(b,'sacrifice')).toEqual([{t:'sacrifice',src:3,tgt:2}]);
-    expect(b.u(2).alive).toBe(false); expect(b.u(1).atk).toBe(11); expect(b.u(1).actionsLeft).toBe(0);
-    expect(events(b,'dmg').filter(x=>x.src===1&&x.kind==='attack').map(x=>x.n)).toEqual([10,11]);
+    step(b,3);
+    expect(acts(b,0)).toEqual([1,2,3,3]); expect(b.round).toBe(1); expect(b.wave).toBe(1);
+    expect(events(b,'actionGain')).toEqual([]);
+    expect(events(b,'sacrifice')).toEqual([]);
+    expect(b.u(2).alive).toBe(true); expect(b.u(1).atk).toBe(10); expect(b.u(3).actionsLeft).toBe(0);
+    expect(events(b,'dmg').filter(x=>x.src===1&&x.kind==='attack').map(x=>x.n)).toEqual([10]);
   });
+
   it('无祭品或无受益者按规则改普攻', () => {
     const b=game(2); customize(b,1,{cast:[sacrifice]}); customize(b,2,{cast:[sacrifice]}); step(b,2);
     expect(events(b,'sacrifice')).toHaveLength(0); expect(events(b,'act').filter(x=>x.side===0).every(x=>x.mode==='attack')).toBe(true);

@@ -875,31 +875,14 @@ b {
   pointer-events: none;
   z-index: 3;
 }
-.crosshair {
-  position: absolute;
-  width: 74px;
-  height: 74px;
-  margin: -37px 0 0 -37px;
-  font-size: 74px;
-  color: #ff4b6e;
-  opacity: 0.75;
-  animation: aim 3s linear infinite, aimPulse 1.4s ease-in-out infinite;
-  filter: drop-shadow(0 0 6px currentColor);
+.target-glow {
+  position: absolute; width: 96px; height: 116px; margin: -60px 0 0 -48px;
+  color: #ff8e91; background: radial-gradient(ellipse at 50% 62%, #ff4b6e65 0%, #ff4b6e20 46%, transparent 73%);
 }
-.crosshair .ic {
-  width: 74px;
-  height: 74px;
-}
-.crosshair.ally-aim {
-  color: var(--gold);
-  opacity: 0.55;
-}
-@keyframes aim {
-  to { transform: rotate(360deg); }
-}
-@keyframes aimPulse {
-  50% { opacity: 0.35; }
-}
+.target-glow.ally-aim { color: #fff0ad; background: radial-gradient(ellipse at 50% 62%, #ffce5866 0%, #ffce581c 46%, transparent 73%); }
+.target-badge { position: absolute; right: 4px; top: 3px; width: 28px; height: 28px; display: grid; place-items: center; background: #792b40; box-shadow: 0 3px 0 #351628; }
+.ally-aim .target-badge { background: #79541c; box-shadow: 0 3px 0 #352716; }
+.target-badge .ic { width: 21px; height: 21px; }
 
 /* ───────────── 战斗特效 DOM ───────────── */
 .float {
@@ -3113,3 +3096,6 @@ body.portrait #rotate-hint:not(.dismissed) {
 .trg-attack { background: #ffb46a; }
 .trg-kill { background: #ff5f6d; color: #fff; }
 .ts.bn { color: #ff9a3d; }
+@media (prefers-reduced-motion: reduce) {
+  .game .coach, .game .card-badge { animation: none; }
+}

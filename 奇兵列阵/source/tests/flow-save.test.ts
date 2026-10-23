@@ -1,5 +1,6 @@
+import { legacyRun } from './legacyRun';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { newRun, takeDraft, beginBattle } from '../src/core/run';
+import {  takeDraft, beginBattle } from '../src/core/run';
 import { loadRun, saveRun, SAVE_KEY } from '../src/core/save';
 
 beforeEach(() => {
@@ -13,7 +14,7 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 it('已保存的空队伍可恢复、招募、保存并重进，补员机会不重复发放', () => {
-  const run = newRun('lilithe', 9701);
+  const run = legacyRun('lilithe', 9701);
   run.picks = 0; run.draft = []; run.gold = 8; run.lives = 2;
   localStorage.setItem(SAVE_KEY, JSON.stringify(run));
   const loaded = loadRun();
@@ -33,7 +34,7 @@ it('已保存的空队伍可恢复、招募、保存并重进，补员机会不�
 });
 
 it('战斗中重载先完成首领战结算，消耗本场法术', () => {
-  const run = newRun('argeon', 9702);
+  const run = legacyRun('argeon', 9702);
   takeDraft(run, 0, 0); run.node = 8; run.activeSpells = ['sp_shield'];
   beginBattle(run, 'lose');
   localStorage.setItem(SAVE_KEY, JSON.stringify(run));

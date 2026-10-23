@@ -1,0 +1,2265 @@
+[
+  {
+    "mode": "spell",
+    "clear": 14,
+    "everFormed": 16,
+    "switched": 16,
+    "stages": [
+      {
+        "chapter": 1,
+        "everBeforeBossOrTermination": 14,
+        "bossReached": 16,
+        "stillAtBoss": 5,
+        "passed": 16
+      },
+      {
+        "chapter": 2,
+        "everBeforeBossOrTermination": 16,
+        "bossReached": 16,
+        "stillAtBoss": 0,
+        "passed": 16
+      },
+      {
+        "chapter": 3,
+        "everBeforeBossOrTermination": 16,
+        "bossReached": 16,
+        "stillAtBoss": 1,
+        "passed": 14
+      }
+    ],
+    "mechanism": {
+      "spell/reva/1882100011/closure": {
+        "playerCastBattles": 20,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 1,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 185,
+            "ability": 204
+          },
+          "actions": {
+            "attack": 11,
+            "cast": 23
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/zilan/1882270152/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 2,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "equip:装备": 1,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 185,
+            "thorns": 18,
+            "ability": 180
+          },
+          "actions": {
+            "attack": 13,
+            "cast": 24
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/sajj/1882440293/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 14,
+        "sacrificeBattles": 0,
+        "chillBattles": 3,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "general:主将": 5,
+            "equip:装备": 3
+          },
+          "damage": {
+            "attack": 142,
+            "ability": 144,
+            "thorns": 4
+          },
+          "actions": {
+            "attack": 12,
+            "cast": 18
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 1,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/kaleos/1882610434/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 1,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 1,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 183,
+            "thorns": 20,
+            "ability": 200
+          },
+          "actions": {
+            "attack": 10,
+            "cast": 20
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/zilan/1882780575/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 2,
+            "equip:装备": 4
+          },
+          "damage": {
+            "attack": 140,
+            "ability": 261,
+            "thorns": 0
+          },
+          "actions": {
+            "attack": 10,
+            "cast": 15
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/reva/1882950716/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 210,
+            "ability": 260
+          },
+          "actions": {
+            "attack": 9,
+            "cast": 20
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/sajj/1883120857/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 12,
+        "sacrificeBattles": 0,
+        "chillBattles": 4,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "general:主将": 1,
+            "equip:装备": 5
+          },
+          "damage": {
+            "attack": 252,
+            "ability": 184
+          },
+          "actions": {
+            "attack": 12,
+            "cast": 21
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 5,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/reva/1883290998/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 96,
+            "ability": 338,
+            "thorns": 4
+          },
+          "actions": {
+            "attack": 15,
+            "cast": 19
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/kaleos/1883461139/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 3,
+            "equip:装备": 2,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 118,
+            "ability": 308
+          },
+          "actions": {
+            "attack": 9,
+            "cast": 24
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 2,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/zilan/1883631280/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 8,
+            "start:开战": 2,
+            "general:主将": 1,
+            "aura:被动": 2
+          },
+          "damage": {
+            "attack": 198,
+            "ability": 160
+          },
+          "actions": {
+            "attack": 17,
+            "cast": 14
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/kaleos/1883801421/closure": {
+        "playerCastBattles": 17,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 17,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 3,
+            "equip:装备": 6,
+            "charge:蓄力技": 6,
+            "general:主将": 8,
+            "front:成为队首": 1
+          },
+          "damage": {
+            "attack": 237,
+            "ability": 162
+          },
+          "actions": {
+            "attack": 18,
+            "cast": 10,
+            "charge": 6
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 6,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/reva/1883971562/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 1,
+            "aura:被动": 3,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 219,
+            "ability": 220
+          },
+          "actions": {
+            "attack": 9,
+            "cast": 16
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/sajj/1884141703/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 168,
+            "ability": 231
+          },
+          "actions": {
+            "attack": 11,
+            "cast": 27
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/zilan/1884311844/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 154,
+            "ability": 221
+          },
+          "actions": {
+            "attack": 11,
+            "cast": 24
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/sajj/1884481985/closure": {
+        "playerCastBattles": 20,
+        "summonBattles": 10,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 3,
+            "charge:蓄力技": 5,
+            "general:主将": 2
+          },
+          "damage": {
+            "attack": 130,
+            "ability": 256
+          },
+          "actions": {
+            "attack": 16,
+            "cast": 9,
+            "charge": 5
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "spell/kaleos/1884652126/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 182,
+            "ability": 180,
+            "thorns": 4
+          },
+          "actions": {
+            "attack": 15,
+            "cast": 21
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      }
+    }
+  },
+  {
+    "mode": "sacrifice",
+    "clear": 7,
+    "everFormed": 14,
+    "switched": 13,
+    "stages": [
+      {
+        "chapter": 1,
+        "everBeforeBossOrTermination": 1,
+        "bossReached": 16,
+        "stillAtBoss": 1,
+        "passed": 16
+      },
+      {
+        "chapter": 2,
+        "everBeforeBossOrTermination": 8,
+        "bossReached": 16,
+        "stillAtBoss": 7,
+        "passed": 15
+      },
+      {
+        "chapter": 3,
+        "everBeforeBossOrTermination": 13,
+        "bossReached": 15,
+        "stillAtBoss": 12,
+        "passed": 7
+      }
+    ],
+    "mechanism": {
+      "sacrifice/reva/1882100011/closure": {
+        "playerCastBattles": 7,
+        "summonBattles": 19,
+        "sacrificeBattles": 9,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "roundStart:回合开始": 2,
+            "rattle:亡语": 4,
+            "allyFaint:友军阵亡": 4
+          },
+          "damage": {
+            "ability": 12,
+            "attack": 452,
+            "thorns": 1
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 24,
+            "cast": 1
+          },
+          "summons": 1,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/zilan/1882270152/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 12,
+        "sacrificeBattles": 11,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "roundStart:回合开始": 2,
+            "rattle:亡语": 8,
+            "allyFaint:友军阵亡": 7
+          },
+          "damage": {
+            "ability": 24,
+            "attack": 385
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 26
+          },
+          "summons": 2,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/sajj/1882440293/closure": {
+        "playerCastBattles": 6,
+        "summonBattles": 23,
+        "sacrificeBattles": 13,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 4,
+            "roundStart:回合开始": 4,
+            "rattle:亡语": 6,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 515,
+            "ability": 16
+          },
+          "actions": {
+            "extra": 4,
+            "attack": 17
+          },
+          "summons": 1,
+          "sacrifices": 4,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/kaleos/1882610434/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 20,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 11,
+            "rattle:亡语": 3
+          },
+          "damage": {
+            "attack": 260,
+            "thorns": 1,
+            "ability": 8
+          },
+          "actions": {
+            "attack": 27
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/zilan/1882780575/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 13,
+        "sacrificeBattles": 14,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 2,
+            "allyFaint:友军阵亡": 6,
+            "rattle:亡语": 4,
+            "general:主将": 3
+          },
+          "damage": {
+            "attack": 329,
+            "ability": 12
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 18
+          },
+          "summons": 0,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/reva/1882950716/closure": {
+        "playerCastBattles": 3,
+        "summonBattles": 3,
+        "sacrificeBattles": 4,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 4,
+            "roundStart:回合开始": 2,
+            "rattle:亡语": 2,
+            "allyFaint:友军阵亡": 4
+          },
+          "damage": {
+            "ability": 8,
+            "attack": 359,
+            "splash": 17
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 19
+          },
+          "summons": 0,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/sajj/1883120857/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 20,
+        "sacrificeBattles": 6,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 4,
+            "rattle:亡语": 5,
+            "equip:装备": 2
+          },
+          "damage": {
+            "attack": 523,
+            "ability": 10
+          },
+          "actions": {
+            "extra": 4,
+            "attack": 18
+          },
+          "summons": 1,
+          "sacrifices": 4,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/reva/1883290998/closure": {
+        "playerCastBattles": 8,
+        "summonBattles": 1,
+        "sacrificeBattles": 8,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 2,
+            "allyFaint:友军阵亡": 3,
+            "general:主将": 4,
+            "rattle:亡语": 2
+          },
+          "damage": {
+            "attack": 304,
+            "thorns": 2,
+            "ability": 6
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 19,
+            "cast": 1
+          },
+          "summons": 0,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/kaleos/1883461139/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 18,
+        "sacrificeBattles": 8,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 3,
+            "rattle:亡语": 2,
+            "allyFaint:友军阵亡": 2
+          },
+          "damage": {
+            "attack": 555
+          },
+          "actions": {
+            "extra": 3,
+            "attack": 22
+          },
+          "summons": 1,
+          "sacrifices": 3,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/zilan/1883631280/closure": {
+        "playerCastBattles": 5,
+        "summonBattles": 21,
+        "sacrificeBattles": 15,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "roundStart:回合开始": 2,
+            "rattle:亡语": 6,
+            "allyFaint:友军阵亡": 6
+          },
+          "damage": {
+            "attack": 405,
+            "thorns": 1
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 22
+          },
+          "summons": 3,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/kaleos/1883801421/closure": {
+        "playerCastBattles": 2,
+        "summonBattles": 17,
+        "sacrificeBattles": 10,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 4,
+            "rattle:亡语": 3,
+            "allyFaint:友军阵亡": 6,
+            "equip:装备": 3
+          },
+          "damage": {
+            "attack": 584,
+            "ability": 3
+          },
+          "actions": {
+            "extra": 4,
+            "attack": 19
+          },
+          "summons": 1,
+          "sacrifices": 4,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/reva/1883971562/closure": {
+        "playerCastBattles": 6,
+        "summonBattles": 11,
+        "sacrificeBattles": 16,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 2,
+            "rattle:亡语": 4
+          },
+          "damage": {
+            "attack": 366,
+            "ability": 12
+          },
+          "actions": {
+            "extra": 2,
+            "attack": 14
+          },
+          "summons": 0,
+          "sacrifices": 2,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/sajj/1884141703/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 17,
+        "sacrificeBattles": 11,
+        "chillBattles": 3,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 5,
+            "rattle:亡语": 8,
+            "equip:装备": 4,
+            "general:主将": 3
+          },
+          "damage": {
+            "attack": 376,
+            "ability": 16
+          },
+          "actions": {
+            "extra": 5,
+            "attack": 17
+          },
+          "summons": 2,
+          "sacrifices": 5,
+          "chillApplied": 4,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/zilan/1884311844/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 9,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 5
+          },
+          "damage": {
+            "attack": 117,
+            "thorns": 7,
+            "ability": 8
+          },
+          "actions": {
+            "attack": 26
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/sajj/1884481985/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 17,
+        "sacrificeBattles": 13,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "roundStart:回合开始": 3,
+            "rattle:亡语": 4,
+            "allyFaint:友军阵亡": 4
+          },
+          "damage": {
+            "attack": 403,
+            "ability": 6
+          },
+          "actions": {
+            "extra": 3,
+            "attack": 21,
+            "cast": 1
+          },
+          "summons": 1,
+          "sacrifices": 3,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "sacrifice/kaleos/1884652126/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 15,
+        "sacrificeBattles": 1,
+        "chillBattles": 1,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 2,
+            "equip:装备": 3
+          },
+          "damage": {
+            "attack": 263,
+            "thorns": 1
+          },
+          "actions": {
+            "attack": 20,
+            "cast": 1,
+            "extra": 1
+          },
+          "summons": 3,
+          "sacrifices": 1,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      }
+    }
+  },
+  {
+    "mode": "frost",
+    "clear": 8,
+    "everFormed": 15,
+    "switched": 15,
+    "stages": [
+      {
+        "chapter": 1,
+        "everBeforeBossOrTermination": 14,
+        "bossReached": 16,
+        "stillAtBoss": 12,
+        "passed": 12
+      },
+      {
+        "chapter": 2,
+        "everBeforeBossOrTermination": 15,
+        "bossReached": 12,
+        "stillAtBoss": 5,
+        "passed": 12
+      },
+      {
+        "chapter": 3,
+        "everBeforeBossOrTermination": 15,
+        "bossReached": 12,
+        "stillAtBoss": 1,
+        "passed": 8
+      }
+    ],
+    "mechanism": {
+      "frost/reva/1882100011/closure": {
+        "playerCastBattles": 20,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 20,
+        "enemyFrozenSkipBattles": 20,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "start:开战": 1,
+            "aura:被动": 18,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 456
+          },
+          "actions": {
+            "attack": 21,
+            "cast": 6,
+            "extra": 12
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 122,
+          "enemyFrozenSkips": 6
+        }
+      },
+      "frost/zilan/1882270152/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 4,
+        "sacrificeBattles": 0,
+        "chillBattles": 19,
+        "enemyFrozenSkipBattles": 19,
+        "last": {
+          "triggers": {
+            "equip:装备": 10,
+            "general:主将": 1,
+            "freeze:敌人冻结": 7,
+            "aura:被动": 7
+          },
+          "damage": {
+            "attack": 237,
+            "thorns": 16,
+            "ability": 121
+          },
+          "actions": {
+            "attack": 12,
+            "cast": 10,
+            "extra": 7
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 160,
+          "enemyFrozenSkips": 7
+        }
+      },
+      "frost/sajj/1882440293/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 8,
+        "sacrificeBattles": 0,
+        "chillBattles": 18,
+        "enemyFrozenSkipBattles": 16,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "afterCast:施法后": 6,
+            "freeze:敌人冻结": 10,
+            "aura:被动": 6
+          },
+          "damage": {
+            "attack": 326,
+            "ability": 135
+          },
+          "actions": {
+            "attack": 26,
+            "cast": 6
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 136,
+          "enemyFrozenSkips": 6
+        }
+      },
+      "frost/kaleos/1882610434/closure": {
+        "playerCastBattles": 8,
+        "summonBattles": 2,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 8,
+        "last": {
+          "triggers": {
+            "freeze:敌人冻结": 3,
+            "afterCast:施法后": 6
+          },
+          "damage": {
+            "attack": 41
+          },
+          "actions": {
+            "attack": 7,
+            "cast": 9
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 81,
+          "enemyFrozenSkips": 5
+        }
+      },
+      "frost/zilan/1882780575/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 18,
+        "enemyFrozenSkipBattles": 16,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 15,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 453
+          },
+          "actions": {
+            "attack": 16,
+            "cast": 5,
+            "extra": 10
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 100,
+          "enemyFrozenSkips": 5
+        }
+      },
+      "frost/reva/1882950716/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 18,
+        "enemyFrozenSkipBattles": 18,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "aura:被动": 18,
+            "equip:装备": 9,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 531
+          },
+          "actions": {
+            "attack": 20,
+            "extra": 6,
+            "cast": 5
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 155,
+          "enemyFrozenSkips": 6
+        }
+      },
+      "frost/sajj/1883120857/closure": {
+        "playerCastBattles": 20,
+        "summonBattles": 10,
+        "sacrificeBattles": 0,
+        "chillBattles": 20,
+        "enemyFrozenSkipBattles": 16,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "start:开战": 1,
+            "aura:被动": 8,
+            "freeze:敌人冻结": 7
+          },
+          "damage": {
+            "attack": 243,
+            "ability": 60
+          },
+          "actions": {
+            "attack": 20,
+            "cast": 9,
+            "extra": 3
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 157,
+          "enemyFrozenSkips": 7
+        }
+      },
+      "frost/reva/1883290998/closure": {
+        "playerCastBattles": 6,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 6,
+        "enemyFrozenSkipBattles": 3,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "freeze:敌人冻结": 5
+          },
+          "damage": {
+            "attack": 49
+          },
+          "actions": {
+            "attack": 9,
+            "cast": 12
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 73,
+          "enemyFrozenSkips": 8
+        }
+      },
+      "frost/kaleos/1883461139/closure": {
+        "playerCastBattles": 22,
+        "summonBattles": 1,
+        "sacrificeBattles": 0,
+        "chillBattles": 22,
+        "enemyFrozenSkipBattles": 22,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 13,
+            "freeze:敌人冻结": 5,
+            "general:主将": 5
+          },
+          "damage": {
+            "attack": 303,
+            "ability": 50
+          },
+          "actions": {
+            "attack": 22,
+            "cast": 10,
+            "extra": 8
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 187,
+          "enemyFrozenSkips": 7
+        }
+      },
+      "frost/zilan/1883631280/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 21,
+        "enemyFrozenSkipBattles": 18,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 5,
+            "general:主将": 1,
+            "freeze:敌人冻结": 12,
+            "aura:被动": 6
+          },
+          "damage": {
+            "attack": 235,
+            "ability": 160,
+            "thorns": 8
+          },
+          "actions": {
+            "attack": 21,
+            "cast": 6
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 131,
+          "enemyFrozenSkips": 6
+        }
+      },
+      "frost/kaleos/1883801421/closure": {
+        "playerCastBattles": 23,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 23,
+        "enemyFrozenSkipBattles": 21,
+        "last": {
+          "triggers": {
+            "equip:装备": 12,
+            "start:开战": 2,
+            "aura:被动": 20,
+            "general:主将": 4
+          },
+          "damage": {
+            "attack": 429
+          },
+          "actions": {
+            "attack": 22,
+            "extra": 4,
+            "cast": 11
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 250,
+          "enemyFrozenSkips": 9
+        }
+      },
+      "frost/reva/1883971562/closure": {
+        "playerCastBattles": 19,
+        "summonBattles": 2,
+        "sacrificeBattles": 0,
+        "chillBattles": 19,
+        "enemyFrozenSkipBattles": 19,
+        "last": {
+          "triggers": {
+            "start:开战": 2,
+            "equip:装备": 9,
+            "aura:被动": 6,
+            "freeze:敌人冻结": 6,
+            "front:成为队首": 1
+          },
+          "damage": {
+            "attack": 360,
+            "ability": 60,
+            "thorns": 6
+          },
+          "actions": {
+            "attack": 28,
+            "cast": 8
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 162,
+          "enemyFrozenSkips": 7
+        }
+      },
+      "frost/sajj/1884141703/closure": {
+        "playerCastBattles": 8,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 7,
+        "last": {
+          "triggers": {
+            "freeze:敌人冻结": 5
+          },
+          "damage": {
+            "attack": 106
+          },
+          "actions": {
+            "attack": 14,
+            "cast": 10
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 52,
+          "enemyFrozenSkips": 3
+        }
+      },
+      "frost/zilan/1884311844/closure": {
+        "playerCastBattles": 20,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 20,
+        "enemyFrozenSkipBattles": 20,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 10,
+            "freeze:敌人冻结": 5,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 399,
+            "ability": 50
+          },
+          "actions": {
+            "attack": 19,
+            "cast": 5,
+            "extra": 5
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 99,
+          "enemyFrozenSkips": 5
+        }
+      },
+      "frost/sajj/1884481985/closure": {
+        "playerCastBattles": 21,
+        "summonBattles": 13,
+        "sacrificeBattles": 0,
+        "chillBattles": 21,
+        "enemyFrozenSkipBattles": 19,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "start:开战": 1,
+            "aura:被动": 2
+          },
+          "damage": {
+            "attack": 330
+          },
+          "actions": {
+            "attack": 23,
+            "cast": 9,
+            "extra": 1
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 130,
+          "enemyFrozenSkips": 2
+        }
+      },
+      "frost/kaleos/1884652126/closure": {
+        "playerCastBattles": 8,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 7,
+        "last": {
+          "triggers": {
+            "afterAttack:普攻后": 1,
+            "freeze:敌人冻结": 3
+          },
+          "damage": {
+            "attack": 86,
+            "splash": 2,
+            "thorns": 6
+          },
+          "actions": {
+            "attack": 13,
+            "cast": 7
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 47,
+          "enemyFrozenSkips": 3
+        }
+      }
+    }
+  },
+  {
+    "mode": "summon",
+    "clear": 8,
+    "everFormed": 12,
+    "switched": 12,
+    "stages": [
+      {
+        "chapter": 1,
+        "everBeforeBossOrTermination": 10,
+        "bossReached": 16,
+        "stillAtBoss": 9,
+        "passed": 10
+      },
+      {
+        "chapter": 2,
+        "everBeforeBossOrTermination": 12,
+        "bossReached": 9,
+        "stillAtBoss": 7,
+        "passed": 8
+      },
+      {
+        "chapter": 3,
+        "everBeforeBossOrTermination": 12,
+        "bossReached": 8,
+        "stillAtBoss": 8,
+        "passed": 8
+      }
+    ],
+    "mechanism": {
+      "summon/reva/1882100011/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 10,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 3,
+            "rattle:亡语": 1,
+            "allyFaint:友军阵亡": 1,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 658
+          },
+          "actions": {
+            "attack": 21
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 3,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/zilan/1882270152/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 8,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "rattle:亡语": 7,
+            "pulse:节拍": 1
+          },
+          "damage": {
+            "attack": 75
+          },
+          "actions": {
+            "attack": 16
+          },
+          "summons": 6,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/sajj/1882440293/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 5,
+            "allyFaint:友军阵亡": 2,
+            "pulse:节拍": 1
+          },
+          "damage": {
+            "attack": 62,
+            "thorns": 1
+          },
+          "actions": {
+            "attack": 16
+          },
+          "summons": 6,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/kaleos/1882610434/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 8,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 5,
+            "rattle:亡语": 2,
+            "general:主将": 2,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 633
+          },
+          "actions": {
+            "attack": 19
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 5,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/zilan/1882780575/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 11,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 2,
+            "rattle:亡语": 2,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 553
+          },
+          "actions": {
+            "attack": 22
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/reva/1882950716/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 10,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 2,
+            "rattle:亡语": 2,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 371
+          },
+          "actions": {
+            "attack": 13
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/sajj/1883120857/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 5,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "pulse:节拍": 1,
+            "rattle:亡语": 3,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 63
+          },
+          "actions": {
+            "attack": 12
+          },
+          "summons": 3,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/reva/1883290998/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 1,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 606
+          },
+          "actions": {
+            "attack": 24
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/kaleos/1883461139/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 8,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "pulse:节拍": 1,
+            "rattle:亡语": 3,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 74
+          },
+          "actions": {
+            "attack": 17
+          },
+          "summons": 2,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/zilan/1883631280/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 9,
+        "sacrificeBattles": 0,
+        "chillBattles": 4,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 4
+          },
+          "damage": {
+            "attack": 426
+          },
+          "actions": {
+            "attack": 12
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 2,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/kaleos/1883801421/closure": {
+        "playerCastBattles": 1,
+        "summonBattles": 15,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "pulse:节拍": 1,
+            "rattle:亡语": 5,
+            "general:主将": 12
+          },
+          "damage": {
+            "attack": 66,
+            "thorns": 3
+          },
+          "actions": {
+            "attack": 21
+          },
+          "summons": 6,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/reva/1883971562/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 5,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 2,
+            "summon:友军召唤": 4,
+            "pulse:节拍": 1
+          },
+          "damage": {
+            "attack": 68
+          },
+          "actions": {
+            "attack": 14
+          },
+          "summons": 2,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/sajj/1884141703/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 15,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "rattle:亡语": 3,
+            "general:主将": 3
+          },
+          "damage": {
+            "attack": 521,
+            "thorns": 2
+          },
+          "actions": {
+            "attack": 25
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/zilan/1884311844/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 16,
+        "sacrificeBattles": 0,
+        "chillBattles": 17,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 8,
+            "rattle:亡语": 2,
+            "general:主将": 4,
+            "summon:友军召唤": 1
+          },
+          "damage": {
+            "attack": 422
+          },
+          "actions": {
+            "attack": 32
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 2,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/sajj/1884481985/closure": {
+        "playerCastBattles": 2,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "pulse:节拍": 2,
+            "rattle:亡语": 7
+          },
+          "damage": {
+            "attack": 47
+          },
+          "actions": {
+            "attack": 14,
+            "cast": 1
+          },
+          "summons": 7,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "summon/kaleos/1884652126/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 9,
+        "sacrificeBattles": 0,
+        "chillBattles": 5,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 4,
+            "rattle:亡语": 1
+          },
+          "damage": {
+            "attack": 34,
+            "thorns": 2
+          },
+          "actions": {
+            "attack": 13
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 4,
+          "enemyFrozenSkips": 0
+        }
+      }
+    }
+  },
+  {
+    "mode": "splash",
+    "clear": 12,
+    "everFormed": 11,
+    "switched": 11,
+    "stages": [
+      {
+        "chapter": 1,
+        "everBeforeBossOrTermination": 7,
+        "bossReached": 16,
+        "stillAtBoss": 4,
+        "passed": 16
+      },
+      {
+        "chapter": 2,
+        "everBeforeBossOrTermination": 9,
+        "bossReached": 16,
+        "stillAtBoss": 0,
+        "passed": 16
+      },
+      {
+        "chapter": 3,
+        "everBeforeBossOrTermination": 11,
+        "bossReached": 16,
+        "stillAtBoss": 0,
+        "passed": 12
+      }
+    ],
+    "mechanism": {
+      "splash/reva/1882100011/closure": {
+        "playerCastBattles": 15,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 3,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 3,
+            "charge:蓄力技": 6
+          },
+          "damage": {
+            "attack": 361,
+            "splash": 52,
+            "thorns": 12
+          },
+          "actions": {
+            "attack": 14,
+            "cast": 4,
+            "charge": 6
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 2,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/zilan/1882270152/closure": {
+        "playerCastBattles": 15,
+        "summonBattles": 1,
+        "sacrificeBattles": 0,
+        "chillBattles": 11,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 3,
+            "afterAttack:普攻后": 6,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 267,
+            "splash": 94,
+            "thorns": 4
+          },
+          "actions": {
+            "attack": 29,
+            "cast": 2
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 3,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/sajj/1882440293/closure": {
+        "playerCastBattles": 5,
+        "summonBattles": 13,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "afterAttack:普攻后": 6,
+            "general:主将": 3,
+            "equip:装备": 5
+          },
+          "damage": {
+            "attack": 251,
+            "splash": 89
+          },
+          "actions": {
+            "attack": 25
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/kaleos/1882610434/closure": {
+        "playerCastBattles": 10,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 8,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 9,
+            "charge:蓄力技": 5,
+            "afterAttack:普攻后": 4
+          },
+          "damage": {
+            "attack": 376,
+            "splash": 111
+          },
+          "actions": {
+            "attack": 15,
+            "cast": 3,
+            "charge": 5
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 5,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/zilan/1882780575/closure": {
+        "playerCastBattles": 14,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 6,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 4,
+            "afterAttack:普攻后": 3,
+            "aura:被动": 2
+          },
+          "damage": {
+            "attack": 109,
+            "splash": 42
+          },
+          "actions": {
+            "attack": 13,
+            "cast": 2
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 3,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/reva/1882950716/closure": {
+        "playerCastBattles": 15,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 11,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 3,
+            "charge:蓄力技": 5,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 236,
+            "splash": 63
+          },
+          "actions": {
+            "attack": 12,
+            "cast": 3,
+            "charge": 5
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 3,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/sajj/1883120857/closure": {
+        "playerCastBattles": 17,
+        "summonBattles": 7,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "afterAttack:普攻后": 5,
+            "charge:蓄力技": 3
+          },
+          "damage": {
+            "attack": 261,
+            "splash": 66
+          },
+          "actions": {
+            "attack": 23,
+            "cast": 6,
+            "charge": 3
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/reva/1883290998/closure": {
+        "playerCastBattles": 0,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "charge:蓄力技": 6
+          },
+          "damage": {
+            "attack": 161,
+            "thorns": 32,
+            "splash": 63
+          },
+          "actions": {
+            "attack": 14,
+            "charge": 6,
+            "extra": 2
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/kaleos/1883461139/closure": {
+        "playerCastBattles": 8,
+        "summonBattles": 1,
+        "sacrificeBattles": 0,
+        "chillBattles": 10,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "afterAttack:普攻后": 5,
+            "general:主将": 4,
+            "equip:装备": 4,
+            "charge:蓄力技": 3
+          },
+          "damage": {
+            "attack": 311,
+            "splash": 97
+          },
+          "actions": {
+            "attack": 24,
+            "cast": 2,
+            "charge": 3
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 4,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/zilan/1883631280/closure": {
+        "playerCastBattles": 14,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 6,
+            "start:开战": 1,
+            "charge:蓄力技": 4
+          },
+          "damage": {
+            "attack": 317,
+            "splash": 76
+          },
+          "actions": {
+            "attack": 18,
+            "cast": 4,
+            "charge": 4
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/kaleos/1883801421/closure": {
+        "playerCastBattles": 14,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "afterAttack:普攻后": 4,
+            "general:主将": 5,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 235,
+            "splash": 93
+          },
+          "actions": {
+            "attack": 25,
+            "cast": 2
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/reva/1883971562/closure": {
+        "playerCastBattles": 15,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "aura:被动": 3,
+            "afterAttack:普攻后": 5,
+            "general:主将": 1
+          },
+          "damage": {
+            "attack": 291,
+            "splash": 76
+          },
+          "actions": {
+            "attack": 25,
+            "cast": 5
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/sajj/1884141703/closure": {
+        "playerCastBattles": 18,
+        "summonBattles": 8,
+        "sacrificeBattles": 0,
+        "chillBattles": 3,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 3,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 269,
+            "splash": 69
+          },
+          "actions": {
+            "attack": 31,
+            "cast": 1
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 1,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/zilan/1884311844/closure": {
+        "playerCastBattles": 14,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "afterAttack:普攻后": 8,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 258,
+            "splash": 80
+          },
+          "actions": {
+            "attack": 28,
+            "cast": 7
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/sajj/1884481985/closure": {
+        "playerCastBattles": 4,
+        "summonBattles": 12,
+        "sacrificeBattles": 0,
+        "chillBattles": 0,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "equip:装备": 1,
+            "start:开战": 1,
+            "afterAttack:普攻后": 4,
+            "charge:蓄力技": 3,
+            "aura:被动": 3
+          },
+          "damage": {
+            "attack": 242,
+            "splash": 67,
+            "thorns": 18
+          },
+          "actions": {
+            "attack": 22,
+            "charge": 3
+          },
+          "summons": 1,
+          "sacrifices": 0,
+          "chillApplied": 0,
+          "enemyFrozenSkips": 0
+        }
+      },
+      "splash/kaleos/1884652126/closure": {
+        "playerCastBattles": 16,
+        "summonBattles": 0,
+        "sacrificeBattles": 0,
+        "chillBattles": 1,
+        "enemyFrozenSkipBattles": 0,
+        "last": {
+          "triggers": {
+            "start:开战": 1,
+            "equip:装备": 6,
+            "afterAttack:普攻后": 4,
+            "general:主将": 2,
+            "charge:蓄力技": 2
+          },
+          "damage": {
+            "attack": 247,
+            "splash": 103
+          },
+          "actions": {
+            "attack": 18,
+            "cast": 3,
+            "charge": 2
+          },
+          "summons": 0,
+          "sacrifices": 0,
+          "chillApplied": 2,
+          "enemyFrozenSkips": 0
+        }
+      }
+    }
+  }
+]

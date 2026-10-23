@@ -22,38 +22,23 @@ const beatLog = (o: BattleOutput, n: number) => {
 const uidOf = (o: BattleOutput, defId: string, side = 0) => o.initial.find(u => u.defId === defId && u.side === side)!.uid;
 
 // ═══════════════════════════════════════════════════════════
-// 嘲讽（taunt）：选目标优先级为 嘲讽 > 决斗对手 / 狙击 > 队首
+// 嘲讽只保护存活队列中紧邻身后的自然目标。
 // ═══════════════════════════════════════════════════════════
 describe('嘲讽改选目标', () => {
-  it('有嘲讽时决斗单位也优先打嘲讽，不打决斗对手', () => {
-    const o = play(
-      [P('s_backstab')],
-      [E('e_skel', { atk: 1, hp: 999 }), E('v_wall', { atk: 1, hp: 999 })],
-    );
-    // s_backstab(duel) 对手=actors[1]=e_skel，但 v_wall(taunt) 优先级更高
-    // 每个交锋拍都触发一次 taunt 重定向
+  it('决斗自然目标的前邻嘲讽可以拦截', () => {
+    const o = play([null, P('s_backstab')], [E('v_wall', { atk: 1, hp: 999 }), E('e_skel', { atk: 1, hp: 999 })]);
     expect(evs(o, 'taunt').length).toBeGreaterThanOrEqual(1);
-    const firstTaunt = evs(o, 'taunt')[0];
-    expect(firstTaunt.from).toBe(uidOf(o, 'e_skel', 1)); // 本想打队首 e_skel
-    expect(firstTaunt.to).toBe(uidOf(o, 'v_wall', 1));   // 被 taunt 拉到 v_wall
+    expect(evs(o, 'taunt')[0]).toMatchObject({ from: uidOf(o,'e_skel',1), to: uidOf(o,'v_wall',1) });
   });
-
-  it('嘲讽 > 狙击：狙击手也优先打嘲讽', () => {
-    const o = play(
-      [P('s_wind')], // 狙击 + 连击
-      [E('e_skel', { atk: 1, hp: 999 }), E('v_wall', { atk: 1, hp: 999 })],
-    );
+  it('狙击自然目标的前邻嘲讽可以拦截', () => {
+    const o = play([P('n_archer')], [E('v_wall', { atk: 1, hp: 999 }), E('e_skel', { atk: 1, hp: 999 })]);
     expect(evs(o, 'taunt').length).toBeGreaterThanOrEqual(1);
+    expect(evs(o, 'taunt')[0]).toMatchObject({ from: uidOf(o,'e_skel',1), to: uidOf(o,'v_wall',1) });
   });
-
-  it('嘲讽 > 普通队首：无特殊选目标时，taunt 抢走队首仇恨', () => {
-    const o = play(
-      [P('n_merc')],
-      [E('e_skel', { atk: 1, hp: 999 }), E('v_wall', { atk: 1, hp: 999 })],
-    );
-    expect(evs(o, 'taunt').length).toBeGreaterThanOrEqual(1);
-    expect(evs(o, 'taunt')[0].from).toBe(uidOf(o, 'e_skel', 1)); // 本该打队首
-    expect(evs(o, 'taunt')[0].to).toBe(uidOf(o, 'v_wall', 1));   // 被拉到嘲讽
+  it('后排嘲讽不会抢走普通队首的仇恨', () => {
+    const o = play([P('n_merc')], [E('e_skel', { atk: 1, hp: 999 }), E('v_wall', { atk: 1, hp: 999 })]);
+    expect(evs(beatLog(o,1), 'taunt')).toEqual([]);
+    expect(evs(beatLog(o,1), 'attack')[0].pairs).toContainEqual({atk:1,tgt:2});
   });
 
   it('场上无嘲讽时决斗正常打对手', () => {
@@ -104,7 +89,7 @@ describe('轮换', () => {
 // 蓄力（charge）：蓄力满后释放并清零
 // ═══════════════════════════════════════════════════════════
 describe('蓄力', () => {
-  it('蓄力 2 的单位第 3 拍释放蓄力技', () => {
+  it('蓄力 2 的单位第 2 拍释放蓄力技', () => {
     // v_snowman: charge 2, chargeSkill: freeze enemy front
     const o = play(
       [P('v_snowman')],
@@ -113,13 +98,13 @@ describe('蓄力', () => {
     // 第 1 拍后：charge=1
     const after1 = beatLog(o, 1).at(-1)!.snap;
     expect(after1.find(u => u.uid === 1)!.charge).toBe(1);
-    // 第 2 拍后：charge=2（满）
+    // 第 2 拍达到阈值，当次释放并清零
     const after2 = beatLog(o, 2).at(-1)!.snap;
-    expect(after2.find(u => u.uid === 1)!.charge).toBe(2);
-    // 第 3 拍：释放蓄力技
-    expect(evs(beatLog(o, 3), 'act').filter(a => a.mode === 'charge').length).toBeGreaterThanOrEqual(1);
+    expect(after2.find(u => u.uid === 1)!.charge).toBe(0);
+    // 第 2 拍：释放蓄力技
+    expect(evs(beatLog(o, 2), 'act').filter(a => a.mode === 'charge').length).toBeGreaterThanOrEqual(1);
     const after3 = beatLog(o, 3).at(-1)!.snap;
-    expect(after3.find(u => u.uid === 1)!.charge).toBe(0);
+    expect(after3.find(u => u.uid === 1)!.charge).toBe(1);
   });
 
   it('蓄力技有 chargeAttack 时先普攻（带加成）再蓄力技效果', () => {
@@ -128,8 +113,8 @@ describe('蓄力', () => {
       [P('v_rhyno')],
       [E('e_skel', { hp: 999 })],
     );
-    // 第 4 拍：charge 3 满，释放
-    const releaseLog = beatLog(o, 4);
+    // 第 3 拍：charge 3 满，当次释放
+    const releaseLog = beatLog(o, 3);
     expect(evs(releaseLog, 'act').filter(a => a.mode === 'charge').length).toBeGreaterThanOrEqual(1);
     const after = releaseLog.at(-1)!.snap;
     expect(after.find(u => u.uid === 1)!.charge).toBe(0);
@@ -145,10 +130,10 @@ describe('节拍', () => {
   it('节拍 3 的单位第 3 拍触发效果并重置计数', () => {
     // l_sunriser: pulse 3, onPulse: block highestHp
     const o = play(
-      [P('l_sunriser'), P('n_merc')],
+      [P('d_obelisk'), P('n_merc')],
       [DUMMY],
     );
-    const uid = uidOf(o, 'l_sunriser');
+    const uid = uidOf(o, 'd_obelisk');
     // 第 1 拍后 pulse 在 beatEnd 中递增，beat 2 的起始快照才反映
     expect(beatLog(o, 2)[0].snap.find(u => u.uid === uid)!.pulse).toBe(1);
     // 第 2 拍后：pulse=2
@@ -160,10 +145,10 @@ describe('节拍', () => {
 
   it('节拍在每拍交锋结束时递增，不受行动轮影响', () => {
     const o = play(
-      [P('l_sunriser')],
+      [P('d_obelisk')],
       [E('e_skel', { atk: 1, hp: 99 })],
     );
-    const uid = uidOf(o, 'l_sunriser');
+    const uid = uidOf(o, 'd_obelisk');
     expect(beatLog(o, 2)[0].snap.find(u => u.uid === uid)!.pulse).toBe(1);
     expect(beatLog(o, 3)[0].snap.find(u => u.uid === uid)!.pulse).toBe(2);
     expect(beatLog(o, 4)[0].snap.find(u => u.uid === uid)!.pulse).toBe(0);
@@ -209,7 +194,7 @@ describe('决斗', () => {
 describe('溅射', () => {
   it('溅射对身后单位造成攻击一半伤害（向下取整）', () => {
     const o = play(
-      [P('m_rex')], // splash, base atk=4
+      [P('n_breaker')], // splash, base atk=4
       [E('e_skel', { hp: 99 }), E('e_skel', { hp: 99 })],
     );
     const mainDmg = evs(o, 'dmg').find(d => d.kind === 'attack')!;
@@ -221,7 +206,7 @@ describe('溅射', () => {
 
   it('目标身后无单位时不溅射', () => {
     const o = play(
-      [P('m_rex')],
+      [P('n_breaker')],
       [E('e_skel', { hp: 99 })],
     );
     expect(evs(o, 'dmg').filter(d => d.kind === 'splash').length).toBe(0);

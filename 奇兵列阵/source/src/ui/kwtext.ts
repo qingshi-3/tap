@@ -54,7 +54,7 @@ export const TRIG: Record<TrigId, TrigDef> = {
   front: { name: '成为队首时', icon: 'arrowUp', color: '#9fe8ff', sample: '成为队首时', gloss: gloss('成为队首时') },
   rear: { name: '在队尾时', icon: 'target', color: '#b0a8ff', sample: '在队尾时', gloss: gloss('在队尾时') },
   defeat: { name: '击败对手', icon: 'crown', color: '#ff8f5a', sample: '击败对手时', gloss: gloss('击败对手') },
-  charge: { name: '蓄力技', icon: 'bolt', color: '#ffcf4a', sample: '蓄力技', gloss: '蓄力满后，下一次常规行动改为释放卡面写的蓄力技，然后清零。按施法结算，吃法强。' },
+  charge: { name: '蓄力技', icon: 'bolt', color: '#ffcf4a', sample: '蓄力技', gloss: '每次未被冻结的常规行动开始时积累蓄力；达到需求就在本次行动释放卡面技能并清零，未满则普攻。蓄力技能计施法并享受法强；强化普攻仍是普攻。' },
   pulse: { name: '节拍', icon: 'refresh', color: '#ff9ad0', sample: '节拍 N', gloss: gloss('节拍') },
   beat: { name: '每次交锋结束时', icon: 'hourglass', color: '#ff7a9a', sample: '每次交锋结束时', gloss: '每次交锋双方至多各一人常规行动；一方等待时，交锋结束仍照常结算。灼烧和节拍都按交锋计算；「每 3 次交锋」指第 3、6、9……次交锋，与回合无关。' },
   cond: { name: '条件触发', icon: 'eye', color: '#8cd4ff', sample: '普攻目标有寒意时', gloss: '满足写明的条件时触发，条件写在胶囊里。' },

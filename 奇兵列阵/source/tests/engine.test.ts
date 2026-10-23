@@ -80,7 +80,7 @@ describe('连击 / 溅射 / 反击', () => {
     expect(evs(beatLog(o, 1), 'dmg').filter(d => d.kind === 'thorns')).toHaveLength(2);
   });
   it('溅射不触发反击', () => {
-    const o = play([P('m_rex')], [E('e_skel', { hp: 30 }), E('e_thorn', { hp: 30 })]);
+    const o = play([P('n_breaker')], [E('e_skel', { hp: 30 }), E('e_thorn', { hp: 30 })]);
     const log = beatLog(o, 1);
     expect(evs(log, 'dmg').some(d => d.kind === 'splash')).toBe(true);
     expect(evs(log, 'dmg').some(d => d.kind === 'thorns')).toBe(false);
@@ -111,19 +111,20 @@ describe('复生 / 放逐 / 立即出手 / 法强', () => {
     expect(extras[0].uid).toBe(2);
   });
   it('法强只加施法数值', () => {
-    const cast = play([P('a_cult')], [E('e_skel', { hp: 99 })]);
-    expect(evs(cast, 'dmg').find(d => d.kind === 'ability')!.n).toBe(4); // 基础3 + 固有法强1
+    const cast = play([P('s_caster')], [E('e_skel', { hp: 99 })]);
+    expect(evs(cast, 'dmg').find(d => d.kind === 'ability')!.n).toBe(6); // 基础5 + 固有法强1
     const atk = play([P('n_merc'), P('n_obelisk')], [E('e_skel', { hp: 99 })]);
     expect(evs(atk, 'dmg').find(d => d.kind === 'attack' && d.src === 1)!.n).toBe(3);
   });
 });
 
 describe('传说与首领', () => {
-  it('千刃宗师：友军每段普攻命中都追打队尾', () => {
-    const o = play([P('s_wind'), P('s_master')], [E('e_skel', { hp: 99 }), E('e_skel', { hp: 99 })]);
+  it('千刃宗师：全队六段命中后兑现群体爆发', () => {
+    const o = play([E('s_wind', { hp: 99 }), E('s_master', { hp: 99 })], [E('e_skel', { atk: 1, hp: 99 }), E('e_skel', { atk: 1, hp: 99 })]);
     const m = uidOf(o, 's_master');
-    expect(evs(beatLog(o, 1), 'trigger').filter(t => t.src === m)).toHaveLength(2);
-    expect(o.triggers!.s_master).toBeGreaterThanOrEqual(8);
+    expect(evs(beatLog(o, 1), 'rule').filter(t => t.src === m)).toHaveLength(0);
+    expect(evs(beatLog(o, 3), 'rule').filter(t => t.src === m && t.id === 'master_burst')).toHaveLength(1);
+    expect(o.triggers!.s_master).toBeGreaterThanOrEqual(1);
   });
   it('虚空领主每 3 拍把队尾拉到队首', () => {
     const o = play([P('n_bulwark'), P('v_wall'), P('l_vigil')], [E('e_void', { atk: 1, hp: 999 })]);

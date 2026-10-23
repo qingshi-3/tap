@@ -1,11 +1,35 @@
 import { describe, expect, it } from 'vitest';
 import { simulate } from '../src/core/engine';
+import { chapter } from '../src/core/route';
 import * as R from '../src/core/run';
 import { newTutorialRun, scriptDraft, scriptShop, tutorialAllows, tutorialComplete, giveTutorialActionScroll, type TutAction } from '../src/core/tutorialRoute';
 
 describe('fixed tutorial route', () => {
-  it('wins four real battles, demonstrates the scroll extra wave, and completes after settlement', () => {
+  it('教学显式路由不影响同seed普通远征，克隆保留预览和实际遭遇', () => {
+    const tutorial = newTutorialRun();
+    const ordinary = R.newRun(tutorial.general, tutorial.seed);
+    expect(ordinary.tutorialMode).toBeUndefined();
+    expect(R.currentStage(ordinary)).toEqual(chapter(0).stages[0]);
+    expect(R.buildBattle(ordinary).enemy).not.toEqual(R.buildBattle(tutorial).enemy);
+    for (const node of [0, 1, 2, 4]) {
+      tutorial.node = node;
+      const clone = R.cloneRun(tutorial);
+      expect(clone.tutorialMode).toBe(true);
+      expect(R.currentStage(clone)).toEqual(R.currentStage(tutorial));
+      const stage = R.currentStage(clone, node);
+      if (stage.type !== 'battle') throw new Error('missing tutorial battle');
+      const preview = stage.variant && clone.variantChoices[`0:${node}`] ? stage.variant : stage.main;
+      expect(R.currentNode(clone)).toEqual(preview);
+      expect(R.buildBattle(clone).enemy).toEqual(preview.lineup);
+      const initial = simulate({ ...R.buildBattle(clone), player: [{ defId: 'n_bulwark' }] }).initial.filter(u => u.side === 1);
+      expect(initial.map(u => [u.defId, u.atk, u.maxHp])).toEqual(preview.lineup.filter(e => !!e).map(e => [e.defId, e.atk, e.hp]));
+      preview.lineup[0]!.hp = 999;
+      expect(R.buildBattle(tutorial).enemy[0]?.hp).not.toBe(999);
+    }
+  });
+  it.each([0, 1])('wins four real battles including final variant %i, demonstrates the scroll extra wave, and completes after settlement', variant => {
     const r = newTutorialRun();
+    r.variantChoices['0:4'] = variant;
     expect(giveTutorialActionScroll(r)).toBe(false);
     expect(r.spells).not.toContain('sp_haste');
     const act = (step: string, a: TutAction) => expect(tutorialAllows(step, r, a), `${step}: ${JSON.stringify(a)}`).toBe(true);

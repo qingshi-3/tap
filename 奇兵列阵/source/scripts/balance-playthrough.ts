@@ -258,8 +258,8 @@ function play(m:Modules,phase:Phase,flow:Flow,hero:string,seed:number,keepAction
   if(sc==='reward'){const i=r.reward!.map((id,i)=>({id,i})).sort((a,b)=>equipScore(b.id)-equipScore(a.id))[0].i;act('chooseReward',[i],()=>R.chooseReward(r,i),{offered:[...r.reward!]});continue;}
   if(sc==='shop'){
    const shop=r.shop!;
-   for(const x of shop.units.map((x,i)=>({...x,i})).sort((a,b)=>score(b.id)-score(a.id)))if(!x.sold&&r.gold>=x.price&&(owned().length<8||owned().some(y=>y.u.defId===x.id&&y.u.copies===1))){act('buy',['units',x.i],()=>R.buy(r,'units',x.i),{id:x.id,price:x.price});merge();}
-   if(!shop.pack.sold&&r.gold>=shop.pack.price)act('buy',['pack'],()=>R.buy(r,'pack'));
+   for(const x of shop.units.map((x,i)=>({...x,i})).sort((a,b)=>score(b.id)-score(a.id)))if((typeof R.shopUnitBuysRemaining!=='function'||R.shopUnitBuysRemaining(r)>0)&&!x.sold&&r.gold>=x.price&&(owned().length<8||owned().some(y=>y.u.defId===x.id&&y.u.copies===1))){act('buy',['units',x.i],()=>R.buy(r,'units',x.i),{id:x.id,price:x.price});merge();}
+   if(shop.pack&&!shop.pack.sold&&r.gold>=shop.pack.price)act('buy',['pack'],()=>R.buy(r,'pack'));
    for(const x of shop.equips.map((x,i)=>({...x,i})).sort((a,b)=>equipScore(b.id)-equipScore(a.id)))if(!x.sold&&r.gold>=x.price&&r.bag.length+owned().reduce((n,y)=>n+(y.u.equips?.length??0),0)<5*R.equipCap(r))act('buy',['equips',x.i],()=>R.buy(r,'equips',x.i),{id:x.id,price:x.price});
    for(let i=0;i<shop.spells.length;i++)if(!shop.spells[i].sold&&r.gold>=shop.spells[i].price+3)act('buy',['spells',i],()=>R.buy(r,'spells',i),{id:shop.spells[i].id,price:shop.spells[i].price});
    if(shop.order&&!shop.order.sold&&r.gold>=shop.order.price+3)act('buy',['order'],()=>R.buy(r,'order'));

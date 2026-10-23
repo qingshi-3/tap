@@ -4,7 +4,7 @@ import '../codex-search.css';
 import '../mechanics-guide.css';
 import { BATTLE_RULES } from '../core/battleRules';
 import { matchesCodex } from '../core/codexSearch';
-import { EQUIPS, GENERALS, ORDERS, SPELLS } from '../core/content';
+import { EQUIPS, ACTIVE_GENERAL_IDS, generalDefinition, ORDERS, SPELLS } from '../core/content';
 import { DRAFT_POOL, FACTION_INFO, FACTION_ORDER, RARITY_NAMES, ROLE_TAGS, tagFamily, unitDef } from '../core/data';
 import { COMBOS } from '../core/combos';
 import type { Faction, UnitDef } from '../core/types';
@@ -18,6 +18,8 @@ import { levelStats } from '../core/engine';
 import { itemIcon } from './pixelItems';
 import { generalTip, unitTip } from './tip';
 import { unitSvg } from './unitArt';
+
+const CODEX_GENERALS = ACTIVE_GENERAL_IDS.map(id => generalDefinition(id, 1));
 
 const TIPS = [
   '前排放血厚、带嘲讽或护甲的单位；施法单位放后排。',
@@ -35,7 +37,7 @@ function mechs(d: UnitDef) {
 
 /** 搭配推荐：同阵营或中立里与它机制互补（给↔吃）或同机制的卡，按契合度取前几张 */
 function partners(d: UnitDef, n = 4) {
-  const mine = mechs(d);
+  const mine = mechs(d).filter(m => m.fam !== '蓄力');
   if (!mine.length) return [];
   return DRAFT_POOL
     .filter((o) => o.id !== d.id && (o.faction === d.faction || o.faction === 'neutral' || d.faction === 'neutral'))
@@ -135,7 +137,7 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
   // ── 推荐阵容 ──
   const recView = () => {
     const visible = COMBOS.map((c, i) => ({ c, i })).filter(({ c }) => {
-      const g = GENERALS.find(g => g.id === c.general)!;
+      const g = CODEX_GENERALS.find(g => g.id === c.general)!;
       return matchesCodex(queries.rec, c.name, c.idea, FACTION_INFO[c.faction].name, g.name, g.title, g.text, ...c.roles, ...c.units.flatMap(id => unitSearchTexts(unitDef(id))), ...c.extras.map(id => ITEM_NAME[id] ?? id));
     });
     if (!visible.length) return noResults();
@@ -144,14 +146,14 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
     const show = (i: number) => {
       comboSel = i;
       list.querySelectorAll<HTMLElement>('.cx-combo-btn').forEach(b => b.classList.toggle('on', Number(b.dataset.index) === i));
-      const c = COMBOS[i], f = FACTION_INFO[c.faction], g = GENERALS.find((x) => x.id === c.general)!;
+      const c = COMBOS[i], f = FACTION_INFO[c.faction], g = CODEX_GENERALS.find((x) => x.id === c.general)!;
       detail.style.setProperty('--fc', f.color);
       detail.replaceChildren(
         h('div', { class: 'cx-combo-head' }, h('b', null, c.name), h('span', { class: 'cx-fac' }, f.name), h('span', { class: 'cx-gen' }, `推荐将军：${g.name} · ${g.title}`)),
         h('p', { class: 'cx-idea' }, c.idea),
         h('div', { class: 'cx-line' }, c.units.map((id, k) => h('div', { class: 'cx-slot' }, h('span', { class: 'cx-no' }, `${k + 1}号位`), unitChip(id), h('p', null, ...kwInline(c.roles[k]))))),
         h('div', { class: 'cx-extras' }, h('span', null, '可搭配：'), c.extras.map(itemChip)),
-        h('p', { class: 'cx-note' }, '点头像查看单位详情。阵营每局随机开放，抽不到时用同机制的卡替换即可。'),
+        h('p', { class: 'cx-note' }, '点头像查看单位详情。全阵营开放，招募阶级随进度提高；按实际货架调整阵容。'),
       );
     };
     list.replaceChildren(...visible.map(({ c, i }) => h('button', { class: 'cx-combo-btn', 'data-index': i, style: `--fc:${FACTION_INFO[c.faction].color}`, onclick: () => { sfx.click(); show(i); } },
@@ -202,13 +204,13 @@ export function codexScreen(onBack: () => void, showUnitModal: (content: HTMLEle
 
   // ── 将军 ──
   const genView = () => {
-    if (!GENERALS.some(g => matchesCodex(queries.gen, g.name, g.title, g.text, FACTION_INFO[g.faction].name))) return noResults();
-    return h('div', { class: 'cx-gens' }, GENERALS.filter(g => matchesCodex(queries.gen, g.name, g.title, g.text, FACTION_INFO[g.faction].name)).map((g) => {
+    if (!CODEX_GENERALS.some(g => matchesCodex(queries.gen, g.name, g.title, g.text, FACTION_INFO[g.faction].name))) return noResults();
+    return h('div', { class: 'cx-gens' }, CODEX_GENERALS.filter(g => matchesCodex(queries.gen, g.name, g.title, g.text, FACTION_INFO[g.faction].name)).map((g) => {
     const f = FACTION_INFO[g.faction];
     const combos = COMBOS.filter((c) => c.general === g.id);
     return h('div', { class: 'cx-gen-card', style: `--fc:${f.color}` },
       h('div', { class: 'cx-gen-art', html: unitSvg(null, { general: g.id }) }),
-      h('div', { class: 'cx-gen-info' }, generalTip(g.id),
+      h('div', { class: 'cx-gen-info' }, generalTip(g.id, 0, [], 1),
         combos.length ? h('div', { class: 'cx-gen-rec' }, h('span', null, '推荐阵容：'), combos.map((c) =>
           h('button', { class: 'cx-link', onclick: () => { sfx.click(); comboSel = COMBOS.indexOf(c); go('rec'); } }, c.name))) : null));
   }));

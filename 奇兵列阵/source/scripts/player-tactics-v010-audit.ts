@@ -1,0 +1,43 @@
+declare const process:{env:Record<string,string|undefined>};
+// @ts-expect-error Node host API.
+import {mkdirSync,openSync,writeSync,closeSync,readFileSync,writeFileSync,readdirSync} from 'node:fs';
+// @ts-expect-error Node host API.
+import {createHash} from 'node:crypto';
+import {generalChoices,setGeneralOrder,allOwned,type RunState} from '../src/core/run';
+import type {Slotted} from '../src/core/types';
+import {unitDef} from '../src/core/data';
+import {preparationStat} from '../src/core/preparation';
+import {playRun,playerValue,playerCombos,type PlayerPolicy,type SimAction} from './simlib';
+const folder='../output/convergence-v010-20261022/player';mkdirSync(folder,{recursive:true});
+const phase=process.env.V010_PHASE??'calibration',count=phase==='holdout'?10:2;
+const generals=['reva','zilan','sajj','kaleos'],policies:PlayerPolicy[]=['growth','upgrade','mechanism'];
+const files=[...readdirSync('src/core').filter((f:string)=>f.endsWith('.ts')).map((f:string)=>`src/core/${f}`),'scripts/simlib.ts','scripts/player-tactics-v010-audit.ts'];
+const sha=(path:string)=>createHash('sha256').update(readFileSync(path)).digest('hex');const hashes=Object.fromEntries(files.map(f=>[f,sha(f)]));
+const battlefd=openSync(`${folder}/${phase}-battles.jsonl`,'w'),runfd=openSync(`${folder}/${phase}-runs.jsonl`,'w');
+const emit=(fd:number,data:unknown)=>writeSync(fd,JSON.stringify(data)+'\n');
+let failed=0,illegal=0,faults=0,total=0,battleCount=0;const stageStats:Record<string,any>={},started=Date.now();
+function targetScore(r:RunState,u:NonNullable<RunState['slots'][number]>){const d=unitDef(u.defId);if(d.traits?.idle)return-Infinity;
+ return r.general==='zilan'?preparationStat(u,'hp')*.45+preparationStat(u,'atk')*.6+(d.onFront?5:0)+(d.onHurt?2:0)+(d.traits?.rotate?0:2):preparationStat(u,'atk')*1.4+playerValue(u).ability*1.3+(d.cast||d.chargeSkill?3:0)+(d.onKill||d.onDuelKill?2:0);}
+for(const general of generals){const seeds:number[]=[];for(let n=0;seeds.length<22;n++){const seed=24110009+n*130363;if(generalChoices(seed).includes(general))seeds.push(seed);}
+ for(const seed of seeds.slice(phase==='holdout'?12:0,phase==='holdout'?22:count))for(const policy of policies){
+ const id=`${phase}/${general}/${seed}/${policy}`;let actions:SimAction[]=[],allActions:SimAction[]=[],attempt=0,settled=0;const seen=new Map<string,number>(),firstThree:string[]=[];const tactics:any[]=[];
+ const action=(a:SimAction)=>{actions.push(a);allActions.push(a);if(!a.ok)failed++;const diff=a.goldBefore-a.goldAfter;const expected=['buy','recoveryBuy','signMerc'].includes(a.type)?3:a.type==='refresh'?1:['sell','recoverySell'].includes(a.type)?-Number(a.detail.price):['specialBuy','hireMerc'].includes(a.type)?Number(a.detail.price):0;if(a.goldAfter<0||(!a.ok&&diff!==0)||(a.ok&&Number.isFinite(expected)&&diff!==expected))illegal++;if(a.type==='tactic')tactics.push({...a.detail,chapter:a.chapter+1,node:a.node+1});};
+ const result=playRun({general,seed,playerPolicy:policy,heroRefinement:true,requireLegalGeneral:true,recordBattles:true,onAction:action,
+ beforeBattle:r=>{if(!['zilan','kaleos'].includes(r.general))return;const candidates=r.slots.filter((u):u is NonNullable<typeof u>=>!!u).sort((a,b)=>targetScore(r,b)-targetScore(r,a)||a.ownedId-b.ownedId);const chosen=candidates.find(u=>Number.isFinite(targetScore(r,u)));const gold=r.gold;const ok=setGeneralOrder(r,chosen?.ownedId??null);action({battle:attempt+1,chapter:r.chapter,node:r.node,type:'generalOrder',ok,goldBefore:gold,goldAfter:r.gold,detail:{ownedId:chosen?.ownedId??null,defId:chosen?.defId??null,score:chosen?targetScore(r,chosen):null,method:'current field stats/abilities only; no battle preview or future shelf'}});},
+ onBattle:(r,setup,out,node)=>{attempt++;battleCount++;const key=`${r.chapter+1}:${r.node+1}:${node.name}`,retry=seen.get(key)??0;seen.set(key,retry+1);if(r.chapter===0&&r.node<3&&retry===0)firstThree.push(out.result);
+ const bucketKey=`${general}/${policy}/${key}/${retry?'retry':'first'}`,b=stageStats[bucketKey]??={n:0,win:0,lose:0,draw:0,fatigue:0};b.n++;b[out.result]++;const fatigue=out.log.some(x=>x.ev.t==='dmg'&&x.ev.kind==='fatigue');if(fatigue)b.fatigue++;
+ const owned=allOwned(r).filter(Boolean),stats=owned.map(u=>({id:u!.defId,ownedId:u!.ownedId,copies:u!.copies,train:u!.train,growth:u!.growth,equips:u!.equips}));
+ const reserveIds=new Set(out.initial.filter(u=>u.side===0&&u.reserve).map(u=>u.uid));
+ const reserveArrivals=out.log.filter(x=>x.ev.t==='summon'&&reserveIds.has(x.ev.uid)).length;
+ const generalsUsed=out.log.filter(x=>x.ev.t==='gen').map(x=>x.ev);emit(battlefd,{id,general,seed,policy,attempt,chapter:r.chapter+1,node:r.node+1,key,path:r.forkPick,variant:r.variantChoices[`${r.chapter}:${r.node}`],retry,result:out.result,beats:out.beats,rounds:out.rounds,lives:r.lives,goldUnused:r.gold,commandTarget:r.commandTarget,generalSetup:setup.general,generalEffects:generalsUsed,reserve:setup.reserve,reserveArrivals,swaps:setup.swaps,passives:r.passives,promoCount:r.promoCount,tactics,actions,owned:stats,field:setup.player,combo:playerCombos(setup.player.filter((u):u is Slotted=>!!u&&'ownedId'in u)),stash:r.stash,enemyIds:setup.enemy.map(u=>u?.defId??null),fatigue,metrics:out.metrics,...(out.result!=='win'?{setup,trace:out.log.map(x=>x.ev)}:{})});actions=[];},onSettled:()=>settled++});
+ total++;faults+=result.faults;emit(runfd,{id,general,seed,policy,firstThree,firstThreeWins:firstThree.length===3&&firstThree.every(x=>x==='win'),clear:result.clear,outcome:result.r.over,wins:result.wins,battles:result.battles,settled,truncated:result.battles!==settled,promoCount:result.r.promoCount,passives:result.r.passives,tactics,generalOrders:allActions.filter(a=>a.type==='generalOrder').length,finalOwned:allOwned(result.r),stash:result.r.stash,lastActions:actions});
+ }
+}
+closeSync(battlefd);closeSync(runfd);const changed=files.filter(f=>sha(f)!==hashes[f]);const evidence={phase,runs:total,battles:battleCount,failed,illegal,faults,changed,elapsedMs:Date.now()-started,hashes,seedRule:'24110009+n*130363; legal general choices; first2 calibration; indices2..11 are archived pre-recommend process only; indices12..21 new final frozen holdout per general',policies,commandPolicy:'Zilan current hp/atk+onFront/hurt; Kaleos current atk/ability+cast/kill; excludes idle; no preview. Orders applied before sole simulation.',stageStats};
+writeFileSync(`${folder}/${phase}-summary.json`,JSON.stringify(evidence,null,2));console.log(JSON.stringify({phase,runs:total,battles:battleCount,failed,illegal,faults,changed,elapsedMs:evidence.elapsedMs}));if(failed||illegal||faults||changed.length)throw Error('Audit gate failed');
+
+const runRows=readFileSync(`${folder}/${phase}-runs.jsonl`,'utf8').trim().split('\n').map((s:string)=>JSON.parse(s));
+const battleRows=readFileSync(`${folder}/${phase}-battles.jsonl`,'utf8').trim().split('\n').map((s:string)=>JSON.parse(s));
+const grid=generals.flatMap(general=>policies.map(policy=>{const rs=runRows.filter((r:any)=>r.general===general&&r.policy===policy),bs=battleRows.filter((r:any)=>r.general===general&&r.policy===policy);return{general,policy,n:rs.length,clear:rs.filter((r:any)=>r.clear).length,firstThreeWins:rs.filter((r:any)=>r.firstThreeWins).length,truncated:rs.filter((r:any)=>r.truncated).length,meanWins:rs.reduce((n:number,r:any)=>n+r.wins,0)/rs.length,tactics:rs.flatMap((r:any)=>r.tactics),commands:rs.reduce((n:number,r:any)=>n+r.generalOrders,0),commandEffectEvents:bs.flatMap((r:any)=>r.generalEffects).filter((e:any)=>['轮换援护','战术突击'].includes(e.label)).length,reserveArrivals:bs.reduce((n:number,r:any)=>n+r.reserveArrivals,0)};}));
+const nodes:Record<string,any>={};for(const r of battleRows){const key=`${r.key}/${r.retry?'retry':'first'}/${r.policy}`,n=nodes[key]??={key:r.key,policy:r.policy,attemptClass:r.retry?'retry':'first',n:0,win:0,lose:0,draw:0,fatigue:0,training:0,growthAtk:0,growthHp:0,tacticsCount:0};n.n++;n[r.result]++;n.fatigue+=r.fatigue?1:0;n.training+=r.owned.reduce((a:number,u:any)=>a+(Object.values(u.train??{})as number[]).reduce((a:number,v:number)=>a+v,0),0);n.growthAtk+=r.owned.reduce((a:number,u:any)=>a+(u.growth?.atk??0),0);n.growthHp+=r.owned.reduce((a:number,u:any)=>a+(u.growth?.hp??0),0);n.tacticsCount+=r.promoCount;}
+writeFileSync(`${folder}/${phase}-profile.json`,JSON.stringify({grid,nodes:Object.values(nodes),truncations:runRows.filter((r:any)=>r.truncated).map((r:any)=>({id:r.id,battles:r.battles,settled:r.settled,wins:r.wins,outcome:r.outcome})),inputSha:{battles:sha(`${folder}/${phase}-battles.jsonl`),runs:sha(`${folder}/${phase}-runs.jsonl`),summary:sha(`${folder}/${phase}-summary.json`)}},null,2));

@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 afterEach(() => vi.unstubAllGlobals());
 
-it('0.8.0 存档（无结构版本号）在只改数值的 0.8.1 里照常续玩，并记下新版本号', () => {
+it('0.8.0 存档（无结构版本号）在兼容的当前内容版本里照常续玩，并记下新版本号', () => {
   values.set(SAVE_KEY, JSON.stringify(historicalSave));
   const loaded = loadRun();
   expect(loaded.kind).toBe('ok');

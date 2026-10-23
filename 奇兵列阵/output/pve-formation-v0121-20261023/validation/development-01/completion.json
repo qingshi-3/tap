@@ -1,0 +1,7 @@
+{
+  "aborted": true,
+  "runId": "development-01/multi/zilan/1719100031",
+  "termination": "exception",
+  "exception": "TypeError: Cannot read properties of undefined (reading 'defId')",
+  "reason": "Fault/exception gate: retained all preceding evidence; no acceptance result"
+}

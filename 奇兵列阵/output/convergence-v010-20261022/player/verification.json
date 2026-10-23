@@ -1,0 +1,73 @@
+{
+  "calibration": {
+    "runs": 24,
+    "battles": 427
+  },
+  "holdout": {
+    "runs": 120,
+    "battles": 2008,
+    "settled": 1996,
+    "clear": 11,
+    "firstThreeCleanRuns": 120,
+    "truncated": 12
+  },
+  "gates": {
+    "failed": 0,
+    "illegal": 0,
+    "faults": 0,
+    "changed": []
+  },
+  "sameFrozenSourceAcrossBatches": true,
+  "sourceSha256": {
+    "src/core/abilityText.ts": "2da9177c7c6e112274a88fe75fe54fc76dc186b89a13505742cd550376bec263",
+    "src/core/achievements.ts": "b68cdbbeb689ed55c6699b9dc2095bb524530ada9efb5bb2b8eaed341e643906",
+    "src/core/battleRules.ts": "db2083d74d333b5f528d4156f5b3fddc8f39358f2889eb4bf7257e125c2e46e1",
+    "src/core/battleStats.ts": "5206e2fcffbb0257e01610aa41809230607e1024f1ba3f05baec111d33122afa",
+    "src/core/career.test.ts": "bf77c45f93e7d93e3dcb3868757bb152e27fc3c4874dc51afb7de3cc634641b2",
+    "src/core/career.ts": "2388dccfa9b6cd6ef7f22fae96c071f101b99531b14ff679d8e03436109b3c1f",
+    "src/core/codexSearch.ts": "381d6e6f5558cbac55eaf095729308e8ec9fd5f901fd1c07cd05966490cc0e05",
+    "src/core/combos.ts": "91a5c4b9e646d88d727c8401d1e45aa427d5dd3b257955552151f67a7aa0bcde",
+    "src/core/content.ts": "7db210f71ad45b59126a66c5cfa89c356efc55fd23de3827affec1b82fc6ede7",
+    "src/core/data.ts": "9c910674e02cf74960efacb1b4534b52a221bf139317fbdfbfcc9c53df42b4e7",
+    "src/core/encounterRules.ts": "be472d04d2087cc8485cb1f6fbd0d62cfdec277f336b7fcbe2f0e8a166069bce",
+    "src/core/encounterText.ts": "786589a5907e97855d5e88ae1fe85f5bd18fe5fb32d9eac6e8257e3f2807fa8b",
+    "src/core/engine.ts": "ec1a846067c9ff158336a7b720f6452adf6969547db013252fa89553d45a2243",
+    "src/core/leaderboards.ts": "50753525c8506277345efd55aabbd30963d6aaf5bbb3a74b57322a9db4e51a72",
+    "src/core/power.ts": "9b6b3b9da6af669dee2367610d0ede893adbb4f4d2517e445c25b1bfec67786f",
+    "src/core/preparation.ts": "294f67cf1a94f56a99cd8e50cdac57921f3a0cc45fdd670e0ef1fb4fe0f6aacc",
+    "src/core/recommend.ts": "e0d0eb4f128b74fdd2aabfed209b513bc95009c5586d2e0f8dfb5e1bdbba12fa",
+    "src/core/rng.ts": "ec2b3c0505879cf188cb3ef649e6cd6a9eb0552807d8b6a27125349cce8cc9eb",
+    "src/core/route.ts": "2b471877673e2b58308c592fde62c7de6dc210ccafb3ca8385f90f2e931ae69c",
+    "src/core/run.ts": "1ae87b96f6e42e4a5ef39d94c1749e8d144e668f1087571a41b8de21e6ab93ec",
+    "src/core/save.ts": "6504303ad93784fa298d10be5fb9b52253d1ade5655103c1e4ec710ca022a2d5",
+    "src/core/tutorialEncounters.ts": "74cd3cba500826b1a7ae77bba37cc2f746344e90e78eb228dbceefb3b029171b",
+    "src/core/tutorialRoute.ts": "329edf28f38fad2242f8c06dca3b8d0e4aa8f097035d3d85de7ee2e2ec2bef05",
+    "src/core/types.ts": "23ed06fb91759e2d7280cd77a1cef457425c57eb26e72bee9ac92187a9a3e44b",
+    "scripts/simlib.ts": "c515b27e07b03a8ef0d38d5531662b03ae1522a2e1056d736b6cd266d8f959a1",
+    "scripts/player-tactics-v010-audit.ts": "16ef40c6d9ab2a8a5ed856943dcaef16a6500b6c68f15d00668a34d4ac8e257f"
+  },
+  "evidenceSha256": {
+    "calibration-battles.jsonl": "4be1f1f7ab9b7763d636f121093e6fa8a0ff24b4a3fe117fae919d86f685f626",
+    "calibration-profile.json": "c2b4c2cfe5d3550c0af9b769c4138e647b990f94fd9b937f5dcc1f521c173326",
+    "calibration-runs.jsonl": "f2c0a4b3226dd451b9cf6dc9ff75c6894e6a7e7a912c906d285fa29354d6e3f7",
+    "calibration-summary.json": "ef6a7a604c03956c67a0b279f359c56f107e6c3cec8cf743dea8a2589d728ad3",
+    "holdout-battles.jsonl": "6d6561a008a6c3e1529fb7e9db320490e199a63fac017942a5f799d32bff9eff",
+    "holdout-profile.json": "63c16e5af9a091538ef5fee0c244d7550dd206e945ae67d9af0ed15b521b6886",
+    "holdout-runs.jsonl": "041ff81b9eb518d73cdbcd34416f74c767a30a94962def22dce8ae052c46ea5b",
+    "holdout-summary.json": "55ac271b13bf82fec22c9d8886b0e66e329f197dff6deef7296ef9019990eca4"
+  },
+  "tacticChoices": {
+    "g_drill": 43,
+    "g_martyr": 31,
+    "g_dual": 12,
+    "g_breach": 20,
+    "g_arena": 5,
+    "g_horde": 32,
+    "g_revive": 23,
+    "g_relay": 14,
+    "g_taunt": 10,
+    "g_surge": 8,
+    "g_elite": 14,
+    "g_pay": 21
+  }
+}

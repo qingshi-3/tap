@@ -1,0 +1,119 @@
+{
+  "saveVersion": 1,
+  "contentVersion": "0.8.4",
+  "contentStructure": 1,
+  "seed": 20261022,
+  "general": "reva",
+  "lives": 3,
+  "chapter": 0,
+  "node": 1,
+  "wins": 1,
+  "history": [
+    "win"
+  ],
+  "over": null,
+  "slots": [
+    {
+      "defId": "s_step",
+      "ownedId": 1,
+      "copies": 1
+    },
+    {
+      "defId": "d_howler",
+      "ownedId": 2,
+      "copies": 1
+    },
+    null,
+    null,
+    null
+  ],
+  "bench": [
+    null,
+    null,
+    null
+  ],
+  "nextOwnedId": 3,
+  "activeFactions": [
+    "shadow",
+    "abyss",
+    "frost",
+    "desert"
+  ],
+  "variantChoices": {
+    "0:4": 1,
+    "0:6": 1,
+    "1:4": 0,
+    "1:6": 0,
+    "2:4": 1,
+    "2:6": 0
+  },
+  "draft": [
+    "n_medic",
+    "s_step",
+    "s_fox"
+  ],
+  "picks": 2,
+  "rerolls": 1,
+  "rngState": 2104572436,
+  "rec": {
+    "recent": [
+      [
+        "n_medic",
+        "s_step",
+        "s_fox"
+      ],
+      [
+        "n_gladiator",
+        "s_backstab"
+      ]
+    ],
+    "skipped": [
+      {
+        "id": "v_guard",
+        "left": 1
+      },
+      {
+        "id": "a_imp",
+        "left": 1
+      },
+      {
+        "id": "n_gladiator",
+        "left": 1
+      },
+      {
+        "id": "s_backstab",
+        "left": 1
+      }
+    ],
+    "dry": 0
+  },
+  "rewardedRetryCount": 0,
+  "rewardedRerollCount": 0,
+  "gold": 3,
+  "shop": null,
+  "stash": {
+    "hp": 1,
+    "atk": 2
+  },
+  "allocLog": [],
+  "lastPower": 0,
+  "lastPoints": [
+    "hp",
+    "atk",
+    "atk"
+  ],
+  "genPower": 0,
+  "passives": [],
+  "promo": null,
+  "promoCount": 0,
+  "bag": [],
+  "spells": [],
+  "activeSpells": [],
+  "orders": [],
+  "reward": null,
+  "forkPick": null,
+  "pending": null,
+  "runId": "cb533350-540f-4b2f-8c07-c8ec5e28cacd",
+  "swaps": [],
+  "merc": null
+}

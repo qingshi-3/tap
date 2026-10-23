@@ -1,0 +1,40 @@
+{
+  "version": "current",
+  "cells": 5916,
+  "faults": 0,
+  "bounds": 0,
+  "changed": [],
+  "hashes": {
+    "src/core/abilityText.ts": "2da9177c7c6e112274a88fe75fe54fc76dc186b89a13505742cd550376bec263",
+    "src/core/achievements.ts": "b68cdbbeb689ed55c6699b9dc2095bb524530ada9efb5bb2b8eaed341e643906",
+    "src/core/battleRules.ts": "db2083d74d333b5f528d4156f5b3fddc8f39358f2889eb4bf7257e125c2e46e1",
+    "src/core/battleStats.ts": "5206e2fcffbb0257e01610aa41809230607e1024f1ba3f05baec111d33122afa",
+    "src/core/career.test.ts": "bf77c45f93e7d93e3dcb3868757bb152e27fc3c4874dc51afb7de3cc634641b2",
+    "src/core/career.ts": "2388dccfa9b6cd6ef7f22fae96c071f101b99531b14ff679d8e03436109b3c1f",
+    "src/core/codexSearch.ts": "381d6e6f5558cbac55eaf095729308e8ec9fd5f901fd1c07cd05966490cc0e05",
+    "src/core/combos.ts": "d700ecc2c596440184530a248880f3e30aee73d6e14efa2521b33d4a9b9603c0",
+    "src/core/content.ts": "7db210f71ad45b59126a66c5cfa89c356efc55fd23de3827affec1b82fc6ede7",
+    "src/core/data.ts": "fa3976360f48e6afa71b4ad19579a7c872c481ac39fefef380195dede78f8d67",
+    "src/core/encounterRules.ts": "d0b10dfd764c84a114a47f845ada8ef5ce85e15cdb319c0e263e118f15f11a7c",
+    "src/core/encounterText.ts": "786589a5907e97855d5e88ae1fe85f5bd18fe5fb32d9eac6e8257e3f2807fa8b",
+    "src/core/engine.ts": "e0cb917ce920e1552a478c7d76701cff47817fe7fc8304ab978b5450f0ae4236",
+    "src/core/leaderboards.ts": "50753525c8506277345efd55aabbd30963d6aaf5bbb3a74b57322a9db4e51a72",
+    "src/core/power.ts": "9b6b3b9da6af669dee2367610d0ede893adbb4f4d2517e445c25b1bfec67786f",
+    "src/core/preparation.ts": "d5134d9eb4e483b7e689a4646ba52125beef856cdbcf5e30499f54a2e7e08831",
+    "src/core/recommend.ts": "e0d0eb4f128b74fdd2aabfed209b513bc95009c5586d2e0f8dfb5e1bdbba12fa",
+    "src/core/rng.ts": "ec2b3c0505879cf188cb3ef649e6cd6a9eb0552807d8b6a27125349cce8cc9eb",
+    "src/core/route.ts": "6d262610545d4f3a16a63a42a40f3590bd65be8d52f7dc7c1d51b07d43192354",
+    "src/core/run.ts": "4ef57886d1c7ae78f7e4afc98e867438da300601fe89d891dc3ab2fadcf9b440",
+    "src/core/save.ts": "aa77e4c000c25ade74600c77b590126885b7329e30665089714010c29fe8e865",
+    "src/core/tutorialEncounters.ts": "74cd3cba500826b1a7ae77bba37cc2f746344e90e78eb228dbceefb3b029171b",
+    "src/core/tutorialRoute.ts": "329edf28f38fad2242f8c06dca3b8d0e4aa8f097035d3d85de7ee2e2ec2bef05",
+    "src/core/types.ts": "0e7763e8195ae1c2221b4b3209635850a0ca5de147b57866e313352c88e625ca",
+    "scripts/rework-v011-controlled-current.ts": "b80b44f758fc01e814761eb0a393e7c946f173cdd1c22331bab3311ec38302a7"
+  },
+  "elapsedMs": 8010,
+  "limitations": [
+    "Synthetic one-star five-slot 15-gold fixed acquisition; no training or legal tier window.",
+    "Before/current paired difference contains engine and shared enemy card changes; not pure card causality.",
+    "Battle-muted prep-only cards have no prep history; legal runs must cover their growth."
+  ]
+}

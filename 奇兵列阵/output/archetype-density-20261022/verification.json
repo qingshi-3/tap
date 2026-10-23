@@ -1,0 +1,24 @@
+{
+  "ordinaryUnitsVerified": 112,
+  "sapSeparatePacksVerified": {
+    "Turtle": 60,
+    "Golden": 60,
+    "Unicorn": 60
+  },
+  "sameComparableAxisDefinitions": true,
+  "oursAxes": {
+    "A": 28,
+    "B": 25
+  },
+  "sourceAndDeliveryFilesUnchangedAgainstPriorManifest": 1154,
+  "productModified": false,
+  "newBattleSimulations": false,
+  "buildRun": false,
+  "docsUpdated": [
+    "DESIGN.md",
+    "ISSUES.md",
+    "README.md",
+    "TASK.md"
+  ],
+  "limits": "Counts and source identity validated; semantic classification is reviewed judgment, not proof of strength or acquisition probability."
+}

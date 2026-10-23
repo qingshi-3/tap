@@ -26,7 +26,11 @@ describe('基础机制修复：真实内容组合，不代表远征已取得', (
     expect(openingAttack).toMatchObject({ t: 'dmg', kind: 'attack', tgt: shield.uid });
     if (openingAttack.t !== 'dmg') throw new Error('expected damage');
     expect(openingAttack.blocked).not.toBe(true);
-    expect(out.log.find(({ ev }) => ev.t === 'beat')!.snap.find(u => u.uid === shield.uid)!.grants.armor).toBe(-1);
+    expect(out.log.find(({ ev }) => ev.t === 'beat')!.snap.find(u => u.uid === shield.uid)!.armor).toBe(0);
+    const armored = simulate({ player: [card('n_merc', 1)], enemy: [{ defId: 'e_golem', hp: 99 }], general: general('argeon', ['g_breach', 'g_first']) });
+    expect(armored.initial[1].armor).toBe(2);
+    expect(armored.afterStart[1].armor).toBe(1);
+    expect(firstAttack(armored, 1)).toMatchObject({ n: 2, kind: 'attack' });
     expect(out.afterStart.find(u => u.uid === shield.uid)!.block).toBe(0);
   });
 
@@ -38,7 +42,7 @@ describe('基础机制修复：真实内容组合，不代表远征已取得', (
   // Exercise promotion generation, isolating candidates by marking other generic passives
   // as already owned. This is a selection-rule check, never a player strength claim.
   function chainOffer(id: string, source: string, forced: string[] = []) {
-    const r = newRun(id, 31);
+    const r = newRun(id, 31, {legacyRules:true});
     r.slots = [card(source, 1), null, null, null, null];
     r.bench = Array(r.bench.length).fill(null);
     r.passives = [...PASSIVES.filter(p => !p.general && p.id !== 'g_chain').map(p => p.id), ...forced];
@@ -54,7 +58,7 @@ describe('基础机制修复：真实内容组合，不代表远征已取得', (
     expect(chainOffer(id, source, forced)).not.toContain('g_chain');
   });
 
-  it.each(['s_dancer', 's_ninja', 'v_wyvern'])('连锁识别真实普通来源：%s', source => {
+  it.each(['s_dancer', 's_backstab', 'v_wyvern'])('连锁识别真实普通来源：%s', source => {
     expect(chainOffer('argeon', source)).toContain('g_chain');
   });
 

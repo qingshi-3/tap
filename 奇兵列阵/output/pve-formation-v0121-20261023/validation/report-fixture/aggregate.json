@@ -1,0 +1,321 @@
+{
+  "validation": {
+    "invalid": false,
+    "completion": {},
+    "missingCompletion": true
+  },
+  "label": "SYNTHETIC-REPORT-FIXTURE-NOT-GAME-EVIDENCE",
+  "plannedPerGroup": 5,
+  "groups": {
+    "multi": {
+      "recorded": 4,
+      "planned": 5,
+      "missingRuns": 1,
+      "clears": 0,
+      "termination": {
+        "defeat": 3,
+        "three-boss-draw-stop": 1
+      },
+      "failedActions": 0,
+      "budgetErrors": 0,
+      "faults": 0,
+      "firstFormationAttempt": {
+        "multi": [
+          1,
+          2
+        ]
+      },
+      "anti3ViolatingBattles": 0,
+      "anti3ViolatingRuns": 0,
+      "stages": [
+        {
+          "key": "1:1:node1",
+          "chapter": 1,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 5,
+          "firstResults": {
+            "lose": 2,
+            "win": 2
+          },
+          "eventualPassed": 3,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 5,
+          "attempts": 5,
+          "retryAttempts": 1,
+          "retryResults": {
+            "win": 1
+          },
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 1,
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 5,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            }
+          }
+        },
+        {
+          "key": "1:3:node3",
+          "chapter": 1,
+          "node": 3,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 5,
+          "firstResults": {
+            "lose": 2
+          },
+          "eventualPassed": 0,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 5,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 2,
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 5,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 1,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "1:9:node9",
+          "chapter": 1,
+          "node": 9,
+          "kind": "boss",
+          "reached": 1,
+          "allStarts": 5,
+          "firstResults": {
+            "draw": 1
+          },
+          "eventualPassed": 0,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 5,
+          "attempts": 3,
+          "retryAttempts": 2,
+          "retryResults": {
+            "draw": 2
+          },
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 2,
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 5,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 1,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        }
+      ],
+      "actualAudit": {
+        "missingBattles": 10,
+        "violatingBattles": 0,
+        "unknownPlayerLineages": 0,
+        "actualRelations": 0
+      },
+      "checkpoints": [
+        {
+          "key": "1:1:node1",
+          "chapter": 1,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 5,
+          "firstResults": {
+            "lose": 2,
+            "win": 2
+          },
+          "eventualPassed": 3,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 5,
+          "attempts": 5,
+          "retryAttempts": 1,
+          "retryResults": {
+            "win": 1
+          },
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 1,
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 5,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            }
+          }
+        },
+        {
+          "key": "1:3:node3",
+          "chapter": 1,
+          "node": 3,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 5,
+          "firstResults": {
+            "lose": 2
+          },
+          "eventualPassed": 0,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 5,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 2,
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 5,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 1,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "1:9:node9",
+          "chapter": 1,
+          "node": 9,
+          "kind": "boss",
+          "reached": 1,
+          "allStarts": 5,
+          "firstResults": {
+            "draw": 1
+          },
+          "eventualPassed": 0,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 5,
+          "attempts": 3,
+          "retryAttempts": 2,
+          "retryResults": {
+            "draw": 2
+          },
+          "formations": {
+            "multi": {
+              "everStartedByCheckpointAllStarts": 2,
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 5,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 1,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        }
+      ],
+      "policyMetrics": [
+        {
+          "runId": "dead",
+          "metrics": {}
+        },
+        {
+          "runId": "retry",
+          "metrics": {}
+        },
+        {
+          "runId": "draw",
+          "metrics": {}
+        },
+        {
+          "runId": "late",
+          "metrics": {}
+        }
+      ],
+      "policySanity": {
+        "meanFieldFirst3": 0.0,
+        "meanFieldChapterBosses": {
+          "1": 0.0,
+          "2": null,
+          "3": null
+        },
+        "reachedChapter2": 0,
+        "chapter2StillUnder4": 0,
+        "meanGoldSpent": 0.0,
+        "meanAnti3Rejected": 0.0
+      },
+      "opportunities": {},
+      "firstStartedAttempt": {},
+      "firstFormationTimes": [
+        {
+          "runId": "dead",
+          "times": {}
+        },
+        {
+          "runId": "retry",
+          "times": {}
+        },
+        {
+          "runId": "draw",
+          "times": {}
+        },
+        {
+          "runId": "late",
+          "times": {}
+        }
+      ],
+      "chapterBosses": [
+        {
+          "chapter": 1,
+          "reached": 1,
+          "allStarts": 5,
+          "firstResults": {
+            "draw": 1
+          },
+          "passed": 0
+        },
+        {
+          "chapter": 2,
+          "reached": 0,
+          "allStarts": 5,
+          "firstResults": {},
+          "passed": 0
+        },
+        {
+          "chapter": 3,
+          "reached": 0,
+          "allStarts": 5,
+          "firstResults": {},
+          "passed": 0
+        }
+      ],
+      "dismantled": [
+        {
+          "runId": "retry",
+          "direction": "multi",
+          "attempt": 3,
+          "uniqueFightOrdinal": null,
+          "chapter": 1,
+          "node": 3,
+          "reason": "unchanged-board-unresolved",
+          "playerStateChanged": false,
+          "enemyStateChanged": false
+        }
+      ],
+      "formationLostReasons": {
+        "unchanged-board-unresolved": 1
+      }
+    }
+  },
+  "limitations": [
+    "Seed worlds are paired across policies; general assignments are balanced and legal. These heuristic policies are not optimal players.",
+    "Formation is deterministic deployed-board classification; actual event logs are retained separately and require mechanism-aware contract audit."
+  ]
+}

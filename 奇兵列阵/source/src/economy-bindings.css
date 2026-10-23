@@ -1,0 +1,21 @@
+/* Functional bridge for the five-slot shelf. Visual redesign belongs to the UI task. */
+.paid-shelf .tray-left { top: 4px; gap: 4px; }
+.paid-shelf .tl-row { font-size: 23px; white-space: nowrap; }
+.paid-shelf .shelf-page, .tip .shelf-lock { min-height: var(--control-size, 100px); background: #344a63; color: #fff1cf; border: 0; }
+.paid-shelf .shelf-page { font-size: 24px; padding: 0 12px; }
+.paid-shelf .shelf-empty { width: 172px; height: 220px; flex: none; display: grid; place-items: center; font-size: 24px; color: #bdc4cf; }
+.paid-shelf .card.unaffordable { filter: grayscale(.8) brightness(.65); }
+.paid-shelf .reroll:disabled { background: #363c45; color: #9299a3; filter: grayscale(1); }
+.paid-shelf .shelf-page:focus-visible, .tip .shelf-lock:focus-visible { outline: 4px solid #ffe3a3; outline-offset: -4px; }
+.tip .shelf-lock { font-size: 26px; min-width: 200px; margin-top: 8px; }
+
+/* Commander orders reuse the existing prep actions. */
+.gen-act:disabled { background: #363c45; color: #9299a3; filter: grayscale(1); cursor: default; }
+.command-prompt { padding: 6px 8px; background: #243549; color: #fff1cf; font-size: 22px; text-align: center; }
+
+.paid-shelf .shelf-page { display: flex; align-items: center; justify-content: center; gap: 5px; }
+.paid-shelf .shelf-page i { font-style: normal; font-size: 20px; }
+.paid-shelf .shelf-page .ic { width: 18px; height: 18px; flex: none; }
+.paid-shelf .shelf-page.previous .ic { transform: rotate(180deg); }
+.shop .sh-unit-budget { font-size: 24px; white-space: nowrap; color: #eee3c6; }
+.shop .sh-unit.unavailable .card { filter: grayscale(.9) brightness(.65); }

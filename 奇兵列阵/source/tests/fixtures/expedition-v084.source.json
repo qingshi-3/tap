@@ -1,0 +1,39 @@
+{
+  "source": "output/six-tier-rework-20261022/before-0.8.4/src/core",
+  "contentVersion": "0.8.4",
+  "seed": 20261022,
+  "generator": "tests/fixtures/generate-v084-save.ts",
+  "steps": [
+    "newRun(reva,20261022)",
+    "takeDraft(0,0)",
+    "takeDraft(0,1)",
+    "simulate(buildBattle)",
+    "beginBattle + finishBattle"
+  ],
+  "fixtureSha256": "105940d834a142d5b13cdc85bcfc8d7a40afb47cd6364f141fc20f3f2b784b32",
+  "sources": {
+    "abilityText.ts": "822a58da48d205966c0e6d10bb589443aa1b3371170bddebdfaed355abe2aa35",
+    "achievements.ts": "b68cdbbeb689ed55c6699b9dc2095bb524530ada9efb5bb2b8eaed341e643906",
+    "battleRules.ts": "db2083d74d333b5f528d4156f5b3fddc8f39358f2889eb4bf7257e125c2e46e1",
+    "battleStats.ts": "5206e2fcffbb0257e01610aa41809230607e1024f1ba3f05baec111d33122afa",
+    "career.test.ts": "bf77c45f93e7d93e3dcb3868757bb152e27fc3c4874dc51afb7de3cc634641b2",
+    "career.ts": "2388dccfa9b6cd6ef7f22fae96c071f101b99531b14ff679d8e03436109b3c1f",
+    "codexSearch.ts": "381d6e6f5558cbac55eaf095729308e8ec9fd5f901fd1c07cd05966490cc0e05",
+    "combos.ts": "88ac45b4987d5a1dd6879177c1d99d7e18959df19d815c98c9530b6793ff58fa",
+    "content.ts": "c354239ea196445e20c33506be9e2130b9801bac9c9a2357f997defe99fdbdf9",
+    "data.ts": "5ebe776ba2d21a7879fc9ba513d4d01fcf7768f55b5205cf2060e1a70615c15c",
+    "encounterRules.ts": "be472d04d2087cc8485cb1f6fbd0d62cfdec277f336b7fcbe2f0e8a166069bce",
+    "encounterText.ts": "786589a5907e97855d5e88ae1fe85f5bd18fe5fb32d9eac6e8257e3f2807fa8b",
+    "engine.ts": "d948c48959ccace444e6cac5c031568bba8d26fa69bc3c49fba8a7f7dc736d1f",
+    "leaderboards.ts": "50753525c8506277345efd55aabbd30963d6aaf5bbb3a74b57322a9db4e51a72",
+    "power.ts": "9b6b3b9da6af669dee2367610d0ede893adbb4f4d2517e445c25b1bfec67786f",
+    "recommend.ts": "25ee421990a5c961e672762ccf141ed4265180d8e59fc5c22ceb8559dee55998",
+    "rng.ts": "ec2b3c0505879cf188cb3ef649e6cd6a9eb0552807d8b6a27125349cce8cc9eb",
+    "route.ts": "2b471877673e2b58308c592fde62c7de6dc210ccafb3ca8385f90f2e931ae69c",
+    "run.ts": "e0764a30860964a59fb0ab16ba753e9061c5ff62c208dad0b003ef81ad13d0c1",
+    "save.ts": "d35343ee564f71052c1255089c8ad19ebb3a94b9d090b99f1d63a93c849e875e",
+    "tutorialEncounters.ts": "46b2b9f3149fb951f47fe28ad7d8729ab440b4e75e939cd9940dc4f0c6d75a31",
+    "tutorialRoute.ts": "e2f6e5b3f1d58b5bff913ccf7217f1b158ee04cecec171e933c58af54cef4a07",
+    "types.ts": "03d8ea18ed8e637e333f567c19cb607b8d41636cd8fa188f1c70c980a5e969c2"
+  }
+}

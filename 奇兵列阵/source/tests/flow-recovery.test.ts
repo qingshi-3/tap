@@ -1,14 +1,15 @@
+import { legacyRun } from './legacyRun';
 import { describe, expect, it } from 'vitest';
 import { SPELLS } from '../src/core/content';
 import {
-  applyResult, beginBattle, buildBattle, canSell, cloneRun, finishBattle, newRun,
+  applyResult, beginBattle, buildBattle, canSell, cloneRun, finishBattle, 
   recoverEmptyRoster, sell, settleRewardedRetry, takeDraft, unuseSpell, useSpell,
   type RunState,
 } from '../src/core/run';
 import type { BattleResult } from '../src/core/types';
 
 function roster(slot = 0): RunState {
-  const r = newRun('lilithe', 624);
+  const r = legacyRun('lilithe', 624);
   r.picks = 0;
   if (slot < 5) r.slots[slot] = { defId: 'n_merc', ownedId: 1, copies: 1 };
   else r.bench[slot - 5] = { defId: 'n_merc', ownedId: 1, copies: 1 };
@@ -24,7 +25,7 @@ describe('卖出保护与旧空阵容恢复', () => {
     expect(r).toEqual(before);
   });
   it('阿尔吉昂亲征单位始终不可出售，且算作持有单位', () => {
-    const r = newRun('argeon', 624); r.picks = 0;
+    const r = legacyRun('argeon', 624); r.picks = 0;
     expect(r.slots[0]?.defId).toBe('x_argeon');
     expect(canSell(r, 0)).toBe(false); expect(sell(r, 0)).toBe(false);
     r.bench[0] = { defId: 'n_merc', ownedId: 99, copies: 1 };
@@ -59,7 +60,7 @@ describe('卖出保护与旧空阵容恢复', () => {
     expect(r).toEqual(before);
   });
   it('仅恢复一次招募，保留进度、资源与广告次数，并可真实招募', () => {
-    const r = newRun('lilithe', 626);
+    const r = legacyRun('lilithe', 626);
     Object.assign(r, { node: 4, picks: 0, gold: 17, lives: 2, wins: 2, rerolls: 0,
       stash: { power: 3 }, bag: ['eq_flame'], spells: [spell], activeSpells: [spell],
       rewardedRetryCount: 2, rewardedRerollCount: 1 });
@@ -76,7 +77,7 @@ describe('卖出保护与旧空阵容恢复', () => {
     expect(recoverEmptyRoster(r)).toBe(false);
   });
   it.each(['owned', 'picks', 'pending', 'over', 'shop', 'fork', 'reward', 'promo'] as const)('不误修 %s 状态', state => {
-    const r = newRun('lilithe', 627); r.picks = 0;
+    const r = legacyRun('lilithe', 627); r.picks = 0;
     if (state === 'owned') r.bench[0] = roster(5).bench[0];
     if (state === 'picks') r.picks = 1;
     if (state === 'pending') beginBattle(r, 'lose');

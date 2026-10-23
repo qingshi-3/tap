@@ -36,6 +36,8 @@ export interface StatView {
   chargeMax?: number;
   pulse?: number;
   pulseMax?: number;
+  /** 千刃宗师共享命中进度，与个人蓄力无关。 */
+  masterHits?: number;
   actionsLeft?: number;
   /** 仅有限次施法单位拥有，0 表示本场已用完。 */
   charges?: number;
@@ -182,8 +184,8 @@ export class UnitView {
     this.shEl.textContent = String(s.block);
     this.chEl.textContent = String(s.chill);
     this.bnEl.textContent = String(s.burn);
-    // 蓄力优先显示，其次节拍（距离下次触发）
-    const cnt = s.chargeMax ? `${s.charge ?? 0}/${s.chargeMax}` : s.pulseMax ? `${s.pulse ?? 0}/${s.pulseMax}` : '';
+    // 沿用单位上的进度位置，不为单卡计数增加面板。
+    const cnt = s.masterHits !== undefined ? `${s.masterHits}/6` : s.chargeMax ? `${s.charge ?? 0}/${s.chargeMax}` : s.pulseMax ? `${s.pulse ?? 0}/${s.pulseMax}` : '';
     this.vnEl.textContent = cnt;
     this.el.classList.toggle('has-charge', !!cnt);
     this.el.classList.toggle('has-shield', s.block > 0);
@@ -348,7 +350,7 @@ function popEl(el: Element, good: boolean) {
 }
 
 export function statsOf(u: UnitState): StatView {
-  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, charge: u.charge, chargeMax: u.chargeMax, pulse: u.pulse, pulseMax: u.pulseMax, actionsLeft: u.actionsLeft, charges: u.charges, kw: keywordsOf(u) };
+  return { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, chill: u.chill, burn: u.burn, charge: u.charge, chargeMax: u.chargeMax, pulse: u.pulse, pulseMax: u.pulseMax, masterHits: u.masterHits, actionsLeft: u.actionsLeft, charges: u.charges, kw: keywordsOf(u) };
 }
 
 export function keywordsOf(u: Pick<UnitState, 'defId' | 'level' | 'grants'> & Partial<Pick<UnitState, 'armor' | 'power' | 'revived'>>): UnitKeywords {
@@ -611,7 +613,7 @@ export class Board {
   /** 瞄准标记：敌方第一下打谁 */
   target(side: Side, slot: number, cls = '') {
     const p = bodyPos(side, slot);
-    this.marks.appendChild(h('div', { class: `crosshair ${cls}`, style: `left:${p.x}px;top:${p.y}px` }, icon('target')));
+    this.marks.appendChild(h('div', { class: `target-glow ${cls}`, 'aria-label': '普攻目标', 'data-side': String(side), 'data-slot': String(slot), style: `left:${p.x}px;top:${p.y}px` }, h('span', { class: 'target-badge' }, icon('sword'))));
   }
 
   slotMark(side: Side, slot: number, content: Node, cls = '') {

@@ -1,0 +1,7 @@
+{
+  "aborted": true,
+  "abortClass": "performance-development-stop",
+  "statisticalFailure": false,
+  "reason": "Main-agent instruction: retain partial development results and improve decision-equivalent relation reuse/arrange caching before full development batch. No statistical failure inferred.",
+  "stoppedAt": "2026-10-23T03:18:30.913470+00:00"
+}

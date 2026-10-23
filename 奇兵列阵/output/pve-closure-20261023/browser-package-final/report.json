@@ -1,0 +1,147 @@
+{
+  "service": "Task-owned GET/HEAD-only HTTP server on ephemeral port; closed after smoke. Existing 8788 left running.",
+  "runs": [
+    {
+      "target": "single-file",
+      "width": 844,
+      "height": 390,
+      "url": "file:///C:/Users/qs/Documents/ChatGPT/taptap/games/zhenlie-demo/%E9%98%B5%E5%88%97-%E5%8F%8C%E5%87%BB%E6%89%93%E5%BC%80.html",
+      "errors": [],
+      "failedRequests": [],
+      "abortedMedia": [],
+      "checks": [
+        "Real new game and general selection; modern 10 gold/five shelf offers",
+        "Real drag purchase deducts 3 gold and fills battlefield slot",
+        "Reload and resume preserves purchased units and gold",
+        "Real start battle and skip/playback settlement; result persisted",
+        "Continue enters next preparation with refreshed budget; previous battle persists",
+        "Second save/reload resumes next preparation"
+      ],
+      "initial": {
+        "general": "sajj",
+        "gold": 10,
+        "draft": [
+          "l_windblade",
+          "a_imp",
+          "m_hide",
+          "a_devour",
+          "m_shaman"
+        ]
+      },
+      "result": "win"
+    },
+    {
+      "target": "dist-http",
+      "width": 844,
+      "height": 390,
+      "url": "http://127.0.0.1:53810/",
+      "errors": [],
+      "failedRequests": [],
+      "abortedMedia": [
+        {
+          "url": "http://127.0.0.1:53810/assets/music_mainmenu_songhai-BGxKzcAd.m4a",
+          "failure": {
+            "errorText": "net::ERR_ABORTED"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:53810/assets/music_mainmenu_songhai-BGxKzcAd.m4a",
+          "failure": {
+            "errorText": "net::ERR_ABORTED"
+          }
+        }
+      ],
+      "checks": [
+        "Real new game and general selection; modern 10 gold/five shelf offers",
+        "Real drag purchase deducts 3 gold and fills battlefield slot",
+        "Reload and resume preserves purchased units and gold",
+        "Real start battle and skip/playback settlement; result persisted",
+        "Continue enters next preparation with refreshed budget; previous battle persists",
+        "Second save/reload resumes next preparation"
+      ],
+      "initial": {
+        "general": "zilan",
+        "gold": 10,
+        "draft": [
+          "a_devour",
+          "a_seed",
+          "l_windblade",
+          "n_gladiator",
+          "d_artificer"
+        ]
+      },
+      "result": "win"
+    },
+    {
+      "target": "single-file",
+      "width": 568,
+      "height": 320,
+      "url": "file:///C:/Users/qs/Documents/ChatGPT/taptap/games/zhenlie-demo/%E9%98%B5%E5%88%97-%E5%8F%8C%E5%87%BB%E6%89%93%E5%BC%80.html",
+      "errors": [],
+      "failedRequests": [],
+      "abortedMedia": [],
+      "checks": [
+        "Real new game and general selection; modern 10 gold/five shelf offers",
+        "Real drag purchase deducts 3 gold and fills battlefield slot",
+        "Reload and resume preserves purchased units and gold",
+        "Real start battle and skip/playback settlement; result persisted",
+        "Continue enters next preparation with refreshed budget; previous battle persists",
+        "Second save/reload resumes next preparation"
+      ],
+      "initial": {
+        "general": "zilan",
+        "gold": 10,
+        "draft": [
+          "a_seed",
+          "v_guard",
+          "d_artificer",
+          "n_gladiator",
+          "a_imp"
+        ]
+      },
+      "result": "win"
+    },
+    {
+      "target": "dist-http",
+      "width": 568,
+      "height": 320,
+      "url": "http://127.0.0.1:53810/",
+      "errors": [],
+      "failedRequests": [],
+      "abortedMedia": [
+        {
+          "url": "http://127.0.0.1:53810/assets/music_mainmenu_songhai-BGxKzcAd.m4a",
+          "failure": {
+            "errorText": "net::ERR_ABORTED"
+          }
+        },
+        {
+          "url": "http://127.0.0.1:53810/assets/music_mainmenu_songhai-BGxKzcAd.m4a",
+          "failure": {
+            "errorText": "net::ERR_ABORTED"
+          }
+        }
+      ],
+      "checks": [
+        "Real new game and general selection; modern 10 gold/five shelf offers",
+        "Real drag purchase deducts 3 gold and fills battlefield slot",
+        "Reload and resume preserves purchased units and gold",
+        "Real start battle and skip/playback settlement; result persisted",
+        "Continue enters next preparation with refreshed budget; previous battle persists",
+        "Second save/reload resumes next preparation"
+      ],
+      "initial": {
+        "general": "sajj",
+        "gold": 10,
+        "draft": [
+          "s_wind",
+          "l_shield",
+          "l_martyr",
+          "v_chaser",
+          "m_hide"
+        ]
+      },
+      "result": "win"
+    }
+  ]
+}

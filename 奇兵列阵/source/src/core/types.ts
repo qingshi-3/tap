@@ -5,7 +5,7 @@ export type { BattleMetrics } from './battleStats';
 export type Side = 0 | 1; // 0 = 玩家, 1 = 敌方
 export type Faction = 'light' | 'shadow' | 'abyss' | 'magma' | 'frost' | 'desert' | 'neutral' | 'enemy';
 export type ActiveFaction = Exclude<Faction, 'neutral' | 'enemy'>;
-export type Rarity = 1 | 2 | 3 | 4;
+export type Rarity = 1 | 2 | 3 | 4 | 5 | 6;
 /** 卡面主时机：只用于卡面标签与说明分组，规则以效果字段为准。 */
 export type Trigger =
   | 'cast' | 'start' | 'attack' | 'hurt' | 'kill' | 'rattle' | 'ally' | 'beat' | 'passive'
@@ -28,7 +28,7 @@ export interface Traits {
   combo?: boolean;
   snipe?: boolean;
   reborn?: boolean;
-  /** 嘲讽：敌方普攻改打最靠前的嘲讽单位 */
+  /** 嘲讽：拦截紧邻身后友军受到的普攻 */
   taunt?: boolean;
   /** 轮换：常规行动后退到我方队尾 */
   rotate?: boolean;
@@ -46,9 +46,9 @@ export interface Traits {
 
 export type EffectOp =
   | 'dmg' | 'heal' | 'block' | 'chill' | 'freeze' | 'burn' | 'buff' | 'weaken' | 'grant' | 'summon'
-  | 'extraAct' | 'addAction' | 'sacrifice' | 'charge' | 'rotate' | 'revive' | 'die';
+  | 'bonusAct' | 'extraAct' | 'addAction' | 'sacrifice' | 'charge' | 'rotate' | 'revive' | 'die';
 export type EffectTarget =
-  | 'self' | 'front' | 'rear' | 'allies' | 'others' | 'adjacent' | 'behind' | 'ahead' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
+  | 'spellAllies' | 'self' | 'front' | 'rear' | 'allies' | 'others' | 'adjacent' | 'behind' | 'ahead' | 'lowest' | 'highestAtk' | 'highestHp' | 'adjHighestAtk'
   | 'enemyFront' | 'enemyRear' | 'enemyAll' | 'enemyNext' | 'enemyLowest' | 'enemyHighestAtk' | 'enemyHighestHp'
   | 'attacker' | 'target' | 'opponent' | 'burningEnemies' | 'otherEnemies';
 /** 布尔授予：snipe/combo/reborn/taunt/rotate/duel/splash；数值授予（按 v 叠加）：armor/power/thorns */
@@ -60,15 +60,26 @@ export interface Effect {
   to: EffectTarget;
   v?: Tri;
   v2?: Tri;
+  /** dmg only: add this percentage of the source's current attack, rounded down at resolution. */
+  sourceAttackPercent?: number;
+  /** Numeric grant only: add this percentage of source maximum HP, rounded down. */
+  sourceMaxHpPercent?: number;
+  /** sacrifice only: recipient gains this percentage of victim current attack/max HP before death. */
+  sacrificeStatPercent?: number;
+  /** sacrifice only: recipient pursues after the death/deathrattle queue settles. */
+  sacrificePursuit?: boolean;
   grant?: Grant;
   token?: string;
   /** 召唤数量 */
   count?: number;
   /** 召唤到我方队尾 */
   rear?: boolean;
+  requireFodder?: boolean;
   /** buff 只持续到本回合结束 */
   temp?: boolean;
   oncePerRound?: boolean;
+  /** Passive response group: first legal target event consumes one whole group per source/trigger/round, even on overflow. */
+  responseGroup?: string;
   /** 每回合（同一来源）最多生效次数 */
   cap?: Tri;
   /** 每场（同一来源）最多生效次数 */
@@ -82,6 +93,25 @@ export interface ChargeAttack {
   bonus?: Tri;
   splash?: boolean;
   after?: Effect[];
+}
+
+/** Expedition growth uses raw stats, separately from refundable training points. */
+export interface GrowthStats { atk?: number; hp?: number; power?: number }
+export type PrepEvent = 'buy' | 'sell' | 'upgrade' | 'train' | 'endPrep';
+export interface PrepEffect {
+  event: PrepEvent;
+  /** Self hooks travel with the traded unit; ally hooks require the source on the field. */
+  scope: 'self' | 'ally';
+  target: 'self' | 'event' | 'front' | 'rear' | 'others' | 'adjacent' | 'lowestAtk' | 'lowestHp';
+  atk?: Tri;
+  hp?: Tri;
+  power?: Tri;
+  /** Per owned source and effect, per preparation; defaults to 1. */
+  cap?: number;
+  /** Optional mechanic tag required on the event unit. */
+  tag?: string;
+  /** Filter benefit recipients independently of the event subject. */
+  targetTag?: string;
 }
 
 export interface UnitDef {
@@ -113,6 +143,8 @@ export interface UnitDef {
   chargeAttack?: ChargeAttack;
   onStart?: Effect[];
   afterAttack?: Effect[];
+  /** 自身成功轮换后响应新队列。 */
+  onRotate?: Effect[];
   /** 被普攻命中后 */
   onAttacked?: Effect[];
   onHurt?: Effect[];
@@ -145,6 +177,8 @@ export interface UnitDef {
   boss?: boolean;
   /** 少量无法声明的专属逻辑，引擎按 id 处理 */
   special?: string;
+  /** Buying/trading and committed preparation growth; never a battle trigger. */
+  prep?: PrepEffect[];
   /** 仅由能力召唤，不进招募池 */
   token?: boolean;
   /** 不进招募池（敌方专属） */
@@ -165,6 +199,8 @@ export interface Slotted {
   equips?: string[];
   /** 赫克的临时佣兵：只参加本场 */
   temp?: boolean;
+  /** Non-refundable expedition growth. Values are raw stats, not training points. */
+  growth?: GrowthStats;
 }
 
 export const levelFromCopies = (copies: Copies): 1 | 2 | 3 => {
@@ -177,6 +213,8 @@ export const unitLevel = (unit: { copies?: Copies; level?: number }): number =>
 /** 敌方阵容条目：允许按关卡覆盖数值 */
 export interface EnemyEntry {
   defId: string;
+  /** Override innate armor for this encounter; auras still apply. */
+  armor?: number;
   atk?: number;
   hp?: number;
   level?: number;
@@ -207,6 +245,10 @@ export interface GeneralDef {
 
 /** 战斗里的主将：技能、法强、已获得的被动 */
 export interface GeneralSetup {
+  /** New expedition tactics; omission retains the legacy general contract. */
+  tacticsVersion?: 1;
+  /** Persistent owned identity chosen before battle; never a defId or battle UID. */
+  commandTarget?: number;
   id: string;
   power: number;
   passives: string[];
@@ -226,6 +268,8 @@ export interface UnitGrants {
 }
 
 export interface UnitState {
+  /** Shared team attack-hit progress, exposed on living masters only. */
+  masterHits?: number;
   uid: number;
   defId: string;
   side: Side;
@@ -282,7 +326,7 @@ export type TriggerKind =
 export type DmgKind = 'attack' | 'ability' | 'splash' | 'thorns' | 'burn' | 'fatigue';
 
 export type BattleEvent =
-  | { t: 'rule'; id: string; label: string; side: Side; src?: number }
+  | { t: 'rule'; id: string; label: string; side: Side; src?: number; provider?: number }
   | { t: 'phase'; name: 'start' | 'battle' }
   | { t: 'beat'; n: number; round?: number; wave?: number; next: { player: number[]; enemy: number[] } }
   | { t: 'act'; side: Side; uid: number; mode: 'attack' | 'cast' | 'extra' | 'charge' }

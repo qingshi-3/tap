@@ -1,0 +1,51 @@
+{
+  "version": "0.12.1",
+  "plannedRuns": 1300,
+  "recordedRuns": 1300,
+  "uniqueRunIds": 1300,
+  "independentSeedsPerGroup": 100,
+  "generals": {
+    "reva": 25,
+    "zilan": 25,
+    "sajj": 25,
+    "kaleos": 25
+  },
+  "groups": {
+    "multi": 100,
+    "splash": 100,
+    "burn": 100,
+    "rotation": 100,
+    "duel": 100,
+    "spell": 100,
+    "retaliation": 100,
+    "shield": 100,
+    "sacrifice": 100,
+    "summon": 100,
+    "frost": 100,
+    "casual": 100,
+    "anti3": 100
+  },
+  "battles": 26367,
+  "faults": 0,
+  "exceptions": 0,
+  "unknownLineages": 0,
+  "anti3StructuralViolatingBattles": 0,
+  "anti3ActualViolatingBattles": 0,
+  "completion": {
+    "changed": [],
+    "batchFailedActions": 0,
+    "batchBudgetErrors": 0,
+    "batchAuditErrors": 0,
+    "finishedAt": "2026-10-23T04:02:41.787Z"
+  },
+  "sourceMismatches": [],
+  "productFilesChecked": 1163,
+  "productMismatches": [],
+  "automatedTests": {
+    "files": 62,
+    "tests": 789,
+    "log": "full-tests-final.txt"
+  },
+  "uiChanges": false,
+  "rebuiltProduct": false
+}

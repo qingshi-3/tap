@@ -1,0 +1,14 @@
+{
+  "runtimeFilesVerifiedAgainstPriorManifest": 611,
+  "coreExpected": {
+    "data.ts": "1ccce8df2879eaf6f595633b0b64383e1625e5721aac5bb19426c61d67bb5412",
+    "run.ts": "d584bdffb0b3982380a68feecc1e5d27b1645f9ee0f724cf1cf2ab16a47b0d7e",
+    "engine.ts": "ef6e379b2b8da53863cf1a2f1e07b451fd7526dbf199afbbdd1dec64a0f2e86e",
+    "route.ts": "2b471877673e2b58308c592fde62c7de6dc210ccafb3ca8385f90f2e931ae69c"
+  },
+  "splitFilesVerified": 537,
+  "singleHash": "477f4df10bf96877d6c5ae8730e9e4e499a2d7fddff28f07e0e501c686bfb9ab",
+  "manifestFiles": 1308,
+  "rebuilt": false,
+  "scope": "Product runtime checked against prior manifest; audit scripts/docs updated. Evidence excluded from root delivery manifest."
+}

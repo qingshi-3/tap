@@ -1,0 +1,4244 @@
+{
+  "label": "runner-smoke-01",
+  "plannedPerGroup": 4,
+  "groups": {
+    "casual": {
+      "recorded": 4,
+      "planned": 4,
+      "missingRuns": 0,
+      "clears": 2,
+      "termination": {
+        "victory": 2,
+        "defeat": 2
+      },
+      "failedActions": 0,
+      "budgetErrors": 0,
+      "faults": 0,
+      "firstFormationAttempt": {
+        "duel": [
+          15,
+          19
+        ]
+      },
+      "anti3ViolatingBattles": 5,
+      "anti3ViolatingRuns": 2,
+      "stages": [
+        {
+          "key": "1:1:骷髅哨兵::",
+          "chapter": 1,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:2:影袭者::",
+          "chapter": 1,
+          "node": 2,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:3:焚火者::",
+          "chapter": 1,
+          "node": 3,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:5:碎岩者::0",
+          "chapter": 1,
+          "node": 5,
+          "kind": "normal",
+          "reached": 3,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 3
+          },
+          "eventualPassed": 3,
+          "passedArrivalDenominator": 3,
+          "passedAllDenominator": 4,
+          "attempts": 3,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            }
+          }
+        },
+        {
+          "key": "1:5:亡魂骑士::1",
+          "chapter": 1,
+          "node": 5,
+          "kind": "normal",
+          "reached": 1,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 1
+          },
+          "eventualPassed": 1,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 4,
+          "attempts": 1,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "1:6:荆棘守卫:normal:",
+          "chapter": 1,
+          "node": 6,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:7:孵化巢穴::1",
+          "chapter": 1,
+          "node": 7,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "1:7:荆棘与放逐::0",
+          "chapter": 1,
+          "node": 7,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "1:9:虚空领主::",
+          "chapter": 1,
+          "node": 9,
+          "kind": "boss",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 3,
+            "lose": 1
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 5,
+          "retryAttempts": 1,
+          "retryResults": {
+            "win": 1
+          },
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:1:护卫兵::",
+          "chapter": 2,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:2:咒沙者::",
+          "chapter": 2,
+          "node": 2,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:3:双刃兵::",
+          "chapter": 2,
+          "node": 3,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:5:骨巫与暗祭司::0",
+          "chapter": 2,
+          "node": 5,
+          "kind": "normal",
+          "reached": 1,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 1
+          },
+          "eventualPassed": 1,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 4,
+          "attempts": 1,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "2:5:圣光壁垒::1",
+          "chapter": 2,
+          "node": 5,
+          "kind": "normal",
+          "reached": 3,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 3
+          },
+          "eventualPassed": 3,
+          "passedArrivalDenominator": 3,
+          "passedAllDenominator": 4,
+          "attempts": 3,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            }
+          }
+        },
+        {
+          "key": "2:6:暗祭司:normal:",
+          "chapter": 2,
+          "node": 6,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:7:深渊法阵::0",
+          "chapter": 2,
+          "node": 7,
+          "kind": "normal",
+          "reached": 3,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 3
+          },
+          "eventualPassed": 3,
+          "passedArrivalDenominator": 3,
+          "passedAllDenominator": 4,
+          "attempts": 3,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 3,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 3
+            }
+          }
+        },
+        {
+          "key": "2:7:寒流战阵::1",
+          "chapter": 2,
+          "node": 7,
+          "kind": "normal",
+          "reached": 1,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 1
+          },
+          "eventualPassed": 1,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 4,
+          "attempts": 1,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "2:9:霜魇女皇::",
+          "chapter": 2,
+          "node": 9,
+          "kind": "boss",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2,
+            "lose": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 8,
+          "retryAttempts": 4,
+          "retryResults": {
+            "lose": 4
+          },
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "3:1:墓园::",
+          "chapter": 3,
+          "node": 1,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:2:沙域军阵::",
+          "chapter": 3,
+          "node": 2,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:3:熔岩之潮::",
+          "chapter": 3,
+          "node": 3,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:5:影刃刺客::0",
+          "chapter": 3,
+          "node": 5,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:6:骨墙:normal:",
+          "chapter": 3,
+          "node": 6,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 2,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:7:终末战阵::0",
+          "chapter": 3,
+          "node": 7,
+          "kind": "normal",
+          "reached": 1,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 1
+          },
+          "eventualPassed": 1,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 4,
+          "attempts": 1,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "3:7:冰与火::1",
+          "chapter": 3,
+          "node": 7,
+          "kind": "normal",
+          "reached": 1,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 1
+          },
+          "eventualPassed": 1,
+          "passedArrivalDenominator": 1,
+          "passedAllDenominator": 4,
+          "attempts": 1,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 0
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 1,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            }
+          }
+        },
+        {
+          "key": "3:9:永夜君王::",
+          "chapter": 3,
+          "node": 9,
+          "kind": "boss",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 2,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        }
+      ],
+      "checkpoints": [
+        {
+          "key": "1:1:骷髅哨兵::",
+          "chapter": 1,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:3:焚火者::",
+          "chapter": 1,
+          "node": 3,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "1:9:虚空领主::",
+          "chapter": 1,
+          "node": 9,
+          "kind": "boss",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 3,
+            "lose": 1
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 5,
+          "retryAttempts": 1,
+          "retryResults": {
+            "win": 1
+          },
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:1:护卫兵::",
+          "chapter": 2,
+          "node": 1,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:3:双刃兵::",
+          "chapter": 2,
+          "node": 3,
+          "kind": "normal",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 4
+          },
+          "eventualPassed": 4,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 4,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "2:9:霜魇女皇::",
+          "chapter": 2,
+          "node": 9,
+          "kind": "boss",
+          "reached": 4,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2,
+            "lose": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 4,
+          "passedAllDenominator": 4,
+          "attempts": 8,
+          "retryAttempts": 4,
+          "retryResults": {
+            "lose": 4
+          },
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 4,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 0,
+              "aliveAtCheckpointUnformed": 4
+            }
+          }
+        },
+        {
+          "key": "3:1:墓园::",
+          "chapter": 3,
+          "node": 1,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:3:熔岩之潮::",
+          "chapter": 3,
+          "node": 3,
+          "kind": "normal",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 1,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 1,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        },
+        {
+          "key": "3:9:永夜君王::",
+          "chapter": 3,
+          "node": 9,
+          "kind": "boss",
+          "reached": 2,
+          "allStarts": 4,
+          "firstResults": {
+            "win": 2
+          },
+          "eventualPassed": 2,
+          "passedArrivalDenominator": 2,
+          "passedAllDenominator": 4,
+          "attempts": 2,
+          "retryAttempts": 0,
+          "retryResults": {},
+          "formations": {
+            "multi": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "splash": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "burn": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "rotation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "duel": {
+              "everByCheckpointAllStarts": 2,
+              "everDenominator": 4,
+              "stillAtArrival": 1,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 2,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 1
+            },
+            "spell": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "retaliation": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "shield": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "sacrifice": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "summon": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            },
+            "frost": {
+              "everByCheckpointAllStarts": 0,
+              "everDenominator": 4,
+              "stillAtArrival": 0,
+              "arrivalDenominator": 2,
+              "startedAtArrival": 0,
+              "deadNeverFormed": 2,
+              "aliveAtCheckpointUnformed": 2
+            }
+          }
+        }
+      ],
+      "policyMetrics": [
+        {
+          "runId": "runner-smoke-01/casual/reva/1612100011",
+          "metrics": {
+            "refreshes": 0,
+            "purchases": 0,
+            "purchaseSpend": 0,
+            "sales": 0,
+            "anti3Rejected": 0,
+            "offers": [],
+            "acquired": [],
+            "deployed": [],
+            "coreHistory": []
+          }
+        },
+        {
+          "runId": "runner-smoke-01/casual/zilan/1612270152",
+          "metrics": {
+            "refreshes": 0,
+            "purchases": 0,
+            "purchaseSpend": 0,
+            "sales": 0,
+            "anti3Rejected": 0,
+            "offers": [],
+            "acquired": [],
+            "deployed": [],
+            "coreHistory": []
+          }
+        },
+        {
+          "runId": "runner-smoke-01/casual/sajj/1612440293",
+          "metrics": {
+            "refreshes": 0,
+            "purchases": 0,
+            "purchaseSpend": 0,
+            "sales": 0,
+            "anti3Rejected": 0,
+            "offers": [],
+            "acquired": [],
+            "deployed": [],
+            "coreHistory": []
+          }
+        },
+        {
+          "runId": "runner-smoke-01/casual/kaleos/1612610434",
+          "metrics": {
+            "refreshes": 0,
+            "purchases": 0,
+            "purchaseSpend": 0,
+            "sales": 0,
+            "anti3Rejected": 0,
+            "offers": [],
+            "acquired": [],
+            "deployed": [],
+            "coreHistory": []
+          }
+        }
+      ],
+      "dismantled": [
+        {
+          "runId": "runner-smoke-01/casual/reva/1612100011",
+          "direction": "duel",
+          "attempt": 17,
+          "chapter": 3,
+          "node": 3
+        }
+      ]
+    }
+  },
+  "limitations": [
+    "Seed worlds are paired across policies; general assignments are balanced and legal. These heuristic policies are not optimal players.",
+    "Formation is deterministic deployed-board classification; actual event logs are retained separately and require mechanism-aware contract audit."
+  ]
+}

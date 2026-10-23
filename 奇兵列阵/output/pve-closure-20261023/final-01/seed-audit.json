@@ -1,0 +1,142 @@
+{
+  "historicalUniqueSeeds": 3867,
+  "base": 2042100001,
+  "stride": 170141,
+  "quotas": {
+    "reva": 8,
+    "zilan": 8,
+    "sajj": 8,
+    "kaleos": 8
+  },
+  "pairs": [
+    {
+      "seed": 2042100001,
+      "general": "reva"
+    },
+    {
+      "seed": 2042270142,
+      "general": "zilan"
+    },
+    {
+      "seed": 2042440283,
+      "general": "sajj"
+    },
+    {
+      "seed": 2042610424,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2042780565,
+      "general": "reva"
+    },
+    {
+      "seed": 2042950706,
+      "general": "sajj"
+    },
+    {
+      "seed": 2043120847,
+      "general": "zilan"
+    },
+    {
+      "seed": 2043290988,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2043461129,
+      "general": "reva"
+    },
+    {
+      "seed": 2043631270,
+      "general": "zilan"
+    },
+    {
+      "seed": 2043801411,
+      "general": "sajj"
+    },
+    {
+      "seed": 2043971552,
+      "general": "reva"
+    },
+    {
+      "seed": 2044141693,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2044311834,
+      "general": "zilan"
+    },
+    {
+      "seed": 2044481975,
+      "general": "sajj"
+    },
+    {
+      "seed": 2044652116,
+      "general": "reva"
+    },
+    {
+      "seed": 2044822257,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2044992398,
+      "general": "zilan"
+    },
+    {
+      "seed": 2045162539,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2045332680,
+      "general": "reva"
+    },
+    {
+      "seed": 2045502821,
+      "general": "sajj"
+    },
+    {
+      "seed": 2045672962,
+      "general": "zilan"
+    },
+    {
+      "seed": 2045843103,
+      "general": "sajj"
+    },
+    {
+      "seed": 2046013244,
+      "general": "reva"
+    },
+    {
+      "seed": 2046183385,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2046353526,
+      "general": "zilan"
+    },
+    {
+      "seed": 2046523667,
+      "general": "sajj"
+    },
+    {
+      "seed": 2046693808,
+      "general": "kaleos"
+    },
+    {
+      "seed": 2046863949,
+      "general": "reva"
+    },
+    {
+      "seed": 2047034090,
+      "general": "zilan"
+    },
+    {
+      "seed": 2047204231,
+      "general": "sajj"
+    },
+    {
+      "seed": 2047374372,
+      "general": "kaleos"
+    }
+  ],
+  "overlap": []
+}

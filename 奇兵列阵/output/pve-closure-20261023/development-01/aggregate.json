@@ -1,0 +1,152 @@
+[
+  {
+    "mode": "spell",
+    "n": 16,
+    "clear": 14,
+    "firstThreePassed": 16,
+    "everFormed": 16,
+    "switched": 16,
+    "lastStillFormed": 1,
+    "stages": [
+      {
+        "chapter": 1,
+        "passed": 16,
+        "everAtFirstBoss": 14,
+        "currentAtFirstBoss": 5
+      },
+      {
+        "chapter": 2,
+        "passed": 16,
+        "everAtFirstBoss": 16,
+        "currentAtFirstBoss": 0
+      },
+      {
+        "chapter": 3,
+        "passed": 14,
+        "everAtFirstBoss": 16,
+        "currentAtFirstBoss": 1
+      }
+    ],
+    "drawStop": 0
+  },
+  {
+    "mode": "sacrifice",
+    "n": 16,
+    "clear": 7,
+    "firstThreePassed": 16,
+    "everFormed": 14,
+    "switched": 13,
+    "lastStillFormed": 13,
+    "stages": [
+      {
+        "chapter": 1,
+        "passed": 16,
+        "everAtFirstBoss": 1,
+        "currentAtFirstBoss": 1
+      },
+      {
+        "chapter": 2,
+        "passed": 15,
+        "everAtFirstBoss": 8,
+        "currentAtFirstBoss": 7
+      },
+      {
+        "chapter": 3,
+        "passed": 7,
+        "everAtFirstBoss": 13,
+        "currentAtFirstBoss": 12
+      }
+    ],
+    "drawStop": 1
+  },
+  {
+    "mode": "frost",
+    "n": 16,
+    "clear": 8,
+    "firstThreePassed": 16,
+    "everFormed": 15,
+    "switched": 15,
+    "lastStillFormed": 4,
+    "stages": [
+      {
+        "chapter": 1,
+        "passed": 12,
+        "everAtFirstBoss": 14,
+        "currentAtFirstBoss": 12
+      },
+      {
+        "chapter": 2,
+        "passed": 12,
+        "everAtFirstBoss": 12,
+        "currentAtFirstBoss": 5
+      },
+      {
+        "chapter": 3,
+        "passed": 8,
+        "everAtFirstBoss": 12,
+        "currentAtFirstBoss": 1
+      }
+    ],
+    "drawStop": 3
+  },
+  {
+    "mode": "summon",
+    "n": 16,
+    "clear": 8,
+    "firstThreePassed": 16,
+    "everFormed": 12,
+    "switched": 12,
+    "lastStillFormed": 12,
+    "stages": [
+      {
+        "chapter": 1,
+        "passed": 10,
+        "everAtFirstBoss": 10,
+        "currentAtFirstBoss": 9
+      },
+      {
+        "chapter": 2,
+        "passed": 8,
+        "everAtFirstBoss": 8,
+        "currentAtFirstBoss": 7
+      },
+      {
+        "chapter": 3,
+        "passed": 8,
+        "everAtFirstBoss": 8,
+        "currentAtFirstBoss": 8
+      }
+    ],
+    "drawStop": 2
+  },
+  {
+    "mode": "splash",
+    "n": 16,
+    "clear": 12,
+    "firstThreePassed": 16,
+    "everFormed": 11,
+    "switched": 11,
+    "lastStillFormed": 0,
+    "stages": [
+      {
+        "chapter": 1,
+        "passed": 16,
+        "everAtFirstBoss": 7,
+        "currentAtFirstBoss": 4
+      },
+      {
+        "chapter": 2,
+        "passed": 16,
+        "everAtFirstBoss": 9,
+        "currentAtFirstBoss": 0
+      },
+      {
+        "chapter": 3,
+        "passed": 12,
+        "everAtFirstBoss": 11,
+        "currentAtFirstBoss": 0
+      }
+    ],
+    "drawStop": 0
+  }
+]

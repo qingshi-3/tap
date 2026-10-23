@@ -1,19 +1,49 @@
 // Run save is the durable outbox for career metrics and replacement settlements.
-import { CONTENT_STRUCTURE, CONTENT_VERSION, SAVE_VERSION, finishBattle, recoverEmptyRoster, type RunState } from './run';
-import { GENERAL_MAP, UNIT_MAP } from './data';
-import { EQUIP_MAP, PASSIVE_MAP, SPELL_MAP } from './content';
+import { CONTENT_STRUCTURE, CONTENT_VERSION, SAVE_VERSION, battleNo, tierCap, claimPendingEggs, finishBattle, recoverEmptyRoster, type RunState } from './run';
+import { DRAFT_POOL, GENERAL_MAP, UNIT_MAP } from './data';
+import { EQUIP_MAP, PASSIVE_MAP, SPELL_MAP, POINT_MAP, ORDER_MAP } from './content';
 import { activateCareerRun, CAREER_KEY, ensureRunCareer, loadCareer, observeRun } from './career';
 
 export const SAVE_KEY = 'zl_expedition_v1';
 /** 0.8.1 之前的存档没有 contentStructure 字段：0.8.0 就是结构 1 */
 const structureOf = (r: RunState) => r.contentStructure ?? (r.contentVersion === '0.8.0' ? 1 : 0);
+/** Missing fields are historical empty shelves, never a reason to mint retroactive rewards. */
+function validUpgradeOffers(r: RunState): boolean {
+  const groups = r.upgradeOffers, counter = r.nextUpgradeOfferId;
+  if (groups === undefined && counter === undefined) return true;
+  if (!Number.isSafeInteger(counter) || counter! < 1 || counter! >= Number.MAX_SAFE_INTEGER) return false;
+  if (groups === undefined) return true;
+  if (!Array.isArray(groups) || r.economyVersion !== 2 || r.tutorialMode) return false;
+  let previous = 0;
+  for (const group of groups) {
+    if (!group || typeof group !== 'object' || Array.isArray(group)
+      || Object.keys(group).some(k => !['id', 'choices', 'tier', 'locked', 'battle'].includes(k))
+      || !Number.isSafeInteger(group.id) || group.id <= previous || group.id >= counter!
+      || !Number.isSafeInteger(group.battle) || group.battle < 0 || group.battle > battleNo(r)
+      || !Number.isSafeInteger(group.tier) || group.tier !== Math.min(6, tierCap(group.battle) + 1)
+      || typeof group.locked !== 'boolean' || !Array.isArray(group.choices) || group.choices.length !== 2
+      || group.choices[0] === group.choices[1]
+      || !group.choices.every(id => typeof id === 'string' && DRAFT_POOL.some(d => d.id === id && d.tier === group.tier))) return false;
+    previous = group.id;
+  }
+  return true;
+}
 /** 存档里引用的每个 ID 都还在当前内容里，才允许续玩（兜底：忘记升结构版本时不至于崩） */
 export function runFitsContent(r: RunState): boolean {
   const units = [...(r.slots ?? []), ...(r.bench ?? [])].filter((u): u is NonNullable<typeof u> => !!u);
-  return !!GENERAL_MAP[r.general]
+  return validUpgradeOffers(r) && !!GENERAL_MAP[r.general]
     && units.every((u) => !!UNIT_MAP[u.defId] && (u.equips ?? []).every((e) => !!EQUIP_MAP[e]))
-    && (r.draft ?? []).every((id) => !!UNIT_MAP[id])
+    && (r.draft ?? []).every((id) => (r.economyVersion === 2 && id === '') || !!UNIT_MAP[id])
     && [...(r.passives ?? []), ...(r.promo ?? [])].every((id) => !!PASSIVE_MAP[id])
+    && (r.shop?.unitsBought === undefined || (Number.isSafeInteger(r.shop.unitsBought) && r.shop.unitsBought >= 0
+      && Array.isArray(r.shop.units) && r.shop.unitsBought <= r.shop.units.length))
+    && (r.shop?.pack == null || (Array.isArray(r.shop.pack.points) && r.shop.pack.points.length > 0
+      && r.shop.pack.points.every(id=>typeof id === 'string' && !!POINT_MAP[id])
+      && Number.isSafeInteger(r.shop.pack.price) && r.shop.pack.price > 0 && typeof r.shop.pack.sold === 'boolean'))
+    && (r.shop?.order == null || (!!ORDER_MAP[r.shop.order.id] && Number.isSafeInteger(r.shop.order.price)
+      && r.shop.order.price > 0 && typeof r.shop.order.sold === 'boolean'))
+    && (!r.shop?.boon || (!!PASSIVE_MAP[r.shop.boon.id] && !PASSIVE_MAP[r.shop.boon.id].general
+      && Number.isSafeInteger(r.shop.boon.price) && r.shop.boon.price > 0 && typeof r.shop.boon.sold === 'boolean'))
     && (r.bag ?? []).every((id) => !!EQUIP_MAP[id])
     && [...(r.spells ?? []), ...(r.activeSpells ?? [])].every((id) => !!SPELL_MAP[id]);
 }
@@ -30,13 +60,14 @@ const PLAYED_KEY = 'zl_played';
 let accessedRunId: string | null = null;
 /** False means the durable run/profile pair is incomplete; the outbox remains available for retry. */
 export function saveRun(r: RunState): boolean {
+  if (!validUpgradeOffers(r)) return false;
   ensureRunCareer(r);
   try {
     const s = store(); if (!s) return false;
     const durableRaw = s.getItem(SAVE_KEY);
     if (durableRaw) {
       const durable = JSON.parse(durableRaw) as RunState;
-      if (!durable || durable.saveVersion !== SAVE_VERSION || !durable.runId) return false;
+      if (!durable || durable.saveVersion !== SAVE_VERSION || !durable.runId || !validUpgradeOffers(durable)) return false;
       if (durable.runId !== r.runId && r.careerPrevious?.id !== durable.runId && r.careerActivateFrom !== durable.runId) return false;
     }
     const p = loadCareer();
@@ -78,9 +109,22 @@ export function loadRun(): LoadResult {
   if (!raw) return { kind: 'none' };
   try {
     const r = JSON.parse(raw) as RunState;
-    if (!r || r.saveVersion !== SAVE_VERSION || structureOf(r) !== CONTENT_STRUCTURE || !runFitsContent(r)) return { kind: 'incompatible' };
+    if (!r || r.saveVersion !== SAVE_VERSION || structureOf(r) !== CONTENT_STRUCTURE || !runFitsContent(r)
+      || (r.tacticsVersion !== undefined && r.tacticsVersion !== 1)
+      || (r.commandTarget !== undefined && (!Number.isSafeInteger(r.commandTarget) || r.commandTarget < 1))
+      || (r.economyVersion !== undefined && r.economyVersion !== 2)
+      || (r.economyVersion === 2 && (!Number.isSafeInteger(r.gold) || r.gold < 0
+        || !Array.isArray(r.draft) || (r.draft.length !== 0 && r.draft.length !== 5)
+        || (r.draftLocked !== undefined && (!Array.isArray(r.draftLocked) || r.draftLocked.length !== 5 || !r.draftLocked.every(v => typeof v === 'boolean')))
+        || (r.budgetBonus !== undefined && (!Number.isSafeInteger(r.budgetBonus) || r.budgetBonus < 0))
+        ))
+      || (r.prepCommitted !== undefined && typeof r.prepCommitted !== 'boolean')
+      || (r.prepUses !== undefined && (!r.prepUses || typeof r.prepUses !== 'object' || Array.isArray(r.prepUses) || Object.values(r.prepUses).some(n => !Number.isSafeInteger(n) || n < 0)))
+      || [...r.slots,...r.bench].some(u => u?.growth && (typeof u.growth !== 'object' || Array.isArray(u.growth) || Object.entries(u.growth).some(([k,v]) => !['atk','hp','power'].includes(k) || !Number.isSafeInteger(v))))
+      || (r.pendingEggs !== undefined && (!Number.isSafeInteger(r.pendingEggs) || r.pendingEggs < 0))) return { kind: 'incompatible' };
     // 只改数值的更新：沿用存档，记下当前版本号
     r.contentVersion = CONTENT_VERSION; r.contentStructure = CONTENT_STRUCTURE;
+    if (r.general === 'xingjiao') r.pendingEggs ??= 0;
     const hadId = !!r.runId; ensureRunCareer(r);
     if (!hadId) {
       // Never publish a legacy identity to career storage until the identity itself is durable.
@@ -90,9 +134,15 @@ export function loadRun(): LoadResult {
     accessedRunId = r.runId!;
     // A replacement outbox must close the previous run before it activates this one.
     if (r.careerPrevious) observeRun(r); else activateCareerRun(r);
+    const hadPending = !!r.pending;
+    // Historical in-flight results were already simulated without preparation growth.
+    // Do not retroactively apply new effects when replaying their durable result.
+    if (r.pending && r.prepCommitted === undefined) r.prepCommitted = true;
+    r.prepUses ??= {};
     if (r.pending) finishBattle(r);
+    const claimedEggs = claimPendingEggs(r);
     const recovered = recoverEmptyRoster(r);
-    if (recovered || !hadId || r.careerPending || r.careerPrevious || r.over) saveRun(r);
+    if (hadPending || claimedEggs || recovered || !hadId || r.careerPending || r.careerPrevious || r.over) saveRun(r);
     else observeRun(r);
     return { kind: 'ok', run: r };
   } catch { return { kind: 'incompatible' }; }

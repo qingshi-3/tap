@@ -3,9 +3,9 @@
 declare const process: { env: Record<string, string | undefined>; exit(code: number): never };
 // @ts-expect-error Node host module; the browser project does not install @types/node.
 import { writeFileSync } from 'node:fs';
-import { GENERALS, unitDef } from '../src/core/data';
+import { unitDef } from '../src/core/data';
 import { TOTAL_BATTLES } from '../src/core/route';
-import { battleNo } from '../src/core/run';
+import { battleNo, generalChoices } from '../src/core/run';
 import type { BattleSetup } from '../src/core/engine';
 import { playRun } from './simlib';
 
@@ -21,9 +21,11 @@ const nodes: Record<string, { n: number; win: number }> = {};
 let battles = 0, faults = 0, runs = 0, clears = 0, winsTotal = 0;
 
 for (let s = 0; s < SEEDS; s++) {
-  const g = GENERALS[s % GENERALS.length].id;
+  const seed = 1000 + s * 7919;
+  const choices = generalChoices(seed);
+  const g = choices[s % choices.length];
   const run = playRun({
-    general: g, seed: 1000 + s * 7919,
+    general: g, seed, requireLegalGeneral: true,
     onBattle: (r, setup, out, node) => {
       const b = battleNo(r);
       battles++;

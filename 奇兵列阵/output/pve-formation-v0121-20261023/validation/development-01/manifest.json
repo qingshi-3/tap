@@ -1,0 +1,426 @@
+{
+  "phase": "development",
+  "label": "development-01",
+  "base": 1719100031,
+  "stride": 170141,
+  "perGeneral": 4,
+  "pairs": [
+    {
+      "seed": 1719100031,
+      "general": "zilan"
+    },
+    {
+      "seed": 1719270172,
+      "general": "reva"
+    },
+    {
+      "seed": 1719440313,
+      "general": "kaleos"
+    },
+    {
+      "seed": 1719610454,
+      "general": "sajj"
+    },
+    {
+      "seed": 1719780595,
+      "general": "reva"
+    },
+    {
+      "seed": 1719950736,
+      "general": "zilan"
+    },
+    {
+      "seed": 1720120877,
+      "general": "kaleos"
+    },
+    {
+      "seed": 1720291018,
+      "general": "sajj"
+    },
+    {
+      "seed": 1720461159,
+      "general": "zilan"
+    },
+    {
+      "seed": 1720631300,
+      "general": "reva"
+    },
+    {
+      "seed": 1720801441,
+      "general": "sajj"
+    },
+    {
+      "seed": 1720971582,
+      "general": "kaleos"
+    },
+    {
+      "seed": 1721141723,
+      "general": "zilan"
+    },
+    {
+      "seed": 1721311864,
+      "general": "reva"
+    },
+    {
+      "seed": 1721482005,
+      "general": "sajj"
+    },
+    {
+      "seed": 1721652146,
+      "general": "kaleos"
+    }
+  ],
+  "modes": [
+    "multi",
+    "splash",
+    "burn",
+    "rotation",
+    "duel",
+    "spell",
+    "retaliation",
+    "shield",
+    "sacrifice",
+    "summon",
+    "frost",
+    "casual",
+    "anti3"
+  ],
+  "hashes": {
+    "src/core/abilityText.ts": "2da9177c7c6e112274a88fe75fe54fc76dc186b89a13505742cd550376bec263",
+    "src/core/achievements.ts": "b68cdbbeb689ed55c6699b9dc2095bb524530ada9efb5bb2b8eaed341e643906",
+    "src/core/battleRules.ts": "db2083d74d333b5f528d4156f5b3fddc8f39358f2889eb4bf7257e125c2e46e1",
+    "src/core/battleStats.ts": "5206e2fcffbb0257e01610aa41809230607e1024f1ba3f05baec111d33122afa",
+    "src/core/career.test.ts": "bf77c45f93e7d93e3dcb3868757bb152e27fc3c4874dc51afb7de3cc634641b2",
+    "src/core/career.ts": "2388dccfa9b6cd6ef7f22fae96c071f101b99531b14ff679d8e03436109b3c1f",
+    "src/core/codexSearch.ts": "381d6e6f5558cbac55eaf095729308e8ec9fd5f901fd1c07cd05966490cc0e05",
+    "src/core/combos.ts": "16e17fb1f30e2da0844246726a07cf43f96a9378e9813c7b1b116c4a5d65d07e",
+    "src/core/content.ts": "7db210f71ad45b59126a66c5cfa89c356efc55fd23de3827affec1b82fc6ede7",
+    "src/core/data.ts": "ed353cbd7902b31c20e3760a62ea7d46dadce91480eeb39dc8de7b5c74f2eb82",
+    "src/core/encounterRules.ts": "d0b10dfd764c84a114a47f845ada8ef5ce85e15cdb319c0e263e118f15f11a7c",
+    "src/core/encounterText.ts": "786589a5907e97855d5e88ae1fe85f5bd18fe5fb32d9eac6e8257e3f2807fa8b",
+    "src/core/engine.ts": "24265fc3d76f816b93320bacbae958f1dee02069c57d775906039dabc0ce1477",
+    "src/core/leaderboards.ts": "50753525c8506277345efd55aabbd30963d6aaf5bbb3a74b57322a9db4e51a72",
+    "src/core/power.ts": "9b6b3b9da6af669dee2367610d0ede893adbb4f4d2517e445c25b1bfec67786f",
+    "src/core/preparation.ts": "d5134d9eb4e483b7e689a4646ba52125beef856cdbcf5e30499f54a2e7e08831",
+    "src/core/recommend.ts": "e0d0eb4f128b74fdd2aabfed209b513bc95009c5586d2e0f8dfb5e1bdbba12fa",
+    "src/core/rng.ts": "ec2b3c0505879cf188cb3ef649e6cd6a9eb0552807d8b6a27125349cce8cc9eb",
+    "src/core/route.ts": "6d262610545d4f3a16a63a42a40f3590bd65be8d52f7dc7c1d51b07d43192354",
+    "src/core/run.ts": "db7837830924806966d44875c7ed92393db1355f7ad694b655a4dbeabadc7307",
+    "src/core/save.ts": "63960b0e0b3484192e3a6687450fecb2435a34d03ccfaeed497933e4cc887ebe",
+    "src/core/tutorialEncounters.ts": "74cd3cba500826b1a7ae77bba37cc2f746344e90e78eb228dbceefb3b029171b",
+    "src/core/tutorialRoute.ts": "329edf28f38fad2242f8c06dca3b8d0e4aa8f097035d3d85de7ee2e2ec2bef05",
+    "src/core/types.ts": "267b4d7e7181d8cadc796e97c2b9854a2d69a5d0373c8027a0ab112c0901967f",
+    "scripts/achievement-playthrough.ts": "8f7d3f7f5cc621a488bb32b3b95c7d4b79dab1ea1c8156be4eb841e41c3f7e81",
+    "scripts/balance-faie-sensitivity.ts": "cacb49d376e0d72d7eba3c068ef0b84f8731e17b6a91cc4f571d323cccbba755",
+    "scripts/balance-playthrough-final.ts": "43e124be3858fb26b6087eb2b5ceb97040256164ed229af4ddf83a55f1331e8f",
+    "scripts/balance-playthrough.ts": "8c7c6df37cae4c2590329db874e754ce3abb5186531126ac073964dfd45fdb20",
+    "scripts/balance-revision.ts": "305f578587f6d3d4e0793eb26eda4e6114f6e403e46099bf90dd31e092851335",
+    "scripts/boss-bench.ts": "c865d9b3fb305648edc260533fdcdfc839186d26a014a3d9f70f2369810ab698",
+    "scripts/boss-encounters.ts": "af5da8c7d4800f75fa9438c542d396f7a55930546cd0ede38dd24c347c3c6c68",
+    "scripts/boss-probe.ts": "ce178b00b6a688e8b0bd2847d33065e2dd30ac072d09ce05281b3189daccc4f6",
+    "scripts/card-margin.ts": "0ae6ec9f481f7249d4309512773305c80e3eaf40adf0d0f0c655e58dcbc22ec5",
+    "scripts/combo-bench.ts": "0acc68b43d17445508c9a25b42150a0a4cbfc494b57e93a6227e6f18a7d2c2e0",
+    "scripts/combo-search.ts": "f6b1e3dba9c951ad2d2a15001bf3d03b39ca796652af164461b1f560bdbdff43",
+    "scripts/convergence-v010-controlled.ts": "db8081c00193ec081056fd6890971563cebf6fa94992881050e831015bd2858e",
+    "scripts/enemy-curve-v09.ts": "d6739a1fa850ab0227a67343f7f3d1b3a12c19ca43833b9608b491fb304b9ae5",
+    "scripts/leader-diagnostics.ts": "1237c6e99a29834cbe18fe1672c34b1c7ce65c88888c7923d757e0faf15704e5",
+    "scripts/leader-policy-diagnostic-v2.ts": "4f3c99441663fa20265f1792af9b80f6414ad90024bc21d4c1fb848b85f54c10",
+    "scripts/leader-policy.ts": "db0cb40ef89dd2ccf65f584a7463eeae27375aad5873f90572c94bb0321e8f35",
+    "scripts/leader-run.ts": "d726afe47a3160bfac312217870c5ea4096b413c92ee82af37cc02455e03f0b1",
+    "scripts/opening-audit.ts": "d2a56ab29270e9cddc12606b40f68f73832bd884d31686dcb8396989edc20e62",
+    "scripts/passive-strength.ts": "db4e0b9711e72e442a11067ff1d032c1fec57260329d589a8aaf9a8aa15cdabc",
+    "scripts/player-growth-audit.ts": "b5d06e755727a9a6b1810241a18cc451f70dc0663aefc58a5b5284e1b4da8e1c",
+    "scripts/player-tactics-v010-audit.ts": "16ef40c6d9ab2a8a5ed856943dcaef16a6500b6c68f15d00668a34d4ac8e257f",
+    "scripts/pve-all-builds-v0121-policy.test.ts": "8e558665b41720af98d380a4e856989659198a3c1f32119c12b9869b6ce11364",
+    "scripts/pve-all-builds-v0121-policy.ts": "c113b8dac7bfe40cbd06455be485e1a6eef479d320ae4d4ac499e8e035a76e0e",
+    "scripts/pve-all-builds-v0121.ts": "a35380c026b368e9652eae5c2081e2196284bcfe240d6eef2c1f53ce728043b1",
+    "scripts/pve-benchmark-v012-families.ts": "7af5c902e31239937de1997324f2f849c80f77c0707a63bc6b61c4fc093f632a",
+    "scripts/pve-benchmark-v012-offers.test.ts": "2b6e064067eb4f1a507c852451838569485395b64484ca3c797659737e30ae28",
+    "scripts/pve-benchmark-v012-offers.ts": "6476d2a74040e2c08ac3d9feb29ae1f39241f0a0392a31781b9550fcde43d5bd",
+    "scripts/pve-benchmark-v012-policy.test.ts": "15080403d864f31dcf516e570fa824184342f512a2b5dab3a325ff5b834325ce",
+    "scripts/pve-benchmark-v012-policy.ts": "88150ff1b272c9ab99ecc44784ba815440b34c8adb79326ddafd92b2ff7aef11",
+    "scripts/pve-benchmark-v012-replay.ts": "7e87216cb1029ec638915c1495cb7303f18113fa3c9711255713c482fa3e8de7",
+    "scripts/pve-benchmark-v012-seed-audit.ts": "7a0f744092a7a32cee72ab9db57c8ad7357e80fc7a3febe0d9fcec0ee5415b27",
+    "scripts/pve-benchmark-v012.ts": "708954a18d8d8dfea2c5ad03ebb265be6101ae5ee3810a798a6c089c383207bf",
+    "scripts/pve-formation-contract.ts": "7e75ee0fd69b000b071f0e2822ac2782b293564999427fbe7426d0f76620c70b",
+    "scripts/pve-formation-policy.ts": "c229158cde31d426fee8921cb98f16576c20cc71e6386c0b06b661ca62b58fd4",
+    "scripts/pve-formation-v0121.ts": "f9360bea5b113d160d882108660c279f10976e08f3464bad13d5b14f08cc5139",
+    "scripts/pve-sacrifice-opportunities.ts": "217af1341cf2f774d3fe4c0440b2ccf17702324c406ea9a52250e652c107e412",
+    "scripts/pve-splash-transition.ts": "d96edd9e6346759ac54e8ad7f943c90de433551b7d96e5f75f1ccf0ae4a73070",
+    "scripts/rework-v011-controlled-current.ts": "b80b44f758fc01e814761eb0a393e7c946f173cdd1c22331bab3311ec38302a7",
+    "scripts/rework-v011-controlled.ts": "40182b807ecd1db7f78bb45e6177d04c75c398e7e584fc0187df5965d0cdbc9f",
+    "scripts/rework-v011-enemies-current.ts": "669e2e28bab570364378f4c8c5d39eca4a3dec2a7371a858d54485151551a596",
+    "scripts/rework-v011-enemies.ts": "912c884fa3bb85f8eb58010d493edcee579bded5daff3d6122fbec938746070e",
+    "scripts/rework-v011-player-current.ts": "af8ed19aec3e0bdb899980a84cfe92adaf5890576ce3519a84f2c5911100d280",
+    "scripts/rework-v011-player.ts": "38a5fb065c1b6b44a82e56f43bfb3b68cf90b3024b3e5c984ec3c43087aaa6fc",
+    "scripts/rework-v011-position-aware.ts": "e66c5f28a7774af3cd87447040745484e6f6bc85470cc8a7f59103a43d6e0255",
+    "scripts/rework-v011-report.ts": "277236f4d85d5debef5ecfdeb52a28d96bbd44571705804220093a2007258d8d",
+    "scripts/rework-v011-shared.ts": "fc5ed51c0ec4ec8454697253ffe87fb6a6c9eaf277cfa97e98a0f8bf7968b391",
+    "scripts/rework-v011-target-simlib.ts": "412ad1c6951a2a8c2e5d932b3657eb372bcbec8e7154e59dc0fe5e1cac01d91a",
+    "scripts/rework-v011-targeted.ts": "bc5404a59b677e092c0ed3b770c814278de33fb5334da4e3c835f72442de1543",
+    "scripts/shop-stage-v0101-smoke.ts": "9d5f96efbb788e514d454fe24fe60cc2a1d872c3128085be7fc692bc5da18b77",
+    "scripts/sim.ts": "bd025d2590348681f42076890c94ec8343f460da6b0c8ee3a0105cf203cf7995",
+    "scripts/simlib.ts": "acc848a15941d5815d03262b505ec6bcb505709476ed8b8eec08e4910a6ddcff",
+    "scripts/six-tier-balance.ts": "653f33f8d2c42c6c90cfd08ae037178f86fbfadf8d3e5900335683b18b3cc001",
+    "scripts/smoke-v08.ts": "5834668ef8853408f8da4586fff5a276294bed83a645b9ae3b39e6a15e2a4f64",
+    "scripts/unit-strength-v09.ts": "65922fddf361bb0742918a08add3b536c240b2064676a37ebebbdf1d50e533d8"
+  },
+  "roleIds": {
+    "multi": [
+      [
+        "s_wind",
+        "m_raptor",
+        "s_step",
+        "n_gladiator",
+        "s_xyle",
+        "m_vindicator"
+      ],
+      [
+        "s_dancer",
+        "n_envoy",
+        "d_sandblade"
+      ],
+      [
+        "s_choreo",
+        "n_envoy",
+        "s_dancer",
+        "d_sentry",
+        "l_priest"
+      ]
+    ],
+    "splash": [
+      [
+        "m_whelp",
+        "m_rex",
+        "m_vindicator",
+        "n_colossus",
+        "m_titan"
+      ],
+      [
+        "s_dancer",
+        "n_envoy",
+        "n_breaker",
+        "d_sandblade"
+      ],
+      [
+        "d_sentry",
+        "l_warden",
+        "l_priest",
+        "n_medic",
+        "s_choreo"
+      ]
+    ],
+    "burn": [
+      [
+        "m_shaman",
+        "m_raptor",
+        "m_whelp",
+        "m_mender",
+        "m_heart",
+        "m_titan"
+      ],
+      [
+        "m_bloodcaller",
+        "m_harvester"
+      ],
+      [
+        "m_shaman",
+        "m_raptor",
+        "m_whelp",
+        "m_mender",
+        "m_heart",
+        "n_envoy"
+      ]
+    ],
+    "rotation": [
+      [
+        "l_shield",
+        "l_windblade",
+        "s_step",
+        "l_archer",
+        "l_storm",
+        "l_caliber"
+      ],
+      [
+        "l_shield",
+        "l_windblade",
+        "s_step",
+        "l_archer",
+        "n_tether"
+      ],
+      [
+        "d_hourglass",
+        "l_shield",
+        "l_storm",
+        "l_caliber"
+      ]
+    ],
+    "duel": [
+      [
+        "n_gladiator",
+        "s_fox",
+        "s_backstab",
+        "s_monk",
+        "s_viper",
+        "s_xyle",
+        "s_lord"
+      ],
+      [
+        "s_panda",
+        "s_lord",
+        "s_viper",
+        "s_fox",
+        "s_backstab"
+      ],
+      [
+        "n_gladiator",
+        "s_dancer",
+        "n_envoy",
+        "d_sentry",
+        "l_priest"
+      ]
+    ],
+    "spell": [
+      [
+        "a_devour",
+        "s_dart",
+        "a_chanter",
+        "s_caster",
+        "d_shriek",
+        "a_engulf"
+      ],
+      [
+        "a_devour",
+        "s_dart",
+        "a_chanter",
+        "s_caster",
+        "d_shriek",
+        "n_envoy"
+      ],
+      [
+        "a_solus",
+        "d_pyro",
+        "n_obelisk",
+        "d_sentry",
+        "l_priest"
+      ]
+    ],
+    "retaliation": [
+      [
+        "n_thorn",
+        "v_bear"
+      ],
+      [
+        "l_priest",
+        "l_mender",
+        "n_medic",
+        "l_vigil",
+        "d_hourglass"
+      ],
+      [
+        "s_wind",
+        "n_gladiator",
+        "a_devour",
+        "s_dart",
+        "s_caster",
+        "n_colossus"
+      ]
+    ],
+    "shield": [
+      [
+        "l_lion"
+      ],
+      [
+        "d_obelisk",
+        "l_martyr",
+        "l_sunriser",
+        "l_shield",
+        "v_keeper",
+        "v_stag"
+      ],
+      [
+        "l_banner",
+        "d_obelisk",
+        "l_martyr",
+        "l_sunriser",
+        "l_shield"
+      ]
+    ],
+    "sacrifice": [
+      [
+        "a_void",
+        "n_ritualist"
+      ],
+      [
+        "a_imp",
+        "a_seed",
+        "a_spine",
+        "a_graveguard",
+        "a_nightmare",
+        "m_egg",
+        "d_dune",
+        "d_howler"
+      ],
+      [
+        "a_reaper",
+        "a_jugg",
+        "a_matriarch",
+        "n_gladiator",
+        "s_wind",
+        "n_colossus"
+      ]
+    ],
+    "summon": [
+      [
+        "a_seed",
+        "d_dune",
+        "d_howler",
+        "m_egg",
+        "d_artificer",
+        "a_nightmare",
+        "d_dunecaster",
+        "d_worm"
+      ],
+      [
+        "d_goldob",
+        "d_pharaoh"
+      ],
+      [
+        "d_keeper",
+        "m_incubator",
+        "a_seed",
+        "d_dune",
+        "d_howler",
+        "m_egg"
+      ]
+    ],
+    "frost": [
+      [
+        "v_chaser",
+        "v_mage",
+        "v_stag"
+      ],
+      [
+        "v_scout",
+        "v_drake",
+        "v_wyvern"
+      ],
+      [
+        "v_conduit",
+        "v_chaser",
+        "v_mage",
+        "v_stag",
+        "n_envoy"
+      ]
+    ]
+  },
+  "policyVersion": "greedy-current-visible-0.12.1-dev1",
+  "contractVersion": "formation-contract-0.12.1-draft-1",
+  "audit": {
+    "auditedFiles": 2178,
+    "historicalUniqueSeeds": 3676,
+    "rejected": []
+  },
+  "createdAt": "2026-10-23T02:58:49.371Z",
+  "authorizationGate": "FORMATION_RUN=1 required; final batch must follow main-agent contract review"
+}

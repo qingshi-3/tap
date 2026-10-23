@@ -1,0 +1,128 @@
+{
+  "tacticsVersion": 1,
+  "economyVersion": 2,
+  "draftLocked": [
+    false,
+    false,
+    false,
+    false,
+    false
+  ],
+  "budgetBonus": 0,
+  "saveVersion": 1,
+  "contentVersion": "0.10.1",
+  "contentStructure": 1,
+  "seed": 110023,
+  "general": "reva",
+  "lives": 3,
+  "chapter": 0,
+  "node": 0,
+  "wins": 0,
+  "history": [],
+  "over": null,
+  "slots": [
+    {
+      "defId": "n_gladiator",
+      "ownedId": 10,
+      "copies": 1,
+      "train": {
+        "atk": 1
+      },
+      "growth": {
+        "atk": 1,
+        "hp": 1
+      }
+    },
+    {
+      "defId": "d_howler",
+      "ownedId": 11,
+      "copies": 1
+    },
+    {
+      "defId": "a_solus",
+      "ownedId": 12,
+      "copies": 1
+    },
+    null,
+    null
+  ],
+  "bench": [
+    null,
+    null,
+    null
+  ],
+  "nextOwnedId": 13,
+  "activeFactions": [
+    "light",
+    "shadow",
+    "abyss",
+    "magma",
+    "frost",
+    "desert"
+  ],
+  "variantChoices": {
+    "0:4": 1,
+    "0:6": 0,
+    "1:4": 0,
+    "1:6": 1,
+    "2:4": 1,
+    "2:6": 0
+  },
+  "draft": [
+    "d_sentry",
+    "n_merc",
+    "v_chaser",
+    "l_martyr",
+    "v_wall"
+  ],
+  "picks": 1,
+  "rerolls": 0,
+  "rngState": 922590566,
+  "rec": {
+    "recent": [
+      [
+        "d_sentry",
+        "n_merc",
+        "v_chaser",
+        "l_martyr",
+        "v_wall"
+      ]
+    ],
+    "skipped": [],
+    "dry": 1
+  },
+  "rewardedRetryCount": 0,
+  "rewardedRerollCount": 0,
+  "gold": 10,
+  "shop": null,
+  "stash": {
+    "atk": 1,
+    "block": 1
+  },
+  "allocLog": [
+    {
+      "to": 10,
+      "type": "atk"
+    }
+  ],
+  "lastPower": 0,
+  "lastPoints": [],
+  "genPower": 0,
+  "passives": [],
+  "promo": null,
+  "promoCount": 0,
+  "bag": [],
+  "spells": [],
+  "activeSpells": [],
+  "orders": [],
+  "reward": null,
+  "forkPick": null,
+  "pending": null,
+  "runId": "14ff98a4-b354-4986-a583-6639d13c9308",
+  "prepUses": {
+    "10:0": 1
+  },
+  "prepCommitted": true,
+  "swaps": [],
+  "merc": null
+}

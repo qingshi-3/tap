@@ -6,13 +6,13 @@ import { statsOf } from '../src/ui/board';
 describe('finite spell use details follow actual battle state', () => {
   it.each([1, 2, 3])('counts down remaining uses and exhausts at star %i', level => {
     const b = new Battle({
-      player: [{ defId: 'd_artificer', ownedId: 1, copies: [1, 2, 4][level - 1], train: { hp: 100 } }],
+      player: [{ defId: 's_dart', ownedId: 1, copies: [1, 2, 4][level - 1], train: { hp: 100 } }],
       enemy: [{ defId: 'e_skel', atk: 1, hp: 999 }],
     });
     const caster = b.at(0, 0)!;
     const advance = b as unknown as { startPhase(): void; doBeat(): void };
     advance.startPhase();
-    const uses = 3;
+    const uses = 2;
     for (let remaining = uses; remaining >= 0; remaining--) {
       expect(caster.charges).toBe(remaining);
       const text = unitAbilityText(caster.defId, caster.level, statsOf(caster));

@@ -397,6 +397,12 @@ export class Playback {
         return;
       }
       case 'rule': {
+        if (ev.id === 'master_burst') {
+          if (ev.src !== undefined) this.callout(ev.src, snap, ev.label, '#ffd36b', true);
+          this.onLog({ text: ev.label, cls: 'buff' });
+          await this.w(380);
+          return;
+        }
         // 关卡来源单独标明；后续属性事件沿用原有数值变化和增益表现。
         const anchor = ev.src ?? snap.find(u => u.side === ev.side && u.alive && u.hp > 0)?.uid;
         if (anchor !== undefined) this.callout(anchor, snap, `关卡·${ev.label}`, '#ffd36b', true);

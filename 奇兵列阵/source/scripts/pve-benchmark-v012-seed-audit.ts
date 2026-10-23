@@ -1,0 +1,8 @@
+// Audit only: prospective final seeds are computed by the same legal-choice filter as the runner.
+// @ts-expect-error Node runtime API.
+import {readdirSync,readFileSync,writeFileSync} from 'node:fs';
+import {generalChoices} from '../src/core/run';
+const root='../output/pve-benchmark-v012-20261023/validation';const observed=new Set<number>();let files=0;
+function scan(path:string){for(const entry of readdirSync(path,{withFileTypes:true})){const target=path+'/'+entry.name;if(entry.isDirectory())scan(target);else if(entry.name.endsWith('runs.jsonl')){files++;for(const line of readFileSync(target,'utf8').split('\n'))if(line.trim()){const row=JSON.parse(line);if(typeof row.seed==='number')observed.add(row.seed);}}}}
+scan(root);const generate=(base:number,count:number)=>Object.fromEntries(['reva','zilan','sajj','kaleos'].map(g=>{const seeds:number[]=[];for(let n=0;seeds.length<count;n++){const seed=base+n*170141;if(generalChoices(seed).includes(g))seeds.push(seed);}return[g,seeds];}));
+const main=generate(1301081049,20),elite=generate(1400911901,4);const a=new Set(Object.values(main).flat()),b=new Set(Object.values(elite).flat());const observedOverlap=[...a,...b].filter(seed=>observed.has(seed));const mutualOverlap=[...a].filter(seed=>b.has(seed));const report={observedFiles:files,observedUniqueSeeds:observed.size,mainBase:1301081049,eliteBase:1400911901,stride:170141,main,elite,observedOverlap,mutualOverlap,pass:!observedOverlap.length&&!mutualOverlap.length};writeFileSync(root+'/FATIGUE-FINAL-seed-audit.json',JSON.stringify(report,null,2));console.log(JSON.stringify({files,seeds:observed.size,observedOverlap,mutualOverlap,pass:report.pass}));if(!report.pass)throw Error('Prospective seeds overlap watched samples');

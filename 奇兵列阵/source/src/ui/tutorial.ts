@@ -102,7 +102,7 @@ const STEPS: Step[] = [
   { id: 'recruit-bulwark', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 2)], until: (r) => r.picks <= 1,
     text: '把<b>铁甲卫士</b>拖到 <b>3 号位</b>。' },
   { id: 'recruit-sentry', gate: prep(1), at: ['.tray .cards', () => slotRect(0, 3)], until: (r) => r.picks <= 0,
-    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>。它有<b>嘲讽</b>，敌人的普攻和狙击都会先打它。' },
+    text: '把<b>沙铠甲虫</b>拖到 <b>4 号位</b>。它有<b>嘲讽</b>，能替紧邻身后的友军拦截普攻；放在队尾时只保护自己。' },
   { id: 'swap-front', gate: prep(1), at: [() => slotRect(0, 0), () => slotRect(0, 2)], until: 'move',
     text: '把 <b>1 号位佣兵</b>拖到 <b>3 号位铁甲卫士</b>身上，两者换位，让护甲单位顶在队首。' },
   { id: 'fight-second', gate: prep(1), at: ['.tray .fight'], until: 'battle-start', text: '开战，留意主将技能什么时候发动。' },

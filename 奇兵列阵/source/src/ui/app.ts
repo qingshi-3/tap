@@ -1,7 +1,9 @@
 import '../title-actions.css';
 import { mountTitleAtmosphere } from './titleAtmosphere';
 import { unitLevel } from '../core/types';
-import { FACTION_INFO, GENERAL_MAP, unitDef } from '../core/data';
+import { fatigueStartForChapter } from '../core/engine';
+import { FACTION_INFO, unitDef } from '../core/data';
+import { generalDefinition } from '../core/content';
 import { chapter, TOTAL_BATTLES } from '../core/route';
 import { battleNo, currentNode, generalChoices, newRun, randomSeed, screen, type RunState } from '../core/run';
 import { clearAllData, clearRun, loadRun, saveRun } from '../core/save';
@@ -170,7 +172,7 @@ export class App {
       const battleInChapter = currentChapter.stages.slice(0, r.node + 1).filter(stage => stage.type !== 'shop').length;
       const phase = screen(r);
       const location = phase === 'shop' ? '商店' : phase === 'fork' ? '路线选择'
-        : phase === 'promo' ? '主将升阶' : phase === 'reward' ? '奖励选择'
+        : phase === 'promo' ? (r.tacticsVersion === 1 ? '选择战术' : '主将升阶') : phase === 'reward' ? '奖励选择'
           : phase === 'over' ? '远征结算' : `第${battleInChapter}战`;
       cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `第${r.chapter + 1}章 · ${location}`));
     } else if (saved.kind === 'incompatible') {
@@ -262,7 +264,7 @@ export class App {
     setTitleMusic(true);
     const seed = randomSeed();
     const cards = generalChoices(seed).map((id, i) => {
-      const g = GENERAL_MAP[id];
+      const g = generalDefinition(id, 1);
       const f = FACTION_INFO[g.faction];
       const c = h(
         'button',
@@ -500,7 +502,7 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       lines: [
         '双方各有 <b>5 个格位</b>；靠近中线的 <b>1 号位是队首</b>，常规行动从队首排向队尾。',
         '阵亡后留下空格，后面的单位<b>不会前移</b>。出手顺序跳过空格，只看存活单位。',
-        '普通攻击默认打敌方队首；<b>狙击</b>改打队尾，<b>决斗</b>改打本次交锋的对手。敌方有<b>嘲讽</b>时，普攻都先打它。',
+        '普通攻击默认打敌方队首；<b>狙击</b>改打队尾，<b>决斗</b>改打本次交锋的对手。<b>嘲讽</b>只替紧邻身后的友军拦截普攻，不会吸走其他位置的攻击。',
       ],
       fig: duel,
     },
@@ -557,7 +559,7 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '交锋结束：主将、灼烧与疲劳',
       lines: [rules.beatEnd.text,
         '<b>灼烧 N 层</b>：每次交锋结束受 N 伤害，然后减少 1 层；无视格挡和护甲。',
-        '从<b>第 20 次交锋结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每次交锋递增。不会等到回合结束才结算。',
+        `第一至三章分别从<b>第 ${[1, 2, 3].map(fatigueStartForChapter).join('／')} 次交锋结束</b>开始，双方全体受到疲劳伤害：先 1 点，之后每次交锋递增。不会等到回合结束才结算。`,
       ],
       fig: row({ id: 'm_shaman' }, { id: 'e_brute', enemy: true }),
     },
@@ -582,16 +584,16 @@ const howto = (): { title: string; lines: string[]; fig: string }[] => {
       title: '远征与培养',
       lines: [
         '远征共 <b>3 章 21 战</b>。每章有两次商店、一处精英岔路和一名首领。生命 3 条，击败首领恢复 1 条。',
-        '胜利获得<b>金币和培养点</b>。点培养点再点单位，永久提升攻击、生命、格挡；「法」点可给<b>施法单位或主将</b>，强化各自的施法。',
+        '胜利获得<b>金币和培养点</b>。点培养点再点单位，永久提升攻击、生命、格挡；「法」点用于<b>有法强收益的单位</b>；旧远征的部分主将也可使用。',
         '商店出售单位、装备、一次性法术和招募令；可卖单位换金。精英胜利掉落装备三选一。',
       ],
       fig: row({ id: 'n_merc' }, { id: 'l_shield' }, { id: 'm_rex' }),
     },
     {
-      title: '主将升阶与保存',
+      title: '主将、战术与保存',
       lines: [
-        '首章首领后、第二章岔路后、第二章首领后，主将各<b>升阶一次</b>，从三个被动中选一个。',
-        '主将技能按各自写明的时机自动发动；升阶被动按各自说明生效，不必消耗单位行动。',
+        '新远征在<b>第一、二章第4场之后</b>各进行一次战术三选一。旧远征保留原主将晋升。',
+        '齐兰与卡雷奥斯在<b>备战指定友军</b>，目标会保留，可随时改选或取消；战斗中自动执行。',
         '进度自动保存。返回标题后，可点<b>「继续游戏」</b>回到当前远征。',
       ],
       fig: row({ id: 'm_rex' }, { id: 'l_priest' }),

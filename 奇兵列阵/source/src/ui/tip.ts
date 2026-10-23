@@ -1,5 +1,6 @@
 import { abilityText, generalAbilityText } from '../core/abilityText';
-import { FACTION_INFO, GENERAL_MAP, RARITY_NAMES, unitDef } from '../core/data';
+import { FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
+import { generalDefinition, generalPowerSources } from '../core/content';
 import { levelStats } from '../core/engine';
 import { describe } from '../core/run';
 import type { UnitState } from '../core/types';
@@ -115,14 +116,15 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   return content;
 }
 
-export function generalTip(id: string, power = 0, passives: readonly string[] = []) {
-  const g = GENERAL_MAP[id];
+export function generalTip(id: string, power = 0, passives: readonly string[] = [], tacticsVersion?: 1) {
+  const g = generalDefinition(id, tacticsVersion);
   const f = FACTION_INFO[g.faction];
+  const sources = tacticsVersion === 1 ? [] : generalPowerSources(id, passives);
   return h(
     'div',
     { class: 'tip-unit', style: `--fc:${f.color}` },
     h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, g.name), h('span', { class: 'tip-fac' }, g.title)),
-    h('div', { class: 'tip-text' }, ...kwRich(generalAbilityText(id, power, passives))),
+    h('div', { class: 'tip-text' }, ...kwRich(tacticsVersion === 1 ? g.text : generalAbilityText(id, power, passives)), sources.length ? h('br') : null, sources.length ? `主将法强 ${power}：${sources.join('、')}` : null),
   );
 }
 

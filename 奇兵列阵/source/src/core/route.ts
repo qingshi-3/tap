@@ -1,5 +1,5 @@
 // v0.7 远征路线：3 章 × 9 节点。每章：战斗 ×3 → 商店 → 战斗 → 分岔（精英/普通）→ 战斗 → 商店 → 首领。
-// 敌阵数值按「已培养」的预期设计，统一乘章节系数，模拟器调这几个系数即可。
+// 第一章前三场为基础遭遇；按当时真实招募/培养能力设预算，不能用整局均胜代替开局可解性。
 import type { BattleRule, EnemyEntry } from './types';
 import { BOSS_ENCOUNTER_RULES } from './encounterRules';
 import { encounterRuleText } from './encounterText';
@@ -42,18 +42,18 @@ const RAW: Chapter[] = [
   {
     name: '第一章 · 边境', theme: '基础十词',
     stages: [
-      { type: 'battle', main: N('石魔', '护甲减少每次受到的伤害（最少 1）；高攻单发、施法和灼烧能破',
-        L(E('e_golem', 2, 7), E('e_skel', 2, 4))) },
+      { type: 'battle', main: N('骷髅哨兵', '普攻先打队首；把耐打的单位放在前面',
+        L(E('e_skel', 1, 2))) },
       { type: 'battle', main: N('影袭者', '狙击：影袭者的普攻打你的队尾',
-        L(E('e_brute', 3, 7), E('e_assassin', 3, 4), E('e_raider', 3, 5))) },
+        L(E('e_brute', 2, 5), E('e_assassin', 1, 3))) },
       { type: 'battle', main: N('焚火者', '灼烧：每次交锋结束受伤，无视格挡和护甲',
-        L(E('e_brute', 4, 8), E('e_pyre', 3, 6), E('e_golem', 2, 9), E('e_raider', 3, 5))) },
+        L(E('e_brute', 2, 7), E('e_pyre', 1, 4), E('e_raider', 2, 4))) },
       SHOP,
       { type: 'battle',
         main: N('碎岩者', '溅射：碎岩者普攻时，目标身后的单位也受一半伤害',
-          L(E('e_crusher', 4, 12), E('e_golem', 3, 11), E('e_brute', 5, 9), E('e_raider', 4, 7))),
+          L(E('e_crusher', 3, 9), E('e_golem', 2, 7, { armor: 1 }), E('e_raider', 2, 6))),
         variant: N('亡魂骑士', '复生：亡魂骑士第一次阵亡会以 1 生命复活',
-          L(E('e_revenant', 4, 10), E('e_shield', 3, 9), E('e_revenant', 4, 8), E('e_assassin', 4, 6))) },
+          L(E('e_revenant', 3, 8), E('e_shield', 2, 6), E('e_assassin', 2, 5))) },
       { type: 'fork',
         elite: EL('暗巷伏击', '盾卫开战带格挡，影袭者狙击你的队尾，霜咒者冻你的下一个出手者',
           L(E('e_shield', 4, 12), E('e_brute', 5, 11), E('e_assassin', 5, 7), E('e_silencer', 2, 7), E('e_brute', 5, 10))),
@@ -72,7 +72,7 @@ const RAW: Chapter[] = [
   {
     name: '第二章 · 霜原', theme: '新词与玩家卡组成的敌阵',
     stages: [
-      { type: 'battle', main: N('护卫兵', '嘲讽：你的普攻（含狙击）都会先打护卫兵；施法不受影响',
+      { type: 'battle', main: N('护卫兵', '嘲讽只替紧邻身后的友军拦截普攻；可绕开护卫兵攻击其他位置',
         L(E('e_brute', 7, 16), E('e_guardian', 3, 18), E('e_assassin', 7, 11), E('e_lich', 2, 10))) },
       { type: 'battle', main: N('咒沙者', '削弱：咒沙者施法让你的队首本场攻击 −2，可以叠加',
         L(E('e_twin', 6, 15), E('e_curser', 2, 11), E('e_brute', 7, 16), E('e_curser', 2, 11))) },
@@ -82,21 +82,21 @@ const RAW: Chapter[] = [
       { type: 'battle',
         main: N('骨巫与暗祭司', '骨巫打你生命最低的单位，暗祭司给受伤的敌人回血',
           L(E('e_guardian', 4, 20), E('e_lich', 3, 12), E('e_dark_priest', 2, 13), E('e_brute', 8, 17))),
-        variant: N('圣光壁垒', '骑士会复生，守誓者在队尾时给队首格挡，牧师给受伤的敌人回血',
-          L(E('l_vigil', 5, 17, { level: 2 }), E('l_knight', 6, 16, { level: 2 }), E('l_priest', 2, 13, { level: 2 }), E('l_lion', 7, 13, { level: 2 }), E('l_shield', 3, 12))) },
+        variant: N('圣光壁垒', '晨光盾卫消耗格挡后增加护甲，骑士复生，牧师治疗伤员',
+          L(E('l_warden', 5, 17, { level: 2 }), E('l_knight', 6, 16, { level: 2 }), E('l_priest', 2, 13, { level: 2 }), E('l_lion', 7, 13, { level: 2 }), E('l_shield', 3, 12))) },
       { type: 'fork',
         elite: EL('战帅亲卫', '战帅开战让全体敌人 +1 攻；护卫兵嘲讽，咒沙者削弱你的队首',
           L(E('e_warlord', 7, 22), E('e_guardian', 4, 22), E('e_twin', 8, 15), E('e_curser', 2, 13), E('e_lich', 3, 13))),
         normal: N('暗祭司', '暗祭司会持续治疗前排；集火或群伤',
           L(E('e_brute', 8, 18), E('e_dark_priest', 2, 13), E('e_shield', 5, 18), E('e_dark_priest', 2, 13))) },
       { type: 'battle',
-        main: N('深渊法阵', '献祭术士带法强，唤亡祭师复活阵亡者；墓园守卫嘲讽，亡语给身后复生',
-          L(E('a_graveguard', 4, 22, { level: 2 }), E('a_brood', 4, 15, { level: 2 }), E('a_cult', 2, 13, { level: 2 }), E('a_ritualist', 2, 12, { level: 2 }), E('a_devour', 2, 12, { level: 2 }))),
+        main: N('深渊法阵', '收割者响应友军阵亡，献祭术士亡语给相邻法强；唤亡祭师优先复活高攻非召唤物',
+          L(E('a_graveguard', 4, 22, { level: 2 }), E('a_reaper', 4, 15, { level: 2 }), E('a_cult', 2, 13, { level: 2 }), E('a_ritualist', 2, 12, { level: 2 }), E('a_devour', 2, 12, { level: 2 }))),
         variant: N('寒流战阵', '冰墙嘲讽带护甲，冰晶甲虫受击时冻攻击者，冰霜法师冻你的下一个出手者',
           L(E('v_wall', 4, 22, { level: 2 }), E('v_guard', 3, 18, { level: 2 }), E('v_mage', 2, 13, { level: 2 }), E('v_shard', 7, 14, { level: 2 }), E('e_brute', 8, 18))) },
       SHOP,
-      { type: 'boss', main: B('e_frostq', '霜魇女皇', '每 5 次交锋给最高攻单位等同其攻击的寒意',
-        L(E('e_frostq', 8, 56), E('e_guardian', 5, 24), E('v_mage', 3, 15, { level: 2 }), E('e_twin', 8, 18), E('e_curser', 3, 15))) },
+      { type: 'boss', main: B('e_frostq', '霜魇女皇', '每 5 次交锋给最高攻单位等同其攻击的寒意，本场最多 2 次',
+        L(E('e_frostq', 8, 42), E('e_guardian', 5, 24), E('v_mage', 3, 15, { level: 2 }), E('e_twin', 8, 18), E('e_curser', 3, 15))) },
     ],
   },
   {
@@ -104,8 +104,8 @@ const RAW: Chapter[] = [
     stages: [
       { type: 'battle', main: N('墓园', '墓碑亡语召唤骷髅兵，亡魂骑士会复生',
         L(E('e_tomb', 1, 18), E('e_revenant', 9, 20), E('e_tomb', 1, 18), E('e_revenant', 9, 20), E('e_lich', 4, 16))) },
-      { type: 'battle', main: N('沙域军阵', '两名嘲讽卫兵挡普攻，沙嚎者蓄力召唤沙狼，镜沙猎蜥随召唤变强',
-        L(E('d_sentry', 7, 24, { level: 2 }), E('d_keeper', 7, 22, { level: 2 }), E('d_howler', 3, 16, { level: 2 }), E('d_glass', 8, 18, { level: 2 }), E('d_pyro', 3, 17, { level: 2 }))) },
+      { type: 'battle', main: N('沙域军阵', '护卫保护身后一位，沙嚎者亡语接力两只沙狼，沙灵塑师召唤沙像，镜沙猎蜥随召唤变强',
+        L(E('d_sentry', 7, 24, { level: 2 }), E('d_keeper', 7, 22, { level: 2 }), E('d_howler', 3, 16, { level: 2 }), E('d_glass', 8, 18, { level: 2 }), E('d_dunecaster', 3, 17, { level: 2 }))) },
       { type: 'battle', main: N('熔岩之潮', '熔岩巨蜥溅射，熔甲兽与萨满叠灼烧',
         L(E('m_hide', 6, 26, { level: 2 }), E('m_rex', 9, 20, { level: 2 }), E('m_mender', 8, 19, { level: 2 }), E('m_shaman', 3, 16, { level: 2 }), E('m_bloodcaller', 7, 20, { level: 2 }))) },
       SHOP,
@@ -120,8 +120,8 @@ const RAW: Chapter[] = [
         normal: N('骨墙', '石魔与护卫兵挡在前面，骨巫在后面点名',
           L(E('e_golem', 5, 30), E('e_guardian', 6, 30), E('e_lich', 4, 18), E('e_lich', 4, 18), E('e_brute', 10, 22))) },
       { type: 'battle',
-        main: N('终末战阵', '寒冰护甲、深渊巨兽越战越强、沙域召唤混编',
-          L(E('v_keeper', 8, 30, { level: 3 }), E('a_jugg', 7, 30, { level: 2 }), E('d_howler', 4, 18, { level: 2 }), E('v_drake', 4, 20, { level: 2 }), E('d_glass', 10, 20, { level: 2 }))),
+        main: N('终末战阵', '冰霜法师制造寒意，冻结触发供盾与追伤；沙狼阵亡会强化深渊巨兽',
+          L(E('v_keeper', 8, 30, { level: 3 }), E('a_jugg', 7, 30, { level: 2 }), E('d_howler', 4, 18, { level: 2 }), E('v_drake', 4, 20, { level: 2 }), E('v_mage', 4, 16, { level: 2 }))),
         variant: N('冰与火', '寒意控你的出手，灼烧持续掉血',
           L(E('v_wall', 6, 32, { level: 3 }), E('v_guard', 5, 26, { level: 2 }), E('n_alchemist', 4, 18, { level: 2 }), E('m_mender', 10, 22, { level: 2 }), E('v_mage', 4, 18, { level: 2 }))) },
       SHOP,

@@ -13,6 +13,8 @@ export const SLOTS = 5;
 export const MAX_BEATS = 60;
 /** 第 N 次交锋起每次交锋结束双方全体受（交锋数 − N + 1）点狂暴伤害，防止治疗互耗 */
 export const FATIGUE_BEAT = 20;
+/** Chapter-aware closing window; omitted chapters retain the original first-chapter rule. */
+export const fatigueStartForChapter = (chapter = 1): number => chapter >= 3 ? 28 : chapter >= 2 ? 24 : FATIGUE_BEAT;
 export const MAX_EVENTS = 6000;
 /** 单次交锋内响应（触发效果）上限，防止无限连锁 */
 export const MAX_RESPONSES = 240;
@@ -42,6 +44,8 @@ export const levelStats = (defId: string, level: number) => {
 export const abilityValue = (defId: string, level: number) => unitDef(defId).values?.[level - 1] ?? 0;
 export const tri = (t: Tri | undefined, level: number) => t?.[Math.max(1, Math.min(3, level)) - 1] ?? 0;
 
+interface MasterAction { closed: boolean; used: Set<Side>; eligible: Set<Side> }
+
 const LABEL: Record<TriggerKind, string> = {
   start: '开战', cast: '施法', afterAttack: '普攻后', afterCast: '施法后', attacked: '被普攻', hurt: '受击', kill: '击杀',
   duelKill: '击败对手', rattle: '亡语', allyFaint: '友军阵亡', front: '成为队首', rear: '在队尾', summon: '友军召唤',
@@ -56,8 +60,20 @@ const GRANT_KW: Record<string, string> = {
   snipe: '狙击', combo: '连击', reborn: '复生', taunt: '嘲讽', rotate: '轮换', duel: '决斗', splash: '溅射', armor: '护甲', power: '法强', thorns: '反击',
 };
 
-interface Ctx { target?: UnitState; attacker?: UnitState; slot?: number; cast?: boolean; inherit?: number }
-interface ActOpts { force?: boolean; snipe?: boolean }
+/** Current-board prediction shared by combat and the touch targeting UI. */
+export function previewAttackTarget(attacker: UnitState, foes: readonly UnitState[], forceSnipe = false): UnitState | null {
+  const trait = (u: UnitState, k: BoolTrait) => !!(unitDef(u.defId).traits?.[k] || u.grants[k]);
+  const st = foes.filter(u => u.side !== attacker.side && u.alive && u.hp > 0 && !u.reserve).sort((a, b) => a.slot - b.slot);
+  if (!st.length) return null;
+  const natural = trait(attacker, 'duel') ? st.find(u => u.slot === attacker.slot) ?? st[0]
+    : forceSnipe || trait(attacker, 'snipe') ? st.at(-1)! : st[0];
+  const guard = st[st.indexOf(natural) - 1];
+  return !trait(natural, 'taunt') && guard && trait(guard, 'taunt') ? guard : natural;
+}
+
+interface Ctx { front?: UnitState; target?: UnitState; attacker?: UnitState; slot?: number; cast?: boolean; inherit?: number }
+type SpellKind = 'cast' | 'charge' | 'oath';
+interface ActOpts { force?: boolean; snipe?: boolean; source?: UnitState }
 interface SummonOpts { rear?: boolean; inherit?: number; after?: UnitState }
 class CombatFault extends Error {}
 
@@ -65,7 +81,7 @@ class CombatFault extends Error {}
  * 每回合每单位默认一次常规行动；双方每次交锋至多一人，同一行动轮每人至多一次。
  * 一方用完等待，双方本轮结束才发放下一行动轮；全部次数耗尽进入新回合。
  * 先施法后普攻，普攻双方同时结算；触发效果进入 FIFO 队列，死亡在每个响应之间统一结算。
- * 常规行动后：蓄力 → 主将压轴 → 轮换。交锋结束：首领规则 → 灼烧 → 疲劳 → 交锋后 → 节拍 → 在队尾时 → 主将。
+ * 有效常规行动开始先积1点蓄力，满条当次释放；行动后：额外加能 → 主将压轴 → 轮换。交锋结束：首领规则 → 灼烧 → 疲劳 → 交锋后 → 节拍 → 在队尾时 → 主将。
  */
 export class Battle {
   readonly metrics = emptyBattleMetrics();
@@ -80,6 +96,10 @@ export class Battle {
   private waveUsed = new Set<number>();
   private actionGrants = new Map<number, Set<Effect>>();
   private constructing = true;
+  private bonusDepth = 0;
+  private bonusRound = new Map<number, number>();
+  private harvesterUses = new Map<number, number>();
+  private lethalBurn = new Map<number, number>();
   /** 各卡能力触发次数（按 defId），模拟器统计用 */
   triggers: Record<string, number> = {};
   ptr: [number, number] = [0, 0];
@@ -88,14 +108,18 @@ export class Battle {
   private passives: Set<string>;
   private spells: Set<string>;
   private chapter: number;
-  private queue: { job: () => void; chain: number }[] = [];
+  private queue: { job: () => void; chain: number; action?: MasterAction }[] = [];
+  /** Paid sacrifice pursuits wait for all death/rebirth/deathrattle responses, retaining their original chain. */
+  private sacrificePursuits: { job: () => void; chain: number; action?: MasterAction }[] = [];
+  private masterHits: [number, number] = [0, 0];
+  private masterAction?: MasterAction;
+  private masterActions = new Set<MasterAction>();
+  private deathAction = new Map<number, MasterAction | undefined>();
   private killers = new Map<number, UnitState | undefined>();
   private killKind = new Map<number, DmgKind>();
   /** 致死伤害发生时的追击层数：阵亡引发的效果沿用它 */
   private deathChain = new Map<number, number>();
   private pending: (UnitState | null)[] = [null, null];
-  /** 本次交锋双方的常规出手者：决斗的「对手」 */
-  private actors: (UnitState | null)[] = [null, null];
   /** 当前效果来源链上的追击层数；追击只能由层数低于上限的效果引发 */
   private chain = 0;
   private rules: { rule: BattleRule; source?: number; count: number; pulled: Set<number> }[] = [];
@@ -108,11 +132,20 @@ export class Battle {
   private capBattle = new Map<Effect, Map<number, number>>();
   private specialRound = new Map<string, number>();
   private surgeUsed = new Set<number>();
+  /** Only the actual regular spell can be echoed; copied spells never replace it. */
+  private lastCasts = new Map<number, SpellKind>();
+  private attackTargets = new Map<number, number>();
+  private duelVictims = new Map<number, number>();
   private exiled = new Set<number>();
   private deathOrder: UnitState[] = [];
   private reserve: UnitState[] = [];
+  /** 收容的召唤物尚未入场；Map区分无来源召唤与普通初始预备兵。 */
+  private shelteredSummons = new Map<number, number | undefined>();
+  /** Original owned bodies only; death retains this immutable battle-entry investment. */
+  private summonInvestments = new Map<number, Readonly<{ atk: number; hp: number }>>();
   private freeRevives = 0;
   private morale = 0;
+  private faieKillRewards = 0;
   private wyvernBeat = new Map<number, number>();
   // 主将状态
   private argeonSaved = false;
@@ -120,6 +153,9 @@ export class Battle {
   private lilitheRevives = 0;
   private stars = 0;
   private kasivaVictims = new Set<number>();
+  private commandUid: number | null = null;
+  private commandHealRound = -1;
+  private commandActionRound = -1;
   private zilanSpins = 0;
   private zilanPending = new Map<number, number>();
   private kFirst = false;
@@ -141,7 +177,7 @@ export class Battle {
   constructor(setup: BattleSetup) {
     this.record = setup.record !== false;
     this.gen = setup.general && GENERAL_MAP[setup.general.id] ? setup.general : null;
-    this.passives = new Set(this.gen?.passives ?? []);
+    this.passives = new Set((this.gen?.passives ?? []).filter(id=>this.gen?.tacticsVersion!==1||id.startsWith('g_')));
     this.spells = new Set(setup.spells ?? []);
     this.chapter = Math.max(1, setup.chapter ?? 1);
     for (const side of [0, 1] as Side[]) {
@@ -158,6 +194,11 @@ export class Battle {
       u.reserve = true;
       this.prepare(u, entry);
       this.reserve.push(u);
+    }
+    // Resolve only an original field body once. Summons/reserves never acquire the mark later.
+    if(this.gen?.tacticsVersion===1 && this.gen.commandTarget!==undefined) {
+      const matches=this.standing(0).filter(u=>u.ownedId===this.gen!.commandTarget&&!u.reserve);
+      if(matches.length===1) {this.commandUid=matches[0].uid;if(this.gen.id==='zilan')matches[0].grants.rotate=true;}
     }
     // 蕾娃：开战前交换敌方格位
     if (this.gen?.id === 'reva' && setup.swaps?.length) {
@@ -195,7 +236,7 @@ export class Battle {
   private prepare(u: UnitState, entry: Slotted | EnemyEntry) {
     const P = this.gen?.power ?? 0, has = (k: string) => this.passives.has(k);
     if (u.side === 0 && u.defId === 'x_argeon') {
-      u.atk += this.chapter - 1; u.hp += 3 * (this.chapter - 1); u.maxHp = u.hp;
+      u.atk += 2 * (this.chapter - 1); u.hp += 4 * (this.chapter - 1); u.maxHp = u.hp;
       if (this.gen?.id === 'argeon') {
         if (has('argeon_1')) u.grants.taunt = true;
         if (has('argeon_2')) { u.grants.duel = true; u.grants.combo = true; }
@@ -204,23 +245,35 @@ export class Battle {
     }
     if (u.side === 0 && this.gen?.id === 'xingjiao') {
       if (u.defId === 'x_egg' && has('xingjiao_4')) { u.grants.taunt = true; u.grants.armor = (u.grants.armor ?? 0) + 2; }
+      if (DRAGONS.has(u.defId) && has('xingjiao_1')) { u.atk++; u.hp += 2; u.maxHp += 2; }
+      if (DRAGONS.has(u.defId) && has('xingjiao_4')) u.grants.armor = (u.grants.armor ?? 0) + 1;
       if (DRAGONS.has(u.defId) && has('xingjiao_3')) { u.atk += P; u.hp += 2 * P; u.maxHp += 2 * P; }
     }
     if ('ownedId' in entry) {
       u.ownedId = entry.ownedId;
       if (entry.temp) u.temp = true;
       this.outfit(u, entry);
+      if (!this.def(u).token) this.summonInvestments.set(u.uid, Object.freeze({
+        atk: Math.max(0, (entry.train?.atk ?? 0) + (entry.growth?.atk ?? 0)),
+        hp: Math.max(0, (entry.train?.hp ?? 0) * 2 + (entry.growth?.hp ?? 0)),
+      }));
     }
     const e = entry as EnemyEntry;
     if (e.atk !== undefined) u.atk = Math.max(1, e.atk);
     if (e.hp !== undefined) u.hp = u.maxHp = e.hp;
+    if (e.armor !== undefined) u.grants.armor = Math.max(0, e.armor) - tri(this.def(u).traits?.armor, u.level);
     if (e.block) u.block = Math.min(MAX_BLOCK, e.block);
     const cm = this.chargeMax(u);
     if (cm) { u.charge = 0; u.chargeMax = cm; }
   }
 
-  /** 培养点与装备：开战前直接结算到身材与特性上 */
+  /** 跨战原始成长、培养点与装备只应用到战斗副本。 */
   private outfit(u: UnitState, s: Slotted) {
+    if (s.growth) {
+      u.atk = Math.max(this.minAtk(u), u.atk + (s.growth.atk ?? 0));
+      u.hp += s.growth.hp ?? 0; u.maxHp += s.growth.hp ?? 0;
+      if (s.growth.power) u.grants.power = (u.grants.power ?? 0) + s.growth.power;
+    }
     if (s.train) {
       u.train = { ...s.train };
       for (const [k, n] of Object.entries(s.train)) if (n && POINT_MAP[k]) POINT_MAP[k].apply(u, n);
@@ -253,7 +306,11 @@ export class Battle {
   front(side: Side) { return this.standing(side)[0] ?? null; }
   rear(side: Side) { return this.standing(side).at(-1) ?? null; }
   static cmp(a: UnitState, b: UnitState) { return a.slot - b.slot || a.side - b.side || a.uid - b.uid; }
-  snap(): Snap { this.refreshArmor(); return this.units.map(u => ({ ...u, grants: { ...u.grants } })); }
+  snap(): Snap {
+    this.refreshArmor();
+    return this.units.map(u => ({ ...u, grants: { ...u.grants },
+      ...(this.onField(u) && this.def(u).special === 'master' ? { masterHits: this.masterHits[u.side] } : {}) }));
+  }
   def(u: UnitState): UnitDef { return unitDef(u.defId); }
   private onField(u: UnitState) { return u.alive && u.hp > 0 && !u.reserve && this.grid[u.side][u.slot] === u.uid; }
   private minAtk(u: UnitState) { return this.def(u).atk === 0 ? 0 : 1; }
@@ -291,7 +348,7 @@ export class Battle {
     return true;
   }
   addAction(src: UnitState | undefined, t: UnitState, n: number) {
-    if (!t.alive || t.hp <= 0 || n <= 0 || this.isIdle(t)) return;
+    if (!t.alive || t.hp <= 0 || n <= 0 || this.isIdle(t) || this.blocksAllyBenefit(src, t)) return;
     t.actionsLeft = (t.actionsLeft ?? 0) + n;
     this.emit({ t: 'actionGain', src: src?.uid, uid: t.uid, n, total: t.actionsLeft });
   }
@@ -300,22 +357,22 @@ export class Battle {
     let a = tri(d.traits?.armor, u.level) + (u.grants.armor ?? 0);
     if (u.reserve) return Math.max(0, a);
     if (d.special === 'keeper' && this.front(u.side)?.uid === u.uid) a += tri(d.values, u.level);
-    for (const n of this.neighbors(u)) if (this.def(n).special === 'conduit') a += tri(this.def(n).values, n.level);
+    for (const n of this.neighbors(u)) if (!this.blocksAllyBenefit(n, u) && this.def(n).special === 'conduit') a += tri(this.def(n).values, n.level);
     return Math.max(0, a);
   }
   /** 个人法强：卡面 + 培养 + 装备 + 相邻光环，只强化自己的施法 */
   power(u: UnitState) {
     let p = tri(this.def(u).traits?.power, u.level) + (u.grants.power ?? 0);
     if (u.reserve) return p;
-    for (const n of this.neighbors(u)) if (this.def(n).special === 'brood') p += tri(this.def(n).values, n.level);
+    for (const n of this.neighbors(u)) if (!this.blocksAllyBenefit(n, u) && this.def(n).special === 'brood') p += tri(this.def(n).values, n.level);
     const before = this.standing(u.side).filter(x => x.slot < u.slot).at(-1);
-    if (before && this.def(before).special === 'nobelisk') p += tri(this.def(before).values, before.level);
+    if (before && !this.blocksAllyBenefit(before, u) && this.def(before).special === 'nobelisk') p += tri(this.def(before).values, before.level);
     return p;
   }
   thorns(u: UnitState) { return tri(this.def(u).traits?.thorns, u.level) + (u.grants.thorns ?? 0); }
   hasTrait(u: UnitState, k: BoolTrait) { return !!(this.def(u).traits?.[k] || u.grants[k]); }
   private hasEquip(u: UnitState, special: EquipDef['special']) { return !!this.equipsOf.get(u.uid)?.some(e => e.special === special); }
-  private hourglasses(u: UnitState) { return u.reserve ? 0 : this.neighbors(u).filter(n => this.def(n).special === 'hourglass').length; }
+  private hourglasses(u: UnitState) { return u.reserve ? 0 : this.neighbors(u).filter(n => !this.blocksAllyBenefit(n, u) && this.def(n).special === 'hourglass').length; }
   private chargeMax(u: UnitState) {
     const c = this.def(u).traits?.charge;
     return c ? Math.max(1, c - (this.hasEquip(u, 'hourglass') ? 1 : 0)) : 0;
@@ -366,18 +423,72 @@ export class Battle {
     if (!this.gen) return;
     this.emit({ t: 'gen', id: this.gen.id, label, tgts: tgts.filter((x): x is UnitState => !!x).map(x => x.uid) });
   }
-  private enqueue(job: () => void) { this.queue.push({ job, chain: this.chain }); }
+  /** Action identity follows queued responses independently of the existing pursuit depth. */
+  private inMasterAction(job: () => void, independent = false) {
+    if (this.masterAction && !independent) { job(); return; }
+    const previous = this.masterAction;
+    const action: MasterAction = { closed: false, used: new Set(), eligible: new Set() };
+    this.masterActions.add(action); this.masterAction = action;
+    try { job(); } finally {
+      action.closed = true;
+      this.masterAction = previous;
+    }
+    this.flush();
+  }
+  private masterSource(side: Side) {
+    return this.standing(side).filter(u => this.def(u).special === 'master')
+      .sort((a, b) => b.level - a.level || Battle.cmp(a, b))[0];
+  }
+  private resetAbsentMasters() {
+    for (const side of [0, 1] as Side[]) if (!this.masterSource(side)) this.masterHits[side] = 0;
+  }
+  private settleMaster(action: MasterAction) {
+    for (const side of action.eligible) {
+      if (action.used.has(side) || this.masterHits[side] < 6) continue;
+      const source = this.masterSource(side);
+      if (!source) continue;
+      const provider = this.atk1(side, source.uid);
+      const targets = this.standing((1 - side) as Side);
+      if (!provider || !targets.length) continue;
+      action.used.add(side); this.masterHits[side] -= 6;
+      this.triggers[source.defId] = (this.triggers[source.defId] ?? 0) + 1;
+      this.emit({ t: 'rule', id: 'master_burst', label: '千刃齐发', side, src: source.uid, provider: provider.uid });
+      const damage = Math.floor(provider.atk * tri(this.def(source).values, source.level) / 100);
+      for (const target of targets) this.hit(source, target, damage, 'ability');
+    }
+  }
+  private enqueue(job: () => void) { this.queue.push({ job, chain: this.chain, action: this.masterAction }); }
   private flush() {
     for (;;) {
       this.reap();
       this.checkFront();
       const item = this.queue.shift();
-      if (!item) break;
+      if (!item) {
+        const pursuit = this.sacrificePursuits.shift();
+        if (pursuit) { this.queue.push(pursuit); continue; }
+        const ready = [...this.masterActions].filter(action => action.closed);
+        if (!ready.length) break;
+        for (const action of ready) {
+          this.masterActions.delete(action);
+          const previous = this.masterAction; this.masterAction = action;
+          try { this.settleMaster(action); } finally { this.masterAction = previous; }
+        }
+        continue;
+      }
       if (++this.responses > MAX_RESPONSES) throw new CombatFault('响应超过上限');
-      const prev = this.chain;
-      this.chain = item.chain;
-      try { item.job(); } finally { this.chain = prev; }
+      const prev = this.chain, previousAction = this.masterAction;
+      this.chain = item.chain; this.masterAction = item.action;
+      // Non-damage deaths (sacrifice/die) have no hit metadata. Reap them while
+      // the originating queued action is still active, so their follow-ups
+      // cannot accidentally become fresh burst actions.
+      try { item.job(); this.reap(); } finally { this.chain = prev; this.masterAction = previousAction; }
     }
+  }
+  private afterSacrifice(source: UnitState, recipient: UnitState) {
+    this.sacrificePursuits.push({ chain: this.chain, action: this.masterAction, job: () => {
+      if (!this.onField(source) || !this.onField(recipient) || !this.standing((1 - recipient.side) as Side).length) return;
+      this.extraAct(recipient, 0, { source });
+    } });
   }
   private specialCount(key: string) { return this.specialRound.get(key) ?? 0; }
   private specialUse(key: string, cap: number) {
@@ -417,11 +528,11 @@ export class Battle {
   /** 友军轮换后：圣铸机兵给新队首加成 */
   private afterRotate(side: Side) {
     this.moved(side);
+    const f = this.front(side);
     for (const c of this.standing(side)) if (this.def(c).special === 'caliber') {
       const v = tri(this.def(c).values, c.level);
       this.enqueue(() => {
-        const f = this.front(side);
-        if (!f || !c.alive || c.hp <= 0 || !this.specialUse(`caliber${c.uid}`, 3)) return;
+        if (!f || !this.onField(f) || !c.alive || c.hp <= 0 || !this.specialUse(`caliber${c.uid}`, 3)) return;
         this.label(c, 'aura'); this.buff(c, f, v, v);
       });
     }
@@ -431,6 +542,12 @@ export class Battle {
     if (team.length < 2 || !team.includes(u) || team.at(-1) === u) return false;
     this.layout(u.side, [...team.filter(x => x !== u), u]);
     this.afterRotate(u.side);
+    const effects = this.def(u).onRotate;
+    const front = this.front(u.side) ?? undefined;
+    if (effects) this.enqueue(() => this.respond(u, 'aura', effects, { front }));
+    if(this.gen?.tacticsVersion===1&&this.gen.id==='zilan'&&u.uid===this.commandUid&&this.commandHealRound!==this.round&&this.onField(u)) {
+      this.commandHealRound=this.round;this.genShow('轮换援护',[u]);this.heal(undefined,u,2);
+    }
     return true;
   }
   private swapUnits(a: UnitState, b: UnitState) {
@@ -462,9 +579,13 @@ export class Battle {
   }
 
   // ---------- 原子效果 ----------
+  private blocksAllyBenefit(src: UnitState | undefined, target: UnitState) {
+    return !!src && src.uid !== target.uid && src.side === target.side && this.isolated.has(target.uid);
+  }
   buff(src: UnitState | undefined, t: UnitState, atk: number, hp: number, temp = false) {
     if (!t.alive || t.hp <= 0 || (!atk && !hp)) return;
-    if ((atk > 0 || hp > 0) && src && src.side === t.side && this.isolated.has(t.uid)) return;
+    if (this.blocksAllyBenefit(src, t)) { atk = Math.min(0, atk); hp = Math.min(0, hp); }
+    if (!atk && !hp) return;
     const before = t.atk;
     t.atk = Math.max(this.minAtk(t), t.atk + atk); t.hp += hp; t.maxHp += hp;
     if (t.hp <= 0) t.hp = 1;
@@ -473,12 +594,12 @@ export class Battle {
   }
   heal(src: UnitState | undefined, t: UnitState, n: number) {
     n = Math.min(n, t.maxHp - t.hp); if (!t.alive || t.hp <= 0 || n <= 0) return;
-    if (src && src.side === t.side && this.isolated.has(t.uid)) return;
+    if (this.blocksAllyBenefit(src, t)) return;
     if (t.side === 0 && (!src || src.side === 0)) this.metrics.healing += n;
     t.hp += n; this.emit({ t: 'heal', src: src?.uid, tgt: t.uid, n });
   }
   block(src: UnitState | undefined, t: UnitState, n: number) {
-    if (!t.alive || t.hp <= 0 || n <= 0) return;
+    if (!t.alive || t.hp <= 0 || n <= 0 || this.blocksAllyBenefit(src, t)) return;
     const add = Math.min(n, MAX_BLOCK - t.block); if (add <= 0) return;
     t.block += add; this.emit({ t: 'block', src: src?.uid, uid: t.uid, n: add });
   }
@@ -493,19 +614,22 @@ export class Battle {
   }
   private addCharge(src: UnitState | undefined, t: UnitState, n: number) {
     const max = t.chargeMax ?? 0;
-    if (!max || n <= 0 || !t.alive) return;
+    if (!max || n <= 0 || !t.alive || this.blocksAllyBenefit(src, t)) return;
     const add = Math.min(n, max - (t.charge ?? 0)); if (add <= 0) return;
     t.charge = (t.charge ?? 0) + add;
     this.emit({ t: 'charge', src: src?.uid, uid: t.uid, n: add, total: t.charge });
   }
   private grant(src: UnitState | undefined, t: UnitState, g: Grant, v: number) {
     if (!t.alive || t.hp <= 0) return;
+    if ((BOOL_GRANTS.has(g) || v > 0) && this.blocksAllyBenefit(src, t)) return;
     if (BOOL_GRANTS.has(g)) {
       if (t.grants[g as BoolTrait]) return;
       (t.grants as Record<string, unknown>)[g] = true;
     } else {
+      // Strip owned armor only: a zero-armor target cannot accumulate debt against future buffs.
+      // Neighbor/position auras remain the aura source's responsibility.
+      if (g === 'armor' && v < 0) v = -Math.min(-v, Math.max(0, tri(this.def(t).traits?.armor, t.level) + (t.grants.armor ?? 0)));
       if (!v) return;
-      if (v > 0 && src && src.side === t.side && this.isolated.has(t.uid)) return;
       (t.grants as Record<string, number>)[g] = ((t.grants as Record<string, number>)[g] ?? 0) + v;
     }
     this.emit({ t: 'buff', src: src?.uid, tgt: t.uid, atk: 0, hp: 0 });
@@ -532,6 +656,10 @@ export class Battle {
       for (const b of this.standing(t.side)) if (this.def(b).special === 'banner') {
         const v = tri(this.def(b).values, b.level);
         this.enqueue(() => { if (t.alive && t.hp > 0 && b.alive) { this.label(b, 'aura'); this.buff(b, t, v, 0); } });
+      }
+      if (d.special === 'lion') {
+        const v = tri(d.values, t.level);
+        this.enqueue(() => { if (this.onField(t)) { this.label(t, 'aura'); this.buff(t, t, v, 0); } });
       }
       if (d.special === 'warden') {
         const v = tri(d.values, t.level);
@@ -562,7 +690,10 @@ export class Battle {
     if (kind === 'burn' && t.side === 1) this.eggStats.burn++;
     t.hp -= n;
     this.emit({ t: 'dmg', src: src?.uid, tgt: t.uid, n, kind });
-    if (t.hp <= 0 && !this.killers.has(t.uid)) { this.killers.set(t.uid, src); this.killKind.set(t.uid, kind); this.deathChain.set(t.uid, this.chain); }
+    if (t.hp <= 0 && !this.killers.has(t.uid)) {
+      if (kind === 'attack' && src && this.attackTargets.get(src.uid) === t.uid) this.duelVictims.set(t.uid, src.uid);
+      this.killers.set(t.uid, src); this.killKind.set(t.uid, kind); this.deathChain.set(t.uid, this.chain); this.deathAction.set(t.uid, this.masterAction); }
+    this.resetAbsentMasters();
     if (t.hp > 0 && src?.side === 0 && t.side === 1 && direct && kind !== 'thorns' && this.passives.has('faie_1') && this.faieActive())
       this.chill(undefined, t, 2 + (this.gen?.power ?? 0));
     if (kind === 'burn' && t.side === 0 && this.passives.has('vulkan_1'))
@@ -612,6 +743,15 @@ export class Battle {
     return this.deathOrder.find(x => x.side === side && !x.alive && !this.exiled.has(x.uid) && x.uid !== except) ?? null;
   }
 
+  private isFodder(u: UnitState) {
+    return !!this.def(u).token || !!this.def(u).onRattle?.length || (this.hasTrait(u, 'reborn') && !u.revived);
+  }
+  private reviveTarget(u: UnitState) {
+    if (u.defId !== 'a_ritualist') return this.firstDead(u.side, u.uid);
+    return this.deathOrder.filter(x => x.side === u.side && !x.alive && !this.exiled.has(x.uid) && x !== u)
+      .sort((a, b) => Number(!!this.def(a).token) - Number(!!this.def(b).token) || b.atk - a.atk)[0] ?? null;
+  }
+
   /** 亡语是否触发两次：深渊主母、卡西瓦哀悼、召魂符、回魂（不叠加） */
   private rattleTimes(u: UnitState) {
     if (this.standing(u.side).some(m => this.def(m).special === 'matriarch')) return 2;
@@ -624,15 +764,18 @@ export class Battle {
   /** 统一结算濒死单位：阵亡 → 复生 → 补位 → 亡语 / 友军阵亡时 / 击杀时 */
   private reap() {
     const dying = this.units.filter(u => u.alive && u.hp <= 0).sort(Battle.cmp);
-    const outer = this.chain;
+    const outer = this.chain, outerAction = this.masterAction;
+    this.resetAbsentMasters();
     for (const u of dying) {
       const killer = this.killers.get(u.uid); this.killers.delete(u.uid);
       const kind = this.killKind.get(u.uid); this.killKind.delete(u.uid);
       this.chain = this.deathChain.get(u.uid) ?? outer; this.deathChain.delete(u.uid);
+      this.masterAction = this.deathAction.get(u.uid) ?? outerAction; this.deathAction.delete(u.uid);
       const exiled = killer?.defId === 'e_exile' || undefined;
       const burnLeft = u.burn;
+      const harvesterBurn = this.lethalBurn.get(u.uid) ?? burnLeft; this.lethalBurn.delete(u.uid);
       const inherit = u.actionsLeft ?? 0;
-      const wasOpponent = this.actors[u.side]?.uid === u.uid;
+      const duelKiller = this.duelVictims.get(u.uid); this.duelVictims.delete(u.uid);
       u.alive = false; u.hp = 0; u.block = 0; u.chill = 0; u.burn = 0;
       this.emit({ t: 'death', tgt: u.uid, ...(exiled ? { exiled } : {}) });
       if (exiled) this.exiled.add(u.uid);
@@ -658,7 +801,8 @@ export class Battle {
         for (let i = 0; i < times; i++) this.enqueue(() => this.respond(u, 'rattle', d.onRattle!, { slot, inherit }, true));
       }
       if (burnLeft > 0 && this.passives.has('vulkan_3')) this.enqueue(() => {
-        const b = this.standing(u.side).find(x => x.slot > slot);
+        const others = this.standing(u.side).filter(x => x.uid !== u.uid);
+        const b = others.find(x => x.slot > slot) ?? others[0];
         if (b) { this.genShow('余烬扩散', [b]); this.burn(undefined, b, burnLeft); }
       });
       if (u.temp && this.passives.has('hank_2')) this.gold++;
@@ -670,13 +814,17 @@ export class Battle {
         const b = this.standing(0).find(x => x.slot > slot && x.uid !== u.uid);
         if (b) { this.label(b, 'general'); this.buff(undefined, b, 2, 2); }
       });
-      if (burnLeft > 0) for (const h of this.standing((1 - u.side) as Side)) if (this.def(h).special === 'harvester') {
+      if (harvesterBurn > 0) for (const h of this.standing((1 - u.side) as Side)) if (this.def(h).special === 'harvester') {
         const v = tri(this.def(h).values, h.level);
-        this.enqueue(() => { if (h.alive && h.hp > 0) { this.label(h, 'aura'); this.summon(h, h.side, -1, 't_flame', v, v, { rear: true }); } });
+        this.enqueue(() => {
+          if (!this.onField(h) || !this.standing(u.side).length || (this.harvesterUses.get(h.uid) ?? 0) >= 3) return;
+          this.harvesterUses.set(h.uid, (this.harvesterUses.get(h.uid) ?? 0) + 1);
+          this.label(h, 'aura'); this.summon(h, h.side, h.slot, 't_flame', v, v);
+        });
       }
-      if (wasOpponent) {
-        // 赤蛇刺客：本次交锋的对手阵亡（不论谁击杀）
-        for (const v of this.standing((1 - u.side) as Side)) if (this.def(v).special === 'viper')
+      if ([...this.attackTargets.values()].includes(u.uid)) {
+        // 赤蛇刺客：本次普攻锁定的实际目标阵亡（不论谁击杀）
+        for (const v of this.standing((1 - u.side) as Side)) if (this.def(v).special === 'viper' && this.attackTargets.get(v.uid) === u.uid)
           this.enqueue(() => { if (v.alive && v.hp > 0) { this.label(v, 'aura'); this.extraAct(v, 0); } });
       }
       if (killer && killer.side !== u.side) {
@@ -686,13 +834,23 @@ export class Battle {
           this.morale++;
           this.enqueue(() => { for (const a of this.standing(0)) this.buff(undefined, a, 1, 0); });
         }
-        if (wasOpponent && kind === 'attack') this.duelKill(killer, u);
+        if (this.gen?.id === 'faie' && killer.side === 0 && this.round <= 2
+          && (kind === 'attack' || kind === 'ability') && this.faieKillRewards < 2) {
+          this.faieKillRewards++;
+          this.enqueue(() => {
+            const ours = this.standing(0);
+            this.genShow('乘胜', ours);
+            for (const a of ours) this.buff(undefined, a, 2, 0);
+          });
+        }
+        if (duelKiller === killer.uid && kind === 'attack') this.duelKill(killer, u);
       }
     }
-    this.chain = outer;
+    this.chain = outer; this.masterAction = outerAction;
   }
-  /** 击败对手：普攻（含追击）击杀本次交锋的对手 */
+  /** 击败对手：普攻（含追击）击杀该次锁定的实际目标，旁伤不计。 */
   private duelKill(k: UnitState, victim: UnitState) {
+    if (!this.hasTrait(k, 'duel')) return;
     const side = k.side, kd = this.def(k);
     if (side === 0) this.metrics.duelKills++;
     if (kd.onDuelKill) this.enqueue(() => { if (k.alive && k.hp > 0) this.respond(k, 'duelKill', kd.onDuelKill!, { target: victim }); });
@@ -704,6 +862,14 @@ export class Battle {
         for (const a of this.standing(side)) this.buff(p, a, 1, 0);
       });
     }
+    // Same-name lords share one team budget; only the highest living source responds.
+    const lord = this.standing(side).filter(u => this.def(u).special === 'duelLord')
+      .sort((a, b) => b.level - a.level || Battle.cmp(a, b))[0];
+    if (lord) this.enqueue(() => {
+      if (!this.onField(lord) || !this.onField(k) || this.blocksAllyBenefit(lord, k) || this.chain >= this.chainCap(side)) return;
+      if (!this.specialUse(`duelLord${side}`, lord.level === 3 ? 2 : 1)) return;
+      this.label(lord, 'duelKill'); this.extraAct(k, tri(this.def(lord).values, lord.level), { source: lord });
+    });
     if (side === 0 && this.passives.has('g_arena')) this.enqueue(() => { if (k.alive && k.hp > 0) { this.label(k, 'general'); this.heal(undefined, k, 3); } });
     if (side === 0 && k.defId === 'x_argeon' && this.passives.has('argeon_2'))
       this.enqueue(() => { this.genShow('剑誓', this.standing(0)); for (const a of this.standing(0)) this.buff(undefined, a, 1, 0); });
@@ -712,7 +878,11 @@ export class Battle {
     const r = this.reserve.shift()!;
     r.reserve = false; r.slot = slot; this.grid[0][slot] = r.uid;
     r.actionsLeft = 1; this.waveUsed.delete(r.uid);
-    this.emit({ t: 'summon', uid: r.uid });
+    if (this.shelteredSummons.has(r.uid)) {
+      const source = this.shelteredSummons.get(r.uid);
+      this.shelteredSummons.delete(r.uid);
+      this.enterSummon(source === undefined ? undefined : this.u(source), r);
+    } else this.emit({ t: 'summon', uid: r.uid });
     if (this.passives.has('sajj_2')) {
       const v = 2 + (this.gen?.power ?? 0);
       this.enqueue(() => { this.genShow('援军', [r]); this.buff(undefined, r, v, v); });
@@ -736,10 +906,12 @@ export class Battle {
     if (has('lilithe_1')) {
       const t = this.front(1);
       if (t) { this.genShow('收割', [t]); this.hit(undefined, t, 4 + P, 'ability', true); }
-    } else if (has('lilithe_2')) {
+    }
+    if (has('lilithe_2')) {
       this.genShow('魂火', []);
       this.summon(undefined, 0, -1, 't_shade', 2, 2, { rear: true });
-    } else {
+    }
+    if (!has('lilithe_1') && !has('lilithe_2')) {
       this.genShow('魂潮', this.standing(0));
       for (const a of this.standing(0)) this.buff(undefined, a, 1, 1);
     }
@@ -751,7 +923,7 @@ export class Battle {
   }
 
   /**
-   * 召唤插入：原位空着放原位；否则插到来源身后。满员时最近的友军获得一半属性（萨吉收容则进预备位）。
+   * 召唤插入：原位空着放原位；否则插到来源身后。满员时最近的友军获得一半属性（攻/血各至少1）（萨吉收容则进预备位）。
    * 返回召唤出的单位；失败返回 null。
    */
   private summon(src: UnitState | undefined, side: Side, origin: number, token: string, atk: number, hp: number, o: SummonOpts = {}): UnitState | null {
@@ -762,12 +934,12 @@ export class Battle {
         const r = this.spawn(side, null, token, 1);
         r.atk = a; r.hp = r.maxHp = hp; r.summoned = true; r.reserve = true;
         this.reserve.push(r);
-        this.emit({ t: 'summon', uid: r.uid, src: src?.uid });
+        this.shelteredSummons.set(r.uid, src?.uid);
         this.genShow('收容', [r]);
         return null;
       }
       const near = this.standing(side).sort((x, y) => Math.abs(x.slot - origin) - Math.abs(y.slot - origin) || Battle.cmp(x, y))[0];
-      if (near) this.buff(src, near, Math.floor(a / 2), Math.floor(hp / 2));
+      if (near) this.buff(src, near, Math.max(1, Math.floor(a / 2)), Math.max(1, Math.floor(hp / 2)));
       return null;
     }
     const s = this.spawn(side, null, token, 1);
@@ -780,19 +952,36 @@ export class Battle {
       team.splice(i >= 0 ? i + 1 : team.filter(x => x.slot < origin).length, 0, s);
       this.layout(side, team);
     }
+    const ready = this.enterSummon(src, s);
+    s.actionsLeft = this.isIdle(s) ? 0 : ready ? Math.max(1, o.inherit ?? 0) : o.inherit ?? 0;
+    return s;
+  }
+  /** 新召唤物进入场上时计一次事实；收容中的预备期不提前广播。 */
+  private enterSummon(src: UnitState | undefined, s: UnitState): boolean {
+    const side = s.side;
     if (side === 0) { this.metrics.summons++; this.eggStats.summon++; }
     this.emit({ t: 'summon', uid: s.uid, src: src?.uid });
+    // Apply only on actual entry, before nursery buffs; failed full-board summons
+    // convert their original body only. Summoned descendants cannot pass this on.
+    const investment = src && src.side === side && !src.summoned ? this.summonInvestments.get(src.uid) : undefined;
+    if (investment) {
+      let ratio = 0, source: UnitState | undefined;
+      for (const m of this.standing(side)) {
+        const d = this.def(m);
+        const candidate = d.special === 'goldob' ? 50 : d.special === 'pharaoh' ? tri(d.values, m.level) : 0;
+        if (candidate > ratio) { ratio = candidate; source = m; }
+      }
+      if (ratio) this.buff(source, s, Math.floor(investment.atk * ratio / 100), Math.floor(investment.hp * ratio / 100));
+    }
     let ready = false;
     for (const m of this.standing(side)) {
       if (m === s) continue;
       const md = this.def(m);
       if (md.special === 'incubator') { const v = tri(md.values, m.level); this.buff(m, s, v, v); ready = true; }
-      if (md.special === 'pharaoh') { const v = tri(md.values, m.level); this.buff(m, s, v, v); }
       if (md.onAllySummon) this.enqueue(() => this.respond(m, 'summon', md.onAllySummon!, { target: s }));
     }
     if (side === 0 && this.passives.has('g_horde')) this.buff(undefined, s, 1, 1);
-    s.actionsLeft = this.isIdle(s) ? 0 : ready ? Math.max(1, o.inherit ?? 0) : o.inherit ?? 0;
-    return s;
+    return ready;
   }
   private reserveCap() { return this.passives.has('sajj_3') ? 2 : 1; }
 
@@ -802,9 +991,10 @@ export class Battle {
     const one = (x: UnitState | null | undefined) => (x && x.alive && x.hp > 0 ? [x] : []);
     switch (to) {
       case 'self': return one(u);
-      case 'front': return one(this.front(u.side));
+      case 'front': return one(ctx.front ?? this.front(u.side));
       case 'rear': return one(this.rear(u.side));
       case 'allies': return this.standing(u.side);
+      case 'spellAllies': return this.standing(u.side).filter(x => x !== u && [...(this.def(x).cast ?? []), ...(this.def(x).chargeSkill ?? [])].some(e => ['dmg', 'heal', 'burn', 'chill'].includes(e.op) && tri(e.v, x.level) > 0));
       case 'others': return this.standing(u.side).filter(x => x.uid !== u.uid);
       case 'adjacent': return this.neighbors(u, slot);
       case 'ahead': return one(this.standing(u.side).filter(x => x.slot < slot && x.uid !== u.uid).at(-1));
@@ -825,7 +1015,7 @@ export class Battle {
       }
       case 'attacker': return one(ctx.attacker && ctx.attacker.side !== u.side ? ctx.attacker : null);
       case 'target': return one(ctx.target);
-      case 'opponent': return one(ctx.target && ctx.target.uid === this.actors[foe]?.uid ? ctx.target : null);
+      case 'opponent': return one(ctx.target);
       case 'burningEnemies': return this.standing(foe).filter(x => x.burn > 0);
       case 'otherEnemies': return this.standing(foe).filter(x => x.uid !== ctx.target?.uid);
     }
@@ -849,9 +1039,11 @@ export class Battle {
     for (const e of effects) {
       const captured = locked?.get(e)?.filter(t => t.alive && t.hp > 0);
       if (!this.effectUseful(u, e, ctx, captured)) continue;
-      const v = effectAmount(e, tri(e.v, u.level), pw, !!ctx.cast);
+      const attackBonus = e.op === 'dmg' ? Math.floor(Math.max(0, u.atk) * Math.max(0, e.sourceAttackPercent ?? 0) / 100) : 0;
+      const hpBonus = e.op === 'grant' ? Math.floor(Math.max(0, u.maxHp) * Math.max(0, e.sourceMaxHpPercent ?? 0) / 100) : 0;
+      const v = effectAmount(e, tri(e.v, u.level), pw, !!ctx.cast) + attackBonus + hpBonus;
       const v2 = tri(e.v2, u.level);
-      const free = e.op === 'grant' || e.op === 'extraAct' || e.op === 'summon' || e.op === 'rotate' || e.op === 'revive' || e.op === 'die' || e.op === 'freeze' || e.op === 'sacrifice';
+      const free = e.op === 'grant' || e.op === 'bonusAct' || e.op === 'extraAct' || e.op === 'summon' || e.op === 'rotate' || e.op === 'revive' || e.op === 'die' || e.op === 'freeze' || e.op === 'sacrifice';
       if (!free && v <= 0 && v2 <= 0) continue;
       this.useCap(u, e);
       if (e.op === 'summon') {
@@ -863,7 +1055,7 @@ export class Battle {
         any = true; continue;
       }
       if (e.op === 'revive') {
-        const m = this.firstDead(u.side, u.uid);
+        const m = this.reviveTarget(u);
         if (m && this.reviveUnit(m, u)) any = true;
         continue;
       }
@@ -885,7 +1077,10 @@ export class Battle {
           case 'buff': this.buff(u, t, v, v2, !!e.temp); break;
           case 'weaken': this.buff(u, t, -v, 0); break;
           case 'grant': if (e.grant) this.grant(u, t, e.grant, v); break;
-          case 'extraAct': this.extraAct(t, v); break;
+          case 'bonusAct':
+            if (e.oncePerRound) { const used = this.actionGrants.get(u.uid) ?? new Set<Effect>(); used.add(e); this.actionGrants.set(u.uid, used); }
+            this.bonusAct(u, t); break;
+          case 'extraAct': this.extraAct(t, v, { source: u }); break;
           case 'charge': this.addCharge(u, t, v); break;
           case 'die': if (t.alive && t.hp > 0) { t.hp = 0; this.killers.delete(t.uid); } break;
           case 'addAction':
@@ -894,11 +1089,15 @@ export class Battle {
             break;
           case 'sacrifice': {
             const receiver = this.standing(u.side).filter(x => x.uid !== u.uid && x.uid !== t.uid).sort((a, b) => b.atk - a.atk || Battle.cmp(a, b))[0];
-            if (!receiver) break;
+            if (!receiver || (e.requireFodder && !this.isFodder(t))) break;
+            // Capture the victim before death, rebirth, or deathrattle effects can change it.
+            const ratio = Math.max(0, e.sacrificeStatPercent ?? 0);
+            const atk = Math.floor(Math.max(0, t.atk) * ratio / 100), hp = Math.floor(Math.max(0, t.maxHp) * ratio / 100);
             t.hp = 0; this.killers.delete(t.uid);
             if (u.side === 0 && t.side === 0) this.metrics.sacrifices++;
             this.emit({ t: 'sacrifice', src: u.uid, tgt: t.uid });
-            this.buff(u, receiver, v, 0);
+            this.buff(u, receiver, v + atk, hp);
+            if (e.sacrificePursuit) this.afterSacrifice(u, receiver);
             break;
           }
         }
@@ -908,10 +1107,19 @@ export class Battle {
   }
   private respond(u: UnitState, kind: TriggerKind, effects: Effect[], ctx: Ctx, dead = false) {
     if (!dead && (!u.alive || u.hp <= 0)) return;
+    // Group budgets reserve a whole response before usefulness checks. Full health/block
+    // still consumes the first legal target event, while old per-effect caps stay independent.
+    const groups = new Map<string, boolean>();
+    for (const e of effects) if (e.responseGroup && !groups.has(e.responseGroup)) {
+      const legal = effects.filter(x => x.responseGroup === e.responseGroup)
+        .some(x => this.targets(u, x.to, ctx).some(t => t.alive && t.hp > 0));
+      groups.set(e.responseGroup, legal && this.specialUse(`response:${u.uid}:${kind}:${e.responseGroup}`, 1));
+    }
+    const allowed = effects.filter(e => !e.responseGroup || groups.get(e.responseGroup));
     // 被动响应没有有效目标时静默跳过（落空提示只给施法）
-    if (!effects.some(e => this.effectUseful(u, e, ctx))) return;
+    if (!allowed.some(e => this.effectUseful(u, e, ctx))) return;
     this.label(u, kind);
-    this.apply(u, effects, ctx);
+    this.apply(u, allowed, ctx);
   }
 
   // ---------- 出手 ----------
@@ -921,21 +1129,27 @@ export class Battle {
   canCast(u: UnitState) {
     const d = this.def(u);
     if (!d.cast || (u.charges !== undefined && u.charges <= 0)) return false;
-    return d.cast.some(e => e.op === 'summon' ? this.living(u.side).length < SLOTS : this.effectUseful(u, e, {}));
+    return d.cast.some(e => this.effectUseful(u, e, {}) && (e.op !== 'summon' || this.living(u.side).length < SLOTS
+      || (u.side === 0 && this.gen?.id === 'sajj' && this.passives.has('sajj_4') && this.reserve.length < this.reserveCap())));
   }
   private effectUseful(u: UnitState, e: Effect, ctx: Ctx, targets?: UnitState[]) {
     if (this.capped(u, e)) return false;
     if (e.op === 'summon') return true;
-    if (e.op === 'revive') return this.living(u.side).length < SLOTS && !!this.firstDead(u.side, u.uid);
+    if (e.op === 'revive') return this.living(u.side).length < SLOTS && !!this.reviveTarget(u);
     if (e.op === 'rotate') return this.standing(u.side).length >= 2;
-    if (e.op === 'grant' && (!e.grant || (!BOOL_GRANTS.has(e.grant) && tri(e.v, u.level) === 0))) return false;
+    if (e.op === 'grant' && (!e.grant || (!BOOL_GRANTS.has(e.grant) && tri(e.v, u.level) === 0 && !(e.sourceMaxHpPercent && u.maxHp > 0)))) return false;
+    if (e.op === 'bonusAct' && (this.bonusDepth > 0 || (e.oncePerRound && this.actionGrants.get(u.uid)?.has(e)))) return false;
     if (e.op === 'extraAct' && this.chain >= this.chainCap(u.side)) return false;
     if (e.op === 'addAction' && (tri(e.v, u.level) <= 0 || (e.oncePerRound && this.actionGrants.get(u.uid)?.has(e)))) return false;
-    return (targets ?? this.targets(u, e.to, ctx)).some(t =>
-      e.op === 'heal' ? t.hp < t.maxHp && !(t.side === u.side && this.isolated.has(t.uid)) : e.op === 'block' ? t.block < MAX_BLOCK :
+    return (targets ?? this.targets(u, e.to, ctx)).some(t => {
+      if (this.blocksAllyBenefit(u, t) && (['heal', 'block', 'charge', 'addAction', 'extraAct', 'bonusAct'].includes(e.op)
+        || (e.op === 'grant' && (!!e.grant && BOOL_GRANTS.has(e.grant) || tri(e.v, u.level) > 0))
+        || (e.op === 'buff' && tri(e.v, u.level) >= 0 && tri(e.v2, u.level) >= 0))) return false;
+      return e.op === 'bonusAct' ? t.side === u.side && this.onField(t) && !this.isIdle(t) && this.bonusRound.get(t.uid) !== this.round : e.op === 'heal' ? t.hp < t.maxHp : e.op === 'block' ? t.block < MAX_BLOCK :
       e.op === 'charge' ? !!t.chargeMax && (t.charge ?? 0) < t.chargeMax :
       e.op === 'grant' && BOOL_GRANTS.has(e.grant!) ? !t.grants[e.grant as BoolTrait] && !this.def(t).traits?.[e.grant as BoolTrait] :
-      e.op === 'sacrifice' ? this.standing(u.side).some(x => x.uid !== u.uid && x.uid !== t.uid) : true);
+      e.op === 'sacrifice' ? (!e.requireFodder || this.isFodder(t)) && this.standing(u.side).some(x => x.uid !== u.uid && x.uid !== t.uid) : true;
+    });
   }
 
   /** 寒意检查：寒意 ≥ 当前攻击 → 冻结，跳过这次出手 */
@@ -968,15 +1182,32 @@ export class Battle {
     }
     return true;
   }
-  private cast(u: UnitState, ctx: Ctx) {
-    if (u.side === 0) this.metrics.casts++;
+  private spellEffects(u: UnitState, kind: SpellKind) {
     const d = this.def(u);
-    if (u.charges !== undefined) u.charges--;
-    if (!this.apply(u, d.cast!, { ...ctx, cast: true })) this.emit({ t: 'fizzle', src: u.uid, reason: '没有有效目标' });
+    return kind === 'cast' ? d.cast : kind === 'charge' ? d.chargeSkill : undefined;
+  }
+  private canUseSpell(u: UnitState, kind: SpellKind) {
+    if (!u.alive || u.hp <= 0) return false;
+    if (kind === 'cast') return this.canCast(u);
+    if (kind === 'oath') return this.standing(u.side).some(x => x.hp < x.maxHp);
+    return !!this.spellEffects(u, kind)?.some(e => this.effectUseful(u, e, {}));
+  }
+  /** Every spell shares notifications and its own limits; copies cannot produce copies. */
+  private cast(u: UnitState, ctx: Ctx, kind: SpellKind = 'cast', copied = false) {
+    if (!this.canUseSpell(u, kind)) return false;
+    if (!copied) this.lastCasts.set(u.uid, kind);
+    if (u.side === 0) this.metrics.casts++;
+    if (kind === 'cast' && u.charges !== undefined) u.charges--;
+    if (kind === 'oath') {
+      const n = 2 + (this.gen?.power ?? 0);
+      this.genShow('光誓', this.standing(u.side));
+      for (const x of this.standing(u.side)) this.heal(u, x, n);
+    } else if (!this.apply(u, this.spellEffects(u, kind)!, { ...ctx, cast: true }))
+      this.emit({ t: 'fizzle', src: u.uid, reason: '没有有效目标' });
     this.triggers[u.defId] = (this.triggers[u.defId] ?? 0) + 1;
-    if (u.side === 0 && this.passives.has('g_surge') && !this.surgeUsed.has(u.uid)) {
+    if (!copied && u.side === 0 && this.passives.has('g_surge') && !this.surgeUsed.has(u.uid)) {
       this.surgeUsed.add(u.uid);
-      this.enqueue(() => { if (u.alive && u.hp > 0 && this.canCast(u)) { this.metrics.casts++; this.label(u, 'general'); this.apply(u, d.cast!, { cast: true }); } });
+      this.enqueue(() => { if (this.canUseSpell(u, kind)) { this.label(u, 'general'); this.cast(u, {}, kind, true); } });
     }
     for (const m of this.standing(u.side)) {
       const md = this.def(m);
@@ -989,13 +1220,15 @@ export class Battle {
       const v = this.def(s).values;
       this.enqueue(() => this.respond(s, 'afterCast', [{ op: 'chill', to: 'enemyNext', v }], {}));
     }
+    return true;
   }
   /**
    * 追击：冲出队列立刻普攻，不施法、不消耗常规行动、不蓄力、不轮换；仍做寒意检查。
    * 追击引发的效果（含击杀、受击、冻结等后续）不会再引发追击。force = 主将直接命令，不受层数限制。
    */
   private extraAct(u: UnitState, bonus: number, opts: ActOpts = {}) {
-    if (!u.alive || u.hp <= 0 || u.reserve) return;
+    if (!this.masterAction) { this.inMasterAction(() => this.extraAct(u, bonus, opts)); return; }
+    if (!u.alive || u.hp <= 0 || u.reserve || this.blocksAllyBenefit(opts.source, u)) return;
     if (!opts.force && this.chain >= this.chainCap(u.side)) return;
     const prev = this.chain;
     this.chain = prev + 1;
@@ -1007,22 +1240,65 @@ export class Battle {
     } finally { this.chain = prev; }
   }
 
-  /** 普攻选目标：嘲讽 > 决斗对手 / 狙击 > 队首 */
+  /** 完整额外行动保留原有预算，不创建交锋；响应链内不能递归授予。 */
+  private bonusAct(source: UnitState, a: UnitState) {
+    if (this.bonusDepth || !this.onField(a) || this.isIdle(a) || a.side !== source.side
+      || this.bonusRound.get(a.uid) === this.round || this.blocksAllyBenefit(source, a)) return;
+    this.bonusDepth++;
+    try {
+      this.inMasterAction(() => this.performBonusAct(a), true);
+      if (this.onField(a) && this.hasTrait(a, 'rotate')) this.rotateToRear(a);
+      this.flush();
+    } finally { this.bonusDepth--; }
+  }
+  private performBonusAct(a: UnitState) {
+    this.bonusRound.set(a.uid, this.round);
+    if (this.frozen(a)) { this.flush(); return; }
+    this.masterAction?.eligible.add(a.side);
+    this.addCharge(undefined, a, 1);
+    const d = this.def(a);
+    const full = !!a.chargeMax && (a.charge ?? 0) >= a.chargeMax
+      && (d.chargeSkill ? this.canUseSpell(a, 'charge') : !!this.front((1 - a.side) as Side));
+    if (a.side === 0) this.metrics.extraActions++;
+    if (full) {
+      a.charge = 0;
+      if (a.side === 0) this.metrics.charges++;
+      this.emit({ t: 'act', side: a.side, uid: a.uid, mode: 'charge' }); this.label(a, 'charge');
+      if (d.chargeSkill) { a.chill = 0; this.cast(a, {}, 'charge'); }
+      else this.attack([{ a, bonus: 0, ca: d.chargeAttack ?? {} }]);
+    } else if (!(a.chargeMax && (a.charge ?? 0) >= a.chargeMax) && a.side === 0 && a.defId === 'x_argeon'
+      && this.passives.has('argeon_3') && this.standing(0).some(x => x.hp < x.maxHp)) {
+      this.emit({ t: 'act', side: a.side, uid: a.uid, mode: 'cast' }); a.chill = 0; this.cast(a, {}, 'oath');
+    } else if (!(a.chargeMax && (a.charge ?? 0) >= a.chargeMax) && this.canCast(a)) {
+      this.emit({ t: 'act', side: a.side, uid: a.uid, mode: 'cast' }); a.chill = 0; this.cast(a, {});
+    } else {
+      this.emit({ t: 'act', side: a.side, uid: a.uid, mode: 'attack' }); this.attack([{ a, bonus: 0 }]);
+    }
+    this.flush();
+    if (!this.onField(a)) return;
+    if (!full && a.chargeMax) this.addCharge(undefined, a, this.hourglasses(a)
+      + (a.side === 0 && this.passives.has('faie_4') && this.faieActive() ? 1 : 0));
+    this.kaleosAfter(a);
+    this.flush();
+  }
+
+  /** 普攻选目标：先决斗 / 狙击 / 队首，再由目标前邻嘲讽拦截 */
   private pickTarget(a: UnitState, snipe: boolean, announce: boolean): UnitState | null {
     const foe = (1 - a.side) as Side, st = this.standing(foe);
     if (!st.length) return null;
-    const opp = this.actors[foe];
-    const pref = this.hasTrait(a, 'duel') && opp && st.includes(opp) ? opp : snipe ? st.at(-1)! : st[0];
-    const taunt = st.find(x => this.hasTrait(x, 'taunt'));
-    if (taunt && taunt !== pref) {
-      if (announce) { if (taunt.side === 0) this.metrics.taunts++; this.emit({ t: 'taunt', from: pref.uid, to: taunt.uid }); }
-      return taunt;
+    const preferred = this.hasTrait(a, 'duel') ? st.find(x => x.slot === a.slot) ?? st[0]
+      : snipe ? st.at(-1)! : st[0];
+    const target = previewAttackTarget(a, st, snipe);
+    if (announce && target && preferred && target !== preferred && this.hasTrait(target, 'taunt')) {
+      if (target.side === 0) this.metrics.taunts++;
+      this.emit({ t: 'taunt', from: preferred.uid, to: target.uid });
     }
-    return pref;
+    return target;
   }
 
   /** 普攻（可多人同时）：先锁定目标，所有段数交替结算，最后统一响应 */
   private attack(list: { a: UnitState; bonus: number; snipe?: boolean; ca?: ChargeAttack }[]) {
+    if (!this.masterAction) { this.inMasterAction(() => this.attack(list)); return; }
     const plans = list.filter(p => p.a.alive && p.a.hp > 0 && !this.frozen(p.a, p.bonus)).map(p => {
       const a = p.a, foe = (1 - a.side) as Side, snipe = !!p.snipe || this.hasTrait(a, 'snipe');
       const tgt = this.pickTarget(a, snipe, true);
@@ -1030,6 +1306,7 @@ export class Battle {
       let base = Math.max(1, a.atk + p.bonus - a.chill);
       a.chill = 0;
       if (p.ca) base = base * (p.ca.mult ?? 1) + tri(p.ca.bonus, a.level);
+      if (tgt) this.attackTargets.set(a.uid, tgt.uid);
       const combo = this.hasTrait(a, 'combo');
       return { a, foe, snipe, tgt, chilled, base, ca: p.ca, hits: combo ? [Math.ceil(base / 2), Math.ceil(base / 2)] : [base], struck: [] as UnitState[] };
     }).filter(p => p.tgt);
@@ -1039,18 +1316,22 @@ export class Battle {
     for (let i = 0; i < maxHits; i++) {
       for (const p of plans) {
         if (i >= p.hits.length) continue;
-        let t = p.tgt!;
-        if (!t.alive || t.hp <= 0) {
-          const n = this.pickTarget(p.a, p.snipe, false);
-          if (!n) continue;
-          t = p.tgt = n;
-        }
+        const t = p.tgt!;
+        if (!t.alive || t.hp <= 0) continue;
         const a = p.a, ad = this.def(a), td = this.def(t);
         let n = p.hits[i];
-        if (ad.special === 'lion') n += a.block * tri(ad.values, a.level);
+
+        if (ad.special === 'armorPiercer' && this.armor(t) > 0) n += tri(ad.values, a.level);
         if (ad.special === 'monk' && t.atk > a.atk) n += tri(ad.values, a.level);
         if (this.hasEquip(a, 'hammer') && this.armor(t) > 0) n += 2;
         const hitTargets = [t];
+        // Count the committed segment before emitting its damage snapshot. A blocked
+        // segment still lands; target validity was checked above, and no other
+        // damage kinds (splash, thorns or abilities) enter this path.
+        if (n > 0 && this.masterSource(a.side)) {
+          this.masterHits[a.side]++;
+          this.masterAction.eligible.add(a.side);
+        }
         const landed = this.hit(a, t, n, 'attack');
         if (landed && !p.struck.includes(t)) p.struck.push(t);
         if (landed && td.special === 'cliff' && this.cliffBeat.get(t.uid) !== this.beat) {
@@ -1071,10 +1352,6 @@ export class Battle {
           this.titanBeat.set(a.uid, this.beat);
           const v = tri(ad.values, a.level);
           for (const h of hitTargets) this.burn(a, h, v);
-        }
-        if (landed) for (const m of this.standing(a.side)) if (this.def(m).special === 'master') {
-          const v = tri(this.def(m).values, m.level);
-          this.enqueue(() => { if (m.alive && m.hp > 0) { const r = this.rear((1 - m.side) as Side); if (r) { this.label(m, 'afterAttack'); this.hit(m, r, v, 'ability'); } } });
         }
       }
     }
@@ -1100,11 +1377,12 @@ export class Battle {
 
   // ---------- 主将 ----------
   private faieActive() {
-    return this.gen?.id === 'faie' && !this.passives.has('faie_3') && this.round <= (this.passives.has('faie_2') ? 2 : 1);
+    return this.gen?.id === 'faie' && !(this.passives.has('faie_3') && this.round === 1)
+      && this.round <= (this.passives.has('faie_2') ? 3 : 2);
   }
   /** 卡雷奥斯：压轴 / 首发 / 双幕 / 影步 */
   private kaleosAfter(a: UnitState) {
-    if (this.gen?.id !== 'kaleos' || a.side !== 0 || !a.alive || a.hp <= 0) return;
+    if (this.gen?.tacticsVersion===1 || this.gen?.id !== 'kaleos' || a.side !== 0 || !a.alive || a.hp <= 0) return;
     const P = this.gen.power, has = (k: string) => this.passives.has(k);
     const others = this.standing(0).filter(x => x.uid !== a.uid && !this.isIdle(x) && (x.actionsLeft ?? 0) > 0).length;
     const mine = a.actionsLeft ?? 0;
@@ -1113,15 +1391,15 @@ export class Battle {
     else if (!others && !mine && !this.kLast) { this.kLast = true; lead = true; }
     if (lead) {
       this.genShow(has('kaleos_1') ? '首发' : '压轴', [a]);
-      if (has('kaleos_2') && this.canCast(a)) {
-        this.metrics.casts++;
-        this.apply(a, this.def(a).cast!, { cast: true });
-        this.flush();
+      const spell = this.lastCasts.get(a.uid);
+      if (has('kaleos_2') && spell) {
+        if (this.canUseSpell(a, spell) && this.cast(a, {}, spell, true)) {
+          this.flush(); this.kaleosShadowstep(a);
+        }
       } else {
         this.extraAct(a, P, { force: true });
         this.flush();
-        const f = this.front(0);
-        if (has('kaleos_4') && a.alive && a.hp > 0 && f && f !== a) { this.genShow('影步', [a, f]); this.swapUnits(a, f); this.flush(); }
+        this.kaleosShadowstep(a);
       }
     }
     if (has('kaleos_3') && !lead && others === 1 && !mine && !this.kSecond && a.alive && a.hp > 0) {
@@ -1129,6 +1407,12 @@ export class Battle {
       this.genShow('双幕', [a]);
       this.extraAct(a, -Math.floor(a.atk / 2), { force: true });
       this.flush();
+    }
+  }
+  private kaleosShadowstep(a: UnitState) {
+    const f = this.front(0);
+    if (this.passives.has('kaleos_4') && a.alive && a.hp > 0 && f && f !== a) {
+      this.genShow('影步', [a, f]); this.swapUnits(a, f); this.flush();
     }
   }
   /** 卡西瓦：开战献祭队尾，其余友军平分属性 */
@@ -1160,19 +1444,26 @@ export class Battle {
     if (!ours.length) return;
     const sets = ours.map(kwOf);
     const kinds = new Set(sets.flatMap(s => [...s]));
-    if (this.passives.has('kara_4')) for (const e of this.standing(1)) for (const k of kwOf(e)) kinds.add(k);
+    const enemySets = this.passives.has('kara_4') ? this.standing(1).map(kwOf) : [];
+    for (const set of enemySets) for (const word of set) kinds.add(word);
     const k = kinds.size;
+    let recipients = ours;
+    let atk = Math.min(3, Math.floor(k / 3)), hp = k;
     if (this.passives.has('kara_1')) {
       let best: UnitState[] = [];
-      for (const w of kinds) { const hold = ours.filter((_, i) => sets[i].has(w)); if (hold.length > best.length) best = hold; }
-      const n = best.length;
-      if (n >= 2) { this.genShow('纯色', best); for (const a of best) this.buff(undefined, a, n + 3, n + 3); }
-      return;
+      let bestTotal = 0;
+      for (const w of kinds) {
+        const hold = ours.filter((_, i) => sets[i].has(w));
+        if (!hold.length) continue;
+        const total = hold.length + enemySets.filter(s => s.has(w)).length;
+        if (total > bestTotal || (total === bestTotal && hold.length > best.length)) { best = hold; bestTotal = total; }
+      }
+      recipients = bestTotal >= 2 ? best : [];
+      atk = hp = Math.min(6, bestTotal + 3);
     }
-    this.genShow('棱镜', ours);
-    const atk = Math.min(3, Math.floor(k / 3));
-    if (this.passives.has('kara_2')) { const f = this.front(0); if (f) this.block(undefined, f, Math.min(3, k)); }
-    for (const a of ours) this.buff(undefined, a, atk, this.passives.has('kara_2') ? 0 : k);
+    this.genShow(this.passives.has('kara_1') ? '纯色' : '棱镜', recipients);
+    if (this.passives.has('kara_2')) { const f = this.front(0); if (f && recipients.length) this.block(undefined, f, Math.min(3, hp)); }
+    for (const a of recipients) this.buff(undefined, a, atk, this.passives.has('kara_2') ? 0 : hp);
     if (this.passives.has('kara_3') && k >= 6) for (const a of ours) this.grant(undefined, a, 'power', 1);
   }
   /** 齐瑞克斯：积满星能后首尾互换 */
@@ -1222,6 +1513,9 @@ export class Battle {
     const P = this.gen?.power ?? 0;
     if (this.gen?.id === 'kasiva') this.kasivaStart();
     if (this.gen?.id === 'kara') this.karaStart();
+    if (this.gen?.id === 'reva') for (const e of foes()) if (this.revaMoved.has(e.uid)) {
+      this.genShow('调虎离山', [e]); this.buff(undefined, e, -1, 0);
+    }
     if (this.passives.has('reva_2')) for (const e of foes()) if (this.revaMoved.has(e.uid)) { this.genShow('惊扰', [e]); this.buff(undefined, e, -(1 + Math.floor(P / 2)), 0); }
     if (this.passives.has('g_elite') && allies().length <= 4) for (const a of allies()) this.buff(undefined, a, 2, 4);
     if (this.passives.has('g_wall')) for (const a of allies()) this.block(undefined, a, 1);
@@ -1257,12 +1551,18 @@ export class Battle {
     const has = (k: string) => this.passives.has(k), P = this.gen?.power ?? 0;
     for (const [uid, n] of this.zilanPending) { const u = this.u(uid); if (u.alive && u.hp > 0) { this.genShow('接力', [u]); this.buff(undefined, u, n, 0, true); } }
     this.zilanPending.clear();
+    if(this.gen?.tacticsVersion===1&&this.gen.id==='kaleos'&&this.round<=2&&this.commandActionRound!==this.round&&this.commandUid!==null) {
+      const target=this.u(this.commandUid);
+      if(this.onField(target)&&!this.isIdle(target)) {this.commandActionRound=this.round;this.genShow('战术突击',[target]);this.addAction(undefined,target,1);}
+    }
     if (this.gen?.id === 'faie') {
-      if (has('faie_3')) {
-        if (this.round === 1) { this.genShow('后发', this.standing(0)); for (const a of this.standing(0)) { this.delayFoe.add(a.uid); this.buff(undefined, a, 3, 0, true); } }
-      } else if (has('faie_2')) {
-        if (this.round <= 2) { const last = this.standing(1).slice(-2); this.genShow('长冬', last); for (const e of last) this.delayFoe.add(e.uid); }
-      } else if (this.round === 1) { this.genShow('先机', this.standing(1)); for (const e of this.standing(1)) this.delayFoe.add(e.uid); }
+      if (has('faie_3') && this.round === 1) {
+        this.genShow('后发', this.standing(0)); for (const a of this.standing(0)) { this.delayFoe.add(a.uid); this.buff(undefined, a, 3, 0, true); }
+      } else if (this.round <= 2) {
+        this.genShow('先机', this.standing(1)); for (const e of this.standing(1)) this.delayFoe.add(e.uid);
+      } else if (has('faie_2') && this.round === 3) {
+        const last = this.standing(1).slice(-2); this.genShow('长冬', last); for (const e of last) this.delayFoe.add(e.uid);
+      }
     }
     if (this.round === 1 && this.revaFront != null && has('reva_3')) this.delayLast.add(this.revaFront);
     if (this.round === 2 && has('kasiva_4')) for (const uid of this.kasivaVictims) {
@@ -1273,13 +1573,14 @@ export class Battle {
       const d = this.def(u);
       if (d.special === 'devourer') {
         const r = this.rear(u.side);
-        if (r && r !== u) {
+        if (r && r !== u && this.isFodder(r)) {
           this.label(u, 'roundStart');
-          const atk = Math.floor(r.atk / 2), hp = Math.floor(r.maxHp / 2);
+          const atk = r.atk, hp = r.maxHp;
           r.hp = 0; this.killers.delete(r.uid);
           if (u.side === 0) this.metrics.sacrifices++;
           this.emit({ t: 'sacrifice', src: u.uid, tgt: r.uid });
           this.buff(u, u, atk, hp);
+          this.afterSacrifice(u, u);
         }
       }
       if (d.special === 'worm') {
@@ -1295,7 +1596,7 @@ export class Battle {
   private roundEnd() {
     this.responses = 0;
     const P = this.gen?.power ?? 0, has = (k: string) => this.passives.has(k);
-    if (this.gen?.id === 'zilan' && !has('zilan_4')) this.zilanSpin();
+    if (this.gen?.tacticsVersion!==1 && this.gen?.id === 'zilan' && !has('zilan_4')) this.zilanSpin();
     if (this.gen?.id === 'vulkan') {
       const pick = (side: Side) => has('vulkan_2') ? this.rear(side) : this.front(side);
       const mine = pick(0), theirs = pick(1);
@@ -1303,7 +1604,7 @@ export class Battle {
       if (mine && has('vulkan_1')) this.burn(undefined, mine, 1);
       if (theirs) this.burn(undefined, theirs, 2 + P);
       const f = this.front(0);
-      if (f && has('vulkan_4')) this.block(undefined, f, 1);
+      if (f && has('vulkan_4') && this.round % 2 === 0) this.block(undefined, f, 1);
     }
     this.flush();
   }
@@ -1312,11 +1613,18 @@ export class Battle {
     const fresh = this.prepareWave();
     if (this.outcome()) return;
     if (first || fresh) { this.roundStart(); if (this.outcome()) return; }
+    let acted: UnitState[] = [];
+    this.inMasterAction(() => { acted = this.performBeatActions(); });
+    for (const a of acted) if (this.onField(a) && this.hasTrait(a, 'rotate')) this.rotateToRear(a);
+    this.flush();
+    if (!this.outcome()) this.beatEnd();
+  }
+  private performBeatActions() {
     this.beat++;
+    this.lastCasts.clear(); this.attackTargets.clear();
     this.responses = 0;
     this.emit({ t: 'beat', n: this.beat, round: this.round, wave: this.wave, next: { player: this.order(0).map(u => u.uid), enemy: this.order(1).map(u => u.uid) } });
     const actors = [this.pick(0), this.pick(1)];
-    this.actors = [...actors];
     this.pending = [...actors];
     const attackers: { a: UnitState; bonus: number; ca?: ChargeAttack }[] = [];
     const acted: { a: UnitState; released: boolean }[] = [];
@@ -1325,7 +1633,11 @@ export class Battle {
       if (!a || !a.alive || a.hp <= 0) { this.pending[side] = null; continue; }
       if (this.frozen(a)) { this.pending[side] = null; this.flush(); continue; }
       const d = this.def(a);
-      const full = !!a.chargeMax && (a.charge ?? 0) >= a.chargeMax;
+      // 每次有效常规行动先积基础蓄力；追击与冻结跳过均不会到这里。
+      this.addCharge(undefined, a, 1);
+      const full = !!a.chargeMax && (a.charge ?? 0) >= a.chargeMax
+        && (d.chargeSkill ? this.canUseSpell(a, 'charge') : !!this.front((1 - side) as Side));
+      this.masterAction?.eligible.add(side);
       acted.push({ a, released: full });
       if (full) {
         a.charge = 0;
@@ -1334,19 +1646,21 @@ export class Battle {
         if (d.chargeSkill) {
           this.pending[side] = null;
           a.chill = 0; this.label(a, 'charge');
-          if (!this.apply(a, d.chargeSkill, { cast: true })) this.emit({ t: 'fizzle', src: a.uid, reason: '没有有效目标' });
+          if (!this.cast(a, {}, 'charge')) this.emit({ t: 'fizzle', src: a.uid, reason: '没有有效目标' });
           this.flush();
         } else {
           // 带 after 的蓄力普攻在 respond 里亮标签；纯数值的（如日轮刃使）在这里亮，否则回放看不到「蓄力」
           if (!d.chargeAttack?.after) this.label(a, 'charge');
           attackers.push({ a, bonus: 0, ca: d.chargeAttack ?? {} });
         }
+      } else if (a.chargeMax && (a.charge ?? 0) >= a.chargeMax) {
+        // 没有有效技能目标时保留满条，仍兑现本次普攻。
+        this.emit({ t: 'act', side, uid: a.uid, mode: 'attack' });
+        attackers.push({ a, bonus: 0 });
       } else if (a.side === 0 && a.defId === 'x_argeon' && this.passives.has('argeon_3') && this.standing(0).some(x => x.hp < x.maxHp)) {
         this.emit({ t: 'act', side, uid: a.uid, mode: 'cast' });
         this.pending[side] = null; a.chill = 0;
-        const n = 2 + (this.gen?.power ?? 0);
-        this.genShow('光誓', this.standing(0));
-        for (const x of this.standing(0)) this.heal(a, x, n);
+        this.cast(a, {}, 'oath');
         this.flush();
       } else if (this.canCast(a)) {
         this.emit({ t: 'act', side, uid: a.uid, mode: 'cast' });
@@ -1358,19 +1672,17 @@ export class Battle {
       }
     }
     this.attack(attackers); this.pending = [null, null]; this.flush();
-    // 常规行动之后：蓄力、压轴、轮换（追击之后不轮换）
+    // 常规行动之后：未释放时的额外加能、压轴、轮换（追击之后不轮换）
     for (const { a, released } of acted) {
       if (!a.alive || a.hp <= 0) continue;
       if (!released && a.chargeMax) {
-        const n = 1 + this.hourglasses(a) + (a.side === 0 && this.passives.has('faie_4') && this.faieActive() ? 1 : 0);
+        const n = this.hourglasses(a) + (a.side === 0 && this.passives.has('faie_4') && this.faieActive() ? 1 : 0);
         this.addCharge(undefined, a, n);
       }
     }
     for (const { a } of acted) this.kaleosAfter(a);
-    for (const { a } of acted) if (a.alive && a.hp > 0 && this.hasTrait(a, 'rotate')) this.rotateToRear(a);
     this.flush();
-    if (!this.outcome()) this.beatEnd();
-    this.actors = [null, null];
+    return acted.map(({ a }) => a);
   }
   private beatEnd() {
     // 1. 固有规则先于关卡规则；每次规则之间结算死亡。
@@ -1380,13 +1692,16 @@ export class Battle {
     this.flush();
     // 2. 灼烧
     for (const u of this.units.filter(x => this.onField(x) && x.burn > 0).sort(Battle.cmp)) {
+      const burning = u.burn;
       this.hit(undefined, u, u.burn + (u.side === 1 && this.passives.has('g_ember') ? 1 : 0), 'burn');
+      if (u.hp <= 0) this.lethalBurn.set(u.uid, burning);
       u.burn = Math.max(0, u.burn - 1);
     }
     this.flush();
     // 3. 疲劳
-    if (this.beat >= FATIGUE_BEAT) {
-      const n = this.beat - FATIGUE_BEAT + 1;
+    const fatigueStart = fatigueStartForChapter(this.chapter);
+    if (this.beat >= fatigueStart) {
+      const n = this.beat - fatigueStart + 1;
       for (const u of this.units.filter(x => this.onField(x)).sort(Battle.cmp)) this.hit(undefined, u, n, 'fatigue');
       this.flush();
     }
@@ -1416,7 +1731,7 @@ export class Battle {
       if (r.chargeMax) this.addCharge(undefined, r, 1);
       else if ((this.reserveGain.get(r.uid) ?? 0) < 3) { this.reserveGain.set(r.uid, (this.reserveGain.get(r.uid) ?? 0) + 1); r.atk++; }
     }
-    if (this.gen?.id === 'zilan' && this.passives.has('zilan_4') && this.zilanSpins < 3) { this.zilanSpins++; this.zilanSpin(); }
+    if (this.gen?.tacticsVersion!==1 && this.gen?.id === 'zilan' && this.passives.has('zilan_4') && this.zilanSpins < 3) { this.zilanSpins++; this.zilanSpin(); }
     this.zirixTick();
     this.flush();
   }

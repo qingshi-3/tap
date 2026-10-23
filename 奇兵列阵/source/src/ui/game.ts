@@ -3,23 +3,25 @@ import '../tutorial-guide.css';
 import '../prep-battle.css';
 import '../shop-layout.css';
 import '../v08.css';
-import { DRAFT_POOL, FACTION_INFO, GENERAL_MAP, RARITY_NAMES, unitDef } from '../core/data';
-import { EQUIP_MAP, ORDER_MAP, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELL_MAP } from '../core/content';
+import '../economy-bindings.css';
+import { modernEconomy, previewPreparation } from '../core/preparation';
+import { DRAFT_POOL, FACTION_INFO, RARITY_NAMES, unitDef } from '../core/data';
+import { generalDefinition, EQUIP_MAP, ORDER_MAP, PASSIVE_MAP, POINT_MAP, POINT_TYPES, SPELL_MAP } from '../core/content';
 import { chapter, type RouteNode, type Stage } from '../core/route';
-import { SLOTS, levelStats, simulate } from '../core/engine';
+import { SLOTS, fatigueStartForChapter, levelStats, previewAttackTarget, simulate } from '../core/engine';
 import {
   allocPoint, applyRewardedReroll, battleNo, beginBattle, buildBattle, buy, canRewardedReroll, chooseReward, choosePromo, cloneRun, consumeRewardedRetry,
-  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
-  MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
-  remainingRewardedRetries, settleRewardedRetry, takeDraft, teamSize,
-  addSwap, clearSwaps, eggThreshold, hireMerc, reserveSlots, signMerc, swapCap, SIGN_PRICE,
+  allocRefundable, deallocPoint, equip, finishBattle, stashTotal, leaveShop, orderOptions, pickFork, promoted, refreshShop, screen, sell, canSell, sellBlockReason, shopUnitBuysRemaining, canTrainGeneral, sellPrice, unequip, unitDestination, unuseSpell, useOrder, useSpell,
+  MAX_COPIES, MAX_LIVES, MAX_REWARDED_REROLLS, remainingRewardedRerolls, allOwned, cloneOwned, currentNode, currentStage, getOwned, moveKind, moveSlot, placeKind, PICKS_PER_ROUND, reroll, tierCap,
+  remainingRewardedRetries, settleRewardedRetry, takeDraft, takeUpgradeOffer, freezeUpgradeOffer, upgradeOfferBuyBlockReason, teamSize, freezeDraft, draftBuyBlockReason,
+  modernTactics, setGeneralOrder, addSwap, clearSwaps, eggThreshold, hireMerc, reserveSlots, signMerc, swapCap, SIGN_PRICE,
   type RewardedRetrySettlement, type RunState, type Screen,
 } from '../core/run';
 import { clearRun, saveRun } from '../core/save';
 import { recordOfficialBattle, recordRunOutcome } from '../core/career';
 import { syncCareerLeaderboards } from './leaderboard';
 import { Tutorial, type TutAction, type TutEvent } from './tutorial';
-import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Side, type Slotted } from '../core/types';
+import { unitLevel, type BattleOutput, type EggStat, type BattleResult, type Side, type Slotted, type UnitState } from '../core/types';
 import type { App } from './app';
 import { setMusicRun, setMusicDucked, sfx } from './audio';
 import { audioSettings } from './audioSettings';
@@ -113,11 +115,12 @@ function analyze(out: BattleOutput): Preview {
         break;
     }
   }
-  // 嘲讽：最靠前的嘲讽单位替身后每个友军挡普攻；聚焦时连到被保护的友军
+  // Match combat's local guard: only the next living friend, with no chained taunt redirection.
   for (const side of [0, 1] as Side[]) {
-    const st = out.afterStart.filter((u) => u.alive && u.side === side).sort((x, y) => x.slot - y.slot);
-    const g = st.find((u) => unitDef(u.defId).traits?.taunt || u.grants.taunt);
-    if (g) for (const u of st) if (u !== g) p.arrows.push({ from: g.uid, to: u.uid, kind: 'block', label: '护', hideSourceBadge: true });
+    const st = out.afterStart.filter(u => u.alive && u.hp > 0 && !u.reserve && u.side === side).sort((x, y) => x.slot - y.slot);
+    const taunt = (u: UnitState) => unitDef(u.defId).traits?.taunt || u.grants.taunt;
+    for (let i = 0; i + 1 < st.length; i++) if (taunt(st[i]) && !taunt(st[i + 1]))
+      p.arrows.push({ from: st[i].uid, to: st[i + 1].uid, kind: 'block', label: '护', hideSourceBadge: true });
   }
   return p;
 }
@@ -150,6 +153,7 @@ export class Game {
   /** 主界面的「整备」入口 */
   private dock = h('div', { class: 'prep-entry' });
   /** 蕾娃换位：是否进入点选模式、已选的第一个敌方格 */
+  private commandArm = false;
   private swapArm = false;
   private swapPick: number | null = null;
   private hatchNoted = '';
@@ -313,26 +317,26 @@ export class Game {
   }
 
   private renderHud() {
-    const g = GENERAL_MAP[this.run.general];
+    const g = generalDefinition(this.run.general, this.run.tacticsVersion);
     const f = FACTION_INFO[g.faction];
     const ch = chapter(this.run.chapter);
     const genBadge = h(
       'div',
-      { class: `hud-general${this.sel?.kind === 'point' && POINT_MAP[this.sel.type]?.toGeneral ? ' arm-target' : ''}`, style: `--fc:${f.color}` },
+      { class: `hud-general${this.sel?.kind === 'point' && POINT_MAP[this.sel.type]?.toGeneral && canTrainGeneral(this.run) ? ' arm-target' : ''}`, style: `--fc:${f.color}` },
       h('div', { class: 'hg-portrait', html: unitSvg(null, { general: g.id, tier2: promoted(this.run) }) }),
       h('div', { class: 'hg-text' }, h('b', null, g.name), h('span', null, g.title)),
     );
     const showGenTip = () => {
       const r = genBadge.getBoundingClientRect();
       const p = toStage(r.left + r.width / 2, r.bottom);
-      showTip(generalTip(g.id, this.base.genPower, this.base.passives), p.x + 40, p.y, 'below');
+      showTip(generalTip(g.id, this.base.genPower, this.base.passives, this.base.tacticsVersion), p.x + 40, p.y, 'below');
     };
     // 手机优先：点头像看技能；鼠标悬停只是桌面上的附加便利
     genBadge.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') showGenTip(); });
     genBadge.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') this.restoreTip(); });
     genBadge.addEventListener('click', () => {
       const s = this.sel;
-      if (s?.kind !== 'point' || !POINT_MAP[s.type]?.toGeneral || !this.editable || this.sandbox) { showGenTip(); return; }
+      if (s?.kind !== 'point' || !POINT_MAP[s.type]?.toGeneral || !canTrainGeneral(this.run) || !this.editable || this.sandbox) { showGenTip(); return; }
       if (!this.allowTutorial({ kind: 'alloc', to: 'general', type: s.type })) return;
       if (allocPoint(this.run, 'general', s.type)) {
         sfx.merge();
@@ -440,11 +444,43 @@ export class Game {
     );
   }
 
+  /** Negative indices address upgrade choices without colliding with ordinary shelf slots. */
+  private draftItem(r: RunState, index: number) {
+    if (!Number.isSafeInteger(index)) return undefined;
+    if (index >= 0) return r.draft[index] ? { id: r.draft[index], locked: !!r.draftLocked?.[index], groupId: undefined, choiceIdx: undefined } : undefined;
+    const encoded = -1 - index, groupId = Math.floor(encoded / 2), choiceIdx = encoded % 2;
+    const group = r.upgradeOffers?.find(g => g.id === groupId);
+    return group?.choices[choiceIdx] ? { id: group.choices[choiceIdx], locked: group.locked, groupId, choiceIdx } : undefined;
+  }
+  private takeShelf(r: RunState, index: number, slot: number, confirmed = false) {
+    const item = this.draftItem(r, index);
+    if (!item) return 'invalid' as const;
+    return item.groupId === undefined ? takeDraft(r, index, slot, confirmed) : takeUpgradeOffer(r, item.groupId, item.choiceIdx!, slot, confirmed);
+  }
+  private shelfBuyReason(r: RunState, index: number, slot: number) {
+    const item = this.draftItem(r, index);
+    if (!item) return '商品不可购买';
+    return item.groupId === undefined ? draftBuyBlockReason(r, index, slot) : upgradeOfferBuyBlockReason(r, item.groupId, item.choiceIdx!, slot);
+  }
+  private seenUpgradeOffers = new Set<number>();
+  private shelfPage = 0;
+  private shelfRound = '';
   private renderTray() {
     this.renderDock();
     if (this.mode === 'phase') { this.tray.classList.add('hidden'); return; }
     if (this.mode === 'sandbox') return this.renderSandboxTray();
     const r = this.run;
+    const paid = modernEconomy(r);
+    const roundKey = `${r.runId}:${r.chapter}:${r.node}:${r.history.length}`;
+    if (roundKey !== this.shelfRound) { this.shelfRound = roundKey; this.shelfPage = 0; }
+    const groups = paid ? r.upgradeOffers ?? [] : [];
+    const pageCount = 2 + groups.length;
+    const newest = groups.reduce((latest, group, index) => this.seenUpgradeOffers.has(group.id) ? latest : index, -1);
+    if (newest >= 0) this.shelfPage = newest + 2;
+    groups.forEach(g => this.seenUpgradeOffers.add(g.id));
+    this.shelfPage = Math.min(this.shelfPage, pageCount - 1);
+    const offer = groups[this.shelfPage - 2];
+    this.tray.classList.toggle('paid-shelf', paid);
     const picks = h(
       'div',
       { class: 'picks' },
@@ -456,10 +492,10 @@ export class Game {
     } else {
       rerollBtn = h(
         'button',
-        { class: `btn ghost reroll${r.rerolls > 0 && r.picks > 0 ? '' : ' disabled'}`, disabled: r.rerolls <= 0 || r.picks <= 0 },
+        { class: `btn ghost reroll`, disabled: paid ? r.gold < 1 || r.draft.every((id, i) => !!id && r.draftLocked?.[i]) : r.rerolls <= 0 || r.picks <= 0 },
         icon('refresh'),
         h('span', null, '刷新'),
-        h('i', null, r.rerolls),
+        h('i', null, paid ? '1 金' : r.rerolls),
       );
       rerollBtn.addEventListener('click', () => {
         if (this.adPending || !this.editable || this.sandbox || !this.allowTutorial({ kind: 'reroll' }) || !reroll(this.run)) return;
@@ -470,21 +506,32 @@ export class Game {
     const left = h(
       'div',
       { class: 'tray-left' },
-      h('div', { class: 'tl-title' }, '招募'),
-      h('div', { class: 'tl-row' }, h('span', null, '本轮可选'), picks),
+      paid ? h('div', { class: 'tl-row', 'aria-label': `可用金币 ${r.gold}` }, offer ? '升星二选一 · 3 金' : `${r.gold} 金 · 每张 3 金`) : h('div', { class: 'tl-title' }, '招募'),
+      paid ? null : h('div', { class: 'tl-row' }, h('span', null, '本轮可选'), picks),
       rerollBtn,
+      paid ? h('button', { class: 'btn shelf-page', 'aria-label': `${this.shelfPage === pageCount - 1 ? '回到货架' : '下一页'}，当前第${this.shelfPage + 1}页，共${pageCount}页`, onclick: () => {
+        this.shelfPage = (this.shelfPage + 1) % pageCount; this.sel = null; hideTip(); this.renderTray();
+        this.tray.querySelector<HTMLButtonElement>('.shelf-page')?.focus({ preventScroll: true });
+      } }, h('span', null, this.shelfPage === pageCount - 1 ? '回到货架' : '下一页'), h('i', null, `${this.shelfPage + 1}/${pageCount}`), icon('play')) : null,
     );
-    const cards = h('div', { class: `cards${r.picks <= 0 ? ' exhausted' : ''}` });
-    r.draft.forEach((id, i) => {
+    const cards = h('div', { class: `cards${!paid && r.picks <= 0 ? ' exhausted' : ''}` });
+    const goods = offer ? offer.choices.map((id, choice) => ({ id, index: -1 - (offer.id * 2 + choice) })) : r.draft.map((id, index) => ({ id, index }));
+    goods.forEach(({ id, index: i }) => {
+      if (paid && !offer && Math.floor(i / 3) !== this.shelfPage) return;
+      const item = this.draftItem(r, i);
+      if (!id) { cards.appendChild(h('div', { class: 'shelf-empty' }, '已购买')); return; }
       const same = allOwned(this.inventory).map((s, k) => ({ s, k })).filter((x) => x.s?.defId === id);
       const mergeable = same.find((x) => x.s!.copies === 1);
       const c = draftCard(id, { mergeTo: mergeable ? 2 : undefined, maxed: same.some(x => x.s!.copies === MAX_COPIES) });
+      c.dataset.draftIndex = String(i);
+      if (paid && item?.locked) c.append(h('span', { class: 'card-badge' }, '已锁定'));
+      if (paid && r.gold < 3) c.classList.add('unaffordable');
       if (this.sel?.kind === 'card' && this.sel.idx === i) c.classList.add('selected');
-      c.setAttribute('tabindex', r.picks > 0 ? '0' : '-1');
+      c.setAttribute('tabindex', paid || r.picks > 0 ? '0' : '-1');
       c.setAttribute('role', 'button');
       c.setAttribute('aria-label', `${unitDef(id).name}，招募`);
       c.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.tap('card', i, { x: 0, y: 0 }); } });
-      c.setAttribute('aria-label', `${unitDef(id).name}，拖到位置招募`);
+      c.setAttribute('aria-label', `${unitDef(id).name}，${paid ? `3 金${item?.locked ? '，已锁定' : ''}${offer ? '，升星二选一' : ''}，` : ''}拖到位置招募`);
       c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
       c.addEventListener('pointerenter', () => {
         if (this.drag) return;
@@ -492,12 +539,12 @@ export class Game {
       });
       cards.appendChild(c);
     });
-    if (r.picks <= 0) cards.appendChild(h('div', { class: 'cards-done' }, icon('check'), '招募完成'));
+    if (!paid && r.picks <= 0) cards.appendChild(h('div', { class: 'cards-done' }, icon('check'), '招募完成'));
     const size = teamSize(r);
     const fight = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, '开 战'), icon('play'));
     fight.addEventListener('click', () => {
       if (!size) return;
-      if (r.picks > 0 && r.draft.length && !this.tut) this.app.confirm('还有招募没用完', `本轮还能招募 ${r.picks} 次，开战后作废。`, '直接开战', () => { if (this.editable) void this.startBattle(); });
+      if (!paid && r.picks > 0 && r.draft.length && !this.tut) this.app.confirm('还有招募没用完', `本轮还能招募 ${r.picks} 次，开战后作废。`, '直接开战', () => { if (this.editable) void this.startBattle(); });
       else void this.startBattle();
     });
     const right = h(
@@ -583,6 +630,8 @@ export class Game {
     else {
       const content = unitTip(u.defId, unitLevel(u), { ...this.ownedStats(u), chill: 0, burn: 0, power: ownedPower(u.defId, unitLevel(u), u) });
       const extra = this.ownedExtra(u, index); if (extra) content.appendChild(extra);
+      const blocked = sellBlockReason(this.run, index);
+      if (blocked) content.append(h('div', { class: 'tip-text' }, blocked));
       const r = this.benchEl.querySelector<HTMLElement>(`[data-index="${index}"]`)!.getBoundingClientRect();
       const p = toStage(r.left + r.width / 2, r.top);
       showTip(content, p.x, p.y, 'above');
@@ -602,7 +651,7 @@ export class Game {
     const select = (f: typeof groups[number]) => {
       tabs.forEach((b, i) => b.classList.toggle('active', groups[i] === f));
       const defs = DRAFT_POOL.filter(d => d.faction === f);
-      list.replaceChildren(...defs.map(d => h('button', { class: `pool-unit tier-${d.tier}${d.tier > tierCap(battleNo(this.run)) ? ' locked' : ''}`, onclick: () => show(d.id) }, h('span', { class: 'pool-unit-art', html: unitSvg(d.id) }), h('b', null, d.name), h('span', null, `${RARITY_NAMES[d.tier]}${d.tier > tierCap(battleNo(this.run)) ? ` · 第${[0, 1, 3, 6, 9][d.tier]}战开放` : ''}`))));
+      list.replaceChildren(...defs.map(d => h('button', { class: `pool-unit tier-${d.tier}${d.tier > tierCap(battleNo(this.run)) ? ' locked' : ''}`, onclick: () => show(d.id) }, h('span', { class: 'pool-unit-art', html: unitSvg(d.id) }), h('b', null, d.name), h('span', null, `${RARITY_NAMES[d.tier]}${d.tier > tierCap(battleNo(this.run)) ? ` · 第${[0, 1, 3, 6, 9, 12, 15][d.tier]}战开放` : ''}`))));
       show(defs[0].id);
     };
     select(groups[0]);
@@ -649,6 +698,7 @@ export class Game {
       v.el.setAttribute('aria-label', `${u.side ? '敌方' : '我方'}${u.slot + 1}格 ${unitDef(u.defId).name}`);
       v.el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); if (this.editable && !u.side) this.tap('unit', u.slot, { x: 0, y: 0 }); else this.showUnitTip(u.side, u.slot); } };
       v.setTag(null);
+      if (u.side === 0 && modernTactics(this.run) && this.run.commandTarget === this.owned(u.slot)?.ownedId) v.addTag(generalDefinition(this.run.general, 1).skill, 'buff');
       if (!after.alive) v.addTag('开战时阵亡', 'death');
       const fz = pv.fizzles.get(u.uid);
       if (fz) v.addTag(fz, 'fizzle');
@@ -662,17 +712,6 @@ export class Game {
     this.drawLinks(intro);
     for (const s of pv.summons) b.slotMark(s.side, s.slot, h('span', null, s.text), 'summon');
 
-    // 第 1 次交锋双方队首出手：普攻打敌方队首，狙击打队尾；施法单位第 1 次交锋不普攻
-    const alive = (side: Side) => out.afterStart.filter((u) => u.alive && u.side === side).sort((x, y) => x.slot - y.slot);
-    for (const side of [0, 1] as Side[]) {
-      const a = alive(side)[0];
-      const foes = alive((1 - side) as Side);
-      if (!a || !foes.length || unitDef(a.defId).cast) continue;
-      const back = !!(unitDef(a.defId).traits?.snipe || a.grants.snipe);
-      const t = back ? foes[foes.length - 1] : foes[0];
-      const init = out.initial[t.uid - 1];
-      b.target(init.side, init.slot, side === 1 ? 'enemy-aim' : 'ally-aim');
-    }
 
     b.setCenter('VS', '', '');
     this.dropHints();
@@ -693,7 +732,19 @@ export class Game {
       return u ? headPos(u.side, u.slot) : null;
     };
     const fu = f ? out.initial.find((u) => u.side === f.side && u.slot === f.slot)?.uid ?? -1 : 0;
+    b.marks.querySelectorAll('.target-glow').forEach(mark => mark.remove());
+    const alive = (side: Side) => out.afterStart.filter(u => u.alive && u.hp > 0 && u.side === side).sort((a, z) => a.slot - z.slot);
+    const attackers = f ? out.afterStart.filter(u => u.uid === fu && u.alive) : [alive(0)[0], alive(1)[0]].filter(Boolean);
     const linked = new Set<number>();
+    for (const a of attackers) {
+      const d = unitDef(a.defId);
+      if (d.traits?.idle || (!f && d.cast && a.charges !== 0)) continue;
+      const target = previewAttackTarget(a, alive((1 - a.side) as Side));
+      if (!target) continue;
+      const initial = out.initial[target.uid - 1];
+      if (initial) b.target(initial.side, initial.slot, a.side ? 'enemy-aim' : 'ally-aim');
+      if (f) linked.add(target.uid);
+    }
     const arrows = f ? pv.arrows.filter((a) => a.from === fu || a.to === fu) : [];
     arrows.forEach((a) => linked.add(a.from).add(a.to));
     // 车道：区间相交就往上抬一层（短的先排，贴近单位）
@@ -780,7 +831,7 @@ export class Game {
     if (slot >= 5) return this.drawLinks(false, this.pv, null);
     const trial = cloneRun(this.inventory);
     if (d.kind === 'card') {
-      if (takeDraft(trial, d.idx, slot) === 'invalid') return this.drawLinks(false, this.pv, null);
+      if (this.takeShelf(trial, d.idx, slot) === 'invalid') return this.drawLinks(false, this.pv, null);
     } else if (moveSlot(trial, d.idx, slot, this.sandbox ? 'swap' : 'auto') === 'invalid') return this.drawLinks(false, this.pv, null);
     const out = simulate({ ...this.setup(true), player: cloneSlots(trial.slots) });
     this.drawLinks(false, { out, pv: analyze(out) }, { side: 0, slot });
@@ -810,8 +861,9 @@ export class Game {
     const d = this.drag ?? (this.sel?.kind === 'unit' ? { kind: 'unit', idx: this.sel.slot } : null);
     if (!d) return '';
     if (d.kind === 'card') {
-      if (this.run.picks <= 0) return 'invalid';
-      return placeKind(this.run, this.run.draft[d.idx], slot);
+      const item = this.draftItem(this.run, d.idx);
+      if (!item || (d.idx >= 0 && this.run.picks <= 0) || (modernEconomy(this.run) && this.shelfBuyReason(this.run, d.idx, slot))) return 'invalid';
+      return placeKind(this.run, item.id, slot);
     }
     if (d.idx === slot || (!this.drag && this.owned(slot))) return '';
     return moveKind(this.inventory, d.idx, slot, this.sandbox ? 'swap' : 'auto');
@@ -864,7 +916,7 @@ export class Game {
     const a = toStage(b.left, b.top), z = toStage(b.right, b.bottom);
     const rect = { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
     const el = h('div', { class: 'sell-zone', style: `left:${rect.x}px;top:${rect.y}px;width:${rect.w}px;height:${rect.h}px` },
-      h('b', null, '拖到这里出售'), h('span', null, `+${sellPrice(u)} 金 · 培养点和装备退回`));
+      h('b', null, '拖到这里出售'), h('span', null, `+${sellPrice(u, this.run)} 金 · 培养点和装备退回`));
     this.el.appendChild(el);
     this.sellZone = { el, rect };
   }
@@ -883,11 +935,11 @@ export class Game {
       if (!this.editable || !this.allowTutorial({ kind: 'sell', slot: index }) || !sell(this.run, index)) return;
       sfx.reward();
       const p = index < 5 ? bodyPos(0, index) : null;
-      if (p) this.app.fx.float(p.x, p.y - 60, `+${sellPrice(u)} 金`, 'levelup', 900);
+      if (p) this.app.fx.float(p.x, p.y - 60, `+${sellPrice(u, this.run)} 金`, 'levelup', 900);
       this.sel = null; hideTip(); this.save(); this.renderAll(); this.emit('sell');
     };
     const valuable = unitLevel(u) > 1 || (u.equips ?? []).length > 0 || Object.values(u.train ?? {}).some(Boolean);
-    if (valuable) this.app.confirm(`出售${unitDef(u.defId).name}？`, `获得 ${sellPrice(u)} 金，培养点和装备会退回。`, '出售', done);
+    if (valuable) this.app.confirm(`出售${unitDef(u.defId).name}？`, `获得 ${sellPrice(u, this.run)} 金，培养点和装备会退回。`, '出售', done);
     else done();
   }
 
@@ -939,7 +991,8 @@ export class Game {
     if (!this.editable) { this.clearDrag(); return; }
     if (!d.ghost) {
       if (Math.hypot(e.clientX - d.startX, e.clientY - d.startY) < 6) return;
-      const defId = d.kind === 'card' ? this.run.draft[d.idx] : this.owned(d.idx)!.defId;
+      const defId = d.kind === 'card' ? this.draftItem(this.run, d.idx)?.id : this.owned(d.idx)?.defId;
+      if (!defId) { this.clearDrag(); return; }
       d.ghost = h('div', { class: 'drag-ghost', html: unitSvg(defId) });
       this.el.appendChild(d.ghost);
       d.src.classList.add('lifted');
@@ -998,23 +1051,32 @@ export class Game {
 
   /** 鼠标悬停结束时调用：点开的卡牌详情要留着，只关悬停带出来的说明 */
   private restoreTip() {
-    if (this.sel?.kind !== 'card' || !this.run.draft[this.sel.idx]) { hideTip(); return; }
-    const tip = unitTip(this.run.draft[this.sel.idx], 1);
-    tip.appendChild(h('div', { class: 'tip-note' }, '按住卡牌拖到位置上招募'));
-    // 招募区上方的右半边：不挡卡牌，也有足够高度
-    showTip(tip, 1050, 470, 'above');
+    const item = this.sel?.kind === 'card' ? this.draftItem(this.run, this.sel.idx) : undefined;
+    if (!item || this.sel?.kind !== 'card') { hideTip(); return; }
+    // Purchase details show the offered one-star ability; owned units retain
+    // their upgrade preview. Repeating long next-star text hides the choices.
+    const tip = unitTip(item.id, 1, null, false);
+    if (modernEconomy(this.run)) {
+      const index = this.sel.idx;
+      tip.appendChild(h('button', { class: 'btn shelf-lock', onclick: () => {
+        if (!this.editable || !(item.groupId === undefined ? freezeDraft(this.run, index) : freezeUpgradeOffer(this.run, item.groupId))) return;
+        this.save(); this.renderTray(); this.restoreTip();
+      } }, item.locked ? (item.groupId === undefined ? '解锁商品' : '解锁二选一') : (item.groupId === undefined ? '锁定商品' : '锁定二选一')));
+    }
+    // Keep purchase details above the shelf and left of the battle controls.
+    showTip(tip, 690, 440, 'above');
   }
 
   private tap(kind: 'card' | 'unit', idx: number, p: { x: number; y: number }) {
     if (kind === 'card') {
-      if (this.run.picks <= 0) return;
+      if (idx >= 0 && this.run.picks <= 0) return;
       if (this.sel?.kind === 'card' && this.sel.idx === idx) this.sel = null;
       else {
         this.sel = { kind: 'card', idx };
         sfx.pick();
         this.emit('select-card');
       }
-      this.tray.querySelectorAll('.card').forEach((c, i) => c.classList.toggle('selected', this.sel?.kind === 'card' && this.sel.idx === i));
+      this.tray.querySelectorAll<HTMLElement>('.card').forEach(c => c.classList.toggle('selected', this.sel?.kind === 'card' && this.sel.idx === Number(c.dataset.draftIndex)));
       this.board.views.forEach((v) => v.el.classList.remove('selected'));
       this.focus = this.hover = null; this.drawLinks();
       this.dropHints();
@@ -1024,6 +1086,7 @@ export class Game {
     }
     // 单位：点在单位上
     const slot = idx;
+    if (this.commandArm && slot < 5) { this.chooseCommand(slot); return; }
     if (this.sel?.kind === 'point' || this.sel?.kind === 'equip') { this.applyArm(slot); return; }
     if (this.sel?.kind === 'card') { this.sel = null; hideTip(); this.tray.querySelectorAll('.card.selected').forEach((c) => c.classList.remove('selected')); }
     // 点选保留原来的查看语义；占用位置之间的交换/合成只由拖动发起。
@@ -1182,6 +1245,8 @@ export class Game {
     const own = side === 0 && this.editable ? this.owned(slot) : null;
     const extra = own ? this.ownedExtra(own, slot) : null;
     if (extra) content.appendChild(extra);
+    const blocked = own ? sellBlockReason(this.run, slot) : null;
+    if (blocked) content.append(h('div', { class: 'tip-text' }, blocked));
     const p = headPos(side, slot);
     if (this.editable) showTip(content, slotX(side, slot), UNIT_Y + 62, 'below', p.y - 30);
     else showTip(content, p.x, p.y - 30, 'above');
@@ -1189,20 +1254,25 @@ export class Game {
 
   private doPlace(idx: number, slot: number, confirmed = false) {
     if (!this.allowTutorial({ kind: 'place', idx, slot })) return false;
-    const defId = this.run.draft[idx];
+    if (modernEconomy(this.run)) {
+      const reason = this.shelfBuyReason(this.run, idx, slot);
+      if (reason) { this.app.showRewardNotice('无法购买', reason); return false; }
+    }
+    const defId = this.draftItem(this.run, idx)?.id;
+    if (!defId) return false;
     // 放到已有单位的位置：挤去备战席或遣散，都先确认，防止拖偏了把场上单位顶掉
-    if (!confirmed && this.run.picks > 0 && placeKind(this.run, defId, slot) === 'reserve') {
+    if (!confirmed && (idx < 0 || this.run.picks > 0) && placeKind(this.run, defId, slot) === 'reserve') {
       const old = this.owned(slot)!;
       this.app.confirm(`替换${unitDef(old.defId).name}？`, `${unitDef(defId).name}会占这个位置，${unitDef(old.defId).name}移到备战席。`, '替换', () => { if (this.editable) this.doPlace(idx, slot, true); });
       return false;
     }
-    const kind = takeDraft(this.run, idx, slot, confirmed);
+    const kind = this.takeShelf(this.run, idx, slot, confirmed);
     if (kind === 'confirm') {
       const old = this.owned(slot)!;
       this.app.confirm(`遣散${unitDef(old.defId).name}？`, `场上和备战席都满了，${unitDef(defId).name}会顶掉这名${unitLevel(old)}星单位（按出售退还金币、培养点和装备）。`, '遣散并招募', () => { if (this.editable) this.doPlace(idx, slot, true); });
       return false;
     }
-    if (kind === 'invalid') { sfx.fizzle(); if (slot < 5) this.flashSlot(slot, 'bad'); return false; }
+    if (kind === 'invalid') { const why = sellBlockReason(this.run, slot); if (why) this.app.showRewardNotice('无法替换', why); sfx.fizzle(); if (slot < 5) this.flashSlot(slot, 'bad'); return false; }
     hideTip(); this.sel = null;
     if (kind === 'merge') sfx.merge(); else sfx.place();
     if (slot < 5) this.armFocus(slot);
@@ -1270,7 +1340,10 @@ export class Game {
   private ownedExtra(u: Slotted, slot: number) {
     const eqs = u.equips ?? [];
     const train = Object.entries(u.train ?? {}).filter(([, n]) => n);
-    if (!eqs.length && !train.length) return null;
+    const growth = Object.entries(u.growth ?? {}).filter(([, n]) => n);
+    const projected = this.preparedOwned(u);
+    const pending = (['atk', 'hp', 'power'] as const).map(k => [k, (projected.growth?.[k] ?? 0) - (u.growth?.[k] ?? 0)] as const).filter(([,n]) => n);
+    if (!eqs.length && !train.length && !growth.length && !pending.length) return null;
     const canEdit = this.mode === 'prep' && !this.sandbox && this.editable;
     const off = (i: number) => h('button', { class: 'to-off', onclick: (e: Event) => {
       e.stopPropagation();
@@ -1282,6 +1355,8 @@ export class Game {
       { class: 'tip-own' },
       eqs.map((id, i) => h('div', { class: 'to-eq' }, itemIcon(id, 'spell', 'sm'), h('b', null, EQUIP_MAP[id]?.name ?? id), h('span', null, EQUIP_MAP[id]?.text ?? ''), canEdit ? off(i) : null)),
       train.length ? h('div', { class: 'to-tr' }, '培养：', train.map(([k, n]) => `${POINT_MAP[k]?.name ?? k}+${n}`).join('  ')) : null,
+      growth.length ? h('div', { class: 'to-tr' }, '远征成长：', growth.map(([k, n]) => `${POINT_MAP[k]?.name ?? k}+${n}`).join('  ')) : null,
+      pending.length ? h('div', { class: 'to-tr' }, '开战时成长：', pending.map(([k, n]) => `${POINT_MAP[k]?.name ?? k}+${n}`).join('  ')) : null,
     );
   }
 
@@ -1316,7 +1391,7 @@ export class Game {
     const r = this.run;
     const d = this.dock;
     this.armHint.classList.add('hidden');
-    if (this.mode !== 'prep' || this.sandbox) { this.swapArm = false; this.swapPick = null; d.classList.add('hidden'); this.closePrep(); return; }
+    if (this.mode !== 'prep' || this.sandbox) { this.commandArm = false; this.swapArm = false; this.swapPick = null; d.classList.add('hidden'); this.closePrep(); return; }
     const left = stashTotal(r) + r.bag.length + r.spells.length + r.orders.length;
     const btn = h('button', { class: `prep-btn${left ? ' has' : ''}`, 'aria-label': '整备' }, icon('plate'), h('span', null, '整备'), left ? h('i', null, left) : null);
     btn.addEventListener('click', (e) => { e.stopPropagation(); if (this.editable && !this.adPending) { sfx.click(); this.openPrep(); } });
@@ -1324,13 +1399,21 @@ export class Game {
     d.replaceChildren(acts, btn);
     d.classList.remove('hidden');
     // 主将专属按钮堆在「整备」上方：把开战键再往上让出同样高度，避免互相压住
-    this.el.style.setProperty('--gen-stack', acts.childElementCount ? `${[...acts.children].reduce((t, c) => t + (c.classList.contains('egg-prog') ? 48 : 56) + 8, 2)}px` : '0px');
+    const rows = [...acts.children], buttons = rows.filter(c => !c.classList.contains('egg-prog')).length;
+    this.el.style.setProperty('--gen-stack', rows.length
+      ? `calc(${2 + (rows.length - buttons) * 56 + buttons * 8}px + ${buttons} * max(56px, var(--control-size, 64px)))` : '0px');
     const hk = r.lastHatch ? `${battleNo(r)}:${r.lastHatch}` : '';
     if (hk && hk !== this.hatchNoted) {
       this.hatchNoted = hk;
       this.app.showRewardNotice('龙蛋孵化', `${unitDef(r.lastHatch!).name}破壳而出`);
     }
     if (this.prep) this.renderPrep();
+  }
+
+  private chooseCommand(slot: number) {
+    const id = this.owned(slot)?.ownedId;
+    if (id == null || !this.editable || this.sandbox || this.adPending || !setGeneralOrder(this.run, id)) { sfx.fizzle(); return; }
+    this.commandArm = false; this.sel = null; hideTip(); sfx.pick(); this.save(); this.renderAll();
   }
 
   /** 主将专属的备战操作：蕾娃换位、赫克佣兵、星角龙蛋进度 */
@@ -1341,6 +1424,21 @@ export class Game {
       b.addEventListener('click', (e) => { e.stopPropagation(); if (this.editable && !this.adPending) fn(); });
       return b;
     };
+    if (modernTactics(r) && (r.general === 'zilan' || r.general === 'kaleos')) {
+      const skill = generalDefinition(r.general, 1).skill;
+      const target = r.slots.find(u => u?.ownedId === r.commandTarget);
+      const choose = act('flag', this.commandArm ? '取消选择' : skill, '', this.commandArm || !!target, () => {
+        sfx.click(); this.commandArm = !this.commandArm; this.sel = null; hideTip(); this.renderDock(); this.renderBoard();
+      });
+      choose.disabled = !r.slots.some(Boolean);
+      choose.setAttribute('aria-pressed', String(this.commandArm));
+      out.push(choose);
+      if (r.commandTarget != null) out.push(act('replay', '撤销指令', '', false, () => {
+        if (!setGeneralOrder(r, null)) return;
+        this.commandArm = false; sfx.click(); this.save(); this.renderAll();
+      }));
+      if (this.commandArm) out.push(h('span', { class: 'command-prompt', role: 'status' }, '选择战位友军'));
+    }
     if (r.general === 'reva') {
       const cap = swapCap(r), n = r.swaps?.length ?? 0;
       out.push(n >= cap
@@ -1383,6 +1481,9 @@ export class Game {
       const EGG_ICONS: [EggStat, Parameters<typeof icon>[0]][] = [['death', 'skull'], ['burn', 'fire'], ['freeze', 'snow'], ['move', 'swap'], ['summon', 'sparkle']];
       out.push(h('div', { class: 'egg-prog', 'aria-label': `龙蛋 满${max}孵化` },
         EGG_ICONS.map(([k, ic]) => h('span', { class: `egg-${k}` }, icon(ic), h('i', null, acc?.[k] ?? 0))), h('b', null, `/${max}`)));
+    }
+    if (r.general === 'xingjiao' && (r.pendingEggs ?? 0) > 0) {
+      out.push(h('div', { class: 'egg-prog egg-pending', role: 'status' }, icon('sparkle'), h('span', null, `待补蛋 ${r.pendingEggs}`)));
     }
     return out;
   }
@@ -1476,6 +1577,7 @@ export class Game {
     const selectOwned = (slot: number, el: HTMLElement, e: Event) => {
       e.stopPropagation();
       if (!this.editable || this.adPending) return;
+      if (this.commandArm && slot < 5) { this.chooseCommand(slot); return; }
       this.prepFocus = slot;
       if (sel?.kind === 'point' || sel?.kind === 'equip') { this.applyArm(slot); return; }
       this.renderPrep();
@@ -1483,8 +1585,10 @@ export class Game {
       if (u) {
         const target = this.prep?.querySelector<HTMLElement>(`.prep-owned[data-slot="${slot}"]`) ?? el;
         const init = out.initial.find(x => x.side === 0 && x.slot === slot);
-        const st = init ? out.afterStart[init.uid - 1] : { ...this.ownedStats(u), chill: 0, burn: 0, power: ownedPower(u.defId, unitLevel(u), u) };
-        tipAt(target, unitTip(u.defId, unitLevel(u), st));
+        const st = init ? out.afterStart[init.uid - 1] : { ...this.ownedStats(u), chill: 0, burn: 0, power: ownedPower(u.defId, unitLevel(u), this.preparedOwned(u)) };
+        const tip = unitTip(u.defId, unitLevel(u), st);
+        const extra = this.ownedExtra(u, slot); if (extra) tip.append(extra);
+        tipAt(target, tip);
       }
     };
     for (const u of out.initial) {
@@ -1535,13 +1639,13 @@ export class Game {
     }
 
     // 主将：只收法强
-    const g = GENERAL_MAP[r.general];
-    const genOn = sel?.kind === 'point' && !!POINT_MAP[sel.type]?.toGeneral;
+    const g = generalDefinition(r.general, r.tacticsVersion);
+    const genOn = sel?.kind === 'point' && !!POINT_MAP[sel.type]?.toGeneral && canTrainGeneral(r);
     const gen = h('div', { class: `pu-card gen${genOn ? ' target' : ''}`, style: `--fc:${FACTION_INFO[g.faction].color}` },
       h('div', { class: 'pu-art', html: unitSvg(null, { general: g.id, tier2: promoted(r) }) }),
       h('div', { class: 'pu-lv' }, '主将'),
       h('b', { class: 'pu-name' }, g.name),
-      h('div', { class: 'pu-stat', 'aria-label': `主将法强 ${r.genPower}` }, h('span', { class: 'p' }, pxIcon('power'), num(r.genPower, r.genPower))),
+      canTrainGeneral(r) ? h('div', { class: 'pu-stat', 'aria-label': `主将法强 ${r.genPower}` }, h('span', { class: 'p' }, pxIcon('power'), num(r.genPower, r.genPower))) : null,
       refunds('general'),
     );
     gen.addEventListener('click', (e) => {
@@ -1551,7 +1655,7 @@ export class Game {
       if (!genOn || s?.kind !== 'point') {
         this.prepFocus = 'general'; this.renderPrep();
         const target = this.prep?.querySelector<HTMLElement>('.pu-card.gen') ?? gen;
-        tipAt(target, generalTip(g.id, this.base.genPower, this.base.passives)); return;
+        tipAt(target, generalTip(g.id, this.base.genPower, this.base.passives, this.base.tacticsVersion)); return;
       }
       hideTip();
       if (!this.allowTutorial({ kind: 'alloc', to: 'general', type: s.type })) return;
@@ -1643,7 +1747,29 @@ export class Game {
     this.panel = h('div', { class: `phase-ov ph-${sc}` }, body);
     this.el.appendChild(this.panel);
     this.syncMusicState();
-    if (sc === 'promo') requestAnimationFrame(() => this.coach());
+    if (sc === 'promo') {
+      const panel = this.panel;
+      panel.setAttribute('role', 'dialog');
+      panel.setAttribute('aria-modal', 'true');
+      panel.setAttribute('aria-label', modernTactics(this.run) ? '选择战术' : `${generalDefinition(this.run.general).name}升阶`);
+      // Scope the trap to this dialog so independently focused coach/modal controls keep their own input.
+      panel.addEventListener('keydown', e => {
+        if (e.key !== 'Tab') return;
+        const options = [...panel.querySelectorAll<HTMLButtonElement>('.ph-opt.passive:not(:disabled)')];
+        if (!options.length) return;
+        e.preventDefault(); e.stopPropagation();
+        const i = options.indexOf(document.activeElement as HTMLButtonElement);
+        const next = i < 0 ? (e.shiftKey ? options.length - 1 : 0)
+          : (i + (e.shiftKey ? -1 : 1) + options.length) % options.length;
+        options[next].focus({ preventScroll: true });
+      });
+      requestAnimationFrame(() => {
+        this.coach();
+        if (this.panel !== panel || !panel.isConnected) return;
+        if (document.activeElement?.closest('.coach, .modal-ov')) return;
+        panel.querySelector<HTMLButtonElement>('.ph-opt.passive:not(:disabled)')?.focus({ preventScroll: true });
+      });
+    }
   }
 
   private phaseDone() {
@@ -1654,6 +1780,7 @@ export class Game {
 
   private shopPanel() {
     const r = this.run, s = r.shop!;
+    const unitBuys = shopUnitBuysRemaining(r);
     // 手机防误触：点一下只选中并在右侧说明栏展开详情，再点「购买」才扣金币；出售改为把阵容头像拖进出售框
     type Good = { key: string; kind: Parameters<typeof buy>[1]; i: number; name: string; text: string; unitStats?: { atk: number; hp: number }; price: number; sold: boolean; cls: string; icon: HTMLElement; block?: string };
     const doBuy = (g: Good) => {
@@ -1668,12 +1795,13 @@ export class Game {
       ...s.units.map((it, i) => {
         const d = unitDef(it.id), st = levelStats(it.id, 1);
         return { key: `units:${i}`, kind: 'units' as const, i, name: d.name, text: abilityText(it.id, 1), unitStats: st, price: it.price, sold: it.sold, cls: 'un', icon: h('span'),
-          block: !it.sold && unitDestination(r, it.id) === null ? '没有空位：先把阵容里的单位拖进出售框' : undefined };
+          block: !it.sold && unitBuys <= 0 ? '本店已购买2名单位' : !it.sold && unitDestination(r, it.id) === null ? '没有空位：先把阵容里的单位拖进出售框' : undefined };
       }),
       ...s.equips.map((it, i) => ({ key: `equips:${i}`, kind: 'equips' as const, i, name: EQUIP_MAP[it.id].name, text: EQUIP_MAP[it.id].text, price: it.price, sold: it.sold, cls: 'eq', icon: itemIcon(it.id) })),
       ...s.spells.map((it, i) => ({ key: `spells:${i}`, kind: 'spells' as const, i, name: SPELL_MAP[it.id].name, text: SPELL_MAP[it.id].text, price: it.price, sold: it.sold, cls: 'sp', icon: itemIcon(it.id, 'spell') })),
+      ...(s.boon ? [{ key: 'boon:0', kind: 'boon' as const, i: 0, name: PASSIVE_MAP[s.boon.id].name, text: `本次远征持续生效：${PASSIVE_MAP[s.boon.id].text}`, price: s.boon.price, sold: s.boon.sold, cls: 'sp', icon: itemIcon('sp_haste', 'spell') }] : []),
       ...(s.order ? [{ key: 'order:0', kind: 'order' as const, i: 0, name: ORDER_MAP[s.order.id].name, text: ORDER_MAP[s.order.id].text, price: s.order.price, sold: s.order.sold, cls: 'od', icon: itemIcon(s.order.id, 'order') }] : []),
-      { key: 'pack:0', kind: 'pack' as const, i: 0, name: '培养包', text: `内含：${s.pack.points.map(p => POINT_MAP[p].name).join('、')}`, price: s.pack.price, sold: s.pack.sold, cls: 'pk', icon: itemIcon('pack', 'pack') },
+      ...(s.pack ? [{ key: 'pack:0', kind: 'pack' as const, i: 0, name: '培养包', text: `内含：${s.pack.points.map(p => POINT_MAP[p].name).join('、')}`, price: s.pack.price, sold: s.pack.sold, cls: 'pk', icon: itemIcon('pack', 'pack') }] : []),
     ];
     const sel = goods.find(g => g.key === this.shopSel && !g.sold) ?? null;
     const owned = allOwned(r);
@@ -1682,11 +1810,11 @@ export class Game {
     // 选中商店里的单位时，阵容中同名的单位亮起：一眼看出买了能不能合并升星
     const matchId = sel?.kind === 'units' ? s.units[sel.i].id : null;
     const tile = (g: Good, body: HTMLElement[]) => {
-      const b = h('button', { class: `${g.kind === 'units' ? 'sh-unit' : `sh-item ${g.cls}`}${g.sold ? ' sold' : ''}${sel === g ? ' on' : ''}`, disabled: g.sold, 'aria-pressed': String(sel === g), 'aria-label': `${g.name}，${g.price} 金` }, ...body);
+      const b = h('button', { class: `${g.kind === 'units' ? 'sh-unit' : `sh-item ${g.cls}`}${g.sold ? ' sold' : ''}${g.block ? ' unavailable' : ''}${sel === g ? ' on' : ''}`, disabled: g.sold, 'aria-pressed': String(sel === g), 'aria-label': `${g.name}，${g.price} 金` }, ...body);
       b.addEventListener('click', () => pick(sel === g ? null : g.key));
       return b;
     };
-    const units = goods.filter(g => g.kind === 'units').map(g => tile(g, [draftCard(s.units[g.i].id), g.block ? h('span', { class: 'sh-price poor' }, '无空位') : price(g.price, g.sold)]));
+    const units = goods.filter(g => g.kind === 'units').map(g => tile(g, [draftCard(s.units[g.i].id), g.block ? h('span', { class: 'sh-price poor' }, unitBuys <= 0 ? '已达购买上限' : '无空位') : price(g.price, g.sold)]));
     const items = goods.filter(g => g.kind !== 'units').map(g => tile(g, [h('span', { class: 'sh-icon' }, g.icon), h('b', null, g.name), price(g.price, g.sold)]));
 
     // 说明栏：选中商品的完整说明 + 购买按钮
@@ -1703,7 +1831,7 @@ export class Game {
           h('span', { class: 'sh-pos' }, ownSel < 5 ? `战斗席 ${ownSel + 1} 号位` : '备战席'),
           h('span', { class: 'sh-st px' }, statArt('atk', st.atk), statArt('hp', st.hp), st.block ? h('span', { class: 'kwic kw-block' }, h('i', null, st.block)) : null),
           h('p', null, ...kwRich(abilityText(ownU.defId, lv, ownedPower(ownU.defId, lv, ownU))), extra ? h('span', { class: 'sh-extra' }, `　${extra}`) : null)),
-        h('div', { class: 'sh-sellhint' }, h('span', null, '拖进出售框卖出'), h('b', null, itemIcon('coin', 'coin', 'sm'), `+${sellPrice(ownU)}`)));
+        h('div', { class: 'sh-sellhint' }, h('span', null, sellBlockReason(r, ownSel) ?? '拖进出售框卖出'), canSell(r, ownSel) ? h('b', null, itemIcon('coin', 'coin', 'sm'), `+${sellPrice(ownU, r)}`) : null));
     } else if (sel) {
       const why = sel.block ?? (r.gold < sel.price ? `金币不足（还差 ${sel.price - r.gold}）` : '');
       const go = h('button', { class: 'btn primary sh-buy', disabled: !!why }, h('span', null, '购买'), h('span', { class: 'sh-buy-p' }, itemIcon('coin', 'coin', 'sm'), `${sel.price}`));
@@ -1730,7 +1858,7 @@ export class Game {
       const tag = i < 5 ? `${i + 1}` : '备';
       if (!u) return h('div', { class: 'sh-own empty' }, h('span', { class: 'sh-seat' }, tag), h('span', { class: 'sh-none' }, '空'));
       const st = this.ownedStats(u), lv = unitLevel(u);
-      const b = h('div', { class: `sh-own${ownSel === i ? ' on' : ''}${matchId === u.defId ? ' match' : ''}`, role: 'button', tabindex: 0, 'aria-pressed': String(ownSel === i), 'aria-label': `${unitDef(u.defId).name} ${lv} 星，${st.atk} 攻 ${st.hp} 血，拖到出售框卖出 ${sellPrice(u)} 金` },
+      const b = h('div', { class: `sh-own${ownSel === i ? ' on' : ''}${matchId === u.defId ? ' match' : ''}`, role: 'button', tabindex: 0, 'aria-pressed': String(ownSel === i), 'aria-label': `${unitDef(u.defId).name} ${lv} 星，${st.atk} 攻 ${st.hp} 血，${sellBlockReason(r, i) ?? `拖到出售框卖出 ${sellPrice(u, this.run)} 金`}` },
         h('span', { class: 'sh-own-art', html: unitSvg(u.defId) }),
         h('span', { class: 'sh-seat' }, tag),
         u.equips?.length ? h('span', { class: 'sh-own-eq' }, itemIcon(u.equips[0], 'spell', 'sm')) : null,
@@ -1747,7 +1875,7 @@ export class Game {
     const leave = h('button', { class: 'btn primary sh-leave' }, h('span', null, '离开商店'), icon('play'));
     leave.addEventListener('click', () => { if (this.allowTutorial({ kind: 'leave-shop' }) && leaveShop(r)) { this.shopSel = null; this.phaseDone(); } });
     return h('div', { class: 'ph-card shop px-panel' },
-      h('div', { class: 'ph-head' }, h('b', null, '商店'), h('span', { class: 'sh-gold' }, itemIcon('coin', 'coin'), `${r.gold}`), refresh, leave),
+      h('div', { class: 'ph-head' }, h('b', null, '商店'), h('span', { class: 'sh-gold' }, itemIcon('coin', 'coin'), `${r.gold}`), modernTactics(r) ? h('span', { class: 'sh-unit-budget', role: 'status' }, `单位可购 ${unitBuys}/2`) : refresh, leave),
       h('div', { class: 'sh-market' },
         h('div', { class: 'sh-catalog' },
           h('div', { class: 'sh-units' }, units),
@@ -1759,10 +1887,18 @@ export class Game {
         bin));
   }
 
-  /** 拥有单位的战前身材：星级基础 + 培养 + 装备（不含开战效果） */
+  private preparedOwned(u: Slotted): Slotted {
+    if (this.mode !== 'prep' || this.sandbox) return u;
+    const projected = previewPreparation(this.run);
+    return [...projected.slots, ...projected.bench].find(x => x?.ownedId === u.ownedId) ?? u;
+  }
+
+  /** Includes pending preparation growth; excludes battle-only opening abilities. */
   private ownedStats(u: Slotted) {
+    u = this.preparedOwned(u);
     const b = levelStats(u.defId, unitLevel(u));
     const t = { atk: b.atk, hp: b.hp, maxHp: b.hp, block: 0, grants: {} as Record<string, number> };
+    t.atk += u.growth?.atk ?? 0; t.hp += u.growth?.hp ?? 0; t.maxHp = t.hp;
     for (const [k, n] of Object.entries(u.train ?? {})) if (n && POINT_MAP[k]) POINT_MAP[k].apply(t as never, n);
     for (const id of u.equips ?? []) { const e = EQUIP_MAP[id]; if (e) { t.atk = Math.max(1, t.atk + (e.atk ?? 0)); t.hp += e.hp ?? 0; } }
     return t;
@@ -1815,7 +1951,7 @@ export class Game {
   }
 
   private forkPanel() {
-    const st = chapter(this.run.chapter).stages[this.run.node] as Extract<Stage, { type: 'fork' }>;
+    const st = currentStage(this.run) as Extract<Stage, { type: 'fork' }>;
     const opt = (pick: 'normal' | 'elite', n: RouteNode, reward: string) => {
       const b = h('button', { class: `ph-opt fork-${pick}` },
         h('div', { class: 'rp-head' }, h('span', { class: 'sb-kind' }, pick === 'elite' ? '精英' : '普通'), h('b', null, n.name)),
@@ -1845,9 +1981,9 @@ export class Game {
 
   private promoPanel() {
     const r = this.run;
-    const g = GENERAL_MAP[r.general];
+    const g = generalDefinition(r.general, r.tacticsVersion);
     return h('div', { class: 'ph-card promo', style: `--fc:${FACTION_INFO[g.faction].color}` },
-      h('div', { class: 'ph-head' }, h('div', { class: 'promo-art', html: unitSvg(null, { general: g.id, tier2: true }) }), h('b', null, `${g.name} 升阶`), h('span', null, '选择一个主将被动')),
+      h('div', { class: 'ph-head' }, h('div', { class: 'promo-art', html: unitSvg(null, { general: g.id, tier2: true }) }), h('b', null, modernTactics(r) ? '选择战术' : `${g.name} 升阶`), modernTactics(r) ? null : h('span', null, '选择一个主将被动')),
       h('div', { class: 'ph-opts' }, r.promo!.map((id, i) => {
         const p = PASSIVE_MAP[id];
         const b = h('button', { class: `ph-opt passive${p.general ? ' own' : ''}` }, p.general ? h('span', { class: 'sb-kind' }, '专属') : null, h('b', null, p.name), h('p', null, ...kwRich(p.text)));
@@ -1893,7 +2029,7 @@ export class Game {
 
   private showRoutePreview(i: number, anchor: HTMLElement) {
     this.closePopover();
-    const st = chapter(this.run.chapter).stages[i];
+    const st = currentStage(this.run, i);
     const nodes = this.stageNodes(st, i);
     const r = anchor.getBoundingClientRect();
     const p = toStage(r.left + r.width / 2, r.bottom);
@@ -1986,7 +2122,14 @@ export class Game {
     pb.speed = this.speed;
     pb.genEl = () => this.el.querySelector<HTMLElement>('.hud-general');
     pb.onLog = (l) => this.pushLog(l);
-    pb.onBeat = (n, round) => this.setBarPhase(`第 ${round} 回合\n第 ${n} 次交锋`);
+    const fatigueStart = fatigueStartForChapter(ctx.base.chapter + 1);
+    pb.onBeat = (n, round) => {
+      const remaining = fatigueStart - n;
+      // Near fatigue the two existing lines prioritize its timing over the
+      // round counter; keeping the beat number makes the damage schedule clear.
+      this.setBarPhase(remaining > 3 ? `第 ${round} 回合\n第 ${n} 次交锋`
+        : `第 ${n} 次交锋\n${remaining > 0 ? `疲劳${remaining}拍后` : `疲劳${n - fatigueStart + 1}伤/交锋`}`);
+    };
     pb.onPhase = (ph) => this.setBarPhase(ph === 'start' ? '开战阶段' : '交锋');
     if (this.tut && ctx.kind === 'official') pb.onHold = (n, els) => this.tut?.hold(n, els) ?? null;
     this.pb = pb;
@@ -2388,13 +2531,13 @@ export class Game {
       return bottom.y < STAGE_H / 2 ? show(id, text, top.x, bottom.y, 'up') : show(id, text, top.x, top.y, 'down');
     };
     if (promo) {
-      if (!at('promo', '晋升被动<b>只对当前主将</b>生效', this.panel!.querySelector<HTMLElement>('.ph-opts'))) { this.coachEl?.remove(); this.coachEl = null; }
+      if (!at('promo', modernTactics(this.run) ? '选择的战术对<b>本次远征</b>持续生效' : '晋升被动<b>只对当前主将</b>生效', this.panel!.querySelector<HTMLElement>('.ph-opts'))) { this.coachEl?.remove(); this.coachEl = null; }
       return;
     }
     const empty = teamSize(this.run) === 0;
     if (empty) {
       if (show('drag', '按住一张卡，<b>拖到左侧格位</b>招募（点一下只看详情）。<br>靠近中线的 <b>1 号位是队首</b>，最先出手、也最先挨打。', 620, 452, 'down')) return;
-    } else if (show('preview6', '盘面显示的是<b>开战时效果之后</b>的数值，拖动时实时预演。<br>每回合默认每人<b>行动一次</b>，双方按站位行动；一方本轮用完就等待。带「施法」的施法，其余普攻。<b>准星</b>标出第 1 次交锋双方会打谁。', 340, 112, 'up')) return;
+    } else if (show('preview6', '盘面显示的是<b>开战时效果之后</b>的数值，拖动时实时预演。<br>每回合默认每人<b>行动一次</b>，双方按站位行动；一方本轮用完就等待。带「施法」的施法，其余普攻。<b>光晕</b>标出普攻目标，点选单位可查看它当前会打谁。', 340, 112, 'up')) return;
     // 首遇提示：主将专属交互和新流派词条，各只出一次
     const r = this.run, q = <T extends HTMLElement>(sel: string) => this.el.querySelector<T>(sel);
     const unitWith = (pick: (d: ReturnType<typeof unitDef>) => boolean) => {
@@ -2406,7 +2549,7 @@ export class Game {
     if (r.general === 'xingjiao' && at('g_xingjiao', '任一类事件攒满，<b>龙蛋孵化</b>成对应的龙', q('.egg-prog'))) return;
     if (r.general === 'hank' && r.merc && !r.merc.sold && at('g_hank', '免费的临时佣兵，点开看详情，<b>只打本场</b>', q('.gen-acts .gen-act'))) return;
     if (r.general === 'argeon' && at('g_argeon', '主将<b>本人也占一格</b>上场，不能出售', q('.board .unit[data-side="0"][data-slot="0"]'))) return;
-    if (at('k_charge', '<b>蓄力</b>：圆点攒满时释放强力效果', unitWith((d) => !!d.traits?.charge))) return;
+    if (at('k_charge', '<b>蓄力</b>：行动积满圆点时，立即释放蓄力技', unitWith((d) => !!d.traits?.charge))) return;
     if (at('k_rotate', '<b>轮换</b>：行动后退到队尾，换下一个上', unitWith((d) => !!d.traits?.rotate))) return;
     if (battleNo(this.run) >= 3 && show('hint', '从这里开始敌人会出题。<br>点击顶部<b>路线节点</b>可以提前查看之后的敌人。', 640, 84, 'up')) return;
     this.coachEl?.remove(); this.coachEl = null;

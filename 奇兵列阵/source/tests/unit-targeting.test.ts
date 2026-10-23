@@ -12,31 +12,39 @@ const firstBeat = (out: BattleOutput) => {
   const end = out.log.findIndex(x => x.ev.t === 'beat' && x.ev.n === 2);
   return out.log.slice(0, end < 0 ? undefined : end);
 };
+function lockedBuffFixture(run: () => BattleOutput) {
+  const d = unitDef('n_paragon'), prior = { onStart: d.onStart, lockTargets: d.lockTargets };
+  try {
+    d.lockTargets = true;
+    d.onStart = [{ op: 'buff', to: 'highestAtk', v: [2, 2, 2], v2: [2, 2, 2] }, { op: 'buff', to: 'highestHp', v: [2, 2, 2], v2: [2, 2, 2] }];
+    return run();
+  } finally { Object.assign(d, prior); }
+}
 const enemy = (atk: number, hp: number): EnemyEntry => ({ defId: 'e_skel', atk, hp });
 
 describe('单次关联技能目标锁定', () => {
   it('四风术士杀死原目标后不向其他敌人转移攻击削弱', () => {
     const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)]);
-    expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 4, kind: 'ability' });
+    expect(firstBeat(out).map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 6, kind: 'ability' });
     expect(firstBeat(out).some(x => x.ev.t === 'buff' && x.ev.src === 1)).toBe(false);
   });
 
   it('四风术士未击杀时伤害与削弱落在同一目标', () => {
     const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 30), enemy(8, 99)]);
     const log = firstBeat(out).map(x => x.ev);
-    expect(log).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 4, kind: 'ability' });
+    expect(log).toContainEqual({ t: 'dmg', src: 1, tgt: 2, n: 6, kind: 'ability' });
     expect(log).toContainEqual({ t: 'buff', src: 1, tgt: 2, atk: -1, hp: 0 });
     expect(log.some(ev => ev.t === 'buff' && ev.src === 1 && ev.tgt === 3)).toBe(false);
   });
 
-  it('落日灵驹在任何增益前分别选择最高攻击与最高生命', () => {
-    const out = play([{ defId: 'n_paragon', atk: 1, hp: 1 }, enemy(9, 10), enemy(1, 11)], [enemy(1, 999)]);
+  it('关联双增益fixture在任何增益前分别选择最高攻击与最高生命', () => {
+    const out = lockedBuffFixture(() => play([{ defId: 'n_paragon', atk: 1, hp: 1 }, enemy(9, 10), enemy(1, 11)], [enemy(1, 999)]));
     expect(out.afterStart[1]).toMatchObject({ atk: 11, hp: 12 });
     expect(out.afterStart[2]).toMatchObject({ atk: 3, hp: 13 });
   });
 
   it('原本同时最高攻和最高血的同一友军得到两次增益', () => {
-    const out = play([{ defId: 'n_paragon', atk: 1, hp: 1 }, enemy(9, 12), enemy(1, 11)], [enemy(1, 999)]);
+    const out = lockedBuffFixture(() => play([{ defId: 'n_paragon', atk: 1, hp: 1 }, enemy(9, 12), enemy(1, 11)], [enemy(1, 999)]));
     expect(out.afterStart[1]).toMatchObject({ atk: 13, hp: 16 });
     expect(out.afterStart[2]).toMatchObject({ atk: 1, hp: 11 });
   });
@@ -45,7 +53,7 @@ describe('单次关联技能目标锁定', () => {
     const out = play([{ defId: 's_caster', hp: 99 }], [{ defId: 'l_cliff', atk: 1, hp: 20 }, enemy(9, 30)]);
     const log = firstBeat(out);
     expect(log.some(x => x.ev.t === 'taunt')).toBe(false);
-    expect(log.map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 3, n: 4, kind: 'ability' });
+    expect(log.map(x => x.ev)).toContainEqual({ t: 'dmg', src: 1, tgt: 3, n: 6, kind: 'ability' });
     expect(log.map(x => x.ev)).toContainEqual({ t: 'buff', src: 1, tgt: 3, atk: -1, hp: 0 });
     expect(log.some(x => x.ev.t === 'dmg' && x.ev.src === 1 && x.ev.tgt === 2)).toBe(false);
   });
@@ -54,7 +62,7 @@ describe('单次关联技能目标锁定', () => {
     const out = play([{ defId: 's_caster', hp: 99 }], [enemy(9, 4), enemy(8, 99)], true);
     const log = firstBeat(out);
     expect(log.filter(x => x.ev.t === 'dmg' && x.ev.src === 1).map(x => x.ev)).toMatchObject([
-      { tgt: 2, n: 4 }, { tgt: 3, n: 4 },
+      { tgt: 2, n: 6 }, { tgt: 3, n: 6 },
     ]);
     expect(log.filter(x => x.ev.t === 'buff' && x.ev.src === 1).map(x => x.ev)).toMatchObject([{ tgt: 3, atk: -1 }]);
     expect(log.filter(x => x.ev.t === 'act' && x.ev.uid === 1 && x.ev.mode === 'cast')).toHaveLength(1);

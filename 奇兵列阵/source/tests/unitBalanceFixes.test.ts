@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { simulate } from '../src/core/engine';
+import { newRun, commitPreparation, takeDraft } from '../src/core/run';
 import type { BattleOutput, EnemyEntry, Slotted } from '../src/core/types';
 
 const unit = (defId: string, level = 1): EnemyEntry => ({ defId, level });
@@ -16,39 +17,39 @@ describe('四卡数值与能力回归', () => {
   const blocksFrom = (out: BattleOutput, src: number, beat: number) =>
     beatLog(out, beat).flatMap(x => x.ev.t === 'block' && x.ev.src === src ? [x.ev] : []);
 
-  it.each([[1, 1], [2, 1], [3, 2]])('守誓者%i星在队尾时：每次交锋结束给我方队首%i挡', (level, v) => {
-    const out = play([unit('n_merc'), unit('n_medic'), null, unit('l_vigil', level)]);
-    expect(out.fault).toBeUndefined();
-    expect(out.afterStart.filter(u => u.side === 0).map(u => u.block)).toEqual([0, 0, 0]);
-    expect(blocksFrom(out, 3, 1)).toMatchObject([{ uid: 1, n: v }]);
-    expect(beatLog(out, 1).at(-1)!.snap[0].block).toBe(v);
+  it.each([1, 2, 3])('守誓者%i星结束备战永久培育队首，不因重复提交再领', level => {
+    const r = newRun('kaleos', 89);
+    r.slots = [{ defId: 'n_merc', ownedId: 1, copies: 1 }, { defId: 'l_vigil', ownedId: 2, copies: [1,2,4][level-1] as 1|2|4 }, null, null, null];
+    r.allocLog = []; r.prepUses = {}; r.prepCommitted = false;
+    commitPreparation(r); commitPreparation(r);
+    expect(r.slots[0]?.growth).toEqual({ hp: level });
+    expect(r.slots[1]?.growth).toBeUndefined();
+    const out = play(r.slots);
+    expect(out.initial[0].maxHp).toBe(5 + level);
+    expect(out.log.some(x => x.ev.t === 'block' && x.ev.src === 2)).toBe(false);
   });
 
-  it.each([1, 2, 3])('守誓者%i星不在队尾或只剩自己时不触发', level => {
-    const front = play([unit('l_vigil', level), unit('n_merc')]);
-    expect(front.fault).toBeUndefined();
-    expect(front.log.some(x => x.ev.t === 'block' && x.ev.src === 1)).toBe(false);
-    const alone = play([null, null, unit('l_vigil', level)]);
-    expect(alone.fault).toBeUndefined();
-    expect(alone.log.some(x => x.ev.t === 'block' && x.ev.src === 1)).toBe(false);
+  it('备战席守誓者不能免费培育场上队首', () => {
+    const r = newRun('kaleos', 90);
+    r.slots = [{ defId: 'n_merc', ownedId: 1, copies: 1 }, null, null, null, null];
+    r.bench = [{ defId: 'l_vigil', ownedId: 2, copies: 1 }, null, null];
+    r.allocLog = []; r.prepCommitted = false;
+    commitPreparation(r);
+    expect(r.slots[0]?.growth).toBeUndefined();
   });
 
-  it.each([[1, 2], [2, 3], [3, 3]])('旭日守望%i星开战最高血目标获得%i挡，节拍3刷新，不再给护甲', (level, blocks) => {
+  it.each([[1, 2], [2, 3], [3, 3]])('旭日守望%i星开战最高血目标获得%i挡，战中不再节拍刷新或给护甲', (level, blocks) => {
     const out = play([{ defId: 'n_merc', hp: 1000 }, unit('l_sunriser', level)]);
     expect(out.fault).toBeUndefined();
     const target = out.afterStart[0];
     expect(target.block).toBe(blocks);
     expect(target.armor ?? 0).toBe(0);
     expect(out.afterStart[1].block).toBe(0);
-    expect(out.afterStart[1].pulseMax).toBe(3);
+    expect(out.afterStart[1].pulseMax).toBeUndefined();
     for (const beat of [1, 2]) {
       expect(beatLog(out, beat).some(x => x.ev.t === 'trigger' && x.ev.src === 2)).toBe(false);
     }
-    // 目标未满挡时节拍才实际触发；满挡不空触发。
-    expect(beatLog(out, 3).some(x => x.ev.t === 'trigger' && x.ev.src === 2 && x.ev.kind === 'pulse')).toBe(blocks < 3);
-    const at3 = beatLog(out, 3).at(-1)!.snap;
-    expect(at3[0].block).toBe(3);
-    expect(at3[1].block).toBe(0);
+    expect(out.log.some(x => x.ev.t === 'trigger' && x.ev.src === 2 && x.ev.kind === 'pulse')).toBe(false);
     expect(out.log.some(x => x.ev.t === 'buff' && x.ev.src === 2)).toBe(false);
   });
 
@@ -72,8 +73,8 @@ describe('四卡数值与能力回归', () => {
     expect(input).toEqual(before);
   });
 
-  it.each([[1, 4], [2, 5], [3, 7]])('献祭术士%i星固有法强计入首次施法实际%i伤害', (level, damage) => {
-    const out = play([unit('a_cult', level)], { defId: 'e_skel', hp: 999, atk: 1 });
+  it.each([[1, 6], [2, 8], [3, 10]])('四风术士%i星固有法强计入首次施法实际%i伤害', (level, damage) => {
+    const out = play([unit('s_caster', level)], { defId: 'e_skel', hp: 999, atk: 1 });
     expect(out.fault).toBeUndefined();
     expect(out.initial[0].power).toBe(1);
     const first = beatLog(out, 1).find(x => x.ev.t === 'dmg' && x.ev.src === 1 && x.ev.kind === 'ability');

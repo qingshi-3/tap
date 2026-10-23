@@ -1,0 +1,867 @@
+{
+  "label": "All 31 observed calibration first encounters at second boss; paired fixed legal setup+seed; not a rerun of full trajectories, holdout not read",
+  "n": 31,
+  "arms": [
+    {
+      "mode": "baseline",
+      "n": 31,
+      "win": 12,
+      "lose": 14,
+      "draw": 5,
+      "playerInitialLost": 143,
+      "enemyInitialLost": 119,
+      "playerDeathEvents": 175,
+      "enemyDeathEvents": 119,
+      "minBeats": 18,
+      "maxBeats": 27,
+      "medianBeats": 25,
+      "replayMismatches": 0,
+      "meanBeats": 24.580645161290324,
+      "meanPlayerFrozenSkips": 5.32258064516129,
+      "freezeTriggers": 109,
+      "barrierTriggers": 50,
+      "fatigueBattles": 29,
+      "faults": 0
+    },
+    {
+      "mode": "bounded-control",
+      "n": 31,
+      "win": 14,
+      "lose": 10,
+      "draw": 7,
+      "playerInitialLost": 138,
+      "enemyInitialLost": 133,
+      "playerDeathEvents": 169,
+      "enemyDeathEvents": 133,
+      "minBeats": 18,
+      "maxBeats": 27,
+      "medianBeats": 25,
+      "replayMismatches": 0,
+      "meanBeats": 24.258064516129032,
+      "meanPlayerFrozenSkips": 4.258064516129032,
+      "freezeTriggers": 60,
+      "barrierTriggers": 29,
+      "fatigueBattles": 29,
+      "faults": 0
+    },
+    {
+      "mode": "bounded-hp42",
+      "n": 31,
+      "win": 25,
+      "lose": 6,
+      "draw": 0,
+      "playerInitialLost": 101,
+      "enemyInitialLost": 146,
+      "playerDeathEvents": 128,
+      "enemyDeathEvents": 146,
+      "minBeats": 15,
+      "maxBeats": 26,
+      "medianBeats": 24,
+      "replayMismatches": 0,
+      "meanBeats": 23.225806451612904,
+      "meanPlayerFrozenSkips": 3.967741935483871,
+      "freezeTriggers": 49,
+      "barrierTriggers": 21,
+      "fatigueBattles": 27,
+      "faults": 0
+    },
+    {
+      "mode": "bounded-hp36",
+      "n": 31,
+      "win": 27,
+      "lose": 3,
+      "draw": 1,
+      "playerInitialLost": 85,
+      "enemyInitialLost": 152,
+      "playerDeathEvents": 109,
+      "enemyDeathEvents": 152,
+      "minBeats": 15,
+      "maxBeats": 26,
+      "medianBeats": 24,
+      "replayMismatches": 0,
+      "meanBeats": 22.677419354838708,
+      "meanPlayerFrozenSkips": 3.6129032258064515,
+      "freezeTriggers": 43,
+      "barrierTriggers": 14,
+      "fatigueBattles": 25,
+      "faults": 0
+    }
+  ],
+  "transitions": [
+    {
+      "id": "calibration/reva/24501098/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 23
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 23
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24501098/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 20
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 20
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24631461/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 23
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 23
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24631461/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24631461/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24761824/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 21
+        }
+      ]
+    },
+    {
+      "id": "calibration/reva/24761824/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 20
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24110009/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24110009/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24110009/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 27
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 26
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24240372/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 27
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 27
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24240372/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24370735/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "draw",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 22
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24370735/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/zilan/24370735/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "draw",
+          "beats": 26
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24110009/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "lose",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24110009/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 23
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 23
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24110009/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 20
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 20
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24240372/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24240372/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 26
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 25
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24240372/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 23
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24370735/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 20
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 20
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 17
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 17
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24370735/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 23
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "lose",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/sajj/24370735/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 18
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 18
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 15
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 15
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24110009/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "lose",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24110009/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24240372/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 25
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 24
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24240372/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 21
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 21
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24370735/growth",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "lose",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 21
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24370735/upgrade",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "draw",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "draw",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 22
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 20
+        }
+      ]
+    },
+    {
+      "id": "calibration/kaleos/24370735/mechanism",
+      "arms": [
+        {
+          "mode": "baseline",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-control",
+          "result": "win",
+          "beats": 24
+        },
+        {
+          "mode": "bounded-hp42",
+          "result": "win",
+          "beats": 20
+        },
+        {
+          "mode": "bounded-hp36",
+          "result": "win",
+          "beats": 20
+        }
+      ]
+    }
+  ]
+}
