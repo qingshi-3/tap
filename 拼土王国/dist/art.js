@@ -1304,6 +1304,17 @@ const ICONS = {
     ell(c, 12, 12, 8.5, 8.5, '#fbf6ea', INK, 1.5); ell(c, 12, 12, 4.5, 4.5, '#c4553f', INK, 1.3);
     for (const [a, b, d, e] of [[12, 1, 12, 4.5], [12, 19.5, 12, 23], [1, 12, 4.5, 12], [19.5, 12, 23, 12]]) line(c, a, b, d, e, INK, 1.8);
   },
+  eye(c) {
+    c.beginPath(); c.moveTo(2, 12); c.quadraticCurveTo(12, 2.5, 22, 12); c.quadraticCurveTo(12, 21.5, 2, 12); c.closePath();
+    c.fillStyle = '#fbf6ea'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.7; c.stroke();
+    ell(c, 12, 12, 4.6, 4.6, '#4f8ea8', INK, 1.4); ell(c, 12, 12, 2, 2, INK); ell(c, 10.4, 10.3, 1.1, 1.1, '#fff');
+  },
+  eyeOff(c) {
+    c.beginPath(); c.moveTo(2, 12); c.quadraticCurveTo(12, 2.5, 22, 12); c.quadraticCurveTo(12, 21.5, 2, 12); c.closePath();
+    c.fillStyle = '#e6dcc4'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.7; c.stroke();
+    ell(c, 12, 12, 4.6, 4.6, '#9aa7a8', INK, 1.4);
+    line(c, 4, 20, 20, 4, '#fbf6ea', 4.5); line(c, 4, 20, 20, 4, '#c8483a', 2.4);
+  },
   zoomIn(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); line(c, 10, 6.5, 10, 13.5, INK, 2); },
   zoomOut(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); },
   menu(c) { for (const y of [6, 12, 18]) line(c, 5, y, 19, y, INK, 2.6); },

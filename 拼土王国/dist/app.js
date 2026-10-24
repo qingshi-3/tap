@@ -30,6 +30,7 @@ let pan = null;
 const pointers = new Map();
 let pinch = null;
 let sheet = null;         // 'land' | 'draft' | null
+let peek = false;         // sheet faded out so the map can be seen underneath
 const dismissed = { land: 0, draft: 0 };
 let guardView = false, yieldView = true;
 let floaters = [];
@@ -662,11 +663,11 @@ function openSheet(kind) {
   if (state.status !== 'playing') return;
   if (kind === 'land' && state.landBought) return;
   if (kind === 'draft' && state.drafted) return;
-  sheet = kind; renderSheet();
+  sheet = kind; peek = false; renderSheet();
 }
 function closeSheet(remember = true) {
   if (remember && sheet) dismissed[sheet] = state.turn;
-  sheet = null; $('#sheet').hidden = true;
+  sheet = null; peek = false; $('#sheet').hidden = true;
 }
 function renderSheet() {
   const el = $('#sheet'), box = el.querySelector('.pick');
@@ -688,7 +689,7 @@ function renderSheet() {
           <span class="art"><canvas data-land="${i}" width="264" height="180"></canvas></span><b>${esc(o.name)}</b>
           <span class="chips">${Object.entries(counts).map(([t, n]) => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}${n}</span>`).join('')}</span></button>`;
       }).join('')}</div>
-      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">看看地图</button></div>`;
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">稍后</button></div>`;
     box.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
     $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
@@ -716,6 +717,9 @@ function renderSheet() {
     $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
   }
+  box.insertAdjacentHTML('beforeend', `<button class="peek-btn" id="sheet-peek" aria-label="${peek ? '回到选择' : '查看地图'}" aria-pressed="${peek}">${iconHtml(peek ? 'eyeOff' : 'eye')}</button>`);
+  $('#sheet-peek').onclick = () => { peek = !peek; buzz('light'); renderSheet(); };
+  el.classList.toggle('peek', peek);
   paintIcons(box);
 }
 $('#sheet').addEventListener('pointerdown', e => { if (e.target.id === 'sheet') closeSheet(); });

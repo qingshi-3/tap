@@ -125,6 +125,16 @@ html, body, #game { touch-action: none; }
   padding: 18px 12px calc(8px + var(--safe-b)); background: radial-gradient(ellipse at center, #0b1a2088 0%, #0b1a20cc 75%); }
 .pick { position: relative; width: min(660px, 100%); max-height: 100%; display: flex; flex-direction: column; background: linear-gradient(#f8efd8, #ead9b0);
   border-radius: 18px; padding: 22px 12px 12px; box-shadow: 0 0 0 3px #8a5a32, 0 0 0 6px #f1e5c9, 0 14px 40px #000b; }
+.pick-wrap { transition: background-color .15s; }
+.pick > * { transition: opacity .15s; }
+.peek-btn { position: absolute; top: -20px; right: 14px; z-index: 2; width: 46px; height: 46px; padding: 0; border: 0; border-radius: 50%;
+  display: grid; place-items: center; background: linear-gradient(#fffaf0, #eadbb6); box-shadow: 0 3px 0 #b08a5a, 0 4px 10px #0005; }
+.peek-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b08a5a, 0 2px 6px #0005; }
+.peek-btn .ic { width: 30px; height: 30px; }
+.pick-wrap.peek { background: none; pointer-events: none; }
+.pick-wrap.peek .pick { background: none; box-shadow: none; animation: none; }
+.pick-wrap.peek .pick > :not(.peek-btn) { opacity: 0; }
+.pick-wrap.peek .peek-btn { pointer-events: auto; }
 .pick.pop { animation: pick-in .22s ease-out; }
 @keyframes pick-in { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 .pick-head { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; white-space: nowrap;
@@ -2316,6 +2326,17 @@ const ICONS = {
     ell(c, 12, 12, 8.5, 8.5, '#fbf6ea', INK, 1.5); ell(c, 12, 12, 4.5, 4.5, '#c4553f', INK, 1.3);
     for (const [a, b, d, e] of [[12, 1, 12, 4.5], [12, 19.5, 12, 23], [1, 12, 4.5, 12], [19.5, 12, 23, 12]]) line(c, a, b, d, e, INK, 1.8);
   },
+  eye(c) {
+    c.beginPath(); c.moveTo(2, 12); c.quadraticCurveTo(12, 2.5, 22, 12); c.quadraticCurveTo(12, 21.5, 2, 12); c.closePath();
+    c.fillStyle = '#fbf6ea'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.7; c.stroke();
+    ell(c, 12, 12, 4.6, 4.6, '#4f8ea8', INK, 1.4); ell(c, 12, 12, 2, 2, INK); ell(c, 10.4, 10.3, 1.1, 1.1, '#fff');
+  },
+  eyeOff(c) {
+    c.beginPath(); c.moveTo(2, 12); c.quadraticCurveTo(12, 2.5, 22, 12); c.quadraticCurveTo(12, 21.5, 2, 12); c.closePath();
+    c.fillStyle = '#e6dcc4'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.7; c.stroke();
+    ell(c, 12, 12, 4.6, 4.6, '#9aa7a8', INK, 1.4);
+    line(c, 4, 20, 20, 4, '#fbf6ea', 4.5); line(c, 4, 20, 20, 4, '#c8483a', 2.4);
+  },
   zoomIn(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); line(c, 10, 6.5, 10, 13.5, INK, 2); },
   zoomOut(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); },
   menu(c) { for (const y of [6, 12, 18]) line(c, 5, y, 19, y, INK, 2.6); },
@@ -2617,6 +2638,7 @@ let pan = null;
 const pointers = new Map();
 let pinch = null;
 let sheet = null;         // 'land' | 'draft' | null
+let peek = false;         // sheet faded out so the map can be seen underneath
 const dismissed = { land: 0, draft: 0 };
 let guardView = false, yieldView = true;
 let floaters = [];
@@ -3249,11 +3271,11 @@ function openSheet(kind) {
   if (state.status !== 'playing') return;
   if (kind === 'land' && state.landBought) return;
   if (kind === 'draft' && state.drafted) return;
-  sheet = kind; renderSheet();
+  sheet = kind; peek = false; renderSheet();
 }
 function closeSheet(remember = true) {
   if (remember && sheet) dismissed[sheet] = state.turn;
-  sheet = null; $('#sheet').hidden = true;
+  sheet = null; peek = false; $('#sheet').hidden = true;
 }
 function renderSheet() {
   const el = $('#sheet'), box = el.querySelector('.pick');
@@ -3275,7 +3297,7 @@ function renderSheet() {
           <span class="art"><canvas data-land="${i}" width="264" height="180"></canvas></span><b>${esc(o.name)}</b>
           <span class="chips">${Object.entries(counts).map(([t, n]) => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}${n}</span>`).join('')}</span></button>`;
       }).join('')}</div>
-      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">看看地图</button></div>`;
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">稍后</button></div>`;
     box.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
     $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
@@ -3303,6 +3325,9 @@ function renderSheet() {
     $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
   }
+  box.insertAdjacentHTML('beforeend', `<button class="peek-btn" id="sheet-peek" aria-label="${peek ? '回到选择' : '查看地图'}" aria-pressed="${peek}">${iconHtml(peek ? 'eyeOff' : 'eye')}</button>`);
+  $('#sheet-peek').onclick = () => { peek = !peek; buzz('light'); renderSheet(); };
+  el.classList.toggle('peek', peek);
   paintIcons(box);
 }
 $('#sheet').addEventListener('pointerdown', e => { if (e.target.id === 'sheet') closeSheet(); });
