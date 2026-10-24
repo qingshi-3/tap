@@ -1,0 +1,573 @@
+/* ═══════════════════════════════════════════════════════════
+   像素美术层（覆盖 style.css）
+   精灵由 ui/pixel.ts 在启动时生成，写入 --pxf-* / --pxd-* / --px-* 变量。
+   规则：1 精灵像素 = 2 舞台像素；描边用“缺角”方块阴影，不用圆角。
+   ═══════════════════════════════════════════════════════════ */
+
+#stage {
+  image-rendering: pixelated;
+  /* 缺角描边：四个方向各偏移 2px 的硬阴影，角上自然留空 */
+  --notch: 2px;
+}
+
+/* ───────── 背景 ───────── */
+.bg-px {
+  background: var(--px-backdrop) center / 1280px 720px no-repeat;
+}
+.bg-fog {
+  background: linear-gradient(180deg, transparent 72%, #06061a 100%);
+}
+
+/* ───────── 通用：9-slice 像素框 ───────── */
+.card-in,
+.gen-card,
+.battle-bar,
+.tip,
+.modal,
+.res-card,
+.route-pop,
+.coach,
+.sandbox-panel,
+.rewarded-card,
+.reward-notice,
+.end-stats > div,
+.end-unit {
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--pxf-steel) 6 / 12px / 0 stretch;
+  border-radius: 4px;
+}
+.coach {
+  border-image-source: var(--pxf-gold);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 200, 90, 0.25);
+}
+.sandbox-panel {
+  border-image-source: var(--pxf-teal);
+  box-shadow: none;
+}
+.end-stats > div,
+.end-unit {
+  border-image-source: var(--pxf-dim);
+  box-shadow: none;
+}
+.battle-bar,
+.res-card,
+.modal,
+.rewarded-card,
+.tip,
+.route-pop {
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+.res-card,
+.modal,
+.rewarded-card {
+  border-image-source: var(--pxf-gold);
+}
+.reward-notice {
+  border-image-source: var(--pxf-teal);
+  border-radius: 4px;
+}
+.reward-notice.error {
+  border-image-source: var(--pxf-red, var(--pxf-steel));
+}
+.rewarded-scene,
+.rewarded-ad-tag,
+.rewarded-progress i {
+  border-radius: 0;
+}
+.rewarded-close {
+  border-radius: 0;
+}
+.route-pop::before {
+  border-radius: 0;
+}
+
+/* 卡牌：阵营色像素框 */
+.card-in {
+  border-image-source: var(--pxf, var(--pxf-steel));
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 28%, color-mix(in srgb, var(--fc) 30%, transparent), transparent 70%),
+    linear-gradient(180deg, #1c1b44, #0d0d24 60%, #0a0a1c);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+}
+/* 阵营框是 24×24 / 切片 9 的精灵，边纹按周期平铺；选中只加金色光晕，不替换阵营框 */
+.card-in,
+.gen-card {
+  border-image-slice: 9;
+  border-image-width: 18px;
+  border-image-repeat: round;
+}
+.card.selected .card-in {
+  box-shadow: 0 0 0 2px #ffd36b, 0 0 30px rgba(255, 211, 107, 0.55), 0 18px 36px rgba(0, 0, 0, 0.6);
+}
+.card-fac,
+.card-badge {
+  border-radius: 0;
+}
+.card-fac {
+  box-shadow:
+    2px 0 color-mix(in srgb, var(--fc) 45%, transparent),
+    -2px 0 color-mix(in srgb, var(--fc) 45%, transparent),
+    0 2px color-mix(in srgb, var(--fc) 45%, transparent),
+    0 -2px color-mix(in srgb, var(--fc) 45%, transparent);
+}
+.card-art::before {
+  border-radius: 0;
+  height: 10px;
+  bottom: 2px;
+  left: -6px;
+  right: -6px;
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.55) 0 4px, rgba(0, 0, 0, 0.35) 4px 6px);
+  -webkit-mask: radial-gradient(ellipse 50% 50%, #000 60%, transparent 62%);
+  mask: radial-gradient(ellipse 50% 50%, #000 60%, transparent 62%);
+}
+
+/* 选将卡 */
+.gen-card {
+  border-image-source: var(--pxf, var(--pxf-steel));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fd) 60%, #12102e), #0b0a1f 70%);
+}
+
+/* ───────── 按钮：缺角 + 阶梯色带 ───────── */
+.btn,
+.btn.big,
+.btn.fight,
+.icon-btn {
+  border-radius: 0;
+}
+.btn.primary {
+  background: linear-gradient(180deg, #fff1b8 0 4px, #ffd36b 4px 52%, #f0b048 52% calc(100% - 6px), #b06a1a calc(100% - 6px));
+  box-shadow:
+    2px 0 #4a2604,
+    -2px 0 #4a2604,
+    0 2px #4a2604,
+    0 -2px #4a2604,
+    0 8px 22px rgba(255, 180, 60, 0.3);
+  text-shadow: 0 2px 0 #fff6;
+}
+.btn.ghost {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0 2px, rgba(255, 255, 255, 0.06) 2px calc(100% - 4px), rgba(0, 0, 0, 0.25) calc(100% - 4px));
+  box-shadow:
+    2px 0 rgba(255, 220, 160, 0.38),
+    -2px 0 rgba(255, 220, 160, 0.38),
+    0 2px rgba(255, 220, 160, 0.38),
+    0 -2px rgba(255, 220, 160, 0.38);
+}
+.btn.ghost:hover {
+  box-shadow:
+    2px 0 rgba(255, 220, 160, 0.75),
+    -2px 0 rgba(255, 220, 160, 0.75),
+    0 2px rgba(255, 220, 160, 0.75),
+    0 -2px rgba(255, 220, 160, 0.75),
+    0 0 18px rgba(255, 211, 107, 0.15);
+}
+/* 复盘与标题页的次要操作复用实体色带，不再给按钮另套外框。 */
+.sp-btns .btn.ghost,
+.title-btns .btn.ghost {
+  background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
+  box-shadow: none;
+}
+.sp-btns .btn.ad-retry {
+  background: linear-gradient(180deg, #b8e6f4 0 4px, #7abdd6 4px 52%, #5da0bf 52% calc(100% - 6px), #34627f calc(100% - 6px));
+  color: #102e42;
+  box-shadow: none;
+  text-shadow: none;
+}
+.btn.danger {
+  background: linear-gradient(180deg, #ffb0b8 0 4px, #ff6a78 4px 52%, #e8394f 52% calc(100% - 6px), #8a1024 calc(100% - 6px));
+  box-shadow:
+    2px 0 #3a0610,
+    -2px 0 #3a0610,
+    0 2px #3a0610,
+    0 -2px #3a0610,
+    0 8px 20px rgba(255, 60, 80, 0.28);
+}
+.icon-btn {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0 2px, rgba(255, 255, 255, 0.05) 2px);
+  box-shadow:
+    2px 0 rgba(255, 220, 160, 0.3),
+    -2px 0 rgba(255, 220, 160, 0.3),
+    0 2px rgba(255, 220, 160, 0.3),
+    0 -2px rgba(255, 220, 160, 0.3);
+}
+.btn.fight::after {
+  background: linear-gradient(100deg, transparent 0 30%, rgba(255, 255, 255, 0.5) 30% 46%, transparent 46% 56%, rgba(255, 255, 255, 0.35) 56% 64%, transparent 64%);
+}
+
+/* ───────── 单位：像素帧 + 眨眼 ───────── */
+.uart.px {
+  position: relative;
+}
+.uart.px img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+.uart.px .px-c {
+  opacity: 0;
+  animation: pxBlink 5.2s steps(1) infinite;
+  animation-delay: var(--bob-delay, 0s);
+}
+@keyframes pxBlink {
+  0%, 93%, 97%, 100% { opacity: 0; }
+  94% { opacity: 1; }
+}
+
+/* 数值宝石 */
+.st,
+.cs {
+  width: 34px;
+  height: 34px;
+  border-radius: 0 !important;
+  transform: none !important;
+  box-shadow: none !important;
+  background: var(--px-hp) center / 34px 34px no-repeat !important;
+  filter: drop-shadow(0 3px 0 rgba(0, 0, 0, 0.45));
+}
+.st > :not(.delta),
+.cs > * {
+  transform: none !important;
+}
+.st.atk,
+.cs.atk {
+  background-image: var(--px-atk) !important;
+}
+.st.hp.hurt {
+  background-image: var(--px-hp-hurt) !important;
+}
+.st.zero {
+  background-image: var(--px-hp-zero) !important;
+}
+.st.atk.zero {
+  background-image: var(--px-atk-zero) !important;
+}
+/* 护甲与法强复用数值宝石，不再叠加词条图标框。 */
+.st.armor {
+  background-image: var(--px-atk-zero) !important;
+}
+.st.power {
+  background-image: var(--pxr-4) !important;
+}
+.st.block {
+  background-image: var(--px-hp-zero) !important;
+}
+.u-kws {
+  align-items: center;
+}
+.u-kws > .st {
+  flex: 0 0 34px;
+}
+.st .ic,
+.cs .ic {
+  display: none;
+}
+.st i,
+.cs i {
+  font-size: 17px;
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000;
+}
+
+/* ───────── 台座 ───────── */
+.ped {
+  top: 18px;
+  height: 36px;
+  border-radius: 0;
+  background: var(--px-ped-0) center / 92px 36px no-repeat;
+}
+.slot.side-0.front .ped {
+  background-image: var(--px-ped-0f);
+}
+.slot.side-1 .ped {
+  background-image: var(--px-ped-1);
+}
+.slot.side-1.front .ped {
+  background-image: var(--px-ped-1f);
+}
+.ped::before,
+.slot.front .ped::before {
+  inset: -6px -10px 2px;
+  border-radius: 50%;
+  box-shadow: none;
+  background: radial-gradient(ellipse, rgba(var(--pc), 0.3), transparent 62%);
+  opacity: 0.55;
+  mix-blend-mode: screen;
+}
+.slot.front .ped::before {
+  opacity: 1;
+}
+.board.dropping .slot.side-0[data-drop] .ped::before,
+.slot.drop-hover .ped::before {
+  opacity: 1;
+  background: radial-gradient(ellipse, rgba(var(--pc), 0.55), transparent 62%);
+}
+.ped-rune,
+.ped-top {
+  display: none;
+}
+.board.dropping .slot.side-0::after,
+.slot-num span {
+  border-radius: 0;
+}
+
+/* 中线勋章：金色像素框菱形 */
+.vs::before {
+  inset: 15px;
+  border-radius: 2px;
+  transform: rotate(45deg);
+  background: #120e34;
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--pxf-gold) 6 / 10px / 0 stretch;
+  box-shadow: 0 0 30px rgba(120, 90, 255, 0.45);
+}
+.vs-ring {
+  inset: 9px;
+  border-radius: 0;
+  border: 2px dashed rgba(255, 211, 107, 0.45);
+  transform: rotate(45deg);
+  animation: vsPulse 2.4s steps(4) infinite;
+}
+.vs-ring.r2 {
+  display: none;
+}
+@keyframes vsPulse {
+  50% { inset: 5px; opacity: 0.4; }
+}
+
+/* 战场中线 */
+.arena-floor::before {
+  width: 6px;
+  background: var(--pxv-gold) center top / 6px 16px repeat-y;
+  -webkit-mask: linear-gradient(180deg, transparent, #000 35%, #000 60%, transparent);
+  mask: linear-gradient(180deg, transparent, #000 35%, #000 60%, transparent);
+  opacity: 0.55;
+}
+
+/* ───────── 箭头：像素点线 ───────── */
+.arrows {
+  shape-rendering: crispEdges;
+}
+.arw {
+  stroke-width: 4;
+  stroke-linecap: butt;
+  stroke-dasharray: 4 4;
+  animation-name: pxMarch;
+  animation-timing-function: steps(2);
+  animation-duration: 0.5s;
+}
+.arw-swap {
+  stroke-dasharray: 8 4;
+}
+.arw-glow {
+  stroke-width: 10;
+  opacity: 0.22;
+}
+@keyframes pxMarch {
+  to { stroke-dashoffset: -8; }
+}
+.arw-lbl,
+.callout {
+  border-radius: 0;
+}
+.callout {
+  box-shadow:
+    2px 0 var(--c),
+    -2px 0 var(--c),
+    0 2px var(--c),
+    0 -2px var(--c),
+    0 0 16px color-mix(in srgb, var(--c) 45%, transparent);
+}
+
+/* ───────── 分隔线：像素点阵 + 中心宝石 ───────── */
+.hud::after,
+.tray::before,
+.stage-intro::before,
+.stage-intro::after {
+  height: 14px;
+  background:
+    var(--pxg-gold) center / 22px 14px no-repeat,
+    var(--pxd-gold) left center / 16px 6px repeat-x;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.hud::after {
+  bottom: 0;
+  opacity: 0.7;
+}
+.tray::before {
+  top: 20px;
+  opacity: 0.8;
+}
+.stage-intro::before {
+  top: -7px;
+}
+.stage-intro::after {
+  bottom: -7px;
+}
+.battle-bar::before {
+  width: 6px;
+  background: var(--pxv-steel) center top / 6px 16px repeat-y;
+}
+.pb-line {
+  border: none;
+  border-image: none;
+  background:
+    var(--pxd-gold) left top / 16px 6px repeat-x,
+    var(--pxd-gold) left bottom / 16px 6px repeat-x,
+    linear-gradient(90deg, transparent, rgba(10, 8, 30, 0.88) 25%, rgba(10, 8, 30, 0.88) 75%, transparent);
+  -webkit-mask: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 25%, #000 75%, transparent);
+}
+.tip-kws {
+  border-top: none;
+  background: var(--pxd-steel) left top / 16px 6px repeat-x;
+  padding-top: 10px;
+}
+
+/* ───────── HUD ───────── */
+.hg-portrait {
+  border-radius: 0;
+  box-shadow:
+    2px 0 var(--fc),
+    -2px 0 var(--fc),
+    0 2px var(--fc),
+    0 -2px var(--fc),
+    0 0 0 4px #0b0b1e,
+    0 0 18px color-mix(in srgb, var(--fc) 40%, transparent);
+}
+
+.route-line {
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 0;
+  background: var(--pxd-dim) left center / 16px 6px repeat-x;
+}
+.route-fill {
+  border-radius: 0;
+  background: linear-gradient(180deg, #fff1b8 0 2px, #ffd36b 2px 4px, #a8661a 4px);
+}
+
+.rnode {
+  --nb: #3b3b70;
+  --n1: #2a2a5a;
+  --n2: #13132e;
+  --ng: 0 3px 0 rgba(0, 0, 0, 0.45);
+  border-radius: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--n1) 60%, #fff) 0 2px, var(--n1) 2px 55%, var(--n2) 55%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode:hover {
+  --nb: var(--gold);
+  --ng: 0 0 14px rgba(255, 211, 107, 0.4);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode.k-elite {
+  --nb: #7a2a45;
+  border-radius: 0;
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode.k-boss {
+  --nb: #ff4b6e;
+  --n1: #5a1730;
+  --n2: #1c0812;
+  --ng: 0 0 16px rgba(255, 60, 100, 0.5);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--n1) 60%, #fff) 0 2px, var(--n1) 2px 55%, var(--n2) 55%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode.done {
+  --nb: #a8761e;
+  --n1: #5e4210;
+  --n2: #2a1c05;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--n1) 60%, #fff) 0 2px, var(--n1) 2px 55%, var(--n2) 55%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode.r-lose {
+  --nb: #7a2a35;
+  --n1: #4a1520;
+  --n2: #200810;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--n1) 60%, #fff) 0 2px, var(--n1) 2px 55%, var(--n2) 55%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), var(--ng);
+}
+.rnode.cur {
+  --nb: #fff3c4;
+  background: linear-gradient(180deg, #fff3c4 0 4px, #ffd36b 4px 60%, #d08a22 60%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), 0 0 0 5px rgba(255, 211, 107, 0.25), 0 0 22px rgba(255, 200, 90, 0.7);
+}
+.rnode.k-boss.cur {
+  --nb: #ffd0da;
+  background: linear-gradient(180deg, #ffd0da 0 4px, #ff4b6e 4px 60%, #8d1029 60%);
+  box-shadow: 2px 0 var(--nb), -2px 0 var(--nb), 0 2px var(--nb), 0 -2px var(--nb), 0 0 0 5px rgba(255, 75, 110, 0.3), 0 0 26px rgba(255, 60, 100, 0.8);
+}
+.rn-ok,
+.rn-x {
+  border-radius: 0;
+  box-shadow: 2px 0 #0b0b1e, -2px 0 #0b0b1e, 0 2px #0b0b1e, 0 -2px #0b0b1e;
+}
+.st.atk .delta {
+  transform: translateX(-50%);
+  left: 50%;
+  top: 100%;
+}
+
+/* ───────── 零散圆角收尾 ───────── */
+.hud-lives,
+.gc-go,
+.ht-fig,
+.utag,
+.trg,
+.slot-mark,
+.smark {
+  border-radius: 0;
+}
+.hud-lives {
+  box-shadow: 2px 0 rgba(255, 255, 255, 0.07), -2px 0 rgba(255, 255, 255, 0.07), 0 2px rgba(255, 255, 255, 0.07), 0 -2px rgba(255, 255, 255, 0.07);
+}
+.gc-go {
+  --gb: color-mix(in srgb, var(--fc) 55%, transparent);
+  box-shadow: 2px 0 var(--gb), -2px 0 var(--gb), 0 2px var(--gb), 0 -2px var(--gb);
+}
+.ht-fig {
+  border-style: solid;
+  border-width: 0;
+  border-image: var(--pxf-dim) 6 / 12px / 0 stretch;
+  box-shadow: none;
+}
+/* 像素心 */
+.life {
+  width: 18px;
+  height: 16px;
+  margin: 0 1px;
+  background: var(--px-heart-off) center / 18px 16px no-repeat;
+}
+.life.on {
+  background-image: var(--px-heart);
+}
+.life > * {
+  visibility: hidden;
+}
+.end-unit {
+  box-shadow: none;
+}
+
+/* ───────── 聚焦：只亮相关单位 ───────── */
+.unit {
+  transition: opacity 0.18s steps(3), filter 0.18s steps(3);
+}
+.board.focusing .unit:not(.focus):not(.linked) {
+  opacity: 0.42;
+  filter: saturate(0.4) brightness(0.8);
+}
+.unit.focus .u-art {
+  filter: drop-shadow(2px 0 #fff) drop-shadow(-2px 0 #fff) drop-shadow(0 2px #fff) drop-shadow(0 -2px #fff);
+}
+.unit.linked .u-art {
+  filter: drop-shadow(2px 0 #ffffff70) drop-shadow(-2px 0 #ffffff70) drop-shadow(0 -2px #ffffff70);
+}
+.board.focusing .crosshair {
+  opacity: 0.25;
+}

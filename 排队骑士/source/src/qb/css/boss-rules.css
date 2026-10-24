@@ -1,0 +1,21 @@
+/* 首领规则是本场决策信息，按实际触控缩放保证短屏仍可读。 */
+.stage-banner.k-boss {
+  width: 1040px;
+  max-width: 94%;
+}
+.stage-banner.k-boss .sb-hint {
+  font-size: max(16px, calc(var(--control-size) * .28));
+  line-height: 1.35;
+  max-width: none;
+}
+.stage-intro.k-boss .si-hint {
+  font-size: max(18px, calc(var(--control-size) * .28));
+  line-height: 1.35;
+}
+.in-battle .stage-banner.k-boss .sb-hint {
+  visibility: hidden;
+}
+.encounter-callout {
+  font-size: max(22px, calc(var(--control-size) * .32));
+  box-shadow: none;
+}

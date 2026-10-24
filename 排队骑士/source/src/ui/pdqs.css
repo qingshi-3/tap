@@ -1,0 +1,92 @@
+/* 排队骑士专用：图鉴补给/词条页、战绩阵容、备战小件 */
+
+/* 图鉴 */
+.screen.codex { display: flex; flex-direction: column; padding: 18px 28px 0; gap: 12px; }
+.codex .cx-head { display: flex; align-items: center; gap: 16px; flex: none; }
+.codex .cx-title { font-size: 34px; color: var(--gold, #ffd36b); text-shadow: 0 3px 0 #000; }
+.codex .cx-tabs { display: flex; gap: 8px; margin-left: auto; }
+.codex .cx-tab { padding: 0 22px; color: #fff; background: #2a2450; }
+.codex .cx-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 18px; }
+.codex .ub { height: 100%; }
+
+.cx-foods, .cx-kw { display: flex; flex-direction: column; gap: 14px; }
+.cx-note { margin: 0; font-size: 22px; color: #e8e2ff; line-height: 1.5; }
+.cx-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.cx-item {
+  display: flex; align-items: flex-start; gap: 14px; padding: 12px 16px;
+  background: linear-gradient(180deg, #1d1950, #15123a); border: 2px solid #3b3473;
+}
+.cx-item b { display: flex; align-items: center; gap: 8px; font-size: 24px; color: #fff; }
+.cx-item p { margin: 4px 0 0; font-size: 20px; line-height: 1.45; color: #ddd6ff; }
+.cx-item .cx-item-note { color: #b9b0e8; font-size: 18px; }
+.cx-item-icon { flex: none; width: 56px; height: 56px; display: grid; place-items: center; }
+.cx-item-icon > * { transform: scale(1.6); }
+.cx-item-kw { flex: none; min-width: 120px; font-size: 22px; padding-top: 2px; }
+.cx-sec { margin: 6px 0 0; font-size: 24px; color: var(--gold, #ffd36b); letter-spacing: 2px; }
+.cx-rules { display: flex; flex-direction: column; gap: 6px; padding: 12px 18px; background: #18143f; border: 2px solid #3b3473; }
+.cx-rules p { margin: 0; font-size: 20px; line-height: 1.5; color: #e8e2ff; }
+
+/* 战绩阵容 */
+.rec-team { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+.rec-u { position: relative; display: inline-flex; flex-direction: column; align-items: center; width: 64px; }
+.rec-art { --as: .42; width: 64px; height: 64px; }
+.rec-u i { font-style: normal; font-size: 14px; color: #ffd36b; line-height: 1; }
+
+/* 备战 */
+.shelf-note { font-size: 18px; color: #cfc6ff; align-self: center; }
+.drag-ghost.food { display: grid; place-items: center; width: 80px; height: 80px; }
+.drag-ghost.food > * { transform: scale(2); }
+.stage-banner .sb-no { font-size: 18px; }
+.screen.game .tray.hidden { visibility: hidden; pointer-events: none; }
+.u-tag.bank { color: #ffcf8a; }
+
+/* 开战按钮收在右下角一列，货架 912 宽放满 3~8 张 */
+.game .tray-right { left: auto; right: 22px; top: auto; bottom: 18px; width: 176px; height: auto; flex-direction: column; align-items: stretch; }
+.game .fight-controls { width: 176px; }
+.game .fight-controls .btn.fight { width: 100%; }
+.tray.paid-shelf .cards[data-count="5"] > * { zoom: .9; }
+.tray.paid-shelf .cards[data-count="6"] > * { zoom: .78; }
+.tray.paid-shelf .cards[data-count="7"] > * { zoom: .67; }
+.tray.paid-shelf .cards[data-count="8"] > * { zoom: .59; }
+.codex .cx-tab.on { color: #ffe9a8; }
+.cx-item p .kwt { font-size: inherit; }
+.cx-item p .kwt { display: inline-flex; }
+
+/* 备战时场上单位可点可拖（战斗中保持不可点） */
+.game:not(.in-battle) .board .unit { pointer-events: auto; cursor: pointer; touch-action: none; }
+.game:not(.in-battle) .board .unit.lifted { opacity: .45; }
+
+/* 备战连线：目标不存在的失效箭头爆红闪烁 */
+.arrows .arw-g.broken .arw-head, .arrows .arw-g.broken .arw-flow { filter: drop-shadow(0 0 6px #ff3b5c); }
+.arrows .arw-g.broken { animation: arwIn .22s ease-out backwards, pdqsBroken .5s steps(2) .22s 3; }
+.arrow-labels .arw-lbl.broken { --c: #ff3b5c; }
+@keyframes pdqsBroken { 50% { opacity: .35; } }
+
+/* 货架左栏：金币在上、刷新在下，顶端对齐卡牌 */
+.game .tray.paid-shelf .tray-left { top: 20px; bottom: auto; left: 18px; width: 128px; height: auto; display: flex; flex-direction: column; align-items: stretch; gap: 10px; }
+.game .tray.paid-shelf .tl-gold { margin: 0; min-height: 64px; }
+.game .tray.paid-shelf .tray-left > .reroll { height: 92px; min-height: 0; width: 100%; padding: 0; margin: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; white-space: nowrap; transform: none; }
+.game .tray.paid-shelf .reroll .rr-main { display: flex; align-items: center; gap: 6px; font-size: 24px; }
+.game .tray.paid-shelf .reroll .rr-main .ic { width: 22px; height: 22px; flex: none; }
+.game .tray.paid-shelf .reroll > i { font-style: normal; font-size: 18px; opacity: .85; }
+
+/* 补给栏：开战按钮上方，和单位卡分开 */
+.game .tray .supplies { position: absolute; right: 22px; top: 20px; width: 176px; height: 172px; display: flex; flex-direction: column; gap: 6px; }
+.game .tray .sp-head { font-size: 18px; color: #c9e7ff; letter-spacing: 4px; text-align: center; line-height: 22px; text-shadow: 0 2px 0 #000; }
+.game .tray .sp-list { flex: 1; display: flex; gap: 8px; justify-content: center; }
+.game .tray .food-tile { position: relative; width: 84px; height: 140px; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 8px 4px 6px; border-radius: 6px;
+  background: linear-gradient(#2b3550, #1a2034); box-shadow: inset 0 0 0 3px #6fa8d8, 0 4px 0 #0b0d18; cursor: pointer; touch-action: none; user-select: none; }
+.game .tray .food-tile:hover { filter: brightness(1.12); }
+.game .tray .food-tile.lifted { opacity: .45; }
+.game .tray .food-tile .ft-ico { width: 56px; height: 56px; display: grid; place-items: center; }
+.game .tray .food-tile .ft-ico > * { width: 56px; height: 56px; }
+.game .tray .food-tile .ft-name { font-size: 18px; color: #fff; text-shadow: 0 2px 0 #000; white-space: nowrap; }
+.game .tray .food-tile .ft-price { display: flex; align-items: center; gap: 3px; font: 20px/1 var(--num); color: var(--gold); text-shadow: 0 2px 0 #000; }
+.game .tray .food-tile .ft-price > * { width: 18px; height: 18px; }
+.game .tray .food-tile.unaffordable .ft-price { color: #ff7a7a; }
+.game .tray .food-tile.locked { box-shadow: inset 0 0 0 3px #8fd8ff, 0 0 12px #8fd8ff, 0 4px 0 #0b0d18; }
+.game .tray .food-tile .ft-lock { position: absolute; top: -8px; right: -6px; font-size: 14px; padding: 1px 5px; border-radius: 4px; background: #2d7bd0; color: #fff; }
+.game .tray .sp-list:empty::after { content: '已用完'; align-self: center; color: #7d8aa3; font-size: 16px; }
+
+/* 锁定角标：卡牌右上角，不和顶部「升星奖励 / 叠加」标签抢位置 */
+.tray .card .lock-chip { position: absolute; right: 6px; bottom: 6px; z-index: 5; padding: 1px 6px; border-radius: 4px; background: #2d7bd0; color: #fff; font-size: 14px; box-shadow: 0 2px 0 #0b0d18; pointer-events: none; }

@@ -1,0 +1,143 @@
+/* 常驻词条标记：数值类像素图标、其余短词牌；复生保留身上光效。
+   常驻动画只动 transform / opacity。 */
+
+/* 词条小标：位于数值下方 */
+.u-kws {
+  position: absolute;
+  left: 50%;
+  top: 126px;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 2px;
+  pointer-events: none;
+  z-index: 3;
+}
+.u-kws:empty { display: none; }
+/* 数值类：像素图标 + 右下角数字（图标 15×15 精灵，按 2 倍显示） */
+.u-kws { flex-wrap: wrap; justify-content: center; width: 108px; gap: 3px 4px; }
+.kwic {
+  position: relative;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  background: center / 30px 30px no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .5));
+}
+.kwic.kw-armor { background-image: var(--pxk-armor); }
+.kwic.kw-thorns { background-image: var(--pxk-thorns); }
+.kwic.kw-power { background-image: var(--pxk-power); }
+.kwic i, .u-px i, .st.st-px i {
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  margin: 0;
+  font: 17px/1 var(--num);
+  font-style: normal;
+  color: #fff;
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000, 2px 2px #000;
+}
+/* 其余词条：短词牌。直角像素描边，字色即词条色 */
+.kwtx {
+  height: 26px;
+  padding: 0 5px;
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: var(--kc);
+  background: #0c0a22;
+  box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px color-mix(in srgb, var(--kc) 45%, #0c0a22), 0 3px 0 2px rgba(0, 0, 0, .45);
+  text-shadow: 0 2px 0 #000;
+  clip-path: polygon(0 2px, 2px 2px, 2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px));
+}
+.kw-taunt { --kc: #ffd36b; }
+.kw-armor { --kc: #b9c7d8; }
+.kw-thorns { --kc: #ff8a6a; }
+.kw-combo { --kc: #ff7ab0; }
+.kw-snipe { --kc: #9fe870; }
+.kw-splash { --kc: #ffb340; }
+.kw-power { --kc: #c99bff; }
+.kw-rotate { --kc: #8fd8ff; }
+.kw-duel { --kc: #ff8f5a; }
+.kw-idle { --kc: #a9b3c9; }
+
+/* 状态角标（格挡 / 寒意 / 灼烧 / 蓄力）：同一套像素图标 */
+.unit .u-px {
+  width: 30px;
+  height: 30px;
+  min-width: 0;
+  padding: 0;
+  border-radius: 0;
+  box-shadow: none;
+  background: center / 30px 30px no-repeat;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .5));
+}
+.unit .u-shield.u-px { background-image: var(--pxk-block); }
+.unit .u-chill.u-px { background-image: var(--pxk-chill); }
+.unit.frozen .u-chill.u-px { background-image: var(--pxk-freeze); filter: drop-shadow(0 0 5px #8feaff); }
+.unit .u-burn.u-px { background-image: var(--pxk-burn); }
+.unit .u-charge.u-px { background-image: var(--pxk-charge); }
+.unit .u-px i { right: -6px; bottom: -6px; font-size: 16px; }
+.unit .u-charge.u-px i { right: auto; left: 22px; bottom: -4px; }
+
+/* 护甲 / 法强 / 格挡 的数值宝石（备战、整备复用 statArt） */
+.st.st-px { background-size: 30px 30px !important; image-rendering: pixelated; }
+.st.st-px.armor { background-image: var(--pxk-armor) !important; }
+.st.st-px.power { background-image: var(--pxk-power) !important; }
+.st.st-px.block { background-image: var(--pxk-block) !important; }
+.st.st-px > .ic { display: none !important; }
+
+/* 复生：脚下旋转的青色符文圈 + 身后青光 */
+.u-reborn {
+  position: absolute;
+  left: 50%;
+  top: 70px;
+  width: 104px;
+  height: 104px;
+  margin: 0 0 0 -52px;
+  transform: scaleY(0.34);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.u-reborn i {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px dashed rgba(120, 240, 255, 0.95);
+  background: radial-gradient(circle, rgba(120, 240, 255, 0.3) 0 40%, transparent 66%);
+  box-shadow: 0 0 14px rgba(90, 220, 255, 0.8), inset 0 0 12px rgba(90, 220, 255, 0.6);
+}
+.unit.kw-reborn .u-reborn { opacity: 1; }
+.unit.kw-reborn .u-reborn i { animation: rebornSpin 6s linear infinite; }
+@keyframes rebornSpin { to { transform: rotate(360deg); } }
+.unit .u-bob::before {
+  content: '';
+  position: absolute;
+  inset: 6px 8px 14px;
+  border-radius: 46% 46% 40% 40%;
+  background: radial-gradient(ellipse at 50% 60%, rgba(110, 235, 255, 0.8), rgba(80, 200, 255, 0.3) 50%, transparent 72%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.unit.kw-reborn .u-bob::before { opacity: 1; animation: rebornGlow 2.2s ease-in-out infinite; }
+@keyframes rebornGlow { 50% { opacity: 0.45; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .unit.kw-reborn .u-reborn i, .unit.kw-reborn .u-bob::before { animation: none; }
+}
+[data-unit-motion="off"] .unit.kw-reborn .u-reborn i,
+[data-unit-motion="off"] .unit.kw-reborn .u-bob::before { animation: none; }
+
+/* 有词条小标时，格位编号让到小标下方 */
+.board .slot .slot-num { top: 96px; }
+
+/* 飘字里的像素词条图标：数字 + 图标 */
+.float { display: flex; align-items: center; white-space: nowrap; }
+.float .kpx { display: inline-block; width: 1.15em; height: 1.15em; margin-left: .1em; }

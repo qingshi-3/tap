@@ -1,0 +1,21 @@
+/* ═════════════════════════════════════════════════════════════
+   短屏紧凑布局（UI-REVIEW P0-1）：屏高 ≤ 450 的横屏，舞台逻辑高度 720 → 640。
+   单位行（UNIT_Y）上移 60，下方托盘上移 80；底部锚定的元素自动跟随。
+   ═════════════════════════════════════════════════════════════ */
+#stage.compact { height: 640px; }
+/* 坐标层仍按 1280×720 画，不能被压扁 */
+#stage.compact .fx-canvas, #stage.compact .arrows { height: 720px; bottom: auto; }
+
+.compact .stage-banner { top: 70px; }
+.compact .arena-floor { top: 202px; }
+.compact .vs { top: 240px; }
+.compact .order-strip { top: 100px; }
+.compact .phase-banner { top: 398px; }
+.compact .arm-hint { top: 110px; }
+.compact .game.command-arm .arm-hint { top: 108px; }
+.compact .tray { top: 350px; }
+
+/* 核心数字再放大一档 */
+.compact .board .u-stats { transform: scale(1.16); transform-origin: 50% 0; }
+.compact .board .u-kws { transform: scale(1.1); transform-origin: 50% 0; }
+.compact .bb-log .ll, .compact .bb-phase b { font-size: 22px; }

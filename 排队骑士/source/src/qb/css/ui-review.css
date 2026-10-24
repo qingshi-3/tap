@@ -1,0 +1,160 @@
+/* UI 评审 2026-10-23 的修正。最后加载，只覆盖前面已有的规则。 */
+
+/* ── 8. 阶段横幅放到单位下方的空白带，不再盖住舞台词条行 ── */
+.phase-banner { top: 478px; }
+
+/* ── 9. 战斗信息栏压成一行：「回合 / 交锋」+ 最新一条日志 ── */
+.battle-bar { height: 88px; bottom: 16px; gap: 20px; padding: 0 16px 0 24px; }
+.battle-bar::before { display: none; }
+.bb-phase { width: auto; flex: none; }
+.bb-phase b { white-space: nowrap; font-size: 20px; line-height: 1.2; }
+.bb-log { height: 30px; justify-content: center; mask: none; -webkit-mask: none; padding-left: 16px; box-shadow: inset 2px 0 0 #3a3670; }
+.bb-log .ll:not(:last-child) { display: none; }
+.bb-log .ll { font-size: 20px; line-height: 30px; }
+
+/* ── 12. 有存档时「新的游戏」是次要按钮 ── */
+.title-btns .title-new.ghost { background: var(--band-slate); color: #eef0ff; border: 0; border-image: none; }
+
+/* ── 15. 教程完成后，教程键与其他工具键同款 ── */
+.title-tools > .title-tool.title-tut-done:first-child {
+  border: 0; border-image: none; border-radius: 0;
+  background: var(--band-purple);
+  box-shadow: 2px 0 #120e24, -2px 0 #120e24, 0 2px #120e24, 0 -2px #120e24, 0 6px 16px rgba(0, 0, 0, .35);
+  color: #eee9ff; font-weight: 700; text-shadow: 0 2px 0 #0008;
+}
+.title-tools > .title-tool.title-tut-done:first-child:active { filter: brightness(.85); transform: translateY(1px); }
+
+/* ── 16. 词条页：可滚动区域底部渐隐，提示下面还有内容 ── */
+.kd-nav {
+  -webkit-mask: linear-gradient(180deg, #000 calc(100% - 44px), transparent);
+  mask: linear-gradient(180deg, #000 calc(100% - 44px), transparent);
+}
+.kd-nav { padding-bottom: 52px; }
+
+/* ── 18. 设置：「清除全部数据」与提示键分开放 ── */
+.audio-dialog .data-tools { justify-content: flex-start; }
+.audio-dialog .data-tools.danger-zone { justify-content: flex-end; margin-top: 28px; border-top: 2px dashed rgba(255, 90, 110, .35); }
+
+/* ── 19. 图鉴：搜索框并入页签行 ── */
+.codex .cx-head { gap: 14px; }
+.codex .cx-head .cx-search { flex: 1; min-width: 160px; }
+.codex .cx-head .cx-search-input { font-size: 20px; padding: 6px 14px; }
+.codex .cx-head .cx-search-clear { padding: 4px 12px; font-size: 18px; }
+.codex .cx-head .cx-tabs { margin-left: 0; }
+
+/* ── 10. 招募卡三枚词条：行高与图标收紧，整体留在词条区内，不压稀有度点 ── */
+.card .card-in > .card-keywords:has(> :nth-child(3)) { gap: 0; line-height: 20px; overflow: hidden; }
+.card .card-in > .card-keywords:has(> :nth-child(3)) .kpx { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
+.card .card-in > .card-keywords > :nth-child(n + 4) { display: none; }
+
+/* ── 2. 引导目标的脉冲外圈：只动 transform / opacity ── */
+.game .coach-pulse {
+  position: absolute;
+  z-index: 45;
+  pointer-events: none;
+  border: 4px solid #ffd36b;
+  box-shadow: 0 0 0 2px #2a1700, 0 0 18px rgba(255, 211, 107, .55);
+  animation: coachPulse 1.2s ease-in-out infinite;
+}
+@keyframes coachPulse {
+  0%, 100% { opacity: .35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) { .game .coach-pulse { animation: none; opacity: .8; } }
+
+/* ── 3. 货架详情：「招募」主按钮 +「锁定」次按钮 ── */
+.tip .shelf-acts { display: flex; gap: 10px; margin-top: 10px; }
+.tip .shelf-acts .btn { min-height: var(--control-size, 64px); margin: 0; font-size: max(22px, calc(var(--control-size, 64px) * .34)); }
+.tip .shelf-acts .shelf-recruit { flex: 1; min-width: 180px; }
+.tip .shelf-acts .shelf-lock { flex: none; min-width: 120px; padding: 0 18px; background: var(--band-slate); color: #eef0ff; }
+
+/* 7. 选卡/拖卡聚焦时只压暗我方无关单位，敌方与其词条保持原样 */
+.board.focusing .unit[data-side="1"]:not(.focus):not(.linked) { opacity: 1; filter: none; }
+
+/* 6. 主将指定目标：可选友军脉冲描边，敌方压暗，说明在舞台中线上方 */
+.game.command-arm .board .unit[data-side="1"] { opacity: 0.42; filter: saturate(0.4) brightness(0.8); }
+.game.command-arm .board .unit.cmd-ok::before {
+  content: ''; position: absolute; z-index: 0; left: -8px; right: -8px; top: -6px; bottom: -10px; pointer-events: none;
+  border: 4px solid #ffe191; box-shadow: 0 0 0 2px #0b0a22, inset 0 0 0 2px #0b0a22;
+  animation: cmdPulse 0.9s ease-in-out infinite alternate; will-change: transform, opacity;
+}
+@keyframes cmdPulse { from { opacity: 0.35; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .game.command-arm .board .unit.cmd-ok::before { animation: none; opacity: 1; } }
+.game.command-arm .arm-hint { top: 168px; font-size: 22px; }
+
+/* 21. 人口计数挪进按钮列顶部：贴在开战键右上角的像素数值牌 */
+.game .fight-controls { position: relative; }
+.game:has(> .prep-entry:not(.hidden)) .fight-controls { position: absolute; }
+.fight-controls > .tr-team {
+  position: absolute; z-index: 3; right: -6px; top: -16px; pointer-events: none;
+  padding: 0 8px; font: 20px/26px var(--num); color: #fff; letter-spacing: 0;
+  background: #0b0a22; border: 2px solid #ffe191; box-shadow: 0 2px 0 #000;
+}
+
+/* 22. 复盘：备战席与备战界面同位于右下，试打占开战键位置 */
+.tray:has(> .sandbox-panel) > .bench { left: auto; right: 208px; top: 58px; }
+.tray > .sandbox-panel { left: 24px; right: 530px; }
+.tray > .sb-fight { position: absolute; z-index: 2; right: 22px; bottom: 18px; width: 176px; }
+.tray > .sb-fight .btn.fight { width: 100%; }
+
+/* 4. 整备：左我方、右敌方（与盘面同尺寸）、备战席右下、资源托盘在底部，说明在托盘上方 */
+.prep-ov .prep-roster { inset: 0; display: block; padding: 0; pointer-events: none; }
+.prep-ov .prep-roster > * { pointer-events: auto; }
+.prep-ov .prep-allies { position: absolute; left: 24px; top: 168px; width: 596px; display: flex; flex-direction: row-reverse; justify-content: space-between; }
+.prep-ov .prep-allies > .prep-seat { width: 116px; }
+.prep-ov .prep-allies .prep-figure { width: 116px; }
+.prep-ov .prep-allies .prep-figure .unit { left: 8px !important; }
+.prep-ov .prep-allies .prep-figure .ped { left: 12px; }
+.prep-ov .prep-seat .prep-refunds { width: 116px; min-height: 0; margin-top: 4px; padding: 0; background: none; box-shadow: none; }
+.prep-ov .prep-seat .prep-refunds:empty { display: none; }
+.prep-ov .prep-enemies,
+.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemies { inset: 168px auto auto 660px; width: 596px; height: 164px; display: block; }
+.prep-ov .prep-enemy { position: absolute; top: 0; left: calc(var(--s, 0) * 120px); width: 116px; height: 164px; transform: none; }
+.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemy { transform: none; }
+.prep-ov .prep-enemy .unit { left: 8px !important; }
+.prep-ov .prep-enemy .ped { top: 90px; left: 12px; }
+.prep-ov .prep-enemy .u-kws { display: flex; }
+.prep-ov .prep-bench { position: absolute; right: 208px; top: 430px; width: 300px; display: flex; justify-content: space-between; }
+.prep-ov .prep-bench > * { width: 100px; }
+.prep-ov .prep-bench .prep-figure { width: 100px; }
+.prep-ov .prep-bench .prep-figure .unit { left: 0 !important; }
+.prep-ov .prep-bench .prep-figure .ped, .prep-ov .prep-bench-empty .ped { left: -2px; }
+.prep-ov .prep-bench-empty { width: 100px; }
+.prep-ov .pp-say { left: 24px; right: 520px; top: auto; bottom: calc(max(64px, var(--control-size)) + 44px); height: 30px; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.prep-ov .pp-tray { right: 520px; height: calc(max(64px, var(--control-size)) + 34px); align-items: flex-start; }
+.prep-ov .pr-chip.pt { position: relative; overflow: visible; margin-bottom: 30px; }
+.prep-ov .pr-chip.pt .pr-cap { position: absolute; left: 50%; top: calc(100% + 4px); transform: translateX(-50%); font-size: 18px; line-height: 24px; color: #e8e4ff; white-space: nowrap; pointer-events: none; }
+.prep-ov .pr-chip.eq, .prep-ov .pr-chip.sp, .prep-ov .pr-chip.od, .prep-ov .prep-unequip { margin-bottom: 30px; }
+.prep-ov .pp-empty { align-self: center; margin-top: 18px; font-size: 22px; color: #b9b4dd; }
+
+/* 11. 商店购买去向：飞入 + 落脚席位闪一下；有空战位时点亮空位 */
+.game .buy-fly { position: absolute; z-index: 80; width: 96px; height: 96px; pointer-events: none; transform: translate(-50%, -50%); }
+.game .buy-fly svg, .game .buy-fly img { width: 100%; height: 100%; }
+.shop .sh-own.just-in { animation: shopJustIn 0.5s steps(4) 0.35s 2; }
+@keyframes shopJustIn { 0%, 100% { transform: none; } 50% { transform: translateY(-6px) scale(1.06); } }
+.shop .sh-own.slot-free { position: relative; }
+.shop .sh-own.slot-free::before {
+  content: ''; position: absolute; inset: -2px; pointer-events: none;
+  border: 4px solid #ffe191; animation: cmdPulse 0.9s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) { .shop .sh-own.just-in, .shop .sh-own.slot-free::before { animation: none; } }
+
+/* 13. 战术卡：沿用岔路卡像素边框 + 图标；选中后按「确定」 */
+.ph-card.promo .ph-opt.passive {
+  position: relative; border-style: solid; border-width: 0; border-image: var(--pxf-steel) 6 / 12px / 0 stretch;
+  background: linear-gradient(180deg, #1c1a48, #0e0c2a); box-shadow: none; transition: none;
+}
+.ph-card.promo .ph-opt.passive.own { border-image-source: var(--pxf-teal); background: linear-gradient(180deg, #173a3a, #0b1a22); box-shadow: none; }
+.ph-card.promo .ph-opt.passive:hover { background: linear-gradient(180deg, #1c1a48, #0e0c2a); }
+.ph-card.promo .ph-opt.passive.own:hover { background: linear-gradient(180deg, #173a3a, #0b1a22); }
+.ph-card.promo .ph-opt.passive:active { transform: none; box-shadow: none; }
+.ph-card.promo .ph-opt.passive.on { border-image-source: var(--pxf-gold); transform: translateY(-6px); background: linear-gradient(180deg, #3a3060, #1a1438); }
+.ph-card.promo .ph-opt.passive.on::after {
+  content: ''; position: absolute; right: 10px; top: 10px; width: 28px; height: 28px; pointer-events: none;
+  background: #ffd36b; clip-path: polygon(0 55%, 15% 40%, 38% 62%, 85% 12%, 100% 27%, 38% 90%);
+}
+.ph-card.promo .promo-ic { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; align-self: center; color: #ffd36b; background: #0b0a22; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #6b5a2c; }
+.ph-card.promo .ph-opt.passive.own .promo-ic { color: #8ff0d6; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #2c6b5a; }
+.ph-card.promo .promo-ic .ic, .ph-card.promo .promo-ic svg { width: 36px; height: 36px; }
+.ph-card.promo .promo-foot { position: relative; z-index: 3; display: flex; justify-content: center; margin-top: 18px; }
+.ph-card.promo .promo-ok { min-width: 220px; min-height: var(--control-size); font-size: 26px; }

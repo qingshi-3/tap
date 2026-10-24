@@ -1,0 +1,59 @@
+/* The new game keeps the original bright gold; the saved run uses a deeper gold. */
+.title-btns .btn.big {
+  min-height: var(--control-size, 64px);
+  font-size: max(19px, calc(var(--control-size, 64px) * .3));
+}
+.title-btns .cont-note {
+  font-size: max(18px, calc(var(--control-size, 64px) * .26));
+  line-height: 1.3;
+}
+.title-btns .title-continue {
+  background: linear-gradient(180deg, #f4d181 0 4px, #dda746 4px 52%, #c68a2f 52% calc(100% - 6px), #875016 calc(100% - 6px));
+  text-shadow: 0 2px 0 #fff3;
+}
+.title-tools {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 2;
+}
+.title-tools .icon-btn {
+  flex: none;
+  height: var(--control-size, 64px);
+  min-width: var(--control-size, 64px);
+  width: auto;
+  font-size: max(20px, calc(var(--control-size, 64px) * .32));
+}
+.title-tools .title-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 18px;
+  white-space: nowrap;
+}
+.title-tools .title-volume { width: var(--control-size, 64px); padding: 0; }
+.title-tools .ic { flex: none; }
+/* Keep the already shipped title button covered until the next unified build. */
+.title-tools .title-tutorial,
+.title-tools > .title-tool:first-child {
+  min-width: var(--control-size, 64px);
+  height: var(--control-size, 64px);
+  font-size: max(20px, calc(var(--control-size, 64px) * .32));
+  background: linear-gradient(180deg, #e1f7b6 0 4px, #a8d861 4px 52%, #7fb642 52% calc(100% - 6px), #4c792a calc(100% - 6px));
+  color: #19340b;
+  border: 0;
+  border-radius: 0;
+  box-shadow: 2px 0 #284415, -2px 0 #284415, 0 2px #284415, 0 -2px #284415, 0 8px 22px rgba(112, 174, 64, .3);
+  font-weight: 700;
+  text-shadow: 0 2px 0 #fff6;
+}
+.title-tools > .title-tool:first-child .ic { display: none; }
+.title-tools > .title-tool:first-child:hover { filter: brightness(1.08); }
+.title-tools > .title-tool:first-child:active { filter: brightness(.94); transform: translateY(1px) scale(.98); }
+@media (prefers-reduced-motion: reduce) {
+  .title-tools .icon-btn { transition: none; }
+}

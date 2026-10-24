@@ -1,0 +1,59 @@
+/* 将令：主动技能主将的专属交互——头像旁的令牌，拖给目标下令 */
+.gen-seal {
+  position: relative; flex: none; width: 64px; height: 64px; margin-left: -4px; padding: 0; border: 0; border-radius: 50%;
+  display: grid; place-items: center; cursor: grab; touch-action: none; color: #2a1606;
+  background: radial-gradient(circle at 40% 32%, #fff2b8, #ffcf5a 38%, #c98a1c 70%, #6e420c);
+  box-shadow: 0 0 0 3px #0b0a22, 0 0 0 5px color-mix(in srgb, var(--fc) 70%, #ffe191), 0 4px 0 5px #000;
+}
+.gen-seal .gs-glow {
+  position: absolute; inset: -14px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 214, 110, .55), rgba(255, 214, 110, 0) 68%);
+  animation: gsGlow 1.4s ease-in-out infinite alternate; will-change: transform, opacity;
+}
+@keyframes gsGlow { from { opacity: .35; transform: scale(.9); } to { opacity: 1; transform: scale(1.08); } }
+.gen-seal .gs-face { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #ffe9a0, #d99a2a); box-shadow: inset 0 0 0 2px #8a5410, inset 0 -4px 0 rgba(110, 60, 0, .35); }
+.gen-seal .gs-face .ic { width: 28px; height: 28px; }
+.gen-seal > b {
+  position: absolute; left: 50%; bottom: -14px; transform: translateX(-50%); white-space: nowrap;
+  padding: 0 6px; font: 18px/24px var(--ui, inherit); color: #ffe7a1; background: #0b0a22; box-shadow: 0 0 0 2px #8a5410; border-radius: 3px;
+}
+.gen-seal > em {
+  position: absolute; right: -10px; top: -8px; min-width: 32px; padding: 0 4px; font: 18px/24px var(--num); font-style: normal;
+  color: #fff; background: #0b0a22; box-shadow: 0 0 0 2px #ffe191;
+}
+.gen-seal:active { cursor: grabbing; transform: scale(.95); }
+.gen-seal.on .gs-glow { animation-duration: .6s; }
+.gen-seal.on { box-shadow: 0 0 0 3px #0b0a22, 0 0 0 5px #fff6cc, 0 4px 0 5px #000; }
+/* 已下令：令牌熄灭，仍可点开撤回 */
+.gen-seal.used { filter: saturate(.25) brightness(.7); }
+.gen-seal.used .gs-glow { display: none; }
+.cmd-drag .gen-seal { opacity: .45; }
+.in-battle .gen-seal { display: none; }
+.gs-tip { display: flex; flex-direction: column; gap: 6px; max-width: 360px; }
+.gs-tip > b { font-size: 22px; color: #ffe191; }
+.gs-tip p { margin: 0; font-size: 18px; line-height: 1.4; }
+.gs-tip .gs-how { color: #b9c6d8; }
+.gs-tip .gs-undo { align-self: flex-start; margin-top: 4px; min-height: 48px; font-size: 18px; }
+
+/* 指令线：金色光束 + 落点光球；锁定目标时更亮 */
+.cmd-line { position: absolute; inset: 0; width: 1280px; height: 720px; z-index: 30; pointer-events: none; overflow: visible; }
+.cmd-line .cl-glow { fill: none; stroke: #ffcf5a; stroke-width: 22; stroke-linecap: round; opacity: .28; }
+.cmd-line .cl-core { fill: none; stroke: #fff4c4; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 14 8; animation: clMarch .5s linear infinite; filter: drop-shadow(0 0 6px #ffcf5a); }
+.cmd-line .cl-tip { fill: #fff4c4; filter: drop-shadow(0 0 10px #ffcf5a); }
+.cmd-line.lock .cl-glow { opacity: .5; stroke: #ffe58a; }
+.cmd-line.lock .cl-tip { r: 14px; }
+@keyframes clMarch { to { stroke-dashoffset: -22; } }
+
+/* 可落点：脚下一圈暖色光池（不用线框），悬停目标光池放大并点亮单位 */
+.board .unit.cmd-ok::after {
+  content: ''; position: absolute; left: 50%; bottom: -14px; width: 132px; height: 40px; margin-left: -66px; z-index: -1; pointer-events: none; border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255, 214, 110, .75), rgba(255, 180, 60, .25) 55%, rgba(255, 180, 60, 0) 72%);
+  animation: cmdPool 1s ease-in-out infinite alternate; will-change: transform, opacity;
+}
+@keyframes cmdPool { from { opacity: .45; transform: scale(.88); } to { opacity: 1; transform: scale(1.04); } }
+.board .unit.cmd-over::after { animation: none; opacity: 1; transform: scale(1.25); }
+.board .unit.cmd-over .u-body { filter: brightness(1.25) drop-shadow(0 0 12px #ffcf5a); }
+.board .unit.cmd-src { opacity: .55; }
+@media (prefers-reduced-motion: reduce) {
+  .gen-seal .gs-glow, .cmd-line .cl-core, .board .unit.cmd-ok::after { animation: none; }
+}

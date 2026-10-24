@@ -1,0 +1,43 @@
+/* A tapered clip widens the moving dashes toward their target; one quiet shared hue. */
+.arrows .arw-g.direction-flow {
+  animation: arwIn .22s ease-out backwards;
+  filter: drop-shadow(0 0 2px rgba(139, 187, 201, .28));
+}
+.arrows .direction-flow .arw-flow {
+  fill: none;
+  stroke-width: 12;
+  stroke-linecap: butt;
+  stroke-linejoin: round;
+  stroke-dasharray: 7 6;
+  animation: directionMarch .8s linear infinite;
+}
+.arrows .direction-flow .arw-head {
+  stroke: none;
+}
+.arrows:has(.direction-flow) { shape-rendering: crispEdges; }
+@keyframes directionMarch {
+  from { stroke-dashoffset: 0; }
+  to { stroke-dashoffset: -13; }
+}
+.arrow-labels .arw-lbl.direction-label {
+  min-width: 26px;
+  height: 26px;
+  font-size: 15px;
+  box-shadow: 0 0 0 2px #100d22;
+}
+@media (prefers-reduced-motion: reduce) {
+  .arrows .arw-g.direction-flow,
+  .arrows .direction-flow .arw-flow,
+  .arrow-labels .arw-lbl { animation: none; }
+}
+/* 光晕：宽软底衬 + 亮芯，让指示线有发光质感 */
+.arrows .direction-flow .arw-halo {
+  fill: none;
+  stroke-width: 26;
+  stroke-linecap: round;
+  opacity: .16;
+}
+.arrows .arw-g.direction-flow {
+  filter: drop-shadow(0 0 5px rgba(139, 187, 201, .7)) drop-shadow(0 0 1px rgba(255, 255, 255, .6));
+}
+.arrows .direction-flow .arw-head { filter: brightness(1.35); }
