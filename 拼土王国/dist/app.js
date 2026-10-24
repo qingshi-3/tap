@@ -97,6 +97,48 @@ function costText(def) { return `${def.gold}金${def.wood ? ` ${def.wood}木` : 
 function costChips(def, cls = '') {
   return `<span class="costs ${cls}"><span>${iconHtml('gold')}${def.gold}</span>${def.wood ? `<span>${iconHtml('wood')}${def.wood}</span>` : ''}${def.workers ? `<span>${iconHtml('worker')}${def.workers}</span>` : ''}</span>`;
 }
+// What each building does, as icon rows. Text in BUILDINGS stays only as a codex footnote.
+const T = t => ({ t }), B = b => ({ b }), OTHER = { other: true };
+const FX = {
+  hall: { base: { gold: 10, wood: 2, pop: 6 }, guard: 2 },
+  house: { base: { pop: 4, gold: 1 }, rows: [{ on: ['adj'], src: [B('market')], res: 'gold', v: 1 }] },
+  farm: { rows: [{ on: ['own'], src: [T('grass')], res: 'food', v: 2 }, { on: ['own'], src: [T('fertile')], res: 'food', v: 3 }, { on: ['adj'], src: [T('water')], res: 'food', v: 2, cap: 2 }],
+    season: [['autumn', '×1.5'], ['winter', '×0.5']] },
+  lumber: { base: { wood: 2 }, rows: [{ on: ['adj'], src: [T('forest')], res: 'wood', v: 1, cap: 5 }] },
+  tower: { guard: 2 },
+  fishery: { need: 'water', base: { food: 2 }, rows: [{ on: ['own', 'adj'], src: [T('water')], res: 'food', v: 1, cap: 6 }], season: [['summer', '+2', 'food']] },
+  granary: { store: 25, rows: [{ on: ['adj'], src: [B('farm')], res: 'food', v: 1 }] },
+  market: { base: { gold: 2 }, rows: [{ on: ['adj'], src: [B('house')], res: 'gold', v: 3 }, { on: ['adj'], src: [OTHER], res: 'gold', v: 1 }] },
+  workshop: { convert: true, rows: [{ on: ['adj'], src: [B('lumber')], res: 'gold', v: 2, cap: 2 }] },
+  mine: { need: 'mountain', base: { gold: 4 }, rows: [{ on: ['own'], src: [T('mountain')], res: 'gold', v: 2 }, { on: ['adj'], src: [T('mountain')], res: 'gold', v: 1 }] },
+  temple: { base: { fame: 1 }, rows: [{ on: ['adj'], src: [B('house'), B('manor')], res: 'fame', v: 1, cap: 4 }] },
+  barracks: { guard: 3, rows: [{ on: ['guard'], src: [{ icon: 'threat' }], res: 'fame', v: 1 }] },
+  manor: { base: { pop: 6, gold: 2 }, rows: [{ on: ['adj'], src: [T('forest'), T('water')], res: 'gold', v: 1, cap: 4 }] },
+  guild: { base: { gold: 6 }, rows: [{ on: ['adj'], src: [B('market'), B('workshop'), B('fishery'), B('mine')], res: 'gold', v: 3 }] },
+  wonder: { base: { fame: 4 }, once: 10 },
+};
+const fxVal = (k, text) => `<span class="fx-v">${iconHtml(k)}${text}</span>`;
+function fxSrc(q, full) {
+  if (q.t) return `<span class="fx-src">${`<canvas data-terrain="${q.t}" width="36" height="36"></canvas>`}${full ? TERRAIN[q.t].name : ''}</span>`;
+  if (q.b) return full ? `<span class="fx-src b"><canvas data-card="${q.b}" width="56" height="40"></canvas>${BUILDINGS[q.b].name}</span>` : `<span class="fx-name">${BUILDINGS[q.b].name}</span>`;
+  if (q.other) return full ? `<span class="fx-src">${iconHtml('bldg')}其它</span>` : `<span class="fx-name">其它</span>`;
+  return `<span class="fx-src">${iconHtml(q.icon)}</span>`;
+}
+/** Icon rows: base yield first, then where-it-comes-from rows (glyph · source → resource). */
+function fxHtml(type, full = false, { base: showBase = true } = {}) {
+  const f = FX[type]; if (!f) return '';
+  const out = [];
+  const base = [...OUT_KEYS, 'pop'].filter(k => f.base?.[k]).map(k => fxVal(k, signed(f.base[k])));
+  if (f.guard) base.push(fxVal('guard', `${f.guard}格`));
+  if (f.store) base.push(fxVal('food', `上限+${f.store}`));
+  if (f.once) base.push(`<span class="fx-tag">建成</span>${fxVal('fame', `+${f.once}`)}`);
+  if (f.need) out.push(`<div class="fx-row need">${iconHtml('own', 'glyph')}${fxSrc(T(f.need), full)}<span class="fx-tag red">必需</span></div>`);
+  if (base.length && showBase) out.push(`<div class="fx-row base">${base.join('')}</div>`);
+  if (f.convert) out.push(`<div class="fx-row">${fxVal('wood', '−1')}<span class="fx-arrow">→</span>${fxVal('gold', '+2')}<span class="fx-cap">≤3次</span></div>`);
+  for (const r of f.rows || []) out.push(`<div class="fx-row">${r.on.map(o => iconHtml(o, 'glyph')).join('')}${r.src.map(q => fxSrc(q, full)).join('')}<span class="fx-out"><span class="fx-arrow">→</span>${fxVal(r.res, signed(r.v))}${r.cap ? `<span class="fx-cap">≤${r.cap}</span>` : ''}</span></div>`);
+  if (f.season) out.push(`<div class="fx-row">${f.season.map(([k, t, res]) => `<span class="fx-v">${iconHtml(k)}${res ? iconHtml(res) : ''}${t}</span>`).join('')}</div>`);
+  return out.length ? `<div class="fx ${full ? 'full' : ''}">${out.join('')}</div>` : '';
+}
 function save() {
   if (saveBlocked) return;
   const r = writeSave(store, state);
@@ -351,18 +393,23 @@ function badCells(g) {
   }
   return bad;
 }
+/** A light chip on a contributing cell: resource icon + number, sized to sit inside the cell. */
+function badge(x, y, key, v, size) {
+  ctx.save();
+  const t = signed(v); ctx.font = `900 ${size}px system-ui, sans-serif`; ctx.textBaseline = 'middle';
+  const ic = size * 1.15, w = ic + ctx.measureText(t).width + size * 0.55, h = size * 1.5;
+  const x0 = Math.round(x - w / 2), y0 = Math.round(y - h / 2);
+  ctx.beginPath(); ctx.roundRect(x0, y0, w, h, h / 2);
+  ctx.fillStyle = '#fffaf0'; ctx.shadowColor = '#0006'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 1.5; ctx.fill(); ctx.shadowColor = 'transparent';
+  A.drawIcon(ctx, key, x0 + size * 0.2, y0 + (h - ic) / 2, ic);
+  ctx.fillStyle = v < 0 ? '#c4402f' : '#3b3a2c'; ctx.fillText(t, x0 + size * 0.25 + ic, y0 + h / 2 + 1);
+  ctx.restore();
+}
 const GHOST_LIFT = 0.16;
 function drawGhost(g) {
   const c = cp(), okay = g.check.ok, bad = badCells(g);
   ctx.save();
   if (mode.kind === 'build') {
-    // Neighbouring cells are where adjacency bonuses come from.
-    ctx.strokeStyle = '#ffe9a0'; ctx.lineWidth = 2; ctx.setLineDash([4, 4]);
-    for (const n of R.adjacentCells(state, mode.type, mode.ax, mode.ay, mode.rot)) {
-      if (!R.tileAt(state, n.x, n.y)) continue;
-      const p = toScreen(n.x, n.y); ctx.strokeRect(p.x + 3, p.y + 3, c - 6, c - 6);
-    }
-    ctx.setLineDash([]);
     // A see-through blueprint: the terrain underneath stays readable.
     ctx.globalAlpha = drag ? 0.3 : 0.42;
     drawBuildingAt(ctx, mode.type, g.cells, c, -cam.x, -cam.y, { level: 1, damaged: false, idle: false, rot: mode.rot, t: 0 });
@@ -380,15 +427,6 @@ function drawGhost(g) {
     p.y -= gl;
     ctx.fillStyle = wrong ? '#e0503c66' : okay ? '#7fd36b2e' : '#ffd36b22';
     ctx.fillRect(p.x, p.y, c, c);
-    if (mode.kind === 'build') {
-      // What is underneath, as a crisp chip in the corner.
-      const tile = R.tileAt(state, cell.x, cell.y), m = Math.max(10, c * 0.3);
-      if (tile && !R.buildingAt(state, cell.x, cell.y)) {
-        ctx.save(); ctx.beginPath(); ctx.roundRect(p.x + 3, p.y + 3, m, m, 3); ctx.clip();
-        A.drawTerrain(ctx, tile.t, p.x + 3, p.y + 3, m, 5); ctx.restore();
-        ctx.strokeStyle = '#fffbe8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(p.x + 3, p.y + 3, m, m, 3); ctx.stroke();
-      }
-    }
     if (wrong) {
       const m = c * 0.18, cx = p.x + c / 2, cy = p.y + c / 2;
       ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(3, c * 0.1); ctx.lineCap = 'round';
@@ -399,17 +437,18 @@ function drawGhost(g) {
   ctx.strokeStyle = okay ? '#efffe0' : '#ffd0c8'; ctx.lineWidth = 3;
   outline(ctx, g.cells, -cam.x, -cam.y - gl, c);
   const size = Math.max(12, Math.min(16, c * 0.32));
-  if (mode.kind === 'build' && c >= 24) {
-    // Where the yield comes from, cell by cell.
-    const merged = new Map();
+  if (mode.kind === 'build' && okay && c >= 22) {
+    // Where the yield comes from: neighbouring cells glow softly and carry one small badge each.
+    const own = new Set(g.cells.map(q => `${q.x},${q.y}`)), byCell = new Map();
     for (const q of R.contributions(state, mode.type, mode.ax, mode.ay, mode.rot)) {
-      const k = `${q.x},${q.y},${q.res}`; merged.set(k, { ...q, v: (merged.get(k)?.v || 0) + q.v });
+      const k = `${q.x},${q.y}`; if (own.has(k)) continue;
+      const e = byCell.get(k) || { x: q.x, y: q.y, res: q.res, v: 0 }; if (e.res === q.res) e.v += q.v; byCell.set(k, e);
     }
-    const byCell = new Map();
-    for (const q of merged.values()) { const k = `${q.x},${q.y}`; if (!byCell.has(k)) byCell.set(k, []); byCell.get(k).push({ key: q.res, v: q.v }); }
-    for (const [k, parts] of byCell) {
-      const [x, y] = k.split(',').map(Number), p = toScreen(x, y);
-      pill(p.x + c / 2, p.y + c - size * 0.85, parts, { size: size * 0.9 });
+    for (const e of byCell.values()) {
+      const p = toScreen(e.x, e.y);
+      ctx.fillStyle = 'rgba(255,226,130,.22)'; ctx.beginPath(); ctx.roundRect(p.x + 2, p.y + 2, c - 4, c - 4, c * 0.14); ctx.fill();
+      ctx.strokeStyle = 'rgba(255,240,190,.75)'; ctx.lineWidth = 1.5; ctx.stroke();
+      badge(p.x + c / 2, p.y + c / 2, e.res, e.v, Math.max(11, Math.min(16, c * 0.26)));
     }
   }
   // Summary above the piece: the season's change, or why it can't go here.
@@ -650,6 +689,7 @@ function renderPlaceBar() {
       const parts = [['gold', d.gold], ['food', d.food], ['wood', d.wood], ['fame', d.fame], ['pop', d.pop]].filter(([, v]) => v);
       info += `<div class="deltas"><span class="muted">每季</span>${parts.map(([k, v]) => `<span class="delta ${v < 0 ? 'neg' : ''}">${iconHtml(k)}${signed(v)}</span>`).join('')}${d.guard ? `<span class="delta">${iconHtml('guard')}${d.guard}格</span>` : ''}${!parts.length && !d.guard ? '<span class="muted">无产出</span>' : ''}</div>`;
     }
+    info += fxHtml(mode.type, false, { base: false });
   }
   if (g && !g.check.ok) info += `<span class="bad">${esc(g.check.reason)}</span>`;
   $('#place-info').innerHTML = info;
@@ -701,7 +741,7 @@ function renderSheet() {
       <div class="offers">${state.draft.map((type, i) => {
         const def = BUILDINGS[type];
         return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}>${def.unlock === year() && year() > 1 ? '<span class="ribbon">新</span>' : ''}
-          <span class="art"><canvas data-card="${type}" width="264" height="180"></canvas></span><b>${def.name}</b>${costChips(def)}<span class="txt">${esc(def.text)}</span></button>`;
+          <span class="art"><canvas data-card="${type}" width="264" height="180"></canvas></span><b>${def.name}</b>${costChips(def)}${fxHtml(type)}</button>`;
       }).join('')}</div>
       <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
     box.querySelectorAll('[data-draft-i]').forEach(b => {
@@ -905,7 +945,7 @@ function tapCard(spec, el) {
 }
 async function handMenu(i) {
   const type = state.hand[i], def = BUILDINGS[type];
-  const v = await modal(`<h2>${def.name}</h2><canvas class="big-preview" data-card="${type}" width="240" height="160"></canvas><p>${esc(def.text)}</p><p class="muted">${costText(def)} · ${def.workers}人 · 可旋转</p>`,
+  const v = await modal(`<div class="insp"><canvas class="big-preview" data-card="${type}" width="240" height="160"></canvas><div><h2>${def.name}</h2>${costChips(def, 'big')}${fxHtml(type, true)}</div></div>`,
     [{ label: '去建造', value: 'build', primary: true }, { label: '图鉴', value: 'codex' }, { label: '丢弃 +3金', value: 'discard' }, { label: '关闭', value: null }]);
   if (v === 'codex') { cancelMode(); openCodex({ type }); }
   else if (v === 'discard') { mode = null; R.discard(state, i); save(); renderAll(); maybeAutoSheet(); }
@@ -976,19 +1016,18 @@ function describeOutput(p) {
   if (p.damaged) return '<p class="muted">已损毁，不产出也不提供人口。</p>';
   if (p.idle) return '<p class="muted">人手不足，停工中。建民居增加人口。</p>';
   const parts = [['gold', p.gold], ['food', p.food], ['wood', p.wood], ['fame', p.fame]].filter(([, v]) => v);
-  return parts.length ? `<p>本季产出：${parts.map(([k, v]) => `${iconHtml(k, 'inline')}${signed(v)}`).join('　')}</p>` : '';
+  return parts.length ? `<div class="fx-now"><span class="fx-tag">本季</span>${parts.map(([k, v]) => fxVal(k, signed(v))).join('')}</div>` : '';
 }
 async function inspect(b) {
   const def = BUILDINGS[b.type], f = R.forecast(state), p = f.per.find(x => x.id === b.id);
   const up = R.upgradeCost(b), playing = state.status === 'playing';
   const buttons = [];
   if (b.damaged) buttons.push({ label: `修复 ${R.repairCost(b)}金`, value: 'repair', primary: true, disabled: !playing || state.gold < R.repairCost(b) });
-  else if (up) buttons.push({ label: `升到${b.level + 1}级 ${up.gold}金 ${up.wood}木`, value: 'upgrade', primary: true, disabled: !playing || state.gold < up.gold || state.wood < up.wood });
+  else if (up) buttons.push({ label: `升${b.level + 1}级 ${fxVal('gold', up.gold)}${up.wood ? fxVal('wood', up.wood) : ''}`, value: 'upgrade', primary: true, disabled: !playing || state.gold < up.gold || state.wood < up.wood });
   if (b.type !== 'hall') buttons.push({ label: '拆除', value: 'demolish', disabled: !playing });
   buttons.push({ label: '图鉴', value: 'codex' }, { label: '关闭', value: null });
-  const v = await modal(`<h2>${def.name} <small class="muted">${b.type === 'hall' ? '' : `${b.level}级`}</small></h2>
-    <canvas class="big-preview" data-card="${b.type}" data-rot="${b.rot}" width="240" height="160"></canvas>
-    <p>${esc(def.text)}</p>${describeOutput(p)}${up && !b.damaged ? '<p class="muted">升级后产出×1.5（3级×2）。</p>' : ''}`, buttons);
+  const v = await modal(`<div class="insp"><canvas class="big-preview" data-card="${b.type}" data-rot="${b.rot}" width="240" height="160"></canvas>
+    <div><h2>${def.name} <small class="muted">${b.type === 'hall' ? '' : `${b.level}级`}</small></h2>${describeOutput(p)}${fxHtml(b.type, true)}${up && !b.damaged ? '<p class="muted">升级：产出×1.5，3级×2</p>' : ''}</div></div>`, buttons, { cls: 'insp-m' });
   if (v === 'codex') openCodex({ type: b.type });
   if (v === 'upgrade') act(R.upgrade(state, b.id), `${def.name}升到${b.level}级`);
   if (v === 'repair') act(R.repair(state, b.id), `${def.name}已修复`);
@@ -1161,14 +1200,12 @@ const RULES = () => [
 ];
 function codexDetail(type) {
   const d = BUILDINGS[type], locked = state && d.unlock > year() && type !== 'hall';
-  const terr = d.terrains.map(t => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}</span>`).join('');
-  const need = d.need ? Object.entries(d.need).map(([t, n]) => `至少${n}格${TERRAIN[t].name}`).join('、') : '';
+  const terr = d.terrains.map(t => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas></span>`).join('');
   return `<h3>${d.name}<small>${type === 'hall' ? '开局自带' : d.basic ? '常备 · 随时可建' : `建筑卡 · 第${d.unlock}年起`}</small></h3>
     <canvas class="big-preview" data-card="${type}" width="300" height="200"></canvas>
-    <p class="rule">${esc(d.text)}</p>
-    <dl class="facts"><dt>造价</dt><dd>${type === 'hall' ? '—' : costText(d)}</dd><dt>人手</dt><dd>${d.workers ? `${d.workers}人` : '不需要'}</dd>
-    <dt>占地</dt><dd>${d.cells.length}格 · 可旋转</dd><dt>地形</dt><dd><span class="terr-row">${terr}</span>${need ? `<br>${need}` : ''}</dd>
-    <dt>升级</dt><dd>${type === 'hall' ? '不可升级' : '2级产出×1.5，3级×2'}</dd></dl>${locked ? '<p class="muted">还没解锁，到那一年的选卡里会出现。</p>' : ''}`;
+    ${fxHtml(type, true)}
+    <div class="facts">${type === 'hall' ? '' : costChips(d, 'big')}<span class="fact">${d.cells.length}格</span><span class="terr-row">${terr}</span></div>
+    <p class="rule muted">${esc(d.text)}</p>${locked ? '<p class="muted">还没解锁，到那一年的选卡里会出现。</p>' : ''}`;
 }
 function paintTerrains(root) {
   root.querySelectorAll('canvas[data-terrain]').forEach(c => { const g = c.getContext('2d'); A.drawTerrain(g, c.dataset.terrain, 0, 0, c.width, 5); });
@@ -1303,7 +1340,7 @@ window.addEventListener('keydown', e => {
 });
 window.addEventListener('resize', () => { resize(); renderPlaceBar(); if (sheet) renderSheet(); });
 // Debug/QA hook: read-only snapshot of the running game.
-window.__pt = { get state() { return state; }, R, cam: () => ({ ...cam, cell: cp() }), toScreen, viewArea, get tutStep() { return tut ? tut.i : -1; } };
+window.__pt = { get state() { return state; }, R, renderAll, openSheet, openCodex, cam: () => ({ ...cam, cell: cp() }), toScreen, viewArea, get tutStep() { return tut ? tut.i : -1; } };
 
 async function boot() {
   buildSeaPattern(); lockLandscape(); paintIcons(document);

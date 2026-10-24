@@ -1315,6 +1315,34 @@ const ICONS = {
     ell(c, 12, 12, 4.6, 4.6, '#9aa7a8', INK, 1.4);
     line(c, 4, 20, 20, 4, '#fbf6ea', 4.5); line(c, 4, 20, 20, 4, '#c8483a', 2.4);
   },
+  // 相邻：中间是自己，四边亮起
+  adj(c) {
+    const sq = (x, y, f) => { rr(c, x, y, 6.4, 6.4, 1.4); c.fillStyle = f; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.1; c.stroke(); };
+    sq(8.8, 8.8, '#6b5a44'); for (const [x, y] of [[8.8, 1.6], [8.8, 16], [1.6, 8.8], [16, 8.8]]) sq(x, y, GOLD);
+  },
+  // 占用：建在这一格上
+  own(c) {
+    rr(c, 2.5, 8, 19, 13.5, 2.4); c.fillStyle = GOLD; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.3; c.stroke();
+    fp(c, [7, 11.5, 12, 3, 17, 11.5], '#c4553f', INK, 1.2);
+    rect(c, 8.2, 11.5, 7.6, 6.5, '#efe2c4', INK, 1.1);
+  },
+  bldg(c) {
+    fp(c, [4, 11, 12, 4, 20, 11], '#c4553f', INK, 1.3);
+    rect(c, 5.5, 11, 13, 9.5, '#efe2c4', INK, 1.3); rect(c, 10.4, 14.5, 3.2, 6, '#7a5030', INK, .9);
+  },
+  summer(c) {
+    for (let k = 0; k < 8; k++) { const a = k * Math.PI / 4; line(c, 12 + Math.cos(a) * 7.5, 12 + Math.sin(a) * 7.5, 12 + Math.cos(a) * 10.5, 12 + Math.sin(a) * 10.5, '#e39a2c', 2); }
+    ell(c, 12, 12, 5.6, 5.6, '#f5c84c', INK, 1.3); ell(c, 10.4, 10.2, 1.6, 1.2, '#fff3c2');
+  },
+  autumn(c) {
+    const pts = []; for (let k = 0; k < 10; k++) { const an = -Math.PI / 2 + k * Math.PI / 5, r = k % 2 ? 4.6 : 9.5; pts.push(12 + Math.cos(an) * r, 11.5 + Math.sin(an) * r); }
+    fp(c, pts, '#e0762f', INK, 1.3); line(c, 12, 11.5, 12, 22, '#7a4a22', 1.5); line(c, 12, 11.5, 12, 5, '#a8521f', .9);
+  },
+  winter(c) {
+    for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3; const dx = Math.cos(a) * 9.5, dy = Math.sin(a) * 9.5; line(c, 12 - dx, 12 - dy, 12 + dx, 12 + dy, INK, 3.6); }
+    for (let k = 0; k < 3; k++) { const a = k * Math.PI / 3; const dx = Math.cos(a) * 9.5, dy = Math.sin(a) * 9.5; line(c, 12 - dx, 12 - dy, 12 + dx, 12 + dy, '#a9d6ea', 2); }
+    ell(c, 12, 12, 2.2, 2.2, '#fff', INK, .9);
+  },
   zoomIn(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); line(c, 10, 6.5, 10, 13.5, INK, 2); },
   zoomOut(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); },
   menu(c) { for (const y of [6, 12, 18]) line(c, 5, y, 19, y, INK, 2.6); },
