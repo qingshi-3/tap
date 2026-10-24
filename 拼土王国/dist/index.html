@@ -17,35 +17,35 @@
   <header id="hud">
     <button id="season" class="chip season" aria-label="王国概况"></button>
     <div id="resources" class="resources"></div>
-    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴">图鉴</button>
-    <button id="menu" class="icon-btn" aria-label="菜单">☰</button>
+    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴"><canvas data-icon="codex" width="44" height="44"></canvas><span>图鉴</span></button>
+    <button id="menu" class="icon-btn" aria-label="菜单"><canvas data-icon="menu" width="44" height="44"></canvas></button>
   </header>
   <aside id="dock" aria-label="建筑：常备与背包">
     <div id="cards" class="cards"></div>
   </aside>
   <aside id="side">
     <div class="actions" id="actions">
-      <button id="open-land" class="act">买地</button>
-      <button id="open-draft" class="act">选卡</button>
-      <button id="next-turn" class="act primary">下一季</button>
+      <button id="open-land" class="act tool"></button>
+      <button id="open-draft" class="act tool"></button>
+      <button id="next-turn" class="act primary tool"></button>
     </div>
     <div id="place-bar" class="place-bar" hidden>
       <div id="place-info" class="place-info" role="status"></div>
       <div class="place-buttons">
-        <button id="place-rotate" class="act">旋转</button>
-        <button id="place-cancel" class="act">取消</button>
+        <div class="place-row"><button id="place-rotate" class="act" aria-label="旋转"><canvas data-icon="rotate" width="44" height="44"></canvas></button><button id="place-cancel" class="act" aria-label="取消">✕</button></div>
         <button id="place-confirm" class="act primary">放下</button>
       </div>
     </div>
   </aside>
   <div class="left-col"><div id="alerts" class="alerts"></div></div>
   <div id="map-tools" class="map-tools">
-    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false">盾</button>
-    <button id="center" class="icon-btn" aria-label="回到领土">◎</button>
-    <button id="zoom-out" class="icon-btn" aria-label="缩小">−</button>
-    <button id="zoom-in" class="icon-btn" aria-label="放大">＋</button>
+    <button id="yield-view" class="icon-btn" aria-label="显示每季产出" aria-pressed="true"><canvas data-icon="yield" width="44" height="44"></canvas></button>
+    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false"><canvas data-icon="guard" width="44" height="44"></canvas></button>
+    <button id="center" class="icon-btn" aria-label="回到领土"><canvas data-icon="center" width="44" height="44"></canvas></button>
+    <button id="zoom-out" class="icon-btn" aria-label="缩小"><canvas data-icon="zoomOut" width="44" height="44"></canvas></button>
+    <button id="zoom-in" class="icon-btn" aria-label="放大"><canvas data-icon="zoomIn" width="44" height="44"></canvas></button>
   </div>
-  <section id="sheet" class="sheet" hidden role="dialog" aria-modal="false"></section>
+  <section id="sheet" class="pick-wrap" hidden><div class="pick" role="dialog" aria-modal="true"></div></section>
   <div id="banner" class="banner" aria-hidden="true"></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </main>

@@ -77,7 +77,7 @@ await page.goto(process.env.QA_URL || 'http://localhost:4198/?qa');
       for (let k = 0; k < 3 && await visible('#sheet-close'); k++) { await page.click('#sheet-close'); await page.waitForTimeout(150); }
       await page.waitForFunction(() => document.querySelector('#dock').getBoundingClientRect().left >= 0, null, { timeout: 3000 }).catch(() => {}); // rail slides back in
       const card = page.locator(sel).first();
-      if (!await card.isVisible().catch(() => false) || await card.evaluate(e => e.classList.contains('unaffordable'))) continue;
+      if (!await card.isVisible().catch(() => false) || await card.evaluate(e => e.classList.contains('blocked'))) continue;
       await tapEl(card);
       await page.waitForTimeout(80);
       if (turn === 1) await shot('placing');

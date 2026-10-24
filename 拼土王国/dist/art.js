@@ -180,7 +180,7 @@ export function drawWild(ctx, px, py, s, seed = 0) {
   tileStart(ctx, px, py, s);
   const c = ctx, R = rng(seed ^ 0x51ed);
   // Unclaimed land: quiet, low-contrast so the owned kingdom reads first.
-  rect(c, 0, 0, 32, 32, '#a3a785');
+  rect(c, 0, 0, 32, 32, '#939a7d');
   for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 6, 3 + R() * 3, R() < .5 ? 'rgba(140,146,110,.45)' : 'rgba(186,186,150,.45)');
   for (let i = 0; i < 2; i++) {
     const x = 6 + R() * 20, y = 8 + R() * 18;
@@ -1149,6 +1149,44 @@ const ICONS = {
     c.strokeStyle = '#f1e5c9'; c.lineWidth = 2; c.stroke();
     const an = Math.PI * 1.15, ex = 12 + Math.cos(an) * 7.5, ey = 12.5 + Math.sin(an) * 7.5;
     fp(c, [ex - 4.6, ey + 1.2, ex + 2.6, ey - 3.6, ex + 2.4, ey + 4.2], '#f1e5c9', INK, 1.3);
+  },
+  land(c) {
+    // A patchwork plot: three coloured squares and a fresh one sliding in.
+    rect(c, 3, 10, 8, 8, '#82ad61', INK, 1.3); rect(c, 11, 10, 8, 8, '#c9a35a', INK, 1.3); rect(c, 3, 18 - 16, 8, 8, '#4f86a8', INK, 1.3);
+    rect(c, 13.5, 2.5, 8, 8, '#f5d98e', INK, 1.3); line(c, 15.5, 6.5, 19.5, 6.5, INK, 1.4); line(c, 17.5, 4.5, 17.5, 8.5, INK, 1.4);
+    rect(c, 3, 18, 16, 3.5, '#6b8f4f', INK, 1.1);
+  },
+  card(c) {
+    c.save(); c.translate(12, 12); c.rotate(-.18); rr(c, -9, -10, 13, 18, 2); c.fillStyle = '#e6d5ac'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.3; c.stroke(); c.restore();
+    rr(c, 8, 3.5, 13, 18, 2); c.fillStyle = '#fff8e6'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    fp(c, [10.5, 13, 14.5, 8.5, 18.5, 13], '#c4553f', INK, 1.1); rect(c, 11.5, 13, 6, 5, '#f3e6c8', INK, 1.1);
+  },
+  next(c) {
+    // Hourglass: the season turns.
+    fp(c, [5, 3, 19, 3, 19, 5, 13.5, 12, 19, 19, 19, 21, 5, 21, 5, 19, 10.5, 12, 5, 5], '#fbf6ea', INK, 1.4);
+    fp(c, [8, 5.5, 16, 5.5, 12, 10], GOLD); fp(c, [7.5, 19.5, 16.5, 19.5, 12, 15.5], GOLD);
+    line(c, 4, 3, 20, 3, '#8a5a32', 2.6); line(c, 4, 21, 20, 21, '#8a5a32', 2.6);
+  },
+  yield(c) {
+    rect(c, 3.5, 13, 4.5, 8, '#82ad61', INK, 1.2); rect(c, 9.75, 9, 4.5, 12, GOLD, INK, 1.2); rect(c, 16, 5, 4.5, 16, '#d9503f', INK, 1.2);
+    line(c, 2.5, 21.5, 21.5, 21.5, INK, 1.6);
+  },
+  center(c) {
+    ell(c, 12, 12, 8.5, 8.5, '#fbf6ea', INK, 1.5); ell(c, 12, 12, 4.5, 4.5, '#c4553f', INK, 1.3);
+    for (const [a, b, d, e] of [[12, 1, 12, 4.5], [12, 19.5, 12, 23], [1, 12, 4.5, 12], [19.5, 12, 23, 12]]) line(c, a, b, d, e, INK, 1.8);
+  },
+  zoomIn(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); line(c, 10, 6.5, 10, 13.5, INK, 2); },
+  zoomOut(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); },
+  menu(c) { for (const y of [6, 12, 18]) line(c, 5, y, 19, y, INK, 2.6); },
+  codex(c) {
+    fp(c, [2.5, 5, 11, 6.5, 11, 21, 2.5, 19.5], '#4f7fb8', INK, 1.3); fp(c, [21.5, 5, 13, 6.5, 13, 21, 21.5, 19.5], '#4f7fb8', INK, 1.3);
+    fp(c, [4, 4, 11.4, 5.4, 11.4, 19, 4, 17.6], '#fbf6ea', INK, 1); fp(c, [20, 4, 12.6, 5.4, 12.6, 19, 20, 17.6], '#fbf6ea', INK, 1);
+    for (const y of [8.5, 11.5, 14.5]) { line(c, 5.5, y, 9.8, y + .7, '#9a9585', 1); line(c, 18.5, y, 14.2, y + .7, '#9a9585', 1); }
+  },
+  space(c) {
+    // No room: a dashed footprint with a red cross.
+    c.setLineDash([2.4, 2]); rect(c, 3.5, 3.5, 17, 17, '#fbf6ea', INK, 1.4); c.setLineDash([]);
+    line(c, 7, 7, 17, 17, '#c4553f', 3); line(c, 17, 7, 7, 17, '#c4553f', 3);
   },
   year(c) {
     rr(c, 3.5, 5, 17, 16, 2.4); c.fillStyle = '#fbf6ea'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();

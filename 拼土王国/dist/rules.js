@@ -11,7 +11,7 @@ export const SEASONS = Object.freeze([
   { name: '秋', tip: '农田×1.5；季末蛮族来袭' },
   { name: '冬', tip: '农田×0.5；季末缴纳年贡' },
 ]);
-export const TRIBUTE = Object.freeze([15, 30, 50, 80, 120, 170]);
+export const TRIBUTE = Object.freeze([15, 30, 55, 90, 135, 195]);
 const FARM_SEASON = [1, 1, 1.5, 0.5];
 const LAND = ['grass', 'fertile'];
 // cells are the rot=0 footprint. tags drive adjacency; basic = always available.
@@ -162,7 +162,7 @@ function makeLandOffers(state) {
     }
     if (rand(state) < 0.2) cells[Math.floor(rand(state) * cells.length)].treasure = true;
     const rotated = rotateCells(cells, Math.floor(rand(state) * 4));
-    return { id: `${state.turn}.${state.landRerolls}.${i}`, name: landName(cells), cost: 3 * cells.length + 2 * year, treasure: 6 + 4 * year, cells: rotated };
+    return { id: `${state.turn}.${state.landRerolls}.${i}`, name: landName(cells), cost: 0, treasure: 6 + 4 * year, cells: rotated };
   });
 }
 function makeDraft(state) {
@@ -307,14 +307,13 @@ export function canPlaceLand(state, offerIndex, x, y, rot = 0) {
   if (state.status !== 'playing') return fail('本局已结束。');
   const offer = state.landOffers[offerIndex];
   if (!offer) return fail('请选择一块土地。');
-  if (state.landBought) return fail('本季已经买过地。');
+  if (state.landBought) return fail('本季已经拿过地。');
   if (!Number.isInteger(x) || !Number.isInteger(y)) return fail('位置无效。');
   const cells = landCells(state, offerIndex, x, y, rot);
   const owned = new Set(state.tiles.map(t => key(t.x, t.y)));
   if (cells.some(c => !isIsland(state, c.x, c.y))) return fail('不能拼到海里。');
   if (cells.some(c => owned.has(key(c.x, c.y)))) return fail('和已有领土重叠。');
   if (!cells.some(c => DIRS.some(([dx, dy]) => owned.has(key(c.x + dx, c.y + dy))))) return fail('要和领土边缘相连。');
-  if (state.gold < offer.cost) return fail(`金币不足，需要${offer.cost}。`);
   return ok({ cells });
 }
 function largestRegion(state, terrain) {
@@ -356,7 +355,6 @@ export function placeLand(state, offerIndex, x, y, rot = 0) {
   const check = canPlaceLand(state, offerIndex, x, y, rot);
   if (!check.ok) return check;
   const offer = state.landOffers[offerIndex];
-  state.gold -= offer.cost;
   let treasure = 0;
   for (const c of check.cells) {
     state.tiles.push({ x: c.x, y: c.y, t: c.t });
@@ -370,7 +368,7 @@ export function placeLand(state, offerIndex, x, y, rot = 0) {
 }
 export function rerollLand(state) {
   if (state.status !== 'playing') return fail('本局已结束。');
-  if (state.landBought) return fail('本季已经买过地。');
+  if (state.landBought) return fail('本季已经拿过地。');
   const cost = 3 + 3 * state.landRerolls;
   if (state.gold < cost) return fail(`刷新需要${cost}金。`);
   state.gold -= cost; state.landRerolls++;
@@ -380,7 +378,7 @@ export function rerollLand(state) {
 export const landRerollCost = state => 3 + 3 * state.landRerolls;
 
 // ---------- buildings ----------
-export function canBuild(state, type, x, y, rot = 0, { from = 'auto' } = {}) {
+export function canBuild(state, type, x, y, rot = 0, { fitOnly = false } = {}) {
   if (state.status !== 'playing') return fail('本局已结束。');
   const def = BUILDINGS[type];
   if (!def || type === 'hall') return fail('未知建筑。');
@@ -396,6 +394,7 @@ export function canBuild(state, type, x, y, rot = 0, { from = 'auto' } = {}) {
     if (tiles.filter(tile => tile.t === t).length < n) return fail(`${def.name}至少要占${n}格${TERRAIN[t].name}。`);
   }
   if (type === 'fishery' && tiles.every(t => t.t === 'water')) return fail('渔港要有一格靠岸。');
+  if (fitOnly) return ok({ cells });
   if (state.gold < def.gold) return fail(`金币不足，需要${def.gold}。`);
   if (state.wood < def.wood) return fail(`木材不足，需要${def.wood}。`);
   if (def.workers > staffing(state).free) return fail(`空闲人口不足，需要${def.workers}人。先建民居。`);
@@ -415,6 +414,46 @@ export function build(state, type, x, y, rot = 0) {
   return ok({ id: b.id, cost: def.gold });
 }
 /** Forecast difference if the building were placed now. Used for the drag preview. */
+/** Where a placement's yield comes from, cell by cell: its own tiles, touching tiles, and touching buildings that gain from it. Base numbers (level 1, before season). */
+export function contributions(state, type, x, y, rot = 0) {
+  const idx = index(state), b = { id: -1, type, x, y, rot }, out = [];
+  const own = buildingCells(b), ownSet = new Set(own.map(c => key(c.x, c.y)));
+  const adj = adjacentCells(state, type, x, y, rot).filter(c => !ownSet.has(key(c.x, c.y)));
+  const tile = c => idx.tiles.get(key(c.x, c.y));
+  const add = (c, res, v) => { if (v) out.push({ x: c.x, y: c.y, res, v }); };
+  const capped = (cells, res, v, cap) => cells.slice(0, cap).forEach(c => add(c, res, v));
+  const adjT = t => adj.filter(c => tile(c)?.t === t);
+  const neighbours = [], seen = new Set();
+  for (const c of adj) { const o = idx.owner.get(key(c.x, c.y)); if (o && !seen.has(o.id)) { seen.add(o.id); neighbours.push({ o, c }); } }
+  const ownT = t => own.filter(c => tile(c)?.t === t);
+  switch (type) {
+    case 'farm': {
+      own.forEach(c => tile(c) && add(c, 'food', tile(c).t === 'fertile' ? 3 : 2));
+      const w = adjT('water')[0]; if (w) add(w, 'food', 2);
+      neighbours.filter(n => n.o.type === 'granary').forEach(n => add(n.c, 'food', 1));
+      break;
+    }
+    case 'lumber': capped(adjT('forest'), 'wood', 1, 5); break;
+    case 'fishery': capped([...ownT('water'), ...adjT('water')], 'food', 1, 6); break;
+    case 'mine': ownT('mountain').forEach(c => add(c, 'gold', 2)); adjT('mountain').forEach(c => add(c, 'gold', 1)); break;
+    case 'manor': capped([...adjT('forest'), ...adjT('water')], 'gold', 1, 4); break;
+    case 'market': neighbours.forEach(n => add(n.c, 'gold', n.o.type === 'house' ? 3 : 1)); break;
+    case 'temple': capped(neighbours.filter(n => ['house', 'manor'].includes(n.o.type)).map(n => n.c), 'fame', 1, 4); break;
+    case 'guild': neighbours.filter(n => ['market', 'workshop', 'fishery', 'mine'].includes(n.o.type)).forEach(n => add(n.c, 'gold', 3)); break;
+    case 'house': neighbours.filter(n => n.o.type === 'market').forEach(n => add(n.c, 'gold', 1)); break;
+    case 'workshop': { const l = neighbours.find(n => n.o.type === 'lumber'); if (l) add(l.c, 'gold', 2); break; }
+  }
+  // What the neighbours themselves gain from this newcomer.
+  for (const { o, c } of neighbours) {
+    if (o.type === 'market') add(c, 'gold', type === 'house' ? 3 : 1);
+    if (o.type === 'temple' && ['house', 'manor'].includes(type)) add(c, 'fame', 1);
+    if (o.type === 'guild' && ['market', 'workshop', 'fishery', 'mine'].includes(type)) add(c, 'gold', 3);
+    if (o.type === 'house' && type === 'market') add(c, 'gold', 1);
+    if (o.type === 'farm' && type === 'granary') add(c, 'food', 1);
+    if (o.type === 'workshop' && type === 'lumber') add(c, 'gold', 2);
+  }
+  return out;
+}
 export function previewBuild(state, type, x, y, rot = 0) {
   const check = canBuild(state, type, x, y, rot);
   const before = forecast(state);

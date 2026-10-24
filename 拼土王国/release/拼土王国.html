@@ -30,95 +30,132 @@ html, body, #game { touch-action: none; }
 
 /* Top bar */
 #hud { position: absolute; top: calc(5px + var(--safe-t)); left: calc(6px + var(--safe-l)); right: calc(6px + var(--safe-r)); height: 42px;
-  display: flex; gap: 6px; align-items: stretch; pointer-events: none; z-index: 3; }
+  display: flex; gap: 6px; align-items: stretch; pointer-events: none; z-index: 9; }
 #hud > * { pointer-events: auto; }
-.chip { background: var(--wood); border-radius: 10px; padding: 3px 10px; box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; }
+.chip, .res, .icon-btn { background: linear-gradient(#fbf3de, #eedfb8); border-radius: 11px; box-shadow: inset 0 0 0 1.5px #fffaf0, 0 2px 0 #b99a62, 0 3px 8px #0003; }
+.chip { padding: 3px 10px; font-weight: 800; }
 .season { white-space: nowrap; display: flex; flex-direction: column; justify-content: center; line-height: 1.1; font-size: 15px; min-width: 96px; }
 .season small { font-weight: 700; color: var(--ink-2); font-size: 11px; }
 .resources { flex: 1; display: flex; gap: 5px; min-width: 0; }
-.res { flex: 1 1 0; max-width: 112px; display: flex; align-items: center; gap: 4px; background: var(--wood); border-radius: 10px; padding: 2px 8px 2px 5px;
-  box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; min-width: 0; }
-.res canvas { width: 24px; height: 24px; flex: none; }
-.res b { font-size: 16px; display: block; line-height: 1.05; }
-.res small { display: block; font-size: 11px; color: var(--ink-2); line-height: 1.05; white-space: nowrap; font-weight: 700; }
+.res { flex: 1 1 0; max-width: 104px; display: flex; align-items: center; gap: 4px; padding: 2px 8px 2px 5px; min-width: 0; }
+.res canvas { width: 26px; height: 26px; flex: none; }
+.res b { font-size: 17px; display: block; line-height: 1.05; }
+.res small { display: block; font-size: 11px; color: #4f7a3a; line-height: 1.05; white-space: nowrap; font-weight: 800; }
 .res small.neg { color: var(--red); }
-.icon-btn { min-width: 44px; height: 44px; border-radius: 10px; background: var(--wood); box-shadow: 0 2px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; font-size: 17px; flex: none; padding: 0 6px; }
+.icon-btn { min-width: 44px; height: 44px; font-weight: 800; font-size: 15px; flex: none; padding: 0 6px; display: inline-flex; align-items: center; justify-content: center; gap: 3px; }
+.icon-btn canvas { width: 28px; height: 28px; pointer-events: none; }
 #hud .icon-btn { height: auto; }
-.icon-btn.wide { padding: 0 12px; font-size: 15px; }
-.icon-btn[aria-pressed="true"] { background: var(--blue); color: #fff; box-shadow: 0 2px 0 #305e7c; }
+.icon-btn.wide { padding: 0 10px 0 6px; }
+.icon-btn[aria-pressed="true"] { background: linear-gradient(#6fa2c2, #4f86a8); box-shadow: inset 0 0 0 1.5px #a9d0e6, 0 2px 0 #305e7c, 0 3px 8px #0003; }
 
 /* Alerts & map tools sit inside the map area between the rails */
 .left-col { position: absolute; top: calc(var(--top) + 4px); left: calc(var(--rail-l) + 6px); right: calc(var(--rail-r) + 6px); pointer-events: none; }
 .alerts { display: flex; flex-wrap: wrap; gap: 5px; align-items: flex-start; }
-.alert { pointer-events: auto; display: flex; align-items: center; gap: 5px; background: #fffaf0e8; border-radius: 9px; padding: 3px 9px 3px 5px; font-size: 13.5px; font-weight: 800; box-shadow: 0 2px 6px #0003; min-height: 30px; }
+.alert { pointer-events: auto; display: flex; align-items: center; gap: 5px; background: #fffaf0ee; border-radius: 9px; padding: 3px 10px 3px 5px; font-size: 13.5px; font-weight: 800; box-shadow: 0 2px 6px #0003; min-height: 30px; }
 .alert canvas { width: 20px; height: 20px; }
 .alert.danger { background: var(--red); color: #fff; }
 .alert.warn { background: #f6d58a; }
-.map-tools { position: absolute; right: calc(var(--rail-r) + 6px); bottom: calc(6px + var(--safe-b)); display: flex; gap: 6px; }
-.map-tools .icon-btn { width: 44px; opacity: .94; font-size: 16px; }
+.map-tools { position: absolute; right: calc(var(--rail-r) + 6px); bottom: calc(6px + var(--safe-b)); display: flex; gap: 5px; }
+.map-tools .icon-btn { width: 44px; padding: 0; }
+
+/* Rails sit on a dark wooden shelf */
+#dock, #side { position: absolute; top: var(--top); bottom: 0; z-index: 2; }
+#dock::before, #side::before { content: ''; position: absolute; inset: 0 0 calc(2px + var(--safe-b)) 0; background: linear-gradient(#6e4c2f, #573a23); z-index: -1;
+  box-shadow: inset 0 0 0 2px #8f6a43, 0 4px 14px #0005; }
+#dock::before { border-radius: 0 14px 14px 0; left: var(--safe-l); }
+#side::before { border-radius: 14px 0 0 14px; right: var(--safe-r); }
 
 /* Left rail: building cards */
-#dock { position: absolute; left: 0; top: var(--top); bottom: 0; width: var(--rail-l); padding: 2px 4px calc(6px + var(--safe-b)) calc(6px + var(--safe-l));
-  transition: transform .22s; z-index: 2; }
-body.sheet-open #dock { transform: translateX(-105%); }
+#dock { left: 0; width: var(--rail-l); padding: 3px 5px calc(8px + var(--safe-b)) calc(6px + var(--safe-l)); }
 .cards { height: 100%; display: flex; gap: 5px; }
 .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
-.col-h { flex: none; font-size: 11px; font-weight: 800; color: #fff; text-align: center; line-height: 14px; text-shadow: 0 1px 2px #0008; }
-.card { position: relative; flex: 1 1 0; min-height: 48px; max-height: 96px; width: 100%; border-radius: 10px; background: #fff8e6; box-shadow: 0 2px 0 var(--wood-3), 0 2px 6px #0003;
+.col-h { flex: none; font-size: 11px; font-weight: 800; color: #f6e7c4; text-align: center; line-height: 15px; letter-spacing: 1px; }
+.card { position: relative; flex: 1 1 0; min-height: 48px; max-height: 96px; width: 100%; border-radius: 10px; background: linear-gradient(#fffaf0, #f3e6c6);
+  box-shadow: inset 0 0 0 1.5px #fff, 0 2px 0 #b99a62, 0 2px 5px #0004;
   display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; touch-action: none; overflow: hidden; }
-.card canvas { height: calc(100% - 28px); max-height: 52px; min-height: 18px; width: auto; max-width: 100%; pointer-events: none; }
+.card canvas[data-card] { height: calc(100% - 30px); max-height: 52px; min-height: 18px; width: auto; max-width: 100%; pointer-events: none; }
 .card .nm { font-size: 13px; font-weight: 800; line-height: 1.05; pointer-events: none; }
-.card .cost { font-size: 11px; color: var(--ink-2); white-space: nowrap; line-height: 1.1; pointer-events: none; font-weight: 700; }
-.card .cost.short { color: var(--red); }
-.card.hand { background: #fdf0c8; box-shadow: 0 2px 0 var(--gold-2), 0 2px 6px #0003; }
-.card.slot { background: #fff8e630; box-shadow: none; color: #fffc; font-size: 12px; font-weight: 700; }
-.card.active { box-shadow: 0 0 0 3px var(--blue), 0 2px 6px #0003; }
-.card.unaffordable canvas { opacity: .5; }
+.costs { display: inline-flex; gap: 4px; align-items: center; font-size: 11.5px; font-weight: 800; line-height: 1; white-space: nowrap; pointer-events: none; }
+.costs > span { display: inline-flex; align-items: center; gap: 1px; }
+.costs canvas { width: 14px; height: 14px; }
+.card .costs { margin-top: 1px; }
+.card .why { display: inline-flex; align-items: center; gap: 2px; font-size: 11.5px; font-weight: 800; color: #fff; background: var(--red); border-radius: 6px; padding: 1px 5px 1px 2px; line-height: 1.1; pointer-events: none; white-space: nowrap; }
+.card .why canvas { width: 14px; height: 14px; background: #fff8; border-radius: 4px; }
+.card.hand { background: linear-gradient(#fff4d2, #f5dfa4); box-shadow: inset 0 0 0 1.5px #fff6dc, 0 2px 0 var(--gold-2), 0 2px 5px #0004; }
+.card.slot { background: #00000026; box-shadow: inset 0 2px 4px #0004; border: 1.5px dashed #ffffff30; }
+.card.active { box-shadow: 0 0 0 3px #ffd36b, 0 0 12px #ffd36b99; }
+.card.blocked { background: linear-gradient(#e9e2d0, #d9cfb6); }
+.card.blocked canvas[data-card] { filter: grayscale(1); opacity: .55; }
+.card.blocked .nm { color: #7c7563; }
 .card.pressing { transform: scale(.95); }
 
 /* Right rail: actions, or the placement panel */
-#side { position: absolute; right: 0; top: var(--top); bottom: 0; width: var(--rail-r); padding: 2px calc(6px + var(--safe-r)) calc(6px + var(--safe-b)) 4px; z-index: 3; }
+#side { right: 0; width: var(--rail-r); padding: 3px calc(6px + var(--safe-r)) calc(8px + var(--safe-b)) 5px; z-index: 3; }
 .actions { height: 100%; display: flex; flex-direction: column; gap: 7px; }
-.act { min-height: 46px; border-radius: 11px; background: #fff8e6; box-shadow: 0 3px 0 var(--wood-3), 0 3px 8px #0003; font-weight: 800; font-size: 17px; padding: 0 8px; position: relative; }
-.actions .act { flex: 1 1 0; max-height: 96px; }
-.actions #next-turn { flex: 1.5 1 0; max-height: 130px; }
-.act.primary { background: var(--gold); box-shadow: 0 3px 0 var(--gold-2), 0 3px 8px #0003; }
+.act { min-height: 46px; border-radius: 12px; background: linear-gradient(#fffaf0, #efe0bb); box-shadow: inset 0 0 0 1.5px #fff, 0 3px 0 #b99a62, 0 3px 8px #0003; font-weight: 800; font-size: 16px; padding: 0 10px; position: relative; }
+.act.tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.1; }
+.act.tool canvas { width: 34px; height: 34px; pointer-events: none; }
+.act.tool small { font-size: 12px; opacity: .8; }
+.actions .act { flex: 1 1 0; max-height: 100px; }
+.actions #next-turn { flex: 1.4 1 0; max-height: 130px; }
+.act.primary { background: linear-gradient(#f2cc77, #dca84a); box-shadow: inset 0 0 0 1.5px #fbe3a8, 0 3px 0 var(--gold-2), 0 3px 8px #0003; }
 .act.danger { background: var(--red); color: #fff; box-shadow: 0 3px 0 #8e3a2a; }
 .act:active:not(:disabled) { transform: translateY(2px); }
-.act .badge { position: absolute; top: -4px; right: -2px; width: 14px; height: 14px; border-radius: 7px; border: 2px solid #fff8e6; background: var(--red); }
-.act small { display: block; font-size: 12px; font-weight: 700; opacity: .8; line-height: 1.1; margin-top: 2px; }
+.act:disabled { opacity: .5; filter: grayscale(.6); }
+.act .badge { position: absolute; top: 5px; right: 6px; width: 12px; height: 12px; border-radius: 6px; box-shadow: 0 0 0 2px #fff8e6; background: var(--red); }
 .place-bar { height: 100%; display: flex; flex-direction: column; gap: 6px; }
-.place-info { flex: 1 1 auto; min-height: 0; overflow: hidden; background: var(--wood); border-radius: 11px; padding: 6px 7px; box-shadow: 0 3px 8px #0004;
-  font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
+.place-info { flex: 1 1 auto; min-height: 0; overflow: hidden; background: linear-gradient(#fbf3de, #eedfb8); border-radius: 12px; padding: 7px 8px; box-shadow: inset 0 0 0 1.5px #fffaf0, 0 3px 8px #0004;
+  font-size: 13px; font-weight: 700; display: flex; flex-direction: column; gap: 4px; line-height: 1.2; }
 .place-info b { font-size: 16px; }
 .place-info .bad { color: var(--red); font-size: 12.5px; }
-.place-info .delta { display: inline-flex; gap: 2px; align-items: center; }
+.place-info .delta { display: inline-flex; gap: 1px; align-items: center; font-weight: 800; color: #3f6b2e; }
+.place-info .delta.neg { color: var(--red); }
 .place-info .delta canvas { width: 18px; height: 18px; }
-.place-info .deltas { display: flex; flex-wrap: wrap; gap: 0 6px; }
+.place-info .deltas { display: flex; flex-wrap: wrap; gap: 2px 7px; align-items: center; }
+.place-info .costs { font-size: 13px; }
+.place-info .costs canvas { width: 16px; height: 16px; }
 .place-buttons { flex: none; display: flex; flex-direction: column; gap: 6px; }
-.place-buttons .act { min-height: 48px; }
-#place-confirm { min-height: 60px; }
+.place-row { display: flex; gap: 6px; }
+.place-row .act { flex: 1; min-height: 48px; padding: 0; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.place-row canvas { width: 30px; height: 30px; pointer-events: none; }
+#place-confirm { min-height: 60px; font-size: 18px; }
 
-/* Sheet beside the right rail; the card rail slides away */
-.sheet { position: absolute; top: calc(var(--top) + 2px); max-height: calc(100% - var(--top) - 8px - var(--safe-b)); right: calc(var(--rail-r) + 4px);
-  width: min(540px, calc(100vw - var(--rail-r) - 200px)); background: var(--wood); border-radius: 14px; padding: 8px; box-shadow: 0 6px 24px #0006; z-index: 4;
-  display: flex; flex-direction: column; overflow: hidden; }
-.sheet h2 { margin: 0 4px 6px; font-size: 17px; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex: none; }
-.sheet h2 small { font-size: 12px; color: var(--ink-2); font-weight: 700; }
-.sheet .hint { margin: 0 4px 6px; font-size: 13px; color: var(--red); font-weight: 700; }
-.offers { flex: 0 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow-y: auto; align-content: start; padding-bottom: 3px; }
-.offer { background: #fff8e6; border-radius: 12px; box-shadow: 0 3px 0 var(--wood-3); padding: 5px 4px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px; touch-action: none; min-height: 0; }
-.offer canvas { width: 100%; max-width: 132px; height: auto; aspect-ratio: 264 / 152; max-height: 76px; object-fit: contain; pointer-events: none; }
-.offer b { font-size: 15px; pointer-events: none; }
-.offer span { font-size: 12px; color: var(--ink-2); pointer-events: none; text-align: center; line-height: 1.25; }
-.offer .price { color: var(--ink); font-weight: 800; font-size: 13px; }
-.offer .price.short { color: var(--red); }
-.offer .new { font-size: 11px; color: #fff; background: var(--red); padding: 0 5px; border-radius: 6px; font-weight: 800; }
-.sheet-actions { flex: none; display: flex; gap: 6px; margin-top: 7px; }
-.sheet-actions .act { flex: 1; font-size: 15px; }
+/* Three-pick popup in the middle of the screen; the top bar stays readable above it */
+.pick-wrap { position: absolute; left: 0; right: 0; top: var(--top); bottom: 0; z-index: 8; display: flex; align-items: center; justify-content: center;
+  padding: 18px 12px calc(8px + var(--safe-b)); background: radial-gradient(ellipse at center, #0b1a2088 0%, #0b1a20cc 75%); }
+.pick { position: relative; width: min(660px, 100%); max-height: 100%; display: flex; flex-direction: column; background: linear-gradient(#f8efd8, #ead9b0);
+  border-radius: 18px; padding: 22px 12px 12px; box-shadow: 0 0 0 3px #8a5a32, 0 0 0 6px #f1e5c9, 0 14px 40px #000b; }
+.pick.pop { animation: pick-in .22s ease-out; }
+@keyframes pick-in { from { transform: scale(.92); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.pick-head { position: absolute; top: -17px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  background: linear-gradient(#36594b, var(--pine)); color: #fff; padding: 4px 16px 4px 8px; border-radius: 12px; box-shadow: inset 0 0 0 1.5px #5d8574, 0 3px 0 #18302a, 0 4px 10px #0005; }
+.pick-head canvas { width: 28px; height: 28px; }
+.pick-head h2 { margin: 0; font-size: 18px; letter-spacing: 1px; }
+.pick-head small { font-size: 12px; font-weight: 800; background: var(--gold); color: var(--ink); border-radius: 6px; padding: 1px 6px; }
+.pick[data-kind="draft"] .pick-head small { background: #ffffff30; color: #fff; }
+.pick .hint { margin: 0 4px 6px; font-size: 13px; color: var(--red); font-weight: 800; text-align: center; }
+.offers { flex: 0 1 auto; min-height: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; overflow-y: auto; align-content: start; padding: 10px 6px 6px; }
+.offer { position: relative; background: linear-gradient(#fffdf6, #f8ecd0); border-radius: 14px; box-shadow: inset 0 0 0 1.5px #fff, 0 4px 0 #c2a46c, 0 6px 12px #0002;
+  padding: 7px 7px 9px; display: flex; flex-direction: column; align-items: center; gap: 4px; touch-action: none; min-height: 0; transition: transform .12s; }
+.offer.pressing, .offer:active:not(:disabled) { transform: translateY(2px) scale(.98); }
+.offer .art { width: 100%; height: clamp(58px, 22vh, 120px); border-radius: 10px; background: #e7d7ae; box-shadow: inset 0 2px 5px #0002; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.offer .art canvas { max-width: 100%; max-height: 100%; }
+.offer b { font-size: 16px; pointer-events: none; }
+.offer .txt { font-size: 12.5px; color: var(--ink-2); pointer-events: none; text-align: center; line-height: 1.3; font-weight: 700; }
+.offer .costs { font-size: 13px; }
+.offer .costs canvas { width: 16px; height: 16px; }
+.chips { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; pointer-events: none; }
+.terr { display: inline-flex; align-items: center; gap: 3px; font-size: 12.5px; font-weight: 800; background: #0000000f; border-radius: 6px; padding: 1px 6px 1px 2px; }
+.terr canvas { width: 18px; height: 18px; border-radius: 4px; }
+.ribbon { position: absolute; top: -7px; right: -5px; z-index: 1; display: inline-flex; align-items: center; gap: 2px; background: var(--red); color: #fff; font-size: 13px; font-weight: 900;
+  border-radius: 8px; padding: 2px 8px; box-shadow: 0 2px 0 #8e3a2a, 0 3px 6px #0003; pointer-events: none; }
+.ribbon.gold { background: linear-gradient(#f5d98e, var(--gold)); color: var(--ink); box-shadow: 0 2px 0 var(--gold-2), 0 3px 6px #0003; padding-left: 3px; }
+.ribbon canvas { width: 20px; height: 20px; }
+.pick-actions { flex: none; display: flex; gap: 8px; margin-top: 8px; justify-content: center; }
+.pick-actions .act { min-width: 120px; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 
 /* Banner, toast: centred over the map area, toast low so it never hides the middle */
-.banner { position: absolute; left: var(--rail-l); right: var(--rail-r); width: fit-content; margin: 0 auto; top: 26%; transform: scale(.9); opacity: 0; pointer-events: none;
+.banner { position: absolute; left: var(--rail-l); right: var(--rail-r); width: fit-content; margin: 0 auto; top: calc(var(--top) + 40px); transform: scale(.9); opacity: 0; pointer-events: none;
   background: #29483de8; color: #fff; border-radius: 16px; padding: 10px 26px; text-align: center; font-weight: 800; font-size: 22px; transition: opacity .25s, transform .25s; z-index: 5; }
 .banner small { display: block; font-size: 14px; font-weight: 700; opacity: .85; }
 .banner.show { opacity: 1; transform: scale(1); }
@@ -174,8 +211,6 @@ body.sheet-open #dock { transform: translateX(-105%); }
 .facts dt { color: var(--ink-2); font-weight: 700; }
 .facts dd { margin: 0; font-weight: 700; }
 .terr-row { display: inline-flex; gap: 4px; flex-wrap: wrap; }
-.terr { display: inline-flex; align-items: center; gap: 3px; font-size: 12.5px; background: #0000000d; border-radius: 6px; padding: 1px 6px 1px 2px; }
-.terr canvas { width: 18px; height: 18px; border-radius: 4px; }
 .codex-rules { flex: 1; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 7px; align-content: start; }
 .rule-card { background: #fff8e6; border-radius: 12px; padding: 8px 10px; font-size: 14px; display: flex; gap: 8px; }
 .rule-card canvas { width: 40px; height: 40px; flex: none; border-radius: 8px; }
@@ -214,7 +249,7 @@ body.sheet-open #dock { transform: translateX(-105%); }
 .region-row .bar { flex: 1; height: 8px; background: #0001; border-radius: 4px; overflow: hidden; }
 .region-row .bar i { display: block; height: 100%; background: var(--grass); }
 
-@media (prefers-reduced-motion: reduce) { .banner, .toast, #dock { transition: none; } .tut-ring, .rotate-tip .phone { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .banner, .toast, .offer { transition: none; } .pick.pop { animation: none; } .tut-ring, .rotate-tip .phone { animation: none; } }
 
 /* Very short landscape screens */
 @media (max-height: 360px) {
@@ -228,7 +263,11 @@ body.sheet-open #dock { transform: translateX(-105%); }
   .res canvas { width: 28px; height: 28px; }
   .res b { font-size: 18px; }
   .card .nm { font-size: 15px; }
-  .card .cost { font-size: 12.5px; }
+  .costs { font-size: 12.5px; }
+  .costs canvas { width: 16px; height: 16px; }
+  .act.tool canvas { width: 42px; height: 42px; }
+  .offer .art { height: clamp(80px, 20vh, 150px); }
+  .pick { width: min(760px, 100%); }
   .card canvas { max-height: 64px; }
   .act { font-size: 19px; }
   .tut-box { font-size: 18px; }
@@ -245,35 +284,35 @@ body.sheet-open #dock { transform: translateX(-105%); }
   <header id="hud">
     <button id="season" class="chip season" aria-label="王国概况"></button>
     <div id="resources" class="resources"></div>
-    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴">图鉴</button>
-    <button id="menu" class="icon-btn" aria-label="菜单">☰</button>
+    <button id="codex" class="icon-btn wide" aria-label="建筑图鉴"><canvas data-icon="codex" width="44" height="44"></canvas><span>图鉴</span></button>
+    <button id="menu" class="icon-btn" aria-label="菜单"><canvas data-icon="menu" width="44" height="44"></canvas></button>
   </header>
   <aside id="dock" aria-label="建筑：常备与背包">
     <div id="cards" class="cards"></div>
   </aside>
   <aside id="side">
     <div class="actions" id="actions">
-      <button id="open-land" class="act">买地</button>
-      <button id="open-draft" class="act">选卡</button>
-      <button id="next-turn" class="act primary">下一季</button>
+      <button id="open-land" class="act tool"></button>
+      <button id="open-draft" class="act tool"></button>
+      <button id="next-turn" class="act primary tool"></button>
     </div>
     <div id="place-bar" class="place-bar" hidden>
       <div id="place-info" class="place-info" role="status"></div>
       <div class="place-buttons">
-        <button id="place-rotate" class="act">旋转</button>
-        <button id="place-cancel" class="act">取消</button>
+        <div class="place-row"><button id="place-rotate" class="act" aria-label="旋转"><canvas data-icon="rotate" width="44" height="44"></canvas></button><button id="place-cancel" class="act" aria-label="取消">✕</button></div>
         <button id="place-confirm" class="act primary">放下</button>
       </div>
     </div>
   </aside>
   <div class="left-col"><div id="alerts" class="alerts"></div></div>
   <div id="map-tools" class="map-tools">
-    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false">盾</button>
-    <button id="center" class="icon-btn" aria-label="回到领土">◎</button>
-    <button id="zoom-out" class="icon-btn" aria-label="缩小">−</button>
-    <button id="zoom-in" class="icon-btn" aria-label="放大">＋</button>
+    <button id="yield-view" class="icon-btn" aria-label="显示每季产出" aria-pressed="true"><canvas data-icon="yield" width="44" height="44"></canvas></button>
+    <button id="guard-view" class="icon-btn" aria-label="显示守卫范围" aria-pressed="false"><canvas data-icon="guard" width="44" height="44"></canvas></button>
+    <button id="center" class="icon-btn" aria-label="回到领土"><canvas data-icon="center" width="44" height="44"></canvas></button>
+    <button id="zoom-out" class="icon-btn" aria-label="缩小"><canvas data-icon="zoomOut" width="44" height="44"></canvas></button>
+    <button id="zoom-in" class="icon-btn" aria-label="放大"><canvas data-icon="zoomIn" width="44" height="44"></canvas></button>
   </div>
-  <section id="sheet" class="sheet" hidden role="dialog" aria-modal="false"></section>
+  <section id="sheet" class="pick-wrap" hidden><div class="pick" role="dialog" aria-modal="true"></div></section>
   <div id="banner" class="banner" aria-hidden="true"></div>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </main>
@@ -296,7 +335,7 @@ const SEASONS = Object.freeze([
   { name: '秋', tip: '农田×1.5；季末蛮族来袭' },
   { name: '冬', tip: '农田×0.5；季末缴纳年贡' },
 ]);
-const TRIBUTE = Object.freeze([15, 30, 50, 80, 120, 170]);
+const TRIBUTE = Object.freeze([15, 30, 55, 90, 135, 195]);
 const FARM_SEASON = [1, 1, 1.5, 0.5];
 const LAND = ['grass', 'fertile'];
 // cells are the rot=0 footprint. tags drive adjacency; basic = always available.
@@ -447,7 +486,7 @@ function makeLandOffers(state) {
     }
     if (rand(state) < 0.2) cells[Math.floor(rand(state) * cells.length)].treasure = true;
     const rotated = rotateCells(cells, Math.floor(rand(state) * 4));
-    return { id: `${state.turn}.${state.landRerolls}.${i}`, name: landName(cells), cost: 3 * cells.length + 2 * year, treasure: 6 + 4 * year, cells: rotated };
+    return { id: `${state.turn}.${state.landRerolls}.${i}`, name: landName(cells), cost: 0, treasure: 6 + 4 * year, cells: rotated };
   });
 }
 function makeDraft(state) {
@@ -592,14 +631,13 @@ function canPlaceLand(state, offerIndex, x, y, rot = 0) {
   if (state.status !== 'playing') return fail('本局已结束。');
   const offer = state.landOffers[offerIndex];
   if (!offer) return fail('请选择一块土地。');
-  if (state.landBought) return fail('本季已经买过地。');
+  if (state.landBought) return fail('本季已经拿过地。');
   if (!Number.isInteger(x) || !Number.isInteger(y)) return fail('位置无效。');
   const cells = landCells(state, offerIndex, x, y, rot);
   const owned = new Set(state.tiles.map(t => key(t.x, t.y)));
   if (cells.some(c => !isIsland(state, c.x, c.y))) return fail('不能拼到海里。');
   if (cells.some(c => owned.has(key(c.x, c.y)))) return fail('和已有领土重叠。');
   if (!cells.some(c => DIRS.some(([dx, dy]) => owned.has(key(c.x + dx, c.y + dy))))) return fail('要和领土边缘相连。');
-  if (state.gold < offer.cost) return fail(`金币不足，需要${offer.cost}。`);
   return ok({ cells });
 }
 function largestRegion(state, terrain) {
@@ -641,7 +679,6 @@ function placeLand(state, offerIndex, x, y, rot = 0) {
   const check = canPlaceLand(state, offerIndex, x, y, rot);
   if (!check.ok) return check;
   const offer = state.landOffers[offerIndex];
-  state.gold -= offer.cost;
   let treasure = 0;
   for (const c of check.cells) {
     state.tiles.push({ x: c.x, y: c.y, t: c.t });
@@ -655,7 +692,7 @@ function placeLand(state, offerIndex, x, y, rot = 0) {
 }
 function rerollLand(state) {
   if (state.status !== 'playing') return fail('本局已结束。');
-  if (state.landBought) return fail('本季已经买过地。');
+  if (state.landBought) return fail('本季已经拿过地。');
   const cost = 3 + 3 * state.landRerolls;
   if (state.gold < cost) return fail(`刷新需要${cost}金。`);
   state.gold -= cost; state.landRerolls++;
@@ -665,7 +702,7 @@ function rerollLand(state) {
 const landRerollCost = state => 3 + 3 * state.landRerolls;
 
 // ---------- buildings ----------
-function canBuild(state, type, x, y, rot = 0, { from = 'auto' } = {}) {
+function canBuild(state, type, x, y, rot = 0, { fitOnly = false } = {}) {
   if (state.status !== 'playing') return fail('本局已结束。');
   const def = BUILDINGS[type];
   if (!def || type === 'hall') return fail('未知建筑。');
@@ -681,6 +718,7 @@ function canBuild(state, type, x, y, rot = 0, { from = 'auto' } = {}) {
     if (tiles.filter(tile => tile.t === t).length < n) return fail(`${def.name}至少要占${n}格${TERRAIN[t].name}。`);
   }
   if (type === 'fishery' && tiles.every(t => t.t === 'water')) return fail('渔港要有一格靠岸。');
+  if (fitOnly) return ok({ cells });
   if (state.gold < def.gold) return fail(`金币不足，需要${def.gold}。`);
   if (state.wood < def.wood) return fail(`木材不足，需要${def.wood}。`);
   if (def.workers > staffing(state).free) return fail(`空闲人口不足，需要${def.workers}人。先建民居。`);
@@ -700,6 +738,46 @@ function build(state, type, x, y, rot = 0) {
   return ok({ id: b.id, cost: def.gold });
 }
 /** Forecast difference if the building were placed now. Used for the drag preview. */
+/** Where a placement's yield comes from, cell by cell: its own tiles, touching tiles, and touching buildings that gain from it. Base numbers (level 1, before season). */
+function contributions(state, type, x, y, rot = 0) {
+  const idx = index(state), b = { id: -1, type, x, y, rot }, out = [];
+  const own = buildingCells(b), ownSet = new Set(own.map(c => key(c.x, c.y)));
+  const adj = adjacentCells(state, type, x, y, rot).filter(c => !ownSet.has(key(c.x, c.y)));
+  const tile = c => idx.tiles.get(key(c.x, c.y));
+  const add = (c, res, v) => { if (v) out.push({ x: c.x, y: c.y, res, v }); };
+  const capped = (cells, res, v, cap) => cells.slice(0, cap).forEach(c => add(c, res, v));
+  const adjT = t => adj.filter(c => tile(c)?.t === t);
+  const neighbours = [], seen = new Set();
+  for (const c of adj) { const o = idx.owner.get(key(c.x, c.y)); if (o && !seen.has(o.id)) { seen.add(o.id); neighbours.push({ o, c }); } }
+  const ownT = t => own.filter(c => tile(c)?.t === t);
+  switch (type) {
+    case 'farm': {
+      own.forEach(c => tile(c) && add(c, 'food', tile(c).t === 'fertile' ? 3 : 2));
+      const w = adjT('water')[0]; if (w) add(w, 'food', 2);
+      neighbours.filter(n => n.o.type === 'granary').forEach(n => add(n.c, 'food', 1));
+      break;
+    }
+    case 'lumber': capped(adjT('forest'), 'wood', 1, 5); break;
+    case 'fishery': capped([...ownT('water'), ...adjT('water')], 'food', 1, 6); break;
+    case 'mine': ownT('mountain').forEach(c => add(c, 'gold', 2)); adjT('mountain').forEach(c => add(c, 'gold', 1)); break;
+    case 'manor': capped([...adjT('forest'), ...adjT('water')], 'gold', 1, 4); break;
+    case 'market': neighbours.forEach(n => add(n.c, 'gold', n.o.type === 'house' ? 3 : 1)); break;
+    case 'temple': capped(neighbours.filter(n => ['house', 'manor'].includes(n.o.type)).map(n => n.c), 'fame', 1, 4); break;
+    case 'guild': neighbours.filter(n => ['market', 'workshop', 'fishery', 'mine'].includes(n.o.type)).forEach(n => add(n.c, 'gold', 3)); break;
+    case 'house': neighbours.filter(n => n.o.type === 'market').forEach(n => add(n.c, 'gold', 1)); break;
+    case 'workshop': { const l = neighbours.find(n => n.o.type === 'lumber'); if (l) add(l.c, 'gold', 2); break; }
+  }
+  // What the neighbours themselves gain from this newcomer.
+  for (const { o, c } of neighbours) {
+    if (o.type === 'market') add(c, 'gold', type === 'house' ? 3 : 1);
+    if (o.type === 'temple' && ['house', 'manor'].includes(type)) add(c, 'fame', 1);
+    if (o.type === 'guild' && ['market', 'workshop', 'fishery', 'mine'].includes(type)) add(c, 'gold', 3);
+    if (o.type === 'house' && type === 'market') add(c, 'gold', 1);
+    if (o.type === 'farm' && type === 'granary') add(c, 'food', 1);
+    if (o.type === 'workshop' && type === 'lumber') add(c, 'gold', 2);
+  }
+  return out;
+}
 function previewBuild(state, type, x, y, rot = 0) {
   const check = canBuild(state, type, x, y, rot);
   const before = forecast(state);
@@ -927,7 +1005,7 @@ function validateSave(raw) {
   return ok({ state: clone(s) });
 }
 
-return { W, H, YEARS, SEASONS_PER_YEAR, HAND_LIMIT, TERRAIN, SEASONS, TRIBUTE, BUILDINGS, BASIC, REGION, yearOf, seasonOf, tributeOf, hashSeed, island, isIsland, rotateCells, footprint, buildingCells, tileAt, buildingAt, adjacentCells, createGame, workers, foodCap, forecast, landCells, canPlaceLand, regionProgress, placeLand, rerollLand, landRerollCost, canBuild, build, previewBuild, upgradeCost, upgrade, repairCost, repair, demolish, takeDraft, skipDraft, draftRerollCost, rerollDraft, discard, borderCells, raidSize, plunderOf, guardMap, nextTurn, score, validateSave };
+return { W, H, YEARS, SEASONS_PER_YEAR, HAND_LIMIT, TERRAIN, SEASONS, TRIBUTE, BUILDINGS, BASIC, REGION, yearOf, seasonOf, tributeOf, hashSeed, island, isIsland, rotateCells, footprint, buildingCells, tileAt, buildingAt, adjacentCells, createGame, workers, foodCap, forecast, landCells, canPlaceLand, regionProgress, placeLand, rerollLand, landRerollCost, canBuild, build, contributions, previewBuild, upgradeCost, upgrade, repairCost, repair, demolish, takeDraft, skipDraft, draftRerollCost, rerollDraft, discard, borderCells, raidSize, plunderOf, guardMap, nextTurn, score, validateSave };
 })();
 
 const __m_art = (() => {
@@ -1114,7 +1192,7 @@ function drawWild(ctx, px, py, s, seed = 0) {
   tileStart(ctx, px, py, s);
   const c = ctx, R = rng(seed ^ 0x51ed);
   // Unclaimed land: quiet, low-contrast so the owned kingdom reads first.
-  rect(c, 0, 0, 32, 32, '#a3a785');
+  rect(c, 0, 0, 32, 32, '#939a7d');
   for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 6, 3 + R() * 3, R() < .5 ? 'rgba(140,146,110,.45)' : 'rgba(186,186,150,.45)');
   for (let i = 0; i < 2; i++) {
     const x = 6 + R() * 20, y = 8 + R() * 18;
@@ -2084,6 +2162,44 @@ const ICONS = {
     const an = Math.PI * 1.15, ex = 12 + Math.cos(an) * 7.5, ey = 12.5 + Math.sin(an) * 7.5;
     fp(c, [ex - 4.6, ey + 1.2, ex + 2.6, ey - 3.6, ex + 2.4, ey + 4.2], '#f1e5c9', INK, 1.3);
   },
+  land(c) {
+    // A patchwork plot: three coloured squares and a fresh one sliding in.
+    rect(c, 3, 10, 8, 8, '#82ad61', INK, 1.3); rect(c, 11, 10, 8, 8, '#c9a35a', INK, 1.3); rect(c, 3, 18 - 16, 8, 8, '#4f86a8', INK, 1.3);
+    rect(c, 13.5, 2.5, 8, 8, '#f5d98e', INK, 1.3); line(c, 15.5, 6.5, 19.5, 6.5, INK, 1.4); line(c, 17.5, 4.5, 17.5, 8.5, INK, 1.4);
+    rect(c, 3, 18, 16, 3.5, '#6b8f4f', INK, 1.1);
+  },
+  card(c) {
+    c.save(); c.translate(12, 12); c.rotate(-.18); rr(c, -9, -10, 13, 18, 2); c.fillStyle = '#e6d5ac'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.3; c.stroke(); c.restore();
+    rr(c, 8, 3.5, 13, 18, 2); c.fillStyle = '#fff8e6'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
+    fp(c, [10.5, 13, 14.5, 8.5, 18.5, 13], '#c4553f', INK, 1.1); rect(c, 11.5, 13, 6, 5, '#f3e6c8', INK, 1.1);
+  },
+  next(c) {
+    // Hourglass: the season turns.
+    fp(c, [5, 3, 19, 3, 19, 5, 13.5, 12, 19, 19, 19, 21, 5, 21, 5, 19, 10.5, 12, 5, 5], '#fbf6ea', INK, 1.4);
+    fp(c, [8, 5.5, 16, 5.5, 12, 10], GOLD); fp(c, [7.5, 19.5, 16.5, 19.5, 12, 15.5], GOLD);
+    line(c, 4, 3, 20, 3, '#8a5a32', 2.6); line(c, 4, 21, 20, 21, '#8a5a32', 2.6);
+  },
+  yield(c) {
+    rect(c, 3.5, 13, 4.5, 8, '#82ad61', INK, 1.2); rect(c, 9.75, 9, 4.5, 12, GOLD, INK, 1.2); rect(c, 16, 5, 4.5, 16, '#d9503f', INK, 1.2);
+    line(c, 2.5, 21.5, 21.5, 21.5, INK, 1.6);
+  },
+  center(c) {
+    ell(c, 12, 12, 8.5, 8.5, '#fbf6ea', INK, 1.5); ell(c, 12, 12, 4.5, 4.5, '#c4553f', INK, 1.3);
+    for (const [a, b, d, e] of [[12, 1, 12, 4.5], [12, 19.5, 12, 23], [1, 12, 4.5, 12], [19.5, 12, 23, 12]]) line(c, a, b, d, e, INK, 1.8);
+  },
+  zoomIn(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); line(c, 10, 6.5, 10, 13.5, INK, 2); },
+  zoomOut(c) { ell(c, 10, 10, 7, 7, '#fbf6ea', INK, 1.6); line(c, 15, 15, 21, 21, INK, 3); line(c, 6.5, 10, 13.5, 10, INK, 2); },
+  menu(c) { for (const y of [6, 12, 18]) line(c, 5, y, 19, y, INK, 2.6); },
+  codex(c) {
+    fp(c, [2.5, 5, 11, 6.5, 11, 21, 2.5, 19.5], '#4f7fb8', INK, 1.3); fp(c, [21.5, 5, 13, 6.5, 13, 21, 21.5, 19.5], '#4f7fb8', INK, 1.3);
+    fp(c, [4, 4, 11.4, 5.4, 11.4, 19, 4, 17.6], '#fbf6ea', INK, 1); fp(c, [20, 4, 12.6, 5.4, 12.6, 19, 20, 17.6], '#fbf6ea', INK, 1);
+    for (const y of [8.5, 11.5, 14.5]) { line(c, 5.5, y, 9.8, y + .7, '#9a9585', 1); line(c, 18.5, y, 14.2, y + .7, '#9a9585', 1); }
+  },
+  space(c) {
+    // No room: a dashed footprint with a red cross.
+    c.setLineDash([2.4, 2]); rect(c, 3.5, 3.5, 17, 17, '#fbf6ea', INK, 1.4); c.setLineDash([]);
+    line(c, 7, 7, 17, 17, '#c4553f', 3); line(c, 17, 7, 7, 17, '#c4553f', 3);
+  },
   year(c) {
     rr(c, 3.5, 5, 17, 16, 2.4); c.fillStyle = '#fbf6ea'; c.fill(); c.strokeStyle = INK; c.lineWidth = 1.4; c.stroke();
     c.save(); rr(c, 3.5, 5, 17, 16, 2.4); c.clip(); rect(c, 3.5, 5, 17, 5, '#d6402f'); c.restore();
@@ -2373,13 +2489,16 @@ const pointers = new Map();
 let pinch = null;
 let sheet = null;         // 'land' | 'draft' | null
 const dismissed = { land: 0, draft: 0 };
-let guardView = false;
+let guardView = false, yieldView = true;
 let floaters = [];
 let cam = { x: 0, y: 0, z: 1 };
 let dirty = true, frameQueued = false, busy = false;
 let toastTimer = 0, bannerTimer = 0;
 let lastPointerType = 'touch';
 
+if (!CanvasRenderingContext2D.prototype.roundRect) CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2); this.moveTo(x + r, y); this.arcTo(x + w, y, x + w, y + h, r); this.arcTo(x + w, y + h, x, y + h, r); this.arcTo(x, y + h, x, y, r); this.arcTo(x, y, x + w, y, r); this.closePath();
+};
 const canvas = $('#map'), ctx = canvas.getContext('2d');
 const cache = document.createElement('canvas'); cache.width = W * S; cache.height = H * S;
 const seaTile = document.createElement('canvas'); seaTile.width = seaTile.height = S * 4;
@@ -2398,6 +2517,7 @@ function paintIcons(root) {
     A.drawCard(g, c.dataset.card, c.width, c.height, { rot: +(c.dataset.rot || 0) });
   });
   root.querySelectorAll('canvas[data-land]').forEach(c => paintLand(c, state.landOffers[+c.dataset.land]));
+  root.querySelectorAll('canvas[data-terrain]').forEach(c => { const g = c.getContext('2d'); A.drawTerrain(g, c.dataset.terrain, 0, 0, c.width, 5); });
 }
 function paintLand(c, offer) {
   if (!offer) return;
@@ -2433,6 +2553,10 @@ function banner(title, sub = '') {
   clearTimeout(bannerTimer); bannerTimer = setTimeout(() => b.classList.remove('show'), 1300);
 }
 function costText(def) { return `${def.gold}金${def.wood ? ` ${def.wood}木` : ''}`; }
+/** Cost as little icon chips: gold, wood, workers. */
+function costChips(def, cls = '') {
+  return `<span class="costs ${cls}"><span>${iconHtml('gold')}${def.gold}</span>${def.wood ? `<span>${iconHtml('wood')}${def.wood}</span>` : ''}${def.workers ? `<span>${iconHtml('worker')}${def.workers}</span>` : ''}</span>`;
+}
 function save() {
   if (saveBlocked) return;
   const r = writeSave(store, state);
@@ -2465,10 +2589,10 @@ function closeModal(value) {
 $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal' && $('#modal').dataset.dismissable) closeModal(null); });
 
 // ---------- layout & camera ----------
-// The map area is the space between the top bar and the two rails (the card rail slides away while a sheet is open).
+// The map area is the space between the top bar and the two rails.
 function viewArea() {
   const top = $('#hud').offsetTop + $('#hud').offsetHeight + 4, bottom = 0;
-  const left = document.body.classList.contains('sheet-open') ? 0 : $('#dock').offsetWidth, right = $('#side').offsetWidth;
+  const left = $('#dock').offsetWidth, right = $('#side').offsetWidth;
   const w = vw - left - right, h = vh - top - bottom;
   return { top, bottom, left, right, w, h, cx: left + w / 2, cy: top + h / 2 };
 }
@@ -2520,9 +2644,12 @@ function rebuildStatic() {
     else if (R.isIsland(state, x, y)) { A.drawWild(g, x * S, y * S, S, seed); }
     else A.drawSea(g, x * S, y * S, S, seed, 0);
   }
-  g.save(); g.strokeStyle = '#fff6dc'; g.lineWidth = 4; g.lineCap = 'round';
-  outline(g, state.tiles, 0, 0, S); g.restore();
+  // Kingdom shoreline: a dark rim under a cream line so the owned land reads first.
+  g.save(); g.lineCap = 'round';
+  g.strokeStyle = '#1f2a2288'; g.lineWidth = 9; outline(g, state.tiles, 0, 0, S);
+  g.strokeStyle = '#fff3d2'; g.lineWidth = 4; outline(g, state.tiles, 0, 0, S); g.restore();
   const f = R.forecast(state), idle = new Set(f.per.filter(p => p.idle).map(p => p.id));
+  perCache = f.per;
   const list = [...state.buildings].sort((a, b) => (a.y - b.y) || (a.x - b.x));
   for (const b of list) drawBuildingAt(g, b.type, R.buildingCells(b), S, 0, 0, { level: b.level, damaged: b.damaged, idle: idle.has(b.id), rot: b.rot, t: 0 });
   dirty = false;
@@ -2548,7 +2675,7 @@ function ghost() {
   const preview = R.previewBuild(state, mode.type, mode.ax, mode.ay, mode.rot);
   return { cells, check: preview, preview };
 }
-let ghostCache = null, ghostKey = '';
+let ghostCache = null, ghostKey = '', perCache = [];
 function currentGhost() {
   const k = mode ? `${mode.kind}|${mode.index}|${mode.type}|${mode.ax}|${mode.ay}|${mode.rot}|${state.gold}|${state.wood}|${state.turn}|${state.buildings.length}|${state.tiles.length}` : '';
   if (k !== ghostKey) { ghostKey = k; ghostCache = ghost(); renderPlaceBar(); }
@@ -2568,12 +2695,44 @@ function frame(now) {
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(cache, -cam.x, -cam.y, W * c, H * c);
   const g = currentGhost();
-  const showGuard = guardView || (mode?.kind === 'build' && ['tower', 'barracks'].includes(mode.type));
-  if (showGuard) drawGuard(g && mode.kind === 'build' && ['tower', 'barracks'].includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null);
+  if (mode) drawLegal();
+  const showGuard = guardView || (mode?.kind === 'build' && GUARDS.includes(mode.type));
+  if (showGuard) drawGuard(g && mode.kind === 'build' && GUARDS.includes(mode.type) ? { id: -1, type: mode.type, x: mode.ax, y: mode.ay, rot: mode.rot, level: 1, damaged: false } : null);
+  if (yieldView && !mode) drawYields();
   drawThreats(t);
   if (g) drawGhost(g);
   drawFloaters(now);
   if (state.threats.length || floaters.length || drag) requestFrame();
+}
+// Cells any legal placement of the current piece would cover (current rotation). Ignores cost: the card says what is short.
+let legalCache = { k: '', cells: [], anchors: 0 };
+function legalCells() {
+  const k = mode ? `${mode.kind}|${mode.type}|${mode.index}|${mode.rot}|${state.turn}|${state.nextId}|${state.buildings.length}|${state.tiles.length}|${state.landBought}` : '';
+  if (legalCache.k === k) return legalCache;
+  const seen = new Map();
+  let anchors = 0;
+  if (mode) for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const land = mode.kind === 'land';
+    const ok = land ? R.canPlaceLand(state, mode.index, x, y, mode.rot).ok : R.canBuild(state, mode.type, x, y, mode.rot, { fitOnly: true }).ok;
+    if (!ok) continue;
+    anchors++;
+    for (const cell of land ? R.landCells(state, mode.index, x, y, mode.rot) : R.footprint(mode.type, x, y, mode.rot)) seen.set(`${cell.x},${cell.y}`, cell);
+  }
+  legalCache = { k, cells: [...seen.values()], anchors };
+  return legalCache;
+}
+function drawLegal() {
+  const L = legalCells(), c = cp();
+  ctx.save();
+  // Dim everything except where the piece can go.
+  ctx.beginPath(); ctx.rect(-4, -4, vw + 8, vh + 8);
+  for (const cell of L.cells) { const p = toScreen(cell.x, cell.y); ctx.rect(p.x, p.y, c, c); }
+  ctx.fillStyle = 'rgba(10, 22, 28, .42)'; ctx.fill('evenodd');
+  ctx.fillStyle = 'rgba(190, 245, 150, .12)';
+  for (const cell of L.cells) { const p = toScreen(cell.x, cell.y); ctx.fillRect(p.x, p.y, c, c); }
+  ctx.strokeStyle = '#d9ffb8'; ctx.lineWidth = 2; ctx.setLineDash([6, 4]);
+  outline(ctx, L.cells, -cam.x, -cam.y, c);
+  ctx.restore();
 }
 function drawGuard(extra) {
   const covered = R.guardMap(state, extra), c = cp();
@@ -2595,8 +2754,57 @@ function drawThreats(t) {
   }
 }
 const GUARDS = ['tower', 'barracks'];
+/** A dark pill of icon+number pairs centred at (x, y). */
+function pill(x, y, parts, { size = 14, bad = false, text = '' } = {}) {
+  ctx.save();
+  ctx.font = `800 ${size}px system-ui, sans-serif`; ctx.textBaseline = 'middle';
+  const ic = size * 1.1, gap = size * 0.3, pad = size * 0.4;
+  const items = parts.map(p => ({ ...p, s: p.text ?? signed(p.v) })).map(p => ({ ...p, w: (p.key ? ic + 1 : 0) + ctx.measureText(p.s).width }));
+  const tw = text ? ctx.measureText(text).width : 0;
+  const w = items.reduce((s, p) => s + p.w, 0) + gap * Math.max(0, items.length - 1) + tw + pad * 2, h = size * 1.55;
+  const x0 = Math.round(x - w / 2), y0 = Math.round(y - h / 2);
+  ctx.beginPath(); ctx.roundRect(x0, y0, w, h, h / 2);
+  ctx.fillStyle = bad ? '#b8412fee' : '#2b2a20e6'; ctx.fill();
+  ctx.strokeStyle = bad ? '#ffd0c8' : '#fff3d266'; ctx.lineWidth = 1; ctx.stroke();
+  let cx = x0 + pad;
+  if (text) { ctx.fillStyle = '#fff'; ctx.fillText(text, cx, y0 + h / 2 + 1); cx += tw; }
+  for (const p of items) {
+    if (p.key) { A.drawIcon(ctx, p.key, cx, y0 + (h - ic) / 2, ic); cx += ic + 1; }
+    ctx.fillStyle = p.v < 0 ? '#ff9b8a' : '#fff4c2'; ctx.fillText(p.s, cx, y0 + h / 2 + 1); cx += ctx.measureText(p.s).width + gap;
+  }
+  ctx.restore();
+  return { w, h };
+}
+const OUT_KEYS = ['gold', 'food', 'wood', 'fame'];
+// Every building's yield this season, floating over its roof.
+function drawYields() {
+  const c = cp(), size = Math.max(11, Math.min(14, c * 0.26));
+  if (c < 26) return;
+  for (const p of perCache) {
+    const b = state.buildings.find(x => x.id === p.id);
+    if (!b) continue;
+    const cells = R.buildingCells(b), x = (Math.min(...cells.map(q => q.x)) + Math.max(...cells.map(q => q.x)) + 1) / 2, y = Math.min(...cells.map(q => q.y));
+    const s = toScreen(x, y);
+    if (s.x < -60 || s.y < -30 || s.x > vw + 60 || s.y > vh + 30) continue;
+    if (p.damaged) { pill(s.x, s.y + size * 1.05, [], { size, bad: true, text: '损毁' }); continue; }
+    if (p.idle) { pill(s.x, s.y + size * 1.05, [{ key: 'worker', text: '停工' }], { size, bad: true }); continue; }
+    const parts = OUT_KEYS.filter(k => p[k]).map(k => ({ key: k, v: p[k] }));
+    if (parts.length) pill(s.x, s.y + size * 1.05, parts, { size });
+  }
+}
+// Cells of the ghost that break the rules on their own (off the kingdom, overlapping, wrong terrain).
+function badCells(g) {
+  const bad = new Set();
+  for (const cell of g.cells) {
+    const k = `${cell.x},${cell.y}`;
+    if (mode.kind === 'land') { if (!R.isIsland(state, cell.x, cell.y) || R.tileAt(state, cell.x, cell.y)) bad.add(k); continue; }
+    const tile = R.tileAt(state, cell.x, cell.y);
+    if (!tile || R.buildingAt(state, cell.x, cell.y) || !BUILDINGS[mode.type].terrains.includes(tile.t)) bad.add(k);
+  }
+  return bad;
+}
 function drawGhost(g) {
-  const c = cp(), okay = g.check.ok;
+  const c = cp(), okay = g.check.ok, bad = badCells(g);
   ctx.save();
   if (mode.kind === 'build') {
     // Neighbouring cells are where adjacency bonuses come from.
@@ -2606,11 +2814,12 @@ function drawGhost(g) {
       const p = toScreen(n.x, n.y); ctx.strokeRect(p.x + 3, p.y + 3, c - 6, c - 6);
     }
     ctx.setLineDash([]);
-    ctx.globalAlpha = 0.92;
+    // A see-through blueprint: the terrain underneath stays readable.
+    ctx.globalAlpha = drag ? 0.3 : 0.42;
     drawBuildingAt(ctx, mode.type, g.cells, c, -cam.x, -cam.y, { level: 1, damaged: false, idle: false, rot: mode.rot, t: 0 });
     ctx.globalAlpha = 1;
   } else {
-    ctx.globalAlpha = 0.95;
+    ctx.globalAlpha = 0.8;
     g.cells.forEach((cell, i) => {
       const p = toScreen(cell.x, cell.y);
       A.drawTerrain(ctx, cell.t, p.x, p.y, c, i * 7 + 3);
@@ -2618,10 +2827,55 @@ function drawGhost(g) {
     });
     ctx.globalAlpha = 1;
   }
-  ctx.fillStyle = okay ? '#7fd36b40' : '#e0503c55';
-  for (const cell of g.cells) { const p = toScreen(cell.x, cell.y); ctx.fillRect(p.x, p.y, c, c); }
-  ctx.strokeStyle = okay ? '#e9ffd8' : '#ffd0c8'; ctx.lineWidth = 3;
+  for (const cell of g.cells) {
+    const p = toScreen(cell.x, cell.y), wrong = bad.has(`${cell.x},${cell.y}`);
+    ctx.fillStyle = wrong ? '#e0503c66' : okay ? '#7fd36b2e' : '#ffd36b22';
+    ctx.fillRect(p.x, p.y, c, c);
+    if (mode.kind === 'build') {
+      // What is underneath, as a crisp chip in the corner.
+      const tile = R.tileAt(state, cell.x, cell.y), m = Math.max(10, c * 0.3);
+      if (tile && !R.buildingAt(state, cell.x, cell.y)) {
+        ctx.save(); ctx.beginPath(); ctx.roundRect(p.x + 3, p.y + 3, m, m, 3); ctx.clip();
+        A.drawTerrain(ctx, tile.t, p.x + 3, p.y + 3, m, 5); ctx.restore();
+        ctx.strokeStyle = '#fffbe8'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.roundRect(p.x + 3, p.y + 3, m, m, 3); ctx.stroke();
+      }
+    }
+    if (wrong) {
+      const m = c * 0.18, cx = p.x + c / 2, cy = p.y + c / 2;
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = Math.max(3, c * 0.1); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(cx - m, cy - m); ctx.lineTo(cx + m, cy + m); ctx.moveTo(cx + m, cy - m); ctx.lineTo(cx - m, cy + m); ctx.stroke();
+      ctx.strokeStyle = '#c4402f'; ctx.lineWidth = Math.max(1.5, c * 0.05); ctx.stroke();
+    }
+  }
+  ctx.strokeStyle = okay ? '#efffe0' : '#ffd0c8'; ctx.lineWidth = 3;
   outline(ctx, g.cells, -cam.x, -cam.y, c);
+  const size = Math.max(12, Math.min(16, c * 0.32));
+  if (mode.kind === 'build' && c >= 24) {
+    // Where the yield comes from, cell by cell.
+    const merged = new Map();
+    for (const q of R.contributions(state, mode.type, mode.ax, mode.ay, mode.rot)) {
+      const k = `${q.x},${q.y},${q.res}`; merged.set(k, { ...q, v: (merged.get(k)?.v || 0) + q.v });
+    }
+    const byCell = new Map();
+    for (const q of merged.values()) { const k = `${q.x},${q.y}`; if (!byCell.has(k)) byCell.set(k, []); byCell.get(k).push({ key: q.res, v: q.v }); }
+    for (const [k, parts] of byCell) {
+      const [x, y] = k.split(',').map(Number), p = toScreen(x, y);
+      pill(p.x + c / 2, p.y + c - size * 0.85, parts, { size: size * 0.9 });
+    }
+  }
+  // Summary above the piece: the season's change, or why it can't go here.
+  const minX = Math.min(...g.cells.map(q => q.x)), maxX = Math.max(...g.cells.map(q => q.x)) + 1, minY = Math.min(...g.cells.map(q => q.y));
+  const top = toScreen((minX + maxX) / 2, minY), ty = Math.max(viewArea().top + size, top.y - size * 1.2);
+  if (!okay && g.check.reason) pill(top.x, ty, [], { size, bad: true, text: g.check.reason.replace(/[。.]$/, '') });
+  else if (mode.kind === 'build' && g.preview?.delta) {
+    const d = g.preview.delta;
+    const parts = [...OUT_KEYS, 'pop'].filter(k => d[k]).map(k => ({ key: k, v: d[k] }));
+    if (d.guard) parts.push({ key: 'guard', text: `${d.guard}格`, v: 1 });
+    if (parts.length) pill(top.x, ty, parts, { size });
+  } else if (mode.kind === 'land') {
+    const o = state.landOffers[mode.index], tr = o.cells.some(q => q.treasure);
+    if (tr) pill(top.x, ty, [{ key: 'treasure', v: o.treasure }], { size });
+  }
   ctx.restore();
 }
 function addFloater(x, y, parts, delay = 0) {
@@ -2692,24 +2946,46 @@ function renderAlerts(f = R.forecast(state)) {
 function renderDock() {
   const basic = R.BASIC.map(type => cardHtml(type, 'basic')).join('');
   let hand = state.hand.map((type, i) => cardHtml(type, 'hand', i)).join('');
-  for (let i = state.hand.length; i < R.HAND_LIMIT; i++) hand += '<div class="card slot">空</div>';
+  for (let i = state.hand.length; i < R.HAND_LIMIT; i++) hand += '<div class="card slot"></div>';
   $('#cards').innerHTML = `<div class="col basic"><div class="col-h">常备</div>${basic}</div><div class="col hand"><div class="col-h">背包 ${state.hand.length}/${R.HAND_LIMIT}</div>${hand}</div>`;
   paintIcons($('#cards'));
   $('#cards').querySelectorAll('[data-type]').forEach(el => el.addEventListener('pointerdown', e => cardDown(e, { kind: 'build', type: el.dataset.type }, el)));
   const playing = state.status === 'playing';
-  const land = $('#open-land'), draft = $('#open-draft');
+  const land = $('#open-land'), draft = $('#open-draft'), next = $('#next-turn');
   land.disabled = !playing || state.landBought; draft.disabled = !playing || state.drafted;
-  land.innerHTML = state.landBought ? '已买地' : '买地<span class="badge"></span>';
-  draft.innerHTML = state.drafted ? '已选卡' : '选卡<span class="badge"></span>';
-  $('#next-turn').disabled = !playing;
-  $('#next-turn').innerHTML = season() === 3 ? `结算并交贡<small>${R.tributeOf(state)}金</small>` : '下一季';
+  land.innerHTML = `${iconHtml('land')}<span>${state.landBought ? '已拿地' : '拿地'}</span>${state.landBought ? '' : '<i class="badge"></i>'}`;
+  draft.innerHTML = `${iconHtml('card')}<span>${state.drafted ? '已选卡' : '选卡'}</span>${state.drafted ? '' : '<i class="badge"></i>'}`;
+  next.disabled = !playing;
+  next.innerHTML = season() === 3 ? `${iconHtml('tribute')}<span>交年贡</span><small>${R.tributeOf(state)}金</small>` : `${iconHtml('next')}<span>下一季</span>`;
+  paintIcons($('#actions'));
+}
+// Whether a building fits anywhere on the kingdom in any rotation, ignoring cost. Cached per board.
+let fitCache = { k: '', v: {} };
+function fits(type) {
+  const k = `${state.turn}|${state.nextId}|${state.buildings.length}|${state.tiles.length}|${state.hand.join()}`;
+  if (fitCache.k !== k) fitCache = { k, v: {} };
+  if (!(type in fitCache.v)) {
+    let ok = false;
+    for (let rot = 0; rot < 4 && !ok; rot++) for (const t of state.tiles) if (R.canBuild(state, type, t.x, t.y, rot, { fitOnly: true }).ok) { ok = true; break; }
+    fitCache.v[type] = ok;
+  }
+  return fitCache.v[type];
+}
+/** Why a card can't be built right now, most fundamental first; null when it can. */
+function blockReason(type) {
+  const def = BUILDINGS[type], free = R.workers(state).free;
+  if (!fits(type)) return { key: 'space', text: '没空地', long: `领土上放不下${def.name}，先拿地` };
+  if (state.gold < def.gold) return { key: 'gold', text: `差${def.gold - state.gold}`, long: `金币不足，还差${def.gold - state.gold}` };
+  if (state.wood < def.wood) return { key: 'wood', text: `差${def.wood - state.wood}`, long: `木材不足，还差${def.wood - state.wood}` };
+  if (def.workers > free) return { key: 'worker', text: `缺${def.workers - free}人`, long: `空闲人口不足，还缺${def.workers - free}人，先建民居` };
+  return null;
 }
 function cardHtml(type, kind, handIndex) {
   const def = BUILDINGS[type];
-  const short = state.gold < def.gold || state.wood < def.wood;
+  const why = state.status === 'playing' ? blockReason(type) : null;
   const active = mode?.kind === 'build' && mode.type === type;
-  return `<button class="card ${kind} ${short ? 'unaffordable' : ''} ${active ? 'active' : ''}" data-type="${type}" ${kind === 'hand' ? `data-hand="${handIndex}"` : ''} aria-label="${def.name}，${costText(def)}，${def.workers ? `需${def.workers}人，` : ''}拖到地图上建造，长按看图鉴">
-    <canvas data-card="${type}" width="116" height="76"></canvas><span class="nm">${def.name}</span><span class="cost ${short ? 'short' : ''}">${costText(def)}</span></button>`;
+  return `<button class="card ${kind} ${why ? 'blocked' : ''} ${active ? 'active' : ''}" data-type="${type}" ${kind === 'hand' ? `data-hand="${handIndex}"` : ''} ${why ? `data-why="${why.key}"` : ''} aria-label="${def.name}，${costText(def)}，${def.workers ? `需${def.workers}人，` : ''}${why ? why.long + '，' : ''}拖到地图上建造，长按看图鉴">
+    <canvas data-card="${type}" width="116" height="76"></canvas><span class="nm">${def.name}</span>${why ? `<span class="why">${iconHtml(why.key)}${why.text}</span>` : costChips(def)}</button>`;
 }
 function renderPlaceBar() {
   const bar = $('#place-bar');
@@ -2719,68 +2995,70 @@ function renderPlaceBar() {
   let info = '';
   if (mode.kind === 'land') {
     const o = state.landOffers[mode.index];
-    info = `<b>${esc(o.name)}</b><span>${o.cells.length}格 · ${o.cost}金</span><span class="muted">点虚影旋转</span>`;
+    info = `<b>${esc(o.name)}</b><span class="muted">${o.cells.length}格 · 点虚影旋转</span>`;
   } else {
     const def = BUILDINGS[mode.type];
-    info = `<b>${def.name}</b><span>${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span>`;
+    info = `<b>${def.name}</b>${costChips(def)}`;
     const d = g?.preview?.delta;
     if (d) {
       const parts = [['gold', d.gold], ['food', d.food], ['wood', d.wood], ['fame', d.fame], ['pop', d.pop]].filter(([, v]) => v);
-      info += `<div class="deltas">${parts.map(([k, v]) => `<span class="delta">${iconHtml(k)}${signed(v)}</span>`).join('')}${d.guard ? `<span class="delta">${iconHtml('guard')}守${d.guard}格</span>` : ''}${!parts.length && !d.guard ? '<span>本季无产出</span>' : ''}</div>`;
+      info += `<div class="deltas"><span class="muted">每季</span>${parts.map(([k, v]) => `<span class="delta ${v < 0 ? 'neg' : ''}">${iconHtml(k)}${signed(v)}</span>`).join('')}${d.guard ? `<span class="delta">${iconHtml('guard')}${d.guard}格</span>` : ''}${!parts.length && !d.guard ? '<span class="muted">无产出</span>' : ''}</div>`;
     }
   }
   if (g && !g.check.ok) info += `<span class="bad">${esc(g.check.reason)}</span>`;
   $('#place-info').innerHTML = info;
   paintIcons($('#place-info'));
   $('#place-confirm').disabled = !g?.check.ok;
-  $('#place-confirm').textContent = mode.kind === 'land' ? '买下' : '建造';
+  $('#place-confirm').textContent = mode.kind === 'land' ? '拿下' : '建造';
 }
 
-// ---------- sheets ----------
+// ---------- three-pick popups ----------
 function openSheet(kind) {
   if (state.status !== 'playing') return;
   if (kind === 'land' && state.landBought) return;
   if (kind === 'draft' && state.drafted) return;
   sheet = kind; renderSheet();
 }
-let camBeforeSheet = null;
 function closeSheet(remember = true) {
   if (remember && sheet) dismissed[sheet] = state.turn;
-  sheet = null; $('#sheet').hidden = true; document.body.classList.remove('sheet-open');
-  restoreCam();
-}
-function restoreCam() {
-  if (camBeforeSheet) { cam = camBeforeSheet; camBeforeSheet = null; clampCam(); requestFrame(); }
+  sheet = null; $('#sheet').hidden = true;
 }
 function renderSheet() {
-  const el = $('#sheet');
+  const el = $('#sheet'), box = el.querySelector('.pick');
   const open = !!sheet && !mode;
-  if (document.body.classList.contains('sheet-open') !== open) { document.body.classList.toggle('sheet-open', open); clampCam(); }
   if (!open) { el.hidden = true; return; }
+  const wasHidden = el.hidden;
   el.hidden = false;
+  if (wasHidden) { $('#banner').classList.remove('show'); box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop'); }
   if (sheet === 'land') {
     const cost = R.landRerollCost(state);
-    el.innerHTML = `<h2>选一块土地 <small>每季1块 · 拖到领土边上</small></h2>
+    box.dataset.kind = 'land';
+    box.innerHTML = `<div class="pick-head">${iconHtml('land')}<h2>选一块地</h2><small>免费</small></div>
       <div class="offers">${state.landOffers.map((o, i) => {
         const counts = {}; o.cells.forEach(c => counts[c.t] = (counts[c.t] || 0) + 1);
         const desc = Object.entries(counts).map(([t, n]) => `${TERRAIN[t].name}${n}`).join(' ');
         const treasure = o.cells.some(c => c.treasure);
-        return `<button class="offer" data-land-i="${i}" aria-label="${esc(o.name)}，${desc}，${o.cost}金"><canvas data-land="${i}" width="264" height="152"></canvas><b>${esc(o.name)}</b><span>${desc}${treasure ? ` · 宝箱+${o.treasure}` : ''}</span><span class="price ${state.gold < o.cost ? 'short' : ''}">${o.cost}金</span></button>`;
+        return `<button class="offer" data-land-i="${i}" aria-label="${esc(o.name)}，${desc}${treasure ? `，宝箱金${o.treasure}` : ''}">
+          ${treasure ? `<span class="ribbon gold">${iconHtml('treasure')}+${o.treasure}</span>` : ''}
+          <span class="art"><canvas data-land="${i}" width="264" height="180"></canvas></span><b>${esc(o.name)}</b>
+          <span class="chips">${Object.entries(counts).map(([t, n]) => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}${n}</span>`).join('')}</span></button>`;
       }).join('')}</div>
-      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-close">本季不买</button></div>`;
-    el.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">看看地图</button></div>`;
+    box.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
     $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
-    $('#sheet-close').onclick = () => { closeSheet(); maybeAutoSheet(); };
+    $('#sheet-close').onclick = () => closeSheet();
   } else {
     const cost = R.draftRerollCost(state), full = state.hand.length >= R.HAND_LIMIT;
-    el.innerHTML = `<h2>选一张建筑卡 <small>放进背包 · 长按看图鉴</small></h2>
+    box.dataset.kind = 'draft';
+    box.innerHTML = `<div class="pick-head">${iconHtml('card')}<h2>选一张建筑卡</h2><small>长按看图鉴</small></div>
       ${full ? '<p class="hint">背包满了：先建掉或丢弃一张</p>' : ''}
       <div class="offers">${state.draft.map((type, i) => {
         const def = BUILDINGS[type];
-        return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}><canvas data-card="${type}" width="264" height="152"></canvas><b>${def.name}</b>${def.unlock === year() && year() > 1 ? '<span class="new">新解锁</span>' : ''}<span>${esc(def.text)}</span><span class="price">${costText(def)}${def.workers ? ` · ${def.workers}人` : ''}</span></button>`;
+        return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}>${def.unlock === year() && year() > 1 ? '<span class="ribbon">新</span>' : ''}
+          <span class="art"><canvas data-card="${type}" width="264" height="180"></canvas></span><b>${def.name}</b>${costChips(def)}<span class="txt">${esc(def.text)}</span></button>`;
       }).join('')}</div>
-      <div class="sheet-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 ${cost}金</button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
-    el.querySelectorAll('[data-draft-i]').forEach(b => {
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
+    box.querySelectorAll('[data-draft-i]').forEach(b => {
       b.onclick = () => {
         if (b.dataset.longpressed) { delete b.dataset.longpressed; return; }
         const r = R.takeDraft(state, +b.dataset.draftI);
@@ -2793,22 +3071,9 @@ function renderSheet() {
     $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
   }
-  paintIcons(el);
-  keepTerritoryVisible(el.getBoundingClientRect());
+  paintIcons(box);
 }
-function keepTerritoryVisible(rect) {
-  // The sheet covers the right of the map; nudge the camera so the kingdom (plus a ring for new land) stays left of it.
-  const area = viewArea(), box = territoryBox(), a = toScreen(box.x0 - 1, box.y0 - 1), z = toScreen(box.x1 + 1, box.y1 + 1);
-  if (z.x <= rect.left - 6 && a.x >= 4 && a.y >= area.top && z.y <= vh - 4) return;
-  if (!camBeforeSheet) camBeforeSheet = { ...cam };
-  const room = rect.left - 12, roomY = vh - area.top - 8;
-  const fit = Math.min(room / (z.x - a.x), roomY / (z.y - a.y));
-  if (fit < 1) cam.z = Math.max(0.4, cam.z * fit);
-  const c = cp();
-  cam.x = ((box.x0 + box.x1) / 2) * c - (6 + room / 2);
-  cam.y = ((box.y0 + box.y1) / 2) * c - (area.top + roomY / 2);
-  clampCam(); requestFrame();
-}
+$('#sheet').addEventListener('pointerdown', e => { if (e.target.id === 'sheet') closeSheet(); });
 function maybeAutoSheet() {
   if (state.status !== 'playing' || mode || busy || !$('#modal').hidden) return;
   if (!state.landBought && dismissed.land !== state.turn) openSheet('land');
@@ -2825,33 +3090,33 @@ function enterMode(spec, keepRot = true) {
   const rot = same && keepRot ? mode.rot : 0;
   mode = { ...spec, rot, ax: 0, ay: 0 };
   $('#sheet').hidden = true;
-  if (spec.kind === 'land') restoreCam();
   renderDock();
 }
 function suggestSpot() {
   // Nearest legal anchor to the view centre; otherwise just centre the ghost.
-  const area = viewArea(), centre = toCell(area.cx, area.cy), { w, h } = shapeSize();
+  // Tries the current rotation first, then the others, so a piece that only fits turned still lands somewhere.
+  const area = viewArea(), centre = toCell(area.cx, area.cy);
   let best = null;
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const ok = mode.kind === 'land' ? R.canPlaceLand(state, mode.index, x, y, mode.rot).ok : R.canBuild(state, mode.type, x, y, mode.rot).ok;
-    if (!ok) continue;
-    const d = Math.hypot(x + w / 2 - centre.x, y + h / 2 - centre.y);
-    if (!best || d < best.d) best = { x, y, d };
+  for (let k = 0; k < 4 && !best; k++) {
+    const rot = (mode.rot + k) % 4;
+    const cells = mode.kind === 'land' ? R.landCells(state, mode.index, 0, 0, rot) : R.footprint(mode.type, 0, 0, rot);
+    const w = Math.max(...cells.map(c => c.x)) + 1, h = Math.max(...cells.map(c => c.y)) + 1;
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      const ok = mode.kind === 'land' ? R.canPlaceLand(state, mode.index, x, y, rot).ok : R.canBuild(state, mode.type, x, y, rot, { fitOnly: true }).ok;
+      if (!ok) continue;
+      const d = Math.hypot(x + w / 2 - centre.x, y + h / 2 - centre.y);
+      if (!best || d < best.d) best = { x, y, d, rot };
+    }
   }
-  if (best) { mode.ax = best.x; mode.ay = best.y; }
+  if (best) { mode.ax = best.x; mode.ay = best.y; mode.rot = best.rot; }
   else {
+    const { w, h } = shapeSize();
     mode.ax = centre.x - Math.floor(w / 2); mode.ay = centre.y - Math.floor(h / 2);
-    toast(mode.kind === 'land' ? '这块地拼不上：金币不够或没有空位' : whyNoSpot(mode.type));
+    toast(mode.kind === 'land' ? '这块地哪里都拼不上，换一块' : whyNoSpot(mode.type));
   }
   ensureVisible();
 }
-function whyNoSpot(type) {
-  const def = BUILDINGS[type];
-  if (state.gold < def.gold) return `金币不足，需要${def.gold}`;
-  if (state.wood < def.wood) return `木材不足，需要${def.wood}`;
-  if (def.workers > R.workers(state).free) return `空闲人口不足，需要${def.workers}人，先建民居`;
-  return `领土上没有放得下${def.name}的空地，先买地`;
-}
+function whyNoSpot(type) { return blockReason(type)?.long || `领土上放不下${BUILDINGS[type].name}，先拿地`; }
 function ensureVisible() {
   const { w, h } = shapeSize(), c = cp(), area = viewArea();
   const p = toScreen(mode.ax, mode.ay);
@@ -2877,8 +3142,7 @@ function commit() {
     const r = R.placeLand(state, mode.index, mode.ax, mode.ay, mode.rot);
     if (!r.ok) return toast(r.reason);
     const cx = mode.ax + shapeSize().w / 2, cy = mode.ay + shapeSize().h / 2;
-    addFloater(cx, cy, [{ key: 'gold', v: -r.cost }]);
-    if (r.treasure) addFloater(cx, cy - 0.6, [{ key: 'treasure', v: r.treasure }], 400);
+    if (r.treasure) addFloater(cx, cy - 0.6, [{ key: 'gold', v: r.treasure }], 200);
     mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('land');
     if (r.regions.length) {
       for (const g2 of r.regions) addFloater(cx, cy - 1, [{ key: 'fame', v: g2.fame }, { key: 'gold', v: g2.gold }], 600);
@@ -2893,7 +3157,7 @@ function commit() {
     addFloater(cx, cy, [{ key: 'gold', v: -BUILDINGS[type].gold }, { key: 'wood', v: -BUILDINGS[type].wood }]);
     if (d) addFloater(cx, cy - 0.5, [{ key: 'gold', v: d.gold }, { key: 'food', v: d.food }, { key: 'wood', v: d.wood }, { key: 'fame', v: d.fame }, { key: 'pop', v: d.pop }].map(p => ({ ...p })), 450);
     mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('build');
-    toast(`${BUILDINGS[type].name}建成${d && (d.gold || d.food || d.wood || d.fame) ? '，每季产出见上方' : ''}`, 1600);
+    toast(`${BUILDINGS[type].name}建成`, 1400);
   }
 }
 $('#place-rotate').onclick = rotate;
@@ -2903,6 +3167,12 @@ $('#place-confirm').onclick = commit;
 // ---------- pointer input ----------
 function cardDown(e, spec, el) {
   if (state.status !== 'playing' || busy) return;
+  if (el.dataset.why === 'space' && el.dataset.hand === undefined) {
+    e.preventDefault(); clearTimeout(press?.timer);
+    press = { id: e.pointerId, x0: e.clientX, y0: e.clientY, spec, el, noRoom: true };
+    press.timer = setTimeout(() => { if (press?.el === el) { press = null; buzz(); openCodex({ type: spec.type }); } }, 480);
+    return;
+  }
   if (e.button !== undefined && e.button !== 0) return;
   e.preventDefault();
   lastPointerType = e.pointerType;
@@ -2960,7 +3230,7 @@ function endDrag(e) {
 }
 window.addEventListener('pointermove', e => {
   if (press && e.pointerId === press.id && !drag) {
-    if (Math.hypot(e.clientX - press.x0, e.clientY - press.y0) > 9) { const p = press; releasePress(); startDrag(p.spec, e, 'card'); }
+    if (Math.hypot(e.clientX - press.x0, e.clientY - press.y0) > 9) { const p = press; releasePress(); if (p.noRoom) { toast(whyNoSpot(p.spec.type)); return; } startDrag(p.spec, e, 'card'); }
     return;
   }
   if (drag && e.pointerId === drag.id) { updateDrag(e.clientX, e.clientY); return; }
@@ -2974,6 +3244,7 @@ window.addEventListener('pointercancel', e => {
   if (drag && e.pointerId === drag.id) { drag = null; requestFrame(); renderAll(); }
 });
 function tapCard(spec, el) {
+  if (el?.dataset.why === 'space' && el.dataset.hand === undefined) { toast(whyNoSpot(spec.type)); buzz(); return; }
   if (spec.kind === 'build' && el?.dataset.hand !== undefined && mode?.kind === 'build' && mode.type === spec.type) {
     // Second tap on a selected backpack card offers to discard it.
     handMenu(+el.dataset.hand); return;
@@ -3044,7 +3315,7 @@ function tapMap(sx, sy) {
   const tile = R.tileAt(state, cell.x, cell.y);
   const threat = state.threats.some(t => t.x === cell.x && t.y === cell.y);
   if (tile) toast(`${TERRAIN[tile.t].name}${threat ? ' · 蛮族目标！在2格内建哨塔可守住' : ''}`);
-  else if (R.isIsland(state, cell.x, cell.y)) toast('未开拓的土地：买地拼到这里');
+  else if (R.isIsland(state, cell.x, cell.y)) toast('未开拓的土地：拿地拼到这里');
 }
 
 // ---------- inspector ----------
@@ -3227,10 +3498,11 @@ const TERRAIN_NOTE = {
 const RULES = () => [
   ['tribute', '年贡', `每年冬末交年贡：${R.TRIBUTE.join('→')}金。交不上王国陷落；撑满${R.YEARS}年获胜。`],
   ['year', '四季', R.SEASONS.map(x => `${x.name}：${x.tip}`).join('<br>')],
-  ['gold', '买地', '每季可买1块地，拖到领土边上拼接，点虚影旋转。地形决定能建什么；宝箱地块拼上就给金币。'],
+  ['land', '拿地', '每季可免费拿1块地，拖到领土边上拼接，点虚影旋转。地形决定能建什么；宝箱地块拼上就给金币。'],
   ['pop', '人口与粮', '民居、庄园提供人口；生产建筑要占人手，人手不够会停工。每2人每季吃1粮，粮不够就饥荒：税收减半、声望−1。'],
   ['threat', '蛮族', '第2年起，夏季在边境插红旗，秋末来袭。王城、哨塔、兵营守卫范围内的格子能守住并得声望；失守被抢金币、建筑损毁。'],
-  ['guard', '守卫', '王城守2格，哨塔守2格（3级3格），兵营守3格。打开地图右下的「盾」可看全部范围。'],
+  ['guard', '守卫', '王城守2格，哨塔守2格（3级3格），兵营守3格。点地图右下的盾牌可看全部范围。'],
+  ['yield', '产出', '每座建筑头上是它每季的产出。摆放时，亮起的格子是能放的位置，格子上的小数字是这块地带来的产出。'],
   ['fame', '连片', `同种地形连成6/10/15格时获得声望与金币：${Object.values(R.REGION).join('、')}。`],
   ['wood', '升级与拆除', '点地图上的建筑可升级（产出×1.5，3级×2）、修复或拆除（回收40%金）。'],
   ['food', '背包', `每季可选1张特殊建筑卡，背包最多${R.HAND_LIMIT}张；常备建筑随时可建。背包卡可丢弃换3金。`],
@@ -3301,17 +3573,17 @@ function startTutorial() {
     { at: ['#alerts .tribute', '#season'], until: 'tap', text: '目标：每年<b>冬末交年贡</b>，撑过6年就赢。<br>这里是季节和今年的年贡。' },
     { at: ['#resources'], until: 'tap', text: '金、粮、木、空闲人口、声望。<br>小字是<b>每季变化</b>，红色说明在亏。' },
     { at: [terrRect], until: 'tap', text: '这是你的领土。<b>拖动</b>平移地图，<b>双指</b>缩放；点建筑可以升级、拆除。' },
-    { skip: () => sheet === 'land' || state.landBought, at: ['#open-land'], until: () => sheet === 'land', text: '先扩张：点<b>买地</b>。' },
+    { skip: () => sheet === 'land' || state.landBought, at: ['#open-land'], until: () => sheet === 'land', text: '先扩张：点<b>拿地</b>。' },
     { gate: () => sheet === 'land', at: ['#sheet .offers'], until: () => mode?.kind === 'land' || state.landBought,
-      text: '每季可买1块地。<b>按住一块地，拖到领土边上</b>松手；也可以点一下。' },
-    { gate: () => mode?.kind === 'land', at: ['#place-bar', terrRect], allow: [mapRect], avoid: [ghostRect], until: () => state.landBought,
-      text: '拖虚影换位置，<b>点虚影旋转</b>。<br>绿色能放，点<b>买下</b>。' },
+      text: '每季可<b>免费</b>拿1块地。<b>点一块</b>，或按住拖到地图上。' },
+    { gate: () => mode?.kind === 'land', at: ['#place-bar'], allow: [mapRect], avoid: [ghostRect], until: () => state.landBought,
+      text: '<b>亮起的地方</b>能放。拖虚影换位置，<b>点虚影旋转</b>，再点<b>拿下</b>。' },
     { skip: () => sheet === 'draft' || state.drafted, gate: () => state.landBought && !mode, at: ['#open-draft'], until: () => sheet === 'draft', text: '再点<b>选卡</b>。' },
     { gate: () => sheet === 'draft', at: ['#sheet .offers'], until: () => state.drafted, text: '每季可选1张<b>特殊建筑卡</b>放进背包。<b>点一张</b>拿走；长按看规则。' },
     { gate: () => state.drafted && !mode && !sheet, at: ['#dock'], until: () => mode?.kind === 'build',
       text: '左边是建筑：<b>常备</b>随时可建，<b>背包</b>是选来的卡。<br><b>按住拖到地图上</b>，或点一下。长按看图鉴。' },
     { gate: () => mode?.kind === 'build', at: ['#place-bar'], allow: [mapRect, '#dock'], avoid: [ghostRect], until: 'build',
-      text: '虚线圈出的是<b>邻居</b>，会带来加成；右边是这座建筑<b>每季产出</b>。<br>位置合适就点<b>建造</b>。' },
+      text: '亮起的格子能放；格子上的<b>小数字</b>是这块地带来的产出，头顶是<b>每季合计</b>。<br>位置合适就点<b>建造</b>。' },
     { gate: () => !mode && !sheet, at: ['#next-turn'], until: 'turn', text: '这一季做完了。点<b>下一季</b>：结算产出、吃粮，冬末交年贡。' },
     { at: ['#codex'], until: 'codex', text: '每座建筑的规则、地形和玩法都在<b>图鉴</b>里，随时点开查。' },
     { until: 'tap', ok: '开始', text: '教学完成！<br>第2年起夏天会有<b>蛮族</b>在边境插红旗、秋末来袭——用哨塔守住。祝王国长久。' },
@@ -3365,6 +3637,7 @@ $('#zoom-in').onclick = () => zoomAt(1.2, viewArea().cx, viewArea().cy);
 $('#zoom-out').onclick = () => zoomAt(1 / 1.2, viewArea().cx, viewArea().cy);
 $('#codex').onclick = () => openCodex();
 $('#center').onclick = () => centerCamera();
+$('#yield-view').onclick = () => { yieldView = !yieldView; $('#yield-view').setAttribute('aria-pressed', String(yieldView)); requestFrame(); };
 $('#guard-view').onclick = () => { guardView = !guardView; $('#guard-view').setAttribute('aria-pressed', String(guardView)); requestFrame(); };
 window.addEventListener('keydown', e => {
   if (!$('#modal').hidden) { if (e.key === 'Escape' && $('#modal').dataset.dismissable) closeModal(null); return; }
@@ -3381,7 +3654,7 @@ window.addEventListener('resize', () => { resize(); renderPlaceBar(); if (sheet)
 window.__pt = { get state() { return state; }, R, cam: () => ({ ...cam, cell: cp() }), toScreen, viewArea, get tutStep() { return tut ? tut.i : -1; } };
 
 async function boot() {
-  buildSeaPattern(); lockLandscape();
+  buildSeaPattern(); lockLandscape(); paintIcons(document);
   if (!loaded.ok) {
     state = R.createGame(Math.floor(Math.random() * 4294967295));
     resize(); centerCamera(); renderAll();
