@@ -30,7 +30,6 @@ let pan = null;
 const pointers = new Map();
 let pinch = null;
 let sheet = null;         // 'land' | 'draft' | null
-let peek = false;         // sheet faded out so the map can be seen underneath
 const dismissed = { land: 0, draft: 0 };
 let guardView = false, yieldView = true;
 let floaters = [];
@@ -135,7 +134,7 @@ function fxHtml(type, full = false, { base: showBase = true } = {}) {
   if (f.need) out.push(`<div class="fx-row need">${iconHtml('own', 'glyph')}${fxSrc(T(f.need), full)}<span class="fx-tag red">必需</span></div>`);
   if (base.length && showBase) out.push(`<div class="fx-row base">${base.join('')}</div>`);
   if (f.convert) out.push(`<div class="fx-row">${fxVal('wood', '−1')}<span class="fx-arrow">→</span>${fxVal('gold', '+2')}<span class="fx-cap">≤3次</span></div>`);
-  for (const r of f.rows || []) out.push(`<div class="fx-row">${r.on.map(o => iconHtml(o, 'glyph')).join('')}${r.src.map(q => fxSrc(q, full)).join('')}<span class="fx-out"><span class="fx-arrow">→</span>${fxVal(r.res, signed(r.v))}${r.cap ? `<span class="fx-cap">≤${r.cap}</span>` : ''}</span></div>`);
+  for (const r of f.rows || []) out.push(`<div class="fx-row">${r.on.map(o => iconHtml(o, 'glyph')).join('')}<span class="fx-srcs">${r.src.map(q => fxSrc(q, full)).join('')}</span><span class="fx-out"><span class="fx-arrow">→</span>${fxVal(r.res, signed(r.v))}${r.cap ? `<span class="fx-cap">≤${r.cap}</span>` : ''}</span></div>`);
   if (f.season) out.push(`<div class="fx-row">${f.season.map(([k, t, res]) => `<span class="fx-v">${iconHtml(k)}${res ? iconHtml(res) : ''}${t}</span>`).join('')}</div>`);
   return out.length ? `<div class="fx ${full ? 'full' : ''}">${out.join('')}</div>` : '';
 }
@@ -173,7 +172,7 @@ $('#modal').addEventListener('pointerdown', e => { if (e.target.id === 'modal' &
 // ---------- layout & camera ----------
 // The map area is the space between the top bar and the two rails.
 function viewArea() {
-  const top = $('#hud').offsetTop + $('#hud').offsetHeight + 4, bottom = 0;
+  const tray = $('#sheet'), top = $('#hud').offsetTop + $('#hud').offsetHeight + 4, bottom = tray.hidden ? 0 : tray.offsetHeight;
   const left = $('#dock').offsetWidth, right = $('#side').offsetWidth;
   const w = vw - left - right, h = vh - top - bottom;
   return { top, bottom, left, right, w, h, cx: left + w / 2, cy: top + h / 2 };
@@ -703,47 +702,47 @@ function openSheet(kind) {
   if (state.status !== 'playing') return;
   if (kind === 'land' && state.landBought) return;
   if (kind === 'draft' && state.drafted) return;
-  sheet = kind; peek = false; renderSheet();
+  sheet = kind; renderSheet();
 }
 function closeSheet(remember = true) {
   if (remember && sheet) dismissed[sheet] = state.turn;
-  sheet = null; peek = false; $('#sheet').hidden = true;
+  sheet = null; $('#sheet').hidden = true;
 }
 function renderSheet() {
   const el = $('#sheet'), box = el.querySelector('.pick');
   const open = !!sheet && !mode;
   if (!open) { el.hidden = true; return; }
-  const wasHidden = el.hidden;
+  const wasHidden = el.hidden, newKind = box.dataset.kind !== sheet;
   el.hidden = false;
   if (wasHidden) { $('#banner').classList.remove('show'); box.classList.remove('pop'); void box.offsetWidth; box.classList.add('pop'); }
   if (sheet === 'land') {
     const cost = R.landRerollCost(state);
     box.dataset.kind = 'land';
-    box.innerHTML = `<div class="pick-head">${iconHtml('land')}<h2>选一块地</h2><small>免费</small></div>
+    box.innerHTML = `<div class="pick-bar"><div class="pick-head">${iconHtml('land')}<h2>选一块地</h2><small>免费</small></div>
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">稍后</button></div></div>
       <div class="offers">${state.landOffers.map((o, i) => {
         const counts = {}; o.cells.forEach(c => counts[c.t] = (counts[c.t] || 0) + 1);
         const desc = Object.entries(counts).map(([t, n]) => `${TERRAIN[t].name}${n}`).join(' ');
         const treasure = o.cells.some(c => c.treasure);
         return `<button class="offer" data-land-i="${i}" aria-label="${esc(o.name)}，${desc}${treasure ? `，宝箱金${o.treasure}` : ''}">
           ${treasure ? `<span class="ribbon gold">${iconHtml('treasure')}+${o.treasure}</span>` : ''}
-          <span class="art"><canvas data-land="${i}" width="264" height="180"></canvas></span><b>${esc(o.name)}</b>
-          <span class="chips">${Object.entries(counts).map(([t, n]) => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${TERRAIN[t].name}${n}</span>`).join('')}</span></button>`;
-      }).join('')}</div>
-      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-close">稍后</button></div>`;
+          <span class="art"><canvas data-land="${i}" width="264" height="180"></canvas></span><span class="body"><b>${esc(o.name)}</b>
+          <span class="chips">${Object.entries(counts).map(([t, n]) => `<span class="terr"><canvas data-terrain="${t}" width="36" height="36"></canvas>${n}</span>`).join('')}</span></span></button>`;
+      }).join('')}</div>`;
     box.querySelectorAll('[data-land-i]').forEach(b => b.addEventListener('pointerdown', e => cardDown(e, { kind: 'land', index: +b.dataset.landI }, b)));
     $('#sheet-reroll').onclick = () => { const r = R.rerollLand(state); if (!r.ok) return toast(r.reason); save(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
   } else {
     const cost = R.draftRerollCost(state), full = state.hand.length >= R.HAND_LIMIT;
     box.dataset.kind = 'draft';
-    box.innerHTML = `<div class="pick-head">${iconHtml('card')}<h2>选一张建筑卡</h2><small>长按看图鉴</small></div>
+    box.innerHTML = `<div class="pick-bar"><div class="pick-head">${iconHtml('card')}<h2>选一张建筑卡</h2><small>长按看图鉴</small></div>
+      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div></div>
       ${full ? '<p class="hint">背包满了：先建掉或丢弃一张</p>' : ''}
       <div class="offers">${state.draft.map((type, i) => {
         const def = BUILDINGS[type];
         return `<button class="offer" data-draft-i="${i}" ${full ? 'disabled' : ''}>${def.unlock === year() && year() > 1 ? '<span class="ribbon">新</span>' : ''}
-          <span class="art"><canvas data-card="${type}" width="264" height="180"></canvas></span><b>${def.name}</b>${costChips(def)}${fxHtml(type)}</button>`;
-      }).join('')}</div>
-      <div class="pick-actions"><button class="act" id="sheet-reroll" ${state.gold < cost ? 'disabled' : ''}>换一批 <span class="costs"><span>${iconHtml('gold')}${cost}</span></span></button><button class="act" id="sheet-skip">跳过</button><button class="act" id="sheet-close">稍后</button></div>`;
+          <span class="art"><canvas data-card="${type}" width="264" height="180"></canvas></span><span class="body"><b>${def.name}</b>${costChips(def)}${fxHtml(type)}</span></button>`;
+      }).join('')}</div>`;
     box.querySelectorAll('[data-draft-i]').forEach(b => {
       b.onclick = () => {
         if (b.dataset.longpressed) { delete b.dataset.longpressed; return; }
@@ -757,12 +756,18 @@ function renderSheet() {
     $('#sheet-skip').onclick = () => { R.skipDraft(state); save(); closeSheet(); renderAll(); };
     $('#sheet-close').onclick = () => closeSheet();
   }
-  box.insertAdjacentHTML('beforeend', `<button class="peek-btn" id="sheet-peek" aria-label="${peek ? '回到选择' : '查看地图'}" aria-pressed="${peek}">${iconHtml(peek ? 'eyeOff' : 'eye')}</button>`);
-  $('#sheet-peek').onclick = () => { peek = !peek; buzz('light'); renderSheet(); };
-  el.classList.toggle('peek', peek);
   paintIcons(box);
+  if (wasHidden || newKind) revealTerritory();
 }
-$('#sheet').addEventListener('pointerdown', e => { if (e.target.id === 'sheet') closeSheet(); });
+// The pick tray docks at the bottom so the map stays live above it: pan just enough
+// (zoom out only if needed) for the whole territory to sit in the visible strip.
+function revealTerritory() {
+  const box = territoryBox(), area = viewArea(), c = cp();
+  if ((box.x1 - box.x0 + 1) * c > area.w || (box.y1 - box.y0 + 1) * c > area.h) return centerCamera(true);
+  const x0 = box.x0 * c - cam.x, x1 = box.x1 * c - cam.x, y0 = box.y0 * c - cam.y, y1 = box.y1 * c - cam.y;
+  if (x0 >= area.left + c && x1 <= area.left + area.w - c && y0 >= area.top + c && y1 <= area.top + area.h - c * 0.5) return;
+  centerCamera(false);
+}
 function maybeAutoSheet() {
   if (state.status !== 'playing' || mode || busy || !$('#modal').hidden) return;
   if (!state.landBought && dismissed.land !== state.turn) openSheet('land');
