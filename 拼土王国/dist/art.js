@@ -161,11 +161,13 @@ function bevel(c, strength = 1) {
   rect(c, 0, 0, 32, .7, `rgba(255,255,240,${.18 * strength})`);
 }
 
-export function drawSea(ctx, px, py, s, seed = 0, t = 0) {
+const lerpHex = (a, b, k) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - k) + parseInt(b.slice(i, i + 2), 16) * k).toString(16).padStart(2, '0')).join('');
+/** deep: 0 = shallows by the island, 1 = open sea. */
+export function drawSea(ctx, px, py, s, seed = 0, t = 0, deep = 1) {
   tileStart(ctx, px, py, s);
   const c = ctx, R = rng(seed);
-  rect(c, 0, 0, 32, 32, '#8bbbc1');
-  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2 + R() * 2, 'rgba(110,165,175,.35)');
+  rect(c, 0, 0, 32, 32, lerpHex('#86c3c6', '#4f8ea8', Math.max(0, Math.min(1, deep))));
+  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2 + R() * 2, deep < .5 ? 'rgba(170,220,215,.3)' : 'rgba(60,120,150,.35)');
   const sh = (t || 0) * 3;
   for (let i = 0; i < 2; i++) {
     const wy = 7 + i * 14 + R() * 6, base = R() * 40, wx = ((base + sh * (i ? .7 : 1)) % 40) - 6;
@@ -209,23 +211,15 @@ function tree(c, x, y, h, kind, R) {
   }
 }
 
-export function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
-  tileStart(ctx, px, py, s);
-  const c = ctx, R = rng(toInt(seed) * 7 + toInt(terrain).toString().length);
+const BASE = { forest: '#6f9a52', water: '#5ea6bb', mountain: '#a9a389', fertile: '#8c6d44', grass: '#82ad61', wild: '#939a7d' };
+// Flat ground texture, safe to clip to one cell.
+function terrainDetail(c, terrain, R) {
   switch (terrain) {
-    case 'forest': {
-      rect(c, 0, 0, 32, 32, '#6f9a52');
-      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(60,100,55,.35)');
-      const n = 3 + (R() < .5 ? 1 : 0), pts = [];
-      const slots = [[8, 13], [22, 11], [14, 22], [26, 25], [7, 27], [18, 30]];
-      const off = Math.floor(R() * 6);
-      for (let i = 0; i < n; i++) { const sl = slots[(off + i * 2) % 6]; pts.push([sl[0] + (R() - .5) * 3, sl[1] + (R() - .5) * 2, 12 + R() * 4, R() < .62 ? 0 : 1]); }
-      pts.sort((a, b) => a[1] - b[1]);
-      for (const p of pts) tree(c, p[0], Math.min(29.5, p[1]), p[2], p[3], R);
+    case 'forest':
+      for (let i = 0; i < 4; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(60,100,55,.35)');
+      for (let i = 0; i < 4; i++) { const x = 2 + R() * 28, y = 3 + R() * 26; c.beginPath(); c.moveTo(x - 1.2, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.3, y - 1.5); c.strokeStyle = '#557f3e'; c.lineWidth = .9; c.stroke(); }
       break;
-    }
-    case 'water': {
-      rect(c, 0, 0, 32, 32, '#5ea6bb');
+    case 'water':
       for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 5, 2 + R() * 2, 'rgba(70,140,165,.45)');
       for (let i = 0; i < 3; i++) {
         const x = 3 + R() * 20, y = 5 + i * 9 + R() * 4, w = 5 + R() * 5;
@@ -235,31 +229,13 @@ export function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
       sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.8, 'rgba(255,255,255,.95)');
       if (R() < .5) sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.2, 'rgba(255,255,255,.8)');
       break;
-    }
-    case 'mountain': {
-      rect(c, 0, 0, 32, 32, '#a9a389');
-      for (let i = 0; i < 5; i++) ell(c, R() * 32, R() * 32, 1 + R() * 1.4, .8 + R(), 'rgba(110,104,88,.45)');
-      const big = R() < .5;
-      const draw = (cx, by, w, h, snow) => {
-        shadow(c, cx + 2, by, w * .62, 2.2, .28);
-        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by], '#8a8678');
-        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx - w * .02, by], '#bdb8a8', null);
-        fp(c, [cx - w * .06, by - h, cx + w * .12, by - h * .55, cx + w * .02, by - h * .42], '#6f6c62', null);
-        poly(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
-        if (snow) fp(c, [cx - w * .2, by - h * .62, cx - w * .06, by - h, cx + w * .13, by - h * .6, cx + .5, by - h * .68, cx - w * .08, by - h * .56], '#f6f3ea', INK, .7);
-      };
-      if (big) { draw(9 + R() * 2, 25, 13, 12, false); draw(19, 28, 21, 22, true); }
-      else { draw(14, 27, 20, 20, true); draw(25, 29, 11, 10, false); }
-      ell(c, 5 + R() * 4, 29, 1.6, 1.1, '#9a9585', INK, .6);
+    case 'mountain':
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(130,124,104,.3)');
+      for (let i = 0; i < 6; i++) ell(c, R() * 32, R() * 32, 1 + R() * 1.4, .8 + R(), 'rgba(110,104,88,.45)');
       break;
-    }
     case 'fertile': {
-      rect(c, 0, 0, 32, 32, '#8c6d44');
       const ph = R() * 5;
-      for (let y = 2 + ph % 5; y < 32; y += 5) {
-        rect(c, 0, y, 32, 2.2, '#6a4f30');
-        rect(c, 0, y - 1, 32, .9, 'rgba(180,145,100,.55)');
-      }
+      for (let y = 2 + ph % 5; y < 32; y += 5) { rect(c, 0, y, 32, 2.2, '#6a4f30'); rect(c, 0, y - 1, 32, .9, 'rgba(180,145,100,.55)'); }
       for (let i = 0; i < 7; i++) {
         const x = 2 + R() * 28, y = 3 + Math.floor(R() * 6) * 5 + ph % 5 - 1.5;
         c.beginPath(); c.moveTo(x, y + 1); c.lineTo(x - 1.2, y - .8); c.moveTo(x, y + 1); c.lineTo(x + 1.3, y - .9);
@@ -267,22 +243,168 @@ export function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
       }
       break;
     }
+    case 'wild':
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 6, 3 + R() * 3, R() < .5 ? 'rgba(140,146,110,.45)' : 'rgba(176,178,142,.45)');
+      for (let i = 0; i < 3; i++) { const x = 4 + R() * 24, y = 6 + R() * 22; c.beginPath(); c.moveTo(x - 1.4, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.4, y - 1.4); c.strokeStyle = 'rgba(110,118,84,.5)'; c.lineWidth = .8; c.stroke(); }
+      if (R() < .25) ell(c, 6 + R() * 20, 8 + R() * 18, 1.8, 1.2, '#8a8a76', 'rgba(59,58,44,.4)', .5);
+      break;
     case 'grass':
-    default: {
-      rect(c, 0, 0, 32, 32, '#82ad61');
+    default:
       for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2.5 + R() * 2.5, R() < .5 ? 'rgba(150,195,110,.4)' : 'rgba(105,150,80,.35)');
       for (let i = 0; i < 6; i++) {
         const x = 2 + R() * 28, y = 3 + R() * 26;
         c.beginPath(); c.moveTo(x - 1.2, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.3, y - 1.5);
         c.strokeStyle = '#668f4b'; c.lineWidth = .9; c.stroke();
       }
-      if (R() < .45) { const x = 4 + R() * 24, y = 4 + R() * 24, col = R() < .5 ? '#f6f1dc' : '#f2cf5a'; ell(c, x, y, 1, 1, col); ell(c, x + 2.2, y + 1.4, .8, .8, col); }
-    }
+      if (R() < .5) { const x = 4 + R() * 24, y = 4 + R() * 24, col = ['#f6f1dc', '#f2cf5a', '#e98aa6'][Math.floor(R() * 3)]; ell(c, x, y, 1, 1, col); ell(c, x + 2.2, y + 1.4, .8, .8, col); ell(c, x + .6, y + 2.6, .7, .7, col); }
   }
+}
+// Tall things (trees, peaks) that may poke into the cell above.
+function terrainProps(c, terrain, R) {
+  if (terrain === 'forest') {
+    const n = 3 + (R() < .5 ? 1 : 0), pts = [];
+    const slots = [[8, 13], [22, 11], [14, 22], [26, 25], [7, 27], [18, 30]];
+    const off = Math.floor(R() * 6);
+    for (let i = 0; i < n; i++) { const sl = slots[(off + i * 2) % 6]; pts.push([sl[0] + (R() - .5) * 3, sl[1] + (R() - .5) * 2, 12 + R() * 4, R() < .62 ? 0 : 1]); }
+    pts.sort((a, b) => a[1] - b[1]);
+    for (const p of pts) tree(c, p[0], Math.min(29.5, p[1]), p[2], p[3], R);
+  } else if (terrain === 'mountain') {
+    const big = R() < .5;
+    const draw = (cx, by, w, h, snow) => {
+      shadow(c, cx + 2, by, w * .62, 2.2, .28);
+      fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by], '#8a8678');
+      fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx - w * .02, by], '#bdb8a8', null);
+      fp(c, [cx - w * .06, by - h, cx + w * .12, by - h * .55, cx + w * .02, by - h * .42], '#6f6c62', null);
+      poly(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+      if (snow) fp(c, [cx - w * .2, by - h * .62, cx - w * .06, by - h, cx + w * .13, by - h * .6, cx + .5, by - h * .68, cx - w * .08, by - h * .56], '#f6f3ea', INK, .7);
+    };
+    if (big) { draw(9 + R() * 2, 25, 13, 12, false); draw(19, 28, 21, 22, true); }
+    else { draw(14, 27, 20, 20, true); draw(25, 29, 11, 10, false); }
+    ell(c, 5 + R() * 4, 29, 1.6, 1.1, '#9a9585', INK, .6);
+  } else if (terrain === 'wild' && R() < .18) {
+    bush(c, 8 + R() * 16, 12 + R() * 14, 2.2, '#7d8a5e', '#97a374');
+  }
+}
+
+/** One terrain square (icons, chips): flat, clipped to the cell. */
+export function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, R = rng(toInt(seed) * 7 + toInt(terrain).toString().length);
+  rect(c, 0, 0, 32, 32, BASE[terrain] || BASE.grass);
+  terrainDetail(c, terrain, R);
+  terrainProps(c, terrain, rng(toInt(seed) ^ 0x9e37));
   bevel(c, 1);
   ctx.restore();
 }
 
+/* ---------------- 立体地块 ---------------- */
+// Side faces, top to bottom: [lip, body, deep, strata line].
+const SIDE = {
+  grass: ['#6c9a4c', '#9a7449', '#7a5636', '#6a4a2e'], forest: ['#5b8a43', '#937047', '#735233', '#634529'],
+  fertile: ['#76583a', '#614630', '#4d3724', '#3f2c1c'], mountain: ['#9b9580', '#827d6e', '#6b675b', '#5a574d'],
+  water: ['#8fd0de', '#4b95ac', '#3a7f97', '#316d82'], wild: ['#848b6f', '#8f7656', '#735e44', '#5f4d38'],
+  cliff: ['#8e8a72', '#9c8463', '#806a4d', '#68563f'],
+};
+// Higher priority bulges over lower at material borders.
+const PRI = { water: 0, fertile: 1, mountain: 2, grass: 3, forest: 4, wild: 1 };
+const hashXY = (x, y) => (Math.imul(x + 101, 73856093) ^ Math.imul(y + 211, 19349663)) >>> 0;
+
+function sideFace(c, t, X, Y, D, R, leftOpen, rightOpen) {
+  const [lip, body, deep, strata] = SIDE[t] || SIDE.grass;
+  const top = Y + 32, lipH = Math.min(3, D * .28);
+  rect(c, X, top, 32, D, body);
+  rect(c, X, top + D * .62, 32, D * .38, deep);
+  if (t === 'water') {
+    // A glassy water block: light streaks and a bright rim.
+    for (let i = 0; i < 3; i++) { const x = X + 4 + R() * 24; line(c, x, top + lipH + 1, x - 1.5, top + D - 1.5, 'rgba(210,244,248,.35)', 1.2); }
+  } else if (t === 'mountain' || t === 'cliff') {
+    for (let i = 0; i < 3; i++) { const x = X + 3 + R() * 26, y = top + lipH + 1 + R() * (D - lipH - 3); fp(c, [x, y, x + 2.4, y + 1.6, x + .6, y + 3], 'rgba(60,56,46,.35)', null); }
+    line(c, X, top + D * .55, X + 32, top + D * .5, strata, .7);
+  } else {
+    line(c, X, top + D * .5, X + 32, top + D * .5 + (R() - .5), strata, .7);
+    for (let i = 0; i < 4; i++) ell(c, X + 3 + R() * 26, top + lipH + 2 + R() * (D - lipH - 4), .9 + R() * .6, .6, 'rgba(50,34,20,.4)');
+  }
+  rect(c, X, top, 32, lipH, lip);
+  if (t === 'grass' || t === 'forest' || t === 'wild') {
+    // Turf hanging over the soil.
+    c.beginPath(); c.moveTo(X, top + lipH);
+    for (let x = 0; x <= 32; x += 4) c.lineTo(X + x + 2, top + lipH + 1 + R() * 1.8), c.lineTo(X + x + 4, top + lipH);
+    c.closePath(); c.fillStyle = lip; c.fill();
+  }
+  if (leftOpen) rect(c, X, top, .9, D, 'rgba(255,250,230,.18)');
+  if (rightOpen) rect(c, X + 31.1, top, .9, D, 'rgba(20,24,14,.28)');
+  rect(c, X, top + D - .9, 32, .9, 'rgba(20,24,14,.4)');
+}
+
+// Scallops of the higher terrain spilling across a border, clipped to the lower cell.
+function seam(c, hi, lo, X, Y, dx, dy, R) {
+  const nX = X + dx * 32, nY = Y + dy * 32;
+  c.save(); c.beginPath(); c.rect(nX, nY, 32, 32); c.clip();
+  const pts = [];
+  for (let i = 0; i < 5; i++) {
+    const u = 3 + i * 6.5 + (R() - .5) * 2, r = 2.4 + R() * 1.6;
+    const ex = dx ? (dx > 0 ? X + 32 : X) : X + u, ey = dy ? (dy > 0 ? Y + 32 : Y) : Y + u;
+    pts.push([ex, ey, r]);
+  }
+  if (lo === 'water') for (const [x, y, r] of pts) ell(c, x, y, r + 1.6, r + 1.6, 'rgba(236,250,250,.85)');
+  for (const [x, y, r] of pts) ell(c, x, y, r, r, BASE[hi]);
+  if (hi === 'forest') for (const [x, y, r] of pts) if (R() < .6) bush(c, x + dx * r * .5, y + dy * r * .5, 1.8, '#4c7f42', '#6fa45a');
+  if (hi === 'mountain' || lo === 'mountain') for (const [x, y] of pts) if (R() < .5) ell(c, x + dx * 4 + (dy ? (R() - .5) * 4 : 0), y + dy * 4 + (dx ? (R() - .5) * 4 : 0), 1.3, 1, '#9a9585', 'rgba(59,58,44,.5)', .5);
+  if (hi === 'grass' && lo === 'fertile') for (const [x, y] of pts) { const xx = x + dx * 3, yy = y + dy * 3; c.beginPath(); c.moveTo(xx - 1, yy - 1.2); c.lineTo(xx, yy); c.lineTo(xx + 1.1, yy - 1.3); c.strokeStyle = '#668f4b'; c.lineWidth = .9; c.stroke(); }
+  c.restore();
+}
+
+/**
+ * A set of tiles as a raised slab: drop shadow, layered side faces, tops with material seams, props.
+ * tiles: [{x,y,t}] in cell coords. depth/lift in cells. Origin = cell (0,0) at the current transform.
+ */
+export function drawLand(ctx, tiles, s, o = {}) {
+  const depth = o.depth ?? .18, lift = o.lift || 0, D = depth * 32, L = lift * 32;
+  const map = new Map(tiles.map(t => [t.x + ',' + t.y, t]));
+  const at = (x, y) => map.get(x + ',' + y);
+  const seedOf = o.seed || hashXY;
+  const c = ctx;
+  c.save(); c.scale(s / 32, s / 32); c.lineJoin = 'round'; c.lineCap = 'round';
+  if (o.shadow !== false) {
+    const sx = 2.5 + L * .35, sy = D + 2 + L * .15;
+    c.beginPath(); for (const t of tiles) c.rect(t.x * 32 + sx, t.y * 32 + sy - D, 32, 32);
+    c.fillStyle = `rgba(16,28,24,${o.shadowA ?? (.26 - Math.min(.1, lift * .08))})`; c.fill();
+  }
+  c.translate(0, -L);
+  // Sides first, row by row, so tops of lower rows cover nothing they shouldn't.
+  if (D > 0) for (const t of tiles) {
+    if (at(t.x, t.y + 1)) continue;
+    sideFace(c, o.side || t.t, t.x * 32, t.y * 32, D, rng(seedOf(t.x, t.y) ^ 0x5eed), !at(t.x - 1, t.y + 1) && !at(t.x - 1, t.y), !at(t.x + 1, t.y));
+  }
+  for (const t of tiles) rect(c, t.x * 32, t.y * 32, 32, 32, BASE[t.t] || BASE.grass);
+  for (const t of tiles) {
+    const X = t.x * 32, Y = t.y * 32;
+    c.save(); c.beginPath(); c.rect(X, Y, 32, 32); c.clip(); c.translate(X, Y);
+    terrainDetail(c, t.t, rng(seedOf(t.x, t.y)));
+    c.restore();
+  }
+  for (const t of tiles) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const n = at(t.x + dx, t.y + dy);
+    if (n && n.t !== t.t && PRI[t.t] > PRI[n.t]) seam(c, t.t, n.t, t.x * 32, t.y * 32, dx, dy, rng(seedOf(t.x, t.y) ^ (dx * 7 + dy * 13 + 50)));
+  }
+  // Rim light on north edges, a soft dark line on the open west/east edges.
+  for (const t of tiles) {
+    const X = t.x * 32, Y = t.y * 32;
+    if (!at(t.x, t.y - 1)) rect(c, X, Y, 32, 1.1, 'rgba(255,252,226,.55)');
+    if (!at(t.x - 1, t.y)) rect(c, X, Y, 1, 32, 'rgba(255,252,226,.3)');
+    if (!at(t.x + 1, t.y)) rect(c, X + 31, Y, 1, 32, 'rgba(20,30,16,.3)');
+  }
+  if (o.props !== false) {
+    const sorted = [...tiles].sort((a, b) => a.y - b.y || a.x - b.x);
+    for (const t of sorted) {
+      if (o.skipProps && o.skipProps(t)) continue;
+      c.save(); c.translate(t.x * 32, t.y * 32);
+      terrainProps(c, t.t, rng(seedOf(t.x, t.y) ^ 0x9e37));
+      c.restore();
+    }
+  }
+  c.restore();
+}
 /* ---------------- 建筑 ---------------- */
 export const BUILDING_SHAPES = {
   hall: [[0, 0], [1, 0], [0, 1], [1, 1]], house: [[0, 0], [1, 0]], farm: [[0, 0], [1, 0], [2, 0]],
@@ -372,14 +494,21 @@ function groundTex(c, I, g, R) {
   void top;
 }
 
+// Union of inset rects grown back by `rad`: convex corners come out rounded.
+function roundFoot(c, I, l, t, r, b, rad, fill) {
+  footPath(c, I, l + rad, t + rad, r + rad, b + rad);
+  c.fillStyle = fill; c.fill();
+  c.strokeStyle = fill; c.lineWidth = rad * 2; c.lineJoin = 'round'; c.stroke();
+}
 function drawFoot(c, I, g, lvl, R) {
   const [top, side] = GROUND[g] || GROUND.grey;
-  c.fillStyle = 'rgba(25,30,15,.22)'; footPath(c, I, 1.6, 4, 1.2, .2); c.fill();
-  c.fillStyle = INK; footPath(c, I, 1.8, 1.8, 1.8, 1.3); c.fill();
-  if (lvl >= 3) { c.fillStyle = GOLD; footPath(c, I, 2.5, 2.5, 2.5, 2); c.fill(); }
-  c.fillStyle = side; footPath(c, I, TOP[0], TOP[1], TOP[2], 2.4); c.fill();
-  c.fillStyle = top; footPath(c, I, TOP[0], TOP[1], TOP[2], TOP[3]); c.fill();
+  c.save(); c.translate(2.2, 2.6); roundFoot(c, I, 2.4, 3.4, 2.4, 1.6, 3, 'rgba(18,26,14,.24)'); c.restore();
+  if (lvl >= 3) roundFoot(c, I, 2.2, 2.2, 2.2, 1.6, 3.4, GOLD);
+  roundFoot(c, I, TOP[0], TOP[1], TOP[2], 2.2, 3, side);
+  roundFoot(c, I, TOP[0], TOP[1], TOP[2], TOP[3], 3, top);
   c.save(); clipTop(c, I); groundTex(c, I, g, R);
+  // Light from the top-left: a soft highlight along the slab's upper edge.
+  for (const { x, y } of I.cells) if (!I.has(x, y - 1)) rect(c, x * 32, y * 32 + TOP[1], 32, 1.6, 'rgba(255,252,230,.35)');
   c.restore();
 }
 

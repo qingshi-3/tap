@@ -1173,11 +1173,13 @@ function bevel(c, strength = 1) {
   rect(c, 0, 0, 32, .7, `rgba(255,255,240,${.18 * strength})`);
 }
 
-function drawSea(ctx, px, py, s, seed = 0, t = 0) {
+const lerpHex = (a, b, k) => '#' + [1, 3, 5].map(i => Math.round(parseInt(a.slice(i, i + 2), 16) * (1 - k) + parseInt(b.slice(i, i + 2), 16) * k).toString(16).padStart(2, '0')).join('');
+/** deep: 0 = shallows by the island, 1 = open sea. */
+function drawSea(ctx, px, py, s, seed = 0, t = 0, deep = 1) {
   tileStart(ctx, px, py, s);
   const c = ctx, R = rng(seed);
-  rect(c, 0, 0, 32, 32, '#8bbbc1');
-  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2 + R() * 2, 'rgba(110,165,175,.35)');
+  rect(c, 0, 0, 32, 32, lerpHex('#86c3c6', '#4f8ea8', Math.max(0, Math.min(1, deep))));
+  for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2 + R() * 2, deep < .5 ? 'rgba(170,220,215,.3)' : 'rgba(60,120,150,.35)');
   const sh = (t || 0) * 3;
   for (let i = 0; i < 2; i++) {
     const wy = 7 + i * 14 + R() * 6, base = R() * 40, wx = ((base + sh * (i ? .7 : 1)) % 40) - 6;
@@ -1221,23 +1223,15 @@ function tree(c, x, y, h, kind, R) {
   }
 }
 
-function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
-  tileStart(ctx, px, py, s);
-  const c = ctx, R = rng(toInt(seed) * 7 + toInt(terrain).toString().length);
+const BASE = { forest: '#6f9a52', water: '#5ea6bb', mountain: '#a9a389', fertile: '#8c6d44', grass: '#82ad61', wild: '#939a7d' };
+// Flat ground texture, safe to clip to one cell.
+function terrainDetail(c, terrain, R) {
   switch (terrain) {
-    case 'forest': {
-      rect(c, 0, 0, 32, 32, '#6f9a52');
-      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(60,100,55,.35)');
-      const n = 3 + (R() < .5 ? 1 : 0), pts = [];
-      const slots = [[8, 13], [22, 11], [14, 22], [26, 25], [7, 27], [18, 30]];
-      const off = Math.floor(R() * 6);
-      for (let i = 0; i < n; i++) { const sl = slots[(off + i * 2) % 6]; pts.push([sl[0] + (R() - .5) * 3, sl[1] + (R() - .5) * 2, 12 + R() * 4, R() < .62 ? 0 : 1]); }
-      pts.sort((a, b) => a[1] - b[1]);
-      for (const p of pts) tree(c, p[0], Math.min(29.5, p[1]), p[2], p[3], R);
+    case 'forest':
+      for (let i = 0; i < 4; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(60,100,55,.35)');
+      for (let i = 0; i < 4; i++) { const x = 2 + R() * 28, y = 3 + R() * 26; c.beginPath(); c.moveTo(x - 1.2, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.3, y - 1.5); c.strokeStyle = '#557f3e'; c.lineWidth = .9; c.stroke(); }
       break;
-    }
-    case 'water': {
-      rect(c, 0, 0, 32, 32, '#5ea6bb');
+    case 'water':
       for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 5, 2 + R() * 2, 'rgba(70,140,165,.45)');
       for (let i = 0; i < 3; i++) {
         const x = 3 + R() * 20, y = 5 + i * 9 + R() * 4, w = 5 + R() * 5;
@@ -1247,31 +1241,13 @@ function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
       sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.8, 'rgba(255,255,255,.95)');
       if (R() < .5) sparkle(c, 6 + R() * 20, 6 + R() * 20, 1.2, 'rgba(255,255,255,.8)');
       break;
-    }
-    case 'mountain': {
-      rect(c, 0, 0, 32, 32, '#a9a389');
-      for (let i = 0; i < 5; i++) ell(c, R() * 32, R() * 32, 1 + R() * 1.4, .8 + R(), 'rgba(110,104,88,.45)');
-      const big = R() < .5;
-      const draw = (cx, by, w, h, snow) => {
-        shadow(c, cx + 2, by, w * .62, 2.2, .28);
-        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by], '#8a8678');
-        fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx - w * .02, by], '#bdb8a8', null);
-        fp(c, [cx - w * .06, by - h, cx + w * .12, by - h * .55, cx + w * .02, by - h * .42], '#6f6c62', null);
-        poly(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
-        if (snow) fp(c, [cx - w * .2, by - h * .62, cx - w * .06, by - h, cx + w * .13, by - h * .6, cx + .5, by - h * .68, cx - w * .08, by - h * .56], '#f6f3ea', INK, .7);
-      };
-      if (big) { draw(9 + R() * 2, 25, 13, 12, false); draw(19, 28, 21, 22, true); }
-      else { draw(14, 27, 20, 20, true); draw(25, 29, 11, 10, false); }
-      ell(c, 5 + R() * 4, 29, 1.6, 1.1, '#9a9585', INK, .6);
+    case 'mountain':
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 4, 3 + R() * 2, 'rgba(130,124,104,.3)');
+      for (let i = 0; i < 6; i++) ell(c, R() * 32, R() * 32, 1 + R() * 1.4, .8 + R(), 'rgba(110,104,88,.45)');
       break;
-    }
     case 'fertile': {
-      rect(c, 0, 0, 32, 32, '#8c6d44');
       const ph = R() * 5;
-      for (let y = 2 + ph % 5; y < 32; y += 5) {
-        rect(c, 0, y, 32, 2.2, '#6a4f30');
-        rect(c, 0, y - 1, 32, .9, 'rgba(180,145,100,.55)');
-      }
+      for (let y = 2 + ph % 5; y < 32; y += 5) { rect(c, 0, y, 32, 2.2, '#6a4f30'); rect(c, 0, y - 1, 32, .9, 'rgba(180,145,100,.55)'); }
       for (let i = 0; i < 7; i++) {
         const x = 2 + R() * 28, y = 3 + Math.floor(R() * 6) * 5 + ph % 5 - 1.5;
         c.beginPath(); c.moveTo(x, y + 1); c.lineTo(x - 1.2, y - .8); c.moveTo(x, y + 1); c.lineTo(x + 1.3, y - .9);
@@ -1279,22 +1255,168 @@ function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
       }
       break;
     }
+    case 'wild':
+      for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 5 + R() * 6, 3 + R() * 3, R() < .5 ? 'rgba(140,146,110,.45)' : 'rgba(176,178,142,.45)');
+      for (let i = 0; i < 3; i++) { const x = 4 + R() * 24, y = 6 + R() * 22; c.beginPath(); c.moveTo(x - 1.4, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.4, y - 1.4); c.strokeStyle = 'rgba(110,118,84,.5)'; c.lineWidth = .8; c.stroke(); }
+      if (R() < .25) ell(c, 6 + R() * 20, 8 + R() * 18, 1.8, 1.2, '#8a8a76', 'rgba(59,58,44,.4)', .5);
+      break;
     case 'grass':
-    default: {
-      rect(c, 0, 0, 32, 32, '#82ad61');
+    default:
       for (let i = 0; i < 3; i++) ell(c, R() * 32, R() * 32, 4 + R() * 5, 2.5 + R() * 2.5, R() < .5 ? 'rgba(150,195,110,.4)' : 'rgba(105,150,80,.35)');
       for (let i = 0; i < 6; i++) {
         const x = 2 + R() * 28, y = 3 + R() * 26;
         c.beginPath(); c.moveTo(x - 1.2, y - 1.4); c.lineTo(x, y); c.lineTo(x + 1.3, y - 1.5);
         c.strokeStyle = '#668f4b'; c.lineWidth = .9; c.stroke();
       }
-      if (R() < .45) { const x = 4 + R() * 24, y = 4 + R() * 24, col = R() < .5 ? '#f6f1dc' : '#f2cf5a'; ell(c, x, y, 1, 1, col); ell(c, x + 2.2, y + 1.4, .8, .8, col); }
-    }
+      if (R() < .5) { const x = 4 + R() * 24, y = 4 + R() * 24, col = ['#f6f1dc', '#f2cf5a', '#e98aa6'][Math.floor(R() * 3)]; ell(c, x, y, 1, 1, col); ell(c, x + 2.2, y + 1.4, .8, .8, col); ell(c, x + .6, y + 2.6, .7, .7, col); }
   }
+}
+// Tall things (trees, peaks) that may poke into the cell above.
+function terrainProps(c, terrain, R) {
+  if (terrain === 'forest') {
+    const n = 3 + (R() < .5 ? 1 : 0), pts = [];
+    const slots = [[8, 13], [22, 11], [14, 22], [26, 25], [7, 27], [18, 30]];
+    const off = Math.floor(R() * 6);
+    for (let i = 0; i < n; i++) { const sl = slots[(off + i * 2) % 6]; pts.push([sl[0] + (R() - .5) * 3, sl[1] + (R() - .5) * 2, 12 + R() * 4, R() < .62 ? 0 : 1]); }
+    pts.sort((a, b) => a[1] - b[1]);
+    for (const p of pts) tree(c, p[0], Math.min(29.5, p[1]), p[2], p[3], R);
+  } else if (terrain === 'mountain') {
+    const big = R() < .5;
+    const draw = (cx, by, w, h, snow) => {
+      shadow(c, cx + 2, by, w * .62, 2.2, .28);
+      fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by], '#8a8678');
+      fp(c, [cx - w / 2, by, cx - w * .06, by - h, cx - w * .02, by], '#bdb8a8', null);
+      fp(c, [cx - w * .06, by - h, cx + w * .12, by - h * .55, cx + w * .02, by - h * .42], '#6f6c62', null);
+      poly(c, [cx - w / 2, by, cx - w * .06, by - h, cx + w / 2, by]); c.strokeStyle = INK; c.lineWidth = 1; c.stroke();
+      if (snow) fp(c, [cx - w * .2, by - h * .62, cx - w * .06, by - h, cx + w * .13, by - h * .6, cx + .5, by - h * .68, cx - w * .08, by - h * .56], '#f6f3ea', INK, .7);
+    };
+    if (big) { draw(9 + R() * 2, 25, 13, 12, false); draw(19, 28, 21, 22, true); }
+    else { draw(14, 27, 20, 20, true); draw(25, 29, 11, 10, false); }
+    ell(c, 5 + R() * 4, 29, 1.6, 1.1, '#9a9585', INK, .6);
+  } else if (terrain === 'wild' && R() < .18) {
+    bush(c, 8 + R() * 16, 12 + R() * 14, 2.2, '#7d8a5e', '#97a374');
+  }
+}
+
+/** One terrain square (icons, chips): flat, clipped to the cell. */
+function drawTerrain(ctx, terrain, px, py, s, seed = 0) {
+  tileStart(ctx, px, py, s);
+  const c = ctx, R = rng(toInt(seed) * 7 + toInt(terrain).toString().length);
+  rect(c, 0, 0, 32, 32, BASE[terrain] || BASE.grass);
+  terrainDetail(c, terrain, R);
+  terrainProps(c, terrain, rng(toInt(seed) ^ 0x9e37));
   bevel(c, 1);
   ctx.restore();
 }
 
+/* ---------------- 立体地块 ---------------- */
+// Side faces, top to bottom: [lip, body, deep, strata line].
+const SIDE = {
+  grass: ['#6c9a4c', '#9a7449', '#7a5636', '#6a4a2e'], forest: ['#5b8a43', '#937047', '#735233', '#634529'],
+  fertile: ['#76583a', '#614630', '#4d3724', '#3f2c1c'], mountain: ['#9b9580', '#827d6e', '#6b675b', '#5a574d'],
+  water: ['#8fd0de', '#4b95ac', '#3a7f97', '#316d82'], wild: ['#848b6f', '#8f7656', '#735e44', '#5f4d38'],
+  cliff: ['#8e8a72', '#9c8463', '#806a4d', '#68563f'],
+};
+// Higher priority bulges over lower at material borders.
+const PRI = { water: 0, fertile: 1, mountain: 2, grass: 3, forest: 4, wild: 1 };
+const hashXY = (x, y) => (Math.imul(x + 101, 73856093) ^ Math.imul(y + 211, 19349663)) >>> 0;
+
+function sideFace(c, t, X, Y, D, R, leftOpen, rightOpen) {
+  const [lip, body, deep, strata] = SIDE[t] || SIDE.grass;
+  const top = Y + 32, lipH = Math.min(3, D * .28);
+  rect(c, X, top, 32, D, body);
+  rect(c, X, top + D * .62, 32, D * .38, deep);
+  if (t === 'water') {
+    // A glassy water block: light streaks and a bright rim.
+    for (let i = 0; i < 3; i++) { const x = X + 4 + R() * 24; line(c, x, top + lipH + 1, x - 1.5, top + D - 1.5, 'rgba(210,244,248,.35)', 1.2); }
+  } else if (t === 'mountain' || t === 'cliff') {
+    for (let i = 0; i < 3; i++) { const x = X + 3 + R() * 26, y = top + lipH + 1 + R() * (D - lipH - 3); fp(c, [x, y, x + 2.4, y + 1.6, x + .6, y + 3], 'rgba(60,56,46,.35)', null); }
+    line(c, X, top + D * .55, X + 32, top + D * .5, strata, .7);
+  } else {
+    line(c, X, top + D * .5, X + 32, top + D * .5 + (R() - .5), strata, .7);
+    for (let i = 0; i < 4; i++) ell(c, X + 3 + R() * 26, top + lipH + 2 + R() * (D - lipH - 4), .9 + R() * .6, .6, 'rgba(50,34,20,.4)');
+  }
+  rect(c, X, top, 32, lipH, lip);
+  if (t === 'grass' || t === 'forest' || t === 'wild') {
+    // Turf hanging over the soil.
+    c.beginPath(); c.moveTo(X, top + lipH);
+    for (let x = 0; x <= 32; x += 4) c.lineTo(X + x + 2, top + lipH + 1 + R() * 1.8), c.lineTo(X + x + 4, top + lipH);
+    c.closePath(); c.fillStyle = lip; c.fill();
+  }
+  if (leftOpen) rect(c, X, top, .9, D, 'rgba(255,250,230,.18)');
+  if (rightOpen) rect(c, X + 31.1, top, .9, D, 'rgba(20,24,14,.28)');
+  rect(c, X, top + D - .9, 32, .9, 'rgba(20,24,14,.4)');
+}
+
+// Scallops of the higher terrain spilling across a border, clipped to the lower cell.
+function seam(c, hi, lo, X, Y, dx, dy, R) {
+  const nX = X + dx * 32, nY = Y + dy * 32;
+  c.save(); c.beginPath(); c.rect(nX, nY, 32, 32); c.clip();
+  const pts = [];
+  for (let i = 0; i < 5; i++) {
+    const u = 3 + i * 6.5 + (R() - .5) * 2, r = 2.4 + R() * 1.6;
+    const ex = dx ? (dx > 0 ? X + 32 : X) : X + u, ey = dy ? (dy > 0 ? Y + 32 : Y) : Y + u;
+    pts.push([ex, ey, r]);
+  }
+  if (lo === 'water') for (const [x, y, r] of pts) ell(c, x, y, r + 1.6, r + 1.6, 'rgba(236,250,250,.85)');
+  for (const [x, y, r] of pts) ell(c, x, y, r, r, BASE[hi]);
+  if (hi === 'forest') for (const [x, y, r] of pts) if (R() < .6) bush(c, x + dx * r * .5, y + dy * r * .5, 1.8, '#4c7f42', '#6fa45a');
+  if (hi === 'mountain' || lo === 'mountain') for (const [x, y] of pts) if (R() < .5) ell(c, x + dx * 4 + (dy ? (R() - .5) * 4 : 0), y + dy * 4 + (dx ? (R() - .5) * 4 : 0), 1.3, 1, '#9a9585', 'rgba(59,58,44,.5)', .5);
+  if (hi === 'grass' && lo === 'fertile') for (const [x, y] of pts) { const xx = x + dx * 3, yy = y + dy * 3; c.beginPath(); c.moveTo(xx - 1, yy - 1.2); c.lineTo(xx, yy); c.lineTo(xx + 1.1, yy - 1.3); c.strokeStyle = '#668f4b'; c.lineWidth = .9; c.stroke(); }
+  c.restore();
+}
+
+/**
+ * A set of tiles as a raised slab: drop shadow, layered side faces, tops with material seams, props.
+ * tiles: [{x,y,t}] in cell coords. depth/lift in cells. Origin = cell (0,0) at the current transform.
+ */
+function drawLand(ctx, tiles, s, o = {}) {
+  const depth = o.depth ?? .18, lift = o.lift || 0, D = depth * 32, L = lift * 32;
+  const map = new Map(tiles.map(t => [t.x + ',' + t.y, t]));
+  const at = (x, y) => map.get(x + ',' + y);
+  const seedOf = o.seed || hashXY;
+  const c = ctx;
+  c.save(); c.scale(s / 32, s / 32); c.lineJoin = 'round'; c.lineCap = 'round';
+  if (o.shadow !== false) {
+    const sx = 2.5 + L * .35, sy = D + 2 + L * .15;
+    c.beginPath(); for (const t of tiles) c.rect(t.x * 32 + sx, t.y * 32 + sy - D, 32, 32);
+    c.fillStyle = `rgba(16,28,24,${o.shadowA ?? (.26 - Math.min(.1, lift * .08))})`; c.fill();
+  }
+  c.translate(0, -L);
+  // Sides first, row by row, so tops of lower rows cover nothing they shouldn't.
+  if (D > 0) for (const t of tiles) {
+    if (at(t.x, t.y + 1)) continue;
+    sideFace(c, o.side || t.t, t.x * 32, t.y * 32, D, rng(seedOf(t.x, t.y) ^ 0x5eed), !at(t.x - 1, t.y + 1) && !at(t.x - 1, t.y), !at(t.x + 1, t.y));
+  }
+  for (const t of tiles) rect(c, t.x * 32, t.y * 32, 32, 32, BASE[t.t] || BASE.grass);
+  for (const t of tiles) {
+    const X = t.x * 32, Y = t.y * 32;
+    c.save(); c.beginPath(); c.rect(X, Y, 32, 32); c.clip(); c.translate(X, Y);
+    terrainDetail(c, t.t, rng(seedOf(t.x, t.y)));
+    c.restore();
+  }
+  for (const t of tiles) for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    const n = at(t.x + dx, t.y + dy);
+    if (n && n.t !== t.t && PRI[t.t] > PRI[n.t]) seam(c, t.t, n.t, t.x * 32, t.y * 32, dx, dy, rng(seedOf(t.x, t.y) ^ (dx * 7 + dy * 13 + 50)));
+  }
+  // Rim light on north edges, a soft dark line on the open west/east edges.
+  for (const t of tiles) {
+    const X = t.x * 32, Y = t.y * 32;
+    if (!at(t.x, t.y - 1)) rect(c, X, Y, 32, 1.1, 'rgba(255,252,226,.55)');
+    if (!at(t.x - 1, t.y)) rect(c, X, Y, 1, 32, 'rgba(255,252,226,.3)');
+    if (!at(t.x + 1, t.y)) rect(c, X + 31, Y, 1, 32, 'rgba(20,30,16,.3)');
+  }
+  if (o.props !== false) {
+    const sorted = [...tiles].sort((a, b) => a.y - b.y || a.x - b.x);
+    for (const t of sorted) {
+      if (o.skipProps && o.skipProps(t)) continue;
+      c.save(); c.translate(t.x * 32, t.y * 32);
+      terrainProps(c, t.t, rng(seedOf(t.x, t.y) ^ 0x9e37));
+      c.restore();
+    }
+  }
+  c.restore();
+}
 /* ---------------- 建筑 ---------------- */
 const BUILDING_SHAPES = {
   hall: [[0, 0], [1, 0], [0, 1], [1, 1]], house: [[0, 0], [1, 0]], farm: [[0, 0], [1, 0], [2, 0]],
@@ -1384,14 +1506,21 @@ function groundTex(c, I, g, R) {
   void top;
 }
 
+// Union of inset rects grown back by `rad`: convex corners come out rounded.
+function roundFoot(c, I, l, t, r, b, rad, fill) {
+  footPath(c, I, l + rad, t + rad, r + rad, b + rad);
+  c.fillStyle = fill; c.fill();
+  c.strokeStyle = fill; c.lineWidth = rad * 2; c.lineJoin = 'round'; c.stroke();
+}
 function drawFoot(c, I, g, lvl, R) {
   const [top, side] = GROUND[g] || GROUND.grey;
-  c.fillStyle = 'rgba(25,30,15,.22)'; footPath(c, I, 1.6, 4, 1.2, .2); c.fill();
-  c.fillStyle = INK; footPath(c, I, 1.8, 1.8, 1.8, 1.3); c.fill();
-  if (lvl >= 3) { c.fillStyle = GOLD; footPath(c, I, 2.5, 2.5, 2.5, 2); c.fill(); }
-  c.fillStyle = side; footPath(c, I, TOP[0], TOP[1], TOP[2], 2.4); c.fill();
-  c.fillStyle = top; footPath(c, I, TOP[0], TOP[1], TOP[2], TOP[3]); c.fill();
+  c.save(); c.translate(2.2, 2.6); roundFoot(c, I, 2.4, 3.4, 2.4, 1.6, 3, 'rgba(18,26,14,.24)'); c.restore();
+  if (lvl >= 3) roundFoot(c, I, 2.2, 2.2, 2.2, 1.6, 3.4, GOLD);
+  roundFoot(c, I, TOP[0], TOP[1], TOP[2], 2.2, 3, side);
+  roundFoot(c, I, TOP[0], TOP[1], TOP[2], TOP[3], 3, top);
   c.save(); clipTop(c, I); groundTex(c, I, g, R);
+  // Light from the top-left: a soft highlight along the slab's upper edge.
+  for (const { x, y } of I.cells) if (!I.has(x, y - 1)) rect(c, x * 32, y * 32 + TOP[1], 32, 1.6, 'rgba(255,252,230,.35)');
   c.restore();
 }
 
@@ -2259,7 +2388,7 @@ function drawTreasure(ctx, px, py, s) {
 /** 兼容旧入口：新美术无需加载任何资源。 */
 async function loadArt() { return { loaded: 0, total: 0 }; }
 
-return { drawSea, drawWild, drawTerrain, BUILDING_SHAPES, rotateShape, drawBuilding, drawCard, drawIcon, drawThreat, drawTreasure, loadArt };
+return { drawSea, drawWild, drawTerrain, drawLand, BUILDING_SHAPES, rotateShape, drawBuilding, drawCard, drawIcon, drawThreat, drawTreasure, loadArt };
 })();
 
 const __m_storage = (() => {
@@ -2491,6 +2620,7 @@ let sheet = null;         // 'land' | 'draft' | null
 const dismissed = { land: 0, draft: 0 };
 let guardView = false, yieldView = true;
 let floaters = [];
+let drops = [], particles = [];   // pieces falling into place, and the bits they kick up
 let cam = { x: 0, y: 0, z: 1 };
 let dirty = true, frameQueued = false, busy = false;
 let toastTimer = 0, bannerTimer = 0;
@@ -2523,14 +2653,10 @@ function paintLand(c, offer) {
   if (!offer) return;
   const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
   const w = Math.max(...offer.cells.map(t => t.x)) + 1, h = Math.max(...offer.cells.map(t => t.y)) + 1;
-  const s = Math.floor(Math.min(c.width / (w + 0.4), c.height / (h + 0.4), c.height / 2.2));
-  const ox = Math.round((c.width - w * s) / 2), oy = Math.round((c.height - h * s) / 2);
-  offer.cells.forEach((t, i) => {
-    A.drawTerrain(g, t.t, ox + t.x * s, oy + t.y * s, s, i * 7 + 3);
-    if (t.treasure) A.drawTreasure(g, ox + t.x * s, oy + t.y * s, s);
-  });
-  g.strokeStyle = '#3b3a2c88'; g.lineWidth = Math.max(1, s / 16);
-  outline(g, offer.cells, ox, oy, s);
+  const s = Math.floor(Math.min(c.width / (w + 0.4), c.height / (h + 0.6), c.height / 2));
+  const ox = Math.round((c.width - w * s) / 2), oy = Math.round((c.height - (h + 0.25) * s) / 2);
+  g.save(); g.translate(ox, oy); A.drawLand(g, offer.cells, s, { depth: 0.28, shadowA: 0.25 }); g.restore();
+  for (const t of offer.cells) if (t.treasure) A.drawTreasure(g, ox + t.x * s, oy + t.y * s, s);
 }
 function outline(g, cells, ox, oy, s) {
   const set = new Set(cells.map(c => `${c.x},${c.y}`));
@@ -2637,20 +2763,26 @@ const toScreen = (x, y) => ({ x: x * cp() - cam.x, y: y * cp() - cam.y });
 function rebuildStatic() {
   const g = cache.getContext('2d');
   g.clearRect(0, 0, cache.width, cache.height);
-  const owned = new Map(state.tiles.map(t => [`${t.x},${t.y}`, t]));
+  // Pieces still in the air are drawn by the frame loop, not baked in.
+  const hideTiles = new Set(drops.filter(d => d.kind === 'land').flatMap(d => d.tiles.map(t => `${t.x},${t.y}`)));
+  const hideB = new Set(drops.filter(d => d.kind === 'build').map(d => d.id));
+  const isle = [];
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const tile = owned.get(`${x},${y}`), seed = cellHash(x, y);
-    if (tile) A.drawTerrain(g, tile.t, x * S, y * S, S, seed);
-    else if (R.isIsland(state, x, y)) { A.drawWild(g, x * S, y * S, S, seed); }
-    else A.drawSea(g, x * S, y * S, S, seed, 0);
+    if (R.isIsland(state, x, y)) isle.push({ x, y, t: 'wild' });
+    else A.drawSea(g, x * S, y * S, S, cellHash(x, y), 0, 1);
   }
-  // Kingdom shoreline: a dark rim under a cream line so the owned land reads first.
-  g.save(); g.lineCap = 'round';
-  g.strokeStyle = '#1f2a2288'; g.lineWidth = 9; outline(g, state.tiles, 0, 0, S);
-  g.strokeStyle = '#fff3d2'; g.lineWidth = 4; outline(g, state.tiles, 0, 0, S); g.restore();
+  // Shallows fading out from the island, then surf at the cliff foot.
+  g.save(); g.lineCap = 'round'; g.lineJoin = 'round';
+  for (const [w, a] of [[2.6, .16], [1.7, .2], [1.0, .26]]) { g.strokeStyle = `rgba(150,214,208,${a})`; g.lineWidth = S * w; outline(g, isle, 0, 0, S); }
+  g.translate(0, S * 0.3);
+  g.strokeStyle = 'rgba(236,250,248,.35)'; g.lineWidth = S * 0.34; outline(g, isle, 0, 0, S);
+  g.strokeStyle = 'rgba(244,253,252,.9)'; g.lineWidth = S * 0.1; outline(g, isle, 0, 0, S);
+  g.restore();
+  A.drawLand(g, isle, S, { depth: 0.3, side: 'cliff', shadowA: 0.22, seed: cellHash });
+  A.drawLand(g, state.tiles.filter(t => !hideTiles.has(`${t.x},${t.y}`)), S, { depth: 0.18, shadowA: 0.3, seed: cellHash });
   const f = R.forecast(state), idle = new Set(f.per.filter(p => p.idle).map(p => p.id));
   perCache = f.per;
-  const list = [...state.buildings].sort((a, b) => (a.y - b.y) || (a.x - b.x));
+  const list = [...state.buildings].filter(b => !hideB.has(b.id)).sort((a, b) => (a.y - b.y) || (a.x - b.x));
   for (const b of list) drawBuildingAt(g, b.type, R.buildingCells(b), S, 0, 0, { level: b.level, damaged: b.damaged, idle: idle.has(b.id), rot: b.rot, t: 0 });
   dirty = false;
 }
@@ -2701,8 +2833,10 @@ function frame(now) {
   if (yieldView && !mode) drawYields();
   drawThreats(t);
   if (g) drawGhost(g);
+  drawDrops(now);
+  drawParticles(now);
   drawFloaters(now);
-  if (state.threats.length || floaters.length || drag) requestFrame();
+  if (state.threats.length || floaters.length || drag || drops.length || particles.length) requestFrame();
 }
 // Cells any legal placement of the current piece would cover (current rotation). Ignores cost: the card says what is short.
 let legalCache = { k: '', cells: [], anchors: 0 };
@@ -2803,6 +2937,7 @@ function badCells(g) {
   }
   return bad;
 }
+const GHOST_LIFT = 0.16;
 function drawGhost(g) {
   const c = cp(), okay = g.check.ok, bad = badCells(g);
   ctx.save();
@@ -2819,16 +2954,16 @@ function drawGhost(g) {
     drawBuildingAt(ctx, mode.type, g.cells, c, -cam.x, -cam.y, { level: 1, damaged: false, idle: false, rot: mode.rot, t: 0 });
     ctx.globalAlpha = 1;
   } else {
-    ctx.globalAlpha = 0.8;
-    g.cells.forEach((cell, i) => {
-      const p = toScreen(cell.x, cell.y);
-      A.drawTerrain(ctx, cell.t, p.x, p.y, c, i * 7 + 3);
-      if (cell.treasure) A.drawTreasure(ctx, p.x, p.y, c);
-    });
+    // Held a little above the ground: its shadow shows where it lands, the see-through top shows what's below.
+    ctx.globalAlpha = 0.82;
+    ctx.save(); ctx.translate(-cam.x, -cam.y); A.drawLand(ctx, g.cells, c, { depth: 0.18, lift: GHOST_LIFT, seed: cellHash }); ctx.restore();
+    for (const cell of g.cells) if (cell.treasure) { const p = toScreen(cell.x, cell.y); A.drawTreasure(ctx, p.x, p.y - GHOST_LIFT * c, c); }
     ctx.globalAlpha = 1;
   }
+  const gl = mode.kind === 'land' ? GHOST_LIFT * c : 0;
   for (const cell of g.cells) {
     const p = toScreen(cell.x, cell.y), wrong = bad.has(`${cell.x},${cell.y}`);
+    p.y -= gl;
     ctx.fillStyle = wrong ? '#e0503c66' : okay ? '#7fd36b2e' : '#ffd36b22';
     ctx.fillRect(p.x, p.y, c, c);
     if (mode.kind === 'build') {
@@ -2848,7 +2983,7 @@ function drawGhost(g) {
     }
   }
   ctx.strokeStyle = okay ? '#efffe0' : '#ffd0c8'; ctx.lineWidth = 3;
-  outline(ctx, g.cells, -cam.x, -cam.y, c);
+  outline(ctx, g.cells, -cam.x, -cam.y - gl, c);
   const size = Math.max(12, Math.min(16, c * 0.32));
   if (mode.kind === 'build' && c >= 24) {
     // Where the yield comes from, cell by cell.
@@ -2875,6 +3010,103 @@ function drawGhost(g) {
   } else if (mode.kind === 'land') {
     const o = state.landOffers[mode.index], tr = o.cells.some(q => q.treasure);
     if (tr) pill(top.x, ty, [{ key: 'treasure', v: o.treasure }], { size });
+  }
+  ctx.restore();
+}
+// ---------- landing: the piece drops in, then the ground answers by material ----------
+const FALL_MS = 340, HOP_MS = 170, FALL_H = 1.6;
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+function dropIn(d) {
+  if (reduceMotion()) { burst(d); return; }
+  drops.push({ ...d, t0: performance.now(), landed: false });
+  invalidate();
+}
+function dropLift(d, now) {
+  const e = now - d.t0;
+  if (e < FALL_MS) { const k = e / FALL_MS; return FALL_H * (1 - k * k); }
+  const u = (e - FALL_MS) / HOP_MS;
+  return u < 1 ? 0.07 * Math.sin(Math.PI * u) : 0;
+}
+function drawDrops(now) {
+  if (!drops.length) return;
+  const c = cp();
+  for (const d of drops) {
+    const e = now - d.t0, lift = dropLift(d, now);
+    if (!d.landed && e >= FALL_MS) { d.landed = true; burst(d); buzz('light'); }
+    ctx.save(); ctx.translate(-cam.x, -cam.y);
+    ctx.globalAlpha = Math.min(1, 0.35 + e / 160);
+    if (d.kind === 'land') A.drawLand(ctx, d.tiles, c, { depth: 0.18, lift, shadowA: 0.3 - lift * 0.1, seed: cellHash });
+    else {
+      ctx.fillStyle = `rgba(16,28,24,${0.28 - lift * 0.12})`;
+      for (const q of d.cells) ctx.fillRect(q.x * c + c * 0.12, q.y * c + c * 0.16, c * 0.84, c * 0.84);
+      drawBuildingAt(ctx, d.type, d.cells, c, 0, -lift * c, { level: 1, damaged: false, idle: false, rot: d.rot, t: 0 });
+    }
+    ctx.restore();
+  }
+  const before = drops.length;
+  drops = drops.filter(d => now - d.t0 < FALL_MS + HOP_MS);
+  if (drops.length !== before) dirty = true;
+}
+// Per material: colours, particle shape, gravity (cells/s²), and extras.
+const PFX = {
+  grass: { cols: ['#7a5a3a', '#6a4a2e', '#8fc35a', '#a3cf6a'], shape: 'chunk', g: 9 },
+  forest: { cols: ['#4c7f42', '#6fa45a', '#8fbf5f', '#7a5a3a'], shape: 'leaf', g: 2.2 },
+  water: { cols: ['#f2fdff', '#bfe8f0', '#86cddd'], shape: 'drop', g: 11, ring: true },
+  mountain: { cols: ['#8a8678', '#a9a389', '#6f6c62'], shape: 'chunk', g: 10, dust: '#ddd6c2' },
+  fertile: { cols: ['#5b4128', '#6a4f30', '#8c6d44'], shape: 'chunk', g: 9, dust: '#cdb084' },
+  build: { cols: ['#e9e1cc'], shape: 'puff', g: 0 },
+};
+function burst(d) {
+  const now = performance.now(), rnd = Math.random;
+  const cells = d.kind === 'land' ? d.tiles : d.cells.map(q => ({ ...q, t: 'build' }));
+  const set = new Set(cells.map(q => `${q.x},${q.y}`));
+  for (const q of cells) {
+    const P = PFX[q.t] || PFX.grass;
+    // Only the outer edges throw things: bottom edge most, then the sides.
+    const edges = [];
+    if (!set.has(`${q.x},${q.y + 1}`)) edges.push('b', 'b');
+    if (!set.has(`${q.x - 1},${q.y}`)) edges.push('l');
+    if (!set.has(`${q.x + 1},${q.y}`)) edges.push('r');
+    if (!set.has(`${q.x},${q.y - 1}`)) edges.push('t');
+    if (!edges.length) edges.push('c');
+    const n = P.shape === 'puff' ? 3 : P.shape === 'drop' ? 9 : 7;
+    for (let i = 0; i < n; i++) {
+      const side = edges[Math.floor(rnd() * edges.length)], u = rnd();
+      let x = q.x + u, y = q.y + 1.1, vx = (rnd() - 0.5) * 1.6, vy = -(1.4 + rnd() * 2.2);
+      if (side === 'l') { x = q.x - 0.02; y = q.y + u; vx = -(0.8 + rnd() * 1.4); }
+      if (side === 'r') { x = q.x + 1.02; y = q.y + u; vx = 0.8 + rnd() * 1.4; }
+      if (side === 't') { y = q.y; vy -= 0.6; }
+      if (side === 'c') { y = q.y + u; }
+      if (P.shape === 'drop') vy -= 1.2;
+      if (P.shape === 'leaf') { vy *= 0.7; vx *= 0.8; }
+      if (P.shape === 'puff') { vx *= 0.35; vy = -0.25 - rnd() * 0.3; }
+      particles.push({ x, y, vx, vy, g: P.g, shape: P.shape, col: P.cols[Math.floor(rnd() * P.cols.length)], t0: now + rnd() * 40,
+        life: P.shape === 'leaf' ? 1100 : P.shape === 'puff' ? 700 : 650, size: P.shape === 'puff' ? 0.16 + rnd() * 0.1 : 0.05 + rnd() * 0.05, spin: rnd() * 6, ph: rnd() * 6 });
+    }
+    if (P.ring) particles.push({ shape: 'ring', x: q.x + 0.5, y: q.y + 0.55, vx: 0, vy: 0, g: 0, t0: now, life: 650, size: 0.3, col: 'rgba(240,252,255,.7)', spin: 0, ph: 0 });
+    if (P.dust) for (let i = 0; i < 2; i++) particles.push({ shape: 'puff', x: q.x + rnd(), y: q.y + 1.05, vx: (rnd() - 0.5) * 0.6, vy: -0.3, g: 0, t0: now, life: 700, size: 0.14 + rnd() * 0.08, col: P.dust, spin: 0, ph: 0 });
+  }
+  requestFrame();
+}
+function drawParticles(now) {
+  if (!particles.length) return;
+  particles = particles.filter(p => now - p.t0 < p.life);
+  const c = cp();
+  ctx.save();
+  for (const p of particles) {
+    const e = now - p.t0;
+    if (e < 0) continue;
+    const a = e / 1000, k = e / p.life;
+    let x = p.x + p.vx * a, y = p.y + p.vy * a + 0.5 * p.g * a * a;
+    if (p.shape === 'leaf') x += Math.sin(a * 7 + p.ph) * 0.12;
+    const sx = x * c - cam.x, sy = y * c - cam.y, r = p.size * c;
+    ctx.globalAlpha = k < 0.6 ? 1 : 1 - (k - 0.6) / 0.4;
+    ctx.fillStyle = p.col;
+    if (p.shape === 'chunk') { ctx.save(); ctx.translate(sx, sy); ctx.rotate(p.spin + a * 9); ctx.fillRect(-r, -r * 0.8, r * 2, r * 1.6); ctx.restore(); }
+    else if (p.shape === 'leaf') { ctx.beginPath(); ctx.ellipse(sx, sy, r * 1.5, r * 0.75, p.spin + Math.sin(a * 5 + p.ph), 0, Math.PI * 2); ctx.fill(); }
+    else if (p.shape === 'drop') { const vy = p.vy + p.g * a; ctx.beginPath(); ctx.ellipse(sx, sy, r * 0.8, r * (1 + Math.min(1.2, Math.abs(vy) * 0.25)), Math.atan2(vy, p.vx) - Math.PI / 2, 0, Math.PI * 2); ctx.fill(); }
+    else if (p.shape === 'puff') { ctx.globalAlpha *= 0.7; ctx.beginPath(); ctx.arc(sx, sy, r * (1 + k * 1.6), 0, Math.PI * 2); ctx.fill(); }
+    else if (p.shape === 'ring') { ctx.strokeStyle = p.col; ctx.lineWidth = Math.max(1, c * 0.025) * (1 - k); ctx.beginPath(); ctx.ellipse(sx, sy, r * (1 + k * 2.2), r * (0.5 + k * 1.1), 0, 0, Math.PI * 2); ctx.stroke(); }
   }
   ctx.restore();
 }
@@ -3141,18 +3373,21 @@ function commit() {
   if (mode.kind === 'land') {
     const r = R.placeLand(state, mode.index, mode.ax, mode.ay, mode.rot);
     if (!r.ok) return toast(r.reason);
+    dropIn({ kind: 'land', tiles: g.cells.map(q => ({ x: q.x, y: q.y, t: q.t })) });
     const cx = mode.ax + shapeSize().w / 2, cy = mode.ay + shapeSize().h / 2;
     if (r.treasure) addFloater(cx, cy - 0.6, [{ key: 'gold', v: r.treasure }], 200);
-    mode = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('land');
+    mode = null; sheet = null; buzz('medium'); save(); invalidate(); renderAll(); tutNotify('land');
     if (r.regions.length) {
       for (const g2 of r.regions) addFloater(cx, cy - 1, [{ key: 'fame', v: g2.fame }, { key: 'gold', v: g2.gold }], 600);
       banner(`${r.regions.map(x => x.name).join('、')}成形！`, r.regions.map(x => `连成${x.size}格 · 声望+${x.fame} 金+${x.gold}`).join('；'));
     } else if (r.treasure) toast(`挖到宝箱，金+${r.treasure}`);
-    maybeAutoSheet();
+    setTimeout(maybeAutoSheet, reduceMotion() ? 0 : 700);
   } else {
     const type = mode.type, d = g.preview?.delta;
     const r = R.build(state, type, mode.ax, mode.ay, mode.rot);
     if (!r.ok) return toast(r.reason);
+    const nb = state.buildings[state.buildings.length - 1];
+    dropIn({ kind: 'build', id: nb.id, type, rot: nb.rot, cells: R.buildingCells(nb) });
     const { w, h } = shapeSize(), cx = mode.ax + w / 2, cy = mode.ay + h / 2;
     addFloater(cx, cy, [{ key: 'gold', v: -BUILDINGS[type].gold }, { key: 'wood', v: -BUILDINGS[type].wood }]);
     if (d) addFloater(cx, cy - 0.5, [{ key: 'gold', v: d.gold }, { key: 'food', v: d.food }, { key: 'wood', v: d.wood }, { key: 'fame', v: d.fame }, { key: 'pop', v: d.pop }].map(p => ({ ...p })), 450);
