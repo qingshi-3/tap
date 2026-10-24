@@ -1,13 +1,12 @@
 // 备战连线：点选单位时，画出它的技能和哪些位置有关（身前 / 身后 / 敌方队首…），目标不存在时画红色失效箭头
-import { card } from '../core/data';
-import { QUEUE_MAX } from '../core/engine';
+import { card, summonInfo } from '../core/data';
 import type { ArrowKind } from '../qb/board';
 import type { Side } from '../qb/shim';
 
 /** slot 可以越界（-1 = 队首之前，QUEUE_MAX = 队尾之后），用来画失效 / 召唤落点 */
 export interface LinkPos { side: Side; slot: number }
 export interface Link { from: LinkPos; to: LinkPos; kind: ArrowKind; label: string; broken?: boolean }
-export interface LinkUnit { def: string; lvl: number; rotate?: boolean }
+export interface LinkUnit { def: string; lvl: number }
 
 /** sides[side][boardSlot]：备战盘面（可有空格；战斗里会按顺序挤紧） */
 export function computeLinks(sides: [(LinkUnit | null)[], (LinkUnit | null)[]]): Link[] {
@@ -34,38 +33,49 @@ export function computeLinks(sides: [(LinkUnit | null)[], (LinkUnit | null)[]]):
         if (k === mine.length - 1) { add({ side, slot: slot + 1 }, kind, '无友军', true); return; }
         for (let i = 1; i <= n && k + i < mine.length; i++) ally(mine[k + i], kind, label);
       };
-      const summonBehind = (label: string) => add({ side, slot: slot + 1 }, 'summon', mine.length >= QUEUE_MAX ? '队伍满' : label, mine.length >= QUEUE_MAX);
-      const summonTail = (label: string) => add({ side, slot: Math.min(QUEUE_MAX, mine[mine.length - 1] + 1) }, 'summon', label);
-      const others = (kind: ArrowKind, label: string, pred: (x: LinkUnit) => boolean = () => true) =>
-        mine.forEach((s) => { if (s !== slot && pred(sides[side][s]!)) ally(s, kind, label); });
+      /** 阵亡召唤出现在原位：箭头画回自己 */
+      const summonHere = (label: string) => add({ side, slot }, 'summon', label);
+      const others = (kind: ArrowKind, label: string) => mine.forEach((s) => { if (s !== slot) ally(s, kind, label); });
       const allFoes = (kind: ArrowKind, label: string) => foe.forEach((s) => add({ side: other, slot: s }, kind, label));
       const lead = (kind: ArrowKind, label: string) => { if (k > 0) ally(mine[0], kind, label); };
+      const u2 = d.u?.[u.lvl - 1] ?? 0;
+      const sum = summonInfo(d, u.lvl as 1 | 2 | 3);
+      if (sum) summonHere(sum.def ? `${sum.count > 1 ? `${sum.count}×` : ''}${d.ab === 'rooster' ? '小兽' : d.ab === 'egg' ? '幼龙' : `${sum.atk}/${sum.hp}`}` : `随机${sum.tier}阶`);
       switch (d.ab) {
-        case 'dart': front('block', '受伤时'); enemyAt(0, 'dmg', `打${v}`); break;
-        case 'dancer': front('block', '交锋时'); enemyAt(0, 'dmg', `${v}%攻`); break;
+        // 战斗
+        case 'elephant': behind('dmg', '打1', v); break;
+        case 'tiger': front('buff', '再放一次'); break;
+        case 'camel': behind('buff', `+${v}/+${u2}`); break;
+        case 'flamingo': behind('buff', `+${v}/+${v}`, 2); break;
+        case 'turtle': behind('block', '+1挡', v); break;
+        case 'dodo': front('buff', `${v}%攻`); break;
+        case 'snake': front('buff', '攻击后'); enemyAt(0, 'dmg', `${v}%攻`); break;
+        case 'kangaroo': front('buff', '攻击后'); break;
+        case 'ox': others('buff', '阵亡时'); break;
+        case 'drill': behind('dmg', '打1 +1攻', v); break;
+        case 'anvil': others('dmg', `打1×${v}`); add(from, 'dmg', `打1×${v}`); break;
+        case 'storm': others('buff', '受伤时'); break;
+        case 'idol': others('buff', `+${v}/+${v}`); break;
+        case 'badger': behind('dmg', `${v}%攻`); if (k === 0) enemyAt(0, 'dmg', `${v}%攻`); else ally(mine[k - 1], 'dmg', `${v}%攻`); break;
+        case 'mosquito': allFoes('dmg', `随机${v}个`); break;
+        case 'blowfish': allFoes('dmg', `随机打${v}`); break;
+        case 'dolphin': allFoes('dmg', `血最低 打${v}`); break;
+        case 'croc': enemyAt(foe.length - 1, 'dmg', `打${v}`); break;
+        case 'skunk': allFoes('dmg', `血最高 -${v}%`); break;
+        case 'leopard': allFoes('dmg', `随机${v}个`); break;
+        case 'rhino': enemyAt(1, 'dmg', `击杀后 打${v}`); break;
+        case 'hedgehog': allFoes('dmg', `打${v}`); others('dmg', `打${v}`); break;
+        case 'mammoth': others('buff', `+${v}/+${v}`); break;
+        case 'shark': others('buff', '友军阵亡'); break;
+        case 'fly': others('summon', `${v}/${v}`); break;
+        case 'ant': others('buff', `随机+${v}/+${u2}`); break;
+        // 商店
+        case 'tfish': front('buff', `+${v}血`); behind('buff', `+${v}血`); break;
         case 'backstab': front('buff', `+${v}攻`); break;
-        case 'snowman': front('block', `+${v}挡`); break;
-        case 'howler': front('buff', `+${v}/+${v}`, 2); break;
-        case 'raptor': case 'rex': summonBehind(`${v}/${v}`); break;
-        case 'chanter': behind('buff', '复生', v); break;
-        case 'cult': behind('buff', `${v}%攻血`); break;
-        case 'ritualist': case 'kujata': summonTail(`${v}/${v}`); break;
-        case 'matriarch': summonTail('复制'); break;
-        case 'mage': lead('buff', `+${v}血`); break;
-        case 'wkeeper': lead('block', '+1挡'); break;
-        case 'tether': lead('buff', '退后'); break;
-        case 'warden': others('buff', `+${v}血`, (x) => !!x.rotate || card(x.def).kws.includes('rotate')); break;
-        case 'medic': others('buff', `回${v}`, (x) => !!x.rotate || card(x.def).kws.includes('rotate')); break;
-        case 'keeper': others('buff', '升星时'); break;
-        case 'onyx': others('buff', `+${v}/+${v}`); break;
-        case 'queen': others('block', `+${v}挡`); enemyAt(0, 'dmg', `打${d.u?.[u.lvl - 1] ?? 0}`); break;
-        case 'spine': case 'storm': enemyAt(0, 'dmg', `打${v}`); break;
-        case 'lord': enemyAt(0, 'dmg', '后排齐射'); break;
-        case 'scout': enemyAt(0, 'chill', `-${v}攻`); break;
-        case 'step': enemyAt(1, 'dmg', `打${v}`); break;
-        case 'rhyno': enemyAt(1, 'dmg', `打${v}`); break;
-        case 'nightmare': allFoes('dmg', `${v}`); break;
-        case 'wyvern': allFoes('chill', `-${v}攻`); break;
+        case 'giraffe': front('buff', '+1/+1', v); break;
+        case 'bluebird': if (k < mine.length - 1) ally(mine[mine.length - 1], 'buff', `+${v}攻`); break;
+        case 'monkey': lead('buff', `+${v}/+${u2}`); break;
+        case 'parrot': front('buff', '复制技能'); break;
       }
     });
   }

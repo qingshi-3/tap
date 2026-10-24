@@ -1,5 +1,5 @@
 // 战斗播放：只读引擎事件流，不推算规则。队首交锋双方都出攻击动作，不做受击动作 / 受击闪白。
-import { card, LINE_INFO } from '../core/data';
+import { ATOM_INFO, card, LINE_INFO } from '../core/data';
 import type { BattleOut, Ev, Order, Snap } from '../core/engine';
 import { sfx } from '../qb/audio';
 import { Board, bodyPos, keywordsOf, UNIT_Y, UnitView } from '../qb/board';
@@ -15,7 +15,7 @@ interface Live { s: Snap; v: UnitView }
 export class BattlePlayer {
   private live = new Map<number, Live>();
   private skipping = false;
-  /** 阵亡动画并行播放；队伍补位等到下一次交锋 / 轮换 / 召唤前再统一挪（先死后动，召唤不闪位） */
+  /** 阵亡动画并行播放；队伍补位等到下一次交锋 / 召唤前再统一挪（先死后动，召唤不闪位） */
   private dying: Promise<void>[] = [];
   private pendingOrder: Order | null = null;
   private log: HTMLElement;
@@ -70,7 +70,9 @@ export class BattlePlayer {
 
   private paint(L: Live, pop = false) {
     const s = L.s;
-    L.v.setStats({ atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, chill: 0, burn: 0, kw: keywordsOf(s.kws) }, { pop: pop && !this.skipping });
+    const kw = keywordsOf(s.kws);
+    kw.armor = s.shield ?? 0;
+    L.v.setStats({ atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, chill: 0, burn: s.burn ?? 0, kw }, { pop: pop && !this.skipping });
   }
 
   private mk(s: Snap, slot: number) {
@@ -79,6 +81,7 @@ export class BattlePlayer {
     const L: Live = { s: { ...s, kws: [...s.kws] }, v };
     this.live.set(s.uid, L);
     this.paint(L);
+    v.setEquips([...(s.ench ? [s.ench] : []), ...(s.ax ?? []).filter((a) => s.side === 1).map((a) => ATOM_INFO[a].icon)]);
     return L;
   }
 
@@ -160,9 +163,15 @@ export class BattlePlayer {
         }
         T.s.hp = ev.hp;
         T.s.block = ev.block;
+        const shieldHit = ev.blocked && T.s.shield > ev.shield;
+        T.s.shield = ev.shield;
         this.paint(T, true);
         if (quiet) return;
-        if (ev.blocked) {
+        if (shieldHit) {
+          fx.ring(p.x, p.y - 20, '#8fd8ff', 54, 20);
+          fx.float(p.x, p.y - 80, `护盾 -${ev.n}`, 'shield', 800);
+          sfx.shieldHit();
+        } else if (ev.blocked) {
           // 格挡碎裂
           fx.burst(p.x, p.y - 20, '#ffe08a', { n: 18, speed: 6, kind: 'shard', size: 4 });
           fx.ring(p.x, p.y - 20, '#ffe08a', 50, 20);
@@ -171,6 +180,7 @@ export class BattlePlayer {
         } else {
           fx.float(p.x, p.y - 80, `-${ev.n}`, 'dmg', 800);
           if (ev.kind === 'splash') fx.burst(p.x, p.y - 20, '#ffb340', { n: 12, speed: 5 });
+          if (ev.kind === 'burn') fx.burst(p.x, p.y - 20, '#ff6a2a', { n: 10, speed: 3, up: 2 });
           if (ev.kind !== 'melee') sfx.hit(ev.n >= 6);
         }
         await this.w(ev.kind === 'melee' ? 100 : 180);
@@ -238,7 +248,7 @@ export class BattlePlayer {
         this.paint(T, true);
         if (quiet) return;
         const p = this.pos(ev.tgt);
-        const names: Record<string, string> = { rotate: '轮换', reborn: '复生', splash: '溅射', block: '格挡' };
+        const names: Record<string, string> = { reborn: '复生', splash: '溅射', block: '格挡' };
         fx.float(p.x, p.y - 80, ev.kws.map((k) => names[k] ?? k).join(' '), 'grant', 800);
         sfx.buff();
         await this.w(180);
@@ -256,18 +266,6 @@ export class BattlePlayer {
         fx.burst(p.x, p.y, L.s.side === 1 ? '#ff6b78' : LINE_INFO[card(L.s.def).line].color, { n: 14, speed: 4 });
         sfx.death();
         this.dying.push(L.v.die());
-        return;
-      }
-      case 'rotate': {
-        const L = this.live.get(ev.uid);
-        if (!L) return;
-        const idx = ev.order[L.s.side].indexOf(ev.uid);
-        this.pendingOrder = null;
-        this.say(`${this.name(ev.uid)} 轮换到队尾`);
-        if (quiet) { L.v.place(idx); await this.relayout(ev.order, ev.uid); return; }
-        sfx.whoosh();
-        const moves = this.relayout(ev.order, ev.uid);
-        await Promise.all([L.v.moveTo(idx, 560 / this.speed, 150), moves]);
         return;
       }
       case 'summon': {
@@ -293,6 +291,21 @@ export class BattlePlayer {
         fx.float(p.x, p.y - 90, ev.label, 'fizzle', 800);
         sfx.fizzle();
         await this.w(200);
+        return;
+      }
+      case 'stat': {
+        const T = this.live.get(ev.uid);
+        if (!T) return;
+        const more = ev.shield > T.s.shield;
+        const burnUp = ev.burn > T.s.burn;
+        T.s.shield = ev.shield;
+        T.s.burn = ev.burn;
+        this.paint(T, true);
+        if (quiet) return;
+        const p = this.pos(ev.uid);
+        if (more) { fx.ring(p.x, p.y - 20, '#8fd8ff', 64, 24); fx.statPop(p.x, p.y - 80, `+${ev.shield}`, '护盾', 'pt-block', 760); sfx.shield(); }
+        if (burnUp) { fx.burst(p.x, p.y - 20, '#ff6a2a', { n: 10, speed: 3 }); fx.float(p.x, p.y - 80, `灼烧 ${ev.burn}`, 'dmg', 700); }
+        await this.w(140);
         return;
       }
       case 'end':

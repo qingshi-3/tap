@@ -1,0 +1,5217 @@
+{
+  "meta": {
+    "retrievedAt": "2026-10-24",
+    "sourceUrl": "https://teamwood.itch.io/super-auto-pets",
+    "buildUrl": "https://html-classic.itch.zone/html/18047452/Production%20WebGL/index.html",
+    "buildVersion": "203",
+    "locale": "zh-Hans",
+    "note": "官方网页版简体中文文本；未找到对应词条时显示英文原文。"
+  },
+  "names": {
+    "pet": {
+      "Adult Flounder": "成年比目鱼",
+      "African Wild Dog": "非洲野狗",
+      "Alchemedes": "炼金小虫",
+      "Angry Pygmy Hog": "愤怒侏儒猪",
+      "Ant": "蚂蚁",
+      "Baku": "食梦貘",
+      "Barghest": "犬魔",
+      "Beaver": "河狸",
+      "Bee": "蜜蜂",
+      "Beetle": "甲虫",
+      "Bluebird": "蓝鸲",
+      "Bombus Dahlbomii": "熊蜂",
+      "Budgie": "虎皮鹦鹉",
+      "Bulldog": "斗牛犬",
+      "Bunyip": "澳洲水兽",
+      "Burbel": "咕噜泡",
+      "Bus": "公交车",
+      "Butterfly": "蝴蝶",
+      "Chick": "雏鸡",
+      "Chihuahua": "吉娃娃",
+      "Chinchilla": "龙猫",
+      "Chipmunk": "花栗鼠",
+      "Cockroach": "蟑螂",
+      "Cone Snail": "芋螺",
+      "Cooked Roach": "熟蟑螂",
+      "Cracked Egg": "破了的蛋",
+      "Cricket": "蛐蛐",
+      "Cuckoo Chick": "杜鹃雏鸟",
+      "Cuddle Toad": "抱抱蟾蜍",
+      "Daycrawler": "日间跛行者",
+      "Dirty Rat": "脏鼠",
+      "Duck": "鸭子",
+      "Duckling": "雏鸭",
+      "Ethiopian Wolf": "埃塞俄比亚狼",
+      "Fairy Ball": "仙女球",
+      "Fan Mussel": "翡翠贻贝",
+      "Farmer Mouse": "农夫鼠",
+      "Ferret": "雪貂",
+      "Fire Pup": "火焰小狗",
+      "Firefly": "萤火虫",
+      "Fish": "鱼",
+      "Frilled Dragon": "伞蜥",
+      "Frog": "青蛙",
+      "Gecko": "壁虎",
+      "Giant Eyes Dog": "巨眼狗",
+      "Gibbon": "长臂猿",
+      "Golden Retriever": "金毛寻回犬",
+      "Good Dog": "好狗狗",
+      "Goose": "鹅",
+      "Great One": "支配者",
+      "Groundhog": "土拨鼠",
+      "Guinea Piglet": "幼豚鼠",
+      "Hermit Crab": "寄居蟹",
+      "Horse": "马",
+      "Hummingbird": "蜂鸟",
+      "Hydra Head": "九头蛇头",
+      "Ili Pika": "伊犁鼠兔",
+      "Iriomote Cat": "西表猫",
+      "Kiwi": "几维鸟",
+      "Ladybug": "瓢虫",
+      "Lemming": "旅鼠",
+      "Lizard Tail": "蜥蜴尾",
+      "Loyal Chinchilla": "忠诚的龙猫",
+      "Magpie": "喜鹊",
+      "Malay Tapir": "马来貘",
+      "Marmoset": "狨猴",
+      "Mimic Octopus": "拟态章鱼",
+      "Moby Dick": "白鲸",
+      "Monty": "杀手小白兔",
+      "Mosquito": "蚊子",
+      "Moth": "蛾",
+      "Mouse": "家鼠",
+      "Murmel": "鱼头人",
+      "Nest": "巢",
+      "Nudibranch": "裸鳃",
+      "Opossum": "负鼠",
+      "Otter": "水獭",
+      "Peacock Spider": "孔雀蜘蛛",
+      "Pengobble": "企鹅鱼",
+      "Pheasant": "雉鸡",
+      "Pied Tamarin": "黑白花狨",
+      "Pig": "猪",
+      "Pigeon": "鸽子",
+      "Pillbug": "鼠妇",
+      "Pink Robin": "粉红知更鸟",
+      "Pygmy Seahorse": "豆丁海马",
+      "Quail": "鹌鹑",
+      "Question Marks": "???",
+      "Quoll": "袋鼬",
+      "Ram": "公羊",
+      "Rock": "石头",
+      "Salmon": "鲑鱼",
+      "Silkmoth": "蚕蛾",
+      "Sleeping Gelada": "沉睡狮尾狒",
+      "Sloth": "树懒",
+      "Smaller Slime": "小小史莱姆",
+      "Smaller Slug": "小蛞蝓",
+      "Smallest Slug": "超小蛞蝓",
+      "Sneaky Egg": "鬼祟蛋",
+      "Termite": "白蚁",
+      "Togian Babirusa": "托吉安鹿豚",
+      "Tooth Billed Pigeon": "齿嘴鸠",
+      "Tsuchinoko": "野槌蛇",
+      "Umbrella Bird": "伞鸟",
+      "Volcano Snail": "火山蜗牛",
+      "Weevil": "象鼻虫",
+      "Young Phoenix": "小不死鸟",
+      "Zombie Cricket": "丧尸蛐蛐",
+      "Zombie Fly": "丧尸苍蝇",
+      "African Penguin": "非洲企鹅",
+      "Albino Squirrel": "白化松鼠",
+      "Amphisbaena": "双头蛇",
+      "Araripe Manakin": "阿拉里佩侏儒鸟",
+      "Atlantic Puffin": "北极海鹦",
+      "Bass": "鲈鱼",
+      "Bat": "蝙蝠",
+      "Beluga Sturgeon": "欧洲鳇",
+      "Bigfoot": "大脚怪",
+      "Bilby": "兔耳袋狸",
+      "Black Necked Stilt": "黑颈长脚鹬",
+      "Chupacabra": "丘帕卡布拉",
+      "Crab": "螃蟹",
+      "Darwins Fox": "达尔文狐",
+      "Desert Rain Frog": "沙漠雨蛙",
+      "Door Head Ant": "龟蚁",
+      "Dove": "白鸽",
+      "Dromedary": "单峰驼",
+      "Drop Bear": "掉掉熊",
+      "Dumbo Octopus": "小飞象章鱼",
+      "Dung Beetle": "屎壳郎",
+      "European Mink": "欧洲水貂",
+      "Farmer Chicken": "农夫鸡",
+      "Flamingo": "火烈鸟",
+      "Frigatebird": "军舰鸟",
+      "Frost Wolf": "霜狼",
+      "Fruit Fly": "果蝇",
+      "Gargoyle": "滴水兽",
+      "Ghost Kitten": "幽灵猫咪",
+      "Giant Squirrel": "巨松鼠",
+      "Gold Fish": "金鱼",
+      "Golden Beetle": "金甲虫",
+      "Guinea Pig": "豚鼠",
+      "Hedgehog": "刺猬",
+      "Hercules Beetle": "独角仙",
+      "Honduran White Bat": "白蝠",
+      "Iguana": "绿鬣蜥",
+      "Jackalope": "鹿角兔",
+      "Jellyfish": "海蜇",
+      "Kangaroo": "袋鼠",
+      "Koala": "考拉",
+      "Lemur": "狐猴",
+      "Lizard": "蜥蜴",
+      "Mandarinfish": "官服鱼",
+      "Mandrill": "山魈",
+      "Meerkat": "狐獴",
+      "Mink": "水貂",
+      "Mothman": "天蛾人",
+      "Nightcrawler": "夜间跛行者",
+      "Ogopogo": "奥古普古",
+      "Olm": "洞螈",
+      "Panda": "熊猫",
+      "Peacock": "孔雀",
+      "Proboscis Monkey": "长鼻猴",
+      "Pygmy Hog": "侏儒猪",
+      "Rat": "鼠",
+      "Roadrunner": "走鹃",
+      "Robin": "知更鸟",
+      "Saker Falcon": "赛克尔隼",
+      "Salamander": "蝾螈",
+      "Saola": "中南大羚",
+      "Sea Turtle": "海龟",
+      "Sea Urchin": "海胆",
+      "Seahorse": "海马",
+      "Shima Enaga": "长尾山雀",
+      "Shrimp": "虾",
+      "Silverfish": "衣鱼",
+      "Snail": "蜗牛",
+      "Sphinx": "斯芬克斯",
+      "Spider": "蜘蛛",
+      "Spider Crab": "巨螯蟹",
+      "Spotted Handfish": "斑点手鱼",
+      "Squid": "鱿鱼",
+      "Stoat": "白鼬",
+      "Stork": "鹳",
+      "Swan": "天鹅",
+      "Tabby Cat": "虎斑猫",
+      "Tadpole": "蝌蚪",
+      "Taita Shrew": "泰塔尖鼠",
+      "Takhi": "普氏野马",
+      "Thorny Dragon": "澳洲魔蜥",
+      "Thunderbird": "雷鸟",
+      "Vervet": "长尾黑颚猴",
+      "Warf": "座狼",
+      "White-Bellied Heron": "白腹鹭",
+      "Wombat": "袋熊",
+      "Worm": "蠕虫",
+      "Wyvern": "双足飞龙",
+      "Yak": "牦牛",
+      "Aardvark": "土豚",
+      "Amami Rabbit": "琉球兔",
+      "Anteater": "食蚁兽",
+      "Axehandle Hound": "斧柄猎犬",
+      "Baboon": "狒狒",
+      "Baby Urchin": "小海胆",
+      "Badger": "獾",
+      "Barnacle": "藤壶",
+      "Basilisk": "蛇怪",
+      "Bear": "熊",
+      "Betta Fish": "五彩搏鱼",
+      "Blue Dragon": "蓝龙",
+      "Blue-Throated Macaw": "蓝喉金刚鹦鹉",
+      "Brain Cramp": "猎头蟹",
+      "Brazillian Treehopper": "巴西角蝉",
+      "Caladrius": "医官鸟",
+      "Calygreyhound": "卡灵犬兽",
+      "Camel": "骆驼",
+      "Capybara": "水豚",
+      "Cardinal": "红衣凤头鸟",
+      "Cassowary": "鹤鸵",
+      "Centipede": "蜈蚣",
+      "Deer Lord": "鹿王",
+      "Dimetrodon": "异齿龙",
+      "Dodo": "渡渡鸟",
+      "Dog": "狗",
+      "Dolphin": "海豚",
+      "Dugong": "儒艮",
+      "Eel": "鳗鱼",
+      "Elephant": "象",
+      "Emperor Tamarin": "皇狨猴",
+      "Farmer Pig": "农夫猪",
+      "Flea": "跳蚤",
+      "Flying Fish": "飞鱼",
+      "Flying Squirrel": "鼯鼠",
+      "Foo Dog": "石狮子",
+      "Fur-Bearing Trout": "毛皮鳟鱼",
+      "Gazelle": "羚羊",
+      "Gerenuk": "长颈羚",
+      "Gharial": "长吻鳄",
+      "Giraffe": "长颈鹿",
+      "Great Potoo": "大林鸱",
+      "Griffin": "狮鹫",
+      "Guineafowl": "珠鸡",
+      "Hare": "野兔",
+      "Hatching Chick": "破壳鸡",
+      "Hirola": "亨氏牛羚",
+      "Hoopoe Bird": "戴胜",
+      "Jewel Caterpillar": "亮蛾",
+      "Leech": "水蛭",
+      "Lucky Cat": "招财猫",
+      "Mana Hound": "魔力猎犬",
+      "Mandrake": "曼德拉草",
+      "Mole": "鼹鼠",
+      "Monkey-Faced Bat": "猴面蝙蝠",
+      "Musk Ox": "麝牛",
+      "Okapi": "㺢㹢狓",
+      "Orangutan": "红毛猩猩",
+      "Osprey": "鱼鹰",
+      "Ouroboros": "衔尾蛇",
+      "Owl": "猫头鹰",
+      "Ox": "公牛",
+      "Pangasius": "巴沙鱼",
+      "Pangolin": "穿山甲",
+      "Patagonian Mara": "巴塔哥尼亚豚鼠",
+      "Pony": "小马",
+      "Porcupine": "豪猪",
+      "Pug": "哈巴狗",
+      "Purple Frog": "紫蛙",
+      "Pygmy Hippo": "侏儒河马",
+      "Quail Chick": "鹌鹑雏鸟",
+      "Queen Bee": "女王蜂",
+      "Quetzalcoatlus": "风神翼龙",
+      "Rabbit": "家兔",
+      "Roloway Monkey": "罗洛韦猴",
+      "Royal Flycatcher": "皇霸鹟",
+      "Sage-Grouse": "艾草松鸡",
+      "Sarcastic Fringehead": "勃氏新热鳚",
+      "Sheep": "绵羊",
+      "Silkie Chicken": "乌骨鸡",
+      "Skeleton Dog": "骷髅狗",
+      "Slime": "史莱姆",
+      "Spoon-Billed Sandpiper": "勺嘴鹬",
+      "Sugar Glider": "蜜袋鼯",
+      "Surgeon Fish": "刺尾鱼",
+      "Takin": "羚牛",
+      "Tatzelwurm": "塔佐蠕虫",
+      "Toad": "蟾蜍",
+      "Toucan": "巨嘴鸟",
+      "Tree": "树人",
+      "Tree Kangaroo": "树袋鼠",
+      "Tropical Fish": "热带鱼",
+      "Tucuxi": "土库海豚",
+      "Tuna": "金枪鱼",
+      "Vampire Parrot": "吸血鹦鹉",
+      "Wasp": "黄蜂",
+      "Weasel": "黄鼠狼",
+      "Abomination": "憎恶",
+      "Ahuizotl": "水猿",
+      "Amazon River Dolphin": "亚马逊河豚",
+      "Andrewsarchus": "安氏中兽",
+      "Angelshark": "天使鲨",
+      "Anubis": "阿努比斯",
+      "Bison": "野牛",
+      "Bloodhound": "寻血猎犬",
+      "Blowfish": "河豚",
+      "Blue-Footed Booby": "蓝脚鲣鸟",
+      "Bonobo": "倭黑猩猩",
+      "Buffalo": "水牛",
+      "Caterpillar": "毛毛虫",
+      "Chameleon": "变色龙",
+      "Chimera": "奇美拉",
+      "Clownfish": "小丑鱼",
+      "Cockatoo": "凤头鹦鹉",
+      "Crow": "乌鸦",
+      "Cuckoo": "杜鹃",
+      "Cuttlefish": "墨鱼",
+      "Cyclops": "独眼巨人",
+      "Deer": "鹿",
+      "Deinocheirus": "恐手龙",
+      "Doberman": "杜宾犬",
+      "Donkey": "驴",
+      "Elk": "麋鹿",
+      "Fairy": "仙灵",
+      "Fairy Armadillo": "仙女犰狳",
+      "Falcon": "隼",
+      "Farmer Cat": "农夫猫",
+      "Fossa": "长尾灵猫",
+      "Gelada": "狮尾狒",
+      "Giant Otter": "巨獭",
+      "Giant Tortoise": "阿尔达布拉象龟",
+      "Goblin Shark": "剑吻鲨",
+      "Golden Tamarin": "金狮狨猴",
+      "Hawk": "猎鹰",
+      "Hippo": "河马",
+      "Hoatzin": "麝雉",
+      "Humphead Wrasse": "波纹唇鱼",
+      "Jerboa": "跳鼠",
+      "Kakapo": "鸮鹦鹉",
+      "Kraken": "克拉肯",
+      "Leaf Gecko": "叶尾壁虎",
+      "Leafy Sea Dragon": "叶形海龙",
+      "Llama": "美洲驼",
+      "Lobster": "龙虾",
+      "Locust": "蝗虫",
+      "Longcomb Sawfish": "栉齿锯鳐",
+      "Lynx": "猞猁",
+      "Manatee": "海牛",
+      "Manta Ray": "蝠鲼",
+      "Microbe": "微生物",
+      "Mimic": "拟态怪",
+      "Minotaur": "弥诺陶洛斯",
+      "Old Mouse": "老鼠",
+      "Parrot": "鹦鹉",
+      "Pegasus": "天马",
+      "Penguin": "企鹅",
+      "Platybelodon": "铲齿象",
+      "Platypus": "鸭嘴兽",
+      "Poison Dart Frog": "箭毒蛙",
+      "Poodle Moth": "贵宾犬蛾",
+      "Praying Mantis": "螳螂",
+      "Puppy": "幼犬",
+      "Racket Tail": "扇尾鹦鹉",
+      "Red Lipped Batfish": "达氏蝙蝠鱼",
+      "Roc": "大鹏鸟",
+      "Rootling": "根兽",
+      "Ruspolis Turaco": "蕉鹃",
+      "Saiga Antelope": "高鼻羚羊",
+      "Sea Anemone": "海葵",
+      "Seagull": "海鸥",
+      "Sealion": "海狮",
+      "Siamese": "暹罗猫",
+      "Skunk": "臭鼬",
+      "Slug": "蛞蝓",
+      "Sparrow": "麻雀",
+      "Spiny Bush Viper": "基伍树蝰",
+      "Squirrel": "松鼠",
+      "Tahr": "塔尔羊",
+      "Tand and Tand": "坦德与坦德",
+      "Tandgnost": "坦格尼奥斯特",
+      "Tandgrisner": "坦格里斯尼尔",
+      "Tardigrade": "水熊虫",
+      "Tasmanian Devil": "袋獾",
+      "Tiger Bug": "蚁虎",
+      "Trout": "鳟鱼",
+      "Turtle": "乌龟",
+      "Unicorn": "独角兽",
+      "Vaquita": "小头鼠海豚",
+      "Visitor": "外星来客",
+      "Whale": "鲸",
+      "Whale Shark": "鲸鲨",
+      "Worm of Sand": "沙之蠕虫",
+      "Yeti Crab": "基瓦雪人蟹",
+      "Amalgamation": "羊蹄鸟身龙虾",
+      "Armadillo": "犰狳",
+      "Axolotl": "美西螈",
+      "Aye-aye": "指猴",
+      "Bad Dog": "坏狗狗",
+      "Banggai Cardinalfish": "考氏鳍竺鲷",
+      "Beluga Whale": "白鲸",
+      "Blobfish": "水滴鱼",
+      "Blue Jay": "冠蓝鸦",
+      "Blue Ringed Octopus": "蓝环章鱼",
+      "Boitata": "火蛇",
+      "Brahma Chicken": "布拉麻鸡",
+      "Chicken": "鸡",
+      "Cow": "奶牛",
+      "Crane": "鹤",
+      "Crocodile": "鳄鱼",
+      "Dragonfly": "蜻蜓",
+      "Eagle": "鹰",
+      "Egyptian Vulture": "白兀鹫",
+      "Emu": "鸸鹋",
+      "Estemmenosuchus": "冠鳄兽",
+      "Farmer Crow": "农夫乌鸦",
+      "Fire Ant": "火蚁",
+      "Flounder": "比目鱼",
+      "Fox": "狐狸",
+      "Geometric Tortoise": "几何陆龟",
+      "Giant Isopod": "深水虱",
+      "Giant Pangasius": "长丝巨鲇",
+      "Goat": "山羊",
+      "Hamster": "仓鼠",
+      "Hawaiian Monk Seal": "夏威夷僧海豹",
+      "Hippocampus": "马头鱼尾兽",
+      "Hippogriff": "骏鹰",
+      "Hyena": "鬣狗",
+      "Ibex": "羱羊",
+      "Jackal": "豺狼",
+      "Kappa": "河童",
+      "Kitsune": "狐妖",
+      "Loveland Frogman": "青蛙人",
+      "Lusca": "卢斯卡",
+      "Macaque": "猕猴",
+      "Maltese": "马尔济斯犬",
+      "Marine Iguana": "海鬣蜥",
+      "Monkey": "猴子",
+      "Moose": "驼鹿",
+      "Mosasaurus": "沧龙",
+      "Namazu": "大鲶",
+      "Nessie": "尼斯湖水怪",
+      "Nurikabe": "涂壁",
+      "Nurse Shark": "护士鲨",
+      "Nyala": "白斑羚",
+      "Orchid Mantis": "兰花螳螂",
+      "Pacific Fanfish": "太平洋扇鱼",
+      "Painted Terrapin": "西瓜龟",
+      "Panther": "美洲豹",
+      "Pelican": "鹈鹕",
+      "Pixiu": "貔貅",
+      "Polar Bear": "北极熊",
+      "Raccoon": "浣熊",
+      "Red Dragon": "红龙",
+      "Red Panda": "小熊猫",
+      "Rhino": "犀牛",
+      "Rooster": "公鸡",
+      "Salmon of Knowledge": "智慧鲑鱼",
+      "Scorpion": "蝎子",
+      "Sea Cucumber": "海参",
+      "Seal": "海豹",
+      "Secretary Bird": "蛇鹫",
+      "Shark": "鲨鱼",
+      "Shoebill": "鲸头鹳",
+      "Siberian Husky": "哈士奇",
+      "Silver Fox": "银狐",
+      "Snapping Turtle": "鳄龟",
+      "Snow Leopard": "雪豹",
+      "Starfish": "海星",
+      "Sting Ray": "魟鱼",
+      "Stonefish": "石头鱼",
+      "Sword Fish": "剑鱼",
+      "Taita Thrush": "泰塔鸫",
+      "Tarantula Hawk": "沙漠蛛蜂",
+      "Tarasque": "塔拉斯克",
+      "Triceratops": "三角龙",
+      "Turkey": "火鸡",
+      "Vampire Bat": "吸血蝙蝠",
+      "Venus Flytrap": "捕蝇草",
+      "Vulture": "秃鹫",
+      "Werewolf": "狼人",
+      "Wolf": "狼",
+      "Woodpecker": "啄木鸟",
+      "Woolly Rhino": "披毛犀",
+      "Zebra": "斑马",
+      "Akhlut": "阿克鲁特",
+      "Albatross": "信天翁",
+      "Alpaca": "羊驼",
+      "Amargasaurus": "阿马加龙",
+      "Ammonite": "菊石",
+      "Amsterdam Albatross": "阿姆斯特丹信天翁",
+      "Anglerfish": "灯笼鱼",
+      "Bakunawa": "巴库纳瓦",
+      "Bay Cat": "婆罗洲金猫",
+      "Behemoth": "贝希摩斯",
+      "Bird of Paradise": "天堂鸟",
+      "Black Bear": "黑熊",
+      "Black Rhino": "黑犀牛",
+      "Blue Whale": "蓝鲸",
+      "Boar": "野猪",
+      "Bully Chest": "宝箱恶霸",
+      "California Condor": "加州秃鹰",
+      "Cat": "猫",
+      "Catfish": "鲶鱼",
+      "Cerberus": "刻耳柏洛斯",
+      "Chimpanzee": "黑猩猩",
+      "Cobra": "眼镜蛇",
+      "Cockatrice": "石化鸡蛇",
+      "Coconut Crab": "椰子蟹",
+      "Dragon": "龙",
+      "Dunkleosteus": "邓氏鱼",
+      "Eagle Owl": "雕鸮",
+      "Elephant Seal": "象海豹",
+      "Farmer Dog": "农夫狗",
+      "Fly": "苍蝇",
+      "German Shepherd": "德国牧羊犬",
+      "Gorilla": "猩猩",
+      "Green Sea Turtle": "绿海龟",
+      "Grizzly Bear": "灰熊",
+      "Hammerhead Shark": "锤头鲨",
+      "Harpy Eagle": "角雕",
+      "Helmeted Hornbill": "盔犀鸟",
+      "Highland Cow": "高地牛",
+      "Hooded Seal": "冠海豹",
+      "Hydra": "九头蛇",
+      "Jersey Devil": "泽西恶魔",
+      "Komodo": "科莫多龙",
+      "Lamprey": "七鳃鳗",
+      "Leopard": "豹",
+      "Leviathan": "利维坦",
+      "Lion": "狮",
+      "Lioness": "雌狮",
+      "Lionfish": "狮子鱼",
+      "Mammoth": "猛犸",
+      "Manticore": "蝎尾狮",
+      "Mantis Shrimp": "皮皮虾",
+      "Markhor": "捻角山羊",
+      "Mongoose": "猫鼬",
+      "Octopus": "章鱼",
+      "Orca": "虎鲸",
+      "Ostrich": "鸵鸟",
+      "Oyster": "牡蛎",
+      "Philippine Eagle": "菲律宾雕",
+      "Phoenix": "不死鸟",
+      "Piranha": "食人鱼",
+      "Poodle": "贵宾犬",
+      "Pteranodon": "无齿翼龙",
+      "Puma": "美洲狮",
+      "Questing Beast": "寻水兽",
+      "Quetzalcoatl": "羽蛇神",
+      "Real Velociraptor": "真迅猛龙",
+      "Reindeer": "驯鹿",
+      "Rockhopper Penguin": "凤冠企鹅",
+      "Sabertooth Tiger": "剑齿虎",
+      "Sauropod": "梁龙",
+      "Sea Serpent": "海蛇",
+      "Silky Sifaka": "丝绒冕狐猴",
+      "Sleipnir": "斯雷普尼尔",
+      "Small One": "小克苏鲁",
+      "Snake": "蛇",
+      "Spinosaurus": "棘背龙",
+      "Stegosaurus": "剑龙",
+      "Sumatran Tiger": "苏门达腊虎",
+      "Sunfish": "太阳鱼",
+      "Tanystropheus": "长颈龙",
+      "Tapir": "貘",
+      "Team Spirit": "团队精神",
+      "Terror Bird": "恐鹤",
+      "Therizinosaurus": "镰刀龙",
+      "Tiger": "虎",
+      "Tyrannosaurus": "霸王龙",
+      "Vampire Squid": "吸血鱿鱼",
+      "Velociraptor": "迅猛龙",
+      "Walrus": "海象",
+      "Warthog": "疣猪",
+      "White Tiger": "白虎",
+      "Wildebeest": "牛羚",
+      "Winter Spirit": "冬日灵",
+      "Wolverine": "狼獾",
+      "Yellow Boxfish": "粒突箱鲀",
+      "Yeti": "雪人"
+    },
+    "food": {
+      "Apple": "苹果",
+      "Better Apple": "优质苹果",
+      "Best Apple": "极品苹果",
+      "Asparagus": "芦笋",
+      "Bacon": "培根",
+      "Blueberry": "蓝莓",
+      "Bread Crumbs": "面包屑",
+      "Cake Slice": "切片蛋糕",
+      "Canned Ailment": "不适罐头",
+      "Canned Spooky": "受惊罐头",
+      "Canned Toasty": "炙烤罐头",
+      "Cashew Nut": "腰果",
+      "Chocolate Milk": "巧克力牛奶",
+      "Better Chocolate Milk": "优质巧克力牛奶",
+      "Best Chocolate Milk": "极品巧克力牛奶",
+      "Cookie": "曲奇",
+      "Corncob": "玉米棒",
+      "Egg": "鸡蛋",
+      "Ferret Present": "雪貂礼物",
+      "Better Ferret Present": "雪貂礼物",
+      "Best Ferret Present": "雪貂礼物",
+      "Fresh Water": "淡水",
+      "Golden Egg": "金蛋",
+      "Gros Michel Banana": "大麦克香蕉",
+      "Health Potion": "生命药水",
+      "Holy Water": "圣水",
+      "Honey": "蜂蜜",
+      "Macaron": "马卡龙",
+      "Mana Potion": "魔力药水",
+      "Milk": "牛奶",
+      "Better Milk": "优质牛奶",
+      "Best Milk": "极品牛奶",
+      "Nachos": "玉米片",
+      "Peach": "蜜桃",
+      "Peg Leg": "假腿",
+      "Pumpkin": "南瓜",
+      "Seed Pile": "一堆种子",
+      "Strawberry": "草莓",
+      "Unagi": "鳗鱼",
+      "Walnut": "胡桃",
+      "Antarctic Krill": "南极磷虾",
+      "Bok Choy": "白菜",
+      "Broccoli": "西兰花",
+      "Canned Cold": "寒冷罐头",
+      "Canned Ink": "墨汁罐头",
+      "Canned Weak": "虚弱罐头",
+      "Caramel": "焦糖",
+      "Cherry": "樱桃",
+      "Chocolate Cake": "巧克力蛋糕",
+      "Churros": "吉事果",
+      "Cloudberry": "云莓",
+      "Cod Roe": "鳕鱼籽",
+      "Cupcake": "纸杯蛋糕",
+      "Eucalyptus": "桉树",
+      "Faint Bread": "晕厥面包",
+      "Fairy Dust": "仙尘",
+      "Fried Shrimp": "炸虾",
+      "Kiwifruit": "奇异果",
+      "Lemur Present": "狐猴礼物",
+      "Better Lemur Present": "狐猴礼物",
+      "Best Lemur Present": "狐猴礼物",
+      "Lime": "酸橙",
+      "Meat Bone": "肉骨头",
+      "Radish": "萝卜",
+      "Rice": "米饭",
+      "Sleeping Pill": "安眠药",
+      "Sudduth Tomato": "苏达斯番茄",
+      "Wall Chicken": "壁中鸡",
+      "Avocado": "鳄梨",
+      "Blackberry": "黑莓",
+      "Brussels Sprout": "抱子甘蓝",
+      "Bubble Tea": "珍珠奶茶",
+      "Cake": "蛋糕",
+      "Canned Confusion": "困惑罐头",
+      "Canned Cowardly": "胆怯罐头",
+      "Canned Silly": "愚蠢罐头",
+      "Canned Web": "结网罐头",
+      "Carrot Parisier": "巴黎胡萝卜",
+      "Croissant": "可颂",
+      "Cucumber": "黄瓜",
+      "Fig": "无花果",
+      "Garlic": "大蒜",
+      "Geechee Red Pea": "吉奇红豌豆",
+      "Gharial Present": "长吻鳄礼物",
+      "Better Gharial Present": "长吻鳄礼物",
+      "Best Gharial Present": "长吻鳄礼物",
+      "Gingerbread Man": "姜饼人",
+      "Guava": "番石榴",
+      "Just-Right Porridge": "美味粥",
+      "Lettuce": "莴苣",
+      "Lollipop": "棒棒糖",
+      "Pineapple": "菠萝",
+      "Rambutan": "红毛丹",
+      "Ravioli": "意式方饺",
+      "Salad Bowl": "碗装沙拉",
+      "Sandwich": "三明治",
+      "Sausage": "火腿肠",
+      "Seaweed": "海草",
+      "Squash": "节瓜",
+      "Water of Youth": "青春之水",
+      "White Truffle": "白松露",
+      "Ambrosia": "珍馐",
+      "Baguette": "法国面包",
+      "Banana": "香蕉",
+      "Bread": "面包",
+      "Canned Bloat": "肿胀罐头",
+      "Canned Burn": "清脆罐头",
+      "Canned Food": "食物罐头",
+      "Canned Tasty": "美味罐头",
+      "Cauliflower": "花菜",
+      "Cheese": "芝士",
+      "Chickpea": "鹰嘴豆",
+      "Donut": "甜甜圈",
+      "Drink-Me Liquid": "缩小水",
+      "Eat-Me Cake": "变大蛋糕",
+      "Fortune Cookie": "幸运饼干",
+      "Grapes": "葡萄",
+      "Maple Syrup": "枫糖",
+      "Melon Slice": "切片西瓜",
+      "Mild Chili": "微辣辣椒",
+      "Onion": "洋葱",
+      "Oyster Mushroom": "平菇",
+      "Pear": "鸭梨",
+      "Pie": "馅饼",
+      "Potato": "土豆",
+      "Puppy Present": "幼犬礼物",
+      "Better Puppy Present": "幼犬礼物",
+      "Best Puppy Present": "幼犬礼物",
+      "Salt": "盐",
+      "Soup": "浓汤",
+      "Stronger Canned Ailment": "强效不适罐头",
+      "Vanilla Bean": "香荚兰豆",
+      "Waffle": "华夫饼",
+      "Big Mana Potion": "大瓶魔力药水",
+      "Canned Dazed": "眩晕罐头",
+      "Canned Sleepy": "困倦罐头",
+      "Carrot": "胡萝卜",
+      "Chili": "辣椒",
+      "Chocolate": "巧克力",
+      "Better Chocolate": "优质巧克力",
+      "Best Chocolate": "极品巧克力",
+      "Cocoa Bean": "可可豆",
+      "Cotton Candy": "棉花糖",
+      "Durian": "榴莲",
+      "Easter Egg": "复活节彩蛋",
+      "Eggplant": "茄子",
+      "Flodebolle": "巧克力棉花糖",
+      "Honeydew Melon": "蜜瓜",
+      "Kiwano": "刺角瓜",
+      "Lasagna": "千层饼",
+      "Lemon": "柠檬",
+      "Love Potion": "爱情药水",
+      "Magic Beans": "魔豆",
+      "Oblonot": "奥布洛诺特甜瓜",
+      "Pepper": "青椒",
+      "Skewer": "肉串",
+      "Stew": "炖肉",
+      "Sting Ray Present": "魟鱼礼物",
+      "Better Sting Ray Present": "魟鱼礼物",
+      "Best Sting Ray Present": "魟鱼礼物",
+      "Strawberry Jam": "草莓酱",
+      "Sushi": "寿司",
+      "Taco": "卷饼",
+      "Tofu": "豆腐",
+      "Canned Curse": "诅咒罐头",
+      "Canned Icky": "恶心罐头",
+      "Celery": "芹菜",
+      "Chicken Leg": "鸡腿",
+      "Coffee Bean": "咖啡豆",
+      "Cornucopia": "丰饶角",
+      "Hot Dog": "热狗",
+      "Judean Date": "犹太海枣",
+      "Konpeito": "星星糖",
+      "Melon": "西瓜",
+      "Mongoose Present": "猫鼬礼物",
+      "Better Mongoose Present": "猫鼬礼物",
+      "Best Mongoose Present": "猫鼬礼物",
+      "Mushroom": "蘑菇",
+      "Orange": "橙子",
+      "Pancakes": "煎饼",
+      "Peach of Immortality": "长生桃",
+      "Pita Bread": "口袋饼",
+      "Pizza": "披萨",
+      "Popcorn": "爆米花",
+      "Pretzel": "椒盐卷饼",
+      "Rainbow Jelly": "彩虹软糖",
+      "Sardinian Currant": "撒丁岛醋栗",
+      "Soft Ice": "甜筒",
+      "Starfruit": "杨桃",
+      "Steak": "牛扒",
+      "Tomato": "西红柿",
+      "White Okra": "白秋葵",
+      "Yggdrasil Fruit": "世界树果实",
+      "Coconut": "椰子",
+      "Peanut": "花生",
+      "Peanut Butter": "花生酱"
+    },
+    "perk": {
+      "Ambrosia": "珍馐",
+      "Baguette": "法国面包",
+      "Banana": "香蕉",
+      "Blackberry": "黑莓",
+      "Blueberry": "蓝莓",
+      "Bok Choy": "白菜",
+      "Bread": "面包",
+      "Brussels Sprout": "抱子甘蓝",
+      "Cake": "蛋糕",
+      "Caramel": "焦糖",
+      "Carrot": "胡萝卜",
+      "Cashew Nut": "腰果",
+      "Cauliflower": "花菜",
+      "Cheese": "芝士",
+      "Cherry": "樱桃",
+      "Chili": "辣椒",
+      "Chocolate Cake": "巧克力蛋糕",
+      "Churros": "吉事果",
+      "Cocoa Bean": "可可豆",
+      "Coconut": "椰子",
+      "Cod Roe": "鳕鱼籽",
+      "Croissant": "可颂",
+      "Cucumber": "黄瓜",
+      "Donut": "甜甜圈",
+      "Durian": "榴莲",
+      "Easter Egg": "复活节彩蛋",
+      "Egg": "鸡蛋",
+      "Eggplant": "茄子",
+      "Eucalyptus": "桉树",
+      "Faint Bread": "晕厥面包",
+      "Fairy Dust": "仙尘",
+      "Fig": "无花果",
+      "Fortune Cookie": "幸运饼干",
+      "Garlic": "大蒜",
+      "Gingerbread Man": "姜饼人",
+      "Golden Egg": "金蛋",
+      "Grapes": "葡萄",
+      "Gros Michel Banana": "大麦克香蕉",
+      "Guava": "番石榴",
+      "Health Potion": "生命药水",
+      "Honey": "蜂蜜",
+      "Honeydew Melon": "蜜瓜",
+      "Kiwano": "刺角瓜",
+      "Lemon": "柠檬",
+      "Lime": "酸橙",
+      "Love Potion": "爱情药水",
+      "Macaron": "马卡龙",
+      "Magic Beans": "魔豆",
+      "Mana Potion": "魔力药水",
+      "Maple Syrup": "枫糖",
+      "Meat Bone": "肉骨头",
+      "Melon": "西瓜",
+      "Melon Slice": "切片西瓜",
+      "Mild Chili": "微辣辣椒",
+      "Mushroom": "蘑菇",
+      "Nachos": "玉米片",
+      "Onion": "洋葱",
+      "Oyster Mushroom": "平菇",
+      "Pancakes": "煎饼",
+      "Peanut": "花生",
+      "Peanut Butter": "花生酱",
+      "Pepper": "青椒",
+      "Pie": "馅饼",
+      "Pineapple": "菠萝",
+      "Pita Bread": "口袋饼",
+      "Popcorn": "爆米花",
+      "Potato": "土豆",
+      "Radish": "萝卜",
+      "Rambutan": "红毛丹",
+      "Rice": "米饭",
+      "Salt": "盐",
+      "Sardinian Currant": "撒丁岛醋栗",
+      "Sausage": "火腿肠",
+      "Seaweed": "海草",
+      "Skewer": "肉串",
+      "Squash": "节瓜",
+      "Steak": "牛扒",
+      "Strawberry": "草莓",
+      "Sudduth Tomato": "苏达斯番茄",
+      "Tomato": "西红柿",
+      "Unagi": "鳗鱼",
+      "Walnut": "胡桃",
+      "White Okra": "白秋葵",
+      "White Truffle": "白松露",
+      "Yggdrasil Fruit": "世界树果实",
+      "Geechee Red Pea": "吉奇红豌豆"
+    },
+    "ailment": {
+      "Bloated": "肿胀",
+      "Cold": "寒冷",
+      "Confused": "困惑",
+      "Cowardly": "胆怯",
+      "Crisp": "清脆",
+      "Cursed": "诅咒",
+      "Dazed": "眩晕",
+      "Icky": "恶心",
+      "Inked": "染墨",
+      "Sad": "悲伤",
+      "Silly": "愚蠢",
+      "Sleepy": "困倦",
+      "Spooked": "受惊",
+      "Tasty": "美味",
+      "Toasty": "炙烤",
+      "Weak": "虚弱",
+      "Webbed": "结网"
+    },
+    "toy": {
+      "Microwave Oven": "微波炉",
+      "Action Figure": "手办",
+      "Boomerang": "回旋镖",
+      "Boot": "靴子",
+      "Bowling Ball": "保龄球",
+      "Cardboard Box": "纸箱",
+      "Chocolate Box": "巧克力盒子",
+      "Crumpled Paper": "皱巴巴的纸",
+      "Deck of Cards": "卡组",
+      "Dice": "骰子",
+      "Dice Cup": "骰盅",
+      "Dodgeball": "躲避球",
+      "Flute": "长笛",
+      "Handkerchief": "手帕",
+      "Kite": "风筝",
+      "Lamp": "灯",
+      "Lunchbox": "午餐盒",
+      "Onesie": "连体衣",
+      "Paper Shredder": "碎纸机",
+      "Pen": "钢笔",
+      "Pill Bottle": "药瓶",
+      "Pogo Stick": "弹跳杆",
+      "Remote Car": "遥控车",
+      "Ring": "戒指",
+      "Ring Pyramid": "叠叠乐",
+      "Rock Bag": "石头袋",
+      "Rubber Duck": "橡皮鸭",
+      "Scale": "天平",
+      "Soccer Ball": "足球",
+      "Spinning Top": "陀螺",
+      "Sticky Hand": "黏黏手",
+      "Stuffed Bear": "毛绒熊",
+      "Unicycle": "独轮车",
+      "Vacuum Cleaner": "吸尘器",
+      "Yo-Yo": "悠悠球",
+      "Broom": "扫帚",
+      "Glasses": "眼镜",
+      "Scissors": "剪刀",
+      "Spring": "弹簧",
+      "Toy Mouse": "玩具鼠",
+      "Trampoline": "蹦床",
+      "Rocking Horse": "木马",
+      "Balloon": "气球",
+      "Stick": "棍子",
+      "Garlic Press": "压蒜器",
+      "Plastic Saw": "塑料锯",
+      "Radio": "收音机",
+      "Tennis Ball": "网球",
+      "Foam Sword": "泡沫塑料剑",
+      "Melon Helmet": "西瓜头盔",
+      "Toy Gun": "玩具枪",
+      "Cash Register": "收银台",
+      "Oven Mitts": "隔热手套",
+      "Toilet Paper": "卫生纸",
+      "Camera": "照相机",
+      "Flashlight": "手电筒",
+      "Stinky Sock": "臭袜子",
+      "Air Palm Tree": "充气棕榈树",
+      "Peanut Jar": "花生罐",
+      "Television": "电视机",
+      "Crystal Ball": "水晶球",
+      "Magic Wand": "魔杖",
+      "Witch Broom": "女巫扫帚",
+      "Magic Carpet": "魔毯",
+      "Magic Lamp": "魔灯",
+      "Candelabra": "烛台",
+      "Glass Shoes": "玻璃鞋",
+      "Golden Harp": "金竖琴",
+      "Lock of Hair": "一缕头发",
+      "Magic Mirror": "魔镜",
+      "Pickaxe": "镐头",
+      "Red Cape": "红斗篷",
+      "Rosebud": "玫瑰花蕾",
+      "Treasure Chest": "宝箱",
+      "Treasure Map": "藏宝图",
+      "Winged Sandals": "带翼凉鞋",
+      "Nutcracker": "胡桃夹子",
+      "Ocarina": "陶笛",
+      "Thunder Hammer": "雷锤",
+      "Tinder Box": "打火匣",
+      "Evil Book": "邪恶之书",
+      "Pandoras Box": "潘多拉魔盒",
+      "Excalibur": "石中剑",
+      "Holy Grail": "圣杯",
+      "Backpack": "背包",
+      "Board Game": "桌游",
+      "Comic Book": "漫画书",
+      "Duct Tape": "布基胶带",
+      "Hand Puppet": "手偶",
+      "Mirror": "镜子",
+      "Pillow": "枕头",
+      "Skateboard": "滑板",
+      "Smartphone": "智能手机",
+      "Tiny House": "小屋",
+      "Toy Boat": "玩具船",
+      "Tricycle": "三轮车"
+    },
+    "mechanic": {
+      "Trumpets": "喇叭",
+      "Mana": "魔力",
+      "Faint": "晕厥",
+      "Hurt": "自伤",
+      "Toys": "玩具"
+    }
+  },
+  "petAbilities": {
+    "0": [
+      "晕厥：使一个随机伙伴获得+1 攻击和+1 生命。",
+      "晕厥：使一个随机伙伴获得+2 攻击和+2 生命。",
+      "晕厥：使一个随机伙伴获得+3 攻击和+3 生命。"
+    ],
+    "2": [
+      "晕厥：对相邻的宠物造成此宠物攻击值50%的伤害。",
+      "晕厥：对相邻的宠物造成此宠物攻击值100%的伤害。",
+      "晕厥：对相邻的宠物造成此宠物攻击值150%的伤害。"
+    ],
+    "3": [
+      "出售时：使两个随机伙伴获得+1 攻击。",
+      "出售时：使两个随机伙伴获得+2 攻击。",
+      "出售时：使两个随机伙伴获得+3 攻击。"
+    ],
+    "4": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "5": [
+      "回合结束时：如果此宠物有3级的伙伴，获得+2 攻击和+2 生命。仅对1头野牛有效。",
+      "回合结束时：如果此宠物有3级的伙伴，获得+4 攻击和+4 生命。仅对1头野牛有效。",
+      "回合结束时：如果此宠物有3级的伙伴，获得+6 攻击和+6 生命。仅对1头野牛有效。"
+    ],
+    "7": [
+      "自伤：对一个随机敌人造成3点伤害。",
+      "自伤：对一个随机敌人造成6点伤害。",
+      "自伤：对一个随机敌人造成9点伤害。"
+    ],
+    "8": [
+      "伙伴被出售时：获得+2 攻击和+2 生命，持续一回合。",
+      "伙伴被出售时：获得+4 攻击和+4 生命，持续一回合。",
+      "伙伴被出售时：获得+6 攻击和+6 生命，持续一回合。"
+    ],
+    "9": [
+      "变形时：从攻击最高的敌人处复制33% 攻击和 生命。",
+      "变形时：从攻击最高的敌人处复制66% 攻击和 生命。",
+      "变形时：从攻击最高的敌人处复制100% 攻击和 生命。"
+    ],
+    "10": [
+      "自伤：使最近的后方伙伴获得+1 攻击和+2 生命。",
+      "自伤：使最近的后方伙伴获得+2 攻击和+4 生命。",
+      "自伤：使最近的后方伙伴获得+3 攻击和+6 生命。"
+    ],
+    "11": [
+      "商店食物给予两倍攻击 与生命。每回合生效2次。",
+      "商店食物给予三倍攻击 与生命。每回合生效2次。",
+      "商店食物给予四倍攻击 与生命。每回合生效2次。"
+    ],
+    "12": [
+      "回合开始时：获得+1 经验值。",
+      "回合开始时：获得+1 经验值。",
+      "战斗开始时：变为一个1/1的蝴蝶，并复制攻击最高的敌人的属性。"
+    ],
+    "13": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "14": [
+      "回合开始时：使商店将来的所有宠物获得+1 攻击和+1 生命。",
+      "回合开始时：使商店将来的所有宠物获得+2 攻击和+2 生命。",
+      "回合开始时：使商店将来的所有宠物获得+3 攻击和+3 生命。"
+    ],
+    "15": [
+      "购买时：将商店食物替换为两份免费牛奶。",
+      "购买时：将商店食物替换为两份免费优质牛奶。",
+      "购买时：将商店食物替换为两份免费极品牛奶。"
+    ],
+    "16": [
+      "战斗开始时：获得相当于生命最高的伙伴25%的 生命。",
+      "战斗开始时：获得相当于生命最高的伙伴50%的 生命。",
+      "战斗开始时：获得相当于生命最高的伙伴75%的 生命。"
+    ],
+    "17": [
+      "晕厥：召唤一个1/1的蛐蛐。",
+      "晕厥：召唤一个2/2的蛐蛐。",
+      "晕厥：召唤一个3/3的蛐蛐。"
+    ],
+    "18": [
+      "晕厥：召唤一个1/1的蟑螂并使其获得+1 经验值。",
+      "晕厥：召唤一个1/1的蟑螂并使其获得+2 经验值。",
+      "晕厥：召唤一个1/1的蟑螂并使其获得+3 经验值。"
+    ],
+    "19": [
+      "战斗开始时：对最后排的敌人造成8点伤害。",
+      "战斗开始时：对最后排的敌人造成8点伤害。触发2次。",
+      "战斗开始时：对最后排的敌人造成8点伤害。触发3次。"
+    ],
+    "20": [
+      "晕厥：召唤一辆5/3且具有辣椒的公交车。",
+      "晕厥：召唤一辆10/6且具有辣椒的公交车。",
+      "晕厥：召唤一辆15/9且具有辣椒的公交车。"
+    ],
+    "21": [
+      "战斗开始时：使最近的前方伙伴获得此宠物50%的 攻击。",
+      "战斗开始时：使最近的前方伙伴获得此宠物100%的 攻击。",
+      "战斗开始时：使最近的前方伙伴获得此宠物150%的 攻击。"
+    ],
+    "22": [
+      "伙伴被召唤时：获得+2 攻击和+1 生命，持续一回合。",
+      "伙伴被召唤时：获得+4 攻击和+2 生命，持续一回合。",
+      "伙伴被召唤时：获得+6 攻击和+3 生命，持续一回合。"
+    ],
+    "23": [
+      "战斗开始时：对生命最低的敌人造成4点伤害。",
+      "战斗开始时：对生命最低的敌人造成4点伤害。触发2次。",
+      "战斗开始时：对生命最低的敌人造成4点伤害。触发3次。"
+    ],
+    "24": [
+      "晕厥：激活三个友方草莓。",
+      "晕厥：激活三个友方草莓，且相应效果变为两倍。",
+      "晕厥：激活三个友方草莓，且相应效果变为三倍。"
+    ],
+    "25": [
+      "购买1阶伙伴时：使所有伙伴获得+1 攻击和+1 生命。每回合生效4次。",
+      "购买1阶伙伴时：使所有伙伴获得+2 攻击和+2 生命。每回合生效4次。",
+      "购买1阶伙伴时：使所有伙伴获得+3 攻击和+3 生命。每回合生效4次。"
+    ],
+    "26": [
+      "出售时：使商店中的宠物获得+1 生命。",
+      "出售时：使商店中的宠物获得+2 生命。",
+      "出售时：使商店中的宠物获得+3 生命。"
+    ],
+    "27": [
+      "晕厥：从下一阶商店召唤一个5/5的1级宠物。",
+      "晕厥：从下一阶商店召唤一个10/10的2级宠物。",
+      "晕厥：从下一阶商店召唤一个15/15的3级宠物。"
+    ],
+    "28": [
+      "攻击后：对最近的后方伙伴造成1点伤害。",
+      "攻击后：对最近的后方伙伴造成1点伤害。触发2次。",
+      "攻击后：对最近的后方伙伴造成1点伤害。触发3次。"
+    ],
+    "29": [
+      "晕厥：使最近的两个后方伙伴获得+1 攻击和+1 生命。",
+      "晕厥：使最近的两个后方伙伴获得+2 攻击和+2 生命。",
+      "晕厥：使最近的两个后方伙伴获得+3 攻击和+3 生命。"
+    ],
+    "30": [
+      "伙伴晕厥时：在其位置召唤一只4/4的苍蝇。每回合生效3次。",
+      "伙伴晕厥时：在其位置召唤一只8/8的苍蝇。每回合生效3次。",
+      "伙伴晕厥时：在其位置召唤一只12/12的苍蝇。每回合生效3次。"
+    ],
+    "31": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "32": [
+      "升级：使两个伙伴获得+1 攻击和+1 生命。",
+      "升级：使两个伙伴获得+2 攻击和+2 生命。",
+      "无能力。"
+    ],
+    "33": [
+      "回合开始时：使最近的一个前方伙伴获得+1 攻击和+1 生命。",
+      "回合开始时：使最近的两个前方伙伴获得+1 攻击和+1 生命。",
+      "回合开始时：使最近的三个前方伙伴获得+1 攻击和+1 生命。"
+    ],
+    "34": [
+      "购买伙伴时：获得+1 金币。每回合生效2次。",
+      "购买伙伴时：获得+2 金币。每回合生效2次。",
+      "购买伙伴时：获得+3 金币。每回合生效2次。"
+    ],
+    "36": [
+      "自伤：获得椰子特性。每回合生效1次。",
+      "自伤：获得椰子特性。每回合生效2次。",
+      "自伤：获得椰子特性。每回合生效3次。"
+    ],
+    "37": [
+      "晕厥：对所有宠物造成2点伤害。",
+      "晕厥：对所有宠物造成4点伤害。",
+      "晕厥：对所有宠物造成6点伤害。"
+    ],
+    "38": [
+      "击倒时：获得+3 攻击和+3 生命。每场战斗生效3次。",
+      "击倒时：获得+6 攻击和+6 生命。每场战斗生效3次。",
+      "击倒时：获得+9 攻击和+9 生命。每场战斗生效3次。"
+    ],
+    "39": [
+      "伙伴被召唤时：使其获得+1 攻击，持续一回合。",
+      "伙伴被召唤时：使其获得+2 攻击，持续一回合。",
+      "伙伴被召唤时：使其获得+3 攻击，持续一回合。"
+    ],
+    "40": [
+      "前方伙伴攻击时：获得+1 攻击和+1 生命。",
+      "前方伙伴攻击时：获得+2 攻击和+2 生命。",
+      "前方伙伴攻击时：获得+3 攻击和+3 生命。"
+    ],
+    "41": [
+      "战斗开始时：对一个随机敌人造成此宠物攻击值50%的伤害。",
+      "战斗开始时：对两个随机敌人造成此宠物攻击值50%的伤害。",
+      "战斗开始时：对三个随机敌人造成此宠物攻击值50%的伤害。"
+    ],
+    "42": [
+      "战斗开始时：如果此宠物是你最高阶的宠物，获得+50% 攻击和 生命。",
+      "战斗开始时：如果此宠物是你最高阶的宠物，获得+100% 攻击和 生命。",
+      "战斗开始时：如果此宠物是你最高阶的宠物，获得+150% 攻击和 生命。"
+    ],
+    "44": [
+      "回合结束时：如果有空位，获得+1 攻击和+2 生命。",
+      "回合结束时：如果有空位，获得+2 攻击和+4 生命。",
+      "回合结束时：如果有空位，获得+3 攻击和+6 生命。"
+    ],
+    "45": [
+      "晕厥：使所有伙伴获得+2 攻击和+2 生命。",
+      "晕厥：使伙伴获得+4 攻击和+4 生命。",
+      "晕厥：使伙伴获得+6 攻击和+6 生命。"
+    ],
+    "46": [
+      "回合结束时：使最前排的友方宠物获得+2 攻击和+2 生命。",
+      "回合结束时：使最前排的友方宠物获得+4 攻击和+4 生命。",
+      "回合结束时：使最前排的友方宠物获得+6 攻击和+6 生命。"
+    ],
+    "47": [
+      "战斗开始时：对一个随机敌人造成1点伤害。",
+      "战斗开始时：对两个随机敌人造成1点伤害。",
+      "战斗开始时：对三个随机敌人造成1点伤害。"
+    ],
+    "48": [
+      "出售时：将商店食物替换为一个免费的苹果。",
+      "出售时：将商店食物替换为一个免费的优质苹果。",
+      "出售时：将商店食物替换为一个免费的极品苹果。"
+    ],
+    "50": [
+      "攻击后：对一个随机敌人造成6点伤害。",
+      "攻击后：对两个随机敌人造成6点伤害。",
+      "攻击后：对三个随机敌人造成6点伤害。"
+    ],
+    "51": [
+      "购买时：使一个随机伙伴获得+1 生命。",
+      "购买时：使两个随机伙伴获得+1 生命。",
+      "购买时：使三个随机伙伴获得+1 生命。"
+    ],
+    "52": [
+      "前方伙伴晕厥时：获得西瓜 特性和+1 攻击。每回合生效1次。",
+      "前方伙伴晕厥时：获得西瓜 特性和+1 攻击。每回合生效2次。",
+      "前方伙伴晕厥时：获得西瓜 特性和+1 攻击。每回合生效3次。"
+    ],
+    "53": [
+      "回合结束时：复制最近的前方宠物的1级能力，持续一回合。",
+      "回合结束时：复制最近的前方宠物的2级能力，持续一回合。",
+      "回合结束时：复制最近的前方宠物的3级能力，持续一回合。"
+    ],
+    "54": [
+      "自伤：获得+3 攻击。",
+      "自伤：获得+6 攻击。",
+      "自伤：获得+9 攻击。"
+    ],
+    "55": [
+      "击倒时：对最前排的敌人造成4点伤害。对1阶宠物伤害翻倍。",
+      "击倒时：对最前排的敌人造成8点伤害。对1阶宠物伤害翻倍。",
+      "击倒时：对最前排的敌人造成12点伤害。对1阶宠物伤害翻倍。"
+    ],
+    "56": [
+      "回合开始时：使两个2级或以上的伙伴获得+1 攻击和+1 生命。",
+      "回合开始时：使两个2级或以上的伙伴获得+2 攻击和+2 生命。",
+      "回合开始时：使两个2级或以上的伙伴获得+3 攻击和+3 生命。"
+    ],
+    "57": [
+      "晕厥：在对手最前排召唤一只1/1的脏鼠。",
+      "晕厥：在对手最前排召唤两只1/1的脏鼠。",
+      "晕厥：在对手最前排召唤三只1/1的脏鼠。"
+    ],
+    "58": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "59": [
+      "出售时：获得+1 金币。",
+      "出售时：获得+2 金币。",
+      "出售时：获得+3 金币。"
+    ],
+    "60": [
+      "友方吃掉食物时：使其获得+1 生命。每回合生效3次。",
+      "友方吃掉食物时：使其获得+2 生命。每回合生效3次。",
+      "友方吃掉食物时：使其获得+3 生命。每回合生效3次。"
+    ],
+    "62": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "63": [
+      "晕厥：召唤一只具有1 生命和此宠物50% 攻击的雏鸡。",
+      "晕厥：召唤两只具有1 生命和此宠物50% 攻击的雏鸡。",
+      "晕厥：召唤三只具有1 生命和此宠物50% 攻击的雏鸡。"
+    ],
+    "65": [
+      "被召唤时：获得花生 特性。",
+      "被召唤时：获得花生 特性。",
+      "被召唤时：获得花生 特性。"
+    ],
+    "66": [
+      "吃掉食物时：使三个随机伙伴获得+1 攻击。",
+      "吃掉食物时：使三个随机伙伴获得+2 攻击。",
+      "吃掉食物时：使三个随机伙伴获得+3 攻击。"
+    ],
+    "67": [
+      "伙伴被出售时：使一个随机伙伴获得+1 生命。每回合生效3次。",
+      "伙伴被出售时：使一个随机伙伴获得+2 生命。每回合生效3次。",
+      "伙伴被出售时：使一个随机伙伴获得+3 生命。每回合生效3次。"
+    ],
+    "68": [
+      "晕厥：召唤两只2/2的公羊。",
+      "晕厥：召唤两只4/4的公羊。",
+      "晕厥：召唤两只6/6的公羊。"
+    ],
+    "69": [
+      "伙伴晕厥时：获得+2 攻击和+2 生命。",
+      "伙伴晕厥时：获得+4 攻击和+4 生命。",
+      "伙伴晕厥时：获得+6 攻击和+6 生命。"
+    ],
+    "70": [
+      "战斗开始时：使生命最高的敌人-33% 生命。",
+      "战斗开始时：使生命最高的敌人-66% 生命。",
+      "战斗开始时：使生命最高的敌人-99% 生命。"
+    ],
+    "71": [
+      "没有特殊能力，在战斗中来说真是差劲呢。但是他真的很信任你！",
+      "没有特殊能力，在战斗中来说真是差劲呢。但是他真的很信任你！",
+      "没有特殊能力，在战斗中来说真是差劲呢。但是他真的很信任你！"
+    ],
+    "72": [
+      "回合结束时：如果上一场战斗失败，使最近的三个前方伙伴获得+1 攻击。",
+      "回合结束时：如果上一场战斗失败，使最近的三个前方伙伴获得+2 攻击。",
+      "回合结束时：如果上一场战斗失败，使最近的三个前方伙伴获得+3 攻击。"
+    ],
+    "73": [
+      "前方伙伴攻击时：对一个随机敌人造成5点伤害。每场战斗生效5次。",
+      "前方伙伴攻击时：对一个随机敌人造成10点伤害。每场战斗生效5次。",
+      "前方伙伴攻击时：对一个随机敌人造成15点伤害。每场战斗生效5次。"
+    ],
+    "74": [
+      "晕厥：召唤一个2/2的1级3阶宠物。",
+      "晕厥：召唤一个4/4的2级3阶宠物。",
+      "晕厥：召唤一个6/6的3级3阶宠物。"
+    ],
+    "75": [
+      "回合开始时：使商店所有食物价格减1 金币。",
+      "回合开始时：使商店所有食物价格减2 金币。",
+      "回合开始时：使商店所有食物价格减3 金币。"
+    ],
+    "76": [
+      "回合开始时：获得+1 金币。",
+      "回合开始时：获得+2 金币。",
+      "回合开始时：获得+3 金币。"
+    ],
+    "77": [
+      "在战斗中，最近的前方伙伴的能力额外触发一次（视为1级效果）。",
+      "在战斗中，最近的前方伙伴的能力额外触发一次（视为2级效果）。",
+      "在战斗中，最近的前方伙伴的能力额外触发一次（视为3级效果）。"
+    ],
+    "78": [
+      "回合开始时：使两个5阶或以上的伙伴获得+2 攻击和+2 生命。",
+      "回合开始时：使两个5阶或以上的伙伴获得+4 攻击和+4 生命。",
+      "回合开始时：使两个5阶或以上的伙伴获得+6 攻击和+6 生命。"
+    ],
+    "79": [
+      "伙伴被召唤时：使其获得+3 攻击和+1 生命。",
+      "伙伴被召唤时：使其获得+6 攻击和+2 生命。",
+      "伙伴被召唤时：使其获得+9 攻击和+3 生命。"
+    ],
+    "80": [
+      "晕厥：使最近的后方伙伴获得西瓜 特性。",
+      "晕厥：使最近的两个后方伙伴获得西瓜 特性。",
+      "晕厥：使最近的三个后方伙伴获得西瓜 特性。"
+    ],
+    "81": [
+      "战斗开始时：吞噬最近的前方伙伴，并在晕厥后将其作为1级吐出。",
+      "战斗开始时：吞噬最近的前方伙伴，并在晕厥后将其作为2级吐出。",
+      "战斗开始时：吞噬最近的前方伙伴，并在晕厥后将其作为3级吐出。"
+    ],
+    "82": [
+      "回合开始时：囤积一个2金币的苹果。",
+      "回合开始时：囤积一个2金币的优质苹果。",
+      "回合开始时：囤积一个2金币的极品苹果。"
+    ],
+    "85": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "86": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "87": [
+      "攻击前：使一个随机敌人虚弱。每场战斗生效1次。",
+      "攻击前：使一个随机敌人虚弱。每场战斗生效2次。",
+      "攻击前：使一个随机敌人虚弱。每场战斗生效3次。"
+    ],
+    "88": [
+      "战斗开始时：获得胡桃 特性。",
+      "战斗开始时：获得胡桃 特性，且相应效果变为两倍。",
+      "战斗开始时：获得胡桃 特性，且相应效果变为三倍。"
+    ],
+    "89": [
+      "回合结束时：使一个随机伙伴获得+1 攻击。",
+      "回合结束时：使一个随机伙伴获得+2 攻击。",
+      "回合结束时：使一个随机伙伴获得+3 攻击。"
+    ],
+    "91": [
+      "回合结束时：使最近的前方伙伴获得+3 攻击和+3 生命，持续一回合。",
+      "回合结束时：使最近的前方伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使最近的前方伙伴获得+1 经验值。"
+    ],
+    "92": [
+      "友方获得特性时：获得+2 攻击，持续一回合。",
+      "友方获得特性时：获得+4 攻击，持续一回合。",
+      "友方获得特性时：获得+6 攻击，持续一回合。"
+    ],
+    "93": [
+      "伙伴被召唤时：如果在战斗外，使其获得+1 攻击和+2 生命。",
+      "伙伴被召唤时：如果在战斗外，使其获得+2 攻击和+4 生命。",
+      "伙伴被召唤时：如果在战斗外，使其获得+3 攻击和+6 生命。"
+    ],
+    "94": [
+      "晕厥：使三格以内的所有宠物虚弱。",
+      "晕厥：使六格以内的所有宠物虚弱。",
+      "晕厥：使九格以内的所有宠物虚弱。"
+    ],
+    "95": [
+      "回合开始时：召唤一只1级的家鼠。",
+      "回合开始时：召唤一只2级的家鼠。",
+      "回合开始时：召唤一只3级的家鼠。"
+    ],
+    "96": [
+      "回合结束时：使每阶各一个伙伴获得+1 攻击和+1 生命。",
+      "回合结束时：使每阶各一个伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使每阶各一个伙伴获得+3 攻击和+3 生命。"
+    ],
+    "97": [
+      "回合开始时：选择一个1级的幼犬玩具。",
+      "回合开始时：选择一个2级的幼犬玩具。",
+      "回合开始时：选择一个3级的幼犬玩具。"
+    ],
+    "98": [
+      "友方获得特性时：下回合获得+1 金币。每回合生效3次。",
+      "友方获得特性时：下回合获得+2 金币。每回合生效3次。",
+      "友方获得特性时：下回合获得+3 金币。每回合生效3次。"
+    ],
+    "99": [
+      "友方获得特性时：使两个随机伙伴获得+1 生命，持续一回合。",
+      "友方获得特性时：使两个随机伙伴获得+2 生命，持续一回合。",
+      "友方获得特性时：使两个随机伙伴获得+3 生命，持续一回合。"
+    ],
+    "100": [
+      "回合开始时：使相邻伙伴获得+1 生命。",
+      "回合开始时：使相邻伙伴获得+2 生命。",
+      "回合开始时：使相邻伙伴获得+3 生命。"
+    ],
+    "103": [
+      "攻击前：获得+4 攻击和+2 生命。",
+      "攻击前：获得+8 攻击和+4 生命。",
+      "攻击前：获得+12 攻击和+6 生命。"
+    ],
+    "104": [
+      "回合开始时：使商店最左侧的两个宠物获得+1 攻击和+1 生命。",
+      "回合开始时：使商店最左侧的两个宠物获得+2 攻击和+2 生命。",
+      "回合开始时：使商店最左侧的两个宠物获得+3 攻击和+3 生命。"
+    ],
+    "105": [
+      "晕厥：召唤一只1/1的3级蚂蚁。",
+      "晕厥：召唤两只1/1的3级蚂蚁。",
+      "晕厥：召唤三只1/1的3级蚂蚁。"
+    ],
+    "106": [
+      "回合结束时：偷走最右侧的商店食物。",
+      "回合结束时：偷走最右侧的商店食物，使其攻击与生命效果翻倍。",
+      "回合结束时：偷走最右侧的商店食物，使其攻击与生命效果变为三倍。"
+    ],
+    "107": [
+      "战斗开始时：晕厥并使最近的前方伙伴获得此宠物50%的 攻击和 生命。",
+      "战斗开始时：晕厥并使最近的前方伙伴获得此宠物100%的 攻击和 生命。",
+      "战斗开始时：晕厥并使最近的前方伙伴获得此宠物150%的 攻击和 生命。"
+    ],
+    "108": [
+      "回合开始时：使商店中被冻结的一个随机宠物获得+4 攻击和+4 生命。",
+      "回合开始时：使商店中被冻结的一个随机宠物获得+8 攻击和+8 生命。",
+      "回合开始时：使商店中被冻结的一个随机宠物获得+12 攻击和+12 生命。"
+    ],
+    "109": [
+      "购买时：召唤一只1/1的豚鼠。",
+      "购买时：召唤一只2/2的豚鼠。",
+      "购买时：召唤一只3/3的豚鼠。"
+    ],
+    "110": [
+      "刷新时：获得一次免费刷新。每回合生效2次。",
+      "刷新时：获得一次免费刷新。每回合生效4次。",
+      "刷新时：获得一次免费刷新。每回合生效6次。"
+    ],
+    "111": [
+      "伙伴晕厥时：将最后排的敌人推动到最前排，并使该敌人-3 攻击。每场战斗生效1次。",
+      "伙伴晕厥时：将最后排的敌人推动到最前排，并使该敌人-3 攻击。每场战斗生效2次。",
+      "伙伴晕厥时：将最后排的敌人推动到最前排，并使该敌人-3 攻击。每场战斗生效3次。"
+    ],
+    "112": [
+      "伙伴受伤时：使其获得桉树 特性。每回合生效1次。",
+      "伙伴受伤时：使其获得桉树 特性。每回合生效2次。",
+      "伙伴受伤时：使其获得桉树 特性。每回合生效3次。"
+    ],
+    "113": [
+      "出售时：使商店最左侧的宠物获得+2 生命。",
+      "出售时：使商店最左侧的宠物获得+4 生命。",
+      "出售时：使商店最左侧的宠物获得+6 生命。"
+    ],
+    "114": [
+      "宠物被出售时：使商店将来所有的同阶宠物获得+1 攻击和+1 生命。每回合生效2次。",
+      "宠物被出售时：使商店将来所有的同阶宠物获得+2 攻击和+2 生命。每回合生效2次。",
+      "宠物被出售时：使商店将来所有的同阶宠物获得+3 攻击和+3 生命。每回合生效2次。"
+    ],
+    "115": [
+      "伙伴攻击时：偷走前方的友方草莓特性，使所有伙伴获得+2 攻击和+3 生命。",
+      "伙伴攻击时：偷走前方的友方草莓特性，使所有伙伴获得+4 攻击和+6 生命。",
+      "伙伴攻击时：偷走前方的友方草莓特性，使所有伙伴获得+6 攻击和+9 生命。"
+    ],
+    "116": [
+      "晕厥：从任意兽群召唤一个6/6的随机晕厥宠物。",
+      "晕厥：从任意兽群召唤两个6/6的随机晕厥宠物。",
+      "晕厥：从任意兽群召唤三个6/6的随机晕厥宠物。"
+    ],
+    "117": [
+      "友方升级时：使其获得+2 攻击和+2 生命。",
+      "友方升级时：使其获得+4 攻击和+4 生命。",
+      "友方升级时：使其获得+6 攻击和+6 生命。"
+    ],
+    "118": [
+      "自伤：使所有伙伴获得+3 攻击。",
+      "自伤：使所有伙伴获得+6 攻击。",
+      "自伤：使所有伙伴获得+9 攻击。"
+    ],
+    "119": [
+      "战斗开始时：对生命最高的敌人和自己造成此宠物攻击值100%的伤害。",
+      "战斗开始时：对生命最高的敌人和自己造成此宠物攻击值200%的伤害。",
+      "战斗开始时：对生命最高的敌人和自己造成此宠物攻击值300%的伤害。"
+    ],
+    "120": [
+      "战斗开始时：获得+50% 生命。",
+      "战斗开始时：获得+100% 生命。",
+      "战斗开始时：获得+150% 生命。"
+    ],
+    "121": [
+      "回合开始时：出售价格加1 金币。",
+      "回合开始时：出售价格加2 金币。",
+      "回合开始时：出售价格加3 金币。"
+    ],
+    "122": [
+      "伙伴升级时：获得+1 攻击和+1 生命。",
+      "伙伴升级时：获得+2 攻击和+2 生命。",
+      "伙伴升级时：获得+3 攻击和+3 生命。"
+    ],
+    "123": [
+      "回合开始时：如果此宠物有3级的伙伴，获得+3 金币。",
+      "回合开始时：如果此宠物有3级的伙伴，获得+6 金币。",
+      "回合开始时：如果此宠物有3级的伙伴，获得+9 金币。"
+    ],
+    "124": [
+      "回合结束时：使前方的所有伙伴获得+1 攻击和+1 生命，然后打乱它们的位置。",
+      "回合结束时：使前方的所有伙伴获得+2 攻击和+2 生命，然后打乱它们的位置。",
+      "回合结束时：使前方的所有伙伴获得+3 攻击和+3 生命，然后打乱它们的位置。"
+    ],
+    "125": [
+      "刷新时：若有4个商店宠物等阶相同，则刷新宠物并使所有伙伴获得+2 生命。每回合生效4次。",
+      "刷新时：若有4个商店宠物等阶相同，则刷新宠物并使所有伙伴获得+4 生命。每回合生效4次。",
+      "刷新时：若有4个商店宠物等阶相同，则刷新宠物并使所有伙伴获得+6 生命。每回合生效4次。"
+    ],
+    "126": [
+      "回合开始时：对相邻的伙伴造成50点伤害，并获得+2 攻击和+2 生命。",
+      "回合开始时：对相邻的伙伴造成50点伤害，并获得+4 攻击和+4 生命。",
+      "回合开始时：对相邻的伙伴造成50点伤害，并获得+6 攻击和+6 生命。"
+    ],
+    "127": [
+      "战斗开始时：对另一侧此位置的敌人造成7点伤害。",
+      "战斗开始时：对另一侧此位置的敌人造成14点伤害。",
+      "战斗开始时：对另一侧此位置的敌人造成21点伤害。"
+    ],
+    "128": [
+      "伙伴被召唤时：使其获得此宠物的 食物特性的复制。每回合生效1次。",
+      "伙伴被召唤时：使其获得此宠物的 食物特性的复制。每回合生效2次。",
+      "伙伴被召唤时：使其获得此宠物的 食物特性的复制。每回合生效3次。"
+    ],
+    "129": [
+      "战斗开始时：吞噬前方一个草莓伙伴，并在晕厥时将其变成鲑鱼。",
+      "战斗开始时：吞噬前方两个草莓伙伴，并在晕厥时将其变成鲑鱼。",
+      "战斗开始时：吞噬前方三个草莓伙伴，并在晕厥时将其变成鲑鱼。"
+    ],
+    "130": [
+      "刷新时：获得+1 攻击和+1 生命，持续一回合。每回合生效5次。",
+      "刷新时：获得+2 攻击和+2 生命，持续一回合。每回合生效5次。",
+      "刷新时：获得+3 攻击和+3 生命，持续一回合。每回合生效5次。"
+    ],
+    "131": [
+      "自伤 / 出售时：使最后排的友方草莓宠物获得+1 攻击。",
+      "自伤 / 出售时：使最后排的友方草莓宠物获得+2 攻击。",
+      "自伤 / 出售时：使最后排的友方草莓宠物获得+3 攻击。"
+    ],
+    "132": [
+      "友方攻击时：移除其草莓特性，对最后排的敌人造成2点伤害。",
+      "友方攻击时：移除其草莓特性，对最后排的敌人造成4点伤害。",
+      "友方攻击时：移除其草莓特性，对最后排的敌人造成6点伤害。"
+    ],
+    "133": [
+      "友方获得草莓时：获得+1 生命。另获得+1 攻击，持续一回合。",
+      "友方获得草莓时：获得+2 生命。另获得+2 攻击，持续一回合。",
+      "友方获得草莓时：获得+3 生命。另获得+3 攻击，持续一回合。"
+    ],
+    "134": [
+      "回合开始时：将前方最近的草莓特性替换为+4 攻击和+4 生命。",
+      "回合开始时：将前方最近的草莓特性替换为+8 攻击和+8 生命。",
+      "回合开始时：将前方最近的草莓特性替换为+12 攻击和+12 生命。"
+    ],
+    "135": [
+      "两个伙伴晕厥时：对一个随机敌人造成4点伤害。",
+      "两个伙伴晕厥时：对一个随机敌人造成8点伤害。",
+      "两个伙伴晕厥时：对一个随机敌人造成12点伤害。"
+    ],
+    "136": [
+      "晕厥：从上一阶商店召唤任意一个2/2的1级宠物。",
+      "晕厥：从上一阶商店召唤任意一个4/4的2级宠物。",
+      "晕厥：从上一阶商店召唤任意一个6/6的3级宠物。"
+    ],
+    "137": [
+      "伙伴获得不适状态时：使其获得米饭。每回合生效1次。",
+      "伙伴获得不适状态时：使其获得米饭。每回合生效2次。",
+      "伙伴获得不适状态时：使其获得米饭。每回合生效3次。"
+    ],
+    "138": [
+      "晕厥：使最近的后方伙伴获得草莓 特性。",
+      "晕厥：使最近的两个后方伙伴获得草莓 特性。",
+      "晕厥：使最近的三个后方伙伴获得草莓 特性。"
+    ],
+    "139": [
+      "出售时：如果相邻的两个伙伴都不超过2阶，则互换其属性。",
+      "出售时：如果相邻的两个伙伴都不超过4阶，则互换其属性。",
+      "出售时：如果相邻的两个伙伴都不超过6阶，则互换其属性。"
+    ],
+    "140": [
+      "晕厥：使所有一格以内的宠物获得蜂蜜 特性。",
+      "晕厥：使所有两格以内的宠物获得蜂蜜 特性。",
+      "晕厥：使所有三格以内的宠物获得蜂蜜 特性。"
+    ],
+    "141": [
+      "战斗开始时：使最前排的友方宠物获得+2 攻击。",
+      "战斗开始时：使最前排的友方宠物获得+4 攻击。",
+      "战斗开始时：使最前排的友方宠物获得+6 攻击。"
+    ],
+    "142": [
+      "自伤：使一个随机伙伴获得+3 攻击和+3 生命。",
+      "自伤：使一个随机伙伴获得+6 攻击和+6 生命。",
+      "自伤：使一个随机伙伴获得+9 攻击和+9 生命。"
+    ],
+    "143": [
+      "伙伴晕厥时：使一个随机伙伴获得+2 攻击和+3 生命。",
+      "伙伴晕厥时：使一个随机伙伴获得+4 攻击和+6 生命。",
+      "伙伴晕厥时：使一个随机伙伴获得+6 攻击和+9 生命。"
+    ],
+    "144": [
+      "战斗开始时：使一个没有特性的伙伴获得+10 攻击和+10 生命。",
+      "战斗开始时：使一个没有特性的伙伴获得+20 攻击和+20 生命。",
+      "战斗开始时：使一个没有特性的伙伴获得+30 攻击和+30 生命。"
+    ],
+    "145": [
+      "战斗开始时：使最近的前方伙伴获得+1 经验值。",
+      "战斗开始时：使最近的前方伙伴获得+2 经验值。",
+      "战斗开始时：使最近的前方伙伴获得+3 经验值。"
+    ],
+    "146": [
+      "回合结束时：使随机三个没有食物特性的伙伴获得+1 攻击和+1 生命。",
+      "回合结束时：使随机三个没有食物特性的伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使随机三个没有食物特性的伙伴获得+3 攻击和+3 生命。"
+    ],
+    "147": [
+      "敌人被召唤或推动时：对其造成2点伤害。",
+      "敌人被召唤或推动时：对其造成4点伤害。",
+      "敌人被召唤或推动时：对其造成6点伤害。"
+    ],
+    "148": [
+      "晕厥：召唤一个猛犸，且此宠物每受伤一次，使其获得+2 攻击和+3 生命。",
+      "晕厥：召唤两个猛犸，且此宠物每受伤一次，使其获得+2 攻击和+3 生命。",
+      "晕厥：召唤三个猛犸，且此宠物每受伤一次，使其获得+2 攻击和+3 生命。"
+    ],
+    "149": [
+      "出售时：囤积一个免费的安眠药。",
+      "出售时：囤积两个免费的安眠药。",
+      "出售时：囤积三个免费的安眠药。"
+    ],
+    "150": [
+      "晕厥：使最近的一个后方伙伴获得+1 经验值。战斗中额外使一个伙伴获得此效果。",
+      "晕厥：使最近的一个后方伙伴获得+2 经验值。战斗中额外使一个伙伴获得此效果。",
+      "晕厥：使最近的一个后方伙伴获得+3 经验值。战斗中额外使一个伙伴获得此效果。"
+    ],
+    "151": [
+      "首次攻击前：将5阶或以下的特性（或鸡蛋）复制至最近的后方伙伴。",
+      "首次攻击前：将5阶或以下的特性（或鸡蛋）复制至最近的两个后方伙伴。",
+      "首次攻击前：将5阶或以下的特性（或鸡蛋）复制至最近的三个后方伙伴。"
+    ],
+    "152": [
+      "战斗开始时：将最后排的敌人向前推动一格。",
+      "战斗开始时：将最后排的敌人向前推动两格。",
+      "战斗开始时：将最后排的敌人向前推动三格。"
+    ],
+    "153": [
+      "出售3级伙伴时：使所有伙伴获得+1 攻击和+1 生命。若出售的宠物的攻击不少于10，则效果变为三倍。",
+      "出售3级伙伴时：使所有伙伴获得+2 攻击和+2 生命。若出售的宠物的攻击不少于10，则效果变为三倍。",
+      "出售3级伙伴时：使所有伙伴获得+3 攻击和+3 生命。若出售的宠物的攻击不少于10，则效果变为三倍。"
+    ],
+    "154": [
+      "刷新时 / 出售时：使商店刚刷新出来的所有宠物获得+1 攻击和+1 生命。",
+      "刷新时 / 出售时：使商店刚刷新出来的所有宠物获得+2 攻击和+2 生命。",
+      "刷新时 / 出售时：使商店刚刷新出来的所有宠物获得+3 攻击和+3 生命。"
+    ],
+    "155": [
+      "购买时 / 出售时：使一个随机伙伴获得+2 攻击和+2 生命。",
+      "购买时 / 出售时：使一个随机伙伴获得+4 攻击和+4 生命。",
+      "购买时 / 出售时：使一个随机伙伴获得+6 攻击和+6 生命。"
+    ],
+    "156": [
+      "战斗开始时：对最近的两个前方宠物造成1点伤害 两次。对敌人造成双倍伤害。",
+      "战斗开始时：对最近的两个前方宠物造成1点伤害 四次。对敌人造成双倍伤害。",
+      "战斗开始时：对最近的两个前方宠物造成1点伤害 六次。对敌人造成双倍伤害。"
+    ],
+    "157": [
+      "回合结束时：使生命最低的友方宠物获得+3 生命。",
+      "回合结束时：使生命最低的友方宠物获得+6 生命。",
+      "回合结束时：使生命最低的友方宠物获得+9 生命。"
+    ],
+    "158": [
+      "攻击前：偷走目标的食物特性。每场战斗生效1次。",
+      "攻击前：偷走目标的食物特性。每场战斗生效2次。",
+      "攻击前：偷走目标的食物特性。每场战斗生效3次。"
+    ],
+    "159": [
+      "晕厥 / 出售时：召唤3/2的1级的鸭子和河狸各一只。",
+      "晕厥 / 出售时：召唤6/4的2级的鸭子和河狸各一只。",
+      "晕厥 / 出售时：召唤9/6的3级的鸭子和河狸各一只。"
+    ],
+    "160": [
+      "商店升阶时：获得+50% 攻击。",
+      "商店升阶时：获得+100% 攻击。",
+      "商店升阶时：获得+150% 攻击。"
+    ],
+    "161": [
+      "出售时：召唤一个2/2的1级忠诚的龙猫。",
+      "出售时：召唤一个4/4的2级忠诚的龙猫。",
+      "出售时：召唤一个6/6的3级忠诚的龙猫。"
+    ],
+    "162": [
+      "敌人受伤时：使其获得虚弱。每场战斗生效2次。",
+      "敌人受伤时：使其获得虚弱。每场战斗生效4次。",
+      "敌人受伤时：使其获得虚弱。每场战斗生效6次。"
+    ],
+    "163": [
+      "回合结束时：承受1点伤害 并获得+2 攻击。",
+      "回合结束时：承受2点伤害 并获得+4 攻击。",
+      "回合结束时：承受3点伤害 并获得+6 攻击。"
+    ],
+    "164": [
+      "战斗开始时：每个出售时伙伴每有一级，获得+1 攻击和+1 生命。",
+      "战斗开始时：每个出售时伙伴每有一级，获得+2 攻击和+2 生命。",
+      "战斗开始时：每个出售时伙伴每有一级，获得+3 攻击和+3 生命。"
+    ],
+    "165": [
+      "回合结束时：对最近的前方伙伴造成1点伤害，并获得等量 生命。",
+      "回合结束时：对最近的前方伙伴造成2点伤害，并获得等量 生命。",
+      "回合结束时：对最近的前方伙伴造成3点伤害，并获得等量 生命。"
+    ],
+    "166": [
+      "战斗开始时：使所有宠物获得+8 生命。",
+      "战斗开始时：使所有宠物获得+16 生命。",
+      "战斗开始时：使所有宠物获得+24 生命。"
+    ],
+    "167": [
+      "战斗开始时：使所有宠物的攻击与生命互换。",
+      "战斗开始时：打乱所有宠物的位置。",
+      "战斗开始时：使所有宠物的攻击与生命互换，并打乱它们的位置。"
+    ],
+    "168": [
+      "晕厥：移除最近的两个友方特性，召唤一只6/6的鼹鼠。",
+      "晕厥：移除最近的两个友方特性，召唤一只12/12的鼹鼠。",
+      "晕厥：移除最近的两个友方特性，召唤一只18/18的鼹鼠。"
+    ],
+    "169": [
+      "自伤：返还3点伤害。",
+      "自伤：返还6点伤害。",
+      "自伤：返还9点伤害。"
+    ],
+    "170": [
+      "晕厥：召唤三个3/2的猪。",
+      "晕厥：召唤三个6/4的猪。",
+      "晕厥：召唤三个9/6的猪。"
+    ],
+    "171": [
+      "回合结束时：使当前或更高商店阶数的一个随机伙伴获得+1 攻击与+1 生命。",
+      "回合结束时：使当前或更高商店阶数的一个随机伙伴获得+2 攻击与+2 生命。",
+      "回合结束时：使当前或更高商店阶数的一个随机伙伴获得+3 攻击与+3 生命。"
+    ],
+    "172": [
+      "回合开始时：选择一个1级的雪貂玩具。",
+      "回合开始时：选择一个2级的雪貂玩具。",
+      "回合开始时：选择一个3级的雪貂玩具。"
+    ],
+    "173": [
+      "晕厥：下一回合获得+1 金币。",
+      "晕厥：下一回合获得+2 金币。",
+      "晕厥：下一回合获得+3 金币。"
+    ],
+    "174": [
+      "回合开始时：激活前方最近的伙伴的购买时能力，生效一次，或使其获得+4 生命。",
+      "回合开始时：激活前方最近的伙伴的购买时能力，生效两次，或使其获得+8 生命。",
+      "回合开始时：激活前方最近的伙伴的购买时能力，生效三次，或使其获得+12 生命。"
+    ],
+    "175": [
+      "回合结束时：使后方的所有伙伴获得+1 攻击，前方的所有伙伴获得+1 生命。",
+      "回合结束时：使后方的所有伙伴获得+2 攻击，前方的所有伙伴获得+2 生命。",
+      "回合结束时：使后方的所有伙伴获得+3 攻击，前方的所有伙伴获得+3 生命。"
+    ],
+    "176": [
+      "晕厥：使最后排的一个敌人-3 生命并染墨。",
+      "晕厥：使最后排的两个敌人-3 生命并染墨。",
+      "晕厥：使最后排的三个敌人-3 生命并染墨。"
+    ],
+    "177": [
+      "晕厥：花费1 喇叭使第一个敌人染墨。",
+      "晕厥：花费1 喇叭使第一个敌人染墨，且相应效果变为两倍。",
+      "晕厥：花费1 喇叭使第一个敌人染墨，且相应效果变为三倍。"
+    ],
+    "178": [
+      "回合开始时：选择一个1级的魟鱼玩具。",
+      "回合开始时：选择一个2级的魟鱼玩具。",
+      "回合开始时：选择一个3级的魟鱼玩具。"
+    ],
+    "179": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "180": [
+      "购买时：从你上一个对手中选择一个免费宠物，并将其囤积。",
+      "购买时：从你上一个对手中选择一个免费宠物，并将其囤积两次。",
+      "购买时：从你上一个对手中选择一个免费宠物，并将其囤积三次。"
+    ],
+    "181": [
+      "花费7金币时：使三个随机伙伴获得+1 攻击和+1 生命。每回合生效3次。",
+      "花费7金币时：使三个随机伙伴获得+2 攻击和+2 生命。每回合生效3次。",
+      "花费7金币时：使三个随机伙伴获得+3 攻击和+3 生命。每回合生效3次。"
+    ],
+    "182": [
+      "吃掉食物时：吞噬商店中最左侧的宠物，并在晕厥时召唤出基础属性的1级该宠物。",
+      "吃掉食物时：吞噬商店中最左侧的宠物，并在晕厥时召唤出双倍属性的2级该宠物。",
+      "吃掉食物时：吞噬商店中最左侧的宠物，并在晕厥时召唤出三倍属性的3级该宠物。"
+    ],
+    "183": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "184": [
+      "出售时：囤积一个此宠物的食物特性对应的免费食物。",
+      "出售时：囤积两个此宠物的食物特性对应的免费食物。",
+      "出售时：囤积三个此宠物的食物特性对应的免费食物。"
+    ],
+    "185": [
+      "回合开始时：金币数每比10多1，获得+2 攻击和+1 生命，持续一回合。",
+      "回合开始时：金币数每比10多1，获得+4 攻击和+2 生命，持续一回合。",
+      "回合开始时：金币数每比10多1，获得+6 攻击和+3 生命，持续一回合。"
+    ],
+    "186": [
+      "战斗开始时：获得+4 喇叭。此宠物每有3点生命，额外获得+1 喇叭。",
+      "战斗开始时：获得+8 喇叭。此宠物每有3点生命，额外获得+2 喇叭。",
+      "战斗开始时：获得+12 喇叭。此宠物每有3点生命，额外获得+3 喇叭。"
+    ],
+    "187": [
+      "出售时：使一个商店中的随机晕厥宠物获得+1 攻击和+1 生命。",
+      "出售时：使一个商店中的随机晕厥宠物获得+2 攻击和+2 生命。",
+      "出售时：使一个商店中的随机晕厥宠物获得+3 攻击和+3 生命。"
+    ],
+    "188": [
+      "总是愿意为伙伴挺身而出！",
+      "总是愿意为伙伴挺身而出！",
+      "总是愿意为伙伴挺身而出！"
+    ],
+    "189": [
+      "首次攻击后：获得+2 攻击。",
+      "首次攻击后：获得+4 攻击。",
+      "首次攻击后：获得+6 攻击。"
+    ],
+    "190": [
+      "战斗开始时：对最前排的敌人造成10点伤害。",
+      "战斗开始时：对最前排的敌人造成10点伤害。触发2次。",
+      "战斗开始时：对最前排的敌人造成10点伤害。触发3次。"
+    ],
+    "191": [
+      "伙伴被召唤时：使其获得+2 生命，持续一回合。",
+      "伙伴被召唤时：使其获得+4 生命，持续一回合。",
+      "伙伴被召唤时：使其获得+6 生命，持续一回合。"
+    ],
+    "192": [
+      "回合结束时：受到5点伤害，并使最近的前方伙伴获得+2 攻击与+1 生命。",
+      "回合结束时：受到5点伤害，并使最近的前方伙伴获得+4 攻击与+2 生命。",
+      "回合结束时：受到5点伤害，并使最近的前方伙伴获得+6 攻击与+3 生命。"
+    ],
+    "193": [
+      "敌人被召唤时：获得+1 攻击和+3 生命。",
+      "敌人被召唤时：获得+2 攻击和+6 生命。",
+      "敌人被召唤时：获得+3 攻击和+9 生命。"
+    ],
+    "194": [
+      "伙伴被召唤时：使其获得+1 经验值。战斗中效果变为三倍。每回合生效1次。",
+      "伙伴被召唤时：使其获得+1 经验值。战斗中效果变为三倍。每回合生效2次。",
+      "伙伴被召唤时：使其获得+1 经验值。战斗中效果变为三倍。每回合生效3次。"
+    ],
+    "195": [
+      "出售时：囤积一个巧克力。",
+      "出售时：囤积一个优质巧克力。",
+      "出售时：囤积一个极品巧克力。"
+    ],
+    "196": [
+      "回合结束时：使每等级各一个伙伴获得+1 攻击和+1 生命。",
+      "回合结束时：使每等级各一个伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使每等级各一个伙伴获得+3 攻击和+3 生命。"
+    ],
+    "197": [
+      "出售时：使商店最左侧的宠物获得此宠物33%的 攻击和 生命。",
+      "出售时：使商店最左侧的宠物获得此宠物66%的 攻击和 生命。",
+      "出售时：使商店最左侧的宠物获得此宠物100%的 攻击和 生命。"
+    ],
+    "198": [
+      "战斗开始时：每有一个晕厥能力伙伴，获得+1 攻击和+1 生命。",
+      "战斗开始时：每有一个晕厥能力伙伴，获得+2 攻击和+2 生命。",
+      "战斗开始时：每有一个晕厥能力伙伴，获得+3 攻击和+3 生命。"
+    ],
+    "199": [
+      "吃苹果时：使所有伙伴获得+1 攻击和+1 生命。每回合生效1次。",
+      "吃苹果时：使所有伙伴获得+2 攻击和+2 生命。每回合生效1次。",
+      "吃苹果时：使所有伙伴获得+3 攻击和+3 生命。每回合生效1次。"
+    ],
+    "200": [
+      "战斗开始时：对一个随机敌人造成等于友方宠物等级总和的伤害。",
+      "战斗开始时：对两个随机敌人造成等于友方宠物等级总和的伤害。",
+      "战斗开始时：对三个随机敌人造成等于友方宠物等级总和的伤害。"
+    ],
+    "201": [
+      "晕厥：对一个随机敌人造成3点伤害。每有10点攻击，便额外触发一次。",
+      "晕厥：对一个随机敌人造成6点伤害。每有10点攻击，便额外触发一次。",
+      "晕厥：对一个随机敌人造成9点伤害。每有10点攻击，便额外触发一次。"
+    ],
+    "202": [
+      "回合结束时：为商店解冻，商店每有一个1阶宠物，便使一个随机伙伴获得+3 生命。",
+      "回合结束时：为商店解冻，商店每有一个1阶宠物，便使一个随机伙伴获得+6 生命。",
+      "回合结束时：为商店解冻，商店每有一个1阶宠物，便使一个随机伙伴获得+9 生命。"
+    ],
+    "203": [
+      "战斗开始时：本回合每花费4 金币，就使相邻伙伴获得+1 攻击。",
+      "战斗开始时：本回合每花费4 金币，就使相邻伙伴获得+2 攻击。",
+      "战斗开始时：本回合每花费4 金币，就使相邻伙伴获得+3 攻击。"
+    ],
+    "204": [
+      "出售时：下一次刷新免费。",
+      "出售时：下两次刷新免费。",
+      "出售时：下三次刷新免费。"
+    ],
+    "205": [
+      "攻击前：获得西瓜 特性。每场战斗生效1次。",
+      "攻击前：获得西瓜 特性。每场战斗生效2次。",
+      "攻击前：获得西瓜 特性。每场战斗生效3次。"
+    ],
+    "206": [
+      "战斗开始时：使最近的一个后方伙伴获得+3 经验值。",
+      "战斗开始时：使最近的两个后方伙伴获得+3 经验值。",
+      "战斗开始时：使最近的三个后方伙伴获得+3 经验值。"
+    ],
+    "207": [
+      "攻击前：变为第一个具有晕厥能力的敌人（等级为1）。",
+      "攻击前：变为第一个具有晕厥能力的敌人（等级为2）。",
+      "攻击前：变为第一个具有晕厥能力的敌人（等级为3）。"
+    ],
+    "208": [
+      "战斗开始时：召唤最后排的伙伴的1级10/10复制。",
+      "战斗开始时：召唤最后排的伙伴的2级20/20复制。",
+      "战斗开始时：召唤最后排的伙伴的3级30/30复制。"
+    ],
+    "209": [
+      "晕厥：使一个随机伙伴获得花生酱 特性。",
+      "晕厥：使两个随机伙伴获得花生酱 特性。",
+      "晕厥：使三个随机伙伴获得花生酱 特性。"
+    ],
+    "210": [
+      "购买时：使三个随机伙伴获得+1 攻击。",
+      "购买时：使三个随机伙伴获得+2 攻击。",
+      "购买时：使三个随机伙伴获得+3 攻击。"
+    ],
+    "212": [
+      "友方获得特性时：使其永久获得+1 攻击和+1 生命。每回合生效3次。",
+      "友方获得特性时：使其永久获得+2 攻击和+2 生命。每回合生效3次。",
+      "友方获得特性时：使其永久获得+3 攻击和+3 生命。每回合生效3次。"
+    ],
+    "213": [
+      "晕厥：在最后排召唤一个2/3的海豚，并使其获得米饭 特性。",
+      "晕厥：在最后排召唤两个2/3的海豚，并使其获得米饭 特性。",
+      "晕厥：在最后排召唤三个2/3的海豚，并使其获得米饭 特性。"
+    ],
+    "214": [
+      "伙伴失去特性时：使其获得番石榴 特性。每回合对一个伙伴生效。",
+      "伙伴失去特性时：使其获得番石榴 特性。每回合对两个不同的伙伴生效。",
+      "伙伴失去特性时：使其获得番石榴 特性。每回合对三个不同的伙伴生效。"
+    ],
+    "215": [
+      "晕厥：获得+2 喇叭。",
+      "晕厥：获得+4 喇叭。",
+      "晕厥：获得+6 喇叭。"
+    ],
+    "216": [
+      "回合结束时：复制友方玩具能力，最高为1级，持续一回合。",
+      "回合结束时：复制友方玩具能力，最高为2级，持续一回合。",
+      "回合结束时：复制友方玩具能力，最高为3级，持续一回合。"
+    ],
+    "217": [
+      "前方伙伴攻击时：对一个随机敌人造成此宠物攻击20%的伤害。",
+      "前方伙伴攻击时：对一个随机敌人造成此宠物攻击40%的伤害。",
+      "前方伙伴攻击时：对一个随机敌人造成此宠物攻击60%的伤害。"
+    ],
+    "218": [
+      "购买时：使最高阶的伙伴获得+2 攻击和+2 生命。",
+      "购买时：使最高阶的伙伴获得+4 攻击和+4 生命。",
+      "购买时：使最高阶的伙伴获得+6 攻击和+6 生命。"
+    ],
+    "219": [
+      "前方伙伴受伤时：使其获得西瓜 特性和+5 攻击。每回合生效1次。",
+      "前方伙伴受伤时：使其获得西瓜 特性和+5 攻击。每回合生效2次。",
+      "前方伙伴受伤时：使其获得西瓜 特性和+5 攻击。每回合生效3次。"
+    ],
+    "220": [
+      "前排为空：跳跃至最前排，并在战斗中获得+4 生命。",
+      "前排为空：跳跃至最前排，并在战斗中获得+8 生命。",
+      "前排为空：跳跃至最前排，并在战斗中获得+12 生命。"
+    ],
+    "221": [
+      "击倒时：激活后方最近的晕厥伙伴的能力。每场战斗生效1次。",
+      "击倒时：激活后方最近的晕厥伙伴的能力。每场战斗生效2次。",
+      "击倒时：激活后方最近的晕厥伙伴的能力。每场战斗生效3次。"
+    ],
+    "222": [
+      "获得特性：使三个伙伴获得+4 攻击和+4 生命，持续一回合。每回合生效1次。",
+      "获得特性：使三个伙伴获得+8 攻击和+8 生命，持续一回合。每回合生效1次。",
+      "获得特性：使三个伙伴获得+12 攻击和+12 生命，持续一回合。每回合生效1次。"
+    ],
+    "223": [
+      "前排为空：战斗中使最近的前方伙伴获得+4 生命，并将其移动至最前排。",
+      "前排为空：战斗中使最近的前方伙伴获得+8 生命，并将其移动至最前排。",
+      "前排为空：战斗中使最近的前方伙伴获得+12 生命，并将其移动至最前排。"
+    ],
+    "224": [
+      "击倒时：召唤一个3/3的1级复制。每场战斗生效3次。",
+      "击倒时：召唤一个6/6的2级复制。每场战斗生效3次。",
+      "击倒时：召唤一个9/9的3级复制。每场战斗生效3次。"
+    ],
+    "225": [
+      "晕厥：使生命最高的敌人虚弱。",
+      "晕厥：使生命最高的敌人虚弱，且相应效果变为两倍。",
+      "晕厥：使生命最高的敌人虚弱，且相应效果变为三倍。"
+    ],
+    "226": [
+      "伙伴被召唤时：如果在战斗中，使其获得+2 经验值。每回合生效2次。",
+      "伙伴被召唤时：如果在战斗中，使其获得+4 经验值。每回合生效2次。",
+      "伙伴被召唤时：如果在战斗中，使其获得+6 经验值。每回合生效2次。"
+    ],
+    "227": [
+      "友方玩具损坏时：获得+2 攻击并重新召唤此玩具，但最高为1级。",
+      "友方玩具损坏时：获得+4 攻击并重新召唤此玩具，但最高为2级。",
+      "友方玩具损坏时：获得+6 攻击并重新召唤此玩具，但最高为3级。"
+    ],
+    "228": [
+      "自伤：获得+2 喇叭。",
+      "自伤：获得+4 喇叭。",
+      "自伤：获得+6 喇叭。"
+    ],
+    "229": [
+      "战斗开始时：如果有玩具，获得+2 生命。",
+      "战斗开始时：如果有玩具，获得+4 生命。",
+      "战斗开始时：如果有玩具，获得+6 生命。"
+    ],
+    "230": [
+      "伙伴被召唤时：使其获得此宠物25%的 攻击，持续一回合。",
+      "伙伴被召唤时：使其获得此宠物50%的 攻击，持续一回合。",
+      "伙伴被召唤时：使其获得此宠物75%的 攻击，持续一回合。"
+    ],
+    "231": [
+      "回合开始时：选择一个1级的长吻鳄玩具。",
+      "回合开始时：选择一个2级的长吻鳄玩具。",
+      "回合开始时：选择一个3级的长吻鳄玩具。"
+    ],
+    "232": [
+      "战斗开始时：使最前排的敌人-1 攻击。",
+      "战斗开始时：使最前排的敌人-2 攻击。",
+      "战斗开始时：使最前排的敌人-3 攻击。"
+    ],
+    "233": [
+      "晕厥：获得+1 喇叭。",
+      "晕厥：获得+2 喇叭。",
+      "晕厥：获得+3 喇叭。"
+    ],
+    "234": [
+      "出售时：使伙伴获得相当于此宠物参与战斗次数的 攻击，攻击点数在所有伙伴中依次平均分配。",
+      "出售时：使伙伴获得相当于此宠物参与战斗次数2倍的 攻击，攻击点数在所有伙伴中依次平均分配。",
+      "出售时：使伙伴获得相当于此宠物参与战斗次数3倍的 攻击，攻击点数在所有伙伴中依次平均分配。"
+    ],
+    "235": [
+      "晕厥：对最前排和最后排的敌人造成2点伤害。",
+      "晕厥：对最前排和最后排的敌人造成4点伤害。",
+      "晕厥：对最前排和最后排的敌人造成6点伤害。"
+    ],
+    "236": [
+      "回合开始时：选择一个1级的狐猴玩具。",
+      "回合开始时：选择一个2级的狐猴玩具。",
+      "回合开始时：选择一个3级的狐猴玩具。"
+    ],
+    "237": [
+      "自伤：召唤一个3/1的蜥蜴尾。每回合生效2次。",
+      "自伤：召唤一个6/2的蜥蜴尾。每回合生效2次。",
+      "自伤：召唤一个9/3的蜥蜴尾。每回合生效2次。"
+    ],
+    "238": [
+      "战斗开始时：召唤一个与此宠物有相同食物特性的12/12的红毛猩猩。",
+      "战斗开始时：召唤一个与此宠物有相同食物特性的24/24的红毛猩猩。",
+      "战斗开始时：召唤一个与此宠物有相同食物特性的36/36的红毛猩猩。"
+    ],
+    "239": [
+      "回合结束时：花费至多1 金币，并在下回合重新获得之。",
+      "回合结束时：花费至多2 金币，并在下回合重新获得之。",
+      "回合结束时：花费至多3 金币，并在下回合重新获得之。"
+    ],
+    "240": [
+      "回合结束时：如果有空位，下回合获得+2 金币。",
+      "回合结束时：如果有空位，下回合获得+4 金币。",
+      "回合结束时：如果有空位，下回合获得+6 金币。"
+    ],
+    "241": [
+      "回合开始时：选择一个1级的猫鼬玩具。",
+      "回合开始时：选择一个2级的猫鼬玩具。",
+      "回合开始时：选择一个3级的猫鼬玩具。"
+    ],
+    "242": [
+      "友方玩具损坏时：使相邻伙伴获得+2 攻击和+3 生命。",
+      "友方玩具损坏时：使相邻伙伴获得+4 攻击和+6 生命。",
+      "友方玩具损坏时：使相邻伙伴获得+6 攻击和+9 生命。"
+    ],
+    "245": [
+      "前方伙伴晕厥时：获得+1 攻击和+2 生命，持续一回合。",
+      "前方伙伴晕厥时：获得+2 攻击和+4 生命，持续一回合。",
+      "前方伙伴晕厥时：获得+3 攻击和+6 生命，持续一回合。"
+    ],
+    "246": [
+      "晕厥：获得+8 喇叭。",
+      "晕厥：获得+16 喇叭。",
+      "晕厥：获得+24 喇叭。"
+    ],
+    "247": [
+      "晕厥：召唤一个2/1的土拨鼠。",
+      "晕厥：召唤两个2/1的土拨鼠。",
+      "晕厥：召唤三个2/1的土拨鼠。"
+    ],
+    "248": [
+      "出售时：获得+3 金币。",
+      "出售时：获得+6 金币。",
+      "出售时：获得+9 金币。"
+    ],
+    "249": [
+      "晕厥：如果有玩具，使最近的后方伙伴获得+4 生命。",
+      "晕厥：如果有玩具，使最近的后方伙伴获得+8 生命。",
+      "晕厥：如果有玩具，使最近的后方伙伴获得+12 生命。"
+    ],
+    "250": [
+      "此单位具有的特性在战斗中强度为原有的两倍。",
+      "此单位具有的特性在战斗中强度为原有的三倍。",
+      "此单位具有的特性在战斗中强度为原有的四倍。"
+    ],
+    "251": [
+      "晕厥：花费1 喇叭对一个随机敌人造成3点伤害。",
+      "晕厥：花费1 喇叭对两个随机敌人造成3点伤害。",
+      "晕厥：花费1 喇叭对三个随机敌人造成3点伤害。"
+    ],
+    "252": [
+      "前方伙伴晕厥时：对生命最高的敌人造成4点伤害。",
+      "前方伙伴晕厥时：对生命最高的敌人造成8点伤害。",
+      "前方伙伴晕厥时：对生命最高的敌人造成12点伤害。"
+    ],
+    "253": [
+      "伙伴晕厥时：在此宠物后排重新召唤，并将其变为1/1。每场战斗生效1次。",
+      "伙伴晕厥时：在此宠物后排重新召唤，并将其变为1/1。每场战斗生效2次。",
+      "伙伴晕厥时：在此宠物后排重新召唤，并将其变为1/1。每场战斗生效3次。"
+    ],
+    "254": [
+      "友方玩具重复触发其能力，如同其为1级玩具。",
+      "友方玩具重复触发其能力，如同其为2级玩具。",
+      "友方玩具重复触发其能力，如同其为3级玩具。"
+    ],
+    "255": [
+      "战斗开始时：召唤一个2/3的1级巢，并使其获得鸡蛋 特性。",
+      "战斗开始时：召唤一个4/6的2级巢，并使其获得鸡蛋 特性。",
+      "战斗开始时：召唤一个6/9的3级巢，并使其获得鸡蛋 特性。"
+    ],
+    "256": [
+      "三个敌人晕厥时：对一个随机敌人造成4点伤害。",
+      "三个敌人晕厥时：对一个随机敌人造成8点伤害。",
+      "三个敌人晕厥时：对一个随机敌人造成12点伤害。"
+    ],
+    "257": [
+      "两个伙伴晕厥时：获得+3 喇叭。",
+      "两个伙伴晕厥时：获得+6 喇叭。",
+      "两个伙伴晕厥时：获得+9 喇叭。"
+    ],
+    "258": [
+      "晕厥：使最前排的敌人-5 生命。",
+      "晕厥：使前两个敌人-5 生命。",
+      "晕厥：使前三个敌人-5 生命。"
+    ],
+    "259": [
+      "两个伙伴晕厥时：使最近的前方伙伴获得+3 攻击和+4 生命。",
+      "两个伙伴晕厥时：使最近的前方伙伴获得+6 攻击和+8 生命。",
+      "两个伙伴晕厥时：使最近的前方伙伴获得+9 攻击和+12 生命。"
+    ],
+    "260": [
+      "前方伙伴受伤时：使其获得+1 生命。每回合生效2次。",
+      "前方伙伴受伤时：使其获得+2 生命。每回合生效2次。",
+      "前方伙伴受伤时：使其获得+3 生命。每回合生效2次。"
+    ],
+    "261": [
+      "攻击前：下一回合获得+1 金币。每场战斗生效3次。",
+      "攻击前：下一回合获得+2 金币。每场战斗生效3次。",
+      "攻击前：下一回合获得+3 金币。每场战斗生效3次。"
+    ],
+    "262": [
+      "晕厥：召唤一个2/2的小蛞蝓（小蛞蝓会召唤一个1/1的超小蛞蝓）。",
+      "晕厥：召唤一个4/4的小蛞蝓（小蛞蝓会召唤一个2/2的超小蛞蝓）。",
+      "晕厥：召唤一个6/6的小蛞蝓（小蛞蝓会召唤一个3/3的超小蛞蝓）。"
+    ],
+    "263": [
+      "出售时：召唤一个当前阶的1级宠物，并使其变为1/1。",
+      "出售时：召唤一个当前阶的2级宠物，并使其变为1/1。",
+      "出售时：召唤一个当前阶的3级宠物，并使其变为1/1。"
+    ],
+    "264": [
+      "晕厥：花费2 喇叭，使最近的两个后方伙伴获得+4 生命。",
+      "晕厥：花费2 喇叭，使最近的两个后方伙伴获得+8 生命。",
+      "晕厥：花费2 喇叭，使最近的两个后方伙伴获得+12 生命。"
+    ],
+    "265": [
+      "晕厥：获得+50% 喇叭（最少+4 喇叭）。",
+      "晕厥：获得+100% 喇叭（最少+8 喇叭）。",
+      "晕厥：获得+150% 喇叭（最少+12 喇叭）。"
+    ],
+    "266": [
+      "晕厥：此宠物每有3点攻击，使随机伙伴获得+1 攻击和 +1 生命。",
+      "晕厥：此宠物每有3点攻击，使随机伙伴获得+2 攻击和 +2 生命。",
+      "晕厥：此宠物每有3点攻击，使随机伙伴获得+3 攻击和 +3 生命。"
+    ],
+    "267": [
+      "获得特性或不适状态时：将其移除，并获得+1 攻击和+1 生命。战斗中效果变为三倍。",
+      "获得特性或不适状态时：将其移除，并获得+2 攻击和+2 生命。战斗中效果变为三倍。",
+      "获得特性或不适状态时：将其移除，并获得+3 攻击和+3 生命。战斗中效果变为三倍。"
+    ],
+    "268": [
+      "攻击前：花费2 喇叭获得椰子 特性。每场战斗生效1次。",
+      "攻击前：花费2 喇叭获得椰子 特性。每场战斗生效2次。",
+      "攻击前：花费2 喇叭获得椰子 特性。每场战斗生效3次。"
+    ],
+    "269": [
+      "四个伙伴受伤时：使所有敌人-3 生命。",
+      "四个伙伴受伤时：使所有敌人-6 生命。",
+      "四个伙伴受伤时：使所有敌人-9 生命。"
+    ],
+    "270": [
+      "晕厥：召唤一个1/1的超小蛞蝓。",
+      "晕厥：召唤一个2/2的超小蛞蝓。",
+      "晕厥：召唤一个3/3的超小蛞蝓。"
+    ],
+    "271": [
+      "购买时：使所有伙伴获得+1 攻击和+1 生命。",
+      "购买时：使所有伙伴获得+2 攻击和+2 生命。",
+      "购买时：使所有伙伴获得+3 攻击和+3 生命。"
+    ],
+    "272": [
+      "战斗开始时：使最近的后方伙伴获得+2 生命。",
+      "战斗开始时：使最近的后方伙伴获得+4 生命。",
+      "战斗开始时：使最近的后方伙伴获得+6 生命。"
+    ],
+    "273": [
+      "战斗开始时：获得+8 攻击。如果所有伙伴都具有更高等阶，还会获得椰子 特性。",
+      "战斗开始时：获得+16 攻击。如果所有伙伴都具有更高等阶，还会获得椰子 特性。",
+      "战斗开始时：获得+24 攻击。如果所有伙伴都具有更高等阶，还会获得椰子 特性。"
+    ],
+    "274": [
+      "晕厥：使最高阶的伙伴获得 攻击。",
+      "晕厥：使两个最高阶的伙伴获得 攻击。",
+      "晕厥：使三个最高阶的伙伴获得 攻击。"
+    ],
+    "275": [
+      "友方单位攻击五次后：对两个随机敌人造成6点伤害。",
+      "友方单位攻击五次后：对两个随机敌人造成12点伤害。",
+      "友方单位攻击五次后：对两个随机敌人造成18点伤害。"
+    ],
+    "276": [
+      "晕厥：花费至多6 喇叭，对一个随机敌人造成三倍于所花费数量的伤害。",
+      "晕厥：花费至多6 喇叭，对两个随机敌人造成三倍于所花费数量的伤害。",
+      "晕厥：花费至多6 喇叭，对三个随机敌人造成三倍于所花费数量的伤害。"
+    ],
+    "277": [
+      "晕厥：使最近的后方伙伴获得肉串 特性。",
+      "晕厥：使最近的两个后方伙伴获得肉串 特性。",
+      "晕厥：使最近的三个后方伙伴获得肉串 特性。"
+    ],
+    "278": [
+      "晕厥：对击倒此宠物的单位返还等同于攻击的伤害。",
+      "晕厥：对击倒此宠物的单位返还二倍于攻击的伤害。",
+      "晕厥：对击倒此宠物的单位返还三倍于攻击的伤害。"
+    ],
+    "282": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "330": [
+      "前排为空：跳跃至最前排，并对前两个敌人造成3点伤害。",
+      "前排为空：跳跃至最前排，并对前两个敌人造成6点伤害。",
+      "前排为空：跳跃至最前排，并对前两个敌人造成9点伤害。"
+    ],
+    "331": [
+      "战斗开始时：从前往后依次激活两个2阶及以下的晕厥伙伴。",
+      "战斗开始时：从前往后依次激活两个4阶及以下的晕厥伙伴。",
+      "战斗开始时：从前往后依次激活两个6阶及以下的晕厥伙伴。"
+    ],
+    "332": [
+      "战斗开始时：使最近的前方宠物变为+5 生命的石头。",
+      "战斗开始时：使最近的前方宠物变为+5 生命的石头。对友方加值翻倍。",
+      "战斗开始时：使最近的前方宠物变为+5 生命的石头。对友方加值为三倍。"
+    ],
+    "333": [
+      "回合结束时：获得+2 攻击和+2 生命。攻击和生命至多可提升至100！",
+      "回合结束时：获得+4 攻击和+4 生命。攻击和生命至多可提升至100！",
+      "回合结束时：获得+6 攻击和+6 生命。攻击和生命至多可提升至100！"
+    ],
+    "334": [
+      "晕厥：下回合获得一次免费刷新。",
+      "晕厥：下回合获得两次免费刷新。",
+      "晕厥：下回合获得三次免费刷新。"
+    ],
+    "335": [
+      "被召唤时：对所有其他宠物造成5点伤害。",
+      "被召唤时：对所有其他宠物造成10点伤害。",
+      "被召唤时：对所有其他宠物造成15点伤害。"
+    ],
+    "336": [
+      "晕厥：消耗 魔力，每消耗1魔力便可使生命最高的两个敌人-1 生命。",
+      "晕厥：消耗 魔力，每消耗1魔力便可使生命最高的两个敌人-2 生命。",
+      "晕厥：消耗 魔力，每消耗1魔力便可使生命最高的两个敌人-3 生命。"
+    ],
+    "337": [
+      "前排为空：在最前排召唤一个8/8的3级火焰小狗。每场战斗生效1次。",
+      "前排为空：在最前排召唤一个8/8的3级火焰小狗。每场战斗生效2次。",
+      "前排为空：在最前排召唤一个8/8的3级火焰小狗。每场战斗生效3次。"
+    ],
+    "338": [
+      "晕厥：召唤一个3/3的宠物。每消耗2点 魔力便可使其获得+1 攻击和+2 生命。",
+      "晕厥：召唤两个3/3的宠物。每消耗2点 魔力便可使其获得+1 攻击和+2 生命。",
+      "晕厥：召唤三个3/3的宠物。每消耗2点 魔力便可使其获得+1 攻击和+2 生命。"
+    ],
+    "339": [
+      "击倒时：使一个随机伙伴获得+1 生命。触发2次。",
+      "击倒时：使一个随机伙伴获得+1 生命。触发4次。",
+      "击倒时：使一个随机伙伴获得+1 生命。触发6次。"
+    ],
+    "340": [
+      "战斗开始时：使最后排的1级及以下的敌人变为石头。",
+      "战斗开始时：使最后排的2级及以下的敌人变为石头。",
+      "战斗开始时：使最后排的3级及以下的敌人变为石头。"
+    ],
+    "341": [
+      "前排为空：跳跃至最前排，并对战斗中最后一个敌人造成3点伤害。",
+      "前排为空：跳跃至最前排，并对战斗中最后一个敌人造成6点伤害。",
+      "前排为空：跳跃至最前排，并对战斗中最后一个敌人造成9点伤害。"
+    ],
+    "342": [
+      "购买时：选择一个1级的奇妙玩具。",
+      "购买时：选择一个2级的奇妙玩具。",
+      "购买时：选择一个3级的奇妙玩具。"
+    ],
+    "343": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "344": [
+      "晕厥：使最前排的敌人寒冷。",
+      "晕厥：使最前排的敌人寒冷，生效两次，效果变为两倍。",
+      "晕厥：使最前排的敌人寒冷，生效三次，效果变为三倍。"
+    ],
+    "345": [
+      "晕厥：使最近的后方伙伴获得+2 生命。每消耗1点 魔力可使其额外获得1点生命。",
+      "晕厥：使最近的后方伙伴获得+4 生命。每消耗1点 魔力可使其额外获得2点生命。",
+      "晕厥：使最近的后方伙伴获得+6 生命。每消耗1点 魔力可使其额外获得3点生命。"
+    ],
+    "346": [
+      "受到能力的伤害减少3点。",
+      "受到能力的伤害减少6点。",
+      "受到能力的伤害减少9点。"
+    ],
+    "348": [
+      "购买时：从狮鹫收藏中选择一个1级玩具。",
+      "购买时：从狮鹫收藏中选择一个2级玩具。",
+      "购买时：从狮鹫收藏中选择一个3级玩具。"
+    ],
+    "349": [
+      "前排为空：跳跃至最前排，并在战斗中获得+2 攻击和西瓜特性。",
+      "前排为空：跳跃至最前排，并在战斗中获得+4 攻击和西瓜特性。",
+      "前排为空：跳跃至最前排，并在战斗中获得+6 攻击和西瓜特性。"
+    ],
+    "350": [
+      "前方伙伴晕厥时：本回合每次刷新，便获得+1 魔力。",
+      "前方伙伴晕厥时：本回合每次刷新，便获得+2 魔力。",
+      "前方伙伴晕厥时：本回合每次刷新，便获得+3 魔力。"
+    ],
+    "351": [
+      "伙伴被召唤时：使其获得+1 攻击，持续一回合。晕厥：从下一阶商店召唤一个5/5的1级宠物。",
+      null,
+      null
+    ],
+    "352": [
+      "晕厥：每有10点攻击，便召唤一个5/5的头。",
+      "晕厥：每有10点攻击，便召唤一个10/10的头。",
+      "晕厥：每有10点攻击，便召唤一个15/15的头。"
+    ],
+    "353": [
+      "伙伴攻击前：使其获得+1 攻击。跳跃时效果加倍。每场战斗生效3次。",
+      "伙伴攻击前：使其获得+2 攻击。跳跃时效果加倍。每场战斗生效3次。",
+      "伙伴攻击前：使其获得+3 攻击。跳跃时效果加倍。每场战斗生效3次。"
+    ],
+    "354": [
+      "伙伴晕厥时：把所有友方的 魔力+2转移给最近的前方伙伴。",
+      "伙伴晕厥时：把所有友方的 魔力+4转移给最近的前方伙伴。",
+      "伙伴晕厥时：把所有友方的 魔力+6转移给最近的前方伙伴。"
+    ],
+    "355": [
+      "战斗开始时：使所有其他宠物-15% 生命。",
+      "战斗开始时：使所有其他宠物-30% 生命。",
+      "战斗开始时：使所有其他宠物-45% 生命。"
+    ],
+    "356": [
+      "回合开始时：召唤一条6/6的鱼并使其获得+2 经验值。",
+      "回合开始时：召唤一条12/12的鱼并使其获得+4 经验值。",
+      "回合开始时：召唤一条18/18的鱼并使其获得+6 经验值。"
+    ],
+    "357": [
+      "战斗开始时：使一个2阶及以下的敌人眩晕，优先选择晕厥宠物。",
+      "战斗开始时：使一个4阶及以下的敌人眩晕，优先选择晕厥宠物。",
+      "战斗开始时：使一个6阶及以下的敌人眩晕，优先选择晕厥宠物。"
+    ],
+    "358": [
+      "敌人的不适状态效果恶化为两倍。",
+      "敌人的不适状态效果恶化为三倍。",
+      "敌人的不适状态效果恶化为四倍。"
+    ],
+    "359": [
+      "三个伙伴晕厥时：下一回合获得+1 金币。",
+      "三个伙伴晕厥时：下一回合获得+2 金币。",
+      "三个伙伴晕厥时：下一回合获得+3 金币。"
+    ],
+    "360": [
+      "前方伙伴攻击时：伙伴每有一级，便获得+1 攻击和+1 生命。",
+      "前方伙伴攻击时：伙伴每有一级，便获得+2 攻击和+2 生命。",
+      "前方伙伴攻击时：伙伴每有一级，便获得+3 攻击和+3 生命。"
+    ],
+    "361": [
+      "战斗开始时：移除此宠物。",
+      "战斗开始时：移除此宠物。被召唤时：移除此宠物。",
+      "战斗开始时：移除此宠物。被召唤时：移除此宠物。"
+    ],
+    "362": [
+      "伙伴获得经验值时：获得+1 攻击，持续一回合。",
+      "伙伴获得经验值时：获得+2 攻击，持续一回合。",
+      "伙伴获得经验值时：获得+3 攻击，持续一回合。"
+    ],
+    "363": [
+      "晕厥：召唤一只3/3的船。如果这是你本场战斗的第一只船，每次刷新时使其获得+1 攻击和+1 生命。",
+      "晕厥：召唤一只6/6的船。如果这是你本场战斗的第一只船，每次刷新时使其获得+2 攻击和+2 生命。",
+      "晕厥：召唤一只9/9的船。如果这是你本场战斗的第一只船，每次刷新时使其获得+3 攻击和+3 生命。"
+    ],
+    "364": [
+      "刷新时：每次刷新时，使商店的新宠物获得+1 攻击和+1 生命，持续一回合，效果最多持续至刷新5次。",
+      "刷新时：每次刷新时，使商店的新宠物获得+2 攻击和+2 生命，持续一回合，效果最多持续至刷新5次。",
+      "刷新时：每次刷新时，使商店的新宠物获得+3 攻击和+3 生命，持续一回合，效果最多持续至刷新5次。"
+    ],
+    "365": [
+      "伙伴被召唤时：使三个伙伴获得+1 攻击，持续一回合。",
+      "伙伴被召唤时：使三个伙伴获得+2 攻击，持续一回合。",
+      "伙伴被召唤时：使三个伙伴获得+3 攻击，持续一回合。"
+    ],
+    "366": [
+      "晕厥：使任意三个随机宠物清脆，然后召唤一只4/4的小不死鸟。",
+      "晕厥：使任意六个随机宠物清脆，然后召唤一只8/8的小不死鸟。",
+      "晕厥：使任意九个随机宠物清脆，然后召唤一只12/12的小不死鸟。"
+    ],
+    "367": [
+      "回合结束时：使一个随机3阶及以下伙伴获得+2 经验值。",
+      "回合结束时：使一个随机3阶及以下伙伴获得+2 经验值。触发2次。",
+      "回合结束时：使一个随机3阶及以下伙伴获得+2 经验值。触发3次。"
+    ],
+    "368": [
+      "战斗开始时：使最后一个敌人清脆。",
+      "战斗开始时：使最后两个敌人清脆。",
+      "战斗开始时：使最后三个敌人清脆。"
+    ],
+    "369": [
+      "战斗开始时：使一个前方伙伴获得+2 魔力。重复3次，在前方伙伴中逐个分配。",
+      "战斗开始时：使一个前方伙伴获得+2 魔力。重复6次，在前方伙伴中逐个分配。",
+      "战斗开始时：使一个前方伙伴获得+2 魔力。重复9次，在前方伙伴中逐个分配。"
+    ],
+    "370": [
+      "战斗开始时：使最前排的两个伙伴以及敌人获得+2 经验值。",
+      "战斗开始时：使最前排的两个伙伴以及敌人获得+4 经验值。",
+      "战斗开始时：使最前排的两个伙伴以及敌人获得+6 经验值。"
+    ],
+    "371": [
+      "回合结束时：每刷新4次，使相邻伙伴获得+1 攻击和+1 生命，效果最多持续至刷新8次。",
+      "回合结束时：每刷新4次，使相邻伙伴获得+2 攻击和+2 生命，效果最多持续至刷新8次。",
+      "回合结束时：每刷新4次，使相邻伙伴获得+3 攻击和+3 生命，效果最多持续至刷新8次。"
+    ],
+    "372": [
+      "此宠物对生命最高的敌人和一个额外敌人造成相当于其魔力 的伤害。",
+      "此宠物对生命最高的敌人和两个额外敌人造成相当于其魔力 的伤害。",
+      "此宠物对生命最高的敌人和三个额外敌人造成相当于其魔力 的伤害。"
+    ],
+    "373": [
+      "回合结束时：吞噬并复制商店中最左侧未冻结的宠物，持续一回合。",
+      "回合结束时：吞噬并复制商店中最左侧两个不同的未冻结宠物，持续一回合。",
+      "回合结束时：吞噬并复制商店中最左侧三个不同的未冻结宠物，持续一回合。"
+    ],
+    "374": [
+      "晕厥：使一个随机伙伴永久获得+1 攻击和+1 生命。",
+      "晕厥：使两个随机伙伴永久获得+1 攻击和+1 生命。",
+      "晕厥：使三个随机伙伴永久获得+1 攻击和+1 生命。"
+    ],
+    "375": [
+      "晕厥：每完成两场战斗便召唤一个2/2的史莱姆。",
+      "晕厥：每完成两场战斗便召唤一个4/4的史莱姆。",
+      "晕厥：每完成两场战斗便召唤一个6/6的史莱姆。"
+    ],
+    "376": [
+      "购买时：选择一个1级的冒险玩具。",
+      "购买时：选择一个2级的冒险玩具。",
+      "购买时：选择一个3级的冒险玩具。"
+    ],
+    "377": [
+      "任意攻击前：如果对手拥有重复宠物，则对所有敌人造成2点伤害。每场战斗生效1次。",
+      "任意攻击前：如果对手拥有重复宠物，则对所有敌人造成4点伤害。每场战斗生效1次。",
+      "任意攻击前：如果对手拥有重复宠物，则对所有敌人造成6点伤害。每场战斗生效1次。"
+    ],
+    "378": [
+      "战斗开始时：如果此宠物攻击为6或更低，获得椰子特性。",
+      "战斗开始时：如果此宠物攻击为12或更低，获得椰子特性。",
+      "战斗开始时：如果此宠物攻击为18或更低，获得椰子特性。"
+    ],
+    "379": [
+      "战斗开始时：跳跃至前排，并获得+1 经验值。",
+      "战斗开始时：跳跃至前排，并获得+2 经验值。",
+      "战斗开始时：跳跃至前排，并获得+3 经验值。"
+    ],
+    "380": [
+      "伙伴获得不适状态时：移除不适状态并使宠物永久获得+2 攻击和+2 生命。每回合生效1次。",
+      "伙伴获得不适状态时：移除不适状态并使宠物永久获得+2 攻击和+2 生命。每回合生效2次。",
+      "伙伴获得不适状态时：移除不适状态并使宠物永久获得+2 攻击和+2 生命。每回合生效3次。"
+    ],
+    "381": [
+      "敌人获得不适状态时：对其造成4点伤害，并获得等量 生命。每场战斗生效2次。",
+      "敌人获得不适状态时：对其造成8点伤害，并获得等量 生命。每场战斗生效2次。",
+      "敌人获得不适状态时：对其造成12点伤害，并获得等量 生命。每场战斗生效2次。"
+    ],
+    "382": [
+      "获得魔力时：对一个随机敌人造成1点伤害。每场战斗第一次触发时伤害为三倍。",
+      "获得魔力时：对一个随机敌人造成2点伤害。每场战斗第一次触发时伤害为三倍。",
+      "获得魔力时：对一个随机敌人造成3点伤害。每场战斗第一次触发时伤害为三倍。"
+    ],
+    "383": [
+      "战斗开始时：回合数为偶数时，获得+50% 攻击和 生命。否则，获得6点 魔力。",
+      "战斗开始时：回合数为偶数时，获得+100% 攻击和 生命。否则，获得12点 魔力。",
+      "战斗开始时：回合数为偶数时，获得+150% 攻击和 生命。否则，获得18点 魔力。"
+    ],
+    "384": [
+      "攻击时造成双倍伤害。",
+      "攻击时造成三倍伤害。",
+      "攻击时造成四倍伤害。"
+    ],
+    "385": [
+      "友方升级时：获得1份额外商店奖励。",
+      "友方升级时：获得2份额外商店奖励。",
+      "友方升级时：获得3份额外商店奖励。"
+    ],
+    "386": [
+      "晕厥：使所有一格以内的宠物恶心。",
+      "晕厥：使所有两格以内的宠物恶心。",
+      "晕厥：使所有三格以内的宠物恶心。"
+    ],
+    "387": [
+      "回合开始时：在冻结宠物复制体和6阶食物的情况下刷新四次。",
+      "回合开始时：在冻结队伍中已有的宠物和6阶食物的情况下刷新八次。",
+      "回合开始时：在冻结宠物复制体和6阶食物的情况下刷新十二次。"
+    ],
+    "388": [
+      "战斗开始时：跳跃攻击第二排敌人，造成3点伤害。",
+      "战斗开始时：跳跃攻击第二排敌人，造成6点伤害。",
+      "战斗开始时：跳跃攻击第二排敌人，造成9点伤害。"
+    ],
+    "389": [
+      "战斗开始时：永久获得+1 攻击，并对攻击力最高的敌人发动跳跃攻击。",
+      "战斗开始时：永久获得+2 攻击，并对攻击力最高的敌人发动跳跃攻击。",
+      "战斗开始时：永久获得+3 攻击，并对攻击力最高的敌人发动跳跃攻击。"
+    ],
+    "390": [
+      "相邻伙伴攻击后：对其目标造成3点伤害，或获得+3 攻击。",
+      "相邻伙伴攻击后：对其目标造成6点伤害，或获得+6 攻击。",
+      "相邻伙伴攻击后：对其目标造成9点伤害，或获得+9 攻击。"
+    ],
+    "391": [
+      "伙伴变形时：使其永久获得+2 攻击和+2 生命。每回合生效2次。",
+      "伙伴变形时：使其永久获得+4 攻击和+4 生命。每回合生效2次。",
+      "伙伴变形时：使其永久获得+6 攻击和+6 生命。每回合生效2次。"
+    ],
+    "392": [
+      "回合结束时：使所有伙伴的最高属性+1。",
+      "回合结束时：使所有伙伴的最高属性+2。",
+      "回合结束时：使所有伙伴的最高属性+3。"
+    ],
+    "393": [
+      "晕厥：使最近的后方伙伴获得微辣辣椒 特性。",
+      "晕厥：使最近的两个后方伙伴获得微辣辣椒 特性。",
+      "晕厥：使最近的三个后方伙伴获得微辣辣椒 特性。"
+    ],
+    "394": [
+      "伙伴跳跃或变形后：获得+2 生命，持续一回合。每回合生效2次。",
+      "伙伴跳跃或变形后：获得+4 生命，持续一回合。每回合生效2次。",
+      "伙伴跳跃或变形后：获得+6 生命，持续一回合。每回合生效2次。"
+    ],
+    "395": [
+      "敌人攻击七次后：召唤两只狐猴并使所有伙伴获得+3 攻击和+3 生命。",
+      "敌人攻击七次后：召唤两只狐猴并使所有伙伴获得+6 攻击和+6 生命。",
+      "敌人攻击七次后：召唤两只狐猴并使所有伙伴获得+9 攻击和+9 生命。"
+    ],
+    "396": [
+      "战斗开始时：使所有其他宠物-6 攻击，最低减至4。",
+      "战斗开始时：使所有其他宠物-12 攻击，最低减至4。",
+      "战斗开始时：使所有其他宠物-18 攻击，最低减至4。"
+    ],
+    "397": [
+      "晕厥：召唤一个具有战斗开始时能力的4阶宠物，并激活其能力。",
+      "晕厥：召唤两个具有战斗开始时能力的4阶宠物，并激活其能力。",
+      "晕厥：召唤三个具有战斗开始时能力的4阶宠物，并激活其能力。"
+    ],
+    "398": [
+      "敌人攻击八次后：对一个生命最高的敌人造成30点伤害。",
+      "敌人攻击八次后：对两个生命最高的敌人造成30点伤害。",
+      "敌人攻击八次后：对三个生命最高的敌人造成30点伤害。"
+    ],
+    "399": [
+      "回合开始时：使每个伙伴售价+2 金币，并使商店将来的所有宠物获得+2 攻击和+2 生命。",
+      "回合开始时：使每个伙伴售价+2 金币，并使商店将来的所有宠物获得+4 攻击和+4 生命。",
+      "回合开始时：使每个伙伴售价+2 金币，并使商店将来的所有宠物获得+6 攻击和+6 生命。"
+    ],
+    "400": [
+      "伙伴变形时：若其在前排，使其获得+3 攻击，持续一回合；否则，使其获得 生命。",
+      "伙伴变形时：若其在前排，使其获得+6 攻击，持续一回合；否则，使其获得 生命。",
+      "伙伴变形时：若其在前排，使其获得+9 攻击，持续一回合；否则，使其获得 生命。"
+    ],
+    "401": [
+      "敌人攻击两次时：对最前排的敌人造成1点伤害。每场战斗生效2次。",
+      "敌人攻击两次时：对最前排的敌人造成2点伤害。每场战斗生效2次。",
+      "敌人攻击两次时：对最前排的敌人造成3点伤害。每场战斗生效2次。"
+    ],
+    "402": [
+      "回合开始时：变为最前排的伙伴。",
+      "回合开始时：变为最前排的伙伴。",
+      "回合开始时：变为最前排的伙伴。"
+    ],
+    "403": [
+      "伙伴变形时：获得其1级能力。每场战斗生效2次。",
+      "伙伴变形时：获得其2级能力。每场战斗生效2次。",
+      "伙伴变形时：获得其3级能力。每场战斗生效2次。"
+    ],
+    "404": [
+      "敌人受伤时：对该宠物或最前排的敌人发动跳跃攻击。每场战斗生效1次。",
+      "敌人受伤时：对该宠物或最前排的敌人发动跳跃攻击。每场战斗生效2次。",
+      "敌人受伤时：对该宠物或最前排的敌人发动跳跃攻击。每场战斗生效3次。"
+    ],
+    "405": [
+      "晕厥：使2阶及以下的友方玩具损坏。",
+      "晕厥：使4阶及以下的友方玩具损坏。",
+      "晕厥：使6阶及以下的友方玩具损坏。"
+    ],
+    "406": [
+      "晕厥：使最前排的敌人-1 攻击。",
+      "晕厥：使前两个敌人-1 攻击。",
+      "晕厥：使前三个敌人-1 攻击。"
+    ],
+    "407": [
+      "相邻伙伴攻击后：使相邻伙伴获得+1 攻击。每回合生效5次。",
+      "相邻伙伴攻击后：使相邻伙伴获得+2 攻击。每回合生效5次。",
+      "相邻伙伴攻击后：使相邻伙伴获得+3 攻击。每回合生效5次。"
+    ],
+    "408": [
+      "受到的伤害 减少1点。每回合生效2次。",
+      "受到的伤害减少2点。每回合生效2次。",
+      "受到的伤害减少3点。每回合生效2次。"
+    ],
+    "409": [
+      "自伤：对一个随机敌人造成所受到伤害 的33%。",
+      "自伤：对一个随机敌人造成所受到伤害 的66%。",
+      "自伤：对一个随机敌人造成所受到伤害 的100%。"
+    ],
+    "410": [
+      "战斗前：使所有伙伴获得+2 攻击和+5 生命，持续至第一次非跳跃攻击后。",
+      "战斗前：使所有伙伴获得+4 攻击和+10 生命，持续至第一次非跳跃攻击后。",
+      "战斗前：使所有伙伴获得+6 攻击和+15 生命，持续至第一次非跳跃攻击后。"
+    ],
+    "411": [
+      "晕厥：本回合每有一个友方宠物变形，对一个随机敌人造成4点伤害。",
+      "晕厥：本回合每有一个友方宠物变形，对一个随机敌人造成8点伤害。",
+      "晕厥：本回合每有一个友方宠物变形，对一个随机敌人造成12点伤害。"
+    ],
+    "412": [
+      "回合结束时：获得 +2 生命，并将 攻击设为4。生命上限可达100！",
+      "回合结束时：获得 +4 生命，并将 攻击设为8。生命上限可达100！",
+      "回合结束时：获得 +6 生命，并将 攻击设为12。生命上限可达100！"
+    ],
+    "413": [
+      "敌人攻击五次后：使所有友方宠物获得能够屏蔽20点伤害 的西瓜。每回合生效1次。",
+      "敌人攻击五次后：使所有友方宠物获得能够屏蔽40点伤害 的西瓜。每回合生效1次。",
+      "敌人攻击五次后：使所有友方宠物获得能够屏蔽60点伤害 的西瓜。每回合生效1次。"
+    ],
+    "414": [
+      "回合开始时：使上一场战斗中晕厥的伙伴获得+2 生命。",
+      "回合开始时：使上一场战斗中晕厥的伙伴获得+4 生命。",
+      "回合开始时：使上一场战斗中晕厥的伙伴获得+6 生命。"
+    ],
+    "415": [
+      "回合结束时：使三个伙伴的最低属性分别+2。",
+      "回合结束时：使三个伙伴的最低属性分别+4。",
+      "回合结束时：使三个伙伴的最低属性分别+6。"
+    ],
+    "416": [
+      "战斗开始时：使攻击最高的一个敌人-30% 攻击。",
+      "战斗开始时：使攻击最高的敌人-60% 攻击。",
+      "战斗开始时：使攻击最高的敌人-90% 攻击。"
+    ],
+    "417": [
+      "伙伴变形时：使其最高属性+1，持续一回合。",
+      "伙伴变形时：使其最高属性+2，持续一回合。",
+      "伙伴变形时：使其最高属性+3，持续一回合。"
+    ],
+    "418": [
+      "战斗前：变为任一有用的1阶宠物（等级为1）。",
+      "战斗前：变为任一有用的2阶宠物（等级为1）。",
+      "战斗前：变为任一有用的3阶宠物（等级为1）。"
+    ],
+    "419": [
+      "首次攻击后：使一个攻击最高的敌人胆怯。",
+      "首次攻击后：使一个攻击最高的敌人胆怯。触发2次。",
+      "首次攻击后：使一个攻击最高的敌人胆怯。触发3次。"
+    ],
+    "420": [
+      "敌人攻击五次后：获得+4 生命，并使所有敌人-4 生命。",
+      "敌人攻击五次后：获得+8 生命，并使所有敌人-8 生命。",
+      "敌人攻击五次后：获得+12 生命，并使所有敌人-12 生命。"
+    ],
+    "421": [
+      "相邻伙伴攻击后：获得+1 生命。每回合生效3次。",
+      "相邻伙伴攻击后：获得+2 生命。每回合生效3次。",
+      "相邻伙伴攻击后：获得+3 生命。每回合生效3次。"
+    ],
+    "422": [
+      "后方任意单位受伤后：使两个随机友方宠物获得+1 攻击和+1 生命。每场战斗生效3次。",
+      "后方任意单位受伤后：使两个随机友方宠物获得+2 攻击和+2 生命。每场战斗生效3次。",
+      "后方任意单位受伤后：使两个随机友方宠物获得+3 攻击和+3 生命。每场战斗生效3次。"
+    ],
+    "423": [
+      "晕厥：使最近的一个后方伙伴获得白秋葵 特性。",
+      "晕厥：使最近的两个后方伙伴获得白秋葵 特性。",
+      "晕厥：使最近的三个后方伙伴获得白秋葵 特性。"
+    ],
+    "424": [
+      "任意单位跳跃后：使一个随机友方宠物获得+4 攻击和+4 生命。",
+      "任意单位跳跃后：使一个随机友方宠物获得+8 攻击和+8 生命。",
+      "任意单位跳跃后：使一个随机友方宠物获得+12 攻击和+12 生命。"
+    ],
+    "425": [
+      "回合开始时：将最近的一个前方伙伴变为同阶的其他宠物。",
+      "回合开始时：将最近的两个前方伙伴变为同阶的其他宠物。",
+      "回合开始时：将最近的三个前方伙伴变为同阶的其他宠物。"
+    ],
+    "426": [
+      "敌人攻击五次后：对生命最低的敌人造成此宠物 生命33%的伤害。",
+      "敌人攻击五次后：对生命最低的两个敌人造成此宠物 生命33%的伤害。",
+      "敌人攻击五次后：对生命最低的三个敌人造成此宠物 生命33%的伤害。"
+    ],
+    "427": [
+      "敌人攻击五次后：变为具有大蒜特性且 攻击和 生命至少为5的愤怒侏儒猪。",
+      "敌人攻击五次后：变为具有大蒜特性且 攻击和 生命至少为10的愤怒侏儒猪。",
+      "敌人攻击五次后：变为具有大蒜特性且 攻击和 生命至少为15的愤怒侏儒猪。"
+    ],
+    "428": [
+      "购买时：从下一阶商店选择一个宠物，变形为该宠物（可从任意兽群选择）。",
+      "购买时：从下一阶商店选择一个宠物，变形为该宠物（可从任意兽群选择）。",
+      "购买时：从下一阶商店选择一个宠物，变形为该宠物（可从任意兽群选择）。"
+    ],
+    "429": [
+      "战斗开始时：将前方两个伙伴变为2阶和3阶的具有晕厥能力的1级宠物。",
+      "战斗开始时：将前方两个伙伴变为2阶和3阶的具有晕厥能力的2级宠物。",
+      "战斗开始时：将前方两个伙伴变为2阶和3阶的具有晕厥能力的3级宠物。"
+    ],
+    "430": [
+      "攻击前：敌众我寡时，获得+2 攻击和 +2 生命。每回合生效3次。",
+      "攻击前：敌众我寡时，获得+4 攻击和 +4 生命。每回合生效3次。",
+      "攻击前：敌众我寡时，获得+6 攻击和 +6 生命。每回合生效3次。"
+    ],
+    "431": [
+      "回合结束时：使攻击最高的伙伴获得-1 攻击和+2 生命。",
+      "回合结束时：使攻击最高的两个伙伴获得-1 攻击和+2 生命。",
+      "回合结束时：使攻击最高的三个伙伴获得-1 攻击和+2 生命。"
+    ],
+    "432": [
+      "战斗开始时：将后方两个伙伴变为任意有用的6阶具有晕厥能力的宠物（等级为1）。",
+      "战斗开始时：将后方两个伙伴变为任意有用的6阶具有晕厥能力的宠物（等级为2）。",
+      "战斗开始时：将后方两个伙伴变为任意有用的6阶具有晕厥能力的宠物（等级为3）。"
+    ],
+    "433": [
+      "回合开始时：使最近的一个后方伙伴的最低属性+2。",
+      "回合开始时：使最近的两个后方伙伴的最低属性+2。",
+      "回合开始时：使最近的三个后方伙伴的最低属性+2。"
+    ],
+    "434": [
+      "战斗开始时：对另一侧此位置的敌人发动跳跃攻击。",
+      "战斗开始时：对另一侧此位置的敌人发动跳跃攻击，并对相邻敌人造成6点伤害。",
+      "战斗开始时：对另一侧此位置的敌人发动跳跃攻击，并对相邻敌人造成12点伤害。"
+    ],
+    "435": [
+      "战斗开始时：变为一个1级黄鼠狼。",
+      "战斗开始时：变为一个2级黄鼠狼。",
+      "战斗开始时：变为一个3级黄鼠狼。"
+    ],
+    "436": [
+      "相邻伙伴攻击后：使友方宠物获得+1 攻击和+1 生命。每回合生效3次。",
+      "相邻伙伴攻击后：使友方宠物获得+2 攻击和+2 生命。每回合生效3次。",
+      "相邻伙伴攻击后：使友方宠物获得+3 攻击和+3 生命。每回合生效3次。"
+    ],
+    "437": [
+      "战斗开始时：使攻击最低的敌人获得5层受惊 并对其发动跳跃攻击。",
+      "战斗开始时：使攻击最低的敌人获得10层受惊 并对其发动跳跃攻击。",
+      "战斗开始时：使攻击最低的敌人获得15层受惊 并对其发动跳跃攻击。"
+    ],
+    "438": [
+      "出售时：囤积一堆免费的种子。",
+      "出售时：囤积两堆免费的种子。",
+      "出售时：囤积三堆免费的种子。"
+    ],
+    "439": [
+      "晕厥：将最后排的伙伴推至最前排，并使其在战斗中获得+3 攻击和+3 生命。",
+      "晕厥：将最后排的伙伴推至最前排，并使其在战斗中获得+6 攻击和+6 生命。",
+      "晕厥：将最后排的伙伴推至最前排，并使其在战斗中获得+9 攻击和+9 生命。"
+    ],
+    "440": [
+      "晕厥：使一个没有特性的随机敌人获得炙烤。",
+      "晕厥：使两个没有特性的随机敌人获得炙烤。",
+      "晕厥：使三个没有特性的随机敌人获得炙烤。"
+    ],
+    "441": [
+      "战斗开始时：使最近的前方伙伴获得肉骨头。",
+      "战斗开始时：使最近的前方伙伴获得肉骨头，且相应效果变为两倍。",
+      "战斗开始时：使最近的前方伙伴获得肉骨头，且相应效果变为三倍。"
+    ],
+    "477": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "508": [
+      "鸡蛋特性具有正常效果。",
+      "鸡蛋特性具有双倍效果。",
+      "鸡蛋特性具有三倍效果。"
+    ],
+    "530": [
+      "晕厥：花费4 喇叭，使最近的后方伙伴永久获得切片西瓜。",
+      "晕厥：花费4 喇叭，使最近的后方伙伴永久获得切片西瓜 （生效两次）。",
+      "晕厥：花费4 喇叭，使最近的后方伙伴永久获得切片西瓜 （生效三次）。"
+    ],
+    "531": [
+      "出售伙伴时：移除其草莓特性，以获得+3 金币。每回合生效1次。",
+      "出售伙伴时：移除其草莓特性，以获得+3 金币。每回合生效2次。",
+      "出售伙伴时：移除其草莓特性，以获得+3 金币。每回合生效3次。"
+    ],
+    "532": [
+      "伙伴攻击前：使其获得西瓜。每回合对一个伙伴生效。",
+      "伙伴攻击前：使其获得西瓜。每回合对两个不同的伙伴生效。",
+      "伙伴攻击前：使其获得西瓜。每回合对三个不同的伙伴生效。"
+    ],
+    "533": [
+      "前排为空：跳跃至最前排，获得+12 喇叭。每场战斗生效1次。",
+      "前排为空：跳跃至最前排，获得+24 喇叭。每场战斗生效1次。",
+      "前排为空：跳跃至最前排，获得+36 喇叭。每场战斗生效1次。"
+    ],
+    "534": [
+      "战斗开始时：使最靠后的没有特性的敌人变得愚蠢，并激活一次。",
+      "战斗开始时：使最靠后的没有特性的敌人变得愚蠢，并激活两次。",
+      "战斗开始时：使最靠后的没有特性的敌人变得愚蠢，并激活三次。"
+    ],
+    "535": [
+      "4阶及以下的相邻伙伴额外造成3点能力伤害。",
+      "4阶及以下的相邻伙伴额外造成6点能力伤害。",
+      "4阶及以下的相邻伙伴额外造成9点能力伤害。"
+    ],
+    "536": [
+      "晕厥：将后方伙伴变成1级拟态章鱼，每刷新2次使其在战斗中获得+1 经验值。",
+      "晕厥：将后方伙伴变成1级拟态章鱼，每刷新2次使其在战斗中获得+2 经验值。",
+      "晕厥：将后方伙伴变成1级拟态章鱼，每刷新2次使其在战斗中获得+3 经验值。"
+    ],
+    "537": [
+      "晕厥 / 出售时：使一个具有出售能力的2级伙伴获得+1 经验值。",
+      "晕厥 / 出售时：使一个具有出售能力的2级伙伴获得+2 经验值。",
+      "晕厥 / 出售时：使一个具有出售能力的2级伙伴获得+3 经验值。"
+    ],
+    "539": [
+      "回合结束时：复制并囤积最近的前方特性，并使其价格减1 金币。",
+      "回合结束时：复制并囤积最近的前方特性，并使其价格减2 金币。",
+      "回合结束时：复制并囤积最近的前方特性，并使其价格减3 金币。"
+    ],
+    "540": [
+      "购买伙伴时：获得相当于其等阶数的攻击 和 生命，持续一回合。每回合生效1次。",
+      "购买伙伴时：获得相当于其等阶数2倍的攻击 和 生命，持续一回合。每回合生效1次。",
+      "购买伙伴时：获得相当于其等阶数3倍的攻击 和 生命，持续一回合。每回合生效1次。"
+    ],
+    "541": [
+      "战斗开始时：将生命最高的敌人向前推动一格。",
+      "战斗开始时：将生命最高的敌人向前推动两格。",
+      "战斗开始时：将生命最高的敌人向前推动三格。"
+    ],
+    "542": [
+      "伙伴吃掉玉米棒时：使其获得+1 攻击和+1 生命。",
+      "伙伴吃掉玉米棒时：使其获得+2 攻击和+2 生命。",
+      "伙伴吃掉玉米棒时：使其获得+3 攻击和+3 生命。"
+    ],
+    "543": [
+      "战斗开始时：如果可以，召唤一个5/5的伙伴；否则，使所有伙伴获得+1 攻击和+1 生命。",
+      "战斗开始时：如果可以，召唤一个10/10的伙伴；否则，使所有伙伴获得+2 攻击和+2 生命。",
+      "战斗开始时：如果可以，召唤一个15/15的伙伴；否则，使所有伙伴获得+3 攻击和+3 生命。"
+    ],
+    "544": [
+      "晕厥：使所有不属于你的兽群的伙伴获得+2 攻击和+2 生命。",
+      "晕厥：使所有不属于你的兽群的伙伴获得+4 攻击和+4 生命。",
+      "晕厥：使所有不属于你的兽群的伙伴获得+6 攻击和+6 生命。"
+    ],
+    "545": [
+      "刷新3次时：从最近解锁的3阶中囤积一个任意食物，并使其价格减1 金币。",
+      "刷新3次时：从最近解锁的3阶中囤积一个任意食物，并使其价格减2 金币。",
+      "刷新3次时：从最近解锁的3阶中囤积一个任意食物，并使其价格减3 金币。"
+    ],
+    "546": [
+      "回合结束时：使一个随机具有出售能力的伙伴的出售价值加2 金币。",
+      "回合结束时：使一个随机具有出售能力的伙伴的出售价值加4 金币。",
+      "回合结束时：使一个随机具有出售能力的伙伴的出售价值加6 金币。"
+    ],
+    "547": [
+      "自伤：若仍未倒下，永久获得+2 生命并变为受保护的球形。",
+      "自伤：若仍未倒下，永久获得+4 生命并变为受保护的球形。",
+      "自伤：若仍未倒下，永久获得+6 生命并变为受保护的球形。"
+    ],
+    "548": [
+      "晕厥：对一格以内的所有宠物造成1点伤害。",
+      "晕厥：对两格以内的所有宠物造成1点伤害。",
+      "晕厥：对三格以内的所有宠物造成1点伤害。"
+    ],
+    "549": [
+      "战斗开始时：此回合每次刷新时，使前两个敌人-1 生命。",
+      "战斗开始时：此回合每次刷新时，使前两个敌人-2 生命。",
+      "战斗开始时：此回合每次刷新时，使前两个敌人-3 生命。"
+    ],
+    "550": [
+      "商店升阶时：使最近的两个后方宠物获得+1 生命。",
+      "商店升阶时：使最近的两个后方宠物获得+2 生命。",
+      "商店升阶时：使最近的两个后方宠物获得+3 生命。"
+    ],
+    "551": [
+      "攻击前：复制一个随机敌人的一个有用的食物特性。每场战斗生效1次。",
+      "攻击前：复制一个随机敌人的一个有用的食物特性。每场战斗生效2次。",
+      "攻击前：复制一个随机敌人的一个有用的食物特性。每场战斗生效3次。"
+    ],
+    "552": [
+      "自伤：随机召唤一个5/5的1阶宠物。每回合生效3次。",
+      "自伤：随机召唤一个10/10的1阶宠物。每回合生效3次。",
+      "自伤：随机召唤一个15/15的1阶宠物。每回合生效3次。"
+    ],
+    "553": [
+      "敌人受伤或被推动时：使其-70% 生命。每场战斗对一个敌人生效。",
+      "敌人受伤或被推动时：使其-70% 生命。每场战斗对两个不同敌人生效。",
+      "敌人受伤或被推动时：使其-70% 生命。每场战斗对三个不同敌人生效。"
+    ],
+    "554": [
+      "宠物被抛开时：将 攻击与 生命设为13。",
+      "宠物被抛开时：将 攻击与 生命设为26。",
+      "宠物被抛开时：将 攻击与 生命设为39。"
+    ],
+    "555": [
+      "出售时：下回合获得+1 金币。",
+      "出售时：下回合获得+2 金币。",
+      "出售时：下回合获得+3 金币。"
+    ],
+    "556": [
+      "晕厥：将最多24 喇叭转化为双倍的 魔力，并将其均分给伙伴们。",
+      "晕厥：将最多24 喇叭转化为三倍的 魔力，并将其均分给伙伴们。",
+      "晕厥：将最多24 喇叭转化为四倍的 魔力，并将其均分给伙伴们。"
+    ],
+    "557": [
+      "战斗开始时：召唤一个螳螂，使其获得此宠物40%的 攻击和 生命。",
+      "战斗开始时：召唤一个螳螂，使其获得此宠物80%的 攻击和 生命。",
+      "战斗开始时：召唤一个螳螂，使其获得此宠物120%的 攻击和 生命。"
+    ],
+    "558": [
+      "伙伴被召唤时：使其获得草莓特性，持续一回合。每回合生效1次。",
+      "伙伴被召唤时：使其获得草莓特性，持续一回合。每回合生效2次。",
+      "伙伴被召唤时：使其获得草莓特性，持续一回合。每回合生效3次。"
+    ],
+    "559": [
+      "出售时：囤积一个免费的面包屑。",
+      "出售时：囤积两个免费的面包屑。",
+      "出售时：囤积三个免费的面包屑。"
+    ],
+    "560": [
+      "击倒时：给最近的后方伙伴喂一个优质苹果。",
+      "击倒时：给最近的后方伙伴喂两个优质苹果。",
+      "击倒时：给最近的后方伙伴喂三个优质苹果。"
+    ],
+    "561": [
+      "伙伴失去特性时：返还其特性。每回合对一个伙伴生效。",
+      "伙伴失去特性时：返还其特性。每回合对两个不同伙伴生效。",
+      "伙伴失去特性时：返还其特性。每回合对三个不同伙伴生效。"
+    ],
+    "562": [
+      "被召唤时：对一个随机敌人造成5点伤害。每有25点生命，便额外触发一次。",
+      "被召唤时：对一个随机敌人造成10点伤害。每有25点生命，便额外触发一次。",
+      "被召唤时：对一个随机敌人造成15点伤害。每有25点生命，便额外触发一次。"
+    ],
+    "563": [
+      "伙伴被出售时：如果其为出售时宠物，使一个随机伙伴获得+1 攻击和+1 生命。每回合生效3次。",
+      "伙伴被出售时：如果其为出售时宠物，使一个随机伙伴获得+2 攻击和+2 生命。每回合生效3次。",
+      "伙伴被出售时：如果其为出售时宠物，使一个随机伙伴获得+3 攻击和+3 生命。每回合生效3次。"
+    ],
+    "564": [
+      "战斗开始时：使一个随机敌人美味。",
+      "战斗开始时：使两个随机敌人美味。",
+      "战斗开始时：使三个随机敌人美味。"
+    ],
+    "565": [
+      "回合结束时：使相邻宠物获得+1 攻击。若商店有折扣价格食物，再使其获得+1 生命。",
+      "回合结束时：使相邻宠物获得+2 攻击。若商店有折扣价格食物，再使其获得+2 生命。",
+      "回合结束时：使相邻宠物获得+3 攻击。若商店有折扣价格食物，再使其获得+3 生命。"
+    ],
+    "566": [
+      "出售时：出售时额外获得+2 金币，但下回合失去1金币。",
+      "出售时：出售时额外获得+4 金币，但下回合失去2金币。",
+      "出售时：出售时额外获得+6 金币，但下回合失去3金币。"
+    ],
+    "567": [
+      "友方草莓屏蔽5点伤害（生效两次）或不适状态（生效一次）。",
+      "友方草莓屏蔽10点伤害（生效两次）或不适状态（生效一次）。",
+      "友方草莓屏蔽15点伤害（生效两次）或不适状态（生效一次）。"
+    ],
+    "568": [
+      "战斗开始时：回合数为奇数时，对前方所有宠物造成4点伤害。",
+      "战斗开始时：回合数为奇数时，对前方所有宠物造成8点伤害。",
+      "战斗开始时：回合数为奇数时，对前方所有宠物造成12点伤害。"
+    ],
+    "569": [
+      "战斗开始时：使所有敌人-1 生命。此宠物每有10点攻击，重复一次。",
+      "战斗开始时：使所有敌人-2 生命。此宠物每有10点攻击，重复一次。",
+      "战斗开始时：使所有敌人-3 生命。此宠物每有10点攻击，重复一次。"
+    ],
+    "570": [
+      "晕厥：召唤一只3/3的1级水熊虫，并使其眩晕。",
+      "晕厥：召唤一只6/6的2级水熊虫，并使其眩晕。",
+      "晕厥：召唤一只9/9的3级水熊虫，并使其眩晕。"
+    ],
+    "571": [
+      "回合开始时：将 攻击变为当前商店阶数+1。",
+      "回合开始时：将 攻击变为当前商店阶数+2。",
+      "回合开始时：将 攻击变为当前商店阶数+3。"
+    ],
+    "572": [
+      "晕厥：每当此宠物受伤时，使一个随机伙伴获得+1 攻击和+1 生命。",
+      "晕厥：每当此宠物受伤时，使一个随机伙伴获得+2 攻击和+2 生命。",
+      "晕厥：每当此宠物受伤时，使一个随机伙伴获得+3 攻击和+3 生命。"
+    ],
+    "573": [
+      "出售时：从上一场战斗中选择一个剩余宠物，囤积一个 2 金币的复制。",
+      "出售时：从上一场战斗中选择一个剩余宠物，囤积两个 2 金币的复制。",
+      "出售时：从上一场战斗中选择一个剩余宠物，囤积三个 2 金币的复制。"
+    ],
+    "601": [
+      "战斗开始时：每次刷新（最多2次）时获得+1 生命。",
+      "战斗开始时：每次刷新（最多2次）时获得+2 生命。",
+      "战斗开始时：每次刷新（最多2次）时获得+3 生命。"
+    ],
+    "603": [
+      "战斗开始时：使一个攻击最高的敌人困倦。",
+      "战斗开始时：使两个攻击最高的敌人困倦。",
+      "战斗开始时：使三个攻击最高的敌人困倦。"
+    ],
+    "604": [
+      "任何宠物获得不适状态时：获得+1 攻击和+1 生命，持续一回合。每回合生效5次。",
+      "任何宠物获得不适状态时：获得+2 攻击和+2 生命，持续一回合。每回合生效5次。",
+      "任何宠物获得不适状态时：获得+3 攻击和+3 生命，持续一回合。每回合生效5次。"
+    ],
+    "605": [
+      "晕厥：召唤一个具有3 攻击的跛行者，本回合每召唤过一个伙伴便使其获得+1 生命。",
+      "晕厥：召唤一个具有6 攻击的跛行者，本回合每召唤过一个伙伴便使其获得+2 生命。",
+      "晕厥：召唤一个具有9 攻击的跛行者，本回合每召唤过一个伙伴便使其获得+3 生命。"
+    ],
+    "606": [
+      "战斗开始时：每有2点攻击，便使最前排的伙伴获得+1 魔力。",
+      "战斗开始时：每有2点攻击，便使最前排的两个伙伴获得+1 魔力。",
+      "战斗开始时：每有2点攻击，便使最前排的三个伙伴获得+1 魔力。"
+    ],
+    "607": [
+      "回合结束时：使一个随机友方坦格里斯尼尔获得+3 生命。还可……",
+      "回合结束时：使一个随机友方坦格里斯尼尔获得+6 生命。还可……",
+      "回合结束时：使一个随机友方坦格里斯尼尔获得+9 生命。还可……"
+    ],
+    "608": [
+      "回合结束时：使一个随机友方坦格尼奥斯特获得+3 攻击。还可……",
+      "回合结束时：使一个随机友方坦格尼奥斯特获得+6 攻击。还可……",
+      "回合结束时：使一个随机友方坦格尼奥斯特获得+9 攻击。还可……"
+    ],
+    "610": [
+      "战斗开始时：使前方第二近的伙伴获得+3 魔力。",
+      "战斗开始时：使前方第二近的伙伴获得+6 魔力。",
+      "战斗开始时：使前方第二近的伙伴获得+9 魔力。"
+    ],
+    "611": [
+      "出售时：选择一个2回合后会损坏的巫术玩具。",
+      "出售时：选择一个4回合后会损坏的巫术玩具。",
+      "出售时：选择一个6回合后会损坏的巫术玩具。"
+    ],
+    "612": [
+      "回合开始时：选择一个1级的怀旧玩具。",
+      "回合开始时：选择一个2级的怀旧玩具。",
+      "回合开始时：选择一个3级的怀旧玩具。"
+    ],
+    "613": [
+      "购买时：选择一个会带来毁灭与混乱的1级玩具！",
+      "购买时：选择一个会带来毁灭与混乱的2级玩具！",
+      "购买时：选择一个会带来毁灭与混乱的3级玩具！"
+    ],
+    "614": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "616": [
+      "出售时：选择一个1级的国王玩具。",
+      "出售时：选择一个2级的国王玩具。",
+      "出售时：选择一个3级的国王玩具。"
+    ],
+    "617": [
+      "战斗开始时：晕厥并召唤一个4/2的破了的蛋。",
+      "战斗开始时：晕厥并召唤一个8/4的破了的蛋。",
+      "战斗开始时：晕厥并召唤一个12/6的破了的蛋。"
+    ],
+    "619": [
+      "晕厥：消耗4点 魔力，下回合获得+3 金币。",
+      "晕厥：消耗4点 魔力，下回合获得+6 金币。",
+      "晕厥：消耗4点 魔力，下回合获得+9 金币。"
+    ],
+    "621": [
+      "战斗开始时：使最后一个没有特性的敌人受惊。",
+      "战斗开始时：使最后两个没有特性的敌人受惊。",
+      "战斗开始时：使最后三个没有特性的敌人受惊。"
+    ],
+    "622": [
+      "回合结束时：使两个生命低于此宠物的伙伴获得+1 攻击和+1 生命。",
+      "回合结束时：使两个生命低于此宠物的伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使两个生命低于此宠物的伙伴获得+3 攻击和+3 生命。"
+    ],
+    "623": [
+      "升级：立刻获得+2 攻击和+2 生命，下回合获得+2 金币。",
+      "升级：立刻获得+4 攻击和+4 生命，下回合获得+4 金币。",
+      "无能力。"
+    ],
+    "624": [
+      "回合结束时：使最近的前方伙伴获得+1 攻击和受惊，持续一回合。",
+      "回合结束时：使最近的前方伙伴获得+2 攻击和受惊，持续一回合。",
+      "回合结束时：使最近的前方伙伴获得+3 攻击和受惊，持续一回合。"
+    ],
+    "625": [
+      "购买时：使商店将来的所有下一阶宠物永久获得+2 生命。",
+      "购买时：使商店将来的所有下一阶宠物永久获得+4 生命。",
+      "购买时：使商店将来的所有下一阶宠物永久获得+6 生命。"
+    ],
+    "626": [
+      "战斗开始时：使最近的前方伙伴获得+1 魔力。",
+      "战斗开始时：使最近的前方伙伴获得+2 魔力。",
+      "战斗开始时：使最近的前方伙伴获得+3 魔力。"
+    ],
+    "627": [
+      "获得魔力时：获得2点 魔力加成。每回合生效2次。",
+      "获得魔力时：获得4点 魔力加成。每回合生效2次。",
+      "获得魔力时：获得6点 魔力加成。每回合生效2次。"
+    ],
+    "628": [
+      "回合结束时：回合数为偶数时，用+1 生命替换两个伙伴身上的随机不适状态。",
+      "回合结束时：回合数为偶数时，用+2 生命替换两个伙伴身上的随机不适状态。",
+      "回合结束时：回合数为偶数时，用+3 生命替换两个伙伴身上的随机不适状态。"
+    ],
+    "630": [
+      "伙伴升级时：使其获得 +2 魔力。本回合第一次触发时还会使其获得 +1 经验值。",
+      "伙伴升级时：使其获得 +4 魔力。本回合前两次触发时还会使其获得 +1 经验值。",
+      "伙伴升级时：使其获得 +6 魔力。本回合前三次触发时还会使其获得 +1 经验值。"
+    ],
+    "631": [
+      "伙伴被召唤时：使其获得+3 攻击和+4 魔力以及受惊。每回合生效2次。",
+      "伙伴被召唤时：使其获得+6 攻击和+8 魔力以及受惊。每回合生效2次。",
+      "伙伴被召唤时：使其获得+9 攻击和+12 魔力以及受惊。每回合生效2次。"
+    ],
+    "633": [
+      "回合结束时：使最近的两个前方伙伴获得+5 魔力。",
+      "回合结束时：使最近的两个前方伙伴获得+10 魔力。",
+      "回合结束时：使最近的两个前方伙伴获得+15 魔力。"
+    ],
+    "634": [
+      "出售时：获得+1 金币。如果攻击力不低于10，则效果变为三倍。",
+      "出售时：获得+2 金币。如果攻击力不低于10，则效果变为三倍。",
+      "出售时：获得+3 金币。如果攻击力不低于10，则效果变为三倍。"
+    ],
+    "635": [
+      "战斗开始时：本回合每次刷新商店时，使最近的前方伙伴获得+2 魔力，至多刷新3次。",
+      "战斗开始时：本回合每次刷新商店时，使最近的前方伙伴获得+4 魔力，至多刷新3次。",
+      "战斗开始时：本回合每次刷新商店时，使最近的前方伙伴获得+6 魔力，至多刷新3次。"
+    ],
+    "636": [
+      "伙伴升级时：使所有伙伴获得+1 攻击和+1 生命。",
+      "伙伴升级时：使所有伙伴获得+2 攻击和+2 生命。",
+      "伙伴升级时：使所有伙伴获得+3 攻击和+3 生命。"
+    ],
+    "638": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "639": [
+      "战斗开始时：使最前排的伙伴获得+1 经验值。",
+      "战斗开始时：使最前排的两个伙伴获得+1 经验值。",
+      "战斗开始时：使最前排的三个伙伴获得+1 经验值。"
+    ],
+    "640": [
+      "伙伴攻击前：使其获得+1 攻击和+2 生命，生效一次。跳跃时变为永久效果。",
+      "伙伴攻击前：使其获得+2 攻击和+4 生命，生效一次。跳跃时变为永久效果。",
+      "伙伴攻击前：使其获得+3 攻击和+6 生命，生效一次。跳跃时变为永久效果。"
+    ],
+    "641": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "642": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "643": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "644": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "646": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "647": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "648": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "649": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "650": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "651": [
+      "回合结束时：击倒最近的前方伙伴并囤积一个免费的培根。",
+      "回合结束时：击倒最近的前方伙伴并囤积两个免费的培根。",
+      "回合结束时：击倒最近的前方伙伴并囤积三个免费的培根。"
+    ],
+    "652": [
+      "伙伴被召唤时：本局游戏中每出售过一个3级宠物，便使其获得+1 攻击和+1 生命（至多+5），持续一回合。",
+      "伙伴被召唤时：本局游戏中每出售过一个3级宠物，便使其获得+2 攻击和+2 生命（至多+10），持续一回合。",
+      "伙伴被召唤时：本局游戏中每出售过一个3级宠物，便使其获得+3 攻击和+3 生命（至多+15），持续一回合。"
+    ],
+    "653": [
+      "晕厥：使最近的后方伙伴获得红毛丹 特性。",
+      "晕厥：使最近的两个后方伙伴获得红毛丹 特性。",
+      "晕厥：使最近的三个后方伙伴获得红毛丹 特性。"
+    ],
+    "654": [
+      "前方伙伴晕厥时：对最前排的敌人造成2点伤害。如果伙伴为3级，伤害翻倍。",
+      "前方伙伴晕厥时：对最前排的敌人造成4点伤害。如果伙伴为3级，伤害翻倍。",
+      "前方伙伴晕厥时：对最前排的敌人造成6点伤害。如果伙伴为3级，伤害翻倍。"
+    ],
+    "655": [
+      "晕厥：随机召唤一个14/16的3阶宠物至你和对手的最前排。",
+      "晕厥：随机召唤两个14/16的3阶宠物至你和对手的最前排。",
+      "晕厥：随机召唤三个14/16的3阶宠物至你和对手的最前排。"
+    ],
+    "656": [
+      "攻击前：使目标清脆。每场战斗生效2次。",
+      "攻击前：使目标清脆。每场战斗生效4次。",
+      "攻击前：使目标清脆。每场战斗生效6次。"
+    ],
+    "657": [
+      "受到的伤害减少4点。每回合生效3次。",
+      "受到的伤害减少8点。每回合生效3次。",
+      "受到的伤害减少12点。每回合生效3次。"
+    ],
+    "658": [
+      "战斗开始时：使伙伴获得大量有用的特性！",
+      "战斗开始时：使伙伴获得超大量有用的特性！",
+      "战斗开始时：使伙伴获得巨量有用的特性！"
+    ],
+    "659": [
+      "无能力。",
+      "无能力。",
+      "无能力。"
+    ],
+    "686": [
+      "出售时：将商店食物替换为三种随机食物，并使其价格减1 金币。",
+      "出售时：将商店食物替换为三种随机食物，并使其价格减2 金币。",
+      "出售时：将商店食物替换为三种随机食物，并使其价格减3 金币。"
+    ],
+    "687": [
+      "晕厥：本回合此宠物每吃一个食物，使一个随机敌人-4 生命。",
+      "晕厥：本回合此宠物每吃一个食物，使一个随机敌人-8 生命。",
+      "晕厥：本回合此宠物每吃一个食物，使一个随机敌人-12 生命。"
+    ],
+    "688": [
+      "晕厥：使三个本场战斗中造成过伤害的伙伴永久获得+1 攻击和+1 生命。",
+      "晕厥：使三个本场战斗中造成过伤害的伙伴永久获得+2 攻击和+2 生命。",
+      "晕厥：使三个本场战斗中造成过伤害的伙伴永久获得+3 攻击和+3 生命。"
+    ],
+    "689": [
+      "购买时：给伙伴喂食一个玉米棒。",
+      "购买时：给伙伴喂食两个玉米棒。",
+      "购买时：给伙伴喂食三个玉米棒。"
+    ],
+    "690": [
+      "回合结束时：给最近的前方伙伴喂食一个玉米棒。",
+      "回合结束时：给最近的两个前方伙伴喂食一个玉米棒。",
+      "回合结束时：给最近的三个前方伙伴喂食一个玉米棒。"
+    ],
+    "691": [
+      "晕厥：给最近的后方伙伴喂食三个三倍效果的玉米棒。",
+      "晕厥：给最近的两个后方伙伴喂食三个三倍效果的玉米棒。",
+      "晕厥：给最近的三个后方伙伴喂食三个三倍效果的玉米棒。"
+    ],
+    "692": [
+      "回合结束时：给所有伙伴喂食一个玉米棒。",
+      "回合结束时：给所有伙伴喂食两个玉米棒。",
+      "回合结束时：给所有伙伴喂食三个玉米棒。"
+    ],
+    "693": [
+      "晕厥：给最近的后方伙伴喂食一个玉米棒。",
+      "晕厥：给两个最近的后方伙伴喂食一个玉米棒。",
+      "晕厥：给三个最近的后方伙伴喂食一个玉米棒。"
+    ],
+    "694": [
+      "战斗开始时：给相邻的每个伙伴喂食一个双倍效果的玉米棒。",
+      "战斗开始时：给相邻的每个伙伴喂食两个双倍效果的玉米棒。",
+      "战斗开始时：给相邻的每个伙伴喂食三个双倍效果的玉米棒。"
+    ],
+    "695": [
+      "战斗开始时：使另一侧此位置的敌人获得蓝莓特性，并对其造成2点伤害。",
+      "战斗开始时：使另一侧此位置的敌人获得蓝莓特性，并对其造成4点伤害。",
+      "战斗开始时：使另一侧此位置的敌人获得蓝莓特性，并对其造成6点伤害。"
+    ],
+    "696": [
+      "吃掉两份食物时：变形并给每个伙伴喂食一个鸭梨。",
+      "吃掉两份食物时：变形并给每个伙伴喂食两个鸭梨。",
+      "吃掉两份食物时：变形并给每个伙伴喂食三个鸭梨。"
+    ],
+    "697": [
+      "任意单位受伤时：若无人攻击，则获得+3 生命，持续一回合。每回合生效4次。",
+      "任意单位受伤时：若无人攻击，则获得+6 生命，持续一回合。每回合生效4次。",
+      "任意单位受伤时：若无人攻击，则获得+9 生命，持续一回合。每回合生效4次。"
+    ],
+    "698": [
+      "晕厥：召唤一个伙伴；本回合每吃掉过一个食物，就喂它一个随机食物。",
+      "晕厥：召唤两个伙伴；本回合每吃掉过一个食物，就喂它们各一个随机食物。",
+      "晕厥：召唤三个伙伴；本回合每吃掉过一个食物，就喂它们各一个随机食物。"
+    ],
+    "700": [
+      "战斗开始时：获得比当前商店低一阶的一个来自任意兽群的有用特性。",
+      "战斗开始时：获得比当前商店低一阶的一个来自任意兽群的有用特性，且相应效果变为两倍。",
+      "战斗开始时：获得比当前商店低一阶的一个来自任意兽群的有用特性，且相应效果变为三倍。"
+    ],
+    "701": [
+      "战斗开始时：将不适状态（或受惊 ）复制给最前排的敌人。",
+      "战斗开始时：将不适状态（或受惊 ）复制给最前排的敌人，且相应效果变为两倍。",
+      "战斗开始时：将不适状态（或受惊 ）复制给最前排的敌人，且相应效果变为三倍。"
+    ],
+    "702": [
+      "变形时：使最前排的伙伴获得+2 攻击和+2 生命。战斗中效果加倍。",
+      "变形时：使最前排的伙伴获得+4 攻击和+4 生命。战斗中效果加倍。",
+      "变形时：使最前排的伙伴获得+6 攻击和+6 生命。战斗中效果加倍。"
+    ],
+    "703": [
+      "蜜蜂被召唤时：使其获得+3 攻击和+3 生命，并移除所有其他女王蜂。",
+      "蜜蜂被召唤时：使其获得+6 攻击和+6 生命，并移除所有其他女王蜂。",
+      "蜜蜂被召唤时：使其获得+9 攻击和+9 生命，并移除所有其他女王蜂。"
+    ],
+    "704": [
+      "出售时：选择一个1阶食物以囤积，价格为1金币。",
+      "出售时：选择一个1阶食物以囤积，价格为1金币。囤积两份。",
+      "出售时：选择一个1阶食物以囤积，价格为1金币。囤积三份。"
+    ],
+    "705": [
+      "回合开始时：囤积一个免费的纸杯蛋糕。",
+      "回合开始时：囤积一个免费的纸杯蛋糕，且相应效果变为两倍。",
+      "回合开始时：囤积一个免费的纸杯蛋糕，且相应效果变为三倍。"
+    ],
+    "706": [
+      "伙伴被出售时：获得等于其售价的 生命。每回合生效2次。",
+      "伙伴被出售时：获得等于其售价双倍的 生命。每回合生效2次。",
+      "伙伴被出售时：获得等于其售价三倍的 生命。每回合生效2次。"
+    ],
+    "707": [
+      "回合开始时：召唤一个1级的微波炉。",
+      "回合开始时：召唤一个2级的微波炉。",
+      "回合开始时：召唤一个3级的微波炉。"
+    ],
+    "708": [
+      "友方吃掉食物时：使其获得+1 攻击，持续一回合。每回合生效3次。",
+      "友方吃掉食物时：使其获得+2 攻击，持续一回合。每回合生效3次。",
+      "友方吃掉食物时：使其获得+3 攻击，持续一回合。每回合生效3次。"
+    ],
+    "710": [
+      "升级时不提供商店奖励。",
+      "升级时不提供商店奖励。",
+      "升级时不提供商店奖励。"
+    ],
+    "711": [
+      "回合结束时：使每个带有不同不适状态的伙伴获得+1 攻击和+2 生命。",
+      "回合结束时：使每个带有不同不适状态的伙伴获得+2 攻击和+4 生命。",
+      "回合结束时：使每个带有不同不适状态的伙伴获得+3 攻击和+6 生命。"
+    ],
+    "712": [
+      "攻击后：对一个生命最低的敌人造成4点伤害。",
+      "攻击后：对两个生命最低的敌人造成4点伤害。",
+      "攻击后：对三个生命最低的敌人造成4点伤害。"
+    ],
+    "713": [
+      "晕厥：使一个随机敌人获得+1 生命。",
+      "晕厥：使一个随机敌人获得+1 生命。",
+      "晕厥：使一个随机敌人获得+1 生命。"
+    ],
+    "715": [
+      "晕厥：召唤一个3/2的非洲野狗；它会跳跃攻击第二排的敌人。",
+      "晕厥：召唤一个6/4的非洲野狗；它会跳跃攻击第二排的敌人。",
+      "晕厥：召唤一个9/6的非洲野狗；它会跳跃攻击第二排的敌人。"
+    ],
+    "716": [
+      "战斗开始时：获得+5 攻击和+5 生命，并跳跃攻击一个随机敌人。",
+      "战斗开始时：获得+10 攻击和+10 生命，并跳跃攻击一个随机敌人。",
+      "战斗开始时：获得+15 攻击和+15 生命，并跳跃攻击一个随机敌人。"
+    ],
+    "717": [
+      "晕厥：召唤一只4/3的埃塞俄比亚狼。",
+      "晕厥：召唤两只4/3的埃塞俄比亚狼。",
+      "晕厥：召唤三只4/3的埃塞俄比亚狼。"
+    ],
+    "719": [
+      "相邻伙伴攻击后：获得+1 攻击和+1 生命。每第三次触发时效果变为三倍。",
+      "相邻伙伴攻击后：获得+2 攻击和+2 生命。每第三次触发时效果变为三倍。",
+      "相邻伙伴攻击后：获得+3 攻击和+3 生命。每第三次触发时效果变为三倍。"
+    ],
+    "720": [
+      "战斗前：变为一个具有战斗开始时能力的4~5阶宠物（等级为1）。",
+      "战斗前：变为一个具有战斗开始时能力的4~5阶宠物（等级为2）。",
+      "战斗前：变为一个具有战斗开始时能力的4~5阶宠物（等级为3）。"
+    ],
+    "721": [
+      "晕厥：本回合每吃掉过一个食物（最多三个），对生命最低的敌人造成3点伤害。",
+      "晕厥：本回合每吃掉过一个食物（最多三个），对生命最低的敌人造成6点伤害。",
+      "晕厥：本回合每吃掉过一个食物（最多三个），对生命最低的敌人造成9点伤害。"
+    ],
+    "722": [
+      "伙伴获得不适状态时：使其获得一项随机1阶特性。每回合生效2次。",
+      "伙伴获得不适状态时：使其获得一项随机2阶特性。每回合生效2次。",
+      "伙伴获得不适状态时：使其获得一项随机3阶特性。每回合生效2次。"
+    ],
+    "723": [
+      "战斗开始时：移除此宠物，并使相邻伙伴获得+1 经验值和+4 生命。",
+      "战斗开始时：移除此宠物，并使相邻伙伴获得+2 经验值和+8 生命。",
+      "战斗开始时：移除此宠物，并使相邻伙伴获得+3 经验值和+12 生命。"
+    ],
+    "724": [
+      "攻击前：将自身的不适状态替换为+2 攻击和+2 生命。",
+      "攻击前：将自身的不适状态替换为+4 攻击和+4 生命。",
+      "攻击前：将自身的不适状态替换为+6 攻击和+6 生命。"
+    ],
+    "725": [
+      "晕厥：使一个随机敌人受惊，且本回合每刷新一次，此效果翻倍一次。",
+      "晕厥：使一个随机敌人受惊，且本回合每刷新一次，此效果翻倍两次。",
+      "晕厥：使一个随机敌人受惊，且本回合每刷新一次，此效果翻倍三次。"
+    ],
+    "726": [
+      "战斗开始时：每有一个不同等阶的伙伴，便获得+1 喇叭。",
+      "战斗开始时：每有一个不同等阶的伙伴，便获得+2 喇叭。",
+      "战斗开始时：每有一个不同等阶的伙伴，便获得+3 喇叭。"
+    ],
+    "727": [
+      "伙伴攻击时：使其获得+4 生命并将其移动到最后排。每回合对一个伙伴生效。",
+      "伙伴攻击时：使其获得+4 生命并将其移动到最后排。每回合对两个不同伙伴生效。",
+      "伙伴攻击时：使其获得+4 生命并将其移动到最后排。每回合对三个不同伙伴生效。"
+    ],
+    "728": [
+      "战斗开始时：后方每有一个伙伴，便获得+1 喇叭；另使前方所有伙伴获得+1 魔力。",
+      "战斗开始时：后方每有一个伙伴，便获得+2 喇叭；另使前方所有伙伴获得+2 魔力。",
+      "战斗开始时：后方每有一个伙伴，便获得+3 喇叭；另使前方所有伙伴获得+3 魔力。"
+    ],
+    "729": [
+      "伙伴变形时：使其获得+3 经验值。每场战斗生效1次。",
+      "伙伴变形时：使其获得+3 经验值。每场战斗生效2次。",
+      "伙伴变形时：使其获得+3 经验值。每场战斗生效3次。"
+    ],
+    "730": [
+      "回合结束时：移除生命最高且未冻结的商店宠物，并获得其属性的50%，持续一回合。",
+      "回合结束时：移除生命最高且未冻结的商店宠物，并获得其属性的100%，持续一回合。",
+      "回合结束时：移除生命最高且未冻结的商店宠物，并获得其属性的150%，持续一回合。"
+    ],
+    "731": [
+      "晕厥：对一个随机敌人造成3点伤害，优先选择带有不适状态的目标。",
+      "晕厥：对一个随机敌人造成6点伤害，优先选择带有不适状态的目标。",
+      "晕厥：对一个随机敌人造成9点伤害，优先选择带有不适状态的目标。"
+    ],
+    "732": [
+      "晕厥：激活一个随机2阶及以下伙伴的回合结束时能力。",
+      "晕厥：激活一个随机4阶及以下伙伴的回合结束时能力。",
+      "晕厥：激活一个随机6阶及以下伙伴的回合结束时能力。"
+    ],
+    "733": [
+      "晕厥：获得+4 喇叭，并立即召唤金毛寻回犬。",
+      "晕厥：获得+8 喇叭，并立即召唤金毛寻回犬。",
+      "晕厥：获得+12 喇叭，并立即召唤金毛寻回犬。"
+    ],
+    "734": [
+      "战斗开始时：本回合每次刷新（最多8次），便获得+1 喇叭。",
+      "战斗开始时：本回合每次刷新（最多8次），便获得+2 喇叭。",
+      "战斗开始时：本回合每次刷新（最多8次），便获得+3 喇叭。"
+    ],
+    "735": [
+      "回合开始时：囤积一个随机不适罐头。",
+      "回合开始时：囤积两个随机不适罐头以供选择。",
+      "回合开始时：囤积三个随机不适罐头以供选择。"
+    ],
+    "736": [
+      "晕厥：花费2 喇叭使最后排两个伙伴的出售价值永久+1 金币。",
+      "晕厥：花费2 喇叭使最后排两个伙伴的出售价值永久+2 金币。",
+      "晕厥：花费2 喇叭使最后排两个伙伴的出售价值永久+3 金币。"
+    ],
+    "740": [
+      "战斗开始时：移除一个敌人身上等阶最高的特性。",
+      "战斗开始时：移除两个敌人身上等阶最高的特性。",
+      "战斗开始时：移除三个敌人身上等阶最高的特性。"
+    ],
+    "742": [
+      "战斗开始时：将另一侧此位置的敌人变成低一阶的任意随机晕厥宠物。",
+      "战斗开始时：将另一侧此位置的敌人变成低两阶的任意随机晕厥宠物。",
+      "战斗开始时：将另一侧此位置的敌人变成低三阶的任意随机晕厥宠物。"
+    ],
+    "743": [
+      "晕厥：花费4 喇叭，使伙伴永久获得+4 攻击与+4 生命，属性加成依次在所有伙伴中平均分配。",
+      "晕厥：花费4 喇叭，使伙伴永久获得+8 攻击与+8 生命，属性加成依次在所有伙伴中平均分配。",
+      "晕厥：花费4 喇叭，使伙伴永久获得+12 攻击与+12 生命，属性加成依次在所有伙伴中平均分配。"
+    ],
+    "744": [
+      "伙伴被召唤时：激活并禁用其回合开始时能力，直到下一回合。每回合生效1次。",
+      "伙伴被召唤时：激活并禁用其回合开始时能力，直到下一回合。每回合生效2次。",
+      "伙伴被召唤时：激活并禁用其回合开始时能力，直到下一回合。每回合生效3次。"
+    ],
+    "745": [
+      "晕厥：使没有特性的相邻宠物受惊。",
+      "晕厥：使没有特性的相邻宠物受惊，且相应效果变为两倍。",
+      "晕厥：使没有特性的相邻宠物受惊，且相应效果变为三倍。"
+    ],
+    "746": [
+      "回合结束时：使最近的前方伙伴眩晕。",
+      "回合结束时：使最近的两个前方伙伴眩晕。",
+      "回合结束时：使最近的三个前方伙伴眩晕。"
+    ],
+    "747": [
+      "战斗前：如果兽群中没有 标签下的宠物和食物，使三个随机敌人-1 经验值。",
+      "战斗前：如果兽群中没有 标签下的宠物和食物，使三个随机敌人-2 经验值。",
+      "战斗前：如果兽群中没有 标签下的宠物和食物，使三个随机敌人-3 经验值。"
+    ],
+    "748": [
+      "此宠物受到的不适状态会逆转为正面效果。",
+      "此宠物受到的不适状态会逆转为正面效果，且效果变为两倍。",
+      "此宠物受到的不适状态会逆转为正面效果，且效果变为三倍。"
+    ],
+    "749": [
+      "伙伴晕厥时：对最近的前方伙伴造成1点伤害。",
+      "伙伴晕厥时：对最近的两个前方伙伴造成1点伤害。",
+      "伙伴晕厥时：对最近的三个前方伙伴造成1点伤害。"
+    ],
+    "750": [
+      "晕厥：使任意三个随机宠物获得随机不适状态。对敌方效果变为两倍。",
+      "晕厥：使任意六个随机宠物获得随机不适状态。对敌方效果变为两倍。",
+      "晕厥：使任意九个随机宠物获得随机不适状态。对敌方效果变为两倍。"
+    ],
+    "751": [
+      "晕厥：使击倒它的宠物及其伙伴获得+1 攻击和+1 生命。",
+      "晕厥：使击倒它的宠物及其伙伴获得+2 攻击和+2 生命。",
+      "晕厥：使击倒它的宠物及其伙伴获得+3 攻击和+3 生命。"
+    ],
+    "752": [
+      "晕厥：使所有伙伴获得+2 生命。花费2 喇叭以使伙伴之后再获得+1 生命。",
+      "晕厥：使所有伙伴获得+4 生命。花费2 喇叭以使伙伴之后再获得+2 生命。",
+      "晕厥：使所有伙伴获得+6 生命。花费2 喇叭以使伙伴之后再获得+3 生命。"
+    ],
+    "753": [
+      "伙伴变形时：将其变回原形并降为等级1。每回合生效2次。",
+      "伙伴变形时：将其变回原形并降为等级2。每回合生效2次。",
+      "伙伴变形时：将其变回原形并降为等级3。每回合生效2次。"
+    ],
+    "754": [
+      "战斗开始时：吞噬最前排的 生命不超过6的敌人。晕厥时将其吐出，剩下1生命。",
+      "战斗开始时：吞噬最前排的 生命不超过12的敌人。晕厥时将其吐出，剩下1生命。",
+      "战斗开始时：吞噬最前排的 生命不超过18的敌人。晕厥时将其吐出，剩下1生命。"
+    ],
+    "755": [
+      "战斗开始时：移除友方草莓，以获得相当于移除数3倍的 喇叭。",
+      "战斗开始时：移除友方草莓，以获得相当于移除数6倍的 喇叭。",
+      "战斗开始时：移除友方草莓，以获得相当于移除数9倍的 喇叭。"
+    ],
+    "756": [
+      "宠物失去特性时：若为友方则使其获得切片西瓜，若为敌方则造成6点伤害。每场战斗生效1次。",
+      "宠物失去特性时：若为友方则使其获得切片西瓜，若为敌方则造成6点伤害。每场战斗生效2次。",
+      "宠物失去特性时：若为友方则使其获得切片西瓜，若为敌方则造成6点伤害。每场战斗生效3次。"
+    ],
+    "757": [
+      "战斗开始时：如果友方没有重复宠物，获得+3 攻击和+1 生命。",
+      "战斗开始时：如果友方没有重复宠物，获得+6 攻击和+2 生命。",
+      "战斗开始时：如果友方没有重复宠物，获得+9 攻击和+3 生命。"
+    ],
+    "758": [
+      "伙伴失去特性时：使其获得大蒜。每回合生效1次。",
+      "伙伴失去特性时：使其获得大蒜。每回合生效2次。",
+      "伙伴失去特性时：使其获得大蒜。每回合生效3次。"
+    ],
+    "759": [
+      "战斗开始时：使最前排的一个草莓伙伴获得椰子 特性。",
+      "战斗开始时：使最前排的两个草莓伙伴获得椰子 特性。",
+      "战斗开始时：使最前排的三个草莓伙伴获得椰子 特性。"
+    ],
+    "760": [
+      "伙伴攻击前：使其获得草莓 特性和+5 攻击。每场战斗生效1次。",
+      "伙伴攻击前：使其获得草莓 特性和+5 攻击。每场战斗生效2次。",
+      "伙伴攻击前：使其获得草莓 特性和+5 攻击。每场战斗生效3次。"
+    ],
+    "761": [
+      "战斗开始时：使三个随机伙伴获得+1 攻击和+1 生命，并移除此宠物。",
+      "战斗开始时：使三个随机伙伴获得+2 攻击和+2 生命，并移除此宠物。",
+      "战斗开始时：使三个随机伙伴获得+3 攻击和+3 生命，并移除此宠物。"
+    ],
+    "763": [
+      "吃掉食物时：吞噬最左侧的商店宠物。晕厥时为对手在其首排召唤一个该宠物的等级1的1/1复制体。",
+      "吃掉食物时：吞噬最左侧的商店宠物。晕厥时为对手在其首排召唤一个该宠物的等级2的1/1复制体。",
+      "吃掉食物时：吞噬最左侧的商店宠物。晕厥时为对手在其首排召唤一个该宠物的等级3的1/1复制体。"
+    ],
+    "765": [
+      "战斗开始时：使最近的前方伙伴获得草莓 特性和+2 攻击。",
+      "战斗开始时：使最近的两个前方伙伴获得草莓 特性和+2 攻击。",
+      "战斗开始时：使最近的三个前方伙伴获得草莓 特性和+2 攻击。"
+    ],
+    "766": [
+      "晕厥：将生命最高的宠物（不分敌我队伍）的 攻击与 生命设为20。",
+      "晕厥：将生命最高的两个宠物（不分敌我队伍）的 攻击与 生命设为20。",
+      "晕厥：将生命最高的三个宠物（不分敌我队伍）的 攻击与 生命设为20。"
+    ],
+    "768": [
+      "攻击前：花费1 喇叭，变成一个高一阶的1级晕厥宠物。",
+      "攻击前：花费1 喇叭，变成一个高两阶的1级晕厥宠物。",
+      "攻击前：花费1 喇叭，变成一个高三阶的1级晕厥宠物。"
+    ],
+    "769": [
+      "攻击前：将不适状态转移给前两个敌人。",
+      "攻击前：将不适状态转移给前两个敌人，且相应效果变为两倍。",
+      "攻击前：将不适状态转移给前两个敌人，且相应效果变为三倍。"
+    ],
+    "770": [
+      "晕厥：召唤一个3/3的伙伴，每累计获得过一次不适状态，便使其获得+1 攻击和+1 生命。",
+      "晕厥：召唤两个3/3的伙伴，每累计获得过一次不适状态，便使其获得+1 攻击和+1 生命。",
+      "晕厥：召唤三个3/3的伙伴，每累计获得过一次不适状态，便使其获得+1 攻击和+1 生命。"
+    ],
+    "771": [
+      "受到的伤害减少2点。",
+      "受到的伤害减少4点。",
+      "受到的伤害减少6点。"
+    ],
+    "772": [
+      "伙伴受伤时：恢复其生命。每回合最多可恢复15点 生命。",
+      "伙伴受伤时：恢复其生命。每回合最多可恢复30点 生命。",
+      "伙伴受伤时：恢复其生命。每回合最多可恢复45点 生命。"
+    ],
+    "773": [
+      "被召唤时：对所有其他宠物造成2点伤害。对敌人造成双倍伤害。",
+      "被召唤时：对所有其他宠物造成2点伤害。对敌人造成双倍伤害。触发2次。",
+      "被召唤时：对所有其他宠物造成2点伤害。对敌人造成双倍伤害。触发3次。"
+    ],
+    "774": [
+      "晕厥：本回合此宠物每吃掉过一个食物，使三个随机伙伴获得+1 攻击和+1 生命。",
+      "晕厥：本回合此宠物每吃掉过一个食物，使三个随机伙伴获得+2 攻击和+2 生命。",
+      "晕厥：本回合此宠物每吃掉过一个食物，使三个随机伙伴获得+3 攻击和+3 生命。"
+    ],
+    "775": [
+      "战斗开始时：获得爆米花 特性和+1 生命。",
+      "战斗开始时：获得爆米花 特性和+2 生命。",
+      "战斗开始时：获得爆米花 特性和+3 生命。"
+    ],
+    "776": [
+      "吃掉两份食物时：变形并使最后排的两个伙伴获得1点 经验值。",
+      "吃掉两份食物时：变形并使最后排的两个伙伴获得2点 经验值。",
+      "吃掉两份食物时：变形并使最后排的两个伙伴获得3点 经验值。"
+    ],
+    "777": [
+      "变形时：使最后排的两个伙伴获得1点 经验值。",
+      "变形时：使最后排的两个伙伴获得2点 经验值。",
+      "变形时：使最后排的两个伙伴获得3点 经验值。"
+    ],
+    "778": [
+      "吃掉食物时：变形并使最前排的伙伴获得+2 攻击和+2 生命。战斗中效果加倍。",
+      "吃掉食物时：变形并使最前排的伙伴获得+4 攻击和+4 生命。战斗中效果加倍。",
+      "吃掉食物时：变形并使最前排的伙伴获得+6 攻击和+6 生命。战斗中效果加倍。"
+    ],
+    "779": [
+      "吃掉两份食物时：获得椰子 特性，持续一回合。",
+      "吃掉两份食物时：获得会生效两次的椰子 特性，持续一回合。",
+      "吃掉两份食物时：获得会生效三次的椰子 特性，持续一回合。"
+    ],
+    "780": [
+      "变形时：给每个伙伴喂食一个鸭梨。",
+      "变形时：给每个伙伴喂食两个鸭梨。",
+      "变形时：给每个伙伴喂食三个鸭梨。"
+    ],
+    "781": [
+      "晕厥：此宠物每参加一场战斗，使三个随机伙伴获得+1 攻击和+1 生命。",
+      "晕厥：此宠物每参加一场战斗，使三个随机伙伴获得+2 攻击和+2 生命。",
+      "晕厥：此宠物每参加一场战斗，使三个随机伙伴获得+3 攻击和+3 生命。"
+    ],
+    "782": [
+      "晕厥：消耗2点 魔力使最近的后方伙伴永久获得+4 攻击和+4 生命。",
+      "晕厥：消耗2点 魔力使最近的后方伙伴永久获得+8 攻击和+8 生命。",
+      "晕厥：消耗2点 魔力使最近的后方伙伴永久获得+12 攻击和+12 生命。"
+    ],
+    "783": [
+      "战斗开始时：若当前特性的等阶不高于2，则在金毛寻回犬被召唤时将特性复制给它。",
+      "战斗开始时：若当前特性的等阶不高于4，则在金毛寻回犬被召唤时将特性复制给它。",
+      "战斗开始时：若当前特性的等阶不高于6，则在金毛寻回犬被召唤时将特性复制给它。"
+    ],
+    "784": [
+      "晕厥：消耗 魔力；每消耗1点，获得1 喇叭。",
+      "晕厥：消耗 魔力；每消耗1点，获得2 喇叭。",
+      "晕厥：消耗 魔力；每消耗1点，获得3 喇叭。"
+    ],
+    "785": [
+      "回合结束时：召唤一个1级的陶笛。",
+      "回合结束时：召唤一个2级的陶笛。",
+      "回合结束时：召唤一个3级的陶笛。"
+    ],
+    "786": [
+      "伙伴攻击前：消耗3点 魔力，使其获得+2 攻击和+2 生命。",
+      "伙伴攻击前：消耗3点 魔力，使其获得+4 攻击和+4 生命。",
+      "伙伴攻击前：消耗3点 魔力，使其获得+6 攻击和+6 生命。"
+    ],
+    "787": [
+      "敌人晕厥时：先将1/1的坏雏鸟召唤到敌方最前排。每场战斗最多可召唤2个。",
+      "敌人晕厥时：先将1/1的坏雏鸟召唤到敌方最前排。每场战斗最多可召唤4个。",
+      "敌人晕厥时：先将1/1的坏雏鸟召唤到敌方最前排。每场战斗最多可召唤6个。"
+    ],
+    "788": [
+      "攻击和生命不能超过1。",
+      "攻击和生命不能超过1。",
+      "攻击和生命不能超过1。"
+    ],
+    "791": [
+      "战斗开始时：每有一个带有不同不适状态的友方宠物，便获得+1 攻击和+2 生命。",
+      "战斗开始时：每有一个带有不同不适状态的友方宠物，便获得+2 攻击和+4 生命。",
+      "战斗开始时：每有一个带有不同不适状态的友方宠物，便获得+3 攻击和+6 生命。"
+    ],
+    "796": [
+      "回合结束时：如果你本回合没有刷新，获得+1 经验值。",
+      "回合结束时：如果你本回合没有刷新，获得+2 经验值。",
+      "回合结束时：如果你本回合没有刷新，获得+3 经验值。"
+    ],
+    "797": [
+      "伙伴被出售时：囤积一个该宠物的复制。每回合生效1次。",
+      "伙伴被出售时：囤积一个该宠物的复制。每回合生效2次。",
+      "伙伴被出售时：囤积一个该宠物的复制。每回合生效3次。"
+    ],
+    "798": [
+      "战斗开始时：将一个生命最高的敌人的属性随机重新分配。",
+      "战斗开始时：将两个生命最高的敌人的属性随机重新分配。",
+      "战斗开始时：将三个生命最高的敌人的属性随机重新分配。"
+    ],
+    "800": [
+      "攻击后：将 特性复制给双方队伍最后排的宠物。每场战斗生效1次。",
+      "攻击后：将 特性复制给双方队伍最后排的宠物。每场战斗生效2次。",
+      "攻击后：将 特性复制给双方队伍最后排的宠物。每场战斗生效3次。"
+    ],
+    "801": [
+      "战斗开始时：每有一个出售价值不低于3 金币的伙伴，则获得+4 攻击和+4 生命。",
+      "战斗开始时：每有一个出售价值不低于3 金币的伙伴，则获得+8 攻击和+8 生命。",
+      "战斗开始时：每有一个出售价值不低于3 金币的伙伴，则获得+12 攻击和+12 生命。"
+    ],
+    "802": [
+      "伙伴攻击前：将它的草莓替换为+5 魔力。每回合生效3次。",
+      "伙伴攻击前：将它的草莓替换为+10 魔力。每回合生效3次。",
+      "伙伴攻击前：将它的草莓替换为+15 魔力。每回合生效3次。"
+    ],
+    "803": [
+      "伙伴晕厥时：如果该宠物拥有草莓，在其位置召唤一个2/2的伙伴。每回合生效2次。",
+      "伙伴晕厥时：如果该宠物拥有草莓，在其位置召唤一个4/4的伙伴。每回合生效2次。",
+      "伙伴晕厥时：如果该宠物拥有草莓，在其位置召唤一个6/6的伙伴。每回合生效2次。"
+    ],
+    "804": [
+      "晕厥：对两个随机敌人造成相当于距离数的伤害。",
+      "晕厥：对两个随机敌人造成相当于距离数2倍的伤害。",
+      "晕厥：对两个随机敌人造成相当于距离数3倍的伤害。"
+    ],
+    "805": [
+      "战斗开始时：变成一个1级青蛙并获得+2 经验值。",
+      "战斗开始时：变成一个1级青蛙并获得+4 经验值。",
+      "战斗开始时：变成一个1级青蛙并获得+6 经验值。"
+    ],
+    "806": [
+      "战斗开始时：使最前排的一个草莓伙伴获得花生 特性。",
+      "战斗开始时：使最前排的两个草莓伙伴获得花生 特性。",
+      "战斗开始时：使最前排的三个草莓伙伴获得花生 特性。"
+    ],
+    "807": [
+      "战斗开始时：友方每有一种不同的不适状态，便对最前排的敌人造成4点伤害。",
+      "战斗开始时：友方每有一种不同的不适状态，便对前两个敌人造成4点伤害。",
+      "战斗开始时：友方每有一种不同的不适状态，便对前三个敌人造成4点伤害。"
+    ],
+    "808": [
+      "晕厥：消耗 魔力，每消耗1点魔力便可使一个随机敌人-1 攻击和 生命。",
+      "晕厥：消耗 魔力，每消耗1点魔力便可使两个随机敌人-1 攻击和 生命。",
+      "晕厥：消耗 魔力，每消耗1点魔力便可使三个随机敌人-1 攻击和 生命。"
+    ],
+    "811": [
+      "回合结束时：使最近的前方伙伴在奇数回合获得+1 攻击，在偶数回合获得+1 生命。",
+      "回合结束时：使最近的前方伙伴在奇数回合获得+2 攻击，在偶数回合获得+2 生命。",
+      "回合结束时：使最近的前方伙伴在奇数回合获得+3 攻击，在偶数回合获得+3 生命。"
+    ],
+    "812": [
+      "战斗开始时：从自己的每项属性中拿出25%，并将其均分给大家。社会主义！",
+      "战斗开始时：从自己的每项属性中拿出50%，并将其均分给大家。社会主义！",
+      "战斗开始时：从自己的每项属性中拿出75%，并将其均分给大家。社会主义！"
+    ],
+    "819": [
+      "变形时：召唤一个1级雷锤。",
+      "变形时：召唤一个2级雷锤。",
+      "变形时：召唤一个3级雷锤。"
+    ],
+    "821": [
+      "怒不可遏！",
+      "怒不可遏！",
+      "怒不可遏！"
+    ],
+    "822": [
+      "晕厥：使最前排的敌人-4 生命。",
+      "晕厥：使前两个敌人-4 生命。",
+      "晕厥：使前三个敌人-4 生命。"
+    ],
+    "10000": [
+      "到底有多少啊？！",
+      "到底有多少啊？！",
+      "到底有多少啊？！"
+    ]
+  },
+  "effectAbilities": {
+    "food:0": [
+      "使一个宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:134": [
+      "使一个宠物获得+2 攻击和+2 生命。"
+    ],
+    "food:135": [
+      "使一个宠物获得+3 攻击和+3 生命。"
+    ],
+    "food:117": [
+      "使一个宠物的出售价格加1 金币。"
+    ],
+    "food:2": [
+      "使一个宠物获得+2 攻击。"
+    ],
+    "food:7": [
+      "使一个宠物获得蓝莓 特性。"
+    ],
+    "food:139": [
+      "使一个宠物获得+1 攻击。"
+    ],
+    "food:213": [
+      "使一个宠物获得+2 攻击和+2 生命，持续一回合。"
+    ],
+    "food:225": [
+      "选择一项1-3阶的不适状态进行囤积。始终优惠！"
+    ],
+    "food:216": [
+      "在不触发能力的情况下对一个宠物施加受惊。"
+    ],
+    "food:223": [
+      "在不触发能力的情况下对一个宠物施加炙烤。"
+    ],
+    "food:173": [
+      "使一个宠物获得腰果 特性。"
+    ],
+    "food:130": [
+      "使一个宠物获得+1 攻击。"
+    ],
+    "food:131": [
+      "使一个宠物获得+2 攻击。"
+    ],
+    "food:132": [
+      "使一个宠物获得+3 攻击。"
+    ],
+    "food:27": [
+      "使一个宠物获得+2 攻击和+2 生命，持续一回合。"
+    ],
+    "food:28": [
+      "使一个宠物的最低属性+1。"
+    ],
+    "food:33": [
+      "使一个宠物获得鸡蛋 特性。"
+    ],
+    "food:234": [
+      "选择一个1级的雪貂玩具。"
+    ],
+    "food:235": [
+      "选择一个2级的雪貂玩具。"
+    ],
+    "food:236": [
+      "选择一个3级的雪貂玩具。"
+    ],
+    "food:191": [
+      "使一个宠物的最低属性+2。"
+    ],
+    "food:148": [
+      "使一个宠物获得金蛋 特性。"
+    ],
+    "food:192": [
+      "使一个宠物获得大麦克香蕉 特性。"
+    ],
+    "food:150": [
+      "使一个宠物获得生命药水 特性。"
+    ],
+    "food:151": [
+      "把一个坏狗狗变为好狗狗，或使其获得+4 攻击和+4 生命。"
+    ],
+    "food:40": [
+      "使一个宠物获得蜂蜜 特性。"
+    ],
+    "food:128": [
+      "使一个宠物获得马卡龙 特性。"
+    ],
+    "food:157": [
+      "使一个宠物获得+3 魔力。"
+    ],
+    "food:49": [
+      "使一个宠物获得+1 攻击和+2 生命。"
+    ],
+    "food:102": [
+      "使一个宠物获得+2 攻击和+4 生命。"
+    ],
+    "food:103": [
+      "使一个宠物获得+3 攻击和+6 生命。"
+    ],
+    "food:136": [
+      "使一个宠物获得玉米片 特性。"
+    ],
+    "food:64": [
+      "使一个宠物获得+2 生命。"
+    ],
+    "food:peg-leg": [
+      "把奖杯目标设置为12，召唤“成就党的末日”！"
+    ],
+    "food:119": [
+      "使一个宠物在奇数回合获得+2 攻击，在偶数回合获得+2 生命。"
+    ],
+    "food:210": [
+      "使一个宠物获得+1 生命。"
+    ],
+    "food:81": [
+      "使一个宠物获得草莓 特性。"
+    ],
+    "food:196": [
+      "使一个宠物获得鳗鱼 特性。"
+    ],
+    "food:174": [
+      "使一个宠物获得胡桃 特性。"
+    ],
+    "food:208": [
+      "从当前等阶任选一种特性食物，并花费1金币囤积。"
+    ],
+    "food:176": [
+      "使一个宠物获得白菜 特性。"
+    ],
+    "food:11": [
+      "使一个宠物获得+3 生命并-1 攻击。"
+    ],
+    "food:219": [
+      "在不触发能力的情况下对一个宠物施加寒冷。"
+    ],
+    "food:220": [
+      "在不触发能力的情况下对一个宠物施加染墨。"
+    ],
+    "food:214": [
+      "在不触发能力的情况下对一个宠物施加虚弱。"
+    ],
+    "food:124": [
+      "使一个宠物获得焦糖 特性。"
+    ],
+    "food:20": [
+      "使一个宠物获得樱桃 特性。"
+    ],
+    "food:24": [
+      "使一个宠物获得巧克力蛋糕 特性。"
+    ],
+    "food:126": [
+      "使一个宠物获得吉事果 特性。"
+    ],
+    "food:185": [
+      "使一个宠物获得+1 攻击和+1 生命。每第三个云莓时效果变为三倍。"
+    ],
+    "food:207": [
+      "使一个宠物获得鳕鱼籽 特性。"
+    ],
+    "food:50": [
+      "使一个宠物获得+3 攻击和+3 生命，持续一回合。"
+    ],
+    "food:167": [
+      "使一个宠物获得桉树 特性。"
+    ],
+    "food:140": [
+      "使一个宠物获得晕厥面包 特性。"
+    ],
+    "food:144": [
+      "使一个宠物获得仙尘 特性。"
+    ],
+    "food:100": [
+      "使一个宠物获得+3 攻击并-1 生命。"
+    ],
+    "food:45": [
+      "下回合获得2次免费刷新。"
+    ],
+    "food:249": [
+      "选择一个1级的狐猴玩具。"
+    ],
+    "food:250": [
+      "选择一个2级的狐猴玩具。"
+    ],
+    "food:251": [
+      "选择一个3级的狐猴玩具。"
+    ],
+    "food:170": [
+      "使一个宠物获得酸橙 特性。"
+    ],
+    "food:9": [
+      "使一个宠物获得肉骨头 特性。"
+    ],
+    "food:122": [
+      "使一个宠物获得萝卜 特性。"
+    ],
+    "food:70": [
+      "使一个宠物获得米饭 特性。"
+    ],
+    "food:92": [
+      "使一个宠物晕厥。始终优惠！"
+    ],
+    "food:195": [
+      "使一个宠物获得苏达斯番茄 特性。"
+    ],
+    "food:159": [
+      "使一个宠物获得+3 攻击和虚弱。"
+    ],
+    "food:1": [
+      "下一回合获得+3 金币。"
+    ],
+    "food:172": [
+      "使一个宠物获得黑莓 特性。"
+    ],
+    "food:118": [
+      "使一个宠物获得抱子甘蓝 特性。"
+    ],
+    "food:12": [
+      "使商店将来的所有下一阶宠物永久获得+1 攻击和+1 生命。"
+    ],
+    "food:6": [
+      "使一个宠物获得蛋糕 特性。"
+    ],
+    "food:231": [
+      "在不触发能力的情况下对一个宠物施加困惑。"
+    ],
+    "food:252": [
+      "在不触发能力的情况下对一个宠物施加胆怯。"
+    ],
+    "food:217": [
+      "在不触发能力的情况下对一个宠物施加愚蠢。"
+    ],
+    "food:228": [
+      "在不触发能力的情况下对一个宠物施加结网。"
+    ],
+    "food:201": [
+      "使一个宠物获得+3 生命。每第2根胡萝卜改为给予 攻击。"
+    ],
+    "food:29": [
+      "使一个宠物获得可颂 特性。"
+    ],
+    "food:97": [
+      "使一个宠物获得黄瓜 特性。"
+    ],
+    "food:109": [
+      "使一个宠物获得无花果 特性。"
+    ],
+    "food:38": [
+      "使一个宠物获得大蒜 特性。"
+    ],
+    "food:211": [
+      "使一个宠物获得吉奇红豌豆 特性。"
+    ],
+    "food:237": [
+      "选择一个1级的长吻鳄玩具。"
+    ],
+    "food:238": [
+      "选择一个2级的长吻鳄玩具。"
+    ],
+    "food:239": [
+      "选择一个3级的长吻鳄玩具。"
+    ],
+    "food:147": [
+      "使一个宠物获得姜饼人 特性。"
+    ],
+    "food:112": [
+      "使一个宠物获得番石榴 特性。"
+    ],
+    "food:153": [
+      "使一个宠物的最低属性+3。"
+    ],
+    "food:72": [
+      "使三个当前商店阶数或更高等级的宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:48": [
+      "使一个宠物的攻击与生命互换。始终优惠！"
+    ],
+    "food:61": [
+      "使一个宠物获得菠萝 特性。"
+    ],
+    "food:110": [
+      "使一个宠物获得红毛丹 特性。"
+    ],
+    "food:179": [
+      "将一个宠物的特性或不适状态替换为+2 攻击和+2 生命。"
+    ],
+    "food:73": [
+      "使两个随机宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:75": [
+      "将攻击与生命设为二者的平均值。始终优惠！"
+    ],
+    "food:114": [
+      "使一个宠物获得火腿肠 特性。"
+    ],
+    "food:184": [
+      "使一个宠物获得海草 特性。"
+    ],
+    "food:121": [
+      "使一个宠物获得节瓜 特性。"
+    ],
+    "food:161": [
+      "把一个宠物变为同阶的另一个带有任意3阶特性的宠物。"
+    ],
+    "food:198": [
+      "使一个宠物获得白松露 特性。"
+    ],
+    "food:138": [
+      "使一个宠物获得珍馐 特性。"
+    ],
+    "food:3": [
+      "使一个宠物获得法国面包 特性。"
+    ],
+    "food:4": [
+      "使一个宠物获得香蕉 特性。"
+    ],
+    "food:10": [
+      "使一个宠物获得面包 特性。"
+    ],
+    "food:229": [
+      "在不触发能力的情况下对一个宠物施加肿胀。"
+    ],
+    "food:224": [
+      "在不触发能力的情况下对一个宠物施加清脆。"
+    ],
+    "food:16": [
+      "使商店当前和将来的所有宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:222": [
+      "在不触发能力的情况下对一个宠物施加美味。"
+    ],
+    "food:137": [
+      "使一个宠物获得花菜 特性。"
+    ],
+    "food:19": [
+      "使一个宠物获得芝士 特性。"
+    ],
+    "food:189": [
+      "把一个宠物变为同阶的另一个宠物，并且使另两个宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:31": [
+      "使一个宠物获得甜甜圈 特性。"
+    ],
+    "food:141": [
+      "使一个宠物获得+3 生命，并将2 攻击转化为生命。"
+    ],
+    "food:143": [
+      "使一个宠物获得+3 攻击，并将2 生命转化为攻击。"
+    ],
+    "food:35": [
+      "使一个宠物获得幸运饼干 特性。"
+    ],
+    "food:39": [
+      "使一个宠物获得葡萄 特性。"
+    ],
+    "food:194": [
+      "使一个宠物获得枫糖 特性。"
+    ],
+    "food:87": [
+      "使一个宠物获得切片西瓜 特性。"
+    ],
+    "food:232": [
+      "使一个宠物获得微辣辣椒 特性。"
+    ],
+    "food:53": [
+      "使一个宠物获得洋葱 特性。"
+    ],
+    "food:183": [
+      "使一个宠物获得平菇 特性。"
+    ],
+    "food:58": [
+      "使一个宠物获得+2 攻击和+2 生命。"
+    ],
+    "food:60": [
+      "使一个宠物获得馅饼 特性。"
+    ],
+    "food:66": [
+      "使一个宠物获得土豆 特性。"
+    ],
+    "food:240": [
+      "选择一个1级的幼犬玩具。"
+    ],
+    "food:241": [
+      "选择一个2级的幼犬玩具。"
+    ],
+    "food:242": [
+      "选择一个3级的幼犬玩具。"
+    ],
+    "food:74": [
+      "使一个宠物获得盐 特性。"
+    ],
+    "food:78": [
+      "使一个宠物获得+1 攻击和+1 生命。如果你只有1颗心，效果变为三倍。"
+    ],
+    "food:226": [
+      "选择一项4-6阶的不适状态进行囤积。始终优惠！"
+    ],
+    "food:197": [
+      "使商店最左侧的两个宠物获得+2 攻击和+3 生命。"
+    ],
+    "food:86": [
+      "激活宠物的“购买时”能力，或获得+3 生命。"
+    ],
+    "food:202": [
+      "使一个宠物获得+6 魔力。"
+    ],
+    "food:218": [
+      "在不触发能力的情况下对一个宠物施加眩晕。"
+    ],
+    "food:221": [
+      "在不触发能力的情况下对一个宠物施加困倦。"
+    ],
+    "food:17": [
+      "使一个宠物获得胡萝卜 特性。"
+    ],
+    "food:22": [
+      "使一个宠物获得辣椒 特性。"
+    ],
+    "food:23": [
+      "使一个宠物获得+1 经验值。"
+    ],
+    "food:104": [
+      "使一个宠物获得+2 经验值。"
+    ],
+    "food:105": [
+      "使一个宠物获得+3 经验值。"
+    ],
+    "food:190": [
+      "使一个宠物获得可可豆 特性。"
+    ],
+    "food:123": [
+      "使一个宠物获得+3 攻击和+2 生命。"
+    ],
+    "food:113": [
+      "使一个宠物获得榴莲 特性。"
+    ],
+    "food:142": [
+      "使一个宠物获得复活节彩蛋 特性。"
+    ],
+    "food:34": [
+      "使一个宠物获得茄子 特性。"
+    ],
+    "food:129": [
+      "将商店中的每个单位替换为更高1阶的。"
+    ],
+    "food:193": [
+      "使一个宠物获得蜜瓜 特性。"
+    ],
+    "food:181": [
+      "使一个宠物获得刺角瓜 特性。"
+    ],
+    "food:125": [
+      "使一个宠物获得+2 攻击和+3 生命。"
+    ],
+    "food:47": [
+      "使一个宠物获得柠檬 特性。"
+    ],
+    "food:155": [
+      "使一个宠物获得爱情药水 特性。"
+    ],
+    "food:156": [
+      "使一个宠物获得魔豆 特性。"
+    ],
+    "food:209": [
+      "使一个宠物的最低属性+5。"
+    ],
+    "food:59": [
+      "使一个宠物获得青椒 特性。"
+    ],
+    "food:76": [
+      "使一个宠物获得肉串 特性。"
+    ],
+    "food:80": [
+      "使三个随机宠物获得+2 生命。"
+    ],
+    "food:246": [
+      "选择一个1级的魟鱼玩具。"
+    ],
+    "food:247": [
+      "选择一个2级的魟鱼玩具。"
+    ],
+    "food:248": [
+      "选择一个3级的魟鱼玩具。"
+    ],
+    "food:168": [
+      "使一个宠物获得草莓特性。始终优惠！"
+    ],
+    "food:82": [
+      "使三个随机宠物获得+1 攻击和+1 生命。"
+    ],
+    "food:84": [
+      "使三个随机宠物获得+2 攻击。"
+    ],
+    "food:187": [
+      "囤积本回合购买的最后一个非豆腐食物的一个2金币复制。"
+    ],
+    "food:230": [
+      "在不触发能力的情况下对一个宠物施加诅咒。"
+    ],
+    "food:215": [
+      "在不触发能力的情况下对一个宠物施加恶心。"
+    ],
+    "food:120": [
+      "使一个宠物获得+6 生命。"
+    ],
+    "food:21": [
+      "使一个宠物获得+3 攻击和+3 生命。"
+    ],
+    "food:206": [
+      "激活一个宠物的能力。"
+    ],
+    "food:166": [
+      "囤积一个免费6阶食物，可从所有兽群中选择。"
+    ],
+    "food:41": [
+      "使两个随机宠物获得+4 攻击。"
+    ],
+    "food:106": [
+      "囤积一个2金币的西瓜和一个2金币的牛扒。"
+    ],
+    "food:154": [
+      "把一个宠物变为高一阶的另一个宠物。"
+    ],
+    "food:96": [
+      "使一个宠物获得西瓜 特性。"
+    ],
+    "food:243": [
+      "选择一个1级的猫鼬玩具。"
+    ],
+    "food:244": [
+      "选择一个2级的猫鼬玩具。"
+    ],
+    "food:245": [
+      "选择一个3级的猫鼬玩具。"
+    ],
+    "food:51": [
+      "使一个宠物获得蘑菇 特性。"
+    ],
+    "food:54": [
+      "使两个随机宠物获得+4 生命。"
+    ],
+    "food:55": [
+      "使一个宠物获得煎饼 特性。"
+    ],
+    "food:152": [
+      "使一个宠物获得+2 攻击和+2 生命。未来升级桃子可额外获得+1攻击和生命。"
+    ],
+    "food:62": [
+      "使一个宠物获得口袋饼 特性。"
+    ],
+    "food:63": [
+      "使两个随机宠物获得+2 攻击和+2 生命。"
+    ],
+    "food:65": [
+      "使一个宠物获得爆米花 特性。"
+    ],
+    "food:67": [
+      "使一个宠物获得+2 攻击和+2 生命。如果所有的宠物都为4阶或更高，此效果翻倍。"
+    ],
+    "food:158": [
+      "如果兽群中没有 标签下的宠物和食物，使一个宠物及其前方所有伙伴获得5阶和6阶的特性。"
+    ],
+    "food:200": [
+      "使一个宠物获得撒丁岛醋栗 特性。"
+    ],
+    "food:77": [
+      "使所有宠物获得+1 攻击。"
+    ],
+    "food:171": [
+      "从任意兽群选择一个5-6阶特性的食物免费囤积。"
+    ],
+    "food:79": [
+      "使一个宠物获得牛扒 特性。"
+    ],
+    "food:85": [
+      "使一个宠物获得西红柿 特性。"
+    ],
+    "food:199": [
+      "使一个宠物获得白秋葵 特性。"
+    ],
+    "food:160": [
+      "使一个宠物获得世界树果实 特性。"
+    ],
+    "food:26": [
+      "使一个宠物获得椰子 特性。"
+    ],
+    "food:57": [
+      "使一个宠物获得花生 特性。"
+    ],
+    "food:204": [
+      "使一个宠物获得花生酱 特性。"
+    ],
+    "perk:ambrosia": [
+      "屏蔽不适状态或8点伤害，生效一次。"
+    ],
+    "perk:baguette": [
+      "攻击前：移除最前排敌人的特性，生效一次。"
+    ],
+    "perk:banana": [
+      "晕厥：召唤一个4/4的猴子。"
+    ],
+    "perk:blackberry": [
+      "获得+1 攻击和+2 生命。"
+    ],
+    "ailment:bloated": [
+      "无法获得特性，生效一次。"
+    ],
+    "perk:blueberry": [
+      "敌方随机能力优先选择此宠物。"
+    ],
+    "perk:bok-choy": [
+      "在晕厥时获得+3 生命，生效一次。"
+    ],
+    "perk:bread": [
+      "回合结束时：获得+7 生命，持续一回合。"
+    ],
+    "perk:brussels-sprout": [
+      "屏蔽推动或5点伤害，生效一次。"
+    ],
+    "perk:cake": [
+      "回合结束时：出售价格加1 金币。"
+    ],
+    "perk:caramel": [
+      "攻击前：组合友方焦糖，每有一个焦糖便对生命最高的敌人造成3点伤害，生效一次。"
+    ],
+    "perk:carrot": [
+      "回合结束时：获得+1 攻击和+1 生命。"
+    ],
+    "perk:cashew-nut": [
+      "攻击前：对第二排敌人造成2点伤害，生效一次。"
+    ],
+    "perk:cauliflower": [
+      "击倒时：若仍未倒下，永久获得+1 攻击和+1 生命，生效一次。"
+    ],
+    "perk:cheese": [
+      "攻击 力至少为15，生效一次。"
+    ],
+    "perk:cherry": [
+      "战斗前：获得2个 喇叭并移除特性。"
+    ],
+    "perk:chili": [
+      "攻击对第二排敌人造成5点伤害。"
+    ],
+    "perk:chocolate-cake": [
+      "攻击前：获得+3 经验值并晕厥。"
+    ],
+    "perk:churros": [
+      "先于其他具有相同触发条件的宠物激活能力。"
+    ],
+    "perk:cocoa-bean": [
+      "攻击前：变为一个随机的具有召唤能力的宠物。"
+    ],
+    "perk:coconut": [
+      "屏蔽伤害，生效一次。"
+    ],
+    "perk:cod-roe": [
+      "晕厥：召唤一条2/3的鱼。"
+    ],
+    "ailment:cold": [
+      "受到的伤害 +5，生效一次。"
+    ],
+    "ailment:confused": [
+      "攻击前：变为一个低一阶的宠物，生效一次。"
+    ],
+    "ailment:cowardly": [
+      "攻击前：移动至最后排，生效一次。"
+    ],
+    "ailment:crisp": [
+      "任意单位攻击时：受到6点伤害，生效一次。"
+    ],
+    "perk:croissant": [
+      "回合结束时：获得+1 攻击。"
+    ],
+    "perk:cucumber": [
+      "回合结束时：获得+1 生命。"
+    ],
+    "ailment:cursed": [
+      "晕厥：对一个随机伙伴施加诅咒。"
+    ],
+    "ailment:dazed": [
+      "阻止能力激活。"
+    ],
+    "perk:donut": [
+      "友方随机能力优先选择此宠物。"
+    ],
+    "perk:durian": [
+      "攻击前：使生命最高的敌人减少33% 生命，生效一次。"
+    ],
+    "perk:easter-egg": [
+      "晕厥：召唤一个3/3的兔子，其攻击会造成双倍伤害。"
+    ],
+    "perk:egg": [
+      "攻击前：对目标造成2点伤害，生效一次。"
+    ],
+    "perk:eggplant": [
+      "战斗前：将另一侧此位置的敌人向前推动1格。"
+    ],
+    "perk:eucalyptus": [
+      "屏蔽4点敌方伤害，生效一次。"
+    ],
+    "perk:faint-bread": [
+      "晕厥：召唤任意一个1阶的晕厥宠物。"
+    ],
+    "perk:fairy-dust": [
+      "前排为空：跳跃至最前排，获得+2 魔力，生效一次。"
+    ],
+    "perk:fig": [
+      "攻击前：对生命最低的敌人造成4点伤害，生效一次。"
+    ],
+    "perk:fortune-cookie": [
+      "攻击有50%的概率造成双倍伤害。"
+    ],
+    "perk:garlic": [
+      "受到的伤害减少2点。"
+    ],
+    "perk:gingerbread-man": [
+      "战斗前：获得+1 经验值。"
+    ],
+    "perk:golden-egg": [
+      "攻击前：对目标造成6点伤害，生效一次。"
+    ],
+    "perk:grapes": [
+      "回合开始时：获得+1 金币。"
+    ],
+    "perk:gros-michel-banana": [
+      "攻击前：变为一只蚂蚁。"
+    ],
+    "perk:guava": [
+      "屏蔽3点伤害，或攻击造成+3伤害，生效一次（同时生效均可触发）。"
+    ],
+    "perk:health-potion": [
+      "战斗前：使最前排的友方宠物获得+2 生命。"
+    ],
+    "perk:honey": [
+      "晕厥：召唤一只1/1的蜜蜂。"
+    ],
+    "perk:honeydew-melon": [
+      "屏蔽10点伤害，或攻击造成+5伤害，生效一次（同时生效均可触发）。"
+    ],
+    "ailment:icky": [
+      "受到的伤害加倍，生效两次。"
+    ],
+    "ailment:inked": [
+      "攻击和能力造成的伤害 减少3点。"
+    ],
+    "perk:kiwano": [
+      "能力造成的伤害 +8，生效一次。"
+    ],
+    "perk:lemon": [
+      "屏蔽7点伤害，生效两次。"
+    ],
+    "perk:lime": [
+      "受到的伤害 减少1点。"
+    ],
+    "perk:love-potion": [
+      "战斗前：召唤一个5/5的此宠物。"
+    ],
+    "perk:macaron": [
+      "晚于其他具有相同触发条件的宠物激活能力。"
+    ],
+    "perk:magic-beans": [
+      "回合开始时：获得金蛋特性，并使其出售价格+4 金币。"
+    ],
+    "perk:mana-potion": [
+      "战斗前：获得+6 魔力。"
+    ],
+    "perk:maple-syrup": [
+      "攻击造成的伤害-50%，且受到的伤害-50%，生效三次。"
+    ],
+    "perk:meat-bone": [
+      "攻击伤害 +3。"
+    ],
+    "perk:melon": [
+      "屏蔽20点伤害，生效一次。"
+    ],
+    "perk:melon-slice": [
+      "屏蔽10点伤害，生效一次。"
+    ],
+    "perk:mild-chili": [
+      "攻击对第二排敌人造成4点伤害。"
+    ],
+    "perk:mushroom": [
+      "晕厥：变为1/1重新上场。"
+    ],
+    "perk:nachos": [
+      "攻击前：将至多3 生命转化为攻击。"
+    ],
+    "perk:onion": [
+      "攻击前：移动至最后排，生效一次。"
+    ],
+    "perk:oyster-mushroom": [
+      "攻击前：将 攻击与 生命设为不低于9，生效一次。"
+    ],
+    "perk:pancakes": [
+      "战斗前：使所有伙伴获得+2 攻击和+2 生命。"
+    ],
+    "perk:peanut": [
+      "击倒所有被此宠物攻击且受到伤害的宠物。"
+    ],
+    "perk:peanut-butter": [
+      "击倒所有被此宠物攻击且受到伤害的宠物，生效一次。"
+    ],
+    "perk:pepper": [
+      "生命不会降低至1以下。受到伤害后移除此效果。"
+    ],
+    "perk:pie": [
+      "战斗前：获得+4 攻击和+3 生命。"
+    ],
+    "perk:pineapple": [
+      "能力造成的伤害 +2，生效三次。"
+    ],
+    "perk:pita-bread": [
+      "自伤：获得+15 生命，生效一次。"
+    ],
+    "perk:popcorn": [
+      "晕厥：召唤一个同阶的随机宠物。"
+    ],
+    "perk:potato": [
+      "屏蔽10点来自能力和特性的伤害，生效两次。"
+    ],
+    "perk:radish": [
+      "战斗前：获得与宠物阶数相同的一个来自任意兽群的有用特性。"
+    ],
+    "perk:rambutan": [
+      "攻击前：获得+3 魔力。"
+    ],
+    "perk:rice": [
+      "出售时获得+2 金币。"
+    ],
+    "ailment:sad": [
+      "无法获得攻击或生命。"
+    ],
+    "perk:salt": [
+      "攻击时造成双倍伤害，生效一次。"
+    ],
+    "perk:sardinian-currant": [
+      "回合开始时：获得+2 金币。"
+    ],
+    "perk:sausage": [
+      "回合开始时：获得一次免费刷新。"
+    ],
+    "perk:seaweed": [
+      "攻击前：变为小海胆。"
+    ],
+    "ailment:silly": [
+      "此能力在战斗中的目标随机。"
+    ],
+    "perk:skewer": [
+      "攻击对第二排和第三排的敌人造成3点伤害。"
+    ],
+    "ailment:sleepy": [
+      "攻击伤害 减半，生效一次。"
+    ],
+    "ailment:spooked": [
+      "受到的伤害 +1。"
+    ],
+    "perk:squash": [
+      "攻击前：使目标-6 生命，生效一次。"
+    ],
+    "perk:steak": [
+      "攻击伤害 +20，生效一次。"
+    ],
+    "perk:strawberry": [
+      "晕厥：使最后排的伙伴获得+1 攻击和+1 生命。"
+    ],
+    "perk:sudduth-tomato": [
+      "自伤：若仍未倒下，永久获得+1 生命，生效一次。"
+    ],
+    "ailment:tasty": [
+      "晕厥：使一个随机敌人永久获得+2 攻击和+2 生命。"
+    ],
+    "ailment:toasty": [
+      "任意单位攻击时：受到1点伤害，生效一次。"
+    ],
+    "perk:tomato": [
+      "攻击前：对最后排的敌人造成10点伤害，生效一次。"
+    ],
+    "perk:unagi": [
+      "战斗开始时：对一个随机敌人造成2点伤害。"
+    ],
+    "perk:walnut": [
+      "屏蔽2点伤害，生效一次。"
+    ],
+    "ailment:weak": [
+      "受到的伤害 +3。"
+    ],
+    "ailment:webbed": [
+      "晕厥：在对手最前排召唤一只2/2的蜘蛛。"
+    ],
+    "perk:white-okra": [
+      "屏蔽10点伤害（生效两次）或不适状态（生效一次）。"
+    ],
+    "perk:white-truffle": [
+      "伙伴晕厥时：获得+4 攻击，并对攻击力最高的敌人发动跳跃攻击，生效一次。"
+    ],
+    "perk:yggdrasil-fruit": [
+      "晕厥：召唤两个5/5的北欧山羊。"
+    ],
+    "toy:699": [
+      "战斗开始时：使最前排无特性的伙伴获得爆米花 特性。",
+      "战斗开始时：使最前排无特性的两个伙伴获得爆米花 特性。",
+      "战斗开始时：使最前排无特性的三个伙伴获得爆米花 特性。"
+    ],
+    "toy:294": [
+      "战斗开始时：使前两个敌人获得椰子 特性。"
+    ],
+    "toy:298": [
+      "战斗开始时：对生命最高的伙伴造成30点伤害。"
+    ],
+    "toy:299": [
+      "回合结束时：对最前排的伙伴造成50点伤害。"
+    ],
+    "toy:300": [
+      "回合结束时：若本回合你的刷新次数少于6，则对伙伴造成相当于回合数的伤害。"
+    ],
+    "toy:302": [
+      "回合开始时：出售最前排的两个伙伴。"
+    ],
+    "toy:794": [
+      "战斗开始时：使所有伙伴获得+1 经验值，所有敌人获得+2 经验值。"
+    ],
+    "toy:482": [
+      "被召唤时：将此替换为另一个随机玩具。"
+    ],
+    "toy:303": [
+      "购买伙伴时：使其变为一个同阶但基础属性不同的任意随机宠物。"
+    ],
+    "toy:304": [
+      "刷新时：失去1 金币。"
+    ],
+    "toy:286": [
+      "战斗开始时：打乱所有伙伴的位置。"
+    ],
+    "toy:289": [
+      "战斗开始时：对生命最低的伙伴造成30点伤害。触发2次。"
+    ],
+    "toy:485": [
+      "回合结束时：若你本回合没有购买任何1阶食物，使所有伙伴眩晕，持续一回合。"
+    ],
+    "toy:306": [
+      "战斗开始时：使最前排的两个伙伴虚弱。"
+    ],
+    "toy:307": [
+      "前排为空：使最后排的伙伴-20% 攻击，并将其移至最前排。"
+    ],
+    "toy:506": [
+      "战斗开始时：使伙伴-20% 攻击和 生命。"
+    ],
+    "toy:308": [
+      "战斗开始时：给随机宠物喂食苹果，喂食数等于回合数。苹果对敌方宠物的效果加倍。"
+    ],
+    "toy:590": [
+      "战斗开始时：使两个随机伙伴寒冷。"
+    ],
+    "toy:310": [
+      "回合开始时：失去3 金币。"
+    ],
+    "toy:312": [
+      "伙伴被召唤时：将其击倒。"
+    ],
+    "toy:313": [
+      "战斗开始时：使最前排的两个伙伴染墨。"
+    ],
+    "toy:284": [
+      "战斗开始时：击倒两个最前排的伙伴和一个最前排的敌人。"
+    ],
+    "toy:314": [
+      "战斗开始时：将最后排的敌人推至最前排，并使其获得+100% 攻击和+100% 生命。"
+    ],
+    "toy:315": [
+      "战斗开始时：使所有敌人获得+20% 攻击和+20% 生命。"
+    ],
+    "toy:582": [
+      "回合结束时：若你本回合花费的金币数量少于13，使所有伙伴-20% 生命。"
+    ],
+    "toy:316": [
+      "战斗开始时：击倒低一阶的伙伴。"
+    ],
+    "toy:285": [
+      "回合结束时：对三个最前排的伙伴造成相当于其阶数的伤害。"
+    ],
+    "toy:318": [
+      "所有敌人都晕厥：为敌方召唤一个50/1的鸭子。每场战斗生效1次。"
+    ],
+    "toy:795": [
+      "战斗开始时：使所有伙伴的 攻击和 生命变为回合数。"
+    ],
+    "toy:486": [
+      "战斗开始时：击倒当前等阶的伙伴。"
+    ],
+    "toy:323": [
+      "伙伴晕厥时：对一个随机伙伴造成2点伤害。"
+    ],
+    "toy:792": [
+      "战斗开始时：使最后排的两个伙伴恶心。"
+    ],
+    "toy:324": [
+      "三个伙伴晕厥时：为敌方召唤一个与最后排的伙伴一模一样的复制。"
+    ],
+    "toy:288": [
+      "战斗开始时：从前往后依次使敌人获得+1 攻击和+1 生命，重复次数等于回合数。"
+    ],
+    "toy:793": [
+      "回合结束时：移除两个伙伴的等阶最低的特性。"
+    ],
+    "toy:329": [
+      "所有敌人都晕厥：使所有伙伴晕厥。"
+    ],
+    "toy:301": [
+      null
+    ],
+    "toy:305": [
+      "战斗开始时：使所有伙伴的生命变为5。"
+    ],
+    "toy:319": [
+      "回合结束时：将最前排的伙伴变成另一个低2阶的随机宠物。"
+    ],
+    "toy:321": [
+      "所有敌人都晕厥：为敌方召唤一个4/4的狗。每场战斗生效1次。"
+    ],
+    "toy:327": [
+      "战斗开始时：使所有伙伴变形为1级。"
+    ],
+    "toy:328": [
+      "所有敌人都晕厥：为敌方召唤一个8/8的袋鼠。每场战斗生效1次。"
+    ],
+    "toy:317": [
+      "所有敌人都晕厥：为敌方召唤三个6/4的马。每场战斗生效1次。"
+    ],
+    "toy:479": [
+      "损坏时：使最前排的伙伴获得+1 攻击和+1 生命。",
+      "损坏时：使最前排的两个伙伴获得+1 攻击和+1 生命。",
+      "损坏时：使最前排的三个伙伴获得+1 攻击和+1 生命。"
+    ],
+    "toy:496": [
+      "战斗开始时：使最中间一格的伙伴获得胡桃 特性。",
+      "战斗开始时：使最中间一格的伙伴获得双倍效果的胡桃 特性。",
+      "战斗开始时：使最中间一格的伙伴获得三倍效果的胡桃 特性。"
+    ],
+    "toy:509": [
+      "战斗开始时：使最前排的一个伙伴获得大蒜 特性。",
+      "战斗开始时：使最前排的两个伙伴获得大蒜 特性。",
+      "战斗开始时：使最前排的三个伙伴获得大蒜 特性。"
+    ],
+    "toy:789": [
+      "战斗开始时：使最前排的伙伴获得桉树 特性。",
+      "战斗开始时：使最前排的两个伙伴获得桉树 特性。",
+      "战斗开始时：使最前排的三个伙伴获得桉树 特性。"
+    ],
+    "toy:488": [
+      "损坏时：使所有伙伴获得+1 生命。",
+      "损坏时：使所有伙伴获得+2 生命。",
+      "损坏时：使所有伙伴获得+3 生命。"
+    ],
+    "toy:478": [
+      "战斗开始时：对一个随机敌人造成3点伤害。",
+      "战斗开始时：对两个随机敌人造成3点伤害。",
+      "战斗开始时：对三个随机敌人造成3点伤害。"
+    ],
+    "toy:507": [
+      "战斗开始时：对生命最低的敌人造成5点伤害。",
+      "战斗开始时：对生命最低的敌人造成5点伤害。触发2次。",
+      "战斗开始时：对生命最低的敌人造成5点伤害。触发3次。"
+    ],
+    "toy:510": [
+      "损坏时：使最前排的一个伙伴获得西瓜 特性。",
+      "损坏时：使最前排的两个伙伴获得西瓜 特性。",
+      "损坏时：使最前排的三个伙伴获得西瓜 特性。"
+    ],
+    "toy:493": [
+      "战斗开始时：对最后排的敌人造成5点伤害。",
+      "战斗开始时：对最后排的敌人造成5点伤害。触发2次。",
+      "战斗开始时：对最后排的敌人造成5点伤害。触发3次。"
+    ],
+    "toy:492": [
+      "损坏时：召唤一个出售价格为4 金币的7/7金鱼。",
+      "损坏时：召唤一个出售价格为8 金币的14/14金鱼。",
+      "损坏时：召唤一个出售价格为12 金币的21/21金鱼。"
+    ],
+    "toy:311": [
+      "损坏时：囤积一个免费的鸡腿。",
+      "损坏时：囤积两个免费的鸡腿。",
+      "损坏时：囤积三个免费的鸡腿。"
+    ],
+    "toy:326": [
+      "战斗开始时：使最前排的敌人虚弱。",
+      "战斗开始时：使前两个敌人虚弱。",
+      "战斗开始时：使前三个敌人虚弱。"
+    ],
+    "toy:503": [
+      "战斗开始时：使攻击最高的一个敌人-30% 攻击。",
+      "战斗开始时：使攻击最高的两个敌人-30% 攻击。",
+      "战斗开始时：使攻击最高的三个敌人-30% 攻击。"
+    ],
+    "toy:484": [
+      "损坏时：使最前排的伙伴获得+5 攻击和+5 生命。",
+      "损坏时：使最前排的伙伴获得+10 攻击和+10 生命。",
+      "损坏时：使最前排的伙伴获得+15 攻击和+15 生命。"
+    ],
+    "toy:513": [
+      "战斗开始时：使生命最高的一个敌人-40% 生命。",
+      "战斗开始时：使生命最高的两个敌人-40% 生命。",
+      "战斗开始时：使生命最高的三个敌人-40% 生命。"
+    ],
+    "toy:511": [
+      "战斗开始时：使攻击最高的一个伙伴获得椰子 特性。",
+      "战斗开始时：使攻击最高的两个伙伴获得椰子 特性。",
+      "战斗开始时：使攻击最高的三个伙伴获得椰子 特性。"
+    ],
+    "toy:512": [
+      "战斗开始时：使攻击最低的一个伙伴获得花生酱 特性。",
+      "战斗开始时：使攻击最低的两个伙伴获得花生酱 特性。",
+      "战斗开始时：使攻击最低的三个伙伴获得花生酱 特性。"
+    ],
+    "toy:491": [
+      "损坏时：使所有伙伴获得+2 攻击和+2 生命。",
+      "损坏时：使伙伴获得+4 攻击和+4 生命。",
+      "损坏时：使伙伴获得+6 攻击和+6 生命。"
+    ],
+    "toy:580": [
+      "战斗开始时：使最前排的伙伴获得+2 魔力。",
+      "战斗开始时：使最前排的伙伴获得+4 魔力。",
+      "战斗开始时：使最前排的伙伴获得+6 魔力。"
+    ],
+    "toy:581": [
+      "战斗开始时：使最后排的2阶及以下伙伴获得+1 经验值。",
+      "战斗开始时：使最后排的2阶及以下伙伴获得+2 经验值。",
+      "战斗开始时：使最后排的2阶及以下伙伴获得+3 经验值。"
+    ],
+    "toy:600": [
+      "战斗开始时：使一个没有特性的随机敌人虚弱。",
+      "战斗开始时：使两个没有特性的随机敌人虚弱。",
+      "战斗开始时：使三个没有特性的随机敌人虚弱。"
+    ],
+    "toy:598": [
+      "伙伴被召唤时：使其获得+1 攻击。",
+      "伙伴被召唤时：使其获得+2 攻击。",
+      "伙伴被召唤时：使其获得+3 攻击。"
+    ],
+    "toy:575": [
+      "友方升级时：使其获得+1 攻击和+1 生命。",
+      "友方升级时：使其获得+2 攻击和+2 生命。",
+      "友方升级时：使其获得+3 攻击和+3 生命。"
+    ],
+    "toy:574": [
+      "购买三个伙伴时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "购买三个伙伴时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "购买三个伙伴时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:586": [
+      "三个伙伴晕厥时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "三个伙伴晕厥时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "三个伙伴晕厥时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:589": [
+      "花费14金币时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "花费14金币时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "花费14金币时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:595": [
+      "购买三个食物时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "购买三个食物时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "购买三个食物时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:578": [
+      "两个伙伴变形后：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "两个伙伴变形后：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "两个伙伴变形后：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:599": [
+      "刷新7次时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "刷新7次时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "刷新7次时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:576": [
+      "一个伙伴跳跃时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "一个伙伴跳跃时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "一个伙伴跳跃时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:579": [
+      "两个友方升级时：损坏并使所有伙伴永久获得+1 攻击与+1 生命。",
+      "两个友方升级时：损坏并使所有伙伴永久获得+2 攻击与+2 生命。",
+      "两个友方升级时：损坏并使所有伙伴永久获得+3 攻击与+3 生命。"
+    ],
+    "toy:591": [
+      "损坏时：囤积一个4/4的3级2阶免费宠物。",
+      "损坏时：囤积一个8/8的3级4阶免费宠物。",
+      "损坏时：囤积一个12/12的3级6阶免费宠物。"
+    ],
+    "toy:594": [
+      "损坏时：召唤一个1级宝箱。",
+      "损坏时：召唤一个2级宝箱。",
+      "损坏时：召唤一个3级宝箱。"
+    ],
+    "toy:597": [
+      "回合结束时：下回合获得一次免费刷新。",
+      "回合结束时：下回合获得两次免费刷新。",
+      "回合结束时：下回合获得三次免费刷新。"
+    ],
+    "toy:584": [
+      "所有伙伴晕厥时：在战斗中召唤一个6/6的智慧鲑鱼，生效一次。",
+      "所有伙伴晕厥时：在战斗中召唤一个12/12的智慧鲑鱼，生效一次。",
+      "所有伙伴晕厥时：在战斗中召唤一个18/18的智慧鲑鱼，生效一次。"
+    ],
+    "toy:587": [
+      "战斗开始时：使中间的友方宠物获得+6 魔力。",
+      "战斗开始时：使中间的友方宠物获得+12 魔力。",
+      "战斗开始时：使中间的友方宠物获得+18 魔力。"
+    ],
+    "toy:585": [
+      "战斗开始时：使一个随机坦德与坦德获得+6 攻击和+6 生命。",
+      "战斗开始时：使一个随机坦德与坦德获得+12 攻击和+12 生命。",
+      "战斗开始时：使一个随机坦德与坦德获得+18 攻击和+18 生命。"
+    ],
+    "toy:588": [
+      "前排为空：在战斗中召唤一个6/6的巨眼狗到最前排，生效一次。",
+      "前排为空：在战斗中召唤一个12/12的巨眼狗到最前排，生效一次。",
+      "前排为空：在战斗中召唤一个18/18的巨眼狗到最前排，生效一次。"
+    ],
+    "toy:645": [
+      "前排为空：在战斗中召唤一个6/6的支配者，其会对所有其他宠物造成5点伤害。",
+      "前排为空：在战斗中召唤一个12/12的支配者，其会对所有其他宠物造成10点伤害。",
+      "前排为空：在战斗中召唤一个18/18的支配者，其会对所有其他宠物造成15点伤害。"
+    ],
+    "toy:593": [
+      "战斗开始时：使所有宠物获得随机特性与不适状态。",
+      "战斗开始时：使所有宠物获得随机特性与不适状态，且相应效果变为两倍。",
+      "战斗开始时：使所有宠物获得随机特性与不适状态，且相应效果变为三倍。"
+    ],
+    "toy:583": [
+      "回合结束时：使最后排的伙伴获得+1 攻击和+1 生命。",
+      "回合结束时：使最后排的伙伴获得+2 攻击和+2 生命。",
+      "回合结束时：使最后排的伙伴获得+3 攻击和+3 生命。"
+    ],
+    "toy:592": [
+      "损坏时：囤积一个免费的圣水。",
+      "损坏时：囤积两个免费的圣水。",
+      "损坏时：囤积三个免费的圣水。"
+    ],
+    "toy:backpack": [
+      null
+    ],
+    "toy:board-game": [
+      null
+    ],
+    "toy:comic-book": [
+      null
+    ],
+    "toy:duct-tape": [
+      null
+    ],
+    "toy:hand-puppet": [
+      null
+    ],
+    "toy:mirror": [
+      null
+    ],
+    "toy:pillow": [
+      null
+    ],
+    "toy:skateboard": [
+      null
+    ],
+    "toy:smartphone": [
+      null
+    ],
+    "toy:tiny-house": [
+      null
+    ],
+    "toy:toy-boat": [
+      null
+    ],
+    "toy:tricycle": [
+      null
+    ],
+    "toy:wacky-broom": [
+      null
+    ],
+    "toy:wacky-spring": [
+      null
+    ],
+    "toy:wacky-yo-yo": [
+      null
+    ],
+    "perk:from-food-211": [
+      "攻击前：使目标-5 攻击，生效一次。"
+    ],
+    "mechanic:trumpets": [
+      null
+    ],
+    "mechanic:mana": [
+      null
+    ],
+    "mechanic:experience": [
+      null
+    ],
+    "mechanic:faint": [
+      null
+    ],
+    "mechanic:hurt": [
+      null
+    ],
+    "mechanic:toys": [
+      null
+    ]
+  }
+}

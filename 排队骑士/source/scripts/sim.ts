@@ -5,12 +5,11 @@
 import { writeFileSync } from 'node:fs';
 import { card } from '../src/core/data';
 import { simulate, type UnitSpec } from '../src/core/engine';
-import { BOSSES } from '../src/core/data';
-import { bossTeam, fight, newRun, playerTeam, settleBattle, type RunState } from '../src/core/run';
+import { fight, newRun, playerTeam, settleBattle, type RunState } from '../src/core/run';
 import { shopTurn } from './bot';
 
 const argv = (globalThis as unknown as { process: { argv: string[] } }).process.argv.slice(2);
-const MAX_TURN = 20;
+const MAX_TURN = 30;
 const total = (t: UnitSpec[]) => t.reduce((s, u) => s + u.atk + u.hp, 0);
 const avgUnit = (t: UnitSpec[]) => (t.length ? total(t) / t.length : 0);
 
@@ -33,8 +32,7 @@ if (argv[0] === 'ghosts') {
       settleBattle(p.r, fight(p.r));
     });
   }
-  const out: { turns: Record<string, UnitSpec[][]>; median: Record<string, number>; bossScale: Record<string, number> } = { turns: {}, median: {}, bossScale: {} };
-  const mids: Record<string, UnitSpec[][]> = {};
+  const out: { turns: Record<string, UnitSpec[][]>; median: Record<string, number>; scale: Record<string, number>; bossScale: Record<string, number> } = { turns: {}, median: {}, scale: {}, bossScale: {} };
   for (const [t, teams] of Object.entries(byTurn)) {
     const scored = teams.map((team) => {
       let s = 0;
@@ -46,7 +44,6 @@ if (argv[0] === 'ghosts') {
     }).sort((a, b) => a.s - b.s);
     const n = scored.length;
     const mid = scored.slice(Math.floor(n * 0.4), Math.ceil(n * 0.6));
-    mids[t] = mid.map((x) => x.team);
     out.median[t] = Math.round(mid.reduce((s, x) => s + total(x.team), 0) / Math.max(1, mid.length));
     // 后期人口只剩强者（幸存者偏差），档位往下挪
     const [l2, h2] = Number(t) >= 10 ? [0, hi - lo] : [lo, hi];
@@ -54,28 +51,7 @@ if (argv[0] === 'ghosts') {
     out.turns[t] = band.filter((_, i) => i % Math.max(1, Math.floor(band.length / 30)) === 0).slice(0, 30).map((x) => x.team);
     console.log(`回合${t}: 人口 ${n}  中位总攻血 ${out.median[t]}  单位均值 ${(mid.reduce((s, x) => s + avgUnit(x.team), 0) / Math.max(1, mid.length)).toFixed(1)}  幽灵 ${out.turns[t].length}`);
   }
-  // Boss 机制校准：中位阵容打 ×1.0 Boss 胜率约 60%
-  for (const [key, turn] of [['wall', 4], ['tide', 8], ['wheel', 12], ['final', 11]] as const) {
-    const teams = mids[turn] ?? [];
-    if (!teams.length) continue;
-    let a = 0.2;
-    let b = 3;
-    for (let it = 0; it < 14; it++) {
-      const k = (a + b) / 2;
-      const boss = bossTeamWith(key, turn, k, out.median[turn]);
-      let w = 0;
-      teams.forEach((team, i) => {
-        for (let s = 0; s < 4; s++) {
-          const res = simulate(team, boss, i * 4 + s + 1).result;
-          w += res === 'win' ? 1 : res === 'draw' ? 0.5 : 0;
-        }
-      });
-      if (w / (teams.length * 4) > (key === 'wheel' ? 0.8 : 0.6)) a = k;
-      else b = k;
-    }
-    out.bossScale[key] = Math.round(((a + b) / 2) * 100) / 100;
-    console.log(`Boss ${key}: 校准系数 ${out.bossScale[key]}`);
-  }
+  // 回合系数与 Boss 系数由 scripts/calib.ts 写入（受伤流校准），重生成幽灵后需重跑 calib
   writeFileSync(new URL('../src/core/ghosts.json', import.meta.url), JSON.stringify(out));
 } else {
   const N = Number(argv[0] ?? 400);
@@ -117,11 +93,4 @@ if (argv[0] === 'ghosts') {
   for (let t = 1; t <= MAX_TURN; t++) if (tries[t]) console.log(`回合${t}: ${tries[t]} 场  胜率 ${((wins[t] / tries[t]) * 100).toFixed(0)}%  单位均值 ${(unitAvg[t] / tries[t]).toFixed(1)}  最强 ${(topU[t] / tries[t]).toFixed(1)}`);
   console.log('Boss', Object.entries(boss).map(([k, [w, n]]) => `${k} ${((w / n) * 100).toFixed(0)}%(${n})`).join('  '));
   console.log([...used].sort((a, b) => b[1] - a[1]).slice(0, 25).map(([d, n]) => `${card(d).name}${n}`).join(' '));
-}
-
-function bossTeamWith(key: keyof typeof BOSSES, turn: number, k: number, median: number): UnitSpec[] {
-  const base = bossTeam(BOSSES[key], turn, 1, 1);
-  const sum = base.reduce((s, u) => s + u.atk + u.hp, 0);
-  const f = (median * k) / sum;
-  return base.map((u) => ({ ...u, atk: Math.max(1, Math.min(50, Math.round(u.atk * f))), hp: Math.max(1, Math.min(50, Math.round(u.hp * f))) }));
 }

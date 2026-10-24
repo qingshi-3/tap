@@ -1,5 +1,6 @@
 import { cardText, tierBadge } from './card';
-import { card, ENCH_INFO, FOOD, KW_INFO, type Ench } from '../core/data';
+import { card, equipOf, equipText, EQUIP, FOOD, foodText, KW_INFO, Q_INFO, summonInfo, type Ench, type Tier } from '../core/data';
+import { unitSvg } from './unitArt';
 import { FACTION_INFO, unitDef } from './shim';
 import { h, STAGE_H, STAGE_W } from './dom';
 import { kwInline, kwRich, kwUpgrade } from './kwtext';
@@ -24,7 +25,7 @@ export function initTip(stage: HTMLElement) {
   window.addEventListener('resize', hideTip);
 }
 
-export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; drum?: number; lamp?: boolean; copies?: number; kws?: readonly string[] }
+export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; copies?: number; kws?: readonly string[] }
 
 /** withUp：附带升一星的变化（只改数字时并进同一句写成「2→3」） */
 export function unitTip(defId: string, level: number, st?: TipStats | null, withUp = true) {
@@ -39,8 +40,10 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   const upText = withUp && !d.enemyOnly && !d.token && level < 3 && c.v ? cardText(defId, level + 1) : '';
   const upDiff = upText && upText !== ability ? kwUpgrade(ability, upText) ?? upText : '';
   const extras: (Node | null)[] = [];
-  if (st?.ench) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon(foodOfEnch(st.ench), 'spell', 'tip-item'), ...kwRich(`附魔·${ENCH_INFO[st.ench].name}：${ENCH_INFO[st.ench].text}`)));
-  if (st?.drum) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_drum', 'spell', 'tip-item'), ...kwRich(`战鼓：下一场 +${st.drum}/+${st.drum}`)));
+  if (st?.ench && equipOf(st.ench)) extras.push(equipLine(st.ench));
+  if (st?.tmpAtk || st?.tmpHp) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_drum', 'spell', 'tip-item'), ...kwRich(`下一场 +${st.tmpAtk ?? 0}/+${st.tmpHp ?? 0}`)));
+  const sum = summonCard(defId, level as 1 | 2 | 3);
+  if (sum) extras.push(sum);
   if (st?.lamp) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_lamp', 'spell', 'tip-item'), ...kwRich('魂灯：下一场获得复生')));
   return h(
     'div',
@@ -61,15 +64,54 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   );
 }
 
-const ENCH_FOOD: Record<Ench, string> = { rotate: 'f_scroll', iron: 'f_iron', chili: 'f_chili', amulet: 'f_amulet', shroom: 'f_shroom', wine: 'f_wine' };
-export const foodOfEnch = (e: Ench) => ENCH_FOOD[e];
+/** 技能召唤物小卡：固定召唤物画立绘和身材；随机召唤画「?」和阶数 */
+function summonCard(defId: string, level: 1 | 2 | 3) {
+  const c = card(defId);
+  const info = summonInfo(c, level);
+  if (!info) return null;
+  const n = info.count > 1 ? h('b', { class: 'ts-n' }, `×${info.count}`) : null;
+  if (!info.def) {
+    return h('div', { class: 'tip-sum' }, h('span', { class: 'ts-art ts-q' }, '?'),
+      h('span', { class: 'ts-name' }, '随机 ', tierBadge(info.tier as Tier), ` 单位 ${'★'.repeat(info.lvl)}`),
+      info.tier === 6 ? null : h('span', { class: 'ts-st' }, statArt('atk', info.atk), statArt('hp', info.hp)), n);
+  }
+  const egg = c.ab === 'egg';
+  const rooster = c.ab === 'rooster';
+  return h('div', { class: 'tip-sum' }, h('span', { class: 'ts-art', html: unitSvg(info.def) }),
+    h('span', { class: 'ts-name' }, card(info.def).name),
+    h('span', { class: 'ts-st' }, statArt('atk', rooster ? h('span', null, '½') : egg ? h('span', null, '1+') : info.atk), statArt('hp', egg ? h('span', null, '1+') : info.hp)), n);
+}
 
-export function foodTip(id: string) {
+/** 装备 icon：带品质色光 */
+export const equipIcon = (id: Ench, cls = '') => {
+  const e = EQUIP[id];
+  const i = itemIcon(e?.icon ?? 'spell', 'spell', `${cls} eq-q eq-q${e?.q ?? 0}`);
+  return i;
+};
+
+/** 说明框里的装备一行：品质色名字 + 文案 + 词条展开 */
+export function equipLine(id: Ench) {
+  const e = EQUIP[id];
+  const [head, ...atoms] = equipText(e);
+  return h('div', { class: 'tip-text tip-ench' }, equipIcon(id, 'tip-item'),
+    h('b', { style: `color:${Q_INFO[e.q].color}` }, `${Q_INFO[e.q].name}·${e.name}`), e.curse ? h('span', { class: 'tip-curse' }, '诅咒') : null, '：', ...kwRich(head),
+    ...atoms.flatMap((t) => [h('br'), ...kwRich(t)]));
+}
+
+export function equipTip(id: Ench, note?: string) {
+  const e = EQUIP[id];
+  return h('div', { class: 'tip-unit', style: `--fc:${Q_INFO[e.q].color}` },
+    h('div', { class: 'tip-head' }, h('div', { class: 'tip-name', style: `color:${Q_INFO[e.q].color}` }, e.name), h('span', { class: 'tip-fac' }, `${Q_INFO[e.q].name}装备`)),
+    equipLine(id),
+    note ? h('div', { class: 'tip-text tip-kw' }, note) : null);
+}
+
+export function foodTip(id: string, val?: [number, number]) {
   const fd = FOOD[id];
   return h('div', { class: 'tip-unit', style: `--fc:${FACTION_INFO.neutral.color}` },
     h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, fd.name), h('span', { class: 'tip-fac' }, '补给'), h('span', { class: 'tip-lv' }, tierBadge(fd.tier))),
-    h('div', { class: 'tip-text' }, ...kwRich(fd.text)),
-    fd.ench ? h('div', { class: 'tip-text tip-kw' }, '附魔：每个单位只能带 1 个，新的会替换旧的。') : null);
+    h('div', { class: 'tip-text' }, ...kwRich(foodText(id, val))),
+    fd.ench ? h('div', { class: 'tip-text tip-kw' }, '装备：每个单位 1 个装备槽，旧装备会退回背包。') : null);
 }
 
 /** 在舞台坐标 (x, y) 附近显示说明：先量内容高度，上下放得下的一侧优先；都放不下就放到目标左右 */

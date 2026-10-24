@@ -1,0 +1,2800 @@
+{
+  "retrievedAt": "2026-10-24",
+  "explanationsUpdatedAt": "2026-10-25",
+  "items": [
+    {
+      "id": "guide-2618433912-token-spam-fly",
+      "title": "Fly Turkey 召唤队",
+      "packIds": [
+        "turtle"
+      ],
+      "kind": "社区攻略",
+      "format": "扩展包",
+      "group": "召唤",
+      "team": [
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 1,
+          "explanation": "鹿放最前排接战，同时作为 Whale 唯一且最近的吞食目标；第一次被吞和后来被释放并阵亡，构成两段 Bus 产出。它是本分支的稳定前排召唤源，也可在原攻略其他变体中增加第二只。"
+        },
+        {
+          "petId": "81",
+          "englishName": "Whale",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 2,
+          "explanation": "鲸紧跟前排Deer，开战吞噬它并立即触发鹿的亡语；Bus通常填回同一空位，吞噬不会净空出一格。鲸阵亡再按自身星级释放Deer，承担复用召唤源的关键工作。"
+        },
+        {
+          "petId": "68",
+          "englishName": "Sheep",
+          "level": null,
+          "perk": "Honey",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "绵羊处于鲸与火鸡之间，等前排先制造空位后再阵亡，才较可能容纳两只公羊；Honey 还会争用一个召唤格。它是高产召唤源，但原文另列缺少 Sheep 时用第二只 Deer 或 Rooster 的变体。"
+        },
+        {
+          "petId": "79",
+          "englishName": "Turkey",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 4,
+          "explanation": "火鸡放在召唤源后方的安全位，职责是强化所有实际成功入场的 Bus、公羊、蜜蜂、释放出的 Deer 与苍蝇。它是这条召唤路线的主要增幅器，第二只火鸡只是原文可选分支。"
+        },
+        {
+          "petId": "30",
+          "englishName": "Fly",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 5,
+          "explanation": "苍蝇位于最后排，尽量晚死，等前方单位阵亡后把苍蝇补进腾出的格子。它是后期续航核心，但原文同槽允许 Tiger 或第二只 Turkey 替换，并非不可替代。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "原攻略的 Fly 替换分支，Sheep 装备 Honey。",
+      "source": {
+        "title": "Super Auto Pets: Beginner’s Guide",
+        "url": "https://gamepretty.com/super-auto-pets-beginners-guide/",
+        "author": "Hybrid（原 Steam 指南，GamePretty 转载）",
+        "date": "2021-10-04"
+      },
+      "versionNote": "2021-10-04 原版乌龟包攻略；单位层级、能力和数值后续已多次改动，仅作历史阵容记录。",
+      "evidence": "攻略原文将该阵型写为“Fly/Tiger/Turkey – Turkey – Sheep (+ honey) – Whale – Deer”；本条选取第一位的 Fly 分支，不将其他可替换项同时视为队员。原文未明示列表方向为前到后。",
+      "sourceTeam": [
+        {
+          "petId": "30",
+          "englishName": "Fly",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "79",
+          "englishName": "Turkey",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "68",
+          "englishName": "Sheep",
+          "level": null,
+          "perk": "Honey"
+        },
+        {
+          "petId": "81",
+          "englishName": "Whale",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          4,
+          3,
+          2,
+          1,
+          0
+        ],
+        "reason": "保留原攻略顺序：Deer和Whale先消耗，Sheep留在两者后方，Fly与Turkey最后支援。",
+        "notes": "原攻略按左后排、右前排理解；正常逐个接战时，Sheep较晚阵亡才有空间容纳公羊和蜂蜜召唤物。",
+        "kind": "source"
+      },
+      "explanation": {
+        "basis": "原攻略与当前技能对照",
+        "mechanism": "左后到右前沿用原攻略：Fly、Turkey、Sheep（Honey）、Whale、Deer。开战Whale先吞Deer，触发Deer亡语召唤Bus，队伍通常仍满五格；Bus与Whale随后先接战，Whale阵亡再释放Deer，让它有机会再产Bus。Sheep较晚接战，其阵亡时才更可能有空间容纳公羊和蜜蜂。Turkey强化成功入场的召唤物，Fly在其他亡语召唤之后、有空位时补入丧尸苍蝇，每回合最多三次。",
+        "caveats": "原文是2021年历史攻略且未标明星级；当前技能、数值与触发上限已变。召唤必须有空位，Honey、Sheep、Whale 与 Fly 的队列可能互相挤占。",
+        "references": [
+          {
+            "label": "2021 原攻略：Super Auto Pets: Beginner’s Guide",
+            "url": "https://gamepretty.com/super-auto-pets-beginners-guide/"
+          },
+          {
+            "label": "当前单位三级技能资料",
+            "url": "https://www.groundedsap.co.uk/Pets.aspx"
+          }
+        ]
+      }
+    },
+    {
+      "id": "guide-2618433912-dodo-parrot",
+      "title": "3星 Dodo Rooster 队",
+      "packIds": [
+        "turtle"
+      ],
+      "kind": "社区攻略",
+      "format": "扩展包",
+      "group": "攻击力转化",
+      "team": [
+        {
+          "petId": "80",
+          "englishName": "Turtle",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 1,
+          "explanation": "乌龟放最前排主动接战，阵亡时把防护装备交给身后的 Rooster，帮助高攻击核心多换一次。它是原攻略允许 Ox 与 Turtle 互换思路的防守件，不负责 Dodo—Parrot 的主要伤害链。"
+        },
+        {
+          "petId": "63",
+          "englishName": "Rooster",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 2,
+          "explanation": "公鸡位于 Turtle 后、Parrot 前，既接收 Turtle 阵亡给予的保护，又给 Parrot 提供可复制的技能。它阵亡后用自身攻击转化为小鸡，是 Dodo 攻击成长路线的主要输出载体。"
+        },
+        {
+          "petId": "53",
+          "englishName": "Parrot",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "鹦鹉紧跟 Rooster，回合结束复制其阵亡召唤能力，复制等级由 Parrot 自身星级决定，并非照抄 Rooster 星级。它是原文的 Parrot 分支，可由第二只 Rooster 替换。"
+        },
+        {
+          "petId": "21",
+          "englishName": "Dodo",
+          "level": 3,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 4,
+          "explanation": "3星渡渡鸟站在 Parrot 后面，开战把自身攻击转给最近的前方单位；Tiger 让这次能力额外重复。它是原攻略明确要求3星且持续吃永久攻击成长的核心，不能把星级要求误套给其他成员。"
+        },
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 5,
+          "explanation": "虎位于最后并紧贴 Dodo，让前方 Dodo 在战斗中按 Tiger 自身星级再执行能力。它提升开战强化量，但只是原攻略的终盘放大器；未成型时可先保留 Monkey 等成长单位。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "原攻略的 Parrot 替换分支，Dodo 要求3星。",
+      "source": {
+        "title": "Super Auto Pets: Beginner’s Guide",
+        "url": "https://gamepretty.com/super-auto-pets-beginners-guide/",
+        "author": "Hybrid（原 Steam 指南，GamePretty 转载）",
+        "date": "2021-10-04"
+      },
+      "versionNote": "2021-10-04 原版乌龟包攻略；依赖旧版 Dodo 等单位效果，不代表当前版本。",
+      "evidence": "攻略原文写为“Tiger – Level 3 Dodo – Rooster/Parrot – Rooster – Turtle”；本条明确选取第三位的 Parrot 分支，并仅填写原文明示的 Dodo 3星。原文未明示列表方向为前到后。",
+      "sourceTeam": [
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "21",
+          "englishName": "Dodo",
+          "level": 3,
+          "perk": ""
+        },
+        {
+          "petId": "53",
+          "englishName": "Parrot",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "63",
+          "englishName": "Rooster",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "80",
+          "englishName": "Turtle",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          4,
+          3,
+          2,
+          1,
+          0
+        ],
+        "reason": "Turtle先阵亡保护身后的Rooster；Parrot复制Rooster，Dodo强化Parrot，Tiger紧随Dodo复读增益。",
+        "notes": "沿用原攻略的Parrot分支顺序；以下讲解区分原帖机制与当前技能，未验证当前胜率。",
+        "kind": "source"
+      },
+      "explanation": {
+        "basis": "原攻略与当前技能对照",
+        "mechanism": "原攻略按左后到右前书写，实际前到后为 Turtle、Rooster、Parrot、3星 Dodo、Tiger。Turtle 先阵亡保护 Rooster；Parrot 回合结束复制正前方 Rooster 的召唤能力，复制强度取决于 Parrot 自身星级；Dodo 开战强化正前方 Parrot，Tiger 再让正前方 Dodo 重复能力，强度取决于 Tiger 自身星级。核心是保护、复制与攻击转化串联。",
+        "caveats": "2021版 Dodo、Tiger 与召唤数值不同，原文“至少7次、50伤害”不能套到当前版本；Parrot 必须先经过回合结束复制，临时换位不会立即获得 Rooster 能力。",
+        "references": [
+          {
+            "label": "2021 原攻略：Super Auto Pets: Beginner’s Guide",
+            "url": "https://gamepretty.com/super-auto-pets-beginners-guide/"
+          },
+          {
+            "label": "当前单位三级技能资料",
+            "url": "https://www.groundedsap.co.uk/Pets.aspx"
+          }
+        ]
+      }
+    },
+    {
+      "id": "guide-2618433912-dodo-ox-tier4",
+      "title": "双 Monkey Dodo Rooster 队",
+      "packIds": [
+        "turtle"
+      ],
+      "kind": "社区攻略",
+      "format": "扩展包",
+      "group": "成长",
+      "team": [
+        {
+          "petId": "63",
+          "englishName": "Rooster",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 1,
+          "explanation": "Rooster 放最前方，成为两只 Monkey 的共同成长目标；阵亡后按自身攻击召唤小鸡，并触发身后 Ox。它是主要战斗输出，但原文只把这套列为阶段目标，没有给出星级或装备。"
+        },
+        {
+          "petId": "52",
+          "englishName": "Ox",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 2,
+          "explanation": "Ox 位于 Rooster 后面，前方 Rooster 阵亡时获得防护与攻击，并在开战时吃到后方 Dodo 的攻击转移。它把两个相邻触发连接起来；原攻略明确说找不到 Ox 时可改走 Turtle 分支。"
+        },
+        {
+          "petId": "21",
+          "englishName": "Dodo",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "渡渡鸟放在 Ox 后方，开战把攻击交给最近的前方 Ox，使 Ox 更能承接前排。原攻略还要求继续给 Dodo 吃 Pear；它是攻击转化核心，但本条没有证据证明其星级。"
+        },
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 4,
+          "explanation": "第一只Monkey留在后排，回合结束强化最前方Rooster，提供稳定永久成长。原攻略后续曾用Tiger复读高星Monkey，但那是旧版交互；当前Tiger只在战斗中复读，不能放大回合结束成长。"
+        },
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 5,
+          "explanation": "第二只 Monkey 同样从后排把成长叠给最前方 Rooster，两者位置互换没有功能差异。双 Monkey 是此阶段的成长引擎，但属于可逐步替换的过渡槽，不应被描述成终盘硬性五件套。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "原攻略将双 Monkey、Dodo、Ox 和 Rooster 列为该思路在4阶商店时的主要目标阵容。",
+      "source": {
+        "title": "Super Auto Pets: Beginner’s Guide",
+        "url": "https://gamepretty.com/super-auto-pets-beginners-guide/",
+        "author": "Hybrid（原 Steam 指南，GamePretty 转载）",
+        "date": "2021-10-04"
+      },
+      "versionNote": "2021-10-04 原版乌龟包攻略；这是历史版本的中后期阵容，不代表当前版本。",
+      "evidence": "攻略原文完整列出“Monkey – Monkey – Dodo – Ox – Rooster”五个单位，没有替换占位或未定成员；未明示星级、装备或列表方向为前到后。",
+      "sourceTeam": [
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "21",
+          "englishName": "Dodo",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "52",
+          "englishName": "Ox",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "63",
+          "englishName": "Rooster",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          4,
+          3,
+          2,
+          0,
+          1
+        ],
+        "reason": "Rooster在Ox前方，阵亡时触发Ox；Dodo强化前方Ox，两只Monkey将回合结束成长集中给前排Rooster。",
+        "notes": "历史阵容按当前技能调整，未复现旧版环境。",
+        "kind": "analysis"
+      },
+      "explanation": {
+        "basis": "原攻略与当前技能对照",
+        "mechanism": "原攻略同样按左后到右前书写，实际前到后为 Rooster、Ox、Dodo、Monkey、Monkey。两只 Monkey 在回合结束把永久成长集中给最前方 Rooster；Dodo 开战把攻击交给正前方 Ox；Rooster 阵亡既产出按自身攻击换算的小鸡，也触发后方 Ox 获得防护与攻击。它是Tier 4阶段目标：Rooster 吃长期成长，Ox 承接 Dodo 与前排阵亡收益。",
+        "caveats": "这是2021年Tier 4阶段目标，不是已证实最优终盘阵容。当前 Monkey、Dodo、Ox 与 Rooster 数值均应以快照为准，原攻略的伤害评价仅反映旧版本。",
+        "references": [
+          {
+            "label": "2021 原攻略：Super Auto Pets: Beginner’s Guide",
+            "url": "https://gamepretty.com/super-auto-pets-beginners-guide/"
+          },
+          {
+            "label": "当前单位三级技能资料",
+            "url": "https://www.groundedsap.co.uk/Pets.aspx"
+          }
+        ]
+      }
+    },
+    {
+      "id": "guide-2618433912-elephant-hurt",
+      "title": "3星 Elephant 受伤队",
+      "packIds": [
+        "turtle"
+      ],
+      "kind": "社区攻略",
+      "format": "扩展包",
+      "group": "受伤",
+      "team": [
+        {
+          "petId": "28",
+          "englishName": "Elephant",
+          "level": 3,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 1,
+          "explanation": "3星象始终放最前排，靠攻击启动整套机制。历史能力会分别伤到身后三名友军，正是原阵成立前提；当前能力只对最近身后目标连续触发三次，因此仍是核心，但搭档必须改为 Camel。"
+        },
+        {
+          "petId": "10",
+          "englishName": "Camel",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 2,
+          "explanation": "骆驼在旧版位于 Snake 与 Blowfish 之间，被 Elephant 波及后强化身后的 Blowfish。当前若紧跟 Elephant，会连续受三次伤并多次强化 Blowfish，是适配新版技能的关键调整。"
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 3,
+          "explanation": "河豚在历史站位同时接受 Camel 增益和 Elephant 的一次旧版范围自伤，受伤后打击随机敌人，Tiger 再复读。当前站位应放在 Camel 后吃到每次增益；自身不再能被 Elephant 隔位直接打中。"
+        },
+        {
+          "petId": "73",
+          "englishName": "Snake",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "蛇在历史站位紧随Elephant，监听最近前方大象的攻击追加伤害；原来还处于旧版自伤覆盖范围。当前示意把它放在Blowfish后，只监听最近前方河豚的攻击，再由身后Tiger复读，并非监听所有前排。"
+        },
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 5,
+          "explanation": "虎在历史原位紧贴 Blowfish，用自身星级让 Blowfish 的受伤反击重复；当前重排则可放在 Snake 后复读 Snake。它是终盘放大器而非受伤链起点，原文也允许早期用任意单位占位。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "原作者展示的终盘受伤队，Elephant 要求3星。",
+      "source": {
+        "title": "Super Auto Pets: Beginner’s Guide",
+        "url": "https://gamepretty.com/super-auto-pets-beginners-guide/",
+        "author": "Hybrid（原 Steam 指南，GamePretty 转载）",
+        "date": "2021-10-04"
+      },
+      "versionNote": "2021-10-04 原版乌龟包攻略；原作者同时说明这条路线强度有限，且单位能力已经过后续调整。",
+      "evidence": "攻略原文完整写出“Tiger – Blowfish – Camel – Snake – Level 3 Elephant”，因此只对 Elephant 填写3星；未明示装备或列表方向为前到后。",
+      "sourceTeam": [
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "10",
+          "englishName": "Camel",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "73",
+          "englishName": "Snake",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "28",
+          "englishName": "Elephant",
+          "level": 3,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          4,
+          2,
+          1,
+          3,
+          0
+        ],
+        "reason": "Elephant攻击后伤害Camel，Camel强化身后的Blowfish；Snake紧跟Blowfish输出，Tiger在Snake后方复读。",
+        "notes": "Camel的生存和具体触发次数取决于生命值；站位本身不能保证所有连锁都发生。",
+        "kind": "analysis"
+      },
+      "explanation": {
+        "basis": "原攻略与当前技能对照",
+        "mechanism": "原攻略按左后到右前写作 Tiger、Blowfish、Camel、Snake、3星 Elephant。旧版 Elephant 攻击时分别伤到身后三名友军：Snake 监听攻击，Camel 受伤强化 Blowfish，Blowfish 受伤反击，Tiger 再复读 Blowfish。当前3星 Elephant 改为连续三次伤害最近的身后友军，照搬旧站位只会打 Snake；新版应让 Camel 紧跟 Elephant，由 Blowfish 接收增益。",
+        "caveats": "原作者明确认为此路线偏弱且很依赖商店。历史能力文本未保存在当前快照中，旧版多目标行为依据原攻略三套等级站位的对应关系解释；当前重排也仍依赖 Camel 存活。",
+        "references": [
+          {
+            "label": "2021 原攻略：Super Auto Pets: Beginner’s Guide",
+            "url": "https://gamepretty.com/super-auto-pets-beginners-guide/"
+          },
+          {
+            "label": "当前单位三级技能资料",
+            "url": "https://www.groundedsap.co.uk/Pets.aspx"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-15dvqrr-strawberry-weekly",
+      "title": "2023 周包 Strawberry 队",
+      "packIds": [
+        "weekly"
+      ],
+      "kind": "玩家实战队",
+      "format": "周包",
+      "group": "草莓",
+      "team": [
+        {
+          "petId": "172",
+          "englishName": "Ferret",
+          "level": null,
+          "perk": "Strawberry",
+          "sourceIndex": 4,
+          "position": 1,
+          "explanation": "Ferret早期拿到Strawberry，随后获得给Dove喂Sleeping Pill触发的阵亡增益和Pelican增益，作者因此让它留队；自身玩具是额外价值。若没有累积攻血，它只是草莓载体，可被更强的已成长单位替换，并非必需核心。"
+        },
+        {
+          "petId": "115",
+          "englishName": "Velociraptor",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 2,
+          "explanation": "Velociraptor是历史版本的战斗保护核心，开战把Coconut交给随机Strawberry友军，使一名已被养大的单位更有机会换掉对手。原帖没给站位，价值来自队内草莓目标而非固定前后格。"
+        },
+        {
+          "petId": "133",
+          "englishName": "Cassowary",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Cassowary利用队内至少一名Strawberry友军在回合结束自我成长，是稳定的第二战力。它不要求自己持有Strawberry，也没有原帖证据支持某个固定槽位，养大后通常保留。"
+        },
+        {
+          "petId": "134",
+          "englishName": "Shoebill",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 4,
+          "explanation": "Shoebill是主要永久成长来源，旧版在回合结束同时强化所有Strawberry友军；队里越多有效草莓载体，收益越高。它应保留到成型，具体战斗位置主要按实际攻血安排。"
+        },
+        {
+          "petId": "129",
+          "englishName": "Pelican",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 5,
+          "explanation": "Pelican在2023年版本会于回合结束和开战强化随机Strawberry友军，是Ferret等载体长大的直接来源之一。它是历史成长引擎；不能用当前吞食并在阵亡时转成Salmon的技能解释这次胜利。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "发布者称首次使用该周包时以这五个单位达到10胜，Ferret 在前期获得 Strawberry 后保留至成型队伍。",
+      "source": {
+        "title": "New weekly 🍓🎺🪀",
+        "url": "https://www.reddit.com/r/superautopets/comments/15dvqrr/new_weekly/",
+        "author": "lcoughlan",
+        "date": "2023-07-31"
+      },
+      "versionNote": "2023-07-31 周包实战记录；周包内容与单位平衡已可能变化，不代表当前 meta。",
+      "evidence": "原评论逐一列出 velociraptor、shoebill、cassowary、pelican 和 ferret，并明说 ferret 获得了早期 strawberry；未给出站位或等级。",
+      "originalSourceAuthor": "Homicidal_Duck",
+      "sourceTeam": [
+        {
+          "petId": "115",
+          "englishName": "Velociraptor",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "134",
+          "englishName": "Shoebill",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "133",
+          "englishName": "Cassowary",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "129",
+          "englishName": "Pelican",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "172",
+          "englishName": "Ferret",
+          "level": null,
+          "perk": "Strawberry"
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          4,
+          0,
+          2,
+          1,
+          3
+        ],
+        "reason": "原帖只列成员，未注明站位；该顺序仅供逐位阅读历史成长分工，实际应按当局面板调整。",
+        "notes": "讲解采用2023年旧版草莓成长机制，不能把现版消耗草莓或吞噬转鲑鱼套进原局。",
+        "kind": "illustration"
+      },
+      "explanation": {
+        "basis": "历史实战记录解读",
+        "mechanism": "这是2023年旧版Strawberry体系的10胜实战：Shoebill为持Strawberry的友军提供全队成长，Cassowary凭队内Strawberry自我成长，Velociraptor开战时把Coconut交给随机Strawberry友军，Pelican则在回合结束与开战强化随机Strawberry友军。Ferret很早拿到Strawberry，又因给Dove喂Sleeping Pill触发的阵亡增益和Pelican成长而被保留，还能提供玩具；它不是不可替代的核心。",
+        "caveats": "原评论未给等级与站位；2023年Strawberry宠物技能已重做，当前Pelican吞食转Salmon、Shoebill消耗Strawberry等机制不能倒推原战局。",
+        "references": [
+          {
+            "label": "Reddit原帖与lcoughlan的10胜说明",
+            "url": "https://www.reddit.com/r/superautopets/comments/15dvqrr/new_weekly/"
+          },
+          {
+            "label": "Pelican版本历史",
+            "url": "https://superautopets.wiki.gg/wiki/Pelican"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-156zzqt-goose-sloth-win",
+      "title": "Goose 与 Sloth 拖延队",
+      "packIds": [
+        "weekly"
+      ],
+      "kind": "玩家实战队",
+      "format": "周包",
+      "group": "控制与拖延",
+      "team": [
+        {
+          "petId": "232",
+          "englishName": "Goose",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Goose由原评论明确放在最前，开战削掉敌方首位攻击，使高面板对局中的首轮交换更可能由一换一变成一换二。它是拖延与破坏对手换子节奏的功能位，保留价值明确。"
+        },
+        {
+          "petId": "71",
+          "englishName": "Sloth",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Sloth按原帖位于Goose之后，承担把稀有宠物带到胜利的徽章目标；它没有战斗技能，不是联动发动机。当前目录未录入其具体面板；不追求Sloth徽章时，这个名额可换成其他战斗单位。"
+        },
+        {
+          "petId": "123",
+          "englishName": "Hammerhead Shark",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Hammerhead Shark在商店阶段依靠3星友军提供额外金币，加快Sloth升级、购买Chocolate与提高队伍面板。队伍与经济成型后它的战斗技能不再产生价值，可换成额外Scorpion等终盘单位。"
+        },
+        {
+          "petId": "208",
+          "englishName": "Tapir",
+          "level": null,
+          "perk": "Mushroom",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Tapir带Mushroom是旧版复制引擎：阵亡后先尝试复制随机友军，Mushroom又给一次阵亡机会，从而提高产生额外Scorpion的上限。原帖把它放在末尾Scorpion之前，但邻位不会提高随机复制的命中率。"
+        },
+        {
+          "petId": "65",
+          "englishName": "Scorpion",
+          "level": null,
+          "perk": "Mushroom",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "末位Mushroom Scorpion是主要终盘换子点：首次出场带Peanut，阵亡复活为1/1后因“被召唤”再次获得Peanut。它也是旧Tapir最希望随机复制的目标；位于Tapir后方只是原帖顺序，不会提高命中率。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "评论者称以 Goose 在最前、Mushroom Tapir 和 Mushroom Scorpion 收尾的队伍获胜。",
+      "source": {
+        "title": "what is the best possible team setup for this weekly with 1 sloth? i keep dying",
+        "url": "https://www.reddit.com/r/superautopets/comments/156zzqt/what_is_the_best_possible_team_setup_for_this/",
+        "author": "ThisisTophat",
+        "date": "2023-07-23"
+      },
+      "versionNote": "2023-07-23 特定周包的历史队伍；周包和单位效果后续可能调整，不代表当前 meta。",
+      "evidence": "原评论使用“at the front, then”按顺序列出 goose、sloth、hammerhead、tapir 和 scorpion，并明示后两者持有 mushroom。",
+      "sourceTeam": [
+        {
+          "petId": "232",
+          "englishName": "Goose",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "71",
+          "englishName": "Sloth",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "123",
+          "englishName": "Hammerhead Shark",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "208",
+          "englishName": "Tapir",
+          "level": null,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "65",
+          "englishName": "Scorpion",
+          "level": null,
+          "perk": "Mushroom"
+        }
+      ],
+      "sourceOrder": "front-to-back",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "reason": "Scorpion放最后，成为Tapir文本指定的复制目标；保留原帖Goose在前的接战顺序。",
+        "notes": "原帖依赖旧版玩法。当前Tapir改为开战召唤，满队时还需空位；仅调整站位不能保证复现原队。",
+        "kind": "source"
+      },
+      "explanation": {
+        "basis": "历史实战记录解读",
+        "mechanism": "这支队是2023年Sloth周包后期的高面板换子阵：Goose削弱敌方首位，让己方前排更容易一换二；Mushroom Scorpion首次阵亡后以1/1复活并重新获得Peanut；旧版Mushroom Tapir阵亡时复制随机友军，若抽到Scorpion便继续制造Peanut换子。Hammerhead Shark负责商店经济，Sloth是必须带到胜利的徽章目标而非机制输出。",
+        "caveats": "原帖确证从前到后顺序，但未给星级和攻血。当前Tapir改为开战复制最后方友军且需要空位，满五格时不能照搬；这里解释的是2023年阵亡复制随机友军的旧机制。",
+        "references": [
+          {
+            "label": "Reddit原帖与获胜评论",
+            "url": "https://www.reddit.com/r/superautopets/comments/156zzqt/what_is_the_best_possible_team_setup_for_this/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-1864dz8-five-hedgehogs",
+      "title": "五 Hedgehog Mushroom 队",
+      "packIds": [
+        "weekly"
+      ],
+      "kind": "玩家实战队",
+      "format": "周包",
+      "group": "受伤",
+      "team": [
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "这只刺猬与其余四只完全同构：2星提供同等全体阵亡伤害，Mushroom提供一次1/1复活与追加触发。原帖没有证明它承担独特前排职责；只按实际攻血决定谁先接战。"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "这只刺猬同样是2星Mushroom Hedgehog，价值是把全体伤害触发数继续叠高，并在复活后多占一次攻击轮次。它没有专属相邻目标，也不是比其他Hedgehog更不可替换的核心。"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "这只刺猬与全队能力、等级和装备相同，作用仍是阵亡全体伤害加Mushroom复活。中间位置本身不赋予额外机制；若攻血相同，移动它不会改变这套队伍的角色分工。"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "这只刺猬没有独立功能，仍靠2星阵亡伤害参与连锁，并用Mushroom获得第二条1/1生命。保留它是为了完成五Hedgehog的趣味目标和最大化同类触发，而非站位要求。"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "这只刺猬也是等价的2星Mushroom Hedgehog；原记录没有给它额外职责或更高优先级。若五只面板一致，前后互换等效；只有实际攻血差异才会影响阵亡与攻击顺序。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "发布者从第2回合开始收集 Hedgehog，最终将五只 Hedgehog 全部升到2星并装备 Mushroom。",
+      "source": {
+        "title": "THE DREAM WAS SO CLOSE NOOOOO. Damn those trumpets...",
+        "url": "https://www.reddit.com/r/superautopets/comments/1864dz8/the_dream_was_so_close_nooooo_damn_those_trumpets/",
+        "author": "yoboyzyro",
+        "date": "2023-11-28"
+      },
+      "versionNote": "2023-11-28 周包展示；属于历史版本趣味队伍，不代表当前 meta。",
+      "evidence": "发布者在回复中明说第6回合已有5只1星刺猬，之后用刺猬和巧克力将全队升到2星，再给每只装上蘑菇。",
+      "sourceTeam": [
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": 2,
+          "perk": "Mushroom"
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "reason": "五只Hedgehog的等级和Mushroom完全相同，任一排列的位置关系等价。",
+        "notes": "历史趣味队；保留原槽位便于核对，未模拟当前版本战斗。",
+        "kind": "illustration"
+      },
+      "explanation": {
+        "basis": "历史实战记录解读",
+        "mechanism": "这是刻意追求“五只相同单位”的趣味构筑：五只2星Hedgehog阵亡都会对场上所有宠物造成全体伤害，Mushroom让每只第一次阵亡后再以1/1复活，从而增加阵亡触发并延长连锁。它没有不同职位或单独核心，胜负取决于五只累计攻血能否承受己方连锁、清掉敌方装备与残血单位，以及复活后的后续交换。",
+        "caveats": "原帖说明五只都升到2星并装备Mushroom，但未提供可可靠转录的逐槽攻血；不要为五个相同槽位虚构不同职责。",
+        "references": [
+          {
+            "label": "Reddit原帖与作者养成说明",
+            "url": "https://www.reddit.com/r/superautopets/comments/1864dz8/the_dream_was_so_close_nooooo_damn_those_trumpets/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-116scvn-seagull-poodle-win",
+      "title": "Seagull Octopus 成长队",
+      "packIds": [
+        "weekly"
+      ],
+      "kind": "玩家实战队",
+      "format": "周包",
+      "group": "成长",
+      "team": [
+        {
+          "petId": "87",
+          "englishName": "Bat",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 1,
+          "explanation": "Bat负责在攻击前给随机敌人施加Weak，放大后续碰撞或Octopus伤害，属于便宜的功能位，也提供不同阶层给Poodle覆盖。若后期面板不足，它是比核心输出更自然的替换候选。"
+        },
+        {
+          "petId": "50",
+          "englishName": "Octopus",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 2,
+          "explanation": "Octopus是主要战斗输出，攻击后对随机敌人补伤，获得Monkey与Poodle成长后既能正面交换又能清理后排。为了多次攻击，通常应把它作为高攻血前排之一，但原评论没有固定站位。"
+        },
+        {
+          "petId": "96",
+          "englishName": "Poodle",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 3,
+          "explanation": "Poodle按阶层各强化一名友军，是整队广泛成长的核心；这五只跨多个阶层正好提高触发覆盖。它应长期保留并放在较安全位置，具体命中谁仍受同阶层单位与游戏当时版本影响。"
+        },
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Monkey在回合结束持续强化最前方友军，是把资源集中到Octopus或另一名主力的成长引擎。它自身战斗价值次要，通常留在后方保护；若主力已封顶且有更强终盘位，才可考虑替换。"
+        },
+        {
+          "petId": "128",
+          "englishName": "Seagull",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 5,
+          "explanation": "Seagull是作者早期路线留下的已成长单位，并让队伍多占一个阶层以承接Poodle成长。评论只说早期给过Croissant，未证明终盘装备，因此不能断言它在最终战斗复制了哪种食物；养成不足时可替换。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "玩家称该次10胜从 Ox 和 Seagull 起步，最终转成 Seagull、Bat、Octopus、Monkey 和 Poodle。",
+      "source": {
+        "title": "New weekly 🙊",
+        "url": "https://www.reddit.com/r/superautopets/comments/116scvn/new_weekly/",
+        "author": "CertainlyNotCthulhu",
+        "date": "2023-02-20"
+      },
+      "versionNote": "2023-02-20 历史周包胜利队伍；周包内容和单位能力已可能变化，不代表当前 meta。",
+      "evidence": "原评论明说最终队伍转为 seagull、bat、octopus、monkey 和 poodle；羊角面包只被描述为早期海鸥装备，未证明保留到最终队伍，因此装备留空。",
+      "sourceTeam": [
+        {
+          "petId": "128",
+          "englishName": "Seagull",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "87",
+          "englishName": "Bat",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "50",
+          "englishName": "Octopus",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "46",
+          "englishName": "Monkey",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "96",
+          "englishName": "Poodle",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          1,
+          2,
+          4,
+          3,
+          0
+        ],
+        "reason": "Bat先攻击施加Weak，再由Octopus接战；Seagull留后，Monkey与Poodle的成长在商店阶段处理。",
+        "notes": "Monkey会强化最前方Bat；如要养Octopus需在回合结束前换位。Seagull未记录装备，队内也缺少稳定召唤源。",
+        "kind": "illustration"
+      },
+      "explanation": {
+        "basis": "历史实战记录解读",
+        "mechanism": "这是2023年周包由早期Seagull路线转成的后期成长队。Poodle按不同阶层分配回合末成长，队中Bat、Seagull、Monkey、Octopus恰好覆盖多个阶层；Monkey持续养最前方主力，Bat施加Weak帮助换血，Octopus攻击后补随机伤害。Seagull早期曾拿Croissant，但评论没有说明终盘保留何种装备或召唤来源，因此只能确认它是已经养大的成员，不能虚构装备复制链。",
+        "caveats": "原评论只确认最终五个单位，没有给终盘站位、等级或装备；Seagull的最终食物装备与可复制对象均未知，不应把早期Croissant当作终盘事实。",
+        "references": [
+          {
+            "label": "Reddit周包原帖与最终队评论",
+            "url": "https://www.reddit.com/r/superautopets/comments/116scvn/new_weekly/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-156zzqt-cuttlefish-stall",
+      "title": "Cuttlefish Mushroom 拖延队",
+      "packIds": [
+        "weekly"
+      ],
+      "kind": "讨论方案",
+      "format": "周包",
+      "group": "异常与控制",
+      "team": [
+        {
+          "petId": "232",
+          "englishName": "Goose",
+          "level": null,
+          "perk": "Steak",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Goose按评论明确放最前并带Steak：开战先压低敌方首位攻击，随后用Steak提高首次交换质量，目标是在全员高面板环境里多换一只。它是前排控制与换子位。"
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": "Mushroom",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Mushroom Cuttlefish是旧版拖平核心，首次阵亡移除敌方食物装备，复活后还能争取第二次阵亡触发。它放在Goose之后，避免太早浪费前排削攻创造的交换空间；不能用当前削生命并施加Inked的技能解释。"
+        },
+        {
+          "petId": "71",
+          "englishName": "Sloth",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Sloth没有战斗能力，是这份建议必须护送到胜利的徽章单位。评论对其装备在无装备与Mushroom之间没有定论，所以数据留空；若不追徽章，这格可换成额外换子单位。"
+        },
+        {
+          "petId": "208",
+          "englishName": "Tapir",
+          "level": null,
+          "perk": "Mushroom",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Tapir带Mushroom，按2023年旧技能在阵亡时随机复制友军，并可借复活争取再次触发；理想结果是复制Scorpion。随机性使它也可能复制到Goose、Sloth或Cuttlefish，位置关系不能保证连锁。"
+        },
+        {
+          "petId": "65",
+          "englishName": "Scorpion",
+          "level": null,
+          "perk": "Mushroom",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "末位Mushroom Scorpion是旧Tapir希望命中的复制目标，也是独立换子核心：首次Peanut交换后以1/1复活，因再次被召唤而重新获得Peanut。放最后能清楚保留这套历史方案的目标关系。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "社区评论按前到后给出 Goose、Cuttlefish、Sloth、Tapir 和 Scorpion 的五单位方案。",
+      "source": {
+        "title": "what is the best possible team setup for this weekly with 1 sloth? i keep dying",
+        "url": "https://www.reddit.com/r/superautopets/comments/156zzqt/what_is_the_best_possible_team_setup_for_this/",
+        "author": "Kibble3575",
+        "date": "2023-07-23"
+      },
+      "versionNote": "2023-07-23 社区方案；针对当时的特定周包，不代表当前 meta。",
+      "evidence": "原评论明说 front to back，并给出 goose with steak、cuttlefish with mushroom、sloth、tapir with mushroom、scorpion with mushroom；sloth 的装备在“无装备或蘑菇”之间未确定，因此留空。",
+      "sourceTeam": [
+        {
+          "petId": "232",
+          "englishName": "Goose",
+          "level": null,
+          "perk": "Steak"
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "71",
+          "englishName": "Sloth",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "208",
+          "englishName": "Tapir",
+          "level": null,
+          "perk": "Mushroom"
+        },
+        {
+          "petId": "65",
+          "englishName": "Scorpion",
+          "level": null,
+          "perk": "Mushroom"
+        }
+      ],
+      "sourceOrder": "front-to-back",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "reason": "沿用原帖前后关系，Scorpion放最后以供Tapir选取，Goose和Cuttlefish先接战。",
+        "notes": "当前Tapir的开战召唤需要空位，满五单位时不能保证重现2023年原帖玩法。",
+        "kind": "source"
+      },
+      "explanation": {
+        "basis": "历史社区方案解读",
+        "mechanism": "这是同一Sloth周包下提出的理论终盘队，并非发布者确认的获胜截图。Steak Goose先削敌方首位攻击并争取一换二；旧版Mushroom Cuttlefish阵亡后移除敌方食物装备，复活后争取再次触发；旧版Mushroom Tapir依靠阵亡随机复制友军，理想目标是Mushroom Scorpion，后者每次被召唤都重新获得Peanut。Sloth只承担徽章目标。",
+        "caveats": "这是评论者给出的从前到后方案，不等于已验证胜局；当前Tapir已改为开战复制最后方友军且满队缺空位，不能复现旧版阵亡随机复制。",
+        "references": [
+          {
+            "label": "Reddit原帖与Kibble3575方案",
+            "url": "https://www.reddit.com/r/superautopets/comments/156zzqt/what_is_the_best_possible_team_setup_for_this/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-1ar67pf-cyclops-team-spirit",
+      "title": "三 Cyclops 与双 Team Spirit",
+      "packIds": [
+        "unicorn"
+      ],
+      "kind": "讨论方案",
+      "format": "扩展包",
+      "group": "魔力",
+      "team": [
+        {
+          "petId": "636",
+          "englishName": "Team Spirit",
+          "level": null,
+          "perk": "Gingerbread",
+          "sourceIndex": 3,
+          "position": 1,
+          "explanation": "第一只Team Spirit把每次友军升级转换成旧版全队攻血成长，Gingerbread也让它自身开战升级并加入连锁。两只共同扩大每次升级的面板收益，是循环的成长兑现端。"
+        },
+        {
+          "petId": "636",
+          "englishName": "Team Spirit",
+          "level": null,
+          "perk": "Gingerbread",
+          "sourceIndex": 4,
+          "position": 2,
+          "explanation": "第二只Team Spirit与前一只职责相同：重复接收升级事件并强化全队，同时以Gingerbread触发自身升级。它不是单独的后排保护位；保留第二只是在旧版中叠加全队成长。"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread",
+          "sourceIndex": 0,
+          "position": 3,
+          "explanation": "第一只Cyclops是经验链发动机之一：Gingerbread让约1.5星单位在战斗开始时升级，旧技能随友军升级继续分发Mana与经验。它与另外两只功能等价，没有证据支持独特站位。"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread",
+          "sourceIndex": 1,
+          "position": 4,
+          "explanation": "第二只Cyclops通过增加同类触发源提高战斗内经验循环密度，也能被其他Cyclops推动升级。它是历史组合核心而非可随意替换的养成单位，前后位置主要按实际攻血安排。"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread",
+          "sourceIndex": 2,
+          "position": 5,
+          "explanation": "第三只Cyclops继续叠加旧版经验与Mana供给，使Gingerbread启动后更容易连续跨级。三只之间角色相同；原回复只给构成和约1.5星状态，没有给唯一站位。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "社区回复完整列出三只 Cyclops 和两只 Team Spirit，五个单位都装备 Gingerbread。",
+      "source": {
+        "title": "So basically if you manage to get this team comp...",
+        "url": "https://www.reddit.com/r/superautopets/comments/1ar67pf/so_basically_if_you_manage_to_get_this_team_comp/",
+        "author": "ElPulpoGallego",
+        "date": "2024-02-15"
+      },
+      "versionNote": "2024-02-15 Unicorn 包早期版本；帖子本身已讨论后续削弱可能，不代表当前 meta。",
+      "evidence": "原回复明示写出3 Cyclops、2 Team Spirits 且 all with gingerbread；其所述1.5星不符合整数等级字段，因此 level 留空并在此保留原始信息。",
+      "sourceTeam": [
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "Gingerbread"
+        },
+        {
+          "petId": "636",
+          "englishName": "Team Spirit",
+          "level": null,
+          "perk": "Gingerbread"
+        },
+        {
+          "petId": "636",
+          "englishName": "Team Spirit",
+          "level": null,
+          "perk": "Gingerbread"
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          3,
+          4,
+          0,
+          1,
+          2
+        ],
+        "reason": "Team Spirit置前承伤，Cyclops留后；这组升级收益没有前后方目标，成长发生在商店阶段。",
+        "notes": "没有独立的位置连锁；实际前排应随已养成的攻血调整，原帖属于独角兽包早期版本。",
+        "kind": "illustration"
+      },
+      "explanation": {
+        "basis": "历史社区方案解读",
+        "mechanism": "这是Unicorn Pack上线早期的战斗内升级循环提案：五只都保持约1.5星并带Gingerbread，开战获得经验跨到下一星级，触发旧版Cyclops给其他友军补Mana与经验；新增经验又推动更多升级。旧版Team Spirit在友军升级时提供全队攻血，于是同一轮连锁同时堆Mana、经验和面板。三Cyclops提高互相喂经验的密度，两Team Spirit把每次升级转成全队成长；后续技能与触发限制已经不同。",
+        "caveats": "原回复只说三只Cyclops和两只Team Spirit均约1.5星且全带Gingerbread，没有给出整数等级。当前Cyclops与Team Spirit文本、触发上限和同类交互已变，不能按旧循环估算。",
+        "references": [
+          {
+            "label": "Reddit原帖与三Cyclops双Team Spirit回复",
+            "url": "https://www.reddit.com/r/superautopets/comments/1ar67pf/so_basically_if_you_manage_to_get_this_team_comp/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "reddit-1agjnrb-yeti-nessie-mana",
+      "title": "Yeti Nessie 魔力队",
+      "packIds": [
+        "unicorn"
+      ],
+      "kind": "讨论方案",
+      "format": "扩展包",
+      "group": "魔力",
+      "team": [
+        {
+          "petId": "363",
+          "englishName": "Nessie",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 1,
+          "explanation": "Nessie把本回合刷新次数转成阵亡后Boat的攻血，是Yeti滚店的直接收益端。它需要顺利阵亡并留出召唤空间，通常属于核心；原评论没有指定前后格或等级。"
+        },
+        {
+          "petId": "338",
+          "englishName": "Chimera",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 2,
+          "explanation": "Chimera是Mana的主要兑现端，阵亡后花费已积累Mana强化召唤物，承担终盘战斗输出。应让Mana Hound位于其后，并确保阵亡时有召唤空位；它是组合核心而非过渡位。"
+        },
+        {
+          "petId": "635",
+          "englishName": "Mana Hound",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Mana Hound在当时版本没有评论者所说的刷新上限，会按滚店次数给前方目标大量Mana，主要服务Chimera等消耗者。它必须站在目标后方才有方向性价值，但原帖未给完整站位。"
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 4,
+          "explanation": "Cyclops由紧接评论补为第五只，作用是利用上线初版经验机制加速其余四只升级，并在战斗中贡献Mana。等级完成后仍可参与循环；若只看滚店召唤主轴，它比其余四只更像辅助槽。"
+        },
+        {
+          "petId": "387",
+          "englishName": "Yeti",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 5,
+          "explanation": "Yeti是滚店引擎，旧版回合开始的免费刷新既改善商店，也累计Nessie与Mana Hound读取的本回合刷新次数。它应保留到组合成型；战斗站位不影响刷新，按实际面板安排。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "玩家将 Yeti、Nessie、Mana Hound 和 Chimera 称为当时最容易完成的胜利队伍，回复补充 Cyclops 为第五个单位。",
+      "source": {
+        "title": "First day of Unicorn Pack is like first day of weekly on steroids.",
+        "url": "https://www.reddit.com/r/superautopets/comments/1agjnrb/first_day_of_unicorn_pack_is_like_first_day_of/",
+        "author": "Ervaloss",
+        "date": "2024-02-01"
+      },
+      "versionNote": "2024-02-01 Unicorn 包上线首日记录；发布者也明说当时玩家尚在试验，且后续已有大量平衡改动，不代表当前 meta。",
+      "evidence": "一条评论明确列出 Yeti、Nessie、Mana Hound 和 Chimera，紧接的回复明说 Cyclops 是第五个单位；未给出站位、整数星级或装备。",
+      "sourceTeam": [
+        {
+          "petId": "387",
+          "englishName": "Yeti",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "363",
+          "englishName": "Nessie",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "635",
+          "englishName": "Mana Hound",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "338",
+          "englishName": "Chimera",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "630",
+          "englishName": "Cyclops",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          1,
+          3,
+          2,
+          4,
+          0
+        ],
+        "reason": "Mana Hound紧随Chimera，给它开战Mana；Nessie置前先召唤Boat，Yeti和Cyclops留后。",
+        "notes": "召唤受空位影响；历史队伍已历经平衡改动，未模拟其当前强度。",
+        "kind": "illustration"
+      },
+      "explanation": {
+        "basis": "历史社区方案解读",
+        "mechanism": "这是Unicorn Pack上线首日评论中的滚店与Mana组合：旧版Yeti在回合开始免费刷新商店，刷新次数同时喂给Nessie的Boat成长，并让当时没有刷新上限的Mana Hound在开战时向前方单位灌入大量Mana；Chimera阵亡后消耗Mana生成高面板召唤物。回复者补充Cyclops为第五格，用早期强势的升级送经验机制把全队更快推到高星。它是首日强度观察，不能按当前上限与文本照算。",
+        "caveats": "原评论只列五个单位，没有站位、装备或整数等级；作者还明确称这是上线首日试验。Mana Hound后来增加刷新上限，Cyclops等也已改动，当前目录技能只用于识别差异。",
+        "references": [
+          {
+            "label": "Reddit上线首日讨论与第五只Cyclops回复",
+            "url": "https://www.reddit.com/r/superautopets/comments/1agjnrb/first_day_of_unicorn_pack_is_like_first_day_of/"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-reverse-summon",
+      "title": "反向召唤",
+      "kind": "挑战完成队",
+      "packIds": [
+        "turtle"
+      ],
+      "group": "召唤",
+      "team": [
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Tiger被挑战固定在第1位。因其前方没有友军，初始队列中无法复读任何战斗能力；这个明显损失正体现Reverse Summon的反向站位限制。"
+        },
+        {
+          "petId": "79",
+          "englishName": "Turkey",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Turkey被固定在第2位，理论上强化后续召唤物，但它会先于第4、第5位Deer接战，可能在Bus出现前阵亡；不能按常规思路移到后排。"
+        },
+        {
+          "petId": "30",
+          "englishName": "Fly",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Fly被固定在第3位，友军阵亡时仍可补Zombie Fly，但它也排在两只Deer之前，可能过早离场；存在价值来自挑战指定与有限补位。"
+        },
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "第一只Deer被固定在第4位，阵亡时独立召唤带Chili的Bus。它不能前移启动召唤链，因此可能等不到Turkey与Fly支援。"
+        },
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "第二只Deer被固定在第5位，提供另一份独立Bus召唤；它不是重复记录，而是挑战要求的末位槽，通常也是最晚进入战斗的召唤源。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Reverse Summon",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/ReverseSummon1.jpg",
+        "author": "alexfizzysweets",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Tiger、Turkey、Fly、Deer、Deer，并链接 alexfizzysweets 的 Bounty Champ 截图；这里只确认五单位构成，不主张站位或技能联动。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "77",
+          "englishName": "Tiger",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "79",
+          "englishName": "Turkey",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "30",
+          "englishName": "Fly",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "20",
+          "englishName": "Deer",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "这是同时限定成员与顺序的反向召唤挑战，必须按Tiger、Turkey、Fly、Deer、Deer从前到后排列。它故意反着放置常规召唤链：最前Tiger没有前方友军可复读，Turkey与Fly可能早于后排Deer阵亡，两个Bus也未必能及时获得支援。两只Deer仍各自提供独立阵亡召唤，但低协同正是挑战条件，而非待优化错误。",
+        "caveats": "Bounty Board说明夺冠必须匹配所列顺序，不能自由重排。星级、装备与实际触发量仍未记录。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Reverse Summon",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/ReverseSummon1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-firestarter",
+      "title": "引火者",
+      "kind": "挑战完成队",
+      "packIds": [
+        "turtle"
+      ],
+      "group": "受伤",
+      "team": [
+        {
+          "petId": "28",
+          "englishName": "Elephant",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Elephant放第1位，先攻击才能伤到第2位Hedgehog；它是本队主动点火器。若不在最前，受击死亡可能让这条主动连锁来不及启动。"
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Hedgehog放第2位并紧跟Elephant，承受其攻击后伤害；阵亡时的全体伤害同时触发两只Blowfish，并为Wolverine累计多次友军受伤。"
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "第一只Blowfish放第3位，负责把Elephant或Hedgehog造成的友伤转为随机敌方伤害；它是独立受伤触发器，不与另一只合并计算。"
+        },
+        {
+          "petId": "269",
+          "englishName": "Wolverine",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Wolverine被挑战固定在第4位，持续观察其他友军的受伤事件并按次数触发全体削血。现行技能不要求邻接Blowfish，不能沿用旧邻位增伤解释。"
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "第二只Blowfish被固定在第5位，Hedgehog全体伤害仍可令它单独反击。它与第3位河豚各自结算，但不能为了保护而交换挑战槽位。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Firestarter",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/Firestarter1.jpg",
+        "author": "Daddiosaurus",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "已查看 Firestarter1.jpg：截图从左到右为 Blowfish、Wolverine、Blowfish、Hedgehog、Elephant；按游戏前排在右侧规范反转为 front-to-back。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "28",
+          "englishName": "Elephant",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "37",
+          "englishName": "Hedgehog",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "269",
+          "englishName": "Wolverine",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "7",
+          "englishName": "Blowfish",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "front-to-back",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战强制使用 Elephant、Hedgehog、两只 Blowfish 与 Wolverine，核心是主动制造友军受伤。Elephant攻击后伤害身后Hedgehog；Hedgehog阵亡再伤害全场，从而让两只Blowfish分别反击，并累计Wolverine的“友军受伤”计数。Wolverine现行作用来自受伤次数后削减全体敌方生命，不采用旧版相邻伤害加成解释。",
+        "caveats": "Bounty Board要求夺冠顺序匹配，但未给出可复用的星级和完整面板；是否存活到下一次受伤、Wolverine计数和触发先后均受实际属性影响。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Firestarter",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Firestarter 完成截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/Firestarter1.jpg"
+          },
+          {
+            "label": "Wolverine 当前技能资料",
+            "url": "https://groundedsap.co.uk/PetProfile.aspx?ID=269"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-shop-scaling",
+      "title": "商店成长回归",
+      "kind": "挑战完成队",
+      "packIds": [
+        "puppy"
+      ],
+      "group": "成长",
+      "team": [
+        {
+          "petId": "14",
+          "englishName": "Chicken",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Chicken被固定在第1位；它的回合开始成长不依赖战斗位置，却必须先接战。其价值主要在此前培养未来商店宠物，而非前排能力。"
+        },
+        {
+          "petId": "104",
+          "englishName": "Dromedary",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "第一只Dromedary被固定在第2位，回合开始独立强化商店最左两只宠物。商店价值已兑现，战斗中则按挑战要求较早接战。"
+        },
+        {
+          "petId": "104",
+          "englishName": "Dromedary",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "第二只Dromedary被固定在第3位，提供另一份同类商店强化；它与第2位各自触发，并非重复标记，也不能改放到末位。"
+        },
+        {
+          "petId": "88",
+          "englishName": "Beetle",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "第一只Beetle被固定在第4位，开战获得自己的Walnut，却要等前三只成员后才接战；这是挑战顺序造成的次优位置。"
+        },
+        {
+          "petId": "88",
+          "englishName": "Beetle",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "第二只Beetle被固定在第5位，也有独立Walnut触发并承接商店成长。它是末位真实槽，不能前移优先利用装备交换。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Bring Back Shop Scaling",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/BringBackShopScaling1.jpg",
+        "author": "SpeedyFaclon",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Beetle、Beetle、Dromedary、Dromedary、Chicken，并链接 SpeedyFaclon 的 Bounty Champ 截图；这里只确认构成。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "14",
+          "englishName": "Chicken",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "104",
+          "englishName": "Dromedary",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "104",
+          "englishName": "Dromedary",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "88",
+          "englishName": "Beetle",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "88",
+          "englishName": "Beetle",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "这套五格由挑战按Chicken、Dromedary、Dromedary、Beetle、Beetle固定前后顺序，主要价值在商店阶段而非战斗邻位。Chicken提高未来商店宠物面板，两只Dromedary各自强化商店最左两格，买入的Beetle开战获得Walnut。两只Beetle虽更适合前排，却被规则留在后两格；重复成员代表独立触发，不构成调位许可。",
+        "caveats": "夺冠要求成员顺序匹配，因此不能按最终攻血自由排序；来源仍未记录成长过程、最终攻血、星级或装备细节。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Bring Back Shop Scaling",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/BringBackShopScaling1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-toy-shop",
+      "title": "玩具店",
+      "kind": "挑战完成队",
+      "packIds": [
+        "puppy"
+      ],
+      "group": "玩具",
+      "team": [
+        {
+          "petId": "178",
+          "englishName": "Sting Ray",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Sting Ray被挑战固定在第1位；它的必要性是提供Sting Ray专属玩具选择，不是因为已知玩具要求它在最前接战。"
+        },
+        {
+          "petId": "231",
+          "englishName": "Gharial",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Gharial被挑战固定在第2位，代表第二套独立玩具选项。未记录当回合玩具，因此不能为某个假定玩具编造槽位收益。"
+        },
+        {
+          "petId": "97",
+          "englishName": "Puppy",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Puppy放第3位，是五种玩具选择中的中间槽。它满足挑战主题与构成，当前证据不足以把中位解释为技能目标、玩具目标或强度排序。"
+        },
+        {
+          "petId": "236",
+          "englishName": "Lemur",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Lemur被挑战固定在第4位，提供自己的玩具候选池；它与其他四只不是同时生成五个持续玩具，也不能按玩具偏好改位。"
+        },
+        {
+          "petId": "172",
+          "englishName": "Ferret",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Ferret被挑战固定在第5位，补齐第五套玩具选择。后排并非技能自由选择，而是夺冠顺序对这个成员的硬性约束。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Toy Shop",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/ToyShop1.jpg",
+        "author": "CheeseMaster",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "已查看 ToyShop1.jpg：截图从左到右为 Ferret、Lemur、Puppy、Gharial、Sting Ray；按游戏前排在右侧规范反转为 front-to-back。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "178",
+          "englishName": "Sting Ray",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "231",
+          "englishName": "Gharial",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "97",
+          "englishName": "Puppy",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "236",
+          "englishName": "Lemur",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "172",
+          "englishName": "Ferret",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "front-to-back",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战把五个“回合开始选择玩具”的宠物按Sting Ray、Gharial、Puppy、Lemur、Ferret固定排列，主题是展示五套不同玩具选项，而不是让一场战斗同时携带五件玩具。每只各自提供一次选择入口；真正生效的玩具及目标规则取决于当回合选择。来源没有记录完成局选了什么，硬性顺序也不代表某个槽位竞技最优。",
+        "caveats": "Bounty Board要求夺冠顺序匹配，但没有记录所选玩具；五只宠物给出的是五次候选选择，并不等于五件玩具同时生效。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Toy Shop",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Toy Shop 完成截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/ToyShop1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-strawberry-allergy",
+      "title": "Strawberry 过敏",
+      "kind": "挑战完成队",
+      "packIds": [
+        "star"
+      ],
+      "group": "草莓",
+      "team": [
+        {
+          "petId": "146",
+          "englishName": "Siberian Husky",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "第一只Siberian Husky被固定在第1位，回合结束随机强化无食物装备友军；无食物装备让全队满足候选条件，但它必须最先接战。"
+        },
+        {
+          "petId": "24",
+          "englishName": "Dove",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Dove放第2位先于后排接战，但阵亡时需要激活友军Strawberry；本挑战禁止食物装备，所以当前队内没有可激活目标，它主要是强制槽位。"
+        },
+        {
+          "petId": "132",
+          "englishName": "Atlantic Puffin",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Atlantic Puffin被固定在第3位；其友军攻击联动需要移除该友军Strawberry，无食物装备条件使技能无法在这五格中正常启动。"
+        },
+        {
+          "petId": "131",
+          "englishName": "Kiwi",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Kiwi被固定在第4位，受伤或出售时本应强化最后方Strawberry友军；当前没有合法Strawberry目标，位置无法修复机制缺口。"
+        },
+        {
+          "petId": "146",
+          "englishName": "Siberian Husky",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "第二只Siberian Husky放第5位，独立提供另一份无装备友军成长。它与第1位Siberian Husky共同构成当前版本仍能工作的主要养成来源。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Strawberry Allergy",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/StrawberryAllergy1.jpg",
+        "author": "Serval",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Siberian Husky、Kiwi、Atlantic Puffin、Dove、Siberian Husky，并要求五格 No Perk；这里只确认构成和禁用装备条件。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "146",
+          "englishName": "Siberian Husky",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "24",
+          "englishName": "Dove",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "132",
+          "englishName": "Atlantic Puffin",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "131",
+          "englishName": "Kiwi",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "146",
+          "englishName": "Siberian Husky",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战明确要求双Siberian Husky、Dove、Atlantic Puffin、Kiwi且五格无食物装备。当前Siberian Husky正好奖励无食物装备友军，因此两只仍能提供商店成长；但Dove、Atlantic Puffin与Kiwi都需要友军Strawberry才能选中或激活目标，挑战又禁止任何食物装备，现行技能下这三者缺少合法目标。它们存在是挑战限制，不是完整草莓联动。",
+        "caveats": "Bounty Board把该条标为旧版且可能无法在当前版本复现；顺序仍是夺冠要求，无食物装备条件与现行草莓目标存在直接冲突。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Strawberry Allergy",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/StrawberryAllergy1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-taste-of-ink",
+      "title": "墨水滋味",
+      "kind": "挑战完成队",
+      "packIds": [
+        "golden"
+      ],
+      "group": "异常与控制",
+      "team": [
+        {
+          "petId": "246",
+          "englishName": "Nyala",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Nyala放第1位，尽早阵亡获得Trumpets，为后续Squid支付技能成本。它自身不是墨染输出，却是两只Squid能稳定消费资源的前置。"
+        },
+        {
+          "petId": "177",
+          "englishName": "Squid",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "第一只Squid放第2位，在Nyala之后阵亡，优先花费已生成的Trumpets并墨染最前敌人；它是第一段资源消费槽，必须等资源先产生。"
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "第一只Cuttlefish放第3位，不消耗Trumpets，阵亡时处理最后方敌人并施加Inked；夹在两只Squid之间可交错前后排压力。"
+        },
+        {
+          "petId": "177",
+          "englishName": "Squid",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "第二只Squid放第4位，保留另一份独立的Trumpets消费与前排墨染。它不是第一只的占位副本，能在更晚阵亡时再次结算。"
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "第二只Cuttlefish被挑战固定在第5位，作为末段阵亡技能继续削减并墨染敌方后排；留后延迟触发，但这一位置是挑战条件，并不代表竞技最优。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — The Taste of Ink",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/TasteOfInk1.jpg",
+        "author": "CheeseMaster",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Cuttlefish、Squid、Cuttlefish、Squid、Nyala，并链接 CheeseMaster 的 Bounty Champ 截图；这里只确认构成。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "246",
+          "englishName": "Nyala",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "177",
+          "englishName": "Squid",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "177",
+          "englishName": "Squid",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "176",
+          "englishName": "Cuttlefish",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "这套限制队用Nyala先提供Trumpets，再让两只Squid在阵亡时各花费Trumpets给最前敌人施加Inked；两只Cuttlefish不依赖Trumpets，阵亡时直接削减后排敌人生命并施加Inked。规定顺序让资源生产先于第一只Squid消费，其后交错安排Cuttlefish与Squid，使不同方向的墨染来源分阶段发生。重复单位各有独立阵亡触发。",
+        "caveats": "成员与顺序都是夺冠条件；来源未记录星级和面板。若Nyala未先阵亡或Trumpets已被其他效果消耗，Squid可能无法按计划结算。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — The Taste of Ink",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/TasteOfInk1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-nyala-vaqation",
+      "title": "Nyala 假期",
+      "kind": "挑战完成队",
+      "packIds": [
+        "golden"
+      ],
+      "group": "喇叭",
+      "team": [
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "第一只Vaquita放第1位，最早阵亡并放大Highland Cow开战生成的Trumpets；它建立三段放大链的第一步。"
+        },
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "第二只Vaquita放第2位，在已有资源基础上再次独立放大Trumpets；其价值来自第二次阵亡结算，不是第一只的重复说明。"
+        },
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "第三只Vaquita放第3位，完成第三次独立资源放大后才把接战位置交给Wildebeest；它保留了挑战要求的第三个放大节点。"
+        },
+        {
+          "petId": "268",
+          "englishName": "Wildebeest",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Wildebeest放第4位，等三只Vaquita结算后攻击，花费Trumpets取得Coconut以改善交换；过早接战会少吃后续资源放大。"
+        },
+        {
+          "petId": "186",
+          "englishName": "Highland Cow",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Highland Cow放第5位保命，但其Trumpets在战斗开始已经生成，不必先接战。它是整条资源链的初始供给，而非最后阶段消费者。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Nyala's Vaqation",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/NyalasVaqation1.jpg",
+        "author": "CheeseMaster",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Highland Cow、Wildebeest、Vaquita、Vaquita、Vaquita，并链接 CheeseMaster 的 Bounty Champ 截图；这里只确认构成。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "265",
+          "englishName": "Vaquita",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "268",
+          "englishName": "Wildebeest",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "186",
+          "englishName": "Highland Cow",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战虽名为Nyala假期，完成队实际按三只Vaquita、Wildebeest与Highland Cow固定顺序。Highland Cow开战提供Trumpets，三只Vaquita按阵亡顺序分别放大当前数量，Wildebeest攻击前花费少量Trumpets获得Coconut。战斗进行到队内仅余一宠或更少时，未用Trumpets会被消耗，召唤等额攻击与生命的Golden Retriever；它是资源结算召唤物，不属于开战五格。",
+        "caveats": "成员顺序是夺冠条件；来源未记录星级和最终生命值。Golden Retriever只说明Trumpets的通用终局价值，并非本完成队成员或可替换槽。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Nyala's Vaqation",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/NyalasVaqation1.jpg"
+          },
+          {
+            "label": "Golden Retriever 喇叭终局技能",
+            "url": "https://superautopets.wiki.gg/wiki/Golden_Retriever"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-club-tropimana",
+      "title": "热带魔力俱乐部",
+      "kind": "挑战完成队",
+      "packIds": [
+        "unicorn"
+      ],
+      "group": "魔力",
+      "team": [
+        {
+          "petId": "606",
+          "englishName": "Sleipnir",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Sleipnir固定第1位并接收后方供给；技能中的“友军”不含自己，1星时给Alchemedes开战Mana，2星再覆盖Roc，3星再覆盖Thunderbird。它本身只产资源，队内缺少将Mana转为战力的消费技能。"
+        },
+        {
+          "petId": "626",
+          "englishName": "Alchemedes",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Alchemedes放第2位，前方最近目标正是Sleipnir，因此开战Mana不会落空。它是单目标近距供给节点，需保留前方友军。"
+        },
+        {
+          "petId": "369",
+          "englishName": "Roc",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Roc固定第3位，前方只有Sleipnir与Alchemedes可供Mana分配；这是规则位置，不能后移扩大目标数量。"
+        },
+        {
+          "petId": "610",
+          "englishName": "Thunderbird",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Thunderbird固定第4位，其前方第二近友军为Alchemedes，而非Sleipnir；目标存在，但队内仍没有明确Mana消费技能。"
+        },
+        {
+          "petId": "354",
+          "englishName": "Kitsune",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Kitsune放第5位，在其他友军阵亡时把全队Mana与额外Mana转给前方最近友军，初始目标是第4位Thunderbird，目标阵亡后再向前顺延。它提供汇流动作，但仍缺少最终消费效果。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Club Tropimana",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/ClubTropimana1.jpg",
+        "author": "bugwagon",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Kitsune、Thunderbird、Roc、Alchemedes、Sleipnir，并链接 bugwagon 的 Bounty Champ 截图；这里只确认构成。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "606",
+          "englishName": "Sleipnir",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "626",
+          "englishName": "Alchemedes",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "369",
+          "englishName": "Roc",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "610",
+          "englishName": "Thunderbird",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "354",
+          "englishName": "Kitsune",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战固定Sleipnir、Alchemedes、Roc、Thunderbird、Kitsune的前后顺序。Sleipnir不能把自身视为友军，因此1星时给最前方其他友军Alchemedes加Mana，高星再增加受益友军数量；Alchemedes给前方Sleipnir，Roc向前方两名友军分配，Thunderbird给前方第二近的Alchemedes，Kitsune在友军阵亡后汇流。队内仍无明确Mana消费者，顺序只保证供给目标存在。",
+        "caveats": "顺序是夺冠硬条件；来源未记录星级或额外Mana消费来源。这五格按当前技能只有供给与转移，不能保证Mana产生实际战斗收益。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Club Tropimana",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/ClubTropimana1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-jump-staircase-ii",
+      "title": "跳跃阶梯 II",
+      "kind": "挑战完成队",
+      "packIds": [
+        "danger"
+      ],
+      "group": "跳跃",
+      "team": [
+        {
+          "petId": "434",
+          "englishName": "Sumatran Tiger",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Sumatran Tiger被固定在第1位，只能对位敌方边缘格；高星相邻伤害至多覆盖一个邻格。不能移到中间扩大范围。"
+        },
+        {
+          "petId": "716",
+          "englishName": "Snow Leopard",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Snow Leopard被固定在第2位，开战自增攻血并随机跳跃，随后较早接战；随机目标不依赖友军邻位，也不由此位置锁定。"
+        },
+        {
+          "petId": "437",
+          "englishName": "Tasmanian Devil",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Tasmanian Devil被固定在第3位，开战寻找最低攻击敌人、施加Spooked并跳跃；它与前两只共同提供早期受伤事件。"
+        },
+        {
+          "petId": "389",
+          "englishName": "Amami Rabbit",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Amami Rabbit放第4位，开战针对最高攻击敌人并永久加攻；后置可保留已积累身材，但位置不改变其选敌规则或成长次数。"
+        },
+        {
+          "petId": "404",
+          "englishName": "Darwins Fox",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Darwins Fox放第5位，等待前面开战跳跃先伤到敌人后再追跳，且留后可避免过早接战；它是前四种主动跳跃后的响应节点。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Jump Staircase II",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/JumpStaircaseII1.jpg",
+        "author": "bugwagon",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Darwins Fox、Amami Rabbit、Tasmanian Devil、Snow Leopard、Sumatran Tiger，并链接 bugwagon 的 Bounty Champ 截图；这里只确认构成。",
+      "format": "扩展包",
+      "sourceTeam": [
+        {
+          "petId": "434",
+          "englishName": "Sumatran Tiger",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "716",
+          "englishName": "Snow Leopard",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "437",
+          "englishName": "Tasmanian Devil",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "389",
+          "englishName": "Amami Rabbit",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "404",
+          "englishName": "Darwins Fox",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战固定Sumatran Tiger、Snow Leopard、Tasmanian Devil、Amami Rabbit、Darwins Fox的顺序。Sumatran Tiger在最前只能对位敌方边缘格，高星相邻伤害至多覆盖一个邻格，明显弱于居中覆盖；其余成员分别随机跳、锁最低攻击、锁最高攻击或在敌人受伤后追跳。这个边缘对位是夺冠限制，不能为扩大溅射而移到中间。",
+        "caveats": "顺序是夺冠硬条件，不能针对敌阵移动Sumatran Tiger；来源未记录星级和攻血，开战能力结算先后仍取决于实际攻击力。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Jump Staircase II",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/JumpStaircaseII1.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-lynx-to-past",
+      "title": "Lynx 往事",
+      "kind": "挑战完成队",
+      "packIds": [
+        "custom"
+      ],
+      "group": "狙击",
+      "team": [
+        {
+          "petId": "200",
+          "englishName": "Lynx",
+          "level": null,
+          "perk": "Pineapple",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "Lynx被挑战固定在第1位，按全队等级总和对随机敌人造成开战伤害，Pineapple再补能力伤害；之后必须首先接战。"
+        },
+        {
+          "petId": "41",
+          "englishName": "Leopard",
+          "level": null,
+          "perk": "Pineapple",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "Leopard被固定在第2位，以自身攻击力比例狙击随机敌人并获得Pineapple加成；位置来自挑战顺序，不是自由面板排序。"
+        },
+        {
+          "petId": "19",
+          "englishName": "Crocodile",
+          "level": null,
+          "perk": "Pineapple",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "Crocodile被固定在第3位，开战压低最后一个敌人并触发Pineapple；技能目标不受友军位置影响，但不能前移接战。"
+        },
+        {
+          "petId": "23",
+          "englishName": "Dolphin",
+          "level": null,
+          "perk": "Pineapple",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Dolphin放第4位，开战瞄准最低生命敌人，适合承接其他开场伤害后的收割；能否后结算取决于实际攻击力，站位本身不保证。"
+        },
+        {
+          "petId": "47",
+          "englishName": "Mosquito",
+          "level": null,
+          "perk": "Pineapple",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Mosquito放第5位，提供另一条随机开场伤害并触发Pineapple。后排用于保留单位，不代表它的开战技能需要最后一格。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — A Lynx to the Past",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/ALynxToThePast3.jpg",
+        "author": "Killfeed",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Mosquito、Dolphin、Crocodile、Leopard、Lynx，并明确每格 Pineapple；这里只确认构成和装备要求。",
+      "format": "自定义",
+      "sourceTeam": [
+        {
+          "petId": "200",
+          "englishName": "Lynx",
+          "level": null,
+          "perk": "Pineapple"
+        },
+        {
+          "petId": "41",
+          "englishName": "Leopard",
+          "level": null,
+          "perk": "Pineapple"
+        },
+        {
+          "petId": "19",
+          "englishName": "Crocodile",
+          "level": null,
+          "perk": "Pineapple"
+        },
+        {
+          "petId": "23",
+          "englishName": "Dolphin",
+          "level": null,
+          "perk": "Pineapple"
+        },
+        {
+          "petId": "47",
+          "englishName": "Mosquito",
+          "level": null,
+          "perk": "Pineapple"
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战限定Lynx、Leopard、Crocodile、Dolphin、Mosquito，并要求五格全部装备Pineapple。五者都在战斗开始直接造成能力伤害：随机、按自身攻击、打后排、打最低生命或小额随机伤害；Pineapple为每次能力伤害增加固定值，因此成员价值来自多源开场狙击，而非友军邻位。站位主要安排谁先接战，开场结算顺序仍由实际攻击力等规则决定。",
+        "caveats": "悬赏要求五个Pineapple并要求顺序匹配，但未给出星级和面板；成长会改变开战触发先后，固定位置不能保证集火同一目标。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — A Lynx to the Past",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/ALynxToThePast3.jpg"
+          }
+        ]
+      }
+    },
+    {
+      "id": "grounded-jerboa-cat",
+      "title": "Jerboa 与 Cat 的烦恼",
+      "kind": "挑战完成队",
+      "packIds": [
+        "custom"
+      ],
+      "group": "食物",
+      "team": [
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 0,
+          "position": 1,
+          "explanation": "第一只Cat放第1位，提供第一份商店食物加成并先接战。它与另两只技能相加而非相乘；前排只是战斗分工，不影响商店触发与次数。"
+        },
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 1,
+          "position": 2,
+          "explanation": "第二只Cat放第2位，独立增加同一食物的额外攻血并拥有自己的回合触发额度。它是第二个真实槽位，不是假重复记录，也会占用一格战斗位置。"
+        },
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 2,
+          "position": 3,
+          "explanation": "第三只Cat放第3位，补上第三份可相加的食物强化；挑战要求保留三Cat，即使这会减少可被培养和上场作战的其他单位空间与选择。"
+        },
+        {
+          "petId": "48",
+          "englishName": "Mouse",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 3,
+          "position": 4,
+          "explanation": "Mouse固定第4位；养成阶段可出售其他Mouse生成免费Apple，再买回一只Mouse填入最终挑战槽，因此无需出售这只最终成员。"
+        },
+        {
+          "petId": "199",
+          "englishName": "Jerboa",
+          "level": null,
+          "perk": "",
+          "sourceIndex": 4,
+          "position": 5,
+          "explanation": "Jerboa放第5位，吃Apple时给全体友军成长，是Mouse产Apple后的团队收益端。它留后保护养成核心，技能本身不要求最后方。"
+        }
+      ],
+      "order": "front-to-back",
+      "summary": "",
+      "source": {
+        "title": "Grounded SAP Bounty Board — Jerboa-Cat Frustration",
+        "url": "https://www.groundedsap.co.uk/BountyBoard.aspx",
+        "proofUrl": "https://www.groundedsap.co.uk/Images/Bounties/JerboaCat1.jpg",
+        "author": "bugwagon",
+        "date": ""
+      },
+      "versionNote": "社区悬赏完成记录；展示挑战规定顺序，讲解对照当前技能。原局星级、攻血和未录入装备不作补全。",
+      "evidence": "Bounty Board 的 Required Team 明列 Jerboa、Mouse、Cat、Cat、Cat，并附 bugwagon 的 Bounty Champ 截图和视频；这里只确认五单位构成。",
+      "format": "自定义",
+      "sourceTeam": [
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "11",
+          "englishName": "Cat",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "48",
+          "englishName": "Mouse",
+          "level": null,
+          "perk": ""
+        },
+        {
+          "petId": "199",
+          "englishName": "Jerboa",
+          "level": null,
+          "perk": ""
+        }
+      ],
+      "sourceOrder": "unspecified",
+      "placement": {
+        "frontToBack": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ],
+        "kind": "challenge",
+        "reason": "沿用Bounty Board规定的五个位置；顺序是挑战条件，不是本站优化后的站位。",
+        "notes": "悬赏规则要求成员与顺序一致才计为Bounty Champ；不把规定站位解释成竞技最优。"
+      },
+      "explanation": {
+        "basis": "挑战条件与当前技能解读",
+        "mechanism": "挑战强制三只Cat、Mouse与Jerboa，联动发生在商店阶段：出售Mouse把商店食物替换为免费Apple，Jerboa吃Apple后全队成长；Cat放大商店食物提供的攻血。当前资料明确多只Cat的加成可以相加，但原始食物只计算一次，并非倍率彼此相乘；每只Cat还各有每回合两次的触发上限。三Cat因此是三份独立食物加成来源，同时也挤占战斗槽位。",
+        "caveats": "三Cat、Mouse、Jerboa的顺序是夺冠硬条件。多Cat为加法叠加；可在养成期出售额外Mouse后回填，但来源未记录实际流程、等级或食物次数。",
+        "references": [
+          {
+            "label": "Grounded SAP Bounty Board — Jerboa-Cat Frustration",
+            "url": "https://www.groundedsap.co.uk/BountyBoard.aspx"
+          },
+          {
+            "label": "Bounty Champ 截图",
+            "url": "https://www.groundedsap.co.uk/Images/Bounties/JerboaCat1.jpg"
+          },
+          {
+            "label": "Cat 当前技能与多Cat叠加说明",
+            "url": "https://groundedsap.co.uk/PetProfile.aspx?ID=11"
+          }
+        ]
+      }
+    }
+  ]
+}

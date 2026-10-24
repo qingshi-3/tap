@@ -10,14 +10,14 @@ import { icon } from '../qb/icons';
 import { hideTip, initTip } from '../qb/tip';
 import { unitSvg } from '../qb/unitArt';
 import { tierArt } from '../qb/card';
-import { card, SHOP_POOL } from '../core/data';
-import { clearAll, load, lvlOf, newRun, save, WIN_GOAL, MAX_LIVES, type RunState } from '../core/run';
+import { card, LINES, SHOP_POOL } from '../core/data';
+import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, WIN_GOAL, type Diff, type RunState } from '../core/run';
 import { Game } from './prep';
 import { codexScreen } from './codex';
 
 // ── 本地战绩 ──
 const REC_KEY = 'pdqs_records';
-interface RunRec { at: number; won: boolean; wins: number; turn: number; lives: number; team: { def: string; lvl: number }[] }
+interface RunRec { at: number; diff?: number; won: boolean; wins: number; turn: number; lives: number; team: { def: string; lvl: number }[] }
 interface Records { runs: number; clears: number; best: number; recent: RunRec[] }
 function loadRecords(): Records {
   try {
@@ -26,13 +26,26 @@ function loadRecords(): Records {
   } catch { /* ignore */ }
   return { runs: 0, clears: 0, best: 0, recent: [] };
 }
+/** 局外偏暖：前 3 局，或最近 3 局都早早出局（≤5 胜） */
+function warmStart() {
+  const rec = loadRecords();
+  if (rec.runs < 3) return true;
+  const last = rec.recent.slice(0, 3);
+  return last.length === 3 && last.every((x) => !x.won && x.wins <= 5);
+}
+const DIFF_KEY = 'pdqs_diff';
+const lastDiff = (): Diff => { const d = Number(localStorage.getItem(DIFF_KEY)); return (d === 1 || d === 2 ? d : 0) as Diff; };
+const freshRun = (diff: Diff) => {
+  try { localStorage.setItem(DIFF_KEY, String(diff)); } catch { /* ignore */ }
+  return newRun(undefined, { warm: warmStart(), diff });
+};
 function recordRun(r: RunState) {
   const rec = loadRecords();
   rec.runs++;
   if (r.phase === 'won') rec.clears++;
   rec.best = Math.max(rec.best, r.wins);
   rec.recent.unshift({
-    at: Date.now(), won: r.phase === 'won', wins: r.wins, turn: r.turn, lives: r.lives,
+    at: Date.now(), diff: r.diff, won: r.phase === 'won', wins: r.wins, turn: r.turn, lives: r.lives,
     team: r.queue.filter((o) => !!o).map((o) => ({ def: o!.def, lvl: lvlOf(o!.copies) })),
   });
   rec.recent = rec.recent.slice(0, 20);
@@ -95,15 +108,15 @@ export class App {
   toTitle() {
     this.leaveGame(true);
     setTitleMusic(true);
-    // 每条线挑一张最高阶的卡做门面
-    const fallback = (['rotate', 'blade', 'soul', 'beast', 'frost', 'sand'] as const).map((line) => SHOP_POOL.filter((c) => c.line === line).sort((a, b) => b.tier - a.tier)[0]?.id).filter(Boolean) as string[];
+    // 每个引擎挑一张最高阶的卡做门面
+    const fallback = LINES.map((line) => SHOP_POOL.filter((c) => c.line === line).sort((a, b) => b.tier - a.tier)[0]?.id).filter(Boolean) as string[];
     const foes = ['e_nightk', 'e_lich', 'e_void'].filter((id) => card(id));
     const saved = load();
     const start = h('button', { class: `btn ${saved ? 'ghost' : 'primary'} big title-new` }, h('span', null, '新的游戏'), icon('play'));
     start.addEventListener('click', () => {
       sfx.start();
-      if (saved) this.confirm('开始新的一局？', '当前进度会被放弃，计为一次失败。', '开始', () => { recordRun({ ...saved, phase: 'lost' }); this.startRun(newRun()); });
-      else this.startRun(newRun());
+      if (saved) this.confirm('开始新的一局？', '当前进度会被放弃，计为一次失败。', '开始', () => { recordRun({ ...saved, phase: 'lost' }); this.pickDiff(); });
+      else this.pickDiff();
     });
     let cont: HTMLElement | null = null;
     if (saved) {
@@ -152,7 +165,7 @@ export class App {
     back.addEventListener('click', () => { sfx.click(); this.toTitle(); });
     const rows = rec.recent.map((r) => h('article', { class: `records-achievement-row${r.won ? ' is-complete' : ''}` },
       h('div', { class: 'records-entry' },
-        h('h2', { class: 'records-name' }, r.won ? icon('check') : null, r.won ? '通关' : '失败', ` · ${r.wins} 胜 · 第 ${r.turn} 回合`),
+        h('h2', { class: 'records-name' }, r.won ? icon('check') : null, r.won ? '通关' : '失败', r.diff ? ` · ${DIFFS[r.diff].name}` : '', ` · ${r.wins} 胜 · 第 ${r.turn} 回合`),
         h('div', { class: 'rec-team' }, r.team.map((u) => h('span', { class: 'rec-u' }, tierArt('rec-art', u.def, card(u.def)?.tier ?? 1, 'span'), h('i', null, '★'.repeat(u.lvl)))))),
       h('div', { class: 'records-achievement-result' },
         h('b', { class: 'records-points' }, r.won ? `剩 ${r.lives} 心` : `${r.wins}/${WIN_GOAL}`),
@@ -161,6 +174,18 @@ export class App {
       h('header', { class: 'records-head' }, back),
       h('div', { class: 'records-controls' }, h('p', { class: 'records-summary' }, `通关 ${rec.clears} / ${rec.runs} 局　最多胜场 ${rec.best}`)),
       h('div', { class: 'records-list' }, rows.length ? rows : h('p', { class: 'records-empty' }, '还没有完成的对局'))));
+  }
+
+  /** 选难度后开新局；默认高亮上次的选择 */
+  pickDiff() {
+    const cur = lastDiff();
+    const btns = DIFFS.map((d, i) => {
+      const b = h('button', { class: `diff-opt d${i}${i === cur ? ' on' : ''}` },
+        h('b', null, d.name), h('span', null, d.desc), h('i', null, Array.from({ length: d.lives }, () => icon('heart'))));
+      b.addEventListener('click', () => { close(); sfx.start(); this.startRun(freshRun(i as Diff)); });
+      return b;
+    });
+    const close = this.modal(h('div', { class: 'confirm diff-pick' }, h('h3', null, '选择难度'), h('div', { class: 'diff-opts' }, btns)), 'diff-dialog');
   }
 
   startRun(r: RunState) {
@@ -179,7 +204,7 @@ export class App {
     const won = r.phase === 'won';
     if (won) sfx.win(); else sfx.lose();
     const again = h('button', { class: 'btn primary big' }, h('span', null, '再来一局'), icon('play'));
-    again.addEventListener('click', () => { sfx.start(); this.startRun(newRun()); });
+    again.addEventListener('click', () => { sfx.start(); this.pickDiff(); });
     const home = h('button', { class: 'btn ghost big' }, h('span', null, '返回标题'));
     home.addEventListener('click', () => { sfx.click(); this.toTitle(); });
     const team = r.queue.filter((o) => !!o);
@@ -190,7 +215,7 @@ export class App {
       h('div', { class: 'end-stats' },
         h('div', null, h('b', null, r.wins), h('span', null, '胜场')),
         h('div', null, h('b', null, r.turn), h('span', null, '回合')),
-        h('div', null, h('b', null, `${r.lives}/${MAX_LIVES}`), h('span', null, '剩余生命'))),
+        h('div', null, h('b', null, `${r.lives}/${maxLives(r)}`), h('span', null, '剩余生命'))),
       team.length ? h('div', { class: 'end-team-lbl' }, '最终阵容') : null,
       h('div', { class: 'end-team' }, team.map((o) => h('div', { class: 'end-unit' },
         tierArt('eu-art', o!.def, card(o!.def).tier), h('div', { class: 'eu-name' }, card(o!.def).name), h('div', { class: 'eu-lv' }, '★'.repeat(lvlOf(o!.copies)))))),

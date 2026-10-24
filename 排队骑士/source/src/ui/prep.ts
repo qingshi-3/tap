@@ -3,10 +3,12 @@ import '../qb/css/prep-battle.css';
 import '../qb/css/shop-layout.css';
 import '../qb/css/v08.css';
 import '../qb/css/economy-bindings.css';
-import { BOSSES, card, FOOD, LINE_INFO } from '../core/data';
+import '../qb/css/v05.css';
+import { ATOM_INFO, BOSSES, card, EQUIP, EVENT_INFO, FOOD, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
 import {
-  autoSlot, buy, endTurn, fight, foodNeedsTarget, lossCost, lvlOf, MAX_COPIES, MAX_LIVES, moveOwned, ownedAtk, ownedHp, PRICE, REROLL,
-  reroll, save, sell, sellPrice, settleBattle, toggleLock, useFood, WIN_GOAL, type Owned, type RunState, type ShopFx, type ShopItem,
+  AD_SAVE_MAX, adRelic, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice,
+  FORM_INFO, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
+  WIN_GOAL, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
 import { QUEUE_MAX } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
@@ -15,7 +17,8 @@ import { draftCard, foodCard } from '../qb/card';
 import { h, toStage, wait } from '../qb/dom';
 import { icon } from '../qb/icons';
 import { itemIcon } from '../qb/pixelItems';
-import { foodOfEnch, foodTip, hideTip, setTipHideHook, showTip, unitTip } from '../qb/tip';
+import { equipIcon, equipTip, foodTip, hideTip, setTipHideHook, showTip, unitTip } from '../qb/tip';
+import { showRewardedAd } from './ads';
 import type { Side } from '../qb/shim';
 import { computeLinks } from './links';
 import { unitSvg } from '../qb/unitArt';
@@ -23,9 +26,13 @@ import { audioSettings } from '../qb/audioSettings';
 import type { App } from './app';
 import { BattlePlayer } from './battle';
 
-type DragKind = 'card' | 'unit';
+type DragKind = 'card' | 'unit' | 'bag';
 interface Drag { kind: DragKind; idx: number; startX: number; startY: number; ghost: HTMLElement | null; src: HTMLElement; pid: number }
 
+const ic = (n: string) => icon(n as Parameters<typeof icon>[0]);
+const relicTip = (id: RelicId) => h('div', { class: 'tip-unit', style: '--fc:#ffd36b' },
+  h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, RELIC[id].name), h('span', { class: 'tip-fac' }, '遗物')),
+  h('div', { class: 'tip-text' }, RELIC[id].text));
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const lineColor = (def: string) => LINE_INFO[card(def).line].color;
 
@@ -36,6 +43,7 @@ export class Game {
   private banner = h('div', { class: 'stage-banner' });
   private tray = h('div', { class: 'tray paid-shelf' });
   private bar = h('div', { class: 'battle-bar' });
+  private bagEl = h('div', { class: 'bag-strip' });
   private drag: Drag | null = null;
   private releaseDrag: (() => void) | null = null;
   private sellZone: { el: HTMLElement; rect: { x: number; y: number; w: number; h: number } } | null = null;
@@ -48,7 +56,7 @@ export class Game {
   private focus: { side: Side; slot: number } | null = null;
 
   constructor(private app: App, public run: RunState) {
-    this.el = h('div', { class: 'screen game' }, this.board.el, this.banner, this.hud, this.tray, this.bar);
+    this.el = h('div', { class: 'screen game' }, this.board.el, this.banner, this.hud, this.bagEl, this.tray, this.bar);
     setTipHideHook(() => { if (this.focus) this.setFocus(null); });
   }
 
@@ -67,7 +75,22 @@ export class Game {
     this.renderAll(this.run.pendingFx);
     this.cardsIn();
     this.board.views.forEach((v, i) => v.appear(Number(i.slice(1)) % 5 * 60));
-    void this.playPending();
+    void this.intro();
+  }
+
+  /** 回合开始：先开装备箱，再选岔路，最后播放商店效果 */
+  private async intro() {
+    this.busy = true;
+    while (this.run.relicPick && !this.disposed) await this.showRelic();
+    if (this.disposed) return;
+    if (this.run.chest) await this.showChest();
+    if (this.disposed) return;
+    if (this.run.event) await this.showEvent();
+    if (this.disposed) return;
+    if (this.run.branch) await this.showBranch();
+    if (this.disposed) return;
+    this.busy = false;
+    await this.playPending();
   }
 
   private async playPending() {
@@ -92,7 +115,17 @@ export class Game {
 
   private renderHud() {
     const r = this.run;
-    const lives = h('div', { class: 'hud-lives' }, Array.from({ length: MAX_LIVES }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : ''}` }, icon('heart'))));
+    const lives = h('div', { class: 'hud-lives' }, Array.from({ length: maxLives(r) }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : ''}` }, icon('heart'))));
+    const relics = r.relics.length ? h('div', { class: 'hud-relics' }, ...r.relics.map((id) => {
+      const b = h('button', { class: 'hud-relic', 'aria-label': RELIC[id].name }, ic(RELIC[id].icon));
+      b.addEventListener('click', () => {
+        sfx.click();
+        const rc = b.getBoundingClientRect(), sc = this.el.getBoundingClientRect();
+        const k = 1280 / sc.width;
+        showTip(relicTip(id), (rc.left + rc.width / 2 - sc.left) * k, (rc.bottom - sc.top) * k + 6, 'below');
+      });
+      return b;
+    })) : null;
     const route = h('div', { class: 'route' },
       h('div', { class: 'route-line' }, h('div', { class: 'route-fill', style: `width:${(Math.min(r.wins, WIN_GOAL - 1) / (WIN_GOAL - 1)) * 100}%` })),
       Array.from({ length: WIN_GOAL }, (_, i) => {
@@ -103,7 +136,7 @@ export class Game {
     const menu = h('button', { class: 'icon-btn', 'aria-label': '菜单' }, icon('menu'));
     menu.addEventListener('click', () => { sfx.click(); this.showMenu(); });
     this.hud.replaceChildren(
-      h('div', { class: 'hud-left' }, lives),
+      h('div', { class: 'hud-left' }, lives, relics),
       route,
       h('div', { class: 'hud-right' }, h('div', { class: 'hud-wins' }, h('span', null, '回合'), h('b', null, r.turn)), menu),
     );
@@ -124,23 +157,23 @@ export class Game {
     const r = this.run;
     const boss = r.enemy.boss;
     this.banner.className = `stage-banner k-${boss ? 'boss' : 'normal'}`;
-    const hint: Record<string, string> = {
-      wall: '叠满格挡的铁壁，拖长交锋',
-      tide: '亡者不断复生、召唤',
-      wheel: '五名精英轮番上前',
-      final: '吞噬阵亡者越战越强',
-    };
+
+    const elite = r.enemy.elite ?? [];
+    const form = r.enemy.form;
+    if (elite.length) this.banner.classList.add('k-elite');
     this.banner.replaceChildren(
       h('div', { class: 'sb-title' },
-        boss ? h('span', { class: 'sb-kind' }, 'Boss') : null,
-        h('span', { class: 'sb-no' }, `第 ${r.turn} 回合 · 输掉扣 ${lossCost(r.turn)} 心`),
-        h('b', null, boss ? BOSSES[boss].name : '对手阵容')),
-      ...(boss ? [h('div', { class: 'sb-hint' }, hint[boss])] : []),
+        boss ? h('span', { class: 'sb-kind' }, 'Boss') : elite.length ? h('span', { class: 'sb-kind elite' }, '精英') : null,
+        h('span', { class: 'sb-no' }, `第 ${r.turn} 回合 · 输掉扣 ${enemyLossCost(r)} 心`),
+        h('b', null, boss ? BOSSES[boss].name : form ? FORM_INFO[form].name : '对手阵容'),
+        ...elite.map((a) => h('span', { class: 'sb-ax', title: ATOM_INFO[a].name }, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))),
+      ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : form ? [h('div', { class: 'sb-hint' }, FORM_INFO[form].hint)] : []),
     );
   }
 
   private ownedStats(o: Owned) {
-    return { atk: ownedAtk(o), hp: ownedHp(o) };
+    const [atk, hp] = shownStats(o);
+    return { atk, hp };
   }
 
   private renderBoard(pending: ShopFx[] = []) {
@@ -166,11 +199,15 @@ export class Game {
       const v = new UnitView(u.def, 1, i, u.lvl, { token: !!d.token });
       b.add(`e${i}`, v);
       v.setStats({ atk: u.atk, hp: u.hp, maxHp: u.hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(d.kws) });
+      v.setEquips([...(u.ench ? [u.ench] : []), ...(u.ax ?? []).map((a) => ATOM_INFO[a].icon)]);
       v.el.addEventListener('click', () => {
         if (this.busy) return;
         sfx.click();
         this.setFocus({ side: 1, slot: i });
-        showTip(unitTip(u.def, u.lvl, { atk: u.atk, hp: u.hp, kws: d.kws }, false), slotX(1, i), UNIT_Y + 62, 'below', headPos(1, i).y - 30);
+        const tip = unitTip(u.def, u.lvl, { atk: u.atk, hp: u.hp, kws: d.kws, ench: u.ench }, false);
+        if (u.ax?.length) tip.appendChild(h('div', { class: 'tip-text tip-ench' }, h('b', { class: 'tip-elite' }, '精英词缀'),
+          ...u.ax.flatMap((a) => [h('br'), itemIcon(ATOM_INFO[a].icon, 'spell', 'tip-item'), `${ATOM_INFO[a].name}：${ATOM_INFO[a].desc}`])));
+        showTip(tip, slotX(1, i), UNIT_Y + 62, 'below', headPos(1, i).y - 30);
       });
     });
     this.dropHints();
@@ -186,14 +223,20 @@ export class Game {
     if (!f) return;
     const r = this.run;
     const links = computeLinks([
-      r.queue.map((o) => (o ? { def: o.def, lvl: lvlOf(o.copies), rotate: o.ench === 'rotate' } : null)),
+      r.queue.map((o) => (o ? { def: o.def, lvl: lvlOf(o.copies) } : null)),
       r.enemy.units.slice(0, QUEUE_MAX).map((u) => ({ def: u.def, lvl: u.lvl })),
     ]).filter((l) => (l.from.side === f.side && l.from.slot === f.slot) || (l.to.side === f.side && l.to.slot === f.slot));
     const at = (p: { side: Side; slot: number }) => ({ x: Math.max(30, Math.min(1250, slotX(p.side, p.slot))), y: headPos(p.side, p.slot).y + 4 });
     const linked = new Set<string>();
     const lanes: { lo: number; hi: number; lane: number }[] = [];
     links
-      .map((l) => ({ l, p0: at(l.from), p1: at(l.to) }))
+      .map((l) => {
+        const p0 = at(l.from);
+        const p1 = at(l.to);
+        // 原位召唤：箭头绕回自己头顶
+        if (p0.x === p1.x && l.from.side === l.to.side) p1.x += l.from.side === 0 ? -34 : 34;
+        return { l, p0, p1 };
+      })
       .sort((a, z) => Math.abs(a.p1.x - a.p0.x) - Math.abs(z.p1.x - z.p0.x))
       .forEach(({ l, p0, p1 }, k) => {
         linked.add(`${l.from.side}-${l.from.slot}`).add(`${l.to.side}-${l.to.slot}`);
@@ -218,11 +261,12 @@ export class Game {
 
   private paintOwned(v: UnitView, o: Owned, pop = false) {
     const s = this.shown.get(o.oid) ?? this.ownedStats(o);
-    const kws = [...card(o.def).kws, ...(o.ench === 'rotate' ? ['rotate'] : []), ...(o.lamp ? ['reborn'] : [])];
-    v.setStats({ atk: s.atk + (o.drum ?? 0), hp: s.hp + (o.drum ?? 0), maxHp: s.hp + (o.drum ?? 0), block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
+    const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : [])];
+    v.setStats({ atk: s.atk + (o.tmpAtk ?? 0), hp: s.hp + (o.tmpHp ?? 0), maxHp: s.hp + (o.tmpHp ?? 0), block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
     v.setExp(o.copies);
-    v.setEquips([...(o.ench ? [foodOfEnch(o.ench)] : []), ...(o.drum ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : [])]);
-    if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
+    v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : [])]);
+    if (o.merc) v.setTag(`雇佣 剩${o.merc}场`, 'merc');
+    else if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
   }
 
   private viewOf(oid: number) {
@@ -234,8 +278,11 @@ export class Game {
     this.tray.classList.remove('hidden');
     const rerollBtn = h('button', { class: 'btn ghost reroll', disabled: r.gold < REROLL }, h('span', { class: 'rr-main' }, icon('refresh'), h('span', null, '刷新')), h('i', null, `${REROLL} 金`));
     rerollBtn.addEventListener('click', () => void this.doReroll());
+    const adUsed = r.adRr === r.turn;
+    const adBtn = h('button', { class: 'btn ghost reroll rewarded', disabled: adUsed }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '刷新')), h('i', null, adUsed ? '已用' : '广告'));
+    adBtn.addEventListener('click', () => void this.doAdReroll());
     const left = h('div', { class: 'tray-left' },
-      h('div', { class: 'tl-gold', role: 'status', 'aria-label': `金币 ${r.gold}` }, itemIcon('coin', 'coin'), h('b', null, r.gold)), rerollBtn);
+      h('div', { class: 'tl-gold', role: 'status', 'aria-label': `金币 ${r.gold}` }, itemIcon('coin', 'coin'), h('b', null, r.gold)), rerollBtn, adBtn);
     const units = r.shop.map((it, i) => ({ it, i })).filter((x) => x.it.kind === 'unit');
     const foods = r.shop.map((it, i) => ({ it, i })).filter((x) => x.it.kind === 'food');
     const cards = h('div', { class: 'cards', 'data-count': units.length });
@@ -246,15 +293,30 @@ export class Game {
     const fightBtn = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, '开 战'), icon('play'));
     fightBtn.addEventListener('click', () => { if (size && this.editable) void this.startBattle(); });
     this.tray.replaceChildren(left, cards, supplies, h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
+    this.renderBag();
+  }
+
+  /** 背包：3 格装备，拖到单位身上装备，拖到货架丢弃，点开看说明 */
+  private renderBag() {
+    const r = this.run;
+    this.bagEl.classList.toggle('hidden', !r.bag.length && !r.queue.some((o) => o?.ench));
+    this.bagEl.replaceChildren(h('span', { class: 'bag-head' }, '背包'),
+      ...Array.from({ length: BAG_MAX }, (_, i) => {
+        const id = r.bag[i];
+        if (!id) return h('div', { class: 'bag-slot empty' });
+        const el = h('div', { class: `bag-slot eq-q${EQUIP[id].q}`, role: 'button', 'aria-label': EQUIP[id].name }, equipIcon(id));
+        el.addEventListener('pointerdown', (e) => this.dragStart(e, 'bag', i, el));
+        return el;
+      }));
   }
 
   /** 补给单独一栏：小方块（图标 + 名字 + 价格），点开详情，拖到单位身上使用 */
   private foodTile(it: ShopItem, i: number) {
     const f = FOOD[it.def];
-    const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < PRICE ? ' unaffordable' : ''}`, role: 'button', 'aria-label': `补给 ${f.name}`, 'data-idx': i },
+    const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', 'aria-label': `补给 ${f.name}`, 'data-idx': i },
       h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack')),
       h('b', { class: 'ft-name' }, f.name),
-      h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(PRICE)),
+      h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))),
       it.locked ? h('span', { class: 'ft-lock' }, '锁') : null);
     c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
     return c;
@@ -263,7 +325,7 @@ export class Game {
   private shopCard(it: ShopItem, i: number) {
     const r = this.run;
     let c: HTMLElement;
-    if (it.kind === 'food') c = foodCard(it.def);
+    if (it.kind === 'food') c = foodCard(it.def, it.val);
     else {
       const same = r.queue.filter((o): o is Owned => !!o && o.def === it.def);
       const target = same.filter((o) => o.copies < MAX_COPIES).sort((a, b) => b.copies - a.copies)[0];
@@ -320,7 +382,7 @@ export class Game {
   }
 
   private dragDef(d: Drag) {
-    return d.kind === 'card' ? this.run.shop[d.idx]?.def : this.run.queue[d.idx]?.def;
+    return d.kind === 'card' ? this.run.shop[d.idx]?.def : d.kind === 'bag' ? this.run.bag[d.idx] : this.run.queue[d.idx]?.def;
   }
 
   private dragMove(e: PointerEvent) {
@@ -331,10 +393,11 @@ export class Game {
       const def = this.dragDef(d);
       if (!def) { this.drag = null; this.releaseDrag?.(); return; }
       const food = d.kind === 'card' && this.run.shop[d.idx].kind === 'food';
-      d.ghost = food ? h('div', { class: 'drag-ghost food' }, itemIcon(def, 'pack')) : h('div', { class: 'drag-ghost', html: unitSvg(def) });
+      d.ghost = d.kind === 'bag' ? h('div', { class: 'drag-ghost food' }, equipIcon(def)) : food ? h('div', { class: 'drag-ghost food' }, itemIcon(def, 'pack')) : h('div', { class: 'drag-ghost', html: unitSvg(def) });
       this.el.appendChild(d.ghost);
       d.src.classList.add('lifted');
       if (d.kind === 'unit') this.openSellZone(d.idx);
+      if (d.kind === 'bag') this.openSellZone(-1);
       sfx.pick();
     }
     const p = toStage(e.clientX, e.clientY);
@@ -348,7 +411,7 @@ export class Game {
     if (!d) return;
     this.drag = null;
     const p = toStage(e.clientX, e.clientY);
-    const sellDrop = d.kind === 'unit' && !!d.ghost && this.overSell(p);
+    const sellDrop = d.kind !== 'card' && !!d.ghost && this.overSell(p);
     d.src.classList.remove('lifted');
     this.sellZone?.el.remove();
     this.sellZone = null;
@@ -356,7 +419,7 @@ export class Game {
     if (e.type === 'pointercancel') { d.ghost?.remove(); return; }
     if (!d.ghost) { this.tap(d.kind, d.idx); return; }
     const ghost = d.ghost;
-    if (sellDrop) { ghost.remove(); void this.doSell(d.idx); return; }
+    if (sellDrop) { ghost.remove(); if (d.kind === 'bag') this.doDiscard(d.idx); else void this.doSell(d.idx); return; }
     const slot = this.slotAt(p.x, p.y);
     let ok = false;
     if (d.kind === 'card') {
@@ -365,7 +428,8 @@ export class Game {
         if (slot != null) ok = this.doFood(d.idx, slot);
         else if (!foodNeedsTarget(it.def) && p.y < 520) ok = this.doFood(d.idx, null);
       } else if (slot != null) ok = this.doBuy(d.idx, slot);
-    } else if (slot != null) ok = this.doMove(d.idx, slot);
+    } else if (d.kind === 'bag') { if (slot != null) ok = this.doEquip(d.idx, slot); }
+    else if (slot != null) ok = this.doMove(d.idx, slot);
     if (ok) ghost.remove();
     else this.returnGhost(ghost, d.src);
   }
@@ -400,6 +464,7 @@ export class Game {
       if (!at) return 'place';
       return at.def === it.def && at.copies < MAX_COPIES ? 'merge' : 'invalid';
     }
+    if (d.kind === 'bag') return at ? 'merge' : 'invalid';
     if (slot === d.idx) return '';
     const from = r.queue[d.idx];
     if (!at) return 'move';
@@ -417,15 +482,16 @@ export class Game {
     this.board.el.classList.toggle('dropping', active);
   }
 
+  /** slot = -1：丢弃背包里的装备 */
   private openSellZone(slot: number) {
     const o = this.run.queue[slot];
     const cards = this.tray.querySelector<HTMLElement>('.cards');
-    if (!o || !cards) return;
+    if ((!o && slot >= 0) || !cards) return;
     const b = cards.getBoundingClientRect();
     const a = toStage(b.left, b.top), z = toStage(b.right, b.bottom);
     const rect = { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
     const el = h('div', { class: 'sell-zone', style: `left:${rect.x}px;top:${rect.y}px;width:${rect.w}px;height:${rect.h}px` },
-      h('b', null, '拖到这里出售'), h('span', null, `+${sellPrice(o)} 金`));
+      h('b', null, o ? '拖到这里出售' : '拖到这里丢弃'), h('span', null, `+${o ? sellPrice(o) : 1} 金`));
     this.el.appendChild(el);
     this.sellZone = { el, rect };
   }
@@ -444,19 +510,37 @@ export class Game {
       const o = r.queue[idx];
       if (!o) return;
       const s = this.ownedStats(o);
-      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, drum: o.drum, lamp: o.lamp, copies: o.copies, kws: card(o.def).kws }, true);
+      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, copies: o.copies, kws: card(o.def).kws }, true);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
-      tip.appendChild(h('div', { class: 'shelf-acts' }, sellBtn));
+      const acts = h('div', { class: 'shelf-acts' }, sellBtn);
+      if (o.ench) {
+        const off = h('button', { class: 'btn ghost shelf-lock', disabled: r.bag.length >= BAG_MAX }, r.bag.length >= BAG_MAX ? '背包已满' : '卸下装备');
+        off.addEventListener('click', () => { if (!this.editable || !unequip(r, idx)) return; hideTip(); sfx.swap(); save(r); this.afterChange(); });
+        acts.prepend(off);
+      }
+      tip.appendChild(acts);
       this.board.views.get(`o${o.oid}`)?.el.classList.add('inspected');
       this.setFocus({ side: 0, slot: idx });
       showTip(tip, slotX(0, idx), UNIT_Y + 62, 'below', headPos(0, idx).y - 30);
       return;
     }
+    if (kind === 'bag') {
+      const id = r.bag[idx];
+      if (!id) return;
+      const tip = equipTip(id, '拖到单位身上装备；原装备会退回背包。');
+      const del = h('button', { class: 'btn ghost shelf-lock' }, '丢弃 +1 金');
+      del.addEventListener('click', () => { hideTip(); this.doDiscard(idx); });
+      tip.appendChild(h('div', { class: 'shelf-acts' }, del));
+      const b = this.bagEl.getBoundingClientRect();
+      const at = toStage(b.left + b.width / 2, b.top);
+      showTip(tip, at.x, at.y, 'above');
+      return;
+    }
     const it = r.shop[idx];
     if (!it) return;
     const c0 = card(it.def);
-    const tip = it.kind === 'food' ? foodTip(it.def) : unitTip(it.def, 1, r.canned ? { atk: c0.atk + r.canned, hp: c0.hp + r.canned, kws: c0.kws } : null, false);
+    const tip = it.kind === 'food' ? foodTip(it.def, it.val) : unitTip(it.def, 1, r.canned ? { atk: c0.atk + r.canned, hp: c0.hp + r.canned, kws: c0.kws } : null, false);
     const acts = h('div', { class: 'shelf-acts' });
     if (it.kind === 'unit') {
       const go = h('button', { class: 'btn primary shelf-recruit' }, `招募 ${PRICE} 金`);
@@ -468,7 +552,7 @@ export class Game {
       });
       acts.appendChild(go);
     } else if (!foodNeedsTarget(it.def)) {
-      const go = h('button', { class: 'btn primary shelf-recruit' }, `使用 ${PRICE} 金`);
+      const go = h('button', { class: 'btn primary shelf-recruit' }, `使用 ${foodPrice(it)} 金`);
       go.addEventListener('click', () => { hideTip(); this.doFood(idx, null); });
       acts.appendChild(go);
     } else acts.appendChild(h('span', { class: 'shelf-note' }, '拖到单位身上使用'));
@@ -498,6 +582,251 @@ export class Game {
     this.renderTray();
     this.cardsIn();
     if (fx.length) await this.runFx(fx);
+  }
+
+  private async doAdReroll() {
+    if (!this.editable || this.run.adRr === this.run.turn) return;
+    this.busy = true;
+    hideTip();
+    const ok = await showRewardedAd(this.el, '免费刷新', '看完广告，免费刷新一次货架');
+    this.busy = false;
+    if (!ok || this.disposed || !adReroll(this.run)) return;
+    sfx.swap();
+    save(this.run);
+    this.renderTray();
+    this.cardsIn();
+  }
+
+  private doEquip(i: number, slot: number): boolean {
+    if (!this.editable) return false;
+    const r = this.run;
+    const id = r.bag[i];
+    if (!id || !equipFromBag(r, i, slot)) return false;
+    save(r);
+    this.afterChange();
+    const p = bodyPos(0, slot);
+    const c = Q_INFO[EQUIP[id].q].color;
+    sfx.buff();
+    this.fx.ring(p.x, p.y, c, 64, 26);
+    this.fx.statPop(p.x, p.y - 70, '', EQUIP[id].name, 'pt-block');
+    this.viewOf(r.queue[slot]!.oid)?.pulse(c);
+    return true;
+  }
+
+  private doDiscard(i: number) {
+    if (!this.editable) return;
+    if (!discardBag(this.run, i)) return;
+    save(this.run);
+    sfx.reward();
+    this.fx.float(120, 420, '+1 金', 'levelup', 800);
+    this.afterChange();
+  }
+
+  // ───────────── 岔路 / 装备箱 / 遗物 / 事件 ─────────────
+
+  /** 遗物：3 选 1，广告多一选（每次 1 次） */
+  private showRelic(): Promise<void> {
+    const r = this.run;
+    return new Promise((done) => {
+      const ov = h('div', { class: 'chest-ov relic-ov' });
+      const paint = (fresh: number) => {
+        const p = r.relicPick!;
+        const items = p.opts.map((id, i) => {
+          const d = RELIC[id];
+          const el = h('button', { class: 'chest-item relic-item' },
+            h('div', { class: 'ci-beam' }),
+            h('div', { class: 'ci-ico relic-ico' }, ic(d.icon)),
+            h('b', { class: 'ci-name' }, d.name),
+            h('div', { class: 'ci-text' }, d.text));
+          el.addEventListener('click', () => {
+            sfx.reward();
+            pickRelic(r, i);
+            save(r);
+            ov.remove();
+            this.renderHud();
+            done();
+          });
+          if (i >= fresh && !reduced()) el.animate([{ transform: 'rotateY(90deg) scale(.8)', opacity: 0 }, { transform: 'rotateY(0) scale(1)', opacity: 1 }],
+            { duration: 420, delay: 150 + (i - fresh) * 220, easing: 'cubic-bezier(.2,1.3,.4,1)', fill: 'backwards' });
+          return el;
+        });
+        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: p.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '多一个选项')), h('i', null, p.ad ? '已用' : '广告'));
+        ad.addEventListener('click', async () => {
+          if (p.ad) return;
+          const ok = await showRewardedAd(this.el, '遗物多一选', '再多翻开一件遗物');
+          if (!ok) return;
+          const n = p.opts.length;
+          if (!adRelic(r)) return;
+          save(r);
+          paint(n);
+        });
+        ov.replaceChildren(h('div', { class: 'chest-card' },
+          h('h2', null, '遗物'), h('p', null, '选 1 件，整局生效'),
+          h('div', { class: 'chest-items' }, ...items), h('div', { class: 'chest-acts' }, ad)));
+      };
+      paint(0);
+      this.el.appendChild(ov);
+      sfx.start();
+    });
+  }
+
+  /** 事件：替代岔路的一次奇遇；需要选单位的选项先选人 */
+  private showEvent(): Promise<void> {
+    const r = this.run;
+    const ev = r.event!;
+    const info = EVENT_INFO[ev];
+    type Opt = { label: string; sub: string; unit?: (o: Owned) => boolean; choice: number };
+    const filled = r.queue.filter((o): o is Owned => !!o);
+    const opts: Opt[] = ev === 'camp' ? [
+      { label: '加练', sub: '选一个友军永久 +3/+3', unit: () => true, choice: 0 },
+      { label: '领装备', sub: '随机一件蓝色装备进背包', choice: 1 },
+    ] : ev === 'smith' ? [
+      { label: '锻造', sub: '选一个友军直接升一星，随机另一个友军离队', unit: (o) => !o.merc && o.copies < MAX_COPIES, choice: 0 },
+    ] : ev === 'morph' ? [
+      { label: '跳进去', sub: '选一个友军，变成同阶同标签的另一张卡，成长和装备保留', unit: (o) => !o.merc && morphPool(o).length > 0, choice: 0 },
+    ] : ev === 'merc' ? [
+      { label: '雇佣', sub: `一个 ${mercTier(r)} 阶 2 星单位免费入队 ${MERC_FIGHTS} 场，不能出售和合并`, choice: 0 },
+    ] : [
+      { label: '签约', sub: '接下来 3 场敌人更强（含本场），熬过去选一件遗物', choice: 0 },
+    ];
+    const usable = (o: Opt) => {
+      if (o.unit) {
+        const ok = filled.filter(o.unit);
+        if (!ok.length) return false;
+        if (ev === 'smith') return filled.filter((x) => !x.merc).length >= 2;
+        return true;
+      }
+      if (ev === 'merc') return filled.length < QUEUE_MAX;
+      return true;
+    };
+    return new Promise((done) => {
+      const ov = h('div', { class: 'branch-ov event-ov' });
+      const finish = async (choice: number, slot: number | null) => {
+        const res = resolveEvent(r, choice, slot);
+        if (!res.ok) { this.notice('现在不行'); return; }
+        sfx.reward();
+        save(r);
+        ov.remove();
+        this.renderAll();
+        if (res.ok && res.lost) this.notice(`${card(res.lost.def).name} 离队了`);
+        if (res.ok && res.morphed) this.notice(`变成了 ${card(res.morphed).name}`);
+        if (res.ok && res.fx.length) await this.runFx(res.fx);
+        done();
+      };
+      const pickUnit = (o: Opt) => {
+        const units = r.queue.map((u, i) => ({ u, i })).filter((x): x is { u: Owned; i: number } => !!x.u && o.unit!(x.u));
+        const back = h('button', { class: 'btn ghost' }, h('span', null, '返回'));
+        back.addEventListener('click', () => { sfx.click(); main(); });
+        ov.replaceChildren(h('div', { class: 'branch-card' }, h('h2', null, o.label), h('p', null, o.sub),
+          h('div', { class: 'ev-units' }, ...units.map(({ u, i }) => {
+            const b = h('button', { class: 'ev-unit' }, h('span', { class: 'bo-art', html: unitSvg(u.def) }),
+              h('b', null, card(u.def).name), h('span', { class: 'ev-lv' }, '★'.repeat(lvlOf(u.copies))));
+            b.addEventListener('click', () => void finish(o.choice, i));
+            return b;
+          })), back));
+      };
+      const main = () => {
+        const btns = opts.map((o) => {
+          const ok = usable(o);
+          const b = h('button', { class: `branch-opt ev-opt${ok ? '' : ' disabled'}`, disabled: !ok },
+            h('div', { class: 'bo-head' }, h('b', null, o.label)), h('div', { class: 'ev-sub' }, ok ? o.sub : `${o.sub}（现在不满足条件）`));
+          b.addEventListener('click', () => { if (!ok) return; sfx.click(); if (o.unit) pickUnit(o); else void finish(o.choice, null); });
+          return b;
+        });
+        const leave = h('button', { class: 'btn ghost' }, h('span', null, '离开'));
+        leave.addEventListener('click', () => void finish(-1, null));
+        ov.replaceChildren(h('div', { class: 'branch-card ev-card' },
+          h('div', { class: 'ev-ico' }, ic(info.icon)), h('h2', null, info.name), h('p', null, info.text),
+          h('div', { class: 'branch-opts ev-opts' }, ...btns), leave));
+      };
+      main();
+      this.el.appendChild(ov);
+      sfx.whoosh();
+    });
+  }
+
+  /** 岔路：两个敌阵预览二选一 */
+  private showBranch(): Promise<void> {
+    const r = this.run;
+    const opts = r.branch!;
+    return new Promise((done) => {
+      const pickIt = (i: number) => {
+        sfx.click();
+        pickBranch(r, i);
+        save(r);
+        ov.remove();
+        this.renderBanner();
+        this.renderBoard();
+        done();
+      };
+      const optEl = (e: Enemy, i: number) => {
+        const elite = e.elite ?? [];
+        const btn = h('button', { class: `branch-opt${elite.length ? ' elite' : ''}` },
+          h('div', { class: 'bo-head' },
+            elite.length ? h('span', { class: 'bo-tag' }, '精英') : h('span', { class: 'bo-tag normal' }, '普通'),
+            h('b', null, e.form ? FORM_INFO[e.form].name : '对手')),
+          h('div', { class: 'bo-units' }, ...e.units.slice(0, QUEUE_MAX).map((u) => h('span', { class: 'bo-u' }, h('span', { class: 'bo-art', html: unitSvg(u.def) }),
+            h('span', { class: 'bo-st' }, h('b', { class: 'a' }, u.atk), h('b', { class: 'h' }, u.hp))))),
+          elite.length ? h('div', { class: 'bo-ax' }, ...elite.map((a) => h('span', null, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))) : null,
+          h('div', { class: 'bo-foot' }, elite.length ? h('span', { class: 'bo-risk' }, `输掉扣 2 心`) : h('span', null, `输掉扣 ${enemyLossCost({ turn: r.turn, enemy: e })} 心`),
+            elite.length ? h('span', { class: 'bo-reward' }, '胜利开装备箱') : null));
+        btn.addEventListener('click', () => pickIt(i));
+        return btn;
+      };
+      const ov = h('div', { class: 'branch-ov' },
+        h('div', { class: 'branch-card' }, h('h2', null, '岔路'), h('p', null, '选一个对手'),
+          h('div', { class: 'branch-opts' }, ...opts.map(optEl))));
+      this.el.appendChild(ov);
+      sfx.whoosh();
+    });
+  }
+
+  /** 装备箱：3 件翻牌，选 1；可看广告全部升一品重抽（每箱 1 次） */
+  private showChest(): Promise<void> {
+    const r = this.run;
+    return new Promise((done) => {
+      const ov = h('div', { class: 'chest-ov' });
+      const paint = (flip: boolean) => {
+        const c = r.chest!;
+        const capped = c.ad && orangeCapped(r);
+        const items = c.items.map((id, i) => {
+          const e = EQUIP[id];
+          const el = h('button', { class: `chest-item eq-q${e.q}` },
+            h('div', { class: 'ci-beam' }),
+            h('div', { class: 'ci-ico' }, equipIcon(id)),
+            h('b', { class: 'ci-name', style: `color:${Q_INFO[e.q].color}` }, e.name),
+            h('span', { class: 'ci-q' }, Q_INFO[e.q].name, e.curse ? ' · 诅咒' : ''),
+            h('div', { class: 'ci-text' }, e.text),
+            capped && e.q === 2 ? h('span', { class: 'ci-cap' }, '橙装已达上限') : null);
+          el.addEventListener('click', () => {
+            sfx.reward();
+            chestPick(r, i);
+            save(r);
+            ov.remove();
+            this.renderTray();
+            done();
+          });
+          if (flip && !reduced()) el.animate([{ transform: 'rotateY(90deg) scale(.8)', opacity: 0 }, { transform: 'rotateY(0) scale(1)', opacity: 1 }],
+            { duration: 420, delay: 200 + i * 260, easing: 'cubic-bezier(.2,1.3,.4,1)', fill: 'backwards' });
+          if (flip) setTimeout(() => { if (e.q >= 2) sfx.reward(); else sfx.place(); if (e.q === 3) this.fx.flash('#ffa23a', 0.25, 300); }, 200 + i * 260);
+          return el;
+        });
+        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: c.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '全部升一品重抽')), h('i', null, c.ad ? '已用' : '广告'));
+        ad.addEventListener('click', async () => {
+          if (c.ad) return;
+          const ok = await showRewardedAd(this.el, '升品重抽', '3 件装备全部提升一个品质后重新抽取');
+          if (!ok || !adUpgradeChest(r)) return;
+          save(r);
+          paint(true);
+        });
+        ov.replaceChildren(h('div', { class: 'chest-card' },
+          h('h2', null, c.src === 'boss' ? 'Boss 宝箱' : '精英宝箱'), h('p', null, '选 1 件放进背包'),
+          h('div', { class: 'chest-items' }, ...items), h('div', { class: 'chest-acts' }, ad)));
+      };
+      paint(true);
+      this.el.appendChild(ov);
+      sfx.start();
+    });
   }
 
   private doBuy(idx: number, slot: number): boolean {
@@ -633,11 +962,6 @@ export class Game {
         this.fx.statPop(to.x, to.y - 74, `+${f.atk}/+${f.hp}`, f.label, f.atk >= f.hp ? 'pt-atk' : 'pt-hp', 820);
         await wait(300);
         this.board.clearArrows();
-      } else if (f.kind === 'gold') {
-        if (from) { this.viewOf(f.src)?.castMotion('#ffd36b'); this.fx.float(from.x, from.y - 70, `+${f.n} 金`, 'levelup', 900); }
-        sfx.reward();
-        this.renderTray();
-        await wait(380);
       } else {
         if (from) { this.viewOf(f.src)?.castMotion('#ffb36b'); this.fx.statPop(from.x, from.y - 74, `+${f.n}/+${f.n}`, '蛋里的幼龙', 'pt-power', 820); }
         const o = this.run.queue.find((x) => x?.oid === f.src);
@@ -691,8 +1015,21 @@ export class Game {
         h('div', { class: 'res-rays' }),
         h('div', { class: 'res-title' }, title),
         h('div', { class: 'res-sub' }, sub),
-        h('div', { class: 'res-lives' }, Array.from({ length: MAX_LIVES }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : i < before.lives ? ' lost' : ''}` }, icon('heart')))),
+        h('div', { class: 'res-lives' }, Array.from({ length: maxLives(r) }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : i < before.lives ? ' lost' : ''}` }, icon('heart')))),
         h('div', { class: 'res-btns' }, go)));
+    if (result === 'lose' && r.lastLoss && r.adSave < AD_SAVE_MAX) {
+      const ad = h('button', { class: 'btn ghost reroll rewarded res-ad' }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '看广告保心')), h('i', null, `${AD_SAVE_MAX - r.adSave}/${AD_SAVE_MAX}`));
+      ad.addEventListener('click', async () => {
+        ad.setAttribute('disabled', '');
+        const ok = await showRewardedAd(this.el, '保住心', '看完广告，这场失败不扣心');
+        if (!ok || !adSaveHeart(r)) { ad.removeAttribute('disabled'); return; }
+        save(r);
+        ad.remove();
+        ov.querySelector('.res-sub')!.textContent = '已保住，不扣心';
+        ov.querySelectorAll('.res-lives .life').forEach((el, i) => { el.className = `life${i < r.lives ? ' on' : ''}`; });
+      });
+      ov.querySelector('.res-btns')!.prepend(ad);
+    }
     this.el.appendChild(ov);
     if (!reduced()) ov.querySelector('.res-card')!.animate([{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.2,1.4,.4,1)' });
     if (result === 'win') this.fx.burst(640, 260, '#ffd36b', { n: 40, speed: 8 });
@@ -707,7 +1044,7 @@ export class Game {
       setMusicRun('pdqs', Math.min(2, Math.floor((r.turn - 1) / 4)));
       this.renderAll(r.pendingFx);
       this.cardsIn();
-      void this.playPending();
+      void this.intro();
     });
   }
 }

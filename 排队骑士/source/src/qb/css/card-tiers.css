@@ -130,80 +130,71 @@
 @keyframes tierSweep { 0%, 58% { transform: translateX(-120%); } 100% { transform: translateX(200%); } }
 
 
-/* ═════════ 阶级徽记 tierBadge()：宝石 + 羽翼 + 冠 ═════════ */
+/* ═════════ 阶级徽记 tierBadge()：像素符号 + 光 ═════════ */
 .tier-badge {
   position: relative;
-  display: inline-flex;
-  align-items: center;
+  display: inline-grid;
+  place-items: center;
   vertical-align: middle;
+  min-width: 30px;
   height: 30px;
   line-height: 1;
-  font-size: 18px;
-  filter: none;
+  isolation: isolate;
 }
-.tb-gem { position: relative; display: grid; place-items: center; width: 30px; height: 30px; flex: none; }
-/* 宝石：旋转方块，上亮下暗两截 + 黑描边 + 内高光 */
-.tb-gem::before {
-  content: '';
-  position: absolute;
-  inset: 5px;
-  transform: rotate(45deg);
-  background: linear-gradient(135deg, var(--tl) 0 18%, var(--tc) 18% 52%, var(--ts) 52%);
-  box-shadow: 0 0 0 2px var(--td), 0 0 0 4px #05040f;
+.tier-badge > * { grid-area: 1 / 1; }
+.tb-px { position: relative; z-index: 2; display: block; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .45)); }
+.tb-px .p-ol { fill: #07051a; }
+.tb-px .p-tc { fill: var(--tc); }
+.tb-px .p-tl { fill: var(--tl); }
+.tb-px .p-ts { fill: var(--ts); }
+.tb-px .p-td { fill: var(--td); }
+.tb-px .p-w { fill: #fff; }
+.tb-px .p-gc { fill: var(--tg, #ffd36b); }
+.tb-px .p-gl { fill: #fff4c8; }
+.tb-px .p-gs { fill: #b8862a; }
+/* 光晕：二阶淡淡一圈，三阶起呼吸（只动 opacity / transform） */
+.tb-glow {
+  z-index: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tc) 90%, transparent) 0, color-mix(in srgb, var(--tc) 45%, transparent) 36%, transparent 68%);
+  opacity: .55;
+  pointer-events: none;
 }
-.tb-gem em {
-  position: relative;
-  font-style: normal;
-  font-weight: 900;
-  font-size: 18px;
-  color: #fff;
-  text-shadow: 0 2px 0 var(--td), 2px 0 0 var(--td), -2px 0 0 var(--td), 0 -2px 0 var(--td);
+.tier-badge:is(.rarity-3, .rarity-4, .rarity-5, .rarity-6) .tb-glow { opacity: .8; animation: tbBreath 2.4s ease-in-out infinite; will-change: transform, opacity; }
+.tier-badge.rarity-6 .tb-glow { width: 56px; height: 56px; background: radial-gradient(circle, rgba(255, 220, 120, .85) 0, color-mix(in srgb, var(--tc) 45%, transparent) 36%, transparent 68%); }
+@keyframes tbBreath { 0%, 100% { opacity: .55; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.08); } }
+/* 五阶起：背后慢转的光芒 */
+.tb-rays {
+  z-index: 1;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tl) 75%, transparent) 0 7deg, transparent 7deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 70%);
+  mask: radial-gradient(circle, #000 18%, transparent 70%);
+  opacity: .7;
+  animation: tbSpin 9s linear infinite;
+  will-change: transform;
+  pointer-events: none;
 }
-/* 羽翼：一阶无，二阶起每阶多一片，越往外越短越淡 */
-.tb-w { display: flex; align-items: center; gap: 1px; }
-.tb-w.l { flex-direction: row-reverse; margin-right: 1px; }
-.tb-w.r { margin-left: 1px; }
-.tb-w > i {
-  display: block;
-  width: 7px;
-  height: 18px;
-  background: var(--tc);
-  filter: drop-shadow(0 2px 0 #05040f);
-}
-.tb-w.l > i { clip-path: polygon(100% 0, 100% 100%, 0 50%); }
-.tb-w.r > i { clip-path: polygon(0 0, 100% 50%, 0 100%); }
-.tb-w > i:nth-child(2) { height: 13px; width: 6px; background: color-mix(in srgb, var(--tc) 70%, var(--tl)); }
-.tb-w > i:nth-child(3) { height: 9px; width: 5px; background: var(--tl); }
-/* 五阶起头顶一枚三齿冠 */
-.tier-badge:is(.rarity-5, .rarity-6) .tb-gem::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -7px;
-  width: 16px;
-  height: 8px;
-  margin-left: -8px;
-  background: var(--tg, var(--tl));
-  clip-path: polygon(0 100%, 0 0, 25% 50%, 50% 0, 75% 50%, 100% 0, 100% 100%);
-  filter: drop-shadow(0 -1px 0 var(--td));
-}
-/* 六阶：赤宝石金边，冠上星芒呼吸（只动 opacity） */
-.tier-badge.rarity-6 .tb-gem::before { box-shadow: 0 0 0 2px var(--tg), 0 0 0 4px var(--td); }
-.tier-badge.rarity-6 .tb-w > i:nth-child(3) { background: var(--tg); }
-.tier-badge.rarity-6::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: -13px;
+.tier-badge.rarity-6 .tb-rays { width: 64px; height: 64px; opacity: .9; background: repeating-conic-gradient(from 0deg, rgba(255, 236, 160, .9) 0 6deg, transparent 6deg 22.5deg); animation-duration: 6s; }
+@keyframes tbSpin { to { transform: rotate(360deg); } }
+/* 六阶：两颗星屑交替闪 */
+.tb-spark {
+  z-index: 3;
   width: 8px;
   height: 8px;
-  margin-left: -4px;
   background: #fff;
   clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
-  animation: tbTwinkle 1.6s steps(4) infinite;
+  animation: tbTwinkle 1.8s steps(4) infinite;
+  pointer-events: none;
 }
-@keyframes tbTwinkle { 0%, 100% { opacity: .25; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .tier-badge.rarity-6::after { animation: none; opacity: .8; } }
+.tb-spark.s1 { transform: translate(-19px, -11px); }
+.tb-spark.s2 { transform: translate(20px, 8px) scale(.75); animation-delay: -.9s; }
+@keyframes tbTwinkle { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .tb-glow, .tb-rays, .tb-spark { animation: none !important; } }
 /* 说明框里的阶徽与图鉴/阵容浏览标题重复，那里只留标题的 */
 :is(.cx-popup-detail, .cx-lv) .tip-lv .tier-badge { display: none; }
 
@@ -241,3 +232,8 @@
 }
 /* 头像下的阶徽：带冠的留出冠高，免得压到名字 */
 .cx-chip .tier-badge:is(.rarity-5, .rarity-6) { margin-top: 8px; }
+/* 徽记本体描一圈本阶色辉光，逐阶加强 */
+.tier-badge.rarity-2 .tb-px { filter: drop-shadow(0 0 2px var(--tc)) drop-shadow(0 2px 0 rgba(0, 0, 0, .45)); }
+.tier-badge:is(.rarity-3, .rarity-4) .tb-px { filter: drop-shadow(0 0 3px var(--tc)) drop-shadow(0 0 6px color-mix(in srgb, var(--tc) 60%, transparent)); }
+.tier-badge.rarity-5 .tb-px { filter: drop-shadow(0 0 3px var(--tl)) drop-shadow(0 0 8px var(--tc)); }
+.tier-badge.rarity-6 .tb-px { filter: drop-shadow(0 0 3px #fff2b0) drop-shadow(0 0 9px var(--tc)); }

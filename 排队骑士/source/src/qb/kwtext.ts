@@ -16,43 +16,45 @@ export const MECH_KIND_NAME: Record<MechKind, string> = { trait: '特性', statu
 interface MechDef { kind: MechKind; icon: IconName; color: string; /** 像素图标（pixel.ts --pxk-*）；有它就只显示图标 */ px?: PxIcon }
 export type PxIcon = 'armor' | 'block' | 'power' | 'thorns' | 'chill' | 'freeze' | 'burn' | 'charge';
 export const MECH: Record<string, MechDef> = {
-  轮换: { kind: 'trait', icon: 'swap', color: '#8fd8ff' },
   溅射: { kind: 'trait', icon: 'burst', color: '#ffb340' },
   复生: { kind: 'trait', icon: 'replay', color: '#78f0ff' },
   格挡: { kind: 'status', icon: 'shield', color: '#ffe08a', px: 'block' },
   召唤: { kind: 'action', icon: 'star', color: '#d6a8ff' },
 };
 
-export type TrigId = 'start' | 'hurt' | 'faint' | 'front' | 'rear' | 'beat' | 'summon' | 'shop' | 'kill' | 'cond';
+export type TrigId = 'start' | 'before' | 'beat' | 'hurt' | 'faint' | 'kill' | 'summon' | 'buy' | 'shop' | 'cond';
 /** KEYWORDS 释义 */
 const gloss = (k: string) => KEYWORDS[k] ?? '';
 interface TrigDef { name: string; icon: IconName; color: string; gloss: string; sample: string }
 export const TRIG: Record<TrigId, TrigDef> = {
   start: { name: '开战时', icon: 'flag', color: '#ffd36b', sample: '开战时', gloss: '战斗开始时结算一次，按我方队首、敌方队首、我方第 2 位……的顺序。' },
-  beat: { name: '交锋后', icon: 'hourglass', color: '#ff7a9a', sample: '交锋后', gloss: '双方队首互相攻击一次叫一次交锋；「交锋后」在双方伤害结算完后触发。' },
+  before: { name: '交锋前', icon: 'arrowUp', color: '#9fe8ff', sample: '交锋前', gloss: '队首每次交锋前触发；只有站在队首的单位会触发。' },
+  beat: { name: '攻击后', icon: 'hourglass', color: '#ff7a9a', sample: '身前友军攻击后', gloss: '双方队首互相攻击一次叫一次交锋；「攻击后」在交锋伤害结算完后触发。' },
   hurt: { name: '受伤时', icon: 'hit', color: '#ff9a6a', sample: '受伤时', gloss: '受到伤害后触发（被格挡挡住不算）。' },
-  faint: { name: '阵亡时', icon: 'skull', color: '#b48ce6', sample: '阵亡时', gloss: '写明的单位阵亡时触发。' },
-  front: { name: '上前时', icon: 'arrowUp', color: '#9fe8ff', sample: '上前时', gloss: '成为队首时触发（前面的友军阵亡或退后）。' },
-  rear: { name: '退后时', icon: 'swap', color: '#b0a8ff', sample: '退后时', gloss: '轮换退到队尾时触发。' },
+  faint: { name: '阵亡时', icon: 'skull', color: '#b48ce6', sample: '阵亡时', gloss: '写明的单位阵亡时触发。阵亡召唤出现在它原来的位置。' },
+  kill: { name: '击杀时', icon: 'kill', color: '#ff6b78', sample: '击杀敌人时', gloss: '自己打死敌人时触发。' },
   summon: { name: '友军被召唤时', icon: 'star', color: '#d6a8ff', sample: '友军被召唤时', gloss: '我方召唤出新单位时触发，复生也算。' },
-  shop: { name: '回合结束时', icon: 'crown', color: '#ffcf4a', sample: '回合结束时', gloss: '在备战阶段结算：回合开始、回合结束（点开战时）、出售、升星、刷新。成长写「永久」的会一直保留。' },
-  kill: { name: '敌方阵亡时', icon: 'kill', color: '#ff6b78', sample: '敌方阵亡时', gloss: '敌方单位阵亡时触发。' },
+  buy: { name: '购买时', icon: 'diamond', color: '#7be3a0', sample: '吃补给时', gloss: '在备战阶段结算：购买单位、被购买、合并、购买或吃补给时。' },
+  shop: { name: '回合结束时', icon: 'crown', color: '#ffcf4a', sample: '回合结束时', gloss: '点开战时结算，也包括出售、升星。成长写「永久」的会一直保留，写「本场」的只在下一场战斗有效。' },
   cond: { name: '条件触发', icon: 'eye', color: '#8cd4ff', sample: '有格挡时', gloss: '满足写明的条件时触发。' },
 };
 
 /** 冒号前的子句属于哪种时机；不像时机的返回 null */
 function trigOf(clause: string): TrigId | null {
-  if (/开战/.test(clause)) return 'start';
-  if (/回合|出售|升星|刷新/.test(clause)) return 'shop';
-  if (/召唤/.test(clause)) return 'summon';
-  if (/敌方阵亡/.test(clause)) return 'kill';
-  if (/阵亡/.test(clause)) return 'faint';
-  if (/上前/.test(clause)) return 'front';
-  if (/退后/.test(clause)) return 'rear';
-  if (/受伤/.test(clause)) return 'hurt';
-  if (/交锋/.test(clause)) return 'beat';
-  if (/[时后]$/.test(clause)) return 'cond';
-  return null;
+  return /[时后]$/.test(clause) || /^每/.test(clause) ? trigMatch(clause) : null;
+}
+/** 时机文本 → 时机类别（卡面与说明共用） */
+export function trigMatch(label: string): TrigId {
+  if (/开战/.test(label)) return 'start';
+  if (/交锋前/.test(label)) return 'before';
+  if (/攻击后/.test(label)) return 'beat';
+  if (/购买|吃补给|合并|每买/.test(label)) return 'buy';
+  if (/回合|出售|升星|刷新/.test(label)) return 'shop';
+  if (/召唤/.test(label)) return 'summon';
+  if (/击杀/.test(label)) return 'kill';
+  if (/阵亡/.test(label)) return 'faint';
+  if (/受伤/.test(label)) return 'hurt';
+  return 'cond';
 }
 
 const hexA = (hex: string, a: number) => {

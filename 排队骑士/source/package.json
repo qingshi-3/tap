@@ -7,7 +7,8 @@
     "dev": "vite --host",
     "build": "node scripts/subset-fonts.mjs && tsc --noEmit && vite build",
     "build:single": "node scripts/subset-fonts.mjs && tsc --noEmit && vite build --mode single",
-    "sim": "vite-node scripts/sim.ts"
+    "sim": "vite-node scripts/sim.ts",
+    "calib": "vite-node scripts/calib.ts"
   },
   "devDependencies": {
     "@fontsource/cinzel": "^5.3.0",

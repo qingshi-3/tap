@@ -1,8 +1,8 @@
-import { card, FOOD, KW_INFO } from '../core/data';
+import { card, FOOD, foodText, KW_INFO } from '../core/data';
 import { FACTION_INFO, RARITY_NAMES, unitDef, type Rarity } from './shim';
 import { h } from './dom';
 import { icon } from './icons';
-import { kwRich, kwTag, trigCap, type TrigId } from './kwtext';
+import { kwRich, kwTag, trigCap, trigMatch, type TrigId } from './kwtext';
 import { unitSvg } from './unitArt';
 import { itemIcon } from './pixelItems';
 
@@ -74,7 +74,7 @@ export function draftCard(defId: string, o: CardOpts = {}) {
 }
 
 /** 补给卡：同一套卡框（中立色），立绘换成像素道具 */
-export function foodCard(id: string) {
+export function foodCard(id: string, val?: [number, number]) {
   const fd = FOOD[id];
   const f = FACTION_INFO.neutral;
   return h(
@@ -88,18 +88,131 @@ export function foodCard(id: string) {
       h('div', { class: 'card-art food-art' }, itemIcon(id, 'pack', 'food-icon')),
       h('i', { class: 'card-gems', style: `--n:${fd.tier}` }),
       h('div', { class: 'card-name' }, fd.name),
-      h('div', { class: 'card-text' }, ...kwRich(fd.text)),
+      h('div', { class: 'card-text' }, ...kwRich(foodText(id, val))),
     ),
   );
 }
 
-const TIER_NUM = ['一', '二', '三', '四', '五', '六'];
-const TIER_WINGS = [0, 1, 2, 3, 3, 3];
-/** 阶级徽记：中间宝石写阶数，两侧羽翼逐阶加片，五阶加冠、六阶冠上星芒（样式见 card-tiers.css） */
+/** 阶级徽记（像素符号）：一阶宝石 → 二阶羽翼宝石 → 三阶盾 → 四阶星 → 五阶冠 → 六阶金冠。
+ *  x 主体（自动上亮下暗）、g 金、o 高光填色、k 深色刻线、w 白、r 主色；空格旁自动描黑边。 */
+const TIER_PX: string[][] = [
+  [
+    '.................',
+    '........x........',
+    '.......xxx.......',
+    '......xwxxx......',
+    '.....xwxxxxx.....',
+    '....xxxxxxxxx....',
+    '.....xxxxxxx.....',
+    '......xxxxx......',
+    '.......xxx.......',
+    '........x........',
+    '.................',
+  ],
+  [
+    '.................',
+    '........x........',
+    '.......xxx.......',
+    '......xwxxx......',
+    '.xx..xwxxxxx..xx.',
+    'xxx.xxxxxxxxx.xxx',
+    '.xx..xxxxxxx..xx.',
+    '......xxxxx......',
+    '.......xxx.......',
+    '........x........',
+    '.................',
+  ],
+  [
+    '..xxxxxxxxxxxxx..',
+    '..xwxxxxxxxxxxx..',
+    '..xwxxxxkxxxxxx..',
+    '..xxxxxkokxxxxx..',
+    '..xxxxkoookxxxx..',
+    '..xxxkoooookxxx..',
+    '...xxxkoookxxx...',
+    '....xxxkokxxx....',
+    '.....xxxkxxx.....',
+    '......xxxxx......',
+    '.......xxx.......',
+    '........x........',
+  ],
+  [
+    '........x........',
+    '........x........',
+    '.......xxx.......',
+    '.......xwx.......',
+    '..xxxxxxwxxxxxx..',
+    '...xxxxxoxxxxx...',
+    '....xxxxxxxxx....',
+    '.....xxxxxxx.....',
+    '.....xxxxxxx.....',
+    '....xxxx.xxxx....',
+    '....xxx...xxx....',
+    '...xxx.....xxx...',
+    '...x.........x...',
+  ],
+  [
+    '..w.....w.....w..',
+    '.wxw...wxw...wxw.',
+    '..x.....x.....x..',
+    '..xx...xxx...xx..',
+    '..xxx.xxxxx.xxx..',
+    '..xwxxxxxxxxxxx..',
+    '..xxxxxxxxxxxxx..',
+    '..kkkkkkkkkkkkk..',
+    '..xxoxxxoxxxoxx..',
+    '..kkkkkkkkkkkkk..',
+    '..xxxxxxxxxxxxx..',
+  ],
+  [
+    '........w........',
+    '..r....wrw....r..',
+    '.rwr....g....rwr.',
+    '..g.....g.....g..',
+    '..gg...ggg...gg..',
+    'x.ggg.ggggg.ggg.x',
+    'xx.gwggggggggg.xx',
+    '.x.ggggggggggg.x.',
+    '..kkkkkkkkkkkkk..',
+    '..ggrgggrgggrgg..',
+    '..kkkkkkkkkkkkk..',
+    '..ggggggggggggg..',
+  ]
+];
+const TIER_SVG: string[] = [];
+function tierSvg(tier: number) {
+  if (TIER_SVG[tier]) return TIER_SVG[tier];
+  const rows = TIER_PX[tier - 1];
+  const W = Math.max(...rows.map((r) => r.length)) + 2, H = rows.length + 2;
+  const at = (x: number, y: number) => rows[y - 1]?.[x - 1] ?? '.';
+  const paths: Record<string, string> = {};
+  for (let y = 0; y < H; y++)
+    for (let x = 0; x < W; x++) {
+      const ch = at(x, y);
+      let cls: string;
+      if (ch === '.') {
+        let near = false;
+        for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && at(x + dx, y + dy) !== '.') { near = true; break; }
+        if (!near) continue;
+        cls = 'ol';
+      } else if (ch === 'x' || ch === 'g') {
+        const edge = at(x, y - 1) === '.' || at(x - 1, y) === '.' ? 'l' : at(x, y + 1) === '.' || at(x + 1, y) === '.' ? 's' : 'c';
+        cls = (ch === 'g' ? 'g' : 't') + edge;
+      } else cls = ({ o: 'tl', k: 'td', w: 'w', r: 'tc' } as Record<string, string>)[ch] ?? 'tc';
+      paths[cls] = (paths[cls] ?? '') + `M${x} ${y}h1v1h-1z`;
+    }
+  const body = Object.entries(paths).map(([c, d]) => `<path class="p-${c}" d="${d}"/>`).join('');
+  return (TIER_SVG[tier] = `<svg class="tb-px" viewBox="0 0 ${W} ${H}" width="${W * 2}" height="${H * 2}" shape-rendering="crispEdges" aria-hidden="true">${body}</svg>`);
+}
+/** 阶级徽记：像素符号 + 逐阶加强的光（三阶起呼吸光晕、五阶起背后转动光芒、六阶星屑；样式见 card-tiers.css） */
 export function tierBadge(tier: Rarity) {
-  const wing = (side: string) => h('i', { class: `tb-w ${side}` }, ...Array.from({ length: TIER_WINGS[tier - 1] ?? 0 }, () => h('i')));
-  return h('span', { class: `tier-badge rarity-${tier}`, role: 'img', 'aria-label': RARITY_NAMES[tier], title: RARITY_NAMES[tier] },
-    wing('l'), h('b', { class: 'tb-gem' }, h('em', null, TIER_NUM[tier - 1])), wing('r'));
+  const el = h('span', { class: `tier-badge rarity-${tier}`, role: 'img', 'aria-label': RARITY_NAMES[tier], title: RARITY_NAMES[tier] },
+    tier >= 2 ? h('i', { class: 'tb-glow' }) : '',
+    tier >= 5 ? h('i', { class: 'tb-rays' }) : '',
+  );
+  el.insertAdjacentHTML('beforeend', tierSvg(tier));
+  if (tier >= 6) el.append(h('i', { class: 'tb-spark s1' }), h('i', { class: 'tb-spark s2' }));
+  return el;
 }
 
 /** 单位身后的阶层光效（一阶不渲染）：二阶脚光 → 三阶光点 → 四阶背光柱 → 五阶星芒 → 六阶赤金余烬。
@@ -125,15 +238,4 @@ export const PREVIEW_TRIG: Record<string, TrigId> = {};
 function previewTag(label: string) {
   return /[时后]$|^每次交锋|^每回合/.test(label) ? trigCap(triggerOf(label), label, true) : kwTag(label);
 }
-function triggerOf(label: string): TrigId {
-  if (/开战/.test(label)) return 'start';
-  if (/回合|出售|升星|刷新/.test(label)) return 'shop';
-  if (/召唤/.test(label)) return 'summon';
-  if (/敌方阵亡/.test(label)) return 'kill';
-  if (/阵亡/.test(label)) return 'faint';
-  if (/上前/.test(label)) return 'front';
-  if (/退后/.test(label)) return 'rear';
-  if (/受伤/.test(label)) return 'hurt';
-  if (/交锋/.test(label)) return 'beat';
-  return 'cond';
-}
+const triggerOf = (label: string): TrigId => trigMatch(label);

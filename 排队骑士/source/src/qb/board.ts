@@ -1,3 +1,4 @@
+import { EQUIP } from '../core/data';
 import './css/rounds.css';
 import './css/battle-arrows.css';
 import './css/unit-keywords.css';
@@ -83,7 +84,6 @@ const MECH_BADGES: { k: keyof UnitKeywords; name: string }[] = [
   { k: 'duel', name: '决斗' },
   { k: 'splash', name: '溅射' },
   { k: 'combo', name: '连击' },
-  { k: 'rotate', name: '轮换' },
   { k: 'idle', name: '不行动' },
 ];
 
@@ -354,7 +354,10 @@ export class UnitView {
     this.eqKey = key;
     this.el.querySelector('.u-eq')?.remove();
     if (!ids.length) return;
-    const el = h('div', { class: 'u-eq' }, ids.map((id) => h('span', { class: 'ueq' }, itemIcon(id, 'spell'))));
+    const el = h('div', { class: 'u-eq' }, ids.map((id) => {
+      const e = EQUIP[id];
+      return h('span', { class: `ueq${e ? ` eq-q${e.q}` : ''}` }, itemIcon(e ? e.icon : id, 'spell'));
+    }));
     this.el.appendChild(el);
     if (fresh && this.el.isConnected) popEl(el, true);
   }
@@ -508,9 +511,9 @@ function popEl(el: Element, good: boolean) {
   );
 }
 
-/** 排队骑士只有轮换 / 复生 / 溅射三种常驻词条，其余恒为空 */
+/** 排队骑士只有复生 / 溅射两种常驻词条，其余恒为空 */
 export function keywordsOf(kws: readonly string[]): UnitKeywords {
-  return { armor: 0, thorns: 0, splash: kws.includes('splash'), power: 0, combo: false, snipe: false, taunt: false, rotate: kws.includes('rotate'), duel: false, idle: false, reborn: kws.includes('reborn') };
+  return { armor: 0, thorns: 0, splash: kws.includes('splash'), power: 0, combo: false, snipe: false, taunt: false, rotate: false, duel: false, idle: false, reborn: kws.includes('reborn') };
 }
 
 export type ArrowKind = 'buff' | 'block' | 'dmg' | 'chill' | 'burn' | 'summon' | 'kill';

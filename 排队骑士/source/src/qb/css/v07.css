@@ -621,3 +621,13 @@
 .feedback-dialog .fb-group { white-space: nowrap; display: flex; align-items: baseline; justify-content: center; gap: 16px; margin: 6px 0 14px; font-size: 22px; color: var(--muted); }
 .feedback-dialog .fb-group b { font-size: 36px; color: var(--gold); letter-spacing: 2px; user-select: text; }
 .feedback-dialog .danger-zone p { margin: 0 0 8px; font-size: 18px; color: var(--muted); }
+
+/* 说明框里的召唤物小卡 */
+.tip-sum { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 10px; border-radius: 8px; background: rgba(214,168,255,.12); border: 2px solid rgba(214,168,255,.45); font-size: 18px; }
+.tip-sum .ts-art { width: 52px; height: 52px; flex: none; display: grid; place-items: center; }
+.tip-sum .ts-art svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.tip-sum .ts-q { font-size: 34px; font-weight: 900; color: #d6a8ff; background: rgba(0,0,0,.35); border-radius: 6px; }
+.tip-sum .ts-name { flex: 1; color: #f2e6ff; display: flex; align-items: center; gap: 4px; }
+.tip-sum .ts-name .tier-badge { transform: scale(.7); }
+.tip-sum .ts-st { display: flex; gap: 6px; }
+.tip-sum .ts-n { color: #ffd36b; font-size: 20px; }
