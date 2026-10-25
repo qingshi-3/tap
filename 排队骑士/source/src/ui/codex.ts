@@ -4,6 +4,7 @@ import '../qb/css/codex-search.css';
 import '../qb/css/kw-doc.css';
 import '../qb/css/codex-v2.css';
 import '../qb/css/codex-v3.css';
+import '../qb/css/codex-v4.css';
 import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw, type Line } from '../core/data';
 import type { DemoSpec } from '../core/demo';
 import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
@@ -27,16 +28,19 @@ export function codexScreen(onBack: () => void, cap?: number): HTMLElement {
   const body = h('div', { class: 'cx-body' });
   const tabs: [Tab, string][] = [['units', '单位'], ['foods', '补给'], ['equip', '装备'], ['relic', '遗物'], ['kw', '规则']];
   const tabBtns = tabs.map(([k, name]) => h('button', { class: 'cx-tab', onclick: () => { sfx.click(); go(k); } }, name));
+  // 顶栏右侧的页面工具（单位页：星级 + 筛选），切页时清空
+  const tools = h('div', { class: 'cx-tools' });
   const back = h('button', { class: 'btn ghost cx-back' }, icon('x'), h('span', null, '返回'));
   back.addEventListener('click', () => { sfx.click(); onBack(); });
   const go = (k: Tab) => {
     state.tab = k;
     tabBtns.forEach((b, i) => b.classList.toggle('on', tabs[i][0] === k));
-    body.replaceChildren(k === 'units' ? unitBrowser(cap) : k === 'foods' ? foodsPage() : k === 'equip' ? equipPage() : k === 'relic' ? relicPage() : kwPage());
+    tools.replaceChildren();
+    body.replaceChildren(k === 'units' ? unitBrowser(tools, cap) : k === 'foods' ? foodsPage() : k === 'equip' ? equipPage() : k === 'relic' ? relicPage() : kwPage());
     body.scrollTop = 0;
   };
   go(state.tab);
-  return h('div', { class: 'screen codex' }, h('div', { class: 'cx-head' }, back, h('div', { class: 'cx-title' }, '图鉴'), h('div', { class: 'cx-tabs' }, tabBtns)), body);
+  return h('div', { class: 'screen codex' }, h('div', { class: 'cx-head' }, back, h('div', { class: 'cx-tabs' }, tabBtns), tools), body);
 }
 
 // ── 通用：砖块导航 + 详情 ──
@@ -94,10 +98,15 @@ const TIER_C = ['', '#bf9a70', '#46d890', '#4a9cff', '#b46cff', '#ffac2e', '#ff4
 
 // ── 单位：词条 / 时机 / 阶层多选筛选（同组任一、跨组同时满足）──
 const trigsOf = (id: string): Set<TrigId> => new Set([...card(id).text.matchAll(/(?:^|[。；])([^：。；]{1,10})：/g)].map((m) => trigMatch(m[1])));
-function unitBrowser(cap?: number): HTMLElement {
+function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
   const s = state;
   const root = h('div', { class: 'ub' });
+  // 筛选收进弹层：顶栏只留「筛选」按钮（带已选数），点开盖在卡牌网格上
   const head = h('div', { class: 'ub-filters' });
+  const pop = h('div', { class: 'ub-pop', hidden: true }, head);
+  const setOpen = (open: boolean) => { pop.hidden = !open; fbtn.classList.toggle('open', open); };
+  const fbtn = h('button', { class: 'cx-filter-btn', onclick: () => { sfx.click(); setOpen(pop.hidden); } });
+  pop.addEventListener('click', (e) => { if (e.target === pop) setOpen(false); });
   const grid = h('div', { class: 'ub-grid' });
   const detail = h('div', { class: 'ub-detail cx-detail' });
   const groups: { key: string; test: (d: CardDef) => boolean; node: () => Node; color: string }[][] = [
@@ -139,19 +148,18 @@ function unitBrowser(cap?: number): HTMLElement {
       onclick: () => { if (lv === s.star) return; sfx.click(); s.star = lv; render(); },
     }, '★'.repeat(lv))));
     const defs = SHOP_POOL.filter(pass).sort((a, b) => a.tier - b.tier);
-    const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), String(defs.length));
+    const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), '清除');
     const grp = (label: string, ...xs: Node[]) => h('div', { class: 'ub-grp' }, h('span', { class: 'ub-lab' }, label), h('div', { class: 'ub-set' }, ...xs));
-    // 左：流派/词条 + 时机；右：阶层、星级两行共用一列标签、等宽对齐
     head.replaceChildren(
-      h('div', { class: 'ub-main' },
-        h('div', { class: 'ub-frow' },
-          grp('流派', ...groups[0].filter((g) => g.key[0] === 'l').map(chip)),
-          grp('词条', ...groups[0].filter((g) => g.key[0] === 'k').map(chip))),
-        h('div', { class: 'ub-frow' }, grp('时机', ...groups[1].map(chip)))),
-      h('div', { class: 'ub-side' },
-        h('span', { class: 'ub-lab' }, '阶层'), h('div', { class: 'ub-set ub-tiers' }, ...groups[2].map(chip)),
-        h('span', { class: 'ub-lab' }, '星级'), h('div', { class: 'ub-side-row' }, stars, clear)),
+      grp('流派', ...groups[0].filter((g) => g.key[0] === 'l').map(chip)),
+      grp('词条', ...groups[0].filter((g) => g.key[0] === 'k').map(chip)),
+      grp('时机', ...groups[1].map(chip)),
+      grp('阶层', h('div', { class: 'ub-tiers' }, ...groups[2].map(chip))),
+      h('div', { class: 'ub-pop-foot' }, clear, h('button', { class: 'ub-done', onclick: () => { sfx.click(); setOpen(false); } }, `查看 ${defs.length} 个`)),
     );
+    fbtn.replaceChildren(icon('filter'), h('span', null, '筛选'), ...(s.f.size ? [h('b', { class: 'cx-fn' }, String(s.f.size))] : []));
+    fbtn.classList.toggle('active', s.f.size > 0);
+    tools.replaceChildren(stars, fbtn);
     if (!s.sel || !defs.some((d) => d.id === s.sel)) s.sel = defs[0]?.id ?? null;
     grid.replaceChildren(...defs.map((d) => {
       const shut = !!cap && d.tier > cap;
@@ -162,7 +170,7 @@ function unitBrowser(cap?: number): HTMLElement {
     if (s.sel) show(s.sel); else detail.replaceChildren();
   };
   render();
-  root.replaceChildren(head, h('div', { class: 'ub-split' }, grid, detail));
+  root.replaceChildren(h('div', { class: 'ub-split' }, h('div', { class: 'ub-left' }, grid, pop), detail));
   return root;
 }
 

@@ -39,6 +39,7 @@ export const ICON = {
   hit: '<path d="m12 2 1.8 5.6L19 4.5l-2.6 5.1L22 12l-5.6 1.4 2.6 5.6-5.4-2.9L12 22l-1.6-5.9L5 19l2.6-5.6L2 12l5.6-2.4L5 4.5l5.2 3.1Z" fill="currentColor" opacity=".35"/><path d="m12 7 1.2 3.2 3.3.3-2.5 2.2.8 3.3-2.8-1.8-2.8 1.8.8-3.3-2.5-2.2 3.3-.3Z" fill="currentColor"/>',
   tomb: '<path d="M6 21V10a6 6 0 0 1 12 0v11Z" fill="currentColor" opacity=".3"/><path d="M6 21V10a6 6 0 0 1 12 0v11M3.5 21h17M12 9v7M9.5 11.5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
   kill: '<path d="M4 4l9 9M20 4l-9 9" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M7 17l-3 3M17 17l3 3M5.5 14.5l4 4M18.5 14.5l-4 4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+  filter: '<path d="M3.5 5h17l-6.5 7.5V19l-4 2v-8.5Z" fill="currentColor"/>',
   eye: '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="currentColor"/>',
 };
 
