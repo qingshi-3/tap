@@ -219,13 +219,27 @@ export class Game {
         const tip = unitTip(u.def, u.lvl, { atk: u.atk, hp: u.hp, kws: d.kws, ench: u.ench }, false);
         if (u.ax?.length) tip.appendChild(h('div', { class: 'tip-text tip-ench' }, h('b', { class: 'tip-elite' }, '精英词缀'),
           ...u.ax.flatMap((a) => [h('br'), itemIcon(ATOM_INFO[a].icon, 'spell', 'tip-item'), `${ATOM_INFO[a].name}：${ATOM_INFO[a].desc}`])));
-        showTip(tip, slotX(1, i), UNIT_Y + 62, 'below', headPos(1, i).y - 30);
+        showTip(tip, slotX(1, i), UNIT_Y + 62, 'below', headPos(1, i).y - 30, this.arrowBox());
       });
     });
     this.dropHints();
   }
 
   /** 只画与焦点单位相关的箭头（发出 + 指向它），其余单位压暗；箭头按跨度分车道避免交叠 */
+  /** 当前关系箭头 + 标签的外框（舞台坐标），详情要让开 */
+  private arrowBox() {
+    const els = [...this.el.querySelectorAll<Element>('.arrows .arw-g, .arrow-labels .arw-lbl')];
+    if (!els.length) return null;
+    let l = Infinity, t = Infinity, r = -Infinity, b = -Infinity;
+    for (const e of els) {
+      const rc = e.getBoundingClientRect();
+      if (!rc.width && !rc.height) continue;
+      const a = toStage(rc.left, rc.top), z = toStage(rc.right, rc.bottom);
+      l = Math.min(l, a.x); t = Math.min(t, a.y); r = Math.max(r, z.x); b = Math.max(b, z.y);
+    }
+    return l < r ? { l, t, r, b } : null;
+  }
+
   private setFocus(f: { side: Side; slot: number } | null) {
     this.focus = f;
     const b = this.board;
@@ -559,7 +573,7 @@ export class Game {
       tip.appendChild(acts);
       this.board.views.get(`o${o.oid}`)?.el.classList.add('inspected');
       this.setFocus({ side: 0, slot: idx });
-      showTip(tip, slotX(0, idx), UNIT_Y + 62, 'below', headPos(0, idx).y - 30);
+      showTip(tip, slotX(0, idx), UNIT_Y + 62, 'below', headPos(0, idx).y - 30, this.arrowBox());
       return;
     }
     if (kind === 'bag') {

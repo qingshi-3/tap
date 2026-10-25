@@ -65,6 +65,9 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   );
 }
 
+/** 会成长的召唤物身材：数字照常，右上角小「+」 */
+const grow = () => h('i', null, '1', h('sup', { class: 'st-up' }, '+'));
+
 /** 技能召唤物小卡：固定召唤物画立绘和身材；随机召唤画「?」和阶数 */
 function summonCard(defId: string, level: 1 | 2 | 3) {
   const c = card(defId);
@@ -80,7 +83,7 @@ function summonCard(defId: string, level: 1 | 2 | 3) {
   const rooster = c.ab === 'rooster';
   return h('div', { class: 'tip-sum' }, h('span', { class: 'ts-art', html: unitSvg(info.def) }),
     h('span', { class: 'ts-name' }, card(info.def).name),
-    h('span', { class: 'ts-st' }, statArt('atk', rooster ? h('span', null, '½') : egg ? h('span', null, '1+') : info.atk), statArt('hp', egg ? h('span', null, '1+') : info.hp)), n);
+    h('span', { class: 'ts-st' }, statArt('atk', rooster ? h('i', null, '½') : egg ? grow() : info.atk), statArt('hp', egg ? grow() : info.hp)), n);
 }
 
 /** 装备 icon：带品质色光 */
@@ -116,7 +119,9 @@ export function foodTip(id: string, val?: [number, number]) {
 
 /** 在舞台坐标 (x, y) 附近显示说明：先量内容高度，上下放得下的一侧优先；都放不下就放到目标左右 */
 /** top：目标上沿（默认同 y），放上方时以它为准，免得盖住目标本身 */
-export function showTip(content: HTMLElement, x: number, y: number, prefer: 'above' | 'below' = 'above', top0 = y) {
+export interface Box { l: number; t: number; r: number; b: number }
+/** avoid：不许盖住的区域（备战点单位时的关系箭头和标签），舞台坐标 */
+export function showTip(content: HTMLElement, x: number, y: number, prefer: 'above' | 'below' = 'above', top0 = y, avoid?: Box | null) {
   if (!tipEl || !root) return;
   tipEl.replaceChildren(content);
   tipEl.classList.add('on');
@@ -129,7 +134,10 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
   const need = tipEl.offsetHeight;
   const room = { above: top0 - gap - pad, below: STAGE_H - y - gap - pad };
   const other = prefer === 'above' ? 'below' : 'above';
-  const side = need <= room[prefer] ? prefer : need <= room[other] ? other : null;
+  const left0 = parseFloat(tipEl.style.left);
+  const hits = (l: number, t: number, hh: number) => !!avoid && l < avoid.r && l + w > avoid.l && t < avoid.b && t + hh > avoid.t;
+  const fits = (sd: 'above' | 'below') => need <= room[sd] && !hits(left0, sd === 'above' ? top0 - gap - need : y + gap, need);
+  const side = fits(prefer) ? prefer : fits(other) ? other : null;
   let top: number, max: number;
   if (side) {
     max = need;
@@ -137,9 +145,15 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
   } else {
     // 上下都放不下：挪到目标左右两侧，按整屏高度放，不盖住目标
     const off = 64;
-    tipEl.style.left = `${Math.max(pad, Math.min(STAGE_W - w - pad, x < STAGE_W / 2 ? x + off : x - off - w))}px`;
     max = Math.min(need, STAGE_H - pad * 2);
-    top = (top0 + y) / 2 - max / 2;
+    top = Math.max(pad, Math.min(STAGE_H - max - pad, (top0 + y) / 2 - max / 2));
+    const clamp = (l: number) => Math.max(pad, Math.min(STAGE_W - w - pad, l));
+    // 先放目标朝屏幕中间那侧；有箭头就整体让到箭头外面，放不下再换另一侧
+    const right = clamp(Math.max(x + off, avoid ? avoid.r + gap : 0));
+    const leftSide = clamp(Math.min(x - off - w, avoid ? avoid.l - gap - w : STAGE_W));
+    const order = x < STAGE_W / 2 ? [right, leftSide] : [leftSide, right];
+    const pick = order.find((l) => !hits(l, top, max) && (l >= x + off || l + w <= x - off)) ?? clamp(x < STAGE_W / 2 ? x + off : x - off - w);
+    tipEl.style.left = `${pick}px`;
   }
   tipEl.style.maxHeight = `${max}px`;
   // 实在太长时可以滑动查看，所以要能接收触摸

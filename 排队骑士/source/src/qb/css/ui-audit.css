@@ -237,3 +237,4 @@
 @media (prefers-reduced-motion: reduce) {
   .ph-card.promo .ph-opt.passive { transition: none; }
 }
+.st i .st-up { font-size: .62em; vertical-align: top; margin-left: 1px; }
