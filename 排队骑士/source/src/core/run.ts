@@ -683,7 +683,8 @@ export function formOf(team: UnitSpec[]): FormKey {
   const tot = team.reduce((s, u) => s + u.atk + u.hp, 0);
   const big = Math.max(...team.map((u) => u.atk + u.hp));
   if (team.length >= 3 && big >= tot * 0.4 && sc[best] < 3) return 'carry';
-  if (sc[best] >= 2) return best;
+  // 形态名要名副其实：至少 3 个（3 人以下的小队 2 个）同类技能才挂这个名
+  if (sc[best] >= (team.length <= 3 ? 2 : 3)) return best;
   const atk = team.reduce((s, u) => s + u.atk, 0);
   const hp = team.reduce((s, u) => s + u.hp, 0);
   if (atk >= hp * 0.9) return 'rush';
@@ -705,6 +706,75 @@ function winRate(r: RunState, enemy: UnitSpec[], n = 4) {
   return w / n;
 }
 interface Cand { units: UnitSpec[]; form: FormKey; wr: number }
+
+// ── 压力：玩家阵容太强时，把敌阵整体放大到「这一档该有的胜率上限」（只放大不缩小） ──
+/** 前两回合发育期不加压；第 3–4 回合轻压；之后满压 */
+const PRESSURE_FROM = 3;
+/** 三档温度（简单 / 中等 / 困难）各自的胜率上限 */
+export let PRESSURE_CAPS: [number, number, number] = [0.93, 0.75, 0.45];
+export const setPressureCaps = (c: [number, number, number]) => { PRESSURE_CAPS = c; };
+const capOf = (r: RunState, gi: number) => {
+  if (r.turn < PRESSURE_FROM) return 1;
+  const early = r.turn < 5 ? 0.08 : 0;
+  return Math.min(0.97, PRESSURE_CAPS[gi] + early - 0.04 * (r.diff ?? 0));
+};
+const liftMax = (r: RunState) => (r.turn < 5 ? 1.3 : 2.2);
+/** 胜率高于 cap 就二分放大系数，压到 cap 附近 */
+function lift(r: RunState, units: UnitSpec[], wr: number, cap: number, maxK = liftMax(r)): { units: UnitSpec[]; wr: number } {
+  if (cap >= 1 || wr <= cap) return { units, wr };
+  const top = scaleTeam(units, maxK);
+  const wTop = winRate(r, top, 6);
+  if (wTop >= cap) return { units: top, wr: wTop };
+  let lo = 1, hi = maxK, best = { units: top, wr: wTop };
+  for (let i = 0; i < 5; i++) {
+    const k = (lo + hi) / 2;
+    const us = scaleTeam(units, k);
+    const w = winRate(r, us, 6);
+    if (w > cap) lo = k;
+    else { hi = k; best = { units: us, wr: w }; }
+  }
+  return best;
+}
+
+// ── 敌阵整理：幽灵是 bot 的真实阵容，偶尔有站错位、混进凑数小兵的，出场前理一下 ──
+/** 技能要身前有人（站队首就白给） */
+const NEED_FRONT = new Set(['dodo', 'snake', 'kangaroo', 'backstab', 'giraffe', 'tiger', 'parrot']);
+/** 技能作用在身后（站队尾就白给） */
+const NEED_BACK = new Set(['elephant', 'camel', 'drill', 'flamingo', 'turtle']);
+export function tidyTeam(team: UnitSpec[]): UnitSpec[] {
+  const t = team.map((u) => ({ ...u }));
+  const n = t.length;
+  if (n >= 2) {
+    const ab = (u: UnitSpec) => card(u.def).ab ?? '';
+    const bad = (u: UnitSpec, i: number) => (i === 0 && NEED_FRONT.has(ab(u)) ? 1 : 0) + (i === n - 1 && NEED_BACK.has(ab(u)) ? 1 : 0);
+    const cost = () => t.reduce((s, u, i) => s + bad(u, i), 0);
+    for (let guard = 0; guard < 6 && cost() > 0; guard++) {
+      let moved = false;
+      for (const i of [0, n - 1]) {
+        if (!bad(t[i], i)) continue;
+        // 和最近的、换过去不添新毛病的单位对调
+        const order = [...Array(n).keys()].filter((j) => j !== i).sort((a, b) => Math.abs(a - i) - Math.abs(b - i));
+        for (const j of order) {
+          const before = cost();
+          [t[i], t[j]] = [t[j], t[i]];
+          if (cost() < before) { moved = true; break; }
+          [t[i], t[j]] = [t[j], t[i]];
+        }
+      }
+      if (!moved) break;
+    }
+  }
+  // 凑数小兵：身材不到队伍均值 35% 的（蛋这种靠攒成长的除外），抬到 50%
+  const mean = t.reduce((s, u) => s + u.atk + u.hp, 0) / Math.max(1, n);
+  for (const u of t) {
+    const sz = u.atk + u.hp;
+    if (u.bank != null || sz >= mean * 0.35 || mean < 8) continue;
+    const k = (mean * 0.5) / sz;
+    u.atk = Math.max(1, Math.min(STAT_CAP, Math.round(u.atk * k)));
+    u.hp = Math.max(1, Math.min(STAT_CAP, Math.round(u.hp * k)));
+  }
+  return t;
+}
 /** 候选敌阵：生态内、不连续同形态；不够就放宽 */
 function candidates(r: RunState, k = 8, avoid: FormKey | null = r.lastForm): Cand[] {
   const pool = ghostPool(r.turn);
@@ -716,13 +786,14 @@ function candidates(r: RunState, k = 8, avoid: FormKey | null = r.lastForm): Can
   if (list.length < 3) list = all.filter((x) => x.form !== avoid);
   if (list.length < 3) list = all;
   return pickN(r, list, k).map((x) => {
-    const units = scaleTeam(x.t, sc);
+    const units = tidyTeam(scaleTeam(x.t, sc));
     return { units, form: x.form, wr: winRate(r, units) };
   });
 }
 /** 温度：简单 / 中等 / 困难 的权重 */
 export function tempWeights(r: RunState): [number, number, number] {
-  let [e, m, h] = [20, 55, 25];
+  // 前两回合是发育期：多给简单局，不出困难局
+  let [e, m, h] = r.turn <= 2 ? [70, 30, 0] : [20, 55, 25];
   const T = DIFFS[r.diff ?? 0].temp;
   const lose = Math.max(0, -r.streak);
   const sh = Math.min(h, Math.round(10 * lose * T));
@@ -753,12 +824,22 @@ function pickByTemp(r: RunState, cs: Cand[]): Cand {
   const w = tempWeights(r);
   const groups: Cand[][] = [[], [], []];
   for (const c of cs) groups[bucketOf(c.wr)].push(c);
-  const ws = w.map((x, i) => (groups[i].length ? x : 0));
+  // 先按温度定这一档，再找人：这一档没人时，玩家太强就拿最难的那队放大，太弱就给最容易的
+  const pressure = r.turn >= PRESSURE_FROM;
+  const ws = w.map((x, i) => (groups[i].length || (pressure && i > 0) ? x : 0));
   const tot = ws.reduce((a, b) => a + b, 0);
   if (!tot) return pick(r, cs);
   let t = rng(r) * tot;
-  const gi = ws.findIndex((x) => (t -= x) < 0);
-  return pick(r, groups[gi < 0 ? 1 : gi]);
+  let gi = ws.findIndex((x) => (t -= x) < 0);
+  if (gi < 0) gi = 1;
+  let c: Cand;
+  if (groups[gi].length) c = pick(r, groups[gi]);
+  else {
+    const sorted = [...cs].sort((x, y) => x.wr - y.wr);
+    c = cs.every((x) => bucketOf(x.wr) < gi) ? sorted[0] : sorted[sorted.length - 1];
+  }
+  const l = lift(r, c.units, c.wr, capOf(r, gi));
+  return { ...c, ...l };
 }
 const ELITE_AX: Atom[] = ATOMS.filter((a) => a !== 'pierce');
 /** 精英：在中等档敌阵上挂 1–2 个词缀，挑实测胜率最接近目标的组合 */
@@ -776,7 +857,12 @@ function makeElite(r: RunState, base: Cand): Enemy {
 }
 function makeEnemy(r: RunState): Enemy {
   const boss = bossFor(r);
-  if (boss) return { boss, units: bossTeam(BOSSES[boss], r.turn, bossMul(r, boss) * diffK(r)) };
+  if (boss) {
+    const units = bossTeam(BOSSES[boss], r.turn, bossMul(r, boss) * diffK(r));
+    // Boss 是关卡：阵容再强也要拼一下；终局每输一次放松一点
+    const cap = r.turn <= 4 ? 0.82 : Math.min(0.88, 0.66 - 0.04 * (r.diff ?? 0) + (boss === 'final' ? 0.08 * r.finalLosses : 0));
+    return { boss, units: lift(r, units, winRate(r, units, 6), cap, r.turn <= 4 ? 1.3 : 2).units };
+  }
   if (!ghostPool(r.turn).length) return { boss: null, units: curveTeam(r) };
   const c = pickByTemp(r, candidates(r));
   return { boss: null, units: c.units, form: c.form };
