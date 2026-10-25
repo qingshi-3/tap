@@ -311,7 +311,7 @@ export interface RelicDef { id: RelicId; name: string; icon: string; text: strin
 export const RELICS: RelicDef[] = [
   { id: 'r_vanguard', name: '先锋徽章', icon: 'shield', text: '每个友军第一次受伤后，获得 1 层格挡' },
   { id: 'r_legacy', name: '传承之剑', icon: 'tomb', text: '友军阵亡时，新的队首获得它一半的攻击' },
-  { id: 'r_share', name: '分享餐盘', icon: 'plate', text: '每回合第一份单体补给，同时喂给左右相邻的友军' },
+  { id: 'r_share', name: '分享餐盘', icon: 'plate', text: '每回合第一份单体补给（秘药除外），同时喂给左右相邻的友军；其他补给不消耗分享机会' },
   { id: 'r_volley', name: '齐射号角', icon: 'burst', text: '开战时，随机一个敌人受到等于我方人数 ×2 的伤害' },
   { id: 'r_drums', name: '战鼓', icon: 'bolt', text: '全队每累计受伤 5 次，全队本场 +1 攻（最多 3 次）' },
   { id: 'r_lone', name: '独狼披风', icon: 'star', text: '只剩 1 个友军时，它 +10/+10 并获得不屈' },

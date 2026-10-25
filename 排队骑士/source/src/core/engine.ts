@@ -1,5 +1,6 @@
 // 碰撞制战斗引擎：队首对队首同时互打，后排只靠事件技能参与（规则照搬 SAP）。
 // 纯函数：输入两队，输出事件流 + 结果。播放层只读事件，不再推算规则。
+import { BattleStatsCollector, type BattleDamageSource, type BattleStats, type DamageContribution, type DamageSourceKind } from './battleStats';
 import { card, equipOf, SHOP_POOL, summonInfo, type Atom, type CardDef, type Ench, type EquipSp, type FoodFx, type Kw } from './data';
 
 export const QUEUE_MAX = 5;
@@ -89,6 +90,7 @@ export type Result = 'win' | 'lose' | 'draw';
 /** burn：灼烧/不屈耗尽，无视格挡与护盾 */
 export type DmgKind = 'melee' | 'shot' | 'splash' | 'burn';
 export interface BattleOut {
+  stats: BattleStats;
   init: Snap[];
   initOrder: Order;
   events: Ev[];
@@ -108,6 +110,8 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   let rs = seed || 1;
   const rnd = () => ((rs = (rs * 1103515245 + 12345) & 0x7fffffff), rs / 0x7fffffff);
   const ev: Ev[] = [];
+  const stats = new BattleStatsCollector();
+  const burnSources = new Map<number, BattleDamageSource[]>();
   const q: [BUnit[], BUnit[]] = [[], []];
   const mk = (s: UnitSpec, side: 0 | 1): BUnit => {
     const d = card(s.def);
@@ -134,6 +138,19 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   const init = [...q[0], ...q[1]].map(snap);
   const order = (): Order => [q[0].map((u) => u.uid), q[1].map((u) => u.uid)];
   const initOrder = order();
+  for (const u of [...q[0], ...q[1]]) stats.register(u, card(u.def).name);
+  const sourceOf = (u: BUnit, kind: DamageSourceKind, label: string): BattleDamageSource => ({ uid: u.uid, side: u.side, kind, label });
+  const equipmentSource = (u: BUnit, label: string) => sourceOf(u, 'equipment', equipOf(u.ench)?.name ?? label);
+  const atomSource = (u: BUnit, atom: Atom, label: string) => equipOf(u.ench)?.atoms?.includes(atom)
+    ? equipmentSource(u, label) : sourceOf(u, 'skill', label);
+  const relicSource = (id: string, label: string): BattleDamageSource => ({ uid: null, side: 0, kind: 'relic', relicId: id, label });
+  const splashSources = new Map<number, BattleDamageSource>();
+  for (const u of [...q[0], ...q[1]]) {
+    if (!u.splash) continue;
+    const eq = equipOf(u.ench);
+    splashSources.set(u.uid, card(u.def).kws.includes('splash') ? sourceOf(u, 'skill', '天生溅射')
+      : (eq?.splash ?? 0) >= (u.tfx.includes('splash') ? 50 : 1) ? equipmentSource(u, '溅射') : sourceOf(u, 'supply', '火油'));
+  }
   const V = (u: BUnit, L: number) => val(u.adef, L);
   const U = (u: BUnit, L: number) => val2(u.adef, L);
   const alive = (side: number) => q[side].filter((x) => !x.dead);
@@ -171,13 +188,17 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   }
 
   /** 返回：-1 被格挡/护盾完全挡住；否则为击杀溢出的伤害（没击杀为 0） */
-  function damage(src: BUnit | null, tgt: BUnit, n: number, kind: DmgKind): number {
+  function damage(src: BUnit | null, tgt: BUnit, n: number, kind: DmgKind, attribution?: BattleDamageSource | DamageContribution[]): number {
     if (tgt.dead || n <= 0 || --budget < 0) return -1;
     const foe = !!src && src.side !== tgt.side;
     if (foe && hasAx(src!, 'exec') && tgt.hp * 2 < tgt.maxHp) n = Math.floor(n * 1.5);
     const ds = src?.uid ?? null;
+    const origin = attribution ?? (src ? sourceOf(src, kind === 'melee' ? 'attack' : 'skill', kind === 'melee' ? '普通交锋' : `${src.adef.name}技能`) : undefined);
+    const contributions: DamageContribution[] = Array.isArray(origin) ? origin : origin ? [{ source: origin, amount: n }] : [];
+    const beforeShield = tgt.shield;
     if (kind !== 'burn' && tgt.block > 0) {
       tgt.block--;
+      stats.hit(tgt, contributions, 0, 0, true, false);
       ev.push({ t: 'dmg', src: ds, tgt: tgt.uid, n, blocked: true, kind, hp: tgt.hp, block: tgt.block, shield: tgt.shield });
       return -1;
     }
@@ -186,6 +207,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       tgt.shield -= a;
       n -= a;
       if (n <= 0) {
+        stats.hit(tgt, contributions, 0, a, false, false);
         ev.push({ t: 'dmg', src: ds, tgt: tgt.uid, n: a, blocked: true, kind, hp: tgt.hp, block: tgt.block, shield: tgt.shield });
         return -1;
       }
@@ -200,6 +222,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       tgt.lock = 2;
       undying = true;
     }
+    stats.hit(tgt, contributions, Math.max(0, before) - Math.max(0, tgt.hp), beforeShield - tgt.shield, false, tgt.hp <= 0);
     ev.push({ t: 'dmg', src: ds, tgt: tgt.uid, n, blocked: false, kind, hp: tgt.hp, block: tgt.block, shield: tgt.shield });
     if (undying) tag(tgt, '不屈');
     let over = 0;
@@ -213,7 +236,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     onHurt(tgt, src);
     if (tgt.sp === 'thorn' && foe && !src!.dead) {
       tag(tgt, '荆棘');
-      damage(tgt, src!, 3, 'shot');
+      damage(tgt, src!, 3, 'shot', equipmentSource(tgt, '荆棘甲'));
     }
     return over;
   }
@@ -234,7 +257,10 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     if (tgt.dead || tgt.kws.includes(k)) return;
     tgt.kws.push(k);
     if (k === 'reborn') tgt.reborn = true;
-    if (k === 'splash' && !tgt.splash) tgt.splash = 50;
+    if (k === 'splash' && !tgt.splash) {
+      tgt.splash = 50;
+      splashSources.set(tgt.uid, sourceOf(tgt, 'skill', `${src.adef.name}赋予的溅射`));
+    }
     ev.push({ t: 'kw', src: src.uid, tgt: tgt.uid, kws: [k] });
   }
   function summon(src: BUnit | null, side: 0 | 1, s: UnitSpec, at: number): BUnit | null {
@@ -243,6 +269,8 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       return null;
     }
     const u = mk(s, side);
+    stats.register(u, card(u.def).name, src?.uid ?? null);
+    if (u.splash) splashSources.set(u.uid, sourceOf(u, 'skill', '天生溅射'));
     q[side].splice(Math.max(0, Math.min(at, q[side].length)), 0, u);
     ev.push({ t: 'summon', src: src?.uid ?? null, unit: snap(u), order: order() });
     onSummoned(u);
@@ -431,6 +459,9 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
             r.undy = u.undy;
             r.reap = u.reap;
             r.charged = u.charged;
+            stats.register(r, card(r.def).name, u.uid, true);
+            const splashOrigin = splashSources.get(u.uid);
+            if (splashOrigin) splashSources.set(r.uid, { ...splashOrigin, uid: r.uid });
             line.splice(Math.min(at, line.length), 0, r);
             ev.push({ t: 'summon', src: u.uid, unit: snap(r), order: order(), revive: true });
             onSummoned(r);
@@ -484,7 +515,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       const fs = alive(1);
       if (R.has('r_volley') && fs.length) {
         tag(me[0], '齐射号角');
-        damage(me[0], fs[Math.floor(rnd() * fs.length)], me.length * 2, 'shot');
+        damage(me[0], fs[Math.floor(rnd() * fs.length)], me.length * 2, 'shot', relicSource('r_volley', '齐射号角'));
         settle();
       }
     }
@@ -501,9 +532,9 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     for (const f of u.tfx) {
       if (u.dead) break;
       if (f === 'plate') { tag(u, '铁甲片'); block(u, u, 2); }
-      if (f === 'berry') { tag(u, '刺莓'); damage(u, u, 1, 'shot'); }
-      if (f === 'bomb') { const t = front(1 - u.side); if (t) { tag(u, '火药包'); damage(u, t, 3, 'shot'); } }
-      if (f === 'thunder') { tag(u, '雷霆瓶'); for (const t of alive(1 - u.side)) damage(u, t, 2, 'shot'); }
+      if (f === 'berry') { tag(u, '刺莓'); damage(u, u, 1, 'shot', sourceOf(u, 'supply', '刺莓')); }
+      if (f === 'bomb') { const t = front(1 - u.side); if (t) { tag(u, '火药包'); damage(u, t, 3, 'shot', sourceOf(u, 'supply', '火药包')); } }
+      if (f === 'thunder') { tag(u, '雷霆瓶'); for (const t of alive(1 - u.side)) damage(u, t, 2, 'shot', sourceOf(u, 'supply', '雷霆瓶')); }
     }
     if (hasAx(u, 'shield')) {
       u.shield = Math.ceil(u.maxHp / 5);
@@ -512,7 +543,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     }
     if (u.sp === 'blood') {
       tag(u, '饮血剑');
-      damage(u, u, 3, 'shot');
+      damage(u, u, 3, 'shot', equipmentSource(u, '饮血剑'));
     }
     const foes = () => alive(1 - u.side);
     switch (u.ab) {
@@ -600,19 +631,22 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       const rest = line.slice(line.indexOf(foe) + 1).filter((x) => !x.dead);
       if (res >= 0 && hasAx(u, 'burn') && !foe.dead && foe.burn < 3) {
         foe.burn++;
+        const layers = burnSources.get(foe.uid) ?? [];
+        layers.push(atomSource(u, 'burn', '灼烧'));
+        burnSources.set(foe.uid, layers);
         stat(foe);
       }
       if (u.sp === 'spear') {
         if (rest.length) tag(u, '贯日之枪');
-        for (const x of rest) damage(u, x, dmg, 'splash');
+        for (const x of rest) damage(u, x, dmg, 'splash', equipmentSource(u, '贯日之枪'));
         continue;
       }
-      if (u.splash && rest[0]) damage(u, rest[0], pct(dmg, u.splash), 'splash');
+      if (u.splash && rest[0]) damage(u, rest[0], pct(dmg, u.splash), 'splash', splashSources.get(u.uid));
       if (res > 0 && hasAx(u, 'pierce')) {
         const next = rest.find((x) => !x.dead);
         if (next) {
           tag(u, '穿透');
-          damage(u, next, res, 'shot');
+          damage(u, next, res, 'shot', atomSource(u, 'pierce', '穿透'));
         }
       }
     }
@@ -638,16 +672,16 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       if (a0.length && a1.length) {
         const me = a0[a0.length - 1];
         tag(me, '后卫弩');
-        damage(me, a1[a1.length - 1], 2, 'shot');
+        damage(me, a1[a1.length - 1], 2, 'shot', relicSource('r_rear', '后卫弩'));
       }
     }
     for (const u of [...alive(0), ...alive(1)]) {
       if (u.sp !== 'storm' || u.dead) continue;
       tag(u, '风暴之心');
-      for (const x of alive(1 - u.side)) damage(u, x, 1, 'shot');
+      for (const x of alive(1 - u.side)) damage(u, x, 1, 'shot', equipmentSource(u, '风暴之心'));
     }
     settle();
-    for (const u of [...alive(0), ...alive(1)]) if (u.burn > 0) damage(null, u, u.burn * 2, 'burn');
+    for (const u of [...alive(0), ...alive(1)]) if (u.burn > 0) damage(null, u, u.burn * 2, 'burn', (burnSources.get(u.uid) ?? []).map((source) => ({ source, amount: 2 })));
     for (const u of [...alive(0), ...alive(1)]) {
       if (u.lock <= 0) continue;
       if (--u.lock === 0) {
@@ -663,5 +697,5 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   const r = alive(1).length;
   const result: Result = l && !r ? 'win' : r && !l ? 'lose' : 'draw';
   ev.push({ t: 'end', result });
-  return { init, initOrder, events: ev, result, survivors: l, perm: {} };
+  return { init, initOrder, events: ev, result, survivors: l, perm: {}, stats: stats.finish() };
 }

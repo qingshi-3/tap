@@ -4,11 +4,11 @@ import '../qb/css/shop-layout.css';
 import '../qb/css/v08.css';
 import '../qb/css/economy-bindings.css';
 import '../qb/css/v05.css';
-import { ALL, ATOM_INFO, BOSSES, card, EQUIP, EVENT_INFO, FOOD, fxFood, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
+import { ALL, ATOM_INFO, BOSSES, card, EQUIP, equipStats, EVENT_INFO, FOOD, fxFood, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_RETRY_MAX, AD_SAVE_MAX, adRelic, adRetry, trialFight, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
   FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
-  WIN_GOAL, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
+  WIN_GOAL, ownedAtk, ownedHp, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
 import { QUEUE_MAX, type BattleOut } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
@@ -27,6 +27,9 @@ import { unitSvg } from '../qb/unitArt';
 import { audioSettings } from '../qb/audioSettings';
 import type { App } from './app';
 import { BattlePlayer } from './battle';
+import { battleReport } from './battleReport';
+import { preparationPreview, inheritancePreview } from './prepPreview';
+import { morphOutcomePreview, morphUnitPicker } from './morphPreview';
 
 type DragKind = 'card' | 'unit' | 'bag';
 interface Drag { kind: DragKind; idx: number; startX: number; startY: number; ghost: HTMLElement | null; src: HTMLElement; pid: number }
@@ -50,7 +53,12 @@ export class Game {
   private drag: Drag | null = null;
   private releaseDrag: (() => void) | null = null;
   private sellZone: { el: HTMLElement; rect: { x: number; y: number; w: number; h: number } } | null = null;
-  private busy = false;
+  private _busy = false;
+  private get busy() { return this._busy; }
+  private set busy(value: boolean) { this._busy = value; this.syncBusy(); }
+  private settling = h('div', { class: 'prep-settling', role: 'status', 'aria-live': 'polite' });
+  private fastFx = false;
+  private releaseFxWait: (() => void) | null = null;
   private disposed = false;
   private player: BattlePlayer | null = null;
   /** 播放商店效果时，每个单位当前显示的攻血（效果逐条加上去） */
@@ -59,15 +67,38 @@ export class Game {
   private focus: { side: Side; slot: number } | null = null;
 
   constructor(private app: App, public run: RunState) {
-    this.el = h('div', { class: 'screen game' }, this.board.el, this.banner, this.hud, this.bagEl, this.tray, this.bar);
+    this.el = h('div', { class: 'screen game' }, this.board.el, this.banner, this.hud, this.bagEl, this.tray, this.bar, this.settling);
     setTipHideHook(() => { if (this.focus) this.setFocus(null); });
   }
 
   get fx() { return this.app.fx; }
   private get editable() { return !this.busy && !this.disposed && this.run.phase === 'prep'; }
 
+  private syncBusy() {
+    if (!this.el) return;
+    this.el.classList.toggle('prep-busy', this.busy);
+    this.tray.setAttribute('aria-busy', String(this.busy));
+    for (const b of this.el.querySelectorAll<HTMLButtonElement>('.tray button, .btn.trial, .prep-preview-btn')) {
+      if (this.busy && !b.disabled) { b.dataset.busyDisabled = '1'; b.disabled = true; }
+      else if (!this.busy && b.dataset.busyDisabled) { delete b.dataset.busyDisabled; b.disabled = false; }
+    }
+    this.tray.querySelectorAll('[role="button"]').forEach((e) => e.setAttribute('aria-disabled', String(this.busy)));
+  }
+
+  private fxWait(ms: number) {
+    if (this.fastFx || reduced()) return Promise.resolve();
+    return new Promise<void>((resolve) => {
+      const timer = setTimeout(done, ms);
+      const self = this;
+      function done() { clearTimeout(timer); self.releaseFxWait = null; resolve(); }
+      this.releaseFxWait = done;
+    });
+  }
+
   dispose() {
     this.disposed = true;
+    this.fastFx = true;
+    this.releaseFxWait?.();
     setTipHideHook(null);
     this.releaseDrag?.();
     this.player?.skip();
@@ -102,7 +133,6 @@ export class Game {
     this.run.pendingFx = [];
     save(this.run);
     this.busy = true;
-    await wait(500);
     await this.playFx(fx);
     this.busy = false;
   }
@@ -188,6 +218,10 @@ export class Game {
     return { atk, hp };
   }
 
+  private ownedBaseStats(o: Owned) {
+    return { atk: ownedAtk(o), hp: ownedHp(o) };
+  }
+
   private renderBoard(pending: ShopFx[] = []) {
     const b = this.board;
     const r = this.run;
@@ -196,8 +230,8 @@ export class Game {
     b.setCenter('VS', '', '');
     // 待播放的效果先从显示数值里扣掉，播放时逐条加回
     this.shown.clear();
-    for (const o of r.queue) if (o) this.shown.set(o.oid, this.ownedStats(o));
-    for (const f of pending) if (f.kind === 'buff') { const s = this.shown.get(f.tgt); if (s) { s.atk -= f.atk; s.hp -= f.hp; } }
+    for (const o of r.queue) if (o) this.shown.set(o.oid, this.ownedBaseStats(o));
+    for (const f of pending) if (f.kind === 'buff' && !f.tmp) { const s = this.shown.get(f.tgt); if (s) { s.atk -= f.atk; s.hp -= f.hp; } }
     r.queue.forEach((o, i) => {
       if (!o) return;
       const v = new UnitView(o.def, 0, i, lvlOf(o.copies));
@@ -290,9 +324,10 @@ export class Game {
   }
 
   private paintOwned(v: UnitView, o: Owned, pop = false) {
-    const s = this.shown.get(o.oid) ?? this.ownedStats(o);
+    const s = this.shown.get(o.oid) ?? this.ownedBaseStats(o);
+    const [atk, hp] = equipStats(o.ench, s.atk + (o.tmpAtk ?? 0), s.hp + (o.tmpHp ?? 0));
     const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : []), ...(o.tfx?.includes('splash') ? ['splash'] : [])];
-    v.setStats({ atk: s.atk + (o.tmpAtk ?? 0), hp: s.hp + (o.tmpHp ?? 0), maxHp: s.hp + (o.tmpHp ?? 0), block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
+    v.setStats({ atk, hp, maxHp: hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
     v.setExp(o.copies);
     v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
     v.setFoodHistory(card(o.def).inherit ? (o.foodHistory?.length ?? 0) : null);
@@ -327,9 +362,19 @@ export class Game {
     trialBtn.addEventListener('click', () => { if (size && this.editable) void this.startTrial(); });
     this.el.querySelector('.btn.trial')?.remove();
     this.el.appendChild(trialBtn);
+    this.el.querySelector('.prep-preview-btn')?.remove();
+    const preview = h('button', { class: 'btn ghost prep-preview-btn', disabled: !size }, icon('book'), '成长 / 开战预览');
+    preview.addEventListener('click', () => {
+      if (!this.editable) return;
+      hideTip(); sfx.click();
+      const panel = preparationPreview(this.run, () => panel.remove());
+      this.el.appendChild(panel);
+    });
+    this.el.appendChild(preview);
     this.tray.replaceChildren(left, cards, supplies, h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
     this.renderBag();
     this.lockFx = null;
+    this.syncBusy();
   }
 
   /** 锁定：四方锁链包围；刚锁上从四边缠绕落锁，刚解开反向退回 */
@@ -556,6 +601,7 @@ export class Game {
   // ───────────── 点击：详情 + 按钮 ─────────────
 
   private tap(kind: DragKind, idx: number) {
+    if (!this.editable) return;
     sfx.click();
     const r = this.run;
     if (kind === 'unit') {
@@ -563,6 +609,8 @@ export class Game {
       if (!o) return;
       const s = this.ownedStats(o);
       const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory }, true);
+      const inheritance = inheritancePreview(r, idx);
+      if (inheritance) tip.appendChild(inheritance);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
       const acts = h('div', { class: 'shelf-acts' }, sellBtn);
@@ -611,6 +659,7 @@ export class Game {
     if (it.def !== 'f_milk') {
       const lock = h('button', { class: 'btn ghost shelf-lock' }, it.locked ? '解锁' : '锁定');
       lock.addEventListener('click', () => {
+        if (!this.editable) return;
         toggleLock(r, it.sid); hideTip(); save(r);
         this.lockFx = { sid: it.sid, on: it.locked };
         (it.locked ? sfx.chain : sfx.unchain)();
@@ -787,13 +836,22 @@ export class Game {
       };
       const pickUnit = (o: Opt) => {
         const units = r.queue.map((u, i) => ({ u, i })).filter((x): x is { u: Owned; i: number } => !!x.u && o.unit!(x.u));
+        if (ev === 'morph') {
+          ov.replaceChildren(morphUnitPicker(units, (i) => {
+            const u = r.queue[i];
+            if (!u) return;
+            sfx.click();
+            ov.replaceChildren(morphOutcomePreview(u, () => { sfx.click(); pickUnit(o); }, () => { void finish(o.choice, i); }));
+          }, () => { sfx.click(); main(); }));
+          return;
+        }
         const back = h('button', { class: 'btn ghost' }, h('span', null, '返回'));
         back.addEventListener('click', () => { sfx.click(); main(); });
         ov.replaceChildren(h('div', { class: 'branch-card' }, h('h2', null, o.label), h('p', null, o.sub),
           h('div', { class: 'ev-units' }, ...units.map(({ u, i }) => {
             const b = h('button', { class: 'ev-unit' }, h('span', { class: 'bo-art', html: unitSvg(u.def) }),
               h('b', null, card(u.def).name), h('span', { class: 'ev-lv' }, '★'.repeat(lvlOf(u.copies))));
-            b.addEventListener('click', () => void finish(o.choice, i));
+            b.addEventListener('click', () => { void finish(o.choice, i); });
             return b;
           })), back));
       };
@@ -913,7 +971,7 @@ export class Game {
     const res = buy(r, it.sid, slot);
     if (!res.ok) { this.notice(res.why === 'gold' ? '金币不够' : res.why === 'max' ? '已满 6 份' : '这里有别的单位'); return false; }
     save(r);
-    this.afterChange();
+    this.afterChange(res.fx);
     const o = r.queue[slot]!;
     const v = this.viewOf(o.oid);
     const p = bodyPos(0, slot);
@@ -962,7 +1020,7 @@ export class Game {
     const res = moveOwned(r, from, to);
     if (!res) return false;
     save(r);
-    this.afterChange();
+    this.afterChange(res.fx);
     if (res.merged) {
       const o = r.queue[to]!;
       const p = bodyPos(0, to);
@@ -989,9 +1047,13 @@ export class Game {
     void v?.die();
     this.fx.float(p.x, p.y - 60, `+${res.gold} 金`, 'levelup', 900);
     this.fx.burst(p.x, p.y, '#ffd36b', { n: 16, speed: 5 });
-    await wait(260);
-    this.afterChange(res.fx);
-    await this.runFx(res.fx, { [o.oid]: p });
+    this.busy = true;
+    try {
+      await wait(reduced() ? 0 : 160);
+      if (this.disposed) return;
+      this.afterChange(res.fx);
+      await this.playFx(res.fx, { [o.oid]: p });
+    } finally { this.busy = false; }
   }
 
   /** 状态变了：重绘货架 / HUD / 队列（可指定待播的效果，先扣数值） */
@@ -1003,47 +1065,70 @@ export class Game {
 
   private async runFx(fx: ShopFx[], gone: Record<number, { x: number; y: number }> = {}) {
     if (!fx.length) return;
+    const wasBusy = this.busy;
     this.busy = true;
-    try { await this.playFx(fx, gone); } finally { this.busy = false; }
+    try { await this.playFx(fx, gone); } finally { this.busy = wasBusy; }
   }
 
-  /** 逐条播放商店效果：箭头 + 数字弹出 */
+  /** 数据已结算；这里只播放可随时快进的表现，不再次应用规则。 */
   private async playFx(fx: ShopFx[], gone: Record<number, { x: number; y: number }> = {}) {
+    if (!fx.length || this.disposed) return;
+    this.fastFx = reduced();
+    const label = h('span', null, `结算中 0/${fx.length}`);
+    const skip = h('button', { class: 'btn ghost', type: 'button' }, '立即完成');
+    skip.addEventListener('click', () => { this.fastFx = true; this.releaseFxWait?.(); });
+    this.settling.replaceChildren(label, skip);
+    this.settling.classList.add('on');
     const posOf = (oid: number | null) => {
       if (oid == null) return null;
       const v = this.viewOf(oid);
       return v ? bodyPos(0, v.slot) : gone[oid] ?? null;
     };
-    for (const f of fx) {
-      if (this.disposed) return;
-      const from = posOf(f.src);
-      if (f.kind === 'buff') {
-        const to = posOf(f.tgt);
-        const o = this.run.queue.find((x) => x?.oid === f.tgt);
-        if (!to || !o) continue;
-        if (from && f.src !== f.tgt) {
-          this.board.arrow({ x: from.x, y: from.y - 50 }, { x: to.x, y: to.y - 50 }, 'buff', { label: f.label, lift: 40 + Math.abs(to.x - from.x) * 0.14 });
-          this.fx.orb({ x: from.x, y: from.y - 30 }, { x: to.x, y: to.y - 30 }, lineColor(o.def), 320);
-          await wait(320);
-        } else if (from) {
-          this.viewOf(f.src!)?.castMotion(lineColor(o.def));
-          await wait(160);
+    try {
+      for (const [i, f] of fx.entries()) {
+        if (this.disposed) return;
+        label.textContent = `结算中 ${i + 1}/${fx.length} · ${f.label}`;
+        const from = posOf(f.src);
+        if (f.kind === 'buff') {
+          const to = posOf(f.tgt);
+          const o = this.run.queue.find((x) => x?.oid === f.tgt);
+          if (!to || !o) continue;
+          if (!this.fastFx && from && f.src !== f.tgt) {
+            this.board.arrow({ x: from.x, y: from.y - 50 }, { x: to.x, y: to.y - 50 }, 'buff', { label: f.label, lift: 40 + Math.abs(to.x - from.x) * 0.14 });
+            this.fx.orb({ x: from.x, y: from.y - 30 }, { x: to.x, y: to.y - 30 }, lineColor(o.def), 180);
+            await this.fxWait(180);
+          } else if (!this.fastFx && from) {
+            this.viewOf(f.src!)?.castMotion(lineColor(o.def));
+            await this.fxWait(90);
+          }
+          const shown = this.shown.get(f.tgt);
+          if (shown && !f.tmp) { shown.atk += f.atk; shown.hp += f.hp; }
+          const v = this.viewOf(f.tgt);
+          if (v) this.paintOwned(v, o, !this.fastFx);
+          if (!this.fastFx) {
+            sfx.buff();
+            this.fx.statPop(to.x, to.y - 74, `+${f.atk}/+${f.hp}`, f.label, f.atk >= f.hp ? 'pt-atk' : 'pt-hp', 560);
+            await this.fxWait(170);
+          }
+          this.board.clearArrows();
+        } else {
+          if (!this.fastFx && from) {
+            this.viewOf(f.src)?.castMotion('#ffb36b');
+            this.fx.statPop(from.x, from.y - 74, `+${f.n}/+${f.n}`, '蛋里的幼龙', 'pt-power', 560);
+            sfx.buff();
+            await this.fxWait(210);
+          }
         }
-        const s = this.shown.get(f.tgt);
-        if (s) { s.atk += f.atk; s.hp += f.hp; }
-        const v = this.viewOf(f.tgt);
-        if (v) this.paintOwned(v, o, true);
-        sfx.buff();
-        this.fx.statPop(to.x, to.y - 74, `+${f.atk}/+${f.hp}`, f.label, f.atk >= f.hp ? 'pt-atk' : 'pt-hp', 820);
-        await wait(300);
-        this.board.clearArrows();
-      } else {
-        if (from) { this.viewOf(f.src)?.castMotion('#ffb36b'); this.fx.statPop(from.x, from.y - 74, `+${f.n}/+${f.n}`, '蛋里的幼龙', 'pt-power', 820); }
-        const o = this.run.queue.find((x) => x?.oid === f.src);
-        const v = o && this.viewOf(o.oid);
-        if (o && v) this.paintOwned(v, o);
-        sfx.buff();
-        await wait(380);
+      }
+    } finally {
+      this.releaseFxWait?.();
+      this.settling.classList.remove('on');
+      this.board.clearArrows();
+      // 快进、普通播放和减少动态效果都对齐同一份最终数据。
+      for (const o of this.run.queue) if (o) {
+        this.shown.set(o.oid, this.ownedBaseStats(o));
+        const v = this.viewOf(o.oid);
+        if (v) this.paintOwned(v, o);
       }
     }
   }
@@ -1125,9 +1210,10 @@ export class Game {
     await wait(300);
     const title = out.result === 'win' ? '试打：胜' : out.result === 'lose' ? '试打：负' : '试打：平';
     const back = h('button', { class: 'btn primary' }, h('span', null, '回去调整'), icon('play'));
-    const ov = h('div', { class: `result-ov r-trial r-${out.result}` },
+    const ov = h('div', { class: `result-ov with-report r-trial r-${out.result}` },
       h('div', { class: 'res-card' }, h('div', { class: 'res-title' }, title), h('div', { class: 'res-sub' }, '不计胜负 · 正式开战有随机'),
         h('div', { class: 'res-btns' })));
+    ov.querySelector('.res-card')!.insertBefore(battleReport(out), ov.querySelector('.res-btns'));
     ov.querySelector('.res-btns')!.append(this.replayBtn(out, ov), back);
     back.addEventListener('click', () => { sfx.click(); ov.remove(); this.backToPrep(false); });
     this.el.appendChild(ov);
@@ -1141,7 +1227,7 @@ export class Game {
     const title = result === 'win' ? (before.boss ? 'Boss 击破' : '胜利') : result === 'lose' ? '失败' : '平局';
     const sub = result === 'win' ? `${r.wins}/${WIN_GOAL} 胜` : result === 'lose' ? `失去 ${lost} 心` : '不扣心，也不算胜场';
     const go = h('button', { class: 'btn primary' }, h('span', null, '继续'), icon('play'));
-    const ov = h('div', { class: `result-ov r-${result}` },
+    const ov = h('div', { class: `result-ov with-report r-${result}` },
       h('div', { class: 'res-card' },
         h('div', { class: 'res-rays' }),
         h('div', { class: 'res-title' }, title),
@@ -1175,6 +1261,7 @@ export class Game {
       });
       ov.querySelector('.res-btns')!.prepend(ad);
     }
+    ov.querySelector('.res-card')!.insertBefore(battleReport(out), ov.querySelector('.res-btns'));
     ov.querySelector('.res-btns')!.prepend(this.replayBtn(out, ov));
     this.el.appendChild(ov);
     if (!reduced()) ov.querySelector('.res-card')!.animate([{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.2,1.4,.4,1)' });

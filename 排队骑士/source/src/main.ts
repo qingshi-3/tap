@@ -15,6 +15,7 @@ import './qb/css/cultivate-fx.css';
 import './qb/css/command.css';
 import './qb/css/mech-fx.css';
 import './ui/pdqs.css';
+import './qb/css/battle-report.css';
 import { CARDS } from './core/data';
 import { App } from './ui/app';
 import { installPixelSprites } from './qb/pixel';

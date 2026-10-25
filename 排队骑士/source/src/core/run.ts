@@ -65,7 +65,7 @@ export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey
 /** 装备箱：3 件翻牌；ad 已看过升品；src 来源 */
 export interface Chest { items: Ench[]; ad: boolean; src: 'elite' | 'boss' }
 /** 本回合计数：吃补给次数、买单位次数、巨熊补货次数 */
-export interface TurnCount { foods: number; bought: number; bear: Record<number, number> }
+export interface TurnCount { foods: number; bought: number; bear: Record<number, number>; shareUsed?: boolean }
 export interface RunState {
   v: number;
   seed: number;
@@ -182,7 +182,7 @@ const pickN = <T>(r: RunState, arr: T[], k: number) => {
 };
 const units = (r: RunState) => r.queue.filter((o): o is Owned => !!o);
 const byOid = (r: RunState, oid: number) => units(r).find((o) => o.oid === oid);
-const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {} });
+const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {}, shareUsed: false });
 
 /** 永久加成，带属性上限；返回实际加了多少 */
 function grow(o: Owned, atk: number, hp: number): [number, number] {
@@ -445,8 +445,10 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
   const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
   if (f.behind && slot !== null && r.queue[slot + 1]) eaters.push(r.queue[slot + 1]!);
   // 分享餐盘：每回合第一份单体补给（不含秘药）也喂给相邻友军
-  if (r.relics?.includes('r_share') && !r.tc.foods && !f.n && !f.behind && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir')
+  if (r.relics?.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0) && !f.n && !f.behind && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir') {
+    r.tc.shareUsed = true;
     for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
+  }
   if (f.id === 'f_can') r.canned += 1;
   for (const e of eaters) {
     const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
@@ -1140,6 +1142,8 @@ export function load(): RunState | null {
     if (foods.length > FOOD_SHOP_MAX || milk.length > MILK_MAX || milk.some((s) => !s.val || s.val.length !== 2 || s.val.some((v) => !Number.isFinite(v) || v < 1 || v > 3))) return null;
     for (const s of milk) s.locked = false;
     r.milkTurn ??= r.turn;
+    // 旧档不能反推出是否已用过餐盘；本回合保守保留，下一回合重新可用。
+    r.tc.shareUsed ??= r.tc.foods > 0;
     return r;
   } catch {
     return null;

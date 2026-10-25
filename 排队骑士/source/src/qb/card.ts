@@ -18,6 +18,8 @@ export interface CardOpts {
   level?: number;
   /** 罐头等额外攻血 */
   plus?: number;
+  /** 只覆盖卡面展示数值；用于已拥有单位和规则计算后的预览 */
+  displayStats?: Readonly<{ atk: number; hp: number }>;
 }
 
 /** 卡面文案：{v} {u} 换成该星级数值 */
@@ -60,8 +62,8 @@ export function draftCard(defId: string, o: CardOpts = {}) {
       h(
         'div',
         { class: 'card-stats' },
-        h('span', { class: 'cs atk' }, icon('sword'), h('i', null, c.atk + add + plus)),
-        h('span', { class: 'cs hp' }, icon('heart'), h('i', null, c.hp + add + plus)),
+        h('span', { class: 'cs atk' }, icon('sword'), h('i', null, o.displayStats?.atk ?? c.atk + add + plus)),
+        h('span', { class: 'cs hp' }, icon('heart'), h('i', null, o.displayStats?.hp ?? c.hp + add + plus)),
       ),
     ),
     o.mergeTo
