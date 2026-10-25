@@ -142,6 +142,9 @@
   isolation: isolate;
 }
 .tier-badge > * { grid-area: 1 / 1; }
+/* 轨道钉死为徽记本身大小：光晕/光芒比徽记大，若让轨道撑开会只向右下扩，像素图就偏了 */
+.tier-badge { grid-template: minmax(0, 1fr) / minmax(0, 1fr); }
+.tier-badge > :is(.tb-glow, .tb-rays, .tb-spark) { flex: none; min-width: 0; }
 .tb-px { position: relative; z-index: 2; display: block; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .45)); }
 .tb-px .p-ol { fill: #07051a; }
 .tb-px .p-tc { fill: var(--tc); }
@@ -231,7 +234,6 @@
   .card.tier-6 .card-shine::before, .cx-chip.tier-6 .cx-chip-art::after, .kd-unit.tier-6::after { opacity: 0; }
 }
 /* 头像下的阶徽：带冠的留出冠高，免得压到名字 */
-.cx-chip .tier-badge:is(.rarity-5, .rarity-6) { margin-top: 8px; }
 /* 徽记本体描一圈本阶色辉光，逐阶加强 */
 .tier-badge.rarity-2 .tb-px { filter: drop-shadow(0 0 2px var(--tc)) drop-shadow(0 2px 0 rgba(0, 0, 0, .45)); }
 .tier-badge:is(.rarity-3, .rarity-4) .tb-px { filter: drop-shadow(0 0 3px var(--tc)) drop-shadow(0 0 6px color-mix(in srgb, var(--tc) 60%, transparent)); }
