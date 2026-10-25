@@ -29,7 +29,6 @@ import { BattlePlayer } from './battle';
 type DragKind = 'card' | 'unit' | 'bag';
 interface Drag { kind: DragKind; idx: number; startX: number; startY: number; ghost: HTMLElement | null; src: HTMLElement; pid: number }
 
-const ic = (n: string) => icon(n as Parameters<typeof icon>[0]);
 const relicTip = (id: RelicId) => h('div', { class: 'tip-unit', style: '--fc:#ffd36b' },
   h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, RELIC[id].name), h('span', { class: 'tip-fac' }, '遗物')),
   h('div', { class: 'tip-text' }, RELIC[id].text));
@@ -117,7 +116,7 @@ export class Game {
     const r = this.run;
     const lives = h('div', { class: 'hud-lives' }, Array.from({ length: maxLives(r) }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : ''}` }, icon('heart'))));
     const relics = r.relics.length ? h('div', { class: 'hud-relics' }, ...r.relics.map((id) => {
-      const b = h('button', { class: 'hud-relic', 'aria-label': RELIC[id].name }, ic(RELIC[id].icon));
+      const b = h('button', { class: 'hud-relic', 'aria-label': RELIC[id].name }, itemIcon(`rl_${id.slice(2)}`, 'spell'));
       b.addEventListener('click', () => {
         sfx.click();
         const rc = b.getBoundingClientRect(), sc = this.el.getBoundingClientRect();
@@ -635,7 +634,7 @@ export class Game {
           const d = RELIC[id];
           const el = h('button', { class: 'chest-item relic-item' },
             h('div', { class: 'ci-beam' }),
-            h('div', { class: 'ci-ico relic-ico' }, ic(d.icon)),
+            h('div', { class: 'ci-ico relic-ico' }, itemIcon(`rl_${id.slice(2)}`, 'spell')),
             h('b', { class: 'ci-name' }, d.name),
             h('div', { class: 'ci-text' }, d.text));
           el.addEventListener('click', () => {
@@ -736,7 +735,7 @@ export class Game {
         const leave = h('button', { class: 'btn ghost' }, h('span', null, '离开'));
         leave.addEventListener('click', () => void finish(-1, null));
         ov.replaceChildren(h('div', { class: 'branch-card ev-card' },
-          h('div', { class: 'ev-ico' }, ic(info.icon)), h('h2', null, info.name), h('p', null, info.text),
+          h('div', { class: 'ev-ico' }, itemIcon(`ev_${ev}`, 'spell')), h('h2', null, info.name), h('p', null, info.text),
           h('div', { class: 'branch-opts ev-opts' }, ...btns), leave));
       };
       main();

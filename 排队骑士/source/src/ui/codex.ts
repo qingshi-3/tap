@@ -1,18 +1,25 @@
-// 图鉴：单位（按引擎标签筛选 + 星级，桥接卡在两个标签下都出现）/ 补给 / 词条
+// 图鉴：左侧图标砖、右侧详情（大图标 + 一句话 + 实机演示）。单位页沿用卡面网格。
 import '../qb/css/unit-browser.css';
 import '../qb/css/codex-search.css';
-import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type EventId, type Line } from '../core/data';
-import { DIFFS } from '../core/run';
+import '../qb/css/kw-doc.css';
+import '../qb/css/codex-v2.css';
+import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type EventId, type Kw, type Line } from '../core/data';
+import type { DemoSpec } from '../core/demo';
+import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
 import { sfx } from '../qb/audio';
 import { draftCard, tierArt, tierBadge } from '../qb/card';
 import { h } from '../qb/dom';
 import { icon } from '../qb/icons';
-import { kwInline, kwRich, kwTag, trigCap, TRIG, type TrigId } from '../qb/kwtext';
+import { kwRich, kwTag, trigCap, TRIG, type TrigId } from '../qb/kwtext';
 import { itemIcon } from '../qb/pixelItems';
 import { equipIcon, unitTip } from '../qb/tip';
+import { battleDemo } from './battleDemo';
 
 type Tab = 'units' | 'foods' | 'equip' | 'relic' | 'kw';
-const state = { line: 'all' as Line | 'all', star: 1, sel: null as string | null, tab: 'units' as Tab };
+const state = { line: 'all' as Line | 'all', star: 1, sel: null as string | null, tab: 'units' as Tab, pick: {} as Record<string, string> };
+const ic = (n: string) => icon(n as Parameters<typeof icon>[0]);
+export const relicIcon = (id: string, cls = '') => itemIcon(`rl_${id.slice(2)}`, 'spell', cls);
+export const eventIcon = (id: string, cls = '') => itemIcon(`ev_${id}`, 'spell', cls);
 
 export function codexScreen(onBack: () => void): HTMLElement {
   const body = h('div', { class: 'cx-body' });
@@ -30,6 +37,60 @@ export function codexScreen(onBack: () => void): HTMLElement {
   return h('div', { class: 'screen codex' }, h('div', { class: 'cx-head' }, back, h('div', { class: 'cx-title' }, '图鉴'), h('div', { class: 'cx-tabs' }, tabBtns)), body);
 }
 
+// ── 通用：砖块导航 + 详情 ──
+interface Item {
+  key: string;
+  /** 砖块：图标 + 名字（或整块词条胶囊） */
+  tile: () => Node;
+  name?: string;
+  /** 砖块描边颜色（品质 / 阶层 / 标签色） */
+  color?: string;
+  /** 详情：大图标、名字、角标、一句话、演示、附加内容 */
+  big?: () => Node;
+  title: () => Node;
+  meta?: () => Node | null;
+  line: () => (string | Node)[];
+  demo?: DemoSpec | null;
+  extra?: () => Node | null;
+}
+
+function split(page: string, sections: { title: string; items: Item[]; cols?: number }[], note?: string): HTMLElement {
+  const nav = h('div', { class: 'kd-nav cx-nav' });
+  const detail = h('div', { class: 'kd-detail cx-dt' });
+  const tiles: HTMLElement[] = [];
+  const show = (it: Item) => {
+    state.pick[page] = it.key;
+    tiles.forEach((t) => t.classList.toggle('on', t.dataset.key === it.key));
+    detail.replaceChildren(
+      h('div', { class: 'cx-dt-head' },
+        ...(it.big ? [h('div', { class: 'cx-dt-big', style: it.color ? `--qc:${it.color}` : '' }, it.big())] : []),
+        h('div', { class: 'cx-dt-title' }, h('div', { class: 'cx-dt-name' }, it.title()), ...(it.meta?.() ? [it.meta()!] : []))),
+      h('p', { class: 'cx-dt-line' }, ...it.line()),
+      ...(it.demo ? [battleDemo(it.demo, it.name ?? it.key)] : []),
+      ...(it.extra?.() ? [it.extra()!] : []),
+    );
+    detail.scrollTop = 0;
+  };
+  const all = sections.flatMap((s) => s.items);
+  nav.replaceChildren(
+    ...(note ? [h('p', { class: 'cx-nav-note' }, ...kwRich(note))] : []),
+    ...sections.filter((s) => s.items.length).map((s) => h('section', { class: 'kd-sec' },
+      s.title ? h('h3', { class: 'kd-sec-h' }, s.title) : null,
+      h('div', { class: 'cx-tiles', style: s.cols ? `grid-template-columns:repeat(${s.cols},1fr)` : '' }, s.items.map((it) => {
+        const t = h('button', { class: `cx-tile${it.demo ? ' has-demo' : ''}`, 'data-key': it.key, style: it.color ? `--qc:${it.color}` : '', onclick: () => { sfx.click(); show(it); } },
+          it.tile(), it.demo ? h('i', { class: 'cx-tile-play', 'aria-label': '有演示' }) : null);
+        tiles.push(t);
+        return t;
+      })))));
+  show(all.find((x) => x.key === state.pick[page]) ?? all[0]);
+  return h('div', { class: 'kd cx-split' }, nav, detail);
+}
+const tile = (art: Node, name: string) => h('span', { class: 'cx-tile-in' }, h('span', { class: 'cx-tile-art' }, art), h('span', { class: 'cx-tile-name' }, name));
+const meta = (...xs: (Node | string | null)[]) => h('div', { class: 'cx-dt-meta' }, ...xs);
+const pill = (text: string, color: string) => h('span', { class: 'cx-pill', style: `--qc:${color}` }, text);
+const TIER_C = ['', '#bf9a70', '#46d890', '#4a9cff', '#b46cff', '#ffac2e', '#ff4a4a'];
+
+// ── 单位 ──
 function unitBrowser(): HTMLElement {
   const s = state;
   const root = h('div', { class: 'ub' });
@@ -53,12 +114,14 @@ function unitBrowser(): HTMLElement {
       s.sel = id;
       grid.querySelectorAll<HTMLElement>('.ub-cell').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
       const d = card(id);
+      const demo = unitDemo(id, s.star as 1 | 2 | 3);
       detail.replaceChildren(
         h('div', { class: 'cx-d-head' },
           tierArt('cx-d-art', id, d.tier),
           h('div', { class: 'ub-d-title' },
             h('b', { class: 'cx-d-name' }, d.name),
             h('div', { class: 'ub-d-meta' }, [d.line, d.tag2].filter((t): t is Line => !!t).map((t) => h('span', { class: 'ub-d-fac', style: `--fc:${LINE_INFO[t].color}` }, LINE_INFO[t].name)), tierBadge(d.tier)))),
+        ...(demo ? [battleDemo(demo, d.name)] : []),
         h('section', { class: 'cx-lv' }, unitTip(id, s.star, null, false)),
       );
       detail.scrollTop = 0;
@@ -72,61 +135,103 @@ function unitBrowser(): HTMLElement {
   return root;
 }
 
+// ── 补给 ──
 function foodsPage(): HTMLElement {
-  const byTier = [1, 2, 3, 4, 5, 6].map((t) => FOODS.filter((f) => f.tier === t)).filter((g) => g.length);
-  return h('div', { class: 'cx-foods' },
-    h('p', { class: 'cx-note' }, ...kwRich('补给一般 3 金（苹果 2 金、牛奶免费）。写着「装备」的补给会变成一件装备：每个单位只能带 1 件，新的替换旧的，换下的进背包。')),
-    byTier.map((g) => h('div', { class: 'cx-items' }, g.map((f) =>
-      h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-icon' }, itemIcon(f.id, 'pack')),
-        h('div', null, h('b', null, f.name, ' ', tierBadge(f.tier)), h('p', null, ...kwRich(f.text))))))));
+  const price = (p: number) => h('span', { class: 'cx-price' }, itemIcon('coin', 'coin', 'sm'), p ? String(p) : '免费');
+  const items = (t: number): Item[] => FOODS.filter((f) => f.tier === t).map((f) => ({
+    key: f.id, name: f.name, color: TIER_C[f.tier],
+    tile: () => tile(itemIcon(f.id, 'pack'), f.name),
+    big: () => itemIcon(f.id, 'pack'),
+    title: () => h('span', null, f.name),
+    meta: () => meta(tierBadge(f.tier), price(f.price ?? 3), f.ench ? pill('装备', '#6fe6ff') : null),
+    line: () => kwRich(f.text.replace('+{a}/+{h}', '攻血')),
+    demo: f.ench ? equipDemo(f.ench) : null,
+  }));
+  return split('foods', [1, 2, 3, 4, 5, 6].map((t) => ({ title: `${t} 阶`, items: items(t) })));
 }
 
+// ── 装备 ──
 function equipPage(): HTMLElement {
-  const groups = [0, 1, 2, 3].map((q) => EQUIPS.filter((e) => e.q === q && !e.food));
-  return h('div', { class: 'cx-foods' },
-    h('p', { class: 'cx-note' }, '装备从精英宝箱获得：赢下精英战翻 3 件选 1，放进背包，拖到单位身上装上。每个单位 1 件；橙装全队最多 1 件；诅咒装备有代价也有大收益。'),
-    groups.map((g, q) => h('div', null, h('h3', { class: 'cx-sec', style: `color:${Q_INFO[q].color}` }, Q_INFO[q].name),
-      h('div', { class: 'cx-items' }, g.map((e) => h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-icon' }, equipIcon(e.id)),
-        h('div', null, h('b', { style: `color:${Q_INFO[q].color}` }, e.name, e.curse ? '（诅咒）' : ''), h('p', null, ...kwRich(e.text)))))))));
+  const items = (q: number): Item[] => EQUIPS.filter((e) => e.q === q && !e.food).map((e) => ({
+    key: e.id, name: e.name, color: Q_INFO[q].color,
+    tile: () => tile(equipIcon(e.id), e.name),
+    big: () => equipIcon(e.id),
+    title: () => h('span', { style: `color:${Q_INFO[q].color}` }, e.name),
+    meta: () => meta(pill(Q_INFO[q].name, Q_INFO[q].color), e.curse ? pill('诅咒', '#ff5a6a') : null),
+    line: () => kwRich(e.text),
+    demo: equipDemo(e.id),
+  }));
+  return split('equip', [0, 1, 2, 3].map((q) => ({ title: Q_INFO[q].name, items: items(q) })), '赢下精英战开箱，3 选 1；每人 1 件，橙装全队 1 件');
 }
 
+// ── 遗物 ──
 function relicPage(): HTMLElement {
-  return h('div', { class: 'cx-foods' },
-    h('p', { class: 'cx-note' }, '遗物整局生效：击败 Boss 或熬过混沌契约后 3 选 1，可看广告多翻一件。'),
-    h('div', { class: 'cx-items' }, RELICS.map((x) => h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-icon cx-relic' }, icon(x.icon as Parameters<typeof icon>[0])),
-      h('div', null, h('b', null, x.name), h('p', null, ...kwRich(x.text)))))));
+  const items: Item[] = RELICS.map((x) => ({
+    key: x.id, name: x.name, color: '#ffd36b',
+    tile: () => tile(relicIcon(x.id), x.name),
+    big: () => relicIcon(x.id),
+    title: () => h('span', null, x.name),
+    line: () => kwRich(x.text),
+    demo: KW_DEMOS[x.id] ?? null,
+  }));
+  return split('relic', [{ title: '', items }], '击败 Boss 或熬过混沌契约后 3 选 1，整局生效');
 }
+
+// ── 规则 ──
+const RULES: [string, string, string][] = [
+  ['交锋', 'sword', '双方队首同时互打一次，后排只靠技能出手'],
+  ['金币', 'diamond', '每回合 10 金：招募 3、补给 3、刷新 1；出售返 1~3'],
+  ['升星', 'star', '同名 3 份升 2 星、6 份升 3 星，升星送一张高一阶的卡'],
+  ['阶级', 'arrowUp', '第 1/3/5/7/9/11 回合依次开放 1~6 阶'],
+  ['胜负', 'heart', '赢 15 场通关；输了扣心（前 4 回合扣 1，之后扣 2），平局不扣'],
+  ['Boss', 'skull', '第 4/8/12/16 回合是 Boss，赢到第 14 场迎战暗影领主'],
+  ['岔路', 'swap', '每 3 回合两个对手选一个：精英更难，赢了开装备箱'],
+  ['难度', 'flag', '困难：敌人更强、不再放水；噩梦：再强一截，只有 8 颗心'],
+];
+const EV_EFFECT: Record<EventId, string> = {
+  camp: '一个单位 +3/+3，或拿一件精良装备',
+  smith: '献上一个单位，让另一个直接升星',
+  morph: '一个单位变成同阶、同标签的另一张卡，星级加成保留',
+  merc: '免费带一个高一阶的佣兵打 3 场',
+  chaos: '接下来 3 场敌人更强，熬过去换一件遗物',
+};
 
 function kwPage(): HTMLElement {
-  const kws = (Object.keys(KW_INFO) as (keyof typeof KW_INFO)[]).map((k) =>
-    h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-kw' }, kwTag(KW_INFO[k].name, '', '', true)), h('div', null, h('p', null, ...kwRich(KW_INFO[k].desc)))));
-  const trigs = (Object.keys(TRIG) as TrigId[]).map((id) =>
-    h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-kw' }, trigCap(id, TRIG[id].sample)), h('div', null, h('p', null, ...kwRich(TRIG[id].gloss)))));
-  const rules = [
-    '双方队首同时互相攻击一次，叫一次「交锋」；后排只靠技能参与。',
-    '每回合 10 金：招募 3 金、补给 3 金（苹果 2 金、牛奶免费）、刷新 1 金；出售按星级返还 1~3 金。',
-    '同名叠 3 份升 2 星、6 份升 3 星；每次升星，货架送一张高一阶的奖励卡。',
-    '货架阶级随回合开放：第 1/3/5/7/9/11 回合开放 1~6 阶。',
-    '赢 15 场通关；输了扣心（第 1~4 回合扣 1 心、之后扣 2 心），10 心扣完失败；平局不扣心。',
-    '第 4/8/12/16 回合是 Boss（铁壁、亡潮、熔炉、兽潮），赢到第 14 场后迎战暗影领主。',
-    '每 3 回合遇到岔路：两个对手选一个，精英更难，赢了开装备箱。岔路偶尔换成事件。',
-    `难度：${DIFFS.map((d) => `${d.name}（${d.desc}）`).join('、')}。`,
-  ];
-  const events = (Object.keys(EVENT_INFO) as EventId[]).map((k) => h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-icon cx-relic' }, icon(EVENT_INFO[k].icon as Parameters<typeof icon>[0])),
-    h('div', null, h('b', null, EVENT_INFO[k].name), h('p', null, EVENT_INFO[k].text))));
-  const atoms = ATOMS.map((a) => h('div', { class: 'cx-item' }, h('span', { class: 'cx-item-icon' }, itemIcon(ATOM_INFO[a].icon, 'spell')),
-    h('div', null, h('b', null, ATOM_INFO[a].name), h('p', null, ATOM_INFO[a].desc))));
-  // 引擎：一句话 + 桥接卡（副标签连到别的引擎）
-  const engines = LINES.map((t) => {
-    const bridges = SHOP_POOL.filter((d) => d.tag2 && hasTag(d, t)).map((d) => `${d.name}（${LINE_INFO[d.line === t ? d.tag2! : d.line].name}）`);
-    return h('div', { class: 'cx-item' }, h('span', { class: 'ub-d-fac', style: `--fc:${LINE_INFO[t].color}` }, LINE_INFO[t].name),
-      h('div', null, h('p', null, ...kwRich(LINE_INFO[t].desc)), bridges.length ? h('p', { class: 'cx-note' }, `搭配：${bridges.join('、')}`) : null));
-  });
-  return h('div', { class: 'cx-kw' },
-    h('h3', { class: 'cx-sec' }, '规则'), h('div', { class: 'cx-rules' }, rules.map((t) => h('p', null, ...kwInline(t)))),
-    h('h3', { class: 'cx-sec' }, '引擎与搭配'), h('div', { class: 'cx-items' }, engines),
-    h('h3', { class: 'cx-sec' }, '词条'), h('div', { class: 'cx-items' }, kws),
-    h('h3', { class: 'cx-sec' }, '装备词条 / 精英词缀'), h('div', { class: 'cx-items' }, atoms),
-    h('h3', { class: 'cx-sec' }, '事件'), h('div', { class: 'cx-items' }, events),
-    h('h3', { class: 'cx-sec' }, '时机'), h('div', { class: 'cx-items' }, trigs));
+  const rules: Item[] = RULES.map(([k, i, t]) => ({
+    key: k, tile: () => tile(ic(i), k), big: () => ic(i), title: () => h('span', null, k), line: () => kwRich(t), demo: KW_DEMOS[k] ?? null,
+  }));
+  const kws: Item[] = (Object.keys(KW_INFO) as Kw[]).map((k) => ({
+    key: KW_INFO[k].name, color: KW_INFO[k].color,
+    tile: () => kwTag(KW_INFO[k].name, '', '', true), title: () => kwTag(KW_INFO[k].name, '', '', true),
+    line: () => kwRich(KW_INFO[k].desc), demo: KW_DEMOS[KW_INFO[k].name] ?? null,
+  }));
+  const trigs: Item[] = (Object.keys(TRIG) as TrigId[]).map((id) => ({
+    key: TRIG[id].name, color: TRIG[id].color,
+    tile: () => trigCap(id, TRIG[id].name, true), title: () => trigCap(id, TRIG[id].sample),
+    line: () => kwRich(TRIG[id].gloss), demo: KW_DEMOS[TRIG[id].name] ?? null,
+  }));
+  const atoms: Item[] = ATOMS.map((a) => ({
+    key: ATOM_INFO[a].name, color: '#c27bff',
+    tile: () => tile(itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name), big: () => itemIcon(ATOM_INFO[a].icon, 'spell'),
+    title: () => h('span', null, ATOM_INFO[a].name), meta: () => meta(pill('装备 · 精英词缀', '#c27bff')),
+    line: () => kwRich(ATOM_INFO[a].desc), demo: KW_DEMOS[ATOM_INFO[a].name] ?? null,
+  }));
+  const events: Item[] = (Object.keys(EVENT_INFO) as EventId[]).map((k) => ({
+    key: `ev_${k}`, color: '#8cd4ff',
+    tile: () => tile(eventIcon(k), EVENT_INFO[k].name), big: () => eventIcon(k),
+    title: () => h('span', null, EVENT_INFO[k].name), meta: () => meta(pill('偶尔替代岔路', '#8cd4ff')),
+    line: () => kwRich(EV_EFFECT[k]),
+  }));
+  const engines: Item[] = LINES.map((t) => ({
+    key: `ln_${t}`, color: LINE_INFO[t].color,
+    tile: () => h('span', { class: 'cx-tile-word', style: `color:${LINE_INFO[t].color}` }, LINE_INFO[t].name),
+    title: () => h('span', { style: `color:${LINE_INFO[t].color}` }, LINE_INFO[t].name),
+    line: () => kwRich(LINE_INFO[t].desc),
+    extra: () => h('div', { class: 'kd-units cx-eng-units' }, SHOP_POOL.filter((d) => hasTag(d, t)).sort((a, b) => a.tier - b.tier).map((d) =>
+      h('div', { class: `kd-unit tier-${d.tier}`, style: `--fc:${LINE_INFO[t].color}` }, tierArt('kd-unit-art', d.id, d.tier, 'span'), h('span', { class: 'kd-unit-name' }, d.name)))),
+  }));
+  return split('kw', [
+    { title: '基础', items: rules }, { title: '词条', items: kws, cols: 3 }, { title: '时机', items: trigs, cols: 3 },
+    { title: '装备词条', items: atoms }, { title: '事件', items: events }, { title: '引擎', items: engines },
+  ]);
 }

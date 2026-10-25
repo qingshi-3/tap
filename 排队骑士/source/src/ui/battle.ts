@@ -20,19 +20,32 @@ export class BattlePlayer {
   private pendingOrder: Order | null = null;
   private log: HTMLElement;
   private phase: HTMLElement;
+  /** 演示用：静音、播放倍率（慢放）、逐事件钩子（返回 Promise 时暂停等待）、中止 */
+  private sfx: typeof sfx = sfx;
+  private demo = false;
+  rate = 1;
+  hook: ((ev: Ev, i: number) => Promise<void> | void) | null = null;
+  private stopped = false;
 
-  constructor(private board: Board, private fx: FX, bar: HTMLElement) {
+  /** bar 为 null：图鉴演示模式（静音、固定 1 倍速，无速度 / 跳过按钮） */
+  constructor(private board: Board, private fx: FX, bar: HTMLElement | null) {
+    this.phase = h('b', null, '战斗');
+    this.log = h('div', { class: 'bb-log' });
+    if (!bar) {
+      this.demo = true;
+      this.sfx = new Proxy(sfx, { get: () => () => {} });
+      this.fx.rate = 1;
+      return;
+    }
     const speedBtn = h('button', { class: 'btn ghost speed' }, icon('ff'), h('span', null, `${SPEEDS[speedIdx]}×`));
     speedBtn.addEventListener('click', () => {
       speedIdx = (speedIdx + 1) % SPEEDS.length;
       speedBtn.querySelector('span')!.textContent = `${SPEEDS[speedIdx]}×`;
       this.fx.rate = SPEEDS[speedIdx];
-      sfx.click();
+      this.sfx.click();
     });
     const skipBtn = h('button', { class: 'btn ghost' }, icon('skip'), h('span', null, '跳过'));
-    skipBtn.addEventListener('click', () => { sfx.click(); this.skip(); });
-    this.phase = h('b', null, '战斗');
-    this.log = h('div', { class: 'bb-log' });
+    skipBtn.addEventListener('click', () => { this.sfx.click(); this.skip(); });
     bar.replaceChildren(h('div', { class: 'bb-phase' }, h('span', { class: 'bb-dot' }), this.phase), this.log, h('div', { class: 'bb-btns' }, speedBtn, skipBtn));
     this.fx.rate = SPEEDS[speedIdx];
   }
@@ -41,7 +54,12 @@ export class BattlePlayer {
     this.skipping = true;
   }
 
-  private get speed() { return SPEEDS[speedIdx]; }
+  stop() {
+    this.stopped = true;
+    this.skipping = true;
+  }
+
+  private get speed() { return (this.demo ? 1 : SPEEDS[speedIdx]) * this.rate; }
   private w(ms: number) {
     return this.skipping ? Promise.resolve() : new Promise<void>((r) => setTimeout(r, ms / this.speed));
   }
@@ -107,9 +125,14 @@ export class BattlePlayer {
       L.v.appear(slot * 60 + s.side * 30);
     }
     await this.w(700);
-    for (const ev of out.events) {
+    for (let i = 0; i < out.events.length; i++) {
+      const ev = out.events[i];
+      if (this.stopped) return;
       if (ev.t !== 'die') await this.settle(ev.t === 'clash' || ev.t === 'end');
+      // 召唤要等单位出现后再框选
+      if (this.hook && ev.t !== 'summon') await this.hook(ev, i);
       await this.handle(ev);
+      if (this.hook && ev.t === 'summon') await this.hook(ev, i);
     }
     await this.settle(true);
     // 跳过时最后对齐一次
@@ -135,7 +158,7 @@ export class BattlePlayer {
         void B.v.lunge(-1, 40, 360 / this.speed);
         await this.w(170);
         fx.impact(640, UNIT_Y - 20, '#fff2c0', false);
-        sfx.hit();
+        this.sfx.hit();
         await this.w(60);
         return;
       }
@@ -148,7 +171,7 @@ export class BattlePlayer {
         const p = this.pos(ev.uid);
         L.v.castMotion(c, 420 / this.speed);
         fx.float(p.x, p.y - 96, ev.label, 'combo', 900);
-        sfx.trigger();
+        this.sfx.trigger();
         await this.w(260);
         return;
       }
@@ -170,18 +193,18 @@ export class BattlePlayer {
         if (shieldHit) {
           fx.ring(p.x, p.y - 20, '#8fd8ff', 54, 20);
           fx.float(p.x, p.y - 80, `护盾 -${ev.n}`, 'shield', 800);
-          sfx.shieldHit();
+          this.sfx.shieldHit();
         } else if (ev.blocked) {
           // 格挡碎裂
           fx.burst(p.x, p.y - 20, '#ffe08a', { n: 18, speed: 6, kind: 'shard', size: 4 });
           fx.ring(p.x, p.y - 20, '#ffe08a', 50, 20);
           fx.float(p.x, p.y - 80, '格挡', 'shield', 800);
-          sfx.shieldHit();
+          this.sfx.shieldHit();
         } else {
           fx.float(p.x, p.y - 80, `-${ev.n}`, 'dmg', 800);
           if (ev.kind === 'splash') fx.burst(p.x, p.y - 20, '#ffb340', { n: 12, speed: 5 });
           if (ev.kind === 'burn') fx.burst(p.x, p.y - 20, '#ff6a2a', { n: 10, speed: 3, up: 2 });
-          if (ev.kind !== 'melee') sfx.hit(ev.n >= 6);
+          if (ev.kind !== 'melee') this.sfx.hit(ev.n >= 6);
         }
         await this.w(ev.kind === 'melee' ? 100 : 180);
         return;
@@ -199,7 +222,7 @@ export class BattlePlayer {
           await this.w(240);
         }
         fx.float(p.x, p.y - 80, `+${ev.n}`, 'buff', 800);
-        sfx.buff();
+        this.sfx.buff();
         await this.w(180);
         return;
       }
@@ -220,7 +243,7 @@ export class BattlePlayer {
         const neg = ev.atk < 0 || ev.hp < 0;
         const sg = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
         fx.statPop(p.x, p.y - 80, `${sg(ev.atk)}/${sg(ev.hp)}`, ev.perm ? '永久' : '', neg ? 'pt-atk' : ev.atk >= ev.hp ? 'pt-atk' : 'pt-hp', 760);
-        sfx.buff();
+        this.sfx.buff();
         await this.w(200);
         return;
       }
@@ -237,7 +260,7 @@ export class BattlePlayer {
         this.paint(T, true);
         if (quiet) return;
         fx.statPop(p.x, p.y - 80, `+${ev.n}`, '格挡', 'pt-block', 760);
-        sfx.shield();
+        this.sfx.shield();
         await this.w(180);
         return;
       }
@@ -250,7 +273,7 @@ export class BattlePlayer {
         const p = this.pos(ev.tgt);
         const names: Record<string, string> = { reborn: '复生', splash: '溅射', block: '格挡' };
         fx.float(p.x, p.y - 80, ev.kws.map((k) => names[k] ?? k).join(' '), 'grant', 800);
-        sfx.buff();
+        this.sfx.buff();
         await this.w(180);
         return;
       }
@@ -264,7 +287,7 @@ export class BattlePlayer {
         if (quiet) { L.v.el.remove(); return; }
         const p = bodyPos(L.s.side, L.v.slot);
         fx.burst(p.x, p.y, L.s.side === 1 ? '#ff6b78' : LINE_INFO[card(L.s.def).line].color, { n: 14, speed: 4 });
-        sfx.death();
+        this.sfx.death();
         this.dying.push(L.v.die());
         return;
       }
@@ -281,7 +304,7 @@ export class BattlePlayer {
         L.v.appear();
         fx.ring(p.x, p.y, ev.revive ? '#78f0ff' : '#d6a8ff', 70, 28);
         if (ev.revive) fx.float(p.x, p.y - 90, '复生', 'grant', 900);
-        sfx.summon();
+        this.sfx.summon();
         await this.w(380);
         return;
       }
@@ -289,7 +312,7 @@ export class BattlePlayer {
         if (quiet) return;
         const p = this.pos(ev.uid);
         fx.float(p.x, p.y - 90, ev.label, 'fizzle', 800);
-        sfx.fizzle();
+        this.sfx.fizzle();
         await this.w(200);
         return;
       }
@@ -303,7 +326,7 @@ export class BattlePlayer {
         this.paint(T, true);
         if (quiet) return;
         const p = this.pos(ev.uid);
-        if (more) { fx.ring(p.x, p.y - 20, '#8fd8ff', 64, 24); fx.statPop(p.x, p.y - 80, `+${ev.shield}`, '护盾', 'pt-block', 760); sfx.shield(); }
+        if (more) { fx.ring(p.x, p.y - 20, '#8fd8ff', 64, 24); fx.statPop(p.x, p.y - 80, `+${ev.shield}`, '护盾', 'pt-block', 760); this.sfx.shield(); }
         if (burnUp) { fx.burst(p.x, p.y - 20, '#ff6a2a', { n: 10, speed: 3 }); fx.float(p.x, p.y - 80, `灼烧 ${ev.burn}`, 'dmg', 700); }
         await this.w(140);
         return;
