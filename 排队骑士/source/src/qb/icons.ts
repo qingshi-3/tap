@@ -1,5 +1,6 @@
 // 24×24 线面结合图标，currentColor 着色
 export const ICON = {
+  lock: '<path d="M6 10V7a6 6 0 0 1 12 0v3h2v12H4V10Zm3 0h6V7a3 3 0 0 0-6 0Zm2 4v4h2v-4Z" fill="currentColor" fill-rule="evenodd"/>',
   // 攻击：斜握的单刃斧，实心剪影保证小尺寸可读
   sword: '<g transform="translate(1.6 1) scale(.9) rotate(22 12 12)"><path d="M11.5 4.5C9 3.6 6 2.6 3.2 2.6 1.6 6.4 1.6 11.6 3.2 15.4 6 15.4 9 14.4 11.5 13.5Z" fill="currentColor"/><path d="M14 2V23" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><rect x="11" y="5" width="6" height="8" rx="1.2" fill="currentColor"/></g>',
   heart: '<path d="M12 20.5s-8-4.7-8-10.6C4 7 6.2 4.8 8.8 4.8c1.4 0 2.6.7 3.2 1.8.6-1.1 1.8-1.8 3.2-1.8C17.8 4.8 20 7 20 9.9c0 5.9-8 10.6-8 10.6Z" fill="currentColor"/>',

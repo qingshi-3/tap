@@ -1,0 +1,9 @@
+PASS legacy.normal
+PASS legacy.5-foods
+PASS legacy.6-foods
+PASS legacy.locked-first-stable-order
+PASS legacy.keep-two-milk-specs
+PASS legacy.keep-existing-backup
+PASS current.reject-over-cap
+PASS legacy.invalid-history-still-rejected
+PASS backup-failure-keeps-original

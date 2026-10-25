@@ -76,6 +76,13 @@ export function computeLinks(sides: [(LinkUnit | null)[], (LinkUnit | null)[]]):
         case 'bluebird': if (k < mine.length - 1) ally(mine[mine.length - 1], 'buff', `+${v}攻`); break;
         case 'monkey': lead('buff', `+${v}/+${u2}`); break;
         case 'parrot': front('buff', '复制技能'); break;
+        case 'seal':
+          for (const s of [slot - 1, slot + 1]) if (sides[side][s]) ally(s, 'buff', `吃补给 +${v}/+${v}`);
+          break;
+        case 'wyvern':
+          // 没有选定食用者时展示可能受益的相邻格；实际结算排除食用者并优先身前。
+          for (const s of [slot - 1, slot + 1]) if (sides[side][s]) ally(s, 'buff', `相邻分发·至多${v}个`);
+          break;
       }
     });
   }

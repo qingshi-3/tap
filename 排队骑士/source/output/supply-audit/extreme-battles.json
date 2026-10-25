@@ -1,0 +1,1150 @@
+{
+  "generatedAt": "2026-10-25T12:18:56.741Z",
+  "method": {
+    "engine": "src/core/engine.ts simulate",
+    "opponentSource": "src/core/ghosts.json，普通难度校准使用的后期(turn>=11)幽灵池",
+    "availableLateGhosts": 222,
+    "samples": 300,
+    "seedFormula": "i * 104729 + 11",
+    "opponentSelection": "(i * 7919 + 17) % availableLateGhosts",
+    "warning": "这些阵容由脚本定向购买/喂食/出售构造，仅测机制上界与战斗形状；标称金币不含刷新、阶层等待、商店概率和败退风险，不能解释为自然成型率。"
+  },
+  "foodStageChanges": [
+    {
+      "stage": "early",
+      "before": {
+        "stage": "early",
+        "turns": "1-4",
+        "reachedRuns": 300,
+        "encounters": 1200,
+        "wins": 678,
+        "winRate": 0.565,
+        "draws": 212,
+        "avgAtk": 14.310833333333333,
+        "avgHp": 17.8275,
+        "avgUnits": 4.325
+      },
+      "after": {
+        "stage": "early",
+        "turns": "1-4",
+        "reachedRuns": 300,
+        "encounters": 1200,
+        "wins": 661,
+        "winRate": 0.5508333333333333,
+        "draws": 202,
+        "avgAtk": 14.025833333333333,
+        "avgHp": 17.651666666666667,
+        "avgUnits": 4.325
+      },
+      "delta": {
+        "stage": "early",
+        "reachedRuns": 0,
+        "winRate": -0.01416666666666666,
+        "avgAtk": -0.28500000000000014,
+        "avgHp": -0.17583333333333329
+      },
+      "winRatePercentagePoints": -1.416666666666666,
+      "caution": "只统计实际到达阶段的遭遇；后期到达人数变化会改变幸存者构成。"
+    },
+    {
+      "stage": "mid",
+      "before": {
+        "stage": "mid",
+        "turns": "5-10",
+        "reachedRuns": 300,
+        "encounters": 1782,
+        "wins": 1090,
+        "winRate": 0.611672278338945,
+        "draws": 200,
+        "avgAtk": 32.643658810325476,
+        "avgHp": 38.51178451178451,
+        "avgUnits": 5
+      },
+      "after": {
+        "stage": "mid",
+        "turns": "5-10",
+        "reachedRuns": 300,
+        "encounters": 1779,
+        "wins": 1109,
+        "winRate": 0.6233839235525576,
+        "draws": 189,
+        "avgAtk": 32.78752107925801,
+        "avgHp": 39.92804946599213,
+        "avgUnits": 5
+      },
+      "delta": {
+        "stage": "mid",
+        "reachedRuns": 0,
+        "winRate": 0.011711645213612565,
+        "avgAtk": 0.14386226893253706,
+        "avgHp": 1.4162649542076196
+      },
+      "winRatePercentagePoints": 1.1711645213612565,
+      "caution": "只统计实际到达阶段的遭遇；后期到达人数变化会改变幸存者构成。"
+    },
+    {
+      "stage": "late",
+      "before": {
+        "stage": "late",
+        "turns": "11+",
+        "reachedRuns": 280,
+        "encounters": 2462,
+        "wins": 1803,
+        "winRate": 0.7323314378554021,
+        "draws": 231,
+        "avgAtk": 89.89642567018684,
+        "avgHp": 95.65434606011372,
+        "avgUnits": 5
+      },
+      "after": {
+        "stage": "late",
+        "turns": "11+",
+        "reachedRuns": 282,
+        "encounters": 2453,
+        "wins": 1896,
+        "winRate": 0.7729311047696698,
+        "draws": 210,
+        "avgAtk": 97.77170811251528,
+        "avgHp": 104.05951895637995,
+        "avgUnits": 5
+      },
+      "delta": {
+        "stage": "late",
+        "reachedRuns": 2,
+        "winRate": 0.04059966691426764,
+        "avgAtk": 7.875282442328441,
+        "avgHp": 8.405172896266222
+      },
+      "winRatePercentagePoints": 4.059966691426764,
+      "caution": "只统计实际到达阶段的遭遇；后期到达人数变化会改变幸存者构成。"
+    }
+  ],
+  "results": [
+    {
+      "id": "cat-five-roasts",
+      "description": "3星霜冠执政官接收卖出单位记录的5份烤全羊，真实重吃并受50上限。",
+      "artificialCost": "标称5份补给=15金；另需3星执政官6份=18金、记录载体1份=3金，未计刷新与存活机会，总计至少36金。",
+      "actual": [
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 50,
+          "hp": 50,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        }
+      ],
+      "noReplay": [
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 8,
+          "hp": 9,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        }
+      ],
+      "distributed": [
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 16,
+          "hp": 19,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 16,
+          "hp": 19,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 15,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 15,
+          "hp": 18,
+          "ench": null
+        }
+      ],
+      "formationNotes": [
+        "实际与无重吃控制最终都是执政官+3名2星银盾侍卫。",
+        "等总属性控制保留相同单位/星级/顺序，只把实际阵容总攻血均匀分散。"
+      ],
+      "totals": {
+        "actual": {
+          "atk": 62,
+          "hp": 74
+        },
+        "noReplay": {
+          "atk": 20,
+          "hp": 33
+        },
+        "distributed": {
+          "atk": 62,
+          "hp": 74
+        }
+      },
+      "capUnits": [
+        {
+          "def": "v_queen",
+          "atk": 50,
+          "hp": 50
+        }
+      ],
+      "battles": {
+        "actual": {
+          "n": 300,
+          "wins": 104,
+          "draws": 12,
+          "losses": 184,
+          "winRate": 0.3466666666666667,
+          "scoreRate": 0.36666666666666664,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 39,
+              "draws": 0
+            },
+            "12": {
+              "n": 40,
+              "wins": 35,
+              "draws": 0
+            },
+            "13": {
+              "n": 40,
+              "wins": 21,
+              "draws": 5
+            },
+            "14": {
+              "n": 40,
+              "wins": 7,
+              "draws": 6
+            },
+            "15": {
+              "n": 36,
+              "wins": 2,
+              "draws": 1
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "noReplay": {
+          "n": 300,
+          "wins": 0,
+          "draws": 2,
+          "losses": 298,
+          "winRate": 0,
+          "scoreRate": 0.0033333333333333335,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 0,
+              "draws": 1
+            },
+            "12": {
+              "n": 40,
+              "wins": 0,
+              "draws": 1
+            },
+            "13": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "14": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "15": {
+              "n": 36,
+              "wins": 0,
+              "draws": 0
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "distributed": {
+          "n": 300,
+          "wins": 136,
+          "draws": 7,
+          "losses": 157,
+          "winRate": 0.4533333333333333,
+          "scoreRate": 0.465,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 42,
+              "draws": 0
+            },
+            "12": {
+              "n": 40,
+              "wins": 40,
+              "draws": 0
+            },
+            "13": {
+              "n": 40,
+              "wins": 32,
+              "draws": 5
+            },
+            "14": {
+              "n": 40,
+              "wins": 18,
+              "draws": 1
+            },
+            "15": {
+              "n": 36,
+              "wins": 3,
+              "draws": 1
+            },
+            "16": {
+              "n": 29,
+              "wins": 1,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "cow-milk-cat",
+      "description": "3星冰角战兽在整备入口产3/3免费牛奶，3星执政官直接吃成+9/+9。",
+      "artificialCost": "牛奶0金；两张3星单位各6份，标称单位购买36金，未计刷新与阶层开放。",
+      "actual": [
+        {
+          "def": "v_sentinel",
+          "lvl": 3,
+          "atk": 9,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 17,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        }
+      ],
+      "noReplay": [
+        {
+          "def": "v_sentinel",
+          "lvl": 3,
+          "atk": 9,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 8,
+          "hp": 9,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        }
+      ],
+      "distributed": [
+        {
+          "def": "v_sentinel",
+          "lvl": 3,
+          "atk": 8,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "v_queen",
+          "lvl": 3,
+          "atk": 8,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 8,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 7,
+          "hp": 10,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 7,
+          "hp": 10,
+          "ench": null
+        }
+      ],
+      "formationNotes": [
+        "控制阵容同阵但不使用免费奶。",
+        "等总属性控制保留同单位/星级/顺序并均匀分散实际总攻血。"
+      ],
+      "totals": {
+        "actual": {
+          "atk": 38,
+          "hp": 53
+        },
+        "noReplay": {
+          "atk": 29,
+          "hp": 44
+        },
+        "distributed": {
+          "atk": 38,
+          "hp": 53
+        }
+      },
+      "capUnits": [],
+      "battles": {
+        "actual": {
+          "n": 300,
+          "wins": 31,
+          "draws": 13,
+          "losses": 256,
+          "winRate": 0.10333333333333333,
+          "scoreRate": 0.125,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 18,
+              "draws": 5
+            },
+            "12": {
+              "n": 40,
+              "wins": 11,
+              "draws": 6
+            },
+            "13": {
+              "n": 40,
+              "wins": 1,
+              "draws": 2
+            },
+            "14": {
+              "n": 40,
+              "wins": 1,
+              "draws": 0
+            },
+            "15": {
+              "n": 36,
+              "wins": 0,
+              "draws": 0
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "noReplay": {
+          "n": 300,
+          "wins": 11,
+          "draws": 2,
+          "losses": 287,
+          "winRate": 0.03666666666666667,
+          "scoreRate": 0.04,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 8,
+              "draws": 2
+            },
+            "12": {
+              "n": 40,
+              "wins": 3,
+              "draws": 0
+            },
+            "13": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "14": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "15": {
+              "n": 36,
+              "wins": 0,
+              "draws": 0
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "distributed": {
+          "n": 300,
+          "wins": 26,
+          "draws": 2,
+          "losses": 272,
+          "winRate": 0.08666666666666667,
+          "scoreRate": 0.09,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 20,
+              "draws": 1
+            },
+            "12": {
+              "n": 40,
+              "wins": 5,
+              "draws": 1
+            },
+            "13": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "14": {
+              "n": 40,
+              "wins": 1,
+              "draws": 0
+            },
+            "15": {
+              "n": 36,
+              "wins": 0,
+              "draws": 0
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "two-wyverns-five-roasts",
+      "description": "两只3星白霜巨龙夹住直接吃者；连续5份烤全羊，每次只向各自外侧物理邻格分发且不递归。",
+      "artificialCost": "5份烤全羊15金；两只3星白龙12份单位=36金，其余阵容另计，且需要6阶开放与精确站位。",
+      "actual": [
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 14,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 29,
+          "hp": 33,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 14,
+          "hp": 18,
+          "ench": null
+        }
+      ],
+      "noReplay": [
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 11,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 4,
+          "hp": 8,
+          "ench": null
+        }
+      ],
+      "distributed": [
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 16,
+          "hp": 19,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 16,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 15,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "v_wyvern",
+          "lvl": 3,
+          "atk": 15,
+          "hp": 18,
+          "ench": null
+        },
+        {
+          "def": "l_shield",
+          "lvl": 2,
+          "atk": 15,
+          "hp": 18,
+          "ench": null
+        }
+      ],
+      "formationNotes": [
+        "控制阵容单位、星级、顺序相同但不吃5份羊。",
+        "等总属性控制把联动后的全队总攻血均匀分散，隔离属性集中位置的影响。"
+      ],
+      "totals": {
+        "actual": {
+          "atk": 77,
+          "hp": 91
+        },
+        "noReplay": {
+          "atk": 32,
+          "hp": 46
+        },
+        "distributed": {
+          "atk": 77,
+          "hp": 91
+        }
+      },
+      "capUnits": [],
+      "battles": {
+        "actual": {
+          "n": 300,
+          "wins": 142,
+          "draws": 20,
+          "losses": 138,
+          "winRate": 0.47333333333333333,
+          "scoreRate": 0.5066666666666667,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 42,
+              "draws": 0
+            },
+            "12": {
+              "n": 40,
+              "wins": 39,
+              "draws": 1
+            },
+            "13": {
+              "n": 40,
+              "wins": 34,
+              "draws": 3
+            },
+            "14": {
+              "n": 40,
+              "wins": 21,
+              "draws": 8
+            },
+            "15": {
+              "n": 36,
+              "wins": 4,
+              "draws": 6
+            },
+            "16": {
+              "n": 29,
+              "wins": 2,
+              "draws": 2
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "noReplay": {
+          "n": 300,
+          "wins": 7,
+          "draws": 8,
+          "losses": 285,
+          "winRate": 0.023333333333333334,
+          "scoreRate": 0.03666666666666667,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 4,
+              "draws": 7
+            },
+            "12": {
+              "n": 40,
+              "wins": 3,
+              "draws": 1
+            },
+            "13": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "14": {
+              "n": 40,
+              "wins": 0,
+              "draws": 0
+            },
+            "15": {
+              "n": 36,
+              "wins": 0,
+              "draws": 0
+            },
+            "16": {
+              "n": 29,
+              "wins": 0,
+              "draws": 0
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        },
+        "distributed": {
+          "n": 300,
+          "wins": 145,
+          "draws": 13,
+          "losses": 142,
+          "winRate": 0.48333333333333334,
+          "scoreRate": 0.505,
+          "byOpponentTurn": {
+            "11": {
+              "n": 42,
+              "wins": 42,
+              "draws": 0
+            },
+            "12": {
+              "n": 40,
+              "wins": 40,
+              "draws": 0
+            },
+            "13": {
+              "n": 40,
+              "wins": 38,
+              "draws": 2
+            },
+            "14": {
+              "n": 40,
+              "wins": 20,
+              "draws": 6
+            },
+            "15": {
+              "n": 36,
+              "wins": 4,
+              "draws": 3
+            },
+            "16": {
+              "n": 29,
+              "wins": 1,
+              "draws": 2
+            },
+            "17": {
+              "n": 22,
+              "wins": 0,
+              "draws": 0
+            },
+            "18": {
+              "n": 18,
+              "wins": 0,
+              "draws": 0
+            },
+            "19": {
+              "n": 14,
+              "wins": 0,
+              "draws": 0
+            },
+            "20": {
+              "n": 11,
+              "wins": 0,
+              "draws": 0
+            },
+            "21": {
+              "n": 5,
+              "wins": 0,
+              "draws": 0
+            },
+            "22": {
+              "n": 3,
+              "wins": 0,
+              "draws": 0
+            }
+          }
+        }
+      }
+    }
+  ]
+}

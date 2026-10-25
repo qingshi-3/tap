@@ -366,8 +366,7 @@ button:focus-visible,.card:focus-visible,.unit:focus-visible,.slot:focus-visible
 }
 .bench-slot[data-drop=merge] .ped { filter: brightness(1.6) drop-shadow(0 0 14px #ffe19b); }
 .bench-slot[data-drop=replace] .ped { filter: brightness(1.4) drop-shadow(0 0 12px #f99878); }
-.bench-slot.selected .duelyst-normal { visibility: hidden; }
-.bench-slot.selected .duelyst-selected { visibility: inherit; }
+.card:hover .card-art .uart.duelyst { animation: none; }
 .board .u-pips span { width: 14px; height: 14px; transform: none; background: none; box-shadow: none; color: #ffdf8a; font-size: 14px; }
 /* The fixed, scaled stage is a clipped canvas, never a browser focus-scroll container. */
 #stage, #viewport { overflow: clip; }

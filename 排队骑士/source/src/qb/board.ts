@@ -105,6 +105,7 @@ export class UnitView {
   private kwKey = '';
   private mechKey = '';
   private eqKey = '';
+  private foodKey = '';
   private shieldEl!: HTMLElement;
   private mechEl!: HTMLElement;
   /** 蓄力格、节拍牌：只在数值变化时重建 */
@@ -360,6 +361,17 @@ export class UnitView {
     }));
     this.el.appendChild(el);
     if (fresh && this.el.isConnected) popEl(el, true);
+  }
+
+  /** 补给传承：卡上只显示已记录数量，逐件内容放在单位详情。 */
+  setFoodHistory(count: number | null, max = 5) {
+    const key = count === null ? '' : `${count}/${max}`;
+    if (key === this.foodKey) return;
+    this.foodKey = key;
+    this.el.querySelector('.u-food-memory')?.remove();
+    if (count === null) return;
+    this.el.appendChild(h('div', { class: 'u-food-memory', 'aria-label': `补给传承 ${count}/${max}` },
+      itemIcon('f_bread', 'spell'), h('b', null, `${count}/${max}`)));
   }
 
   getStats(): StatView | null {

@@ -1,0 +1,374 @@
+{
+  "generatedAt": "2026-10-25T12:27:56.778Z",
+  "before": {
+    "label": "pre-change",
+    "generatedAt": "2026-10-25T12:09:57.184Z",
+    "sourceHead": "6969c18d629ee60f97b30861fe619d583e3b061a"
+  },
+  "after": {
+    "label": "post-change",
+    "generatedAt": "2026-10-25T12:15:24.518Z",
+    "sourceHead": "6969c18d629ee60f97b30861fe619d583e3b061a"
+  },
+  "method": "同组同seed逐局配对；通关差值取{-1,0,1}样本均值，95% CI为配对差值的正态近似区间。阶段攻血/胜率只给实际到达者的聚合差，受幸存者构成变化影响，不伪装成配对单位差。",
+  "caveat": "两次文件记录的git HEAD相同，说明改动尚未提交；HEAD只能标识提交基线，不能证明工作树内容相同。",
+  "groups": [
+    {
+      "group": "global-strong",
+      "n": 300,
+      "clear": {
+        "before": 0.72,
+        "after": 0.6933333333333334,
+        "pairedDifference": {
+          "mean": -0.02666666666666667,
+          "ci95": [
+            -0.09071449365853872,
+            0.03738116032520537
+          ]
+        },
+        "discordant": {
+          "improved": 44,
+          "regressed": 52,
+          "total": 96
+        },
+        "unchanged": 204
+      },
+      "terminalTurnDifference": {
+        "mean": -0.013333333333333334,
+        "ci95": [
+          -0.5010332956085516,
+          0.47436662894188497
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": -0.0008333333333333526,
+          "avgAtk": -0.0016666666666651508,
+          "avgHp": 0.06416666666666515
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.013873888429726366,
+          "avgAtk": 0.7258350370678777,
+          "avgHp": 1.1253030990361736
+        },
+        {
+          "stage": "late",
+          "reachedRuns": 8,
+          "winRate": -0.012964947117638403,
+          "avgAtk": 0.4845802048577923,
+          "avgHp": 0.1539654049349508
+        }
+      ]
+    },
+    {
+      "group": "global-mixed",
+      "n": 300,
+      "clear": {
+        "before": 0.2733333333333333,
+        "after": 0.32666666666666666,
+        "pairedDifference": {
+          "mean": 0.05333333333333334,
+          "ci95": [
+            -0.004886128142052089,
+            0.11155279480871877
+          ]
+        },
+        "discordant": {
+          "improved": 48,
+          "regressed": 32,
+          "total": 80
+        },
+        "unchanged": 220
+      },
+      "terminalTurnDifference": {
+        "mean": -0.06333333333333334,
+        "ci95": [
+          -0.6754034966338615,
+          0.5487368299671948
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": 0.0008333333333333526,
+          "avgAtk": 0.01750000000000007,
+          "avgHp": 0.129999999999999
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.0026162942470531747,
+          "avgAtk": 0.43540415268226695,
+          "avgHp": 0.5964003555427198
+        },
+        {
+          "stage": "late",
+          "reachedRuns": -3,
+          "winRate": 0.007285331910822479,
+          "avgAtk": 2.8068669875637653,
+          "avgHp": 2.823600761446272
+        }
+      ]
+    },
+    {
+      "group": "food",
+      "n": 300,
+      "clear": {
+        "before": 0.6133333333333333,
+        "after": 0.66,
+        "pairedDifference": {
+          "mean": 0.04666666666666667,
+          "ci95": [
+            -0.020501310412432715,
+            0.11383464374576605
+          ]
+        },
+        "discordant": {
+          "improved": 60,
+          "regressed": 46,
+          "total": 106
+        },
+        "unchanged": 194
+      },
+      "terminalTurnDifference": {
+        "mean": -0.04,
+        "ci95": [
+          -0.5942657287785269,
+          0.5142657287785268
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": -0.01416666666666666,
+          "avgAtk": -0.28500000000000014,
+          "avgHp": -0.17583333333333329
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.011711645213612565,
+          "avgAtk": 0.14386226893253706,
+          "avgHp": 1.4162649542076196
+        },
+        {
+          "stage": "late",
+          "reachedRuns": 2,
+          "winRate": 0.04059966691426764,
+          "avgAtk": 7.875282442328441,
+          "avgHp": 8.405172896266222
+        }
+      ]
+    },
+    {
+      "group": "death",
+      "n": 300,
+      "clear": {
+        "before": 0.7233333333333334,
+        "after": 0.7566666666666667,
+        "pairedDifference": {
+          "mean": 0.03333333333333333,
+          "ci95": [
+            -0.022066756900828793,
+            0.08873342356749546
+          ]
+        },
+        "discordant": {
+          "improved": 41,
+          "regressed": 31,
+          "total": 72
+        },
+        "unchanged": 228
+      },
+      "terminalTurnDifference": {
+        "mean": 0.29333333333333333,
+        "ci95": [
+          -0.1398755025419668,
+          0.7265421692086335
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": 0.0016666666666665941,
+          "avgAtk": -0.010833333333332362,
+          "avgHp": 0.05416666666666714
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.0293906454506776,
+          "avgAtk": 0.22579357206935669,
+          "avgHp": 0.2660426890055909
+        },
+        {
+          "stage": "late",
+          "reachedRuns": 3,
+          "winRate": 0.002120968906169529,
+          "avgAtk": -0.42348828760901824,
+          "avgHp": 0.15175929589767634
+        }
+      ]
+    },
+    {
+      "group": "hurt",
+      "n": 300,
+      "clear": {
+        "before": 0.7233333333333334,
+        "after": 0.7,
+        "pairedDifference": {
+          "mean": -0.023333333333333334,
+          "ci95": [
+            -0.08143866656395482,
+            0.034771999897288144
+          ]
+        },
+        "discordant": {
+          "improved": 36,
+          "regressed": 43,
+          "total": 79
+        },
+        "unchanged": 221
+      },
+      "terminalTurnDifference": {
+        "mean": -0.06,
+        "ci95": [
+          -0.5772313518206811,
+          0.45723135182068103
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": -0.007499999999999951,
+          "avgAtk": -0.1466666666666665,
+          "avgHp": 0.04416666666666913
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": -0.007465633568213614,
+          "avgAtk": 0.32526755440766664,
+          "avgHp": 0.1286095280873596
+        },
+        {
+          "stage": "late",
+          "reachedRuns": -3,
+          "winRate": -0.007856069775096453,
+          "avgAtk": -1.2733226386261975,
+          "avgHp": -1.0233520452015057
+        }
+      ]
+    },
+    {
+      "group": "start",
+      "n": 300,
+      "clear": {
+        "before": 0.6333333333333333,
+        "after": 0.67,
+        "pairedDifference": {
+          "mean": 0.03666666666666667,
+          "ci95": [
+            -0.02423125302011813,
+            0.09756458635345147
+          ]
+        },
+        "discordant": {
+          "improved": 49,
+          "regressed": 38,
+          "total": 87
+        },
+        "unchanged": 213
+      },
+      "terminalTurnDifference": {
+        "mean": 0.16666666666666666,
+        "ci95": [
+          -0.3698588177135578,
+          0.703192151046891
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": -0.010000000000000009,
+          "avgAtk": -0.12333333333333307,
+          "avgHp": 0.049166666666668135
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.0085504592898612,
+          "avgAtk": 0.292296136331629,
+          "avgHp": 0.676069981065055
+        },
+        {
+          "stage": "late",
+          "reachedRuns": -1,
+          "winRate": 0.015913041559149077,
+          "avgAtk": 2.653055707043336,
+          "avgHp": 2.353726686610784
+        }
+      ]
+    },
+    {
+      "group": "grow",
+      "n": 300,
+      "clear": {
+        "before": 0.6633333333333333,
+        "after": 0.6333333333333333,
+        "pairedDifference": {
+          "mean": -0.03,
+          "ci95": [
+            -0.09632855155926387,
+            0.03632855155926387
+          ]
+        },
+        "discordant": {
+          "improved": 47,
+          "regressed": 56,
+          "total": 103
+        },
+        "unchanged": 197
+      },
+      "terminalTurnDifference": {
+        "mean": 0.18333333333333332,
+        "ci95": [
+          -0.45130944917837323,
+          0.8179761158450399
+        ]
+      },
+      "stageAggregateDeltas": [
+        {
+          "stage": "early",
+          "reachedRuns": 0,
+          "winRate": -0.015833333333333366,
+          "avgAtk": -0.2908333333333335,
+          "avgHp": -0.16916666666666558
+        },
+        {
+          "stage": "mid",
+          "reachedRuns": 0,
+          "winRate": 0.017799427463292994,
+          "avgAtk": 0.3289854403299799,
+          "avgHp": 0.992933070664165
+        },
+        {
+          "stage": "late",
+          "reachedRuns": 0,
+          "winRate": -0.00028184447713153205,
+          "avgAtk": 5.476794146585462,
+          "avgHp": 5.361313595993309
+        }
+      ]
+    }
+  ]
+}

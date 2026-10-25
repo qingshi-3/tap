@@ -28,6 +28,8 @@ export interface CardDef {
   tag2?: Line;
   /** 永久成长卡（卡面标「永」） */
   perm?: boolean;
+  /** 仅这些单位可记录直接食用的白名单补给，并在出售时传承重吃。 */
+  inherit?: boolean;
   /** 召唤物：固定 token id，或随机单位的阶层 */
   sum?: string | Tier;
   token?: boolean;
@@ -79,16 +81,16 @@ export const CARDS: CardDef[] = [
   C('m_mankator', '炎鬃战兽', 5, 5, 3, 'death', '阵亡时：原位召唤 {v} 只小兽（攻击 = 我攻击的一半，1 血）', { ab: 'rooster', v: [1, 2, 3], sum: 't_wolf' }),
   C('m_titan', '熔岩巨像', 6, 6, 5, 'death', '阵亡时：原位召唤一个随机 6 阶单位（{v} 星）', { ab: 'eagle', v: [1, 2, 3], sum: 6 }),
   C('m_heart', '火山之心', 6, 6, 9, 'death', '召唤物出现时：它本场 +{v}/+{v}，并获得溅射', { ab: 'heart', v: [3, 6, 9] }),
-  C('v_guard', '冰晶甲虫', 1, 1, 3, 'food', '购买补给时：自己本场 +{v}/+{v}', { tag2: 'grow', ab: 'ladybug', v: [1, 2, 3] }),
-  C('v_snowman', '雪人', 2, 4, 3, 'food', '自己吃补给时：所有友军本场 +{v} 攻', { ab: 'tabby', v: [1, 2, 3] }),
-  C('v_scout', '冰原霜狼', 2, 2, 2, 'food', '其他友军吃补给时：它额外永久 +{v} 血', { tag2: 'grow', ab: 'rabbit', v: [1, 1, 2], perm: true }),
-  C('v_mage', '冰霜法师', 3, 2, 2, 'food', '自己吃补给时：额外永久 +{v}/+{v}', { tag2: 'grow', ab: 'worm', v: [1, 1, 2], perm: true }),
-  C('v_keeper', '寒冬守望者', 4, 2, 6, 'food', '自己吃补给时：随机 2 个友军永久 +{v}/+{v}', { tag2: 'grow', ab: 'seal', v: [1, 1, 2], perm: true }),
-  C('v_sentinel', '冰角战兽', 4, 4, 6, 'food', '被购买时：补给货架换成 2 瓶免费牛奶（永久 +{v}/+{u}）', { tag2: 'grow', ab: 'cow', v: [1, 2, 3], u: [1, 2, 3] }),
-  C('v_bear', '冰河巨熊', 5, 5, 8, 'food', '购买补给后：补给货架补 1 件新补给（每回合 {v} 次）', { ab: 'sauropod', v: [1, 1, 2] }),
-  C('v_rhyno', '冰原巨犀', 5, 4, 5, 'food', '回合结束时：本回合吃过至少 3 次补给，则全队永久 +{v}/+{v}', { tag2: 'grow', ab: 'rhyno', v: [1, 1, 2], perm: true }),
-  C('v_queen', '霜冠执政官', 6, 3, 4, 'food', '自己吃的补给，攻血效果 ×{v}', { ab: 'cat', v: [2, 2, 3] }),
-  C('v_wyvern', '白霜巨龙', 6, 5, 6, 'food', '友军吃补给时：另外 {v} 个友军获得其攻血效果的一半（至少 +1）', { ab: 'wyvern', v: [1, 1, 2], perm: true }),
+  C('v_guard', '冰晶甲虫', 1, 1, 3, 'food', '自己吃补给时：额外永久 +{v}/+{v}', { tag2: 'grow', ab: 'ladybug', v: [1, 2, 3], perm: true, inherit: true }),
+  C('v_snowman', '雪人', 2, 4, 3, 'food', '自己吃补给时：所有友军本场 +{v} 攻', { ab: 'tabby', v: [1, 2, 3], inherit: true }),
+  C('v_scout', '冰原霜狼', 2, 3, 4, 'food', '其他友军吃补给时：它额外永久 +{v} 血', { tag2: 'grow', ab: 'rabbit', v: [1, 1, 2], perm: true, inherit: true }),
+  C('v_mage', '冰霜法师', 3, 3, 4, 'food', '自己吃补给时：额外永久 +{v}/+{v}', { tag2: 'grow', ab: 'worm', v: [1, 1, 2], perm: true, inherit: true }),
+  C('v_keeper', '寒冬守望者', 4, 2, 6, 'food', '自己吃补给时：相邻友军各永久 +{v}/+{v}', { tag2: 'grow', ab: 'seal', v: [1, 1, 2], perm: true, inherit: true }),
+  C('v_sentinel', '冰角战兽', 4, 4, 6, 'food', '备战回合开始时：追加 1 瓶免费牛奶（永久 +{v}/+{u}，全场最多 2 瓶，本回合有效）', { tag2: 'grow', ab: 'cow', v: [1, 2, 3], u: [1, 2, 3], inherit: true }),
+  C('v_bear', '冰河巨熊', 5, 5, 8, 'food', '购买补给后：空的普通补给位补 1 件新补给（每回合 {v} 次）', { ab: 'sauropod', v: [1, 1, 2], inherit: true }),
+  C('v_rhyno', '冰原巨犀', 5, 4, 5, 'food', '回合结束时：本回合直接吃过至少 3 次补给，则全队永久 +{v}/+{v}（传承重吃不计）', { tag2: 'grow', ab: 'rhyno', v: [1, 1, 2], perm: true, inherit: true }),
+  C('v_queen', '霜冠执政官', 6, 3, 4, 'food', '自己吃的补给，攻血效果 ×{v}', { ab: 'cat', v: [2, 2, 3], inherit: true }),
+  C('v_wyvern', '白霜巨龙', 6, 5, 6, 'food', '友军吃补给时：相邻另外至多 {v} 个友军获得其攻血效果的一半（至少 +1，身前优先）', { ab: 'wyvern', v: [1, 1, 2], perm: true, inherit: true }),
   C('d_artificer', '构装学徒', 1, 2, 3, 'grow', '出售时：随机一个友军永久 +{v}/+{v}', { ab: 'beaver', v: [2, 3, 4], perm: true }),
   C('d_dune', '棘网蛛', 2, 3, 6, 'hurt', '受伤时：对伤害来源造成 {v} 伤害', { ab: 'thornback', v: [3, 6, 9] }),
   C('d_howler', '沙嚎者', 3, 3, 6, 'grow', '回合结束时：身前 {v} 个友军各永久 +1/+1', { ab: 'giraffe', v: [1, 2, 3], perm: true }),
@@ -150,6 +152,8 @@ export interface FoodDef {
   id: string; name: string; tier: Tier; text: string; icon: string; ench?: Ench;
   /** 攻血效果（n 个随机友军，99 为全队；tmp 为只在下一场有效） */
   atk?: number; hp?: number; n?: number; tmp?: boolean;
+  /** 指定目标及紧邻身后的实际队列格，不跳过空位。 */
+  behind?: boolean;
   /** 本场特效 */
   fx?: FoodFx;
   /** 卡面短句（目标/攻血/时长已由 icon 行表达，这里只写额外效果） */
@@ -169,7 +173,7 @@ export const FOODS: FoodDef[] = [
   { id: 'f_drum', name: '战鼓', tier: 2, text: '一个友军本场 +3/+3', icon: 'drum', atk: 3, hp: 3, tmp: true },
   { id: 'f_berry', name: '刺莓', tier: 2, text: '一个友军本场 +0/+4，「开战时」自己受 1 伤害', icon: 'berry', hp: 4, tmp: true, fx: 'berry', short: '开战时：自己受 1 伤害' },
   { id: 'f_bone', name: '骨汤', tier: 2, text: '一个友军本场「阵亡时」：召唤 3/3 骷髅', icon: 'bone', tmp: true, fx: 'bone', short: '阵亡时：召唤 3/3 骷髅' },
-  { id: 'f_stew', name: '炖锅', tier: 3, text: '随机 2 个友军永久 +2/+2', icon: 'stew', atk: 2, hp: 2, n: 2 },
+  { id: 'f_stew', name: '炖锅', tier: 3, text: '指定友军及其紧邻身后友军各永久 +2/+2', icon: 'stew', atk: 2, hp: 2, behind: true },
   { id: 'f_whet', name: '磨刀石', tier: 3, text: '一个友军永久 +3/+1', icon: 'whet', atk: 3, hp: 1 },
   { id: 'f_plate', name: '铁甲片', tier: 3, text: '一个友军本场「开战时」+2「格挡」', icon: 'plate', tmp: true, fx: 'plate', short: '开战时：+2「格挡」' },
   { id: 'f_elixir', name: '秘药', tier: 4, text: '一个友军多叠 1 份，凑够就升星', icon: 'elixir', short: '多叠 1 份，凑够就升星' },

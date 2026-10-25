@@ -295,6 +295,7 @@ export class Game {
     v.setStats({ atk: s.atk + (o.tmpAtk ?? 0), hp: s.hp + (o.tmpHp ?? 0), maxHp: s.hp + (o.tmpHp ?? 0), block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
     v.setExp(o.copies);
     v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
+    v.setFoodHistory(card(o.def).inherit ? (o.foodHistory?.length ?? 0) : null);
     if (o.merc) v.setTag(`雇佣 剩${o.merc}场`, 'merc');
     else if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
   }
@@ -317,7 +318,7 @@ export class Game {
     const foods = r.shop.map((it, i) => ({ it, i })).filter((x) => x.it.kind === 'food');
     const cards = h('div', { class: 'cards', 'data-count': units.length });
     for (const { it, i } of units) cards.appendChild(this.shopCard(it, i));
-    const supplies = h('div', { class: 'supplies' }, h('div', { class: 'sp-head' }, '补给'),
+    const supplies = h('div', { class: 'supplies', 'aria-label': '补给' },
       h('div', { class: 'sp-list' }, ...foods.map(({ it, i }) => this.foodTile(it, i))));
     const size = r.queue.filter(Boolean).length;
     const fightBtn = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, '开 战'), icon('play'));
@@ -358,16 +359,16 @@ export class Game {
   /** 补给单独一栏：小方块（图标 + 名字 + 价格），点开详情，拖到单位身上使用 */
   private foodTile(it: ShopItem, i: number) {
     const f = FOOD[it.def];
-    const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', 'aria-label': `补给 ${f.name}`, 'data-idx': i },
+    const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', tabindex: 0, 'aria-label': `补给 ${f.name}`, 'data-idx': i },
       h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack'),
-        f.n ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : `×${f.n}`) : null,
+        f.n || f.behind ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : '×2') : null,
         f.tmp ? h('span', { class: 'ft-tmp' }, icon('hourglass')) : null),
       h('b', { class: 'ft-name' }, f.name),
       (() => { const [a, hp] = foodStats(it); return a || hp ? h('span', { class: 'ft-stat' }, h('em', null, `+${a}`), '/', h('i', null, `+${hp}`)) : null; })(),
-      h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))));
-    const ch = this.chainsFor(it, c);
-    if (ch) c.append(ch);
+      it.def === 'f_milk' ? h('span', { class: 'ft-turn' }, '免费') : h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))));
+    if (it.locked) c.append(h('span', { class: 'ft-locked', 'aria-label': '已锁定' }, icon('lock')));
     c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
+    c.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.tap('card', i); } });
     return c;
   }
 
@@ -561,7 +562,7 @@ export class Game {
       const o = r.queue[idx];
       if (!o) return;
       const s = this.ownedStats(o);
-      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws }, true);
+      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory }, true);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
       const acts = h('div', { class: 'shelf-acts' }, sellBtn);
@@ -607,7 +608,7 @@ export class Game {
       go.addEventListener('click', () => { hideTip(); this.doFood(idx, null); });
       acts.appendChild(go);
     } else acts.appendChild(h('span', { class: 'shelf-note' }, '拖到单位身上使用'));
-    {
+    if (it.def !== 'f_milk') {
       const lock = h('button', { class: 'btn ghost shelf-lock' }, it.locked ? '解锁' : '锁定');
       lock.addEventListener('click', () => {
         toggleLock(r, it.sid); hideTip(); save(r);
@@ -616,7 +617,7 @@ export class Game {
         this.renderTray();
       });
       acts.appendChild(lock);
-    }
+    } else acts.appendChild(h('span', { class: 'shelf-note' }, '免费·本回合'));
     tip.appendChild(acts);
     showTip(tip, 690, 440, 'above');
   }

@@ -12,6 +12,14 @@ export const PRICE = 3;
 export const REROLL = 1;
 export const MAX_COPIES = 6;
 export const STAT_CAP = 50;
+export const FOOD_HISTORY_MAX = 5;
+export const MILK_MAX = 2;
+export const FOOD_SHOP_MAX = 4;
+export const SUPPLY_VERSION = 1;
+export const PRE_SUPPLY_BACKUP_KEY = 'pdqs_run_v5_pre_supply_backup';
+export const INHERIT_FOODS = ['f_bread', 'f_whet', 'f_roast', 'f_milk'] as const;
+/** 一件原始补给的基础规格；不能写入倍率、技能或其他永久成长。 */
+export interface FoodMemory { id: string; atk: number; hp: number; sourceId: number }
 export const BOSS_TURNS: Record<number, BossKey> = { 4: 'wall', 8: 'tide', 12: 'forge', 16: 'horde' };
 
 export interface Owned {
@@ -34,6 +42,8 @@ export interface Owned {
   copy?: string;
   /** 雇佣兵：还剩几场离队 */
   merc?: number;
+  /** 只保存最早五件直接食用的白名单补给，传承重吃不写入。 */
+  foodHistory?: FoodMemory[];
 }
 /** free：升星奖励卡（SAP 式：照常 3 金，刷新/新回合会被刷走，可锁定；不占普通单位格）。val：牛奶的攻血 */
 export interface ShopItem { sid: number; kind: 'unit' | 'food'; def: string; locked: boolean; free: boolean; val?: [number, number] }
@@ -113,6 +123,10 @@ export interface RunState {
   seenEv: EventId[];
   /** 混沌契约：还剩几场强化敌人 */
   chaos: number;
+  /** 已处理产奶的备战回合；重绘、刷新、存档恢复不能再次发放。 */
+  milkTurn?: number;
+  /** 补给容量与传承存档格式；缺失表示需从旧 v5 做一次保守迁移。 */
+  supplyVersion?: number;
 }
 export type Diff = 0 | 1 | 2;
 /** 难度：k 敌人系数，temp 温度保留比例，lives 起始心数。校准（mix0.3 bot）：通关≈72% / 52% / 28% */
@@ -197,11 +211,12 @@ export function newRun(seed = (Math.random() * 2 ** 31) | 0, opts: { warm?: bool
     v: SAVE_VERSION, seed, turn: 1, lives: DIFFS[diff].lives, wins: 0, gold: GOLD_PER_ROUND, queue: Array(QUEUE_MAX).fill(null), shop: [], nextId: 1,
     phase: 'prep', history: [], canned: 0, rerolls: 0, tc: newCount(), finalLosses: 0, enemy: { boss: null, units: [] }, pendingFx: [],
     eco: [], lastForm: null, streak: 0, warm: !!opts.warm, adSave: 0, adRr: 0, lastLoss: 0, bag: [], oranges: [], noPurple: 0, chest: null, branch: null,
-    diff, relics: [], relicDue: 0, relicPick: null, event: null, seenEv: [], chaos: 0,
+    diff, relics: [], relicDue: 0, relicPick: null, event: null, seenEv: [], chaos: 0, supplyVersion: SUPPLY_VERSION,
   };
   if (diff > 0) r.warm = false;
   r.eco = pickN(r, FORMS, 5);
   rollShop(r);
+  grantPrepMilk(r);
   nextEnemy(r);
   return r;
 }
@@ -245,10 +260,27 @@ function rollShop(r: RunState) {
     out.push({ sid: r.nextId++, kind: 'unit', def: c.id, locked: false, free: false });
   }
   out.push(...keptB);
-  const keptF = kept.filter((s) => s.kind === 'food');
+  const milk = r.shop.filter((s) => s.kind === 'food' && s.def === 'f_milk');
+  const keptF = kept.filter((s) => s.kind === 'food' && s.def !== 'f_milk');
   out.push(...keptF);
-  for (let i = keptF.length; i < foodSlots(r.turn); i++) out.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
+  for (let i = keptF.length; i < foodSlots(r.turn) && out.filter((s) => s.kind === 'food').length + milk.length < FOOD_SHOP_MAX; i++) out.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
+  out.push(...milk);
   r.shop = out;
+}
+
+/** 仅新备战入口调用：来源按队首到队尾各供一瓶，旧规格不回溯。 */
+export function grantPrepMilk(r: RunState) {
+  if (r.phase !== 'prep' || r.milkTurn === r.turn) return;
+  r.milkTurn = r.turn;
+  let count = r.shop.filter((s) => s.kind === 'food' && s.def === 'f_milk').length;
+  let total = r.shop.filter((s) => s.kind === 'food').length;
+  for (const o of units(r)) {
+    if (count >= MILK_MAX || total >= FOOD_SHOP_MAX) break;
+    if (abOf(o) !== 'cow') continue;
+    r.shop.push({ sid: r.nextId++, kind: 'food', def: 'f_milk', free: true, locked: false, val: [vOf(o), uOf(o)] });
+    count++;
+    total++;
+  }
 }
 
 export function reroll(r: RunState): ShopFx[] | null {
@@ -269,7 +301,7 @@ export function adReroll(r: RunState): ShopFx[] | null {
 
 export function toggleLock(r: RunState, sid: number) {
   const s = r.shop.find((x) => x.sid === sid);
-  if (s) s.locked = !s.locked;
+  if (s && s.def !== 'f_milk') s.locked = !s.locked;
 }
 
 export type BuyResult = { ok: false; why: 'gold' | 'full' | 'max' } | { ok: true; merged: boolean; levelUp: boolean; fx: ShopFx[] };
@@ -302,11 +334,6 @@ export function buy(r: RunState, sid: number, slot: number): BuyResult {
 /** 购买后的商店钩子；新放下的单位算一次「召唤」 */
 function onBought(r: RunState, o: Owned, isNew: boolean, fx: ShopFx[]) {
   const others = units(r).filter((t) => t !== o);
-  if (abOf(o) === 'cow') {
-    const v: [number, number] = [vOf(o), uOf(o)];
-    r.shop = r.shop.filter((s) => s.kind !== 'food');
-    for (let i = 0; i < 2; i++) r.shop.push({ sid: r.nextId++, kind: 'food', def: 'f_milk', locked: false, free: true, val: v });
-  }
   for (const t of others) {
     switch (abOf(t)) {
       case 'buffalo': growFx(fx, t.oid, t, vOf(t), vOf(t), '买入友军'); break;
@@ -355,6 +382,51 @@ export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' ? 0 : FOOD[s.def]?
 export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def]?.atk ?? 0, FOOD[s.def]?.hp ?? 0];
 
 export type FoodResult = { ok: false; why: 'gold' | 'target' } | { ok: true; fx: ShopFx[]; levelUp: boolean };
+const inheritableFood = (id: string) => (INHERIT_FOODS as readonly string[]).includes(id);
+/** 不把分发/分享的二次受益当作原始物件再记录，避免一件物品复制多份传承。 */
+function rememberFood(o: Owned, memory: FoodMemory) {
+  if (!card(o.def).inherit || !inheritableFood(memory.id)) return;
+  const history = o.foodHistory ??= [];
+  if (history.length < FOOD_HISTORY_MAX && !history.some((x) => x.sourceId === memory.sourceId)) history.push({ ...memory });
+}
+/** 统一食用结算：直接食用与传承复用技能钩子，购买与物件计数留在 useFood。 */
+function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean {
+  const f = FOOD[item.id];
+  const mul = abOf(e) === 'cat' ? vOf(e) : 1;
+  const a = item.atk * mul;
+  const h = item.hp * mul;
+  if (f.tmp) tmpFx(fx, null, e, a, h, f.name);
+  else growFx(fx, null, e, a, h, f.name);
+  if (f.fx && !e.tfx?.includes(f.fx)) e.tfx = [...(e.tfx ?? []), f.fx];
+  if (f.id === 'f_lamp') e.lamp = true;
+  const levelUp = f.id === 'f_elixir' ? addCopies(r, e, 1, fx) : false;
+  const v = vOf(e);
+  const slot = r.queue.indexOf(e);
+  switch (abOf(e)) {
+    case 'ladybug':
+    case 'worm': growFx(fx, e.oid, e, v, v, '吃补给'); break;
+    case 'seal':
+      for (const j of [slot - 1, slot + 1]) growFx(fx, e.oid, r.queue[j] ?? undefined, v, v, '吃补给');
+      break;
+    case 'tabby': for (const t of units(r)) tmpFx(fx, e.oid, t, v, 0, '吃补给'); break;
+  }
+  for (const t of units(r)) {
+    if (t === e) continue;
+    if (abOf(t) === 'rabbit') growFx(fx, t.oid, e, 0, vOf(t), '友军吃补给');
+    if (abOf(t) === 'wyvern' && (a || h)) {
+      const half = (x: number) => (x ? Math.max(1, Math.floor(x / 2)) : 0);
+      const at = r.queue.indexOf(t);
+      const targets = [r.queue[at - 1], r.queue[at + 1]].filter((x): x is Owned => !!x && x !== e).slice(0, vOf(t));
+      for (const x of targets) {
+        // 这只是属性分发，不广播食用事件，也不记录补给。
+        if (f.tmp) tmpFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
+        else growFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
+      }
+    }
+  }
+  return levelUp;
+}
+
 export function useFood(r: RunState, sid: number, slot: number | null): FoodResult {
   const item = r.shop.find((x) => x.sid === sid);
   if (!item || item.kind !== 'food') return { ok: false, why: 'target' };
@@ -371,42 +443,21 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
   let levelUp = false;
   const [fa, fh] = foodStats(item);
   const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
+  if (f.behind && slot !== null && r.queue[slot + 1]) eaters.push(r.queue[slot + 1]!);
   // 分享餐盘：每回合第一份单体补给（不含秘药）也喂给相邻友军
-  if (r.relics?.includes('r_share') && !r.tc.foods && !f.n && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir')
+  if (r.relics?.includes('r_share') && !r.tc.foods && !f.n && !f.behind && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir')
     for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
   if (f.id === 'f_can') r.canned += 1;
   for (const e of eaters) {
-    const mul = abOf(e) === 'cat' ? vOf(e) : 1;
-    const a = fa * mul;
-    const h = fh * mul;
-    if (f.tmp) tmpFx(fx, null, e, a, h, f.name);
-    else growFx(fx, null, e, a, h, f.name);
-    if (f.fx && !e.tfx?.includes(f.fx)) e.tfx = [...(e.tfx ?? []), f.fx];
-    if (f.id === 'f_lamp') e.lamp = true;
-    if (f.id === 'f_elixir') levelUp = addCopies(r, e, 1, fx) || levelUp;
-    // 吃补给的钩子
-    const v = vOf(e);
-    switch (abOf(e)) {
-      case 'worm': growFx(fx, e.oid, e, v, v, '吃补给'); break;
-      case 'seal': for (const t of pickN(r, units(r).filter((t) => t !== e), 2)) growFx(fx, e.oid, t, v, v, '吃补给'); break;
-      case 'tabby': for (const t of units(r)) tmpFx(fx, e.oid, t, v, 0, '吃补给'); break;
-    }
-    for (const t of units(r)) {
-      if (t === e) continue;
-      if (abOf(t) === 'rabbit') growFx(fx, t.oid, e, 0, vOf(t), '友军吃补给');
-      if (abOf(t) === 'wyvern' && (a || h)) {
-        const half = (x: number) => (x ? Math.max(1, Math.floor(x / 2)) : 0);
-        for (const x of pickN(r, units(r).filter((x) => x !== e && x !== t), vOf(t))) {
-          if (f.tmp) tmpFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
-          else growFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
-        }
-      }
-    }
+    const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
+    levelUp = eatFood(r, e, memory, fx) || levelUp;
+    if (e === tgt && !f.tmp && !f.n && !f.behind) rememberFood(e, memory);
   }
   r.tc.foods++;
   for (const t of units(r)) {
-    if (abOf(t) === 'ladybug') tmpFx(fx, t.oid, t, vOf(t), vOf(t), '购买补给');
-    if (abOf(t) === 'sauropod' && (r.tc.bear[t.oid] ?? 0) < vOf(t)) {
+    if (abOf(t) === 'sauropod' && (r.tc.bear[t.oid] ?? 0) < vOf(t)
+      && r.shop.filter((s) => s.kind === 'food' && s.def !== 'f_milk').length < foodSlots(r.turn)
+      && r.shop.filter((s) => s.kind === 'food').length < FOOD_SHOP_MAX) {
       r.tc.bear[t.oid] = (r.tc.bear[t.oid] ?? 0) + 1;
       r.shop.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
     }
@@ -423,6 +474,10 @@ export function moveOwned(r: RunState, from: number, to: number): { merged: bool
   if (b && b.def === a.def && b.copies < MAX_COPIES && a.copies < MAX_COPIES && !a.merc && !b.merc) {
     b.atkBonus += a.atkBonus;
     b.hpBonus += a.hpBonus;
+    if (card(b.def).inherit) {
+      const history = [...(b.foodHistory ?? []), ...(a.foodHistory ?? [])];
+      b.foodHistory = history.filter((x, i) => history.findIndex((y) => y.sourceId === x.sourceId) === i).slice(0, FOOD_HISTORY_MAX).map((x) => ({ ...x }));
+    }
     // 合星保留品质高的装备，另一件退背包
     if (a.ench && b.ench) {
       const [hi, lo] = (equipOf(a.ench)?.q ?? 0) > (equipOf(b.ench)?.q ?? 0) ? [a.ench, b.ench] : [b.ench, a.ench];
@@ -449,6 +504,9 @@ export interface SellOut { gold: number; fx: ShopFx[] }
 export function sell(r: RunState, slot: number): SellOut | null {
   const o = r.queue[slot];
   if (!o) return null;
+  // 必须在删除或任何出售效果发生前确定对象，空位不改变先后关系。
+  const receiver = r.queue.slice(slot + 1).find((t): t is Owned => !!t)
+    ?? r.queue.slice(0, slot).reverse().find((t): t is Owned => !!t);
   const gold = sellPrice(o);
   r.gold += gold;
   r.queue[slot] = null;
@@ -456,6 +514,9 @@ export function sell(r: RunState, slot: number): SellOut | null {
   const fx: ShopFx[] = [];
   const rest = units(r);
   if (abOf(o) === 'beaver' && rest.length) growFx(fx, o.oid, pick(r, rest), vOf(o), vOf(o), '出售');
+  if (card(o.def).inherit && receiver) {
+    for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx);
+  }
   return { gold, fx };
 }
 
@@ -1022,7 +1083,10 @@ function advance(r: RunState) {
   r.rerolls = 0;
   r.tc = newCount();
   r.gold = GOLD_PER_ROUND;
+  // 额外牛奶只属于上一备战，锁定也不跨回合。
+  r.shop = r.shop.filter((s) => s.kind !== 'food' || s.def !== 'f_milk');
   rollShop(r);
+  grantPrepMilk(r);
   r.pendingFx = [];
   nextEnemy(r);
 }
@@ -1036,10 +1100,47 @@ export function save(r: RunState | null) {
 }
 export function load(): RunState | null {
   try {
-    const r = JSON.parse(localStorage.getItem(SAVE_KEY) ?? 'null') as RunState | null;
+    const raw = localStorage.getItem(SAVE_KEY);
+    const r = JSON.parse(raw ?? 'null') as RunState | null;
     if (!r || r.v !== SAVE_VERSION || r.phase !== 'prep' || !Array.isArray(r.queue) || r.queue.length !== QUEUE_MAX) return null;
     const ok = r.queue.every((o) => !o || card(o.def)) && r.shop.every((s) => (s.kind === 'food' ? FOOD[s.def] : card(s.def))) && r.enemy.units.every((u) => card(u.def));
-    return ok ? r : null;
+    if (!ok || !Number.isInteger(r.nextId) || !Number.isInteger(r.turn)) return null;
+    const legacySupply = r.supplyVersion === undefined;
+    if (!legacySupply && r.supplyVersion !== SUPPLY_VERSION) return null;
+    // 同版本增量字段：旧档没有记录就从空开始，不能从累计属性反推来源。
+    const seen = new Set<number>();
+    for (const o of units(r)) {
+      if (!o.foodHistory) { o.foodHistory = []; continue; }
+      if (!Array.isArray(o.foodHistory) || o.foodHistory.length > FOOD_HISTORY_MAX) return null;
+      if (!card(o.def).inherit && o.foodHistory.length) return null;
+      for (const m of o.foodHistory) {
+        if (!m || !inheritableFood(m.id) || !Number.isSafeInteger(m.sourceId) || m.sourceId < 1 || seen.has(m.sourceId)
+          || !Number.isFinite(m.atk) || !Number.isFinite(m.hp) || m.atk < 0 || m.hp < 0 || m.atk > STAT_CAP || m.hp > STAT_CAP) return null;
+        seen.add(m.sourceId);
+      }
+    }
+    if (legacySupply) {
+      // 原件先独立留档；无法备份时宁可拒绝迁移，也不在内存中改写用户进度。
+      if (!raw) return null;
+      if (localStorage.getItem(PRE_SUPPLY_BACKUP_KEY) === null) {
+        try { localStorage.setItem(PRE_SUPPLY_BACKUP_KEY, raw); }
+        catch { return null; }
+      }
+      const normal = r.shop.filter((s) => s.kind === 'food' && s.def !== 'f_milk');
+      const cap = foodSlots(r.turn);
+      if (normal.length > cap) {
+        // 锁定优先；锁定组与未锁定组内部都保留旧货架顺序。
+        const keep = new Set([...normal.filter((s) => s.locked), ...normal.filter((s) => !s.locked)].slice(0, cap));
+        r.shop = r.shop.filter((s) => s.kind !== 'food' || s.def === 'f_milk' || keep.has(s));
+      }
+      r.supplyVersion = SUPPLY_VERSION;
+    }
+    const foods = r.shop.filter((s) => s.kind === 'food');
+    const milk = foods.filter((s) => s.def === 'f_milk');
+    if (foods.length > FOOD_SHOP_MAX || milk.length > MILK_MAX || milk.some((s) => !s.val || s.val.length !== 2 || s.val.some((v) => !Number.isFinite(v) || v < 1 || v > 3))) return null;
+    for (const s of milk) s.locked = false;
+    r.milkTurn ??= r.turn;
+    return r;
   } catch {
     return null;
   }
@@ -1128,6 +1229,7 @@ export function resolveEvent(r: RunState, choice: number, slot: number | null = 
         if (!pool.length) return { ok: false };
         o.def = pick(r, pool).id;
         o.copy = undefined;
+        if (!card(o.def).inherit) o.foodHistory = undefined;
         out = { ok: true, fx, morphed: o.def };
         break;
       }

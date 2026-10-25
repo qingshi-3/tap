@@ -6,6 +6,7 @@ import { h, STAGE_H, STAGE_W } from './dom';
 import { kwInline, kwRich, kwUpgrade } from './kwtext';
 import { statArt } from './board';
 import { itemIcon } from './pixelItems';
+import { FOOD_HISTORY_MAX, type FoodMemory } from '../core/run';
 
 /** 状态数值：与场上同一套像素图标 + 右下角数字 */
 const pxStat = (k: 'block', v: number) => h('span', { class: `kwic kw-${k}` }, h('i', null, v));
@@ -25,7 +26,7 @@ export function initTip(stage: HTMLElement) {
   window.addEventListener('resize', hideTip);
 }
 
-export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[] }
+export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[]; foodHistory?: readonly FoodMemory[] }
 
 /** withUp：附带升一星的变化（只改数字时并进同一句写成「2→3」） */
 export function unitTip(defId: string, level: number, st?: TipStats | null, withUp = true) {
@@ -46,6 +47,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   if (sum) extras.push(sum);
   if (st?.lamp) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_lamp', 'spell', 'tip-item'), ...kwRich('魂灯：下一场获得复生')));
   for (const x of st?.tfx ?? []) { const fd = fxFood(x); extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon(fd.id, 'spell', 'tip-item'), ...kwRich(`${fd.name}（本场）：${fd.short ?? ''}`))); }
+  if (c.inherit) extras.push(foodHistory(st?.foodHistory ?? []));
   return h(
     'div',
     { class: 'tip-unit', style: `--fc:${f.color}` },
@@ -63,6 +65,17 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     ...extras,
     upDiff ? h('div', { class: 'tip-next' }, h('span', { class: 'tn-star' }, '★'.repeat(level + 1)), h('span', { class: 'tn-st' }, `+${level === 1 ? 2 : 3}/+${level === 1 ? 2 : 3}`), h('span', { class: 'tn-ab' }, ...kwInline(upDiff))) : null,
   );
+}
+
+function foodHistory(items: readonly FoodMemory[]) {
+  return h('div', { class: 'tip-food-memory' },
+    h('div', { class: 'tfm-head' }, h('b', null, `补给传承 ${items.length}/${FOOD_HISTORY_MAX}`)),
+    items.length
+      ? h('div', { class: 'tfm-list' }, ...items.map((x) => h('div', { class: 'tfm-item' },
+        itemIcon(x.id, 'spell', 'tip-item'), h('span', null, FOOD[x.id]?.name ?? x.id),
+        h('span', { class: 'tfm-stats' }, statArt('atk', x.atk), statArt('hp', x.hp)))))
+      : h('div', { class: 'tfm-empty' }, '尚无记录（0/5）'),
+    h('div', { class: 'tfm-rule' }, '记录基础补给，非累计属性。保留最早5件；出售交给最近身后友军，没有则身前。重吃不再记录。'));
 }
 
 /** 会成长的召唤物身材：数字照常，右上角小「+」 */
@@ -131,7 +144,10 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
   tipEl.style.left = `${Math.max(pad, Math.min(STAGE_W - w - pad, x - w / 2))}px`;
   tipEl.style.bottom = '';
   tipEl.style.maxHeight = 'none';
-  const need = tipEl.offsetHeight;
+  // offsetHeight rounds fractional line heights; a tight cap can introduce a
+  // scrollbar, narrow the text and wrap another whole line on short screens.
+  const need = tipEl.offsetHeight + 2;
+  tipEl.scrollTop = 0;
   const room = { above: top0 - gap - pad, below: STAGE_H - y - gap - pad };
   const other = prefer === 'above' ? 'below' : 'above';
   const left0 = parseFloat(tipEl.style.left);

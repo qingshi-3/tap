@@ -1,0 +1,901 @@
+{
+  "generatedAt": "2026-10-25T12:27:56.712Z",
+  "contract": {
+    "FOOD_HISTORY_MAX": 5,
+    "STAT_CAP": 50,
+    "inheritors": [
+      "v_guard",
+      "v_snowman",
+      "v_scout",
+      "v_mage",
+      "v_keeper",
+      "v_sentinel",
+      "v_bear",
+      "v_rhyno",
+      "v_queen",
+      "v_wyvern"
+    ]
+  },
+  "summary": {
+    "total": 41,
+    "passed": 41,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "id": "data.inherit.exact-ten",
+      "status": "pass",
+      "expected": [
+        "v_guard",
+        "v_snowman",
+        "v_scout",
+        "v_mage",
+        "v_keeper",
+        "v_sentinel",
+        "v_bear",
+        "v_rhyno",
+        "v_queen",
+        "v_wyvern"
+      ],
+      "observed": [
+        "v_guard",
+        "v_snowman",
+        "v_scout",
+        "v_mage",
+        "v_keeper",
+        "v_sentinel",
+        "v_bear",
+        "v_rhyno",
+        "v_queen",
+        "v_wyvern"
+      ]
+    },
+    {
+      "id": "data.scout-mage.base-stats",
+      "status": "pass",
+      "expected": [
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ],
+      "observed": [
+        [
+          3,
+          4
+        ],
+        [
+          3,
+          4
+        ]
+      ]
+    },
+    {
+      "id": "data.history-cap",
+      "status": "pass",
+      "expected": 5,
+      "observed": 5
+    },
+    {
+      "id": "history.whitelist-and-first-five",
+      "status": "pass",
+      "expected": [
+        [
+          "f_bread",
+          1,
+          1,
+          1000
+        ],
+        [
+          "f_whet",
+          3,
+          1,
+          1001
+        ],
+        [
+          "f_roast",
+          5,
+          5,
+          1002
+        ],
+        [
+          "f_milk",
+          2,
+          3,
+          1003
+        ],
+        [
+          "f_bread",
+          1,
+          1,
+          1004
+        ]
+      ],
+      "observed": [
+        [
+          "f_bread",
+          1,
+          1,
+          1000
+        ],
+        [
+          "f_whet",
+          3,
+          1,
+          1001
+        ],
+        [
+          "f_roast",
+          5,
+          5,
+          1002
+        ],
+        [
+          "f_milk",
+          2,
+          3,
+          1003
+        ],
+        [
+          "f_bread",
+          1,
+          1,
+          1004
+        ]
+      ]
+    },
+    {
+      "id": "history.exclusions-all",
+      "status": "pass",
+      "expected": [],
+      "observed": [],
+      "note": "炖锅、寿司、龙肉及全部战斗特效/升星/罐头都不得记录"
+    },
+    {
+      "id": "history.share-extra-eaters-not-recorded",
+      "status": "pass",
+      "expected": [
+        0,
+        1,
+        0
+      ],
+      "observed": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "id": "stew.target-and-next",
+      "status": "pass",
+      "expected": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          0,
+          0
+        ]
+      ],
+      "observed": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    {
+      "id": "stew.missing-next-feeds-primary-once",
+      "status": "pass",
+      "expected": {
+        "ok": true,
+        "stats": [
+          2,
+          2
+        ],
+        "foods": 1,
+        "consumed": true
+      },
+      "observed": {
+        "ok": true,
+        "stats": [
+          2,
+          2
+        ],
+        "foods": 1,
+        "consumed": true
+      }
+    },
+    {
+      "id": "stew.missing-primary-atomic-failure",
+      "status": "pass",
+      "expected": {
+        "ok": false,
+        "foods": 0,
+        "consumed": false,
+        "neighbor": [
+          0,
+          0
+        ]
+      },
+      "observed": {
+        "ok": false,
+        "foods": 0,
+        "consumed": false,
+        "neighbor": [
+          0,
+          0
+        ]
+      }
+    },
+    {
+      "id": "ladybug.permanent.lv1",
+      "status": "pass",
+      "expected": [
+        1,
+        1,
+        0,
+        0
+      ],
+      "observed": [
+        1,
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ladybug.permanent.lv2",
+      "status": "pass",
+      "expected": [
+        2,
+        2,
+        0,
+        0
+      ],
+      "observed": [
+        2,
+        2,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "ladybug.permanent.lv3",
+      "status": "pass",
+      "expected": [
+        3,
+        3,
+        0,
+        0
+      ],
+      "observed": [
+        3,
+        3,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "keeper.adjacent.lv1",
+      "status": "pass",
+      "expected": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "observed": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "keeper.adjacent.lv2",
+      "status": "pass",
+      "expected": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ],
+      "observed": [
+        [
+          1,
+          1
+        ],
+        [
+          1,
+          1
+        ]
+      ]
+    },
+    {
+      "id": "keeper.adjacent.lv3",
+      "status": "pass",
+      "expected": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ],
+      "observed": [
+        [
+          2,
+          2
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    },
+    {
+      "id": "keeper.no-gap-jump-and-edges",
+      "status": "pass",
+      "expected": [
+        0,
+        1,
+        1
+      ],
+      "observed": [
+        0,
+        1,
+        1
+      ]
+    },
+    {
+      "id": "wyvern.front-first-no-gap-no-recursion",
+      "status": "pass",
+      "expected": {
+        "front": [
+          1,
+          1
+        ],
+        "rear": [
+          0,
+          0
+        ],
+        "foods": 1
+      },
+      "observed": {
+        "front": [
+          1,
+          1
+        ],
+        "rear": [
+          0,
+          0
+        ],
+        "foods": 1
+      },
+      "note": "3星最多2人，但 eater 前邻是白龙需排除；不得越过白龙再找更远目标"
+    },
+    {
+      "id": "history.merge-order-dedupe-cap",
+      "status": "pass",
+      "expected": [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "observed": [
+        10,
+        11,
+        12,
+        13,
+        14
+      ]
+    },
+    {
+      "id": "history.merge-no-replay-and-level-up",
+      "status": "pass",
+      "expected": {
+        "copies": 6,
+        "bonus": [
+          0,
+          0
+        ],
+        "history": [
+          32,
+          31
+        ]
+      },
+      "observed": {
+        "copies": 6,
+        "bonus": [
+          0,
+          0
+        ],
+        "history": [
+          32,
+          31
+        ]
+      }
+    },
+    {
+      "id": "sale.target-behind-nearest-across-gap",
+      "status": "pass",
+      "expected": {
+        "target": [
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0
+        ],
+        "history": 0,
+        "foods": 0
+      },
+      "observed": {
+        "target": [
+          1,
+          1
+        ],
+        "other": [
+          0,
+          0
+        ],
+        "history": 0,
+        "foods": 0
+      },
+      "note": "面包基础+1/+1，目标若为普通单位只得到一次；这里预期值包含实际+1/+1，若 observed 2/2 即重复触发"
+    },
+    {
+      "id": "sale.target-front-fallback",
+      "status": "pass",
+      "expected": [
+        1,
+        1
+      ],
+      "observed": [
+        1,
+        1
+      ]
+    },
+    {
+      "id": "sale.no-receiver-safe",
+      "status": "pass",
+      "expected": {
+        "removed": true,
+        "foods": 0
+      },
+      "observed": {
+        "removed": true,
+        "foods": 0
+      }
+    },
+    {
+      "id": "sale.continuous-chain-bounded",
+      "status": "pass",
+      "expected": {
+        "final": [
+          1,
+          1
+        ],
+        "histories": 0,
+        "foods": 0
+      },
+      "observed": {
+        "final": [
+          1,
+          1
+        ],
+        "histories": 0,
+        "foods": 0
+      },
+      "note": "同sourceId在两个卖者中连续重吃仍各结算一次；重吃不把记录复制到普通接收者。"
+    },
+    {
+      "id": "sale.replay-eater-hooks",
+      "status": "pass",
+      "expected": {
+        "ladybug": [
+          2,
+          2
+        ],
+        "worm": [
+          2,
+          2
+        ],
+        "sealNeighbors": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rabbitTarget": [
+          1,
+          2
+        ],
+        "wyvernShare": [
+          1,
+          1
+        ],
+        "foods": 0
+      },
+      "observed": {
+        "ladybug": [
+          2,
+          2
+        ],
+        "worm": [
+          2,
+          2
+        ],
+        "sealNeighbors": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            0
+          ]
+        ],
+        "rabbitTarget": [
+          1,
+          2
+        ],
+        "wyvernShare": [
+          1,
+          1
+        ],
+        "foods": 0
+      }
+    },
+    {
+      "id": "sale.replay-does-not-satisfy-rhyno-three",
+      "status": "pass",
+      "expected": {
+        "bonus": [
+          1,
+          1
+        ],
+        "foods": 2
+      },
+      "observed": {
+        "bonus": [
+          1,
+          1
+        ],
+        "foods": 2
+      }
+    },
+    {
+      "id": "sale.replay-no-bear-budget-or-purchase-hooks",
+      "status": "pass",
+      "expected": {
+        "gain": [
+          1,
+          1
+        ],
+        "foods": 0,
+        "bearUses": 0,
+        "shopFoods": 0
+      },
+      "observed": {
+        "gain": [
+          1,
+          1
+        ],
+        "foods": 0,
+        "bearUses": 0,
+        "shopFoods": 0
+      }
+    },
+    {
+      "id": "extreme.cat-replay-five-roast-cap",
+      "status": "pass",
+      "expected": {
+        "gain": [
+          42,
+          41
+        ],
+        "capped": [
+          50,
+          50
+        ],
+        "sourceRemoved": true
+      },
+      "observed": {
+        "gain": [
+          42,
+          41
+        ],
+        "capped": [
+          50,
+          50
+        ],
+        "sourceRemoved": true
+      }
+    },
+    {
+      "id": "extreme.cat-replay-dynamic-milk",
+      "status": "pass",
+      "expected": [
+        6,
+        9
+      ],
+      "observed": [
+        6,
+        9
+      ]
+    },
+    {
+      "id": "extreme.cat-replay-three-three-milk",
+      "status": "pass",
+      "expected": [
+        9,
+        9
+      ],
+      "observed": [
+        9,
+        9
+      ]
+    },
+    {
+      "id": "extreme.two-wyverns-multiple-nonrecursive",
+      "status": "pass",
+      "expected": {
+        "left": [
+          2,
+          2
+        ],
+        "right": [
+          2,
+          2
+        ],
+        "foods": 2
+      },
+      "observed": {
+        "left": [
+          2,
+          2
+        ],
+        "right": [
+          2,
+          2
+        ],
+        "foods": 2
+      }
+    },
+    {
+      "id": "milk.not-on-purchase",
+      "status": "pass",
+      "expected": 0,
+      "observed": 0
+    },
+    {
+      "id": "milk.grant-order-values-idempotent-limits",
+      "status": "pass",
+      "expected": {
+        "vals": [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "milk": 2,
+        "food": 4
+      },
+      "observed": {
+        "vals": [
+          [
+            1,
+            1
+          ],
+          [
+            3,
+            3
+          ]
+        ],
+        "milk": 2,
+        "food": 4
+      }
+    },
+    {
+      "id": "milk.refresh-preserved-and-lock-noop",
+      "status": "pass",
+      "expected": {
+        "sameSid": true,
+        "locked": false,
+        "milk": 1
+      },
+      "observed": {
+        "sameSid": true,
+        "locked": false,
+        "milk": 1
+      }
+    },
+    {
+      "id": "milk.direct-use-counts-once",
+      "status": "pass",
+      "expected": {
+        "foods": 1,
+        "history": 1
+      },
+      "observed": {
+        "foods": 1,
+        "history": 1
+      }
+    },
+    {
+      "id": "milk.old-value-stable-after-sentinel-level-up",
+      "status": "pass",
+      "expected": {
+        "levelCopies": 6,
+        "old": [
+          1,
+          1
+        ],
+        "milk": 1
+      },
+      "observed": {
+        "levelCopies": 6,
+        "old": [
+          1,
+          1
+        ],
+        "milk": 1
+      }
+    },
+    {
+      "id": "bear.full-shelf-does-not-consume-later-bear-budget",
+      "status": "pass",
+      "expected": {
+        "first": 1,
+        "second": 0,
+        "food": 4
+      },
+      "observed": {
+        "first": 1,
+        "second": 0,
+        "food": 4
+      },
+      "note": "第一只熊补回第4格；第二只看到满架，必须保留本回合限次。"
+    },
+    {
+      "id": "load.no-milk-injection-old-v5-empty-history",
+      "status": "pass",
+      "expected": {
+        "milk": 0,
+        "history": []
+      },
+      "observed": {
+        "milk": 0,
+        "history": []
+      }
+    },
+    {
+      "id": "load.invalid-history-rejected-and-original-preserved",
+      "status": "pass",
+      "expected": {
+        "loaded": null,
+        "preserved": true
+      },
+      "observed": {
+        "loaded": null,
+        "preserved": true
+      }
+    },
+    {
+      "id": "save-load-roundtrip-idempotent",
+      "status": "pass",
+      "expected": true,
+      "observed": true
+    },
+    {
+      "id": "advance.milk-regenerated-not-accumulated",
+      "status": "pass",
+      "expected": {
+        "milk": 1,
+        "totalAtMost4": true
+      },
+      "observed": {
+        "milk": 1,
+        "totalAtMost4": true
+      }
+    },
+    {
+      "id": "advance.removes-even-locked-old-milk",
+      "status": "pass",
+      "expected": {
+        "oldGone": true,
+        "milk": 1
+      },
+      "observed": {
+        "oldGone": true,
+        "milk": 1
+      }
+    }
+  ],
+  "extremes": [
+    {
+      "id": "cat-five-roast",
+      "before": [
+        8,
+        9
+      ],
+      "after": [
+        50,
+        50
+      ],
+      "nominalReplay": [
+        75,
+        75
+      ],
+      "actualGain": [
+        42,
+        41
+      ],
+      "cap": 50,
+      "acquisitionGold": 15
+    },
+    {
+      "id": "two-wyverns-two-foods",
+      "left": [
+        2,
+        2
+      ],
+      "right": [
+        2,
+        2
+      ],
+      "foods": 2
+    }
+  ],
+  "risks": [
+    "出售重吃的 sourceId 语义必须稳定为原补给实例 sid；若定义为单位 oid，合并去重会错误吞掉同单位吃过的多份补给。",
+    "牛奶由队列顺序每只冰角一瓶且总量最多2；同一只冰角的合并星级变化应在下一次 grant/advance 才重算，刷新保留现有奶值。",
+    "白龙“身前优先再身后”与“不跳空邻位”组合意味着最多仅两个物理邻格；排除 eater/自身后不向更远槽补足。",
+    "炖锅仅在指定目标不存在时失败；失败必须不扣钱、不移除物品、不递增 tc.foods，也不得把效果改给后邻。",
+    "50 上限使五份烤全羊被3星执政官重吃的名义+75大幅溢出，实际收益依接收者基础与已有成长而变。"
+  ]
+}

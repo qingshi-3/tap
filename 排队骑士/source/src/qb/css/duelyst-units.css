@@ -1,11 +1,13 @@
+@import './idle-anchors.css';
+
 /* Original Duelyst sprite strips; outer containers own facing and combat motion. */
 /* Enlarge the ten battlefield positions without scaling the HUD or recruitment tray.
    Extra height grows upward so feet remain on the same ground plane. */
 .board .u-bob {
   left: -4px;
-  top: -14px;
+  top: -12.96px;
   width: 108px;
-  height: 122px;
+  height: 120.96px;
 }
 .board .ped {
   left: -2px;
@@ -22,7 +24,7 @@
 }
 .drag-ghost {
   width: 108px;
-  height: 122px;
+  height: 120.96px;
 }
 /* Tap details stay readable in viewport pixels instead of shrinking with the arena. */
 .tip.viewport-tip {
@@ -62,19 +64,6 @@
   height: 100%;
   overflow: hidden;
 }
-.uart.duelyst .duelyst-selected {
-  position: absolute;
-  left: 0;
-  top: 0;
-  visibility: hidden;
-}
-.board .unit:is(.selected, .focus, .inspected) .duelyst-normal {
-  visibility: hidden;
-}
-.board .unit:is(.selected, .focus, .inspected) .duelyst-selected {
-  /* Selection must not reveal a sprite inside a battlefield hidden by preparation. */
-  visibility: inherit;
-}
 .board .unit:is(.selected, .focus, .inspected, .linked) .u-art {
   filter: drop-shadow(0 6px 6px #0008);
 }
@@ -86,21 +75,32 @@
 }
 .uart.duelyst .duelyst-strip {
   display: block;
-  width: calc(var(--duelyst-frames) * 100%);
+  width: 100%;
   height: 100%;
-  max-width: none;
+  background-image: var(--duelyst-normal-image);
+  background-repeat: no-repeat;
+  background-size: calc(var(--duelyst-frames) * 100%) 100%;
+  background-position: 0 0;
   image-rendering: pixelated;
   pointer-events: none;
   user-select: none;
-  animation: duelyst-idle var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite;
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite;
+  animation: var(--duelyst-idle-animation);
 }
-@keyframes duelyst-idle {
-  from { transform: translateX(0); }
-  to { transform: translateX(-100%); }
+@keyframes duelyst-idle-x {
+  from { background-position-x: 0; }
+  to { background-position-x: var(--duelyst-idle-end); }
+}
+.board .unit:is(.selected, .focus, .inspected) .duelyst-normal,
+.bench-slot.selected .duelyst-normal,
+.card.selected .uart.duelyst .duelyst-normal,
+.sh-unit.on .card .uart.duelyst .duelyst-normal {
+  background-image: var(--duelyst-selected-image);
 }
 /* Set data-unit-motion="off" on any ancestor to stop sprite motion completely. */
 [data-unit-motion="off"] .uart.duelyst .duelyst-strip {
   animation: none;
+  background-position: 0 0;
   transform: none;
 }
 @media (prefers-reduced-motion: reduce) {
@@ -112,29 +112,18 @@
   }
   .uart.duelyst .duelyst-strip {
     animation: none;
+    background-position: 0 0;
     transform: none;
   }
-}
-
-/* Only the displayed outline variant needs a running sprite animation. */
-.uart.duelyst .duelyst-selected,
-.board .unit:is(.selected, .focus, .inspected) .duelyst-normal {
-  animation: none;
-}
-.board .unit:is(.selected, .focus, .inspected) .duelyst-selected {
-  animation: duelyst-idle var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite;
 }
 /* Authored sprite breathing already supplies idle motion. */
 .board .u-bob { animation: none; }
 [data-render-paused] *, [data-render-paused] *::before, [data-render-paused] *::after {
   animation-play-state: paused !important;
 }
-@media (prefers-reduced-motion: reduce) {
-  .board .unit:is(.selected, .focus, .inspected) .duelyst-selected { animation: none; }
-}
-
 [data-unit-motion="off"] .board .unit .uart.duelyst .duelyst-strip {
   animation: none;
+  background-position: 0 0;
   transform: none;
 }
 

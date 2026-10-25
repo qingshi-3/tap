@@ -93,7 +93,8 @@ export function unitSvg(defId: string | null, opts: ArtOpts = {}): string {
   if (!art) return `<span class="uart placeholder${opts.small ? ' duelyst-small' : ''}" data-unit-art="${artKey(defId, opts)}" aria-hidden="true"><img src="${placeholderUrl(defId, opts)}" alt="" draggable="false" width="100" height="112"/></span>`;
   const frames = Math.max(1, art.frames);
   const acts = (['attack', 'hit', 'cast'] as const).map((k) => art[k] ? ` data-act-${k}="${imageUrl(art[k]!.image)}|${art[k]!.frames}"` : '').join('');
-  return `<span class="uart duelyst${opts.small ? ' duelyst-small' : ''}" data-unit-art="${opts.general ? `general_${opts.general}` : defId}"${acts} aria-hidden="true" style="--duelyst-frames:${frames};--duelyst-duration:${art.durationMs}ms"><span class="duelyst-frame"><img class="duelyst-strip duelyst-normal" src="${imageUrl(art.image)}" alt="" draggable="false" width="${art.width * frames}" height="${art.height}"/><img class="duelyst-strip duelyst-selected" src="${imageUrl(art.selectedImage)}" alt="" draggable="false" width="${art.width * frames}" height="${art.height}"/></span></span>`;
+  const idleEnd = frames === 1 ? '0' : `${frames / (frames - 1) * 100}%`;
+  return `<span class="uart duelyst${opts.small ? ' duelyst-small' : ''}" data-unit-art="${opts.general ? `general_${opts.general}` : defId}"${acts} aria-hidden="true" style="--duelyst-frames:${frames};--duelyst-duration:${art.durationMs}ms;--duelyst-idle-end:${idleEnd};--duelyst-normal-image:url('${imageUrl(art.image)}');--duelyst-selected-image:url('${imageUrl(art.selectedImage)}')"><span class="duelyst-frame"><span class="duelyst-strip duelyst-normal"></span></span></span>`;
 }
 
 export function mix(a: string, b: string, t: number) {

@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-25",
+  "environment": "IAB Chromium, isolated QA origin 127.0.0.1:5175; final bundle checked on 5173",
+  "viewportCssPixels": [[1280,720],[844,390],[720,360]],
+  "verifiedByInput": [
+    "continue saved run",
+    "inspect five recorded foods with base stats",
+    "sell carrier and observe replay recipient stats without new records",
+    "drag free 3/3 milk to recipient; no gold charge; add one direct record",
+    "inspect and unlock ordinary stew",
+    "Enter opens focused supply details",
+    "reroll retains locked ordinary food and both original milk specs",
+    "codex inheritance rule, return without new milk",
+    "reload and continue without duplicate milk or replay",
+    "consume two milk bottles to zero; reroll and reload remain zero",
+    "reduced-motion media active, drag and details remain functional",
+    "final singlefile bundle codex shows new cow skill"
+  ],
+  "finalShortScreen": {"foodTileWidth":47.25,"foodTileHeight":47.25,"historyTipClientHeightLogical":503,"historyTipScrollHeightLogical":503,"sellButtonHeight":44},
+  "consoleErrorsObserved": [],
+  "fixed": ["milk label overflow","oversized food icon hiding stats","heavy food tile outline","tooltip rounding causing scrollbar and clipping sell action","long record detail simplified to two flat columns"],
+  "notVerified": ["physical phone touch and device safe areas","full keyboard-only feeding workflow","human long-term strategy and enjoyment","all existing battle effects under reduced-motion"]
+}

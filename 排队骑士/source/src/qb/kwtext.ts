@@ -16,6 +16,7 @@ export const MECH_KIND_NAME: Record<MechKind, string> = { trait: '特性', statu
 interface MechDef { kind: MechKind; icon: IconName; color: string; /** 像素图标（pixel.ts --pxk-*）；有它就只显示图标 */ px?: PxIcon }
 export type PxIcon = 'armor' | 'block' | 'power' | 'thorns' | 'chill' | 'freeze' | 'burn' | 'charge';
 export const MECH: Record<string, MechDef> = {
+  传承: { kind: 'trait', icon: 'replay', color: '#6fe6ff' },
   溅射: { kind: 'trait', icon: 'burst', color: '#ffb340' },
   复生: { kind: 'trait', icon: 'replay', color: '#78f0ff' },
   格挡: { kind: 'status', icon: 'shield', color: '#ffe08a', px: 'block' },

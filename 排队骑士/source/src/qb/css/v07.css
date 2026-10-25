@@ -444,14 +444,18 @@
   .tut-ring, .vs-ring, .unit.has-shield .u-bob::after, .smark.silence, .arw, .ht-arc, :root .arrows .direction-flow .arw-flow { animation: none; }
 }
 /* 卡牌立绘在遮罩 + 投影滤镜里，逐帧播放会连带整张卡重新栅格化；卡面只显示静帧，选中时才动 */
-.card .uart.duelyst .duelyst-strip { animation: none; transform: none; }
+.card .uart.duelyst .duelyst-strip { animation: none; background-position: 0 0; transform: none; }
 .card.selected .uart.duelyst .duelyst-normal, .sh-unit.on .card .uart.duelyst .duelyst-normal {
-  animation: duelyst-idle var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite;
+  animation: var(--duelyst-idle-animation);
 }
 /* 商店 / 岔路等节点面板盖住战场时，背后的单位停播 */
 .game:has(.phase-ov) .board .uart.duelyst .duelyst-strip { animation-play-state: paused; }
+[data-unit-motion="off"] .card.selected .uart.duelyst .duelyst-normal,
+[data-unit-motion="off"] .sh-unit.on .card .uart.duelyst .duelyst-normal {
+  animation: none; background-position: 0 0; transform: none;
+}
 @media (prefers-reduced-motion: reduce) {
-  .card.selected .uart.duelyst .duelyst-normal, .sh-unit.on .card .uart.duelyst .duelyst-normal { animation: none; }
+  .card.selected .uart.duelyst .duelyst-normal, .sh-unit.on .card .uart.duelyst .duelyst-normal { animation: none; background-position: 0 0; transform: none; }
 }
 
 /* ───── 施法 / 主将技能表现（只动 transform/opacity） ───── */

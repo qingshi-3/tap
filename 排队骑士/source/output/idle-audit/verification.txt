@@ -1,0 +1,14 @@
+Idle 修复验收 2026-10-25
+
+实现：共享 idle 改为固定窗口背景逐帧播放；选中仅换贴图，保留播放时钟；取消卡面额外 bob。8 个素材按稳定下身/脚部配准消除整身纵向位移，保留局部动作。原 PNG 与战斗逻辑未改。
+修正对象：v_guard, d_artificer, a_reaper, d_dune, v_sentinel, s_viper, t_wisp, e_lich。
+注意：registration.json 是初始全图配准数据；部分 bbox=null 帧仍有整身位移，最终 CSS 使用下身配准复核后的完整序列。并非按全部包围盒机械对齐。
+
+自动检查：npm run build:single（含 tsc --noEmit）成功；git diff --check 成功（仅换行转换提示）。单文件已同步 dist-single/index.html 与 ../排队骑士.html。
+浏览器逐帧：d_artificer / v_guard / d_dune / v_sentinel / l_windblade 全帧脚底最大差 <0.00002 CSS px；横向选帧正确。详见 browser-frames.json。
+实际像素：after-frame0.png 与 after-frame6.png，构装学徒脚底稳定，手臂/法杖仍变化。
+真实输入：战斗席点击选中切换高亮后元素和动画对象保持不变、暂停的播放时间仍为550ms；拖动交换两个单位成功，动画恢复；打开图鉴选择构装学徒成功。
+关闭动效：prefers-reduced-motion=reduce 与 data-unit-motion=off 下，当前全部精灵动画数量0、transform none、背景回首帧。
+视口：1280x720 桌面、844x390 横屏渲染检查；横屏图鉴返回按钮实际点击成功。此次未新增文字、面板或按钮；角色无遮挡，操作区域保留。现有图鉴整体视觉结构未重做。
+最终产物：5173 的 dist-single 页面已刷新，在图鉴中确认新播放器与位移补偿实际加载。用户存档未清除、未创建新局。截图 final-preview.png。
+范围限制：未对80套素材逐个进行真人动画观感验收；未声称所有局部动作完全静止。file:// 直接打开未进行浏览器验收。未重复运行与本次纯渲染修复无关的补给平衡模拟。

@@ -1,0 +1,484 @@
+{
+  "generatedAt": "2026-10-25T12:23:11.484Z",
+  "warning": "局部消融固定阵容、敌人和seed，只回答单项机制改变在给定队形中的战斗差异；不是bot整局运营结果、自然成型率或全局早期胜率，不能用于声称早期差距缩小。",
+  "method": {
+    "engine": "真实 engine.simulate",
+    "n": 300,
+    "seedFormula": "i*104729+11",
+    "legalTiming": {
+      "scout": [
+        3,
+        4
+      ],
+      "mage": [
+        5,
+        6
+      ],
+      "guard": [
+        2,
+        3,
+        4
+      ]
+    },
+    "mediumGhostTurns": [
+      5,
+      6,
+      7,
+      8,
+      9,
+      10
+    ],
+    "ghostCounts": {
+      "scout": 60,
+      "mage": 60,
+      "guard": 90,
+      "medium": 180
+    }
+  },
+  "early": {
+    "scoutBodyOnly": {
+      "description": "二阶霜狼在合法开放后的3-4回合，仅基础身材2/2→3/4，其他完全一致。",
+      "oldTotals": {
+        "atk": 12,
+        "hp": 19
+      },
+      "newTotals": {
+        "atk": 13,
+        "hp": 21
+      },
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 1,
+          "draws": 3,
+          "winRate": 0.0033333333333333335,
+          "scoreRate": 0.008333333333333333
+        },
+        "b": {
+          "wins": 2,
+          "draws": 30,
+          "winRate": 0.006666666666666667,
+          "scoreRate": 0.056666666666666664
+        },
+        "changedOutcomes": 30
+      }
+    },
+    "mageBodyOnly": {
+      "description": "三阶法师在合法开放后的5-6回合，仅基础身材2/2→3/4，其他完全一致。",
+      "oldTotals": {
+        "atk": 17,
+        "hp": 23
+      },
+      "newTotals": {
+        "atk": 18,
+        "hp": 25
+      },
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 0,
+          "draws": 6,
+          "winRate": 0,
+          "scoreRate": 0.01
+        },
+        "b": {
+          "wins": 2,
+          "draws": 11,
+          "winRate": 0.006666666666666667,
+          "scoreRate": 0.025
+        },
+        "changedOutcomes": 8
+      }
+    },
+    "guardTwoRounds": {
+      "description": "一阶甲虫对2-4回合幽灵；两回合均使用同规格面包，旧额外临时成长每回合清除，新额外永久成长保留。",
+      "oldTotals": {
+        "atk": 7,
+        "hp": 14
+      },
+      "newTotals": {
+        "atk": 9,
+        "hp": 16
+      },
+      "oldTeam": [
+        {
+          "def": "l_shield",
+          "lvl": 1,
+          "atk": 2,
+          "hp": 6,
+          "ench": null
+        },
+        {
+          "def": "v_guard",
+          "lvl": 1,
+          "atk": 3,
+          "hp": 5,
+          "ench": null
+        },
+        {
+          "def": "s_dart",
+          "lvl": 1,
+          "atk": 2,
+          "hp": 3,
+          "ench": null
+        }
+      ],
+      "newTeam": [
+        {
+          "def": "l_shield",
+          "lvl": 1,
+          "atk": 2,
+          "hp": 6,
+          "ench": null
+        },
+        {
+          "def": "v_guard",
+          "lvl": 1,
+          "atk": 5,
+          "hp": 7,
+          "ench": null
+        },
+        {
+          "def": "s_dart",
+          "lvl": 1,
+          "atk": 2,
+          "hp": 3,
+          "ench": null
+        }
+      ],
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 11,
+          "draws": 11,
+          "winRate": 0.03666666666666667,
+          "scoreRate": 0.055
+        },
+        "b": {
+          "wins": 51,
+          "draws": 22,
+          "winRate": 0.17,
+          "scoreRate": 0.20666666666666667
+        },
+        "changedOutcomes": 62
+      }
+    }
+  },
+  "mediumGuardSales": [
+    {
+      "count": 3,
+      "construction": "甲虫定向吃3份烤全羊后卖给最近身后的2星风暴剑圣；其余阵容固定。",
+      "economics": {
+        "foodSpend": 9,
+        "saleRefund": 1,
+        "netGoldCost": 8,
+        "excludes": "未计甲虫本体购买、刷新、阶层等待和机会成本"
+      },
+      "before": {
+        "team": [
+          {
+            "def": "v_guard",
+            "lvl": 1,
+            "atk": 19,
+            "hp": 21,
+            "ench": null
+          },
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 9,
+            "hp": 11,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 45,
+          "hp": 55
+        }
+      },
+      "after": {
+        "team": [
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 24,
+            "hp": 26,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 41,
+          "hp": 49
+        }
+      },
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 300,
+          "draws": 0,
+          "winRate": 1,
+          "scoreRate": 1
+        },
+        "b": {
+          "wins": 298,
+          "draws": 0,
+          "winRate": 0.9933333333333333,
+          "scoreRate": 0.9933333333333333
+        },
+        "changedOutcomes": 2
+      }
+    },
+    {
+      "count": 4,
+      "construction": "甲虫定向吃4份烤全羊后卖给最近身后的2星风暴剑圣；其余阵容固定。",
+      "economics": {
+        "foodSpend": 12,
+        "saleRefund": 1,
+        "netGoldCost": 11,
+        "excludes": "未计甲虫本体购买、刷新、阶层等待和机会成本"
+      },
+      "before": {
+        "team": [
+          {
+            "def": "v_guard",
+            "lvl": 1,
+            "atk": 25,
+            "hp": 27,
+            "ench": null
+          },
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 9,
+            "hp": 11,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 51,
+          "hp": 61
+        }
+      },
+      "after": {
+        "team": [
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 29,
+            "hp": 31,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 46,
+          "hp": 54
+        }
+      },
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 300,
+          "draws": 0,
+          "winRate": 1,
+          "scoreRate": 1
+        },
+        "b": {
+          "wins": 298,
+          "draws": 0,
+          "winRate": 0.9933333333333333,
+          "scoreRate": 0.9933333333333333
+        },
+        "changedOutcomes": 2
+      }
+    },
+    {
+      "count": 5,
+      "construction": "甲虫定向吃5份烤全羊后卖给最近身后的2星风暴剑圣；其余阵容固定。",
+      "economics": {
+        "foodSpend": 15,
+        "saleRefund": 1,
+        "netGoldCost": 14,
+        "excludes": "未计甲虫本体购买、刷新、阶层等待和机会成本"
+      },
+      "before": {
+        "team": [
+          {
+            "def": "v_guard",
+            "lvl": 1,
+            "atk": 31,
+            "hp": 33,
+            "ench": null
+          },
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 9,
+            "hp": 11,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 57,
+          "hp": 67
+        }
+      },
+      "after": {
+        "team": [
+          {
+            "def": "l_storm",
+            "lvl": 2,
+            "atk": 34,
+            "hp": 36,
+            "ench": null
+          },
+          {
+            "def": "l_shield",
+            "lvl": 2,
+            "atk": 4,
+            "hp": 8,
+            "ench": null
+          },
+          {
+            "def": "s_dancer",
+            "lvl": 2,
+            "atk": 6,
+            "hp": 7,
+            "ench": null
+          },
+          {
+            "def": "a_engulf",
+            "lvl": 2,
+            "atk": 7,
+            "hp": 8,
+            "ench": null
+          }
+        ],
+        "totals": {
+          "atk": 51,
+          "hp": 59
+        }
+      },
+      "battle": {
+        "n": 300,
+        "a": {
+          "wins": 300,
+          "draws": 0,
+          "winRate": 1,
+          "scoreRate": 1
+        },
+        "b": {
+          "wins": 300,
+          "draws": 0,
+          "winRate": 1,
+          "scoreRate": 1
+        },
+        "changedOutcomes": 0
+      }
+    }
+  ]
+}
