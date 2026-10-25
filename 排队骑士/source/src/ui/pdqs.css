@@ -57,7 +57,7 @@
 .game:not(.in-battle) .board .unit.lifted { opacity: .45; }
 
 /* 备战连线：目标不存在的失效箭头爆红闪烁 */
-.arrows .arw-g.broken .arw-head, .arrows .arw-g.broken .arw-flow { filter: drop-shadow(0 0 6px #ff3b5c); }
+.arrows .arw-g.broken .arw-head, .arrows .arw-g.broken .arw-core { filter: drop-shadow(0 0 6px #ff3b5c); }
 .arrows .arw-g.broken { animation: arwIn .22s ease-out backwards, pdqsBroken .5s steps(2) .22s 3; }
 .arrow-labels .arw-lbl.broken { --c: #ff3b5c; }
 @keyframes pdqsBroken { 50% { opacity: .35; } }
@@ -84,9 +84,6 @@
 .game .tray .food-tile .ft-price { display: flex; align-items: center; gap: 3px; font: 20px/1 var(--num); color: var(--gold); text-shadow: 0 2px 0 #000; }
 .game .tray .food-tile .ft-price > * { width: 18px; height: 18px; }
 .game .tray .food-tile.unaffordable .ft-price { color: #ff7a7a; }
-.game .tray .food-tile.locked { box-shadow: inset 0 0 0 3px #8fd8ff, 0 0 12px #8fd8ff, 0 4px 0 #0b0d18; }
-.game .tray .food-tile .ft-lock { position: absolute; top: -8px; right: -6px; font-size: 14px; padding: 1px 5px; border-radius: 4px; background: #2d7bd0; color: #fff; }
 .game .tray .sp-list:empty::after { content: '已用完'; align-self: center; color: #7d8aa3; font-size: 16px; }
 
 /* 锁定角标：卡牌右上角，不和顶部「升星奖励 / 叠加」标签抢位置 */
-.tray .card .lock-chip { position: absolute; right: 6px; bottom: 6px; z-index: 5; padding: 1px 6px; border-radius: 4px; background: #2d7bd0; color: #fff; font-size: 14px; box-shadow: 0 2px 0 #0b0d18; pointer-events: none; }

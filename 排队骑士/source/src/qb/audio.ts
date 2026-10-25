@@ -353,6 +353,16 @@ function noise(dur: number, vol = 0.3, freq = 1200, q = 0.8, delay = 0, type: Bi
 
 export const sfx = {
   click: () => tone(660, 0.06, 'triangle', 0.12, 880),
+  /** 锁链缠绕：一串金属碎响 + 落锁咔哒 */
+  chain: () => {
+    for (let i = 0; i < 5; i++) noise(0.04, 0.12, 3200 + i * 300, 4, i * 0.045, 'bandpass');
+    tone(420, 0.05, 'square', 0.1, 260, 0.3);
+    noise(0.06, 0.2, 1800, 2, 0.3);
+  },
+  unchain: () => {
+    tone(520, 0.05, 'square', 0.08, 900);
+    for (let i = 0; i < 4; i++) noise(0.035, 0.1, 4200 - i * 400, 4, 0.06 + i * 0.04, 'bandpass');
+  },
   hover: () => tone(1200, 0.03, 'sine', 0.04),
   pick: () => {
     tone(520, 0.09, 'triangle', 0.18, 780);

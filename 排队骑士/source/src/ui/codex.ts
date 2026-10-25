@@ -3,6 +3,7 @@ import '../qb/css/unit-browser.css';
 import '../qb/css/codex-search.css';
 import '../qb/css/kw-doc.css';
 import '../qb/css/codex-v2.css';
+import '../qb/css/codex-v3.css';
 import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw, type Line } from '../core/data';
 import type { DemoSpec } from '../core/demo';
 import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
@@ -101,8 +102,8 @@ function unitBrowser(cap?: number): HTMLElement {
   const detail = h('div', { class: 'ub-detail cx-detail' });
   const groups: { key: string; test: (d: CardDef) => boolean; node: () => Node; color: string }[][] = [
     [...LINES.map((t) => ({ key: `l:${t}`, test: (d: CardDef) => hasTag(d, t), color: LINE_INFO[t].color, node: () => h('span', { class: 'ub-fw' }, LINE_INFO[t].name) })),
-      ...(Object.keys(KW_INFO) as Kw[]).map((k) => ({ key: `k:${k}`, test: (d: CardDef) => d.kws.includes(k), color: KW_INFO[k].color, node: () => kwTag(KW_INFO[k].name, '', '', true) }))],
-    (Object.keys(TRIG) as TrigId[]).filter((id) => id !== 'cond').map((id) => ({ key: `t:${id}`, test: (d: CardDef) => trigsOf(d.id).has(id), color: TRIG[id].color, node: () => trigCap(id, TRIG[id].name, true) })),
+      ...(Object.keys(KW_INFO) as Kw[]).map((k) => ({ key: `k:${k}`, test: (d: CardDef) => d.kws.includes(k), color: KW_INFO[k].color, node: () => h('span', { class: 'ub-fw' }, KW_INFO[k].name) }))],
+    (Object.keys(TRIG) as TrigId[]).filter((id) => id !== 'cond').map((id) => ({ key: `t:${id}`, test: (d: CardDef) => trigsOf(d.id).has(id), color: TRIG[id].color, node: () => h('span', { class: 'ub-fw' }, TRIG[id].name) })),
     [1, 2, 3, 4, 5, 6].map((t) => ({ key: `r:${t}`, test: (d: CardDef) => d.tier === t, color: TIER_C[t], node: () => tierBadge(t as 1) })),
   ];
   // 引擎和词条在同一行，但仍是两组
@@ -139,10 +140,17 @@ function unitBrowser(cap?: number): HTMLElement {
     }, '★'.repeat(lv))));
     const defs = SHOP_POOL.filter(pass).sort((a, b) => a.tier - b.tier);
     const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), String(defs.length));
+    const grp = (label: string, ...xs: Node[]) => h('div', { class: 'ub-grp' }, h('span', { class: 'ub-lab' }, label), h('div', { class: 'ub-set' }, ...xs));
     head.replaceChildren(
-      h('div', { class: 'ub-frow' }, groups[0].map(chip), h('i', { class: 'ub-gap' }),
-        ...(cap ? [h('span', { class: 'ub-cap' }, '可刷')] : []), groups[2].map(chip), clear),
-      h('div', { class: 'ub-frow' }, groups[1].map(chip), h('i', { class: 'ub-gap' }), stars),
+      h('div', { class: 'ub-frow' },
+        grp('流派', ...groups[0].filter((g) => g.key[0] === 'l').map(chip)),
+        grp('词条', ...groups[0].filter((g) => g.key[0] === 'k').map(chip)),
+        h('i', { class: 'ub-gap' }),
+        grp(cap ? '阶层 · 可刷' : '阶层', ...groups[2].map(chip))),
+      h('div', { class: 'ub-frow' },
+        grp('时机', ...groups[1].map(chip)),
+        h('i', { class: 'ub-gap' }),
+        grp('星级', stars), clear),
     );
     if (!s.sel || !defs.some((d) => d.id === s.sel)) s.sel = defs[0]?.id ?? null;
     grid.replaceChildren(...defs.map((d) => {

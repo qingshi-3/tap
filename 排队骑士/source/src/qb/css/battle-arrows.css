@@ -1,43 +1,44 @@
-/* A tapered clip widens the moving dashes toward their target; one quiet shared hue. */
-.arrows .arw-g.direction-flow {
-  animation: arwIn .22s ease-out backwards;
-  filter: drop-shadow(0 0 2px rgba(139, 187, 201, .28));
+/* 指示线：效果色光线（同卡面/飘字配色），一次性画出 + 火花跑一趟 + 目标脚下常驻脉冲环。
+   常驻动画只有脉冲环（transform/opacity）。 */
+.arrows .arw-g.direction-flow { animation: arwIn .2s ease-out backwards; }
+.arrows .arw-halo { fill: none; stroke-width: 14; stroke-linecap: round; opacity: .18; }
+.arrows .arw-core {
+  fill: none; stroke-width: 4; stroke-linecap: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 4px currentColor);
+  animation: arwDraw .34s var(--d, 0s) cubic-bezier(.4,0,.2,1) forwards;
 }
-.arrows .direction-flow .arw-flow {
-  fill: none;
-  stroke-width: 12;
-  stroke-linecap: butt;
-  stroke-linejoin: round;
-  stroke-dasharray: 7 6;
-  animation: directionMarch .8s linear infinite;
+.arrows .arw-shine {
+  fill: none; stroke: #fff; stroke-width: 1.5; stroke-linecap: round; opacity: .75;
+  stroke-dasharray: 1; stroke-dashoffset: 1;
+  animation: arwDraw .34s var(--d, 0s) cubic-bezier(.4,0,.2,1) forwards;
 }
-.arrows .direction-flow .arw-head {
-  stroke: none;
+.arrows .arw-head { stroke: #fff; stroke-width: 1.2; stroke-linejoin: round; filter: drop-shadow(0 0 5px currentColor); animation: arwPop .2s calc(var(--d, 0s) + .28s) cubic-bezier(.2,1.6,.4,1) backwards; }
+.arrows .arw-src { opacity: .9; filter: drop-shadow(0 0 4px currentColor); }
+.arrows .arw-spark {
+  fill: #fff; filter: drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor);
+  offset-rotate: 0deg; opacity: 0;
+  animation: arwSpark .55s calc(var(--d, 0s) + .12s) ease-in forwards;
 }
-.arrows:has(.direction-flow) { shape-rendering: crispEdges; }
-@keyframes directionMarch {
-  from { stroke-dashoffset: 0; }
-  to { stroke-dashoffset: -13; }
+.arrows .arw-ring {
+  fill: none; stroke-width: 2.5; transform-box: fill-box; transform-origin: center;
+  opacity: 0; translate: 0 0;
+  animation: arwRing 1.4s calc(var(--d, 0s) + .34s) ease-out infinite;
 }
+@keyframes arwDraw { to { stroke-dashoffset: 0; } }
+@keyframes arwPop { from { opacity: 0; } }
+@keyframes arwSpark { 0% { offset-distance: 0%; opacity: 0; } 15% { opacity: 1; } 90% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+@keyframes arwRing { 0% { scale: .4; opacity: .9; } 100% { scale: 1.35; opacity: 0; } }
+
+/* 时机标签：深底 + 效果色描字，和词条胶囊同一语言 */
 .arrow-labels .arw-lbl.direction-label {
-  min-width: 26px;
-  height: 26px;
-  font-size: 15px;
-  box-shadow: 0 0 0 2px #100d22;
+  height: 30px; padding: 0 10px; font-size: 18px; font-weight: 900;
+  color: var(--c); background: #120f26;
+  box-shadow: 2px 0 var(--c), -2px 0 var(--c), 0 2px var(--c), 0 -2px var(--c), 0 0 12px color-mix(in srgb, var(--c) 45%, transparent);
+  text-shadow: 0 0 6px color-mix(in srgb, var(--c) 50%, transparent);
 }
 @media (prefers-reduced-motion: reduce) {
-  .arrows .arw-g.direction-flow,
-  .arrows .direction-flow .arw-flow,
-  .arrow-labels .arw-lbl { animation: none; }
+  .arrows .arw-g.direction-flow, .arrows .arw-head, .arrow-labels .arw-lbl { animation: none; }
+  .arrows .arw-core, .arrows .arw-shine { animation: none; stroke-dashoffset: 0; }
+  .arrows .arw-spark, .arrows .arw-ring { display: none; }
 }
-/* 光晕：宽软底衬 + 亮芯，让指示线有发光质感 */
-.arrows .direction-flow .arw-halo {
-  fill: none;
-  stroke-width: 26;
-  stroke-linecap: round;
-  opacity: .16;
-}
-.arrows .arw-g.direction-flow {
-  filter: drop-shadow(0 0 5px rgba(139, 187, 201, .7)) drop-shadow(0 0 1px rgba(255, 255, 255, .6));
-}
-.arrows .direction-flow .arw-head { filter: brightness(1.35); }

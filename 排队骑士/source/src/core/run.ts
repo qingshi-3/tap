@@ -226,13 +226,15 @@ function rollShop(r: RunState) {
   const kept = r.shop.filter((s) => s.locked);
   const out: ShopItem[] = [];
   const keptU = kept.filter((s) => s.kind === 'unit' && !s.free);
+  // 锁住的升星奖励卡和普通卡一样占刷新席位
+  const keptB = kept.filter((s) => s.kind === 'unit' && s.free);
   out.push(...keptU);
   // 招募同温：温度高时最多 2 格偏向同标签 / 已有同名（只加权不保底）
   const own = units(r).map((o) => card(o.def));
   const tags = new Set(own.flatMap((d) => [d.line, d.tag2]).filter((t) => t && t !== 'any'));
   const near = (c: CardDef) => own.some((d) => d.id === c.id) || [...tags].some((t) => hasTag(c, t as (typeof LINES)[number]));
   let warmLeft = isWarm(r) && own.length ? 2 : 0;
-  for (let i = keptU.length; i < unitSlots(r.turn); i++) {
+  for (let i = keptU.length + keptB.length; i < unitSlots(r.turn); i++) {
     let c = pick(r, pool);
     if (warmLeft > 0) {
       warmLeft--;
@@ -242,7 +244,7 @@ function rollShop(r: RunState) {
     }
     out.push({ sid: r.nextId++, kind: 'unit', def: c.id, locked: false, free: false });
   }
-  out.push(...kept.filter((s) => s.free));
+  out.push(...keptB);
   const keptF = kept.filter((s) => s.kind === 'food');
   out.push(...keptF);
   for (let i = keptF.length; i < foodSlots(r.turn); i++) out.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });

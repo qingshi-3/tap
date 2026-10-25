@@ -528,9 +528,6 @@ const ARROW_COLOR: Record<ArrowKind, string> = {
 };
 
 interface ArrowPoint { x: number; y: number }
-const RELATION_COLOR = '#8bbbc9';
-// Never reuse a clip id after clearing a board, including across simultaneous boards.
-let nextDirectionClip = 0;
 
 /** Trim the arc by distance so every direction keeps a readable, fixed-size head. */
 function directionFlow(from: ArrowPoint, control: ArrowPoint, to: ArrowPoint) {
@@ -550,32 +547,18 @@ function directionFlow(from: ArrowPoint, control: ArrowPoint, to: ArrowPoint) {
   };
   const start = Math.min(12, total * .08);
   const end = Math.max(start + 1, total - Math.min(14, total * .08));
-  const headLength = Math.min(24, (end - start) * .3);
+  const headLength = Math.min(15, (end - start) * .3);
   const neck = end - headLength;
   const tip = at(end);
   const base = at(neck);
   const tangentLength = Math.max(.001, Math.hypot(tip.x - base.x, tip.y - base.y));
   const normal = { x: -(tip.y - base.y) / tangentLength, y: (tip.x - base.x) / tangentLength };
   const flow = Array.from({ length: 49 }, (_, i) => at(start + (neck - start) * i / 48));
-  const left: ArrowPoint[] = [];
-  const right: ArrowPoint[] = [];
-  flow.forEach((p, i) => {
-    const t = i / (flow.length - 1);
-    const distance = start + (neck - start) * t;
-    const before = at(Math.max(0, distance - 1));
-    const after = at(Math.min(total, distance + 1));
-    const length = Math.max(.001, Math.hypot(after.x - before.x, after.y - before.y));
-    const half = (3 + 8 * t) / 2;
-    const nx = -(after.y - before.y) / length * half;
-    const ny = (after.x - before.x) / length * half;
-    left.push({ x: p.x + nx, y: p.y + ny });
-    right.push({ x: p.x - nx, y: p.y - ny });
-  });
-  const headHalf = Math.min(12, headLength * .5);
+  const headHalf = Math.min(8, headLength * .55);
   const head = [{ x: base.x + normal.x * headHalf, y: base.y + normal.y * headHalf }, tip,
     { x: base.x - normal.x * headHalf, y: base.y - normal.y * headHalf }];
   const path = (vertices: ArrowPoint[]) => vertices.map((p, i) => `${i ? 'L' : 'M'}${p.x.toFixed(2)} ${p.y.toFixed(2)}`).join(' ');
-  return { flow: path(flow), clip: path([...left, ...right.reverse()]) + ' Z', head: path(head) + ' Z' };
+  return { flow: path(flow), head: path(head) + ' Z', from: flow[0], tip };
 }
 export class Board {
   el: HTMLElement;
@@ -720,41 +703,28 @@ export class Board {
     grp.dataset.from = `${from.x},${from.y}`;
     grp.dataset.to = `${to.x},${to.y}`;
     grp.dataset.kind = kind;
-    grp.style.color = o.color ?? RELATION_COLOR;
     grp.style.animationDelay = `${o.delay ?? 0}ms`;
-    const defs = document.createElementNS(ns, 'defs');
-    grp.appendChild(defs);
-    const addFlow = (start: ArrowPoint, end: ArrowPoint, height: number, secondary = false) => {
-      // Anchors stay above the character; every path runs from its own source to target.
+    grp.style.setProperty('--d', `${o.delay ?? 0}ms`);
+    const col = o.color ?? c;
+    grp.style.color = col;
+    const addFlow = (start: ArrowPoint, end: ArrowPoint, height: number) => {
+      // 锚点在头顶上方；光线一次性画出，火花沿线跑一趟，目标处留一圈常驻脉冲
       const d = directionFlow({ x: start.x, y: start.y - 12 }, { x: mx, y: height - 12 }, { x: end.x, y: end.y - 12 });
-      const clipId = `direction-clip-${++nextDirectionClip}`;
-      const clip = document.createElementNS(ns, 'clipPath');
-      clip.id = clipId;
-      clip.setAttribute('clipPathUnits', 'userSpaceOnUse');
-      const outline = document.createElementNS(ns, 'path');
-      outline.setAttribute('d', d.clip);
-      clip.appendChild(outline);
-      defs.appendChild(clip);
-      // 光晕底衬：静态宽描边，不跟虚线一起动
-      const halo = document.createElementNS(ns, 'path');
-      halo.setAttribute('class', 'arw-halo');
-      halo.setAttribute('d', d.flow);
-      halo.setAttribute('stroke', o.color ?? RELATION_COLOR);
-      grp.appendChild(halo);
-      const flow = document.createElementNS(ns, 'path');
-      flow.setAttribute('class', 'arw-flow');
-      flow.setAttribute('d', d.flow);
-      flow.setAttribute('stroke', o.color ?? RELATION_COLOR);
-      flow.setAttribute('clip-path', `url(#${clipId})`);
-      const head = document.createElementNS(ns, 'path');
-      head.setAttribute('class', 'arw-head');
-      head.setAttribute('d', d.head);
-      head.setAttribute('fill', o.color ?? RELATION_COLOR);
-      if (secondary) {
-        flow.setAttribute('opacity', '.84');
-        head.setAttribute('opacity', '.84');
-      }
-      grp.append(flow, head);
+      const mk = (tag: string, cls: string, attrs: Record<string, string>) => {
+        const el = document.createElementNS(ns, tag);
+        el.setAttribute('class', cls);
+        for (const k in attrs) el.setAttribute(k, attrs[k]);
+        grp.appendChild(el);
+        return el;
+      };
+      mk('path', 'arw-halo', { d: d.flow, stroke: col });
+      mk('path', 'arw-core', { d: d.flow, stroke: col, pathLength: '1' });
+      mk('path', 'arw-shine', { d: d.flow, pathLength: '1' });
+      mk('path', 'arw-head', { d: d.head, fill: col });
+      mk('circle', 'arw-src', { cx: String(d.from.x), cy: String(d.from.y), r: '4', fill: col });
+      mk('ellipse', 'arw-ring', { cx: String(d.tip.x), cy: String(d.tip.y + 10), rx: '16', ry: '7', stroke: col });
+      const spark = mk('circle', 'arw-spark', { r: '5' });
+      spark.setAttribute('style', `offset-path: path('${d.flow}')`);
     };
     addFlow(from, to, my);
     g.appendChild(grp);
@@ -762,8 +732,13 @@ export class Board {
       // 二次贝塞尔中点
       const lx = 0.25 * from.x + 0.5 * mx + 0.25 * to.x;
       const ly = 0.25 * from.y + 0.5 * my + 0.25 * to.y;
+      // 相邻短箭头的标签会叠在一起：撞上已有标签就往上抬一格
+      const x = lx + (o.labelDx ?? 0), w = o.label.length * 18 + 24;
+      let top = ly - 32;
+      const placed = [...this.labels.querySelectorAll<HTMLElement>('.direction-label')].map((e) => ({ x: parseFloat(e.style.left), y: parseFloat(e.style.top), w: +(e.dataset.w ?? 80) }));
+      for (let n = 0; n < 6 && placed.some((p) => Math.abs(p.y - top) < 34 && Math.abs(p.x - x) < (p.w + w) / 2 + 6); n++) top -= 36;
       this.labels.appendChild(
-        h('div', { class: `arw-lbl direction-label k-${kind}${o.cls ? ` ${o.cls}` : ''}`, 'data-kind': kind, style: `left:${lx + (o.labelDx ?? 0)}px;top:${ly - 32}px;--c:${o.color ?? c};animation-delay:${o.delay ?? 0}ms` }, o.label),
+        h('div', { class: `arw-lbl direction-label k-${kind}${o.cls ? ` ${o.cls}` : ''}`, 'data-kind': kind, 'data-w': String(w), style: `left:${x}px;top:${top}px;--c:${o.color ?? c};animation-delay:${o.delay ?? 0}ms` }, o.label),
       );
     }
   }

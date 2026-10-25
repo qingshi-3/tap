@@ -45,6 +45,8 @@ export class Game {
   private tray = h('div', { class: 'tray paid-shelf' });
   private bar = h('div', { class: 'battle-bar' });
   private bagEl = h('div', { class: 'bag-strip' });
+  /** 刚锁定 / 解锁的货架格，下一次 renderTray 播锁链动画 */
+  private lockFx: { sid: number; on: boolean } | null = null;
   private drag: Drag | null = null;
   private releaseDrag: (() => void) | null = null;
   private sellZone: { el: HTMLElement; rect: { x: number; y: number; w: number; h: number } } | null = null;
@@ -239,6 +241,8 @@ export class Game {
     const at = (p: { side: Side; slot: number }) => ({ x: Math.max(30, Math.min(1250, slotX(p.side, p.slot))), y: headPos(p.side, p.slot).y + 4 });
     const linked = new Set<string>();
     const lanes: { lo: number; hi: number; lane: number }[] = [];
+    // 同一句时机只标一次（标在跨度最短的那条上），避免一排「阵亡时」
+    const said = new Set<string>();
     links
       .map((l) => {
         const p0 = at(l.from);
@@ -254,8 +258,10 @@ export class Game {
         let lane = 0;
         while (lanes.some((x) => x.lane === lane && x.lo < hi && lo < x.hi)) lane++;
         lanes.push({ lo, hi, lane });
+        const label = l.label && !said.has(l.label) ? l.label : undefined;
+        if (l.label) said.add(l.label);
         b.arrow(p0, p1, l.kind, {
-          label: l.label,
+          label,
           lift: 40 + Math.abs(p1.x - p0.x) * 0.14 + lane * 30,
           labelDx: lane === 0 ? 0 : (lane % 2 ? 1 : -1) * 28 * Math.ceil(lane / 2),
           delay: k * 70,
@@ -308,6 +314,17 @@ export class Game {
     this.el.appendChild(trialBtn);
     this.tray.replaceChildren(left, cards, supplies, h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
     this.renderBag();
+    this.lockFx = null;
+  }
+
+  /** 锁定：四方锁链包围；刚锁上从四边缠绕落锁，刚解开反向退回 */
+  private chainsFor(it: ShopItem, c: HTMLElement) {
+    const fx = this.lockFx?.sid === it.sid ? this.lockFx : null;
+    if (!it.locked && !fx) return null;
+    const mode = it.locked ? (fx ? 'in' : '') : 'out';
+    if (mode === 'in') c.classList.add('locked-shake');
+    return h('div', { class: `chains ${mode}`, 'aria-hidden': 'true' },
+      ...['t', 'r', 'b', 'l'].map((k) => h('span', { class: `ch-side ch-${k}` }, h('i'))), h('i', { class: 'ch-lock' }));
   }
 
   /** 背包：3 格装备，拖到单位身上装备，拖到货架丢弃，点开看说明 */
@@ -333,8 +350,9 @@ export class Game {
         f.tmp ? h('span', { class: 'ft-tmp' }, icon('hourglass')) : null),
       h('b', { class: 'ft-name' }, f.name),
       (() => { const [a, hp] = foodStats(it); return a || hp ? h('span', { class: 'ft-stat' }, h('em', null, `+${a}`), '/', h('i', null, `+${hp}`)) : null; })(),
-      h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))),
-      it.locked ? h('span', { class: 'ft-lock' }, '锁') : null);
+      h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))));
+    const ch = this.chainsFor(it, c);
+    if (ch) c.append(ch);
     c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
     return c;
   }
@@ -363,7 +381,9 @@ export class Game {
       c.classList.add('bonus-card');
       c.append(h('span', { class: 'bonus-tag' }, icon('star'), extra ? `升星奖励 · ${extra}` : '升星奖励', h('i', { class: 'bonus-price' }, itemIcon('coin', 'coin', 'sm'), String(PRICE))));
     }
-    if (it.locked) { c.classList.add('locked'); c.append(h('span', { class: 'lock-chip' }, '已锁定')); }
+    if (it.locked) c.classList.add('locked');
+    const ch = this.chainsFor(it, c);
+    if (ch) c.append(ch);
     if (r.gold < PRICE) c.classList.add('unaffordable');
     c.dataset.idx = String(i);
     c.setAttribute('role', 'button');
@@ -575,7 +595,12 @@ export class Game {
     } else acts.appendChild(h('span', { class: 'shelf-note' }, '拖到单位身上使用'));
     {
       const lock = h('button', { class: 'btn ghost shelf-lock' }, it.locked ? '解锁' : '锁定');
-      lock.addEventListener('click', () => { toggleLock(r, it.sid); hideTip(); sfx.click(); save(r); this.renderTray(); });
+      lock.addEventListener('click', () => {
+        toggleLock(r, it.sid); hideTip(); save(r);
+        this.lockFx = { sid: it.sid, on: it.locked };
+        (it.locked ? sfx.chain : sfx.unchain)();
+        this.renderTray();
+      });
       acts.appendChild(lock);
     }
     tip.appendChild(acts);
