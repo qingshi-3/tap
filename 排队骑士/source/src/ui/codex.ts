@@ -3,25 +3,26 @@ import '../qb/css/unit-browser.css';
 import '../qb/css/codex-search.css';
 import '../qb/css/kw-doc.css';
 import '../qb/css/codex-v2.css';
-import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type EventId, type Kw, type Line } from '../core/data';
+import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw, type Line } from '../core/data';
 import type { DemoSpec } from '../core/demo';
 import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
 import { sfx } from '../qb/audio';
 import { draftCard, tierArt, tierBadge } from '../qb/card';
 import { h } from '../qb/dom';
 import { icon } from '../qb/icons';
-import { kwRich, kwTag, trigCap, TRIG, type TrigId } from '../qb/kwtext';
+import { kwRich, kwTag, trigCap, trigMatch, TRIG, type TrigId } from '../qb/kwtext';
 import { itemIcon } from '../qb/pixelItems';
 import { equipIcon, unitTip } from '../qb/tip';
 import { battleDemo } from './battleDemo';
 
 type Tab = 'units' | 'foods' | 'equip' | 'relic' | 'kw';
-const state = { line: 'all' as Line | 'all', star: 1, sel: null as string | null, tab: 'units' as Tab, pick: {} as Record<string, string> };
+const state = { f: new Set<string>(), star: 1, sel: null as string | null, tab: 'units' as Tab, pick: {} as Record<string, string> };
 const ic = (n: string) => icon(n as Parameters<typeof icon>[0]);
 export const relicIcon = (id: string, cls = '') => itemIcon(`rl_${id.slice(2)}`, 'spell', cls);
 export const eventIcon = (id: string, cls = '') => itemIcon(`ev_${id}`, 'spell', cls);
 
-export function codexScreen(onBack: () => void): HTMLElement {
+/** cap：局内打开时传当前商店最高阶，高于它的单位标「第 N 回合」 */
+export function codexScreen(onBack: () => void, cap?: number): HTMLElement {
   const body = h('div', { class: 'cx-body' });
   const tabs: [Tab, string][] = [['units', '单位'], ['foods', '补给'], ['equip', '装备'], ['relic', '遗物'], ['kw', '规则']];
   const tabBtns = tabs.map(([k, name]) => h('button', { class: 'cx-tab', onclick: () => { sfx.click(); go(k); } }, name));
@@ -30,7 +31,7 @@ export function codexScreen(onBack: () => void): HTMLElement {
   const go = (k: Tab) => {
     state.tab = k;
     tabBtns.forEach((b, i) => b.classList.toggle('on', tabs[i][0] === k));
-    body.replaceChildren(k === 'units' ? unitBrowser() : k === 'foods' ? foodsPage() : k === 'equip' ? equipPage() : k === 'relic' ? relicPage() : kwPage());
+    body.replaceChildren(k === 'units' ? unitBrowser(cap) : k === 'foods' ? foodsPage() : k === 'equip' ? equipPage() : k === 'relic' ? relicPage() : kwPage());
     body.scrollTop = 0;
   };
   go(state.tab);
@@ -90,48 +91,70 @@ const meta = (...xs: (Node | string | null)[]) => h('div', { class: 'cx-dt-meta'
 const pill = (text: string, color: string) => h('span', { class: 'cx-pill', style: `--qc:${color}` }, text);
 const TIER_C = ['', '#bf9a70', '#46d890', '#4a9cff', '#b46cff', '#ffac2e', '#ff4a4a'];
 
-// ── 单位 ──
-function unitBrowser(): HTMLElement {
+// ── 单位：词条 / 时机 / 阶层多选筛选（同组任一、跨组同时满足）──
+const trigsOf = (id: string): Set<TrigId> => new Set([...card(id).text.matchAll(/(?:^|[。；])([^：。；]{1,10})：/g)].map((m) => trigMatch(m[1])));
+function unitBrowser(cap?: number): HTMLElement {
   const s = state;
   const root = h('div', { class: 'ub' });
+  const head = h('div', { class: 'ub-filters' });
+  const grid = h('div', { class: 'ub-grid' });
+  const detail = h('div', { class: 'ub-detail cx-detail' });
+  const groups: { key: string; test: (d: CardDef) => boolean; node: () => Node; color: string }[][] = [
+    [...LINES.map((t) => ({ key: `l:${t}`, test: (d: CardDef) => hasTag(d, t), color: LINE_INFO[t].color, node: () => h('span', { class: 'ub-fw' }, LINE_INFO[t].name) })),
+      ...(Object.keys(KW_INFO) as Kw[]).map((k) => ({ key: `k:${k}`, test: (d: CardDef) => d.kws.includes(k), color: KW_INFO[k].color, node: () => kwTag(KW_INFO[k].name, '', '', true) }))],
+    (Object.keys(TRIG) as TrigId[]).filter((id) => id !== 'cond').map((id) => ({ key: `t:${id}`, test: (d: CardDef) => trigsOf(d.id).has(id), color: TRIG[id].color, node: () => trigCap(id, TRIG[id].name, true) })),
+    [1, 2, 3, 4, 5, 6].map((t) => ({ key: `r:${t}`, test: (d: CardDef) => d.tier === t, color: TIER_C[t], node: () => tierBadge(t as 1) })),
+  ];
+  // 引擎和词条在同一行，但仍是两组
+  const facet = (key: string) => key[0];
+  const pass = (d: CardDef) => ['l', 'k', 't', 'r'].every((f) => {
+    const on = groups.flat().filter((g) => facet(g.key) === f && s.f.has(g.key));
+    return !on.length || on.some((g) => g.test(d));
+  });
+  const show = (id: string) => {
+    s.sel = id;
+    grid.querySelectorAll<HTMLElement>('.ub-cell').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
+    const d = card(id);
+    const demo = unitDemo(id, s.star as 1 | 2 | 3);
+    detail.replaceChildren(
+      h('div', { class: 'cx-d-head' },
+        tierArt('cx-d-art', id, d.tier),
+        h('div', { class: 'ub-d-title' },
+          h('b', { class: 'cx-d-name' }, d.name),
+          h('div', { class: 'ub-d-meta' }, [d.line, d.tag2].filter((t): t is Line => !!t).map((t) => h('span', { class: 'ub-d-fac', style: `--fc:${LINE_INFO[t].color}` }, LINE_INFO[t].name)), tierBadge(d.tier),
+            cap && d.tier > cap ? h('span', { class: 'ub-d-lock' }, `第 ${d.tier * 2 - 1} 回合开放`) : null))),
+      ...(demo ? [battleDemo(demo, d.name)] : []),
+      h('section', { class: 'cx-lv' }, unitTip(id, s.star, null, false)),
+    );
+    detail.scrollTop = 0;
+  };
   const render = () => {
-    const color = s.line === 'all' ? '#ffd36b' : LINE_INFO[s.line].color;
-    root.style.setProperty('--fc', color);
-    const tab = (k: Line | 'all', name: string, c: string) => h('button', {
-      class: `ub-fac${k === s.line ? ' on' : ''}`, style: `--fc:${c}`,
-      onclick: () => { if (k === s.line) return; sfx.click(); s.line = k; s.sel = null; render(); },
-    }, name);
-    const lines = h('div', { class: 'ub-facs' }, tab('all', '全部', '#ffd36b'), LINES.map((k) => tab(k, LINE_INFO[k].name, LINE_INFO[k].color)));
+    const chip = (g: (typeof groups)[0][0]) => h('button', {
+      class: `ub-chip${s.f.has(g.key) ? ' on' : ''}${cap && g.key[0] === 'r' && +g.key.slice(2) > cap ? ' shut' : ''}`, style: `--fc:${g.color}`,
+      onclick: () => { sfx.click(); s.f.has(g.key) ? s.f.delete(g.key) : s.f.add(g.key); render(); },
+    }, g.node());
     const stars = h('div', { class: 'ub-stars', 'aria-label': '查看星级' }, [1, 2, 3].map((lv) => h('button', {
       class: `ub-star${lv === s.star ? ' on' : ''}`, 'aria-label': `${lv} 星`,
       onclick: () => { if (lv === s.star) return; sfx.click(); s.star = lv; render(); },
     }, '★'.repeat(lv))));
-    const defs = SHOP_POOL.filter((d) => s.line === 'all' || hasTag(d, s.line as Line)).sort((a, b) => a.tier - b.tier);
+    const defs = SHOP_POOL.filter(pass).sort((a, b) => a.tier - b.tier);
+    const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), String(defs.length));
+    head.replaceChildren(
+      h('div', { class: 'ub-frow' }, groups[0].map(chip), h('i', { class: 'ub-gap' }),
+        ...(cap ? [h('span', { class: 'ub-cap' }, '可刷')] : []), groups[2].map(chip), clear),
+      h('div', { class: 'ub-frow' }, groups[1].map(chip), h('i', { class: 'ub-gap' }), stars),
+    );
     if (!s.sel || !defs.some((d) => d.id === s.sel)) s.sel = defs[0]?.id ?? null;
-    const grid = h('div', { class: 'ub-grid' });
-    const detail = h('div', { class: 'ub-detail cx-detail' });
-    const show = (id: string) => {
-      s.sel = id;
-      grid.querySelectorAll<HTMLElement>('.ub-cell').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
-      const d = card(id);
-      const demo = unitDemo(id, s.star as 1 | 2 | 3);
-      detail.replaceChildren(
-        h('div', { class: 'cx-d-head' },
-          tierArt('cx-d-art', id, d.tier),
-          h('div', { class: 'ub-d-title' },
-            h('b', { class: 'cx-d-name' }, d.name),
-            h('div', { class: 'ub-d-meta' }, [d.line, d.tag2].filter((t): t is Line => !!t).map((t) => h('span', { class: 'ub-d-fac', style: `--fc:${LINE_INFO[t].color}` }, LINE_INFO[t].name)), tierBadge(d.tier)))),
-        ...(demo ? [battleDemo(demo, d.name)] : []),
-        h('section', { class: 'cx-lv' }, unitTip(id, s.star, null, false)),
-      );
-      detail.scrollTop = 0;
-    };
-    grid.replaceChildren(...defs.map((d) => h('button', { class: 'ub-cell', 'data-id': d.id, 'aria-label': d.name, onclick: () => { sfx.click(); show(d.id); } },
-      draftCard(d.id, { level: s.star }))));
-    if (s.sel) show(s.sel);
-    root.replaceChildren(h('div', { class: 'ub-head' }, lines, stars), h('div', { class: 'ub-split' }, grid, detail));
+    grid.replaceChildren(...defs.map((d) => {
+      const shut = !!cap && d.tier > cap;
+      return h('button', { class: `ub-cell${shut ? ' locked' : ''}`, 'data-id': d.id, 'aria-label': d.name, onclick: () => { sfx.click(); show(d.id); } },
+        draftCard(d.id, { level: s.star }), shut ? h('span', { class: 'ub-lock' }, `第 ${d.tier * 2 - 1} 回合`) : null);
+    }));
+    if (!defs.length) grid.append(h('p', { class: 'ub-empty' }, '没有同时满足的单位'));
+    if (s.sel) show(s.sel); else detail.replaceChildren();
   };
   render();
+  root.replaceChildren(head, h('div', { class: 'ub-split' }, grid, detail));
   return root;
 }
 

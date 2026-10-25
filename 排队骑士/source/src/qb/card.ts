@@ -93,7 +93,7 @@ export function foodCard(id: string, val?: [number, number]) {
   );
 }
 
-/** 阶级徽记（像素符号）：一阶宝石 → 二阶羽翼宝石 → 三阶盾 → 四阶星 → 五阶冠 → 六阶金冠。
+/** 阶级徽记（像素符号）：一阶宝石 → 二阶羽翼宝石 → 三阶双剑 → 四阶星 → 五阶冠 → 六阶圣焰。
  *  x 主体（自动上亮下暗）、g 金、o 高光填色、k 深色刻线、w 白、r 主色；空格旁自动描黑边。 */
 const TIER_PX: string[][] = [
   [
@@ -123,18 +123,19 @@ const TIER_PX: string[][] = [
     '.................',
   ],
   [
-    '..xxxxxxxxxxxxx..',
-    '..xwxxxxxxxxxxx..',
-    '..xwxxxxkxxxxxx..',
-    '..xxxxxkokxxxxx..',
-    '..xxxxkoookxxxx..',
-    '..xxxkoooookxxx..',
-    '...xxxkoookxxx...',
-    '....xxxkokxxx....',
-    '.....xxxkxxx.....',
-    '......xxxxx......',
-    '.......xxx.......',
-    '........x........',
+    '.xx...........xx.',
+    '.xwx.........xwx.',
+    '..xwx.......xwx..',
+    '...xwx.....xwx...',
+    '....xwx...xwx....',
+    '.....xwx.xwx.....',
+    '......xwxwx......',
+    '.......xox.......',
+    '..g...xx.xx...g..',
+    '..ggkxx...xxkgg..',
+    '...gkk.....kkg...',
+    '..kkgg.....ggkk..',
+    '.gg...........gg.',
   ],
   [
     '........x........',
@@ -165,18 +166,19 @@ const TIER_PX: string[][] = [
     '..xxxxxxxxxxxxx..',
   ],
   [
-    '........w........',
-    '..r....wrw....r..',
-    '.rwr....g....rwr.',
-    '..g.....g.....g..',
-    '..gg...ggg...gg..',
-    'x.ggg.ggggg.ggg.x',
-    'xx.gwggggggggg.xx',
-    '.x.ggggggggggg.x.',
-    '..kkkkkkkkkkkkk..',
-    '..ggrgggrgggrgg..',
-    '..kkkkkkkkkkkkk..',
-    '..ggggggggggggg..',
+    '........x........',
+    '.......xx........',
+    '.......xxx....x..',
+    '......xxxx...xx..',
+    '..x...xxxxx..xx..',
+    '..xx.xxxxxxx.xx..',
+    '..xxxxxggxxxxxx..',
+    '..xxxxxgggxxxxx..',
+    '..xxxxggggggxxx..',
+    '..xxxgggwwgggxx..',
+    '...xxggwwwwggx...',
+    '....xxgggggxx....',
+    '......xxxxx......',
   ]
 ];
 const TIER_SVG: string[] = [];

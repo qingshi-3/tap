@@ -7,15 +7,17 @@ import '../qb/css/v05.css';
 import { ATOM_INFO, BOSSES, card, EQUIP, EVENT_INFO, FOOD, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adRelic, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice,
-  FORM_INFO, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
+  FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
   WIN_GOAL, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
 import { QUEUE_MAX } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
 import { Board, bodyPos, headPos, keywordsOf, slotX, SLOT_SPACING, UNIT_Y, UnitView } from '../qb/board';
-import { draftCard, foodCard } from '../qb/card';
+import { draftCard, foodCard, tierBadge } from '../qb/card';
+import { codexScreen } from './codex';
 import { h, toStage, wait } from '../qb/dom';
 import { icon } from '../qb/icons';
+import { kwRich } from '../qb/kwtext';
 import { itemIcon } from '../qb/pixelItems';
 import { equipIcon, equipTip, foodTip, hideTip, setTipHideHook, showTip, unitTip } from '../qb/tip';
 import { showRewardedAd } from './ads';
@@ -134,11 +136,20 @@ export class Game {
       }));
     const menu = h('button', { class: 'icon-btn', 'aria-label': '菜单' }, icon('menu'));
     menu.addEventListener('click', () => { sfx.click(); this.showMenu(); });
+    const book = h('button', { class: 'icon-btn hud-book', 'aria-label': '图鉴' }, icon('book'));
+    book.addEventListener('click', () => { sfx.click(); this.showCodex(); });
+    const tierNow = h('div', { class: 'hud-tier', title: '商店当前能刷到的最高阶' }, h('span', null, '可刷'), tierBadge(maxTier(r.turn)));
     this.hud.replaceChildren(
       h('div', { class: 'hud-left' }, lives, relics),
       route,
-      h('div', { class: 'hud-right' }, h('div', { class: 'hud-wins' }, h('span', null, '回合'), h('b', null, r.turn)), menu),
+      h('div', { class: 'hud-right' }, tierNow, h('div', { class: 'hud-wins' }, h('span', null, '回合'), h('b', null, r.turn)), book, menu),
     );
+  }
+
+  private showCodex() {
+    const ov = codexScreen(() => ov.remove(), maxTier(this.run.turn));
+    ov.classList.add('cx-ingame');
+    this.el.appendChild(ov);
   }
 
   private showMenu() {
@@ -343,7 +354,7 @@ export class Game {
       const extra = badge?.textContent?.trim();
       badge?.remove();
       c.classList.add('bonus-card');
-      c.append(h('span', { class: 'bonus-tag' }, icon('star'), extra ? `升星奖励 · ${extra}` : '升星奖励'));
+      c.append(h('span', { class: 'bonus-tag' }, icon('star'), extra ? `升星奖励 · ${extra}` : '升星奖励', h('i', { class: 'bonus-price' }, itemIcon('coin', 'coin', 'sm'), String(PRICE))));
     }
     if (it.locked) { c.classList.add('locked'); c.append(h('span', { class: 'lock-chip' }, '已锁定')); }
     if (r.gold < PRICE) c.classList.add('unaffordable');
@@ -623,33 +634,43 @@ export class Game {
 
   // ───────────── 岔路 / 装备箱 / 遗物 / 事件 ─────────────
 
-  /** 遗物：3 选 1，广告多一选（每次 1 次） */
+  /** 遗物：3 选 1，广告多一选（每次 1 次）。先点选再确认，手机上不会误触 */
   private showRelic(): Promise<void> {
     const r = this.run;
     return new Promise((done) => {
       const ov = h('div', { class: 'chest-ov relic-ov' });
+      let sel = -1;
       const paint = (fresh: number) => {
         const p = r.relicPick!;
+        const take = h('button', { class: 'btn primary rl-take', disabled: true }, '先选一件');
         const items = p.opts.map((id, i) => {
           const d = RELIC[id];
-          const el = h('button', { class: 'chest-item relic-item' },
-            h('div', { class: 'ci-beam' }),
-            h('div', { class: 'ci-ico relic-ico' }, itemIcon(`rl_${id.slice(2)}`, 'spell')),
-            h('b', { class: 'ci-name' }, d.name),
-            h('div', { class: 'ci-text' }, d.text));
+          const el = h('button', { class: 'rl-card' },
+            h('div', { class: 'rl-art' }, h('i', { class: 'rl-rays' }), h('i', { class: 'rl-ped' }), itemIcon(`rl_${id.slice(2)}`, 'spell', 'rl-ico')),
+            h('b', { class: 'rl-name' }, d.name),
+            h('i', { class: 'rl-rule' }),
+            h('p', { class: 'rl-text' }, ...kwRich(d.text)));
           el.addEventListener('click', () => {
-            sfx.reward();
-            pickRelic(r, i);
-            save(r);
-            ov.remove();
-            this.renderHud();
-            done();
+            sfx.click();
+            sel = i;
+            items.forEach((x, j) => { x.classList.toggle('on', j === i); x.classList.toggle('off', j !== i); });
+            take.disabled = false;
+            take.replaceChildren(`拿走「${d.name}」`);
           });
           if (i >= fresh && !reduced()) el.animate([{ transform: 'rotateY(90deg) scale(.8)', opacity: 0 }, { transform: 'rotateY(0) scale(1)', opacity: 1 }],
             { duration: 420, delay: 150 + (i - fresh) * 220, easing: 'cubic-bezier(.2,1.3,.4,1)', fill: 'backwards' });
           return el;
         });
-        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: p.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '多一个选项')), h('i', null, p.ad ? '已用' : '广告'));
+        take.addEventListener('click', () => {
+          if (sel < 0) return;
+          sfx.reward();
+          pickRelic(r, sel);
+          save(r);
+          ov.remove();
+          this.renderHud();
+          done();
+        });
+        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: p.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '多翻一件')), h('i', null, p.ad ? '已用' : '广告'));
         ad.addEventListener('click', async () => {
           if (p.ad) return;
           const ok = await showRewardedAd(this.el, '遗物多一选', '再多翻开一件遗物');
@@ -657,11 +678,16 @@ export class Game {
           const n = p.opts.length;
           if (!adRelic(r)) return;
           save(r);
+          sel = -1;
           paint(n);
         });
-        ov.replaceChildren(h('div', { class: 'chest-card' },
-          h('h2', null, '遗物'), h('p', null, '选 1 件，整局生效'),
-          h('div', { class: 'chest-items' }, ...items), h('div', { class: 'chest-acts' }, ad)));
+        const owned = r.relics.length ? h('div', { class: 'rl-owned' }, h('span', null, '已有'), ...r.relics.map((id) => itemIcon(`rl_${id.slice(2)}`, 'spell'))) : null;
+        ov.replaceChildren(h('div', { class: 'chest-card rl-wrap' },
+          h('div', { class: 'rl-ribbon' }, '战利品'),
+          h('h2', null, '选一件遗物'),
+          h('p', null, '整局生效'),
+          h('div', { class: 'rl-cards' }, ...items),
+          h('div', { class: 'rl-acts' }, ...(owned ? [owned] : []), take, ad)));
       };
       paint(0);
       this.el.appendChild(ov);

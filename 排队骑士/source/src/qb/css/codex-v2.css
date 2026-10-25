@@ -47,3 +47,39 @@
 .cx-tile > .kwtrig { font-size: 20px; white-space: nowrap; }
 .cx-dt-name :is(.kwi, .kwt) { font-size: 32px; }
 .bdemo.spot .bdemo-replay { opacity: 0; pointer-events: none; transition: opacity .2s; }
+
+/* ── 单位筛选：两行多选胶囊 ── */
+.ub-filters { display: flex; flex-direction: column; gap: 6px; flex: none; }
+.ub-frow { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ub-gap { flex: 1; }
+.ub-chip {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 9px;
+  font-size: 18px; color: #d8d4f2; background: #1d1840;
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--fc) 35%, transparent);
+}
+.ub-chip .kwtrig, .ub-chip .kwi, .ub-chip .kwt { font-size: 18px; }
+.ub-chip.on { background: color-mix(in srgb, var(--fc) 30%, #1d1840); box-shadow: inset 0 0 0 3px var(--fc), 0 0 10px color-mix(in srgb, var(--fc) 45%, transparent); }
+.ub-chip.on .ub-fw { color: #fff; }
+.ub-fw { color: var(--fc); font-weight: 800; }
+.ub-chip:has(.tier-badge) { width: 50px; padding: 0; }
+.ub-chip .tier-badge { transform: scale(.82); }
+.ub-chip.shut .tier-badge { filter: grayscale(.85) brightness(.6); }
+.ub-cap { font-size: 18px; color: var(--gold); padding: 0 2px 0 8px; }
+.ub-chip:not(.shut) + .ub-chip.shut { margin-left: 10px; }
+.ub-chip:not(.shut):has(+ .ub-chip.shut) { box-shadow: inset 0 0 0 2px var(--gold); }
+.ub-chip.on:not(.shut):has(+ .ub-chip.shut) { box-shadow: inset 0 0 0 3px var(--gold), 0 0 10px rgba(255, 211, 107, .5); }
+.ub-clear { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; min-width: 64px; padding: 0 10px; margin-left: 6px; font: 20px var(--num); color: #ffe2a0; background: #2a2152; }
+.ub-clear svg { width: 18px; height: 18px; }
+.ub-clear:disabled { color: #a49cc8; background: #17132f; }
+.ub-clear:disabled svg { display: none; }
+.ub-empty { grid-column: 1 / -1; margin: 30px 0; font-size: 20px; color: var(--muted); text-align: center; }
+.codex .ub-stars .ub-star { min-height: 44px; }
+
+/* 局内打开图鉴：盖在备战界面上 */
+.screen.codex.cx-ingame { z-index: 70; animation: v05Fade .2s ease-out; }
+.ub-chip { flex: none; padding: 0 7px; white-space: nowrap; }
+.ub-chip > * { white-space: nowrap; }
+.codex .ub-stars .ub-star { min-width: 54px; }
+.ub-frow { gap: 5px; }
+.ub-chip { padding: 0 5px; }
+.codex .ub-stars .ub-star { min-width: 46px; }
