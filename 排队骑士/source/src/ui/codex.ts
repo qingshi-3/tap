@@ -141,16 +141,16 @@ function unitBrowser(cap?: number): HTMLElement {
     const defs = SHOP_POOL.filter(pass).sort((a, b) => a.tier - b.tier);
     const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), String(defs.length));
     const grp = (label: string, ...xs: Node[]) => h('div', { class: 'ub-grp' }, h('span', { class: 'ub-lab' }, label), h('div', { class: 'ub-set' }, ...xs));
+    // 左：流派/词条 + 时机；右：阶层、星级两行共用一列标签、等宽对齐
     head.replaceChildren(
-      h('div', { class: 'ub-frow' },
-        grp('流派', ...groups[0].filter((g) => g.key[0] === 'l').map(chip)),
-        grp('词条', ...groups[0].filter((g) => g.key[0] === 'k').map(chip)),
-        h('i', { class: 'ub-gap' }),
-        grp(cap ? '阶层 · 可刷' : '阶层', ...groups[2].map(chip))),
-      h('div', { class: 'ub-frow' },
-        grp('时机', ...groups[1].map(chip)),
-        h('i', { class: 'ub-gap' }),
-        grp('星级', stars), clear),
+      h('div', { class: 'ub-main' },
+        h('div', { class: 'ub-frow' },
+          grp('流派', ...groups[0].filter((g) => g.key[0] === 'l').map(chip)),
+          grp('词条', ...groups[0].filter((g) => g.key[0] === 'k').map(chip))),
+        h('div', { class: 'ub-frow' }, grp('时机', ...groups[1].map(chip)))),
+      h('div', { class: 'ub-side' },
+        h('span', { class: 'ub-lab' }, '阶层'), h('div', { class: 'ub-set ub-tiers' }, ...groups[2].map(chip)),
+        h('span', { class: 'ub-lab' }, '星级'), h('div', { class: 'ub-side-row' }, stars, clear)),
     );
     if (!s.sel || !defs.some((d) => d.id === s.sel)) s.sel = defs[0]?.id ?? null;
     grid.replaceChildren(...defs.map((d) => {

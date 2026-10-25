@@ -26,6 +26,11 @@ export class BattlePlayer {
   rate = 1;
   hook: ((ev: Ev, i: number) => Promise<void> | void) | null = null;
   private stopped = false;
+  /** 批量结算中：同一来源一次打到多个目标，特效一次铺开，不逐个过 */
+  private batch = false;
+  private batchSfx: (() => void) | null = null;
+  /** 批量时同一目标的第几个飘字，往上错开 */
+  private popN = new Map<number, number>();
 
   /** bar 为 null：图鉴演示模式（静音、固定 1 倍速，无速度 / 跳过按钮） */
   constructor(private board: Board, private fx: FX, bar: HTMLElement | null) {
@@ -63,6 +68,15 @@ export class BattlePlayer {
   private w(ms: number) {
     return this.skipping ? Promise.resolve() : new Promise<void>((r) => setTimeout(r, ms / this.speed));
   }
+
+  private bsfx(f: () => void) { if (this.batch) this.batchSfx ??= f; else f(); }
+  private yo(tgt: number) {
+    if (!this.batch) return 0;
+    const n = this.popN.get(tgt) ?? 0;
+    this.popN.set(tgt, n + 1);
+    return n * 34;
+  }
+  private bw(ms: number) { return this.batch ? Promise.resolve() : this.w(ms); }
 
   private say(text: string) {
     if (this.skipping) return;
@@ -128,6 +142,14 @@ export class BattlePlayer {
     for (let i = 0; i < out.events.length; i++) {
       const ev = out.events[i];
       if (this.stopped) return;
+      const end = this.groupEnd(out.events, i);
+      if (end > i) {
+        await this.settle(false);
+        if (this.hook) for (let k = i; k <= end; k++) await this.hook(out.events[k], k);
+        await this.handleGroup(out.events.slice(i, end + 1));
+        i = end;
+        continue;
+      }
       if (ev.t !== 'die') await this.settle(ev.t === 'clash' || ev.t === 'end');
       // 召唤要等单位出现后再框选
       if (this.hook && ev.t !== 'summon') await this.hook(ev, i);
@@ -138,6 +160,53 @@ export class BattlePlayer {
     // 跳过时最后对齐一次
     this.skipping = false;
     this.phase.textContent = out.result === 'win' ? '胜利' : out.result === 'lose' ? '失败' : '平局';
+  }
+
+  /** 同一来源、同类效果连续打到多个目标（中间夹着的阵亡也算进来）→ 返回这一批最后一个事件的下标；不成批返回 i */
+  private groupEnd(evs: Ev[], i: number) {
+    const a = evs[i];
+    // 同一来源的伤害/治疗/增益/格挡/词条可以混在一起（如「各造成 1 伤害并 +1 攻」逐个交替发出）
+    const key = (e: Ev) => e.t === 'dmg' ? (e.kind === 'melee' || e.src == null ? null : `${e.src}`)
+      : e.t === 'heal' || e.t === 'buff' || e.t === 'block' || e.t === 'kw' ? `${e.src}` : null;
+    const k = key(a);
+    if (!k) return i;
+    const tg = new Set([(a as { tgt: number }).tgt]);
+    let end = i;
+    for (let j = i + 1; j < evs.length; j++) {
+      const e = evs[j];
+      if (e.t === 'die') continue;
+      if (key(e) !== k) break;
+      tg.add((e as { tgt: number }).tgt);
+      end = j;
+    }
+    return tg.size > 1 ? end : i;
+  }
+
+  /** 一批效果：一道光扫过所有目标，然后同时结算、同时飘字，一声音效 */
+  private async handleGroup(evs: Ev[]) {
+    const first = evs.find((e) => e.t !== 'die')! as Extract<Ev, { tgt: number }>;
+    const src = first.src;
+    if (!this.skipping) {
+      const tgts = evs.filter((e): e is Extract<Ev, { tgt: number }> => e.t !== 'die').map((e) => this.pos(e.tgt));
+      const xs = tgts.map((p) => p.x);
+      const c = first.t === 'heal' ? '#7dffb0' : first.t === 'block' ? '#ffe08a' : this.color(src);
+      const from = src != null && this.live.has(src) ? this.pos(src) : null;
+      const x0 = Math.min(...xs), x1 = Math.max(...xs);
+      // 从施放者那一侧扫向另一侧
+      const rev = from ? Math.abs(from.x - x1) < Math.abs(from.x - x0) : false;
+      if (from && (from.x < x0 - 20 || from.x > x1 + 20)) this.fx.orb({ x: from.x, y: from.y - 30 }, { x: rev ? x1 : x0, y: tgts[0].y - 30 }, c, 200 / this.speed);
+      if (from) await this.w(from.x < x0 - 20 || from.x > x1 + 20 ? 200 : 0);
+      this.fx.sweep(rev ? x1 + 50 : x0 - 50, rev ? x0 - 50 : x1 + 50, tgts[0].y - 20, c, 380 / this.speed);
+      await this.w(140);
+    }
+    this.batch = true;
+    this.batchSfx = null;
+    this.popN.clear();
+    for (const e of evs) await this.handle(e);
+    this.batch = false;
+    (this.batchSfx as (() => void) | null)?.();
+    this.batchSfx = null;
+    await this.w(first.t === 'dmg' ? 260 : 240);
   }
 
   private async settle(layout: boolean) {
@@ -179,7 +248,7 @@ export class BattlePlayer {
         const T = this.live.get(ev.tgt);
         if (!T) return;
         const p = this.pos(ev.tgt);
-        if (!quiet && ev.kind !== 'melee' && ev.src != null && this.live.has(ev.src)) {
+        if (!quiet && !this.batch && ev.kind !== 'melee' && ev.src != null && this.live.has(ev.src)) {
           const a = this.pos(ev.src);
           fx.orb({ x: a.x, y: a.y - 30 }, { x: p.x, y: p.y - 30 }, this.color(ev.src), 260 / this.speed);
           await this.w(260);
@@ -190,23 +259,24 @@ export class BattlePlayer {
         T.s.shield = ev.shield;
         this.paint(T, true);
         if (quiet) return;
+        const yo = this.yo(ev.tgt);
         if (shieldHit) {
           fx.ring(p.x, p.y - 20, '#8fd8ff', 54, 20);
-          fx.float(p.x, p.y - 80, `护盾 -${ev.n}`, 'shield', 800);
-          this.sfx.shieldHit();
+          fx.float(p.x, p.y - 80 - yo, `护盾 -${ev.n}`, 'shield', 800);
+          this.bsfx(() => this.sfx.shieldHit());
         } else if (ev.blocked) {
           // 格挡碎裂
           fx.burst(p.x, p.y - 20, '#ffe08a', { n: 18, speed: 6, kind: 'shard', size: 4 });
           fx.ring(p.x, p.y - 20, '#ffe08a', 50, 20);
-          fx.float(p.x, p.y - 80, '格挡', 'shield', 800);
-          this.sfx.shieldHit();
+          fx.float(p.x, p.y - 80 - yo, '格挡', 'shield', 800);
+          this.bsfx(() => this.sfx.shieldHit());
         } else {
-          fx.float(p.x, p.y - 80, `-${ev.n}`, 'dmg', 800);
+          fx.float(p.x, p.y - 80 - yo, `-${ev.n}`, 'dmg', 800);
           if (ev.kind === 'splash') fx.burst(p.x, p.y - 20, '#ffb340', { n: 12, speed: 5 });
           if (ev.kind === 'burn') fx.burst(p.x, p.y - 20, '#ff6a2a', { n: 10, speed: 3, up: 2 });
-          if (ev.kind !== 'melee') this.sfx.hit(ev.n >= 6);
+          if (ev.kind !== 'melee') this.bsfx(() => this.sfx.hit(ev.n >= 6));
         }
-        await this.w(ev.kind === 'melee' ? 100 : 180);
+        await this.bw(ev.kind === 'melee' ? 100 : 180);
         return;
       }
       case 'heal': {
@@ -215,22 +285,23 @@ export class BattlePlayer {
         T.s.hp = ev.hp;
         this.paint(T, true);
         if (quiet) return;
+        const yo = this.yo(ev.tgt);
         const p = this.pos(ev.tgt);
-        if (ev.src !== ev.tgt && this.live.has(ev.src)) {
+        if (!this.batch && ev.src !== ev.tgt && this.live.has(ev.src)) {
           const a = this.pos(ev.src);
           fx.orb({ x: a.x, y: a.y - 30 }, { x: p.x, y: p.y - 30 }, '#7dffb0', 240 / this.speed);
           await this.w(240);
         }
-        fx.float(p.x, p.y - 80, `+${ev.n}`, 'buff', 800);
-        this.sfx.buff();
-        await this.w(180);
+        fx.float(p.x, p.y - 80 - yo, `+${ev.n}`, 'buff', 800);
+        this.bsfx(() => this.sfx.buff());
+        await this.bw(180);
         return;
       }
       case 'buff': {
         const T = this.live.get(ev.tgt);
         if (!T) return;
         const p = this.pos(ev.tgt);
-        if (!quiet && ev.src !== ev.tgt && this.live.has(ev.src)) {
+        if (!quiet && !this.batch && ev.src !== ev.tgt && this.live.has(ev.src)) {
           const a = this.pos(ev.src);
           fx.orb({ x: a.x, y: a.y - 30 }, { x: p.x, y: p.y - 30 }, this.color(ev.src), 240 / this.speed);
           await this.w(240);
@@ -240,18 +311,19 @@ export class BattlePlayer {
         T.s.maxHp = Math.max(T.s.maxHp, ev.nowHp);
         this.paint(T, true);
         if (quiet) return;
+        const yo = this.yo(ev.tgt);
         const neg = ev.atk < 0 || ev.hp < 0;
         const sg = (n: number) => (n >= 0 ? `+${n}` : `${n}`);
-        fx.statPop(p.x, p.y - 80, `${sg(ev.atk)}/${sg(ev.hp)}`, ev.perm ? '永久' : '', neg ? 'pt-atk' : ev.atk >= ev.hp ? 'pt-atk' : 'pt-hp', 760);
-        this.sfx.buff();
-        await this.w(200);
+        fx.statPop(p.x, p.y - 80 - yo, `${sg(ev.atk)}/${sg(ev.hp)}`, ev.perm ? '永久' : '', neg ? 'pt-atk' : ev.atk >= ev.hp ? 'pt-atk' : 'pt-hp', 760);
+        this.bsfx(() => this.sfx.buff());
+        await this.bw(200);
         return;
       }
       case 'block': {
         const T = this.live.get(ev.tgt);
         if (!T) return;
         const p = this.pos(ev.tgt);
-        if (!quiet && ev.src !== ev.tgt && this.live.has(ev.src)) {
+        if (!quiet && !this.batch && ev.src !== ev.tgt && this.live.has(ev.src)) {
           const a = this.pos(ev.src);
           fx.orb({ x: a.x, y: a.y - 30 }, { x: p.x, y: p.y - 30 }, '#ffe08a', 240 / this.speed);
           await this.w(240);
@@ -259,9 +331,10 @@ export class BattlePlayer {
         T.s.block = ev.block;
         this.paint(T, true);
         if (quiet) return;
-        fx.statPop(p.x, p.y - 80, `+${ev.n}`, '格挡', 'pt-block', 760);
-        this.sfx.shield();
-        await this.w(180);
+        const yo = this.yo(ev.tgt);
+        fx.statPop(p.x, p.y - 80 - yo, `+${ev.n}`, '格挡', 'pt-block', 760);
+        this.bsfx(() => this.sfx.shield());
+        await this.bw(180);
         return;
       }
       case 'kw': {
@@ -270,11 +343,12 @@ export class BattlePlayer {
         T.s.kws = [...new Set([...T.s.kws, ...ev.kws])];
         this.paint(T, true);
         if (quiet) return;
+        const yo = this.yo(ev.tgt);
         const p = this.pos(ev.tgt);
         const names: Record<string, string> = { reborn: '复生', splash: '溅射', block: '格挡' };
-        fx.float(p.x, p.y - 80, ev.kws.map((k) => names[k] ?? k).join(' '), 'grant', 800);
-        this.sfx.buff();
-        await this.w(180);
+        fx.float(p.x, p.y - 80 - yo, ev.kws.map((k) => names[k] ?? k).join(' '), 'grant', 800);
+        this.bsfx(() => this.sfx.buff());
+        await this.bw(180);
         return;
       }
       case 'die': {
