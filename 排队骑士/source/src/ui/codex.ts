@@ -7,7 +7,7 @@ import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO
 import type { DemoSpec } from '../core/demo';
 import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
 import { sfx } from '../qb/audio';
-import { draftCard, tierArt, tierBadge } from '../qb/card';
+import { draftCard, foodRow, tierArt, tierBadge } from '../qb/card';
 import { h } from '../qb/dom';
 import { icon } from '../qb/icons';
 import { kwRich, kwTag, trigCap, trigMatch, TRIG, type TrigId } from '../qb/kwtext';
@@ -166,9 +166,9 @@ function foodsPage(): HTMLElement {
     tile: () => tile(itemIcon(f.id, 'pack'), f.name),
     big: () => itemIcon(f.id, 'pack'),
     title: () => h('span', null, f.name),
-    meta: () => meta(tierBadge(f.tier), price(f.price ?? 3), f.ench ? pill('装备', '#6fe6ff') : null),
-    line: () => kwRich(f.text.replace('+{a}/+{h}', '攻血')),
-    demo: f.ench ? equipDemo(f.ench) : null,
+    meta: () => meta(tierBadge(f.tier), price(f.price ?? 3)),
+    line: () => [foodRow(f.id) ?? '', ...(f.short ? kwRich(f.short) : [])],
+    demo: null,
   }));
   return split('foods', [1, 2, 3, 4, 5, 6].map((t) => ({ title: `${t} 阶`, items: items(t) })));
 }
@@ -184,7 +184,7 @@ function equipPage(): HTMLElement {
     line: () => kwRich(e.text),
     demo: equipDemo(e.id),
   }));
-  return split('equip', [0, 1, 2, 3].map((q) => ({ title: Q_INFO[q].name, items: items(q) })), '赢下精英战开箱，3 选 1；每人 1 件，橙装全队 1 件');
+  return split('equip', [0, 1, 2, 3].map((q) => ({ title: Q_INFO[q].name, items: items(q) })), '只从精英战/Boss 开箱获得，3 选 1；看广告升一品，紫→橙每局 2 次');
 }
 
 // ── 遗物 ──

@@ -1,4 +1,4 @@
-import { card, FOOD, foodText, KW_INFO } from '../core/data';
+import { ALL, card, FOOD, KW_INFO } from '../core/data';
 import { FACTION_INFO, RARITY_NAMES, unitDef, type Rarity } from './shim';
 import { h } from './dom';
 import { icon } from './icons';
@@ -73,6 +73,19 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   );
 }
 
+/** 补给 icon 行：目标 · 攻血 · 时长（不写长文） */
+export function foodRow(id: string, val?: [number, number]) {
+  const fd = FOOD[id];
+  const [a, hp] = val ?? [fd.atk ?? 0, fd.hp ?? 0];
+  if (id === 'f_can') return null;
+  const tgt = fd.n === ALL ? '全队' : fd.n ? `随机${fd.n}` : '单体';
+  const chip = (cls: string, ...k: (string | Node)[]) => h('span', { class: `fr-chip ${cls}` }, ...k);
+  return h('div', { class: 'food-row' },
+    chip(fd.n === ALL ? 'fr-all' : 'fr-tgt', icon(fd.n === ALL ? 'flag' : 'target'), tgt),
+    a ? chip('fr-atk', icon('sword'), `+${a}`) : null,
+    hp ? chip('fr-hp', icon('heart'), `+${hp}`) : null,
+    id === 'f_elixir' ? null : fd.tmp ? chip('fr-tmp', icon('hourglass'), '本场') : chip('fr-perm', icon('star'), '永久'));
+}
 /** 补给卡：同一套卡框（中立色），立绘换成像素道具 */
 export function foodCard(id: string, val?: [number, number]) {
   const fd = FOOD[id];
@@ -88,7 +101,7 @@ export function foodCard(id: string, val?: [number, number]) {
       h('div', { class: 'card-art food-art' }, itemIcon(id, 'pack', 'food-icon')),
       h('i', { class: 'card-gems', style: `--n:${fd.tier}` }),
       h('div', { class: 'card-name' }, fd.name),
-      h('div', { class: 'card-text' }, ...kwRich(foodText(id, val))),
+      h('div', { class: 'card-text' }, foodRow(id, val), fd.short ? h('div', { class: 'fr-short' }, ...kwRich(fd.short)) : null),
     ),
   );
 }

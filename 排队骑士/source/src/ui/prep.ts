@@ -4,13 +4,13 @@ import '../qb/css/shop-layout.css';
 import '../qb/css/v08.css';
 import '../qb/css/economy-bindings.css';
 import '../qb/css/v05.css';
-import { ATOM_INFO, BOSSES, card, EQUIP, EVENT_INFO, FOOD, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
+import { ALL, ATOM_INFO, BOSSES, card, EQUIP, EVENT_INFO, FOOD, fxFood, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
 import {
-  AD_SAVE_MAX, adRelic, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice,
-  FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
+  AD_RETRY_MAX, AD_SAVE_MAX, adRelic, adRetry, trialFight, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
+  FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
   WIN_GOAL, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
-import { QUEUE_MAX } from '../core/engine';
+import { QUEUE_MAX, type BattleOut } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
 import { Board, bodyPos, headPos, keywordsOf, slotX, SLOT_SPACING, UNIT_Y, UnitView } from '../qb/board';
 import { draftCard, foodCard, tierBadge } from '../qb/card';
@@ -271,10 +271,10 @@ export class Game {
 
   private paintOwned(v: UnitView, o: Owned, pop = false) {
     const s = this.shown.get(o.oid) ?? this.ownedStats(o);
-    const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : [])];
+    const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : []), ...(o.tfx?.includes('splash') ? ['splash'] : [])];
     v.setStats({ atk: s.atk + (o.tmpAtk ?? 0), hp: s.hp + (o.tmpHp ?? 0), maxHp: s.hp + (o.tmpHp ?? 0), block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
     v.setExp(o.copies);
-    v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : [])]);
+    v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
     if (o.merc) v.setTag(`雇佣 剩${o.merc}场`, 'merc');
     else if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
   }
@@ -302,6 +302,10 @@ export class Game {
     const size = r.queue.filter(Boolean).length;
     const fightBtn = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, '开 战'), icon('play'));
     fightBtn.addEventListener('click', () => { if (size && this.editable) void this.startBattle(); });
+    const trialBtn = h('button', { class: 'btn ghost trial', disabled: !size }, icon('eye'), h('span', null, '试打'));
+    trialBtn.addEventListener('click', () => { if (size && this.editable) void this.startTrial(); });
+    this.el.querySelector('.btn.trial')?.remove();
+    this.el.appendChild(trialBtn);
     this.tray.replaceChildren(left, cards, supplies, h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
     this.renderBag();
   }
@@ -324,8 +328,11 @@ export class Game {
   private foodTile(it: ShopItem, i: number) {
     const f = FOOD[it.def];
     const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', 'aria-label': `补给 ${f.name}`, 'data-idx': i },
-      h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack')),
+      h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack'),
+        f.n ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : `×${f.n}`) : null,
+        f.tmp ? h('span', { class: 'ft-tmp' }, icon('hourglass')) : null),
       h('b', { class: 'ft-name' }, f.name),
+      (() => { const [a, hp] = foodStats(it); return a || hp ? h('span', { class: 'ft-stat' }, h('em', null, `+${a}`), '/', h('i', null, `+${hp}`)) : null; })(),
       h('span', { class: 'ft-price' }, itemIcon('coin', 'coin'), String(foodPrice(it))),
       it.locked ? h('span', { class: 'ft-lock' }, '锁') : null);
     c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
@@ -520,7 +527,7 @@ export class Game {
       const o = r.queue[idx];
       if (!o) return;
       const s = this.ownedStats(o);
-      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, copies: o.copies, kws: card(o.def).kws }, true);
+      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws }, true);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
       const acts = h('div', { class: 'shelf-acts' }, sellBtn);
@@ -806,14 +813,16 @@ export class Game {
     });
   }
 
-  /** 装备箱：3 件翻牌，选 1；可看广告全部升一品重抽（每箱 1 次） */
+  /** 装备箱：3 件翻牌，选 1；看广告升一品重抽，不限次（紫→橙每局限 2 次） */
   private showChest(): Promise<void> {
     const r = this.run;
     return new Promise((done) => {
       const ov = h('div', { class: 'chest-ov' });
       const paint = (flip: boolean) => {
         const c = r.chest!;
-        const capped = c.ad && orangeCapped(r);
+        const capped = orangeCapped(r);
+        const left = ORANGE_MAX - (r.adOrange ?? 0);
+        const up = chestCanUp(r);
         const items = c.items.map((id, i) => {
           const e = EQUIP[id];
           const el = h('button', { class: `chest-item eq-q${e.q}` },
@@ -822,7 +831,7 @@ export class Game {
             h('b', { class: 'ci-name', style: `color:${Q_INFO[e.q].color}` }, e.name),
             h('span', { class: 'ci-q' }, Q_INFO[e.q].name, e.curse ? ' · 诅咒' : ''),
             h('div', { class: 'ci-text' }, e.text),
-            capped && e.q === 2 ? h('span', { class: 'ci-cap' }, '橙装已达上限') : null);
+            e.q === 2 && (capped || left <= 0) ? h('span', { class: 'ci-cap' }, '橙装已达上限') : null);
           el.addEventListener('click', () => {
             sfx.reward();
             chestPick(r, i);
@@ -836,10 +845,11 @@ export class Game {
           if (flip) setTimeout(() => { if (e.q >= 2) sfx.reward(); else sfx.place(); if (e.q === 3) this.fx.flash('#ffa23a', 0.25, 300); }, 200 + i * 260);
           return el;
         });
-        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: c.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '全部升一品重抽')), h('i', null, c.ad ? '已用' : '广告'));
+        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: !up }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '升一品重抽')),
+          h('i', null, up ? `紫→橙 ${Math.max(0, left)}/${ORANGE_MAX}` : '已满'));
         ad.addEventListener('click', async () => {
-          if (c.ad) return;
-          const ok = await showRewardedAd(this.el, '升品重抽', '3 件装备全部提升一个品质后重新抽取');
+          if (!chestCanUp(r)) return;
+          const ok = await showRewardedAd(this.el, '升品重抽', '装备全部提升一个品质后重新抽取');
           if (!ok || !adUpgradeChest(r)) return;
           save(r);
           paint(true);
@@ -1006,6 +1016,7 @@ export class Game {
     this.busy = true;
     hideTip();
     sfx.start();
+    const snap = structuredClone(r);
     const turnFx = endTurn(r);
     this.renderHud();
     this.renderTray();
@@ -1020,16 +1031,71 @@ export class Game {
     this.el.classList.add('in-battle');
     this.tray.classList.add('hidden');
     this.bar.classList.add('on');
+    await this.playOut(out);
+    if (this.disposed) return;
+    await wait(400);
+    this.showResult(out, before, snap);
+  }
+
+  private async playOut(out: BattleOut) {
+    this.el.classList.add('in-battle');
+    this.tray.classList.add('hidden');
+    this.bar.classList.add('on');
     this.player = new BattlePlayer(this.board, this.fx, this.bar);
     await this.player.play(out);
     this.player = null;
-    if (this.disposed) return;
-    await wait(400);
-    this.showResult(out.result, before);
   }
 
-  private showResult(result: 'win' | 'lose' | 'draw', before: { lives: number; wins: number; turn: number; boss: string | null }) {
+  /** 复盘：关掉结算框重播一遍，播完再弹回来 */
+  private replayBtn(out: BattleOut, ov: HTMLElement) {
+    const b = h('button', { class: 'btn ghost res-replay' }, icon('replay'), h('span', null, '复盘'));
+    b.addEventListener('click', async () => {
+      sfx.click();
+      ov.remove();
+      await this.playOut(out);
+      if (this.disposed) return;
+      await wait(300);
+      this.el.appendChild(ov);
+    });
+    return b;
+  }
+
+  /** 回到备战（结算/试打/重打之后） */
+  private backToPrep(intro: boolean) {
     const r = this.run;
+    this.el.classList.remove('in-battle');
+    this.bar.classList.remove('on');
+    this.busy = false;
+    this.board.clearArrows();
+    setMusicRun('pdqs', Math.min(2, Math.floor((r.turn - 1) / 4)));
+    this.renderAll(intro ? r.pendingFx : []);
+    this.cardsIn();
+    if (intro) void this.intro();
+  }
+
+  /** 试打：副本上打一场，不计结果、不改存档 */
+  private async startTrial() {
+    if (!this.editable) return;
+    this.busy = true;
+    hideTip();
+    sfx.start();
+    const out = trialFight(this.run);
+    await this.playOut(out);
+    if (this.disposed) return;
+    await wait(300);
+    const title = out.result === 'win' ? '试打：胜' : out.result === 'lose' ? '试打：负' : '试打：平';
+    const back = h('button', { class: 'btn primary' }, h('span', null, '回去调整'), icon('play'));
+    const ov = h('div', { class: `result-ov r-trial r-${out.result}` },
+      h('div', { class: 'res-card' }, h('div', { class: 'res-title' }, title), h('div', { class: 'res-sub' }, '不计胜负 · 正式开战有随机'),
+        h('div', { class: 'res-btns' })));
+    ov.querySelector('.res-btns')!.append(this.replayBtn(out, ov), back);
+    back.addEventListener('click', () => { sfx.click(); ov.remove(); this.backToPrep(false); });
+    this.el.appendChild(ov);
+  }
+
+  private showResult(out: BattleOut, before: { lives: number; wins: number; turn: number; boss: string | null }, snap: RunState) {
+    const r = this.run;
+    const result = out.result;
     if (result === 'win') sfx.win(); else if (result === 'lose') sfx.lose(); else sfx.fizzle();
     const lost = before.lives - r.lives;
     const title = result === 'win' ? (before.boss ? 'Boss 击破' : '胜利') : result === 'lose' ? '失败' : '平局';
@@ -1050,11 +1116,26 @@ export class Game {
         if (!ok || !adSaveHeart(r)) { ad.removeAttribute('disabled'); return; }
         save(r);
         ad.remove();
+        ov.querySelector('.res-retry')?.remove();
         ov.querySelector('.res-sub')!.textContent = '已保住，不扣心';
         ov.querySelectorAll('.res-lives .life').forEach((el, i) => { el.className = `life${i < r.lives ? ' on' : ''}`; });
       });
       ov.querySelector('.res-btns')!.prepend(ad);
     }
+    // 看广告重打：退回开战前，重新调整再打（和保心二选一）
+    if (result === 'lose' && (r.adRetry ?? 0) < AD_RETRY_MAX) {
+      const ad = h('button', { class: 'btn ghost reroll rewarded res-ad res-retry' }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '看广告重打')), h('i', null, `${AD_RETRY_MAX - (r.adRetry ?? 0)}/${AD_RETRY_MAX}`));
+      ad.addEventListener('click', async () => {
+        ad.setAttribute('disabled', '');
+        const ok = await showRewardedAd(this.el, '重打', '看完广告，回到开战前重新调整阵容');
+        if (!ok || !adRetry(r, snap)) { ad.removeAttribute('disabled'); return; }
+        save(r);
+        ov.remove();
+        this.backToPrep(false);
+      });
+      ov.querySelector('.res-btns')!.prepend(ad);
+    }
+    ov.querySelector('.res-btns')!.prepend(this.replayBtn(out, ov));
     this.el.appendChild(ov);
     if (!reduced()) ov.querySelector('.res-card')!.animate([{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.2,1.4,.4,1)' });
     if (result === 'win') this.fx.burst(640, 260, '#ffd36b', { n: 40, speed: 8 });
@@ -1062,14 +1143,7 @@ export class Game {
       sfx.click();
       ov.remove();
       if (r.phase !== 'prep') { this.app.endRun(r); return; }
-      this.el.classList.remove('in-battle');
-      this.bar.classList.remove('on');
-      this.busy = false;
-      this.board.clearArrows();
-      setMusicRun('pdqs', Math.min(2, Math.floor((r.turn - 1) / 4)));
-      this.renderAll(r.pendingFx);
-      this.cardsIn();
-      void this.intro();
+      this.backToPrep(true);
     });
   }
 }

@@ -142,34 +142,47 @@ export function summonInfo(d: CardDef, lvl: 1 | 2 | 3, atk = d.atk, bank = 0): S
 }
 
 // ── 补给 ──
-/** 装备 id（v0.5：附魔槽升级为装备槽；补给附魔就是白/蓝装备） */
+/** 装备 id（v0.6：装备只从精英战的装备箱获得，补给不再给装备） */
 export type Ench = string;
+/** 补给的本场效果（只管下一场战斗，打完就散） */
+export type FoodFx = 'bomb' | 'berry' | 'bone' | 'plate' | 'splash' | 'fury' | 'undy' | 'thunder';
 export interface FoodDef {
   id: string; name: string; tier: Tier; text: string; icon: string; ench?: Ench;
-  /** 攻血效果（n 个随机友军；tmp 为只在下一场有效） */
+  /** 攻血效果（n 个随机友军，99 为全队；tmp 为只在下一场有效） */
   atk?: number; hp?: number; n?: number; tmp?: boolean;
+  /** 本场特效 */
+  fx?: FoodFx;
+  /** 卡面短句（目标/攻血/时长已由 icon 行表达，这里只写额外效果） */
+  short?: string;
   /** 价格，默认 3 */
   price?: number;
-  /** 不进随机池（牛奶） */
+  /** 不进随机池（牛奶、旧版补给） */
   noPool?: boolean;
 }
+export const ALL = 99;
+/** 本场特效 → 来源补给 */
+export const fxFood = (fx: FoodFx) => FOODS.find((f) => f.fx === fx)!;
 export const FOODS: FoodDef[] = [
   { id: 'f_bread', name: '面包', tier: 1, text: '一个友军永久 +1/+1', icon: 'bread', atk: 1, hp: 1 },
-  { id: 'f_lamp', name: '魂灯', tier: 1, text: '一个友军下一场获得复生，倒下后以 1 血站起来', icon: 'lamp' },
-  { id: 'f_apple', name: '苹果', tier: 2, text: '一个友军永久 +1/+1，只要 2 金', icon: 'apple', atk: 1, hp: 1, price: 2 },
-  { id: 'f_drum', name: '战鼓', tier: 2, text: '一个友军下一场 +3/+3，打完就散', icon: 'drum', atk: 3, hp: 3, tmp: true },
-  { id: 'f_stew', name: '炖锅', tier: 3, text: '随机 2 个友军各永久 +2/+2', icon: 'stew', atk: 2, hp: 2, n: 2 },
-  { id: 'f_iron', name: '寒铁', tier: 3, text: '装备：每场开战 +1 格挡', icon: 'iron', ench: 'iron' },
-  { id: 'f_whet', name: '磨刀石', tier: 3, text: '一个友军永久 +3/+1，偏攻', icon: 'whet', atk: 3, hp: 1 },
-  { id: 'f_chili', name: '辣椒', tier: 4, text: '装备：交锋时，身后的敌人也挨 50% 伤害', icon: 'chili', ench: 'chili' },
-  { id: 'f_elixir', name: '秘药', tier: 4, text: '一个友军多叠 1 份，凑够就升星', icon: 'elixir' },
-  { id: 'f_sushi', name: '寿司', tier: 4, text: '随机 3 个友军各永久 +2/+2', icon: 'sushi', atk: 2, hp: 2, n: 3 },
-  { id: 'f_amulet', name: '冰晶护符', tier: 5, text: '装备：每场开战 +3 格挡', icon: 'amulet', ench: 'amulet' },
-  { id: 'f_shroom', name: '冥菇', tier: 5, text: '装备：每场都能复生一次', icon: 'shroom', ench: 'shroom' },
-  { id: 'f_roast', name: '烤全羊', tier: 5, text: '随机 2 个友军各永久 +4/+4', icon: 'roast', atk: 4, hp: 4, n: 2 },
-  { id: 'f_wine', name: '战神酒', tier: 6, text: '装备：每次交锋多打 5 点伤害', icon: 'wine', ench: 'wine' },
-  { id: 'f_can', name: '罐头', tier: 6, text: '之后每买 1 份单位（含合并）额外 +1/+1，可叠加', icon: 'can' },
-  { id: 'f_milk', name: '牛奶', tier: 1, text: '免费！一个友军永久 +{a}/+{h}', icon: 'milk', price: 0, noPool: true },
+  { id: 'f_lamp', name: '魂灯', tier: 1, text: '一个友军本场获得「复生」', icon: 'lamp', tmp: true, short: '获得「复生」' },
+  { id: 'f_bomb', name: '火药包', tier: 1, text: '一个友军本场「开战时」：敌方队首受 3 伤害', icon: 'bomb', tmp: true, fx: 'bomb', short: '开战时：敌方队首受 3 伤害' },
+  { id: 'f_drum', name: '战鼓', tier: 2, text: '一个友军本场 +3/+3', icon: 'drum', atk: 3, hp: 3, tmp: true },
+  { id: 'f_berry', name: '刺莓', tier: 2, text: '一个友军本场 +0/+4，「开战时」自己受 1 伤害', icon: 'berry', hp: 4, tmp: true, fx: 'berry', short: '开战时：自己受 1 伤害' },
+  { id: 'f_bone', name: '骨汤', tier: 2, text: '一个友军本场「阵亡时」：召唤 3/3 骷髅', icon: 'bone', tmp: true, fx: 'bone', short: '阵亡时：召唤 3/3 骷髅' },
+  { id: 'f_stew', name: '炖锅', tier: 3, text: '随机 2 个友军永久 +2/+2', icon: 'stew', atk: 2, hp: 2, n: 2 },
+  { id: 'f_whet', name: '磨刀石', tier: 3, text: '一个友军永久 +3/+1', icon: 'whet', atk: 3, hp: 1 },
+  { id: 'f_plate', name: '铁甲片', tier: 3, text: '一个友军本场「开战时」+2「格挡」', icon: 'plate', tmp: true, fx: 'plate', short: '开战时：+2「格挡」' },
+  { id: 'f_elixir', name: '秘药', tier: 4, text: '一个友军多叠 1 份，凑够就升星', icon: 'elixir', short: '多叠 1 份，凑够就升星' },
+  { id: 'f_sushi', name: '寿司', tier: 4, text: '全队永久 +1/+1', icon: 'sushi', atk: 1, hp: 1, n: ALL },
+  { id: 'f_oil', name: '火油', tier: 4, text: '一个友军本场获得「溅射」', icon: 'oil', tmp: true, fx: 'splash', short: '获得「溅射」' },
+  { id: 'f_fury', name: '战意药水', tier: 4, text: '一个友军本场获得「战意」', icon: 'fury', tmp: true, fx: 'fury', short: '获得「战意」' },
+  { id: 'f_roast', name: '烤全羊', tier: 5, text: '一个友军永久 +5/+5', icon: 'roast', atk: 5, hp: 5 },
+  { id: 'f_horn', name: '集结号', tier: 5, text: '全队本场 +2/+2', icon: 'horn', atk: 2, hp: 2, n: ALL, tmp: true },
+  { id: 'f_undy', name: '不屈药剂', tier: 5, text: '一个友军本场获得「不屈」', icon: 'undy', tmp: true, fx: 'undy', short: '获得「不屈」' },
+  { id: 'f_can', name: '罐头', tier: 6, text: '之后每买 1 份单位（含合并）额外 +1/+1，可叠加', icon: 'can', short: '之后每买 1 份单位额外 +1/+1，可叠加' },
+  { id: 'f_dragon', name: '龙肉', tier: 6, text: '全队永久 +2/+2', icon: 'dragon', atk: 2, hp: 2, n: ALL },
+  { id: 'f_thunder', name: '雷霆瓶', tier: 6, text: '一个友军本场「开战时」：所有敌人受 2 伤害', icon: 'thunder', tmp: true, fx: 'thunder', short: '开战时：所有敌人受 2 伤害' },
+  { id: 'f_milk', name: '牛奶', tier: 1, text: '免费！一个友军永久 +{a}/+{h}', icon: 'milk', price: 0, noPool: true, short: '免费！' },
 ];
 /** 补给文案（牛奶带货架上的数值） */
 export const foodText = (id: string, val?: [number, number]) =>
@@ -207,12 +220,12 @@ export const EQUIPS: EquipDef[] = [
   E('w_sword', '铁剑', 0, 'eq_duel', '+3 攻', { atk: 3 }),
   E('w_mail', '锁子甲', 0, 'eq_belt', '+5 血', { hp: 5 }),
   E('w_helm', '铁盔', 0, 'eq_guard', '+2/+3', { atk: 2, hp: 3 }),
-  E('iron', '寒铁', 0, 'f_iron', '开战时 +1 格挡', { block: 1 }),
-  E('wine', '战神酒', 0, 'f_wine', '交锋伤害 +5', { melee: 5, food: true }),
+  E('iron', '铁护腕', 0, 'eq_bracer', '开战时 +1 格挡', { block: 1 }),
+  E('wine', '重拳护手', 1, 'eq_gauntlet', '交锋伤害 +5', { melee: 5 }),
   // 蓝：单词条
-  E('chili', '辣椒', 1, 'f_chili', '溅射 50%', { splash: 50 }),
-  E('amulet', '冰晶护符', 1, 'f_amulet', '开战时 +3 格挡', { block: 3 }),
-  E('shroom', '冥菇', 1, 'f_shroom', '复生', { reborn: true }),
+  E('chili', '横扫巨斧', 1, 'eq_cleave', '溅射 50%', { splash: 50 }),
+  E('amulet', '冰晶护符', 1, 'eq_ice', '开战时 +3 格挡', { block: 3 }),
+  E('shroom', '复生圣符', 1, 'eq_ankh', '复生', { reborn: true }),
   E('b_axe', '处刑斧', 1, 'eq_hammer', '斩杀', { atoms: ['exec'] }),
   E('b_scythe', '收割镰', 1, 'sp_soul', '收割', { atoms: ['reap'] }),
   E('b_banner', '残旗', 1, 'eq_banner', '不屈', { atoms: ['undying'] }),

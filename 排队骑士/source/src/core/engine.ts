@@ -1,6 +1,6 @@
 // 碰撞制战斗引擎：队首对队首同时互打，后排只靠事件技能参与（规则照搬 SAP）。
 // 纯函数：输入两队，输出事件流 + 结果。播放层只读事件，不再推算规则。
-import { card, equipOf, SHOP_POOL, summonInfo, type Atom, type CardDef, type Ench, type EquipSp, type Kw } from './data';
+import { card, equipOf, SHOP_POOL, summonInfo, type Atom, type CardDef, type Ench, type EquipSp, type FoodFx, type Kw } from './data';
 
 export const QUEUE_MAX = 5;
 export const MAX_CLASHES = 30;
@@ -24,6 +24,8 @@ export interface UnitSpec {
   copy?: string;
   /** 精英词缀 */
   ax?: Atom[];
+  /** 补给的本场特效 */
+  tfx?: FoodFx[];
 }
 
 export interface BUnit {
@@ -57,6 +59,8 @@ export interface BUnit {
   /** 身上的灼烧层数 */
   burn: number;
   fury: number;
+  /** 补给的本场特效 */
+  tfx: FoodFx[];
   charged: boolean;
   reap: number;
   /** 不屈剩余次数；lock>0 为锁血中（剩余交锋数） */
@@ -110,15 +114,16 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     const adef = s.copy ? card(s.copy) : d;
     const kws = [...d.kws];
     const eq = equipOf(s.ench);
-    if (eq?.splash && !kws.includes('splash')) kws.push('splash');
+    const tfx = s.tfx ?? [];
+    if ((eq?.splash || tfx.includes('splash')) && !kws.includes('splash')) kws.push('splash');
     const reborn = kws.includes('reborn') || !!eq?.reborn || !!s.lamp;
     if (reborn && !kws.includes('reborn')) kws.push('reborn');
-    const splash = d.kws.includes('splash') ? val(d, s.lvl) || 50 : eq?.splash ?? 0;
-    const ax = [...new Set([...(eq?.atoms ?? []), ...(s.ax ?? [])])];
+    const splash = d.kws.includes('splash') ? val(d, s.lvl) || 50 : Math.max(eq?.splash ?? 0, tfx.includes('splash') ? 50 : 0);
+    const ax = [...new Set([...(eq?.atoms ?? []), ...(s.ax ?? []), ...(tfx.includes('fury') ? ['fury' as Atom] : []), ...(tfx.includes('undy') ? ['undying' as Atom] : [])])];
     return {
       uid: uid++, side, def: s.def, adef, ab: adef.ab, lvl: s.lvl, atk: Math.max(1, s.atk), hp: s.hp, maxHp: s.hp, block: 0, kws, reborn, splash,
       melee: eq?.melee ?? 0, uses: 0, bank: s.bank ?? 0, oid: s.oid, ench: s.ench ?? null, copy: s.copy, dead: false,
-      ax, sp: eq?.sp, shield: 0, burn: 0, fury: 0, charged: false, reap: 0, undy: ax.includes('undying') ? (eq?.sp === 'grail' ? 2 : 1) : 0, lock: 0,
+      ax, sp: eq?.sp, shield: 0, burn: 0, fury: 0, tfx, charged: false, reap: 0, undy: ax.includes('undying') ? (eq?.sp === 'grail' ? 2 : 1) : 0, lock: 0,
     };
   };
   left.slice(0, QUEUE_MAX).forEach((s) => q[0].push(mk(s, 0)));
@@ -381,6 +386,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
           fire(u, label, fn, nextBehind);
           if (u.sp === 'crown') fire(u, '冥魂王冠', fn, nextBehind);
         };
+        if (u.tfx.includes('bone')) fire(u, '骨汤', () => summon(u, side, { def: 't_bonelet', lvl: 1, atk: 3, hp: 3 }, at), nextBehind);
         switch (u.ab) {
           case 'cricket': case 'egg': case 'sheep': case 'deer': case 'rooster': case 'spider': case 'eagle':
             F((L) => faintSummon(u, L, at), u.ab === 'egg' ? '孵化' : '阵亡');
@@ -491,6 +497,14 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     if (u.dead) continue;
     const eq = equipOf(u.ench);
     if (eq?.block) block(u, u, eq.block);
+    // 补给的本场特效
+    for (const f of u.tfx) {
+      if (u.dead) break;
+      if (f === 'plate') { tag(u, '铁甲片'); block(u, u, 2); }
+      if (f === 'berry') { tag(u, '刺莓'); damage(u, u, 1, 'shot'); }
+      if (f === 'bomb') { const t = front(1 - u.side); if (t) { tag(u, '火药包'); damage(u, t, 3, 'shot'); } }
+      if (f === 'thunder') { tag(u, '雷霆瓶'); for (const t of alive(1 - u.side)) damage(u, t, 2, 'shot'); }
+    }
     if (hasAx(u, 'shield')) {
       u.shield = Math.ceil(u.maxHp / 5);
       tag(u, '护盾');

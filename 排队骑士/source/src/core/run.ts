@@ -1,5 +1,5 @@
 // 一局的状态与商店经济：框架照搬 SAP（6 阶、货架 3→5、补给 1→2、10 金、3 份/6 份升星、10 心 15 胜）。
-import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type Quality, type RelicId, type Tier } from './data';
+import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type FoodFx, type Quality, type RelicId, type Tier } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec } from './engine';
 import ghostData from './ghosts.json';
 
@@ -26,6 +26,8 @@ export interface Owned {
   tmpHp?: number;
   /** 魂灯：下一场复生 */
   lamp?: boolean;
+  /** 补给的本场特效（火药包、骨汤…），打完就散 */
+  tfx?: FoodFx[];
   /** 幼兽蛋：孵出幼龙的额外攻血 */
   bank?: number;
   /** 沙域法老：复制到的技能（卡 id） */
@@ -84,6 +86,8 @@ export interface RunState {
   warm: boolean;
   /** 广告保心已用次数；广告刷新所在回合 */
   adSave: number;
+  /** 本局看广告重打的次数 */
+  adRetry?: number;
   adRr: number;
   /** 上一场输掉扣的心（可看广告退回） */
   lastLoss: number;
@@ -91,6 +95,8 @@ export interface RunState {
   bag: Ench[];
   /** 本局拿到过的橙装 */
   oranges: Ench[];
+  /** 本局广告把紫装升成橙装的次数（上限 ORANGE_MAX） */
+  adOrange?: number;
   /** 连续多少箱没出紫 */
   noPurple: number;
   chest: Chest | null;
@@ -204,6 +210,16 @@ export function newRun(seed = (Math.random() * 2 ** 31) | 0, opts: { warm?: bool
 export const isWarm = (r: RunState) => (r.diff ?? 0) < 2 && (r.streak <= -2 || r.lives <= 3 || r.warm);
 
 const foodPool = (r: RunState) => FOOD_POOL.filter((f) => f.tier <= maxTier(r.turn));
+/** 补给按阶层加权：当前阶最常见，低阶逐渐淡出 */
+const FOOD_W = [3, 2, 1, 0.4];
+function pickFood(r: RunState) {
+  const mt = maxTier(r.turn);
+  const pool = foodPool(r);
+  const w = pool.map((f) => FOOD_W[Math.min(3, mt - f.tier)]);
+  let t = rng(r) * w.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < pool.length; i++) if ((t -= w[i]) < 0) return pool[i];
+  return pool[pool.length - 1];
+}
 function rollShop(r: RunState) {
   const tier = maxTier(r.turn);
   const pool = SHOP_POOL.filter((c) => c.tier <= tier);
@@ -229,7 +245,7 @@ function rollShop(r: RunState) {
   out.push(...kept.filter((s) => s.free));
   const keptF = kept.filter((s) => s.kind === 'food');
   out.push(...keptF);
-  for (let i = keptF.length; i < foodSlots(r.turn); i++) out.push({ sid: r.nextId++, kind: 'food', def: pick(r, foodPool(r)).id, locked: false, free: false });
+  for (let i = keptF.length; i < foodSlots(r.turn); i++) out.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
   r.shop = out;
 }
 
@@ -331,6 +347,7 @@ function grantStarReward(r: RunState) {
 
 /** 补给是否需要指定目标 */
 export const foodNeedsTarget = (id: string) => !FOOD[id].n && id !== 'f_can';
+export const foodAll = (id: string) => FOOD[id]?.n === ALL;
 export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' ? 0 : FOOD[s.def]?.price ?? PRICE);
 /** 补给的攻血效果（牛奶看货架上的数值） */
 export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def]?.atk ?? 0, FOOD[s.def]?.hp ?? 0];
@@ -351,9 +368,9 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
   const fx: ShopFx[] = [];
   let levelUp = false;
   const [fa, fh] = foodStats(item);
-  const eaters = f.id === 'f_can' ? [] : f.n ? pickN(r, units(r), f.n) : [tgt!];
-  // 分享餐盘：每回合第一份单体补给（不含秘药/装备）也喂给相邻友军
-  if (r.relics?.includes('r_share') && !r.tc.foods && !f.n && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir' && !f.ench)
+  const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
+  // 分享餐盘：每回合第一份单体补给（不含秘药）也喂给相邻友军
+  if (r.relics?.includes('r_share') && !r.tc.foods && !f.n && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir')
     for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
   if (f.id === 'f_can') r.canned += 1;
   for (const e of eaters) {
@@ -362,7 +379,7 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
     const h = fh * mul;
     if (f.tmp) tmpFx(fx, null, e, a, h, f.name);
     else growFx(fx, null, e, a, h, f.name);
-    if (f.ench) equipOnto(r, e, f.ench);
+    if (f.fx && !e.tfx?.includes(f.fx)) e.tfx = [...(e.tfx ?? []), f.fx];
     if (f.id === 'f_lamp') e.lamp = true;
     if (f.id === 'f_elixir') levelUp = addCopies(r, e, 1, fx) || levelUp;
     // 吃补给的钩子
@@ -389,7 +406,7 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
     if (abOf(t) === 'ladybug') tmpFx(fx, t.oid, t, vOf(t), vOf(t), '购买补给');
     if (abOf(t) === 'sauropod' && (r.tc.bear[t.oid] ?? 0) < vOf(t)) {
       r.tc.bear[t.oid] = (r.tc.bear[t.oid] ?? 0) + 1;
-      r.shop.push({ sid: r.nextId++, kind: 'food', def: pick(r, foodPool(r)).id, locked: false, free: false });
+      r.shop.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
     }
   }
   return { ok: true, fx, levelUp };
@@ -414,6 +431,7 @@ export function moveOwned(r: RunState, from: number, to: number): { merged: bool
     b.tmpAtk = (b.tmpAtk ?? 0) + (a.tmpAtk ?? 0) || undefined;
     b.tmpHp = (b.tmpHp ?? 0) + (a.tmpHp ?? 0) || undefined;
     b.lamp = b.lamp || a.lamp;
+    if (a.tfx) b.tfx = [...new Set([...(b.tfx ?? []), ...a.tfx])];
     r.queue[from] = null;
     const fx: ShopFx[] = [];
     const levelUp = addCopies(r, b, a.copies, fx);
@@ -474,7 +492,7 @@ export function endTurn(r: RunState): ShopFx[] {
 export const playerTeam = (r: Pick<RunState, 'queue'>): UnitSpec[] =>
   r.queue.filter((o): o is Owned => !!o).map((o) => {
     const [atk, hp] = equipStats(o.ench, ownedAtk(o) + (o.tmpAtk ?? 0), ownedHp(o) + (o.tmpHp ?? 0));
-    return { def: o.def, lvl: lvlOf(o.copies), atk, hp, oid: o.oid, ench: o.ench ?? null, lamp: o.lamp, bank: o.bank, copy: card(o.def).ab === 'parrot' ? o.copy : undefined };
+    return { def: o.def, lvl: lvlOf(o.copies), atk, hp, oid: o.oid, ench: o.ench ?? null, lamp: o.lamp, tfx: o.tfx, bank: o.bank, copy: card(o.def).ab === 'parrot' ? o.copy : undefined };
   });
 
 // ── 装备与背包 ──
@@ -545,12 +563,20 @@ export function rollChest(r: RunState, src: Chest['src']): Chest {
   r.noPurple = items.some((x) => (equipOf(x)?.q ?? 0) >= 2) ? 0 : r.noPurple + 1;
   return { items, ad: false, src };
 }
-/** 广告升品：3 件全部 +1 品质后重抽（橙封顶；第 2 件橙只能由此获得，且不同名） */
+/** 这件还能被广告升品吗（橙封顶；紫→橙每局限 ORANGE_MAX 次） */
+const canUp = (r: RunState, id: Ench) => { const q = equipOf(id)?.q ?? 0; return q < 2 || (q === 2 && (r.adOrange ?? 0) < ORANGE_MAX); };
+export const chestCanUp = (r: RunState) => !!r.chest?.items.some((id) => canUp(r, id));
+/** 广告升品：能升的件各 +1 品质后重抽，看就升不限次；紫→橙每件消耗 1 次额度 */
 export function adUpgradeChest(r: RunState): boolean {
   const c = r.chest;
-  if (!c || c.ad) return false;
+  if (!c || !chestCanUp(r)) return false;
   const items: Ench[] = [];
-  for (const id of c.items) items.push(rollItem(r, Math.min(3, (equipOf(id)?.q ?? 0) + 1) as Quality, items, ORANGE_MAX));
+  for (const id of c.items) {
+    const q = equipOf(id)?.q ?? 0;
+    if (!canUp(r, id)) { items.push(id); continue; }
+    if (q === 2) r.adOrange = (r.adOrange ?? 0) + 1;
+    items.push(rollItem(r, (q + 1) as Quality, [...items, ...c.items.filter((x) => x !== id)], 99));
+  }
   c.items = items;
   c.ad = true;
   return true;
@@ -823,6 +849,21 @@ function curveTeam(r: RunState): UnitSpec[] {
 export function fight(r: RunState): BattleOut {
   return simulate(playerTeam(r), r.enemy.units, (r.seed ^ (r.turn * 7919)) & 0x7fffffff, r.relics);
 }
+/** 试打：在副本上结束回合再开打，不改存档；随机种子每次不同，只看大概 */
+export function trialFight(r: RunState): BattleOut {
+  const c = structuredClone(r);
+  endTurn(c);
+  return simulate(playerTeam(c), c.enemy.units, (Math.random() * 2 ** 31) | 0, c.relics);
+}
+export const AD_RETRY_MAX = 2;
+/** 看广告重打：整局退回开战前（snap），可以重新调整阵容再打 */
+export function adRetry(r: RunState, snap: RunState): boolean {
+  const used = r.adRetry ?? 0;
+  if (used >= AD_RETRY_MAX) return false;
+  for (const k of Object.keys(r)) delete (r as unknown as Record<string, unknown>)[k];
+  Object.assign(r, structuredClone(snap), { adRetry: used + 1 });
+  return true;
+}
 
 /** 战斗结算：扣心/记胜，清掉本场加成，进入下一回合 */
 export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'>) {
@@ -835,6 +876,7 @@ export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'
     o.tmpAtk = undefined;
     o.tmpHp = undefined;
     o.lamp = undefined;
+    o.tfx = undefined;
   }
   r.history.push(result);
   if (r.enemy.boss === 'final') r.finalLosses = result === 'lose' ? r.finalLosses + 1 : 0;

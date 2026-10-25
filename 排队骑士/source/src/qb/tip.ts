@@ -1,5 +1,5 @@
-import { cardText, tierBadge } from './card';
-import { card, equipOf, equipText, EQUIP, FOOD, foodText, KW_INFO, Q_INFO, summonInfo, type Ench, type Tier } from '../core/data';
+import { cardText, foodRow, tierBadge } from './card';
+import { card, equipOf, equipText, EQUIP, FOOD, fxFood, KW_INFO, Q_INFO, summonInfo, type Ench, type FoodFx, type Tier } from '../core/data';
 import { unitSvg } from './unitArt';
 import { FACTION_INFO, unitDef } from './shim';
 import { h, STAGE_H, STAGE_W } from './dom';
@@ -25,7 +25,7 @@ export function initTip(stage: HTMLElement) {
   window.addEventListener('resize', hideTip);
 }
 
-export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; copies?: number; kws?: readonly string[] }
+export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[] }
 
 /** withUp：附带升一星的变化（只改数字时并进同一句写成「2→3」） */
 export function unitTip(defId: string, level: number, st?: TipStats | null, withUp = true) {
@@ -45,6 +45,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   const sum = summonCard(defId, level as 1 | 2 | 3);
   if (sum) extras.push(sum);
   if (st?.lamp) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_lamp', 'spell', 'tip-item'), ...kwRich('魂灯：下一场获得复生')));
+  for (const x of st?.tfx ?? []) { const fd = fxFood(x); extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon(fd.id, 'spell', 'tip-item'), ...kwRich(`${fd.name}（本场）：${fd.short ?? ''}`))); }
   return h(
     'div',
     { class: 'tip-unit', style: `--fc:${f.color}` },
@@ -110,8 +111,7 @@ export function foodTip(id: string, val?: [number, number]) {
   const fd = FOOD[id];
   return h('div', { class: 'tip-unit', style: `--fc:${FACTION_INFO.neutral.color}` },
     h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, fd.name), h('span', { class: 'tip-fac' }, '补给'), h('span', { class: 'tip-lv' }, tierBadge(fd.tier))),
-    h('div', { class: 'tip-text' }, ...kwRich(foodText(id, val))),
-    fd.ench ? h('div', { class: 'tip-text tip-kw' }, '装备：每个单位 1 个装备槽，旧装备会退回背包。') : null);
+    h('div', { class: 'tip-text' }, foodRow(id, val), fd.short ? h('div', { class: 'fr-short' }, ...kwRich(fd.short)) : null));
 }
 
 /** 在舞台坐标 (x, y) 附近显示说明：先量内容高度，上下放得下的一侧优先；都放不下就放到目标左右 */

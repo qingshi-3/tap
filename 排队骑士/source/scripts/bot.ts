@@ -66,7 +66,7 @@ export function shopTurn(r: RunState, skill = 1, line?: Line) {
       const f = FOOD[food.def];
       const us = units(r);
       let target: Owned | undefined;
-      if (f.ench) target = us.find((o) => !o.ench);
+      if (f.fx) target = [...us].sort((a, b) => ownedValue(b) - ownedValue(a)).find((o) => !o.tfx?.includes(f.fx!));
       else if (f.id === 'f_elixir') target = us.filter((o) => o.copies < 6).sort((a, b) => b.copies - a.copies)[0];
       else if (f.id === 'f_lamp') target = us.find((o) => !o.lamp);
       else target = us.find((o) => EATERS.includes(card(o.def).ab ?? '')) ?? [...us].sort((a, b) => ownedValue(b) - ownedValue(a))[0];
