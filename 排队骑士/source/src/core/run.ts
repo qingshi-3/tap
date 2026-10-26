@@ -2,6 +2,7 @@
 import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type FoodFx, type Quality, type RelicId, type Tier } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec } from './engine';
 import ghostData from './ghosts.json';
+import { authoredEncounters, type AuthoredEncounter } from './encounters';
 
 export const SAVE_KEY = 'pdqs_run_v5';
 export const SAVE_VERSION = 5;
@@ -61,11 +62,20 @@ export const FORM_INFO: Record<FormKey, { name: string; hint: string }> = {
   rush: { name: '速攻', hint: '攻高血薄，先手打崩你' },
   mixed: { name: '均衡', hint: '什么都有一点' },
 };
-export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[] }
+export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[]; encounter?: Pick<AuthoredEncounter, 'key' | 'name' | 'hint'> }
 /** 装备箱：3 件翻牌；ad 已看过升品；src 来源 */
 export interface Chest { items: Ench[]; ad: boolean; src: 'elite' | 'boss' }
-/** 本回合计数：吃补给次数、买单位次数、巨熊补货次数 */
-export interface TurnCount { foods: number; bought: number; bear: Record<number, number>; shareUsed?: boolean }
+/** 本回合计数：吃补给次数、买单位次数及限次技能 */
+export interface TurnCount {
+  foods: number;
+  bought: number;
+  /** 旧版巨熊逐个补货次数；仅用于存档兼容，不再参与规则。 */
+  bear: Record<number, number>;
+  /** 本回合全队已触发的巨熊补给返金次数。 */
+  bearRefunds?: number;
+  keeper?: Record<number, number>;
+  shareUsed?: boolean;
+}
 export interface RunState {
   v: number;
   seed: number;
@@ -146,7 +156,8 @@ export const ORANGE_MAX = 2;
 /** 商店内效果，UI 逐个播放；tmp 为只在下一场有效 */
 export type ShopFx =
   | { kind: 'buff'; src: number | null; tgt: number; atk: number; hp: number; label: string; tmp?: boolean }
-  | { kind: 'bank'; src: number; n: number; label: string };
+  | { kind: 'bank'; src: number; n: number; label: string }
+  | { kind: 'gold'; src: number; n: number; label: string };
 
 export const lvlOf = (copies: number): 1 | 2 | 3 => (copies >= 6 ? 3 : copies >= 3 ? 2 : 1);
 /** 当前星级内的进度：[已有, 需要] */
@@ -182,7 +193,13 @@ const pickN = <T>(r: RunState, arr: T[], k: number) => {
 };
 const units = (r: RunState) => r.queue.filter((o): o is Owned => !!o);
 const byOid = (r: RunState, oid: number) => units(r).find((o) => o.oid === oid);
-const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {}, shareUsed: false });
+const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {}, bearRefunds: 0, keeper: {}, shareUsed: false });
+
+export function prepFoodUses(r: RunState, o: Owned): { used: number; max: number } | null {
+  if (abOf(o) === 'seal') return { used: r.tc.keeper?.[o.oid] ?? 0, max: uOf(o) };
+  if (abOf(o) === 'sauropod') return { used: r.tc.bearRefunds ?? 0, max: 2 };
+  return null;
+}
 
 /** 永久加成，带属性上限；返回实际加了多少 */
 function grow(o: Owned, atk: number, hp: number): [number, number] {
@@ -225,12 +242,12 @@ export function newRun(seed = (Math.random() * 2 ** 31) | 0, opts: { warm?: bool
 export const isWarm = (r: RunState) => (r.diff ?? 0) < 2 && (r.streak <= -2 || r.lives <= 3 || r.warm);
 
 const foodPool = (r: RunState) => FOOD_POOL.filter((f) => f.tier <= maxTier(r.turn));
-/** 补给按阶层加权：当前阶最常见，低阶逐渐淡出 */
-const FOOD_W = [3, 2, 1, 0.4];
-function pickFood(r: RunState) {
+/** 已解锁补给按单品权重抽取；默认每件等权。 */
+function pickFood(r: RunState, minTier: Tier = 1) {
   const mt = maxTier(r.turn);
-  const pool = foodPool(r);
-  const w = pool.map((f) => FOOD_W[Math.min(3, mt - f.tier)]);
+  const floor = Math.min(mt, minTier);
+  const pool = foodPool(r).filter((f) => f.tier >= floor);
+  const w = pool.map((f) => f.rollWeight ?? 1);
   let t = rng(r) * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < pool.length; i++) if ((t -= w[i]) < 0) return pool[i];
   return pool[pool.length - 1];
@@ -383,6 +400,8 @@ export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def
 
 export type FoodResult = { ok: false; why: 'gold' | 'target' } | { ok: true; fx: ShopFx[]; levelUp: boolean };
 const inheritableFood = (id: string) => (INHERIT_FOODS as readonly string[]).includes(id);
+/** 分享餐盘只复制没有额外状态或范围效果的单体攻血补给。 */
+const SHARE_FOODS = new Set(['f_bread', 'f_whet', 'f_roast', 'f_milk', 'f_drum']);
 /** 不把分发/分享的二次受益当作原始物件再记录，避免一件物品复制多份传承。 */
 function rememberFood(o: Owned, memory: FoodMemory) {
   if (!card(o.def).inherit || !inheritableFood(memory.id)) return;
@@ -406,7 +425,14 @@ function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean
     case 'ladybug':
     case 'worm': growFx(fx, e.oid, e, v, v, '吃补给'); break;
     case 'seal':
-      for (const j of [slot - 1, slot + 1]) growFx(fx, e.oid, r.queue[j] ?? undefined, v, v, '吃补给');
+      {
+        const adjacent = [slot - 1, slot + 1].map((j) => r.queue[j]).filter((o): o is Owned => !!o);
+        const used = r.tc.keeper?.[e.oid] ?? 0;
+        if (adjacent.length && used < uOf(e)) {
+          (r.tc.keeper ??= {})[e.oid] = used + 1;
+          for (const o of adjacent) growFx(fx, e.oid, o, v, v, '吃补给');
+        }
+      }
       break;
     case 'tabby': for (const t of units(r)) tmpFx(fx, e.oid, t, v, 0, '吃补给'); break;
   }
@@ -440,12 +466,27 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
   r.gold -= price;
   r.shop = r.shop.filter((x) => x !== item);
   const fx: ShopFx[] = [];
+  if (price > 0 && (r.tc.bearRefunds ?? 0) < 2) {
+    // 队列从前到后扫描；只在星级严格更高时替换，故同星由前位提供返金。
+    const bear = units(r).reduce<Owned | null>((best, o) =>
+      abOf(o) === 'sauropod' && (!best || vOf(o) > vOf(best)) ? o : best, null);
+    if (bear) {
+      const refund = Math.min(price, vOf(bear));
+      r.gold += refund;
+      r.tc.bearRefunds = (r.tc.bearRefunds ?? 0) + 1;
+      fx.push({ kind: 'gold', src: bear.oid, n: refund, label: '巨熊返金' });
+    }
+  }
   let levelUp = false;
   const [fa, fh] = foodStats(item);
   const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
   if (f.behind && slot !== null && r.queue[slot + 1]) eaters.push(r.queue[slot + 1]!);
-  // 分享餐盘：每回合第一份单体补给（不含秘药）也喂给相邻友军
-  if (r.relics?.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0) && !f.n && !f.behind && tgt && slot !== null && f.id !== 'f_can' && f.id !== 'f_elixir') {
+  // 小范围补给只读取实际邻格：不补位、不因队尾/空格重复食用。
+  if (f.around && slot !== null) {
+    for (const j of [slot - 1, slot + 1]) if (r.queue[j]) eaters.push(r.queue[j]!);
+  }
+  // 分享餐盘：每回合第一份纯单体攻血补给也喂给相邻友军。
+  if (r.relics?.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0) && SHARE_FOODS.has(f.id) && tgt && slot !== null) {
     r.tc.shareUsed = true;
     for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
   }
@@ -453,17 +494,9 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
   for (const e of eaters) {
     const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
     levelUp = eatFood(r, e, memory, fx) || levelUp;
-    if (e === tgt && !f.tmp && !f.n && !f.behind) rememberFood(e, memory);
+    if (e === tgt && !f.tmp && !f.n && !f.behind && !f.around) rememberFood(e, memory);
   }
   r.tc.foods++;
-  for (const t of units(r)) {
-    if (abOf(t) === 'sauropod' && (r.tc.bear[t.oid] ?? 0) < vOf(t)
-      && r.shop.filter((s) => s.kind === 'food' && s.def !== 'f_milk').length < foodSlots(r.turn)
-      && r.shop.filter((s) => s.kind === 'food').length < FOOD_SHOP_MAX) {
-      r.tc.bear[t.oid] = (r.tc.bear[t.oid] ?? 0) + 1;
-      r.shop.push({ sid: r.nextId++, kind: 'food', def: pickFood(r).id, locked: false, free: false });
-    }
-  }
   return { ok: true, fx, levelUp };
 }
 
@@ -487,6 +520,8 @@ export function moveOwned(r: RunState, from: number, to: number): { merged: bool
       toBag(r, lo);
     } else b.ench = b.ench ?? a.ench;
     b.bank = (b.bank ?? 0) + (a.bank ?? 0);
+    (r.tc.keeper ??= {})[b.oid] = (r.tc.keeper[b.oid] ?? 0) + (r.tc.keeper[a.oid] ?? 0);
+    delete r.tc.keeper[a.oid];
     b.tmpAtk = (b.tmpAtk ?? 0) + (a.tmpAtk ?? 0) || undefined;
     b.tmpHp = (b.tmpHp ?? 0) + (a.tmpHp ?? 0) || undefined;
     b.lamp = b.lamp || a.lamp;
@@ -768,7 +803,7 @@ function winRate(r: RunState, enemy: UnitSpec[], n = 4) {
   }
   return w / n;
 }
-interface Cand { units: UnitSpec[]; form: FormKey; wr: number }
+interface Cand { units: UnitSpec[]; form: FormKey; wr: number; encounter?: Enemy['encounter'] }
 
 // ── 压力：玩家阵容太强时，把敌阵整体放大到「这一档该有的胜率上限」（只放大不缩小） ──
 /** 前两回合发育期不加压；第 3–4 回合轻压；之后满压 */
@@ -848,10 +883,19 @@ function candidates(r: RunState, k = 8, avoid: FormKey | null = r.lastForm): Can
   let list = all.filter((x) => r.eco.includes(x.form) && x.form !== avoid);
   if (list.length < 3) list = all.filter((x) => x.form !== avoid);
   if (list.length < 3) list = all;
-  return pickN(r, list, k).map((x) => {
+  // 中后期逐步加入预设配合；仍随机抽取候选，不按玩家技能拼反制阵。
+  const scripted = authoredEncounters(r.turn, medianBudget(r.turn)).filter((x) => x.form !== avoid);
+  const wanted = Math.min(k, r.turn >= 15 ? 4 : r.turn >= 12 ? 2 : r.turn >= 9 ? 1 : 0);
+  const preferred = scripted.filter((x) => r.eco.includes(x.form));
+  const chosen = pickN(r, preferred.length >= wanted ? preferred : scripted, Math.min(wanted, scripted.length));
+  const ghosts: Cand[] = pickN(r, list, Math.max(0, k - chosen.length)).map((x) => {
     const units = tidyTeam(scaleTeam(x.t, sc));
     return { units, form: x.form, wr: winRate(r, units) };
   });
+  return [...ghosts, ...chosen.map(({ key, name, hint, form, units }) => {
+    const scaled = scaleTeam(units, sc);
+    return { units: scaled, form, encounter: { key, name, hint }, wr: winRate(r, scaled) };
+  })];
 }
 /** 温度：简单 / 中等 / 困难 的权重 */
 export function tempWeights(r: RunState): [number, number, number] {
@@ -916,7 +960,8 @@ function makeElite(r: RunState, base: Cand): Enemy {
     const d = Math.abs(winRate(r, us) - target);
     if (!best || d < best.d) best = { ax, units: us, d };
   }
-  return { boss: null, units: best!.units, form: base.form, elite: best!.ax };
+  const boosted = lift(r, best!.units, winRate(r, best!.units, 6), target);
+  return { boss: null, units: boosted.units, form: base.form, elite: best!.ax, encounter: base.encounter };
 }
 function makeEnemy(r: RunState): Enemy {
   const boss = bossFor(r);
@@ -928,7 +973,7 @@ function makeEnemy(r: RunState): Enemy {
   }
   if (!ghostPool(r.turn).length) return { boss: null, units: curveTeam(r) };
   const c = pickByTemp(r, candidates(r));
-  return { boss: null, units: c.units, form: c.form };
+  return { boss: null, units: c.units, form: c.form, encounter: c.encounter };
 }
 /** 岔路回合：每 3 回合、非 Boss */
 export const isBranchTurn = (r: Pick<RunState, 'turn' | 'wins'>) => r.turn % 3 === 0 && !bossFor(r);
@@ -955,7 +1000,7 @@ function nextEnemy(r: RunState) {
     b = makeElite(r, pick(r, mid.length ? mid : cs));
   } else {
     const c = pickByTemp(r, candidates(r, 8, a.form ?? null));
-    b = { boss: null, units: c.units, form: c.form };
+    b = { boss: null, units: c.units, form: c.form, encounter: c.encounter };
   }
   r.branch = [a, b];
 }
@@ -1107,6 +1152,16 @@ export function load(): RunState | null {
     if (!r || r.v !== SAVE_VERSION || r.phase !== 'prep' || !Array.isArray(r.queue) || r.queue.length !== QUEUE_MAX) return null;
     const ok = r.queue.every((o) => !o || card(o.def)) && r.shop.every((s) => (s.kind === 'food' ? FOOD[s.def] : card(s.def))) && r.enemy.units.every((u) => card(u.def));
     if (!ok || !Number.isInteger(r.nextId) || !Number.isInteger(r.turn)) return null;
+    if (!r.tc || !Number.isSafeInteger(r.tc.foods) || r.tc.foods < 0 || !Number.isSafeInteger(r.tc.bought) || r.tc.bought < 0
+      || !r.tc.bear || typeof r.tc.bear !== 'object' || Array.isArray(r.tc.bear)
+      || (r.tc.bearRefunds !== undefined && (!Number.isSafeInteger(r.tc.bearRefunds) || r.tc.bearRefunds < 0 || r.tc.bearRefunds > 2))
+      || (r.tc.shareUsed !== undefined && typeof r.tc.shareUsed !== 'boolean')) return null;
+    const validUses = (x: Record<number, number>) => Object.entries(x).every(([oid, used]) => {
+      const n = Number(oid);
+      return Number.isSafeInteger(n) && n > 0 && String(n) === oid && Number.isSafeInteger(used) && used >= 0;
+    });
+    if (!validUses(r.tc.bear)) return null;
+    if (r.tc.keeper !== undefined && (!r.tc.keeper || typeof r.tc.keeper !== 'object' || Array.isArray(r.tc.keeper) || !validUses(r.tc.keeper))) return null;
     const legacySupply = r.supplyVersion === undefined;
     if (!legacySupply && r.supplyVersion !== SUPPLY_VERSION) return null;
     // 同版本增量字段：旧档没有记录就从空开始，不能从累计属性反推来源。
@@ -1144,6 +1199,13 @@ export function load(): RunState | null {
     r.milkTurn ??= r.turn;
     // 旧档不能反推出是否已用过餐盘；本回合保守保留，下一回合重新可用。
     r.tc.shareUsed ??= r.tc.foods > 0;
+    // 旧档没有全队返金计数；本回合吃过补给时保守视为额度已用尽，避免读档刷新经济额度。
+    r.tc.bearRefunds ??= r.tc.foods > 0 ? 2 : 0;
+    // 旧档没有守望者次数历史：只要本回合吃过补给，就按当前阵容逐个保守耗尽。
+    if (r.tc.keeper === undefined) {
+      r.tc.keeper = {};
+      if (r.tc.foods > 0) for (const o of units(r)) if (abOf(o) === 'seal') r.tc.keeper[o.oid] = uOf(o);
+    }
     return r;
   } catch {
     return null;

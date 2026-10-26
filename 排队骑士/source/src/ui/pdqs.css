@@ -103,13 +103,11 @@
 .tip-food-memory { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(111,230,255,.32); }
 .tfm-head { display: flex; align-items: baseline; }
 .tfm-head b { color: #9fefff; font-size: 20px; }
-.tfm-empty, .tfm-rule { color: #c7c3d8; font-size: 18px; line-height: 1.35; }
 .tfm-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; margin-top: 6px; }
 .tfm-item { min-height: 32px; display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 3px; font-size: 18px; }
 .tfm-item .tip-item { width: 24px; height: 24px; }
 .tfm-stats { display: flex; gap: 4px; }
 .tfm-stats .st { transform: scale(.72); transform-origin: center; }
-.tfm-rule { margin-top: 6px; }
 
 /* 240px 高的真实手机横屏仍保留两排补给与下方开战按钮的间隔。 */
 .compact .game .tray .supplies { top: 8px; }

@@ -1,0 +1,4 @@
+# Frozen simulation snapshots use byte-level SHA256 manifests.
+# Preserve their original line endings on every checkout.
+排队骑士/source/scripts/**/baseline/** -text
+排队骑士/source/scripts/**/candidate-no-authored/** -text

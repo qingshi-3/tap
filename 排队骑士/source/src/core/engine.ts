@@ -393,8 +393,9 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     loneDone = true;
     const u = al[0];
     tag(u, '独狼');
-    buff(u, u, 10, 10);
-    if (u.lock <= 0) u.undy++;
+    buff(u, u, 6, 6);
+    // 遗物只补足一次保命，不给装备已有次数追加充能。
+    if (u.lock <= 0) u.undy = Math.max(u.undy, 1);
   }
   /** 移除所有已死单位，依次结算阵亡触发；直到没有新死亡 */
   function processDeaths() {
@@ -472,7 +473,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
           const f = front(0);
           if (R.has('r_legacy') && f && u.atk >= 2) {
             tag(f, '传承');
-            buff(f, f, Math.floor(u.atk / 2), 0);
+            buff(f, f, Math.min(10, Math.floor(u.atk / 2)), 0);
           }
         }
         // 友军阵亡的反应
@@ -508,8 +509,9 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       }
       if (R.has('r_heavy')) {
         tag(me[0], '重装铠');
-        buff(me[0], me[0], 0, Math.ceil(me[0].maxHp / 2));
-        for (const x of me.slice(1)) buff(x, x, -1, 0);
+        const gain = Math.max(0, Math.min(50 - me[0].maxHp, Math.ceil(me[0].maxHp / 2)));
+        buff(me[0], me[0], 0, gain);
+        if (gain > 0) for (const x of me.slice(1)) buff(x, x, -1, 0);
       }
       checkLone();
       const fs = alive(1);
@@ -686,6 +688,13 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       if (u.lock <= 0) continue;
       if (--u.lock === 0) {
         tag(u, '不屈耗尽');
+        // 圣杯的第二次不屈接续生效；旧逻辑直接死亡，丢弃了剩余次数。
+        if (u.undy > 0) {
+          u.undy--;
+          u.lock = 2;
+          tag(u, '不屈');
+          continue;
+        }
         u.hp = 0;
         u.dead = true;
         ev.push({ t: 'dmg', src: null, tgt: u.uid, n: 1, blocked: false, kind: 'burn', hp: 0, block: u.block, shield: u.shield });

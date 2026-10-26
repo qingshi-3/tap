@@ -26,7 +26,7 @@ export function initTip(stage: HTMLElement) {
   window.addEventListener('resize', hideTip);
 }
 
-export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[]; foodHistory?: readonly FoodMemory[] }
+export interface TipStats { atk: number; hp: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[]; foodHistory?: readonly FoodMemory[]; prepUses?: { used: number; max: number } | null }
 
 /** withUp：附带升一星的变化（只改数字时并进同一句写成「2→3」） */
 export function unitTip(defId: string, level: number, st?: TipStats | null, withUp = true) {
@@ -37,6 +37,9 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   const atk = st ? st.atk : c.atk + add;
   const hp = st ? st.hp : c.hp + add;
   const ability = cardText(defId, level);
+  const shownAbility = st?.prepUses
+    ? ability.replace(/每回合 \d+ 次/, `本回合剩 ${Math.max(0, st.prepUses.max - st.prepUses.used)}/${st.prepUses.max} 次`)
+    : ability;
   const kwLines = (st?.kws ?? c.kws).filter((k) => k !== 'block').map((k) => `${KW_INFO[k as keyof typeof KW_INFO].name}：${KW_INFO[k as keyof typeof KW_INFO].desc}`);
   const upText = withUp && !d.enemyOnly && !d.token && level < 3 && c.v ? cardText(defId, level + 1) : '';
   const upDiff = upText && upText !== ability ? kwUpgrade(ability, upText) ?? upText : '';
@@ -47,7 +50,7 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   if (sum) extras.push(sum);
   if (st?.lamp) extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon('f_lamp', 'spell', 'tip-item'), ...kwRich('魂灯：下一场获得复生')));
   for (const x of st?.tfx ?? []) { const fd = fxFood(x); extras.push(h('div', { class: 'tip-text tip-ench' }, itemIcon(fd.id, 'spell', 'tip-item'), ...kwRich(`${fd.name}（本场）：${fd.short ?? ''}`))); }
-  if (c.inherit) extras.push(foodHistory(st?.foodHistory ?? []));
+  if (c.inherit) extras.push(foodHistory(st?.copies != null ? st.foodHistory ?? [] : undefined));
   return h(
     'div',
     { class: 'tip-unit', style: `--fc:${f.color}` },
@@ -60,22 +63,21 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     ),
     h('div', { class: 'tip-stats' }, statArt('atk', atk), statArt('hp', hp), st?.block ? pxStat('block', st.block) : null,
       st?.copies != null && st.copies < 6 ? h('span', { class: 'ts-act' }, '升星', h('i', null, `${st.copies >= 3 ? st.copies - 3 : st.copies - 1}/${st.copies >= 3 ? 3 : 2}`)) : null),
-    ability ? h('div', { class: 'tip-text' }, ...kwRich(ability)) : null,
+    ability ? h('div', { class: 'tip-text' }, ...kwRich(shownAbility)) : null,
     kwLines.length ? h('div', { class: 'tip-text tip-kw' }, ...kwLines.flatMap((t, i) => [i ? h('br') : null, ...kwRich(t)])) : null,
     ...extras,
     upDiff ? h('div', { class: 'tip-next' }, h('span', { class: 'tn-star' }, '★'.repeat(level + 1)), h('span', { class: 'tn-st' }, `+${level === 1 ? 2 : 3}/+${level === 1 ? 2 : 3}`), h('span', { class: 'tn-ab' }, ...kwInline(upDiff))) : null,
   );
 }
 
-function foodHistory(items: readonly FoodMemory[]) {
+function foodHistory(items?: readonly FoodMemory[]) {
   return h('div', { class: 'tip-food-memory' },
-    h('div', { class: 'tfm-head' }, h('b', null, `补给传承 ${items.length}/${FOOD_HISTORY_MAX}`)),
-    items.length
+    h('div', { class: 'tfm-head' }, h('b', null, items ? `补给传承 ${items.length}/${FOOD_HISTORY_MAX}` : '补给传承')),
+    items?.length
       ? h('div', { class: 'tfm-list' }, ...items.map((x) => h('div', { class: 'tfm-item' },
         itemIcon(x.id, 'spell', 'tip-item'), h('span', null, FOOD[x.id]?.name ?? x.id),
         h('span', { class: 'tfm-stats' }, statArt('atk', x.atk), statArt('hp', x.hp)))))
-      : h('div', { class: 'tfm-empty' }, '尚无记录（0/5）'),
-    h('div', { class: 'tfm-rule' }, '记录基础补给，非累计属性。保留最早5件；出售交给最近身后友军，没有则身前。重吃不再记录。'));
+      : null);
 }
 
 /** 会成长的召唤物身材：数字照常，右上角小「+」 */

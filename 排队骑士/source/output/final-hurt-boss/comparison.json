@@ -1,0 +1,3243 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-26T05:12:39.111Z",
+  "assertedPreFinalPairs": 1400,
+  "intervalMethod": "Per-group intervals use normal 95% CI of same-seed paired differences. Six-group hard and all-group aggregates use 20,000 deterministic cluster-bootstrap resamples of the 200 shared seed indexes; every resample carries all selected groups for that seed. Conditional first-Boss and retry metrics recompute numerator and denominator inside each resample.",
+  "caveat": "Heuristic-bot results, not human-player estimates.",
+  "aggregates": {
+    "hard": {
+      "baseline": {
+        "runs": 1200,
+        "clearRate": 0.3383333333333333,
+        "reachRate": 0.38916666666666666,
+        "firstFinalBossWinRate": 0.6702355460385439,
+        "finalBossAttempts": 635,
+        "retryClearRateAmongFirstFailures": 0.6038961038961039
+      },
+      "candidate": {
+        "runs": 1200,
+        "clearRate": 0.2966666666666667,
+        "reachRate": 0.38916666666666666,
+        "firstFinalBossWinRate": 0.5546038543897216,
+        "finalBossAttempts": 693,
+        "retryClearRateAmongFirstFailures": 0.46634615384615385
+      },
+      "paired": {
+        "clearRate": {
+          "nClusters": 200,
+          "delta": -0.04166666666666663,
+          "ci95": [
+            -0.05833333333333335,
+            -0.025000000000000022
+          ]
+        },
+        "reachFinalBossRate": {
+          "nClusters": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRate": {
+          "nClusters": 200,
+          "delta": -0.11563169164882225,
+          "ci95": [
+            -0.17391304347826086,
+            -0.05689277899343548
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "nClusters": 200,
+          "delta": 0.04833333333333334,
+          "ci95": [
+            0.011666666666666603,
+            0.08416666666666672
+          ]
+        },
+        "retryClearRateAmongFirstFailures": {
+          "nClusters": 200,
+          "delta": -0.13754995004995008,
+          "ci95": [
+            -0.22649572649572652,
+            -0.048439660280466146
+          ]
+        }
+      }
+    },
+    "all": {
+      "baseline": {
+        "runs": 1400,
+        "clearRate": 0.32857142857142857,
+        "reachRate": 0.37785714285714284,
+        "firstFinalBossWinRate": 0.6691871455576559,
+        "finalBossAttempts": 720,
+        "retryClearRateAmongFirstFailures": 0.6057142857142858
+      },
+      "candidate": {
+        "runs": 1400,
+        "clearRate": 0.28,
+        "reachRate": 0.37785714285714284,
+        "firstFinalBossWinRate": 0.5255198487712666,
+        "finalBossAttempts": 805,
+        "retryClearRateAmongFirstFailures": 0.4541832669322709
+      },
+      "paired": {
+        "clearRate": {
+          "nClusters": 200,
+          "delta": -0.04857142857142854,
+          "ci95": [
+            -0.06357142857142861,
+            -0.033571428571428585
+          ]
+        },
+        "reachFinalBossRate": {
+          "nClusters": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRate": {
+          "nClusters": 200,
+          "delta": -0.14366729678638934,
+          "ci95": [
+            -0.19814814814814813,
+            -0.08978873239436613
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "nClusters": 200,
+          "delta": 0.06071428571428572,
+          "ci95": [
+            0.026428571428571357,
+            0.0942857142857143
+          ]
+        },
+        "retryClearRateAmongFirstFailures": {
+          "nClusters": 200,
+          "delta": -0.15153101878201486,
+          "ci95": [
+            -0.23123840445269017,
+            -0.07051093818822496
+          ]
+        }
+      }
+    }
+  },
+  "groups": [
+    {
+      "group": {
+        "id": "hard-mix",
+        "diff": 1,
+        "strategy": "strong"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 96,
+        "clearRate": 0.48,
+        "clearWilson95": [
+          0.411791663783233,
+          0.5489621492718576
+        ],
+        "finalBoss": {
+          "reached": 107,
+          "reachRate": 0.535,
+          "reachWilson95": [
+            0.4658664687236316,
+            0.6028143584299599
+          ],
+          "firstAttemptWins": 76,
+          "firstAttemptWinRate": 0.7102803738317757,
+          "firstAttemptWinWilson95": [
+            0.6182285373827988,
+            0.787756736347634
+          ],
+          "totalAttempts": 139,
+          "firstAttemptFailures": 31,
+          "clearedAfterFailure": 20,
+          "retryClearRateAmongFirstFailures": 0.6451612903225806,
+          "retryClearWilson95AmongFirstFailures": [
+            0.46947954064368874,
+            0.788833409061346
+          ],
+          "actuallyRetried": 23,
+          "clearedAmongActuallyRetried": 20,
+          "retryClearRateAmongActuallyRetried": 0.8695652173913043
+        },
+        "avgTerminalTurn": 18.45,
+        "terminalTurnSd": 4.980111197321645,
+        "hitTurnCap": 0,
+        "avgReplacements": 17.125,
+        "avgFoodUses": 27.685,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 64,
+          "battleAppearances": 856,
+          "assignmentsOrUpgrades": 171,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 177,
+          "battleAppearances": 2417,
+          "picks": 497,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 2094,
+          "playerSlots": 10470,
+          "prepOnlySlots": 3795,
+          "prepOnlySlotRate": 0.3624641833810888,
+          "authoredEncounters": 575,
+          "authoredEncounterRate": 0.2745940783190067,
+          "authoredKeys": {
+            "boom-late": 48,
+            "hurt-late": 65,
+            "hurt-mid": 97,
+            "rush-mid": 85,
+            "snipe-late": 67,
+            "summon-late": 35,
+            "summon-mid": 100,
+            "wall-mid": 78
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 340,
+            "winRate": 0.425,
+            "draws": 158,
+            "avgAtk": 13.43,
+            "avgHp": 17.72875,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1175,
+            "wins": 699,
+            "winRate": 0.5948936170212766,
+            "draws": 113,
+            "avgAtk": 31.634042553191488,
+            "avgHp": 40.93702127659574,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 181,
+            "encounters": 1715,
+            "wins": 1168,
+            "winRate": 0.6810495626822157,
+            "draws": 232,
+            "avgAtk": 77.46413994169096,
+            "avgHp": 88.18775510204081,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.215,
+            "avgHp": 32.355,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.325,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 196,
+            "avgAtk": 32.107142857142854,
+            "avgHp": 42.62244897959184,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.086734693877551,
+            "avgTier5Slots": 0.20408163265306123,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 188,
+            "avgAtk": 47.3563829787234,
+            "avgHp": 56.101063829787236,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.1117021276595747,
+            "avgTier5Slots": 1.9946808510638299,
+            "avgTier6Slots": 0.35638297872340424
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 171,
+            "avgAtk": 57.37426900584796,
+            "avgHp": 66.83040935672514,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8070175438596491,
+            "avgTier5Slots": 1.8538011695906433,
+            "avgTier6Slots": 2.111111111111111
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 154,
+            "avgAtk": 70.94155844155844,
+            "avgHp": 82.74025974025975,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.43506493506493504,
+            "avgTier5Slots": 0.7207792207792207,
+            "avgTier6Slots": 3.6103896103896105
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 82,
+        "clearRate": 0.41,
+        "clearWilson95": [
+          0.34415674908482885,
+          0.4792354096630791
+        ],
+        "finalBoss": {
+          "reached": 107,
+          "reachRate": 0.535,
+          "reachWilson95": [
+            0.4658664687236316,
+            0.6028143584299599
+          ],
+          "firstAttemptWins": 60,
+          "firstAttemptWinRate": 0.5607476635514018,
+          "firstAttemptWinWilson95": [
+            0.4662256136168776,
+            0.6510590210163586
+          ],
+          "totalAttempts": 160,
+          "firstAttemptFailures": 47,
+          "clearedAfterFailure": 22,
+          "retryClearRateAmongFirstFailures": 0.46808510638297873,
+          "retryClearWilson95AmongFirstFailures": [
+            0.33331687076560745,
+            0.6076761677980519
+          ],
+          "actuallyRetried": 34,
+          "clearedAmongActuallyRetried": 22,
+          "retryClearRateAmongActuallyRetried": 0.6470588235294118
+        },
+        "avgTerminalTurn": 18.555,
+        "terminalTurnSd": 5.080950233606105,
+        "hitTurnCap": 0,
+        "avgReplacements": 17.11,
+        "avgFoodUses": 27.925,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 64,
+          "battleAppearances": 861,
+          "assignmentsOrUpgrades": 169,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 177,
+          "battleAppearances": 2438,
+          "picks": 497,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 2115,
+          "playerSlots": 10575,
+          "prepOnlySlots": 3834,
+          "prepOnlySlotRate": 0.3625531914893617,
+          "authoredEncounters": 575,
+          "authoredEncounterRate": 0.2718676122931442,
+          "authoredKeys": {
+            "boom-late": 48,
+            "hurt-late": 65,
+            "hurt-mid": 97,
+            "rush-mid": 85,
+            "snipe-late": 67,
+            "summon-late": 35,
+            "summon-mid": 100,
+            "wall-mid": 78
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 340,
+            "winRate": 0.425,
+            "draws": 158,
+            "avgAtk": 13.43,
+            "avgHp": 17.72875,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1175,
+            "wins": 699,
+            "winRate": 0.5948936170212766,
+            "draws": 113,
+            "avgAtk": 31.634042553191488,
+            "avgHp": 40.93702127659574,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 181,
+            "encounters": 1736,
+            "wins": 1154,
+            "winRate": 0.6647465437788018,
+            "draws": 240,
+            "avgAtk": 77.8197004608295,
+            "avgHp": 88.5155529953917,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.215,
+            "avgHp": 32.355,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.325,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 196,
+            "avgAtk": 32.107142857142854,
+            "avgHp": 42.62244897959184,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.086734693877551,
+            "avgTier5Slots": 0.20408163265306123,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 188,
+            "avgAtk": 47.3563829787234,
+            "avgHp": 56.101063829787236,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.1117021276595747,
+            "avgTier5Slots": 1.9946808510638299,
+            "avgTier6Slots": 0.35638297872340424
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 171,
+            "avgAtk": 57.37426900584796,
+            "avgHp": 66.83040935672514,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8070175438596491,
+            "avgTier5Slots": 1.8538011695906433,
+            "avgTier6Slots": 2.111111111111111
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 154,
+            "avgAtk": 70.94155844155844,
+            "avgHp": 82.74025974025975,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.43506493506493504,
+            "avgTier5Slots": 0.7207792207792207,
+            "avgTier6Slots": 3.6103896103896105
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.07,
+          "ci95": [
+            -0.11713670433736752,
+            -0.022863295662632496
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 107,
+          "delta": -0.14953271028037382,
+          "ci95": [
+            -0.2682431622618912,
+            -0.03082225829885643
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": 0.105,
+          "ci95": [
+            -0.0038671607539737113,
+            0.21386716075397372
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 17,
+          "delta": -0.17647058823529413,
+          "ci95": [
+            -0.42774367475262964,
+            0.07480249828204141
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "hard-food",
+        "diff": 1,
+        "strategy": "strong",
+        "line": "food"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 76,
+        "clearRate": 0.38,
+        "clearWilson95": [
+          0.31559005848673627,
+          0.44893281984380773
+        ],
+        "finalBoss": {
+          "reached": 78,
+          "reachRate": 0.39,
+          "reachWilson95": [
+            0.3250834313746962,
+            0.4590625404283025
+          ],
+          "firstAttemptWins": 57,
+          "firstAttemptWinRate": 0.7307692307692307,
+          "firstAttemptWinWilson95": [
+            0.6232309980448737,
+            0.8166438590110366
+          ],
+          "totalAttempts": 105,
+          "firstAttemptFailures": 21,
+          "clearedAfterFailure": 19,
+          "retryClearRateAmongFirstFailures": 0.9047619047619048,
+          "retryClearWilson95AmongFirstFailures": [
+            0.7108586092608176,
+            0.9734812325619255
+          ],
+          "actuallyRetried": 20,
+          "clearedAmongActuallyRetried": 19,
+          "retryClearRateAmongActuallyRetried": 0.95
+        },
+        "avgTerminalTurn": 16.06,
+        "terminalTurnSd": 5.979563184664664,
+        "hitTurnCap": 0,
+        "avgReplacements": 13.25,
+        "avgFoodUses": 28.575,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 57,
+          "battleAppearances": 725,
+          "assignmentsOrUpgrades": 123,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 154,
+          "battleAppearances": 1914,
+          "picks": 400,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1616,
+          "playerSlots": 8080,
+          "prepOnlySlots": 6244,
+          "prepOnlySlotRate": 0.7727722772277228,
+          "authoredEncounters": 462,
+          "authoredEncounterRate": 0.28589108910891087,
+          "authoredKeys": {
+            "boom-late": 35,
+            "hurt-late": 63,
+            "hurt-mid": 84,
+            "rush-mid": 79,
+            "snipe-late": 40,
+            "summon-late": 20,
+            "summon-mid": 63,
+            "wall-mid": 78
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 329,
+            "winRate": 0.41125,
+            "draws": 153,
+            "avgAtk": 13.295,
+            "avgHp": 17.77375,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1134,
+            "wins": 529,
+            "winRate": 0.46649029982363316,
+            "draws": 127,
+            "avgAtk": 31.610229276895943,
+            "avgHp": 39.9347442680776,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 145,
+            "encounters": 1278,
+            "wins": 874,
+            "winRate": 0.6838810641627543,
+            "draws": 179,
+            "avgAtk": 90.68075117370893,
+            "avgHp": 99.91471048513301,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.105,
+            "avgHp": 31.565,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.285,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 196,
+            "avgAtk": 33.73979591836735,
+            "avgHp": 42.04081632653061,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.6683673469387754,
+            "avgTier5Slots": 0.2857142857142857,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 157,
+            "avgAtk": 47.4140127388535,
+            "avgHp": 55.66242038216561,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.6114649681528663,
+            "avgTier5Slots": 1.3312101910828025,
+            "avgTier6Slots": 0.2929936305732484
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 125,
+            "avgAtk": 60.52,
+            "avgHp": 71.344,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.24,
+            "avgTier5Slots": 1.232,
+            "avgTier6Slots": 1.408
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 113,
+            "avgAtk": 81.8141592920354,
+            "avgHp": 91.56637168141593,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1150442477876106,
+            "avgTier5Slots": 1.2123893805309736,
+            "avgTier6Slots": 1.8495575221238938
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 71,
+        "clearRate": 0.355,
+        "clearWilson95": [
+          0.2919862754043116,
+          0.42347886924509565
+        ],
+        "finalBoss": {
+          "reached": 78,
+          "reachRate": 0.39,
+          "reachWilson95": [
+            0.3250834313746962,
+            0.4590625404283025
+          ],
+          "firstAttemptWins": 56,
+          "firstAttemptWinRate": 0.717948717948718,
+          "firstAttemptWinWilson95": [
+            0.6096907122939889,
+            0.8057466527032598
+          ],
+          "totalAttempts": 96,
+          "firstAttemptFailures": 22,
+          "clearedAfterFailure": 15,
+          "retryClearRateAmongFirstFailures": 0.6818181818181818,
+          "retryClearWilson95AmongFirstFailures": [
+            0.47318597741042745,
+            0.8363940681864375
+          ],
+          "actuallyRetried": 17,
+          "clearedAmongActuallyRetried": 15,
+          "retryClearRateAmongActuallyRetried": 0.8823529411764706
+        },
+        "avgTerminalTurn": 16.015,
+        "terminalTurnSd": 5.918608334998658,
+        "hitTurnCap": 0,
+        "avgReplacements": 13.26,
+        "avgFoodUses": 28.485,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 57,
+          "battleAppearances": 719,
+          "assignmentsOrUpgrades": 123,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 154,
+          "battleAppearances": 1905,
+          "picks": 400,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1607,
+          "playerSlots": 8035,
+          "prepOnlySlots": 6206,
+          "prepOnlySlotRate": 0.7723708774113255,
+          "authoredEncounters": 462,
+          "authoredEncounterRate": 0.2874922215308027,
+          "authoredKeys": {
+            "boom-late": 35,
+            "hurt-late": 63,
+            "hurt-mid": 84,
+            "rush-mid": 79,
+            "snipe-late": 40,
+            "summon-late": 20,
+            "summon-mid": 63,
+            "wall-mid": 78
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 329,
+            "winRate": 0.41125,
+            "draws": 153,
+            "avgAtk": 13.295,
+            "avgHp": 17.77375,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1134,
+            "wins": 529,
+            "winRate": 0.46649029982363316,
+            "draws": 127,
+            "avgAtk": 31.610229276895943,
+            "avgHp": 39.9347442680776,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 145,
+            "encounters": 1269,
+            "wins": 869,
+            "winRate": 0.6847911741528763,
+            "draws": 168,
+            "avgAtk": 90.25295508274232,
+            "avgHp": 99.51536643026004,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.105,
+            "avgHp": 31.565,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.285,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 196,
+            "avgAtk": 33.73979591836735,
+            "avgHp": 42.04081632653061,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.6683673469387754,
+            "avgTier5Slots": 0.2857142857142857,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 157,
+            "avgAtk": 47.4140127388535,
+            "avgHp": 55.66242038216561,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.6114649681528663,
+            "avgTier5Slots": 1.3312101910828025,
+            "avgTier6Slots": 0.2929936305732484
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 125,
+            "avgAtk": 60.52,
+            "avgHp": 71.344,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.24,
+            "avgTier5Slots": 1.232,
+            "avgTier6Slots": 1.408
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 113,
+            "avgAtk": 81.8141592920354,
+            "avgHp": 91.56637168141593,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1150442477876106,
+            "avgTier5Slots": 1.2123893805309736,
+            "avgTier6Slots": 1.8495575221238938
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.025,
+          "ci95": [
+            -0.05075982487703052,
+            0.0007598248770305169
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 78,
+          "delta": -0.01282051282051282,
+          "ci95": [
+            -0.12868023037986615,
+            0.10303920473884051
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": -0.045,
+          "ci95": [
+            -0.10443160114497863,
+            0.014431601144978629
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 11,
+          "delta": -0.2727272727272727,
+          "ci95": [
+            -0.5487602862287257,
+            0.003305740774180388
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "hard-hurt",
+        "diff": 1,
+        "strategy": "strong",
+        "line": "hurt"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 54,
+        "clearRate": 0.27,
+        "clearWilson95": [
+          0.21323449814685846,
+          0.33543435198668425
+        ],
+        "finalBoss": {
+          "reached": 65,
+          "reachRate": 0.325,
+          "reachWilson95": [
+            0.2639157153923429,
+            0.3926801488397004
+          ],
+          "firstAttemptWins": 45,
+          "firstAttemptWinRate": 0.6923076923076923,
+          "firstAttemptWinWilson95": [
+            0.5720235708527267,
+            0.7911296863307898
+          ],
+          "totalAttempts": 83,
+          "firstAttemptFailures": 20,
+          "clearedAfterFailure": 9,
+          "retryClearRateAmongFirstFailures": 0.45,
+          "retryClearWilson95AmongFirstFailures": [
+            0.2581978582556243,
+            0.6579146575496577
+          ],
+          "actuallyRetried": 13,
+          "clearedAmongActuallyRetried": 9,
+          "retryClearRateAmongActuallyRetried": 0.6923076923076923
+        },
+        "avgTerminalTurn": 16.96,
+        "terminalTurnSd": 5.9780503031620364,
+        "hitTurnCap": 0,
+        "avgReplacements": 12.33,
+        "avgFoodUses": 26.285,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 55,
+          "battleAppearances": 746,
+          "assignmentsOrUpgrades": 115,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 159,
+          "battleAppearances": 2039,
+          "picks": 365,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1794,
+          "playerSlots": 8970,
+          "prepOnlySlots": 1529,
+          "prepOnlySlotRate": 0.17045707915273134,
+          "authoredEncounters": 525,
+          "authoredEncounterRate": 0.29264214046822745,
+          "authoredKeys": {
+            "boom-late": 40,
+            "hurt-late": 55,
+            "hurt-mid": 105,
+            "rush-mid": 96,
+            "snipe-late": 40,
+            "summon-late": 41,
+            "summon-mid": 75,
+            "wall-mid": 73
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 345,
+            "winRate": 0.43125,
+            "draws": 169,
+            "avgAtk": 12.9525,
+            "avgHp": 18.46875,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1172,
+            "wins": 533,
+            "winRate": 0.454778156996587,
+            "draws": 212,
+            "avgAtk": 27.50938566552901,
+            "avgHp": 40.26621160409557,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 168,
+            "encounters": 1420,
+            "wins": 818,
+            "winRate": 0.576056338028169,
+            "draws": 249,
+            "avgAtk": 65.6725352112676,
+            "avgHp": 82.58591549295775,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.585,
+            "avgHp": 34.69,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.32,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 198,
+            "avgAtk": 28.474747474747474,
+            "avgHp": 41.72222222222222,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1717171717171717,
+            "avgTier5Slots": 0.21717171717171718,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 181,
+            "avgAtk": 38.1767955801105,
+            "avgHp": 50.767955801104975,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.132596685082873,
+            "avgTier5Slots": 1.1160220994475138,
+            "avgTier6Slots": 0.2265193370165746
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 149,
+            "avgAtk": 46.63758389261745,
+            "avgHp": 60.61073825503356,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1610738255033557,
+            "avgTier5Slots": 1.174496644295302,
+            "avgTier6Slots": 1.087248322147651
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 116,
+            "avgAtk": 59.61206896551724,
+            "avgHp": 76.04310344827586,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.2155172413793103,
+            "avgTier5Slots": 1.1724137931034482,
+            "avgTier6Slots": 1.5258620689655173
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 47,
+        "clearRate": 0.235,
+        "clearWilson95": [
+          0.18157433415232588,
+          0.29841368882762537
+        ],
+        "finalBoss": {
+          "reached": 65,
+          "reachRate": 0.325,
+          "reachWilson95": [
+            0.2639157153923429,
+            0.3926801488397004
+          ],
+          "firstAttemptWins": 35,
+          "firstAttemptWinRate": 0.5384615384615384,
+          "firstAttemptWinWilson95": [
+            0.4185339926647454,
+            0.6540966587719579
+          ],
+          "totalAttempts": 91,
+          "firstAttemptFailures": 30,
+          "clearedAfterFailure": 12,
+          "retryClearRateAmongFirstFailures": 0.4,
+          "retryClearWilson95AmongFirstFailures": [
+            0.24590628116801852,
+            0.5767963974667752
+          ],
+          "actuallyRetried": 17,
+          "clearedAmongActuallyRetried": 12,
+          "retryClearRateAmongActuallyRetried": 0.7058823529411765
+        },
+        "avgTerminalTurn": 17,
+        "terminalTurnSd": 6.031741833644631,
+        "hitTurnCap": 0,
+        "avgReplacements": 12.345,
+        "avgFoodUses": 26.335,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 55,
+          "battleAppearances": 749,
+          "assignmentsOrUpgrades": 115,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 159,
+          "battleAppearances": 2047,
+          "picks": 365,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1802,
+          "playerSlots": 9010,
+          "prepOnlySlots": 1535,
+          "prepOnlySlotRate": 0.17036625971143174,
+          "authoredEncounters": 525,
+          "authoredEncounterRate": 0.2913429522752497,
+          "authoredKeys": {
+            "boom-late": 40,
+            "hurt-late": 55,
+            "hurt-mid": 105,
+            "rush-mid": 96,
+            "snipe-late": 40,
+            "summon-late": 41,
+            "summon-mid": 75,
+            "wall-mid": 73
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 345,
+            "winRate": 0.43125,
+            "draws": 169,
+            "avgAtk": 12.9525,
+            "avgHp": 18.46875,
+            "avgUnits": 4.31
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1172,
+            "wins": 533,
+            "winRate": 0.454778156996587,
+            "draws": 212,
+            "avgAtk": 27.50938566552901,
+            "avgHp": 40.26621160409557,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 168,
+            "encounters": 1428,
+            "wins": 811,
+            "winRate": 0.5679271708683473,
+            "draws": 251,
+            "avgAtk": 66.02450980392157,
+            "avgHp": 82.95588235294117,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.585,
+            "avgHp": 34.69,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.32,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 198,
+            "avgAtk": 28.474747474747474,
+            "avgHp": 41.72222222222222,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1717171717171717,
+            "avgTier5Slots": 0.21717171717171718,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 181,
+            "avgAtk": 38.1767955801105,
+            "avgHp": 50.767955801104975,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.132596685082873,
+            "avgTier5Slots": 1.1160220994475138,
+            "avgTier6Slots": 0.2265193370165746
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 149,
+            "avgAtk": 46.63758389261745,
+            "avgHp": 60.61073825503356,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.1610738255033557,
+            "avgTier5Slots": 1.174496644295302,
+            "avgTier6Slots": 1.087248322147651
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 116,
+            "avgAtk": 59.61206896551724,
+            "avgHp": 76.04310344827586,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.2155172413793103,
+            "avgTier5Slots": 1.1724137931034482,
+            "avgTier6Slots": 1.5258620689655173
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.035,
+          "ci95": [
+            -0.07273776379922868,
+            0.0027377637992286735
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 65,
+          "delta": -0.15384615384615385,
+          "ci95": [
+            -0.29130432703689163,
+            -0.01638798065541608
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": 0.04,
+          "ci95": [
+            -0.02493036882829861,
+            0.10493036882829862
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 14,
+          "delta": -0.07142857142857142,
+          "ci95": [
+            -0.32005100181621754,
+            0.1771938589590747
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "hard-grow",
+        "diff": 1,
+        "strategy": "strong",
+        "line": "grow"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 50,
+        "clearRate": 0.25,
+        "clearWilson95": [
+          0.19508168006817497,
+          0.31434098312045833
+        ],
+        "finalBoss": {
+          "reached": 62,
+          "reachRate": 0.31,
+          "reachWilson95": [
+            0.2499894483607809,
+            0.37717177566258037
+          ],
+          "firstAttemptWins": 37,
+          "firstAttemptWinRate": 0.5967741935483871,
+          "firstAttemptWinWilson95": [
+            0.47250467700400245,
+            0.7097513090408933
+          ],
+          "totalAttempts": 92,
+          "firstAttemptFailures": 25,
+          "clearedAfterFailure": 13,
+          "retryClearRateAmongFirstFailures": 0.52,
+          "retryClearWilson95AmongFirstFailures": [
+            0.3349851695035678,
+            0.6996871404588704
+          ],
+          "actuallyRetried": 16,
+          "clearedAmongActuallyRetried": 13,
+          "retryClearRateAmongActuallyRetried": 0.8125
+        },
+        "avgTerminalTurn": 15.1,
+        "terminalTurnSd": 6.323760728296394,
+        "hitTurnCap": 0,
+        "avgReplacements": 11.92,
+        "avgFoodUses": 24.56,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 40,
+          "battleAppearances": 549,
+          "assignmentsOrUpgrades": 88,
+          "ids": [
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "p_berserk",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 140,
+          "battleAppearances": 1688,
+          "picks": 344,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1441,
+          "playerSlots": 7204,
+          "prepOnlySlots": 5770,
+          "prepOnlySlotRate": 0.8009439200444197,
+          "authoredEncounters": 429,
+          "authoredEncounterRate": 0.29770992366412213,
+          "authoredKeys": {
+            "boom-late": 33,
+            "hurt-late": 47,
+            "hurt-mid": 79,
+            "rush-mid": 62,
+            "snipe-late": 41,
+            "summon-late": 27,
+            "summon-mid": 66,
+            "wall-mid": 74
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 304,
+            "winRate": 0.38,
+            "draws": 142,
+            "avgAtk": 12.23,
+            "avgHp": 17.13,
+            "avgUnits": 4.3125
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1074,
+            "wins": 455,
+            "winRate": 0.4236499068901304,
+            "draws": 92,
+            "avgAtk": 29.936685288640597,
+            "avgHp": 39.26163873370577,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 128,
+            "encounters": 1146,
+            "wins": 753,
+            "winRate": 0.6570680628272252,
+            "draws": 175,
+            "avgAtk": 90.29668411867365,
+            "avgHp": 102.06282722513089,
+            "avgUnits": 4.99912739965096
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.26,
+            "avgHp": 29.37,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.29,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 179,
+            "avgAtk": 32.67039106145251,
+            "avgHp": 43.06145251396648,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3407821229050279,
+            "avgTier5Slots": 0.2011173184357542,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 139,
+            "avgAtk": 47.58273381294964,
+            "avgHp": 58.76978417266187,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.5107913669064748,
+            "avgTier5Slots": 0.9424460431654677,
+            "avgTier6Slots": 0.22302158273381295
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 114,
+            "avgAtk": 61.44736842105263,
+            "avgHp": 73.7719298245614,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.7105263157894737,
+            "avgTier5Slots": 0.8947368421052632,
+            "avgTier6Slots": 0.6929824561403509
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 102,
+            "avgAtk": 83.1078431372549,
+            "avgHp": 95.74509803921569,
+            "avgUnits": 4.990196078431373,
+            "avgTier4Slots": 1.8137254901960784,
+            "avgTier5Slots": 1.0294117647058822,
+            "avgTier6Slots": 0.9411764705882353
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 50,
+        "clearRate": 0.25,
+        "clearWilson95": [
+          0.19508168006817497,
+          0.31434098312045833
+        ],
+        "finalBoss": {
+          "reached": 62,
+          "reachRate": 0.31,
+          "reachWilson95": [
+            0.2499894483607809,
+            0.37717177566258037
+          ],
+          "firstAttemptWins": 40,
+          "firstAttemptWinRate": 0.6451612903225806,
+          "firstAttemptWinWilson95": [
+            0.5208113075778423,
+            0.752572671489501
+          ],
+          "totalAttempts": 81,
+          "firstAttemptFailures": 22,
+          "clearedAfterFailure": 10,
+          "retryClearRateAmongFirstFailures": 0.45454545454545453,
+          "retryClearWilson95AmongFirstFailures": [
+            0.2692029418081331,
+            0.6534020467926505
+          ],
+          "actuallyRetried": 16,
+          "clearedAmongActuallyRetried": 10,
+          "retryClearRateAmongActuallyRetried": 0.625
+        },
+        "avgTerminalTurn": 15.045,
+        "terminalTurnSd": 6.223878074918987,
+        "hitTurnCap": 0,
+        "avgReplacements": 11.9,
+        "avgFoodUses": 24.435,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 40,
+          "battleAppearances": 553,
+          "assignmentsOrUpgrades": 87,
+          "ids": [
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "p_berserk",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 140,
+          "battleAppearances": 1677,
+          "picks": 344,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1430,
+          "playerSlots": 7149,
+          "prepOnlySlots": 5719,
+          "prepOnlySlotRate": 0.799972024059309,
+          "authoredEncounters": 429,
+          "authoredEncounterRate": 0.3,
+          "authoredKeys": {
+            "boom-late": 33,
+            "hurt-late": 47,
+            "hurt-mid": 79,
+            "rush-mid": 62,
+            "snipe-late": 41,
+            "summon-late": 27,
+            "summon-mid": 66,
+            "wall-mid": 74
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 304,
+            "winRate": 0.38,
+            "draws": 142,
+            "avgAtk": 12.23,
+            "avgHp": 17.13,
+            "avgUnits": 4.3125
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1074,
+            "wins": 455,
+            "winRate": 0.4236499068901304,
+            "draws": 92,
+            "avgAtk": 29.936685288640597,
+            "avgHp": 39.26163873370577,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 128,
+            "encounters": 1135,
+            "wins": 753,
+            "winRate": 0.6634361233480176,
+            "draws": 160,
+            "avgAtk": 89.72511013215859,
+            "avgHp": 101.50044052863436,
+            "avgUnits": 4.999118942731277
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.26,
+            "avgHp": 29.37,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.29,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 179,
+            "avgAtk": 32.67039106145251,
+            "avgHp": 43.06145251396648,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3407821229050279,
+            "avgTier5Slots": 0.2011173184357542,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 139,
+            "avgAtk": 47.58273381294964,
+            "avgHp": 58.76978417266187,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.5107913669064748,
+            "avgTier5Slots": 0.9424460431654677,
+            "avgTier6Slots": 0.22302158273381295
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 114,
+            "avgAtk": 61.44736842105263,
+            "avgHp": 73.7719298245614,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.7105263157894737,
+            "avgTier5Slots": 0.8947368421052632,
+            "avgTier6Slots": 0.6929824561403509
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 102,
+            "avgAtk": 83.1078431372549,
+            "avgHp": 95.74509803921569,
+            "avgUnits": 4.990196078431373,
+            "avgTier4Slots": 1.8137254901960784,
+            "avgTier5Slots": 1.0294117647058822,
+            "avgTier6Slots": 0.9411764705882353
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            -0.034032760542733416,
+            0.034032760542733416
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 62,
+          "delta": 0.04838709677419355,
+          "ci95": [
+            -0.11050152699794481,
+            0.20727572054633192
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": -0.055,
+          "ci95": [
+            -0.16457412648972386,
+            0.05457412648972385
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 11,
+          "delta": -0.18181818181818182,
+          "ci95": [
+            -0.4208697837936132,
+            0.0572334201572495
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "hard-death",
+        "diff": 1,
+        "strategy": "strong",
+        "line": "death"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 80,
+        "clearRate": 0.4,
+        "clearWilson95": [
+          0.33460578566807336,
+          0.46916327960737997
+        ],
+        "finalBoss": {
+          "reached": 95,
+          "reachRate": 0.475,
+          "reachWilson95": [
+            0.4069162264657108,
+            0.5440260398531525
+          ],
+          "firstAttemptWins": 64,
+          "firstAttemptWinRate": 0.6736842105263158,
+          "firstAttemptWinWilson95": [
+            0.5742551255842591,
+            0.7596128726599239
+          ],
+          "totalAttempts": 127,
+          "firstAttemptFailures": 31,
+          "clearedAfterFailure": 16,
+          "retryClearRateAmongFirstFailures": 0.5161290322580645,
+          "retryClearWilson95AmongFirstFailures": [
+            0.348403954480288,
+            0.6802974843758269
+          ],
+          "actuallyRetried": 21,
+          "clearedAmongActuallyRetried": 16,
+          "retryClearRateAmongActuallyRetried": 0.7619047619047619
+        },
+        "avgTerminalTurn": 18.04,
+        "terminalTurnSd": 5.334857403678932,
+        "hitTurnCap": 0,
+        "avgReplacements": 14.365,
+        "avgFoodUses": 27.235,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 66,
+          "battleAppearances": 866,
+          "assignmentsOrUpgrades": 162,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 161,
+          "battleAppearances": 2203,
+          "picks": 430,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 2009,
+          "playerSlots": 10045,
+          "prepOnlySlots": 375,
+          "prepOnlySlotRate": 0.03733200597312095,
+          "authoredEncounters": 525,
+          "authoredEncounterRate": 0.2613240418118467,
+          "authoredKeys": {
+            "boom-late": 54,
+            "hurt-late": 73,
+            "hurt-mid": 79,
+            "rush-mid": 75,
+            "snipe-late": 59,
+            "summon-late": 37,
+            "summon-mid": 79,
+            "wall-mid": 69
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 347,
+            "winRate": 0.43375,
+            "draws": 157,
+            "avgAtk": 12.9025,
+            "avgHp": 15.76875,
+            "avgUnits": 4.31125
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1178,
+            "wins": 657,
+            "winRate": 0.5577249575551783,
+            "draws": 173,
+            "avgAtk": 27.213921901528014,
+            "avgHp": 29.753820033955858,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 179,
+            "encounters": 1630,
+            "wins": 1023,
+            "winRate": 0.6276073619631902,
+            "draws": 254,
+            "avgAtk": 59.763803680981596,
+            "avgHp": 68.18282208588957,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 20.685,
+            "avgHp": 21.915,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.275,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 199,
+            "avgAtk": 27.90452261306533,
+            "avgHp": 30.22613065326633,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.221105527638191,
+            "avgTier5Slots": 0.2663316582914573,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 185,
+            "avgAtk": 38.064864864864866,
+            "avgHp": 43.075675675675676,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3621621621621622,
+            "avgTier5Slots": 1.3027027027027027,
+            "avgTier6Slots": 0.2918918918918919
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 166,
+            "avgAtk": 47.493975903614455,
+            "avgHp": 54.27710843373494,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.283132530120482,
+            "avgTier5Slots": 1.3253012048192772,
+            "avgTier6Slots": 1.4879518072289157
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 144,
+            "avgAtk": 56.770833333333336,
+            "avgHp": 65.24305555555556,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8611111111111112,
+            "avgTier5Slots": 1.4722222222222223,
+            "avgTier6Slots": 2.3055555555555554
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 66,
+        "clearRate": 0.33,
+        "clearWilson95": [
+          0.26857425870603957,
+          0.39783315226223115
+        ],
+        "finalBoss": {
+          "reached": 95,
+          "reachRate": 0.475,
+          "reachWilson95": [
+            0.4069162264657108,
+            0.5440260398531525
+          ],
+          "firstAttemptWins": 41,
+          "firstAttemptWinRate": 0.43157894736842106,
+          "firstAttemptWinWilson95": [
+            0.3365583329880693,
+            0.5319179101278586
+          ],
+          "totalAttempts": 165,
+          "firstAttemptFailures": 54,
+          "clearedAfterFailure": 25,
+          "retryClearRateAmongFirstFailures": 0.46296296296296297,
+          "retryClearWilson95AmongFirstFailures": [
+            0.336899011179811,
+            0.5939464397898851
+          ],
+          "actuallyRetried": 40,
+          "clearedAmongActuallyRetried": 25,
+          "retryClearRateAmongActuallyRetried": 0.625
+        },
+        "avgTerminalTurn": 18.23,
+        "terminalTurnSd": 5.43181582121282,
+        "hitTurnCap": 0,
+        "avgReplacements": 14.42,
+        "avgFoodUses": 27.645,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 66,
+          "battleAppearances": 877,
+          "assignmentsOrUpgrades": 162,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 161,
+          "battleAppearances": 2241,
+          "picks": 430,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 2047,
+          "playerSlots": 10235,
+          "prepOnlySlots": 379,
+          "prepOnlySlotRate": 0.03702979970688813,
+          "authoredEncounters": 525,
+          "authoredEncounterRate": 0.2564728871519297,
+          "authoredKeys": {
+            "boom-late": 54,
+            "hurt-late": 73,
+            "hurt-mid": 79,
+            "rush-mid": 75,
+            "snipe-late": 59,
+            "summon-late": 37,
+            "summon-mid": 79,
+            "wall-mid": 69
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 347,
+            "winRate": 0.43375,
+            "draws": 157,
+            "avgAtk": 12.9025,
+            "avgHp": 15.76875,
+            "avgUnits": 4.31125
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1178,
+            "wins": 657,
+            "winRate": 0.5577249575551783,
+            "draws": 173,
+            "avgAtk": 27.213921901528014,
+            "avgHp": 29.753820033955858,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 179,
+            "encounters": 1668,
+            "wins": 1009,
+            "winRate": 0.604916067146283,
+            "draws": 264,
+            "avgAtk": 60.08513189448441,
+            "avgHp": 68.61390887290167,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 20.685,
+            "avgHp": 21.915,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.275,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 199,
+            "avgAtk": 27.90452261306533,
+            "avgHp": 30.22613065326633,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.221105527638191,
+            "avgTier5Slots": 0.2663316582914573,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 185,
+            "avgAtk": 38.064864864864866,
+            "avgHp": 43.075675675675676,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3621621621621622,
+            "avgTier5Slots": 1.3027027027027027,
+            "avgTier6Slots": 0.2918918918918919
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 166,
+            "avgAtk": 47.493975903614455,
+            "avgHp": 54.27710843373494,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.283132530120482,
+            "avgTier5Slots": 1.3253012048192772,
+            "avgTier6Slots": 1.4879518072289157
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 144,
+            "avgAtk": 56.770833333333336,
+            "avgHp": 65.24305555555556,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8611111111111112,
+            "avgTier5Slots": 1.4722222222222223,
+            "avgTier6Slots": 2.3055555555555554
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.07,
+          "ci95": [
+            -0.12292431663109048,
+            -0.017075683368909536
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 95,
+          "delta": -0.24210526315789474,
+          "ci95": [
+            -0.3787916207919854,
+            -0.10541890552380406
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": 0.19,
+          "ci95": [
+            0.0662046152915183,
+            0.3137953847084817
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 18,
+          "delta": -0.16666666666666666,
+          "ci95": [
+            -0.4523231307494191,
+            0.11898979741608581
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "hard-start",
+        "diff": 1,
+        "strategy": "strong",
+        "line": "start"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 50,
+        "clearRate": 0.25,
+        "clearWilson95": [
+          0.19508168006817497,
+          0.31434098312045833
+        ],
+        "finalBoss": {
+          "reached": 60,
+          "reachRate": 0.3,
+          "reachWilson95": [
+            0.24074744682371402,
+            0.36679068372719265
+          ],
+          "firstAttemptWins": 34,
+          "firstAttemptWinRate": 0.5666666666666667,
+          "firstAttemptWinWilson95": [
+            0.44103438776125564,
+            0.6842760319531324
+          ],
+          "totalAttempts": 89,
+          "firstAttemptFailures": 26,
+          "clearedAfterFailure": 16,
+          "retryClearRateAmongFirstFailures": 0.6153846153846154,
+          "retryClearWilson95AmongFirstFailures": [
+            0.4253485008511553,
+            0.7757140556428721
+          ],
+          "actuallyRetried": 21,
+          "clearedAmongActuallyRetried": 16,
+          "retryClearRateAmongActuallyRetried": 0.7619047619047619
+        },
+        "avgTerminalTurn": 16.265,
+        "terminalTurnSd": 5.387009780189685,
+        "hitTurnCap": 0,
+        "avgReplacements": 11.41,
+        "avgFoodUses": 25.6,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 62,
+          "battleAppearances": 809,
+          "assignmentsOrUpgrades": 131,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 161,
+          "battleAppearances": 1941,
+          "picks": 385,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1656,
+          "playerSlots": 8280,
+          "prepOnlySlots": 1263,
+          "prepOnlySlotRate": 0.15253623188405796,
+          "authoredEncounters": 461,
+          "authoredEncounterRate": 0.2783816425120773,
+          "authoredKeys": {
+            "boom-late": 25,
+            "hurt-late": 47,
+            "hurt-mid": 97,
+            "rush-mid": 97,
+            "snipe-late": 47,
+            "summon-late": 28,
+            "summon-mid": 63,
+            "wall-mid": 57
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 342,
+            "winRate": 0.4275,
+            "draws": 166,
+            "avgAtk": 13.05875,
+            "avgHp": 17.8825,
+            "avgUnits": 4.30875
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1161,
+            "wins": 584,
+            "winRate": 0.5030146425495263,
+            "draws": 139,
+            "avgAtk": 29.709732988802756,
+            "avgHp": 37.58311800172265,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 168,
+            "encounters": 1292,
+            "wins": 772,
+            "winRate": 0.5975232198142415,
+            "draws": 186,
+            "avgAtk": 67.39164086687306,
+            "avgHp": 68.19736842105263,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.08,
+            "avgHp": 32.7,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.31,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 197,
+            "avgAtk": 30.66497461928934,
+            "avgHp": 38.766497461928935,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3451776649746192,
+            "avgTier5Slots": 0.2131979695431472,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 175,
+            "avgAtk": 41.52,
+            "avgHp": 46.50857142857143,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.0457142857142858,
+            "avgTier5Slots": 1.0571428571428572,
+            "avgTier6Slots": 0.3028571428571429
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 147,
+            "avgAtk": 51.394557823129254,
+            "avgHp": 56.30612244897959,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.7346938775510204,
+            "avgTier5Slots": 1.1564625850340136,
+            "avgTier6Slots": 1.2585034013605443
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 116,
+            "avgAtk": 64.68103448275862,
+            "avgHp": 65.82758620689656,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8103448275862069,
+            "avgTier5Slots": 1.2413793103448276,
+            "avgTier6Slots": 1.706896551724138
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 40,
+        "clearRate": 0.2,
+        "clearWilson95": [
+          0.15045200926098115,
+          0.2608551865653788
+        ],
+        "finalBoss": {
+          "reached": 60,
+          "reachRate": 0.3,
+          "reachWilson95": [
+            0.24074744682371402,
+            0.36679068372719265
+          ],
+          "firstAttemptWins": 27,
+          "firstAttemptWinRate": 0.45,
+          "firstAttemptWinWilson95": [
+            0.3309365440675524,
+            0.5750806411466566
+          ],
+          "totalAttempts": 100,
+          "firstAttemptFailures": 33,
+          "clearedAfterFailure": 13,
+          "retryClearRateAmongFirstFailures": 0.3939393939393939,
+          "retryClearWilson95AmongFirstFailures": [
+            0.2468310743447709,
+            0.5631655918005977
+          ],
+          "actuallyRetried": 25,
+          "clearedAmongActuallyRetried": 13,
+          "retryClearRateAmongActuallyRetried": 0.52
+        },
+        "avgTerminalTurn": 16.32,
+        "terminalTurnSd": 5.406826134084682,
+        "hitTurnCap": 0,
+        "avgReplacements": 11.415,
+        "avgFoodUses": 25.705,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 62,
+          "battleAppearances": 819,
+          "assignmentsOrUpgrades": 131,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 161,
+          "battleAppearances": 1952,
+          "picks": 385,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1667,
+          "playerSlots": 8335,
+          "prepOnlySlots": 1276,
+          "prepOnlySlotRate": 0.15308938212357528,
+          "authoredEncounters": 461,
+          "authoredEncounterRate": 0.27654469106178764,
+          "authoredKeys": {
+            "boom-late": 25,
+            "hurt-late": 47,
+            "hurt-mid": 97,
+            "rush-mid": 97,
+            "snipe-late": 47,
+            "summon-late": 28,
+            "summon-mid": 63,
+            "wall-mid": 57
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 342,
+            "winRate": 0.4275,
+            "draws": 166,
+            "avgAtk": 13.05875,
+            "avgHp": 17.8825,
+            "avgUnits": 4.30875
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1161,
+            "wins": 584,
+            "winRate": 0.5030146425495263,
+            "draws": 139,
+            "avgAtk": 29.709732988802756,
+            "avgHp": 37.58311800172265,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 168,
+            "encounters": 1303,
+            "wins": 762,
+            "winRate": 0.5848042977743668,
+            "draws": 182,
+            "avgAtk": 67.48810437452033,
+            "avgHp": 68.32310053722179,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 23.08,
+            "avgHp": 32.7,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.31,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 197,
+            "avgAtk": 30.66497461928934,
+            "avgHp": 38.766497461928935,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.3451776649746192,
+            "avgTier5Slots": 0.2131979695431472,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 175,
+            "avgAtk": 41.52,
+            "avgHp": 46.50857142857143,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.0457142857142858,
+            "avgTier5Slots": 1.0571428571428572,
+            "avgTier6Slots": 0.3028571428571429
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 147,
+            "avgAtk": 51.394557823129254,
+            "avgHp": 56.30612244897959,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.7346938775510204,
+            "avgTier5Slots": 1.1564625850340136,
+            "avgTier6Slots": 1.2585034013605443
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 116,
+            "avgAtk": 64.68103448275862,
+            "avgHp": 65.82758620689656,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.8103448275862069,
+            "avgTier5Slots": 1.2413793103448276,
+            "avgTier6Slots": 1.706896551724138
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.05,
+          "ci95": [
+            -0.08609719364339716,
+            -0.013902806356602841
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 60,
+          "delta": -0.11666666666666667,
+          "ci95": [
+            -0.27181955418231646,
+            0.03848622084898312
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": 0.055,
+          "ci95": [
+            -0.034177847195530874,
+            0.14417784719553087
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 18,
+          "delta": -0.2777777777777778,
+          "ci95": [
+            -0.49069353507819835,
+            -0.06486202047735723
+          ]
+        }
+      }
+    },
+    {
+      "group": {
+        "id": "normal-mixed",
+        "diff": 0,
+        "strategy": "mixed"
+      },
+      "baseline": {
+        "runs": 200,
+        "cleared": 54,
+        "clearRate": 0.27,
+        "clearWilson95": [
+          0.21323449814685846,
+          0.33543435198668425
+        ],
+        "finalBoss": {
+          "reached": 62,
+          "reachRate": 0.31,
+          "reachWilson95": [
+            0.2499894483607809,
+            0.37717177566258037
+          ],
+          "firstAttemptWins": 41,
+          "firstAttemptWinRate": 0.6612903225806451,
+          "firstAttemptWinWilson95": [
+            0.5371769954935818,
+            0.7665829812479109
+          ],
+          "totalAttempts": 85,
+          "firstAttemptFailures": 21,
+          "clearedAfterFailure": 13,
+          "retryClearRateAmongFirstFailures": 0.6190476190476191,
+          "retryClearWilson95AmongFirstFailures": [
+            0.4087865377511576,
+            0.7924898863143551
+          ],
+          "actuallyRetried": 16,
+          "clearedAmongActuallyRetried": 13,
+          "retryClearRateAmongActuallyRetried": 0.8125
+        },
+        "avgTerminalTurn": 17.18,
+        "terminalTurnSd": 5.408684622598517,
+        "hitTurnCap": 0,
+        "avgReplacements": 15.28,
+        "avgFoodUses": 15.625,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 60,
+          "battleAppearances": 734,
+          "assignmentsOrUpgrades": 144,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 159,
+          "battleAppearances": 2074,
+          "picks": 374,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1839,
+          "playerSlots": 9195,
+          "prepOnlySlots": 2868,
+          "prepOnlySlotRate": 0.3119086460032626,
+          "authoredEncounters": 475,
+          "authoredEncounterRate": 0.2582925502990756,
+          "authoredKeys": {
+            "boom-late": 42,
+            "hurt-late": 44,
+            "hurt-mid": 79,
+            "rush-mid": 83,
+            "snipe-late": 43,
+            "summon-late": 29,
+            "summon-mid": 79,
+            "wall-mid": 76
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 376,
+            "winRate": 0.47,
+            "draws": 136,
+            "avgAtk": 13.13,
+            "avgHp": 17.1,
+            "avgUnits": 4.3075
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1177,
+            "wins": 606,
+            "winRate": 0.5148683092608326,
+            "draws": 165,
+            "avgAtk": 28.09515717926933,
+            "avgHp": 37.11554800339847,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 176,
+            "encounters": 1459,
+            "wins": 833,
+            "winRate": 0.570938999314599,
+            "draws": 262,
+            "avgAtk": 61.676490747087044,
+            "avgHp": 72.33379026730637,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.025,
+            "avgHp": 29.595,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.245,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 197,
+            "avgAtk": 28.380710659898476,
+            "avgHp": 38.34517766497462,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.7258883248730965,
+            "avgTier5Slots": 0.12690355329949238,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 187,
+            "avgAtk": 40.8716577540107,
+            "avgHp": 49.90909090909091,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.106951871657754,
+            "avgTier5Slots": 1.7433155080213905,
+            "avgTier6Slots": 0.18181818181818182
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 155,
+            "avgAtk": 49.593548387096774,
+            "avgHp": 58.4,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.0064516129032257,
+            "avgTier5Slots": 2.174193548387097,
+            "avgTier6Slots": 1.5032258064516129
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 133,
+            "avgAtk": 58.609022556390975,
+            "avgHp": 69.89473684210526,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.37593984962406013,
+            "avgTier5Slots": 1.2255639097744362,
+            "avgTier6Slots": 3.210526315789474
+          }
+        ]
+      },
+      "candidate": {
+        "runs": 200,
+        "cleared": 36,
+        "clearRate": 0.18,
+        "clearWilson95": [
+          0.13294625859420173,
+          0.23911475028724882
+        ],
+        "finalBoss": {
+          "reached": 62,
+          "reachRate": 0.31,
+          "reachWilson95": [
+            0.2499894483607809,
+            0.37717177566258037
+          ],
+          "firstAttemptWins": 19,
+          "firstAttemptWinRate": 0.3064516129032258,
+          "firstAttemptWinWilson95": [
+            0.20581586585634157,
+            0.42967216205386716
+          ],
+          "totalAttempts": 112,
+          "firstAttemptFailures": 43,
+          "clearedAfterFailure": 17,
+          "retryClearRateAmongFirstFailures": 0.3953488372093023,
+          "retryClearWilson95AmongFirstFailures": [
+            0.2636531475829744,
+            0.5442093693712609
+          ],
+          "actuallyRetried": 31,
+          "clearedAmongActuallyRetried": 17,
+          "retryClearRateAmongActuallyRetried": 0.5483870967741935
+        },
+        "avgTerminalTurn": 17.315,
+        "terminalTurnSd": 5.520703381739117,
+        "hitTurnCap": 0,
+        "avgReplacements": 15.29,
+        "avgFoodUses": 15.855,
+        "equipmentCoverage": {
+          "runsWithEquippedBattle": 60,
+          "battleAppearances": 744,
+          "assignmentsOrUpgrades": 144,
+          "ids": [
+            "amulet",
+            "b_axe",
+            "b_banner",
+            "b_buckler",
+            "b_horn",
+            "b_lance",
+            "b_scythe",
+            "b_spur",
+            "b_torch",
+            "c_blood",
+            "c_rage",
+            "chili",
+            "iron",
+            "o_crown",
+            "o_grail",
+            "o_spear",
+            "o_storm",
+            "p_berserk",
+            "p_bulwark",
+            "p_inferno",
+            "p_phoenix",
+            "p_reaver",
+            "p_thorn",
+            "shroom",
+            "w_helm",
+            "w_mail",
+            "w_sword",
+            "wine"
+          ]
+        },
+        "relicCoverage": {
+          "runsWithRelicBattle": 159,
+          "battleAppearances": 2101,
+          "picks": 374,
+          "ids": [
+            "r_drums",
+            "r_few",
+            "r_heavy",
+            "r_legacy",
+            "r_lone",
+            "r_rear",
+            "r_relay",
+            "r_share",
+            "r_vanguard",
+            "r_volley"
+          ]
+        },
+        "t9PlusCoverage": {
+          "encounters": 1866,
+          "playerSlots": 9330,
+          "prepOnlySlots": 2916,
+          "prepOnlySlotRate": 0.312540192926045,
+          "authoredEncounters": 475,
+          "authoredEncounterRate": 0.2545551982851018,
+          "authoredKeys": {
+            "boom-late": 42,
+            "hurt-late": 44,
+            "hurt-mid": 79,
+            "rush-mid": 83,
+            "snipe-late": 43,
+            "summon-late": 29,
+            "summon-mid": 79,
+            "wall-mid": 76
+          }
+        },
+        "stages": [
+          {
+            "stage": "early",
+            "turns": "1-4",
+            "reachedRuns": 200,
+            "encounters": 800,
+            "wins": 376,
+            "winRate": 0.47,
+            "draws": 136,
+            "avgAtk": 13.13,
+            "avgHp": 17.1,
+            "avgUnits": 4.3075
+          },
+          {
+            "stage": "mid",
+            "turns": "5-10",
+            "reachedRuns": 200,
+            "encounters": 1177,
+            "wins": 606,
+            "winRate": 0.5148683092608326,
+            "draws": 165,
+            "avgAtk": 28.09515717926933,
+            "avgHp": 37.11554800339847,
+            "avgUnits": 5
+          },
+          {
+            "stage": "late",
+            "turns": "11+",
+            "reachedRuns": 176,
+            "encounters": 1486,
+            "wins": 815,
+            "winRate": 0.5484522207267833,
+            "draws": 270,
+            "avgAtk": 62.20255720053836,
+            "avgHp": 73.01480484522207,
+            "avgUnits": 5
+          }
+        ],
+        "checkpoints": [
+          {
+            "turn": 6,
+            "reachedRuns": 200,
+            "avgAtk": 21.025,
+            "avgHp": 29.595,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.245,
+            "avgTier5Slots": 0,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 8,
+            "reachedRuns": 197,
+            "avgAtk": 28.380710659898476,
+            "avgHp": 38.34517766497462,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.7258883248730965,
+            "avgTier5Slots": 0.12690355329949238,
+            "avgTier6Slots": 0
+          },
+          {
+            "turn": 10,
+            "reachedRuns": 187,
+            "avgAtk": 40.8716577540107,
+            "avgHp": 49.90909090909091,
+            "avgUnits": 5,
+            "avgTier4Slots": 2.106951871657754,
+            "avgTier5Slots": 1.7433155080213905,
+            "avgTier6Slots": 0.18181818181818182
+          },
+          {
+            "turn": 12,
+            "reachedRuns": 155,
+            "avgAtk": 49.593548387096774,
+            "avgHp": 58.4,
+            "avgUnits": 5,
+            "avgTier4Slots": 1.0064516129032257,
+            "avgTier5Slots": 2.174193548387097,
+            "avgTier6Slots": 1.5032258064516129
+          },
+          {
+            "turn": 15,
+            "reachedRuns": 133,
+            "avgAtk": 58.609022556390975,
+            "avgHp": 69.89473684210526,
+            "avgUnits": 5,
+            "avgTier4Slots": 0.37593984962406013,
+            "avgTier5Slots": 1.2255639097744362,
+            "avgTier6Slots": 3.210526315789474
+          }
+        ]
+      },
+      "paired": {
+        "clearRate": {
+          "n": 200,
+          "delta": -0.09,
+          "ci95": [
+            -0.12976156811001152,
+            -0.05023843188998847
+          ]
+        },
+        "reachFinalBossRate": {
+          "n": 200,
+          "delta": 0,
+          "ci95": [
+            0,
+            0
+          ]
+        },
+        "firstFinalBossWinRateAmongBothReached": {
+          "n": 62,
+          "delta": -0.3548387096774194,
+          "ci95": [
+            -0.4980554050487508,
+            -0.21162201430608796
+          ]
+        },
+        "finalBossAttemptsPerRun": {
+          "n": 200,
+          "delta": 0.135,
+          "ci95": [
+            0.031328014500798695,
+            0.23867198549920132
+          ]
+        },
+        "retryClearRateAmongBothFirstFailed": {
+          "n": 18,
+          "delta": -0.2222222222222222,
+          "ci95": [
+            -0.4198487037699778,
+            -0.024595740674466626
+          ]
+        }
+      }
+    }
+  ]
+}

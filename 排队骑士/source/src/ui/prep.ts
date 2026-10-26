@@ -8,7 +8,7 @@ import { ALL, ATOM_INFO, BOSSES, card, EQUIP, equipStats, EVENT_INFO, FOOD, fxFo
 import {
   AD_RETRY_MAX, AD_SAVE_MAX, adRelic, adRetry, trialFight, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
   FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
-  WIN_GOAL, ownedAtk, ownedHp, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
+  WIN_GOAL, ownedAtk, ownedHp, prepFoodUses, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
 import { QUEUE_MAX, type BattleOut } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
@@ -207,9 +207,9 @@ export class Game {
       h('div', { class: 'sb-title' },
         boss ? h('span', { class: 'sb-kind' }, 'Boss') : elite.length ? h('span', { class: 'sb-kind elite' }, '精英') : null,
         h('span', { class: 'sb-no' }, `第 ${r.turn} 回合 · 输掉扣 ${enemyLossCost(r)} 心`),
-        h('b', null, boss ? BOSSES[boss].name : form ? FORM_INFO[form].name : '对手阵容'),
+        h('b', null, boss ? BOSSES[boss].name : r.enemy.encounter?.name ?? (form ? FORM_INFO[form].name : '对手阵容')),
         ...elite.map((a) => h('span', { class: 'sb-ax', title: ATOM_INFO[a].name }, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))),
-      ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : form ? [h('div', { class: 'sb-hint' }, FORM_INFO[form].hint)] : []),
+      ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : r.enemy.encounter ? [h('div', { class: 'sb-hint' }, r.enemy.encounter.hint)] : form ? [h('div', { class: 'sb-hint' }, FORM_INFO[form].hint)] : []),
     );
   }
 
@@ -406,7 +406,7 @@ export class Game {
     const f = FOOD[it.def];
     const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', tabindex: 0, 'aria-label': `补给 ${f.name}`, 'data-idx': i },
       h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack'),
-        f.n || f.behind ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : '×2') : null,
+        f.n || f.behind || f.around ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : `×${f.around ? 3 : f.n ?? 2}`) : null,
         f.tmp ? h('span', { class: 'ft-tmp' }, icon('hourglass')) : null),
       h('b', { class: 'ft-name' }, f.name),
       (() => { const [a, hp] = foodStats(it); return a || hp ? h('span', { class: 'ft-stat' }, h('em', null, `+${a}`), '/', h('i', null, `+${hp}`)) : null; })(),
@@ -608,7 +608,7 @@ export class Game {
       const o = r.queue[idx];
       if (!o) return;
       const s = this.ownedStats(o);
-      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory }, true);
+      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory, prepUses: prepFoodUses(r, o) }, true);
       const inheritance = inheritancePreview(r, idx);
       if (inheritance) tip.appendChild(inheritance);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
@@ -741,15 +741,14 @@ export class Game {
         const take = h('button', { class: 'btn primary rl-take', disabled: true }, '先选一件');
         const items = p.opts.map((id, i) => {
           const d = RELIC[id];
-          const el = h('button', { class: 'rl-card' },
+          const el = h('button', { class: 'rl-card', 'aria-pressed': 'false' },
             h('div', { class: 'rl-art' }, h('i', { class: 'rl-rays' }), h('i', { class: 'rl-ped' }), itemIcon(`rl_${id.slice(2)}`, 'spell', 'rl-ico')),
             h('b', { class: 'rl-name' }, d.name),
-            h('i', { class: 'rl-rule' }),
             h('p', { class: 'rl-text' }, ...kwRich(d.text)));
           el.addEventListener('click', () => {
             sfx.click();
             sel = i;
-            items.forEach((x, j) => { x.classList.toggle('on', j === i); x.classList.toggle('off', j !== i); });
+            items.forEach((x, j) => { x.classList.toggle('on', j === i); x.classList.toggle('off', j !== i); x.setAttribute('aria-pressed', String(j === i)); });
             take.disabled = false;
             take.replaceChildren(`拿走「${d.name}」`);
           });
@@ -779,9 +778,7 @@ export class Game {
         });
         const owned = r.relics.length ? h('div', { class: 'rl-owned' }, h('span', null, '已有'), ...r.relics.map((id) => itemIcon(`rl_${id.slice(2)}`, 'spell'))) : null;
         ov.replaceChildren(h('div', { class: 'chest-card rl-wrap' },
-          h('div', { class: 'rl-ribbon' }, '战利品'),
           h('h2', null, '选一件遗物'),
-          h('p', null, '整局生效'),
           h('div', { class: 'rl-cards' }, ...items),
           h('div', { class: 'rl-acts' }, ...(owned ? [owned] : []), take, ad)));
       };
@@ -894,7 +891,7 @@ export class Game {
         const btn = h('button', { class: `branch-opt${elite.length ? ' elite' : ''}` },
           h('div', { class: 'bo-head' },
             elite.length ? h('span', { class: 'bo-tag' }, '精英') : h('span', { class: 'bo-tag normal' }, '普通'),
-            h('b', null, e.form ? FORM_INFO[e.form].name : '对手')),
+            h('b', null, e.encounter?.name ?? (e.form ? FORM_INFO[e.form].name : '对手'))),
           h('div', { class: 'bo-units' }, ...e.units.slice(0, QUEUE_MAX).map((u) => h('span', { class: 'bo-u' }, h('span', { class: 'bo-art', html: unitSvg(u.def) }),
             h('span', { class: 'bo-st' }, h('b', { class: 'a' }, u.atk), h('b', { class: 'h' }, u.hp))))),
           elite.length ? h('div', { class: 'bo-ax' }, ...elite.map((a) => h('span', null, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))) : null,
@@ -923,12 +920,14 @@ export class Game {
         const up = chestCanUp(r);
         const items = c.items.map((id, i) => {
           const e = EQUIP[id];
+          const effect = e.atoms?.length === 1 && e.text === ATOM_INFO[e.atoms[0]].name
+            ? ATOM_INFO[e.atoms[0]].desc : e.text;
           const el = h('button', { class: `chest-item eq-q${e.q}` },
             h('div', { class: 'ci-beam' }),
             h('div', { class: 'ci-ico' }, equipIcon(id)),
             h('b', { class: 'ci-name', style: `color:${Q_INFO[e.q].color}` }, e.name),
             h('span', { class: 'ci-q' }, Q_INFO[e.q].name, e.curse ? ' · 诅咒' : ''),
-            h('div', { class: 'ci-text' }, e.text),
+            h('div', { class: 'ci-text' }, effect),
             e.q === 2 && (capped || left <= 0) ? h('span', { class: 'ci-cap' }, '橙装已达上限') : null);
           el.addEventListener('click', () => {
             sfx.reward();
@@ -1111,6 +1110,12 @@ export class Game {
             await this.fxWait(170);
           }
           this.board.clearArrows();
+        } else if (f.kind === 'gold') {
+          if (!this.fastFx && from) {
+            this.fx.statPop(from.x, from.y - 74, `+${f.n} 金`, f.label, 'pt-power', 560);
+            sfx.pick();
+            await this.fxWait(170);
+          }
         } else {
           if (!this.fastFx && from) {
             this.viewOf(f.src)?.castMotion('#ffb36b');

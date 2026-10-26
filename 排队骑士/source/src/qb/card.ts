@@ -81,7 +81,7 @@ export function foodRow(id: string, val?: [number, number]) {
   const fd = FOOD[id];
   const [a, hp] = val ?? [fd.atk ?? 0, fd.hp ?? 0];
   if (id === 'f_can') return null;
-  const tgt = fd.n === ALL ? '全队' : fd.behind ? '目标与身后' : fd.n ? `随机${fd.n}` : '单体';
+  const tgt = fd.n === ALL ? '全队' : fd.around ? '目标与前后' : fd.behind ? '目标与身后' : fd.n ? `随机${fd.n}` : '单体';
   const chip = (cls: string, ...k: (string | Node)[]) => h('span', { class: `fr-chip ${cls}` }, ...k);
   return h('div', { class: 'food-row' },
     chip(fd.n === ALL ? 'fr-all' : 'fr-tgt', icon(fd.n === ALL ? 'flag' : 'target'), tgt),

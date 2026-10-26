@@ -1,0 +1,260 @@
+{
+  "generatedAt": "2026-10-26T05:07:13.194Z",
+  "scope": "小型行为契约；未运行完整通关模拟或自适应lift",
+  "checks": [
+    {
+      "id": "lv2.first-wave-targets",
+      "pass": true,
+      "expected": 3,
+      "actual": [
+        3,
+        4,
+        5
+      ]
+    },
+    {
+      "id": "lv2.worm-feeds-front",
+      "pass": true,
+      "expected": "巨虫触发1次且反哺队首",
+      "actual": {
+        "wormTriggers": 1,
+        "frontBuffed": true
+      }
+    },
+    {
+      "id": "lv2.warden-archon-double",
+      "pass": true,
+      "expected": "2次×6",
+      "actual": [
+        6,
+        6
+      ]
+    },
+    {
+      "id": "lv2.storm-observed-hurts",
+      "pass": true,
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "id": "lv2.storm-actual-growth",
+      "pass": true,
+      "expected": 26,
+      "actual": [
+        26,
+        26
+      ]
+    },
+    {
+      "id": "lv3.first-wave-targets",
+      "pass": true,
+      "expected": 4,
+      "actual": [
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "id": "lv3.worm-feeds-front",
+      "pass": true,
+      "expected": "巨虫触发1次且反哺队首",
+      "actual": {
+        "wormTriggers": 1,
+        "frontBuffed": true
+      }
+    },
+    {
+      "id": "lv3.warden-archon-double",
+      "pass": true,
+      "expected": "2次×9",
+      "actual": [
+        9,
+        9
+      ]
+    },
+    {
+      "id": "lv3.storm-observed-hurts",
+      "pass": true,
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "id": "lv3.storm-actual-growth",
+      "pass": true,
+      "expected": 34,
+      "actual": [
+        34,
+        34
+      ]
+    },
+    {
+      "id": "worm.three-use-cap",
+      "pass": true,
+      "expected": 3,
+      "actual": 3
+    },
+    {
+      "id": "battle-stat-cap-50",
+      "pass": true,
+      "expected": "所有事件<=50且风暴50/50",
+      "actual": {
+        "over": [],
+        "storm": [
+          50,
+          50
+        ]
+      }
+    },
+    {
+      "id": "blocked-hurt-does-not-broadcast",
+      "pass": true,
+      "expected": {
+        "blocked": 1,
+        "broadcasts": 0
+      },
+      "actual": {
+        "blocked": 1,
+        "broadcasts": 0
+      }
+    },
+    {
+      "id": "baseline-non-final-unchanged",
+      "pass": true,
+      "expected": "all true",
+      "actual": {
+        "otherBosses": true,
+        "playerCards": true,
+        "foods": true,
+        "relics": true
+      }
+    },
+    {
+      "id": "final-definition",
+      "pass": true,
+      "expected": "冻结顺序，保留默认星级",
+      "actual": {
+        "key": "final",
+        "name": "伤痕王座",
+        "desc": "风刃引伤，巨虫强化全队，双重反击与风暴收尾",
+        "units": [
+          "l_windblade",
+          "d_worm",
+          "l_warden",
+          "l_archon",
+          "l_storm"
+        ]
+      }
+    }
+  ],
+  "passed": 15,
+  "failed": 0,
+  "budgetSnapshots": [
+    {
+      "turn": 15,
+      "units": [
+        {
+          "def": "l_windblade",
+          "lvl": 2,
+          "atk": 6,
+          "hp": 11
+        },
+        {
+          "def": "d_worm",
+          "lvl": 2,
+          "atk": 17,
+          "hp": 29
+        },
+        {
+          "def": "l_warden",
+          "lvl": 2,
+          "atk": 6,
+          "hp": 13
+        },
+        {
+          "def": "l_archon",
+          "lvl": 2,
+          "atk": 13,
+          "hp": 15
+        },
+        {
+          "def": "l_storm",
+          "lvl": 2,
+          "atk": 17,
+          "hp": 20
+        }
+      ]
+    },
+    {
+      "turn": 18,
+      "units": [
+        {
+          "def": "l_windblade",
+          "lvl": 3,
+          "atk": 7,
+          "hp": 15
+        },
+        {
+          "def": "d_worm",
+          "lvl": 3,
+          "atk": 22,
+          "hp": 39
+        },
+        {
+          "def": "l_warden",
+          "lvl": 3,
+          "atk": 7,
+          "hp": 17
+        },
+        {
+          "def": "l_archon",
+          "lvl": 3,
+          "atk": 17,
+          "hp": 20
+        },
+        {
+          "def": "l_storm",
+          "lvl": 3,
+          "atk": 22,
+          "hp": 27
+        }
+      ]
+    },
+    {
+      "turn": 21,
+      "units": [
+        {
+          "def": "l_windblade",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 19
+        },
+        {
+          "def": "d_worm",
+          "lvl": 3,
+          "atk": 29,
+          "hp": 50
+        },
+        {
+          "def": "l_warden",
+          "lvl": 3,
+          "atk": 10,
+          "hp": 22
+        },
+        {
+          "def": "l_archon",
+          "lvl": 3,
+          "atk": 22,
+          "hp": 25
+        },
+        {
+          "def": "l_storm",
+          "lvl": 3,
+          "atk": 29,
+          "hp": 35
+        }
+      ]
+    }
+  ]
+}

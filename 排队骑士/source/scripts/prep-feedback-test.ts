@@ -22,7 +22,7 @@ function eat(r: RunState, def: string, slot: number | null) {
 }
 for (const before of ['f_dragon', 'f_sushi', 'f_stew', 'f_elixir', 'f_can']) {
   const r = fixture();
-  eat(r, before, before === 'f_elixir' || before === 'f_stew' ? 1 : null);
+  eq(eat(r, before, before === 'f_can' ? null : 1).ok, true, `${before} used successfully`);
   eq(r.tc.shareUsed, false, `${before} preserves share`);
   const stats = r.queue.slice(0, 3).map((o) => [ownedAtk(o!), ownedHp(o!)]);
   eat(r, 'f_bread', 1);
