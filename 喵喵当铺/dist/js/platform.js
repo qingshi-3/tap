@@ -17,8 +17,6 @@ const rvAd = () => {
 };
 export const ads = {
   busy: false,
-  captureGuard(state) { return state ? { runId: state.runId, day: state.day } : null; },
-  isCurrent(guard, state) { return !!(guard && state && guard.runId === state.runId && guard.day === state.day); },
   get available() {
     if (mockAd) return true;
     const t = getTap();
@@ -55,10 +53,10 @@ export const ads = {
 const lbm = () => { const t = getTap(); try { return t && t.getLeaderboardManager ? t.getLeaderboardManager() : null; } catch { return null; } };
 export const board = {
   get available() { return !!lbm(); },
-  submit(netWorth, days, rulesetVersion = 'growth-v1') {
+  submit(netWorth, days) {
     const m = lbm(); if (!m) return;
     const scores = [{ leaderboardId: LB_NETWORTH, score: Math.max(0, Math.round(netWorth)) }];
-    if (days && rulesetVersion === 'legacy-v2') scores.push({ leaderboardId: LB_FASTEST, score: days });
+    if (days) scores.push({ leaderboardId: LB_FASTEST, score: days });
     safe(() => m.submitScores({ scores, callback: { onSuccess() {}, onFailure() {} } }));
   },
   open(which) {
@@ -69,21 +67,24 @@ export const board = {
 };
 
 export const store = {
-  has(k) { return localStorage.getItem(k) !== null; },
-  get(k, d) {
-    const v = localStorage.getItem(k);
-    if (v === null) return d;
-    try { return JSON.parse(v); } catch { throw new Error('存档内容损坏，原件已保留'); }
+  // Keep unreadable data distinct from an empty slot so the UI cannot overwrite it.
+  read(k) {
+    let raw;
+    try { raw = localStorage.getItem(k); } catch { return { status: 'unavailable' }; }
+    if (raw === null) return { status: 'empty' };
+    try { return { status: 'ok', value: JSON.parse(raw), raw }; }
+    catch { return { status: 'invalid', raw }; }
   },
+  get(k, d) { const result = this.read(k); return result.status === 'ok' ? result.value : d; },
   set(k, v) {
-    const raw = JSON.stringify(v);
-    try { localStorage.setItem(k, raw); if (localStorage.getItem(k) !== raw) throw Error(); }
-    catch { throw new Error('未保存：存储空间不足或权限受限，请重试'); }
-    return true;
+    try {
+      const raw = JSON.stringify(v);
+      localStorage.setItem(k, raw);
+      return localStorage.getItem(k) === raw;
+    } catch { return false; }
   },
   del(k) {
-    try { localStorage.removeItem(k); if (localStorage.getItem(k) !== null) throw Error(); }
-    catch { throw new Error('未能删除存档，请重试'); }
-    return true;
+    try { localStorage.removeItem(k); return localStorage.getItem(k) === null; }
+    catch { return false; }
   },
 };

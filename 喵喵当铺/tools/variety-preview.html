@@ -1,0 +1,34 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>经营内容隔离验收</title>
+<style>body{font:18px sans-serif;padding:20px;background:#efe5d1}button{display:block;padding:15px;margin:12px 0;font:inherit;background:#f4b446;border:0}pre{white-space:pre-wrap}</style>
+<h1>经营内容隔离验收</h1><p>仅覆盖18852本机测试档，不进入发布包。</p>
+<button data-case="early">首夜预告</button><button data-case="night">后期作坊与备货</button><button data-case="buy">指定商品买家</button><button data-case="buycost">卖货进价显示</button><button data-case="sell">特色供货</button><button data-case="order">常客委托</button><button data-case="unknown">未来扩展保护</button><pre id="status"></pre>
+<script type="module">
+import * as G from '../js/game.js';
+import {MACHINES,ITEMS} from '../js/data.js';
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('只允许隔离测试来源');
+for(const b of document.querySelectorAll('button'))b.onclick=()=>{
+ try{
+ const kind=b.dataset.case==='buycost'?'buy':b.dataset.case,s=G.newRun();s.tutorial=true;
+ localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0}));
+ if(kind==='early'){G.startNight();G.nextVisit();}
+ else if(kind==='unknown'){s.variety={v:999,marker:'preserve-raw'};}
+ else{
+  Object.assign(s,{day:10,money:1800,shelfCap:12});s.st.buy=12;s.st.sell=12;s.rep.gang=2;s.rep.elite=2;
+  s.shelf=[];for(const id of ['fish','fish','brokenconsole','roughgem','smokedfish','console','pendant','battery','yarn'])if(ITEMS[id])s.shelf.push(G.mkItem(id,{q:1}));
+  for(const mid of Object.keys(MACHINES)){s.up[mid]=true;s.owned[mid]=true;s.machines[mid]=null;}s.filter=10;
+  G.ensureGrowth();G.growthStatus();G.growthMessages();G.startNight();G.nextVisit();
+  if(kind!=='night'){
+   let found=false;
+   for(let i=0;i<30;i++){
+    G.sleep();G.startDay();const index=s.queue.findIndex(c=>c.visitId&&c.kind===kind);
+    if(index>=0){s.qi=index;const c=s.queue[index];if(kind==='buy'&&!s.shelf.some(it=>it.id===c.wantId))s.shelf.push(G.mkItem(c.wantId,{q:1}));if(kind==='order'){s.shelf=[];for(let j=0;j<c.order.qty;j++)s.shelf.push(G.mkItem(c.order.id,{q:1,g:3,gk:true}));}found=true;break;}
+    G.startNight();G.nextVisit();
+   }
+   if(!found)throw Error('未生成目标特色来客');
+  }
+ }
+ if(b.dataset.case==='buycost'){const c=s.queue[s.qi],it=s.shelf.find(x=>x.id===c.wantId);it.cost=46.25;s.shelf.push(G.mkItem(c.wantId,{q:1}));}
+ localStorage.setItem('mmdp_run',JSON.stringify(s));location.href='../';
+ }catch(e){document.getElementById('status').textContent=e.stack;}
+};
+</script></html>

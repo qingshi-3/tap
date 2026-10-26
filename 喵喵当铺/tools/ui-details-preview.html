@@ -1,0 +1,35 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>信息分层隔离验收</title>
+<style>body{font:18px sans-serif;padding:20px;background:#efe5d1}button{display:block;padding:15px;margin:12px 0;font:inherit;background:#f4b446;border:0}pre{white-space:pre-wrap}</style>
+<h1>信息分层隔离验收</h1><p>仅重置18852测试档。</p>
+<button data-case="work">作坊：缺料、未购买、可加工</button><button data-case="poor">设备购买：鱼币不足</button><button data-case="daywater">白天：水质与设备入口</button><button data-case="inspect">首次验货</button><button data-case="stolen">首次赃物</button><button data-case="water">首次水质</button><pre id="status"></pre>
+<script type="module">
+import * as G from '../js/game.js';
+import { MACHINES } from '../js/data.js';
+import { MECHANIC_LESSONS } from '../js/lessons.js';
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('仅允许隔离来源');
+for(const [id,label] of [['catalog','全部小铺与满货架购买'],['machines','全设备与配方'],['unowned','设备：尚未购买']]){const b=document.createElement('button');b.dataset.case=id;b.textContent=label;document.querySelector('#status').before(b);}
+for(const b of document.querySelectorAll('button'))b.onclick=()=>{
+ try{
+  const kind=b.dataset.case,s=G.newRun();s.tutorial=true;s.money=1800;s.day=4;s.st.buy=5;s.st.sell=4;
+  G.ensureGrowth();G.growthStatus();G.growthMessages();
+  const mechanicSeen=['work','poor','daywater','catalog','machines','unowned'].includes(kind)?Object.fromEntries(Object.keys(MECHANIC_LESSONS).map(k=>[k,true])):{};
+  localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0,mechanicSeen}));
+  s.shelf=[G.mkItem('scrap',{q:1}),G.mkItem('water',{q:1,g:2,gk:true}),G.mkItem('fry',{q:1})];
+  if(['catalog','machines'].includes(kind)){
+    s.day=10;s.st.buy=12;s.st.sell=12;s.money=5000;s.up.purifier=true;s.owned.purifier=true;s.filter=10;
+    s.shelf=[G.mkItem('fry',{q:1}),G.mkItem('catnip',{q:1}),G.mkItem('catnip',{q:1}),G.mkItem('water',{q:1,g:3,gk:true}),G.mkItem('can',{q:1}),G.mkItem('fish',{q:1})];
+    if(kind==='machines')for(const id of Object.keys(MACHINES)){s.owned[id]=true;s.up[id]=true;}
+    G.growthStatus();G.growthMessages();G.startNight();G.nextVisit();
+  }
+  else if(kind==='unowned'){G.startNight();G.nextVisit();}
+  else if(['work','poor'].includes(kind)){s.owned.purifier=true;s.up.purifier=true;s.filter=10;if(kind==='poor')s.money=20;G.startNight();G.nextVisit();}
+  else{
+    s.phase='day';s.qi=0;s.morningOut=null;
+    const it=G.mkItem(kind==='water'?'water':'yarn',{q:1,g:2});
+    if(kind==='stolen'){it.stolen=true;it.heat=3;}
+    s.queue=[{kind:'sell',who:kind==='stolen'?'thief':'granny',item:it,ask:60,ask0:60,res:30,pat:4,checks:[null,null,null],bad:-1}];
+  }
+  localStorage.setItem('mmdp_run',JSON.stringify(s));location.href='../';
+ }catch(e){document.getElementById('status').textContent=e.stack;}
+};
+</script></html>

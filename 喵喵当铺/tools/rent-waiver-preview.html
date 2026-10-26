@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>房租免交隔离验收</title><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"><style>
+#fixture{position:fixed;inset:0;overflow:auto;z-index:99999;background:#ead6ae;padding:16px;color:#352317}#fixture button{background:#70523a;color:white;border:0;border-radius:6px;padding:12px;margin:4px;font:inherit}#fixture-status{display:block;margin:8px}
+</style></head><body><div id="fixture"><button data-case="success">看完免租</button><button data-case="cancel">取消视频</button><button data-case="used">本局已用过</button><button data-case="legacy">旧档含欠租</button><button id="resume">返回游戏</button><button id="reload">从内存存档重进</button><span id="fixture-status" role="status">所有存档只保存在本页内存。进入后点继续营业，走真实房租界面。Ctrl+Shift+T返回。</span></div><div id="stage"></div><script type="module">
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('Only isolated preview origin allowed');
+const memory=new Map();
+// Install before platform and main imports; this fixture never touches browser saves.
+Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}});
+const G=await import('./js/game.js');
+const {ads}=await import('./js/platform.js');
+Object.defineProperty(ads,'available',{configurable:true,get:()=>true});
+ads.preload=()=>{};
+let scenario='success',entry=0,adCalls=0;
+ads.show=async()=>{adCalls++;await new Promise(r=>setTimeout(r,800));return scenario==='cancel'?{ok:false,msg:'视频未看完，没有奖励'}:{ok:true};};
+const fixture=document.getElementById('fixture');
+async function load(){fixture.hidden=true;document.getElementById('stage').replaceChildren();G.setState(null);await import('./js/main.js?rent-waiver-preview='+ ++entry);}
+async function start(name){scenario=name;adCalls=0;const s=G.newRun();Object.assign(s,{day:5,money:800,tutorial:true,queue:[],qi:0,rentDone:false,graceUsed:name==='used',rentDue:name==='legacy'?100:0});
+ G.ensureGrowth();G.ensureVariety();memory.set('mmdp_run',JSON.stringify(s));memory.set('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0}));await load();}
+for(const button of document.querySelectorAll('[data-case]'))button.onclick=()=>start(button.dataset.case);
+document.getElementById('resume').onclick=()=>{if(entry)fixture.hidden=true;};
+document.getElementById('reload').onclick=()=>{if(memory.has('mmdp_run'))load();};
+addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.code==='KeyT'){e.preventDefault();fixture.hidden=false;}});
+// Read-only evidence for browser assertions; mutations use the real visible game actions.
+window.__rentFixture={get state(){return G.S;},get saved(){return JSON.parse(memory.get('mmdp_run')||'null');},get adCalls(){return adCalls;},get scenario(){return scenario;}};
+const requested=new URLSearchParams(location.search).get('case');if(['success','cancel','used','legacy'].includes(requested))await start(requested);
+</script></body></html>

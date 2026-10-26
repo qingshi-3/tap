@@ -71,11 +71,12 @@ test('invalid, insufficient and expired orders never consume or reward', () => {
   s.day = 5; s.shelf = s.shelf.filter(it => it.id !== 'water' || it.g < 3);
   unchangedFailure(() => { assert.equal(G.orderPlan(o).ok, false); assert.equal(G.canDeliver(o), false); G.deliver(o); });
 });
-test('paid rent shows next cycle and grace preserves debt', () => {
+test('paid and waived rent show next regular cycle', () => {
   let s = setup(); s.day = 15; s.phase = 'day'; s.rentDone = false; s.money = 1000; assert.equal(G.payRent(), true); s.rentDone = true;
-  let p = G.rentInfo(); assert.equal(p.paid, true); assert.equal(p.amount, 140); assert.equal(p.days, 5);
-  s = setup(); s.phase = 'day'; s.rentDone = false; G.graceRent(); s.rentDone = true; p = G.rentInfo();
-  assert.equal(s.rentDue, 50); assert.equal(p.amount, 130); assert.equal(p.days, 5);
+  // Online 328700 contract: week 4 rent is 330; v1.2+ used a different rent table.
+  let p = G.rentInfo(); assert.equal(p.paid, true); assert.equal(p.amount, 330); assert.equal(p.days, 5);
+  s = setup(); s.phase = 'day'; s.rentDone = false; G.waiveRent(); s.rentDone = true; p = G.rentInfo();
+  assert.equal(s.rentDue, 0); assert.equal(p.amount, 160); assert.equal(p.days, 5);
 });
 test('unidentified fake inputs do not leak through plans but fail execution atomically', () => {
   let s = setup(), scrap = s.shelf.filter(it => it.id === 'scrap');
@@ -107,8 +108,8 @@ test('legacy v2 queue and machine load, play, save and reload continue', () => {
   const old = makeScenario(G, 'legacycontinue'); delete old.queue[0].negotiation;
   G.setState(JSON.parse(JSON.stringify(old))); const c = G.current(); assert.equal(G.offerToSeller(c, c.ask).r, 'deal'); assert.equal(G.buyItem(c, c.ask), true);
   G.S.qi++; G.startNight(); G.sleep();
-  const save = JSON.stringify(G.S); G.setState(JSON.parse(save)); assert.equal(G.S.v, 3); assert(G.S.shelf.some(it => it.id === 'ingot'));
-  G.startDay(); G.startNight(); G.sleep(); const again = JSON.parse(JSON.stringify(G.S)); assert.equal(again.day, old.day + 2); assert.equal(again.v, 3);
+  const save = JSON.stringify(G.S); G.setState(JSON.parse(save)); assert.equal(G.S.v, 2); assert(G.S.shelf.some(it => it.id === 'ingot'));
+  G.startDay(); G.startNight(); G.sleep(); const again = JSON.parse(JSON.stringify(G.S)); assert.equal(again.day, old.day + 2); assert.equal(again.v, 2);
 });
 console.log(`${count} decision regression checks passed`);
 

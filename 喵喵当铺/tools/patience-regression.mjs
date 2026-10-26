@@ -47,7 +47,7 @@ function ui({ actualShow = false, actualLeave = false } = {}) {
     setScene() {}, endOfDay: () => calls.ended++, eyeBtn: () => null,
     wait: milliseconds => new Promise(resolve => calls.waits.push({ milliseconds, resolve })),
   };
-  for (const kind of ['Sell', 'Buy', 'Fence', 'Police', 'Order', 'Lady']) context[`panel${kind}`] = c => calls.shown.push(c);
+  for (const kind of ['Sell', 'Buy', 'Fence', 'Police', 'Order', 'Lady', 'Appraisal']) context[`panel${kind}`] = c => calls.shown.push(c);
   vm.createContext(context);
   for (const name of ['refreshPatience', 'doCheck', 'doOffer', 'doAsk', ...(actualShow ? ['showCustomer'] : []), ...(actualLeave ? ['leave'] : [])]) {
     vm.runInContext(declaration(name), context, { filename: `main.js:${name}` });
@@ -131,9 +131,25 @@ await test('actual showCustomer preserves live one-heart customers and cannot sk
   const police = { kind: 'police', who: 'police', pat: 0 }; G.S.queue = [seller({ pat: 0 }), police]; G.S.qi = 0;
   u = ui({ actualShow: true }); u.context.showCustomer(); assert.equal(G.S.qi, 1); assert.equal(u.calls.shown[0], police);
 });
+
+await test('reload during departure skips settled trades and accepted orders without replay', () => {
+  setup();
+  G.S.queue = [seller({ settled: true }), buyer({ settled: true }), { kind: 'order', who: 'robot', settled: true }, buyer()];
+  G.S.qi = 0;
+  G.setState(JSON.parse(JSON.stringify(G.S)));
+  const before = { money: G.S.money, shelf: JSON.stringify(G.S.shelf), orders: JSON.stringify(G.S.orders) };
+  const u = ui({ actualShow: true });
+  u.context.showCustomer();
+  assert.equal(G.S.qi, 3);
+  assert.equal(u.calls.shown.length, 1);
+  assert.equal(u.calls.shown[0], G.current());
+  assert.deepEqual({ money: G.S.money, shelf: JSON.stringify(G.S.shelf), orders: JSON.stringify(G.S.orders) }, before);
+  assert.equal(u.calls.saved.length, 1);
+});
 await test('actual showCustomer enters end-of-day if all restored visits were exhausted', () => {
   setup(); G.S.queue = [seller({ pat: 0 }), buyer({ pat: -1 })]; G.S.qi = 0;
   const u = ui({ actualShow: true }); u.context.showCustomer();
   assert.equal(G.S.qi, 2); assert.equal(u.calls.ended, 1); assert.equal(u.calls.shown.length, 0); assert.equal(u.calls.saved.length, 1);
 });
 console.log(`${count} patience behavior checks passed. SVG rendering and real input remain browser acceptance.`);
+

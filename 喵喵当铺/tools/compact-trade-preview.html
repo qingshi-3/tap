@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>交易短屏隔离验收</title><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"></head><body><div id="stage"></div><script type="module">
+if (!['127.0.0.1','localhost'].includes(location.hostname) || location.port !== '18852') throw new Error('Only isolated preview port 18852 is allowed');
+const G = await import('./js/game.js');
+const {makeScenario} = await import('./tools/decision-fixture.mjs');
+const {MECHANIC_LESSONS} = await import('./js/lessons.js');
+const mode = new URLSearchParams(location.search).get('scenario') || 'ui-crowded-seller';
+if(new URLSearchParams(location.search).has('safe')){document.documentElement.style.setProperty('--safe-top','59px');document.documentElement.style.setProperty('--safe-bottom','34px');}
+const state = makeScenario(G, mode === 'crowded-charm' ? 'ui-crowded-seller' : mode);
+if (mode === 'crowded-charm') state.rep.elite = 3;
+if (mode === 'appraisal') {
+  state.phase = 'day'; state.qi = 0;
+  state.queue = [{kind:'appraisal',who:'trader',item:G.mkItem('watch',{q:1,fake:false}),bad:-1,checks:[null,null,null],impatience:0,settled:false,quoteDraft:1234}];
+}
+localStorage.setItem('mmdp_run', JSON.stringify(state));
+localStorage.setItem('mmdp_meta', JSON.stringify({ach:{},best:0,fastest:0,runs:1,tut:true,sfx:false,music:false,mechanicSeen:Object.fromEntries(Object.keys(MECHANIC_LESSONS).map(k=>[k,true]))}));
+await import('./js/main.js?audit=compact-layout-5');
+</script></body></html>

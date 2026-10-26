@@ -1,0 +1,4 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="../"><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"><title>保存失败隔离验收</title></head><body><div id="stage"></div><script type="module">
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('只允许隔离测试来源');
+const {store}=await import('./js/platform.js');store.set=()=>false;await import('./js/main.js');
+</script></body></html>

@@ -1,0 +1,27 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>存档恢复隔离验收</title><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"><style>#fixture-controls{position:fixed;z-index:99999;top:0;left:0;display:flex;gap:4px;flex-wrap:wrap;padding:4px;background:#f6e4c0}#fixture-controls button{background:#70523a;color:white;border:0;border-radius:5px;padding:7px;font-size:12px}#fixture-status{font-size:12px;color:#3c291e;align-self:center}</style></head><body><div id="fixture-controls"></div><div id="stage"></div><script type="module">
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('Only isolated preview origin allowed');
+const params=new URLSearchParams(location.search),mode=params.get('case')||'broken';
+const G=await import('./js/game.js');G.newRun();G.startDay();const good=JSON.stringify(G.S);
+const raw=mode==='future'?'{"v":3,"note":"未知版本原文，不应覆盖"}':mode==='render'?(()=>{const s=JSON.parse(good);s.phase='night';s.rep=null;return JSON.stringify(s);})():'{损坏的JSON:保留原文';
+const memory=new Map([['mmdp_run',raw],['mmdp_meta',JSON.stringify({ach:{money1k:1},best:1234,runs:2,tut:true,sfx:false,music:false})]]);
+const originalMeta=memory.get('mmdp_meta');
+let blocked=mode==='readfail',writeFail=mode==='writefail';
+const mock={getItem(k){if(blocked)throw Error('isolated read failure');return memory.get(k)??null;},setItem(k,v){if(writeFail)throw Error('isolated write failure');memory.set(k,String(v));},removeItem(k){if(writeFail)throw Error('isolated delete failure');memory.delete(k);}};
+Object.defineProperty(window,'localStorage',{configurable:true,value:mock});
+const host=document.getElementById('fixture-controls');
+for(const [key,label] of [['broken','坏JSON'],['future','未知v3'],['readfail','读取失败'],['writefail','清除/写入失败']]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>location.href='tools/recovery-preview.html?case='+key;host.append(b);}
+const restore=document.createElement('button');restore.textContent='恢复读写';restore.onclick=()=>{blocked=false;writeFail=false;status.textContent='读写已恢复';};host.append(restore);
+const status=document.createElement('span');status.id='fixture-status';status.setAttribute('role','status');host.append(status);
+function inspect(){
+ const current=memory.get('mmdp_run');let info='不可解析';try{const v=JSON.parse(current);info='v'+v.v+' / 第'+(v.day??'—')+'天';}catch{}
+ status.textContent=`原档${current===raw?'保持':'已更换'} · ${info} · 成就设置${memory.get('mmdp_meta')===originalMeta?'原样':'变化'} · 读取${blocked?'失败':'可用'} / 写入${writeFail?'失败':'可用'}`;
+ status.dataset.originalRun=String(current===raw);status.dataset.originalMeta=String(memory.get('mmdp_meta')===originalMeta);
+}
+let entry=0;
+async function enter(){document.getElementById('stage').replaceChildren();G.setState(null);await import('./js/main.js?recovery-preview='+ ++entry);inspect();}
+const reenter=document.createElement('button');reenter.textContent='重进游戏';reenter.onclick=enter;host.append(reenter);
+const hide=document.createElement('button');hide.textContent='隐藏测试按钮';hide.onclick=()=>{host.hidden=true;host.style.display='none';};host.append(hide);
+// Ctrl+Shift+T restores the fixture controls; page reload resets this in-memory fixture.
+addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.code==='KeyT'){e.preventDefault();host.hidden=false;host.style.display='flex';}});
+setInterval(inspect,200);await enter();
+</script></body></html>

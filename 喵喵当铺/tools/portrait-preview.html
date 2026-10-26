@@ -1,0 +1,15 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>角色隔离验收</title>
+<style>body{font:18px sans-serif;background:#efe5d1;padding:16px}button{padding:12px;margin:6px;background:#d7b482;border:0;font:inherit}</style><h1>角色隔离验收</h1><p>仅使用18852隔离测试档。</p><div id="cases"></div>
+<script type="module">
+import * as G from '../js/game.js';
+import {CATS, SELLERS} from '../js/data.js';
+import {MECHANIC_LESSONS} from '../js/lessons.js';
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('仅允许隔离来源');
+for(const who of ['mechanic','fisher','chef','musician','courier','archivist','jeweler','captain','robot']){
+const button=document.createElement('button');button.textContent=CATS[who].name;document.querySelector('#cases').append(button);
+button.onclick=()=>{const s=G.newRun();s.tutorial=true;s.day=10;s.st.buy=12;s.st.sell=12;s.money=5000;G.growthStatus();G.growthMessages();s.phase='day';s.qi=0;s.morningOut=null;
+const id=SELLERS[who]?.pool?.[0] || 'scrap';
+s.queue=[{kind:'sell',who,item:G.mkItem(id,{q:1}),ask:60,ask0:60,res:30,pat:4,checks:[null,null,null],bad:-1}];
+localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0,mechanicSeen:Object.fromEntries(Object.keys(MECHANIC_LESSONS).map(k=>[k,true]))}));
+localStorage.setItem('mmdp_run',JSON.stringify(s));location.href='../';};}
+</script></html>

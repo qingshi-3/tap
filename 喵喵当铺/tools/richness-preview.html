@@ -1,0 +1,25 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>丰富版隔离验收</title>
+<style>body{font:18px sans-serif;padding:20px;background:#efe5d1}button{display:block;padding:15px;margin:12px 0;font:inherit;background:#f4b446;border:0}</style>
+<h1>隔离验收场景</h1><p>仅写入本机 18852 测试来源，不进入发布包。</p>
+<button data-case="fresh">新局</button><button data-case="early">首夜小铺</button><button data-case="night">第六夜完整经营</button><button data-case="appraisal">收费鉴定</button><button data-case="arrival">白天到货领取</button><button data-case="unknown">未知版本保护</button><button data-case="failure">保存失败</button>
+<script type="module">
+import * as G from '../js/game.js';
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('只允许隔离测试来源');
+for(const b of document.querySelectorAll('button'))b.onclick=()=>{
+ const kind=b.dataset.case;
+ const s=G.newRun();s.tutorial=true;
+ localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0}));
+ if(kind==='fresh'){localStorage.removeItem('mmdp_run');location.href='../';return;}
+ if(kind==='unknown'){localStorage.setItem('mmdp_run',JSON.stringify({v:3,money:1234,marker:'preserve-me'}));location.href='../';return;}
+ if(kind==='early'){G.startNight();}
+ else{
+  Object.assign(s,{day:6,money:900,shelfCap:12});s.st.buy=8;s.st.sell=8;s.rep.gang=2;s.rep.elite=2;
+  s.up={purifier:true,tank:true,appraisal_certificate:true};s.owned={furnace:true,purifier:true,tank:true};s.machines={furnace:null,purifier:null,tank:null};s.filter=10;
+  s.shelf=[];for(const id of ['ingot','ingot','claw','battery','battery','bell','scrap','scrap','scrap'])s.shelf.push(G.mkItem(id,{q:1}));
+  G.ensureGrowth();G.growthStatus();G.growthMessages();G.startNight();
+  if(kind==='appraisal'){s.phase='day';s.queue=[{kind:'appraisal',who:'trader',item:G.mkItem('watch',{q:1,fake:true}),bad:1,checks:[null,null,null],impatience:0,settled:false}];s.qi=0;}
+  if(kind==='arrival'){G.placePhoneOrder('folk','scrap');s.shelf=s.shelf.filter(it=>it.id==='battery'||it.id==='bell');s.shelfCap=4;G.sleep();s.phase='day';s.queue=[{kind:'buy',who:'worker',want:'material',rich:1.2,eye:0.1,pat:3}];s.qi=0;}
+ }
+ localStorage.setItem('mmdp_run',JSON.stringify(s));location.href=kind==='failure'?'richness-failure.html':'../';
+};
+</script></html>

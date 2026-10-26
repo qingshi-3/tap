@@ -1,0 +1,19 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>拾荒与指引隔离验收</title>
+<style>body{font:18px sans-serif;padding:20px;background:#efe5d1}button{display:block;padding:15px;margin:12px 0;font:inherit;background:#f4b446;border:0}pre{white-space:pre-wrap}</style>
+<h1>拾荒与指引隔离验收</h1><p>仅重置18852测试档，不改试玩进度。</p>
+<button data-case="full">满货架拾荒</button><button data-case="early">第1天·5次买卖</button><button data-case="invalid">未来地面存档保护</button><pre id="status"></pre>
+<script type="module">
+import * as G from '../js/game.js';
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('只允许隔离来源');
+for(const b of document.querySelectorAll('button'))b.onclick=()=>{
+ try{
+  const s=G.newRun();s.tutorial=true;s.money=300;s.shelfCap=6;
+  localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0}));
+  if(b.dataset.case==='early'){s.st.buy=3;s.st.sell=2;}
+  else {s.day=4;s.st.buy=4;s.st.sell=4;s.shelf=['scrap','scrap','scrap','fish','fish','can'].map(id=>G.mkItem(id,{q:1}));}
+  G.ensureGrowth();G.growthStatus();G.startNight();G.nextVisit();s.night.crates=['heavy','wet','smell'];
+  if(b.dataset.case==='invalid')s.night.ground={v:999,day:s.day,items:[]};
+  localStorage.setItem('mmdp_run',JSON.stringify(s));location.href='../';
+ }catch(e){document.getElementById('status').textContent=e.stack;}
+};
+</script></html>

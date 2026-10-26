@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>货物素材隔离验收</title><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"><style>
+#fixture{position:fixed;inset:0;overflow:auto;z-index:99999;background:#ead6ae;padding:16px;color:#352317}#fixture button{background:#70523a;color:white;border:0;border-radius:6px;padding:12px;margin:4px;font:inherit}#catalog{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}#catalog figure{margin:0;text-align:center;background:#dcc297;border-radius:8px;padding:8px}#catalog img{width:100%;height:112px;object-fit:contain;image-rendering:pixelated}#fixture-status{display:block;margin:8px}
+</style></head><body><div id="fixture"><button id="enter">进入24新品夜间测试档</button><button id="resume">返回游戏</button><button id="reload">从内存存档重进</button><span id="fixture-status" role="status"></span><div id="catalog"></div></div><div id="stage"></div><script type="module">
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('Only isolated preview origin allowed');
+const memory=new Map();
+// Install before importing the game entry; no reads or writes reach real browser storage.
+Object.defineProperty(window,'localStorage',{configurable:true,value:{getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,String(v)),removeItem:k=>memory.delete(k)}});
+const G=await import('./js/game.js');const {ITEMS}=await import('./js/data.js');
+const catalog=document.getElementById('catalog'),status=document.getElementById('fixture-status'),fixture=document.getElementById('fixture');
+for(const [id,item] of Object.entries(ITEMS)){
+ const figure=document.createElement('figure'),image=document.createElement('img'),caption=document.createElement('figcaption');
+ image.src=`assets/items/${item.icon||id}.png`;image.alt=item.name;image.dataset.item=id;
+ image.onerror=()=>{figure.dataset.failed='true';status.textContent='存在未加载图片，请查看标记';};
+ caption.textContent=`${item.name} (${id})`;figure.append(image,caption);catalog.append(figure);
+}
+let entry=0;
+async function load(){fixture.hidden=true;document.getElementById('stage').replaceChildren();G.setState(null);await import('./js/main.js?unique-items-preview='+ ++entry);}
+document.getElementById('enter').onclick=async()=>{
+ const s=G.newRun();Object.assign(s,{day:10,money:10000,shelfCap:24,tutorial:true});s.st.buy=20;s.st.sell=20;s.rep.gang=2;s.rep.elite=2;
+ s.shelf=Object.entries(ITEMS).filter(([,x])=>x.tier).map(([id])=>G.mkItem(id,{q:1}));
+ G.ensureGrowth();G.ensureVariety();G.startNight();
+ memory.set('mmdp_run',JSON.stringify(s));memory.set('mmdp_meta',JSON.stringify({ach:{},tut:true,sfx:false,music:false,best:0,runs:0}));
+ await load();
+};
+document.getElementById('resume').onclick=()=>{if(entry)fixture.hidden=true;};
+document.getElementById('reload').onclick=()=>{if(memory.has('mmdp_run'))load();};
+// The overlay stays out of gameplay screenshots and input; this shortcut restores the catalog.
+addEventListener('keydown',e=>{if(e.ctrlKey&&e.shiftKey&&e.code==='KeyT'){e.preventDefault();fixture.hidden=false;}});
+status.textContent='49种货物；测试档与保存仅存在本页内存。Ctrl+Shift+T返回清单。';
+</script></body></html>

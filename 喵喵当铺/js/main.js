@@ -1,86 +1,85 @@
 // 界面与流程：标题 → 白天（逐位客人）→ 房租 → 夜晚 → 睡觉 → …… → 结局
-import { ITEMS, CATS, FACS, CATS_CAT, SPOTS, SELLERS, MACHINES, UPGRADES, ACHS, BUYOUT, WEEKDAYS, DAYS_PER_WEEK, WG, SIGNS, OBS, rentOf } from './data.js';
-import * as Rules from './game.js';
-import { createCommittedGame, publishState } from './committed-game.js';
+import { ITEMS, CATS, FACS, CATS_CAT, SPOTS, SELLERS, MACHINES, MACHINE_MODS, UPGRADES, ACHS, BUYOUT, WEEKDAYS, DAYS_PER_WEEK, WG, SIGNS, OBS, rentOf } from './data.js';
+import * as G from './game.js';
+import { EQUIPMENT } from './equipment.js';
 import { ads, board, store } from './platform.js';
 import { sfx, music, sound, unlockAudio } from './audio.js';
-import { createPersistence, normalizeRun } from './persistence.js';
-import { createBusinessUI } from './business-ui.js';
-import { createNetworkUI } from './network-ui.js';
+import { MECHANIC_LESSONS, itemLessonKeys } from './lessons.js';
 
-const RUN_KEY = 'mmdp_run', META_KEY = 'mmdp_meta', VER = 'v1.4.2';
-const defaultMeta = () => ({ ach: {}, best: 0, fastest: 0, runs: 0, tut: false, sfx: true, music: true });
-let meta, startupStorageError = null;
-function readStartupMeta() {
-  startupStorageError = null;
-  meta = defaultMeta();
+const RUN_KEY = 'mmdp_run', META_KEY = 'mmdp_meta', VER = 'v1.6.4';
+const meta = Object.assign({ ach: {}, best: 0, fastest: 0, runs: 0, tut: false, sfx: true, music: true, mechanicSeen: {} }, store.get(META_KEY, {}));
+sound.sfx = meta.sfx; sound.music = meta.music;
+const saveMeta = () => { const ok = store.set(META_KEY, meta); metaSaveIssue = ok ? '' : '成就与设置未能保存，请重试。'; showSaveIssue(); return ok; };
+let saveIssue = '', metaSaveIssue = '', protectedRun = false;
+const runRecord = () => store.read(RUN_KEY);
+function usableRun(v) {
   try {
-    const saved = store.get(META_KEY, defaultMeta());
-    const object = value => value && typeof value === 'object' && !Array.isArray(value);
-    if (!object(saved) || saved.ach !== undefined && !object(saved.ach) ||
-      ['best','fastest','runs'].some(key => saved[key] !== undefined && (!Number.isFinite(saved[key]) || saved[key] < 0)) ||
-      ['tut','sfx','music'].some(key => saved[key] !== undefined && typeof saved[key] !== 'boolean')) throw new Error('元信息损坏，原件已保留');
-    Object.assign(meta, saved);
-  } catch (error) { startupStorageError = error; }
-  sound.sfx = meta.sfx; sound.music = meta.music;
+    const nat = (x) => Number.isSafeInteger(x) && x >= 0;
+    if (v?.v !== 2 || !nat(v.day) || v.day < 1 || !Number.isFinite(v.money) || !nat(v.uid) || !nat(v.shelfCap) || !nat(v.hiddenCap) || !nat(v.qi)) return false;
+    if (![v.shelf, v.hidden, v.queue, v.win, v.orders].every(Array.isArray) || v.qi > v.queue.length || !v.up || !v.st || !v.rep || !v.story || !v.owned || !v.machines || !['day', 'night'].includes(v.phase)) return false;
+    const validItem = (it) => it && ITEMS[it.id] && nat(it.uid) && (it.g === undefined || nat(it.g) && !!WG[it.g]);
+    if (![...v.shelf, ...v.hidden].every(validItem)) return false;
+    if (!v.queue.every((c) => c && ['sell', 'buy', 'fence', 'police', 'order', 'lady', 'appraisal'].includes(c.kind) && CATS[c.who] && (!c.item || validItem(c.item)))) return false;
+    if (v.growth !== undefined) G.validateGrowth(v.growth);
+    if (v.variety !== undefined) G.validateVariety(v.variety);
+    G.validateNightGround(v);
+    return true;
+  } catch { return false; }
 }
-readStartupMeta();
-const saveMeta = () => { if (startupStorageError) throw startupStorageError; return store.set(META_KEY, meta); };
-const session = createPersistence({ initialize: state => Rules.ensureGrowthState(state) });
-let saveFailure = null, transactionBusy = false;
-let screenEpoch = 0;
-const G = createCommittedGame(Rules, session, () => transactionBusy);
-const saveRun = () => { if (!G.S) return true; session.save(G.S); saveFailure = null; return true; };
-function mutateRun(type, mutate) {
-  const live = G.S;
-  const commit = session.transactSync(live, `${live.runId}:${live.day}:${type}:${live.persistence.revision}`, draft => {
-    Rules.setState(draft);
-    try { return {value:mutate(draft)}; } finally { Rules.setState(live); }
-  });
-  Rules.setState(publishState(live,commit.state));
-  return commit.result?.value;
+function exportProgress(value = G.S, raw = false) {
+  const text = raw ? String(value) : JSON.stringify(value, null, 2);
+  modal(close => {
+    const field = h('textarea.backup-text', { readonly: true, 'aria-label': '存档备份原文', spellcheck: false });
+    field.value = text;
+    const status = h('p', { role: 'status', 'aria-live': 'polite' }, '可复制下方原文，保存到备忘录。');
+    return h('div.dialog.px.backup-dialog', h('h2', raw ? '原存档备份' : '进度备份'), field, status,
+      h('div.row', h('button.btn.paper', { onclick: close }, '返回'),
+        h('button.btn', { onclick: async () => {
+          try {
+            if (!navigator.clipboard?.writeText) throw new Error('manual copy');
+            await navigator.clipboard.writeText(text); status.textContent = '已复制。';
+          } catch { field.focus(); field.select(); status.textContent = '请长按或选择原文复制。'; }
+        } }, '复制原文')));
+  }, { center: true });
 }
-async function transactRun(id, mutate) {
-  if (transactionBusy) return { ok: false, reason: '正在保存，请稍候' };
-  transactionBusy = true;
-  const live = G.S;
-  try {
-    const commit = await session.transact(live, id, draft => {
-      G.setState(draft);
-      try { return mutate(draft); } finally { G.setState(live); }
-    });
-    if (commit.rejected) { toast(commit.result.reason); return commit.result; }
-    G.setState(publishState(live, commit.state)); saveFailure = null;
-    return commit.result || { ok: true };
-  } catch (error) { saveFailure = error; toast(error.message); return { ok: false, reason: error.message }; }
-  finally { transactionBusy = false; }
+function showSaveIssue() {
+  stage.querySelector('.save-issue')?.remove();
+  const issue = saveIssue || metaSaveIssue;
+  if (!issue) return;
+  stage.append(h('div.save-issue', { role: 'alert' }, h('span', issue),
+    h('button.btn.small', { onclick: () => { saveMeta(); saveRun(); } }, '重试'),
+    G.S && h('button.btn.small.paper', { onclick: () => exportProgress() }, '导出进度')));
 }
-let commandNumber = 0;
-const commandId = type => `${G.S.runId}:${G.S.day}:${type}:${Date.now()}:${++commandNumber}`;
-async function executeBusiness(action, args) {
-  const result = await transactRun(commandId(action), () => { const r=G.businessCommand(action,args); return action==='collectMachine'&&r.ok&&!r.count?{ok:false,reason:'货架已满，成品仍留在机器'}:r; });
-  if (result.ok) { refreshCurrentTrade(); refreshHud(); sfx('good'); if (result.revenue) floatMoney(result.revenue);
-    if(action==='deliverContract'&&G.businessView().contracts.some(c=>c.id===args.id&&c.kind==='trial'&&c.status==='completed'))toast('试单完成，已开放固定客户合作');
+let recoveredGround = [], groundToastQueued = false;
+function saveRun() {
+  if (!G.S || protectedRun) return false;
+  const recovered = G.collectNightGround();
+  if (recovered.length) {
+    recoveredGround.push(...recovered);
+    if (!groundToastQueued) {
+      groundToastQueued = true;
+      // Save callers often redraw the whole stage; announce after that redraw.
+      queueMicrotask(() => {
+        const items = recoveredGround; recoveredGround = []; groundToastQueued = false;
+        if (items.length) toast(`腾出空位，已收回：${groundItemNames(items)}`);
+      });
+    }
   }
-  return result;
+  const ok = store.set(RUN_KEY, G.S);
+  saveIssue = ok ? '' : '进度未能保存，请重试或导出备份。'; showSaveIssue(); return ok;
 }
-function refreshCurrentTrade() {
-  if (G.S?.phase !== 'day' || busy || !D.panel?.isConnected) return;
-  const c = G.current();
-  if (!c || c.resolved) return;
-  const scroll = D.panel.querySelector('.trade-scroll')?.scrollTop || 0;
-  if (c.kind === 'sell') drawSell(c);
-  else if (c.kind === 'buy') c.item ? drawBuyHaggle(c) : drawBuyPick(c);
-  const area = D.panel.querySelector('.trade-scroll'); if (area) area.scrollTop = scroll;
-}
-const refreshBusiness = () => { if (G.S?.phase === 'night') renderNight(); else { refreshCurrentTrade(); refreshHud(); refreshBar(); } };
-const networkUI = createNetworkUI({h,img:(...args)=>img(...args),modal,closeX:(...args)=>closeX(...args),execute:executeBusiness,refresh:refreshBusiness,toast});
-const businessUI = createBusinessUI({ h, img: (...args) => img(...args), modal, closeX: (...args) => closeX(...args), toast, execute: executeBusiness, refresh: refreshBusiness, finish, advance:advanceManaged, sleep:()=>goSleep() });
 
 const stage = document.getElementById('stage');
 const fishIcon = 'assets/items/dryfish.png';
-const catImg = (who) => `assets/cats/${who}.png`;
-const itemImg = (id) => `assets/items/${id}.png`;
+const catImg = (who) => `assets/cats/${who === 'player' ? 'player-qipao' : CATS[who]?.portrait || who}.png`;
+const itemImg = (id) => `assets/items/${ITEMS[id]?.icon || id}.png`;
+const equipmentSeat = (id) => {
+  const entry = EQUIPMENT[id];
+  if (!entry) throw new Error(`Missing equipment catalog entry: ${id}`);
+  return h('div.equipment-seat', { 'data-equipment': id }, h('img', { src: `assets/equipment/${entry.image}.png`, alt: entry.name }));
+};
+const equipmentOwned = (id) => !!(G.S.up[id] || G.S.owned[id]);
+const equipmentIdentity = (id) => `${EQUIPMENT[id].category} · ${equipmentOwned(id) ? '已拥有' : '尚未购买'}`;
 // 水按看上去的档位换图：浑的用脏水瓶
 const icon = (it) => itemImg(G.isWater(it) && G.shownG(it) <= 2 ? 'dirtywater' : it.id);
 const nm = (it) => G.itemName(it);
@@ -93,11 +92,7 @@ function h(sel, attrs, ...kids) {
   if (attrs && (typeof attrs !== 'object' || attrs instanceof Node || Array.isArray(attrs))) { kids.unshift(attrs); attrs = null; }
   for (const [k, v] of Object.entries(attrs || {})) {
     if (v == null || v === false) continue;
-    if (k.startsWith('on')) el.addEventListener(k.slice(2), (e) => {
-      if (k === 'onclick') { sfx('tap'); unlockAudio(); }
-      const failed = error => { saveFailure = error; toast(error.message || '操作未完成，请重试'); };
-      try { const result = v(e); if (result?.catch) result.catch(failed); } catch(error) { failed(error); }
-    });
+    if (k.startsWith('on')) el.addEventListener(k.slice(2), (e) => { if (k === 'onclick') { sfx('tap'); unlockAudio(); } v(e); });
     else if (k === 'style') el.style.cssText = v;
     else if (k === 'html') el.innerHTML = v;
     else el.setAttribute(k, v === true ? '' : v);
@@ -110,7 +105,7 @@ const img = (src, cls = '') => h('img' + (cls ? '.' + cls : ''), { src, alt: '' 
 const fish = (n) => h('span', { style: 'display:inline-flex;align-items:center;gap:2px' }, img(fishIcon, ''), String(n));
 const clear = (el) => { while (el.firstChild) el.firstChild.remove(); return el; };
 // 清空后填入子节点（跳过 false/null）
-const fill = (el, ...kids) => { clear(el); el.append(...h('div', {}, ...kids).childNodes); return el; };
+const fill = (el, ...kids) => { clear(el); el.append(...h('div', {}, ...kids).childNodes); if (el === stage) queueMicrotask(showSaveIssue); return el; };
 const appendContent = (el, ...kids) => el.append(...h('div', {}, ...kids).childNodes);
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -130,18 +125,22 @@ function floatMoney(d) {
 }
 function modal(build, { center = false, onClose } = {}) {
   const previousFocus = document.activeElement;
+  const underlay = [...stage.querySelectorAll('.mask')].at(-1);
+  if (underlay) underlay.inert = true;
   const mask = h('div.mask' + (center ? '.center' : ''));
   let closed = false;
   const close = () => {
     if (closed) return;
-    closed = true; mask.remove(); onClose?.();
+    closed = true; mask.remove();
+    if (underlay?.isConnected) underlay.inert = false;
+    onClose?.();
     if (previousFocus?.isConnected) previousFocus.focus();
   };
   mask.addEventListener('click', (e) => { if (e.target === mask) close(); });
   mask.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }
     if (e.key !== 'Tab') return;
-    const controls = [...mask.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex="0"]')];
+    const controls = [...mask.querySelectorAll('button:not([disabled]), input:not([disabled]), textarea:not([disabled]), [tabindex="0"]')];
     const first = controls[0], last = controls.at(-1);
     if (!first) return;
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
@@ -150,13 +149,133 @@ function modal(build, { center = false, onClose } = {}) {
   const content = build(close);
   content.setAttribute('role', 'dialog'); content.setAttribute('aria-modal', 'true');
   const title = content.querySelector('h2');
-  if (title) content.setAttribute('aria-label', title.firstChild?.textContent || title.textContent);
+  if (title) content.setAttribute('aria-label', title.getAttribute('data-dialog-title') || title.firstChild?.textContent || title.textContent);
   mask.append(content);
   stage.append(mask);
   queueMicrotask(() => { if (!closed) mask.querySelector('button:not([disabled]), input:not([disabled])')?.focus(); });
   return close;
 }
 const closeX = (close) => h('button.x', { onclick: close, 'aria-label': '关闭' }, '✕');
+const equipmentDetailsButton = (action) => h('button.equipment-details', { onclick: action }, h('span', '详情'));
+const ruleButton = (label, action) => h('button.btn.small.paper.rule-entry', { onclick: action }, label);
+function openRuleDetails(title, content) {
+  modal(close => h('div.sheet.rule-sheet', h('h2', title, closeX(close)),
+    h('div.scroll.rule-content', ...content), h('button.btn.paper', { onclick: close }, '返回')));
+}
+function openWaterDetails() {
+  openWaterDiagram('水质与净化');
+}
+function openWaterDiagram(title = '净水器', onChanged) {
+  let selected = 2, changed = false;
+  const uv = UPGRADES.find(u => u.id === 'uv');
+  const bottle = (grade) => img(itemImg(grade <= 2 ? 'dirtywater' : 'water'), `water-bottle.grade-${grade}`);
+  modal(close => {
+    const host = h('div.sheet.water-sheet');
+    const draw = (restoreFocus = false) => {
+      const cap = G.pureMax(), spec = G.machineSpec('purifier');
+      const canPurify = selected < cap, result = Math.min(cap, selected + 2);
+      fill(host, h('h2', { 'data-dialog-title': title }, equipmentSeat('purifier'), title, closeX(close)),
+        h('div.scroll.water-diagram',
+          !G.S.owned.purifier && equipmentPurchaseButton(UPGRADES.find(u => u.id === 'purifier'), () => { changed = true; draw(true); }),
+          !G.S.owned.purifier && h('div.equipment-state', equipmentPurchaseStatus(UPGRADES.find(u => u.id === 'purifier'))),
+          h('div.water-prompt', '选择一种水，查看净化效果。'),
+          h('div.water-ladder', { role: 'group', 'aria-label': '六档水质，由低到高' }, WG.map((w, i) =>
+            h('button.water-grade' + (i === selected ? '.source' : '') + (canPurify && i === result ? '.result' : ''), {
+              'data-grade': i, 'aria-pressed': String(i === selected),
+              'aria-label': `${w.n}，第${i + 1}档${i === cap ? '，当前净化上限' : ''}`,
+              style: `--level:${i}`, onclick: () => { selected = i; draw(true); },
+            }, bottle(i), h('span', w.n), h('small', i === selected ? '原水' : canPurify && i === result ? '产物' : i === cap ? '上限' : '\u00a0')))),
+          h('div.water-transform', { role: 'status', 'aria-live': 'polite' },
+            h('div.water-object', bottle(selected), h('b', WG[selected].n)),
+            canPurify ? h('div.water-arrow', h('b', '→'), h('span', `需要${spec.days}晚`)) : h('div.water-stop', selected === 5 ? '最高水质' : '已达设备上限'),
+            canPurify && h('div.water-object.output', bottle(result), h('b', WG[result].n))),
+          h('div.water-facts',
+            h('span', canPurify ? `每净化1瓶水，消耗${selected <= 1 ? 3 : 1}点滤芯耐久。` : selected === 5 ? '已是纯净水，无需净化。' : '当前设备无法继续净化。'),
+            h('span', `一轮最多净化${spec.cap}瓶。`)),
+          h('div.water-cap', h('span', '净化上限'), bottle(cap), h('b', WG[cap].n)),
+          h('div.water-equipment', equipmentSeat('uv'),
+            h('div.grow', h('b', '紫外线灯'), h('div.equipment-state', '净水器配件'), h('div.equipment-state', G.S.up.uv ? '✓ 已装' : '未装')),
+            h('div.equipment-output', h('div', h('span', '→'), bottle(5)), h('span', '纯净水')),
+            G.S.up.uv ? null
+              : h('button.btn.small', { onclick: () => openEquipmentPurchase(uv, () => { changed = true; draw(true); }) }, '小铺购买', fish(uv.cost)))),
+        h('button.btn.paper', { onclick: close }, '返回'));
+      if (restoreFocus) host.querySelector(`[data-grade="${selected}"]`)?.focus();
+    };
+    draw(); return host;
+  }, { onClose: () => {
+    if (!changed) return;
+    if (onChanged) onChanged();
+    else if (G.S.phase === 'night' && !stage.querySelector('.mask')) renderNight();
+  } });
+}
+function equipmentPurchaseButton(u, onPurchased) {
+  const gate = G.upgradeAvailable(u.id), night = G.S.phase === 'night';
+  const label = ({ 设备: '购买设备', 招牌: '购买招牌', 配件: '安装配件' })[EQUIPMENT[u.id].category] || '购买';
+  return h('button.btn', { disabled: !night || !gate.ok, onclick: () => {
+    if (G.S.phase !== 'night' || !G.upgradeAvailable(u.id).ok || !G.buyUpgrade(u)) return;
+    floatMoney(-u.cost); refreshHud(); checkAch(); saveRun(); onPurchased?.();
+  } }, label, fish(u.cost));
+}
+function equipmentPurchaseStatus(u) {
+  if (!u.repeat && equipmentOwned(u.id)) return '已拥有';
+  const gate = G.upgradeAvailable(u.id);
+  if (gate.reason === '尚缺前置装备') return `需要先购买【${EQUIPMENT[u.need].name}】。`;
+  if (gate.reason && gate.reason !== '鱼币不足') return gate.reason;
+  return G.S.phase !== 'night' ? '夜晚可在小铺购买。' : gate.reason || `现有 ${G.S.money} 鱼币`;
+}
+function equipmentEffect(u) {
+  const line = (id, text) => h('div.equipment-purchase-effect', id && img(itemImg(id)), h('span', text));
+  if (u.id === 'uv') return line('water', '安装后，净化上限提高至【纯净水】。');
+  if (u.id === 'filter') return [line(null, shopSummary(u)), line('dirtywater', '每瓶【水沟水】或【铁锈水】会消耗3点滤芯耐久。'), line('water', '其他可净化的水，每瓶消耗1点滤芯耐久。')];
+  if (u.id === 'dew') return [line('dirtywater', '每晚收集1瓶怪味水'), line(null, '货架已满时暂停收集。')];
+  if (u.id === 'fridge') return [line('water', '饮用水可免费加冰'), line(null, '成交后吸引次日饮品客')];
+  if (u.id === 'premium_window') return [line(null, shopSummary(u)), line(null, '上流好感≥2 · 每日+1客')];
+  return line(null, shopSummary(u));
+}
+function openEquipmentPurchase(u, onPurchased) {
+  modal(close => h('div.dialog.px.equipment-purchase',
+    h('h2', u.name, closeX(close)),
+    h('div.equipment-preview', equipmentSeat(u.id), h('div', h('b', EQUIPMENT[u.id].category),
+      h('div.equipment-state', equipmentPurchaseStatus(u)),
+      equipmentEffect(u))),
+    !u.repeat && equipmentOwned(u.id) ? h('button.btn.paper', { onclick: close }, '返回')
+      : equipmentPurchaseButton(u, () => { close(); onPurchased?.(); })
+  ), { center: true });
+}
+function openOrderRules() {
+  openRuleDetails('交货规则', [h('p', '截止当天仍可交货。先选货，确认后才交出物品并领取报酬。'),
+    h('p', '候选数量包含未鉴定货物，交付时会核验；不合格时不扣货。'),
+    h('p', '水的品质不额外加价，默认优先选择已验的低档水。')]);
+}
+
+let lessonQueued = false;
+function showMechanicLesson(key, after) {
+  const lesson = MECHANIC_LESSONS[key];
+  if (!lesson || meta.mechanicSeen?.[key] === true || protectedRun || !G.S || busy || stage.querySelector('.mask')) return false;
+  modal(close => h('div.dialog.px.mechanic-lesson',
+    h('h2', lesson.title),
+    h('ul', lesson.points.map(point => h('li', point))),
+    h('button.btn', { onclick: close }, '知道了')),
+  { center: true, onClose: () => {
+    // Acknowledgement belongs to the player, not this run. Closing counts as read.
+    meta.mechanicSeen = { ...meta.mechanicSeen, [key]: true };
+    saveMeta();
+    if (after) queueMicrotask(after);
+  } });
+  return true;
+}
+function queueMechanicLesson(keys) {
+  if (lessonQueued || !keys.some(key => meta.mechanicSeen?.[key] !== true)) return;
+  const run = G.S, screen = stage.querySelector('.screen'), day = run?.day, qi = run?.qi;
+  lessonQueued = true;
+  queueMicrotask(() => {
+    lessonQueued = false;
+    // Do not overlay a morning report, another modal, or a different customer.
+    if (G.S !== run || G.S?.day !== day || G.S?.qi !== qi || stage.querySelector('.screen') !== screen || stage.querySelector('.title')) return;
+    const key = keys.find(id => meta.mechanicSeen?.[id] !== true);
+    if (key) showMechanicLesson(key);
+  });
+}
 
 function unlock(id) {
   if (meta.ach[id]) return;
@@ -189,10 +308,14 @@ function checkAch() {
 
 // 舞台按 390 宽缩放，高度随屏幕
 function fit() {
-  const W = document.documentElement.clientWidth, H = document.documentElement.clientHeight;
+  const safe = getComputedStyle(document.documentElement);
+  const top = parseFloat(safe.getPropertyValue('--safe-top')) || 0;
+  const bottom = parseFloat(safe.getPropertyValue('--safe-bottom')) || 0;
+  const W = innerWidth, H = Math.max(1, innerHeight - top - bottom);
   const s = Math.min(W / 390, H / 680);
   const sh = H / s;
   stage.style.left = (W - 390 * s) / 2 + 'px';
+  stage.style.top = top + 'px';
   stage.style.transform = `scale(${s})`;
   stage.style.height = sh + 'px';
   stage.style.setProperty('--sh', Math.max(200, Math.min(300, sh - 600)) + 'px');
@@ -200,26 +323,55 @@ function fit() {
 addEventListener('resize', fit);
 
 // ───── 标题 ─────
-function renderTitle() {
-  screenEpoch++;
+function renderTitle(failedRecord = null) {
+  if (!['ok', 'invalid', 'unavailable', 'empty'].includes(failedRecord?.status)) failedRecord = null;
   music('night');
-  let hasRun = false;
-  try { hasRun = store.has(RUN_KEY); } catch (error) { startupStorageError = error; }
+  const record = failedRecord || runRecord();
+  const hasRun = !failedRecord && record.status === 'ok' && usableRun(record.value);
+  protectedRun = record.status !== 'empty' && !hasRun;
   fill(stage, h('div.screen.title',
     h('div.title-bg', { style: `background-image:url(assets/bg/title.jpg)` }),
     h('div.logo', h('h1', '喵喵当铺')),
-    h('div.title-cat', { style: 'top:calc(50% - 150px)' }, img(catImg('player'))),
+    h('div.title-cat', img(catImg('player'))),
     h('div.title-menu',
-      hasRun && h('button.btn.big.mint', { disabled: !!startupStorageError, onclick: continueRun }, '继续营业'),
-      h('button.btn.big', { disabled: !!startupStorageError, onclick: () => (hasRun ? confirmNew() : newGame()) }, hasRun ? '重新开张' : '开张营业'),
-      startupStorageError && h('div.startup-storage-error', {role:'alert'}, h('span','存档读取异常，原件已保留。'), h('button.btn.mint', {onclick:()=>{readStartupMeta();renderTitle();}}, '重试')),
+      hasRun && h('button.btn.big.mint', { onclick: continueRun }, '继续营业'),
+      !protectedRun && h('button.btn.big', { onclick: () => (hasRun ? confirmNew() : newGame()) }, hasRun ? '重新开张' : '开张营业'),
+      protectedRun && recoveryControls(record),
       h('div.row',
         h('button.btn.paper', { onclick: openAch }, '成就'),
         h('button.btn.paper', { onclick: openBoard }, '排行榜'),
         h('button.btn.paper', { onclick: openHelp }, '玩法')),
     ),
-    h('div.ver', `${VER} · 最高身家 ${meta.best}` + (meta.fastest ? ` · 最快赎店 ${meta.fastest} 天` : '')),
   ));
+}
+// A failed read is not evidence of a damaged record: retry before offering deletion.
+function recoveryControls(record) {
+  const unavailable = record.status === 'unavailable';
+  return h('div.archive-recovery',
+    h('div.archive-warning', unavailable ? '暂时无法读取存档，请恢复存储权限后重试。' : '存档无法续玩，原件已保留。'),
+    h('button.btn.big', { onclick: unavailable ? () => renderTitle() : confirmRecovery }, unavailable ? '重试读取' : '清档重新开始'),
+    record.raw != null && h('button.btn.paper', { onclick: () => exportProgress(record.raw, true) }, '备份原存档'));
+}
+function confirmRecovery() {
+  const expected = runRecord();
+  modal(close => {
+    const status = h('p', { role: 'alert' });
+    return h('div.dialog.px', h('h2', '清档重新开始？'),
+      h('p', '仅清除当前经营进度，成就与设置保留。'), status,
+      h('div.row', h('button.btn.paper', { onclick: close }, '取消'),
+        h('button.btn.red', { onclick: () => {
+          const current = runRecord(), latestMeta = store.read(META_KEY);
+          if (current.status === 'unavailable') { status.textContent = '无法读取存档，请恢复存储权限后重试。'; return; }
+          if (current.status !== expected.status || current.raw !== expected.raw) { status.textContent = '存档已变化，请取消后重试读取。'; return; }
+          if (latestMeta.status !== 'empty' && (latestMeta.status !== 'ok' || !latestMeta.value || typeof latestMeta.value !== 'object' || Array.isArray(latestMeta.value) || !latestMeta.value.ach || typeof latestMeta.value.ach !== 'object' || Array.isArray(latestMeta.value.ach))) {
+            status.textContent = '无法确认成就与设置，请恢复存储后重试。'; return;
+          }
+          if (!store.del(RUN_KEY)) { status.textContent = '清档失败，未能确认清除，请重试。'; return; }
+          if (latestMeta.status === 'ok') Object.assign(meta, latestMeta.value);
+          sound.sfx = meta.sfx; sound.music = meta.music;
+          protectedRun = false; saveIssue = ''; G.setState(null); close(); newGame(true);
+        } }, '确认清档')));
+  }, { center: true });
 }
 function confirmNew() {
   modal((close) => h('div.dialog.px',
@@ -228,55 +380,53 @@ function confirmNew() {
     h('div.row', h('button.btn.paper', { onclick: close }, '再想想'), h('button.btn.red', { onclick: () => { close(); newGame(); } }, '重新开张')),
   ), { center: true });
 }
-async function newGame() {
-  if (startupStorageError) { toast('存档读取异常，请先重试'); return; }
-  screenEpoch++;
-  if (transactionBusy) return;
-  const previous = G.S;
-  try {
-    if (!session.writable && !await session.acquire()) throw new Error('另一个页面正在营业，请关闭后重试');
-    session.load();
-    G.newRun(); G.S.tutorial = meta.tut;
-    const next = normalizeRun(G.S, state => G.ensureGrowthState(state));
-    G.setState(next);
-    const expired = Rules.expireOrders(); Rules.startDay();
-    session.save(G.S);
-    meta.runs++; saveMeta(); showMorning(true, expired, 0);
-  } catch (error) { G.setState(previous); toast(error.message); }
+function newGame(preserveMeta = false) {
+  if (protectedRun) return;
+  G.newRun();
+  G.S.tutorial = meta.tut;
+  meta.runs++; if (preserveMeta !== true) saveMeta();
+  beginDay(true);
 }
-async function continueRun() {
-  if (startupStorageError) { toast('存档读取异常，请先重试'); return; }
+function continueRun() {
+  const record = runRecord(), s = record.value;
+  if (record.status !== 'ok' || !usableRun(s)) return renderTitle();
   try {
-    if (!session.writable && !await session.acquire()) throw new Error('另一个页面正在营业，请关闭后重试');
-    const s = session.load();
-    if (!s) { toast('没有可继续的存档'); return; }
     G.setState(s);
-    if (s.phase === 'night') renderNight(); else renderDay();
-  } catch (error) { toast(error.message); }
+    if (s.phase === 'night') renderNight();
+    else renderDay();
+  } catch {
+    G.setState(null);
+    renderTitle(record);
+  }
 }
 
 // ───── 白天 ─────
-const tradePrices = new WeakMap();
 let D = {}; // 当前白天界面的节点
 let busy = false;
 
 function beginDay(first) {
-  const expired = G.expireOrders(), lost = first ? 0 : G.voidFakeCash();
-  G.startDay(); if (!saveRun()) return; showMorning(first, expired, lost);
-}
-function showMorning(first, expired = [], lost = 0) {
   const S = G.S;
+  const expired = G.expireOrders();
+  const lost = first ? 0 : G.voidFakeCash();
+  G.startDay();
+  saveRun();
   renderDay();
   const n = G.newsObj();
+  const growth = G.growthMessages();
+  if (growth.length) saveRun();
   const out = S.morningOut || [];
+  const visit = S.queue.find((c) => c.visitId);
   S.morningOut = null;
   modal((close) => h('div.dialog.px',
     h('h2', `第 ${S.day} 天 · ${WEEKDAYS[G.weekday()]}`),
     h('div.card.px', { style: 'background:#fff1c9' }, h('div.grow', h('div.nm', '📰 ' + n.t), h('div.meta', n.d))),
+    visit && h('div.label', `今日约客：${CATS[visit.who].name} · ${visit.kind === 'sell' ? '带来' + nm(visit.item) : visit.kind === 'buy' ? '收购' + ITEMS[visit.wantId].name : '委托备货' + G.orderName(visit.order)}`),
+    growth.map((msg) => h('div.label', msg.id === 'phone' ? '电话订货已开启：从菜单或夜晚小铺拨打，付款后次日到货。' : msg.text)),
+    G.phoneDeliveries().length > 0 && h('div.label', `订货到达：${G.phoneDeliveries().reduce((n, order) => n + order.remaining.reduce((sum, it) => sum + it.qty, 0), 0)}件，可从菜单电话领取`),
     out.length > 0 && h('div.label', '作坊产出：' + summarize(out)),
     lost > 0 && h('div.label', { style: 'color:var(--red)' }, `🤖 钱箱里有 ${lost} 鱼币是全息假币，一早就消失了！昨天有伪猫混进来过……`),
     expired.length > 0 && h('div.label', { style: 'color:var(--red)' }, `订单过期：${expired.map(G.orderName).join('、')}`),
-    G.rentToday() && !S.business.ownership.owned && h('div.label', { style: 'color:var(--red)' }, `今天打烊后要交房租 ${G.rentAmount()} 鱼币`),
+    G.rentToday() && h('div.label', { style: 'color:var(--red)' }, `今天打烊后要交房租 ${G.rentAmount()} 鱼币`),
     h('button.btn.big', { onclick: close }, first ? '开张！' : '开门营业'),
   ), { center: true, onClose: () => { sfx('bell'); showCustomer(); } });
 }
@@ -292,7 +442,7 @@ function hud() {
   return h('div.hud',
     h('div.money', img(fishIcon), h('span.m', String(S.money))),
     h('div.date', h('b', `第 ${G.week()} 周 · ${WEEKDAYS[G.weekday()]}`),
-      h('small', S.business.ownership.owned?'自有店铺 · 永久免租':`${rent.paid ? '下次租金' : '房租'} ${rent.amount} · ${rent.days ? rent.days + '天后' : '今天'}`)),
+      h('small', `${rent.paid ? '下次租金' : '房租'} ${rent.amount} · ${rent.days ? rent.days + '天后' : '今天'}`)),
     h('button.menu', { onclick: openMenu, 'aria-label': '菜单' }, '☰'),
   );
 }
@@ -306,54 +456,34 @@ function renderDay() {
   music('day');
   const S = G.S;
   D = {};
-  D.scene = h('div.scene', { style: 'background-image:url(assets/bg/shop.jpg);height:calc(var(--sh) + 84px)' });
+  D.scene = h('div.scene', { style: 'background-image:url(assets/bg/shop.jpg);height:calc(var(--sh) + 52px)' });
   D.panel = h('div.panel');
   const n = G.newsObj();
   fill(stage, h('div.screen.day-screen',
     h('div.news', h('b', '今日'), `${n.t} · ${n.d}`),
     D.scene, hud(), D.panel,
-    h('div.bar',
+    h('div.bar.day-tools',
       D.shelfBtn = h('button.btn.paper', { onclick: openShelf }, `货架 ${S.shelf.length}/${S.shelfCap}`),
       D.orderBtn = h('button.btn.paper', { onclick: openOrders }, `订单 ${S.orders.length}`),
-      dayBusinessButton(),
     ),
   ));
   if (S.queue.length && S.qi < S.queue.length && !document.querySelector('.mask')) showCustomer();
   else if (S.qi >= S.queue.length) endOfDay();
 }
-function managedEnabled(){const v=G.businessView();return !!(v.operations?.enabled||v.network?.enabled||v.network?.managerActive);}
-function dayBusinessButton(){
-  D.employeeBtn=null;D.managedBtn=null;
-  if(managedEnabled())return D.managedBtn=h('button.btn.mint',{onclick:advanceManaged},'继续经营');
-  if(!G.S.business.employee.hired)return null;
-  return D.employeeBtn=h('button.btn.mint',{onclick:()=>{
-    if(busy)return;
-    const enabled=!G.S.business.employee.reception;
-    mutateRun('reception-mode',draft=>{draft.business.employee.reception=enabled;});
-    if(enabled)toast('普通买卖交给店员，有异常再叫你');
-    showCustomer();
-  }},'店员接待');
-}
 function refreshBar() {
   const S = G.S;
-  if(managedEnabled()!==!!D.managedBtn){const previous=D.managedBtn||D.employeeBtn;const next=dayBusinessButton();if(next){if(previous?.isConnected)previous.replaceWith(next);else stage.querySelector('.day-screen > .bar')?.append(next);}else previous?.remove();}
-  if(D.managedBtn)D.managedBtn.disabled=busy||transactionBusy||tradeInProgress(G.current());
   if (D.shelfBtn) D.shelfBtn.textContent = `货架 ${S.shelf.length}/${S.shelfCap}`;
   if (D.orderBtn) {
-    const contracts=G.businessView().contracts.filter(c=>c.status==='active');
-    const ready = S.orders.some((o) => G.orderPlan(o).ok)||contracts.some(c=>c.start<=S.day&&c.available>0);
-    D.orderBtn.textContent = `订单 ${S.orders.length+contracts.length}` + (ready ? ' · 可交' : '');
+    const ready = S.orders.some((o) => G.orderPlan(o).ok);
+    D.orderBtn.textContent = `订单 ${S.orders.length}` + (ready ? ' · 可选货' : '');
     D.orderBtn.className = 'btn ' + (ready ? 'pink' : 'paper');
   }
-  if(D.employeeBtn){const employee=S.business.employee;D.employeeBtn.textContent=employee.reception?'亲自接待':'店员接待';D.employeeBtn.disabled=busy||!(employee.active&&employee.days>0);}
 }
 
 function setScene(who, item) {
   clear(D.scene);
   D.cust = h('div.cust.enter', img(catImg(who)));
   D.scene.append(D.cust);
-  const manager=G.businessView().network?.managerActive,employee=G.S.business.employee;
-  if(manager||employee.hired)D.scene.append(h('div.shop-employee'+(manager||employee.active&&employee.days>0?'':'.resting'),{'aria-label':manager?'店长在岗':employee.active&&employee.days>0?'店员接待中':'店员休息'},img(catImg('worker'))));
   D.cust.addEventListener('animationend', () => D.cust.classList.replace('enter', 'idle'), { once: true });
   if (item) D.scene.append(h('div.counter-item', img(icon(item))));
   const win = G.winItems();
@@ -375,15 +505,14 @@ function say(who, text) {
   );
 }
 function coach(text) {
-  return h('div.coach.px', img(catImg('player')), h('div', text));
+  return h('div.coach.px', h('span.coach-face', img(catImg('player'))), h('div', text));
 }
 
 function showCustomer() {
-  if((G.S.business.employee.reception||G.S.business.operations?.enabled||G.businessView().network?.managerActive)&&!tradeInProgress(G.current())&&G.canDelegateReception())mutateRun('auto-reception',()=>Rules.delegateReception());
   let c = G.current(), skipped = false;
   // A save taken during the existing departure delay may still point at the
   // exhausted customer. Resume after that visit, without replaying any reward.
-  while (c && (c.resolved || ((c.kind === 'sell' || c.kind === 'buy') && Number.isFinite(c.pat) && c.pat <= 0))) {
+  while (c && ((['sell', 'buy'].includes(c.kind) && (c.settled || Number.isFinite(c.pat) && c.pat <= 0)) || (['appraisal', 'order'].includes(c.kind) && c.settled))) {
     G.S.qi++; skipped = true; c = G.current();
   }
   if (skipped) saveRun();
@@ -394,8 +523,8 @@ function showCustomer() {
   if (!c) return endOfDay();
   if (c.who === 'lady' && c.story === G.S.story.lady) G.S.story.lady++;
   sfx('meow');
-  setScene(c.who, c.kind === 'sell' ? c.item : null);
-  ({ sell: panelSell, buy: panelBuy, fence: panelFence, police: panelPolice, order: panelOrder, lady: panelLady }[c.kind])(c);
+  setScene(c.who, ['sell', 'appraisal'].includes(c.kind) ? c.item : null);
+  ({ sell: panelSell, buy: panelBuy, fence: panelFence, police: panelPolice, order: panelOrder, lady: panelLady, appraisal: panelAppraisal }[c.kind])(c);
   const eb = eyeBtn(c);
   if (eb) D.scene.append(eb);
 }
@@ -405,7 +534,6 @@ async function leave(text, mood) {
   if (busy) return;
   busy = true;
   const c = G.current();
-  const token = ads.captureGuard(G.S), queueIndex = G.S.qi, epoch = screenEpoch;
   refreshPatience(c);
   if (text) say(c.who, text);
   D.panel.querySelectorAll('button, input, select, textarea').forEach((b) => (b.disabled = true));
@@ -414,11 +542,10 @@ async function leave(text, mood) {
   if (mood === 'good') sfx('good');
   refreshHud(); refreshBar();
   await wait(1100);
-  if (epoch!==screenEpoch || !ads.isCurrent(token,G.S) || G.S.qi !== queueIndex) return;
   D.cust?.classList.remove('idle', 'shake'); D.cust?.classList.add('exit');
   await wait(380);
-  if (epoch!==screenEpoch || !ads.isCurrent(token,G.S) || G.S.qi !== queueIndex) return;
-  mutateRun('leave', draft => { draft.qi++; });
+  G.S.qi++;
+  saveRun();
   showCustomer();
 }
 
@@ -426,11 +553,11 @@ async function leave(text, mood) {
 function pricePicker(init, min, max, onChange) {
   let v = Math.max(min, Math.min(max, Math.round(init)));
   const val = h('div.val.px', img(fishIcon), h('span', String(v)));
-  const range = h('input', { type: 'range', min, max, value: v });
+  const range = h('input', { type: 'range', min, max, value: v, 'aria-label': '调整报价' });
   const set = (n) => { v = Math.max(min, Math.min(max, Math.round(n))); val.lastChild.textContent = v; range.value = v; onChange?.(v); };
   range.addEventListener('input', () => set(Number(range.value)));
   const step = (d) => h('button.btn.paper.step', { onclick: () => set(v + d) }, (d > 0 ? '+' : '−') + Math.abs(d));
-  const node = h('div', h('div.price', step(-10), step(-1), val, step(1), step(10)), range);
+  const node = h('div.price-picker', h('div.price', step(-10), step(-1), val, range, step(1), step(10)));
   return { node, get: () => v, set };
 }
 function heartGlyph(active) {
@@ -479,14 +606,17 @@ function itemTags(it, { known = false, showStolen = false, unverified = false } 
   if (G.S.win.includes(it.uid)) t.push(h('span.tag.win', '窗'));
   return h('span.tags', t);
 }
+const purchasePrice = (it) => Number.isFinite(it.cost) && it.cost > 0 ? `进价 ${Number(it.cost.toFixed(2))}` : '无买入价';
 function itemCard(it, opts = {}) {
-  const stockWater=opts.stock&&G.isWater(it)&&it.gk;
   const e = G.estimate(it);
+  const use = Object.entries(MACHINES).find(([mid, m]) => m.in[0] === it.id && mid !== 'purifier' && (G.S.owned[mid] || G.upgradeAvailable(mid).ok || G.upgradeAvailable(mid).reason === '鱼币不足'));
   return h('div.card.px.item-card',
-    h('div.icon', img(stockWater&&G.grade(it)<=2?itemImg('dirtywater'):icon(it))),
+    h('div.icon', img(icon(it))),
     h('div.grow',
-      h('div.nm', stockWater?WG[G.grade(it)].n:nm(it), ' ', itemTags(it, opts)),
-      h('div.meta.market-price', stockWater ? (it.lab>G.grade(it)?`标签：${WG[it.lab].n}（虚标）`:'水质已验') : opts.exposed ? `识破了！${opts.claimed != null ? `说是${WG[opts.claimed].n}，` : ''}实价约 ${G.trueValue(it)}` : `估价 ${e.lo} ~ ${e.hi}` + (it.selfLab ? `（真身：${WG[G.grade(it)].n}）` : '')),
+      h('div.nm', nm(it), ' ', itemTags(it, opts)),
+      opts.showCost && h('div.meta.purchase-price', purchasePrice(it)),
+      h('div.meta.market-price', opts.exposed ? `识破了！${opts.claimed != null ? `说是${WG[opts.claimed].n}，` : ''}实价约 ${G.trueValue(it)}` : `估价 ${e.lo} ~ ${e.hi}` + (it.selfLab ? `（真身：${WG[G.grade(it)].n}）` : '')),
+      use && h('div.meta', `${use[1].name}：${ITEMS[use[1].out[0]].name} · ${G.machineSpec(use[0]).days}晚`),
     ),
     opts.right,
   );
@@ -500,10 +630,11 @@ function panelSell(c) {
   const name = c.claimed != null ? WG[c.claimed].n : nm(c.item);
   if (!c.said) {
     c.said = true;
-    if (c.who === 'thief') c.line = `嘘……这${name}别问来路，${c.ask} 就给你。`;
+    if (c.visitId && c.line) c.line = `${c.line} 开价${c.ask}。`;
+    else if (c.who === 'thief') c.line = `嘘……这${name}别问来路，${c.ask} 就给你。`;
     else if (c.who === 'lady' && c.story === 0) c.line = `这是母亲留下的${name}……${c.ask} 鱼币，求您了。我以后一定来赎回它。`;
     else if (c.who === 'lady') c.line = `又是我……这块${name}，${c.ask} 鱼币可以吗？`;
-    else c.line = G.pick(SELL_LINES)(name, c.ask);
+    else c.line = CATS[c.who].intro ? `${CATS[c.who].intro} ${name}，${c.ask}鱼币。` : G.pick(SELL_LINES)(name, c.ask);
   }
   if (c.who === 'thief') c.item.stolenKnown = true;
   say(c.who, greeting(c.line));
@@ -513,16 +644,14 @@ function drawSell(c) {
   const S = G.S, it = c.item, fac = CATS[c.who].fac;
   const full = S.shelf.length >= S.shelfCap;
   const e = G.estimate(it);
-  const remembered = tradePrices.get(c), start = remembered?.uid === it.uid ? remembered.value : c.exposed ? G.trueValue(it) * 0.7 : Math.min(c.ask, e.lo);
-  const picker = pricePicker(start, 1, Math.max(c.ask, start, 10), (v) => { tradePrices.set(c,{uid:it.uid,value:v,touched:true}); refreshBar(); offerBtn.lastChild.textContent = v; offerBtn.disabled = v > S.money || full; });
-  tradePrices.set(c,{uid:it.uid,value:picker.get(),touched:remembered?.uid===it.uid&&remembered.touched});
+  const picker = pricePicker(c.exposed ? G.trueValue(it) * 0.7 : Math.min(c.ask, e.lo), 1, Math.max(c.ask, 10), (v) => { offerBtn.lastChild.textContent = v; offerBtn.disabled = v > S.money || full; });
   const spotNames = SPOTS[ITEMS[it.id].cat];
   const lensFree = S.up.lens && !c.lensUsed;
   const clue = G.itemClue(c);
   const spots = h('div.spots', spotNames.map((n, i) => {
     const r = c.checks[i];
     const glyph = r === 'ok' ? '✓' : r === 'fake' ? '✗' : r === 'stolen' ? '⚠' : '？';
-    return h('button.btn.paper.spot' + (r ? '.' + r : clue?.index === i ? '.hint' : ''), {
+    return h('button.btn.paper.spot' + (r ? '.' + r : ''), {
       disabled: !r && c.pat <= 1 && !lensFree ? true : null,
       onclick: () => doCheck(c, i),
       'aria-label': `${n}${r === 'ok' ? '，此处正常' : r === 'fake' ? '，发现赝品' : r === 'stolen' ? '，发现赃物' : `，${lensFree ? '免费' : '消耗1耐心'}${clue?.index === i ? '，' + clue.text : ''}`}`,
@@ -541,14 +670,12 @@ function drawSell(c) {
       clue && !c.checks[clue.index] && h('span.item-clue', clue.text),
       !c.checks.every(Boolean) && h('span.check-cost', lensFree ? '免费首查' : '未查处 −1♥'))),
     negotiationHint(c, true),
-    picker.node,
-    h('div.row',
+    canCharm && h('div.row.trade-extras',
       canCharm && h('button.btn.small.pink', { onclick: () => { G.charm(c); say(c.who, `看在老熟人的份上，${c.ask} 怎么样？`); drawSell(c); } }, '刷脸 −2好感'),
-      full ? h('button.btn.small.paper', { onclick: openShelf }, '整理货架') : null,
-      h('button.btn.small.paper', { onclick: () => leave(c.exposed ? '哼，算你厉害。' : '那我去别家看看。') }, '不收了'),
     ),
-  ), h('div.trade-actions', h('div.row', offerBtn, dealBtn)));
+  ), h('div.trade-actions.negotiation-actions', picker.node, h('div.row', h('button.btn.small.paper.decline', { onclick: () => leave(c.exposed ? '哼，算你厉害。' : '那我去别家看看。') }, '拒收'), offerBtn, dealBtn)));
   D.panel.scrollTop = 0;
+  queueMechanicLesson([...itemLessonKeys({ ...it, known: it.known || c.exposed }, { stolenVisible: c.who === 'thief' || c.checks[0] === 'stolen' }), 'inspection']);
 }
 function doCheck(c, i) {
   const r = G.checkSpot(c, i);
@@ -581,15 +708,15 @@ function doDeal(c, price) {
   leave(c.who === 'lady' ? '谢谢您……请替我好好保管它。' : G.pick(['成交喵！', '合作愉快～', '嘿嘿，谢啦！']), 'good');
 }
 
-const WANT_NAME = (w, minG) => (w === 'ban' ? '那种货' : minG ? `${WG[minG].n}以上的好水` : CATS_CAT[w]);
+const WANT_NAME = (w, minG, id) => (id ? ITEMS[id].name : w === 'ban' ? '那种货' : minG ? `${WG[minG].n}以上的好水` : CATS_CAT[w]);
 function panelBuy(c) {
   if (!c.said) {
     c.said = true;
-    const w = WANT_NAME(c.want, c.minG);
-    c.line = c.hoarder ? '橱窗里那几瓶水……我全都要看看。别拿贴牌货糊弄我，我自带试纸。'
+    const w = WANT_NAME(c.want, c.minG, c.wantId);
+    c.line = c.visitId && c.line ? c.line : c.hoarder ? '橱窗里那几瓶水……我全都要看看。别拿贴牌货糊弄我，我自带试纸。'
       : c.iceFan ? '听说这里冰水不错，我带钱来了，还有水吗？'
       : c.collector ? '你橱窗里的宝贝，我在街口就看见了。价钱好商量。'
-      : c.want === 'ban' ? '有没有……那种货？你懂的。价钱好说。' : c.who === 'kitten' ? `我攒了零花钱！想买${w}～` : G.pick([`有没有${w}？我想买一件。`, `我在找${w}，你这有吗？`]);
+      : c.want === 'ban' ? '有没有……那种货？你懂的。价钱好说。' : c.who === 'kitten' ? `我攒了零花钱！想买${w}～` : CATS[c.who].intro ? `${CATS[c.who].intro} 今天找${w}。` : G.pick([`有没有${w}？我想买一件。`, `我在找${w}，你这有吗？`]);
   }
   say(c.who, greeting(c.line));
   if (c.item && G.allItems().includes(c.item)) drawBuyHaggle(c); else drawBuyPick(c);
@@ -597,25 +724,23 @@ function panelBuy(c) {
 function drawBuyPick(c) {
   D.panel.classList.remove('trade-panel');
   const S = G.S, all = G.allItems();
-  const reserved = G.businessView().reservations;
-  const ok = all.filter((it) => G.wants(c, it)&&!reserved[it.uid]);
+  const ok = all.filter((it) => G.wants(c, it));
   const grid = h('div.shelf-grid', all.map((it) => {
-    const m = G.wants(c, it)&&!reserved[it.uid];
-    return h('button.slot.px' + (m ? '' : '.dim') + (S.hidden.includes(it) ? '.hid' : ''), {
+    const m = G.wants(c, it);
+    return h('button.slot.px.buy-stock' + (m ? '' : '.dim') + (S.hidden.includes(it) ? '.hid' : ''), {
       disabled: m ? null : true,
       onclick: () => pickForBuyer(c, it),
-    }, itemTags(it), img(icon(it)), nm(it));
+    }, itemTags(it), img(icon(it)), nm(it), h('span.slot-cost', purchasePrice(it)));
   }));
   fill(D.panel, 
     c.tut === 'sell' && coach('从货架选一件玩具。'),
-    h('div.row', h('span.label.grow', `想要：${WANT_NAME(c.want, c.minG)}`), heartsFor(c)),
-    ok.length ? grid : h('div.card.px', h('div.grow', h('div.nm', '没有合适的货'), h('div.meta', '货架上没有对方想要的东西'))),
+    h('div.row', h('span.label.grow', `想要：${WANT_NAME(c.want, c.minG, c.wantId)}`), heartsFor(c)),
+    ok.length ? h('div.scroll.stock-scroll', grid) : h('div.card.px', h('div.grow', h('div.nm', '没有合适的货'), h('div.meta', '货架上没有对方想要的东西'))),
     h('div.row', h('button.btn.paper', { onclick: () => leave(G.pick(['好吧，下次再来。', '唔，那算了。'])) }, ok.length ? '不卖了' : '抱歉，没有')),
   );
+  queueMechanicLesson(ok.flatMap(it => itemLessonKeys(it)));
 }
 function pickForBuyer(c, it) {
-  if(G.businessView().reservations[it.uid])return toast('这件货物已预留给合同');
-  tradePrices.delete(c);
   G.buyerLooks(c, it);
   if (c.caught) {
     G.removeItem(it); // 被识破的赝品当场被扔掉
@@ -627,32 +752,27 @@ function pickForBuyer(c, it) {
   drawBuyHaggle(c);
 }
 function drawBuyHaggle(c) {
-  if (!c.item || !G.allItems().includes(c.item) || G.businessView().reservations[c.item.uid]) { c.item = null; c.iced = false; tradePrices.delete(c); return drawBuyPick(c); }
+  if (!c.item || !G.allItems().includes(c.item)) { c.item = null; c.iced = false; return drawBuyPick(c); }
   const S = G.S, it = c.item, fac = CATS[c.who].fac, e = G.estimate(it);
-  const remembered = tradePrices.get(c), start = remembered?.uid === it.uid ? remembered.value : Math.max(e.hi, c.bid + 1);
-  const picker = pricePicker(start, Math.min(c.bid,start), Math.max(start,c.bid + 10, Math.round(e.hi * 2.2)), (v) => { tradePrices.set(c,{uid:it.uid,value:v,touched:true}); refreshBar(); askBtn.lastChild.textContent = v; });
-  tradePrices.set(c,{uid:it.uid,value:picker.get(),touched:remembered?.uid===it.uid&&remembered.touched});
+  const picker = pricePicker(Math.max(e.hi, c.bid + 1), c.bid, Math.max(c.bid + 10, Math.round(e.hi * 2.2)), (v) => { askBtn.lastChild.textContent = v; });
   const askBtn = h('button.btn', { onclick: () => doAsk(c, picker.get()) }, '报价 ', h('span', String(picker.get())));
   const canCharm = fac && S.rep[fac] >= 2 && !c.charmed;
   D.panel.classList.add('trade-panel');
   fill(D.panel, h('div.trade-scroll',
     c.tut === 'sell' && coach('调价后点「报价」，或直接「成交」。'),
-    itemCard(it, { known: it.known, showStolen: it.stolenKnown, right: h('div.customer-quote', heartsFor(c), h('div.quote-price', `出价 ${c.bid}`)) }),
-    it.cost ? h('div.label', `进价 ${it.cost}`) : null,
+    itemCard(it, { showCost: true, known: it.known, showStolen: it.stolenKnown, right: h('div.customer-quote', heartsFor(c), h('div.quote-price', `出价 ${c.bid}`)) }),
     negotiationHint(c),
-    picker.node,
+    h('div.row.trade-extras',
     S.up.fridge && G.isWater(it) && h('button.btn.small.sky', { disabled: c.iced ? true : null, onclick: () => {
-      mutateRun('ice', draft => { const buyer=draft.queue[draft.qi]; if(buyer.iced)return;buyer.iced=true;buyer.max=Math.round(buyer.max*1.12);buyer.bid=Math.round(buyer.bid*1.12); }); unlock('ice');
+      c.iced = true; c.max = Math.round(c.max * 1.12); c.bid = Math.round(c.bid * 1.12); unlock('ice');
       say(c.who, `冰的！我现在出 ${c.bid}。`); drawBuyHaggle(c);
     } }, c.iced ? '已加冰 🧊' : '🧊 免费加冰'),
-    h('div.row',
       canCharm && h('button.btn.small.pink', { onclick: () => { G.charm(c); say(c.who, `好吧好吧，给你 ${c.bid}。`); drawBuyHaggle(c); } }, '刷脸 −2好感'),
-      h('button.btn.small.paper', { onclick: () => { c.item = null; c.iced = false; tradePrices.delete(c); drawBuyPick(c); } }, '换一件'),
-      h('button.btn.small.paper', { onclick: () => leave('那算了。') }, '不卖了'),
+      h('button.btn.small.paper', { onclick: () => { c.item = null; c.iced = false; drawBuyPick(c); } }, '换一件'),
     ),
-  ), h('div.trade-actions', h('div.row', askBtn, h('button.btn.mint', { onclick: () => doSell(c, c.bid) }, `成交 ${c.bid}`))));
+  ), h('div.trade-actions.negotiation-actions', picker.node, h('div.row', h('button.btn.small.paper.decline', { onclick: () => leave('那算了。') }, '不卖'), askBtn, h('button.btn.mint', { onclick: () => doSell(c, c.bid) }, `成交 ${c.bid}`))));
   D.panel.scrollTop = 0;
-  refreshBar();
+  queueMechanicLesson(itemLessonKeys(it));
 }
 function doAsk(c, p) {
   const r = G.askBuyer(c, p);
@@ -666,7 +786,7 @@ function doAsk(c, p) {
 function doSell(c, price) {
   if (!c.item || !G.allItems().includes(c.item)) { c.item = null; c.iced = false; drawBuyPick(c); return toast('货物已不在库存，请重新选货'); }
   const it = c.item;
-  if(G.sellItem(c, price)===false)return toast('货物已预留或不再可售，请重新选货');
+  G.sellItem(c, price);
   floatMoney(price);
   unlock('first_sell');
   if (G.fakeish(it)) unlock('sell_fake');
@@ -679,6 +799,7 @@ function doSell(c, price) {
 const redrawCust = (c) => (c.kind === 'sell' ? drawSell(c) : c.item ? drawBuyHaggle(c) : drawBuyPick(c));
 const eyeBtn = (c) => G.S.day >= 4 && !c.tut && c.who !== 'lady' && (c.kind === 'sell' || c.kind === 'buy') && h('button.eye-btn.px', { onclick: () => openObserve(c, () => redrawCust(c)), 'aria-label': '观察' }, '👀', h('small', '观察'));
 function openObserve(c, redraw) {
+  if (showMechanicLesson('impostor', () => { if (G.current() === c && !busy) openObserve(c, redraw); })) return;
   c.obs = c.obs || [null, null, null];
   const clue = G.observationClue(c);
   modal((close) => {
@@ -686,7 +807,7 @@ function openObserve(c, redraw) {
     const draw = () => fill(host,
       h('h2', '仔细观察', closeX(close)),
       h('div.row', { style: 'justify-content:flex-end' }, heartsFor(c)),
-      h('div.list', OBS.map((o, i) => h('div.li.px', h('div.grow', h('div.t', o.n), h('div.d', c.obs[i] || (clue?.index === i ? clue.text : '未观察'))),
+      h('div.list', OBS.map((o, i) => h('div.li', h('div.grow', h('div.t', o.n), h('div.d', c.obs[i] || (clue?.index === i ? clue.text : '未观察'))),
         !c.obs[i] && h('button.btn.small', { disabled: c.pat <= 1 ? true : null, onclick: () => { const r = G.observe(c, i); refreshPatience(c); sfx(r.bad ? 'bad' : 'check'); draw(); } }, '看 −1♥')))),
       h('div.row',
         h('button.btn.paper', { onclick: close }, '返回交易'),
@@ -714,6 +835,41 @@ function doReport(c) {
 }
 
 // 三花姐：什么都收，按六折上下
+// 鉴定服务只检查客人物件并收取服务费，不进入玩家货架。
+function panelAppraisal(c) {
+  say(c.who, c.line || '请帮我看看这件东西值多少。');
+  const draw = () => {
+    const e = G.appraisalEstimate(c.item);
+    c.quoteDraft ??= Math.round((e.lo + e.hi) / 2);
+    const picker = pricePicker(c.quoteDraft, 1, Math.max(500, e.hi * 4, c.quoteDraft), (value) => { c.quoteDraft = value; });
+    const spots = SPOTS[ITEMS[c.item.id].cat].map((name, i) => h('button.btn.paper.spot', {
+      disabled: !!c.checks[i], onclick: () => {
+        const r = G.appraisalCheck(c, i);
+        if (!r.ok) return toast(r.reason || '无法继续检查');
+        say(c.who, G.isWater(c.item) && i === 2 ? `试纸显示：${WG[G.grade(c.item)].n}。` : r.res === 'fake' ? '这处有赝品痕迹。' : r.res === 'stolen' ? '这处留下了原主人的记号。' : '这处正常。');
+        saveRun(); draw();
+      } }, c.checks[i] ? (c.checks[i] === 'ok' ? '✓ ' : '！ ') + name : name));
+    D.panel.classList.add('trade-panel');
+    fill(D.panel, h('div.trade-scroll', h('div.card', h('div.icon', img(icon(c.item))), h('div.grow', h('div.nm', nm(c.item)), itemTags(c.item, { unverified: !c.item.known && !c.checks.every(Boolean) }))),
+      h('div.machine-status', `日常参考 ${e.lo}–${e.hi}（不含今日行情）`),
+      G.isWater(c.item) && c.item.gk && h('div.label', `试纸：${WG[G.grade(c.item)].n}`),
+      h('div.check-controls', h('div.spots', spots)),
+      h('div.machine-status', '鉴定费 6＋估价的5%～15%'),
+      c.impatience > 0 && h('div.label', `客人已有些不耐烦（${c.impatience}/100）`)),
+      h('div.trade-actions', picker.node, h('div.row',
+        h('button.btn.paper', { onclick: () => leave('下次再来。') }, '不接鉴定'),
+        h('button.btn.mint', { onclick: () => {
+          const r = G.appraisalQuote(c, picker.get());
+          if (!r.ok) return toast(r.reason || '暂时无法估价');
+          saveRun(); refreshHud();
+          if (r.accepted || r.left) return leave(r.accepted ? `谢谢，鉴定费 ${r.reward || 0} 鱼币。` : '这估价我不太认可，下次再说吧。', r.accepted ? 'good' : undefined);
+          say(c.who, '再仔细看看吧。'); draw();
+        } }, '给出估价'))));
+    queueMechanicLesson(itemLessonKeys(c.item));
+  };
+  draw();
+}
+
 function panelFence(c) {
   say(c.who, '三花收货啦～什么都收，价钱嘛，六折上下。');
   fenceUI(D.panel, () => leave('下次再来照顾你生意～'), (sum) => leave(`一共 ${sum}，爽快！`, 'good'));
@@ -721,17 +877,19 @@ function panelFence(c) {
 function fenceUI(host, onCancel, onDone, title) {
   const S = G.S, picked = new Set();
   const draw = () => {
+    const scrollTop = host.querySelector('.fence-stock')?.scrollTop || 0;
     const sum = [...picked].reduce((a, it) => a + G.fencePrice(it), 0);
     fill(host, 
       title,
       h('div.label', '点选要卖给三花姐的货'),
-      h('div.shelf-grid', G.allItems().map((it) => h('button.slot.px' + (picked.has(it) ? '.sel' : '') + (S.hidden.includes(it) ? '.hid' : ''), {
+      h('div.scroll.fence-stock', h('div.shelf-grid', G.allItems().map((it) => h('button.slot.px' + (picked.has(it) ? '.sel' : '') + (S.hidden.includes(it) ? '.hid' : ''), {
         onclick: () => { picked.has(it) ? picked.delete(it) : picked.add(it); draw(); },
-      }, itemTags(it), img(icon(it)), `${G.fencePrice(it)}`))),
+      }, itemTags(it), img(icon(it)), `${G.fencePrice(it)}`)))),
       h('div.row',
         h('button.btn.paper', { onclick: onCancel }, '不卖了'),
         h('button.btn.mint', { disabled: picked.size ? null : true, onclick: () => { const s = G.fenceSell([...picked]); floatMoney(s); refreshHud(); refreshBar(); onDone(s); } }, `卖出 ${sum}`)),
     );
+    host.querySelector('.fence-stock').scrollTop = scrollTop;
   };
   draw();
 }
@@ -743,14 +901,14 @@ function panelPolice(c) {
     say(c.who, '例行检查喵！……嗯，很好，守法商户。');
     fill(D.panel, 
       h('div.card.px', h('div.grow', h('div.nm', '✓ 检查通过'), h('div.meta', '治安局好感 +1'))),
-      h('div.row', h('button.btn.mint', { onclick: () => { mutateRun('inspection',draft=>{if(draft.queue[draft.qi].resolved)return;draft.st.clean++;Rules.addRep('law',1);draft.queue[draft.qi].resolved=true;}); leave('继续保持！', 'good'); } }, '辛苦了')),
+      h('div.row', h('button.btn.mint', { onclick: () => { S.st.clean++; G.addRep('law', 1); leave('继续保持！', 'good'); } }, '辛苦了')),
     );
     return;
   }
   say(c.who, '例行检查喵！……这些是什么？赃物和违禁品统统没收！');
   fill(D.panel, 
     h('div.label', `货架上被查出 ${res.found.length} 件（暗格里的查不到）`),
-    h('div.shelf-grid', res.found.map((it) => h('div.slot.px', itemTags(it, { showStolen: true }), img(icon(it)), nm(it)))),
+    h('div.scroll.stock-scroll', h('div.shelf-grid', res.found.map((it) => h('div.slot.px', itemTags(it, { showStolen: true }), img(icon(it)), nm(it))))),
     h('div.row',
       h('button.btn.red', { onclick: () => { G.acceptFine(res); S.money = Math.max(0, S.money); floatMoney(-res.fine); leave('下不为例！', 'bad'); } }, `认罚 −${res.fine}`, h('span.sub', '没收')),
       h('button.btn.pink', { disabled: S.money < res.bribe ? true : null, onclick: () => {
@@ -762,19 +920,20 @@ function panelPolice(c) {
 function panelOrder(c) {
   const o = c.order, S = G.S;
   const plan = G.orderPlan(o);
-  say(c.who, `${o.qty}份${G.orderName(o)}，第${o.due}天截止（含当天），总报酬${o.reward}。`);
+  say(c.who, c.visitId ? c.line : `需要${o.qty}份${G.orderName(o)}，能帮我备齐吗？`);
   fill(D.panel, 
-    h('div.card.px', h('div.icon', img(itemImg(o.id))), h('div.grow', h('div.nm', `${G.orderName(o)} ×${o.qty}`), h('div.meta', `候选 ${Math.min(plan.have, o.qty)}/${o.qty} · 缺 ${Math.max(0, o.qty - plan.have)}`), h('div.meta', o.id === 'water' ? '品质不加价；交付时核验' : '只收真货；交付时核验'))),
+    h('div.card.px', h('div.icon', img(itemImg(o.id))), h('div.grow', h('div.nm', `${G.orderName(o)} ×${o.qty}`), h('div.meta', `第${o.due}天截止（含当天） · 报酬${o.reward}`), h('div.meta', `候选 ${Math.min(plan.have, o.qty)}/${o.qty} · 缺 ${Math.max(0, o.qty - plan.have)}`))),
+    ruleButton('交货规则', openOrderRules),
     h('div.row',
-      h('button.btn.paper', { onclick: () => leave('哔……已取消。') }, '不接'),
-      h('button.btn.mint', { disabled: S.orders.length >= 3 ? true : null, onclick: () => { G.acceptOrder(o); leave('哔！订单已登记。随时在「订单」里交付。', 'good'); } }, '接单')),
+      h('button.btn.paper', { onclick: () => leave(c.who === 'robot' ? '哔……已取消。' : '那我再找找，下次再来。') }, '不接'),
+      h('button.btn.mint', { disabled: S.orders.length >= 3 || S.orders.includes(o) ? true : null, onclick: () => { if (!G.acceptOrder(o)) return toast('订单已接取或已满'); saveRun(); leave('订单已登记，在「订单」里交付。', 'good'); } }, '接单')),
   );
 }
 function panelLady(c) {
   const S = G.S;
   const pearl = G.allItems().find((it) => it.uid === S.story.pearl);
   if (!pearl) {
-    say(c.who, S.story.pearl == null ? '上次没能留下那串珍珠项圈……我再想想别的办法。' : '我想赎回那串珍珠项圈……已经不在店里了吗。谢谢你告诉我。');
+    say(c.who, '我想赎回那串珍珠项圈……已经卖掉了吗。没关系，谢谢你。');
     fill(D.panel, h('div.row', h('button.btn.paper', { onclick: () => leave('祝你生意兴隆。') }, '送客')));
     return;
   }
@@ -785,13 +944,9 @@ function panelLady(c) {
     h('div.row',
       h('button.btn.paper', { onclick: () => leave('……我明白了。打扰了。', 'bad') }, '舍不得'),
       h('button.btn.mint', { onclick: () => {
-        const gift = mutateRun('return-pearl',draft=>{
-          if(draft.queue[draft.qi].resolved)throw new Error('已经归还');
-          const item=Rules.allItems().find(it=>it.uid===pearl.uid);if(!item)throw new Error('物品已不在库存');
-          Rules.removeItem(item);draft.money+=price;Rules.recordCash('storyReceipt',price,item.cost||0,'return-pearl');Rules.addRep('elite',3);draft.queue[draft.qi].resolved=true;
-          if(draft.shelf.length>=draft.shelfCap)return false;
-          draft.shelf.push(Rules.mkItem('ticket',{q:1}));return true;
-        });floatMoney(price);
+        G.removeItem(pearl); S.money += price; floatMoney(price); G.addRep('elite', 3);
+        const t = G.mkItem('ticket', { q: 1 });
+        const gift = S.shelf.length < S.shelfCap ? (S.shelf.push(t), true) : false;
         unlock('lady');
         leave(gift ? '谢谢你替我保管它……这张船票送给你，愿你也能去想去的地方。' : '谢谢你替我保管它……我会记住你的。', 'good');
       } }, `还给她 +${price}`)),
@@ -801,7 +956,7 @@ function panelLady(c) {
 // ───── 打烊 / 房租 ─────
 function endOfDay() {
   const S = G.S;
-  if (G.rentToday() && !S.rentDone && !S.business.ownership.owned) return rentScene();
+  if (G.rentToday() && !S.rentDone) return rentScene();
   closeShop();
 }
 function closeShop() {
@@ -814,23 +969,27 @@ function rentScene() {
   const S = G.S;
   busy = false;
   setScene('landlord');
-  const amt = G.rentAmount();
+  const amt = G.rentAmount(), day = S.day, panel = D.panel;
+  let adPending = false;
+  const current = () => G.S === S && S.day === day && S.phase !== 'night' && D.panel === panel;
+  const unsettled = () => current() && G.rentToday() && !S.rentDone;
   say('landlord', `周五啦～本周房租 ${amt} 鱼币喵。` + (S.rentDue ? '（含上周欠的）' : ''));
   sfx('meow');
   const done = (text) => {
-    const token=ads.captureGuard(G.S),epoch=screenEpoch;
-    S.rentDone = true;
+    if (!current() || !S.rentDone) return;
     say('landlord', typeof text === 'function' ? text() : text);
     refreshHud(); saveRun();
     D.panel.querySelectorAll('button').forEach((b) => (b.disabled = true));
     setTimeout(() => {
-      if(epoch!==screenEpoch||!ads.isCurrent(token,G.S))return;
-      D.cust?.classList.add('exit');setTimeout(()=>{if(epoch===screenEpoch&&ads.isCurrent(token,G.S))closeShop();},400);
+      if (!current()) return;
+      D.cust?.classList.add('exit');
+      setTimeout(() => { if (current()) closeShop(); }, 400);
     }, 1100);
   };
   fill(D.panel, 
     h('div.card.px', h('div.grow', h('div.nm', `房租 ${amt}`), h('div.meta', `手头 ${S.money} · 下周房租 ${rentOf(G.week() + 1)}`))),
     h('button.btn.big.mint', { disabled: S.money < amt ? true : null, onclick: () => {
+      if (!unsettled() || adPending) return;
       if (!G.payRent()) { toast('鱼币不足，房租尚未支付'); return rentScene(); }
       floatMoney(-amt);
       if (S.rentPaid >= 1) unlock('week1');
@@ -843,15 +1002,25 @@ function rentScene() {
       fenceUI(host, close, () => { close(); rentScene(); }, h('h2', '找三花姐变现', closeX(close)));
       return host;
     }) }, '找三花姐变现'),
-    ads.available && !S.graceUsed && h('button.btn.sky', { onclick: async () => {
-      if (await playAd()) { G.graceRent(); S.rentDone = true; done(`宽限至${G.rentInfo().days}天后，共${G.rentInfo().amount}鱼币。`); }
-    } }, '求房东宽限一周 ', h('span.ad', '看视频')),
+    ads.available && !S.graceUsed && h('button.btn.sky', { onclick: async (event) => {
+      if (adPending || !unsettled() || S.graceUsed) return;
+      adPending = true;
+      const button = event?.currentTarget;
+      if (button) button.disabled = true;
+      try {
+        if (await playAd() && unsettled() && G.waiveRent()) {
+          done(`本次房租已免交。下次${G.rentInfo().amount}鱼币，${G.rentInfo().days}天后交。`);
+        }
+      } finally {
+        adPending = false;
+        if (button && unsettled() && !S.graceUsed) button.disabled = false;
+      }
+    } }, '免交本次房租 ', h('span.ad', '看视频')),
     S.money < amt && h('button.btn.small.red', { onclick: () => gameOver() }, '交不起了……'),
   );
 }
 
 async function playAd() {
-  const token = ads.captureGuard(G.S),epoch=screenEpoch;
   const cover = h('div.adplay', '视频加载中……');
   stage.append(cover);
   music(null);
@@ -859,25 +1028,27 @@ async function playAd() {
   cover.remove();
   music(G.S?.phase === 'night' ? 'night' : 'day');
   if (!r.ok) toast(r.msg || '视频未完成');
-  return r.ok && epoch===screenEpoch && ads.isCurrent(token,G.S);
+  return r.ok;
 }
 
 // ───── 夜晚 ─────
 let nightTab = 'scav';
+const visitSummary = (v) => `${CATS[v.who].name}${v.kind === 'sell' ? '带来' : v.kind === 'buy' ? '想买' : '委托收集'}【${ITEMS[v.item].name}】${v.qty > 1 ? '×' + v.qty : ''}`;
 function renderNight() {
   music('night');
   const S = G.S;
-  const supplierNames={water:'怪味水',fish:'鱼苗'};
-  const unseen=G.businessView().suppliers.filter(s=>s.unlocked&&!(S.business.marks.suppliersSeen||[]).includes(s.route));
-  if(unseen.length){mutateRun('supplier-invitation',draft=>{draft.business.marks.suppliersSeen=[...(draft.business.marks.suppliersSeen||[]),...unseen.map(s=>s.route)];});queueMicrotask(()=>toast(`小铺新增固定供货：${unseen.map(s=>supplierNames[s.route]).join('、')}`));}
+  const visit = G.nextVisit();
+  // Persist the promised visit before rendering it; reopening cannot reroll it.
+  saveRun();
+  const tomorrow = G.newsObj(S.nextNews);
   const tabs = [['scav', '拾荒'], ['work', '作坊'], ['front', '门面'], ['shop', '小铺'], ['book', '账本']];
   const body = h('div.panel', { style: 'padding-top:14px' });
   const bg = nightTab === 'work' ? 'workshop' : 'night';
   const workReady = Object.keys(S.owned).some((m) => !S.machines[m] && G.productionPlan(m).ok);
   fill(stage, h('div.screen.night-screen',
     h('div.scene', { style: `background-image:url(assets/bg/${bg}.jpg);height:calc(var(--sh) - 36px)` },
-      h('div.bubble.px', { style: 'right:auto;max-width:260px' }, h('div.who', '夜晚 · 打烊后'), h('div', nightTab === 'scav' ? '去垃圾场碰碰运气吧。' : nightTab === 'work' ? '叮叮当当，开工！' : nightTab === 'shop' ? '乔伊的小铺还亮着灯。' : nightTab === 'front' ? '明天橱窗摆点什么呢？' : '盘点一下今天的账。')),
-      h('div.cust', { style: 'left:auto;right:4px;margin:0' }, img(catImg(nightTab === 'shop' ? 'joe' : 'player'))),
+      h('div.bubble.px.night-outlook', h('div.who', `明日 · ${tomorrow.t}`), h('div', visit ? visitSummary(visit) : tomorrow.d)),
+      h('div.cust' + (nightTab === 'shop' ? '' : '.player-night'), { style: 'left:auto;right:4px;margin:0' }, img(catImg(nightTab === 'shop' ? 'joe' : 'player'))),
     ),
     hud(),
     h('div.tabs', tabs.map(([k, n]) => h('button.tab' + (nightTab === k ? '.on' : ''), { onclick: () => { nightTab = k; renderNight(); } }, n,
@@ -885,12 +1056,13 @@ function renderNight() {
     body,
     h('div.bar',
       h('button.btn.paper', { onclick: openShelf }, `货架 ${S.shelf.length}/${S.shelfCap}`),
-      h('button.btn.paper', { onclick: openOrders }, '订单'),
-      h('button.btn.big', { onclick: managedEnabled()?advanceManaged:()=>goSleep() }, managedEnabled()?'继续经营':'💤 睡觉'),
+      h('button.btn.big', { onclick: goSleep }, '💤 睡觉'),
     ),
   ));
   if (S.nightTut) body.append(coach(nightTab === 'scav' ? '选一个箱子拾荒。' : nightTab === 'work' ? '选机器开工。' : nightTab === 'shop' ? '点价格购买。' : '准备好就点「睡觉」。'));
   ({ scav: nightScav, work: nightWork, front: nightFront, shop: nightShop, book: nightBook })[nightTab](body);
+  showSaveIssue();
+  queueMechanicLesson(G.allItems().flatMap(it => itemLessonKeys(it)));
 }
 function nightScav(body) {
   const S = G.S, N = S.night;
@@ -898,24 +1070,72 @@ function nightScav(body) {
   const crate = (id, i) => {
     const c = (N.results || {})[i];
     const cfg = { heavy: '沉甸甸', wet: '湿漉漉', smell: '香喷喷', jingle: '叮当响', myst: '神秘' }[id];
-    if (c) return h('div.crate.px.open', img(itemImg(c.id === 'water' ? 'dirtywater' : c.id)), h('b', `${c.id === 'water' ? '脏水' : ITEMS[c.id].name} ×${c.n}`), c.lost ? h('span.label', `放不下 ${c.lost} 件`) : null);
+    if (c) return h('div.crate.px.open', img(itemImg(c.id === 'water' ? 'dirtywater' : c.id)), h('b', `${c.id === 'water' ? '脏水' : ITEMS[c.id].name} ×${c.n}`), !N.ground && c.lost ? h('span.label', `当晚未取 ${c.lost} 件`) : null);
     return h('button.crate.px', { disabled: canOpen ? null : true, onclick: () => openCrate(i) }, h('div.box'), h('b', cfg + '的箱子'));
   };
   appendContent(body,
     h('div.label', canOpen ? '选一个箱子打开（每晚一次）' : '今晚已经翻过了'),
     h('div.crates', N.crates.map(crate)),
-    !canOpen && N.opened.length < 3 && ads.available && !N.extra && h('button.btn.sky', { onclick: async () => { if (await playAd()) { mutateRun('extra-crate',draft=>{if(!draft.night.extra){draft.night.extra=true;draft.night.free++;}});renderNight(); } } }, '再翻一个箱子 ', h('span.ad', '看视频')),
+    G.nightGround().length ? h('div.ground-summary',
+      h('div', `地上还有：${groundItemNames(G.nightGround())}`),
+      h('button.btn.paper', { onclick: openGroundExchange }, `整理地上物品 · ${G.nightGround().length}件`),
+      h('div.label', '本晚腾出空位会自动收回；睡觉后清理。')) : null,
+    !canOpen && N.opened.length < 3 && ads.available && !N.extra && h('button.btn.sky', { onclick: async () => { if (await playAd()) { N.extra = true; N.free++; saveRun(); renderNight(); } } }, '再翻一个箱子 ', h('span.ad', '看视频')),
   );
 }
 function openCrate(i) {
-  const S = G.S, N = S.night;
   const r = G.openCrate(i);
-  N.results = N.results || {};
-  N.results[i] = { id: r.id, n: r.got.length + r.lost.length, lost: r.lost.length };
+  if (!r.id) return;
   sfx(r.rare ? 'good' : 'coin');
   if (r.rare) unlock('treasure');
-  if (r.lost.length) toast(`货架满了，丢下了 ${r.lost.length} 件`);
   checkAch(); saveRun(); renderNight();
+  if (r.lost.length) openGroundExchange();
+}
+function groundItemNames(items) {
+  const counts = new Map();
+  for (const it of items) counts.set(nm(it), (counts.get(nm(it)) || 0) + 1);
+  const names = [...counts].map(([name, qty]) => `${name}×${qty}`);
+  return names.length > 2 ? `${names.slice(0, 2).join('、')}等${items.length}件` : names.join('、');
+}
+function openGroundExchange() {
+  saveRun();
+  if (!G.nightGround().length) { renderNight(); return; }
+  let groundUid = G.nightGround()[0].uid, shelfUid = null;
+  modal((close) => {
+    const host = h('div.sheet.selection-sheet.ground-sheet');
+    const draw = (focusUid = null, error = '') => {
+      const ground = G.nightGround(), shelf = G.S.shelf;
+      const incoming = ground.find(it => it.uid === groundUid), outgoing = shelf.find(it => it.uid === shelfUid);
+      const tile = (it, selected, choose) => h('button.choice' + (selected ? '.sel' : ''), {
+        'data-ground-choice': it.uid, 'aria-pressed': String(selected), onclick: choose,
+      }, img(icon(it)), h('span.choice-name', nm(it)), itemTags(it),
+        selected && h('span.choice-mark', { 'aria-hidden': 'true' }, '✓'));
+      fill(host,
+        h('h2', '拾荒换货', closeX(close)),
+        h('div.label', `货架 ${shelf.length}/${G.S.shelfCap} · 地上 ${ground.length}件`),
+        h('div.scroll',
+          h('h3', '想拿哪件'),
+          h('div.selection-grid', ground.map(it => tile(it, it.uid === groundUid, () => { groundUid = it.uid; draw(it.uid); }))),
+          h('h3', '换出货架上的一件'),
+          h('div.selection-grid', shelf.map(it => tile(it, it.uid === shelfUid, () => { shelfUid = it.uid; draw(it.uid); })))),
+        h('div.selection-status', { role: 'status', 'aria-live': 'polite' }, error || (incoming && outgoing ? `换出${nm(outgoing)}，拿回${nm(incoming)}` : '选一件货架物品来交换，也可以暂不拾取。')),
+        h('div.label', '换出物也留在地上，本晚有空位自动收回；睡觉后清理。'),
+        h('div.row',
+          h('button.btn.paper', { onclick: () => { saveRun(); close(); } }, '暂不拾取'),
+          h('button.btn.mint', { disabled: !incoming || !outgoing, onclick: () => {
+            const r = G.swapNightGround(groundUid, shelfUid);
+            if (!r.ok) { draw(null, r.reason); return; }
+            saveRun(); close();
+            toast(`已拿回${nm(r.taken)}；${nm(r.left)}暂留地上`);
+          } }, '交换')));
+      if (focusUid != null) host.querySelector(`[data-ground-choice="${focusUid}"]`)?.focus();
+    };
+    draw(); return host;
+  }, { onClose: () => {
+    if (G.S.phase !== 'night') return;
+    renderNight();
+    (stage.querySelector('.ground-summary .btn') || stage.querySelector('.night-screen .bar .btn.paper'))?.focus();
+  } });
 }
 const publicName = (it) => it.id === 'water' && it.knownGrade != null ? WG[it.knownGrade].n : it.name;
 const publicIcon = (it) => itemImg(it.id === 'water' && (it.knownGrade ?? it.shownGrade) != null && (it.knownGrade ?? it.shownGrade) <= 2 ? 'dirtywater' : it.id);
@@ -939,39 +1159,85 @@ const arrivalText = (days) => days === 1 ? '明早完成' : `第${G.S.day + days
 const productionFlow = (plan) => h('div.batch-flow', planItems(plan.inputs),
   plan.outputs.length ? h('span.flow-arrow', { 'aria-label': '加工为' }, '→') : null,
   plan.outputs.length ? planItems(plan.outputs) : null);
-const recipeText = (mid) => {
-  const m = MACHINES[mid];
-  return mid === 'purifier' ? `原水提升2档，最高${WG[G.pureMax()].n} · ${m.days}晚`
-    : `${m.in[1]}${ITEMS[m.in[0]].name}${m.water ? '＋1份白开水或山泉水' : ''} → ${m.out[1]}${ITEMS[m.out[0]].name}${m.out[2] ? '（赝品）' : ''} · ${m.days}晚${m.water ? '；纯净水不可用' : ''}`;
-};
+function recipeObject(id, count, name = ITEMS[id].name) {
+  return h('div.recipe-object', img(itemImg(id)), h('span', `${name} ×${count}`));
+}
+function openMachineDetails(mid, onChanged) {
+  if (mid === 'purifier') return openWaterDiagram('净水器', onChanged);
+  const m = G.machineSpec(mid), u = UPGRADES.find(u => u.id === mid);
+  modal(close => h('div.sheet.equipment-sheet',
+    h('h2', m.name, closeX(close)),
+    h('div.scroll',
+      h('div.equipment-state', equipmentIdentity(mid)),
+      h('div.recipe-flow',
+        h('div.recipe-inputs', recipeObject(m.in[0], m.in[1]), m.water && h('div.recipe-water',
+          h('span', '再加1瓶水，任选一种'), h('div.recipe-water-options', [3, 4].map(grade =>
+            h('div.recipe-object', img(itemImg('water'), `water-bottle.grade-${grade}`), h('span', WG[grade].n)))))),
+        h('span.flow-arrow', '→'), equipmentSeat(mid), h('span.flow-arrow', '→'), recipeObject(m.out[0], m.out[1])),
+      h('div.water-facts', h('span', '加工需要', h('b', String(m.days)), '晚。'), h('span', '每次最多制作', h('b', String(m.cap * m.out[1])), `份【${ITEMS[m.out[0]].name}】。`)),
+      mid === 'labeler' && h('p.machine-status', '做出的【金枪鱼罐】是贴标赝品。'),
+      mid === 'brewery' && h('p.machine-status', '不能使用【纯净水】酿酒。'),
+      h('p.machine-status', '加工完成后，成品会在早上放上货架。货架已满时，暂存在设备里。'),
+      mid === 'labeler' && h('div',
+        h('div.recipe-flow', recipeObject('water', 1, '怪味水及以上'),
+          h('span.flow-arrow', '→'), equipmentSeat(mid), h('span.flow-arrow', '→'), recipeObject('water', 1, '贴「纯净水」标')),
+        h('div.water-facts', h('span', '每瓶消耗', h('b', '2'), '鱼币，立即完成。'), h('span', '实际水质不变')),
+        h('p.machine-status', '在货架选中还没贴标的水，就能贴上标签。')),
+      u && !equipmentOwned(mid) && h('div.equipment-purchase-status', equipmentPurchaseStatus(u))),
+    u && !equipmentOwned(mid) ? equipmentPurchaseButton(u, () => { close(); if (onChanged) onChanged(); else if (G.S.phase === 'night') renderNight(); })
+      : h('button.btn.paper', { onclick: close }, '返回')));
+}
+function productionReason(mid, reason) {
+  const m = G.machineSpec(mid);
+  const messages = {
+    '成品尚未入库': '成品还在设备里，要等明早放上货架。',
+    '滤芯不足': '滤芯耐久不够了，可以去小铺补充。',
+    '缺待净化的原水': '货架上没有需要净化的水。',
+    '缺白开水或山泉水': '还需要1瓶【白开水】或【山泉水】才能酿酒。',
+    '每批需一份白开水或山泉水': '每做1份酒，都要搭配1瓶【白开水】或【山泉水】。',
+    '尚未购买机器': '尚未购买这台设备，可在小铺购买。',
+  };
+  if (messages[reason]) return messages[reason];
+  if (/^每批最多/.test(reason)) return mid === 'purifier' ? `一轮最多净化${m.cap}瓶水。` : `一轮最多做${m.cap * m.out[1]}份【${ITEMS[m.out[0]].name}】。`;
+  if (/^原料需按/.test(reason)) return `每做${m.out[1]}份【${ITEMS[m.out[0]].name}】，要选${m.in[1]}份【${ITEMS[m.in[0]].name}】。`;
+  return reason;
+}
+function productionState(mid, plan) {
+  const m = G.machineSpec(mid);
+  if (plan.ok) return `能做${plan.outputCount}${mid === 'purifier' ? '瓶水' : '份【' + ITEMS[m.out[0]].name + '】'}，${arrivalText(plan.days)}。`;
+  if (mid !== 'purifier' && plan.reason?.startsWith('缺')) {
+    const have = G.S.shelf.filter(it => it.id === m.in[0] && !(it.fake && it.known)).length;
+    if (have < m.in[1]) return `还缺${m.in[1] - have}份【${ITEMS[m.in[0]].name}】，每次加工需要${m.in[1]}份。`;
+  }
+  return productionReason(mid, plan.reason);
+}
 function openProduction(mid) {
-  const m = MACHINES[mid];
+  const m = G.machineSpec(mid);
   const selected = new Set(G.productionPlan(mid).inputUids);
   modal((close) => {
     const host = h('div.sheet.selection-sheet');
     const draw = (focusUid = null, error = '') => {
       const plan = G.productionPlan(mid, { uids: [...selected] });
       const eligible = new Set(plan.eligibleUids);
-      const candidates = [...G.S.shelf, ...G.businessView().warehouse.items].filter((it) => eligible.has(it.uid)).map((it) => G.productionPlan(mid, { uids: [it.uid] }).inputs[0]).filter(Boolean);
+      const candidates = G.S.shelf.filter((it) => eligible.has(it.uid)).map((it) => G.productionPlan(mid, { uids: [it.uid] }).inputs[0]).filter(Boolean);
       fill(host,
         h('h2', m.name, closeX(close)),
-        h('div.label', `${recipeText(mid)} · 最多${G.machineCapacity(mid)}批`),
+        h('div.context-line', h('span', `已选 ${selected.size} 件`), ruleButton('加工说明', () => openMachineDetails(mid, () => draw()))),
         h('div.scroll', candidates.length ? h('div.selection-grid', candidates.map((it) => choiceTile(it, selected,
-          () => { selected.has(it.uid) ? selected.delete(it.uid) : selected.add(it.uid); draw(it.uid); }))) : h('div.empty-state', '货架与原料仓中没有可用原料')),
+          () => { selected.has(it.uid) ? selected.delete(it.uid) : selected.add(it.uid); draw(it.uid); }))) : h('div.empty-state', '货架上没有可用原料')),
         productionFlow(plan),
         h('div.selection-status', { role: 'status', 'aria-live': 'polite' },
-          error || (!plan.ok ? plan.reason : `${arrivalText(plan.days)} · 入库需${plan.outputCount}格${mid === 'purifier' ? ` · 耗滤芯${plan.filterCost}点，余${plan.filterAfter}点` : ''}`)),
+          error || (!plan.ok ? productionReason(mid, plan.reason) : `${arrivalText(plan.days)}，做好后要用${plan.outputCount}格货架${mid === 'purifier' ? `；滤芯耐久用掉${plan.filterCost}点，还剩${plan.filterAfter}点` : ''}`)),
         h('div.row',
           h('button.btn.paper', { onclick: close }, '取消'),
-          h('button.btn.mint', { disabled: !plan.ok || !!error, onclick: async () => {
+          h('button.btn.mint', { disabled: !plan.ok || !!error, onclick: () => {
             const current = G.productionPlan(mid, { uids: [...selected] });
-            if (!current.ok) { draw(null, current.reason); return; }
-            const started = await transactRun(commandId('production'), () => ({ok:G.runMachine(mid,{uids:[...selected]})}));
-            if (!started.ok) { draw(null, G.productionPlan(mid, { uids: [...selected] }).reason || '所选原料不符合配方，请改选'); return; }
-            sfx('good'); close(); renderNight();
+            if (!current.ok) { draw(null, productionReason(mid, current.reason)); return; }
+            if (!G.runMachine(mid, { uids: [...selected] })) { draw(null, productionReason(mid, G.productionPlan(mid, { uids: [...selected] }).reason) || '所选原料不符合配方，请改选'); return; }
+            sfx('good'); saveRun(); close(); renderNight();
             toast(`${m.name}已开工，${arrivalText(current.days)}`);
             stage.querySelector('.night-screen .bar .btn.big')?.focus();
-          } }, `开工${plan.batches ? ' ×' + plan.batches : ''}`)),
+          } }, `开始加工${plan.outputCount ? '（' + plan.outputCount + (mid === 'purifier' ? '瓶）' : '份）') : ''}`)),
       );
       if (focusUid != null) host.querySelector(`[data-choice="${focusUid}"]`)?.focus();
       else if (host.isConnected) (host.querySelector('.choice') || host.querySelector('button'))?.focus();
@@ -981,60 +1247,163 @@ function openProduction(mid) {
   });
 }
 function nightWork(body) {
-  businessUI.workshop(body);
   const S = G.S;
   const list = h('div.machine-list');
-  for (const [mid, m] of Object.entries(MACHINES)) {
+  for (const mid of Object.keys(MACHINES)) {
+    const m = G.machineSpec(mid);
     const owned = S.owned[mid], job = S.machines[mid];
+    const gate = G.upgradeAvailable(mid);
+    if (!owned && !gate.ok && gate.reason !== '鱼币不足') continue;
     const plan = owned && !job ? G.productionPlan(mid) : null;
-    const state = job?.ready ? S.shelf.length >= S.shelfCap ? `货架满，${job.n}份成品留机` : `${job.n}份成品待收`
-      : job ? `还需${job.left}晚` : !owned ? recipeText(mid) : plan.ok ? `${arrivalText(plan.days)} · 入库需${plan.outputCount}格` : plan.reason;
+    const state = job?.ready ? S.shelf.length >= S.shelfCap ? `货架满了，做好的${job.n}份先存在设备里` : `${job.n}份已做好，明早放上货架`
+      : job ? `正在加工，还要${job.left}晚` : !owned ? '尚未购买，可在小铺购买。' : productionState(mid, plan);
     list.append(h('div.machine-row',
-      h('div.machine-head', h('div.machine-icon', img(itemImg(m.icon))), h('div.grow', h('div.t', m.name), owned&&h('div.machine-status',`最多${G.machineCapacity(mid)}批 · ${m.days}晚`), owned && mid === 'purifier' && h('div.machine-status', `滤芯 ${S.filter}点`)),
-        !owned ? h('span.label', '小铺有售') : job?.ready ? h('button.btn.small.mint', {disabled:S.shelf.length>=S.shelfCap,onclick:async()=>{const r=await executeBusiness('collectMachine',{machine:mid});if(r.ok){renderNight();toast(`收取${r.count}份${r.remaining?'，机器余'+r.remaining+'份':''}`);}}}, '收取') : !job ? h('button.btn.small.mint', { 'data-machine': mid, disabled: !plan.ok, onclick: () => openProduction(mid) }, '选料') : null),
-      plan?.inputs.length ? productionFlow(plan) : null,
-      h('div.machine-status', state),
-      owned && businessUI.machineActions(mid),
+      h('div.machine-head', equipmentSeat(mid), h('div.grow', h('div.equipment-heading', h('div.t', m.name), equipmentDetailsButton(() => openMachineDetails(mid))), h('div.equipment-state', equipmentIdentity(mid)), owned && mid === 'purifier' && h('div.machine-status', `滤芯耐久剩余${S.filter}点`)),
+        !owned ? h('button.btn.small.paper', { onclick: () => { nightTab = 'shop'; renderNight(); } }, '去小铺')
+          : !job ? h('button.btn.small.mint', { 'data-machine': mid, disabled: !plan.ok, onclick: () => openProduction(mid) }, '选料') : null),
+      owned && h('div.context-line', h('div.machine-status', state),
+        owned && MACHINE_MODS[mid] && G.growthStatus().workshop && h('button.btn.small.paper.rule-entry', { onclick: () => openModification(mid) }, S.growth?.mods?.[mid] ? '查看改装' : '改装')),
     ));
   }
   body.append(list);
 }
 function nightShop(body) {
-  businessUI.suppliers(body);
   const S = G.S;
   const list = h('div.list');
   for (const u of UPGRADES) {
-    if (u.need && !S.up[u.need]) continue;
-    const has = !u.repeat && S.up[u.id];
+    const has = !u.repeat && (S.up[u.id] || (u.machine && S.owned[u.id]));
+    const gate = G.upgradeAvailable(u.id);
+    if (!has && !gate.ok && gate.reason !== '鱼币不足') continue;
     list.append(h('div.li.px' + (has ? '.done' : ''),
-      h('div.icon', img(itemImg({ shelf1: 'yarn', shelf2: 'yarn', hide1: 'chip', hide2: 'chip', lens: 'watch', guide: 'ticket', lucky: 'bell', lawfee: 'dryfish', gangfee: 'dryfish', filter: 'dirtywater', uv: 'water', dew: 'dirtywater', fridge: 'water', dark: 'claw', wsign: 'water' }[u.id] || MACHINES[u.id]?.icon || 'scrap'))),
-      h('div.grow', h('div.t', u.name), h('div.d', u.id === 'filter' ? `${S.filter} → ${S.filter + 10}点（+10） · ${u.d}` : u.d)),
-      has ? h('span.label', '已拥有') : h('button.btn.small', { disabled: S.money < u.cost ? true : null, onclick: () => { if (G.buyUpgrade(u)) { floatMoney(-u.cost); checkAch(); saveRun(); renderNight(); } } }, img(fishIcon), String(u.cost)),
+      equipmentSeat(u.id),
+      h('div.grow', h('div.equipment-heading', h('div.t', u.name), equipmentDetailsButton(() => openUpgradeDetails(u))), h('div.equipment-state', EQUIPMENT[u.id].category), h('div.d', shopSummary(u))),
+      has ? h('span.label', '已拥有') : h('button.btn.small', { disabled: !gate.ok ? true : null, onclick: () => { if (G.buyUpgrade(u)) { floatMoney(-u.cost); checkAch(); saveRun(); renderNight(); } } }, img(fishIcon), String(u.cost)),
     ));
   }
   list.querySelectorAll('.li .btn img').forEach((i) => (i.style.cssText = 'width:20px;height:20px'));
-  body.append(h('div.label', '乔伊：「好东西，童叟无欺～」'), list);
+  body.append(list);
+  if (G.growthStatus().phone) body.prepend(h('button.btn.phone-entry', { onclick: openPhone }, '拨电话订货', G.phoneDeliveries().length ? ' · 有货待领' : ''));
+  body.prepend(h('button.btn.paper.guide-entry', { onclick: openProgressGuide }, '经营指引'));
 }
+function shopSummary(u) {
+  return ({ purifier: '净化水质，附带10点滤芯耐久。', filter: `补充10点滤芯耐久，补完有${G.S.filter + 10}点`,
+    uv: '可制纯净水', dew: '每晚收集1瓶怪味水', fridge: '可给饮用水加冰',
+    hide1: '暗格 +2格', lens: '每客首查不耗耐心', brewery: '酿制猫薄荷酒',
+    dark: '引来销赃客，警长也更多', wsign: '引来卖水的猫',
+    premium_window: '陈列珍宝可招来高预算买家',
+    labeler: '制作贴标赝品', tank: '鱼苗养成鲜鱼', smoker: '鲜鱼制成烟熏鱼',
+    repairbench: '修好故障游戏机', gemtable: '打磨宝石吊坠' })[u.id] || u.d;
+}
+function openUpgradeDetails(u) {
+  if (u.id === 'uv') return openEquipmentPurchase(u, () => renderNight());
+  if (u.machine) return openMachineDetails(u.id);
+  openEquipmentPurchase(u, () => renderNight());
+}
+function openProgressGuide() {
+  const S = G.S, trades = (S.st.buy || 0) + (S.st.sell || 0);
+  const details = {
+    phone: ['电话订货', '净水器 · 鱼缸'],
+    appraisal: ['鉴定证书', ''],
+    workshop: ['设备改装', '烟熏炉 · 酿酒桶'],
+    premium: ['精品橱窗', ''],
+    content2: ['码头夜市 · 8种新货', ''],
+    content3: ['修复台 · 8种新货', ''],
+    content4: ['宝石台 · 8种新货', ''],
+  };
+  const groups = new Map();
+  for (const step of G.progressGuide()) {
+    const key = `${step.day}:${step.trades}`;
+    if (!groups.has(key)) groups.set(key, { day: step.day, trades: step.trades, items: [] });
+    groups.get(key).items.push(step);
+  }
+  saveRun();
+  modal(close => h('div.sheet.guide-sheet',
+    h('h2', '经营指引', closeX(close)),
+    h('div.guide-current', h('span', '第 ', h('b', String(S.day)), ' 天'), h('span', '买卖 ', h('b', String(trades)), ' 次')),
+    h('div.scroll', h('table.guide-table', { 'aria-label': '经营内容开放条件' },
+      h('thead', h('tr', h('th', { scope: 'col' }, '开放内容'), h('th', { scope: 'col' }, '天数'), h('th', { scope: 'col' }, '买卖次数'))),
+      h('tbody', [...groups.values()].map(group => {
+      const done = group.items.every(x => x.unlocked);
+      const condition = (now, target, unit) => {
+        const met = done || now >= target;
+        return h('td.guide-condition' + (met ? '.met' : ''),
+          h('b', met ? '✓ ' : '', `${target}${unit}`),
+          !met && h('span', `差${target - now}${unit}`));
+      };
+      return h('tr' + (done ? '.done' : ''),
+        h('th.guide-content', { scope: 'row' }, group.items.map(step =>
+          h('div.guide-unlock', h('b', step.unlocked && !done ? '✓ ' : '', details[step.id][0]), details[step.id][1] && h('span', details[step.id][1])))),
+        condition(S.day, group.day, '天'), condition(trades, group.trades, '次'));
+    })))),
+    h('div.guide-note', '两项达标即开放，设备需另购。'),
+  ));
+}
+function openPhone() {
+  modal((close) => {
+    const host = h('div.sheet.phone-sheet');
+    const draw = () => {
+      const pending = G.phoneDeliveries();
+      fill(host, h('h2', '电话订货', closeX(close)),
+        h('div.context-line', h('span', `现在下单：第${G.S.day + 1}天到货`), ruleButton('订货规则', () => openRuleDetails('订货规则', [
+          h('p', '付款后次日送达，每位联系人每天一单。'), h('p', '放不下的货会继续保留；领完上笔订货后才能再下单。')]))), h('div.scroll',
+        pending.map((o) => h('div.supply-row', h('div.grow', h('b', o.name || '待领货物'), h('div.machine-status', `${o.remaining.reduce((n, it) => n + it.qty, 0)}件待领 · 货架空${Math.max(0, G.S.shelfCap - G.S.shelf.length)}格`)),
+          h('button.btn.small.mint', { disabled: G.S.shelf.length >= G.S.shelfCap, onclick: () => {
+            const r = G.collectPhoneDelivery(o.id); saveRun(); refreshHud(); draw();
+            toast(r.ok && r.got.length ? `已领取 ${r.got.length} 件` : r.reason || '货架已满，货物继续保留');
+          } }, '领货'))),
+        G.phoneContacts().map((contact) => h('section.supply-contact', h('h3', contact.name),
+          contact.pending ? h('p.machine-status', contact.pending.due > G.S.day ? `${contact.pending.name} · 明日送达` : '上笔订货尚未领完') : contact.lastDay === G.S.day ? h('p.machine-status', '今天已经订过货') : null,
+          contact.packages.map((pkg) => h('div.supply-row', h('div.grow', h('b', pkg.name),
+            h('div.machine-status', pkg.items.map((it) => `${ITEMS[it.id]?.name || it.id}×${it.qty}`).join('、')),
+            !pkg.available && pkg.reason === '鱼币不足' && h('div.machine-status', pkg.reason)),
+            h('button.btn.small', { disabled: !pkg.available, onclick: () => {
+              const r = G.placePhoneOrder(contact.id, pkg.id);
+              if (!r.ok) return toast(r.reason || '订货失败');
+              saveRun(); refreshHud(); draw(); toast('已订货，明日送达');
+            } }, `${pkg.price} 订货`)))))));
+    };
+    draw(); return host;
+  }, { onClose: () => {
+    if (stage.querySelector('.day-screen')) {
+      refreshBar(); refreshHud();
+      const c = G.current();
+      if (c?.kind === 'buy' && !busy) {
+        if (c.item && G.allItems().includes(c.item)) drawBuyHaggle(c); else drawBuyPick(c);
+      }
+    } else if (stage.querySelector('.night-screen')) renderNight();
+  } });
+}
+function openModification(mid) {
+  modal((close) => {
+    const plan = G.machineModificationPlan(mid);
+    return h('div.dialog.px', h('h2', plan.name || MACHINES[mid].name + '改装', closeX(close)),
+      h('p', plan.effect || ''),
+      h('div.mod-materials', (plan.inputs || []).map((it) => h('span.mod-material', img(itemImg(it.id)), h('span', `${ITEMS[it.id]?.name || it.id} ${it.have}/${it.qty}`)))),
+      !plan.ok && h('p.machine-status', plan.reason),
+      h('button.btn.mint', { disabled: !plan.ok, onclick: () => {
+        const r = G.modifyMachine(mid); if (!r.ok) return toast(r.reason || '无法改装');
+        saveRun(); close(); renderNight(); toast('改装完成');
+      } }, `改装 ${plan.cost || 0} 鱼币`));
+  }, { center: true });
+}
+
 function nightFront(body) {
   const S = G.S;
   const signs = Object.entries(SIGNS).filter(([, g]) => !g.need || S.up[g.need]);
   const win = G.winItems();
   appendContent(body,
+    h('div.label', '灯牌（决定明天来的客人）'),
+    h('div.list', signs.map(([k, g]) => h('button.li.px.sign' + (S.sign === k ? '.on' : ''), { onclick: () => { S.sign = k; saveRun(); renderNight(); } },
+      equipmentSeat(k), h('div.grow', h('div.t', g.name), h('div.d', g.d)), S.sign === k ? h('span.label', '亮着') : null))),
+    signs.length < 4 && h('div.label', '乔伊小铺还有别的灯牌'),
     h('div.label', `橱窗 ${win.length}/3 · 摆出来的货会吸引对应的买家`),
     h('div.shelf-grid', S.shelf.map((it) => h('button.slot.px' + (S.win.includes(it.uid) ? '.sel' : ''), {
       onclick: () => { if (!G.toggleWin(it)) toast('橱窗最多摆 3 件'); saveRun(); renderNight(); },
     }, itemTags(it), img(icon(it)), nm(it)))),
-    h('div.label', '听说珍珠夫人只认好水；摆两件宝贝，收藏家也会闻讯而来。'),
-    h('div.label', '灯牌（决定明天来的客人）'),
-    h('div.list', signs.map(([k, g]) => h('button.li.px.sign' + (S.sign === k ? '.on' : ''), { onclick: () => { mutateRun('sign',draft=>{draft.sign=k;});renderNight(); } },
-      h('div.grow', h('div.t', g.name), h('div.d', g.d)), S.sign === k ? h('span.label', '亮着') : null))),
-    signs.length < 4 && h('div.label', '乔伊小铺还有别的灯牌'),
+    S.up.appraisal_certificate && h('button.btn.paper', { 'aria-pressed': String(!!S.growth?.appraisalDisplay), onclick: () => { G.setAppraisalDisplay(!S.growth?.appraisalDisplay); saveRun(); renderNight(); } }, equipmentSeat('appraisal_certificate'), S.growth?.appraisalDisplay ? '收起鉴定招牌' : '摆出鉴定招牌'),
   );
-  businessUI.frontage(body);
-  networkUI.frontage(body);
 }
 function nightBook(body) {
-  businessUI.ledger(body);
   const S = G.S;
   const rent = G.rentInfo();
   const rep = (k) => {
@@ -1046,100 +1415,78 @@ function nightBook(body) {
     h('div.card.px', { style: 'flex-direction:column;align-items:stretch;gap:0' },
       h('div.stat', h('span', '手头鱼币'), h('b', String(S.money))),
       h('div.stat', h('span', '身家（含存货）'), h('b', String(G.netWorth()))),
-      h('div.stat', h('span',S.business.ownership.owned?'店铺产权':`下次房租（${rent.days ? rent.days + '天后' : '今天'}）`), h('b',S.business.ownership.owned?'永久免租':String(rent.amount))),
-      !S.business.ownership.owned&&h('div.stat', h('span', '赎店价格'), h('b', String(BUYOUT))),
+      h('div.stat', h('span', `下次房租（${rent.days ? rent.days + '天后' : '今天'}）`), h('b', String(rent.amount))),
+      h('div.stat', h('span', '赎店价格'), h('b', String(BUYOUT))),
     ),
     h('div.card.px', { style: 'flex-direction:column;align-items:stretch;gap:6px' }, h('div.label', '阵营好感（≥2 可以刷脸）'), Object.keys(FACS).map(rep)),
-    S.night.peek ? h('div.card.px', { style: 'background:#fff1c9' }, h('div.grow', h('div.nm', '明日：' + next.t), h('div.meta', next.d)))
-      : ads.available && h('button.btn.sky', { onclick: async () => { if (await playAd()) { mutateRun('peek',draft=>{draft.night.peek=true;});renderNight(); } } }, '打听明日行情 ', h('span.ad', '看视频')),
-    h('button.btn.big.pink', { disabled: G.businessView().ownership.owned || G.canBuyout() ? null : true, onclick: ()=>G.businessView().ownership.owned?networkUI.open():confirmBuyout() }, G.businessView().ownership.owned ? '生意版图' : `赎回店铺 ${BUYOUT}`),
+    h('div.market-outlook', h('b', '明日：' + next.t), h('div', next.d), G.nextVisit() && h('div', visitSummary(G.nextVisit()))),
+    h('button.btn.big.pink', { disabled: G.canBuyout() ? null : true, onclick: confirmBuyout }, `赎回店铺 ${BUYOUT}`),
   );
 }
 function confirmBuyout() {
-  const v = G.businessView(), debt = G.S.rentDue || 0, total = BUYOUT + debt;
-  if (v.ownership.owned) return modal(close => h('div.dialog.px', h('h2', '老店已赎回', closeX(close)), h('p.machine-status','永久免租。下一步建设中央作坊，开拓港区与精品街。'),h('div.row', h('button.btn.paper', { onclick: close }, '继续经营'), h('button.btn.mint', { onclick: () => { close(); networkUI.open(); } }, '生意版图'))), {center:true});
-  modal(close => h('div.dialog.px', h('h2', '赎回店铺', closeX(close)),
-    h('div.stat', h('span', '产权款'), h('b', String(BUYOUT))),
-    h('div.stat', h('span', '已发生欠租'), h('b', String(debt))),
-    h('div.stat', h('span', '支付后余额'), h('b', String(G.S.money-total))),
-    h('button.btn.pink', { disabled:G.S.money<total, onclick:async()=>{const r=await executeBusiness('buyout',{});if(!r.ok)return;unlock('buyout');close();refreshBusiness();confirmBuyout();}}, '支付并永久免租')), {center:true});
+  modal((close) => h('div.dialog.px',
+    h('h2', '赎回店铺？'),
+    h('p', { style: 'font-size:16px;line-height:1.5' }, `付给胖大海 ${BUYOUT} 鱼币，当铺从此归你。本局结束。`),
+    h('div.row', h('button.btn.paper', { onclick: close }, '再攒攒'), h('button.btn.pink', { onclick: () => { close(); victory(); } }, '赎回！')),
+  ), { center: true });
 }
-function tradeInProgress(c){return !!(c&&(c.kind==='buy'&&c.item||c.kind==='sell'&&(tradePrices.get(c)?.touched||c.negotiation||c.checks?.some(Boolean)||c.charmed||c.obs?.some(Boolean))));}
-async function advanceManaged() {
-  if (busy || transactionBusy || !G.S) return;
-  if(G.S.phase==='day'&&tradeInProgress(G.current()))return toast('先完成当前交易');
-  const completedBefore=G.businessView().network?.goal.completedDay;
-  const result=await transactRun(commandId('managed-advance'),()=>Rules.advanceManaged());
-  if(!result.ok)return;
-  if(G.S.phase==='day')renderDay();
-  else if(G.S.phase==='night')renderNight();
-  if(result.reason)toast(result.reason+(result.filteredOrders?` · 已婉拒${result.filteredOrders}份缺货新单`:''));
-  if(!completedBefore&&G.businessView().network?.goal.completedDay)networkUI.review();
-}
-async function goSleep(confirmed = false) {
-  if(G.S?.phase!=='night')return;
+function goSleep() {
   const S = G.S;
-  const due = G.businessView().contracts.filter(c => c.status === 'active' && c.due === S.day && c.delivered < c.qty);
-  if (due.length && !confirmed) return modal(close => h('div.dialog.px', h('h2', '还有到期货物', closeX(close)), h('p', `今天还缺${due.reduce((n,c)=>n+c.qty-c.delivered,0)}份，睡觉后截止。`), h('div.row', h('button.btn.mint',{onclick:()=>{close();openOrders();}},'去交付'),h('button.btn.paper',{onclick:()=>{close();goSleep(true);}},'仍然睡觉'))), {center:true});
-  if (S.night.opened.length < S.night.free && !S.nightWarned) { S.nightWarned = true; return toast('还没翻箱子哦，再点一次「睡觉」就直接睡'); }
-  const result = await transactRun(`${S.runId}:sleep:${S.day}`, draft => {
-    draft.nightWarned=false;draft.nightTut=false;draft.morningOut=G.sleep();
-    const expired=G.expireOrders(), lost=G.voidFakeCash();G.startDay();return {ok:true,expired,lost};
-  });
-  if (!result.ok) return;
-  nightTab='scav';checkAch();showMorning(false,result.expired,result.lost);
+  if (S.night.opened.length < S.night.free && !S.nightWarned) {
+    S.nightWarned = true;
+    return toast('还没翻箱子哦，再点一次「睡觉」就直接睡');
+  }
+  S.nightWarned = false; S.nightTut = false;
+  saveRun();
+  S.morningOut = G.sleep();
+  nightTab = 'scav';
+  checkAch();
+  beginDay();
 }
 
 // ───── 货架 / 订单 / 菜单 ─────
 function openShelf() {
   modal((close) => {
-    const host = h('div.sheet.inventory-sheet');
-    const draw = (sel, inspection = '') => {
+    const host = h('div.sheet');
+    const draw = (sel) => {
       const S = G.S;
-      if(sel) sel = G.allItems().find(it=>it.uid===sel.uid);
-      const slot = (it, hid) => h('button.slot.px' + (hid ? '.hid' : '') + (sel === it ? '.sel' : ''), { onclick: () => draw(it) }, itemTags(it), img(G.isWater(it)&&it.gk&&G.grade(it)<=2?itemImg('dirtywater'):icon(it)), G.isWater(it)&&it.gk?WG[G.grade(it)].n:nm(it));
+      const slot = (it, hid) => h('button.slot.px' + (hid ? '.hid' : '') + (sel === it ? '.sel' : ''), { onclick: () => draw(it) }, itemTags(it), img(icon(it)), nm(it));
       const empty = (n) => Array.from({ length: n }, () => h('div.slot.empty'));
       fill(host, 
         h('h2', '货架', h('span.label', `${S.shelf.length}/${S.shelfCap}`), closeX(close)),
         h('div.scroll',
           h('div.shelf-grid', S.shelf.map((it) => slot(it, false)), empty(S.shelfCap - S.shelf.length)),
-          S.hiddenCap > 0 && h('div', { style: 'margin-top:14px' }, h('div.label', `暗格 ${S.hidden.length}/${S.hiddenCap} · 查店查不到`), h('div.shelf-grid', { style: 'margin-top:6px' }, S.hidden.map((it) => slot(it, true)), empty(S.hiddenCap - S.hidden.length))),
+          S.hiddenCap > 0 && h('div', { style: 'margin-top:14px' }, h('div.context-line', h('span', `暗格 ${S.hidden.length}/${S.hiddenCap}`), ruleButton('存放规则', () => openRuleDetails('存放规则', [h('p', '警长只查货架，暗格中的货物不参与查店。'), h('p', '赃物在货架或暗格中每晚都会降1点热度；违禁品不会随过夜洗白。')]))), h('div.shelf-grid', { style: 'margin-top:6px' }, S.hidden.map((it) => slot(it, true)), empty(S.hiddenCap - S.hidden.length))),
         ),
         sel && h('div', { style: 'display:flex;flex-direction:column;gap:10px' },
-          inspection && h('div.selection-status',{role:'status'},inspection),
-          itemCard(sel, { stock:true,known:sel.known,showStolen: sel.stolenKnown, right: sel.cost ? h('div.label', `进价 ${sel.cost}`) : null }),
-          h('div.row.inventory-actions',
-            S.phase === 'night' && h('button.btn.small.mint',{onclick:async()=>{const r=await executeBusiness('inspectStock',{uid:sel.uid});if(r.ok)draw(sel,r.inspection.text);}},'验货'),
+          itemCard(sel, { showStolen: sel.stolenKnown, right: sel.cost ? h('div.label', `进价 ${sel.cost}`) : null }),
+          G.isWater(sel) && ruleButton('水质说明', openWaterDetails),
+          h('div.row',
             G.canLabel(sel) && h('button.btn.small.pink', { disabled: S.money < 2 ? true : null, onclick: () => { if (G.labelWater(sel)) { sel.selfLab = true; sfx('good'); saveRun(); } draw(sel); } }, '贴「纯净水」标 −2'),
             sel.selfLab && h('button.btn.small.paper', { onclick: () => { G.unlabel(sel); sel.selfLab = false; saveRun(); draw(sel); } }, '撕标签'),
-            S.hiddenCap > 0 && h('button.btn.small', { onclick: () => { if (!G.moveItem(sel)) toast(S.hidden.includes(sel) ? '货架满了' : '暗格满了'); else saveRun(); draw(); } }, S.hidden.includes(sel) ? '摆上货架' : '藏进暗格'),
-            h('button.btn.small.paper', { onclick: () => { close(); businessUI.delegate(sel); } }, '交给店员'),
-            h('button.btn.small.red', { disabled:!!G.businessView().reservations[sel.uid], onclick: () => { G.removeItem(sel); saveRun(); draw(); } }, '丢掉'))),
+            S.hiddenCap > 0 && h('button.btn.small', { disabled: S.hidden.includes(sel) ? S.shelf.length >= S.shelfCap : S.hidden.length >= S.hiddenCap, onclick: () => { if (!G.moveItem(sel)) toast(S.hidden.includes(sel) ? '货架满了' : '暗格满了'); else saveRun(); draw(); } }, S.hidden.includes(sel) ? (S.shelf.length >= S.shelfCap ? '货架已满' : '摆上货架') : (S.hidden.length >= S.hiddenCap ? '暗格已满' : '藏进暗格')),
+            h('button.btn.small.red', { onclick: () => { G.removeItem(sel); saveRun(); draw(); } }, '丢掉'))),
       );
     };
     draw();
     return host;
-  }, { onClose: refreshBusiness });
+  }, { onClose: () => { if (G.S.phase === 'night') renderNight(); else { refreshBar(); refreshHud(); const c = G.current(); if (c && !busy) ({ sell: drawSell, buy: (x) => (x.item ? drawBuyHaggle(x) : drawBuyPick(x)) }[c.kind])?.(c); } } });
 }
 const deadlineText = (o) => o.due === G.S.day ? '今天截止（含今天）' : `第${o.due}天截止（含当天） · 剩${Math.max(0, o.due - G.S.day)}天`;
 function openOrders() {
-  modal(close => { const host = h('div.sheet.selection-sheet'); businessUI.orders(host, close, openLegacyOrders); return host; }, { onClose: refreshBusiness });
-}
-function openLegacyOrders() {
   modal((close) => {
     const host = h('div.sheet.selection-sheet');
     const drawOrders = () => {
       fill(host,
-        h('h2', '送货订单', closeX(close)),
+        h('h2', '送货订单', closeX(close)), ruleButton('交货规则', openOrderRules),
         G.S.orders.length ? h('div.scroll', h('div.list', G.S.orders.map((o) => {
           const plan = G.orderPlan(o);
           return h('div.order-row',
             h('div.order-heading', img(itemImg(o.id)), h('div.grow', h('div.t', `${G.orderName(o)} ×${o.qty}`), h('div.d', deadlineText(o)))),
             h('div.order-status', h('span', `候选 ${Math.min(o.qty, plan.have)}/${o.qty} · 缺${Math.max(0, o.qty - plan.have)}`), h('b', `报酬 ${o.reward}`)),
-            h('div.label', o.id === 'water' ? '品质不加价；未验货物交付时核验' : '未鉴定货物交付时核验'),
             h('button.btn.small.mint', { 'data-order': o.uid || `${o.id}-${o.due}`, onclick: () => drawDelivery(o) }, '选货交付'),
           );
-        }))) : h('div.empty-state', '还没有订单，机器人偶尔会来下单。'),
+        }))) : h('div.empty-state', '还没有订单，留意来客的备货需求。'),
       );
       if (host.isConnected) (host.querySelector('[data-order]') || host.querySelector('button'))?.focus();
     };
@@ -1151,7 +1498,7 @@ function openLegacyOrders() {
         h('h2', `${G.orderName(o)} ×${o.qty}`, closeX(close)),
         h('div.label', deadlineText(o)),
         h('div.order-status', h('span', `已选 ${selected.size}/${o.qty}`), h('b', `总报酬 ${o.reward}`)),
-        h('div.label', o.id === 'water' ? '品质不加价，默认优先已验低档水' : '未鉴定货物交付时核验'),
+        ruleButton('交货规则', openOrderRules),
         h('div.scroll', candidates.length ? h('div.selection-grid', candidates.map((it) => choiceTile(it, selected,
           () => { selected.has(it.uid) ? selected.delete(it.uid) : selected.add(it.uid); drawDelivery(o, selected, it.uid); },
           G.S.hidden.some((item) => item.uid === it.uid)))) : h('div.empty-state', '没有可交付的货物')),
@@ -1176,9 +1523,10 @@ function openLegacyOrders() {
 function openMenu() {
   modal((close) => h('div.dialog.px',
     h('h2', '菜单', closeX(close)),
+    h('button.btn.paper', { onclick: () => { close(); openProgressGuide(); } }, '经营指引'),
+    G.growthStatus().phone && h('button.btn', { onclick: () => { close(); openPhone(); } }, '电话订货', G.phoneDeliveries().length ? ' · 有货待领' : ''),
     h('div.row', h('button.btn.paper', { onclick: openAch }, '成就'), h('button.btn.paper', { onclick: openBoard }, '排行榜')),
     h('button.btn.paper', { onclick: openHelp }, '玩法说明'),
-    h('button.btn.paper',{onclick:()=>{close();businessUI.operations();}},'经营安排'),
     h('div.row',
       h('button.btn.small.paper', { onclick: (e) => { meta.music = sound.music = !sound.music; saveMeta(); e.target.textContent = `音乐：${sound.music ? '开' : '关'}`; music(sound.music ? (G.S?.phase === 'night' ? 'night' : 'day') : null); } }, `音乐：${sound.music ? '开' : '关'}`),
       h('button.btn.small.paper', { onclick: (e) => { meta.sfx = sound.sfx = !sound.sfx; saveMeta(); e.target.textContent = `音效：${sound.sfx ? '开' : '关'}`; } }, `音效：${sound.sfx ? '开' : '关'}`)),
@@ -1208,7 +1556,7 @@ function openHelp() {
   modal((close) => h('div.sheet',
     h('h2', '玩法说明', closeX(close)),
     h('div.scroll.help',
-      h('p', '你是橘子，太空站上一家小当铺的店主。每周五要给房东胖大海交房租，交不上就得关门。攒够 ', h('b', `${BUYOUT} 鱼币`), ' 先赎回老店，再建中央作坊与两家分店，连续三期全部盈利。'),
+      h('p', '你是橘子，太空站上一家小当铺的店主。每周五要给房东胖大海交房租，交不上就得关门。攒够 ', h('b', `${BUYOUT} 鱼币`), ' 就能赎回店铺！'),
       h('p', h('b', '收货：'), '估价仅供参考。调价后「出价」砍价，未谈成会耗♥，差距过大多耗；♥用完客人就走。'),
       h('p', h('b', '鉴定：'), '按线索选部位查验。✓仅说明此处正常，未查处仍有风险；✗确认赝品，⚠表示赃物。查验、观察、议价共用♥，放大镜首查免费。'),
       h('p', h('b', '卖货：'), '选货后看「客人出价」，可报价或直接成交。未鉴定的货仍有真假风险。'),
@@ -1231,17 +1579,17 @@ function finish(win) {
   const worth = G.netWorth();
   const days = S.day;
   meta.best = Math.max(meta.best, worth);
-  if (win && S.rulesetVersion !== 'growth-v1') { meta.fastest = meta.fastest ? Math.min(meta.fastest, days) : days; unlock('buyout'); if (days <= 25) unlock('fast'); }
+  if (win) { meta.fastest = meta.fastest ? Math.min(meta.fastest, days) : days; unlock('buyout'); if (days <= 25) unlock('fast'); }
   saveMeta();
-  board.submit(worth, win ? (S.business?.ownership?.day || days) : 0, S.rulesetVersion);
-  try { session.remove(); } catch(error) { toast(error.message); return; }
+  board.submit(worth, win ? days : 0);
+  if (!store.del(RUN_KEY)) saveIssue = '本局已结束，但旧存档未能清除。请恢复存储后重试。';
   music(win ? 'day' : 'night');
   if (win) sfx('ach'); else sfx('bad');
-  fill(stage, h('div.screen', { style: `background:${win ? '#ffe9c4' : '#3b2a33'}` },
-    h('div.panel', { style: 'justify-content:center;gap:14px;padding:24px 22px' },
+  fill(stage, h('div.screen.end-screen',
+    h('div.panel.end-panel',
       h('div.end-hero', img(catImg(win ? 'player' : 'landlord')),
-        h('h2', { style: win ? '' : 'color:var(--cream)' }, win ? '店铺是我的啦！' : '当铺关门了……'),
-        h('div.label', { style: win ? '' : 'color:#f5d2a8' }, win ? `第 ${days} 天，橘子赎回了喵喵当铺。` : `第 ${days} 天，交不起房租的橘子收拾起行李。`)),
+        h('h2', win ? '店铺是我的啦！' : '当铺关门了……'),
+        h('div.label', win ? `第 ${days} 天，橘子赎回了喵喵当铺。` : `第 ${days} 天，交不起房租的橘子收拾起行李。`)),
       h('div.card.px', { style: 'flex-direction:column;align-items:stretch;gap:0' },
         h('div.stat', h('span', '营业天数'), h('b', String(days))),
         h('div.stat', h('span', '最终身家'), h('b', String(worth))),
@@ -1250,11 +1598,11 @@ function finish(win) {
         h('div.stat', h('span', '历史最高身家'), h('b', String(meta.best)))),
       h('div.row', h('button.btn.paper', { onclick: openBoard }, '排行榜'), h('button.btn.paper', { onclick: openAch }, '成就')),
       h('button.btn.big', { onclick: newGame }, '再开一家'),
-      h('button.btn.small.paper', { onclick: renderTitle }, '回到标题'),
+      h('button.btn.small.paper', { onclick: () => renderTitle() }, '回到标题'),
     )));
   G.setState(null);
 }
-const victory = () => confirmBuyout();
+const victory = () => { G.S.money -= BUYOUT; G.S.money += BUYOUT; finish(true); };
 function gameOver() {
   modal((close) => h('div.dialog.px',
     h('h2', '真的交不起了？'),
@@ -1272,11 +1620,9 @@ for (const event of ['pointerdown', 'pointerup', 'touchend', 'keydown']) {
 }
 window.addEventListener('pageshow', unlockAudio);
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden && session.writable) { try { saveRun(); } catch(error) {saveFailure=error;toast(error.message);} } else unlockAudio();
+  if (document.hidden) saveRun(); else unlockAudio();
 });
 renderTitle();
-globalThis.mmdpBoot?.ready();
-document.getElementById('boot')?.setAttribute('hidden','');
 ads.preload();
 // 预载图片，减少首次出场闪烁
 for (const id of Object.keys(CATS)) new Image().src = catImg(id);

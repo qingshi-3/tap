@@ -1,0 +1,30 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><base href="../"><title>全页面隔离验收</title><link rel="stylesheet" href="css/fonts.css"><link rel="stylesheet" href="css/style.css"></head><body><div id="stage"></div><script type="module">
+if(location.hostname!=='127.0.0.1'||location.port!=='18852')throw Error('Only isolated preview origin allowed');
+const G=await import('./js/game.js');
+const {MACHINES,ITEMS}=await import('./js/data.js');
+const {MECHANIC_LESSONS}=await import('./js/lessons.js');
+const mode=new URLSearchParams(location.search).get('case')||'night';
+if(new URLSearchParams(location.search).has('safe')){document.documentElement.style.setProperty('--safe-top','59px');document.documentElement.style.setProperty('--safe-bottom','34px');}
+const s=G.newRun();Object.assign(s,{day:10,money:9999,shelfCap:18,hiddenCap:6,tutorial:true});
+s.st.buy=20;s.st.sell=20;s.rep.elite=3;s.rep.gang=3;s.rep.folk=3;
+s.up={fridge:true,hide1:true,hide2:true,wsign:true,warm:true,neon:true,dark:true,labeler:true,appraisal_certificate:true};
+s.shelf=[];s.hidden=[];
+for(const id of ['water','scrap','scrap','scrap','fish','fish','fry','catnip','catnip','can','ingot','battery','brokenconsole','roughgem','pearl','watch','radio','yarn'])if(ITEMS[id])s.shelf.push(G.mkItem(id,{q:1,g:3,gk:true,cost:40}));
+for(let i=0;i<6;i++)s.hidden.push(G.mkItem('watch',{q:1,cost:40}));
+for(const id of Object.keys(MACHINES)){s.up[id]=true;s.owned[id]=true;s.machines[id]=null;}
+s.filter=10;G.ensureGrowth();G.growthStatus();G.growthMessages();G.startNight();G.nextVisit();
+s.orders=[{id:'water',qty:1,due:12,reward:80}];
+if(['fence','police','police-dirty','lady','lady-empty','order','rent','failure'].includes(mode)){
+ s.phase='day';s.qi=0;s.morningOut=null;
+ const kind=mode.startsWith('police')?'police':mode.startsWith('lady')?'lady':mode;
+ const who={fence:'rival',police:'police',lady:'lady',order:'robot'}[kind];
+ s.queue=who?[{kind,who,story:2}]:[];
+ if(kind==='lady'){const p=s.shelf.find(it=>it.id==='pearl');if(p)s.story.pearl=mode==='lady-empty'?-1:p.uid;}
+ if(mode==='police-dirty')for(const it of s.shelf){it.stolen=true;it.stolenKnown=true;it.heat=3;}
+ if(kind==='order')s.queue[0].order={id:'water',qty:2,due:12,reward:160};
+ if(mode==='rent'||mode==='failure'){s.day=5;s.money=0;s.rentDone=false;s.rentPaid=0;}
+}
+localStorage.setItem('mmdp_run',JSON.stringify(s));
+localStorage.setItem('mmdp_meta',JSON.stringify({ach:{},best:9999,fastest:12,runs:1,tut:true,sfx:false,music:false,mechanicSeen:Object.fromEntries(Object.keys(MECHANIC_LESSONS).map(k=>[k,true]))}));
+await import('./js/main.js?audit=compact-layout-5');
+</script></body></html>
