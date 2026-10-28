@@ -13,12 +13,12 @@
 .bb-log .ll { font-size: 20px; line-height: 30px; }
 
 /* ── 12. 有存档时「新的游戏」是次要按钮 ── */
-.title-btns .title-new.ghost { background: var(--band-slate); color: #eef0ff; border: 0; border-image: none; }
+.title-btns .title-new.ghost { background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px)); color: #eef0ff; border: 0; border-image: none; }
 
 /* ── 15. 教程完成后，教程键与其他工具键同款 ── */
 .title-tools > .title-tool.title-tut-done:first-child {
   border: 0; border-image: none; border-radius: 0;
-  background: var(--band-purple);
+  background: linear-gradient(180deg, #6b5a8f 0 4px, #45396a 4px 52%, #372d56 52% calc(100% - 6px), #241d3b calc(100% - 6px));
   box-shadow: 2px 0 #120e24, -2px 0 #120e24, 0 2px #120e24, 0 -2px #120e24, 0 6px 16px rgba(0, 0, 0, .35);
   color: #eee9ff; font-weight: 700; text-shadow: 0 2px 0 #0008;
 }

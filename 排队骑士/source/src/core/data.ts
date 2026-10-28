@@ -4,7 +4,7 @@
 export type Kw = 'block' | 'reborn' | 'splash';
 export type Tier = 1 | 2 | 3 | 4 | 5 | 6;
 export type V3 = [number, number, number];
-/** 引擎标签（v0.4 去阵营）：按触发时机归类，只用于图鉴筛选、配色与 bot 选卡，没有羁绊规则 */
+/** 引擎标签：用于图鉴、配色、bot 选卡与商店关联保底，没有战斗羁绊加成。 */
 export type Line = 'death' | 'hurt' | 'start' | 'food' | 'grow' | 'any' | 'enemy';
 
 export interface CardDef {

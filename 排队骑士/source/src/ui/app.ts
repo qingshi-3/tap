@@ -1,3 +1,5 @@
+import { newTutorialRun } from '../core/tutorial';
+import { tutorialDone } from './tutorial';
 import '../qb/css/title-actions.css';
 import '../qb/css/records.css';
 import '../qb/css/mechanics-guide.css';
@@ -122,12 +124,19 @@ export class App {
     if (saved) {
       const btn = h('button', { class: 'btn primary big title-continue' }, h('span', null, '继续游戏'), icon('play'));
       btn.addEventListener('click', () => { sfx.start(); this.startRun(saved); });
-      cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `第 ${saved.turn} 回合 · ${saved.wins}/${WIN_GOAL} 胜 · ${saved.lives} 心`));
+      cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `第 ${saved.turn} 回合 · ${saved.wins}/${WIN_GOAL} 胜 · `, h('span', { class: 'cont-health', 'aria-label': `${saved.lives} 点生命` }, String(saved.lives), h('span', { class: 'life on', 'aria-hidden': 'true' }))));
     }
     const codex = h('button', { class: 'icon-btn title-tool' }, icon('diamond'), h('span', null, '图鉴'));
     codex.addEventListener('click', () => { sfx.click(); this.toCodex(); });
     const records = h('button', { class: 'icon-btn title-tool' }, icon('flag'), h('span', null, '战绩'));
     records.addEventListener('click', () => { sfx.click(); this.toRecords(); });
+    const tutorial = h('button', { class: tutorialDone() ? 'icon-btn title-tool title-tut-done' : 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
+    tutorial.addEventListener('click', () => {
+      this.leaveGame();
+      this.game = new Game(this, newTutorialRun(), true);
+      this.show(this.game.el);
+      this.game.start();
+    });
     const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '设置' }, icon(quiet() ? 'mute' : 'sound'));
     volume.addEventListener('click', () => { sfx.click(); this.settings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound'))); });
     const el = h(
@@ -136,7 +145,7 @@ export class App {
       h('div', { class: 'title-army left' }, fallback.map((id, i) => h('div', { class: 'ta-unit', style: `--i:${i}`, html: unitSvg(id) }))),
       h('div', { class: 'title-army right' }, foes.map((id, i) => h('div', { class: 'ta-unit boss', style: `--i:${i}`, html: unitSvg(id, { enemy: true }) }))),
       h('div', { class: 'title-center' }, h('div', { class: 'logo', style: 'font-size:100px' }, h('span', null, '排队骑士')), h('div', { class: 'title-btns' }, cont, start)),
-      h('div', { class: 'title-tools' }, codex, records, volume),
+      h('div', { class: 'title-tools' }, tutorial, codex, records, volume),
     );
     this.show(el);
   }

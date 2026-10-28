@@ -1,4 +1,4 @@
-// 一局的状态与商店经济：框架照搬 SAP（6 阶、货架 3→5、补给 1→2、10 金、3 份/6 份升星、10 心 15 胜）。
+// 一局的状态与商店经济：框架照搬 SAP（6 阶、货架 3→5、补给 1→2、10 金、3 份/6 份升星、按难度 5/3/2 心、15 胜）。
 import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type FoodFx, type Quality, type RelicId, type Tier } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec } from './engine';
 import ghostData from './ghosts.json';
@@ -6,7 +6,7 @@ import { authoredEncounters, type AuthoredEncounter } from './encounters';
 
 export const SAVE_KEY = 'pdqs_run_v5';
 export const SAVE_VERSION = 5;
-export const MAX_LIVES = 10;
+export const MAX_LIVES = 5;
 export const WIN_GOAL = 15;
 export const GOLD_PER_ROUND = 10;
 export const PRICE = 3;
@@ -139,11 +139,11 @@ export interface RunState {
   supplyVersion?: number;
 }
 export type Diff = 0 | 1 | 2;
-/** 难度：k 敌人系数，temp 温度保留比例，lives 起始心数。校准（mix0.3 bot）：通关≈72% / 52% / 28% */
+/** 难度：k 敌人系数，temp 温度保留比例，lives 起始心数。通关率以当前版本同种子实测为准 */
 export const DIFFS: { name: string; desc: string; k: number; temp: number; lives: number }[] = [
-  { name: '普通', desc: '适合第一次远征', k: 0.93, temp: 1, lives: 10 },
-  { name: '困难', desc: '敌人更强，手气差时不再放水', k: 1.03, temp: 0.5, lives: 10 },
-  { name: '噩梦', desc: '敌人再强一截，只有 8 颗心', k: 1.06, temp: 0.2, lives: 8 },
+  { name: '普通', desc: '适合第一次远征', k: 0.93, temp: 1, lives: 5 },
+  { name: '困难', desc: '敌人更强，手气差时不再放水', k: 1.03, temp: 0.5, lives: 3 },
+  { name: '噩梦', desc: '敌人再强一截，只有 2 颗心', k: 1.06, temp: 0.2, lives: 2 },
 ];
 export const maxLives = (r: Pick<RunState, 'diff'>) => DIFFS[r.diff ?? 0].lives;
 const CHAOS_K = 1.15;
@@ -275,6 +275,20 @@ function rollShop(r: RunState) {
       c = pool.find((_, j) => (t -= w[j]) < 0) ?? c;
     }
     out.push({ sid: r.nextId++, kind: 'unit', def: c.id, locked: false, free: false });
+  }
+  // 只检查本次新刷的单位：锁定卡（含升星奖励）不能替本次刷新消耗保底。
+  // 每个队员按同名或非通用主/副标签贡献一次权重，混搭不强制绑定单一流派。
+  const affinity = (c: CardDef) => own.filter((d) => d.id === c.id ||
+    [d.line, d.tag2].some((t) => t && t !== 'any' && t !== 'enemy' && hasTag(c, t))).length;
+  const fresh = out.filter((s) => !s.locked);
+  if (own.length && fresh.length && !fresh.some((s) => affinity(card(s.def)) > 0)) {
+    const related = pool.map((c) => ({ c, weight: affinity(c) })).filter((x) => x.weight > 0);
+    if (related.length) {
+      let roll = rng(r) * related.reduce((sum, x) => sum + x.weight, 0);
+      const chosen = related.find((x) => (roll -= x.weight) < 0) ?? related[related.length - 1];
+      // 原抽样已有关联卡时不干预；没有时只替换一个新位置，不改变货架容量。
+      pick(r, fresh).def = chosen.c.id;
+    }
   }
   out.push(...keptB);
   const milk = r.shop.filter((s) => s.kind === 'food' && s.def === 'f_milk');
@@ -1094,7 +1108,8 @@ export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'
   if (r.chaos > 0 && --r.chaos === 0) r.relicDue++;
   openRelic(r);
   if (result === 'lose') {
-    r.lastLoss = enemyLossCost(r);
+    // 保心只返还实际扣除的生命，避免1血承受2点惩罚后复活成2血。
+    r.lastLoss = Math.min(r.lives, enemyLossCost(r));
     r.lives -= r.lastLoss;
     r.streak = Math.min(-1, r.streak - 1);
   }
@@ -1115,7 +1130,7 @@ export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'
 export function adSaveHeart(r: RunState): boolean {
   if (!r.lastLoss || r.adSave >= AD_SAVE_MAX) return false;
   r.adSave++;
-  r.lives += r.lastLoss;
+  r.lives = Math.min(maxLives(r), r.lives + r.lastLoss);
   r.lastLoss = 0;
   if (r.streak < 0) r.streak = Math.min(-1, r.streak + 1);
   if (r.phase === 'lost') {
@@ -1205,6 +1220,13 @@ export function load(): RunState | null {
     if (r.tc.keeper === undefined) {
       r.tc.keeper = {};
       if (r.tc.foods > 0) for (const o of units(r)) if (abOf(o) === 'seal') r.tc.keeper[o.oid] = uOf(o);
+    }
+    if (!Number.isInteger(r.lives) || r.lives <= 0 || !DIFFS[r.diff ?? 0]) return null;
+    if (r.lives > maxLives(r)) {
+      // 原存档留底后，仅把超出新上限的生命收至上限，不重置进度。
+      const backup = `${SAVE_KEY}_before_health_532`;
+      if (localStorage.getItem(backup) === null) localStorage.setItem(backup, raw!);
+      r.lives = maxLives(r);
     }
     return r;
   } catch {

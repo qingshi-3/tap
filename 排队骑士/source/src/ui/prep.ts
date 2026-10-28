@@ -1,3 +1,5 @@
+import { createRehearsal, type Rehearsal } from '../core/rehearsal';
+import { Tutorial } from './tutorial';
 // 备战界面：货架（单位 + 补给）、队列、HUD；开战后交给 battle.ts 播放
 import '../qb/css/prep-battle.css';
 import '../qb/css/shop-layout.css';
@@ -6,7 +8,7 @@ import '../qb/css/economy-bindings.css';
 import '../qb/css/v05.css';
 import { ALL, ATOM_INFO, BOSSES, card, EQUIP, equipStats, EVENT_INFO, FOOD, fxFood, LINE_INFO, Q_INFO, RELIC, type RelicId } from '../core/data';
 import {
-  AD_RETRY_MAX, AD_SAVE_MAX, adRelic, adRetry, trialFight, adReroll, adSaveHeart, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
+  AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
   FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
   WIN_GOAL, ownedAtk, ownedHp, prepFoodUses, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
@@ -28,7 +30,7 @@ import { audioSettings } from '../qb/audioSettings';
 import type { App } from './app';
 import { BattlePlayer } from './battle';
 import { battleReport } from './battleReport';
-import { preparationPreview, inheritancePreview } from './prepPreview';
+import { inheritancePreview } from './prepPreview';
 import { morphOutcomePreview, morphUnitPicker } from './morphPreview';
 
 type DragKind = 'card' | 'unit' | 'bag';
@@ -66,10 +68,16 @@ export class Game {
   /** 点选中的单位：画出它技能相关的连线 */
   private focus: { side: Side; slot: number } | null = null;
 
-  constructor(private app: App, public run: RunState) {
+  constructor(private app: App, public run: RunState, private teaching = false) {
     this.el = h('div', { class: 'screen game' }, this.board.el, this.banner, this.hud, this.bagEl, this.tray, this.bar, this.settling);
     setTipHideHook(() => { if (this.focus) this.setFocus(null); });
   }
+
+  private tutorial: Tutorial | null = null;
+  private growthPreview: RunState | null = null;
+  private rehearsal: { session: Rehearsal; report: HTMLElement } | null = null;
+  private persist(r: RunState) { if (!this.teaching && !this.rehearsal) save(r); }
+  private allowed(a: Parameters<Tutorial['allows']>[0]) { return !this.tutorial || this.tutorial.allows(a); }
 
   get fx() { return this.app.fx; }
   private get editable() { return !this.busy && !this.disposed && this.run.phase === 'prep'; }
@@ -78,7 +86,7 @@ export class Game {
     if (!this.el) return;
     this.el.classList.toggle('prep-busy', this.busy);
     this.tray.setAttribute('aria-busy', String(this.busy));
-    for (const b of this.el.querySelectorAll<HTMLButtonElement>('.tray button, .btn.trial, .prep-preview-btn')) {
+    for (const b of this.el.querySelectorAll<HTMLButtonElement>('.tray button, .prep-actions button')) {
       if (this.busy && !b.disabled) { b.dataset.busyDisabled = '1'; b.disabled = true; }
       else if (!this.busy && b.dataset.busyDisabled) { delete b.dataset.busyDisabled; b.disabled = false; }
     }
@@ -97,6 +105,7 @@ export class Game {
 
   dispose() {
     this.disposed = true;
+    this.tutorial?.dispose();
     this.fastFx = true;
     this.releaseFxWait?.();
     setTipHideHook(null);
@@ -109,6 +118,10 @@ export class Game {
     this.renderAll(this.run.pendingFx);
     this.cardsIn();
     this.board.views.forEach((v, i) => v.appear(Number(i.slice(1)) % 5 * 60));
+    if (this.teaching) this.tutorial = new Tutorial({
+      el: this.el, run: this.run, busy: () => this.busy,
+      render: () => this.renderAll(), finish: () => this.app.toTitle(),
+    });
     void this.intro();
   }
 
@@ -131,7 +144,7 @@ export class Game {
     const fx = this.run.pendingFx;
     if (!fx.length) return;
     this.run.pendingFx = [];
-    save(this.run);
+    this.persist(this.run);
     this.busy = true;
     await this.playFx(fx);
     this.busy = false;
@@ -185,10 +198,22 @@ export class Game {
   }
 
   private showMenu() {
+    if (this.rehearsal) {
+      const leave = h('button', { class: 'btn primary', disabled: this.busy }, h('span', null, this.busy ? '播放中' : '返回结算'));
+      const close = this.app.modal(h('div', { class: 'confirm game-menu', 'aria-label': '菜单' }, h('h3', null, '菜单'), audioSettings(), leave), 'audio-dialog', document.body);
+      leave.addEventListener('click', () => { if (this.busy) return; close(); this.leaveRehearsal(); });
+      return;
+    }
+    if (this.teaching) {
+      const leave = h('button', { class: 'btn primary' }, h('span', null, '退出教学'));
+      const close = this.app.modal(h('div', { class: 'confirm game-menu', 'aria-label': '菜单' }, h('h3', null, '菜单'), audioSettings(), leave), 'audio-dialog', document.body);
+      leave.addEventListener('click', () => { close(); this.app.toTitle(); });
+      return;
+    }
     const home = h('button', { class: `btn ghost${this.busy ? ' disabled' : ''}`, disabled: this.busy }, icon('menu'), h('span', null, this.busy ? '战斗中无法返回' : '保存并返回标题'));
     const quit = h('button', { class: 'btn danger' }, icon('flag'), h('span', null, '放弃本局'));
     const close = this.app.modal(h('div', { class: 'confirm game-menu', 'aria-label': '菜单' }, h('h3', null, '菜单'), audioSettings(), h('div', { class: 'menu-btns' }, home, quit)), 'audio-dialog', document.body);
-    home.addEventListener('click', () => { if (this.busy) return; close(); save(this.run); this.app.toTitle(); });
+    home.addEventListener('click', () => { if (this.busy) return; close(); this.persist(this.run); this.app.toTitle(); });
     quit.addEventListener('click', () => {
       close();
       this.app.confirm('放弃本局？', '本局计为失败，无法恢复。', '放弃', () => { this.run.phase = 'lost'; this.app.endRun(this.run); });
@@ -206,7 +231,7 @@ export class Game {
     this.banner.replaceChildren(
       h('div', { class: 'sb-title' },
         boss ? h('span', { class: 'sb-kind' }, 'Boss') : elite.length ? h('span', { class: 'sb-kind elite' }, '精英') : null,
-        h('span', { class: 'sb-no' }, `第 ${r.turn} 回合 · 输掉扣 ${enemyLossCost(r)} 心`),
+        h('span', { class: 'sb-no' }, this.rehearsal ? '调整站位' : `第 ${r.turn} 回合 · 输掉扣 ${enemyLossCost(r)} 心`),
         h('b', null, boss ? BOSSES[boss].name : r.enemy.encounter?.name ?? (form ? FORM_INFO[form].name : '对手阵容')),
         ...elite.map((a) => h('span', { class: 'sb-ax', title: ATOM_INFO[a].name }, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))),
       ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : r.enemy.encounter ? [h('div', { class: 'sb-hint' }, r.enemy.encounter.hint)] : form ? [h('div', { class: 'sb-hint' }, FORM_INFO[form].hint)] : []),
@@ -214,7 +239,8 @@ export class Game {
   }
 
   private ownedStats(o: Owned) {
-    const [atk, hp] = shownStats(o);
+    const projected = this.growthPreview?.queue.find(unit => unit?.oid === o.oid);
+    const [atk, hp] = shownStats(projected ?? o);
     return { atk, hp };
   }
 
@@ -324,7 +350,9 @@ export class Game {
   }
 
   private paintOwned(v: UnitView, o: Owned, pop = false) {
-    const s = this.shown.get(o.oid) ?? this.ownedBaseStats(o);
+    const projected = this.growthPreview?.queue.find(unit => unit?.oid === o.oid);
+    if (projected) o = projected;
+    const s = projected ? this.ownedBaseStats(projected) : this.shown.get(o.oid) ?? this.ownedBaseStats(o);
     const [atk, hp] = equipStats(o.ench, s.atk + (o.tmpAtk ?? 0), s.hp + (o.tmpHp ?? 0));
     const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : []), ...(o.tfx?.includes('splash') ? ['splash'] : [])];
     v.setStats({ atk, hp, maxHp: hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
@@ -339,16 +367,30 @@ export class Game {
     return this.board.views.get(`o${oid}`);
   }
 
+  /** 只投影回合结束成长；不运行战斗、不写入正式状态或随机种子。 */
+  private toggleGrowthPreview() {
+    if (this.growthPreview) this.growthPreview = null;
+    else {
+      this.growthPreview = structuredClone(this.run);
+      endTurn(this.growthPreview);
+    }
+    for (const o of this.run.queue) if (o) {
+      const view = this.viewOf(o.oid);
+      if (view) this.paintOwned(view, o, !reduced());
+    }
+    this.renderTray();
+  }
+
   private renderTray() {
     const r = this.run;
     this.tray.classList.remove('hidden');
-    const rerollBtn = h('button', { class: 'btn ghost reroll', disabled: r.gold < REROLL }, h('span', { class: 'rr-main' }, icon('refresh'), h('span', null, '刷新')), h('i', null, `${REROLL} 金`));
+    const rerollBtn = h('button', { class: 'btn primary reroll', disabled: r.gold < REROLL }, h('span', { class: 'rr-main' }, icon('refresh'), h('span', null, '刷新')), h('i', null, `${REROLL} 金`));
     rerollBtn.addEventListener('click', () => void this.doReroll());
-    const adUsed = r.adRr === r.turn;
-    const adBtn = h('button', { class: 'btn ghost reroll rewarded', disabled: adUsed }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '刷新')), h('i', null, adUsed ? '已用' : '广告'));
+    const adUsed = !!this.rehearsal || r.adRr === r.turn;
+    const adBtn = h('button', { class: 'btn primary reroll rewarded', disabled: adUsed, 'aria-label': adUsed ? '免费刷新已用完' : '免费刷新（观看视频）' }, h('span', { class: 'rr-main' }, h('span', null, adUsed ? '已用完' : '免费刷新')), icon('video'));
     adBtn.addEventListener('click', () => void this.doAdReroll());
     const left = h('div', { class: 'tray-left' },
-      h('div', { class: 'tl-gold', role: 'status', 'aria-label': `金币 ${r.gold}` }, itemIcon('coin', 'coin'), h('b', null, r.gold)), rerollBtn, adBtn);
+      h('div', { class: 'tl-gold', role: 'status', 'aria-label': `金币 ${r.gold}` }, itemIcon('coin', 'coin'), h('b', null, r.gold)), rerollBtn, this.rehearsal ? null : adBtn);
     const units = r.shop.map((it, i) => ({ it, i })).filter((x) => x.it.kind === 'unit');
     const foods = r.shop.map((it, i) => ({ it, i })).filter((x) => x.it.kind === 'food');
     const cards = h('div', { class: 'cards', 'data-count': units.length });
@@ -356,22 +398,25 @@ export class Game {
     const supplies = h('div', { class: 'supplies', 'aria-label': '补给' },
       h('div', { class: 'sp-list' }, ...foods.map(({ it, i }) => this.foodTile(it, i))));
     const size = r.queue.filter(Boolean).length;
-    const fightBtn = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, '开 战'), icon('play'));
+    const fightBtn = h('button', { class: `btn primary fight${size ? '' : ' disabled'}`, disabled: !size }, h('span', null, this.rehearsal ? '试 打' : '开 战'), icon('play'));
     fightBtn.addEventListener('click', () => { if (size && this.editable) void this.startBattle(); });
-    const trialBtn = h('button', { class: 'btn ghost trial', disabled: !size }, icon('eye'), h('span', null, '试打'));
-    trialBtn.addEventListener('click', () => { if (size && this.editable) void this.startTrial(); });
-    this.el.querySelector('.btn.trial')?.remove();
-    this.el.appendChild(trialBtn);
-    this.el.querySelector('.prep-preview-btn')?.remove();
-    const preview = h('button', { class: 'btn ghost prep-preview-btn', disabled: !size }, icon('book'), '成长 / 开战预览');
+    this.el.querySelector('.prep-actions')?.remove();
+    const preview = h('button', { class: 'btn primary prep-preview-btn', disabled: !size, 'aria-label': this.growthPreview ? '还原数值' : '成长预览', 'aria-pressed': String(!!this.growthPreview) }, icon('book'), h('span', null, this.growthPreview ? '还原数值' : '成长预览'));
     preview.addEventListener('click', () => {
       if (!this.editable) return;
       hideTip(); sfx.click();
-      const panel = preparationPreview(this.run, () => panel.remove());
-      this.el.appendChild(panel);
+      this.toggleGrowthPreview();
     });
-    this.el.appendChild(preview);
-    this.tray.replaceChildren(left, cards, supplies, h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
+    const actions = h('div', { class: 'prep-actions' }, this.rehearsal ? null : preview);
+    if (this.rehearsal) {
+      const back = h('button', { class: 'btn primary rehearsal-back' }, h('span', null, '返回结算'));
+      back.addEventListener('click', () => { if (!this.busy) this.leaveRehearsal(); });
+      actions.prepend(back);
+      const retry = this.retryButton();
+      if (retry) actions.appendChild(retry);
+    }
+    this.el.appendChild(actions);
+    this.tray.replaceChildren(...(this.rehearsal ? [] : [left, cards, supplies]), h('div', { class: 'tray-right' }, h('div', { class: 'fight-controls' }, h('div', { class: 'tr-team' }, `${size}/${QUEUE_MAX}`), fightBtn)));
     this.renderBag();
     this.lockFx = null;
     this.syncBusy();
@@ -390,7 +435,7 @@ export class Game {
   /** 背包：3 格装备，拖到单位身上装备，拖到货架丢弃，点开看说明 */
   private renderBag() {
     const r = this.run;
-    this.bagEl.classList.toggle('hidden', !r.bag.length && !r.queue.some((o) => o?.ench));
+    this.bagEl.classList.toggle('hidden', !!this.rehearsal || (!r.bag.length && !r.queue.some((o) => o?.ench)));
     this.bagEl.replaceChildren(h('span', { class: 'bag-head' }, '背包'),
       ...Array.from({ length: BAG_MAX }, (_, i) => {
         const id = r.bag[i];
@@ -461,7 +506,7 @@ export class Game {
   // ───────────── 拖拽 ─────────────
 
   private dragStart(e: PointerEvent, kind: DragKind, idx: number, src: HTMLElement) {
-    if (!this.editable || e.button > 0 || this.drag || !e.isPrimary) return;
+    if ((this.rehearsal && kind !== 'unit') || !this.editable || e.button > 0 || this.drag || !e.isPrimary) return;
     e.preventDefault();
     hideTip();
     this.drag = { kind, idx, startX: e.clientX, startY: e.clientY, ghost: null, src, pid: e.pointerId };
@@ -493,7 +538,7 @@ export class Game {
       d.ghost = d.kind === 'bag' ? h('div', { class: 'drag-ghost food' }, equipIcon(def)) : food ? h('div', { class: 'drag-ghost food' }, itemIcon(def, 'pack')) : h('div', { class: 'drag-ghost', html: unitSvg(def) });
       this.el.appendChild(d.ghost);
       d.src.classList.add('lifted');
-      if (d.kind === 'unit') this.openSellZone(d.idx);
+      if (d.kind === 'unit' && !this.rehearsal) this.openSellZone(d.idx);
       if (d.kind === 'bag') this.openSellZone(-1);
       sfx.pick();
     }
@@ -565,7 +610,7 @@ export class Game {
     if (slot === d.idx) return '';
     const from = r.queue[d.idx];
     if (!at) return 'move';
-    return from && at.def === from.def && at.copies < MAX_COPIES && from.copies < MAX_COPIES ? 'merge' : 'swap';
+    return !this.rehearsal && from && at.def === from.def && at.copies < MAX_COPIES && from.copies < MAX_COPIES ? 'merge' : 'swap';
   }
 
   private dropHints(hover: number | null = null) {
@@ -601,7 +646,7 @@ export class Game {
   // ───────────── 点击：详情 + 按钮 ─────────────
 
   private tap(kind: DragKind, idx: number) {
-    if (!this.editable) return;
+    if (!this.editable || (this.rehearsal && kind !== 'unit')) return;
     sfx.click();
     const r = this.run;
     if (kind === 'unit') {
@@ -610,16 +655,16 @@ export class Game {
       const s = this.ownedStats(o);
       const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory, prepUses: prepFoodUses(r, o) }, true);
       const inheritance = inheritancePreview(r, idx);
-      if (inheritance) tip.appendChild(inheritance);
+      if (inheritance && !this.rehearsal) tip.appendChild(inheritance);
       const sellBtn = h('button', { class: 'btn ghost shelf-lock' }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
       const acts = h('div', { class: 'shelf-acts' }, sellBtn);
       if (o.ench) {
         const off = h('button', { class: 'btn ghost shelf-lock', disabled: r.bag.length >= BAG_MAX }, r.bag.length >= BAG_MAX ? '背包已满' : '卸下装备');
-        off.addEventListener('click', () => { if (!this.editable || !unequip(r, idx)) return; hideTip(); sfx.swap(); save(r); this.afterChange(); });
+        off.addEventListener('click', () => { if (this.rehearsal || !this.editable || !this.allowed({ kind: 'other' }) || !unequip(r, idx)) return; hideTip(); sfx.swap(); this.persist(r); this.afterChange(); });
         acts.prepend(off);
       }
-      tip.appendChild(acts);
+      if (!this.rehearsal) tip.appendChild(acts);
       this.board.views.get(`o${o.oid}`)?.el.classList.add('inspected');
       this.setFocus({ side: 0, slot: idx });
       showTip(tip, slotX(0, idx), UNIT_Y + 62, 'below', headPos(0, idx).y - 30, this.arrowBox());
@@ -659,8 +704,8 @@ export class Game {
     if (it.def !== 'f_milk') {
       const lock = h('button', { class: 'btn ghost shelf-lock' }, it.locked ? '解锁' : '锁定');
       lock.addEventListener('click', () => {
-        if (!this.editable) return;
-        toggleLock(r, it.sid); hideTip(); save(r);
+        if (!this.editable || !this.allowed({ kind: 'lock', def: it.def })) return;
+        toggleLock(r, it.sid); hideTip(); this.persist(r);
         this.lockFx = { sid: it.sid, on: it.locked };
         (it.locked ? sfx.chain : sfx.unchain)();
         this.renderTray();
@@ -679,36 +724,36 @@ export class Game {
   // ───────────── 操作 ─────────────
 
   private async doReroll() {
-    if (!this.editable) return;
+    if (this.rehearsal || !this.editable || !this.allowed({ kind: 'reroll' })) return;
     const fx = reroll(this.run);
     if (!fx) { this.notice('金币不够'); return; }
     sfx.swap();
     hideTip();
-    save(this.run);
+    this.persist(this.run);
     this.renderTray();
     this.cardsIn();
     if (fx.length) await this.runFx(fx);
   }
 
   private async doAdReroll() {
-    if (!this.editable || this.run.adRr === this.run.turn) return;
+    if (this.teaching || this.rehearsal || !this.editable || this.run.adRr === this.run.turn) return;
     this.busy = true;
     hideTip();
     const ok = await showRewardedAd(this.el, '免费刷新', '看完广告，免费刷新一次货架');
     this.busy = false;
     if (!ok || this.disposed || !adReroll(this.run)) return;
     sfx.swap();
-    save(this.run);
+    this.persist(this.run);
     this.renderTray();
     this.cardsIn();
   }
 
   private doEquip(i: number, slot: number): boolean {
-    if (!this.editable) return false;
+    if (this.rehearsal || !this.editable) return false;
     const r = this.run;
     const id = r.bag[i];
-    if (!id || !equipFromBag(r, i, slot)) return false;
-    save(r);
+    if (!id || !this.allowed({ kind: 'equip', slot }) || !equipFromBag(r, i, slot)) return false;
+    this.persist(r);
     this.afterChange();
     const p = bodyPos(0, slot);
     const c = Q_INFO[EQUIP[id].q].color;
@@ -720,9 +765,9 @@ export class Game {
   }
 
   private doDiscard(i: number) {
-    if (!this.editable) return;
-    if (!discardBag(this.run, i)) return;
-    save(this.run);
+    if (this.rehearsal || !this.editable) return;
+    if (!this.allowed({ kind: 'other' }) || !discardBag(this.run, i)) return;
+    this.persist(this.run);
     sfx.reward();
     this.fx.float(120, 420, '+1 金', 'levelup', 800);
     this.afterChange();
@@ -760,7 +805,7 @@ export class Game {
           if (sel < 0) return;
           sfx.reward();
           pickRelic(r, sel);
-          save(r);
+          this.persist(r);
           ov.remove();
           this.renderHud();
           done();
@@ -772,7 +817,7 @@ export class Game {
           if (!ok) return;
           const n = p.opts.length;
           if (!adRelic(r)) return;
-          save(r);
+          this.persist(r);
           sel = -1;
           paint(n);
         });
@@ -823,7 +868,7 @@ export class Game {
         const res = resolveEvent(r, choice, slot);
         if (!res.ok) { this.notice('现在不行'); return; }
         sfx.reward();
-        save(r);
+        this.persist(r);
         ov.remove();
         this.renderAll();
         if (res.ok && res.lost) this.notice(`${card(res.lost.def).name} 离队了`);
@@ -880,7 +925,7 @@ export class Game {
       const pickIt = (i: number) => {
         sfx.click();
         pickBranch(r, i);
-        save(r);
+        this.persist(r);
         ov.remove();
         this.renderBanner();
         this.renderBoard();
@@ -932,7 +977,7 @@ export class Game {
           el.addEventListener('click', () => {
             sfx.reward();
             chestPick(r, i);
-            save(r);
+            this.persist(r);
             ov.remove();
             this.renderTray();
             done();
@@ -948,7 +993,7 @@ export class Game {
           if (!chestCanUp(r)) return;
           const ok = await showRewardedAd(this.el, '升品重抽', '装备全部提升一个品质后重新抽取');
           if (!ok || !adUpgradeChest(r)) return;
-          save(r);
+          this.persist(r);
           paint(true);
         });
         ov.replaceChildren(h('div', { class: 'chest-card' },
@@ -962,14 +1007,15 @@ export class Game {
   }
 
   private doBuy(idx: number, slot: number): boolean {
-    if (!this.editable) return false;
+    if (this.rehearsal || !this.editable) return false;
     const r = this.run;
     const it = r.shop[idx];
     if (!it) return false;
+    if (!this.allowed({ kind: 'buy', slot, def: it.def })) return false;
     const before = r.queue[slot]?.copies ?? 0;
     const res = buy(r, it.sid, slot);
     if (!res.ok) { this.notice(res.why === 'gold' ? '金币不够' : res.why === 'max' ? '已满 6 份' : '这里有别的单位'); return false; }
-    save(r);
+    this.persist(r);
     this.afterChange(res.fx);
     const o = r.queue[slot]!;
     const v = this.viewOf(o.oid);
@@ -990,13 +1036,14 @@ export class Game {
   }
 
   private doFood(idx: number, slot: number | null): boolean {
-    if (!this.editable) return false;
+    if (this.rehearsal || !this.editable) return false;
     const r = this.run;
     const it = r.shop[idx];
     if (!it) return false;
+    if (!this.allowed({ kind: 'food', slot: slot ?? undefined, def: it.def })) return false;
     const res = useFood(r, it.sid, slot);
     if (!res.ok) { this.notice(res.why === 'gold' ? '金币不够' : '这里不能用'); return false; }
-    save(r);
+    this.persist(r);
     const f = FOOD[it.def];
     const tgt = slot != null ? r.queue[slot] : null;
     // 指定目标的成长先扣掉再播
@@ -1016,9 +1063,15 @@ export class Game {
   private doMove(from: number, to: number): boolean {
     if (!this.editable) return false;
     const r = this.run;
+    if (!this.allowed({ kind: 'move', from, slot: to })) return false;
+    if (this.rehearsal) {
+      if (from === to || !r.queue[from] || to < 0 || to >= QUEUE_MAX) return false;
+      [r.queue[from], r.queue[to]] = [r.queue[to], r.queue[from]];
+      this.afterChange(); sfx.swap(); return true;
+    }
     const res = moveOwned(r, from, to);
     if (!res) return false;
-    save(r);
+    this.persist(r);
     this.afterChange(res.fx);
     if (res.merged) {
       const o = r.queue[to]!;
@@ -1032,14 +1085,15 @@ export class Game {
   }
 
   private async doSell(slot: number) {
-    if (!this.editable) return;
+    if (this.rehearsal || !this.editable) return;
     const r = this.run;
     const o = r.queue[slot];
     if (!o) return;
     const p = bodyPos(0, slot);
+    if (!this.allowed({ kind: 'sell', slot })) return;
     const res = sell(r, slot);
     if (!res) return;
-    save(r);
+    this.persist(r);
     hideTip();
     sfx.reward();
     const v = this.viewOf(o.oid);
@@ -1057,6 +1111,7 @@ export class Game {
 
   /** 状态变了：重绘货架 / HUD / 队列（可指定待播的效果，先扣数值） */
   private afterChange(pending: ShopFx[] = []) {
+    this.growthPreview = null;
     this.renderHud();
     this.renderTray();
     this.renderBoard(pending);
@@ -1141,7 +1196,9 @@ export class Game {
   // ───────────── 战斗 ─────────────
 
   private async startBattle() {
-    if (!this.editable) return;
+    this.growthPreview = null;
+    if (this.rehearsal) { await this.startTrial(); return; }
+    if (!this.editable || !this.allowed({ kind: 'battle' })) return;
     const r = this.run;
     this.busy = true;
     hideTip();
@@ -1156,7 +1213,7 @@ export class Game {
     const out = fight(r);
     const before = { lives: r.lives, wins: r.wins, turn: r.turn, boss: r.enemy.boss };
     settleBattle(r, out);
-    save(r);
+    this.persist(r);
     // 战斗表现
     this.el.classList.add('in-battle');
     this.tray.classList.add('hidden');
@@ -1178,7 +1235,7 @@ export class Game {
 
   /** 复盘：关掉结算框重播一遍，播完再弹回来 */
   private replayBtn(out: BattleOut, ov: HTMLElement) {
-    const b = h('button', { class: 'btn ghost res-replay' }, icon('replay'), h('span', null, '复盘'));
+    const b = h('button', { class: 'btn primary res-replay' }, icon('replay'), h('span', null, '重播'));
     b.addEventListener('click', async () => {
       sfx.click();
       ov.remove();
@@ -1190,8 +1247,23 @@ export class Game {
     return b;
   }
 
+  private reviewButton(out: BattleOut, summary: HTMLElement) {
+    const button = h('button', { class: 'btn primary res-review' }, '复盘');
+    button.addEventListener('click', () => {
+      summary.remove();
+      const close = h('button', { class: 'btn primary', 'aria-label': '关闭复盘' }, '返回');
+      const detail = h('div', { class: 'result-ov with-report review-only' },
+        h('div', { class: 'res-card' }, battleReport(out), h('div', { class: 'res-btns' }, close)));
+      detail.querySelector('.res-btns')!.prepend(this.replayBtn(out, detail));
+      close.addEventListener('click', () => { detail.remove(); this.el.appendChild(summary); });
+      this.el.appendChild(detail);
+    });
+    return button;
+  }
+
   /** 回到备战（结算/试打/重打之后） */
   private backToPrep(intro: boolean) {
+    this.growthPreview = null;
     const r = this.run;
     this.el.classList.remove('in-battle');
     this.bar.classList.remove('on');
@@ -1203,23 +1275,66 @@ export class Game {
     if (intro) void this.intro();
   }
 
-  /** 试打：副本上打一场，不计结果、不改存档 */
+  private leaveRehearsal() {
+    this.growthPreview = null;
+    const trial = this.rehearsal;
+    if (!trial) return;
+    this.run = trial.session.settled;
+    this.rehearsal = null;
+    this.el.classList.remove('rehearsal');
+    this.renderAll();
+    this.el.classList.add('in-battle');
+    this.tray.classList.add('hidden');
+    this.bar.classList.remove('on');
+    this.busy = true;
+    this.el.appendChild(trial.report);
+  }
+
+  private retryButton(): HTMLElement | null {
+    if (!this.rehearsal) return null;
+    const button = h('button', { class: 'btn primary res-retry', disabled: !this.rehearsal.session.canRetry() }, icon('video'), h('span', null, '看广告重打'));
+    button.addEventListener('click', () => void this.commitRehearsal(button));
+    return button;
+  }
+
+  private async commitRehearsal(button: HTMLElement) {
+    const trial = this.rehearsal;
+    if (!trial || !trial.session.canRetry() || button.hasAttribute('disabled') || this.player || (this.busy && !this.el.querySelector('.result-ov.r-trial'))) return;
+    button.setAttribute('disabled', '');
+    this.busy = true;
+    const ok = await showRewardedAd(this.el, '重新挑战', '看完广告，使用调整后的阵容重新挑战这一战');
+    if (this.disposed || this.rehearsal !== trial) return;
+    const restored = ok ? trial.session.commitRetry() : null;
+    if (!restored) { button.removeAttribute('disabled'); this.busy = false; return; }
+    this.run = restored;
+    this.rehearsal = null;
+    this.el.classList.remove('rehearsal');
+    this.el.querySelectorAll('.result-ov').forEach(el => el.remove());
+    this.persist(restored);
+    this.backToPrep(false);
+    await this.startBattle();
+  }
+
+  /** 战后试打：调整副本，不计结果、不改存档 */
   private async startTrial() {
-    if (!this.editable) return;
+    if (this.teaching || !this.rehearsal || !this.editable) return;
+    const session = this.rehearsal;
     this.busy = true;
     hideTip();
     sfx.start();
     const out = trialFight(this.run);
     await this.playOut(out);
-    if (this.disposed) return;
+    if (this.disposed || this.rehearsal !== session) return;
     await wait(300);
+    if (this.disposed || this.rehearsal !== session) return;
     const title = out.result === 'win' ? '试打：胜' : out.result === 'lose' ? '试打：负' : '试打：平';
     const back = h('button', { class: 'btn primary' }, h('span', null, '回去调整'), icon('play'));
-    const ov = h('div', { class: `result-ov with-report r-trial r-${out.result}` },
+    const ov = h('div', { class: `result-ov r-trial r-${out.result}` },
       h('div', { class: 'res-card' }, h('div', { class: 'res-title' }, title), h('div', { class: 'res-sub' }, '不计胜负 · 正式开战有随机'),
         h('div', { class: 'res-btns' })));
-    ov.querySelector('.res-card')!.insertBefore(battleReport(out), ov.querySelector('.res-btns'));
-    ov.querySelector('.res-btns')!.append(this.replayBtn(out, ov), back);
+    const leave = h('button', { class: 'btn primary rehearsal-back' }, h('span', null, '返回结算'));
+    leave.addEventListener('click', () => { ov.remove(); this.leaveRehearsal(); });
+    ov.querySelector('.res-btns')!.append(this.reviewButton(out, ov), leave, back);
     back.addEventListener('click', () => { sfx.click(); ov.remove(); this.backToPrep(false); });
     this.el.appendChild(ov);
   }
@@ -1231,50 +1346,50 @@ export class Game {
     const lost = before.lives - r.lives;
     const title = result === 'win' ? (before.boss ? 'Boss 击破' : '胜利') : result === 'lose' ? '失败' : '平局';
     const sub = result === 'win' ? `${r.wins}/${WIN_GOAL} 胜` : result === 'lose' ? `失去 ${lost} 心` : '不扣心，也不算胜场';
-    const go = h('button', { class: 'btn primary' }, h('span', null, '继续'), icon('play'));
-    const ov = h('div', { class: `result-ov with-report r-${result}` },
+    const go = h('button', { class: 'btn primary' }, h('span', null, this.teaching && r.history.length >= 2 ? '完成' : '继续'), icon('play'));
+    const ov = h('div', { class: `result-ov r-${result}` },
       h('div', { class: 'res-card' },
         h('div', { class: 'res-rays' }),
         h('div', { class: 'res-title' }, title),
         h('div', { class: 'res-sub' }, sub),
         h('div', { class: 'res-lives' }, Array.from({ length: maxLives(r) }, (_, i) => h('span', { class: `life${i < r.lives ? ' on' : i < before.lives ? ' lost' : ''}` }, icon('heart')))),
         h('div', { class: 'res-btns' }, go)));
-    if (result === 'lose' && r.lastLoss && r.adSave < AD_SAVE_MAX) {
-      const ad = h('button', { class: 'btn ghost reroll rewarded res-ad' }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '看广告保心')), h('i', null, `${AD_SAVE_MAX - r.adSave}/${AD_SAVE_MAX}`));
-      ad.addEventListener('click', async () => {
-        ad.setAttribute('disabled', '');
-        const ok = await showRewardedAd(this.el, '保住心', '看完广告，这场失败不扣心');
-        if (!ok || !adSaveHeart(r)) { ad.removeAttribute('disabled'); return; }
-        save(r);
-        ad.remove();
-        ov.querySelector('.res-retry')?.remove();
-        ov.querySelector('.res-sub')!.textContent = '已保住，不扣心';
-        ov.querySelectorAll('.res-lives .life').forEach((el, i) => { el.className = `life${i < r.lives ? ' on' : ''}`; });
-      });
-      ov.querySelector('.res-btns')!.prepend(ad);
-    }
-    // 看广告重打：退回开战前，重新调整再打（和保心二选一）
-    if (result === 'lose' && (r.adRetry ?? 0) < AD_RETRY_MAX) {
-      const ad = h('button', { class: 'btn ghost reroll rewarded res-ad res-retry' }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '看广告重打')), h('i', null, `${AD_RETRY_MAX - (r.adRetry ?? 0)}/${AD_RETRY_MAX}`));
-      ad.addEventListener('click', async () => {
-        ad.setAttribute('disabled', '');
-        const ok = await showRewardedAd(this.el, '重打', '看完广告，回到开战前重新调整阵容');
-        if (!ok || !adRetry(r, snap)) { ad.removeAttribute('disabled'); return; }
-        save(r);
-        ov.remove();
+    if (!this.teaching) {
+      const adjust = h('button', { class: 'btn primary res-adjust' }, icon('replay'), h('span', null, '重打'));
+      adjust.addEventListener('click', () => {
+        hideTip(); ov.remove();
+        this.rehearsal = { session: createRehearsal(r, snap, result), report: ov };
+        this.run = this.rehearsal.session.working;
+        this.el.classList.add('rehearsal');
         this.backToPrep(false);
       });
-      ov.querySelector('.res-btns')!.prepend(ad);
+      ov.querySelector('.res-btns')!.prepend(adjust);
     }
-    ov.querySelector('.res-card')!.insertBefore(battleReport(out), ov.querySelector('.res-btns'));
-    ov.querySelector('.res-btns')!.prepend(this.replayBtn(out, ov));
+    ov.querySelector('.res-btns')!.prepend(this.reviewButton(out, ov));
+    if (!this.teaching && result === 'lose' && r.lastLoss > 0 && r.adSave < AD_SAVE_MAX) {
+      const protect = h('button', { class: 'btn primary res-protect' }, icon('video'), h('span', null, '保心继续'));
+      protect.addEventListener('click', async () => {
+        if (protect.hasAttribute('disabled') || this.disposed) return;
+        const buttons = [...ov.querySelectorAll<HTMLButtonElement>('button')];
+        buttons.forEach(b => b.disabled = true);
+        const ok = await showRewardedAd(this.el, '保心继续', '看完广告，保住本场生命并进入下一回合');
+        if (this.disposed) return;
+        if (!ok || !adSaveHeart(r)) { buttons.forEach(b => b.disabled = false); return; }
+        this.persist(r);
+        ov.remove();
+        this.backToPrep(true);
+      });
+      ov.querySelector('.res-btns')!.insertBefore(protect, go);
+    }
     this.el.appendChild(ov);
+    this.tutorial?.result();
     if (!reduced()) ov.querySelector('.res-card')!.animate([{ transform: 'scale(.8)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 300, easing: 'cubic-bezier(.2,1.4,.4,1)' });
     if (result === 'win') this.fx.burst(640, 260, '#ffd36b', { n: 40, speed: 8 });
     go.addEventListener('click', () => {
       sfx.click();
       ov.remove();
-      if (r.phase !== 'prep') { this.app.endRun(r); return; }
+      if (this.teaching && r.history.length >= 2) { this.tutorial?.complete(); return; }
+      if (r.phase !== 'prep') { if (this.teaching) this.app.toTitle(); else this.app.endRun(r); return; }
       this.backToPrep(true);
     });
   }

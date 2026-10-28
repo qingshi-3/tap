@@ -14,6 +14,7 @@ export const ICON = {
   refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
   sound: '<path d="M4 9h4l5-4v14l-5-4H4Z" fill="currentColor"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>',
   play: '<path d="M7 4.5v15l12-7.5Z" fill="currentColor"/>',
+  video: '<path d="M2 5h20v14H2Zm8 3v8l6-4Z" fill="currentColor" fill-rule="evenodd"/>',
   ff: '<path d="M3 5v14l9-7Zm9 0v14l9-7Z" fill="currentColor"/>',
   skip: '<path d="M4 5v14l10-7Zm12 0h3v14h-3Z" fill="currentColor"/>',
   check: '<path d="M4.5 12.5 9.5 17.5 19.5 6.5" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
