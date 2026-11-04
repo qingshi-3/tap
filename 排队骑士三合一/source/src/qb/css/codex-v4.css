@@ -1,0 +1,56 @@
+/* v4：顶栏一行（返回 + 页签 + 星级/筛选），筛选收进弹层，详情占满高度 */
+.screen.codex { padding: 12px 22px 14px; gap: 10px; }
+.codex .cx-head { gap: 12px; height: 60px; padding-bottom: 8px; }
+.codex .cx-head .cx-back, .codex .cx-head .cx-tab { min-height: 52px; }
+.codex .cx-tabs { margin-left: 0; }
+.cx-tools { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.cx-tools .ub-stars { display: grid; grid-template-columns: repeat(3, 66px); height: 52px; }
+.cx-tools .ub-stars .ub-star { min-height: 52px; min-width: 0; }
+.cx-filter-btn {
+  position: relative; display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 18px;
+  font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: #d8d3f5; background: #2b2550; border: 2px solid #5b4f93; border-radius: 6px; cursor: pointer;
+}
+.cx-filter-btn .ic { width: 22px; height: 22px; }
+.cx-filter-btn.active { color: var(--gold); border-color: var(--gold); background: #3a2f56; }
+.cx-filter-btn.open { background: #43356f; }
+.cx-fn { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 13px; background: var(--gold); color: #2a1a00; font-size: 17px; }
+
+/* 单位页：左网格 + 右详情，都吃满剩余高度 */
+.codex .ub { height: 100%; display: flex; flex-direction: column; }
+.codex .ub-split { flex: 1; min-height: 0; height: 100%; }
+.ub-left { position: relative; min-height: 0; height: 100%; display: flex; }
+.ub-left .ub-grid { flex: 1; min-height: 0; }
+.codex .ub-detail { height: 100%; }
+
+/* 筛选弹层：盖在卡牌网格上，点空白处收起 */
+.screen.codex .ub-pop { position: absolute; inset: 0; z-index: 5; background: rgba(6, 4, 20, .55); display: flex; align-items: flex-start; }
+.screen.codex .ub-pop[hidden] { display: none; }
+.screen.codex .ub-pop .ub-filters {
+  flex-direction: column; justify-content: flex-start; align-items: stretch; margin: 0;
+  width: 100%; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 14px;
+  background: #1a1640; border: 2px solid #5b4f93; border-radius: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, .6);
+  animation: v05Fade .15s ease-out;
+}
+.screen.codex .ub-pop .ub-grp { display: grid; grid-template-columns: 48px 1fr; align-items: start; gap: 10px; }
+.screen.codex .ub-pop .ub-lab { padding-top: 10px; font-size: 18px; color: #9f98c9; white-space: nowrap; }
+.screen.codex .ub-pop .ub-set { display: flex; min-width: 0; flex-wrap: wrap; gap: 6px; padding: 0; border: 0; background: none; }
+.screen.codex .ub-pop .ub-chip { min-height: 44px; padding: 0 12px; font-size: 19px; background: #0f0c26; box-shadow: inset 0 0 0 1px #2c2654; }
+.screen.codex .ub-pop .ub-tiers { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; }
+.screen.codex .ub-pop .ub-tiers .ub-chip { height: 44px; padding: 0; }
+.screen.codex .ub-pop-foot { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 4px; }
+.screen.codex .ub-pop-foot .ub-clear { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 19px; }
+.ub-done { height: 52px; font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: #2a1a00; background: var(--gold); border: 0; border-radius: 6px; cursor: pointer; }
+
+/* 详情：头部收紧，演示 + 说明一屏看全 */
+.codex .cx-detail .cx-d-art { width: 84px; height: 84px; }
+.codex .cx-detail .cx-d-art .uart { width: 84px; }
+.codex .ub-detail > .bdemo { margin: 6px 0 8px; }
+.codex .cx-lv { margin-top: 4px; padding-top: 6px; }
+
+.screen.codex .cx-tools .ub-stars .ub-star { height: 46px; min-height: 46px; font-size: 18px; }
+.screen.codex .cx-tools .ub-stars { height: 52px; }
+.screen.codex .ub-pop .ub-set { box-shadow: none; }
+.screen.codex .ub-pop .ub-tiers { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.screen.codex .ub-pop .ub-tiers .ub-chip { width: auto; min-width: 0; }
+.screen.codex .ub-pop .ub-grp { grid-template-columns: 48px minmax(0, 1fr); }
+.screen.codex .ub-pop .ub-set:has(.ub-tiers) { display: block; }

@@ -1,0 +1,87 @@
+/* 与既有像素按钮共用色带；列表保持平面，不为每条记录套面板。 */
+.records {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px max(28px, env(safe-area-inset-right)) 20px max(28px, env(safe-area-inset-left));
+  background: #111325;
+  font-size: 26px;
+  line-height: 1.45;
+  min-height: 0;
+}
+.records-head { display: flex; align-items: stretch; gap: 26px; flex: none; }
+.records-tabs { display: flex; gap: 14px; min-width: 0; }
+.records-button,
+.records-select {
+  min-height: var(--control-size, 100px);
+  min-width: var(--control-size, 100px);
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
+  color: #f4f3ff;
+  font: inherit;
+  font-weight: 700;
+  padding: 12px 24px;
+  box-shadow: none;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.records-button { display: inline-flex; justify-content: center; align-items: center; gap: 12px; }
+.records-button .ic { width: 26px; height: 26px; }
+.records-tab { min-width: 180px; }
+.records-tab.is-active {
+  background: linear-gradient(180deg, #fff1b8 0 4px, #ffd36b 4px 52%, #f0b048 52% calc(100% - 6px), #b06a1a calc(100% - 6px));
+  color: #35220b;
+}
+.records-button:active { filter: brightness(.82); }
+.records-button:disabled { background: #464953; color: #bdc0c9; cursor: default; filter: none; }
+.records-button:focus-visible,
+.records-select:focus-visible,
+.records-list:focus-visible { outline: 3px solid #ffe191; outline-offset: -3px; }
+.records-controls { display: flex; align-items: center; gap: 16px; flex: none; min-width: 0; }
+.records-select { max-width: 350px; background: #3b465e; padding-right: 20px; }
+.records-select option { background: #242c42; color: #f4f3ff; }
+.records-summary { margin: 0 0 0 auto; font-size: 24px; color: #d7d9e8; }
+.records-list {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
+  scrollbar-color: #7d7894 #1a1c32;
+  scrollbar-width: thin;
+  padding-right: 12px;
+  -webkit-overflow-scrolling: touch;
+}
+.records-board-row,
+.records-achievement-row { display: flex; align-items: center; gap: 26px; padding: 24px 8px; border-bottom: 1px solid #44475d; }
+.records-entry { flex: 1; min-width: 0; }
+.records-name { display: flex; align-items: center; gap: 12px; margin: 0; font-size: 30px; line-height: 1.35; overflow-wrap: anywhere; }
+.records-name .ic { width: 26px; height: 26px; color: #a3e7bd; }
+.records-condition { margin: 8px 0 0; color: #c5c8df; font-size: 24px; overflow-wrap: anywhere; }
+.records-board-result { flex: none; display: flex; align-items: center; gap: 20px; }
+.records-score { color: #ffe191; font-family: var(--num); font-size: 28px; text-align: right; max-width: 250px; overflow-wrap: anywhere; }
+.records-no-score { font-family: inherit; font-size: 24px; color: #c5c8df; }
+.records-open { min-width: 220px; white-space: nowrap; }
+.records-achievement-result { min-width: 190px; flex: none; text-align: right; display: flex; flex-direction: column; gap: 8px; }
+.records-points { color: #ffe191; font-size: 28px; }
+.records-progress-text { font-family: var(--num); color: #c5c8df; font-size: 24px; }
+.records-progress { display: block; width: min(100%, 560px); height: 12px; margin-top: 16px; border: 0; border-radius: 0; background: #30344c; color: #8caed9; appearance: none; }
+.records-progress::-webkit-progress-bar { background: #30344c; }
+.records-progress::-webkit-progress-value { background: #8caed9; }
+.records-progress::-moz-progress-bar { background: #8caed9; }
+.records .is-complete .records-progress { color: #a3e7bd; }
+.records .is-complete .records-progress::-webkit-progress-value { background: #a3e7bd; }
+.records .is-complete .records-progress::-moz-progress-bar { background: #a3e7bd; }
+.records .is-complete .records-progress-text { color: #a3e7bd; }
+.records-empty { margin: 30px 8px; color: #c5c8df; }
+.records-message,
+.records-storage-warning { margin: 0; color: #ffbdab; font-size: 24px; flex: none; }
+.records-message[hidden] { display: none; }
+@media (max-height: 420px) {
+  .records { gap: 10px; padding-top: 14px; padding-bottom: 14px; }
+  .records-board-row,
+  .records-achievement-row { padding-top: 18px; padding-bottom: 18px; }
+  .records-summary { max-width: 420px; }
+}

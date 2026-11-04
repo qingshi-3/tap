@@ -1,0 +1,46 @@
+/* 图鉴实机演示：裁切缩放的战斗舞台 */
+.bdemo {
+  position: relative; width: 100%; flex: none; overflow: hidden; contain: layout paint;
+  background: radial-gradient(ellipse at 50% 70%, #2a2050 0%, #120e2a 70%);
+  box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #4a3d7a;
+}
+.bdemo-cam { position: absolute; left: 0; top: 0; width: 1280px; height: 720px; transform-origin: 0 0; pointer-events: none; }
+.bdemo-stage { position: absolute; inset: 0; }
+.bdemo-stage .slot-num { display: none; }
+.bdemo-replay {
+  position: absolute; right: 6px; top: 6px; z-index: 5; width: 52px; height: 52px; padding: 0;
+  font-size: 28px; line-height: 1; background: rgba(12, 10, 34, .7); border: 0; color: #e8e2ff;
+}
+
+/* 命中目标效果：暂停 → 框选 + 词条气泡（同教程高亮的金色像素框） */
+.bdemo-focus {
+  position: absolute; left: -16px; right: -16px; top: -18px; bottom: -14px; z-index: 6; pointer-events: none;
+  border: 4px solid #ffd36b; box-shadow: 0 0 0 3px #05040f, inset 0 0 0 3px #05040f, 0 0 18px rgba(255, 211, 107, .55);
+  animation: bdFocusIn .22s steps(3) both, bdFocusPulse .7s ease-in-out .22s infinite;
+}
+.vs > .bdemo-focus { left: -22px; right: -22px; top: -22px; bottom: -22px; }
+.vs-pips > .bdemo-focus { left: -12px; right: -12px; top: -10px; bottom: -10px; }
+.bdemo-focus.out { animation: bdFade .3s steps(3) forwards; }
+.bdemo-tag {
+  position: absolute; left: 50%; bottom: calc(100% + 26px); z-index: 7; pointer-events: none; white-space: nowrap;
+  padding: 6px 14px 8px; font-size: 34px; font-weight: 900; line-height: 1; color: #2a1a05;
+  background: #ffd36b; box-shadow: 0 0 0 3px #05040f, 4px 4px 0 3px rgba(5, 4, 15, .6);
+  transform: translateX(-50%); animation: bdTagIn .26s steps(4) both;
+}
+.bdemo-tag::after {
+  content: ''; position: absolute; left: 50%; top: 100%; margin-left: -9px;
+  border: 9px solid transparent; border-top-color: #ffd36b; border-bottom: 0;
+}
+.bdemo-tag.below { bottom: auto; top: calc(100% + 16px); }
+.bdemo-tag.below::after { top: auto; bottom: 100%; border-top: 0; border-bottom: 9px solid #ffd36b; }
+/* 框选时让出头顶的触发标签与提示，只留词条气泡 */
+.bdemo.spot .u-tags, .bdemo.spot .callout { visibility: hidden; }
+/* 说话气泡：白底圆角，单位在说话 */
+.bdemo-tag.talk { font-size: 30px; color: #1c1838; background: #f4f0ff; border-radius: 16px; padding: 8px 18px 10px; }
+.bdemo-tag.talk::after { border-top-color: #f4f0ff; }
+.bdemo-tag.out { animation: bdTagOut .35s steps(3) forwards; }
+@keyframes bdFocusIn { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: scale(1); } }
+@keyframes bdFocusPulse { 50% { transform: scale(1.05); } }
+@keyframes bdFade { to { opacity: 0; } }
+@keyframes bdTagIn { from { opacity: 0; transform: translate(-50%, 14px) scale(.7); } to { opacity: 1; transform: translate(-50%, 0) scale(1); } }
+@keyframes bdTagOut { to { opacity: 0; transform: translate(-50%, -12px); } }

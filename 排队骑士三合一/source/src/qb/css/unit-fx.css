@@ -1,0 +1,307 @@
+/* ═════════════════════════════════════════════════════════════
+   单位特效（2026-10-23，FX-DESIGN 第 1–4 层）
+   一个动词一种形状，颜色跟阵营；一次性特效只动 transform/opacity。
+   ═════════════════════════════════════════════════════════════ */
+
+/* 触发提示：手机上 ≥18px；「单位名 · 能力」时名字弱一档 */
+.callout { font-size: 18px; padding: 4px 12px; }
+.callout .co-name { color: #e8e4ff; font-weight: 700; margin-right: 6px; opacity: .85; }
+.callout .co-sep { opacity: .5; margin-right: 6px; }
+
+/* 因果连线 */
+.fx-link {
+  height: 6px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--c) 0%, transparent), var(--c) 35%, #fff 92%, var(--c));
+  box-shadow: 0 0 12px var(--c);
+}
+
+/* 削弱：三枚下坠的像素箭头（暗红 / 紫） */
+.fx-debuff {
+  width: 44px;
+  height: 66px;
+  background:
+    linear-gradient(var(--c), var(--c)) 50% 0 / 44px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) 50% 22px / 44px 22px no-repeat,
+    linear-gradient(var(--c), var(--c)) 50% 44px / 44px 22px no-repeat;
+  clip-path: polygon(
+    0 0, 50% 18%, 100% 0, 100% 12%, 50% 30%, 0 12%,
+    0 33%, 50% 51%, 100% 33%, 100% 45%, 50% 63%, 0 45%,
+    0 66%, 50% 84%, 100% 66%, 100% 78%, 50% 100%, 0 78%);
+  filter: drop-shadow(0 0 6px var(--c));
+}
+.float.debuff {
+  color: #ff5f6d;
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  -webkit-text-stroke: 0;
+  text-shadow: 2px 0 0 #2a0612, -2px 0 0 #2a0612, 0 2px 0 #2a0612, 0 -2px 0 #2a0612, 0 0 12px rgba(255, 70, 110, .8);
+}
+.float.grant {
+  color: var(--c, #fff);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+  -webkit-text-stroke: 0;
+  text-shadow: 2px 0 0 #0b0820, -2px 0 0 #0b0820, 0 2px 0 #0b0820, 0 -2px 0 #0b0820, 0 0 12px currentColor;
+}
+/* 静默加成：伤害数字后面的小号 +N，用来源阵营色 */
+.float.bonus {
+  font: 20px/1 var(--num);
+  color: var(--c, #ffd36b);
+  -webkit-text-stroke: 0;
+  text-shadow: 2px 0 0 #120a1c, -2px 0 0 #120a1c, 0 2px 0 #120a1c, 0 -2px 0 #120a1c, 0 0 10px currentColor;
+}
+
+/* 授予词条：飞行的图标 / 短词 */
+.fx-token { display: flex; align-items: center; justify-content: center; }
+.fx-token .kpx { width: 40px; height: 40px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, .7)); }
+.fx-token .tk-word {
+  font: 900 22px/1 'Noto Sans SC', sans-serif;
+  color: var(--c);
+  padding: 4px 8px;
+  background: rgba(8, 8, 24, .88);
+  box-shadow: 2px 0 var(--c), -2px 0 var(--c), 0 2px var(--c), 0 -2px var(--c), 0 0 14px color-mix(in srgb, var(--c) 55%, transparent);
+  white-space: nowrap;
+}
+
+/* 冰壳：八角冰块 + 斜向冰面高光 */
+.fx-shell {
+  width: 118px;
+  height: 150px;
+  clip-path: polygon(22% 0, 78% 0, 100% 18%, 100% 84%, 80% 100%, 20% 100%, 0 84%, 0 18%);
+  background:
+    linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, .55) 24%, transparent 30%, transparent 58%, rgba(255, 255, 255, .35) 61%, transparent 66%),
+    linear-gradient(180deg, rgba(200, 248, 255, .5), rgba(110, 220, 255, .32) 60%, rgba(60, 170, 230, .45));
+  box-shadow: inset 0 0 0 4px rgba(220, 252, 255, .9), inset 0 0 22px rgba(120, 230, 255, .8);
+}
+
+/* 行动环：缺口圆环 + 箭头 */
+.fx-spin {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 6px solid var(--c);
+  -webkit-mask: conic-gradient(#000 0 300deg, transparent 300deg);
+  mask: conic-gradient(#000 0 300deg, transparent 300deg);
+  filter: drop-shadow(0 0 6px var(--c));
+}
+.fx-spin::after {
+  content: '';
+  position: absolute;
+  right: 6px;
+  top: 2px;
+  width: 22px;
+  height: 22px;
+  background: var(--c);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: rotate(-60deg);
+}
+
+/* 横扫光带 */
+.fx-sweep {
+  width: 150px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--c) 40%, transparent) 40%, var(--c) 78%, #fff 90%, transparent);
+  -webkit-mask: linear-gradient(0deg, transparent, #000 18%, #000 82%, transparent);
+  mask: linear-gradient(0deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+/* 施法法阵按阵营上色 */
+.cast-rune[data-f='light'] { background-image: var(--px-rune-light); }
+.cast-rune[data-f='shadow'] { background-image: var(--px-rune-shadow); }
+.cast-rune[data-f='abyss'] { background-image: var(--px-rune-abyss); }
+.cast-rune[data-f='magma'] { background-image: var(--px-rune-magma); }
+.cast-rune[data-f='frost'] { background-image: var(--px-rune-frost); }
+.cast-rune[data-f='desert'] { background-image: var(--px-rune-desert); }
+.cast-rune[data-f='neutral'] { background-image: var(--px-rune-neutral); }
+.cast-rune[data-f='enemy'] { background-image: var(--px-rune-enemy); }
+
+/* 元素弹道：形状说明元素，颜色跟阵营 */
+.orb.el-blade {
+  border-radius: 0;
+  background: linear-gradient(45deg, transparent 38%, #fff 44%, var(--c) 50%, #fff 56%, transparent 62%),
+              linear-gradient(-45deg, transparent 38%, #fff 44%, var(--c) 50%, #fff 56%, transparent 62%);
+  box-shadow: none;
+  filter: drop-shadow(0 0 6px var(--c));
+}
+.orb.el-blade::after { display: none; }
+.orb.el-soul {
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 60% 50%, #fff 0 18%, var(--c) 45%, transparent 72%);
+  box-shadow: 0 0 14px 4px var(--c);
+}
+.orb.el-soul::after {
+  inset: 10% 40% 10% -160%;
+  border-radius: 50%;
+  background: linear-gradient(270deg, color-mix(in srgb, var(--c) 70%, transparent), transparent);
+}
+.orb.el-fire {
+  background: radial-gradient(circle at 60% 45%, #fff 0 14%, #ffe08a 26%, var(--c) 52%, #c43a0a 66%, transparent 74%);
+  box-shadow: 0 0 18px 6px color-mix(in srgb, var(--c) 80%, #ff4a00);
+}
+.orb.el-fire::after {
+  inset: 15% 30% 15% -200%;
+  border-radius: 50%;
+  background: linear-gradient(270deg, rgba(120, 90, 80, .55), transparent);
+}
+.orb.el-ice {
+  border-radius: 0;
+  background: linear-gradient(90deg, transparent 0, #bff4ff 30%, #fff 70%, var(--c) 100%);
+  clip-path: polygon(0 50%, 30% 20%, 100% 50%, 30% 80%);
+  box-shadow: none;
+  filter: drop-shadow(0 0 6px var(--c));
+}
+.orb.el-ice::after { display: none; }
+
+/* 连击：第二段的短标签 */
+.float.combo {
+  color: #ff7ab0;
+  font: 900 20px/1 'Noto Sans SC', sans-serif;
+  -webkit-text-stroke: 0;
+  text-shadow: 2px 0 0 #2a0620, -2px 0 0 #2a0620, 0 2px 0 #2a0620, 0 -2px 0 #2a0620, 0 0 10px rgba(255, 120, 180, .8);
+}
+.float.bonus.f-light { --c: #ffd36b; }
+.float.bonus.f-shadow { --c: #ff5f6d; }
+.float.bonus.f-abyss { --c: #c99bff; }
+.float.bonus.f-magma { --c: #ff9a3d; }
+.float.bonus.f-frost { --c: #6fe6ff; }
+.float.bonus.f-desert { --c: #e9bd72; }
+.float.bonus.f-neutral { --c: #e6ebf5; }
+.float.bonus.f-enemy { --c: #ff4b6e; }
+
+/* ═════════════ 第 3 层：常驻状态（只动 transform / opacity） ═════════════ */
+
+/* 蓄力格：属性行上方一排小格，差一格就满时整排轻跳 */
+.u-cpips {
+  position: absolute;
+  left: 50%;
+  top: 78px;
+  display: flex;
+  gap: 3px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.u-cpips span {
+  width: 11px;
+  height: 7px;
+  background: rgba(20, 16, 40, .85);
+  box-shadow: 0 0 0 2px #2a2108;
+}
+.u-cpips span.on {
+  background: linear-gradient(#fff6c4, #ffcf4a 60%, #c98a12);
+  box-shadow: 0 0 0 2px #3a2a00, 0 0 6px rgba(255, 207, 74, .8);
+}
+.unit.charge-ready .u-cpips { animation: cpReady .9s ease-in-out infinite; }
+@keyframes cpReady { 50% { transform: translateX(-50%) translateY(-4px); } }
+
+/* 节拍倒计时牌（右上角），最后一拍变红并呼吸 */
+.u-pulse {
+  position: absolute;
+  left: 82px;
+  top: 0;
+  width: 30px;
+  height: 30px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(-50%);
+  background: #1a0f2a;
+  box-shadow: 0 0 0 2px #ff7ab0, 0 0 0 4px #1a0f2a, 0 0 10px rgba(255, 122, 176, .6);
+  pointer-events: none;
+}
+.unit.has-pulse .u-pulse { display: flex; }
+.u-pulse i { font: 20px/1 var(--num); font-style: normal; color: #ffd1e6; text-shadow: 2px 2px 0 #000; }
+.u-pulse.last { box-shadow: 0 0 0 2px #ff4b6e, 0 0 0 4px #1a0f2a, 0 0 14px rgba(255, 75, 110, .9); }
+.u-pulse.last i { color: #fff; }
+.u-pulse.last::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  box-shadow: 0 0 0 2px #ff4b6e;
+  animation: plLast .8s ease-out infinite;
+}
+@keyframes plLast { from { transform: scale(.8); opacity: 1; } to { transform: scale(1.35); opacity: 0; } }
+
+/* 幼兽蛋 / 龙蛋：裂纹分 3 档 */
+.u-crack, .u-crack::before, .u-crack::after {
+  position: absolute;
+  inset: 22% 22% 18%;
+  opacity: 0;
+  transition: opacity .2s steps(2);
+  pointer-events: none;
+}
+.u-crack::before, .u-crack::after { content: ''; inset: 0; }
+.u-crack::before {
+  background: #2a0e00;
+  clip-path: polygon(46% 8%, 52% 8%, 44% 30%, 58% 40%, 46% 62%, 42% 60%, 52% 42%, 38% 32%);
+}
+.u-crack::after {
+  background: #2a0e00;
+  clip-path: polygon(14% 40%, 30% 36%, 34% 52%, 28% 54%, 26% 44%, 16% 46%, 70% 30%, 84% 22%, 86% 28%, 74% 36%, 78% 52%, 72% 52%);
+}
+.u-crack {
+  background: radial-gradient(ellipse at 50% 55%, rgba(255, 170, 60, .55), transparent 60%);
+}
+.unit[data-crack='1'] .u-crack, .unit[data-crack='2'] .u-crack, .unit[data-crack='3'] .u-crack { opacity: 1; background: none; }
+.unit[data-crack='1'] .u-crack::before, .unit[data-crack='2'] .u-crack::before, .unit[data-crack='3'] .u-crack::before { opacity: 1; }
+.unit[data-crack='2'] .u-crack::after, .unit[data-crack='3'] .u-crack::after { opacity: 1; }
+.unit[data-crack='3'] .u-crack { background: radial-gradient(ellipse at 50% 55%, rgba(255, 170, 60, .55), transparent 60%); animation: crackGlow .5s steps(2) infinite; }
+@keyframes crackGlow { 50% { opacity: .55; } }
+
+/* 嘲讽：从面向敌人的一侧不断向外扩散的像素声波弧，像在叫阵 */
+.u-taunt { position: absolute; left: 102px; top: 14px; width: 48px; height: 60px; opacity: 0; pointer-events: none; }
+.unit.side-1 .u-taunt { left: -50px; transform: scaleX(-1); }
+.u-taunt::before, .u-taunt::after, .u-taunt i {
+  content: ''; position: absolute; left: 0; top: 50%; width: 18px; height: 40px; margin-top: -20px;
+  border: 4px solid #ffd36b; border-left: 0; border-radius: 0 50% 50% 0 / 0 50% 50% 0;
+  filter: drop-shadow(0 0 4px rgba(255, 190, 70, .8)); opacity: 0;
+}
+.unit.kw-taunt .u-taunt { opacity: 1; }
+.unit.kw-taunt .u-taunt::before, .unit.kw-taunt .u-taunt::after { animation: tauntWave 1.5s steps(6) infinite; }
+.unit.kw-taunt .u-taunt::after { animation-delay: -.75s; }
+@keyframes tauntWave {
+  0% { opacity: 0; transform: translateX(0) scale(.55); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(26px) scale(1.15); }
+}
+
+/* 深渊主母：带亡语的友军左侧一枚紫色标记 */
+.u-mat {
+  position: absolute;
+  left: -2px;
+  top: 46px;
+  width: 14px;
+  height: 14px;
+  opacity: 0;
+  transform: rotate(45deg) scale(.4);
+  background: linear-gradient(135deg, #f0dcff, #a35cff 55%, #4b1a8a);
+  box-shadow: 0 0 0 2px #1a0a2e, 0 0 10px rgba(197, 144, 255, .9);
+  transition: opacity .25s, transform .25s cubic-bezier(.2, 1.6, .4, 1);
+  pointer-events: none;
+}
+.unit.mat-on .u-mat { opacity: 1; transform: rotate(45deg) scale(1); animation: matBreath 2.4s ease-in-out infinite; }
+@keyframes matBreath { 50% { opacity: .6; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .unit.charge-ready .u-cpips, .u-pulse.last::after, .unit[data-crack='3'] .u-crack, .unit.kw-taunt .u-taunt::before, .unit.kw-taunt .u-taunt::after, .unit.mat-on .u-mat { animation: none; }
+  .unit.kw-taunt .u-taunt::before { opacity: 1; transform: translateX(8px); }
+}
+[data-unit-motion="off"] .unit.charge-ready .u-cpips,
+[data-unit-motion="off"] .u-pulse.last::after,
+[data-unit-motion="off"] .unit[data-crack='3'] .u-crack,
+[data-unit-motion="off"] .unit.kw-taunt .u-taunt::before,
+[data-unit-motion="off"] .unit.kw-taunt .u-taunt::after,
+[data-unit-motion="off"] .unit.mat-on .u-mat { animation: none; }
+[data-unit-motion="off"] .unit.kw-taunt .u-taunt::before { opacity: 1; transform: translateX(8px); }
+
+/* ═════════════ 第 4 层：专属 ═════════════ */
+/* 骨手：五指像素剪影 */
+.fx-hand {
+  width: 56px;
+  height: 84px;
+  transform-origin: 50% 100%;
+  background: linear-gradient(#f4ecd8, #b9ab8a);
+  clip-path: polygon(30% 100%, 30% 52%, 6% 40%, 10% 32%, 30% 40%, 26% 4%, 36% 4%, 40% 34%, 46% 0, 56% 0, 56% 34%, 64% 6%, 74% 8%, 68% 38%, 82% 18%, 92% 22%, 72% 58%, 70% 100%);
+  filter: drop-shadow(0 0 8px rgba(197, 144, 255, .9));
+}

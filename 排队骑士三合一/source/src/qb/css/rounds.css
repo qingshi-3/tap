@@ -1,0 +1,66 @@
+/* Round state stays in the existing order strip and unit presentation. */
+.unit.action-spent:not(.next-actor) .u-art { filter: saturate(.45) brightness(.74); }
+.unit.action-spent:not(.next-actor) .u-glow { opacity: .12; }
+.order-strip { top: 138px; flex-direction: column; gap: 8px; font-size: 25px; line-height: 1.2; }
+.order-strip .os-round { color: #fff0be; white-space: nowrap; }
+.order-strip .os-queues { display: flex; align-items: center; gap: 28px; }
+.order-strip .os-side { white-space: nowrap; gap: 8px; }
+.order-strip .os-wait { color: #b9c7d8; padding: 3px 8px; background: #233246; }
+.order-strip .os-u { min-width: 28px; height: 30px; padding: 0 5px; border: 0; border-radius: 0; background: #334b69; color: #eaf2ff; }
+.order-strip .os-u.first { background: #b59039; color: #fff7cd; }
+.order-strip .os-side.enemy .os-u { background: #633546; }
+.order-strip .os-side.enemy .os-u.first { background: #a84f5d; color: #fff0ef; }
+.vs.beat .vs-lbl {
+  position: absolute; bottom: calc(100% - 4px); left: 50%; transform: translateX(-50%);
+  height: 26px; padding: 0 9px; display: flex; align-items: center; white-space: nowrap;
+  font-size: 18px; font-weight: 700; letter-spacing: .1em; color: #ffe9a8; background: #120e34;
+  border-style: solid; border-width: 0; border-image: var(--pxf-gold) 6 / 8px / 0 stretch;
+}
+.vs.beat .vs-lbl:empty { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .unit.next-actor::before { animation: none; }
+}
+
+/* 中线：大字回合，下方圆点为本回合已进行的交锋 */
+.vs-pips { position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); display: flex; gap: 5px; pointer-events: none; }
+.vs-pips i { width: 9px; height: 9px; background: #8a7a4a; transform: rotate(45deg); }
+.vs-pips i.on { background: #ffe58a; box-shadow: 0 0 6px #ffcf40; }
+
+/* 出手顺序：双方同号同时出手。像素号牌占用槽位编号那一行，槽位号让位，「队首」下移 */
+.unit[data-order]::after {
+  content: attr(data-order);
+  position: absolute; left: 50%; bottom: -60px; transform: translateX(-50%);
+  min-width: 30px; height: 28px; box-sizing: border-box; padding: 0 7px;
+  display: flex; align-items: center; justify-content: center;
+  font: 19px/1 var(--num, sans-serif); color: #dfe6ff; background: #1b1846;
+  border-style: solid; border-width: 0; border-image: var(--pxf-steel) 6 / 8px / 0 stretch;
+  text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000;
+  pointer-events: none; z-index: 5;
+}
+.unit.side-1[data-order]::after { background: #2a0e1c; color: #ffd9de; border-image-source: var(--pxf-red); }
+.unit.next-actor[data-order]::after { background: #3a2408; color: #fff3c4; border-image-source: var(--pxf-gold); }
+.board.ordering .slot-num b { display: none; }
+.board.ordering .slot .slot-num { top: 128px; }
+
+/* 追击残影 */
+.u-ghost { position: absolute; inset: 0; pointer-events: none; filter: none; }
+
+/* 中线「交锋 m/n」：像素绶带，m 大字金色是主角，/n 小字退后 */
+.vs-pips.clash {
+  top: calc(100% + 10px); gap: 0; align-items: baseline; white-space: nowrap;
+  padding: 3px 18px 5px; color: #e8dcff;
+  font: 18px/1 var(--num, sans-serif);
+}
+/* 绶带底放在伪元素上裁形，不裁到图鉴演示挂上来的框选 */
+.vs-pips.clash::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(#2a2160, #15103a);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 10px) 50%, 100% 100%, 0 100%, 10px 50%);
+}
+.vs-pips.clash::after { content: ''; position: absolute; inset: 3px 12px; z-index: -1; border-top: 2px solid rgba(255, 211, 107, .35); border-bottom: 2px solid rgba(255, 211, 107, .35); pointer-events: none; }
+.vs-pips.clash span { align-self: center; font-size: 18px; letter-spacing: .1em; margin-right: 8px; color: #b9aee6; }
+.vs-pips.clash em { font-style: normal; font-size: 34px; color: #ffe58a; text-shadow: 0 3px 0 #7a4a10, 0 0 10px rgba(255, 200, 80, .55); }
+.vs-pips.clash i { width: auto; height: auto; background: none; transform: none; margin: 0 2px 0 4px; font-size: 18px; color: #7d74a8; font-style: normal; }
+.vs-pips.clash b { display: inline-block; font-size: 18px; color: #c9c1ea; }
+/* 等待提示收到中线下方 */
+.order-strip { top: 404px; font-size: 20px; gap: 4px; }

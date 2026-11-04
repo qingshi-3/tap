@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-26T00:00:00+08:00",
+  "gitHead": "88a987ddacc6a113135c3780190df950c8f7ac98",
+  "basis": "Current working tree immediately before final Boss production edits; intentionally not reconstructed from HEAD.",
+  "imports": "Frozen simulation graph: run -> data, engine, ghosts, encounters; engine -> battleStats, data; bot -> run, data.",
+  "files": {
+    "run.ts": { "source": "src/core/run.ts", "sourceGitBlob": "33bfa3d2f49af7fc577a06d31cfd5b9dc6abc95e", "frozenSha256": "03bc9474811a3bff4a43acce56c1e7c73ad0881d31d93e4d2246a7840c072ef4" },
+    "data.ts": { "source": "src/core/data.ts", "sourceGitBlob": "884a562ab4fb38ea1809a3069d99145335c8d3fa", "frozenSha256": "b25e8a3333a002c25a55a57116367930e5eb7d2b4f8159c7692a8bd17ddfae3f" },
+    "engine.ts": { "source": "src/core/engine.ts", "sourceGitBlob": "dc98f96078c4b3242b52ac1459ecc13191c2ed29", "frozenSha256": "6afc51010d2a6c83fe845b9d54a612652be4f4936d72f099d9fc8e5342ad7247" },
+    "battleStats.ts": { "source": "src/core/battleStats.ts", "sourceGitBlob": "658291d6b4877d09c8a9b8af61d5ac0cff730ae8", "frozenSha256": "8d49a9b77563c84909c633cc42360b6207ca54071ae347d8288c02790270074a" },
+    "ghosts.json": { "source": "src/core/ghosts.json", "sourceGitBlob": "aa0a1e8844f09efe99330cebb0fa9d2919d154e0", "frozenSha256": "bf9ce3bc749581affeaa498c3dae2ec6161960897d5d91ba05b65f5042d6dd80" },
+    "encounters.ts": { "source": "src/core/encounters.ts", "sourceGitBlob": "5a561dc7a325c8270d605438879a05209b4d3bae", "frozenSha256": "192c24b5708be69d72e5b8671f0884dbefccb32178c85387429f97e787ca4ebc" },
+    "bot.ts": { "source": "scripts/bot.ts", "sourceGitBlob": "3e4fbae5918494b759da5b45eca22b1052c2f318", "sourceSha256": "d283565824addda0de98e3868c31a12be8580b1c079aaa786518d4571437eb5a", "frozenSha256": "4e712e8b3a4dfa057b03de99192c052683ca6cd6712013dd28698f70d80437f5", "note": "Frozen copy differs only in its two import specifiers, redirected to local frozen modules." }
+  }
+}
