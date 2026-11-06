@@ -1,0 +1,61 @@
+.discover-overlay { position:absolute; inset:0; z-index:90; display:flex; flex-direction:column; align-items:center; justify-content:center; background:radial-gradient(ellipse at 50% 46%,rgba(14,10,34,.8),rgba(2,2,10,.93) 70%); }
+.discover-heading { display:flex; align-items:center; gap:14px; height:46px; color:#fff; text-shadow:0 2px #000; }
+.discover-heading span { background:linear-gradient(180deg,#72b5b5 0 3px,#347b80 3px 52%,#286168 52% calc(100% - 4px),#193e49 calc(100% - 4px)); color:#e0ffff; padding:6px 14px 8px; font-size:20px; font-weight:700; text-shadow:0 2px #183d47; }
+.discover-heading h2 { margin:0; font-size:30px; }
+.discover-row { display:flex; align-items:flex-start; justify-content:center; gap:48px; perspective:1000px; }
+.discover-slot { position:relative; width:210px; height:440px; padding:0; border:0; background:transparent; color:#fff; cursor:pointer; transform-style:preserve-3d; animation:discover-arrive 560ms cubic-bezier(.25,.8,.35,1) var(--delay) backwards; transition:transform .2s,opacity .2s; }
+.discover-slot > .card { position:absolute; top:36px; left:11px; pointer-events:none; cursor:inherit; filter:drop-shadow(0 0 12px rgba(75,224,242,.45)); }
+.discover-slot > .card:hover { transform:none; }
+.discover-slot .card-text { display:none; }
+.discover-price { position:absolute; top:302px; left:0; right:0; color:#8cf8ff; font-size:20px; text-align:center; }
+.discover-description { display:block; position:absolute; top:324px; left:0; right:0; max-height:112px; overflow-y:auto; touch-action:pan-y; overscroll-behavior:contain; scrollbar-width:none; font-size:19px; line-height:1.25; text-align:center; color:#eefbff; }
+.discover-description::-webkit-scrollbar { display:none; }
+.discover-slot.selected { transform:translateY(-10px); z-index:2; }
+.discover-slot.dimmed { opacity:.55; transform:scale(.96); }
+.discover-rays, .discover-halo { display:none; position:absolute; pointer-events:none; }
+.discover-slot.selected .discover-rays { display:block; width:320px; height:320px; left:-55px; top:0; background:repeating-conic-gradient(from 0deg,rgba(107,239,255,.3) 0deg 7deg,transparent 7deg 22deg); mask-image:radial-gradient(circle,#000 18%,transparent 66%); animation:discover-spin 9s linear infinite; }
+.discover-slot.selected .discover-halo { display:block; left:-20px; right:-20px; top:260px; height:80px; background:radial-gradient(ellipse,rgba(61,219,239,.45),transparent 70%); }
+.discover-confirm,.discover-look,.discover-destinations button,.game .legion-badge { border:0; border-radius:0; font-weight:700; cursor:pointer; }
+.discover-confirm,.discover-look { padding:10px 25px; min-height:48px; font-size:22px; }
+.discover-confirm { color:#4a2604; text-shadow:0 2px #fff6; background:linear-gradient(180deg,#fff1b8 0 4px,#ffd36b 4px 52%,#f0b048 52% calc(100% - 6px),#b06a1a calc(100% - 6px)); }
+.discover-confirm:disabled { background:linear-gradient(180deg,#777984 0 4px,#585b66 4px 52%,#484a54 52% calc(100% - 6px),#30323a calc(100% - 6px)); color:#b2b3bb; text-shadow:none; cursor:default; }
+.discover-confirm:not(:disabled):hover,.discover-look:hover,.discover-destinations button:hover,.game .legion-badge:hover { filter:brightness(1.12); }
+.discover-confirm:not(:disabled):active,.discover-look:active,.discover-destinations button:active,.game .legion-badge:active { filter:brightness(.86); transform:translateY(2px); }
+.discover-confirm:focus-visible,.discover-look:focus-visible,.discover-slot:focus-visible { outline:3px solid #fff; outline-offset:4px; }
+.discover-look { position:absolute; bottom:18px; left:18px; color:#eef0ff; text-shadow:0 2px #182034; background:linear-gradient(180deg,#61728b 0 4px,#3c4b65 4px 52%,#303c54 52% calc(100% - 6px),#202b40 calc(100% - 6px)); touch-action:none; }
+.discover-overlay.looking { background:transparent; pointer-events:none; }
+.discover-overlay.looking > :not(.discover-look) { opacity:0; }
+.discover-overlay.looking .discover-look { pointer-events:auto; }
+.discover-overlay.departing .discover-heading,.discover-overlay.departing .discover-confirm,.discover-overlay.departing .discover-look,.discover-overlay.departing .discover-destinations { opacity:0; transition:opacity .25s; }
+.discover-overlay.departing .discover-slot:not(.flying) { animation:discover-dismiss 360ms ease-in both; }
+.discover-slot.flying { animation:discover-fly 360ms ease-in both; }
+@keyframes discover-arrive { 0% { transform:translate(var(--origin-x,0px),var(--origin-y,0px)) scale(.2) rotateY(180deg); opacity:0; } 70% { transform:translateY(-26px) scale(1.06) rotateY(0); opacity:1; } 100% { transform:translateY(0) scale(1) rotateY(0); opacity:1; } }
+@keyframes discover-spin { to { transform:rotate(360deg); } }
+@keyframes discover-fly { 30% { transform:translateY(-40px) scale(1.12); opacity:1; } 100% { transform:translate(var(--fly-x,0px),var(--fly-y,0px)) scale(.22); opacity:0; } }
+@keyframes discover-dismiss { to { transform:translateY(36px) scale(.96); opacity:0; } }
+@media (prefers-reduced-motion:reduce) { .discover-slot,.discover-slot.selected .discover-rays,.discover-slot.flying,.discover-overlay.departing .discover-slot:not(.flying) { animation:none; } .discover-slot { transition:none; } }
+
+.discover-destinations { display:flex; gap:8px; }
+.discover-destinations:empty { display:none; }
+.discover-destinations button { padding:6px 16px 8px; background:linear-gradient(180deg,#61728b 0 3px,#3c4b65 3px 52%,#303c54 52% calc(100% - 5px),#202b40 calc(100% - 5px)); color:#eef0ff; text-shadow:0 2px #182034; font-size:18px; min-height:44px; }
+.discover-destinations button.active { background:linear-gradient(180deg,#b2e9df 0 3px,#60b5a7 3px 52%,#398d83 52% calc(100% - 5px),#205b5b calc(100% - 5px)); color:#102e32; text-shadow:0 1px #c1fff488; }
+.discover-destinations button:focus-visible { outline:3px solid white; }
+.game .v07-unit-progress { position:absolute; right:100%; top:8px; display:flex; flex-direction:column; gap:3px; white-space:nowrap; color:#fff; font-size:18px; text-shadow:-1px -1px #192130,1px -1px #192130,-1px 1px #192130,1px 1px #192130; pointer-events:none; }
+.game .legion-badge { position:absolute; z-index:8; left:300px; bottom:296px; display:flex; align-items:center; gap:4px; padding:5px 10px 7px; min-height:44px; background:linear-gradient(180deg,#e6b979 0 3px,#a46137 3px 52%,#814422 52% calc(100% - 5px),#522819 calc(100% - 5px)); color:#fff0cc; text-shadow:0 2px #502718; font-size:20px; }
+.game .legion-badge .px-item { width:26px; height:26px; }
+.game .legion-badge:focus-visible { outline:3px solid #fff; }
+.game .tray.paid-shelf .reroll.free-reroll { background:#287a4d; box-shadow:0 0 18px rgba(80,255,150,.55); }
+.game .tray.paid-shelf .food-tile.spell-tile { background:linear-gradient(#674c88,#322447); box-shadow:inset 0 2px #ae86d4,inset 0 -3px #20152f,0 3px #090711; }
+.game .discover-card { filter:drop-shadow(0 0 10px #54e8f4); }
+.discover-shelf-tag { position:absolute; z-index:4; left:0; right:0; top:-20px; display:flex; justify-content:center; gap:8px; padding:3px 5px 5px; background:linear-gradient(180deg,#72b5b5 0 3px,#347b80 3px 52%,#286168 52% calc(100% - 4px),#193e49 calc(100% - 4px)); color:#e0ffff; font-size:18px; font-weight:700; text-shadow:0 2px #183d47; }
+.discover-shelf-tag i { font-style:normal; color:#9dfff1; }
+/* 短横屏的舞台会整体缩小；把说明与触控区放大，卡槽仍保持 440 高。 */
+.compact .discover-slot { width:300px; }
+.compact .discover-slot > .card { left:56px; }
+.compact .discover-slot.selected .discover-rays { left:-10px; }
+.compact .discover-description { font-size:34px; line-height:1.1; max-height:116px; }
+.compact .discover-price { font-size:26px; }
+.compact .discover-heading span { font-size:26px; }
+.compact .discover-heading h2 { font-size:34px; }
+.compact .discover-confirm,.compact .discover-look { min-height:72px; min-width:168px; font-size:30px; }
+.compact .discover-destinations button { min-height:56px; font-size:26px; }

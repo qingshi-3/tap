@@ -7,7 +7,7 @@ const toolbar = document.createElement('nav');
 toolbar.setAttribute('aria-label', '本地验证用例');
 toolbar.style.cssText = 'position:fixed;left:8px;top:4px;z-index:999;display:flex;gap:4px;font:12px sans-serif';
 const make = (def: string, oid: number, copies = 3, bonus = 8): Owned => ({ def, oid, copies, atkBonus: bonus, hpBonus: bonus });
-for (const [key, label] of [['stats', '统计阵容'], ['supply', '补给与成长'], ['morph', '变形预览'], ['loss', '失败战报']] as const) {
+for (const [key, label] of [['stats', '统计阵容'], ['supply', '补给与成长'], ['morph', '变形预览'], ['loss', '失败战报'], ['discover', '发现验证']] as const) {
   const button = document.createElement('button'); button.textContent = label;
   button.style.cssText = 'padding:6px 10px;color:#fff;background:#25344c;border:1px solid #8d9cb2';
   button.onclick = () => {
@@ -33,6 +33,7 @@ for (const [key, label] of [['stats', '统计阵容'], ['supply', '补给与成�
       { sid: 204, kind: 'food', def: 'f_dragon', locked: false, free: false },
       { sid: 205, kind: 'food', def: 'f_bread', locked: false, free: false },
     ]; r.nextId = 206;
+    if (key === 'discover') r.discoverQueue = [{ source: '招募令', title: '招募令', free: true, options: [{ def: 'l_warden' }, { def: 'd_dune' }, { def: 'm_whelp' }] }];
     (window as unknown as { __app: App }).__app.startRun(r);
   };
   toolbar.append(button);

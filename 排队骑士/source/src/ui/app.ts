@@ -16,6 +16,7 @@ import { card, LINES, SHOP_POOL } from '../core/data';
 import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, WIN_GOAL, type Diff, type RunState } from '../core/run';
 import { Game } from './prep';
 import { codexScreen } from './codex';
+import { SceneTransition } from '../qb/sceneTransition';
 
 // ── 本地战绩 ──
 const REC_KEY = 'pdqs_records';
@@ -62,6 +63,7 @@ export class App {
   private game: Game | null = null;
   private ambientControl: ReturnType<typeof ambient>;
   private titleAtmosphere: ReturnType<typeof mountTitleAtmosphere> | null = null;
+  private sceneTransition: SceneTransition;
 
   private syncRendering = () => {
     const paused = document.hidden;
@@ -79,6 +81,7 @@ export class App {
     this.world = h('div', { class: 'world' }, bg, motes, this.screenEl);
     stage.append(this.world, h('div', { class: 'vignette' }));
     this.fx = new FX(stage, this.world);
+    this.sceneTransition = new SceneTransition(stage);
     initTip(stage);
     this.ambientControl = ambient(motes);
     document.addEventListener('visibilitychange', this.syncRendering);
@@ -98,16 +101,27 @@ export class App {
     this.fx.clear();
   }
 
-  show(el: HTMLElement) {
+  transitionScene(swap: () => void, ready?: () => void, rate = 1) {
     hideTip();
-    this.titleAtmosphere?.dispose();
-    this.titleAtmosphere = null;
-    this.screenEl.replaceChildren(el);
-    if (el.classList.contains('title')) this.titleAtmosphere = mountTitleAtmosphere(el);
-    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) el.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 260, easing: 'ease-out' });
+    return this.sceneTransition.run(swap, { ready, rate, animate: this.screenEl.childElementCount > 0 });
+  }
+
+  cancelSceneTransition() { this.sceneTransition.cancel(); }
+
+  show(el: HTMLElement, mount?: () => void, ready?: () => void) {
+    return this.transitionScene(() => {
+      this.titleAtmosphere?.dispose();
+      this.titleAtmosphere = null;
+      this.screenEl.replaceChildren(el);
+      mount?.();
+    }, () => {
+      if (el.classList.contains('title')) this.titleAtmosphere = mountTitleAtmosphere(el);
+      ready?.();
+    });
   }
 
   toTitle() {
+    if (this.sceneTransition.busy) return;
     this.leaveGame(true);
     setTitleMusic(true);
     // 每个引擎挑一张最高阶的卡做门面
@@ -132,10 +146,10 @@ export class App {
     records.addEventListener('click', () => { sfx.click(); this.toRecords(); });
     const tutorial = h('button', { class: tutorialDone() ? 'icon-btn title-tool title-tut-done' : 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
     tutorial.addEventListener('click', () => {
+      if (this.sceneTransition.busy) return;
       this.leaveGame();
-      this.game = new Game(this, newTutorialRun(), true);
-      this.show(this.game.el);
-      this.game.start();
+      const game = this.game = new Game(this, newTutorialRun(), true);
+      void this.show(game.el, () => game.prepare(), () => game.start());
     });
     const volume = h('button', { class: 'icon-btn title-volume', 'aria-label': '设置' }, icon(quiet() ? 'mute' : 'sound'));
     volume.addEventListener('click', () => { sfx.click(); this.settings(() => volume.replaceChildren(icon(quiet() ? 'mute' : 'sound'))); });
@@ -161,12 +175,14 @@ export class App {
   }
 
   toCodex() {
+    if (this.sceneTransition.busy) return;
     this.leaveGame(true);
     setTitleMusic(true);
     this.show(codexScreen(() => this.toTitle()));
   }
 
   toRecords() {
+    if (this.sceneTransition.busy) return;
     this.leaveGame(true);
     setTitleMusic(true);
     const rec = loadRecords();
@@ -198,15 +214,16 @@ export class App {
   }
 
   startRun(r: RunState) {
+    if (this.sceneTransition.busy) return;
     this.leaveGame();
     save(r);
-    this.game = new Game(this, r);
-    this.show(this.game.el);
-    this.game.start();
+    const game = this.game = new Game(this, r);
+    void this.show(game.el, () => game.prepare(), () => game.start());
   }
 
   /** 一局结束：记战绩、清存档、结算页 */
   endRun(r: RunState) {
+    if (this.sceneTransition.busy) return;
     recordRun(r);
     save(null);
     this.leaveGame();
@@ -229,8 +246,11 @@ export class App {
       h('div', { class: 'end-team' }, team.map((o) => h('div', { class: 'end-unit' },
         tierArt('eu-art', o!.def, card(o!.def).tier), h('div', { class: 'eu-name' }, card(o!.def).name), h('div', { class: 'eu-lv' }, '★'.repeat(lvlOf(o!.copies)))))),
       h('div', { class: 'end-btns' }, home, again));
-    this.show(el);
-    if (won) for (let i = 0; i < 4; i++) setTimeout(() => this.fx.burst(320 + i * 220, 200 + (i % 2) * 60, ['#ffd36b', '#7dffb0', '#8fd8ff', '#ff9ad6'][i], { n: 40, speed: 9 }), i * 220);
+    void this.show(el, undefined, () => {
+      if (won) for (let i = 0; i < 4; i++) setTimeout(() => {
+        if (el.isConnected) this.fx.burst(320 + i * 220, 200 + (i % 2) * 60, ['#ffd36b', '#7dffb0', '#8fd8ff', '#ff9ad6'][i], { n: 40, speed: 9 });
+      }, i * 220);
+    });
   }
 
   modal(content: HTMLElement, cls = '', mount: HTMLElement = this.stage) {

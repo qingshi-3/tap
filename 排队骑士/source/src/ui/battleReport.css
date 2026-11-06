@@ -1,0 +1,205 @@
+.br7 { --ally:#e9bc67; --enemy:#e06a6a; height:560px; display:grid; grid-template-rows:138px minmax(0,330px) 92px; background:radial-gradient(ellipse at 50% 40%,#29264b,#14162c 76%); color:#f3ebd9; font-size:18px; }
+.br7 button { font:inherit; color:inherit; border:0; border-radius:0; cursor:pointer; }
+.br7 button:focus-visible { outline:3px solid #fff0a3; outline-offset:-3px; }
+.br7 button:disabled { opacity:.45; cursor:default; }
+.br7-top { display:flex; align-items:center; gap:18px; padding:10px 14px; min-width:0; }
+.br7-result { display:flex; flex-direction:column; align-items:center; justify-content:center; flex:0 0 95px; font-size:38px; color:var(--ally); }
+.br7-result.lose { color:var(--enemy); }.br7-result.draw { color:#c9c4db; }.br7-result small { font-size:18px; color:#d0cadc; white-space:nowrap; }
+.br7-medals { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:7px; flex:1; min-width:0; }
+.br7-medal { display:flex; align-items:center; gap:4px; min-width:0; height:100px; padding:5px; text-align:left; background:#343047; }
+.br7-medal.enemy { background:#3d2d3d; }
+.br7-medal-symbol { color:var(--ally); font-size:26px; }.br7-medal.enemy .br7-medal-symbol { color:var(--enemy); }
+.br7-medal-text { display:flex; flex-direction:column; overflow:hidden; line-height:1.15; }.br7-medal-text span { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }.br7-medal-text strong { color:var(--ally); font-size:22px; }.br7-medal.enemy strong { color:var(--enemy); }
+.br7-portrait { display:inline-grid; position:relative; place-items:center; flex:none; width:48px; height:48px; overflow:hidden; background:#22263a; font-size:24px; }
+.br7-portrait > span,.br7-portrait .uart { width:48px; height:48px; }.br7-portrait .px-item { width:40px; height:40px; }.br7-portrait.dead > span { filter:grayscale(1); opacity:.55; }.br7-portrait i { position:absolute; color:#f07171; font: bold 32px/1 sans-serif; font-style:normal; }
+.br7-middle { min-height:0; overflow:hidden; padding:0 14px; display:flex; flex-direction:column; gap:5px; }
+.br7-tabs { display:flex; justify-content:center; gap:5px; }.br7-tabs button { min-width:76px; min-height:38px; background:#363a51; }.br7-tabs button.active { background:var(--ally); color:#221e28; }
+.br7-tug { display:grid; grid-template-columns:65px minmax(0,1fr) 65px; align-items:center; gap:8px; text-align:center; font-size:22px; }.br7-tug b:first-child { color:var(--ally); }.br7-tug b:last-child { color:var(--enemy); }.br7-tug-track { height:15px; position:relative; background:var(--enemy); }.br7-tug-track span { display:block; height:100%; background:var(--ally); }.br7-tug-track i { position:absolute; left:50%; top:-5px; height:25px; width:3px; background:#f4eee2; }
+.br7-columns { display:grid; grid-template-columns:1fr 1fr; gap:4px; min-height:0; flex:1; }.br7-side { overflow:auto; min-width:0; scrollbar-width:thin; }.br7-row { display:grid; grid-template-columns:48px minmax(55px,100px) minmax(0,1fr) 54px; gap:5px; align-items:center; width:100%; min-height:52px; padding:2px 4px; background:#20243a; text-align:left; }.br7-row.selected { background:#4b4050; }.br7-row:hover { background:#393b50; }.br7-row strong { text-align:right; color:var(--ally); font-size:22px; }.br7-side.enemy .br7-row strong { color:var(--enemy); }.br7-row-name { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }.br7-rail { display:flex; height:13px; min-width:0; background:#111424; }.br7-rail i { display:block; flex:none; height:100%; background:var(--ally); }.br7-side.enemy .br7-rail { flex-direction:row-reverse; }.br7-side.enemy .br7-rail i { background:var(--enemy); }
+.br7-detail { display:flex; align-items:center; gap:12px; overflow-x:auto; white-space:nowrap; min-height:32px; color:#e9e0d2; }.br7-detail i { display:inline-block; width:10px; height:10px; margin-right:4px; }
+.br7-fighters { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:10px; width:34%; height:100%; float:left; }.br7-duel { display:flex; align-items:center; gap:14px; color:#d6c5a5; }.br7-duel .br7-portrait,.br7-duel .br7-portrait > span,.br7-duel .br7-portrait .uart { width:76px; height:76px; }.br7-duel-damage { display:flex; gap:14px; align-items:center; }.br7-duel-damage strong:first-child { color:var(--ally); }.br7-duel-damage strong:last-child { color:var(--enemy); }
+.br7-middle:has(.br7-fighters) { flex-direction:row; }.br7-actions { flex:1; min-width:0; overflow-y:auto; scrollbar-width:thin; }.br7-action { position:relative; display:flex; align-items:center; gap:10px; min-height:54px; margin-bottom:3px; padding:3px 2px; background:transparent; }.br7-action.ally .br7-action-icon { color:var(--ally); }.br7-action.enemy .br7-action-icon { color:var(--enemy); }.br7-action.ally::after,.br7-action.enemy::after { content:""; position:absolute; bottom:0; left:2px; width:24px; height:2px; background:var(--ally); }.br7-action.enemy::after { background:var(--enemy); }.br7-action-icon { font-size:25px; color:#c7c6d7; }.br7-action-value { font-size:22px; }.br7-action.damage .br7-action-value { color:#f08585; }.br7-action.heal .br7-action-value { color:#80d799; }.br7-action.block .br7-action-value { color:#83bde8; }.br7-empty { padding:18px; color:#bdb9ca; }
+.br7-timeline { display:flex; align-items:end; gap:7px; overflow-x:auto; overflow-y:hidden; padding:8px 14px 5px; scrollbar-width:none; touch-action:pan-x; overscroll-behavior:contain; }.br7-timeline::-webkit-scrollbar { display:none; }.br7-node { flex:none; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:108px; height:72px; background:#2c2d42; line-height:1.1; }.br7-node.active { transform:translateY(-6px); background:#494158; }.br7-node.ally { box-shadow:inset 0 -4px var(--ally); }.br7-node.enemy { box-shadow:inset 0 -4px var(--enemy); }.br7-node-portraits { display:flex; height:42px; }.br7-node .br7-portrait,.br7-node .br7-portrait > span,.br7-node .br7-portrait .uart { width:40px; height:40px; }.br7-flag { font-size:32px; color:var(--ally); }
+@media (prefers-reduced-motion:reduce) { .br7 * { animation:none!important; transition:none!important; } }
+.br7-side.ally .br7-rail { flex-direction:row-reverse; }
+.br7-side.enemy .br7-row { direction:rtl; }.br7-side.enemy .br7-row > * { direction:ltr; }.br7-side.enemy .br7-rail { flex-direction:row; }
+.compact .br7 { height:510px; grid-template-rows:130px minmax(0,1fr) 82px; }.compact .br7-medal { height:104px; }
+.br7-tug-track i { top:-8px; height:30px; width:34px; transform:translateX(-50%); display:grid; place-items:center; background:#28263f; color:#f5e9d2; font:bold 18px/1 sans-serif; font-style:normal; }
+/* 交锋事件按时间顺序横向流动，换行后继续向下。 */
+.br7-action-panel { position:relative; flex:1; min-width:0; min-height:0; padding-top:48px; }
+.br7-return { position:absolute; right:0; top:0; width:44px; height:44px; background:#474157; font-size:32px!important; line-height:1; }
+
+.br7-action-panel .br7-actions { display:flex; flex-wrap:wrap; align-content:flex-start; align-items:flex-start; gap:5px; height:100%; overflow-y:auto; touch-action:pan-y; overscroll-behavior:contain; }
+.br7-action-panel .br7-action { flex:0 1 auto; min-width:0; max-width:100%; margin:0; gap:5px; }
+.br7-action-panel .br7-action-value { overflow-wrap:anywhere; }
+.compact .br7 { font-size:22px; }
+.compact .br7-result small { font-size:21px; }
+.compact .br7-medal-text strong,.compact .br7-row strong,.compact .br7-action-value { font-size:25px; }
+.compact .br7-node { min-width:116px; }
+/* 短横屏按舞台缩放后仍需可读，长单位名允许换行而不是截断。 */
+.compact .br7 { font-size:28px; }
+.compact .br7-result small { font-size:24px; }
+.compact .br7-medal-text { line-height:1; overflow:visible; }
+.compact .br7-medal-text span { white-space:normal; overflow-wrap:anywhere; }
+.compact .br7-medal-text strong,.compact .br7-row strong,.compact .br7-action-value { font-size:30px; }
+.compact .br7-row { min-height:60px; grid-template-columns:48px minmax(70px,120px) minmax(0,1fr) 64px; }
+.compact .br7-row-name { white-space:normal; overflow:visible; line-height:1.05; }
+/* 动效只用 transform 和 opacity；颜色与光晕保持静态。 */
+.br7-result { position:relative; isolation:isolate; }
+.br7-result::before { content:''; position:absolute; z-index:-1; inset:-12px -20px; background:radial-gradient(ellipse,#e9bc674d,transparent 70%); animation:br7-breathe 2.8s ease-in-out infinite; pointer-events:none; }
+.br7-result.lose::before { background:radial-gradient(ellipse,#e06a6a4d,transparent 70%); }
+.br7-result.draw::before { background:radial-gradient(ellipse,#c9c4db40,transparent 70%); }
+.br7-medal { position:relative; isolation:isolate; animation:br7-arrive .38s both; }
+.br7-medal::before { content:''; position:absolute; z-index:-1; inset:0; background:radial-gradient(ellipse at 34% 45%,#e9bc6740,transparent 68%); pointer-events:none; }
+.br7-medal.enemy::before { background:radial-gradient(ellipse at 34% 45%,#e06a6a40,transparent 68%); }
+.br7-medal:nth-child(2) { animation-delay:.07s; }.br7-medal:nth-child(3) { animation-delay:.14s; }.br7-medal:nth-child(4) { animation-delay:.21s; }
+.br7-tug-track { display:flex; background:#15182a; }
+.br7-tug-track .br7-tug-ally,.br7-tug-track .br7-tug-enemy { flex:none; height:100%; animation:br7-grow .45s ease-out both; }
+.br7-tug-track .br7-tug-ally { background:var(--ally); transform-origin:right; }
+.br7-tug-track .br7-tug-enemy { background:var(--enemy); transform-origin:left; animation-delay:.1s; }
+.br7-timeline { position:relative; isolation:isolate; }
+.br7-timeline::before { content:''; position:absolute; z-index:-1; left:14px; right:14px; bottom:38px; height:3px; background:#777189; pointer-events:none; }
+.br7-node.active .br7-node-portraits { animation:br7-node-breathe 2.4s ease-in-out infinite; }
+.br7-side,.br7-detail,.br7-action-panel .br7-actions { scrollbar-width:none; touch-action:pan-y; overscroll-behavior:contain; }
+.br7-detail { touch-action:pan-x; }
+.br7-side::-webkit-scrollbar,.br7-detail::-webkit-scrollbar,.br7-action-panel .br7-actions::-webkit-scrollbar { display:none; }
+@keyframes br7-arrive { from { opacity:0; transform:translateY(9px) scale(.96); } to { opacity:1; transform:translateY(0) scale(1); } }
+@keyframes br7-grow { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+@keyframes br7-breathe { 0%,100% { opacity:.55; transform:scale(.94); } 50% { opacity:1; transform:scale(1.05); } }
+@keyframes br7-node-breathe { 0%,100% { transform:translateY(-2px); } 50% { transform:translateY(-6px); } }
+@media (prefers-reduced-motion:reduce) { .br7 *, .br7 *::before, .br7 *::after { animation:none!important; transition:none!important; } }
+
+/* 复盘控件沿用游戏按钮的阶梯色带；选中态换材质而不加外框。 */
+.br7-tabs button,
+.br7-return {
+  background:linear-gradient(180deg,#71819a 0 3px,#465670 3px 52%,#34425b 52% calc(100% - 5px),#222d42 calc(100% - 5px));
+  text-shadow:0 2px #1a2133;
+}
+.br7-tabs button.active {
+  color:#2b211b;
+  background:linear-gradient(180deg,#fff1b8 0 3px,#ffd36b 3px 52%,#f0b048 52% calc(100% - 5px),#b06a1a calc(100% - 5px));
+  text-shadow:0 1px #fff8;
+}
+/* 奖章和时间节点以人物、数值和时间顺序为主体，不使用按钮底座。 */
+.br7-medal, .br7-medal.enemy {
+  background:transparent;
+  text-shadow:0 2px #1d1b2a;
+}
+.br7-medal::before { inset:2px 30% 2px 0; background:radial-gradient(ellipse,#e9bc6752,transparent 70%); }
+.br7-medal.enemy::before { background:radial-gradient(ellipse,#e06a6a52,transparent 70%); }
+.br7-medal .br7-portrait { background:transparent; filter:drop-shadow(0 3px 0 #171626); }
+.br7-medal-symbol { align-self:flex-start; margin-top:8px; text-shadow:0 2px #754a1e, 0 -1px #ffe2a0; }
+.br7-medal.enemy .br7-medal-symbol { text-shadow:0 2px #772f39, 0 -1px #ffc1ad; }
+.br7-node, .br7-node.active {
+  position:relative;
+  isolation:isolate;
+  background:transparent;
+  box-shadow:none;
+  text-shadow:0 2px #1a2133;
+}
+.br7-node { color:#bcb8c7; }
+.br7-node.ally, .br7-node.enemy { box-shadow:none; }
+.br7-node .br7-node-portraits { opacity:.68; }
+.br7-node .br7-portrait { background:#22263a; }
+.br7-node.active { color:var(--ally); transform:translateY(-4px); }
+.br7-node.active::before {
+  content:''; position:absolute; z-index:-1; inset:0 10px 12px;
+  background:radial-gradient(ellipse,#c6c4df55,transparent 70%); pointer-events:none;
+}
+.br7-node.active.ally::before { background:radial-gradient(ellipse,#e9bc6766,transparent 70%); }
+.br7-node.active.enemy::before { background:radial-gradient(ellipse,#e06a6a66,transparent 70%); }
+.br7-node.active .br7-node-portraits { opacity:1; transform:translateY(-4px); }
+.br7-timeline::before { height:3px; background:#777189; opacity:.55; }
+.br7-tabs button:hover:not(:disabled),
+.br7-return:hover:not(:disabled),
+.br7-medal:hover:not(:disabled),
+.br7-node:hover:not(:disabled) { filter:brightness(1.14); }
+.br7-tabs button:active:not(:disabled),
+.br7-return:active:not(:disabled),
+.br7-medal:active:not(:disabled),
+.br7-node:active:not(:disabled) { filter:brightness(.86); }
+.br7 button:disabled { filter:grayscale(1); opacity:.45; }
+
+/* 交锋记录按行阅读：人物、动作、目标和结果各占明确位置。 */
+.br7-portrait.dead > span { filter:grayscale(1); opacity:.72; }
+.br7-portrait i { right:0; bottom:0; display:grid; place-items:center; width:17px; height:17px; background:#504b58; color:#f1e5df; font:normal bold 13px/1 sans-serif; }
+.br7-fighters { width:35%; flex:none; gap:8px; }
+.br7-duel { width:100%; justify-content:center; gap:8px; }
+.br7-duel .br7-person { flex:1; min-width:0; flex-direction:column; justify-content:center; gap:3px; text-align:center; }
+.br7-duel .br7-person-name { max-width:100%; }
+.br7-duel .br7-portrait { background:transparent; }
+.br7-versus { color:#d6c5a5; flex:none; }
+.br7-person { display:inline-flex; align-items:center; gap:5px; min-width:0; }
+.br7-person-name { min-width:0; overflow-wrap:anywhere; line-height:1.1; }
+.br7-person.ally .br7-person-name { color:var(--ally); }
+.br7-person.enemy .br7-person-name { color:var(--enemy); }
+.br7-duel-damage { gap:14px; }
+.br7-action-panel { padding-top:0; padding-right:50px; }
+.br7-action-panel .br7-actions { display:flex; flex-direction:column; flex-wrap:nowrap; gap:4px; align-items:stretch; }
+.br7-action-panel .br7-action { flex:none; display:flex; width:100%; min-height:56px; gap:8px; padding:4px 8px; background:#25283b; }
+.br7-action-panel .br7-action:nth-child(even) { background:#2c2e42; }
+.br7-action.ally::after,.br7-action.enemy::after { display:none; }
+.br7-action-order { flex:none; width:24px; text-align:center; color:#a9a6b8; font-size:18px; }
+.br7-action .br7-person { flex:1 1 0; }
+.br7-action .br7-portrait,.br7-action .br7-portrait > span,.br7-action .br7-portrait .uart { width:42px; height:42px; }
+.br7-action .br7-portrait { background:transparent; }
+.br7-action-verb { flex:none; white-space:nowrap; color:#e4d9c7; }
+.br7-action-value { flex:none; max-width:28%; font-size:22px; line-height:1.1; overflow-wrap:anywhere; }
+.br7-node .br7-portrait { background:transparent; }
+.br7-node-portraits { gap:4px; }
+.br7-node-portraits .br7-portrait:first-child { box-shadow:inset 0 -3px var(--ally); }
+.br7-node-portraits .br7-portrait:nth-child(2) { box-shadow:inset 0 -3px var(--enemy); }
+.br7-node.active .br7-node-portraits { animation:none; }
+.br7-node.active { color:#fff1ba; }
+.br7-node.active::after { content:''; position:absolute; bottom:0; width:28px; height:4px; background:#fff1ba; }
+.compact .br7-action-panel .br7-action { min-height:60px; }
+.compact .br7-action-order { font-size:22px; }
+.compact .br7-action-value { font-size:26px; }
+/* 行动历史以头像和顺序记录为主；选中后在同一视野显示完整对象与结果。 */
+.br7-action-panel { display:flex; flex-direction:column; gap:5px; padding:0 50px 0 0; }
+.br7-action-panel .br7-actions { flex:1 1 55%; min-height:0; display:flex; flex-direction:column; gap:2px; align-items:stretch; overflow-y:auto; }
+.br7-event { display:flex; flex:none; align-items:center; gap:6px; width:100%; min-height:54px; padding:3px 6px; text-align:left; background:transparent; }
+.br7-event:hover { background:#353548; }
+.br7-event.selected { background:#454052; }
+.br7-event-order { flex:none; width:22px; text-align:center; color:#aaa6b8; font-size:18px; }
+.br7-event .br7-portrait,.br7-event .br7-portrait > span,.br7-event .br7-portrait .uart { width:42px; height:42px; background:transparent; }
+.br7-event.ally > .br7-portrait { box-shadow:inset 0 -3px var(--ally); }
+.br7-event.enemy > .br7-portrait { box-shadow:inset 0 -3px var(--enemy); }
+.br7-event-copy { display:flex; flex-direction:column; flex:none; max-width:38%; min-width:70px; line-height:1.1; overflow-wrap:anywhere; }
+.br7-event-copy b { color:#e4d9c7; }
+.br7-event-copy span { color:#c9c2d0; }
+.br7-event-next { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; }
+.br7-event-result { display:inline-flex; align-items:center; gap:2px; color:#ded6d0; line-height:1.1; }
+.br7-event-result .br7-portrait,.br7-event-result .br7-portrait > span,.br7-event-result .br7-portrait .uart { width:30px; height:30px; }
+.br7-event-result.damage { color:#f2a6a0; }.br7-event-result.heal { color:#91d6a2; }.br7-event-result.block { color:#9ac9e8; }
+.br7-event-detail { flex:1 1 45%; min-height:0; overflow:auto; padding:4px 8px; background:#1c2031; touch-action:pan-y; overscroll-behavior:contain; }
+.br7-event-line { display:flex; align-items:center; flex-wrap:wrap; gap:5px 8px; min-height:48px; padding:2px 0; }
+.br7-event-line + .br7-event-line { border-top:1px solid #454556; }
+.br7-event-line .br7-portrait,.br7-event-line .br7-portrait > span,.br7-event-line .br7-portrait .uart { width:40px; height:40px; background:transparent; }
+.br7-event-line .br7-person { flex:0 1 auto; }
+.br7-event-line .br7-action-value { max-width:none; }
+.br7-event-line.damage .br7-action-value { color:#f2a6a0; }.br7-event-line.heal .br7-action-value { color:#91d6a2; }.br7-event-line.block .br7-action-value { color:#9ac9e8; }
+.br7-event-step { color:#aaa6b8; }
+.compact .br7-event { min-height:60px; }
+.compact .br7-event-order { font-size:22px; }
+.br7-event-target { display:inline-flex; align-items:center; gap:2px; color:#c9c2d0; }
+/* 横屏：事件轨迹与选中详情并排，两个区域各自滚动。 */
+.br7-fighters { width:29%; }
+.br7-action-panel { flex-direction:row; gap:8px; padding-right:48px; }
+.br7-action-panel .br7-actions { flex:1 1 48%; min-width:0; height:100%; gap:0; }
+.br7-event { min-height:46px; padding:2px 4px; gap:4px; }
+.br7-event-order { width:20px; }
+.br7-event .br7-portrait,.br7-event .br7-portrait > span,.br7-event .br7-portrait .uart { width:40px; height:40px; }
+.br7-event-copy { flex:0 1 auto; min-width:0; max-width:none; flex-direction:row; flex-wrap:wrap; gap:0 5px; }
+.br7-event-next { flex:0 1 auto; gap:0 5px; }
+.br7-event-result { display:inline; }
+.br7-event-detail { flex:1 1 52%; min-width:0; height:100%; box-sizing:border-box; }
+.compact .br7-event { min-height:48px; }
+/* 摘要只保留一个可辨识动作；详细记录始终可在右侧滚动阅读。 */
+.br7-event { gap:6px; }
+.br7-event-copy { display:block; line-height:1.1; overflow-wrap:anywhere; }
+/* 目标与结果一起换行，避免数值脱离其作用对象。 */
+.br7-event-outcome { display:inline-flex; align-items:center; gap:8px; min-width:0; max-width:100%; }
+.br7-event-outcome .br7-person { min-width:0; }
+.br7-event-outcome .br7-action-value { flex:none; }
+.br7-event-outcome .br7-action-value { flex:0 1 auto; min-width:0; max-width:100%; }
