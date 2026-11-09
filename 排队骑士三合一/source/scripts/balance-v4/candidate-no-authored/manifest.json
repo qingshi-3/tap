@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-26T10:02:08+08:00",
+  "gitHead": "88a987ddacc6a113135c3780190df950c8f7ac98",
+  "basis": "Balance-v4 candidate snapshot used for attribution; only authoredEncounters() is replaced with an empty return. Production files are untouched.",
+  "files": {
+    "run.ts": "6cb6e7a42d9ba443fd50ec2aa808b96cc831bcdbf71cf8ad23fcf7654213f17e",
+    "data.ts": "75151ce895e74ca86f9fa717fa938d8b0074b77eb265849c4240c624dd315a03",
+    "engine.ts": "6afc51010d2a6c83fe845b9d54a612652be4f4936d72f099d9fc8e5342ad7247a",
+    "battleStats.ts": "8d49a9b77563c84909c633cc42360b6207ca54071ae347d8288c02790270074a",
+    "ghosts.json": "bf9ce3bc749581affeaa498c3dae2ec6161960897d5d91ba05b65f5042d6dd80",
+    "bot.ts": "4e712e8b3a4dfa057b03de99192c052683ca6cd6712013dd28698f70d80437f5",
+    "encounters.ts": "3be0ba168a817fb784dd57b082f64771f7cf12491c6c2e1e3a0d726af13a610c"
+  },
+  "productionEncountersSha256": "50cec12e04cc7f82302003e5b0b4126998f08b7a9c420c5ebbe5e71fbe28975d"
+}

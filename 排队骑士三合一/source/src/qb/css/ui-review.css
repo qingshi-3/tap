@@ -1,0 +1,390 @@
+/* UI 评审 2026-10-23 的修正。最后加载，只覆盖前面已有的规则。 */
+
+/* ── 8. 阶段横幅放到单位下方的空白带，不再盖住舞台词条行 ── */
+.phase-banner { top: 478px; }
+
+/* ── 9. 战斗信息栏压成一行：「回合 / 交锋」+ 最新一条日志 ── */
+.battle-bar { height: 88px; bottom: 16px; gap: 20px; padding: 0 16px 0 24px; }
+.battle-bar::before { display: none; }
+.bb-phase { width: auto; flex: none; }
+.bb-phase b { white-space: nowrap; font-size: 20px; line-height: 1.2; }
+.bb-log { height: 30px; justify-content: center; mask: none; -webkit-mask: none; padding-left: 16px; box-shadow: inset 2px 0 0 #3a3670; }
+.bb-log .ll:not(:last-child) { display: none; }
+.bb-log .ll { font-size: 20px; line-height: 30px; }
+
+/* ── 12. 有存档时「新的游戏」是次要按钮 ── */
+.title-btns .title-new.ghost { background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px)); color: #eef0ff; border: 0; border-image: none; }
+
+/* ── 15. 教程完成后，教程键与其他工具键同款 ── */
+.title-tools > .title-tool.title-tut-done:first-child {
+  border: 0; border-image: none; border-radius: 0;
+  background: linear-gradient(180deg, #6b5a8f 0 4px, #45396a 4px 52%, #372d56 52% calc(100% - 6px), #241d3b calc(100% - 6px));
+  box-shadow: 2px 0 #120e24, -2px 0 #120e24, 0 2px #120e24, 0 -2px #120e24, 0 6px 16px rgba(0, 0, 0, .35);
+  color: #eee9ff; font-weight: 700; text-shadow: 0 2px 0 #0008;
+}
+.title-tools > .title-tool.title-tut-done:first-child:active { filter: brightness(.85); transform: translateY(1px); }
+
+/* ── 16. 词条页：可滚动区域底部渐隐，提示下面还有内容 ── */
+.kd-nav {
+  -webkit-mask: linear-gradient(180deg, #000 calc(100% - 44px), transparent);
+  mask: linear-gradient(180deg, #000 calc(100% - 44px), transparent);
+}
+.kd-nav { padding-bottom: 52px; }
+
+/* ── 18. 设置：「清除全部数据」与提示键分开放 ── */
+.audio-dialog .data-tools { justify-content: flex-start; }
+.audio-dialog .data-tools.danger-zone { justify-content: flex-end; margin-top: 28px; border-top: 2px dashed rgba(255, 90, 110, .35); }
+
+/* ── 19. 图鉴：搜索框并入页签行 ── */
+.codex .cx-head { gap: 14px; }
+.codex .cx-head .cx-search { flex: 1; min-width: 160px; }
+.codex .cx-head .cx-search-input { font-size: 20px; padding: 6px 14px; }
+.codex .cx-head .cx-search-clear { padding: 4px 12px; font-size: 18px; }
+.codex .cx-head .cx-tabs { margin-left: 0; }
+
+/* ── 10. 招募卡三枚词条：行高与图标收紧，整体留在词条区内，不压稀有度点 ── */
+.card .card-in > .card-keywords:has(> :nth-child(3)) { gap: 0; line-height: 20px; overflow: hidden; }
+.card .card-in > .card-keywords:has(> :nth-child(3)) .kpx { width: 1.1em; height: 1.1em; vertical-align: -.2em; }
+.card .card-in > .card-keywords > :nth-child(n + 4) { display: none; }
+
+/* ── 2. 引导目标的脉冲外圈：只动 transform / opacity ── */
+.game .coach-pulse {
+  position: absolute;
+  z-index: 45;
+  pointer-events: none;
+  border: 4px solid #ffd36b;
+  box-shadow: 0 0 0 2px #2a1700, 0 0 18px rgba(255, 211, 107, .55);
+  animation: coachPulse 1.2s ease-in-out infinite;
+}
+@keyframes coachPulse {
+  0%, 100% { opacity: .35; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@media (prefers-reduced-motion: reduce) { .game .coach-pulse { animation: none; opacity: .8; } }
+
+/* ── 3. 货架详情：「招募」主按钮 +「锁定」次按钮 ── */
+.tip .shelf-acts { display: flex; gap: 10px; margin-top: 10px; }
+.tip .shelf-acts .btn { min-height: var(--control-size, 64px); margin: 0; font-size: max(22px, calc(var(--control-size, 64px) * .34)); }
+.tip .shelf-acts .shelf-recruit { flex: 1; min-width: 180px; }
+.tip .shelf-acts .shelf-lock { flex: none; min-width: 120px; padding: 0 18px; background: var(--band-slate, #34445f); color: #eef0ff; }
+
+/* 7. 选卡/拖卡聚焦时只压暗我方无关单位，敌方与其词条保持原样 */
+.board.focusing .unit[data-side="1"]:not(.focus):not(.linked) { opacity: 1; filter: none; }
+
+/* 6. 主将指定目标：可选友军脉冲描边，敌方压暗，说明在舞台中线上方 */
+.game.command-arm .board .unit[data-side="1"] { opacity: 0.42; filter: saturate(0.4) brightness(0.8); }
+.game.command-arm .board .unit.cmd-ok::before {
+  content: ''; position: absolute; z-index: 0; left: -8px; right: -8px; top: -6px; bottom: -10px; pointer-events: none;
+  border: 4px solid #ffe191; box-shadow: 0 0 0 2px #0b0a22, inset 0 0 0 2px #0b0a22;
+  animation: cmdPulse 0.9s ease-in-out infinite alternate; will-change: transform, opacity;
+}
+@keyframes cmdPulse { from { opacity: 0.35; transform: scale(1); } to { opacity: 1; transform: scale(1.05); } }
+@media (prefers-reduced-motion: reduce) { .game.command-arm .board .unit.cmd-ok::before { animation: none; opacity: 1; } }
+.game.command-arm .arm-hint { top: 168px; font-size: 22px; }
+
+/* 21. 人口号牌与按钮分栏，不占补给的第二行，也不压在按钮边缘。 */
+.game .fight-controls { position: relative; display: grid; grid-template-columns: 54px minmax(var(--control-size, 64px), 1fr); align-items: center; gap: 8px; }
+.game:has(> .prep-entry:not(.hidden)) .fight-controls { position: absolute; }
+.fight-controls > .tr-team {
+  position: static; pointer-events: none;
+  min-width: 54px; padding: 4px 10px; font: 20px/26px var(--num); color: #ffe39c; letter-spacing: 0;
+  background: #1c1838; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--pxf-steel) 6 / 8px / 0 stretch; box-shadow: none;
+}
+.game .fight-controls > .btn.fight { min-width: 0; padding: 0 8px; font-size: 24px; line-height: 1.2; white-space: normal; }
+.game .fight-controls > .btn.fight .ic { display: none; }
+
+/* 22. 复盘：备战席与备战界面同位于右下，试打占开战键位置 */
+.tray:has(> .sandbox-panel) > .bench { left: auto; right: 208px; top: 58px; }
+.tray > .sandbox-panel { left: 24px; right: 530px; }
+.tray > .sb-fight { position: absolute; z-index: 2; right: 22px; bottom: 18px; width: 176px; }
+.tray > .sb-fight .btn.fight { width: 100%; }
+
+/* 4. 整备：左我方、右敌方（与盘面同尺寸）、备战席右下、资源托盘在底部，说明在托盘上方 */
+.prep-ov .prep-roster { inset: 0; display: block; padding: 0; pointer-events: none; }
+.prep-ov .prep-roster > * { pointer-events: auto; }
+.prep-ov .prep-allies { position: absolute; left: 24px; top: 168px; width: 596px; display: flex; flex-direction: row-reverse; justify-content: space-between; }
+.prep-ov .prep-allies > .prep-seat { width: 116px; }
+.prep-ov .prep-allies .prep-figure { width: 116px; }
+.prep-ov .prep-allies .prep-figure .unit { left: 8px !important; }
+.prep-ov .prep-allies .prep-figure .ped { left: 12px; }
+.prep-ov .prep-seat .prep-refunds { width: 116px; min-height: 0; margin-top: 4px; padding: 0; background: none; box-shadow: none; }
+.prep-ov .prep-seat .prep-refunds:empty { display: none; }
+.prep-ov .prep-enemies,
+.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemies { inset: 168px auto auto 660px; width: 596px; height: 164px; display: block; }
+.prep-ov .prep-enemy { position: absolute; top: 0; left: calc(var(--s, 0) * 120px); width: 116px; height: 164px; transform: none; }
+.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemy { transform: none; }
+.prep-ov .prep-enemy .unit { left: 8px !important; }
+.prep-ov .prep-enemy .ped { top: 90px; left: 12px; }
+.prep-ov .prep-enemy .u-kws { display: flex; }
+.prep-ov .prep-bench { position: absolute; right: 208px; top: 430px; width: 300px; display: flex; justify-content: space-between; }
+.prep-ov .prep-bench > * { width: 100px; }
+.prep-ov .prep-bench .prep-figure { width: 100px; }
+.prep-ov .prep-bench .prep-figure .unit { left: 0 !important; }
+.prep-ov .prep-bench .prep-figure .ped, .prep-ov .prep-bench-empty .ped { left: -2px; }
+.prep-ov .prep-bench-empty { width: 100px; }
+.prep-ov .pp-say { left: 24px; right: 520px; top: auto; bottom: calc(max(64px, var(--control-size)) + 44px); height: 30px; justify-content: flex-start; overflow: hidden; text-overflow: ellipsis; }
+.prep-ov .pp-tray { right: 520px; height: calc(max(64px, var(--control-size)) + 34px); align-items: flex-start; }
+.prep-ov .pr-chip.pt { position: relative; overflow: visible; margin-bottom: 30px; }
+.prep-ov .pr-chip.pt .pr-cap { position: absolute; left: 50%; top: calc(100% + 4px); transform: translateX(-50%); font-size: 18px; line-height: 24px; color: #e8e4ff; white-space: nowrap; pointer-events: none; }
+.prep-ov .pr-chip.eq, .prep-ov .pr-chip.sp, .prep-ov .pr-chip.od, .prep-ov .prep-unequip { margin-bottom: 30px; }
+.prep-ov .pp-empty { align-self: center; margin-top: 18px; font-size: 22px; color: #b9b4dd; }
+
+/* 11. 商店购买去向：飞入 + 落脚席位闪一下；有空战位时点亮空位 */
+.game .buy-fly { position: absolute; z-index: 80; width: 96px; height: 96px; pointer-events: none; transform: translate(-50%, -50%); }
+.game .buy-fly svg, .game .buy-fly img { width: 100%; height: 100%; }
+.shop .sh-own.just-in { animation: shopJustIn 0.5s steps(4) 0.35s 2; }
+@keyframes shopJustIn { 0%, 100% { transform: none; } 50% { transform: translateY(-6px) scale(1.06); } }
+.shop .sh-own.slot-free { position: relative; }
+.shop .sh-own.slot-free::before {
+  content: ''; position: absolute; inset: -2px; pointer-events: none;
+  border: 4px solid #ffe191; animation: cmdPulse 0.9s ease-in-out infinite alternate;
+}
+@media (prefers-reduced-motion: reduce) { .shop .sh-own.just-in, .shop .sh-own.slot-free::before { animation: none; } }
+
+/* 13. 战术卡：沿用岔路卡像素边框 + 图标；选中后按「确定」 */
+.ph-card.promo .ph-opt.passive {
+  position: relative; border-style: solid; border-width: 0; border-image: var(--pxf-steel) 6 / 12px / 0 stretch;
+  background: linear-gradient(180deg, #1c1a48, #0e0c2a); box-shadow: none; transition: none;
+}
+.ph-card.promo .ph-opt.passive.own { border-image-source: var(--pxf-teal); background: linear-gradient(180deg, #173a3a, #0b1a22); box-shadow: none; }
+.ph-card.promo .ph-opt.passive:hover { background: linear-gradient(180deg, #1c1a48, #0e0c2a); }
+.ph-card.promo .ph-opt.passive.own:hover { background: linear-gradient(180deg, #173a3a, #0b1a22); }
+.ph-card.promo .ph-opt.passive:active { transform: none; box-shadow: none; }
+.ph-card.promo .ph-opt.passive.on { border-image-source: var(--pxf-gold); transform: translateY(-6px); background: linear-gradient(180deg, #3a3060, #1a1438); }
+.ph-card.promo .ph-opt.passive.on::after {
+  content: ''; position: absolute; right: 10px; top: 10px; width: 28px; height: 28px; pointer-events: none;
+  background: #ffd36b; clip-path: polygon(0 55%, 15% 40%, 38% 62%, 85% 12%, 100% 27%, 38% 90%);
+}
+.ph-card.promo .promo-ic { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; align-self: center; color: #ffd36b; background: #0b0a22; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #6b5a2c; }
+.ph-card.promo .ph-opt.passive.own .promo-ic { color: #8ff0d6; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #2c6b5a; }
+.ph-card.promo .promo-ic .ic, .ph-card.promo .promo-ic svg { width: 36px; height: 36px; }
+.ph-card.promo .promo-foot { position: relative; z-index: 3; display: flex; justify-content: center; margin-top: 18px; }
+.ph-card.promo .promo-ok { min-width: 220px; min-height: var(--control-size); font-size: 26px; }
+
+/* Full-screen prep/battle: reserve separate bands for controls, unit data,
+   seat numbers and the shelf. Values are in the existing 1280px stage space. */
+.screen.game { --corner-size: 44px; }
+/* Below 1:1 stage scale, use the existing inverse-scale touch target. */
+@media (max-width: 1279px), (max-height: 719px) {
+  .screen.game { --corner-size: max(44px, var(--control-size, 64px)); }
+}
+.screen.game .hud-left { position: static; }
+.screen.game .hud-relics {
+  left: 22px; top: 80px; margin: 0; gap: 6px;
+}
+.screen.game .hud-relic {
+  width: var(--corner-size); height: var(--corner-size); border-radius: 0;
+  background: #1c1838; box-shadow: inset 0 -3px #0d0b20;
+  border: 0 solid transparent; border-image: var(--pxf-gold) 6 / 6px / 0 stretch;
+}
+.screen.game .hud-relic .px-item { width: 26px; height: 26px; }
+.screen.game .tavern-box {
+  left: calc(42px + 3 * var(--corner-size)); top: 80px;
+  display: flex; flex-direction: row; align-items: center; gap: 6px;
+  padding: 0; border-radius: 0; background: #0d0b20; box-shadow: none;
+}
+.screen.game .tv-lv {
+  min-width: var(--corner-size); height: var(--corner-size); gap: 4px;
+}
+.screen.game .tv-lv .px-item { width: 22px; height: 22px; }
+.screen.game .tv-lv b { font-size: 24px; }
+.screen.game .tv-up {
+  width: max(80px, var(--corner-size)); height: var(--corner-size);
+  min-width: var(--corner-size); min-height: var(--corner-size);
+  border-radius: 0; font-size: 18px;
+}
+.screen.game .tv-up:disabled {
+  background: #373743; color: #aaaab5; filter: grayscale(1); box-shadow: inset 0 -3px #20202b;
+}
+.screen.game :is(.tv-up, .hud-relic):focus-visible { outline: 3px solid #ffe39c; outline-offset: 3px; }
+.screen.game .hand-strip {
+  left: 452px; top: 80px; gap: 8px; padding: 0;
+}
+.screen.game .hand-slot { width: 80px; height: 80px; min-width: var(--corner-size); min-height: var(--corner-size); }
+.screen.game .hud-legion,
+.screen.game .hud-left:not(:has(.hud-relics)) .hud-legion {
+  left: 206px; top: 6px; min-height: var(--corner-size);
+}
+
+/* The chapter plate occupies its own, content-sized grid row. */
+.screen.game .stage-banner { left: 946px; top: 80px; width: 244px; gap: 8px; }
+.screen.game .stage-banner .sb-title {
+  display: grid; grid-template-columns: auto auto; justify-content: center;
+  column-gap: 8px; row-gap: 10px; max-width: 100%;
+}
+.screen.game .stage-banner .sb-no {
+  grid-column: 1 / -1; justify-self: center; width: max-content; max-width: 100%;
+  padding: 6px 12px; font-size: 18px; line-height: 1.3; letter-spacing: 0;
+  white-space: normal; overflow-wrap: anywhere; box-sizing: border-box;
+}
+.screen.game .stage-banner .sb-title > b:only-child { grid-column: 1 / -1; }
+.screen.game .stage-banner .sb-hint { max-width: 100%; padding: 4px 8px; line-height: 1.25; }
+.screen.game .stage-banner .sb-ax { justify-content: center; }
+
+/* Shrink only the shop cards. Supplies, actions and bag slots retain 44px
+   physical targets through --control-size, including the compact stage. */
+.screen.game > .tray { top: auto; height: 270px; }
+.screen.game .tray.paid-shelf .cards {
+  left: 158px; top: 16px; width: 752px; height: 234px;
+  gap: 8px; align-items: flex-start; justify-content: center; overflow: visible;
+}
+.screen.game .tray.paid-shelf .cards > * { flex: none; zoom: .85; }
+.screen.game .tray.paid-shelf .cards[data-count="5"] > * { zoom: .765; }
+.screen.game .tray.paid-shelf .cards[data-count="6"] > * { zoom: .63; }
+.screen.game .tray.paid-shelf .cards[data-count="7"] > * { zoom: .534; }
+.screen.game .tray.paid-shelf .cards[data-count="8"] > * { zoom: .46; }
+.screen.game .tray.paid-shelf .tray-left { top: 16px; gap: 8px; }
+.screen.game .tray.paid-shelf .tl-gold { min-height: 48px; }
+.screen.game .tray.paid-shelf .tray-left > .reroll {
+  height: max(80px, var(--control-size, 64px)); min-height: var(--control-size, 64px);
+}
+.screen.game .bag-strip {
+  left: 918px; top: calc(100% - 254px); bottom: auto;
+  display: grid; grid-template-columns: repeat(2, var(--corner-size));
+  grid-auto-rows: var(--corner-size); gap: 4px; padding: 4px;
+  border-radius: 0; background: #0d0b20; box-shadow: none;
+  border: 0 solid transparent; border-image: var(--pxf-steel) 6 / 6px / 0 stretch;
+}
+.screen.game .bag-head { display: grid; place-items: center; margin: 0; color: #f2d39c; }
+.screen.game .bag-slot { width: var(--corner-size); height: var(--corner-size); border-radius: 0; }
+.screen.game .bag-slot .px-item { width: 32px; height: 32px; }
+.screen.game .board .slot .slot-num { top: 114px; }
+.screen.game .board.ordering .slot .slot-num { top: 130px; }
+.screen.game .tray .supplies { top: 16px; height: 168px; }
+.screen.game .tray .sp-list { grid-auto-rows: 80px; gap: 8px; }
+.screen.game .tray.paid-shelf .food-tile {
+  height: 80px; min-width: var(--corner-size); min-height: var(--corner-size);
+  grid-template-rows: 24px 20px 12px 16px; padding: 4px;
+}
+.screen.game .tray.paid-shelf .food-tile .ft-name { line-height: 20px; }
+.screen.game .tray.paid-shelf .food-tile .ft-ico,
+.screen.game .tray.paid-shelf .food-tile .ft-ico > :first-child { width: 24px; height: 24px; }
+.screen.game .tray .tray-right { bottom: 8px; }
+.screen.game .tray .fight-controls > .btn.fight { min-height: var(--control-size, 64px); }
+
+/* Unit priority: merge/crown above the head, equipment in a short row, attack/HP
+   unobstructed, numeric buffs and secondary mechanics below. No body transform
+   changes: combat motion and effect anchors remain owned by Board. */
+.screen.game > .board .unit .u-stats { z-index: 6; }
+.screen.game > .board .unit .u-pips { top: -12px; }
+.screen.game > .board .unit .u-exp { top: -10px; }
+.screen.game > .board .unit .u-cpips { top: 30px; max-width: 100px; gap: 2px; }
+.screen.game > .board .unit .u-cpips span { width: 9px; height: 4px; }
+.screen.game > .board .unit.kw-reborn .u-bob::before { display: none; }
+.screen.game > .board .unit .u-pulse { left: 80px; top: 4px; width: 26px; height: 26px; }
+.screen.game > .board .unit .u-food-memory {
+  left: 0; right: auto; top: 6px; width: 48px; height: 22px; min-height: 0;
+  display: flex; align-items: center; justify-content: center; gap: 2px;
+  background: #171f31; box-shadow: none;
+}
+.screen.game > .board .unit .u-food-memory .px-item { width: 18px; height: 18px; }
+.screen.game > .board .unit .u-food-memory b {
+  position: static; min-width: 0; padding: 0; font-size: 16px; background: none; box-shadow: none;
+}
+.screen.game > .board .unit .u-mark { left: 0; top: 6px; height: 24px; box-shadow: none; }
+.screen.game > .board .unit .u-mark.m-guard { left: auto; right: 0; top: 6px; }
+.screen.game > .board .unit:has(.u-food-memory) .u-mark.m-scar { top: 32px; }
+.screen.game > .board .unit .u-eq {
+  left: 0; right: auto; top: 38px; width: 100px;
+  flex-direction: row; flex-wrap: nowrap; gap: 4px;
+}
+.screen.game > .board .unit:has(.u-mark.m-scar):has(.u-food-memory) .u-eq { left: 32px; width: 68px; }
+.screen.game > .board .unit .ueq { width: 24px; height: 24px; flex: none; }
+.screen.game > .board .unit .ueq .px-item { width: 20px; height: 20px; }
+/* The first item is the equipped object. Further temporary-effect icons are
+   already listed in the detail; cap that repeat strip before it hits numbers. */
+.screen.game > .board .unit .ueq:nth-child(n + 4) { display: none; }
+.screen.game > .board .unit .u-charge { left: 0; top: 6px; width: 100px; height: 22px; background: none; }
+.screen.game > .board .unit .u-charge i { left: auto; right: 0; bottom: 0; padding: 0 4px; background: #0d0b20; }
+.screen.game > .board .unit .u-chill { left: 0; right: auto; top: 64px; }
+.screen.game > .board .unit .u-burn { left: 34px; right: auto; top: 64px; }
+.screen.game > .board .unit :is(.u-chill, .u-burn) { width: 24px; height: 24px; background-size: 24px 24px; }
+.screen.game > .board .unit :is(.u-chill, .u-burn) i { right: 0; bottom: 0; }
+.screen.game > .board .unit .u-granted { right: 0; top: 64px; bottom: auto; width: 24px; height: 24px; }
+.screen.game > .board .unit .u-granted .px-item { width: 22px; height: 22px; }
+.screen.game > .board .unit .u-kws {
+  top: 132px; width: 100px; flex-wrap: nowrap; gap: 3px; transform: translateX(-50%);
+}
+.screen.game > .board .unit .u-kws > .kwic,
+.screen.game > .board .unit .u-kws > .u-shield.u-px { width: 22px; height: 22px; background-size: 22px 22px; }
+.screen.game > .board .unit .u-kws .kwic i,
+.screen.game > .board .unit .u-kws .u-shield.u-px i { right: -2px; bottom: -3px; font-size: 16px; }
+.screen.game > .board .unit .u-mech {
+  left: 0; right: auto; top: 156px; width: 100px;
+  flex-direction: row; justify-content: center; gap: 2px;
+}
+.screen.game > .board .unit .mx { width: 18px; height: 18px; }
+.screen.game > .board .unit .mx i { background-size: 16px 16px; }
+.screen.game > .board .unit .mx::before { display: none; }
+
+/* The owned detail uses a scrolling body and a separate, non-shrinking footer.
+   showTip still measures and places the outer pixel panel. */
+#stage > .tip:has(> .owned-tip) { display: flex; flex-direction: column; padding: 10px; border-radius: 0; overflow: hidden; }
+#stage > .tip > .owned-tip {
+  display: flex; flex-direction: column; min-height: 0; max-height: 672px;
+}
+#stage.compact > .tip > .owned-tip { max-height: 592px; }
+#stage > .tip .owned-tip-body { min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+#stage > .tip .owned-tip-body::-webkit-scrollbar { display: none; }
+#stage > .tip .owned-tip .tip-head { gap: 6px; }
+#stage > .tip .owned-tip .tip-name { font-size: 24px; line-height: 1.2; }
+#stage > .tip .owned-tip .tip-stats { gap: 10px; margin: 6px 0; }
+#stage > .tip .owned-tip .tip-text { font-size: 18px; line-height: 1.3; }
+#stage > .tip .owned-tip .tip-ench { margin-top: 4px; }
+#stage > .tip .owned-tip .tip-item { width: 26px; height: 26px; }
+#stage > .tip .owned-tip .tip-food-memory { margin-top: 6px; padding-top: 6px; }
+#stage > .tip .owned-tip .tfm-list { margin-top: 4px; gap: 2px 8px; }
+#stage > .tip .owned-tip .tfm-head b { font-size: 18px; }
+#stage > .tip .owned-tip .tfm-item { min-height: 28px; font-size: 18px; }
+#stage > .tip .owned-tip .tfm-stats .st { width: 26px; height: 26px; background-size: 26px 26px !important; transform: none; }
+#stage > .tip .owned-tip .tip-sum { margin-top: 6px; padding: 4px 0; border: 0; border-radius: 0; background: none; }
+#stage > .tip .owned-tip .inherit-preview {
+  display: grid; grid-template-columns: minmax(0, 1fr) max-content 16px max-content;
+  gap: 2px 8px; margin-top: 6px; padding-top: 6px; border-top: 1px solid #47636b;
+  font-size: 18px; line-height: 1.3;
+}
+#stage > .tip .inherit-preview > b,
+#stage > .tip .inherit-preview > p { grid-column: 1 / -1; }
+#stage > .tip .inherit-row { display: contents; }
+#stage > .tip .inherit-name { overflow-wrap: anywhere; }
+#stage > .tip :is(.inherit-before, .inherit-after) { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+#stage > .tip .inherit-arrow { text-align: center; }
+#stage > .tip .owned-tip > .shelf-acts {
+  display: flex; flex-wrap: wrap; flex: none; gap: 8px; margin-top: 14px; padding-top: 10px;
+  background: #0d0b20; border-top: 1px solid #47636b;
+}
+#stage > .tip .owned-tip > .shelf-acts .btn {
+  flex: 1 1 120px; min-width: var(--control-size, 64px); min-height: var(--control-size, 64px);
+  margin: 0; padding: 0 10px; font-size: 22px; line-height: 1.2; border-radius: 0;
+}
+
+/* Hand spell actions stay 44 screen pixels high at every stage scale.
+   Keep this separate from the larger recruitment and owned-unit footers. */
+#stage > .tip .hand-spell-tip > .shelf-acts {
+  flex-wrap: wrap; gap: calc(8 * var(--screen-px, 1px));
+  margin-top: calc(10 * var(--screen-px, 1px));
+}
+#stage > .tip .hand-spell-tip > .shelf-acts .btn {
+  flex: 0 0 auto; box-sizing: border-box;
+  height: calc(44 * var(--screen-px, 1px)); min-height: calc(44 * var(--screen-px, 1px));
+  min-width: calc(72 * var(--screen-px, 1px));
+  margin: 0; padding: 0 calc(12 * var(--screen-px, 1px));
+  font-size: calc(16 * var(--screen-px, 1px)); line-height: 1.2; letter-spacing: 0;
+  border: 0; border-image: none; border-radius: 0; box-shadow: none;
+}
+#stage > .tip .hand-spell-tip > .shelf-acts .primary { background: var(--band-gold, linear-gradient(#ffe08a, #e0a53a)); color: #2a1700; }
+#stage > .tip .hand-spell-tip > .shelf-acts .shelf-lock { background: var(--band-slate, #34445f); color: #eef0ff; }
+#stage > .tip .hand-spell-tip > .shelf-acts .btn:active { transform: translateY(var(--screen-px, 1px)); }
+#stage > .tip .hand-spell-tip > .shelf-acts .btn:focus-visible {
+  outline: calc(2 * var(--screen-px, 1px)) solid #fff4d8;
+  outline-offset: calc(-2 * var(--screen-px, 1px));
+}
+#stage > .tip .hand-spell-tip > .shelf-acts .btn:disabled {
+  background: #373743; color: #aaaab5; filter: grayscale(1); text-shadow: none;
+  transform: none; cursor: default;
+}
+@media (prefers-reduced-motion: reduce) {
+  #stage > .tip .hand-spell-tip > .shelf-acts .btn,
+  #stage > .tip .hand-spell-tip > .shelf-acts .btn:is(:hover, :active) { transition: none; transform: none; }
+}

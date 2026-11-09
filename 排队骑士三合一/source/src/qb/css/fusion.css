@@ -1,0 +1,112 @@
+/* ── 三合一：手牌 / 酒馆 / 金色 ── */
+.hand-strip {
+  position: absolute; left: 196px; top: 74px; z-index: 3;
+  display: flex; align-items: stretch; gap: 10px;
+  padding: 8px 12px 8px 8px; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(30, 24, 66, .82), rgba(8, 8, 26, .82));
+  box-shadow: 0 0 0 2px #2a2650, 0 8px 20px rgba(0, 0, 0, .45);
+  transition: opacity .25s;
+}
+.hand-strip.hidden, .in-battle .hand-strip { opacity: 0; pointer-events: none; }
+.hand-head {
+  display: grid; place-items: center; width: 30px; border-radius: 8px;
+  font-size: 18px; color: #c9c2ff; font-weight: 900; writing-mode: vertical-rl; letter-spacing: 4px;
+  background: rgba(120, 100, 220, .16);
+}
+.hand-slot {
+  position: relative; width: 92px; height: 96px; border-radius: 10px;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--fc, #6a63b0) 30%, #14102a), #100c24 70%);
+  box-shadow: inset 0 0 0 2px var(--fc, #6a63b0);
+  cursor: grab; touch-action: none; overflow: visible;
+}
+.hand-slot.empty {
+  cursor: default; background: rgba(20, 16, 42, .4);
+  box-shadow: none; outline: 2px dashed #34306a; outline-offset: -4px;
+}
+.hand-slot .hs-art { position: absolute; inset: 4px 8px 26px; display: grid; place-items: center; }
+.hand-slot .hs-art svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.hand-slot .hs-stats { position: absolute; left: -4px; right: -4px; bottom: -8px; display: flex; justify-content: space-between; }
+.hand-slot .hs-exp { position: absolute; top: 5px; right: 5px; display: flex; gap: 3px; }
+.hand-slot .hs-exp i { width: 10px; height: 10px; border-radius: 2px; background: #2a2650; box-shadow: 0 0 0 1px rgba(0, 0, 0, .5); }
+.hand-slot .hs-exp i.on { background: var(--gold); }
+.hand-slot.gold { box-shadow: inset 0 0 0 3px #ffd36b, 0 0 14px rgba(255, 211, 107, .6); }
+.hand-slot.lifted { opacity: .35; }
+.hand-slot[data-drop="place"], .hand-slot[data-drop="move"], .hand-slot[data-drop="swap"] { box-shadow: inset 0 0 0 3px #7be3ff; outline-color: #7be3ff; }
+.hand-slot[data-drop="merge"] { box-shadow: inset 0 0 0 3px #ffd36b; }
+.hand-slot[data-drop="invalid"] { opacity: .45; }
+.hand-slot.drop-hover { transform: scale(1.08); }
+.tip-hand { color: var(--muted); }
+
+.tray-left > .tavern-up .px-item { width: 22px; height: 22px; }
+.tray-left > .tavern-up.ready { animation: tv-ready 1.4s ease-in-out infinite; }
+@keyframes tv-ready { 50% { transform: scale(1.05); } }
+.hud-tier .hud-tv { width: 22px; height: 22px; }
+
+/* 金色单位：金光（只动 opacity） */
+.unit.u-gold::after {
+  content: ''; position: absolute; left: 50%; top: 82px; width: 130px; height: 46px; margin-left: -65px;
+  border-radius: 50%; pointer-events: none; mix-blend-mode: screen;
+  background: radial-gradient(ellipse, rgba(255, 211, 107, .75), rgba(255, 211, 107, 0) 70%);
+  animation: u-gold 1.8s ease-in-out infinite;
+}
+@keyframes u-gold { 50% { opacity: .45; } }
+.tip-stars.gold, .tn-star.gold, .ts-act.gold { color: #ffd36b; font-weight: 900; }
+
+.tavern-box {
+  position: absolute; left: 40px; top: 92px; z-index: 3;
+  display: flex; flex-direction: column; align-items: stretch; gap: 6px;
+  padding: 6px; border-radius: 12px; background: rgba(8, 8, 26, .72); box-shadow: 0 0 0 1px var(--line);
+  transition: opacity .25s;
+}
+.tavern-box.hidden, .in-battle .tavern-box { opacity: 0; pointer-events: none; }
+.tv-lv { display: flex; align-items: center; justify-content: center; gap: 6px; height: 36px; cursor: pointer; }
+.tv-lv .px-item { width: 28px; height: 28px; }
+.tv-lv b { font: 30px/1 var(--num); color: var(--gold); text-shadow: 0 2px 0 #000; }
+.tv-up {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0;
+  width: 76px; height: 50px; border: 0; border-radius: 8px; cursor: pointer;
+  font: 900 20px/1 var(--ui, inherit); color: #2a1a00;
+  background: linear-gradient(180deg, #ffe08a, #e0a53a); box-shadow: inset 0 -3px 0 #a0681a, 0 2px 0 #000;
+}
+.tv-up i { display: flex; align-items: center; gap: 2px; font: 18px/1 var(--num); font-style: normal; }
+.tv-up i .px-item { width: 16px; height: 16px; }
+.tv-up:disabled { filter: grayscale(.8) brightness(.6); cursor: default; }
+.tv-up.ready { animation: tv-ready 1.4s ease-in-out infinite; }
+.board .u-pips.gold span { color: #ffd36b; width: 22px; height: 22px; }
+
+/* 数值三位数以上缩字号 */
+.st[data-w="3"] i { font-size: 14px !important; letter-spacing: -1px; }
+.st[data-w="4"] i { font-size: 11px !important; letter-spacing: -1px; }
+
+/* 篝火：图标卡 */
+.fire-card .ev-opts { gap: 22px; }
+.fire-opt {
+  position: relative; width: 230px; height: 250px; padding: 18px 12px 16px;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px;
+  border: 0; border-radius: 18px; color: #fff; font: inherit; cursor: pointer;
+  background: radial-gradient(circle at 50% 32%, rgba(255, 150, 60, .22), transparent 60%), linear-gradient(180deg, #2a1f4a, #110d26);
+  box-shadow: 0 0 0 2px #5a4590, 0 16px 36px rgba(0, 0, 0, .6);
+  transition: transform .15s;
+}
+.fire-opt:active { transform: translateY(-6px); }
+.fire-opt .fv { flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.fire-opt .fo-name { font-size: 30px; letter-spacing: .2em; color: #ffe2b0; text-shadow: 0 0 14px rgba(255, 170, 80, .55); }
+.fire-opt .fo-sub { font-size: 18px; color: #bfb7e8; }
+.fv-plus { font: 900 30px/1 var(--num); color: #9dff8a; text-shadow: 2px 2px 0 #000; }
+.fv-pips { display: flex; gap: 8px; }
+.fv-pips i { width: 26px; height: 26px; border-radius: 5px; background: var(--gold); box-shadow: 0 0 0 2px rgba(0, 0, 0, .55); }
+.fv-pips i.add { background: #9dff8a; box-shadow: 0 0 0 2px rgba(0, 0, 0, .55), 0 0 12px rgba(157, 255, 138, .7); }
+.fv-copy { flex-direction: column; }
+.fv-stat .st { transform: scale(2) !important; margin: 0 22px; }
+.fv-stat .st i { font-size: 15px !important; color: #9dff8a; }
+.fv-heart .ic { width: 70px; height: 70px; color: #ff5a78; filter: drop-shadow(0 0 10px rgba(255, 80, 110, .6)); }
+.fv-smith .px-item { width: 68px; height: 68px; }
+.fire-opt.disabled { cursor: default; filter: grayscale(.85) brightness(.6); }
+.fire-opt.disabled:active { transform: none; }
+.fo-no {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 4px; white-space: nowrap;
+  font-size: 18px; font-weight: 900; color: #ff6b7e;
+}
+.fo-no .ic { width: 20px; height: 20px; }
+.ev-leave { min-width: 180px; font-size: 22px; padding: 10px 28px; }

@@ -1,0 +1,47 @@
+.game .hand-strip { left: 192px; top: 88px; padding: 0; gap: 8px; background: none; box-shadow: none; border-radius: 0; }
+.game .hand-head { display: none; }
+.game .hand-slot { width: 88px; height: 88px; padding: 0; border: 0; border-radius: 6px; background: #29303d; box-shadow: inset 0 -4px 0 #171d28; color: #f4f3e6; }
+.game .hand-slot.empty { background: #191e2b; outline: none; box-shadow: inset 0 3px 6px #0a0d18; }
+.game .hand-slot.gold { background: #635020; box-shadow: inset 0 -4px 0 #312407; }
+.game .hand-slot[data-drop="place"], .game .hand-slot[data-drop="move"], .game .hand-slot[data-drop="swap"] { background: #326783; box-shadow: 0 0 18px #69d9ef77; }
+.game .hand-slot[data-drop="merge"] { background: #82652d; box-shadow: 0 0 18px #f6ce6b77; }
+.game .hand-spell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; background: #24434f; }
+.hand-spell > .px-item { width: 38px; height: 38px; }
+.hand-spell > b { font-size: 18px; line-height: 1.2; font-weight: 700; }
+.hand-spell .hs-expiry { position: absolute; right: 3px; top: 3px; color: #ffe1a0; font-size: 14px; }
+.game .hand-slot:active { filter: brightness(.85); }
+.game .hand-slot:focus-visible, .spell-target:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
+.reward-open { margin-left: auto; }
+.spell-dialog { min-width: 440px; max-width: 1060px; width: max-content; padding: 24px; background: #202a36; border-radius: 8px; color: #fff4dc; box-shadow: 0 16px 50px #0009; }
+.spell-dialog h3 { margin: 0 0 16px; font-size: 28px; }
+.spell-dialog p { margin: 12px 0; font-size: 22px; line-height: 1.45; max-width: 780px; }
+.spell-targets { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 960px; }
+.spell-target { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 142px; min-height: 138px; padding: 10px; gap: 6px; border: 0; border-radius: 6px; background: #385264; color: #fff6df; font-size: 22px; cursor: pointer; }
+.spell-target > .target-art { height: 65px; width: 72px; }
+.target-art svg { height: 100%; width: 100%; }
+.spell-target small { font-size: 18px; color: #d7e4ea; }
+.spell-target:hover { background: #496a7d; }
+.spell-target:active { filter: brightness(.8); }
+.spell-dialog .dialog-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
+.spell-dialog .btn { min-height: var(--control-size, 64px); font-size: 24px; background: #4a5a6b; border: 0; box-shadow: inset 0 -4px 0 #26303d; }
+.spell-dialog .btn.primary { background: #bb934b; color: #241d12; box-shadow: inset 0 -4px 0 #705326; }
+.spell-dialog .btn:disabled { background: #3a4048; color: #89939d; filter: grayscale(1); cursor: default; }
+.spell-picker .modal { padding: 0; border: 0; border-image: none; border-radius: 8px; background: none; }
+.spell-picker .modal-x { background: #47576b; }
+.save-status { max-width: 600px; font-size: 24px; line-height: 1.5; color: #e4cda4; text-align: center; }
+.disc-spell .card { pointer-events: none; }
+.spell-collect { position: absolute; width: 112px; height: 108px; background-size: 784px 648px; pointer-events: none; z-index: 25; image-rendering: pixelated; }
+.u-granted { position: absolute; right: 3px; bottom: 45px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 4px; background: #2c6674; pointer-events: none; }
+.u-granted .px-item { width: 25px; height: 25px; }
+.game .hand-slot .hs-stats { bottom: -4px; }
+.compact .game .hand-strip { top: 80px; }
+.game .disc-peek { border: 0; background: #435769; color: #fff4db; box-shadow: inset 0 -4px 0 #263440; min-height: var(--control-size, 64px); }
+.game .disc-peek:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
+.modal-ov.small .modal { width: 560px; border: 0; border-image: none; border-radius: 8px; background: #222f3d; }
+.modal-ov.small .confirm h3 { font-size: 28px; }
+.modal-ov.small .confirm p { font-size: 24px; line-height: 1.5; color: #e1e4e7; }
+.modal-ov.small .confirm-btns .btn { min-height: var(--control-size, 64px); font-size: 24px; padding: 12px 22px; border: 0; border-image: none; }
+.modal-ov.small .confirm-btns .btn.ghost { background: #4a5a6b; box-shadow: inset 0 -4px 0 #283545; }
+.modal-ov.small .confirm-btns .btn.danger { background: #b94451; box-shadow: inset 0 -4px 0 #6b2631; }
+.modal-ov.small .confirm-btns .btn:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .hand-strip { transition: none; } .spell-collect { display: none; } }

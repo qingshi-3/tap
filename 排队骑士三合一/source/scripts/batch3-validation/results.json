@@ -1,0 +1,42 @@
+[
+  {
+    "command": "npx tsc --noEmit",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/trigger-contract-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/v09-combat-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/v09-run-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/v09-journey-test.ts",
+    "exitCode": 1
+  },
+  {
+    "command": "npx vite-node scripts/stat-cap-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/battle-stats-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/prep-feedback-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/v09-batch3-test.ts",
+    "exitCode": 0
+  },
+  {
+    "command": "npx vite-node scripts/sim.ts 300 0.65",
+    "exitCode": 0
+  }
+]

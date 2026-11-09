@@ -1,0 +1,22 @@
+[
+  {
+    "path": "src/core/data.ts",
+    "sha256": "59886a127411e1d5ef11c0642644e838ba42117e25a9571741dc311c444d832c"
+  },
+  {
+    "path": "src/core/engine.ts",
+    "sha256": "d916e8d8fbb9b5b422ed14f1474a0173f23ae7316e36a25909df2187ff2c5cf1"
+  },
+  {
+    "path": "src/core/run.ts",
+    "sha256": "260ceb57673c64dcea1a2db77bb78e3e9513b52b08078d3f4b4d384b63e89888"
+  },
+  {
+    "path": "scripts/prep-feedback-test.ts",
+    "sha256": "9a3989c8d3bd244d04eaa3ef2eb20298243a7261ab698773f201f069712014ed"
+  },
+  {
+    "path": "scripts/v09-batch3-test.ts",
+    "sha256": "03a534645b5d309a92c2589c1fbaccb21d428bcbb237bb9985d7e607a28a0a1d"
+  }
+]

@@ -1,0 +1,71 @@
+/* Rigid-body offsets audited against stable lower-body pixels, not changing wing/weapon bounds. */
+.uart.duelyst[data-unit-art="v_guard"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-v-guard var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-v-guard {
+  0%, 7.142857%, 14.285714%, 21.428571%, 28.571429%, 35.714286% { transform: translateY(0); }
+  42.857143%, 50%, 57.142857%, 64.285714%, 71.428571%, 78.571429% { transform: translateY(1.785714%); }
+  85.714286%, 92.857143%, 100% { transform: translateY(0); }
+}
+
+.uart.duelyst[data-unit-art="d_artificer"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-d-artificer var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-d-artificer {
+  0%, 8.333333%, 16.666667%, 25%, 33.333333% { transform: translateY(0); }
+  41.666667%, 91.666667% { transform: translateY(1.785714%); }
+  50%, 58.333333%, 66.666667%, 75%, 83.333333% { transform: translateY(3.571429%); }
+  100% { transform: translateY(0); }
+}
+
+.uart.duelyst[data-unit-art="a_reaper"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-a-reaper var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-a-reaper {
+  0%, 60%, 70%, 80%, 90%, 100% { transform: translateY(0); }
+  10%, 20%, 30%, 40%, 50% { transform: translateY(1.785714%); }
+}
+
+.uart.duelyst[data-unit-art="d_dune"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-d-dune var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-d-dune {
+  0%, 50%, 100% { transform: translateY(0); }
+  7.142857%, 14.285714%, 21.428571%, 28.571429%, 35.714286%, 42.857143% { transform: translateY(1.785714%); }
+  57.142857%, 64.285714%, 71.428571%, 78.571429%, 85.714286%, 92.857143% { transform: translateY(-1.785714%); }
+}
+
+.uart.duelyst[data-unit-art="v_sentinel"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-v-sentinel var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-v-sentinel {
+  0%, 7.142857%, 14.285714%, 21.428571%, 28.571429%, 35.714286%, 42.857143%, 100% { transform: translateY(0); }
+  50%, 57.142857%, 64.285714%, 71.428571%, 78.571429%, 85.714286%, 92.857143% { transform: translateY(.892857%); }
+}
+
+.uart.duelyst[data-unit-art="s_viper"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-s-viper var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-s-viper {
+  0%, 28.571429%, 35.714286%, 42.857143%, 85.714286%, 92.857143%, 100% { transform: translateY(0); }
+  7.142857%, 14.285714%, 21.428571% { transform: translateY(-1.785714%); }
+  50%, 57.142857%, 64.285714%, 71.428571%, 78.571429% { transform: translateY(1.785714%); }
+}
+
+.uart.duelyst[data-unit-art="t_wisp"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-t-wisp var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-t-wisp {
+  0%, 7.142857%, 14.285714%, 21.428571%, 100% { transform: translateY(0); }
+  28.571429%, 35.714286% { transform: translateY(1.785714%); }
+  42.857143%, 50%, 85.714286%, 92.857143% { transform: translateY(3.571429%); }
+  57.142857%, 64.285714%, 71.428571%, 78.571429% { transform: translateY(5.357143%); }
+}
+
+.uart.duelyst[data-unit-art="e_lich"] .duelyst-strip {
+  --duelyst-idle-animation: duelyst-idle-x var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, duelyst-anchor-e-lich var(--duelyst-duration) steps(1, end) infinite;
+}
+@keyframes duelyst-anchor-e-lich {
+  0%, 7.142857%, 14.285714%, 21.428571%, 28.571429%, 35.714286%, 71.428571%, 78.571429%, 85.714286%, 92.857143%, 100% { transform: translateY(0); }
+  42.857143%, 50%, 57.142857%, 64.285714% { transform: translateY(-.892857%); }
+}

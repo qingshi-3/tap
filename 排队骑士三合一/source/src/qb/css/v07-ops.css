@@ -1,0 +1,95 @@
+/* ── v0.7：法术 / 发现 / 历战 / 驻守 / 军团 ── */
+
+/* 法术方块：紫色底，和补给区分 */
+.game .tray.paid-shelf .food-tile.spell {
+  background: linear-gradient(#4a2f6e, #221636);
+  box-shadow: inset 0 2px 0 #b58cff, inset 0 -3px 0 #120a20, 0 3px 0 #090711;
+}
+.game .tray.paid-shelf .food-tile .ft-ico > .ft-tgt.spell { color: #d6b8ff; background: #1c1030; }
+
+/* 刷新免费次数（战备） */
+.btn.reroll.free-rr i { color: #9fffc8; }
+.btn.reroll.free-rr { filter: drop-shadow(0 0 8px rgba(120, 255, 190, .55)); }
+
+/* 发现得到的卡：青色光效，不加外框圈 */
+.tray .card.bonus-card.disc-card { filter: drop-shadow(0 0 10px rgba(123, 227, 255, .75)); }
+.tray .card.disc-card .bonus-tag { background: linear-gradient(#bff4ff, #4cc3e8); color: #06222e; }
+.tray .card .bonus-tag .bonus-price.gift { font: 16px var(--font, inherit); font-weight: 900; }
+
+/* 军团徽记（HUD 左，遗物下一行） */
+.hud-legion {
+  position: absolute; left: 0; top: calc(100% + 50px);
+  height: 40px; padding: 0 10px 0 6px; display: flex; align-items: center; gap: 4px;
+  border: 0; cursor: pointer; color: #ffd0a8; font: 22px/1 var(--num);
+  background: linear-gradient(180deg, #4a2214, #1e0d08);
+  box-shadow: inset 0 0 0 2px #e07a45, 0 3px 0 #090711;
+}
+.hud-left:not(:has(.hud-relics)) .hud-legion { top: calc(100% + 4px); }
+.hud-legion .ic { width: 22px; height: 22px; color: #ff9a5b; }
+.hud-legion.full { color: #ffe9a8; box-shadow: inset 0 0 0 2px #ffd36b, 0 0 10px rgba(255, 211, 107, .5), 0 3px 0 #090711; }
+.in-battle .hud-legion { opacity: .7; }
+
+/* 单位角标：历战（左上）、驻守圆点 */
+.u-mark {
+  position: absolute; left: -14px; top: 2px; z-index: 4; height: 26px; padding: 0 5px 0 3px;
+  display: flex; align-items: center; gap: 2px; pointer-events: none;
+  background: #3a160e; color: #ffb48a; font: 16px/1 var(--num); white-space: nowrap;
+  box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #e0643a, 0 3px 0 2px rgba(0, 0, 0, .45);
+}
+.u-mark .ic { width: 16px; height: 16px; }
+.u-mark.full { background: #3e2c08; color: #ffe39a; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #ffd36b, 0 0 10px rgba(255, 211, 107, .6); }
+.u-mark.m-guard { background: #0e2a36; color: #9feaff; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #4cc3e8, 0 3px 0 2px rgba(0, 0, 0, .45); letter-spacing: -1px; }
+.u-mark.m-scar ~ .u-mark.m-guard { top: 32px; }
+.tip-scar { display: flex; align-items: center; gap: 6px; font-size: 18px; color: #ffcfb5; }
+.tip-scar .ic { width: 18px; height: 18px; flex: none; }
+
+/* ── 发现弹层：置灰 → 三张卡从来源飞出翻面 → 点选 → 选择 ── */
+.disc-ov { position: absolute; inset: 0; z-index: 45; display: grid; place-items: center; }
+.disc-dim {
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 46%, rgba(14, 10, 34, .8), rgba(2, 2, 10, .93) 70%);
+  animation: v05Fade .25s ease-out; transition: opacity .2s;
+}
+.disc-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: opacity .2s; }
+.disc-ov.peek .disc-dim, .disc-ov.peek .disc-wrap { opacity: 0; pointer-events: none; }
+.disc-head { margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: popIn .35s cubic-bezier(.2, 1.4, .4, 1); }
+.disc-head h2 { margin: 0; font-size: 38px; letter-spacing: .3em; padding-left: .3em; color: #bff4ff; text-shadow: 0 0 22px rgba(90, 210, 255, .7), 0 3px 0 #000; }
+.disc-src { padding: 3px 12px; font-size: 18px; color: #06222e; background: linear-gradient(#bff4ff, #4cc3e8); }
+.disc-cards { display: flex; gap: 48px; perspective: 1000px; }
+.disc-slot {
+  position: relative; width: 226px; height: 440px; display: block; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; color: inherit;
+  transition: transform .2s cubic-bezier(.2, 1.3, .4, 1), opacity .2s;
+}
+.disc-slot > .card { position: absolute; left: 0; top: 0; transform: scale(1.2); transform-origin: 0 0; pointer-events: none; }
+.disc-slot.on { transform: translateY(-10px); }
+.disc-slot.off { opacity: .55; transform: scale(.96); }
+.disc-desc {
+  position: absolute; left: -8px; right: -8px; top: 324px; min-height: 86px; box-sizing: border-box; padding: 8px 10px;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+  font-size: 18px; line-height: 1.4; color: #e8e4ff; pointer-events: none;
+  background: rgba(10, 8, 28, .92); box-shadow: inset 0 0 0 2px rgba(123, 227, 255, .35), 0 4px 0 #05040f;
+}
+.disc-desc > span { display: block; }
+.disc-slot.on .disc-desc { box-shadow: inset 0 0 0 2px #7be3ff, 0 0 14px rgba(123, 227, 255, .45), 0 4px 0 #05040f; }
+.disc-slot:focus-visible { outline: 3px solid #bff4ff; outline-offset: 6px; }
+.disc-glow {
+  position: absolute; inset: -26px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse, rgba(123, 227, 255, .55), transparent 68%);
+  transition: opacity .2s;
+}
+.disc-rays {
+  position: absolute; left: 50%; top: 50%; width: 420px; height: 420px; margin: -210px 0 0 -210px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: repeating-conic-gradient(from 0deg, rgba(160, 235, 255, .3) 0 7deg, transparent 7deg 22deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 66%); mask: radial-gradient(circle, #000 18%, transparent 66%);
+  transition: opacity .2s; animation: rlSpin 9s linear infinite; will-change: transform;
+}
+.disc-slot.on .disc-glow, .disc-slot.on .disc-rays { opacity: 1; }
+.disc-hint { margin: 0; position: relative; z-index: 1; font-size: 20px; color: #cfe9f5; text-shadow: 0 2px 0 #000; }
+.disc-acts { display: flex; gap: 14px; }
+.disc-take { min-width: 280px; height: 56px; font-size: 24px; }
+.disc-take:disabled { opacity: .5; filter: grayscale(.6); }
+.disc-peek {
+  position: absolute; left: 24px; bottom: 24px; height: 52px; padding: 0 16px; gap: 6px; font-size: 20px;
+  background: rgba(11, 10, 34, .85); touch-action: none; user-select: none; -webkit-user-select: none;
+}
+.disc-peek .ic { width: 22px; height: 22px; }

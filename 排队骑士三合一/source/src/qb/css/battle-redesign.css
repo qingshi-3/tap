@@ -1,0 +1,532 @@
+/* 战斗主界面重构：动效与交互层。最后加载，只覆盖 .game 备战界面。
+   循环动画只动 transform / opacity；悬停和按下只改变 transform / filter。 */
+
+/* ── 招募货架：入场与交互 ── */
+.game .tray .cards > .card {
+  transition: transform .18s ease-out, filter .18s ease-out;
+}
+.game .tray .cards > .card:not(.unaffordable):hover {
+  transform: translateY(-6px);
+  filter: drop-shadow(0 0 10px rgba(255, 211, 107, .6));
+}
+.game .tray .cards > .card:not(.unaffordable):active { transform: translateY(-2px) scale(.98); }
+
+/* ── 背包：移到手牌托盘正下方，和手牌成组 ── */
+.game .bag-strip:not(.hidden) {
+  z-index: 10;
+  left: 932px; top: 540px; bottom: auto; right: auto; width: 326px; height: 36px; box-sizing: border-box;
+  display: flex; flex-direction: row; align-items: center; gap: 6px;
+  grid-template-columns: none; grid-auto-rows: auto;
+  padding: 0 8px; border-radius: 0;
+  background: none; border: 0; box-shadow: none;
+  opacity: 1;
+}
+.game .bag-head { color: #f2d39c; opacity: 1; text-shadow: 0 0 8px rgba(242, 211, 156, .35); padding: 0 4px; }
+.game .bag-slot { width: 28px !important; height: 28px !important; }
+.game .bag-slot .px-item { width: 20px !important; height: 20px !important; }
+.game .bag-slot.empty {
+  opacity: 1;
+  background: rgba(10, 8, 24, .55);
+  box-shadow: inset 0 0 0 2px rgba(242, 211, 156, .16);
+}
+.game .bag-slot:not(.empty) { background: linear-gradient(180deg, #221c46, #120e2a); }
+
+/* ── 手牌：空槽弱化，有牌时悬停抬起 ── */
+.game .hand-slot.empty { background: rgba(20, 16, 42, .28); outline-color: #2a2660; }
+.game .hand-slot:not(.empty) { transition: transform .15s ease-out, box-shadow .15s ease-out; }
+.game .hand-slot:not(.empty):hover { transform: translateY(-4px); }
+.game .hand-slot:not(.empty):active { transform: translateY(-1px) scale(.98); }
+.game .hand-slot[data-drop="place"], .game .hand-slot[data-drop="move"], .game .hand-slot[data-drop="swap"] {
+  box-shadow: inset 0 0 0 3px #7be3ff, 0 0 16px rgba(123, 227, 255, .55);
+}
+.game .hand-slot[data-drop="merge"] {
+  box-shadow: inset 0 0 0 3px #ffd36b, 0 0 16px rgba(255, 211, 107, .6);
+}
+
+/* ── 统一材质：深色玻璃底 + 金色内框 + 柔和高光（酒馆 / 战鼓 / 补给） ── */
+.game .tavern-box {
+  padding: 8px; border-radius: 10px;
+  background:
+    radial-gradient(120% 50% at 50% 0%, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(40, 32, 84, .94), rgba(10, 8, 28, .94));
+  box-shadow: inset 0 0 0 2px #c9a35a, inset 0 0 0 4px #0d0b20, 0 0 18px rgba(255, 211, 107, .16), 0 6px 16px rgba(0, 0, 0, .5);
+}
+.game .tavern-box .tv-lv .px-item { filter: drop-shadow(0 0 6px rgba(255, 211, 107, .6)); }
+.game .tavern-box .tv-up {
+  border-radius: 6px; box-shadow: inset 0 -3px 0 #a0681a, inset 0 2px 0 rgba(255, 255, 255, .35), 0 2px 0 #000;
+}
+.game .tavern-box .tv-up:disabled {
+  filter: none; cursor: default; color: #c9c2ff;
+  background: linear-gradient(180deg, #3a3560, #221e40);
+  box-shadow: inset 0 -3px 0 #120f26, inset 0 2px 0 rgba(255, 255, 255, .12), 0 2px 0 #000;
+}
+.game .tavern-box .tv-lv b { text-shadow: 0 0 10px rgba(255, 211, 107, .45), 0 2px 0 #000; }
+
+.game .hand-slot.hand-spell {
+  background: radial-gradient(circle at 50% 30%, rgba(255, 226, 150, .3), rgba(20, 16, 42, .92) 70%);
+  box-shadow: inset 0 0 0 2px #c9a35a, inset 0 0 0 4px #0d0b20, 0 6px 14px rgba(0, 0, 0, .5);
+}
+
+.screen.game .tray.paid-shelf .food-tile:not(.spell) {
+  background:
+    radial-gradient(120% 45% at 50% 0%, rgba(255, 255, 255, .18), rgba(255, 255, 255, 0) 65%),
+    linear-gradient(180deg, rgba(56, 44, 110, .96), rgba(12, 9, 32, .96));
+  box-shadow: inset 0 0 0 2px #c9a35a, inset 0 0 0 4px #0d0b20, 0 0 18px rgba(255, 211, 107, .22), 0 8px 18px rgba(0, 0, 0, .55);
+}
+.screen.game .tray.paid-shelf .food-tile:not(.spell) .ft-ico { filter: drop-shadow(0 0 8px rgba(127, 217, 255, .7)); animation: spell-glow 2.8s ease-in-out infinite; }
+.screen.game .tray.paid-shelf .food-tile:not(.spell):hover {
+  box-shadow: inset 0 0 0 2px #ffe08a, inset 0 0 0 4px #0d0b20, 0 0 24px rgba(255, 211, 107, .55), 0 8px 18px rgba(0, 0, 0, .55);
+}
+.game .tray.paid-shelf .food-tile.spell {
+  background:
+    radial-gradient(120% 45% at 50% 0%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 65%),
+    linear-gradient(180deg, rgba(74, 52, 140, .97), rgba(14, 10, 36, .97));
+  box-shadow: inset 0 0 0 2px #e2b86a, inset 0 0 0 4px #0d0b20, 0 0 22px rgba(255, 211, 107, .28), 0 8px 18px rgba(0, 0, 0, .55);
+}
+.game .tray.paid-shelf .food-tile.spell .ft-ico { filter: drop-shadow(0 0 10px rgba(127, 217, 255, .8)); animation: spell-glow 2.8s ease-in-out infinite; }
+.game .tray.paid-shelf .food-tile.spell:hover {
+  box-shadow: inset 0 0 0 2px #ffe08a, inset 0 0 0 4px #0d0b20, 0 0 26px rgba(255, 211, 107, .6), 0 8px 18px rgba(0, 0, 0, .55);
+}
+@keyframes spell-glow {
+  0%, 100% { opacity: .75; }
+  50% { opacity: 1; }
+}
+.game .tray .food-tile.spell.unaffordable .ft-ico { animation: none; opacity: .5; }
+
+/* ── 手牌区：移到底部、紧贴底部操作带上方；战斗区整体上移腾出空间 ── */
+.screen.game .board { top: -80px; }
+.game .hand-strip:not(.hidden) {
+  left: 16px !important; top: 372px !important; z-index: 4;
+  align-items: center; gap: 8px; padding: 8px 10px 8px 6px; border-radius: 0;
+  background: none; border: 0; box-shadow: none;
+  opacity: 1;
+}
+.game .hand-head {
+  width: 26px; padding: 6px 0; border-radius: 6px; font-size: 16px; color: #f2d39c;
+  background: rgba(242, 211, 156, .12); text-shadow: 0 0 8px rgba(242, 211, 156, .35);
+}
+.game .hand-slot.empty {
+  background: rgba(8, 6, 22, .55);
+  box-shadow: inset 0 0 0 2px rgba(242, 211, 156, .16), inset 0 3px 8px rgba(0, 0, 0, .45);
+}
+.game .hand-slot:not(.empty)::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(160deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 45%);
+}
+
+/* ── 关卡信息横幅（底部布局见下方“备战底部布局”） ── */
+.screen.game .stage-banner {
+  left: 1000px !important; top: 84px !important; width: 244px; z-index: 5;
+  padding: 8px 12px; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(34, 26, 72, .9), rgba(10, 8, 28, .94));
+  border: 2px solid rgba(242, 211, 156, .45);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 14px rgba(0, 0, 0, .45);
+}
+/* 关卡信息进场：置灰屏幕 → 居中弹出 → 飞向顶部幕次标题并收起；点击标题可再次展开详情 */
+.screen.game .stage-dim {
+  position: absolute; inset: 0; z-index: 900;
+  background: radial-gradient(ellipse at center, rgba(6, 4, 20, .96), rgba(2, 1, 8, .985));
+  opacity: 0; pointer-events: none; transition: opacity .35s ease;
+}
+.screen.game .stage-dim.on { opacity: 1; pointer-events: auto; cursor: pointer; }
+.screen.game .stage-banner.sb-modal {
+  left: 640px !important; top: 291px !important; z-index: 910; pointer-events: auto; cursor: pointer;
+  width: 420px; padding: 0; border-radius: 0; text-align: center;
+  background: none; border: 0; box-shadow: none;
+  animation: sb-enter .45s cubic-bezier(.2, .8, .2, 1) both;
+}
+.screen.game .stage-banner.sb-modal .sb-title { flex-direction: column; align-items: center; gap: 14px; }
+.screen.game .stage-banner.sb-modal .sb-no {
+  background: none; border: 0; padding: 0; color: rgba(242, 211, 156, .7);
+  font-size: 15px; letter-spacing: .32em;
+}
+.screen.game .stage-banner.sb-modal .sb-nico { width: 56px; height: 56px; }
+.screen.game .stage-banner.sb-modal .sb-title b {
+  font-size: 40px; letter-spacing: .08em; color: #fff8e6;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .5);
+}
+.screen.game .stage-banner.sb-modal .sb-hint {
+  margin-top: 16px; padding: 0; background: none; border: 0; font-size: 18px; color: #f2d39c;
+}
+.screen.game .stage-banner.sb-modal .sb-hint:empty { display: none; }
+.screen.game .stage-banner .sb-foot { display: none; }
+.screen.game .stage-banner.sb-modal .sb-foot {
+  display: block; margin-top: 64px; font-size: 13px; letter-spacing: .4em; color: rgba(255, 246, 225, .65);
+}
+
+@keyframes sb-enter {
+  0% { opacity: 0; transform: translateX(-50%) translateY(16px) scale(1); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.25); }
+}
+.screen.game .stage-banner.sb-fly {
+  left: 640px !important; top: 291px !important; pointer-events: none;
+  animation: sb-fly .7s cubic-bezier(.5, 0, .2, 1) both;
+}
+@keyframes sb-fly {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.25); }
+  100% { opacity: 0; transform: translateX(calc(-50% - 170px)) translateY(-323px) scale(.25); }
+}
+.screen.game .stage-banner.sb-fly .sb-foot { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen.game .stage-dim { transition: none; }
+  .screen.game .stage-banner.sb-modal { animation: none; }
+  .screen.game .stage-banner.sb-fly:not(.sb-open) { animation: none; opacity: 0; }
+}
+
+/* ── 备战底部布局（1280×720）：底部区域坐标只在这里定义 ──
+   列：左 经济 16–216 ｜ 中 货架 / 手牌 236–1044（轴线 x=640，与 VS 对齐）｜ 右 操作 1064–1264
+   行：分界线 y=400 ｜ 上排 416–592（经济 / 货架 / 操作）｜ 下排 608–704（手牌 + 背包，居中）
+   层级：开战 = 唯一大号金色；刷新 = 金色；免费刷新 / 成长预览 = 暗色次级
+   .tray 顶在 y=392：.tray-left / .cards / .tray-right 为托盘内坐标；手牌、背包、成长预览为屏幕坐标 */
+.screen.game .board { top: -120px; }
+.screen.game .board .slot .slot-num { top: 76px; }
+.screen.game .board.ordering .slot .slot-num { top: 92px; }
+.screen.game .hud-right { white-space: nowrap; }
+.screen.game .hud-right .hud-relics { position: static !important; margin: 0 !important; opacity: 1 !important; left: auto !important; top: auto !important; }
+
+.screen.game > .tray { top: auto !important; bottom: 0 !important; height: 390px !important; }
+.screen.game .tray::before { top: 8px; left: 16px; right: 16px; }
+
+/* 左列：酒馆等级 / 金币在上，刷新 / 免费刷新在下，与货架同顶同底 */
+.screen.game .tray.paid-shelf .tray-left {
+  left: 16px !important; top: 24px !important; width: 200px !important; height: 176px !important;
+  display: flex !important; flex-direction: column !important; justify-content: flex-start !important; gap: 0 !important;
+  padding: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .tavern-box {
+  position: static !important; left: auto !important; top: auto !important;
+  width: 200px !important; height: 32px !important; flex: none !important;
+  padding: 0 4px !important; border: 0 !important; border-radius: 0 !important; background: none !important; box-shadow: none !important;
+  display: flex !important; align-items: center !important; justify-content: space-between !important;
+}
+.screen.game .tray.paid-shelf .tavern-box .tv-lv { height: 32px; gap: 10px; justify-content: flex-start; }
+.screen.game .tray.paid-shelf .tavern-box .tv-lv .px-item { width: 24px; height: 24px; filter: none; }
+.screen.game .tray.paid-shelf .tavern-box .tv-up { height: 26px; padding: 0 8px; font-size: 14px; }
+.screen.game .tray.paid-shelf .tl-gold {
+  height: 32px !important; min-height: 0 !important; flex: none; margin-top: 4px;
+  display: flex; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 4px !important;
+  background: none !important; box-shadow: none !important; border: 0 !important; border-image: none !important;
+}
+.screen.game .tray.paid-shelf .tl-gold .px-item { width: 24px !important; height: 24px !important; }
+.screen.game .tray.paid-shelf .tl-gold b,
+.screen.game .tray.paid-shelf .tavern-box .tv-lv b { font: 24px/1 var(--num) !important; color: #ffe7a8; text-shadow: 0 2px 0 #000; }
+
+.screen.game .tray.paid-shelf .tray-left > .reroll {
+  width: 150px !important; height: 44px !important; min-height: 0 !important; flex: none; padding: 0 10px !important;
+  flex-direction: row !important; align-items: center !important; justify-content: center !important; gap: 10px !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll:not(.rewarded) { margin-top: auto; }
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-main { font-size: 19px; line-height: 1; display: flex; align-items: center; gap: 6px; }
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-main svg { color: #2a1700; fill: currentColor; }
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-price {
+  display: flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 4px;
+  background: none !important; box-shadow: none !important; color: #2a1700; font: 20px/1 var(--num);
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-price .px-item {
+  width: 22px !important; height: 22px !important; display: inline-block; flex: none;
+  background: var(--pxi) center / contain no-repeat !important;
+}
+
+/* 次级按钮：暗底 + 细金描边，无扫光 */
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded,
+.screen.game .prep-preview-btn {
+  color: #f2d39c !important; text-shadow: none !important; filter: none !important;
+  background: rgba(255, 236, 190, .06) !important;
+  box-shadow: inset 0 0 0 2px rgba(242, 211, 156, .3) !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded:hover:not(:disabled),
+.screen.game .prep-preview-btn:hover:not(:disabled) {
+  background: rgba(255, 236, 190, .12) !important;
+  box-shadow: inset 0 0 0 2px rgba(242, 211, 156, .62) !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded:disabled,
+.screen.game .prep-preview-btn:disabled { opacity: .4; }
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded { width: 150px !important; height: 34px !important; margin-top: 8px; }
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded .rr-main { font-size: 15px; }
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded .rr-main svg,
+.screen.game .prep-preview-btn svg { color: #f2d39c; fill: currentColor; }
+.screen.game .prep-preview-btn[aria-pressed="true"] {
+  color: #2a1700 !important; background: #f2d39c !important; box-shadow: none !important;
+}
+.screen.game .prep-preview-btn[aria-pressed="true"] svg { color: #2a1700; }
+
+/* 中列：货架。单位卡占两行，法术两行叠放，整组以 x=640 居中 */
+.screen.game .tray.paid-shelf .cards {
+  left: 236px !important; top: 24px !important; width: 808px !important; max-width: none !important; height: 176px !important;
+  display: grid !important; grid-template-rows: repeat(2, 83px); grid-auto-flow: column; grid-auto-columns: max-content;
+  column-gap: 10px; row-gap: 10px; justify-content: center; align-content: center; align-items: center;
+  padding: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important; overflow: visible !important;
+}
+.screen.game .tray.paid-shelf .cards[data-count] > .card { grid-row: span 2; zoom: .67 !important; }
+.screen.game .tray.paid-shelf .cards[data-count] > .food-tile { zoom: 1 !important; }
+.screen.game .tray.paid-shelf .cards > .shelf-div { grid-row: span 2; zoom: 1 !important; width: 1px; height: 150px; margin: 0 6px; }
+.screen.game .tray.paid-shelf .cards:has(> .card:nth-child(6)) > .card { zoom: .58 !important; }
+.screen.game .tray.paid-shelf .cards:has(> .card:nth-child(6)) > .food-tile { zoom: .9 !important; }
+
+/* 右列：成长预览与酒馆行同顶，开战与免费刷新同底 */
+.screen.game .prep-actions { left: 0 !important; right: auto !important; top: 0 !important; width: 0; display: block; }
+.screen.game .prep-actions .prep-preview-btn { margin: 0 !important; }
+.screen.game .prep-preview-btn {
+  left: 1064px !important; top: 566px !important; width: 200px !important; height: 36px !important;
+  min-width: 0 !important; min-height: 0 !important; font-size: 16px !important; gap: 8px; z-index: 12;
+}
+.screen.game .tray .tray-right {
+  left: 1064px !important; top: 296px !important; right: auto !important; bottom: auto !important;
+  width: 200px !important; height: 56px !important;
+}
+.screen.game .fight-controls { grid-template-columns: 1fr; width: 200px !important; }
+.screen.game .fight-controls > .btn.fight { width: 100%; height: 56px !important; min-height: 0 !important; font-size: 22px; letter-spacing: .12em; }
+
+/* 手牌：炉石式扇形，居中贴底；悬停时抬起放大并摆正。背包在右下侧。
+   --i / --n 由 renderHand 写入，--o 为相对中心的偏移 */
+.screen.game .hand-strip {
+  left: 320px !important; top: 520px !important; width: 640px !important; height: 200px !important; z-index: 7;
+  display: block !important; padding: 0 !important; gap: 0 !important; pointer-events: none;
+}
+.screen.game .hand-strip .hand-head { display: none; }
+.screen.game .hand-strip .hand-slot {
+  --o: calc(var(--i) - (var(--n) - 1) / 2);
+  --step: min(96px, calc(560px / var(--n)));
+  --fan: translateX(calc(var(--o) * var(--step))) translateY(calc(var(--o) * var(--o) * 2.5px)) rotate(calc(var(--o) * 4deg));
+  position: absolute !important; left: 50%; bottom: 0; margin-left: -63.92px;
+  width: 127.84px !important; height: 178.16px !important; zoom: 1 !important; border-radius: 10px; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
+  transform-origin: 50% 160%; transform: var(--fan);
+  z-index: calc(var(--i) + 1); pointer-events: auto;
+  transition: transform .2s cubic-bezier(.2, .8, .3, 1), box-shadow .2s, opacity .2s;
+  box-shadow: none;
+}
+.screen.game .hand-strip .hand-slot:not(.empty):hover,
+.screen.game .hand-strip .hand-slot:not(.empty):focus-visible {
+  z-index: 30; transform: translateY(calc(var(--o) * var(--o) * 2.5px - 22px)) translateX(calc(var(--o) * var(--step))) scale(1.12);
+  box-shadow: none;
+}
+.screen.game .hand-strip .hand-slot:not(.empty):active { transform: translateY(-14px) translateX(calc(var(--o) * var(--step))) scale(1.06); }
+.screen.game .hand-strip .hand-slot.drop-hover { transform: var(--fan) scale(1.08); }
+.screen.game .hand-strip .hand-slot.empty { opacity: 0 !important; background: none !important; box-shadow: none !important; }
+.screen.game .hand-strip .hand-slot.empty[data-drop] { opacity: .5 !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.7); }
+.screen.game .hand-strip .hand-slot > .card { position: absolute; left: 0; top: 0; margin: 0 !important; zoom: 1 !important; transform-origin: 0 0; transform: scale(.68); pointer-events: none; filter: drop-shadow(0 8px 10px rgba(0,0,0,.6)); }
+.screen.game .hand-strip .hand-slot:not(.empty):hover { filter: drop-shadow(0 0 14px rgba(255,211,107,.6)); }
+.screen.game .hand-strip .hand-slot::after { display: none !important; }
+.screen.game .hand-strip .hand-slot.hand-spell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.screen.game .hand-strip .hand-slot.hand-spell b { font-size: 16px; }
+.screen.game .hand-strip .hand-slot.hand-spell .px-item { width: 52px; height: 52px; }
+.screen.game .bag-strip:not(.hidden) {
+  left: 16px !important; top: 640px !important; width: 200px !important; height: 56px !important;
+  display: flex !important; align-items: center; gap: 8px !important; padding: 0 !important; white-space: nowrap;
+}.screen.game .bag-strip .bag-head { font-size: 15px; color: rgba(242, 211, 156, .7); text-shadow: none; padding: 0; margin-right: 4px; background: none; }
+.screen.game .bag-strip .bag-slot { width: 48px !important; height: 48px !important; }
+.screen.game .bag-strip .bag-slot .px-item { width: 36px !important; height: 36px !important; }
+.screen.game .hand-slot.empty,
+.screen.game .bag-strip .bag-slot.empty {
+  background: rgba(8, 6, 22, .55) !important; outline: 0 !important; border: 0 !important;
+  box-shadow: inset 0 0 0 2px rgba(242, 211, 156, .16), inset 0 3px 8px rgba(0, 0, 0, .45) !important;
+}
+
+
+/* ── 卡牌玻璃光效：柔和径向高光 + 底部暗角，无硬边 ── */
+.game .tray .card .card-in::after {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background:
+    radial-gradient(120% 60% at 30% 0%, rgba(255, 255, 255, .22), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, rgba(0, 0, 0, .28));
+  mix-blend-mode: screen;
+}
+.game .tray .card:not(.unaffordable):hover .card-in::after {
+  background:
+    radial-gradient(120% 60% at 30% 0%, rgba(255, 240, 200, .34), rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, rgba(0, 0, 0, .28));
+}
+
+/* ── 开战：唯一带扫光的按钮（渐变无硬边，transform 循环） ── */
+.game .tray .btn.fight {
+  position: relative; overflow: hidden;
+}
+.game .tray .btn.fight::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, .32) 50%, rgba(255, 255, 255, 0));
+  transform: translateX(0); pointer-events: none;
+  animation: btn-sheen 3.6s ease-in-out infinite;
+}
+@keyframes btn-sheen {
+  0%, 55% { transform: translateX(0); }
+  100% { transform: translateX(340%); }
+}
+.game .btn:active { transform: translateY(2px); }
+.game .btn:disabled::after { animation: none; opacity: 0; }
+
+/* ── 战场氛围：底部光带随回合轻轻起伏 ── */
+.game .board::after {
+  content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 36%;
+  background: radial-gradient(ellipse at 50% 100%, rgba(120, 90, 255, .28), transparent 70%);
+  pointer-events: none; animation: arena-breathe 5s ease-in-out infinite;
+}
+@keyframes arena-breathe {
+  0%, 100% { opacity: .55; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game .tray .cards > .card,
+  .game .tray .btn.fight::after,
+  .game .board::after { animation: none; }
+  .game .tray .cards > .card { transition: none; }
+  .game .hand-slot, .game .btn { transition: none; }
+}
+
+/* 战斗背景：自绘像素夜景，替换共用的月亮背景 */
+.screen.game::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%271280%27%20height%3D%27720%27%20shape-rendering%3D%27crispEdges%27%3E%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20y1%3D%270%27%20x2%3D%270%27%20y2%3D%271%27%3E%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2305061a%27%2F%3E%3Cstop%20offset%3D%27.28%27%20stop-color%3D%27%230d0f33%27%2F%3E%3Cstop%20offset%3D%27.46%27%20stop-color%3D%27%232f2262%27%2F%3E%3Cstop%20offset%3D%27.6%27%20stop-color%3D%27%236a3f78%27%2F%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%230a0818%27%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%271280%27%20height%3D%27720%27%20fill%3D%27url(%23g)%27%2F%3E%3Crect%20x%3D%27888%27%20y%3D%2732%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4285957301966846%27%2F%3E%3Crect%20x%3D%271088%27%20y%3D%27144%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7919268870959059%27%2F%3E%3Crect%20x%3D%27560%27%20y%3D%27196%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6119467596057803%27%2F%3E%3Crect%20x%3D%27760%27%20y%3D%27116%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5217716842656955%27%2F%3E%3Crect%20x%3D%27332%27%20y%3D%27116%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6952028540894389%27%2F%3E%3Crect%20x%3D%27380%27%20y%3D%27192%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4573528074892238%27%2F%3E%3Crect%20x%3D%27764%27%20y%3D%27196%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7550070484634489%27%2F%3E%3Crect%20x%3D%27576%27%20y%3D%27128%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5635187602369115%27%2F%3E%3Crect%20x%3D%27464%27%20y%3D%27148%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5571661815978587%27%2F%3E%3Crect%20x%3D%27400%27%20y%3D%2764%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6014257289702073%27%2F%3E%3Crect%20x%3D%27712%27%20y%3D%27208%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4478128150571138%27%2F%3E%3Crect%20x%3D%27624%27%20y%3D%27180%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4736751792719588%27%2F%3E%3Crect%20x%3D%27756%27%20y%3D%27224%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7686531502753496%27%2F%3E%3Crect%20x%3D%274%27%20y%3D%2764%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8184214837150648%27%2F%3E%3Crect%20x%3D%27352%27%20y%3D%2752%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7320309247355908%27%2F%3E%3Crect%20x%3D%271004%27%20y%3D%2716%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7449666713131592%27%2F%3E%3Crect%20x%3D%27680%27%20y%3D%278%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5846036738716066%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%27188%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.42025391964707526%27%2F%3E%3Crect%20x%3D%27700%27%20y%3D%2764%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8557129016611725%27%2F%3E%3Crect%20x%3D%27344%27%20y%3D%27136%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5911596920108423%27%2F%3E%3Crect%20x%3D%27520%27%20y%3D%27212%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6842836091294885%27%2F%3E%3Crect%20x%3D%27748%27%20y%3D%27176%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8428164531709627%27%2F%3E%3Crect%20x%3D%27444%27%20y%3D%2776%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5525612862315029%27%2F%3E%3Crect%20x%3D%27492%27%20y%3D%27188%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4796236785827205%27%2F%3E%3Crect%20x%3D%27564%27%20y%3D%2752%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8824358788318932%27%2F%3E%3Crect%20x%3D%27508%27%20y%3D%2760%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6543744031572715%27%2F%3E%3Crect%20x%3D%27436%27%20y%3D%27152%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7767623987514526%27%2F%3E%3Crect%20x%3D%27124%27%20y%3D%2780%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.793287836923264%27%2F%3E%3Crect%20x%3D%27140%27%20y%3D%27112%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8702167510986328%27%2F%3E%3Crect%20x%3D%27396%27%20y%3D%2768%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7519456061767414%27%2F%3E%3Crect%20x%3D%27968%27%20y%3D%2752%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6980730093549937%27%2F%3E%3Crect%20x%3D%27240%27%20y%3D%27212%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5204299599630758%27%2F%3E%3Crect%20x%3D%27760%27%20y%3D%2752%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8531047749333084%27%2F%3E%3Crect%20x%3D%27876%27%20y%3D%2764%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.45660681298468264%27%2F%3E%3Crect%20x%3D%27184%27%20y%3D%2732%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.886848414177075%27%2F%3E%3Crect%20x%3D%271212%27%20y%3D%27104%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.49573477727826687%27%2F%3E%3Crect%20x%3D%27120%27%20y%3D%2736%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.577969872020185%27%2F%3E%3Crect%20x%3D%271072%27%20y%3D%2780%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8436633662553504%27%2F%3E%3Crect%20x%3D%27976%27%20y%3D%27160%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7436994177754969%27%2F%3E%3Crect%20x%3D%271000%27%20y%3D%27196%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8410593359498307%27%2F%3E%3Crect%20x%3D%271044%27%20y%3D%2712%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8664900847710669%27%2F%3E%3Crect%20x%3D%2764%27%20y%3D%27160%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7686196595663205%27%2F%3E%3Crect%20x%3D%27656%27%20y%3D%2776%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.853465721802786%27%2F%3E%3Crect%20x%3D%27380%27%20y%3D%2748%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8793429126730189%27%2F%3E%3Crect%20x%3D%27972%27%20y%3D%27100%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8971034806221724%27%2F%3E%3Crect%20x%3D%27740%27%20y%3D%27200%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6748878776328638%27%2F%3E%3Crect%20x%3D%27928%27%20y%3D%2716%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5681932199280709%27%2F%3E%3Crect%20x%3D%271116%27%20y%3D%2796%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.42009895711671563%27%2F%3E%3Crect%20x%3D%27856%27%20y%3D%27196%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6026827125810087%27%2F%3E%3Crect%20x%3D%27152%27%20y%3D%2784%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8941725177923218%27%2F%3E%3Crect%20x%3D%27328%27%20y%3D%2752%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7488026990089566%27%2F%3E%3Crect%20x%3D%271100%27%20y%3D%2788%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.43992656653281303%27%2F%3E%3Crect%20x%3D%27988%27%20y%3D%27176%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6761197360232473%27%2F%3E%3Crect%20x%3D%27820%27%20y%3D%27112%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7754681927384809%27%2F%3E%3Crect%20x%3D%27796%27%20y%3D%27100%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7201374465133995%27%2F%3E%3Crect%20x%3D%271024%27%20y%3D%27108%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.806478991615586%27%2F%3E%3Crect%20x%3D%27156%27%20y%3D%27224%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8010081817395985%27%2F%3E%3Crect%20x%3D%27668%27%20y%3D%2792%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6036082145059481%27%2F%3E%3Crect%20x%3D%27208%27%20y%3D%2788%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6190772641915828%27%2F%3E%3Crect%20x%3D%27512%27%20y%3D%27148%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8193266736110673%27%2F%3E%3Crect%20x%3D%27892%27%20y%3D%2780%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.849610885232687%27%2F%3E%3Crect%20x%3D%27452%27%20y%3D%2728%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8933014597045258%27%2F%3E%3Crect%20x%3D%27588%27%20y%3D%27124%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4404063879977912%27%2F%3E%3Crect%20x%3D%27156%27%20y%3D%27132%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4661523126764223%27%2F%3E%3Crect%20x%3D%27756%27%20y%3D%2732%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4153000722639263%27%2F%3E%3Crect%20x%3D%271204%27%20y%3D%27124%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7695950160035864%27%2F%3E%3Crect%20x%3D%27668%27%20y%3D%27224%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7101228142622859%27%2F%3E%3Crect%20x%3D%27756%27%20y%3D%27184%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.41771546748932453%27%2F%3E%3Crect%20x%3D%271168%27%20y%3D%2736%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.671657700650394%27%2F%3E%3Crect%20x%3D%27388%27%20y%3D%27200%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7707001098664478%27%2F%3E%3Crect%20x%3D%27556%27%20y%3D%2736%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8408765321131796%27%2F%3E%3Crect%20x%3D%27324%27%20y%3D%2788%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.41002418610733005%27%2F%3E%3Crect%20x%3D%27320%27%20y%3D%27164%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6754234583117068%27%2F%3E%3Crect%20x%3D%27892%27%20y%3D%2720%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5341188155347482%27%2F%3E%3Crect%20x%3D%27612%27%20y%3D%2716%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8492241621483118%27%2F%3E%3Crect%20x%3D%271192%27%20y%3D%27212%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7871511680772528%27%2F%3E%3Crect%20x%3D%271064%27%20y%3D%27216%27%20width%3D%274%27%20height%3D%274%27%20fill%3D%27%23e8e4ff%27%20opacity%3D%270.8554779175668955%27%2F%3E%3Crect%20x%3D%271276%27%20y%3D%2752%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.45200904526282104%27%2F%3E%3Crect%20x%3D%271212%27%20y%3D%2724%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.7393875013571233%27%2F%3E%3Crect%20x%3D%27252%27%20y%3D%27192%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6031319577945397%27%2F%3E%3Crect%20x%3D%27868%27%20y%3D%274%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5550483456812799%27%2F%3E%3Crect%20x%3D%271192%27%20y%3D%27196%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.5067253208020702%27%2F%3E%3Crect%20x%3D%27208%27%20y%3D%27172%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.48320347429253163%27%2F%3E%3Crect%20x%3D%27972%27%20y%3D%2732%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.8063826691126451%27%2F%3E%3Crect%20x%3D%27588%27%20y%3D%2772%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6193246716633439%27%2F%3E%3Crect%20x%3D%2740%27%20y%3D%27128%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6224728261353448%27%2F%3E%3Crect%20x%3D%27508%27%20y%3D%27176%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6509529904928059%27%2F%3E%3Crect%20x%3D%27368%27%20y%3D%2752%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%238f8ad0%27%20opacity%3D%270.6550747412024066%27%2F%3E%3Crect%20x%3D%271028%27%20y%3D%27148%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.6456731093116105%27%2F%3E%3Crect%20x%3D%27384%27%20y%3D%27164%27%20width%3D%272%27%20height%3D%272%27%20fill%3D%27%235a5598%27%20opacity%3D%270.4940122414613143%27%2F%3E%3Crect%20x%3D%27408%27%20y%3D%27150%27%20width%3D%27488%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Crect%20x%3D%27560%27%20y%3D%27172%27%20width%3D%27352%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Crect%20x%3D%27216%27%20y%3D%27194%27%20width%3D%27424%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Crect%20x%3D%27144%27%20y%3D%27216%27%20width%3D%27592%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Crect%20x%3D%27280%27%20y%3D%27238%27%20width%3D%27584%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Crect%20x%3D%27544%27%20y%3D%27260%27%20width%3D%27296%27%20height%3D%276%27%20fill%3D%27%234a3a7a%27%20opacity%3D%27.16%27%2F%3E%3Cpolygon%20points%3D%270%2C720%200%2C308%2040%2C308%2040%2C300%2080%2C300%2080%2C284%20120%2C284%20120%2C268%20160%2C268%20160%2C264%20200%2C264%20200%2C272%20240%2C272%20240%2C288%20280%2C288%20280%2C280%20320%2C280%20320%2C272%20360%2C272%20360%2C280%20400%2C280%20400%2C280%20440%2C280%20440%2C288%20480%2C288%20480%2C296%20520%2C296%20520%2C288%20560%2C288%20560%2C280%20600%2C280%20600%2C288%20640%2C288%20640%2C304%20680%2C304%20680%2C288%20720%2C288%20720%2C304%20760%2C304%20760%2C304%20800%2C304%20800%2C304%20840%2C304%20840%2C296%20880%2C296%20880%2C304%20920%2C304%20920%2C296%20960%2C296%20960%2C312%201000%2C312%201000%2C296%201040%2C296%201040%2C288%201080%2C288%201080%2C296%201120%2C296%201120%2C312%201160%2C312%201160%2C328%201200%2C328%201200%2C336%201240%2C336%201240%2C336%201280%2C336%201280%2C320%201320%2C320%201280%2C720%27%20fill%3D%27%2333306e%27%2F%3E%3Cpolygon%20points%3D%270%2C720%200%2C330%2032%2C330%2032%2C338%2064%2C338%2064%2C346%2096%2C346%2096%2C354%20128%2C354%20128%2C346%20160%2C346%20160%2C338%20192%2C338%20192%2C338%20224%2C338%20224%2C338%20256%2C338%20256%2C346%20288%2C346%20288%2C358%20320%2C358%20320%2C358%20352%2C358%20352%2C350%20384%2C350%20384%2C358%20416%2C358%20416%2C358%20448%2C358%20448%2C358%20480%2C358%20480%2C358%20512%2C358%20512%2C342%20544%2C342%20544%2C334%20576%2C334%20576%2C334%20608%2C334%20608%2C326%20640%2C326%20640%2C318%20672%2C318%20672%2C326%20704%2C326%20704%2C318%20736%2C318%20736%2C326%20768%2C326%20768%2C310%20800%2C310%20800%2C302%20832%2C302%20832%2C302%20864%2C302%20864%2C318%20896%2C318%20896%2C318%20928%2C318%20928%2C310%20960%2C310%20960%2C310%20992%2C310%20992%2C302%201024%2C302%201024%2C302%201056%2C302%201056%2C302%201088%2C302%201088%2C302%201120%2C302%201120%2C310%201152%2C310%201152%2C310%201184%2C310%201184%2C302%201216%2C302%201216%2C302%201248%2C302%201248%2C302%201280%2C302%201280%2C302%201312%2C302%201280%2C720%27%20fill%3D%27%2326225a%27%2F%3E%3Cpolygon%20points%3D%270%2C720%200%2C344%2024%2C344%2024%2C344%2048%2C344%2048%2C352%2072%2C352%2072%2C360%2096%2C360%2096%2C368%20120%2C368%20120%2C360%20144%2C360%20144%2C352%20168%2C352%20168%2C352%20192%2C352%20192%2C352%20216%2C352%20216%2C352%20240%2C352%20240%2C344%20264%2C344%20264%2C344%20288%2C344%20288%2C352%20312%2C352%20312%2C352%20336%2C352%20336%2C352%20360%2C352%20360%2C352%20384%2C352%20384%2C352%20408%2C352%20408%2C352%20432%2C352%20432%2C352%20456%2C352%20456%2C352%20480%2C352%20480%2C352%20504%2C352%20504%2C352%20528%2C352%20528%2C360%20552%2C360%20552%2C368%20576%2C368%20576%2C360%20600%2C360%20600%2C360%20624%2C360%20624%2C360%20648%2C360%20648%2C368%20672%2C368%20672%2C368%20696%2C368%20696%2C368%20720%2C368%20720%2C368%20744%2C368%20744%2C368%20768%2C368%20768%2C368%20792%2C368%20792%2C360%20816%2C360%20816%2C352%20840%2C352%20840%2C352%20864%2C352%20864%2C352%20888%2C352%20888%2C352%20912%2C352%20912%2C352%20936%2C352%20936%2C360%20960%2C360%20960%2C352%20984%2C352%20984%2C352%201008%2C352%201008%2C360%201032%2C360%201032%2C360%201056%2C360%201056%2C352%201080%2C352%201080%2C344%201104%2C344%201104%2C352%201128%2C352%201128%2C352%201152%2C352%201152%2C352%201176%2C352%201176%2C344%201200%2C344%201200%2C352%201224%2C352%201224%2C344%201248%2C344%201248%2C336%201272%2C336%201272%2C336%201296%2C336%201280%2C720%27%20fill%3D%27%23191640%27%2F%3E%3Crect%20y%3D%27350%27%20width%3D%271280%27%20height%3D%27370%27%20fill%3D%27%23070616%27%20opacity%3D%27.7%27%2F%3E%3C%2Fsvg%3E") 0 0 / 1280px 720px no-repeat; image-rendering: pixelated; }
+
+/* 右上角：统一的像素方块按钮（切角 + 内斜面） */
+.screen.game .hud-right { display: flex !important; align-items: center; gap: 8px !important; }
+.screen.game .hud-right .icon-btn,
+.screen.game .hud-relics .hud-relic {
+  width: 40px !important; height: 40px !important; min-width: 0 !important; padding: 0 !important; margin: 0 !important;
+  display: grid; place-items: center; flex: none; border: 0 !important; border-radius: 0 !important; border-image: none !important;
+  background: linear-gradient(180deg, #2b2766 0 50%, #201c52 50% 100%) !important;
+  box-shadow: inset 0 0 0 2px #5a54a8, inset 0 -4px 0 #151238 !important;
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+  color: #f2d39c; font-size: 20px;
+}
+.screen.game .hud-right .icon-btn svg { width: 22px; height: 22px; fill: currentColor; }
+.screen.game .hud-right .icon-btn:hover, .screen.game .hud-relics .hud-relic:hover {
+  background: linear-gradient(180deg, #3a3585 0 50%, #2c276b 50% 100%) !important; box-shadow: inset 0 0 0 2px #ffd36b, inset 0 -4px 0 #151238 !important;
+}
+.screen.game .hud-relics { display: flex !important; gap: 8px !important; }
+.screen.game .hud-relics .hud-relic .px-item { width: 26px !important; height: 26px !important; }
+.screen.game .hud-right .hud-wins { margin: 0 6px 0 2px; }
+
+.screen.game .hand-strip .hand-slot.hand-spell:hover { filter: brightness(1.12) drop-shadow(0 0 8px #ceb17166); }
+
+.game .board::after { display: none !important; }
+.vignette { background: radial-gradient(ellipse 95% 90% at 50% 48%, transparent 72%, rgba(0, 0, 10, .3) 100%) !important; }
+
+/* 单位状态图标：统一 20px 切角像素片，品质用边色区分，不再用外发光与厚边 */
+.screen.game > .board .unit .u-eq { left: 0 !important; right: auto !important; top: 32px !important; flex-direction: row !important; gap: 3px !important; }
+.screen.game > .board .unit.side-1 .u-eq { left: auto !important; right: 0 !important; }
+.screen.game > .board .unit .ueq {
+  --eq: #e0a63a; width: 22px !important; height: 22px !important; animation: none !important;
+  background: #15122c !important; box-shadow: inset 0 0 0 2px var(--eq), inset 0 -3px 0 rgba(0, 0, 0, .45) !important;
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
+}
+.screen.game > .board .unit .ueq.eq-q0 { --eq: #9aa3b2; }
+.screen.game > .board .unit .ueq.eq-q1 { --eq: #4fa8ff; }
+.screen.game > .board .unit .ueq.eq-q2 { --eq: #c27bff; }
+.screen.game > .board .unit .ueq.eq-q3 { --eq: #ffa23a; }
+.screen.game > .board .unit .ueq .px-item { width: 16px !important; height: 16px !important; }
+.screen.game > .board .unit .u-food-memory {
+  height: 20px !important; width: 46px !important; font: 14px/1 var(--num); background: #15122c !important;
+  box-shadow: inset 0 0 0 2px #8a6a3a, inset 0 -3px 0 rgba(0, 0, 0, .45) !important;
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
+}
+.screen.game > .board .unit .u-food-memory .px-item { width: 14px !important; height: 14px !important; }
+
+/* ── 悬停与触屏：悬停效果只给有鼠标的设备；触屏点选后不留粘滞悬停 ── */
+.game .tray .cards > .card:not(.unaffordable):hover {
+  transform: translateY(-6px); filter: none;
+}
+.game .tray .cards > .card:hover .card-in {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, .6), 0 0 0 2px rgba(255, 211, 107, .7);
+}
+.game .tray .cards > .card:hover .card-shine { background-position: 120% 0; }
+@media (pointer: coarse) {
+  .game .tray .cards > .card:hover { transform: none; }
+  .game .tray .cards > .card:hover .card-in { box-shadow: 0 12px 26px rgba(0, 0, 0, .55), inset 0 1px 0 rgba(255, 255, 255, .1); }
+  .screen.game .hand-strip .hand-slot:not(.empty):hover { transform: var(--fan); filter: none; box-shadow: none; }
+  .screen.game .hand-strip .hand-slot.hand-spell:hover { box-shadow: none !important; }
+  .game .tray .food-tile:hover { transform: none; filter: none; }
+}
+
+/* 详情沿用远端 master 的像素框、字号和按钮材质。 */
+.tip .shelf-acts { flex-wrap: wrap; }
+#stage > .tip .shelf-acts .btn {
+  box-sizing: border-box; flex: 1 1 140px; min-width: 0;
+  height: auto; min-height: var(--control-size, 64px);
+  padding: 10px 12px; white-space: normal; overflow-wrap: anywhere;
+  line-height: 1.25; letter-spacing: 0;
+}
+#stage > .tip .shelf-acts .btn.shelf-recruit { min-width: 0; }
+#stage > .tip .tip-head { flex-wrap: wrap; }
+#stage > .tip .tip-name, #stage > .tip .tip-text { overflow-wrap: anywhere; }
+/* 牌区详情停靠在左上角：说明区滚动，按钮固定在底部 */
+#stage > .tip.dock { display: flex; flex-direction: column; overflow: hidden; padding: 12px; }
+#stage > .tip.dock > .tip-unit { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+#stage > .tip.dock .dock-body { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+#stage > .tip.dock .dock-body::-webkit-scrollbar { display: none; }
+#stage > .tip.dock > .tip-unit > .shelf-acts { flex: 0 0 auto; }
+/* Battle mode removes prep-only input, including hovered cards. */
+.screen.game.in-battle .hand-strip,
+.screen.game.in-battle > .prep-actions,
+.screen.game .hand-strip.hidden { display: none !important; visibility: hidden; pointer-events: none; }
+
+.screen.game .tray.paid-shelf .tavern-box .tv-up {
+  width: auto; min-width: 88px; height: auto; min-height: var(--control-size, 64px);
+  padding: 6px 12px; flex-direction: row; gap: 8px; font-size: 18px;
+  border-radius: 4px; animation: none;
+  background: linear-gradient(#ffe49a, #efb448); color: #2a1700;
+  box-shadow: inset 0 1px #fff1c2, inset 0 -3px #aa7128, 0 2px 4px #0007;
+}
+.screen.game .tray.paid-shelf .tavern-box .tv-up:disabled {
+  background: linear-gradient(#5d5a69, #3e3c49); color: #cbc8d3;
+  box-shadow: inset 0 1px #777383, inset 0 -3px #2b2935;
+  opacity: 1; filter: grayscale(1);
+}
+.screen.game .tray.paid-shelf .tray-left > .tavern-box { height: var(--control-size, 64px) !important; }
+
+#stage > .tip .shelf-acts .shelf-lock {
+  background: #34445f; color: #eef0ff; border: 0;
+  box-shadow: inset 0 1px #63738c, 0 3px #141c2c;
+}
+#stage > .tip.dock .shelf-acts { flex-wrap: nowrap; }
+#stage > .tip.dock .shelf-acts .shelf-lock:last-child { flex: 0 1 120px; }
+#stage > .tip .shelf-acts .btn:disabled {
+  background: #363c45; color: #9299a3; filter: grayscale(1);
+}
+#stage > .tip :is(.tip-text, .dock-body, .owned-tip-body) { min-width: 0; }
+#stage > .tip .tip-text .trg { white-space: normal; }
+
+/* Bottom anchors follow the normal and short stages. Hand bounds match the
+   188 x 262 card rendered at .68 scale, so focus and drop feedback fit it. */
+.screen.game .hand-strip { top: auto !important; bottom: 0 !important; height: 178.16px !important; }
+.screen.game .prep-actions { inset: 0 !important; width: auto; }
+.screen.game .prep-preview-btn { position: absolute; top: auto !important; bottom: 118px !important; }
+
+/* Held supplies share the authored food card and the unit-card silhouette. */
+.screen.game .hand-strip .hand-slot.hand-spell {
+  background: none !important; border: 0 !important; box-shadow: none !important;
+}
+.screen.game .hand-strip .hand-slot.hand-spell .food-art .food-icon { width: 72px; height: 72px; }
+.screen.game .hand-strip .hand-slot.hand-spell .card-text {
+  position: absolute; inset: 174px 10px 14px; padding: 0; font-size: 18px;
+}
+.screen.game .hand-strip .hand-slot.hand-spell .food-row { flex-wrap: wrap; justify-content: center; gap: 3px; }
+.screen.game .hand-strip .hand-slot.hand-spell .fr-short { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .screen.game .hand-strip .hand-slot,
+  .screen.game .hand-strip .hand-slot:not(.empty):is(:hover, :focus-visible, :active) {
+    transition: none; transform: var(--fan);
+  }
+  .screen.game .stage-banner.sb-modal { transform: translateX(-50%) scale(1.25); }
+}
+
+/* Dragging a shop card reveals the whole hand tray as a purchase destination. */
+.game .buy-zone {
+  position: absolute; z-index: 40; pointer-events: none; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  border: 3px dashed rgba(217, 180, 255, 0.7); border-radius: 14px; color: #f9e2ad;
+  background: rgba(52, 26, 84, 0.88);
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.game .buy-zone b { font-size: 30px; letter-spacing: 2px; }
+.game .buy-zone.hot { background: rgba(78, 38, 118, 0.95); border-style: solid; border-color: #ffd36b; transform: scale(1.03); color: #fff3cc; }
+.game .buy-zone.unavailable { background: rgba(40, 36, 52, 0.9); border-color: rgba(189, 185, 197, 0.6); color: #bdb9c5; }
+.screen.game .unit.supply-preview .u-glow {
+  background: radial-gradient(ellipse at center, rgba(90, 170, 255, 0.6) 0%, rgba(90, 170, 255, 0.24) 46%, rgba(90, 170, 255, 0) 72%);
+  animation: none;
+  opacity: 1;
+  pointer-events: none;
+}
+.screen.game .unit.supply-preview .u-art {
+  filter: drop-shadow(0 0 4px rgba(90, 170, 255, 0.7));
+}
+@media (prefers-reduced-motion: reduce) { .game .buy-zone { transition: none; } }

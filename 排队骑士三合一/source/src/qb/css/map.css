@@ -1,0 +1,148 @@
+/* ── 三合一 P2/P3：路线图 / 英雄 / 委托 / 商人 ── */
+.act-route { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; justify-content: center; gap: 10px; padding: 0; }
+.act-route .ar-act { font-size: 18px; font-weight: 900; color: #ffe39c; margin-right: 6px; letter-spacing: .1em; }
+.ar-pip {
+  width: 44px; height: 44px; display: grid; place-items: center;
+  flex: none; border: 0 solid transparent; border-radius: 0;
+  border-image: var(--pxf-steel) 6 / 8px / 0 stretch; background: #171f31;
+}
+.ar-pip .px-item { width: 30px; height: 30px; }
+.ar-pip.unk i { width: 8px; height: 8px; background: #3b3b70; }
+.ar-pip.done { opacity: .45; }
+.ar-pip.cur { border-image: var(--pxf-gold) 6 / 12px / 0 stretch; background: #1c1838; }
+.ar-pip:last-child { background: #2a0e1e; }
+.act-route:focus-visible { outline: 3px solid #ffe39c; outline-offset: 3px; }
+
+.hud-hero {
+  position: relative; width: 58px; height: 58px; flex: none; border: 0; padding: 0; cursor: pointer;
+  background: radial-gradient(circle at 50% 35%, #3a2d70, #0c0a22 75%);
+  box-shadow: 2px 0 #8d7bff, -2px 0 #8d7bff, 0 2px #8d7bff, 0 -2px #8d7bff;
+}
+.hud-hero .hh-art { position: absolute; inset: 2px; display: grid; place-items: center; overflow: hidden; }
+.hud-hero .hh-art svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.hud-hero .hh-cost {
+  position: absolute; right: -8px; bottom: -8px; min-width: 24px; height: 24px; display: grid; place-items: center;
+  font: 16px var(--num); font-style: normal; color: #1a1000; background: var(--gold);
+}
+.hud-hero.ready::after {
+  content: ''; position: absolute; inset: -6px; pointer-events: none;
+  box-shadow: 0 0 16px 4px rgba(255, 211, 107, .55); animation: heroReady 1.6s ease-in-out infinite;
+}
+@keyframes heroReady { 50% { opacity: .25; } }
+.hud-quest {
+  display: flex; align-items: center; gap: 4px; border: 0; padding: 4px 8px; cursor: pointer; color: #e7d2ff;
+  background: rgba(60, 20, 90, .7); box-shadow: inset 0 0 0 2px #8a4fd0; font: inherit;
+}
+.hud-quest .px-item { width: 26px; height: 26px; }
+.hud-quest b { font: 18px var(--num); }
+
+/* 路线图 */
+.map-ov {
+  position: absolute; inset: 0; z-index: 45; display: grid; place-items: center;
+  background: #0d0b20;
+  animation: v05Fade .25s ease-out;
+}
+.map-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 24px;
+  border: 0 solid transparent; border-radius: 0; border-image: var(--pxf-gold) 6 / 12px / 0 stretch;
+  background: #171f31;
+}
+.map-head { display: flex; align-items: center; gap: 18px; }
+.map-head h2 { margin: 0; font-size: 32px; line-height: 1.2; font-weight: 700; letter-spacing: .2em; color: #ffe39c; }
+.map-acts { display: flex; gap: 6px; }
+.map-acts i { width: 16px; height: 16px; background: #2a2650; }
+.map-acts i.done { background: #7a6a3a; }
+.map-acts i.cur { background: var(--gold); }
+.map-field { position: relative; flex: none; }
+.map-lines { position: absolute; inset: 0; pointer-events: none; }
+.map-lines svg { display: block; overflow: visible; }
+.map-lines line { stroke: #52617a; stroke-width: 5; stroke-dasharray: 10 8; stroke-linecap: square; }
+.map-lines line.walked { stroke: #f2d39c; stroke-dasharray: none; }
+.map-node {
+  position: absolute; width: max(84px, var(--control-size, 64px)); height: max(84px, var(--control-size, 64px));
+  margin: 0; translate: -50% -50%; border: 0 solid transparent; border-radius: 0; padding: 0; cursor: pointer;
+  display: grid; place-items: center; background: #0d0b20; font: inherit; color: #fff;
+  border-image: var(--pxf-steel) 6 / 8px / 0 stretch; box-shadow: 0 6px 0 #0d0b20;
+}
+.map-node .mn-ico { width: 56px; height: 56px; }
+.map-node .mn-tag {
+  position: absolute; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap;
+  font-size: 18px; color: #cfc7ff; text-shadow: 0 2px 0 #000;
+}
+.map-node.k-elite { background: #3a1224; }
+.map-node.k-boss { width: max(110px, var(--control-size, 64px)); height: max(110px, var(--control-size, 64px)); background: #3a0e18; }
+.map-node.k-boss .mn-ico { width: 76px; height: 76px; }
+.map-node.past { opacity: .35; }
+.map-node.on { border-image: var(--pxf-gold) 6 / 12px / 0 stretch; background: #1c1838; }
+.map-node.can { animation: mapCan 1.2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .map-node.can, .map-ov { animation: none; }
+}
+@keyframes mapCan { 50% { transform: scale(1.08); } }
+.map-node.sel { animation: none; transform: scale(1.04); border-image: var(--pxf-gold) 6 / 12px / 0 stretch; background: #29364d; }
+.map-node:focus-visible { outline: 3px solid #ffe39c; outline-offset: 4px; }
+.map-foot { display: flex; align-items: center; gap: 20px; width: 100%; min-height: max(76px, var(--control-size, 64px)); }
+.map-info { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; flex: 1; min-width: 0; font-size: 20px; line-height: 1.3; color: #d8d0ec; }
+.map-info > span { flex-basis: 100%; }
+.map-info .px-item { width: 40px; height: 40px; }
+.map-info b { font-size: 24px; color: #fff; }
+.map-info em { font-style: normal; color: #f2d39c; }
+.map-go, .map-close { flex: none; min-width: 160px; min-height: var(--control-size, 64px); }
+@media (max-height: 340px) {
+  .map-card { gap: 4px; padding-block: 8px; }
+  /* 触控区随短屏放大后，将名称收进节点，避免伸入下一行。 */
+  .map-node .mn-tag { top: auto; bottom: 4px; padding: 2px 4px; line-height: 1.1; background: #1c1838; }
+  .map-node .mn-ico { transform: translateY(-10px); }
+}
+
+/* 节点横幅 */
+.screen.game .stage-banner { top: 80px; }
+.game .stage-banner .sb-title { row-gap: 10px; }
+.game .stage-banner .sb-no {
+  padding: 6px 12px; line-height: 1.3; letter-spacing: .06em;
+  border: 0 solid transparent; border-radius: 0; border-image: var(--pxf-steel) 6 / 8px / 0 stretch;
+  background: #1c1838; color: #f2d39c;
+}
+.stage-banner.k-node .sb-nico { width: 34px; height: 34px; vertical-align: middle; }
+.stage-banner .sb-shop { margin-top: 6px; pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 20px; }
+.stage-banner .sb-shop .px-item { width: 28px; height: 28px; }
+
+/* 号牌始终以格位为中心，队首标签独立摆放，避免第一列挤偏编号。 */
+.game .board .slot-num { height: 28px; gap: 0; }
+.game .board .slot-num b {
+  display: grid; place-items: center; width: 30px; height: 28px; font: 18px/1 var(--num); color: #dfe6ff;
+  border: 0 solid transparent; border-image: var(--pxf-steel) 6 / 8px / 0 stretch; background: #1c1838;
+}
+.game .board .slot-num span {
+  position: absolute; left: calc(50% + 20px); padding: 2px 8px; font-size: 18px; line-height: 24px; white-space: nowrap;
+}
+.game .board.ordering .slot-num b { display: none; }
+.game .board.ordering .slot-num span { left: 50%; transform: translateX(-50%); }
+
+/* 商人 / 英雄 */
+.mc-good { min-width: 220px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.mc-good .mc-ico .px-item, .mc-good .mc-ico svg { width: 64px; height: 64px; }
+.mc-good b { font-size: 22px; }
+.mc-good .mc-price { display: flex; align-items: center; gap: 4px; font: 22px var(--num); color: var(--gold); }
+.mc-good.sold { opacity: .45; }
+.mc-gold { display: flex; align-items: center; gap: 6px; font-size: 22px; }
+.hero-card .hc-art { width: 140px; height: 140px; display: grid; place-items: center; }
+.hero-card .hc-art svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.hero-card p { max-width: 520px; text-align: center; font-size: 22px; color: #e8e2ff; }
+.hc-acts { display: flex; gap: 14px; }
+
+/* 选英雄 */
+.hero-pick { min-width: 640px; }
+.hero-opts { display: flex; gap: 18px; justify-content: center; margin-top: 12px; }
+.hero-opt {
+  width: 280px; padding: 16px; border: 0; cursor: pointer; font: inherit; color: #fff;
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  background: linear-gradient(180deg, #2a2160, #100c28);
+  box-shadow: 3px 0 #8d7bff, -3px 0 #8d7bff, 0 3px #8d7bff, 0 -3px #8d7bff;
+}
+.hero-opt:active { transform: scale(.97); }
+.hero-opt .ho-art { width: 120px; height: 120px; display: grid; place-items: center; }
+.hero-opt .ho-art svg { width: 100%; height: 100%; image-rendering: pixelated; }
+.hero-opt b { font-size: 26px; }
+.hero-opt .ho-text { font-size: 18px; color: #d8d0ff; min-height: 52px; text-align: center; }
+.hero-opt .ho-cost { font-style: normal; font-size: 18px; color: var(--gold); }
