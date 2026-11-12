@@ -5,11 +5,13 @@ import '../qb/css/kw-doc.css';
 import '../qb/css/codex-v2.css';
 import '../qb/css/codex-v3.css';
 import '../qb/css/codex-v4.css';
-import { ATOM_INFO, ATOMS, EQUIPS, EVENT_INFO, FOODS, hasTag, KW_INFO, LINE_INFO, LINES, Q_INFO, RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw, type Line } from '../core/data';
+import { ARCHETYPES, ARCHETYPE_IDS } from '../core/archetypes';
+import { archetypeGuide, ARCHETYPE_COLORS, cardIdentity, HUNT_MARK_TEXT, identityColor } from '../qb/archetypes';
+import { ATOM_INFO, ATOMS, ACTIVE_EQUIPS, EVENT_INFO, FOODS, foodText, KW_INFO, Q_INFO, ACTIVE_RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw } from '../core/data';
 import type { DemoSpec } from '../core/demo';
 import { equipDemo, KW_DEMOS, unitDemo } from '../core/kwDemos';
 import { sfx } from '../qb/audio';
-import { draftCard, foodRow, tierArt, tierBadge } from '../qb/card';
+import { draftCard, tierArt, tierBadge } from '../qb/card';
 import { h } from '../qb/dom';
 import { icon } from '../qb/icons';
 import { kwRich, kwTag, trigCap, TRIG, type TrigId } from '../qb/kwtext';
@@ -17,14 +19,16 @@ import { itemIcon } from '../qb/pixelItems';
 import { equipIcon, unitTip } from '../qb/tip';
 import { battleDemo } from './battleDemo';
 import { nativeTimings } from '../core/run';
+import { supportBadges, supportCounterNote } from '../qb/support';
+import { closeKeywordHelp, enableKeywordHelp } from '../qb/keywordHelp';
 
 type Tab = 'units' | 'foods' | 'equip' | 'relic' | 'kw';
-const state = { f: new Set<string>(), star: 1, sel: null as string | null, tab: 'units' as Tab, pick: {} as Record<string, string> };
+const state = { f: new Set<string>(), sel: null as string | null, tab: 'units' as Tab, pick: {} as Record<string, string> };
 const ic = (n: string) => icon(n as Parameters<typeof icon>[0]);
 export const relicIcon = (id: string, cls = '') => itemIcon(`rl_${id.slice(2)}`, 'spell', cls);
 export const eventIcon = (id: string, cls = '') => itemIcon(`ev_${id}`, 'spell', cls);
 
-/** cap：局内打开时传当前商店最高阶，高于它的单位标「第 N 回合」 */
+/** cap：局内打开时传当前商店最高阶，高于它的单位标所需酒馆阶数 */
 export function codexScreen(onBack: () => void, cap?: number): HTMLElement {
   const body = h('div', { class: 'cx-body' });
   const tabs: [Tab, string][] = [['units', '单位'], ['foods', '补给'], ['equip', '装备'], ['relic', '遗物'], ['kw', '规则']];
@@ -32,8 +36,9 @@ export function codexScreen(onBack: () => void, cap?: number): HTMLElement {
   // 顶栏右侧的页面工具（单位页：星级 + 筛选），切页时清空
   const tools = h('div', { class: 'cx-tools' });
   const back = h('button', { class: 'btn ghost cx-back' }, icon('x'), h('span', null, '返回'));
-  back.addEventListener('click', () => { sfx.click(); onBack(); });
+  back.addEventListener('click', () => { closeKeywordHelp(); sfx.click(); onBack(); });
   const go = (k: Tab) => {
+    closeKeywordHelp();
     state.tab = k;
     tabBtns.forEach((b, i) => b.classList.toggle('on', tabs[i][0] === k));
     tools.replaceChildren();
@@ -66,6 +71,7 @@ function split(page: string, sections: { title: string; items: Item[]; cols?: nu
   const detail = h('div', { class: 'kd-detail cx-dt' });
   const tiles: HTMLElement[] = [];
   const show = (it: Item) => {
+    closeKeywordHelp();
     state.pick[page] = it.key;
     tiles.forEach((t) => t.classList.toggle('on', t.dataset.key === it.key));
     detail.replaceChildren(
@@ -77,6 +83,7 @@ function split(page: string, sections: { title: string; items: Item[]; cols?: nu
       ...(it.extra?.() ? [it.extra()!] : []),
     );
     detail.scrollTop = 0;
+    enableKeywordHelp(detail);
   };
   const all = sections.flatMap((s) => s.items);
   nav.replaceChildren(
@@ -101,7 +108,7 @@ const TIER_C = ['', '#bf9a70', '#46d890', '#4a9cff', '#b46cff', '#ffac2e', '#ff4
 /** Filters follow ability definitions, including passive observers without a colon. */
 export const trigsOf = (id: string): Set<TrigId> => {
   const d = card(id);
-  const mapping = { play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', ally_faint: 'faint', summon: 'summon', before_attack: 'before', after_attack: 'beat', kill: 'kill', end: 'shop', buy: 'buy', sell: 'sell', food: 'food', ally_food: 'food', spell: 'spell', round_start: 'round_start', battle_count: 'cond', unit_obtained: 'cond', permanent_health: 'cond' } as const;
+  const mapping = { play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', ally_faint: 'faint', summon: 'summon', before_attack: 'before', after_attack: 'beat', kill: 'kill', end: 'shop', buy: 'buy', sell: 'sell', food: 'food', ally_food: 'food', spell: 'spell', round_start: 'round_start', battle_count: 'cond', unit_obtained: 'cond', permanent_health: 'cond', enter:'enter', clashEnd:'clashEnd', bloodPay:'bloodPay' } as const;
   const out = new Set<TrigId>(nativeTimings(d).map(t => mapping[t]));
   if (d.key) out.add(({ play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', end: 'shop' } as const)[d.key]);
   if (d.ab === 'cat') out.add('food');
@@ -119,7 +126,7 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
   const grid = h('div', { class: 'ub-grid' });
   const detail = h('div', { class: 'ub-detail cx-detail' });
   const groups: { key: string; test: (d: CardDef) => boolean; node: () => Node; color: string }[][] = [
-    [...LINES.map((t) => ({ key: `l:${t}`, test: (d: CardDef) => hasTag(d, t), color: LINE_INFO[t].color, node: () => h('span', { class: 'ub-fw' }, LINE_INFO[t].name) })),
+    [...ARCHETYPE_IDS.map((t) => ({ key: `l:${t}`, test: (d: CardDef) => d.archetype === t || d.bridge === t, color: ARCHETYPE_COLORS[t], node: () => h('span', { class: 'ub-fw' }, ARCHETYPES[t].name) })), { key:'l:common',test:(d:CardDef)=>!d.archetype && !d.legacy,color:'#cfd6e6',node:()=>h('span',{class:'ub-fw'},'通用') },
       ...(Object.keys(KW_INFO) as Kw[]).map((k) => ({ key: `k:${k}`, test: (d: CardDef) => d.kws.includes(k), color: KW_INFO[k].color, node: () => h('span', { class: 'ub-fw' }, KW_INFO[k].name) }))],
     (Object.keys(TRIG) as TrigId[]).filter((id) => id !== 'cond').map((id) => ({ key: `t:${id}`, test: (d: CardDef) => trigsOf(d.id).has(id), color: TRIG[id].color, node: () => h('span', { class: 'ub-fw' }, TRIG[id].name) })),
     [1, 2, 3, 4, 5, 6].map((t) => ({ key: `r:${t}`, test: (d: CardDef) => d.tier === t, color: TIER_C[t], node: () => tierBadge(t as 1) })),
@@ -131,19 +138,29 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
     return !on.length || on.some((g) => g.test(d));
   });
   const show = (id: string) => {
+    closeKeywordHelp();
     s.sel = id;
     grid.querySelectorAll<HTMLElement>('.ub-cell').forEach((b) => b.classList.toggle('on', b.dataset.id === id));
     const d = card(id);
-    const demo = unitDemo(id, s.star as 1 | 2 | 3);
+    const description = unitTip(id, 1, null, false);
+    const demoBox = h('div', {class:'unit-demo'});
+    const paintDemo = (level: 1 | 2) => {
+      const spec = unitDemo(id,level);
+      demoBox.hidden = !spec;
+      demoBox.replaceChildren(...(spec ? [h('span',{class:'unit-demo-label'},level === 2 ? '金色演示' : '普通演示'),battleDemo(spec,d.name)] : []));
+    };
+    paintDemo(1);
+    description.addEventListener('tipvariantchange', event => paintDemo((event as CustomEvent<{level:1|2}>).detail.level));
+    description.querySelector(':scope > .tip-head')?.remove();
     detail.replaceChildren(
       h('div', { class: 'cx-d-head' },
         tierArt('cx-d-art', id, d.tier),
         h('div', { class: 'ub-d-title' },
           h('b', { class: 'cx-d-name' }, d.name),
-          h('div', { class: 'ub-d-meta' }, [d.line, d.tag2].filter((t): t is Line => !!t).map((t) => h('span', { class: 'ub-d-fac', style: `--fc:${LINE_INFO[t].color}` }, LINE_INFO[t].name)), tierBadge(d.tier),
-            cap && d.tier > cap ? h('span', { class: 'ub-d-lock' }, `第 ${d.tier * 2 - 1} 回合开放`) : null))),
-      ...(demo ? [battleDemo(demo, d.name)] : []),
-      h('section', { class: 'cx-lv' }, unitTip(id, s.star, null, false)),
+          h('div', { class: 'ub-d-meta' }, h('span', { class:'ub-d-fac', style:`--fc:${identityColor(d)}` }, cardIdentity(id)), tierBadge(d.tier),
+            cap && d.tier > cap ? h('span', { class: 'ub-d-lock' }, `酒馆升到 ${d.tier} 阶后解锁`) : null))),
+      demoBox,
+      h('section', { class: 'cx-lv' }, description),
     );
     detail.scrollTop = 0;
   };
@@ -152,10 +169,6 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
       class: `ub-chip${s.f.has(g.key) ? ' on' : ''}${cap && g.key[0] === 'r' && +g.key.slice(2) > cap ? ' shut' : ''}`, style: `--fc:${g.color}`,
       onclick: () => { sfx.click(); s.f.has(g.key) ? s.f.delete(g.key) : s.f.add(g.key); render(); },
     }, g.node());
-    const stars = h('div', { class: 'ub-stars', 'aria-label': '普通 / 金色' }, [1, 2].map((lv) => h('button', {
-      class: `ub-star${lv === s.star ? ' on' : ''}${lv === 2 ? ' gold' : ''}`, 'aria-label': lv === 2 ? '金色' : '普通',
-      onclick: () => { if (lv === s.star) return; sfx.click(); s.star = lv; render(); },
-    }, lv === 2 ? '金色' : '普通')));
     const defs = SHOP_POOL.filter(pass).sort((a, b) => a.tier - b.tier);
     const clear = h('button', { class: 'ub-clear', disabled: !s.f.size, onclick: () => { sfx.click(); s.f.clear(); render(); } }, icon('x'), '清除');
     const grp = (label: string, ...xs: Node[]) => h('div', { class: 'ub-grp' }, h('span', { class: 'ub-lab' }, label), h('div', { class: 'ub-set' }, ...xs));
@@ -168,12 +181,12 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
     );
     fbtn.replaceChildren(icon('filter'), h('span', null, '筛选'), ...(s.f.size ? [h('b', { class: 'cx-fn' }, String(s.f.size))] : []));
     fbtn.classList.toggle('active', s.f.size > 0);
-    tools.replaceChildren(stars, fbtn);
+    tools.replaceChildren(fbtn);
     if (!s.sel || !defs.some((d) => d.id === s.sel)) s.sel = defs[0]?.id ?? null;
     grid.replaceChildren(...defs.map((d) => {
       const shut = !!cap && d.tier > cap;
       return h('button', { class: `ub-cell${shut ? ' locked' : ''}`, 'data-id': d.id, 'aria-label': d.name, onclick: () => { sfx.click(); show(d.id); } },
-        draftCard(d.id, { level: s.star }), shut ? h('span', { class: 'ub-lock' }, `第 ${d.tier * 2 - 1} 回合`) : null);
+        draftCard(d.id, { level: 1 }), shut ? h('span', { class: 'ub-lock' }, `酒馆 ${d.tier} 阶`) : null);
     }));
     if (!defs.length) grid.append(h('p', { class: 'ub-empty' }, '没有同时满足的单位'));
     if (s.sel) show(s.sel); else detail.replaceChildren();
@@ -186,13 +199,13 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
 // ── 补给 ──
 function foodsPage(): HTMLElement {
   const price = (p: number) => h('span', { class: 'cx-price' }, itemIcon('coin', 'coin', 'sm'), p ? String(p) : '免费');
-  const items = (t: number): Item[] => FOODS.filter((f) => f.tier === t).map((f) => ({
+  const items = (t: number): Item[] => FOODS.filter((f) => f.tier === t && !f.legacy && f.spell !== 'echo').map((f) => ({
     key: f.id, name: f.name, color: TIER_C[f.tier],
     tile: () => tile(itemIcon(f.id, 'pack'), f.name),
     big: () => itemIcon(f.id, 'pack'),
     title: () => h('span', null, f.name),
-    meta: () => meta(tierBadge(f.tier), price(f.price ?? 3)),
-    line: () => [foodRow(f.id) ?? '', ...kwRich((f.spell ? f.text : f.short) ?? '')],
+    meta: () => meta(tierBadge(f.tier), price(f.price ?? 3), supportBadges(f)),
+    line: () => kwRich(foodText(f.id)),
     demo: null,
   }));
   return split('foods', [1, 2, 3, 4, 5, 6].map((t) => ({ title: `${t} 阶`, items: items(t) })));
@@ -200,43 +213,46 @@ function foodsPage(): HTMLElement {
 
 // ── 装备 ──
 function equipPage(): HTMLElement {
-  const items = (q: number): Item[] => EQUIPS.filter((e) => e.q === q && !e.food).map((e) => ({
+  const items = (q: number): Item[] => ACTIVE_EQUIPS.filter((e) => e.q === q).map((e) => ({
     key: e.id, name: e.name, color: Q_INFO[q].color,
     tile: () => tile(equipIcon(e.id), e.name),
     big: () => equipIcon(e.id),
     title: () => h('span', { style: `color:${Q_INFO[q].color}` }, e.name),
-    meta: () => meta(pill(Q_INFO[q].name, Q_INFO[q].color), e.curse ? pill('诅咒', '#ff5a6a') : null),
+    meta: () => meta(pill(Q_INFO[q].name, Q_INFO[q].color), e.curse ? pill('诅咒', '#ff5a6a') : null, supportBadges(e)),
     line: () => kwRich(e.text),
     demo: equipDemo(e.id),
   }));
-  return split('equip', [0, 1, 2, 3].map((q) => ({ title: Q_INFO[q].name, items: items(q) })), '只从精英战/Boss 开箱获得，3 选 1；看广告升一品，紫→橙每局 2 次');
+  return split('equip', [0, 1, 2, 3].map((q) => ({ title: Q_INFO[q].name, items: items(q) })), '从精英宝箱、商人和锻造取得；换装后原装备退回背包。');
 }
 
 // ── 遗物 ──
 function relicPage(): HTMLElement {
-  const items: Item[] = RELICS.map((x) => ({
+  const items: Item[] = ACTIVE_RELICS.map((x) => ({
     key: x.id, name: x.name, color: '#ffd36b',
     tile: () => tile(relicIcon(x.id), x.name),
     big: () => relicIcon(x.id),
     title: () => h('span', null, x.name),
-    line: () => kwRich(x.text),
+    meta: () => meta(supportBadges(x)),
+    line: () => [...kwRich(x.text), ...(supportCounterNote(x) ? [h('p',null,supportCounterNote(x))] : [])],
     demo: KW_DEMOS[x.id] ?? null,
   }));
-  return split('relic', [{ title: '', items }], '击败 Boss 或熬过混沌契约后 3 选 1，整局生效');
+  return split('relic', [{ title: '', items }], '首战、Boss 与契约等奖励提供选择；整局生效。');
 }
 
 // ── 规则 ──
 const RULES: [string, string, string][] = [
   ['交锋', 'sword', '双方队首同时互打一次，后排只靠技能出手'],
-  ['金币', 'diamond', '每回合 10 金：招募 3、补给 3、刷新 1；出售返 1~3'],
-  ['三连', 'star', '同名 3 份合成金色：攻血翻倍、技能数值翻倍，再送一张高一阶的卡'],
-  ['关键卡', 'bolt', '让友军某一类技能额外触发；同类关键卡不叠加，取最高的那张'],
-  ['补给传承', 'replay', '仅记录直接食用的面包、磨刀石、烤全羊、牛奶，保留最早 5 件的基础效果，不搬运累计属性。出售时交给最近身后友军重新食用，没有则交给最近身前；无人接收则失效。合并时先保留接收方记录，合计最多 5 件。重吃触发食用技能，但不再记录，不触发购买效果，也不计入冰原巨犀的食用次数'],
-  ['阶级', 'arrowUp', '第 1/3/5/7/9/11 回合依次开放 1~6 阶'],
+  ['猎标', 'target', HUNT_MARK_TEXT],
+  ['首击追伤', 'sword', '下场战斗首次普通攻击后，对同一个敌人追加伤害。多次获得的数值相加，只结算一次。'],
+  ['金币', 'diamond', '每回合基础金币从 3 递增至 10；招募通常 3 金、刷新 1 金，补给按卡面标价。'],
+  ['三连', 'star', '同名 3 份合成金色：基础攻击和生命翻倍，技能数值见金色卡面，再从已开放卡池获得发现奖励。'],
+  ['流派', 'bolt', '补给每局开放，另随机开放五个流派。双流派单位按主流派出现；补给、装备和遗物任一标签开放即可出现。'],
+  ['补给传承', 'replay', '带补给传承的单位记录最早吃下的 5 份可传承永久补给。出售时，最近的身后友军获得这些补给的基础攻击和生命；身后无人则传给最近的身前友军。喂食按最初吃到补给的人数计次，分享、转交和重复效果跳过。合并时优先保留接收方记录。'],
+  ['阶级', 'arrowUp', '酒馆花金币升级后开放更高阶候选。部分单位到第三幕开放；补给、装备和遗物根据本局开放流派投放。'],
   ['路线', 'flag', '3 幕，每幕 6 层 + Boss；每个节点一回合：先逛酒馆，再走节点'],
   ['胜负', 'heart', '打赢第 3 幕 Boss 通关；输了扣心（普通 1，精英 / Boss 2），平局不扣；Boss 不赢过不去'],
   ['节点', 'skull', '战斗赢了下回合 +2 金；精英赢了开装备箱；篝火三选一；商人卖装备 / 遗物碎片 / 高阶法术；宝藏下回合 +4 金'],
-  ['难度', 'flag', '普通 5 颗心；困难 3 颗心，敌人更强；噩梦 2 颗心，敌人再强一截'],
+  ['难度', 'flag', '普通 5 颗心；困难 3 颗心；噩梦 2 颗心。'],
 ];
 const EV_EFFECT: Record<EventId, string> = {
   camp: '一个单位 +3/+3，或拿一件精良装备',
@@ -275,16 +291,15 @@ function kwPage(): HTMLElement {
     title: () => h('span', null, EVENT_INFO[k].name), meta: () => meta(pill('偶尔替代岔路', '#8cd4ff')),
     line: () => kwRich(EV_EFFECT[k]),
   }));
-  const engines: Item[] = LINES.map((t) => ({
-    key: `ln_${t}`, color: LINE_INFO[t].color,
-    tile: () => h('span', { class: 'cx-tile-word', style: `color:${LINE_INFO[t].color}` }, LINE_INFO[t].name),
-    title: () => h('span', { style: `color:${LINE_INFO[t].color}` }, LINE_INFO[t].name),
-    line: () => kwRich(LINE_INFO[t].desc),
-    extra: () => h('div', { class: 'kd-units cx-eng-units' }, SHOP_POOL.filter((d) => hasTag(d, t)).sort((a, b) => a.tier - b.tier).map((d) =>
-      h('div', { class: `kd-unit tier-${d.tier}`, style: `--fc:${LINE_INFO[t].color}` }, tierArt('kd-unit-art', d.id, d.tier, 'span'), h('span', { class: 'kd-unit-name' }, d.name)))),
+  const engines: Item[] = ARCHETYPE_IDS.map((t) => ({
+    key:`ar_${t}`, color:ARCHETYPE_COLORS[t],
+    tile:()=>h('span',{class:'cx-tile-word',style:`color:${ARCHETYPE_COLORS[t]}`},ARCHETYPES[t].name),
+    title:()=>h('span',{style:`color:${ARCHETYPE_COLORS[t]}`},ARCHETYPES[t].name),
+    line:()=>kwRich(ARCHETYPES[t].action),
+    extra:()=>h('div',null,archetypeGuide(t, false),h('div',{class:'kd-units cx-eng-units'},...SHOP_POOL.filter(d=>d.archetype===t).sort((a,b)=>a.tier-b.tier).map(d=>h('div',{class:`kd-unit tier-${d.tier}`,style:`--fc:${ARCHETYPE_COLORS[t]}`},tierArt('kd-unit-art',d.id,d.tier,'span'),h('span',{class:'kd-unit-name'},d.name))))),
   }));
   return split('kw', [
     { title: '基础', items: rules }, { title: '词条', items: kws, cols: 3 }, { title: '时机', items: trigs, cols: 3 },
-    { title: '装备词条', items: atoms }, { title: '事件', items: events }, { title: '引擎', items: engines },
+    { title: '装备词条', items: atoms }, { title: '事件', items: events }, { title: '十一流派', items: engines },
   ]);
 }

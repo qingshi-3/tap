@@ -1,0 +1,37 @@
+.card-detail .tip-stats-caption { color: #b5c2dc; font-size: 16px; }
+.card-detail .tip-variants { display: flex; gap: 4px; margin: 10px 0 8px; padding: 3px; background: #111a30; }
+.card-detail .tip-variant {
+  flex: 1;
+  min-height: 44px;
+  padding: 7px 10px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  color: #adbcd5;
+  background: transparent;
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.card-detail .tip-variant small { margin-left: 7px; font-size: .74em; opacity: .85; }
+.card-detail .tip-variant.active { color: #ffe3a8; background: #31354e; border-bottom-color: #d9b86f; }
+.card-detail .tip-variant:focus-visible { outline: 2px solid #ffe0a0; outline-offset: -3px; }
+.card-detail .unit-effect { min-width: 0; }
+.card-detail .unit-effect-text { color: #eff2fb; }
+.card-detail .tip-effect-preview { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 12px; margin-bottom: 7px; color: #c6ccde; font-size: 16px; }
+.card-detail .tip-effect-preview strong { color: #f4d58c; font-weight: 700; }
+.card-detail .tip-preview-context { flex-basis: 100%; font-size: .9em; color: #aebbd2; }
+.card-detail mark.tip-number-change { padding: 0 .08em; color: #ffdf8c; background: #554524; border-radius: 0; font: inherit; font-weight: 800; }
+.card-detail .tip-traits { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 7px 0; font-size: 18px; }
+.card-detail .tip-current-state { color: #b6d7f0; }
+.card-detail .tip-food-memory { margin-top: 8px; }
+.card-detail .tip-sum { border: 0; border-radius: 0; padding: 5px 0; background: transparent; }
+.viewport-tip .card-detail .tip-stats-caption { font-size: 12px; }
+.viewport-tip .card-detail .tip-variant { font-size: 14px; min-height: 44px; }
+.viewport-tip .card-detail .tip-effect-preview { font-size: 12px; }
+.viewport-tip .card-detail .tip-traits { font-size: 14px; }
+/* All detail action footers remain outside the scrolling content. */
+.tip.viewport-tip:has(.owned-tip, .dock-body) { overflow: hidden; }
+.tip.viewport-tip > .owned-tip, .tip.viewport-tip > .tip-unit:has(> .dock-body) { display: flex; flex-direction: column; min-height: 0; max-height: inherit; }
+.tip.viewport-tip :is(.owned-tip-body, .dock-body) { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
+.tip.viewport-tip .shelf-acts { flex: 0 0 auto; }

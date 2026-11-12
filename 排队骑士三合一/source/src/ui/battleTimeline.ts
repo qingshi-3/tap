@@ -37,6 +37,8 @@ export function battleTimeline(out: BattleOut): BattleMoment[] {
       case 'stat': { const s = states.get(e.uid); if (s) { s.shield = e.shield; s.burn = e.burn; } break; }
       case 'die': line = `${name(e.uid)} 阵亡`; break;
       case 'summon': states.set(e.unit.uid, { ...e.unit }); line = `${name(e.src)} ${e.revive ? '复生' : '召唤'} ${name(e.unit.uid)} ${e.unit.atk}/${e.unit.hp}`; break;
+      case 'move': line = `${name(e.uid)} · ${e.reason ?? '换位'}：位置 ${e.from + 1} → ${e.to + 1}`; break;
+      case 'counter': { const s = states.get(e.uid); if (s) { s.charge = e.charge; s.mark = e.mark; s.rounds = e.rounds; } line = `${name(e.uid)}：蓄能 ${e.charge} · 猎标 ${e.mark} · 驻阵 ${e.rounds} 回合`; break; }
       case 'fizzle': line = `${name(e.uid)} · ${e.label}`; break;
     }
     if (line) page.lines.push(line);

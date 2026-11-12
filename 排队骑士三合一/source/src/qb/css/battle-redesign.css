@@ -312,7 +312,7 @@
 .screen.game .hand-strip .hand-slot.hand-spell b { font-size: 16px; }
 .screen.game .hand-strip .hand-slot.hand-spell .px-item { width: 52px; height: 52px; }
 .screen.game .bag-strip:not(.hidden) {
-  left: 16px !important; top: 640px !important; width: 200px !important; height: 56px !important;
+  left: 16px !important; top: auto !important; bottom: 24px !important; width: 200px !important; height: 56px !important;
   display: flex !important; align-items: center; gap: 8px !important; padding: 0 !important; white-space: nowrap;
 }.screen.game .bag-strip .bag-head { font-size: 15px; color: rgba(242, 211, 156, .7); text-shadow: none; padding: 0; margin-right: 4px; background: none; }
 .screen.game .bag-strip .bag-slot { width: 48px !important; height: 48px !important; }

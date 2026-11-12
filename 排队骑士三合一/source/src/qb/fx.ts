@@ -1,4 +1,6 @@
 import { h, STAGE_H, STAGE_W } from './dom';
+import { PixelVFX } from './vfx';
+import './css/pixel-vfx.css';
 
 interface P {
   x: number; y: number; vx: number; vy: number; life: number; max: number;
@@ -21,6 +23,7 @@ export class FX {
   private animations = new Set<Animation>();
   private shakeTarget: HTMLElement;
   private res = 1;
+  readonly pixel: PixelVFX;
 
   /** 特效所在的舞台根节点（主将演出把氛围层挂在这里，压在单位之上、粒子之下） */
   readonly root: HTMLElement;
@@ -31,6 +34,7 @@ export class FX {
     root.append(this.canvas, this.layer);
     this.ctx = this.canvas.getContext('2d')!;
     this.ctx.imageSmoothingEnabled = false;
+    this.pixel = new PixelVFX(root);
     this.shakeTarget = shakeTarget;
     this.resize(1);
     document.addEventListener('visibilitychange', this.visibility);
@@ -40,6 +44,8 @@ export class FX {
     this.res = Math.min(1.25, (window.devicePixelRatio || 1) * scale);
     this.canvas.width = Math.round(STAGE_W * this.res);
     this.canvas.height = Math.round(STAGE_H * this.res);
+    this.ctx.imageSmoothingEnabled = false;
+    this.pixel.resize();
   }
 
   burst(x: number, y: number, color: string, o: { n?: number; speed?: number; kind?: P['kind']; size?: number; up?: number; life?: number; gravity?: number } = {}) {
@@ -70,8 +76,16 @@ export class FX {
     this.track(el.animate(frames, { duration: dur / this.rate, easing, fill: 'both' }), el);
   }
 
-  /** 播放倍速（由回放同步），只影响 DOM 光效时长 */
-  rate = 1;
+  /** 播放倍速由回放统一同步，正在播放的像素效果也随之变速。 */
+  private playbackRate = 1;
+  get rate() { return this.playbackRate; }
+  set rate(value: number) {
+    const next = Math.max(0.1, value);
+    const ratio = next / this.playbackRate;
+    this.playbackRate = next;
+    this.pixel.rate = next;
+    this.animations.forEach(a => a.updatePlaybackRate(a.playbackRate * ratio));
+  }
 
   /** 斩击：一道月牙刀光扫过目标；dir=1 从左往右 */
   slash(x: number, y: number, dir: number, color: string, big = false) {
@@ -392,6 +406,7 @@ export class FX {
   private visibility = () => this.syncPause();
 
   private syncPause() {
+    this.pixel.setPaused(this.paused);
     if (this.blocked) {
       cancelAnimationFrame(this.raf); this.raf = 0; this.last = 0;
       this.animations.forEach(a => a.pause());
@@ -404,6 +419,7 @@ export class FX {
   setPaused(paused: boolean) { this.paused = paused; this.syncPause(); }
 
   clear() {
+    this.pixel.clear();
     cancelAnimationFrame(this.raf); this.raf = 0; this.last = 0; this.ps = [];
     this.animations.forEach(a => { a.onfinish = null; a.cancel(); });
     this.animations.clear(); this.layer.replaceChildren();
@@ -413,6 +429,7 @@ export class FX {
 
   dispose() {
     this.disposed = true; this.clear();
+    this.pixel.dispose();
     document.removeEventListener('visibilitychange', this.visibility);
     this.canvas.remove(); this.layer.remove();
   }
@@ -429,7 +446,7 @@ export class FX {
     const elapsed = now - this.last;
     if (elapsed < 1000 / 30 - 0.1) { this.raf = requestAnimationFrame(this.tick); return; }
     this.last = now;
-    const dt = Math.min(elapsed, 100) / (1000 / 60);
+    const dt = Math.min(elapsed, 100) / (1000 / 60) * this.rate;
     const c = this.ctx;
     c.setTransform(this.res, 0, 0, this.res, 0, 0);
     c.clearRect(0, 0, STAGE_W, STAGE_H);

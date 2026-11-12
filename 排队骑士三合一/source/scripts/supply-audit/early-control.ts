@@ -10,7 +10,7 @@ const copies = (lv: number) => [1, 3, 6][lv - 1];
 const unit = (def: string, lv = 1, oid = 1): Owned => ({ oid, def, copies: copies(lv), atkBonus: 0, hpBonus: 0, foodHistory: [] });
 function state(turn: number): RunState {
   const r = newRun(86420 + turn, { diff: 0 }); r.turn = turn; r.gold = 999; r.queue = Array(5).fill(null); r.shop = []; r.nextId = 1000;
-  r.tc = { foods: 0, bought: 0, bear: {} }; r.relics = []; r.milkTurn = undefined; return r;
+  r.tc = { ...r.tc, foods: 0, bought: 0, bear: {} }; r.relics = []; r.milkTurn = undefined; return r;
 }
 function food(r: RunState, def: string) { const s: ShopItem = { sid: r.nextId++, kind: 'food', def, locked: false, free: false }; r.shop.push(s); return s; }
 const team = (r: RunState) => playerTeam(r).map(({ oid: _oid, ...u }) => u);

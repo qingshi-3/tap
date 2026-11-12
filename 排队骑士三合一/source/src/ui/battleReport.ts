@@ -11,6 +11,7 @@ const SOURCES: Record<DamageSourceKind, { icon: IconName; color: string }> = {
   equipment: { icon: 'diamond', color: '#6bc5df' }, supply: { icon: 'plate', color: '#8fc988' },
   relic: { icon: 'crown', color: '#ed915d' }, summon: { icon: 'sparkle', color: '#db7c97' },
 };
+const SOURCE_NAMES: Record<DamageSourceKind,string> = { attack:'普通攻击', skill:'单位技能', equipment:'装备', supply:'补给', relic:'遗物', summon:'召唤物' };
 type Metric = 'damageDealt' | 'damageTaken' | 'kills';
 const METRICS: { key: Metric; name: string; icon: IconName; color: string }[] = [
   { key: 'damageDealt', name: '输出', icon: 'sword', color: '#e9bc67' },
@@ -24,6 +25,8 @@ type Chip =
   | { k: 'heal'; src: number; tgt: number; n: number }
   | { k: 'buff'; src: number; tgt: number; atk: number; hp: number }
   | { k: 'block'; tgt: number; n: number }
+  | { k:'move'; uid:number; from:number; to:number; reason:string }
+  | { k:'counter'; uid:number; charge:number; mark:number; rounds:number }
   | { k: 'trig'; uid: number; label: string }
   | { k: 'die'; uid: number }
   | { k: 'summon'; src: number | null; uid: number; revive: boolean; atk: number; hp: number };
@@ -64,6 +67,8 @@ function moments(out: BattleOut, states: Map<number, Snap>): Moment[] {
       case 'stat': { const s = states.get(e.uid); if (s) { s.shield = e.shield; s.burn = e.burn; } break; }
       case 'die': m.dead.add(e.uid); push({ k: 'die', uid: e.uid }); break;
       case 'summon': states.set(e.unit.uid, { ...e.unit }); push({ k: 'summon', src: e.src, uid: e.unit.uid, revive: !!e.revive, atk: e.unit.atk, hp: e.unit.hp }); break;
+      case 'move': push({ k:'move',uid:e.uid,from:e.from,to:e.to,reason:e.reason ?? '换位' }); break;
+      case 'counter': { const s = states.get(e.uid); if (s) { s.charge=e.charge; s.mark=e.mark; s.rounds=e.rounds; } push({ k:'counter',uid:e.uid,charge:e.charge,mark:e.mark,rounds:e.rounds }); break; }
       case 'fizzle': push({ k: 'trig', uid: e.uid, label: e.label }); break;
     }
   }
@@ -74,6 +79,12 @@ export function battleReport(out: BattleOut) {
   const el = h('section', { class: `battle-report br-${out.result}`, 'aria-label': '本场战报' });
   const states = new Map<number, Snap>(out.init.map((s) => [s.uid, { ...s }]));
   const timeline = moments(out, states);
+  const capacityFailures = new Map<string, { uid:number; label:string; n:number }>();
+  for (const e of out.events) if (e.t === 'fizzle' && (e.reason === 'full' || e.reason === 'queue_full' || /满|空位/.test(e.label))) {
+    const key = `${e.uid}:${e.source ?? e.ability ?? e.label}`;
+    const item = capacityFailures.get(key);
+    if (item) item.n++; else capacityFailures.set(key, { uid:e.uid, label:e.source ?? e.ability ?? e.label, n:1 });
+  }
   let metric: Metric = 'damageDealt', open: number | null = null, view: number | null = null;
 
   const face = (def: string | null, enemy: boolean, cls = '') => h('span', { class: `br-face ${enemy ? 'foe ' : ''}${cls}`, html: unitSvg(def, { enemy }) });
@@ -154,11 +165,12 @@ export function battleReport(out: BattleOut) {
     const chips: HTMLElement[] = [];
     for (const [kind, info] of Object.entries(SOURCES)) {
       const v = row.damageBySource.filter((s) => s.kind === kind).reduce((n, s) => n + s.damage, 0);
-      if (v) chips.push(h('span', { class: 'br-chip src', style: `--sc:${info.color}` }, icon(info.icon), num(v)));
+      if (v) chips.push(h('span', { class: 'br-chip src', 'data-source':kind, title:`${SOURCE_NAMES[kind as DamageSourceKind]}伤害 ${v}`, 'aria-label':`${SOURCE_NAMES[kind as DamageSourceKind]}伤害 ${v}`, style: `--sc:${info.color}` }, icon(info.icon), num(v)));
     }
     const stat = (ic: IconName, v: number, color: string, label: string) => v ? h('span', { class: 'br-chip stat', style: `--sc:${color}`, title: label, 'aria-label': `${label} ${v}` }, icon(ic), num(v)) : null;
     return h('div', { class: `br-detail${row.side ? ' foe' : ''}` }, ...chips,
       stat('hit', row.hitsTaken, '#b4a9d7', '受击'), stat('guard', row.blockedHits, '#9fd4e8', '格挡'), stat('plate', row.shieldAbsorbed, '#6bc5df', '护盾吸收'),
+      ...[...capacityFailures.values()].filter(x => x.uid === row.uid).map(x => h('span', { class:'br-chip stat br-fizzle', title:x.label }, `满员落空 ×${x.n}`)),
       stat('sparkle', row.summons, '#db7c97', '召唤'), stat('tomb', row.revives, '#9fe2c6', '复生'), stat('fire', row.selfDamage + row.friendlyDamageTaken, '#ed915d', '自伤/友伤'));
   }
 
@@ -176,6 +188,8 @@ export function battleReport(out: BattleOut) {
         case 'buff': node = h('span', { class: 'br-act buff', style: d }, uidFace(c.src), icon('arrowUp', 'br-verb'), uidFace(c.tgt),
           num(`${c.atk >= 0 ? '+' : ''}${c.atk}/${c.hp >= 0 ? '+' : ''}${c.hp}`, c.atk < 0 || c.hp < 0 ? 'neg' : 'pos')); break;
         case 'block': node = h('span', { class: 'br-act block', style: d }, uidFace(c.tgt), icon('guard', 'br-verb'), num(`+${c.n}`, 'cool')); break;
+        case 'move': node = h('span', { class:'br-act move',style:d }, uidFace(c.uid), h('span',{class:'br-word'},`${c.reason} ${c.from + 1}→${c.to + 1}`)); break;
+        case 'counter': node = h('span', { class:'br-act counter',style:d }, uidFace(c.uid), h('span',{class:'br-word'},`蓄能 ${c.charge} · 猎标 ${c.mark} · 驻阵 ${c.rounds} 回合`)); break;
         case 'trig': node = h('span', { class: 'br-act trig', style: d }, uidFace(c.uid), h('span', { class: 'br-word' }, c.label)); break;
         case 'die': node = h('span', { class: 'br-act die', style: d }, uidFace(c.uid, 'dead'), icon('x', 'br-xmark')); break;
         case 'summon': node = h('span', { class: `br-act summon`, style: d }, uidFace(c.src), icon(c.revive ? 'tomb' : 'sparkle', 'br-verb'), uidFace(c.uid),
@@ -216,7 +230,7 @@ export function battleReport(out: BattleOut) {
     if (view == null) chart(); else scene(timeline[view]);
     paintStrip();
   }
-  el.append(head, stage, strip);
+  el.append(head, ...(capacityFailures.size ? [h('div', { class:'br-capacity', 'aria-label':'按来源汇总满员失败' }, ...[...capacityFailures.values()].map(x => h('span', { title:x.label }, uidFace(x.uid), `${x.label} · 满员落空 ×${x.n}`)))] : []), stage, strip);
   paint();
   return el;
 }

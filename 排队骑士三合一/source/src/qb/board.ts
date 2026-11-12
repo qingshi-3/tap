@@ -26,6 +26,7 @@ export let UNIT_Y = 300;
 export function setUnitY(y: number, root: ParentNode) {
   UNIT_Y = y;
   for (const el of root.querySelectorAll<HTMLElement>('.board .slot, .board .unit')) el.style.top = `${y}px`;
+  for (const el of root.querySelectorAll<HTMLElement>('.board .target-glow')) el.style.top = `${y - 12}px`;
 }
 export const SLOT_SPACING = 110;
 export const slotX = (side: Side, slot: number) => (side === 0 ? 540 - slot * SLOT_SPACING : 740 + slot * SLOT_SPACING);
@@ -393,7 +394,7 @@ export class UnitView {
   }
 
   /** 单位左上角的小徽记：历战（伤疤 + 已攒/上限）、驻守（圆点计数）；ico 为 null 时移除 */
-  setMark(key: 'scar' | 'guard', ico: IconName | null, text = '', full = false, label = '') {
+  setMark(key: 'scar' | 'guard' | 'energy' | 'quarry' | 'station' | 'seal', ico: IconName | null, text = '', full = false, label = '') {
     this.el.querySelector(`.u-mark.m-${key}`)?.remove();
     if (!ico) return;
     this.el.appendChild(h('div', { class: `u-mark m-${key}${full ? ' full' : ''}`, 'aria-label': label || text }, icon(ico), h('b', null, text)));
@@ -690,6 +691,7 @@ export class Board {
   }
 
   clearUnits() {
+    this.clearMarks();
     for (const v of this.views.values()) v.el.remove();
     this.views.clear();
     this.order.replaceChildren();
@@ -781,10 +783,12 @@ export class Board {
     this.labels.appendChild(h('div', { class: `arw-lbl self k-${kind}`, style: `left:${x}px;top:${y}px;--c:${c};animation-delay:${delay}ms` }, label));
   }
 
-  /** 瞄准标记：敌方第一下打谁 */
-  target(side: Side, slot: number, cls = '') {
+  /** 复用 main 版旋转 / 呼吸瞄准镜，位置按当前实际目标解析。 */
+  target(side: Side, slot: number, cls = '', kind: 'opening' | 'skill' | 'melee' = 'melee') {
     const p = bodyPos(side, slot);
-    this.marks.appendChild(h('div', { class: `target-glow ${cls}`, 'aria-label': '普攻目标', 'data-side': String(side), 'data-slot': String(slot), style: `left:${p.x}px;top:${p.y}px` }, icon('target')));
+    const marker = h('div', { class: `target-glow ${cls}`, 'aria-label': kind === 'melee' ? '普攻目标' : kind === 'opening' ? '开战技能目标' : '技能目标', 'data-target-kind': kind, 'data-side': String(side), 'data-slot': String(slot), style: `left:${p.x}px;top:${p.y}px` }, icon('target'));
+    this.marks.appendChild(marker);
+    return marker;
   }
 
   slotMark(side: Side, slot: number, content: Node, cls = '') {

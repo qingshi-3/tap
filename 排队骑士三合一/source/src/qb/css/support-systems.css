@@ -1,0 +1,17 @@
+.support-badges { display:flex; gap:5px; flex-wrap:nowrap; align-items:center; font-size:15px; line-height:21px; white-space:nowrap; }
+.support-tag { --support-color:#c2cadd; color:var(--support-color); border:1px solid color-mix(in srgb,var(--support-color) 55%,transparent); padding:0 5px; background:#0a1021b0; }
+.tip-unit > .support-badges { margin-top:5px; }
+.card.food-card .support-food-affinity { position:absolute; top:145px; left:10px; right:10px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:center; font-size:16px; color:#c7cbd9; }
+.card.food-card .card-in > .card-text { position:absolute; top:170px; left:12px; right:12px; display:block; padding:0; text-align:left; }
+.card.food-card .card-text .fr-short, .screen.game .hand-strip .hand-slot.hand-spell .card-text .fr-short { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; font-size:17px; line-height:21px; }
+.tip-unit .prepared-support { margin:5px 0; color:#a8d5e8; font-size:17px; line-height:1.35; }
+.tip-unit .support-source { font-size:16px; color:#cbb2ee; }
+.rl-card > .support-badges { justify-content:center; margin:5px 0; }
+.rl-card .rl-text { max-height:130px; overflow-y:auto; }
+.chest-item > .support-badges { justify-content:center; margin:4px 0; }
+.chest-item .ci-text { max-height:120px; overflow-y:auto; }
+.mc-good .support-badges { justify-content:center; margin-top:4px; }
+.mc-support-text { color:#c5c7d0; font-size:17px; line-height:1.35; max-height:108px; overflow-y:auto; margin-top:5px; }
+.mc-availability { display:block; color:#e8b57d; margin:5px 0; font-size:16px; }
+.cx-detail .support-badges { margin:6px 0; }
+

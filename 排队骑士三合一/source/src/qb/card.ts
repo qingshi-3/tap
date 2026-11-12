@@ -1,10 +1,12 @@
-import { ALL, card, FOOD, KW_INFO } from '../core/data';
+import { cardIdentity, identityColor } from './archetypes';
+import { card, FOOD, foodText, KW_INFO } from '../core/data';
 import { FACTION_INFO, RARITY_NAMES, unitDef, type Rarity } from './shim';
 import { h } from './dom';
 import { icon } from './icons';
 import { kwRich, kwTag, trigCap, trigMatch, type TrigId } from './kwtext';
 import { unitSvg } from './unitArt';
 import { itemIcon } from './pixelItems';
+import { supportIdentity } from './support';
 
 export interface CardOpts {
   /** 若与已上阵单位同名：合并后的等级 */
@@ -51,17 +53,17 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   const gold = lvl >= 2;
   return h(
     'div',
-    { class: `card tier-${d.tier} fac-${d.faction}`, style: `--fc:${f.color};--fd:${f.dark};--pxf:var(--pxf-${d.faction});--pxm:var(--pxm-${d.faction});--pxs:var(--pxs-${d.faction})`, 'data-id': defId },
+    { class: `card tier-${d.tier} fac-${d.faction}`, style: `--fc:${identityColor(c)};--fd:${f.dark};--pxf:var(--pxf-${d.faction});--pxm:var(--pxm-${d.faction});--pxs:var(--pxs-${d.faction})`, 'data-id': defId },
     h(
       'div',
       { class: 'card-in' },
       h('div', { class: 'card-shine' }),
       h('i', { class: 'card-sigil' }),
-      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, c.perm ? '永久成长' : ''), h('span', { class: 'card-tier' }, tierBadge(d.tier))),
+      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, c.archetype || c.role ? cardIdentity(defId) : c.perm ? '永久成长' : ''), h('span', { class: 'card-tier' }, tierBadge(d.tier))),
       tierArt('card-art', defId, d.tier),
       h('i', { class: 'card-gems', style: `--n:${d.tier}` }),
       h('div', { class: 'card-name' }, d.name),
-      h('div', { class: 'card-brief card-keywords' }, ...cardLabels(defId, lvl).map(previewTag)),
+      c.rules?.length ? h('div', { class: 'card-brief card-mechanism', title: cardText(defId, lvl) }, cardText(defId, lvl).split(/[。；]/)[0]) : h('div', { class: 'card-brief card-keywords' }, ...cardLabels(defId, lvl).map(previewTag)),
       h('div', { class: 'card-text' }, ...kwRich(cardText(defId, lvl))),
       h(
         'div',
@@ -80,22 +82,6 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   );
 }
 
-/** 补给 icon 行：目标 · 攻血 · 时长（不写长文） */
-export function foodRow(id: string, val?: [number, number]) {
-  const fd = FOOD[id];
-  const [a, hp] = val ?? [fd.atk ?? 0, fd.hp ?? 0];
-  if (id === 'f_can') return null;
-  if (fd.spell) return h('div', { class: 'food-row' },
-    h('span', { class: `fr-chip ${fd.target ? 'fr-tgt' : 'fr-all'}` }, icon(fd.target ? 'target' : 'refresh'), fd.target ? '友军' : '商店'),
-    h('span', { class: 'fr-chip fr-spell' }, icon('star'), '法术'));
-  const tgt = fd.n === ALL ? '全队' : fd.around ? '目标与前后' : fd.behind ? '目标与身后' : fd.n ? `随机${fd.n}` : '单体';
-  const chip = (cls: string, ...k: (string | Node)[]) => h('span', { class: `fr-chip ${cls}` }, ...k);
-  return h('div', { class: 'food-row' },
-    chip(fd.n === ALL ? 'fr-all' : 'fr-tgt', icon(fd.n === ALL ? 'flag' : 'target'), tgt),
-    a ? chip('fr-atk', icon('sword'), `+${a}`) : null,
-    hp ? chip('fr-hp', icon('heart'), `+${hp}`) : null,
-    fd.tmp ? chip('fr-tmp', icon('hourglass'), '本场') : chip('fr-perm', icon('star'), '永久'));
-}
 /** 补给卡：同一套卡框（中立色），立绘换成像素道具 */
 export function foodCard(id: string, val?: [number, number]) {
   const fd = FOOD[id];
@@ -107,11 +93,11 @@ export function foodCard(id: string, val?: [number, number]) {
       'div',
       { class: 'card-in' },
       h('div', { class: 'card-shine' }),
-      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, fd.spell ? '法术' : '补给'), h('span', { class: 'card-tier' }, tierBadge(fd.tier))),
+      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, fd.spell ? '法术' : supportIdentity(fd)), h('span', { class: 'card-tier' }, tierBadge(fd.tier))),
       h('div', { class: 'card-art food-art' }, itemIcon(id, 'pack', 'food-icon')),
       h('i', { class: 'card-gems', style: `--n:${fd.tier}` }),
       h('div', { class: 'card-name' }, fd.name),
-      h('div', { class: 'card-text' }, foodRow(id, val), (fd.spell ? fd.text : fd.short) ? h('div', { class: 'fr-short' }, ...kwRich((fd.spell ? fd.text : fd.short)!)) : null),
+      h('div', { class: 'card-text', title:foodText(id, val) }, h('div', { class:'fr-short' }, ...kwRich(foodText(id, val)))),
     ),
   );
 }

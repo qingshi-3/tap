@@ -1,14 +1,19 @@
 import { card } from '../core/data';
-import { lvlOf, morphPool, playerTeam, type Owned } from '../core/run';
+import { lvlOf, morphPool, ownedHp, playerTeam, type Owned, type RunState } from '../core/run';
 import { draftCard } from '../qb/card';
 import { h } from '../qb/dom';
 import { unitTip } from '../qb/tip';
 
 type MorphUnit = { u: Owned; i: number };
+function previewOwned(u: Owned, def: string): Owned {
+  const next = { ...u, def };
+  next.hpBonus += Math.max(0,1-ownedHp(next));
+  return next;
+}
 
 /** 与图鉴相同：卡面只负责卡面，完整技能交给共用 unitTip。 */
 function morphCard(u: Owned, defId: string, inspect: boolean, onClick: () => void) {
-  const stats = playerTeam({ queue: [{ ...u, def: defId }] })[0];
+  const stats = playerTeam({ queue: [previewOwned(u,defId)] })[0];
   const level = lvlOf(u.copies);
   const button = h('button', {
     class: 'morph-card-button', type: 'button',
@@ -20,7 +25,7 @@ function morphCard(u: Owned, defId: string, inspect: boolean, onClick: () => voi
 }
 
 function showSkill(detail: HTMLElement, u: Owned, defId: string) {
-  const stats = playerTeam({ queue: [{ ...u, def: defId }] })[0];
+  const stats = playerTeam({ queue: [previewOwned(u,defId)] })[0];
   detail.replaceChildren(h('h3', null, '技能详情'), unitTip(defId, lvlOf(u.copies), {
     ...stats, copies: u.copies, kws: card(defId).kws,
     tmpAtk: u.tmpAtk, tmpHp: u.tmpHp, foodHistory: u.foodHistory,
@@ -44,8 +49,8 @@ export function morphUnitPicker(units: MorphUnit[], onPick: (slot: number) => vo
 }
 
 /** 浏览候选只展示技能，不决定结果；真正变形仍由 resolveEvent 随机抽取。 */
-export function morphOutcomePreview(u: Owned, onBack: () => void, onConfirm: () => void) {
-  const pool = morphPool(u);
+export function morphOutcomePreview(u: Owned, r: RunState, onBack: () => void, onConfirm: () => void) {
+  const pool = morphPool(u,r);
   const detail = h('div', { class: 'morph-skill', role: 'region', 'aria-label': '随机候选技能详情' });
   const inspect = (index: number) => {
     showSkill(detail, u, pool[index].id);
@@ -53,7 +58,7 @@ export function morphOutcomePreview(u: Owned, onBack: () => void, onConfirm: () 
   const cells = pool.map((d, index) => morphCard(u, d.id, true, () => inspect(index)));
   if (pool.length) inspect(0);
   const cancel = h('button', { class: 'btn ghost', type: 'button', onclick: onBack }, '重新选人');
-  const confirm = h('button', { class: 'btn primary', type: 'button' }, `变形「${card(u.def).name}」`);
+  const confirm = h('button', { class: 'btn primary', type: 'button', disabled:!pool.length }, `变形「${card(u.def).name}」`);
   confirm.addEventListener('click', () => { confirm.disabled = true; onConfirm(); });
   const root = panel('可能变成', `以下 ${pool.length} 个候选随机其一 · 点卡牌仅查看技能`,
     h('div', { class: 'morph-candidates', role: 'list', 'aria-label': '随机变形候选' }, ...cells), detail,

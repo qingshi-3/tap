@@ -1,3 +1,4 @@
+import { ARCHETYPE_IDS } from '../core/archetypes';
 import { newTutorialRun } from '../core/tutorial';
 import { tutorialDone } from './tutorial';
 import '../qb/css/title-actions.css';
@@ -13,7 +14,7 @@ import { icon } from '../qb/icons';
 import { hideTip, initTip } from '../qb/tip';
 import { unitSvg } from '../qb/unitArt';
 import { tierArt } from '../qb/card';
-import { card, HERO, HEROES, LINES, SHOP_POOL, type HeroId } from '../core/data';
+import { card, HERO, HEROES, SHOP_POOL, type HeroId } from '../core/data';
 import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, saveStatus, beginNewRunBackup, LAYERS, type Diff, type RunState } from '../core/run';
 import { Game } from './prep';
 import { codexScreen } from './codex';
@@ -113,8 +114,8 @@ export class App {
   toTitle() {
     this.leaveGame(true);
     setTitleMusic(true);
-    // 每个引擎挑一张最高阶的卡做门面
-    const fallback = LINES.map((line) => SHOP_POOL.filter((c) => c.line === line).sort((a, b) => b.tier - a.tier)[0]?.id).filter(Boolean) as string[];
+    // 每个新流派挑一张最高阶的卡做门面
+    const fallback = ARCHETYPE_IDS.map((archetype) => SHOP_POOL.filter((c) => c.archetype === archetype).sort((a, b) => b.tier - a.tier)[0]?.id).filter(Boolean) as string[];
     const foes = ['e_nightk', 'e_lich', 'e_void'].filter((id) => card(id));
     const saved = load();
     const status = saveStatus();

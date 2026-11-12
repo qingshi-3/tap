@@ -1,4 +1,5 @@
 import { h } from './dom';
+import { FOOD, RELIC } from '../core/data';
 
 // 道具像素图标 + 面板藤蔓装饰：与 pixel.ts 同一套做法——启动时用 canvas 逐像素生成，
 // 写进 :root 的 CSS 变量（--pxi-<id> / --px-vine*），样式表只引用变量。
@@ -1733,6 +1734,9 @@ export function installItemSprites() {
 
 /** 道具图标节点；没有专属图的回退到对应类别占位 */
 export function itemIcon(id: string, fallback: 'spell' | 'order' | 'pack' | 'coin' = 'spell', cls = '') {
-  const key = id in ICONS ? id : fallback;
+  const logical = FOOD[id]?.icon ?? RELIC[id]?.icon ?? (id.startsWith('rl_') ? RELIC[`r_${id.slice(3)}`]?.icon : undefined);
+  const aliases: Record<string,string> = { bread:'f_bread', lamp:'f_lamp', bomb:'f_bomb', berry:'f_berry', bone:'f_bone', stew:'f_stew', plate:'f_plate', elixir:'x_copy', tome:'eq_tome', replay:'rl_relay', haste:'eq_boots', target:'eq_bow', thunder:'f_thunder', undy:'f_undy', horn:'f_horn', fire:'f_oil', coin:'coin', star:'rl_medal' };
+  const resolved = logical && (logical in ICONS ? logical : aliases[logical]);
+  const key = id in ICONS ? id : resolved && resolved in ICONS ? resolved : fallback;
   return h('i', { class: `px-item ${cls}`, style: `--pxi:var(--pxi-${key})`, 'aria-hidden': 'true' });
 }

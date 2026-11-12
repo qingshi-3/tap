@@ -1,3 +1,6 @@
+import { ARCHETYPES } from '../core/archetypes';
+import { archetypeGuide, ARCHETYPE_COLORS, economyLimits, identityColor } from '../qb/archetypes';
+import { supportBadges, supportCounterNote, supportGuide } from '../qb/support';
 import { createRehearsal, type Rehearsal } from '../core/rehearsal';
 import { Tutorial } from './tutorial';
 // 备战界面：货架（单位 + 补给）、队列、HUD；开战后交给 battle.ts 播放
@@ -11,13 +14,13 @@ import '../qb/css/fusion.css';
 import './mixedHand.css';
 import '../qb/css/battle-redesign.css';
 import { spellFeedback } from './spellFeedback';
-import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, LINE_INFO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
+import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
-  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
+  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, toggleLock, unequip, useFood,
   ACTS, LAYERS, bossOf, curNode, nodeOpts, pickNode, leaveNode, passNode, isCombat, handCap, tavernPrice, buyGoods, heroReady, useHero, fireCopyOk, fireSmithOk, QUESTS, SHARD_NEED, type NodeKind,
   ownedAtk, ownedHp, prepFoodUses, pickDiscover, itemPrice, spellTargetOk, scarCap, hasScar, GUARD_N, LEGION_MAX, type Owned, type RunState, type ShopFx, type ShopItem,
-  handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict,
+  canPayBlood, payBlood, handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict, foodTargetOk, supportTargetHint, canAdRelic, sharesFood, goodsUnavailableReason, effectiveQuarry,
 } from '../core/run';
 import { QUEUE_MAX, type BattleOut } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
@@ -31,23 +34,28 @@ import { itemIcon } from '../qb/pixelItems';
 import { equipIcon, equipTip, foodTip, hideTip, setTipHideHook, showDockTip, showTip, unitTip, grantedText } from '../qb/tip';
 import { showRewardedAd } from './ads';
 import type { Side } from '../qb/shim';
-import { computeLinks } from './links';
 import { unitSvg } from '../qb/unitArt';
 import { audioSettings } from '../qb/audioSettings';
 import type { App } from './app';
 import { BattlePlayer } from './battle';
+import { mountScene, pickScene, type SceneHandle, type SceneId } from '../qb/battleScenes';
 import { battleReport } from './battleReport';
 import { inheritancePreview } from './prepPreview';
 import { morphOutcomePreview, morphUnitPicker } from './morphPreview';
+import { canSelectQuarry, previewTargets, type TargetPreviews } from '../qb/targeting';
+import { formationConditions, formationFeedback, previewPlacement, type FormationFeedback } from '../qb/formationFeedback';
+import { closeKeywordHelp, enableKeywordHelp } from '../qb/keywordHelp';
+import '../qb/css/prep-understanding.css';
 
 type DragKind = 'card' | 'unit' | 'bag' | 'spell';
 interface Drag { kind: DragKind; idx: number; startX: number; startY: number; ghost: HTMLElement | null; src: HTMLElement; pid: number }
 
-const relicTip = (id: RelicId) => h('div', { class: 'tip-unit', style: '--fc:#ffd36b' },
+const relicTip = (id: RelicId) => enableKeywordHelp(h('div', { class: 'tip-unit', style: '--fc:#ffd36b' },
   h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, RELIC[id].name), h('span', { class: 'tip-fac' }, '遗物')),
-  h('div', { class: 'tip-text' }, RELIC[id].text));
+  h('div', { class: 'tip-text' }, ...kwRich(RELIC[id].text)), supportGuide(RELIC[id]),
+  supportCounterNote(RELIC[id]) ? h('p', {class:'tip-text'}, supportCounterNote(RELIC[id])) : null));
 const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const lineColor = (def: string) => LINE_INFO[card(def).line].color;
+const lineColor = (def: string) => identityColor(card(def));
 
 export class Game {
   el: HTMLElement;
@@ -80,15 +88,27 @@ export class Game {
   private releaseFxWait: (() => void) | null = null;
   private disposed = false;
   private player: BattlePlayer | null = null;
+  private battleScene: SceneHandle | null = null;
+  private battleSceneId: SceneId | null = null;
   /** 播放商店效果时，每个单位当前显示的攻血（效果逐条加上去） */
   private shown = new Map<number, { atk: number; hp: number }>();
   /** 点选中的单位：画出它技能相关的连线 */
   private focus: { side: Side; slot: number } | null = null;
+  private targets: TargetPreviews = { opening: [], focused: [] };
+  private feedbackCache = new Map<number, FormationFeedback>();
+  private placementKey = '';
+  private placementPanel = h('div', { class:'placement-feedback hidden', role:'status', 'aria-live':'polite' });
 
   constructor(private app: App, public run: RunState, private teaching = false) {
-    this.el = h('div', { class: 'screen game' }, this.board.el, this.dim, this.banner, this.hud, this.handEl, this.tavernEl, this.bagEl, this.tray, this.bar, this.settling);
+    this.el = h('div', { class: 'screen game' }, this.board.el, this.dim, this.banner, this.hud, this.handEl, this.tavernEl, this.bagEl, this.tray, this.bar, this.settling, this.placementPanel);
     setTipHideHook(() => { if (this.focus) this.setFocus(null); });
     this.banner.addEventListener('click', () => this.dismissStageIntro());
+    this.el.addEventListener('pointerdown', () => {
+      if (this.bannerPhase !== 'fly') return;
+      clearTimeout(this.introTimer);
+      this.bannerPhase = 'done';
+      this.applyBannerPhase();
+    }, { capture: true });
     this.dim.addEventListener('click', () => this.dismissStageIntro());
   }
 
@@ -123,7 +143,10 @@ export class Game {
   }
 
   dispose() {
+    closeKeywordHelp();
+    this.clearPlacementFeedback();
     this.disposed = true;
+    clearTimeout(this.introTimer);
     this.tutorial?.dispose();
     this.fastFx = true;
     this.releaseFxWait?.();
@@ -137,6 +160,7 @@ export class Game {
     this.flyOrigin = this.handFrom = null;
     this.handEl.getAnimations({ subtree: true }).forEach((a) => a.cancel());
     this.player?.skip();
+    this.unmountBattleScene();
   }
 
   start() {
@@ -254,9 +278,32 @@ export class Game {
     const book = h('button', { class: 'icon-btn hud-book', 'aria-label': '图鉴' }, icon('book'));
     book.addEventListener('click', () => { sfx.click(); this.showCodex(); });
     this.renderTavern();
+    const factions = h('button', { class:'hud-archetypes', 'aria-label':'本局流派与回合记录' },
+      h('span',{class:'ha-names'}, ...(r.activeArchetypes ?? []).map(id => h('i',{style:`--ac:${ARCHETYPE_COLORS[id]}`},ARCHETYPES[id].name))),
+      h('span',{class:'ha-counts'}, `施法 ${r.tc.spells ?? 0} · 买卖 ${(r.tc.bought ?? 0) + (r.tc.sold ?? 0)} · 喂食 ${r.tc.foods}`));
+    factions.addEventListener('click', () => {
+      sfx.click();
+      const at = toStage(factions.getBoundingClientRect().left, factions.getBoundingClientRect().bottom);
+      const content = h('div', {class:'tip-unit run-archetypes'},
+        h('div',{class:'tip-head'},h('b',null,'本局流派')),
+        h('div',{class:'tip-text'},`本回合购买 ${r.tc.bought ?? 0} · 出售 ${r.tc.sold ?? 0} · 施法 ${r.tc.spells ?? 0} · 喂食 ${r.tc.foods}`));
+      const guide = h('div', {class:'run-archetype-detail'});
+      const buttons = (r.activeArchetypes ?? []).map((id, index) => {
+        const button = h('button', {class:`run-archetype-tab${index === 0 ? ' active' : ''}`, type:'button', style:`--ac:${ARCHETYPE_COLORS[id]}`, 'aria-pressed':String(index === 0)}, ARCHETYPES[id].name);
+        button.addEventListener('click', () => {
+          buttons.forEach(b => {b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', String(b === button));});
+          guide.replaceChildren(archetypeGuide(id));
+          content.dispatchEvent(new CustomEvent('tipcontentchange', {bubbles:true}));
+        });
+        return button;
+      });
+      if (r.activeArchetypes?.[0]) guide.append(archetypeGuide(r.activeArchetypes[0]));
+      content.append(h('div',{class:'run-archetype-tabs','aria-label':'选择流派'},...buttons), guide, economyLimits(r.tc));
+      showTip(content,at.x + 180,at.y + 6,'below');
+    });
     this.hud.replaceChildren(
       h('div', { class: 'hud-left' }, heroBtn, lives, r.legion ? this.legionBadge(r.legion) : null, quest),
-      actLabel,
+      h('div',{class:'hud-center'},actLabel,factions),
       h('div', { class: 'hud-right' }, relics, h('div', { class: 'hud-wins' }, h('span', null, '回合'), h('b', null, r.turn)), mapBtn, helpBtn, book, menu),
     );
   }
@@ -326,7 +373,7 @@ export class Game {
     });
   }
 
-  /** 关卡信息：进入新关卡时置灰屏幕弹出一次，点击或 3.8s 后飞向顶部幕次标题；点标题可再次展开 */
+  /** 关卡信息：进入新关卡时置灰屏幕弹出一次，点击或 0.8s 后飞向顶部幕次标题；点标题可再次展开 */
   private renderBanner() {
     const r = this.run;
     const node = curNode(r);
@@ -334,10 +381,11 @@ export class Game {
     const fresh = key !== this.bannerKey;
     this.bannerKey = key;
     this.renderBannerContent();
-    if (this.banner.querySelector('.sb-shop')) {
+    if (this.banner.querySelector('.sb-shop') || !node || r.path[r.layer] === undefined || r.chest || r.relicPick || r.discover?.length || r.rewards?.length || r.event || r.leaving) {
       clearTimeout(this.introTimer);
       this.bannerPhase = 'none';
       this.dim.classList.remove('on');
+      this.applyBannerPhase();
       return;
     }
     if (fresh) this.startStageIntro();
@@ -346,11 +394,13 @@ export class Game {
 
   private startStageIntro() {
     clearTimeout(this.introTimer);
+    const r = this.run;
+    if (!curNode(r) || r.path[r.layer] === undefined || r.chest || r.relicPick || r.discover?.length || r.rewards?.length || r.event || r.leaving) { this.bannerPhase = 'none'; this.dim.classList.remove('on'); this.applyBannerPhase(); return; }
     this.bannerPhase = 'modal';
     this.banner.classList.remove('sb-modal', 'sb-fly', 'sb-open');
     void this.banner.offsetWidth;
     this.dim.classList.add('on');
-    this.introTimer = window.setTimeout(() => this.dismissStageIntro(), 3800);
+    this.introTimer = window.setTimeout(() => this.dismissStageIntro(), 800);
   }
 
   private dismissStageIntro() {
@@ -359,7 +409,9 @@ export class Game {
     this.bannerPhase = 'fly';
     this.dim.classList.remove('on');
     this.applyBannerPhase();
-    this.introTimer = window.setTimeout(() => { if (this.bannerPhase === 'fly') this.bannerPhase = 'done'; }, 700);
+    this.introTimer = window.setTimeout(() => {
+      if (this.bannerPhase === 'fly') { this.bannerPhase = 'done'; this.applyBannerPhase(); }
+    }, 700);
   }
 
   private applyBannerPhase() {
@@ -398,10 +450,27 @@ export class Game {
     );
   }
 
+  private projectedOwned(o: Owned) {
+    return this.growthPreview?.queue.find(unit => unit?.oid === o.oid) ?? o;
+  }
+
   private ownedStats(o: Owned) {
-    const projected = this.growthPreview?.queue.find(unit => unit?.oid === o.oid);
-    const [atk, hp] = shownStats(projected ?? o);
-    return { atk, hp };
+    o = this.projectedOwned(o);
+    const [atk, hp] = equipStats(o.ench, ownedAtk(o) + (o.tmpAtk ?? 0), ownedHp(o) + (o.tmpHp ?? 0));
+    return { atk, hp: Math.max(1, hp - (o.wounds ?? 0)), maxHp:hp, block:o.startBlock ?? 0 };
+  }
+
+  private ownedTip(o: Owned) {
+    const display = this.projectedOwned(o), shownRun = this.growthPreview ?? this.run;
+    const tip = unitTip(display.def, lvlOf(display.copies), {
+      ...this.ownedStats(o), ench:display.ench, tmpAtk:display.tmpAtk, tmpHp:display.tmpHp,
+      lamp:display.lamp, tfx:display.tfx, copies:display.copies, kws:card(display.def).kws,
+      foodHistory:display.foodHistory, prepUses:prepFoodUses(shownRun,display), granted:display.granted,
+      seal:display.seal, startCharge:display.startCharge, wounds:display.wounds,
+      supportFoods:display.supportFoods, sealSources:display.sealSources, economyUsage:shownRun.tc,
+    });
+    if (this.growthPreview?.queue.some(unit => unit?.oid === o.oid)) tip.querySelector('.tip-stats')?.before(h('div', {class:'tip-projection-label'}, '回合末预览'));
+    return tip;
   }
 
   private ownedBaseStats(o: Owned) {
@@ -411,6 +480,9 @@ export class Game {
   private renderBoard(pending: ShopFx[] = []) {
     const b = this.board;
     const r = this.run;
+    this.feedbackCache.clear();
+    this.clearPlacementFeedback();
+    this.targets = { opening: [], focused: [] };
     this.setFocus(null);
     b.clearUnits();
     b.setCenter('VS', '', '');
@@ -431,11 +503,18 @@ export class Game {
       if (o.granted) v.el.appendChild(h('span', { class: 'u-granted', 'aria-label': grantedText(o.granted) },
         itemIcon(({ bone: 'x_bonepact', spark: 'x_inscribe', thorn: 'x_thorn', sprout: 'x_sprout' } as Record<string, string>)[o.granted.id] ?? 'x_ignite')));
     });
+    const quarry = canSelectQuarry(r) ? effectiveQuarry(r) : -1;
     r.enemy.units.forEach((u, i) => {
       if (i >= QUEUE_MAX) return;
       const d = card(u.def);
       const v = new UnitView(u.def, 1, i, u.lvl, { token: !!d.token });
       b.add(`e${i}`, v);
+      v.el.classList.toggle('is-quarry', i === quarry);
+      if (i === quarry) v.addTag('猎物', 'quarry');
+      v.el.setAttribute('tabindex','0');
+      v.el.setAttribute('role','button');
+      v.el.setAttribute('aria-label',`${d.name} 敌方位置${i+1}${i === quarry ? ' 当前猎物' : ''}`);
+      v.el.addEventListener('keydown',e => { if(e.key === 'Enter' || e.key === ' ') { e.preventDefault(); v.el.click(); } });
       v.setStats({ atk: u.atk, hp: u.hp, maxHp: u.hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(d.kws) });
       v.setEquips([...(u.ench ? [u.ench] : []), ...(u.ax ?? []).map((a) => ATOM_INFO[a].icon)]);
       v.el.addEventListener('click', () => {
@@ -445,9 +524,18 @@ export class Game {
         const tip = unitTip(u.def, u.lvl, { atk: u.atk, hp: u.hp, kws: d.kws, ench: u.ench }, false);
         if (u.ax?.length) tip.appendChild(h('div', { class: 'tip-text tip-ench' }, h('b', { class: 'tip-elite' }, '精英词缀'),
           ...u.ax.flatMap((a) => [h('br'), itemIcon(ATOM_INFO[a].icon, 'spell', 'tip-item'), `${ATOM_INFO[a].name}：${ATOM_INFO[a].desc}`])));
+        if (!this.rehearsal && quarry >= 0) {
+          const mark = h('button',{class:'btn primary quarry-select',disabled:!!r.endTurnCommitted || i === quarry},i === quarry ? '当前猎物' : '指定猎物');
+          mark.addEventListener('click',() => { if (!this.editable || r.endTurnCommitted) return; r.quarry=i; hideTip(); this.persist(r); this.afterChange(); });
+          tip.append(h('div',{class:'shelf-acts'},mark));
+        }
         showTip(tip, slotX(1, i), UNIT_Y + 62, 'below', headPos(1, i).y - 30, this.arrowBox());
       });
     });
+    // 演练的每次试打使用新随机种子，实际目标由播放时的事件锁定。
+    const node = curNode(r);
+    if (!this.rehearsal && (!node || isCombat(node.k))) this.targets = previewTargets(r);
+    this.setFocus(null);
     this.renderHand();
     this.dropHints();
   }
@@ -597,11 +685,12 @@ export class Game {
     hideTip();
     const targets = Array.from({ length: HAND_BASE + handCap(r) }, (_, cell) => ({ cell, unit: cellAt(r, cell) }))
       .filter(({ cell, unit }) => unit && (transferSource ? !!unit.granted
-        : cell !== sourceSlot && (!f.spell || spellTargetOk(r, item.def, unit))));
+        : cell !== sourceSlot));
     const buttons = targets.map(({ cell, unit }) => {
-      const button = h('button', { class: 'spell-target', 'aria-label': `${card(unit!.def).name} ${isHand(cell) ? '手牌' : `位置${cell + 1}`}` },
+      const hint = transferSource ? null : supportTargetHint(r, item.def, unit, 'val' in item ? item.val : undefined);
+      const button = h('button', { class: 'spell-target', disabled:!!hint, 'aria-label': `${card(unit!.def).name} ${isHand(cell) ? '手牌' : `位置${cell + 1}`}` },
         h('span', { class: 'target-art', html: unitSvg(unit!.def) }), h('b', null, card(unit!.def).name),
-        h('small', null, isHand(cell) ? '手牌' : `位置 ${cell + 1}`));
+        h('small', null, hint ?? (isHand(cell) ? '手牌' : `位置 ${cell + 1}`)));
       button.addEventListener('click', () => {
         close();
         if (transferSource) this.chooseSpellTarget(kind, idx, cell);
@@ -652,7 +741,10 @@ export class Game {
     }
     const result = kind === 'card' ? useFood(r, (item as ShopItem).sid, target, replace, source)
       : castHandSpell(r, idx, target, replace, source);
-    if (!result.ok) { this.notice(result.why === 'gold' ? '金币不够' : '目标不合法或能力没有提升'); return false; }
+    if (!result.ok) {
+      this.notice(result.why === 'gold' ? '金币不够' : supportTargetHint(r, item.def, unit, 'val' in item ? item.val : undefined) ?? '已有相同或更强的效果，换一名队员');
+      return false;
+    }
     hideTip(); this.persist(r); this.afterChange(result.fx); sfx.buff();
     const position = target === null ? { x: 640, y: 240 } : this.cellPos(target);
     spellFeedback(this.el, position.x, position.y);
@@ -704,48 +796,24 @@ export class Game {
     this.focus = f;
     const b = this.board;
     b.clearArrows();
+    b.clearMarks();
     b.el.classList.toggle('focusing', !!f);
-    for (const v of b.views.values()) v.el.classList.remove('focus', 'linked');
+    for (const v of b.views.values()) v.el.classList.remove('focus', 'linked', 'benefit-preview');
+    const targets = f ? this.targets.focused.filter(t => t.source?.side === f.side && t.source.slot === f.slot) : this.targets.opening;
+    const marked = new Set<string>();
+    for (const t of targets) {
+      const key = `${t.target.side}-${t.target.slot}`;
+      if (marked.has(key)) continue;
+      marked.add(key);
+      b.target(t.target.side, t.target.slot, t.target.side === 1 ? 'ally-aim' : 'enemy-aim', t.kind);
+    }
     if (!f) return;
-    const r = this.run;
-    const links = computeLinks([
-      r.queue.map((o) => (o ? { def: o.def, lvl: lvlOf(o.copies), hp: shownStats(o)[1] } : null)),
-      r.enemy.units.slice(0, QUEUE_MAX).map((u) => ({ def: u.def, lvl: u.lvl, hp: u.hp })),
-    ]).filter((l) => l.owner.side === f.side && l.owner.slot === f.slot);
-    const boardTop = toStage(0, b.el.getBoundingClientRect().top).y;
-    const minY = toStage(0, this.hud.getBoundingClientRect().bottom).y + 16 - boardTop;
-    const at = (p: { side: Side; slot: number }, dy: number) => ({ x: Math.max(30, Math.min(1250, slotX(p.side, p.slot))), y: headPos(p.side, p.slot).y + dy });
-    const linked = new Set<string>();
-    const lanes: { lo: number; hi: number; lane: number }[] = [];
-    // 同一句时机只标一次（标在跨度最短的那条上），避免一排「阵亡时」
-    const said = new Set<string>();
-    links
-      .map((l) => {
-        const p0 = at(l.from, 44);
-        const p1 = at(l.to, 4);
-        // 原位召唤：箭头绕回自己头顶
-        if (p0.x === p1.x && l.from.side === l.to.side) p1.x += l.from.side === 0 ? -34 : 34;
-        return { l, p0, p1 };
-      })
-      .sort((a, z) => Math.abs(a.p1.x - a.p0.x) - Math.abs(z.p1.x - z.p0.x))
-      .forEach(({ l, p0, p1 }, k) => {
-        linked.add(`${l.from.side}-${l.from.slot}`).add(`${l.to.side}-${l.to.slot}`);
-        const lo = Math.min(p0.x, p1.x) - 20, hi = Math.max(p0.x, p1.x) + 20;
-        let lane = 0;
-        while (lanes.some((x) => x.lane === lane && x.lo < hi && lo < x.hi)) lane++;
-        lanes.push({ lo, hi, lane });
-        const label = l.label && !said.has(l.label) ? l.label : undefined;
-        if (l.label) said.add(l.label);
-        b.arrow(p0, p1, l.kind, {
-          label,
-          minY,
-          apexMin: minY + 16,
-          lift: 40 + Math.abs(p1.x - p0.x) * 0.14 + lane * 30,
-          labelDx: lane === 0 ? 0 : (lane % 2 ? 1 : -1) * 28 * Math.ceil(lane / 2),
-          delay: k * 70,
-          ...(l.broken ? { color: '#ff3b5c', cls: 'broken' } : {}),
-        });
-      });
+    const linked = new Set<string>(marked);
+    if (f.side === 0) for (const oid of this.feedbackFor(f.slot).beneficiaryOids) {
+      const view = this.viewOf(oid);
+      if (view) { view.el.classList.add('benefit-preview'); linked.add(`0-${view.slot}`); }
+    }
+
     for (const v of b.views.values()) {
       const isF = v.side === f.side && v.slot === f.slot;
       v.el.classList.toggle('focus', isF);
@@ -759,9 +827,11 @@ export class Game {
     const s = projected ? this.ownedBaseStats(projected) : this.shown.get(o.oid) ?? this.ownedBaseStats(o);
     const [atk, hp] = equipStats(o.ench, s.atk + (o.tmpAtk ?? 0), s.hp + (o.tmpHp ?? 0));
     const kws = [...card(o.def).kws, ...(o.lamp ? ['reborn'] : []), ...(o.tfx?.includes('splash') ? ['splash'] : [])];
-    v.setStats({ atk, hp, maxHp: hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
+    v.setStats({ atk, hp:Math.max(1,hp-(o.wounds ?? 0)), maxHp: hp, block: o.startBlock ?? 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
+    v.setMark('seal', o.seal ? 'star' : null, String(o.seal ?? 0), false, `下一场首次攻击追加 ${o.seal ?? 0} 伤害`);
+    v.setMark('energy', o.startCharge ? 'bolt' : null, String(o.startCharge ?? 0), false, `预装蓄能 ${o.startCharge ?? 0}`);
     v.setExp(o.copies);
-    v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
+    v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.supportFoods ?? []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
     v.setFoodHistory(card(o.def).inherit ? (o.foodHistory?.length ?? 0) : null);
     if (o.merc) v.setTag(`雇佣 剩${o.merc}场`, 'merc');
     else if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
@@ -1072,15 +1142,15 @@ export class Game {
       if (it.kind === 'food') {
         if (hand && !handAt(r, slot)) return 'place';
         if (FOOD[it.def].spell) return FOOD[it.def].target ? (spellTargetOk(r, it.def, at) ? 'merge' : 'invalid') : 'place';
-        return foodNeedsTarget(it.def) ? (at ? 'merge' : 'invalid') : 'place';
+        return foodNeedsTarget(it.def) ? (foodTargetOk(r, it.def, at, it.val) ? 'merge' : 'invalid') : 'place';
       }
       if (!at) return 'place';
       return at.def === it.def && at.copies < MAX_COPIES ? 'merge' : 'invalid';
     }
     if (d.kind === 'spell') {
       const held = handAt(r, d.idx);
-      if (!held || slot === d.idx) return '';
-      return at && (!FOOD[held.def].spell || spellTargetOk(r, held.def, at)) ? 'merge' : 'invalid';
+      if (!isHeldSpell(held) || slot === d.idx) return '';
+      return at && (FOOD[held.def].spell ? spellTargetOk(r, held.def, at) : foodTargetOk(r, held.def, at, held.val)) ? 'merge' : 'invalid';
     }
     if (d.kind === 'bag') return at && !hand ? 'merge' : 'invalid';
     if (slot === d.idx) return '';
@@ -1107,6 +1177,53 @@ export class Game {
     }
     this.board.el.classList.toggle('dropping', active);
     this.supplyPreview(hover);
+    this.placementFeedback(hover);
+  }
+
+  private feedbackFor(slot: number): FormationFeedback {
+    let result = this.feedbackCache.get(slot);
+    if (!result) { result = this.rehearsal ? formationConditions(this.run,slot) : formationFeedback(this.run,slot); this.feedbackCache.set(slot, result); }
+    return result;
+  }
+
+  private feedbackView(feedback: FormationFeedback, title = '当前站位') {
+    return h('section', {class:'formation-feedback', 'aria-label':title},
+      h('b', {class:'formation-feedback-title'}, title),
+      ...feedback.lines.map(line => h('div', {class:`formation-feedback-line ${line.tone}`},
+        h('span', {class:'feedback-label'}, line.label), h('span', {class:'feedback-result'}, line.text))));
+  }
+
+  private clearPlacementFeedback() {
+    this.placementKey = '';
+    this.placementPanel.classList.add('hidden');
+    this.placementPanel.replaceChildren();
+    this.board.views.forEach(v => v.el.classList.remove('benefit-preview'));
+  }
+
+  private placementFeedback(hover: number | null) {
+    const drag = this.drag;
+    if (!drag?.ghost || drag.kind !== 'unit' || hover == null || isHand(hover) || this.dropKind(hover) === 'invalid' || hover === drag.idx) {
+      if (this.placementKey) { this.clearPlacementFeedback(); this.setFocus(this.focus); }
+      return;
+    }
+    const key = `${drag.idx}:${hover}`;
+    if (key === this.placementKey) return;
+    this.clearPlacementFeedback();
+    this.placementKey = key;
+    let feedback: FormationFeedback;
+    if (this.rehearsal) {
+      const preview = structuredClone(this.run);
+      [preview.queue[drag.idx],preview.queue[hover]] = [preview.queue[hover],preview.queue[drag.idx]];
+      feedback = formationConditions(preview,hover);
+    } else feedback = previewPlacement(this.run, drag.idx, hover);
+    if (!feedback.lines.length) { this.setFocus(this.focus); return; }
+    for (const oid of feedback.beneficiaryOids) this.viewOf(oid)?.el.classList.add('benefit-preview');
+    this.board.clearMarks();
+    for (const target of feedback.damageTargets) this.board.target(target.side, target.slot, target.side === 1 ? 'ally-aim' : 'enemy-aim', 'opening');
+    this.placementPanel.replaceChildren(this.feedbackView(feedback, '放到这里'));
+    const boardTop = toStage(0, this.board.el.getBoundingClientRect().top).y;
+    this.placementPanel.style.top = `${boardTop + UNIT_Y + 108}px`;
+    this.placementPanel.classList.remove('hidden');
   }
 
   private supplyPreview(hover: number | null) {
@@ -1136,7 +1253,7 @@ export class Game {
       add(hover - 1);
       add(hover + 1);
     }
-    const share = !f.behind && !f.around && r.relics.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0) && ['f_bread', 'f_whet', 'f_roast', 'f_milk', 'f_drum'].includes(f.id);
+    const share = sharesFood(r, f.id);
     if (share) {
       add(hover - 1);
       add(hover + 1);
@@ -1218,14 +1335,41 @@ export class Game {
         discard.addEventListener('click', () => this.app.confirm(`放弃${card(o.def).name}？`, '本轮经营已结束，放弃该手牌单位腾出位置，获得 0 金。', '放弃', () => {
           if (discardHandUnit(r, idx)) { hideTip(); this.persist(r); this.afterChange(); }
         }));
-        this.dockTip(h('div', { class: 'tip-unit' }, h('div', { class: 'tip-head' }, card(o.def).name), h('div', { class: 'shelf-acts' }, discard)));
+        const detail = this.ownedTip(o);
+        detail.append(h('div', {class:'shelf-acts'}, discard));
+        this.dockTip(detail);
         return;
       }
       const hand = isHand(idx);
-      const s = this.ownedStats(o);
-      const tip = unitTip(o.def, lvlOf(o.copies), { ...s, ench: o.ench, tmpAtk: o.tmpAtk, tmpHp: o.tmpHp, lamp: o.lamp, tfx: o.tfx, copies: o.copies, kws: card(o.def).kws, foodHistory: o.foodHistory, prepUses: prepFoodUses(r, o), granted: o.granted }, true);
+      const tip = this.ownedTip(o);
+      if (!hand) {
+        const feedback = this.feedbackFor(idx);
+        const result = this.feedbackView(feedback, this.rehearsal ? '站位条件' : '当前站位');
+        if (feedback.lines.length) tip.append(result);
+        tip.addEventListener('tipvariantchange', (event) => {
+          const preview = (event as CustomEvent<{preview:boolean}>).detail.preview;
+          result.hidden = preview;
+          if (preview) { this.board.clearMarks(); this.board.views.forEach(v => v.el.classList.remove('benefit-preview')); }
+          else this.setFocus({side:0,slot:idx});
+        });
+      }
       if (hasScar(o.def)) tip.appendChild(h('div', { class: 'tip-text tip-scar' }, icon('hit'), `历战 ${o.scar ?? 0}/${scarCap(o.def)}：战斗中每受伤 2 次，战后永久 +1/+1（每场最多 +${scarCap(o.def) / 4}）`));
       if (card(o.def).disc === 'guard') tip.appendChild(h('div', { class: 'tip-text tip-scar' }, icon('eye'), `驻守 ${o.guard ?? 0}/${GUARD_N}`));
+      const bloodRules = (card(o.def).rules ?? []).flatMap((rule,index) => rule.phase === 'prep' && rule.on === 'bloodPay' ? [{ rule,index }] : []);
+      if (bloodRules.length) {
+        const left = Math.max(...bloodRules.map(({rule,index}) => Math.max(0,(rule.limit ?? 3) - (r.tc.ruleUses?.[`${o.oid}:${index}`] ?? 0))));
+        let reason = '';
+        if (!hand && !canPayBlood(r,idx)) {
+          if (r.endTurnCommitted) reason='本轮经营已结束，下回合可继续献血。';
+          else if (ownedHp(o) <= 1) reason='永久生命已到 1 点，补充生命后可献血。';
+          else if (left <= 0) reason='本回合献血次数已用完。';
+          else if (bloodRules.some(({rule})=>rule.effect==='gold') && r.tc.generatedGold >= 4) reason='本回合已额外获得 4 金。';
+          else if (bloodRules.some(({rule})=>rule.effect==='spell') && r.tc.generatedSpells >= 2) reason='本回合已生成 2 张临时法术。';
+          else if (bloodRules.some(({rule})=>rule.effect==='ration') && r.tc.generatedRations >= 2) reason='本回合已生成 2 份免费口粮。';
+          else if (bloodRules.some(({rule})=>rule.effect==='spell') && (r.rewards?.length ?? 0) >= 8) reason='领取待领奖励后，可继续献血生成法术。';
+        }
+        tip.appendChild(h('div',{class:'tip-text tip-blood'},`献血还可用 ${left} 次，每次永久 −1 生命，最低 1。${hand ? '上阵后使用。' : ''}`,reason ? h('p',{class:'blood-disabled-reason'},reason) : null));
+      }
       const inheritance = inheritancePreview(r, idx);
       if (inheritance && !this.rehearsal) tip.appendChild(inheritance);
       // Only the detail body scrolls; its actions keep their full touch area.
@@ -1235,6 +1379,16 @@ export class Game {
       const sellBtn = h('button', { class: 'btn ghost shelf-lock', disabled: r.endTurnCommitted }, `出售 +${sellPrice(o)} 金`);
       sellBtn.addEventListener('click', () => { hideTip(); void this.doSell(idx); });
       const acts = h('div', { class: 'shelf-acts' }, sellBtn);
+      if (!hand && bloodRules.length) {
+        const blood = h('button',{class:'btn danger blood-pay',disabled:!canPayBlood(r,idx)},'献血 −1 永久生命');
+        blood.addEventListener('click',() => {
+          if (!this.editable || this.rehearsal || !this.allowed({kind:'other'})) return;
+          const paid = payBlood(r,idx); if (!paid.ok) return;
+          hideTip(); this.persist(r); this.afterChange(paid.fx); this.busy=true;
+          void this.playFx(paid.fx).finally(() => { this.busy=false; });
+        });
+        acts.prepend(blood);
+      }
       if (o.ench) {
         const off = h('button', { class: 'btn ghost shelf-lock', disabled: r.bag.length >= BAG_MAX }, r.bag.length >= BAG_MAX ? '背包已满' : '卸下装备');
         off.addEventListener('click', () => { if (this.rehearsal || !this.editable || !this.allowed({ kind: 'other' }) || !unequip(r, idx)) return; hideTip(); sfx.swap(); this.persist(r); this.afterChange(); });
@@ -1402,6 +1556,7 @@ export class Game {
           const el = h('button', { class: 'rl-card', 'aria-pressed': 'false' },
             h('div', { class: 'rl-art' }, h('i', { class: 'rl-rays' }), h('i', { class: 'rl-ped' }), itemIcon(`rl_${id.slice(2)}`, 'spell', 'rl-ico')),
             h('b', { class: 'rl-name' }, d.name),
+            supportBadges(d),
             h('p', { class: 'rl-text' }, ...kwRich(d.text)));
           el.addEventListener('click', () => {
             sfx.click();
@@ -1423,9 +1578,9 @@ export class Game {
           this.renderHud();
           done();
         });
-        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: p.ad }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '多翻一件')), h('i', null, p.ad ? '已用' : '广告'));
+        const ad = h('button', { class: 'btn ghost reroll rewarded chest-ad', disabled: !canAdRelic(r) }, h('span', { class: 'rr-main' }, icon('play'), h('span', null, '多翻一件')), h('i', null, p.ad ? '已用' : canAdRelic(r) ? '广告' : '候选已全部展示'));
         ad.addEventListener('click', async () => {
-          if (p.ad) return;
+          if (!canAdRelic(r)) return;
           const ok = await showRewardedAd(this.el, '遗物多一选', '再多翻开一件遗物');
           if (!ok) return;
           const n = p.opts.length;
@@ -1437,7 +1592,7 @@ export class Game {
         const owned = r.relics.length ? h('div', { class: 'rl-owned' }, h('span', null, '已有'), ...r.relics.map((id) => itemIcon(`rl_${id.slice(2)}`, 'spell'))) : null;
         ov.replaceChildren(h('div', { class: 'chest-card rl-wrap' },
           h('h2', null, '选一件遗物'),
-          h('div', { class: 'rl-cards' }, ...items),
+          h('p', {class:'support-offer-hint'}, '按本局开放流派提供选择 · 选择会改变后续经营与战斗'), h('div', { class: 'rl-cards' }, ...items),
           h('div', { class: 'rl-acts' }, ...(owned ? [owned] : []), take, ad)));
       };
       paint(0);
@@ -1461,7 +1616,7 @@ export class Game {
         vis: () => h('div', { class: 'fv fv-stat' }, statArt('atk', h('i', null, '+4')), statArt('hp', h('i', null, '+4'))) },
       { label: '休整', sub: '回复生命', choice: 2, no: '已满血',
         vis: () => h('div', { class: 'fv fv-heart' }, icon('heart'), plus('+1')) },
-      ...(r.hero === 'smith' ? [{ label: '锻打', sub: '选一件装备', unit: fireSmithOk, choice: 3, no: '无可升品',
+      ...(r.hero === 'smith' ? [{ label: '锻打', sub: '选一件装备', unit: (o:Owned) => fireSmithOk(o,r), choice: 3, no: '需携带可升品装备，且有更高品质装备可领取',
         vis: () => h('div', { class: 'fv fv-smith' }, itemIcon('eq_hammer', 'spell'), plus('+1 品')) }] : []),
     ] : ev === 'quest' ? QUESTS.map((id, i) => ({ label: QUEST_INFO[id].name, sub: `${QUEST_INFO[id].text} → ${QUEST_INFO[id].reward}`, choice: i }))
     : ev === 'treasure' ? [{ label: '收下', sub: '下回合 +4 金', choice: 0 }]
@@ -1471,7 +1626,7 @@ export class Game {
     ] : ev === 'smith' ? [
       { label: '锻造', sub: '选一个友军直接变金色，随机另一个友军离队', unit: (o) => !o.merc && o.copies < MAX_COPIES, choice: 0 },
     ] : ev === 'morph' ? [
-      { label: '跳进去', sub: '选一个友军，变成同阶同标签的另一张卡，成长和装备保留', unit: (o) => !o.merc && morphPool(o).length > 0, choice: 0 },
+      { label: '跳进去', sub: '选一个友军，变成本局已开放的同阶关联单位，成长和装备保留', unit: (o) => !o.merc && morphPool(o,r).length > 0, choice: 0 },
     ] : ev === 'merc' ? [
       { label: '雇佣', sub: `一个 ${mercTier(r)} 阶金色单位免费入队 ${MERC_FIGHTS} 场，不能出售和合并`, choice: 0 },
     ] : [
@@ -1510,7 +1665,7 @@ export class Game {
             const u = r.queue[i];
             if (!u) return;
             sfx.click();
-            ov.replaceChildren(morphOutcomePreview(u, () => { sfx.click(); pickUnit(o); }, () => { void finish(o.choice, i); }));
+            ov.replaceChildren(morphOutcomePreview(u, r, () => { sfx.click(); pickUnit(o); }, () => { void finish(o.choice, i); }));
           }, () => { sfx.click(); main(); }));
           return;
         }
@@ -1629,12 +1784,18 @@ export class Game {
         const goods = (r.merchant ?? []).map((g, i) => {
           const ico = g.kind === 'equip' ? equipIcon(g.id as never) : g.kind === 'shard' ? itemIcon('rl_quick', 'spell') : itemIcon(FOOD[g.id].icon, 'spell');
           const name = g.kind === 'equip' ? EQUIP[g.id as never].name : g.kind === 'shard' ? `遗物碎片 ${r.shards ?? 0}/${SHARD_NEED}` : FOOD[g.id].name;
+          const definition = g.kind === 'equip' ? EQUIP[g.id] : g.kind === 'spell' ? FOOD[g.id] : null;
           const sub = g.kind === 'equip' ? Q_INFO[equipOf(g.id as never)!.q].name : g.kind === 'shard' ? `集齐 ${SHARD_NEED} 片选遗物` : '放上补给栏';
-          const b = h('button', { class: `branch-opt mc-good${g.sold ? ' sold' : ''}`, disabled: !!g.sold || r.gold < g.price },
+          const unavailable = goodsUnavailableReason(r, i);
+          const b = h('button', { class: `branch-opt mc-good${g.sold ? ' sold' : ''}`, disabled: !!unavailable, title: unavailable },
             h('div', { class: 'mc-ico' }, ico), h('b', null, name), h('div', { class: 'ev-sub' }, sub),
+            definition ? supportBadges(definition) : null, definition ? h('div', {class:'mc-support-text'}, ...kwRich(definition.text)) : null,
+            unavailable && !g.sold ? h('small', {class:'mc-availability'}, unavailable) : null,
             h('div', { class: 'mc-price' }, g.sold ? icon('check') : itemIcon('coin', 'coin', 'sm'), g.sold ? '' : String(g.price)));
           b.addEventListener('click', async () => {
-            if (!buyGoods(r, i)) { this.notice('金币不够'); return; }
+            const why = goodsUnavailableReason(r, i);
+            if (why) { this.notice(why); return; }
+            if (!buyGoods(r, i)) return;
             sfx.reward();
             this.persist(r);
             this.renderAll();
@@ -1885,6 +2046,7 @@ export class Game {
             h('div', { class: 'ci-ico' }, equipIcon(id)),
             h('b', { class: 'ci-name', style: `color:${Q_INFO[e.q].color}` }, e.name),
             h('span', { class: 'ci-q' }, Q_INFO[e.q].name, e.curse ? ' · 诅咒' : ''),
+            supportBadges(e),
             h('div', { class: 'ci-text' }, effect),
             e.q === 2 && (capped || left <= 0) ? h('span', { class: 'ci-cap' }, '橙装已达上限') : null);
           el.addEventListener('click', () => {
@@ -2100,7 +2262,8 @@ export class Game {
           if (v) this.paintOwned(v, o, !this.fastFx);
           if (!this.fastFx) {
             sfx.buff();
-            this.fx.statPop(to.x, to.y - 74, `+${f.atk}/+${f.hp}`, f.label, f.atk >= f.hp ? 'pt-atk' : 'pt-hp', 560);
+            const signed = (n: number) => n > 0 ? `+${n}` : String(n);
+            this.fx.statPop(to.x, to.y - 74, `${signed(f.atk)}/${signed(f.hp)}`, f.label, f.atk >= f.hp ? 'pt-atk' : 'pt-hp', 560);
             await this.fxWait(170);
           }
           this.board.clearArrows();
@@ -2113,7 +2276,8 @@ export class Game {
         } else {
           if (!this.fastFx && from) {
             this.viewOf(f.src)?.castMotion('#ffb36b');
-            this.fx.statPop(from.x, from.y - 74, `+${f.n}/+${f.n}`, '蛋里的幼龙', 'pt-power', 560);
+            const amount = f.resource === 'block' ? `格挡 +${f.n}` : f.resource === 'seal' ? `首击追加 +${f.n} 伤害` : f.resource === 'charge' ? `蓄能 +${f.n}` : f.resource === 'wounds' ? `伤势 +${f.n}` : `+${f.n}/+${f.n}`;
+            this.fx.statPop(from.x, from.y - 74, amount, f.resource ? f.label : '蛋里的幼龙', 'pt-power', 560);
             sfx.buff();
             await this.fxWait(210);
           }
@@ -2152,6 +2316,8 @@ export class Game {
     await this.drainDiscover();
     if (r.rewards?.length) { this.busy = false; this.persist(r); this.afterChange(); return; }
     const out = fight(r);
+    // Capture the fought node before settlement advances the run.
+    this.battleSceneId = pickScene({ act: r.act + 1, turn: r.turn, boss: r.enemy.boss });
     const before = { lives: r.lives, wins: r.wins, turn: r.turn, boss: r.enemy.boss };
     settleBattle(r, out);
     this.persist(r);
@@ -2165,13 +2331,28 @@ export class Game {
     this.showResult(out, before, snap);
   }
 
+  private unmountBattleScene() {
+    this.battleScene?.dispose();
+    this.battleScene = null;
+  }
+
   private async playOut(out: BattleOut) {
+    if (this.disposed) return;
+    this.unmountBattleScene();
+    const scene = mountScene(this.el, this.battleSceneId ?? pickScene({ act: this.run.act + 1, turn: this.run.turn, boss: this.run.enemy.boss }));
+    this.battleScene = scene;
     this.el.classList.add('in-battle');
     this.tray.classList.add('hidden');
     this.bar.classList.add('on');
-    this.player = new BattlePlayer(this.board, this.fx, this.bar);
-    await this.player.play(out);
-    this.player = null;
+    const player = new BattlePlayer(this.board, this.fx, this.bar);
+    this.player = player;
+    try {
+      await player.play(out);
+    } finally {
+      if (this.player === player) this.player = null;
+      scene.dispose();
+      if (this.battleScene === scene) this.battleScene = null;
+    }
   }
 
   /** 复盘：关掉结算框重播一遍，播完再弹回来 */
@@ -2204,6 +2385,7 @@ export class Game {
 
   /** 回到备战（结算/试打/重打之后） */
   private backToPrep(intro: boolean) {
+    this.unmountBattleScene();
     this.growthPreview = null;
     const r = this.run;
     this.el.classList.remove('in-battle');
@@ -2217,6 +2399,7 @@ export class Game {
   }
 
   private leaveRehearsal() {
+    this.unmountBattleScene();
     this.growthPreview = null;
     const trial = this.rehearsal;
     if (!trial) return;
@@ -2264,6 +2447,7 @@ export class Game {
     hideTip();
     sfx.start();
     const out = trialFight(this.run);
+    this.battleSceneId = pickScene({ act: this.run.act + 1, turn: this.run.turn, boss: this.run.enemy.boss });
     await this.playOut(out);
     if (this.disposed || this.rehearsal !== session) return;
     await wait(300);

@@ -11,7 +11,7 @@ const unit = (def: string, lv = 1, oid = 1): Owned => ({ oid, def, copies: copie
 function state(): RunState {
   const r = newRun(97531, { diff: 0 });
   r.turn = 11; r.gold = 999; r.queue = Array(5).fill(null); r.shop = []; r.nextId = 1000;
-  r.tc = { foods: 0, bought: 0, bear: {} }; r.relics = []; r.milkTurn = undefined;
+  r.tc = { ...r.tc, foods: 0, bought: 0, bear: {} }; r.relics = []; r.milkTurn = undefined;
   return r;
 }
 function food(r: RunState, def: string, val?: [number, number]) {

@@ -1,5 +1,5 @@
 import type { RunState } from '../core/run';
-import { prepareTutorialStep, tutorialStepDone, tutorialPositionAllowed, type TutorialStep } from '../core/tutorial';
+import { prepareTutorialStep, tutorialStepDone, tutorialPositionAllowed, TUTORIAL_UNIT, TUTORIAL_ALLY, type TutorialStep } from '../core/tutorial';
 import { slotX, UNIT_Y } from '../qb/board';
 import { h, STAGE_W, STAGE_H, stageState, toStage } from '../qb/dom';
 import { sfx } from '../qb/audio';
@@ -19,21 +19,21 @@ const slot = (n: number) => () => ({ x: slotX(0, n) - 52, y: UNIT_Y - 115, w: 10
 const first = '.tray .cards > .card:first-child';
 const food = '.sp-list > :first-child';
 const STEPS: Step[] = [
-  { id: 'welcome', tap: true, at: [slot(0), slot(4)], text: '左边是你的队伍，靠近中线的 <b>1 号位是前排</b>。<br>这是一局独立教学，不影响你的正式存档。' },
-  { id: 'buy', at: [first, slot(0)], text: '每回合 <b>10 金</b>，招募一名单位 <b>3 金</b>。<br>按住<b>残魂小鬼</b>，拖到 <b>1 号位</b>。点一下可以看详情。' },
-  { id: 'merge', at: [first, slot(0)], text: '把第二张<b>残魂小鬼</b>拖到它身上，合并同名单位。' },
-  { id: 'star', at: [first, slot(0)], text: '再合并一张：<b>3 份变金色</b>。<br>金色属性翻倍、技能增强，还能免费发现一张高一阶的卡，放进手牌。' },
-  { id: 'lock', at: [food], text: '金币不够买面包了。点开<b>面包</b>，再点<b>锁定</b>，把它留给下一回合。' },
-  { id: 'reroll', at: ['.tray .reroll:not(.rewarded)'], text: '用最后 <b>1 金刷新</b>。锁定的商品会保留。<br>剩余金币不结转；新回合重新获得 10 金。' },
-  { id: 'rules', tap: true, at: [slot(0)], text: '前排先交锋，阵亡后由身后的单位接上。<br><b>残魂小鬼阵亡会召唤魂火</b>，战斗中自动触发。' },
-  { id: 'battle1', at: ['.tray .fight'], text: '点<b>开战</b>，看看小鬼和它召唤的魂火如何战斗。' },
-  { id: 'report', tap: true, at: ['.result-ov .res-title'], text: '战报可以查看每名单位的输出与承伤，也能<b>复盘</b>。<br>看完后点战报里的<b>继续</b>，进入下一次备战。' },
-  { id: 'ally', at: [first, slot(1)], text: '把<b>暗棘</b>拖到 <b>2 号位</b>，增加一名队友。' },
-  { id: 'food', at: [food, slot(0)], text: '把留下的<b>面包</b>拖给 <b>1 号位小鬼</b>，永久获得 +1 攻击、+1 生命。<br>补给效果不同，使用前可以点开查看。' },
-  { id: 'position', at: [slot(0), slot(1)], text: '交换<b>小鬼与暗棘</b>的站位，拖动任意一只到另一只身上。<br>让暗棘先上场，观察它的阵亡效果。' },
-  { id: 'equip', at: ['.bag-strip', slot(0)], text: '教学赠送了一件<b>锁子甲</b>。把背包里的装备拖给<b>前排暗棘</b>。<br>正式游戏中，挑战精英可获得装备箱。' },
-  { id: 'battle2', at: ['.tray .fight'], text: '点<b>开战</b>，观察装备与新站位的效果。<br>正式战斗后可在战报中<b>调整试打</b>。' },
-  { id: 'done', tap: true, at: [], text: '<b>教学完成。</b><br>正式游戏中可以拖单位到招募栏出售，或点开详情出售。接下来试着找出你自己的搭配。' },
+  { id: 'welcome', tap: true, at: [slot(0), slot(4)], text: '这是独立教学。<br>左边是你的队伍，靠近中线的 <b>1 号位是前排</b>。' },
+  { id: 'buy', at: [first, slot(0)], text: '把<b>后排投石手</b>拖到 <b>1 号位</b>（花 <b>3 金</b>）。<br>点一下卡牌可看技能。' },
+  { id: 'merge', at: [first, slot(0)], text: '把第二张<b>后排投石手</b>拖到它身上，合并同名单位。' },
+  { id: 'star', at: [first, slot(0)], text: '再合并一张：<b>3 张同名变金色</b>，基础攻血翻倍。<br>合成后还能免费选一张单位，放进手牌。' },
+  { id: 'lock', at: [food], text: '点开<b>面包</b>，选择<b>锁定</b>，留到下一回合。' },
+  { id: 'reroll', at: ['.tray .reroll:not(.rewarded)'], text: '点<b>刷新</b>（花 <b>1 金</b>）。锁定的面包会保留。' },
+  { id: 'rules', tap: true, at: [slot(0)], text: '双方队首互相攻击，叫作一次<b>交锋</b>。<br>前排阵亡后，身后队友接战。' },
+  { id: 'battle1', at: ['.tray .fight'], text: '点<b>开战</b>，先看一场普通交锋。' },
+  { id: 'report', tap: true, at: ['.result-ov .res-title'], text: '点<b>战报</b>查看伤害和战斗过程。<br>看完点<b>继续</b>。' },
+  { id: 'ally', at: [first, slot(1)], text: '把<b>沙垒盾手</b>拖到 <b>2 号位</b>。' },
+  { id: 'food', at: [food, slot(0)], text: '把<b>面包</b>拖给<b>投石手</b>，永久 +1 攻击、+1 生命。' },
+  { id: 'position', at: [slot(0), slot(1)], text: '把<b>盾手与投石手交换位置</b>，拖到对方身上即可。<br>盾手在前面挡伤害，投石手在后排蓄能，接战时开炮。' },
+  { id: 'equip', at: ['.bag-strip', slot(0)], text: '把背包里的<b>锁子甲</b>拖给<b>前排盾手</b>。' },
+  { id: 'battle2', at: ['.tray .fight'], text: '点<b>开战</b>，看看盾手掩护、投石手蓄能开炮。' },
+  { id: 'done', tap: true, at: [], text: '<b>教学完成。</b><br>拖单位到招募栏可出售，点开详情也能出售。接下来搭配你自己的队伍吧。' },
 ];
 
 export class Tutorial {
@@ -72,8 +72,8 @@ export class Tutorial {
   allows(a: Action) {
     const id = STEPS[this.i].id;
     if (this.host.busy()) return false;
-    if (['buy', 'merge', 'star'].includes(id)) return a.kind === 'buy' && a.slot === 0 && a.def === 'a_imp';
-    if (id === 'ally') return a.kind === 'buy' && a.slot === 1 && a.def === 'a_spine';
+    if (['buy', 'merge', 'star'].includes(id)) return a.kind === 'buy' && a.slot === 0 && a.def === TUTORIAL_UNIT;
+    if (id === 'ally') return a.kind === 'buy' && a.slot === 1 && a.def === TUTORIAL_ALLY;
     if (id === 'food') return a.kind === 'food' && a.slot === 0 && a.def === 'f_bread';
     if (id === 'position') return a.kind === 'move' && tutorialPositionAllowed(a.from, a.slot);
     if (id === 'equip') return a.kind === 'equip' && a.slot === 0;

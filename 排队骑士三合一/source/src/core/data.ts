@@ -1,6 +1,12 @@
 // 排队骑士 · 卡牌、补给与 Boss 数据。阵营身份与玩法标签独立，未显式指定身份的旧卡保留原标签配色映射。
 // 能力元数据在此集中声明；战斗和经营处理器分别位于 engine.ts 与 run.ts，旧 ab 标识继续兼容。
 
+import { ruleNumber, type ArchetypeId, type BattleRule, type CardRole, type PrepRule, type ReworkRule } from './archetypes';
+import { REWORK_CARDS } from './reworkCatalog';
+import { SUPPORT_EQUIPS, SUPPORT_FOODS, SUPPORT_RELICS, type SupportRelicId } from './supportCatalog';
+import { classicSupport, type SupportMeta, type FoodResources } from './support';
+export { supportAvailable } from './support';
+
 export type Kw = 'block' | 'reborn' | 'splash';
 export type Tier = 1 | 2 | 3 | 4 | 5 | 6;
 export type V3 = [number, number, number];
@@ -11,7 +17,7 @@ export type KeyKind = 'hurt' | 'start' | 'faint' | 'end' | 'play';
 /** 引擎标签：用于图鉴、配色、bot 选卡与商店关联保底，没有战斗羁绊加成。 */
 export type Line = 'death' | 'hurt' | 'start' | 'food' | 'grow' | 'any' | 'enemy';
 export type Faction = 'light' | 'shadow' | 'abyss' | 'magma' | 'frost' | 'desert' | 'neutral' | 'enemy';
-export type NativeTiming = 'play' | 'start' | 'hurt' | 'faint' | 'ally_faint' | 'summon' | 'before_attack' | 'after_attack' | 'kill' | 'end' | 'buy' | 'sell' | 'food' | 'ally_food' | 'spell' | 'round_start' | 'battle_count' | 'unit_obtained' | 'permanent_health';
+export type NativeTiming = 'play' | 'start' | 'hurt' | 'faint' | 'ally_faint' | 'summon' | 'before_attack' | 'after_attack' | 'kill' | 'end' | 'buy' | 'sell' | 'food' | 'ally_food' | 'spell' | 'round_start' | 'battle_count' | 'unit_obtained' | 'permanent_health' | 'bloodPay' | 'enter' | 'clashEnd';
 export interface AbilityDef { effect: string; timing: NativeTiming; phase: 'prep' | 'battle' | 'after_battle' | 'multiple'; role: 'event' | 'amplifier'; values?: V3; secondaryValues?: V3 }
 const LINE_IDENTITY: Record<Line, Faction> = { hurt:'light', start:'shadow', death:'abyss', any:'magma', food:'frost', grow:'desert', enemy:'enemy' };
 const TIMINGS: Record<string, NativeTiming[]> = {
@@ -30,6 +36,12 @@ const PREP_TIMINGS: NativeTiming[] = ['play','end','buy','sell','food','ally_foo
 export interface CardDef {
   id: string;
   name: string;
+  archetype?: ArchetypeId;
+  bridge?: ArchetypeId;
+  role?: CardRole;
+  art?: string;
+  rules?: ReworkRule[];
+  legacy?: boolean;
   faction: Faction;
   abilities: AbilityDef[];
   tier: Tier;
@@ -95,7 +107,7 @@ function C(id: string, name: string, tier: Tier, atk: number, hp: number, line: 
     faction: o.faction ?? LINE_IDENTITY[line], abilities, v, u: v3(o.u), pv };
 }
 
-export const CARDS: CardDef[] = [
+const BASE_CARDS: CardDef[] = [
   // 卡按原 SAP 原型分组排列；归属看 line / tag2。数值 [普通, 金色]，金色≈翻倍
   C('l_shield', '银盾侍卫', 1, 2, 6, 'hurt', '受伤时：自己本场 +{v} 攻，再加最大血的 1/10', { ab: 'peacock', v: [2, 4] }),
   C('l_windblade', '风刃剑士', 1, 3, 6, 'hurt', '交锋前：对身后 {v} 个友军各造成 1 伤害', { ab: 'elephant', v: [2, 4] }),
@@ -182,13 +194,16 @@ export const CARDS: CardDef[] = [
   C('e_void', '暗影领主', 4, 6, 12, 'enemy', '交锋前：自己本场 +{v}/+{v}', { enemy: true, ab: 'boar', v: [2, 3, 4] }),
 ];
 
+export const CARDS: CardDef[] = [...BASE_CARDS.map(d => d.enemy || d.token ? d : { ...d, legacy: true }), ...REWORK_CARDS];
 export const CARD: Record<string, CardDef> = Object.fromEntries(CARDS.map((c) => [c.id, c]));
 export const card = (id: string) => CARD[id];
-export const SHOP_POOL = CARDS.filter((c) => !c.token && !c.enemy);
+export const SHOP_POOL = REWORK_CARDS;
 
 /** 召唤物预览：战斗里实际召唤什么（说明框小卡也用它）。随机单位只给阶层 */
 export interface SummonInfo { def?: string; tier?: Tier; lvl: 1 | 2 | 3; atk: number; hp: number; count: number }
 export function summonInfo(d: CardDef, lvl: 1 | 2 | 3, atk = d.atk, bank = 0): SummonInfo | null {
+  const spawn = d.rules?.find(r => r.phase === 'battle' && r.effect === 'summon');
+  if (spawn) return { def:'t_wolf', lvl:1, atk:ruleNumber(spawn.n, lvl), hp:ruleNumber(spawn.hp ?? spawn.n, lvl), count:1 };
   if (!d.sum) return null;
   const v = d.v ? d.v[lvl - 1] : 0;
   switch (d.ab) {
@@ -206,7 +221,13 @@ export function summonInfo(d: CardDef, lvl: 1 | 2 | 3, atk = d.atk, bank = 0): S
 export type Ench = string;
 /** 补给的本场效果（只管下一场战斗，打完就散） */
 export type FoodFx = 'bomb' | 'berry' | 'bone' | 'plate' | 'splash' | 'fury' | 'undy' | 'thunder';
-export interface FoodDef {
+export interface FoodDef extends SupportMeta {
+  /** 下场战斗的初始资源，实际食用者持有。 */
+  resources?: FoodResources;
+  /** 同种临战食谱在同一单位身上只装入一份。 */
+  battleRules?: BattleRule[];
+  /** 补给派单位可记录并在出售时传出的永久口粮。 */
+  inheritable?: boolean;
   id: string; name: string; tier: Tier; text: string; icon: string; ench?: Ench;
   /** 攻血效果（n 个随机友军，99 为全队；tmp 为只在下一场有效） */
   atk?: number; hp?: number; n?: number; tmp?: boolean;
@@ -233,74 +254,76 @@ export type SpellId = 'recruit' | 'bank' | 'draft' | 'copy' | 'reborn' | 'omen' 
 export const ALL = 99;
 /** 本场特效 → 来源补给 */
 export const fxFood = (fx: FoodFx) => FOODS.find((f) => f.fx === fx)!;
-export const FOODS: FoodDef[] = [
-  { id: 'f_bread', name: '面包', tier: 1, text: '一个友军永久 +1/+1', icon: 'bread', atk: 1, hp: 1 },
-  { id: 'f_lamp', name: '魂灯', tier: 1, text: '一个友军本场获得「复生」', icon: 'lamp', tmp: true, rollWeight: 0.5, short: '获得「复生」' },
-  { id: 'f_bomb', name: '火药包', tier: 1, text: '一个友军本场「开战时」：敌方队首受 3 伤害', icon: 'bomb', tmp: true, fx: 'bomb', short: '开战时：敌方队首受 3 伤害', noPool: true },
-  { id: 'f_drum', name: '战鼓', tier: 2, text: '一个友军本场 +3/+3', icon: 'drum', atk: 3, hp: 3, tmp: true },
-  { id: 'f_berry', name: '刺莓', tier: 2, text: '一个友军本场 +0/+4，「开战时」自己受 1 伤害', icon: 'berry', hp: 4, tmp: true, fx: 'berry', short: '开战时：自己受 1 伤害' },
-  { id: 'f_bone', name: '骨汤', tier: 2, text: '一个友军本场「阵亡时」：召唤 3/3 骷髅', icon: 'bone', tmp: true, fx: 'bone', short: '阵亡时：召唤 3/3 骷髅' },
-  { id: 'f_stew', name: '炖锅', tier: 3, text: '指定友军及其紧邻身后友军各永久 +1/+1', icon: 'stew', atk: 1, hp: 1, behind: true },
-  { id: 'f_whet', name: '磨刀石', tier: 3, text: '一个友军永久 +2/+1', icon: 'whet', atk: 2, hp: 1 },
-  { id: 'f_plate', name: '铁甲片', tier: 3, text: '一个友军本场「开战时」+2「格挡」', icon: 'plate', tmp: true, fx: 'plate', short: '开战时：+2「格挡」' },
-  { id: 'f_sushi', name: '寿司', tier: 4, text: '指定友军及其实际前后相邻友军各永久 +1/+1', icon: 'sushi', atk: 1, hp: 1, around: true },
-  { id: 'f_oil', name: '火油', tier: 4, text: '一个友军本场获得「溅射」', icon: 'oil', tmp: true, fx: 'splash', rollWeight: 0.5, short: '获得「溅射」' },
-  { id: 'f_fury', name: '战意药水', tier: 4, text: '一个友军本场获得「战意」', icon: 'fury', tmp: true, fx: 'fury', short: '获得「战意」' },
-  { id: 'f_roast', name: '烤全羊', tier: 5, text: '一个友军永久 +3/+3', icon: 'roast', atk: 3, hp: 3 },
-  { id: 'f_horn', name: '集结号', tier: 5, text: '全队本场 +2/+2', icon: 'horn', atk: 2, hp: 2, n: ALL, tmp: true },
-  { id: 'f_undy', name: '不屈药剂', tier: 5, text: '一个友军本场获得「不屈」', icon: 'undy', tmp: true, fx: 'undy', rollWeight: 0.5, short: '获得「不屈」' },
-  { id: 'f_can', name: '罐头', tier: 6, text: '之后每买 1 份单位（含合并）额外 +1/+1，可叠加', icon: 'can', short: '之后每买 1 份单位额外 +1/+1，可叠加' },
-  { id: 'f_dragon', name: '龙肉', tier: 6, text: '指定友军及其紧邻身后友军各永久 +2/+2', icon: 'dragon', atk: 2, hp: 2, behind: true },
-  { id: 'f_thunder', name: '雷霆瓶', tier: 6, text: '一个友军本场「开战时」：所有敌人受 2 伤害', icon: 'thunder', tmp: true, fx: 'thunder', short: '开战时：所有敌人受 2 伤害' },
+const classicFoods: FoodDef[] = [
+  { id: 'f_bread', inheritable: true, name: '面包', tier: 1, text: '一个友军永久+1/+1。', icon: 'bread', atk: 1, hp: 1 },
+  { id: 'f_lamp', name: '魂灯', tier: 1, text: '一个友军下场战斗获得「复生」。', icon: 'lamp', tmp: true, rollWeight: 0.5, short: '获得「复生」' },
+  { id: 'f_bomb', name: '火药包', tier: 1, text: '一个友军下场开战时，对敌首造成3伤害。', icon: 'bomb', tmp: true, fx: 'bomb', short: '开战时，对敌首造成3伤害', noPool: true },
+  { id: 'f_drum', name: '战鼓', tier: 2, text: '一个友军下场战斗+3/+3。', icon: 'drum', atk: 3, hp: 3, tmp: true },
+  { id: 'f_berry', name: '刺莓', tier: 2, text: '一个友军下场战斗+4生命，开战时受到1伤害。', icon: 'berry', hp: 4, tmp: true, fx: 'berry', short: '开战时，受到1伤害' },
+  { id: 'f_bone', name: '骨汤', tier: 2, text: '一个友军下场阵亡时，召唤3/3骷髅。', icon: 'bone', tmp: true, fx: 'bone', short: '阵亡时，召唤3/3骷髅' },
+  { id: 'f_stew', name: '炖锅', tier: 3, text: '一个友军及其身后相邻友军永久+1/+1。', icon: 'stew', atk: 1, hp: 1, behind: true },
+  { id: 'f_whet', inheritable: true, name: '磨刀石', tier: 3, text: '一个友军永久+2/+1。', icon: 'whet', atk: 2, hp: 1 },
+  { id: 'f_plate', name: '铁甲片', tier: 3, text: '一个友军下场开战时，获得2层格挡。', icon: 'plate', tmp: true, fx: 'plate', short: '开战时，获得2层格挡' },
+  { id: 'f_sushi', name: '寿司', tier: 4, text: '一个友军及其相邻友军永久+1/+1。', icon: 'sushi', atk: 1, hp: 1, around: true },
+  { id: 'f_oil', name: '火油', tier: 4, text: '一个友军下场战斗获得「溅射」。', icon: 'oil', tmp: true, fx: 'splash', rollWeight: 0.5, short: '获得「溅射」' },
+  { id: 'f_fury', name: '战意药水', tier: 4, text: '一个友军下场战斗获得「战意」。', icon: 'fury', tmp: true, fx: 'fury', short: '获得「战意」' },
+  { id: 'f_roast', inheritable: true, name: '烤全羊', tier: 5, text: '一个友军永久+3/+3。', icon: 'roast', atk: 3, hp: 3 },
+  { id: 'f_horn', name: '集结号', tier: 5, text: '全队下场战斗+2/+2。', icon: 'horn', atk: 2, hp: 2, n: ALL, tmp: true },
+  { id: 'f_undy', name: '不屈药剂', tier: 5, text: '一个友军下场战斗获得「不屈」。', icon: 'undy', tmp: true, fx: 'undy', rollWeight: 0.5, short: '获得「不屈」' },
+  { id: 'f_can', name: '罐头', tier: 6, text: '此后每买一份单位，该单位永久+1/+1；合并也生效，可叠加。', icon: 'can', short: '此后每买一份单位，永久+1/+1，可叠加' },
+  { id: 'f_dragon', name: '龙肉', tier: 6, text: '一个友军及其身后相邻友军永久+2/+2。', icon: 'dragon', atk: 2, hp: 2, behind: true },
+  { id: 'f_thunder', name: '雷霆瓶', tier: 6, text: '一个友军下场开战时，对全体敌人造成2伤害。', icon: 'thunder', tmp: true, fx: 'thunder', short: '开战时，对全体敌人造成2伤害' },
   // v0.9 首批法术：效果与目标由经营事务处理。
-  { id: 'x_echo', name: '回响', tier: 3, spell: 'echo', target: true, price: 2, icon: 'replay', text: '触发一个在场友军的原生入场效果' },
-  { id: 'x_bonepact', name: '骨契', tier: 2, spell: 'bonepact', target: true, price: 2, icon: 'bone', text: '一个友军永久获得阵亡召唤 2/2 魂火的附加能力' },
-  { id: 'x_ignite', name: '点火', tier: 2, spell: 'ignite', target: true, price: 1, icon: 'bomb', text: '一个在场友军下一场开战时对自己造成 1 伤害' },
-  { id: 'x_inscribe', name: '铭刻', tier: 4, spell: 'inscribe', target: true, price: 3, icon: 'tome', text: '一个友军永久获得开战时对敌方队首造成 2 伤害的附加能力' },
-  { id: 'x_search', name: '定向搜寻', tier: 3, spell: 'search', target: true, price: 2, icon: 'order', text: '发现与选中友军有相同原生触发时机的其他单位' },
-  { id: 'x_siphon', name: '挪用', tier: 2, spell: 'siphon', price: 0, icon: 'coin', text: '支付 1 心，立即获得 3 金，至少保留 1 心' },
-  { id: 'x_transfer', name: '转授', tier: 4, spell: 'transfer', target: true, price: 2, icon: 'purify', text: '将一个友军的附加能力移给另一个友军' },
-  { id: 'x_thorn', name: '荆棘印', tier: 3, spell: 'thorn', target: true, price: 2, icon: 'plate', text: '一个友军永久获得受伤时对敌方伤害来源造成 2 伤害的附加能力' },
-  { id: 'x_sprout', name: '萌芽印', tier: 3, spell: 'sprout', target: true, price: 2, icon: 'milk', text: '一个友军永久获得每个备战回合结束时永久 +1 生命的附加能力' },
-  { id: 'x_temper', name: '淬炼', tier: 5, spell: 'temper', target: true, price: 3, icon: 'whet', text: '一个友军的永久附加能力数值翻倍，限一次' },
-  { id: 'x_crown', name: '加冕', tier: 6, spell: 'crown', target: true, price: 6, icon: 'banner', text: '一个不超过 4 阶的非金色友军变为金色' },
+  { id: 'x_echo', name: '回响', tier: 3, spell: 'echo', target: true, price: 2, icon: 'replay', text: '触发一个在场友军的原生入场效果。' },
+  { id: 'x_bonepact', name: '骨契', tier: 2, spell: 'bonepact', target: true, price: 2, icon: 'bone', text: '给一个友军永久附加：阵亡时，召唤2/2魂火。' },
+  { id: 'x_ignite', name: '点火', tier: 2, spell: 'ignite', target: true, price: 1, icon: 'bomb', text: '一个在场友军下场开战时，受到1伤害。' },
+  { id: 'x_inscribe', name: '铭刻', tier: 4, spell: 'inscribe', target: true, price: 3, icon: 'tome', text: '给一个友军永久附加：开战时，对敌首造成2伤害。' },
+  { id: 'x_search', name: '定向搜寻', tier: 3, spell: 'search', target: true, price: 2, icon: 'order', text: '选择一个友军，发现与其原生技能触发时机相同的其他单位。' },
+  { id: 'x_siphon', name: '挪用', tier: 2, spell: 'siphon', price: 0, icon: 'coin', text: '支付1心，获得3金（至少保留1心）。' },
+  { id: 'x_transfer', name: '转授', tier: 4, spell: 'transfer', target: true, price: 2, icon: 'purify', text: '将一个友军的附加能力移给另一个友军。' },
+  { id: 'x_thorn', name: '荆棘印', tier: 3, spell: 'thorn', target: true, price: 2, icon: 'plate', text: '给一个友军永久附加：受伤时，对敌方伤害来源造成2伤害。' },
+  { id: 'x_sprout', name: '萌芽印', tier: 3, spell: 'sprout', target: true, price: 2, icon: 'milk', text: '给一个友军永久附加：备战回合结束时，永久+1生命。' },
+  { id: 'x_temper', name: '淬炼', tier: 5, spell: 'temper', target: true, price: 3, icon: 'whet', text: '一个友军的永久附加能力数值翻倍（限一次）。' },
+  { id: 'x_crown', name: '加冕', tier: 6, spell: 'crown', target: true, price: 6, icon: 'banner', text: '一个4阶及以下的普通友军变为金色。' },
   // 法术（v0.7）
-  { id: 'x_recruit', name: '招募令', tier: 1, spell: 'recruit', target: true, icon: 'order', text: '选一个友军：免费发现一张和它同标签的单位', short: '免费发现同标签单位' },
-  { id: 'x_coin', name: '铸币', tier: 1, spell: 'coin', price: 1, icon: 'mint', text: '本回合 +2 金', short: '本回合 +2 金' },
-  { id: 'x_bank', name: '储金罐', tier: 1, spell: 'bank', icon: 'coin', text: '下回合开始 +5 金', short: '下回合 +5 金' },
-  { id: 'x_draft', name: '征兵', tier: 2, spell: 'draft', icon: 'banner', text: '免费发现一张可刷最高阶的单位（三张标签不同）', short: '免费发现最高阶单位' },
-  { id: 'x_copy', name: '复刻', tier: 3, spell: 'copy', target: true, icon: 'elixir', text: '一个友军多叠 1 份，凑够 3 份变金色', short: '多叠 1 份，3 份变金色' },
-  { id: 'x_reborn', name: '转生', tier: 3, spell: 'reborn', target: true, icon: 'revive', text: '选一个友军：发现一张同标签、高一阶的卡替换它，份数、成长和装备保留', short: '发现高一阶替换它' },
-  { id: 'x_omen', name: '预言', tier: 4, spell: 'omen', icon: 'tome', text: '下回合货架必出一张高一阶单位', short: '下回合必出高一阶' },
-  { id: 'x_dismiss', name: '遣散', tier: 4, spell: 'dismiss', target: true, icon: 'purify', text: '卖掉一个友军，按阶退 2/3/4 金，并免费发现一张同阶单位', short: '卖掉＋免费发现同阶' },
-  { id: 'x_ready', name: '战备', tier: 4, spell: 'ready', icon: 'haste', text: '本回合刷新免费 2 次', short: '刷新免费 2 次' },
-  { id: 'f_milk', name: '牛奶', tier: 1, text: '免费！一个友军永久 +{a}/+{h}', icon: 'milk', price: 0, noPool: true, short: '免费！' },
+  { id: 'x_recruit', name: '招募令', tier: 1, spell: 'recruit', target: true, icon: 'order', text: '选择一个友军，免费发现一张同标签单位。', short: '免费发现同标签单位' },
+  { id: 'x_coin', name: '铸币', tier: 1, spell: 'coin', price: 1, icon: 'mint', text: '获得2金。', short: '获得2金' },
+  { id: 'x_bank', name: '储金罐', tier: 1, spell: 'bank', icon: 'coin', text: '下回合开始时，获得5金。', short: '下回合获得5金' },
+  { id: 'x_draft', name: '征兵', tier: 2, spell: 'draft', icon: 'banner', text: '免费发现一张当前可刷最高阶单位，三个选项标签不同。', short: '免费发现最高阶单位' },
+  { id: 'x_copy', name: '复刻', tier: 3, spell: 'copy', target: true, icon: 'elixir', text: '一个友军增加1份，满3份变为金色。', short: '增加1份，满3份变金色' },
+  { id: 'x_reborn', name: '转生', tier: 3, spell: 'reborn', target: true, icon: 'revive', text: '选择一个友军，发现同标签、高一阶单位来替换它，保留份数、成长和装备。', short: '发现高一阶替换它' },
+  { id: 'x_omen', name: '预言', tier: 4, spell: 'omen', icon: 'tome', text: '下回合货架必出一张高一阶单位。', short: '下回合必出高一阶' },
+  { id: 'x_dismiss', name: '遣散', tier: 4, spell: 'dismiss', target: true, icon: 'purify', text: '出售一个友军，按阶返还2/3/4金，免费发现一张同阶单位。', short: '出售并免费发现同阶单位' },
+  { id: 'x_ready', name: '战备', tier: 4, spell: 'ready', icon: 'haste', text: '本回合获得2次免费刷新。', short: '获得2次免费刷新' },
+  { id: 'f_milk', inheritable: true, name: '牛奶', tier: 1, text: '免费使一个友军永久+{a}/+{h}。', icon: 'milk', price: 0, noPool: true, short: '免费！' },
 ];
+export const FOODS: FoodDef[] = [...classicFoods.map(f => ({ ...f, ...classicSupport(f.id) })), ...SUPPORT_FOODS];
 /** 补给文案（牛奶带货架上的数值） */
 export const foodText = (id: string, val?: [number, number]) =>
-  FOOD[id].text.replace('+{a}/+{h}', val ? `+${val[0]}/+${val[1]}` : '攻血');
+  FOOD[id].text.replace('+{a}/+{h}', val ? `+${val[0]}/+${val[1]}` : '提高攻击和生命（数值见货架）');
 export const FOOD: Record<string, FoodDef> = Object.fromEntries(FOODS.map((f) => [f.id, f]));
-export const FOOD_POOL = FOODS.filter((f) => !f.noPool && !f.spell);
-export const SPELL_POOL = FOODS.filter((f) => f.spell);
+export const FOOD_POOL = FOODS.filter((f) => !f.noPool && !f.spell && !f.legacy);
+export const SPELL_POOL = FOODS.filter((f) => f.spell && !f.legacy);
 
 // ── 词条原子库（装备 / 精英词缀共用，全部带上限） ──
 export type Atom = 'exec' | 'reap' | 'undying' | 'pierce' | 'shield' | 'burn' | 'fury' | 'charge';
 export const ATOMS: Atom[] = ['exec', 'reap', 'undying', 'pierce', 'shield', 'burn', 'fury', 'charge'];
 export const ATOM_INFO: Record<Atom, { name: string; desc: string; icon: string }> = {
-  exec: { name: '斩杀', desc: '对半血以下的敌人伤害 ×1.5。', icon: 'eq_hammer' },
-  reap: { name: '收割', desc: '击杀敌人时回复 25% 最大血（每场 3 次）。', icon: 'sp_soul' },
-  undying: { name: '不屈', desc: '致命伤时锁住 1 血，两次交锋结算后倒下（触发当次计入）；期间不回血、不触发受伤，每场 1 次。', icon: 'eq_banner' },
-  pierce: { name: '穿透', desc: '交锋击杀时，溢出的伤害打身后下一个敌人。', icon: 'eq_bow' },
-  shield: { name: '护盾', desc: '开战时获得 20% 最大血的护盾，先于血量扣除。', icon: 'sp_shield' },
-  burn: { name: '灼烧', desc: '交锋打中的敌人叠 1 层灼烧（最多 3 层），每次交锋后每层扣 2 血，无视格挡。', icon: 'sp_firerain' },
-  fury: { name: '战意', desc: '每次交锋后本场 +1 攻（最多 +5）。', icon: 'sp_warsong' },
-  charge: { name: '冲锋', desc: '第一次交锋伤害 ×2。', icon: 'eq_boots' },
+  exec: { name: '斩杀', desc: '对半血以下的敌人造成1.5倍伤害。', icon: 'eq_hammer' },
+  reap: { name: '收割', desc: '击杀敌人时，回复最大生命的25%（每场3次）。', icon: 'sp_soul' },
+  undying: { name: '不屈', desc: '受到致命伤害时，锁定1血；两次交锋后阵亡，触发当次计入。锁血期间暂停治疗与受伤技能（每场1次）。', icon: 'eq_banner' },
+  pierce: { name: '穿透', desc: '交锋击杀敌人时，溢出伤害传给其身后敌人。', icon: 'eq_bow' },
+  shield: { name: '护盾', desc: '开战时，获得最大生命20%的护盾，受伤先扣护盾。', icon: 'sp_shield' },
+  burn: { name: '灼烧', desc: '交锋命中敌人时，施加1层灼烧，至多3层。每次交锋后，每层直接扣2血，绕过格挡和护盾。', icon: 'sp_firerain' },
+  fury: { name: '战意', desc: '每次交锋后，本场+1攻击，至多+5。', icon: 'sp_warsong' },
+  charge: { name: '冲锋', desc: '本场首次普通攻击造成2倍伤害。', icon: 'eq_boots' },
 };
 
 /** 装备：q 0 白 / 1 蓝 / 2 紫 / 3 橙。sp 为破格或诅咒的专属规则 */
 export type Quality = 0 | 1 | 2 | 3;
 export type EquipSp = 'crown' | 'spear' | 'grail' | 'storm' | 'blood' | 'rage' | 'thorn';
-export interface EquipDef {
+export interface EquipDef extends SupportMeta {
+  rules?: ReworkRule[];
   id: string; name: string; q: Quality; icon: string; text: string;
   atk?: number; hp?: number; atoms?: Atom[]; block?: number; melee?: number; splash?: number; reborn?: boolean; sp?: EquipSp;
   curse?: boolean;
@@ -308,40 +331,42 @@ export interface EquipDef {
   food?: boolean;
 }
 const E = (id: string, name: string, q: Quality, icon: string, text: string, o: Partial<EquipDef> = {}): EquipDef => ({ id, name, q, icon, text, ...o });
-export const EQUIPS: EquipDef[] = [
+const classicEquips: EquipDef[] = [
   // 白：纯数值
-  E('w_sword', '铁剑', 0, 'eq_duel', '+3 攻', { atk: 3 }),
-  E('w_mail', '锁子甲', 0, 'eq_belt', '+5 血', { hp: 5 }),
-  E('w_helm', '铁盔', 0, 'eq_guard', '+2/+3', { atk: 2, hp: 3 }),
-  E('iron', '铁护腕', 0, 'eq_bracer', '开战时 +1 格挡', { block: 1 }),
-  E('wine', '重拳护手', 1, 'eq_gauntlet', '交锋伤害 +5', { melee: 5 }),
+  E('w_sword', '铁剑', 0, 'eq_duel', '+3攻击。', { atk: 3 }),
+  E('w_mail', '锁子甲', 0, 'eq_belt', '+5生命。', { hp: 5 }),
+  E('w_helm', '铁盔', 0, 'eq_guard', '+2/+3。', { atk: 2, hp: 3 }),
+  E('iron', '铁护腕', 0, 'eq_bracer', '开战时，获得1层格挡。', { block: 1 }),
+  E('wine', '重拳护手', 1, 'eq_gauntlet', '交锋伤害+5。', { melee: 5 }),
   // 蓝：单词条
-  E('chili', '横扫巨斧', 1, 'eq_cleave', '溅射 50%', { splash: 50 }),
-  E('amulet', '冰晶护符', 1, 'eq_ice', '开战时 +3 格挡', { block: 3 }),
-  E('shroom', '复生圣符', 1, 'eq_ankh', '复生', { reborn: true }),
-  E('b_axe', '处刑斧', 1, 'eq_hammer', '斩杀', { atoms: ['exec'] }),
-  E('b_scythe', '收割镰', 1, 'sp_soul', '收割', { atoms: ['reap'] }),
-  E('b_banner', '残旗', 1, 'eq_banner', '不屈', { atoms: ['undying'] }),
-  E('b_lance', '骑枪', 1, 'eq_bow', '穿透', { atoms: ['pierce'] }),
-  E('b_buckler', '圆盾', 1, 'sp_shield', '护盾', { atoms: ['shield'] }),
-  E('b_torch', '火把', 1, 'sp_firerain', '灼烧', { atoms: ['burn'] }),
-  E('b_horn', '战号', 1, 'sp_warsong', '战意', { atoms: ['fury'] }),
-  E('b_spur', '马刺', 1, 'eq_boots', '冲锋', { atoms: ['charge'] }),
+  E('chili', '横扫巨斧', 1, 'eq_cleave', '溅射50%。', { splash: 50 }),
+  E('amulet', '冰晶护符', 1, 'eq_ice', '开战时，获得3层格挡。', { block: 3 }),
+  E('shroom', '复生圣符', 1, 'eq_ankh', '获得「复生」。', { reborn: true }),
+  E('b_axe', '处刑斧', 1, 'eq_hammer', '斩杀。', { atoms: ['exec'] }),
+  E('b_scythe', '收割镰', 1, 'sp_soul', '收割。', { atoms: ['reap'] }),
+  E('b_banner', '残旗', 1, 'eq_banner', '不屈。', { atoms: ['undying'] }),
+  E('b_lance', '骑枪', 1, 'eq_bow', '穿透。', { atoms: ['pierce'] }),
+  E('b_buckler', '圆盾', 1, 'sp_shield', '护盾。', { atoms: ['shield'] }),
+  E('b_torch', '火把', 1, 'sp_firerain', '灼烧。', { atoms: ['burn'] }),
+  E('b_horn', '战号', 1, 'sp_warsong', '战意。', { atoms: ['fury'] }),
+  E('b_spur', '马刺', 1, 'eq_boots', '冲锋。', { atoms: ['charge'] }),
   // 紫：词条联动 / 诅咒
-  E('p_reaver', '噬魂刃', 2, 'sp_sunder', '斩杀 + 收割', { atoms: ['exec', 'reap'] }),
-  E('p_phoenix', '凤羽', 2, 'sp_revive', '复生 + 护盾', { atoms: ['shield'], reborn: true }),
-  E('p_inferno', '熔岩锤', 2, 'eq_flame', '灼烧 + 溅射 50%', { atoms: ['burn'], splash: 50 }),
-  E('p_berserk', '狂战面具', 2, 'sp_haste', '战意 + 冲锋', { atoms: ['fury', 'charge'] }),
-  E('p_bulwark', '不动壁垒', 2, 'sp_anchor', '不屈 + 开战时 +2 格挡', { atoms: ['undying'], block: 2 }),
-  E('p_thorn', '荆棘甲', 2, 'eq_thorn', '+4 血；受到敌人伤害时，反打 3', { hp: 4, sp: 'thorn' }),
-  E('c_blood', '饮血剑', 2, 'eq_combo', '+6 攻；开战时自己受 3 伤害', { atk: 6, sp: 'blood', curse: true }),
-  E('c_rage', '狂怒之心', 2, 'eq_tome', '交锋伤害 ×2；最大血减半', { sp: 'rage', curse: true }),
+  E('p_reaver', '噬魂刃', 2, 'sp_sunder', '斩杀、收割。', { atoms: ['exec', 'reap'] }),
+  E('p_phoenix', '凤羽', 2, 'sp_revive', '复生、护盾。', { atoms: ['shield'], reborn: true }),
+  E('p_inferno', '熔岩锤', 2, 'eq_flame', '灼烧、溅射50%。', { atoms: ['burn'], splash: 50 }),
+  E('p_berserk', '狂战面具', 2, 'sp_haste', '战意、冲锋。', { atoms: ['fury', 'charge'] }),
+  E('p_bulwark', '不动壁垒', 2, 'sp_anchor', '获得不屈；开战时，获得2层格挡。', { atoms: ['undying'], block: 2 }),
+  E('p_thorn', '荆棘甲', 2, 'eq_thorn', '+4生命。受到敌人伤害时，对其造成3伤害。', { hp: 4, sp: 'thorn' }),
+  E('c_blood', '饮血剑', 2, 'eq_combo', '+6攻击。开战时，受到3伤害。', { atk: 6, sp: 'blood', curse: true }),
+  E('c_rage', '狂怒之心', 2, 'eq_tome', '交锋伤害×2，最大生命减半。', { sp: 'rage', curse: true }),
   // 橙：破格（每局自然掉落最多 1 件）
-  E('o_crown', '冥魂王冠', 3, 'eq_halo', '阵亡技能额外触发 1 次', { sp: 'crown' }),
-  E('o_spear', '贯日之枪', 3, 'eq_frost', '交锋伤害穿透全部敌人', { sp: 'spear' }),
-  E('o_grail', '不灭圣杯', 3, 'sp_revive', '不屈每场 2 次；锁血期间照常触发受伤', { atoms: ['undying'], sp: 'grail' }),
-  E('o_storm', '风暴之心', 3, 'eq_hourglass', '每次交锋后，所有敌人受 1 伤害', { sp: 'storm' }),
+  E('o_crown', '冥魂王冠', 3, 'eq_halo', '阵亡技能额外触发1次。', { sp: 'crown' }),
+  E('o_spear', '贯日之枪', 3, 'eq_frost', '交锋伤害穿透全体敌人。', { sp: 'spear' }),
+  E('o_grail', '不灭圣杯', 3, 'sp_revive', '不屈每场2次，锁血期间也触发受伤技能。', { atoms: ['undying'], sp: 'grail' }),
+  E('o_storm', '风暴之心', 3, 'eq_hourglass', '每次交锋后，对全体敌人造成1伤害。', { sp: 'storm' }),
 ];
+export const EQUIPS: EquipDef[] = [...classicEquips.map(e => ({ ...e, ...classicSupport(e.id) })), ...SUPPORT_EQUIPS];
+export const ACTIVE_EQUIPS = EQUIPS.filter(e => !e.legacy && !e.food);
 export const EQUIP: Record<string, EquipDef> = Object.fromEntries(EQUIPS.map((e) => [e.id, e]));
 export const equipOf = (id: Ench | null | undefined) => (id ? EQUIP[id] ?? null : null);
 export const Q_INFO: { name: string; color: string }[] = [
@@ -368,9 +393,9 @@ export function equipText(e: EquipDef) {
 }
 
 export const KW_INFO: Record<Kw, { name: string; desc: string; color: string }> = {
-  block: { name: '格挡', desc: '每层完整挡住 1 次伤害。', color: '#ffd36b' },
-  reborn: { name: '复生', desc: '第一次阵亡时，保留攻击、以 1 血原位复活（队伍满时失败）。', color: '#ffe9a0' },
-  splash: { name: '溅射', desc: '交锋时，敌方第 2 位也受到一部分伤害。', color: '#ff8a3a' },
+  block: { name: '格挡', desc: '每层抵挡一次伤害。', color: '#ffd36b' },
+  reborn: { name: '复生', desc: '首次阵亡时，保留攻击，以1血原位复活（需空位）。', color: '#ffe9a0' },
+  splash: { name: '溅射', desc: '交锋时，对敌方第2人也造成部分伤害。', color: '#ff8a3a' },
 };
 
 export const LINE_INFO: Record<Line, { name: string; color: string; desc: string }> = {
@@ -398,29 +423,38 @@ export const BOSSES: Record<'wall' | 'tide' | 'forge' | 'horde' | 'final', BossD
 };
 
 // ── 遗物：Boss 胜后 3 选 1；只改写通用动作，不绑引擎 ──
-export type RelicId = 'r_vanguard' | 'r_legacy' | 'r_share' | 'r_volley' | 'r_drums' | 'r_lone' | 'r_few' | 'r_rear' | 'r_heavy' | 'r_relay' | 'r_reserve' | 'r_quick' | 'r_medal' | 'r_pouch' | 'r_brood' | 'r_runebox' | 'r_ember' | 'r_motley' | 'r_training';
-export interface RelicDef { id: RelicId; name: string; icon: string; text: string; rarity?: 'common' | 'rare' }
-export const RELICS: RelicDef[] = [
-  { id: 'r_vanguard', name: '先锋徽章', icon: 'shield', text: '每个友军每场首次实际受伤后，战后永久 +1 血' },
-  { id: 'r_legacy', name: '传承之剑', icon: 'tomb', text: '友军阵亡时，新的队首获得它一半的攻击，每次最多 +10 攻' },
-  { id: 'r_share', name: '分享餐盘', icon: 'plate', text: '每回合第一份单体纯属性补给，同时喂给相邻友军；仅面包、磨刀石、烤全羊、牛奶、战鼓' },
-  { id: 'r_volley', name: '齐射号角', icon: 'burst', text: '开战时，随机一个敌人受到等于我方人数 ×2 的伤害' },
-  { id: 'r_drums', name: '战鼓', icon: 'bolt', text: '全队每累计受伤 5 次，全队本场 +1 攻（最多 3 次）' },
-  { id: 'r_lone', name: '独狼披风', icon: 'star', text: '只剩 1 个友军时，它 +6/+6 并获得不屈；不增加已有不屈次数' },
-  { id: 'r_few', name: '少即是多', icon: 'diamond', text: '上场不超过 3 人时，全员 +3/+3' },
-  { id: 'r_rear', name: '后卫弩', icon: 'target', text: '每次交锋后，我方队尾射击敌方队尾，造成 2 伤害' },
-  { id: 'r_heavy', name: '重装铠', icon: 'guard', text: '开战时队首血量 ×1.5（最多 +20）；成功增血时其余友军攻击 -1' },
-  { id: 'r_relay', name: '车轮战旗', icon: 'replay', text: '友军阵亡后，我方下一次交锋伤害 ×2' },
-  { id: 'r_reserve', name: '储备金', icon: 'coin', text: '回合结束时每剩 2 金，下回合 +1 金' },
-  { id: 'r_quick', name: '速成', icon: 'bolt', text: '升级酒馆的回合，送 1 次免费刷新' },
-  { id: 'r_pouch', name: '零钱袋', icon: 'coin', text: '出售友军额外获得 1 金', rarity: 'common' },
-  { id: 'r_brood', name: '繁衍号', icon: 'tomb', text: '每次召唤友军，全队本场 +1 攻，每场最多 5 次', rarity: 'common' },
-  { id: 'r_runebox', name: '符文匣', icon: 'tome', text: '正式战斗胜利后，获得一张随机当前酒馆等级可用战术', rarity: 'common' },
-  { id: 'r_ember', name: '余温石', icon: 'burst', text: '临战施法命中的友军永久 +1/+1，每次施法每人限一次', rarity: 'common' },
-  { id: 'r_motley', name: '散兵章', icon: 'star', text: '开战时，阵容至少有 3 种流派则全队本场 +2/+2', rarity: 'common' },
-  { id: 'r_training', name: '训练旗', icon: 'star', text: '一至二阶单位获得永久属性时，该效果原本为正的攻、血各额外 +1', rarity: 'rare' },
-  { id: 'r_medal', name: '老兵勋章', icon: 'star', text: '手牌 +1 格' },
+export type RelicId = SupportRelicId | 'r_vanguard' | 'r_legacy' | 'r_share' | 'r_volley' | 'r_drums' | 'r_lone' | 'r_few' | 'r_rear' | 'r_heavy' | 'r_relay' | 'r_reserve' | 'r_quick' | 'r_medal' | 'r_pouch' | 'r_brood' | 'r_runebox' | 'r_ember' | 'r_motley' | 'r_training';
+export interface RelicDef extends SupportMeta {
+  id: RelicId; name: string; icon: string; text: string; rarity?: 'common' | 'rare';
+  battleRules?: BattleRule[];
+  /** team 共用每场账本，holder 按友军分别记录。 */
+  counterScope?: 'team' | 'holder';
+  /** 同一遗物每条经营规则全队共用一份回合账本。 */
+  prepRules?: PrepRule[];
+}
+const classicRelics: RelicDef[] = [
+  { id: 'r_vanguard', name: '先锋徽章', icon: 'shield', text: '友军本场首次受伤后，战后永久+1生命。' },
+  { id: 'r_legacy', name: '传承之剑', icon: 'tomb', text: '友军阵亡时，我方队首获得其一半攻击，每次至多+10攻击。' },
+  { id: 'r_share', name: '分享餐盘', icon: 'plate', text: '本回合首份单体纯属性补给，额外分享给相邻友军。适用：面包、磨刀石、烤全羊、牛奶、战鼓、行军干粮。' },
+  { id: 'r_volley', name: '齐射号角', icon: 'burst', text: '开战时，对一个随机敌人造成我方人数×2的伤害。' },
+  { id: 'r_drums', name: '战鼓', icon: 'bolt', text: '全队每累计受伤5次，全队本场+1攻击（每场3次）。' },
+  { id: 'r_lone', name: '独狼披风', icon: 'star', text: '只剩一个友军时，它本场+6/+6；若尚无不屈，获得不屈。' },
+  { id: 'r_few', name: '少即是多', icon: 'diamond', text: '开战时，上阵至多3人，全队本场+3/+3。' },
+  { id: 'r_rear', name: '后卫弩', icon: 'target', text: '每次交锋后，我方队尾对敌尾造成2伤害。' },
+  { id: 'r_heavy', name: '重装铠', icon: 'guard', text: '开战时，队首生命×1.5（至多+20生命）；获得生命后，其他友军本场-1攻击。' },
+  { id: 'r_relay', name: '车轮战旗', icon: 'replay', text: '友军阵亡后，我方下次交锋伤害×2。' },
+  { id: 'r_reserve', name: '储备金', icon: 'coin', text: '回合结束时，每剩2金，下回合获得1金。' },
+  { id: 'r_quick', name: '速成', icon: 'bolt', text: '升级酒馆时，获得1次免费刷新。' },
+  { id: 'r_pouch', name: '零钱袋', icon: 'coin', text: '出售友军时，额外获得1金。', rarity: 'common' },
+  { id: 'r_brood', name: '繁衍号', icon: 'tomb', text: '召唤友军时，全队本场+1攻击（每场5次）。', rarity: 'common' },
+  { id: 'r_runebox', name: '符文匣', icon: 'tome', text: '正式战斗胜利后，获得一张当前酒馆等级可用的随机战术。', rarity: 'common' },
+  { id: 'r_ember', name: '余温石', icon: 'burst', text: '施法命中的友军永久+1/+1（每次施法每人一次）。', rarity: 'common' },
+  { id: 'r_motley', name: '散兵章', icon: 'star', text: '开战时，阵容有至少3种流派，全队本场+2/+2。', rarity: 'common' },
+  { id: 'r_training', name: '训练旗', icon: 'star', text: '1至2阶单位获得永久属性时，原效果增加的攻击、生命各额外+1。', rarity: 'rare' },
+  { id: 'r_medal', name: '老兵勋章', icon: 'star', text: '手牌容量+1。' },
 ];
+export const RELICS: RelicDef[] = [...classicRelics.map(r => ({ ...r, ...classicSupport(r.id) })), ...SUPPORT_RELICS];
+export const ACTIVE_RELICS = RELICS.filter(r => !r.legacy);
 export const RELIC: Record<string, RelicDef> = Object.fromEntries(RELICS.map((x) => [x.id, x]));
 
 // ── 事件：偶尔替代一次岔路 ──
@@ -440,7 +474,7 @@ export const EVENT_INFO: Record<EventId, { name: string; icon: string; text: str
 export type HeroId = 'vet' | 'qm' | 'seer' | 'guild' | 'summon' | 'smith';
 export interface HeroDef { id: HeroId; name: string; art: string; text: string; cost?: number }
 export const HEROES: HeroDef[] = [
-  { id: 'vet', name: '老兵队长', art: 'l_knight', text: '在队里待满 3 回合的友军，之后每回合结束 +1/+1' },
+  { id: 'vet', name: '老兵队长', art: 'l_knight', text: '驻队满 3 回合后，每回合结束使驻队最久的一名老兵 +1/+1' },
   { id: 'qm', name: '军需官', art: 'd_artificer', text: '主动：一个友军永久 +1/+2', cost: 2 },
   { id: 'seer', name: '先知', art: 'v_mage', text: '主动：发现一张当前酒馆阶的单位', cost: 2 },
   { id: 'guild', name: '商会长', art: 'd_pharaoh', text: '每回合第一次刷新免费；升级酒馆便宜 1' },

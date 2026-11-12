@@ -48,7 +48,7 @@ function runState(): RunState {
   r.queue = Array(5).fill(null);
   r.shop = [];
   r.nextId = 1000;
-  r.tc = { foods: 0, bought: 0, bear: {} };
+  r.tc = { ...r.tc, foods: 0, bought: 0, bear: {} };
   r.relics = [];
   r.milkTurn = undefined;
   return r;

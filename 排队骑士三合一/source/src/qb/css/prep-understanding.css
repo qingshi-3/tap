@@ -1,0 +1,26 @@
+.formation-feedback { margin-top:10px; padding:8px 0 0; border-top:1px solid #526078; font-size:17px; line-height:1.4; }
+.formation-feedback-title { display:block; font-size:14px; color:#9fb1c8; font-weight:400; margin-bottom:4px; }
+.formation-feedback-line { display:grid; grid-template-columns:max-content minmax(0,1fr); gap:8px; margin:3px 0; }
+.feedback-label { color:#a8bdd2; }
+.feedback-result { color:#cae7d2; min-width:0; overflow-wrap:anywhere; }
+.formation-feedback-line.attack .feedback-result { color:#f2ca8d; }
+.formation-feedback-line.condition .feedback-result { color:#d6c9aa; }
+.formation-feedback[hidden] { display:none !important; }
+.tip-projection-label { margin:5px 0; padding:3px 7px; background:#30324d; color:#dfd8b2; font-size:15px; width:max-content; }
+.screen.game .placement-feedback { position:absolute; left:50%; transform:translateX(-50%); width:440px; z-index:45; pointer-events:none; background:#141d30; border:2px solid #728ca6; box-shadow:0 3px #070b16; padding:8px 12px; }
+.placement-feedback .formation-feedback { border:0; padding:0; margin:0; }
+.placement-feedback .formation-feedback-title { color:#dce9ee; font-size:17px; font-weight:700; }
+.screen.game > .board .unit.benefit-preview .u-mat { outline:2px solid #9ce6c8; outline-offset:2px; }
+.screen.game > .board .unit.benefit-preview::after { content:'受益'; position:absolute; bottom:-32px; left:50%; transform:translateX(-50%); color:#d0f6e3; background:#174235; padding:1px 5px; border:1px solid #86c9ad; font-size:15px; white-space:nowrap; pointer-events:none; }
+.run-archetype-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; margin:10px 0; }
+.run-archetype-tab { min-height:44px; color:var(--ac,#d6dfeb); background:#1c263c; border:1px solid #495973; font-size:18px; }
+.run-archetype-tab.active { border-color:var(--ac,#d6dfeb); background:#2b3650; box-shadow:inset 0 -2px var(--ac,#d6dfeb); }
+.run-archetype-tab:focus-visible { outline:2px solid #ffe09a; outline-offset:1px; }
+.run-archetype-detail .archetype-guide { margin:0 0 10px; }
+.unit-demo[hidden] { display:none; }
+.unit-demo-label { display:block; margin:6px 0 3px; color:#b9c7df; font-size:15px; }
+@media (pointer:coarse) {
+  .card-detail .tip-variant, .keyword-explanation-close { min-height:var(--control-size,64px); }
+  .keyword-explanation-close { min-width:var(--control-size,64px); }
+  .run-archetype-tab { min-height:var(--control-size,64px); }
+}

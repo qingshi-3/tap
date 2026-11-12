@@ -1,0 +1,47 @@
+[data-keyword-help="true"] [data-keyword][role="button"] {
+  cursor: pointer;
+  text-decoration: underline dashed color-mix(in srgb, currentColor 60%, transparent);
+  text-underline-offset: .22em;
+  text-decoration-thickness: 1px;
+  padding-block: 5px;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+[data-keyword-help="true"] [data-keyword][role="button"]:is(:hover, [aria-expanded="true"]) { background: #394260; }
+[data-keyword-help="true"] [data-keyword][role="button"]:focus-visible { outline: 2px solid #f4d182; outline-offset: 3px; }
+.keyword-explanation {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 8px 0;
+  padding: 10px 12px;
+  color: #eef2ff;
+  background: #263550;
+  border-left: 3px solid #d6bd7a;
+  font-size: 17px;
+  line-height: 1.5;
+  text-shadow: none;
+  overflow-wrap: anywhere;
+}
+.keyword-explanation > span { flex: 1; min-width: 0; }
+.keyword-explanation strong { color: #ffe0a0; font-weight: 700; }
+.keyword-explanation-close {
+  flex: none;
+  min-width: 52px;
+  min-height: 40px;
+  margin: -4px -6px -4px 0;
+  padding: 4px 8px;
+  border: 0;
+  color: #e2e9fa;
+  background: #1a2440;
+  font: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.keyword-explanation-close:focus-visible { outline: 2px solid #f4d182; }
+.viewport-tip .keyword-explanation { font-size: 13px; padding: 9px; gap: 6px; }
+.viewport-tip .keyword-explanation-close { min-height: 44px; font-size: 12px; }
+@media (pointer: coarse) {
+  [data-keyword-help="true"] [data-keyword][role="button"] { padding-block: 8px; }
+  .keyword-explanation-close { min-height: 44px; }
+}

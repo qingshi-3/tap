@@ -99,8 +99,8 @@ export class BattleStatsCollector {
       if (!row || effective <= 0) continue;
       row.damageDealt += effective;
       const runtime = source.uid === null ? undefined : this.runtime.get(source.uid);
-      const kind = !source.relicId && runtime?.summoned ? 'summon' : source.kind;
-      const label = kind === 'summon' ? `召唤物·${runtime!.label}·${source.label}` : source.label;
+      const kind = !source.relicId && runtime?.summoned && !['equipment', 'supply', 'relic'].includes(source.kind) ? 'summon' : source.kind;
+      const label = runtime?.summoned ? `召唤物·${runtime.label}·${source.label}` : source.label;
       let segment = row.damageBySource.find((x) => x.kind === kind && x.label === label);
       if (!segment) { segment = { kind, label, damage: 0 }; row.damageBySource.push(segment); }
       segment.damage += effective;

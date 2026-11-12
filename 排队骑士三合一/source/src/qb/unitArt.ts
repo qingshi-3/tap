@@ -1,3 +1,4 @@
+import { card } from '../core/data';
 import { FACTION_INFO, GENERAL_MAP, unitDef } from './shim';
 
 export interface ArtOpts {
@@ -35,7 +36,7 @@ const pending = new Map<string, Promise<void>>();
 
 // 临时复用既有完整精灵；专属立绘到位后删除此映射。
 const ART_ALIAS: Record<string, string> = { n_caravan: 'l_shield', n_caretaker: 'n_medic' };
-const artKey = (defId: string | null, opts: ArtOpts) => (opts.general ? `general_${opts.general}` : defId && (ART_ALIAS[defId] ?? defId));
+const artKey = (defId: string | null, opts: ArtOpts) => (opts.general ? `general_${opts.general}` : defId && (card(defId).art ?? ART_ALIAS[defId] ?? defId));
 /** 缺图时返回 null，由调用方画占位 */
 function artFor(defId: string | null, opts: ArtOpts): UnitArt | null {
   const key = artKey(defId, opts);

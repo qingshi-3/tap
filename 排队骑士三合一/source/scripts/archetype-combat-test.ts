@@ -1,0 +1,116 @@
+import { card, type CardDef } from '../src/core/data';
+import { motleyCount, simulate, type BattleOut, type UnitSpec } from '../src/core/engine';
+import type { BattleRule } from '../src/core/archetypes';
+const ok = (v: unknown, message: string) => { if (!v) throw new Error(message); };
+const unit = (def: string, atk = 1, hp = 40, extra: Partial<UnitSpec> = {}): UnitSpec => ({ def, atk, hp, lvl: 1, ...extra });
+const B = (on: BattleRule['on'], effect: BattleRule['effect'], target: BattleRule['target'], n: BattleRule['n'], extra: Partial<BattleRule> = {}): BattleRule => ({ phase: 'battle', on, effect, target, n, ...extra });
+const defs = ['t_wisp', 't_bonelet', 't_drakelet', 't_wolf'];
+const originals = defs.map(id => ({ d: card(id), rules: (card(id) as CardDef & { rules?: BattleRule[] }).rules }));
+function rules(id: string, rs: BattleRule[]) { (card(id) as CardDef & { rules?: BattleRule[] }).rules = rs; }
+function reset() { for (const id of defs) rules(id, []); }
+const checkTrace = (out: BattleOut) => {
+  const live = new Set(out.init.map(u => u.uid));
+  for (const e of out.events) {
+    if (e.t === 'summon') live.add(e.unit.uid);
+    if (e.t === 'die') live.delete(e.uid);
+    if (e.t === 'die' || e.t === 'summon' || e.t === 'move') {
+      ok(e.order.every(line => line.length <= 5), 'trace never exceeds five slots');
+      ok(new Set(e.order.flat()).size === e.order.flat().length, 'trace has unique runtime IDs');
+    }
+  }
+  ok(out.events.filter(e => e.t === 'clash').length <= 30 && out.events.length < 30000, 'bounded clash and operation budget');
+  ok(out.events.at(-1)?.t === 'end', 'all battles terminate');
+};
+try {
+  reset();
+  rules('t_wisp', [B('enter', 'buff', 'self', [2, 4], { limit: 4 }), B('afterAttack', 'rotate', 'self', 1)]);
+  const wheel = simulate([unit('t_wisp'), unit('t_bonelet')], [unit('t_drakelet', 1, 200)]);
+  ok(wheel.events.some(e => e.t === 'move' && e.uid === 1 && e.order[0][0] === 2), 'wheel move records new order');
+  ok(wheel.events.some(e => e.t === 'buff' && e.src === 1 && e.atk === 2), 'normal values');
+  const gold = simulate([unit('t_wisp', 1, 40, { lvl: 2 })], [unit('t_drakelet', 1, 200)]);
+  ok(gold.events.some(e => e.t === 'buff' && e.atk === 4), 'gold values');
+  reset();
+  rules('t_wisp', [B('clashEnd', 'charge', 'self', 2, { when: 'rear' }), B('enter', 'release', 'enemyFront', 3)]);
+  const charge = simulate([unit('t_bonelet', 1, 2), unit('t_wisp')], [unit('t_drakelet', 1, 200)]);
+  ok(charge.events.some(e => e.t === 'counter' && e.uid === 2 && e.charge === 2), 'rear charges once per clash');
+  ok(charge.events.some(e => e.t === 'dmg' && e.src === 2 && e.kind === 'shot' && e.n === 6), 'front consumes stored charge');
+  reset();
+  rules('t_wisp', [B('start', 'summon', 'self', [2, 4], { hp: [3, 6] })]);
+  const fullTeam = [unit('t_wisp'), ...Array.from({ length: 4 }, () => unit('t_bonelet'))];
+  const full = simulate(fullTeam, [unit('t_drakelet', 1, 200)]);
+  ok(full.events.some(e => e.t === 'fizzle' && e.reason === 'full' && e.available === 0), 'full queue exposes summon cost');
+  rules('t_bonelet', [B('start', 'coalesce', 'self', 1)]);
+  const merged = simulate(fullTeam, [unit('t_drakelet', 1, 200)]);
+  ok(!merged.events.some(e => e.t === 'summon') && merged.events.some(e => e.t === 'trigger' && e.label === '合巢'), 'only coalesce owners allow merge without new entity');
+  reset();
+  rules('t_wisp', [B('faint', 'damage', 'enemies', 2), B('faint', 'inherit', 'behind', 50)]);
+  const ember = simulate([unit('t_wisp', 4, 1), unit('t_bonelet', 1, 1), unit('t_drakelet', 1, 1)], [unit('t_wolf', 20, 100)]);
+  ok(ember.events.filter(e => e.t === 'dmg' && e.kind === 'shot' && e.n === 2).length >= 2, 'faint action passed to successor');
+  const revived = simulate([unit('t_wisp', 1, 1, { lamp: true }), unit('t_bonelet', 1, 50)], [unit('t_wolf', 20, 100)]);
+  ok(revived.events.filter(e => e.t === 'summon' && e.revive).length === 1, 'rebirth once');
+  reset();
+  rules('t_wisp', [B('start', 'mark', 'quarry', 2)]);
+  const marks = simulate([unit('t_wisp', 2, 30)], [unit('t_bonelet', 1, 2), unit('t_drakelet', 1, 30)]);
+  ok(marks.events.some(e => e.t === 'counter' && e.uid === 3 && e.mark === 3), 'marked death transfers plus one');
+  ok(marks.stats.units[0].damageBySource.some(s => s.label.includes('猎标')), 'mark damage retains source');
+  reset();
+  rules('t_wisp', [B('start', 'guard', 'front', 2)]);
+  const guard = simulate([unit('t_bonelet', 1, 30), unit('t_wisp', 1, 30)], [unit('t_drakelet', 5, 100)]);
+  const firstHits = guard.events.filter(e => e.t === 'dmg' && e.src === 3).slice(0, 2);
+  ok(firstHits.some(e => e.t === 'dmg' && e.tgt === 2 && e.n === 2) && firstHits.some(e => e.t === 'dmg' && e.tgt === 1 && e.n === 3), 'guard conserves incoming damage');
+  reset();
+  rules('t_wisp', [B('start', 'survive', 'self', 1)]);
+  const save = simulate([unit('t_wisp', 1, 3)], [unit('t_drakelet', 20, 100)]);
+  ok(save.events.filter(e => e.t === 'trigger' && e.label === '血契保命').length === 1, 'survive only once');
+  reset();
+  rules('t_wisp', [B('start', 'damage', 'enemies', 50)]);
+  rules('t_bonelet', [B('faint', 'damage', 'enemies', 50)]);
+  const simultaneous = simulate([unit('t_wisp', 1, 20), unit('t_drakelet', 1, 20)], [unit('t_bonelet', 1, 20), unit('t_bonelet', 1, 20)]);
+  ok(simultaneous.result === 'draw', 'same batch deaths resolve both faint abilities');
+  reset();
+  rules('t_wisp', [B('hurt', 'damage', 'event', 1)]);
+  rules('t_bonelet', [B('hurt', 'damage', 'event', 1)]);
+  const recursive = simulate([unit('t_wisp', 1, 20000)], [unit('t_bonelet', 1, 20000)]);
+  ok(recursive.events.some(e => e.t === 'fizzle' && e.reason === 'operation_budget'), 'recursive hurt actions stop at shared budget without stack overflow');
+  reset();
+  rules('t_wisp', [B('start', 'buff', 'self', 2), B('start', 'pairEcho', 'partner', 1, { limit: 2 })]);
+  const paired = simulate([unit('t_wisp'), unit('t_wisp', 1, 40, { lvl: 2 })], [unit('t_drakelet', 1, 200)]);
+  ok(paired.events.some(e => e.t === 'trigger' && e.label === '并肩共鸣'), 'same name pair replays finite actions');
+  reset();
+  const bell = simulate([unit('t_wisp', 1, 200), unit('rw_wheel_bell', 1, 200), unit('t_bonelet', 1, 200)], [unit('t_drakelet', 1, 300)]);
+  ok(bell.events.some(e => e.t === 'move' && e.uid === 1 && e.reason?.includes('轮铃')), 'real bell rotates front target instead of caster');
+  const edges = simulate([unit('rw_formation_ranks'), ...Array.from({ length: 4 }, () => unit('t_bonelet'))], [unit('t_drakelet', 1, 200)]);
+  ok(edges.events.some(e => e.t === 'buff' && e.src === 1 && e.atk === 4 && e.hp === 4), 'all four original formation edges count');
+  const rich = simulate([unit('rw_trade_tycoon')], [unit('t_drakelet', 1, 200)], 1, [], { gold: 7 });
+  ok(rich.events.some(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot' && e.n === 7), 'tycoon uses remaining gold rather than golden unit count');
+  const seal = simulate([unit('t_wisp', 1, 40, { seal: 4 })], [unit('t_drakelet', 1, 200)]);
+  ok(seal.events.filter(e => e.t === 'trigger' && e.label === '封印首击').length === 1, 'seal spent on first attack only');
+  const flag = simulate([unit('rw_pair_cadet'), unit('rw_pair_cadet', 1, 40, { lvl: 2 }), unit('rw_pair_standard')], [unit('t_drakelet', 1, 200)]);
+  ok(flag.events.some(e => e.t === 'trigger' && e.uid === 3 && e.label === '并肩共鸣'), 'unrelated standard supports adjacent normal and gold copies');
+  const crown = simulate([unit('rw_ember_tinder', 1, 1, { ench: 'o_crown' }), unit('t_wisp')], [unit('t_wolf', 10, 100)]);
+  ok(crown.events.filter(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot').length === 2, 'crown repeats new DSL faint rules');
+  const matriarch = simulate([unit('rw_ember_tinder', 1, 1), unit('a_matriarch', 1, 100)], [unit('t_wolf', 10, 100)]);
+  ok(matriarch.events.filter(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot').length === 2, 'legacy faint amplifier applies to new rules');
+  const tiger = simulate([unit('rw_ember_tinder', 1, 1), unit('l_archon', 1, 100, { lvl: 2 })], [unit('t_wolf', 10, 100)]);
+  ok(tiger.events.some(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot' && e.n === 3), 'legacy tiger repeats new rule at tiger level');
+  const doubleBell = simulate([unit('t_wolf', 1, 150), unit('rw_common_sapper', 1, 150), unit('rw_wheel_bell', 1, 150), unit('rw_wheel_bell', 1, 150)], [unit('t_wisp', 1, 150)]);
+  const firstMove = doubleBell.events.findIndex(e => e.t === 'move');
+  const secondMove = doubleBell.events.findIndex((e, i) => i > firstMove && e.t === 'move');
+  ok(doubleBell.events.slice(firstMove + 1, secondMove).some(e => e.t === 'trigger' && e.uid === 2 && e.label.includes('破障')), 'intermediate front enters between successive rotations');
+  const quarry = simulate([unit('t_wisp', 1, 2), unit('rw_hunt_powder'), unit('rw_hunt_spotter')], [unit('t_wolf', 1, 100), unit('t_drakelet', 1, 1), unit('t_bonelet')], 1, [], { quarry: 1 });
+  ok(quarry.events.some(e => e.t === 'dmg' && e.src === 2 && e.tgt === 6 && e.kind === 'shot' && e.n === 6), 'quarry identity follows marks to original successor');
+  const legateRevive = simulate([unit('rw_ember_legate', 1, 1, { lamp: true })], [unit('t_wolf', 10, 50)]);
+  ok(!legateRevive.events.some(e => e.t === 'buff'), 'revived unit never witnesses own prior death');
+  const burnSave = simulate([unit('rw_blood_immortal', 1, 3)], [unit('t_wisp', 1, 50, { ax: ['burn'] })]);
+  ok(burnSave.events.some(e => e.t === 'dmg' && e.kind === 'burn' && e.tgt === 1 && e.hp === 1), 'unconditional survive also saves lethal burn');
+  const crowdedDeaths = simulate([unit('rw_nest_den', 1, 2, { lamp: true }), unit('rw_nest_den', 1, 2), ...Array.from({ length: 3 }, () => unit('rw_common_veteran'))], [unit('t_wolf', 1, 100, { tfx: ['thunder'] })]);
+  checkTrace(crowdedDeaths);
+  ok(motleyCount(['rw_wheel_courier', 'rw_charge_sling', 'rw_hunt_spotter', 'rw_common_veteran']) === 3, 'motley distinguishes archetypes sharing legacy lines, excludes common');
+  const enemyEconomy = simulate([unit('t_wisp', 1, 200)], [unit('rw_trade_tycoon', 1, 200), unit('rw_rune_chorus', 1, 200)], 1, [], { gold: 8, spells: 5 });
+  ok(!enemyEconomy.events.some(e => e.t === 'dmg' && e.kind === 'shot' && (e.src === 2 || e.src === 3)), 'enemy DSL does not borrow player money or spells');
+  for (const out of [crown, matriarch, tiger, doubleBell, quarry, legateRevive, burnSave, crowdedDeaths, enemyEconomy]) checkTrace(out);
+  for (const out of [wheel, gold, charge, full, merged, ember, revived, marks, guard, save, simultaneous, recursive, paired, bell, edges, rich, seal, flag]) checkTrace(out);
+  console.log('archetype combat: 27 scenarios and archetype counting passed');
+} finally {
+  for (const { d, rules: saved } of originals) (d as CardDef & { rules?: BattleRule[] }).rules = saved;
+}

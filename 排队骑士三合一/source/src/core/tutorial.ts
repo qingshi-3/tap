@@ -1,11 +1,10 @@
-import { card } from './data';
 import { newRun, type RunState, type ShopItem } from './run';
 
 /** 教程只准备货架和对手；购买、升星、战斗、结算仍走正式规则。 */
 export const TUTORIAL_STEPS = ['buy', 'merge', 'star', 'lock', 'reroll', 'battle1', 'ally', 'food', 'position', 'equip', 'battle2', 'done'] as const;
 export type TutorialStep = (typeof TUTORIAL_STEPS)[number];
-export const TUTORIAL_UNIT = 'a_imp';
-export const TUTORIAL_ALLY = 'a_spine';
+export const TUTORIAL_UNIT = 'rw_charge_sling';
+export const TUTORIAL_ALLY = 'rw_charge_bunker';
 export const TUTORIAL_EQUIP = 'w_mail';
 const prepared = new WeakMap<RunState, Set<TutorialStep>>();
 
@@ -14,23 +13,21 @@ function stock(r: RunState, kind: ShopItem['kind'], def: string): ShopItem {
 }
 
 function enemy(r: RunState, second: boolean) {
-  const defs = second ? ['e_skel', 'e_guardian'] : ['e_skel'];
-  r.enemy = {
-    boss: null,
-    units: defs.map((id) => {
-      const d = card(id);
-      // 第一战同时击倒二星小鬼，确保玩家实际看到自己的阵亡召唤。
-      // 教程敌阵可定制数值；我方升星、伤害和魂火仍按正式引擎结算。
-      return { def: id, lvl: 1 as const, atk: second ? d.atk : 4, hp: d.hp };
-    }),
-  };
+  // 第一战学习普通交锋；第二战让盾手先承伤，投石手在后排真实蓄能。
+  const specs = second
+    ? [{ def:'e_skel', atk:4, hp:8 }, { def:'e_guardian', atk:2, hp:10 }]
+    : [{ def:'e_skel', atk:2, hp:4 }];
+  r.enemy = { boss:null, units:specs.map(u => ({ ...u, lvl:1 as const })) };
   r.event = null;
 }
 
 /** 独立的临时局，不读写存档，不改变普通开局。 */
 export function newTutorialRun(): RunState {
   const r = newRun(20261028, { solo: true });
-  // 教程两回合都给满 10 金，酒馆升级在正式局里再学
+  r.activeArchetypes = ['supply','charge','formation','hunt','rune','blood'];
+  // 独立教学不插入首战遗物选择；正式 newRun 仍按正常流程发奖。
+  r.firstRelicGiven = true;
+  // 教程两回合都给满 10 金，第二回合演示二阶货架。
   r.gold = 10;
   r.shop = [stock(r, 'unit', TUTORIAL_UNIT), stock(r, 'unit', TUTORIAL_UNIT), stock(r, 'unit', TUTORIAL_UNIT), stock(r, 'food', 'f_bread')];
   enemy(r, false);
@@ -46,7 +43,8 @@ export function prepareTutorialStep(r: RunState, step: TutorialStep): void {
   if (step === 'ally') {
     // 保留第一回合锁住的面包，让锁定跨回合的结果可见。
     const bread = r.shop.find((s) => s.def === 'f_bread' && s.locked);
-    r.gold = Math.max(r.gold, 10);
+    r.gold = 10;
+    r.tavern = 2;
     r.shop = [stock(r, 'unit', TUTORIAL_ALLY), stock(r, 'unit', TUTORIAL_UNIT), stock(r, 'unit', TUTORIAL_ALLY), bread ?? stock(r, 'food', 'f_bread')];
     enemy(r, true);
   }

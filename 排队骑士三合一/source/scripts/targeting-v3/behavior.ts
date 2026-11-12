@@ -30,7 +30,7 @@ function fresh(seed = 1): RunState {
   r.queue.fill(null);
   r.shop = [];
   r.relics = [];
-  r.tc = { foods: 0, bought: 0, bear: {}, keeper: {}, shareUsed: false };
+  r.tc = { ...r.tc, foods: 0, bought: 0, bear: {}, keeper: {}, shareUsed: false };
   return r;
 }
 function addFood(r: RunState, def: string, val?: [number, number]): ShopItem {

@@ -49,7 +49,7 @@ export function demoOutput(s: DemoSpec): { out: BattleOut; at: number } {
 /** 事件落在哪个单位上 */
 export function focusUid(ev: Ev): number | null {
   switch (ev.t) {
-    case 'trigger': case 'fizzle': case 'die': case 'stat': return ev.uid;
+    case 'trigger': case 'fizzle': case 'die': case 'stat': case 'move': case 'counter': return ev.uid;
     case 'dmg': case 'heal': case 'buff': case 'block': case 'kw': return ev.tgt;
     case 'summon': return ev.unit.uid;
     default: return null;

@@ -1,13 +1,16 @@
 // 一局状态与商店经济：金币递增、付费升本、混合手牌与三连发现。
-import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPELL_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, HERO, type HeroId, type QuestId, QUEST_INFO, type FoodDef, type FoodFx, type Quality, type RelicId, type Tier, type NativeTiming } from './data';
+import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPELL_POOL, supportAvailable, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, HERO, type HeroId, type QuestId, QUEST_INFO, type FoodDef, type FoodFx, type Quality, type RelicId, type Tier, type NativeTiming } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec, type GrantedAbility } from './engine';
 import ghostData from './ghosts.json';
 import { STAT_CAP } from './data';
 import { authoredEncounters, type AuthoredEncounter } from './encounters';
+import { ARCHETYPE_IDS, ruleNumber, type ArchetypeId, type PrepRule, type PrepTrigger } from './archetypes';
+import { activeCardPool, cardAvailable, chooseArchetypes, relatedCards } from './archetypePool';
+export { activeCardPool } from './archetypePool';
 
-export const SAVE_KEY = 'pdqs3_run_v3';
-export const SAVE_VERSION = 3;
-export const LEGACY_SAVE_KEY = 'pdqs3_run_v2';
+export const SAVE_KEY = 'pdqs3_run_v5';
+export const SAVE_VERSION = 5;
+export const LEGACY_SAVE_KEY = 'pdqs3_run_v4';
 export const saveStatus = (): 'current' | 'unsupported' | 'invalid' | 'empty' => {
   try {
     const raw = localStorage.getItem(SAVE_KEY);
@@ -50,6 +53,7 @@ export const MAX_COPIES = 3;
 /** 只防溢出，不当玩法上限 */
 export { STAT_CAP } from './data';
 export const FOOD_HISTORY_MAX = 5;
+export const CHARGE_MAX = 999;
 export const MILK_MAX = 2;
 export const FOOD_SHOP_MAX = 5;
 export const SUPPLY_VERSION = 1;
@@ -64,7 +68,7 @@ export const SPELL_RATE = 1 / 3;
 /** 历战：每场最多 / 累计上限，按阶层递增 */
 export const scarPer = (def: string) => { const t = card(def).tier; return t <= 2 ? 1 : t <= 4 ? 2 : 3; };
 export const scarCap = (def: string) => scarPer(def) * 4;
-export const hasScar = (def: string) => hasTag(card(def), 'hurt');
+export const hasScar = (def: string) => !card(def).archetype && hasTag(card(def), 'hurt');
 /** 每幕 Boss 的候选（开局各抽一个） */
 export const ACT_BOSSES: BossKey[][] = [['wall', 'tide'], ['forge', 'horde'], ['final']];
 /** 第 act 幕第 layer 层的计划回合（Boss 层 = LAYERS） */
@@ -77,6 +81,9 @@ export interface Owned {
   granted?: GrantedAbility;
   pendingGoldPlay?: boolean;
   startBlock?: number;
+  startCharge?: number;
+  wounds?: number;
+  supportFoods?: string[];
   oid: number;
   def: string;
   copies: number;
@@ -98,6 +105,9 @@ export interface Owned {
   foodHistory?: FoodMemory[];
   /** 历战：受伤标签单位在战斗里攒下的永久 +n/+n（已计入 atkBonus/hpBonus，这里只记数用于上限） */
   scar?: number;
+  /** 下一战首次攻击消耗的咒印威力。 */
+  seal?: number;
+  sealSources?: Record<string, number>;
   /** 驻守计数（每打满 GUARD_N 场发现一次） */
   guard?: number;
   /** 买进手牌还没上过场：第一次上场时才算「被召唤」 */
@@ -142,6 +152,13 @@ export interface Goods { kind: 'equip' | 'shard' | 'spell'; id: string; price: n
 export interface TurnCount {
   foods: number;
   bought: number;
+  sold: number;
+  spells: number;
+  ruleUses: Record<string, number>;
+  ruleEvents: Record<string, number>;
+  generatedGold: number;
+  generatedSpells: number;
+  generatedRations: number;
   /** 旧版巨熊逐个补货次数；仅用于存档兼容，不再参与规则。 */
   bear: Record<number, number>;
   /** 本回合全队已触发的巨熊补给返金次数。 */
@@ -152,6 +169,9 @@ export interface TurnCount {
 }
 export interface RunState {
   v: number;
+  activeArchetypes: ArchetypeId[];
+  /** 猎标指定敌方初始位置，备战可调整。 */
+  quarry?: number;
   seed: number;
   turn: number;
   lives: number;
@@ -275,7 +295,7 @@ export const ORANGE_MAX = 2;
 /** 商店内效果，UI 逐个播放；tmp 为只在下一场有效 */
 export type ShopFx =
   | { kind: 'buff'; src: number | null; tgt: number; atk: number; hp: number; label: string; tmp?: boolean }
-  | { kind: 'bank'; src: number; n: number; label: string }
+  | { kind: 'bank'; src: number; n: number; label: string; resource?: 'block' | 'seal' | 'charge' | 'wounds' }
   | { kind: 'gold'; src: number; n: number; label: string };
 
 /** 三连金色：3 份 = 金色（技能用 ★2 数值） */
@@ -292,7 +312,7 @@ export const shownStats = (o: Owned): [number, number] => equipStats(o.ench, own
 export const sellPrice = (o: Owned) => (o.merc ? 0 : lvlOf(o.copies));
 /** 货架单位格随酒馆等级：1 级 3 格、2–3 级 4 格、4 级起 5 格 */
 export const unitSlots = (tavern: number) => (tavern <= 1 ? 3 : tavern <= 3 ? 4 : 5);
-export const foodSlots = (tavern: number) => (tavern <= 1 ? 1 : 2);
+export const foodSlots = (tavern: number) => (tavern < 4 ? 2 : 3);
 /** 敌人生成仍按回合估阶层（幽灵库是按回合采的） */
 export const maxTier = (turn: number): Tier => Math.min(6, Math.ceil(turn / 2)) as Tier;
 /** 玩家能买到的最高阶 = 酒馆等级 */
@@ -337,7 +357,7 @@ function setCell(r: RunState, i: number, o: Owned | null) {
   else r.queue[i] = o;
 }
 export const CELLS = QUEUE_MAX + HAND_MAX;
-const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {}, bearRefunds: 0, keeper: {}, shareUsed: false });
+const newCount = (): TurnCount => ({ foods: 0, bought: 0, sold: 0, spells: 0, ruleUses: {}, ruleEvents: {}, generatedGold: 0, generatedSpells: 0, generatedRations: 0, bear: {}, bearRefunds: 0, keeper: {}, shareUsed: false });
 
 export function prepFoodUses(r: RunState, o: Owned): { used: number; max: number } | null {
   if (abOf(o) === 'seal') return { used: r.tc.keeper?.[o.oid] ?? 0, max: uOf(o) };
@@ -440,10 +460,129 @@ function tmpFx(fx: ShopFx[], src: number | null, o: Owned | undefined, atk: numb
   fx.push({ kind: 'buff', src, tgt: o.oid, atk, hp, label, tmp: true });
 }
 
+function sealSourceValid(key: string, open?: readonly ArchetypeId[]): boolean {
+  const [kind,id,...rest] = key.split(':');
+  if (rest.length) return false;
+  const item = kind === 'supply' ? FOOD[id] : kind === 'equipment' ? equipOf(id as Ench) : kind === 'relic' ? RELICS.find(x => x.id === id) : null;
+  return !!item && (!open || supportAvailable(item, open));
+}
+function bankSeal(o: Owned, n: number, source?: string): number {
+  const before = o.seal ?? 0;
+  o.seal = Math.min(STAT_CAP, before + n);
+  const added = o.seal - before;
+  if (source && added > 0) (o.sealSources ??= {})[source] = (o.sealSources?.[source] ?? 0) + added;
+  return added;
+}
+function prepTargets(r: RunState, owner: Owned, rule: PrepRule, event?: Owned): Owned[] {
+  const i = r.queue.indexOf(owner);
+  const q = units(r);
+  switch (rule.target) {
+    case 'self': return [owner];
+    case 'event': return event && cellExists(r, event) ? [event] : [];
+    case 'front': return q.slice(0, 1);
+    case 'ahead': return i < 0 ? [] : r.queue.slice(0, i).reverse().filter((x): x is Owned => !!x).slice(0, 1);
+    case 'behind': return i < 0 ? [] : r.queue.slice(i + 1).filter((x): x is Owned => !!x).slice(0, 1);
+    case 'neighbors': return i < 0 ? [] : [r.queue[i - 1], r.queue[i + 1]].filter((x): x is Owned => !!x);
+    case 'team': return q;
+  }
+}
+function prepRuleKey(r: RunState, owner: Owned, rule: PrepRule, index: number | string): string {
+  return `${typeof index === 'string' && index.startsWith('relic:') ? 'global' : owner.oid}:${index}${rule.on === 'ownBuy' ? `:buy:${r.tc.bought}` : ''}`;
+}
+function ruleReady(r: RunState, owner: Owned, rule: PrepRule, index: number | string, event?: Owned): boolean {
+  if ((r.tc.ruleUses[prepRuleKey(r, owner, rule, index)] ?? 0) >= (rule.limit ?? 3)) return false;
+  if (rule.effect === 'gold' && r.tc.generatedGold >= 4) return false;
+  if (rule.effect === 'spell' && (!spellPool(r).length || r.tc.generatedSpells >= 2 || (r.rewards?.length ?? 0) >= 8)) return false;
+  if (rule.effect === 'ration' && (r.tc.generatedRations >= 2 || r.shop.filter(s => s.kind === 'food').length >= FOOD_SHOP_MAX)) return false;
+  if (rule.effect === 'buff' && !prepTargets(r, owner, rule, event).some(target =>
+    ruleNumber(rule.n, lvlOf(owner.copies)) > 0 && ownedAtk(target) < STAT_CAP
+    || ruleNumber(rule.hp, lvlOf(owner.copies)) > 0 && ownedHp(target) < STAT_CAP)) return false;
+  return true;
+}
+/** 所有经营规则共用事件与限次账；移动和重新绘制不会重新发奖。 */
+function prepRules(r: RunState, trigger: PrepTrigger, fx: ShopFx[], event?: Owned) {
+  const owners = trigger === 'ownBuy' || trigger === 'ownSell' || trigger === 'bloodPay' ? event ? [event] : [] : [...units(r)];
+  if (trigger === 'food' && event && !owners.includes(event)) owners.push(event);
+  const candidates: {owner:Owned; index:number|string; rule:PrepRule; label:string}[] = [];
+  for (const owner of owners) {
+    for (const [index, rule] of (card(owner.def).rules ?? []).entries()) if (rule.phase === 'prep') candidates.push({owner,index,rule,label:card(owner.def).name});
+    const equipment = equipOf(owner.ench);
+    for (const [index, rule] of (equipment?.rules ?? []).entries()) if (rule.phase === 'prep') candidates.push({owner,index:`equip:${equipment!.id}:${index}`,rule,label:equipment!.name});
+  }
+  const reference = event ?? units(r)[0];
+  if (reference) for (const relic of RELICS.filter(x => r.relics.includes(x.id))) {
+    for (const [index, rule] of (relic.prepRules ?? []).entries()) candidates.push({owner:reference,index:`relic:${relic.id}:${index}`,rule,label:relic.name});
+  }
+  for (const {owner,index,rule,label} of candidates) {
+    if (rule.on !== trigger) continue;
+    if (trigger === 'food' && !r.queue.includes(owner) && rule.when !== 'selfEvent' && !(typeof index === 'string' && index.startsWith('relic:'))) continue;
+    if (rule.when === 'selfEvent' && owner !== event || rule.when === 'otherEvent' && owner === event) continue;
+    const targets = prepTargets(r, owner, rule, event);
+    if (!targets.length || !ruleReady(r, owner, rule, index, event)) continue;
+    const key = prepRuleKey(r, owner, rule, index);
+    const globalCount = trigger === 'spell' ? r.tc.spells : trigger === 'buy' ? r.tc.bought : trigger === 'sell' ? r.tc.sold : undefined;
+    const count = globalCount ?? (r.tc.ruleEvents[key] ?? 0) + 1;
+    r.tc.ruleEvents[key] = count;
+    if (rule.at && !rule.at.includes(count)) continue;
+    if (count % (rule.every ?? 1)) continue;
+    const scale = rule.scale === 'trades' ? r.tc.bought + r.tc.sold : rule.scale === 'spells' ? r.tc.spells : rule.scale === 'meals' ? r.tc.foods : 1;
+    const level = trigger === 'ownBuy' ? 1 : lvlOf(owner.copies);
+    const n = ruleNumber(rule.n, level) * scale;
+    const hp = ruleNumber(rule.hp, level) * scale;
+    if (!n && !hp) continue;
+    r.tc.ruleUses[key] = (r.tc.ruleUses[key] ?? 0) + 1;
+    for (const target of targets) {
+      switch (rule.effect) {
+        case 'buff': growFx(r, fx, owner.oid, target, n, hp, label, `rule:${index}`); break;
+        case 'block': target.startBlock = Math.min(30, (target.startBlock ?? 0) + n); fx.push({ kind:'bank', src:target.oid, n, resource:'block', label:`${label}·格挡` }); break;
+        case 'seal': { const source = typeof index === 'string' ? index.startsWith('equip:') ? `equipment:${index.split(':')[1]}` : index.startsWith('relic:') ? `relic:${index.split(':')[1]}` : undefined : undefined; const added = bankSeal(target, n, source); if (added) fx.push({ kind:'bank', src:target.oid, n:added, resource:'seal', label:`${label}·封印` }); break; }
+        case 'gold': {
+          if (target !== targets[0]) break;
+          const amount = Math.min(n, 4 - r.tc.generatedGold);
+          r.tc.generatedGold += amount; r.gold += amount;
+          fx.push({ kind:'gold', src:owner.oid, n:amount, label }); break;
+        }
+        case 'ration': {
+          if (target !== targets[0]) break;
+          for (let k = 0; k < n && r.tc.generatedRations < 2 && r.shop.filter(s => s.kind === 'food').length < FOOD_SHOP_MAX; k++) {
+            r.shop.push({ sid:r.nextId++, kind:'food', def:FOOD.f_bread && supportAvailable(FOOD.f_bread, r.activeArchetypes) ? 'f_bread' : pickFood(r, 1, true).id, locked:false, free:true, price:0 });
+            r.tc.generatedRations++;
+          }
+          break;
+        }
+        case 'spell': {
+          if (target !== targets[0]) break;
+          const pool = spellPool(r).map(f => f.id);
+          for (let k = 0; k < n && r.tc.generatedSpells < 2; k++) {
+            if (!pool.length) break;
+            const id = pick(r, pool);
+            enqueueCard(r, { kind:'spell', oid:r.nextId++, def:id, source:label, obtainedTurn:r.turn, expiresTurn:r.turn }, label);
+            r.tc.generatedSpells++;
+          }
+          break;
+        }
+      }
+    }
+  }
+}
+export function canPayBlood(r: RunState, slot: number): boolean {
+  const o = r.queue[slot];
+  return r.phase === 'prep' && !r.endTurnCommitted && !!o && !o.merc && ownedHp(o) > 1
+    && (card(o.def).rules ?? []).some((rule, i) => rule.phase === 'prep' && rule.on === 'bloodPay' && ruleReady(r, o, rule, i));
+}
+export function payBlood(r: RunState, slot: number): { ok: boolean; fx: ShopFx[] } {
+  if (!canPayBlood(r, slot)) return { ok:false, fx:[] };
+  const o = r.queue[slot]!;
+  const fx: ShopFx[] = [{ kind:'buff', src:o.oid, tgt:o.oid, atk:0, hp:-1, label:'献血' }];
+  o.hpBonus = ownedHp(o) - 1 - baseStat(card(o.def).hp, o.copies);
+  prepRules(r, 'bloodPay', fx, o);
+  return { ok:true, fx };
+}
+
 export function newRun(seed = (Math.random() * 2 ** 31) | 0, opts: { warm?: boolean; diff?: Diff; hero?: HeroId; lite?: boolean; solo?: boolean } = {}): RunState {
   const diff = opts.diff ?? 0;
   const r: RunState = {
-    v: SAVE_VERSION, seed, worldSeed: seed, rewards: [], turn: 1, lives: DIFFS[diff].lives, wins: 0, gold: goldFor(1), queue: Array(QUEUE_MAX).fill(null), hand: Array(HAND_MAX).fill(null), tavern: 1, tavernCost: TAVERN_COST[2], shop: [], nextId: 1,
+    v: SAVE_VERSION, activeArchetypes: chooseArchetypes(seed), seed, worldSeed: seed, rewards: [], turn: 1, lives: DIFFS[diff].lives, wins: 0, gold: goldFor(1), queue: Array(QUEUE_MAX).fill(null), hand: Array(HAND_MAX).fill(null), tavern: 1, tavernCost: TAVERN_COST[2], shop: [], nextId: 1,
     phase: 'prep', history: [], canned: 0, rerolls: 0, tc: newCount(), finalLosses: 0, enemy: { boss: null, units: [] }, pendingFx: [],
     eco: [], lastForm: null, streak: 0, warm: !!opts.warm, adSave: 0, adRr: 0, lastLoss: 0, bag: [], oranges: [], noPurple: 0, chest: null,
     diff, relics: [], firstRelicGiven: false, relicDue: 0, relicPick: null, event: null, seenEv: [], chaos: 0, supplyVersion: SUPPLY_VERSION,
@@ -464,12 +603,39 @@ export function newRun(seed = (Math.random() * 2 ** 31) | 0, opts: { warm?: bool
 /** 温度高：连败 ≥2、剩 ≤3 心、或局外偏暖 */
 export const isWarm = (r: RunState) => (r.diff ?? 0) < 2 && (r.streak <= -2 || r.lives <= 3 || r.warm);
 
-const foodPool = (r: RunState) => FOOD_POOL.filter((f) => f.tier <= tierOf(r));
+export const foodPool = (r: RunState) => FOOD_POOL.filter(f => supportAvailable(f, r.activeArchetypes) && f.tier <= tierOf(r));
+/** 已开放且当前存在合法消费者的法术；所有生成与商人共用。 */
+export const spellPool = (r: RunState, max = tierOf(r)) => SPELL_POOL.filter(f => supportAvailable(f, r.activeArchetypes) && f.tier <= max && supplyUsable(r, f.id));
+export function supplyUsable(r: RunState, id: string): boolean {
+  const f = FOOD[id];
+  if (!f || !supportAvailable(f, r.activeArchetypes)) return false;
+  if (f.spell === 'echo') return units(r).some(o => !!card(o.def).pl);
+  if (f.spell) return f.target ? [...units(r), ...r.hand.filter((o): o is Owned => !!o && !isHeldSpell(o))].some(o => spellTargetOk(r, id, o)) : spellTargetOk(r, id, null);
+  return true;
+}
+/** 无可用法术目标时，提示玩家缺少的具体条件。 */
+function spellRequirement(id: string, target?: Owned | null): string {
+  if (target?.merc) return '请选正式队员';
+  switch (FOOD[id]?.spell) {
+    case 'copy': return target ? '这名队员已是金色，换一名队员' : '请选择普通队员';
+    case 'crown': return '请选择四阶或更低的普通队员';
+    case 'temper': return target?.granted?.tempered ? '这项技能已淬炼，换一名队员' : '先给队员附上永久技能，如骨契';
+    case 'reborn': return target ? '换一名有同流派高一阶候选的队员' : '本局暂无更高阶的变身可选';
+    case 'search': return target ? '换一名与其他可选单位有相同技能时机的队员' : '本局暂无同技能时机的其他队员';
+    case 'echo': return '先上阵带入场技能的队员';
+    case 'siphon': return '队长至少要有两颗心';
+    default: return '先上阵一名队员';
+  }
+}
 /** 已解锁补给按单品权重抽取；默认每件等权。 */
-function pickFood(r: RunState, minTier: Tier = 1) {
+function pickFood(r: RunState, minTier: Tier = 1, ration = false) {
   const mt = tierOf(r);
   const floor = Math.min(mt, minTier);
-  const pool = foodPool(r).filter((f) => f.tier >= floor);
+  const unlocked = foodPool(r);
+  const plain = unlocked.filter(f => !f.resources && !f.battleRules?.length && !f.fx);
+  const foods = ration && plain.length ? plain : unlocked;
+  const high = foods.filter((f) => f.tier >= floor);
+  const pool = high.length ? high : foods;
   const w = pool.map((f) => f.rollWeight ?? 1);
   let t = rng(r) * w.reduce((a, b) => a + b, 0);
   for (let i = 0; i < pool.length; i++) if ((t -= w[i]) < 0) return pool[i];
@@ -477,21 +643,21 @@ function pickFood(r: RunState, minTier: Tier = 1) {
 }
 /** 补给位：按 SPELL_RATE 出法术，否则出补给 */
 function pickSupply(r: RunState): FoodDef {
-  const spells = SPELL_POOL.filter((f) => f.tier <= tierOf(r));
+  const spells = spellPool(r);
   return spells.length && rng(r) < SPELL_RATE ? pick(r, spells) : pickFood(r);
 }
 
 // ── 发现 ──
-const tagsOf = (d: CardDef) => [d.line, d.tag2].filter((t): t is (typeof LINES)[number] => !!t && t !== 'any' && t !== 'enemy');
 /** 三张不同名；distinct：主标签互不相同；有队伍时至少一张与队伍同名或共享标签 */
 function discOffer(r: RunState, pool: CardDef[], distinct = false): string[] {
+  pool = pool.filter(c => cardAvailable(r, c));
   const own = units(r).map((o) => card(o.def));
-  const aff = (c: CardDef) => own.some((d) => d.id === c.id || tagsOf(d).some((t) => hasTag(c, t)));
+  const aff = (c: CardDef) => own.some(d => relatedCards(d, c));
   const rest = [...pool];
   const opts: CardDef[] = [];
   while (opts.length < 3 && rest.length) {
     const c = rest.splice(Math.floor(rng(r) * rest.length), 1)[0];
-    if (distinct && opts.some((o) => o.line === c.line) && rest.some((x) => !opts.some((o) => o.line === x.line))) continue;
+    if (distinct && opts.some((o) => (o.archetype ?? o.line) === (c.archetype ?? c.line)) && rest.some((x) => !opts.some((o) => (o.archetype ?? o.line) === (x.archetype ?? x.line)))) continue;
     opts.push(c);
   }
   if (own.length && opts.length && !opts.some(aff)) {
@@ -505,16 +671,20 @@ function pushDiscover(r: RunState, pool: CardDef[], src: string, price: number, 
   if (!opts.length) return;
   (r.discover ??= []).push({ opts, src, mode: o.mode ?? 'gain', price, oid: o.oid });
 }
-const tierPool = (t: number) => SHOP_POOL.filter((c) => c.tier === Math.min(6, t));
+const tierPool = (t: number, r?: RunState) => {
+  const pool = (r ? activeCardPool(r) : SHOP_POOL).filter(c => c.tier <= Math.min(6, t));
+  const highest = Math.max(0, ...pool.map(c => c.tier));
+  return pool.filter(c => c.tier === highest);
+};
 /** 同标签（只有通用标签时不限）的单位 */
-const sameTag = (d: CardDef, pool: CardDef[]) => { const ts = tagsOf(d); return ts.length ? pool.filter((c) => ts.some((t) => hasTag(c, t))) : pool; };
+const sameTag = (d: CardDef, pool: CardDef[]) => d.archetype ? pool.filter(c => relatedCards(d, c)) : pool;
 /** 转生的候选：同标签、高一阶 */
-export const rebornPool = (o: Owned) => { const d = card(o.def); return d.tier >= 6 ? [] : sameTag(d, tierPool(d.tier + 1)); };
+export const rebornPool = (o: Owned, r?: RunState) => { const d = card(o.def); return d.tier >= 6 ? [] : sameTag(d, (r ? activeCardPool(r) : SHOP_POOL).filter(c => c.tier === d.tier + 1)); };
 /** 选定发现的第 i 张；返回放上货架的 sid 或被替换的 oid */
 export function pickDiscover(r: RunState, i: number): { def: string; sid?: number; oid?: number; hand?: number; missing?: boolean } | null {
   const d = r.discover?.[0];
   const id = d?.opts[i];
-  if (!d || !id) return null;
+  if (!d || !id || (d.mode !== 'spell' && !cardAvailable(r, card(id)))) return null;
   return withFactBatch(r, () => {
     r.discover!.shift();
     if (d.mode === 'spell') {
@@ -529,6 +699,7 @@ export function pickDiscover(r: RunState, i: number): { def: string; sid?: numbe
       const o = d.oid == null ? undefined : byOid(r, d.oid) ?? (handIndex >= 0 ? cellAt(r, HAND_BASE + handIndex) : null);
       if (!o) return { def: id, missing: true };
       o.def = id;
+      o.hpBonus = Math.max(o.hpBonus, 1 - baseStat(card(id).hp, o.copies));
       if (!card(id).inherit) o.foodHistory = undefined;
       return { def: id, oid: o.oid, hand: handIndex >= 0 ? HAND_BASE + handIndex : undefined };
     }
@@ -554,7 +725,7 @@ export const itemPrice = (s: ShopItem) => s.price ?? PRICE;
 
 function rollShop(r: RunState) {
   const tier = tierOf(r);
-  const pool = SHOP_POOL.filter((c) => c.tier <= tier);
+  const pool = activeCardPool(r).filter((c) => c.tier <= tier);
   const kept = r.shop.filter((s) => s.locked);
   const out: ShopItem[] = [];
   const keptU = kept.filter((s) => s.kind === 'unit' && !s.free);
@@ -565,8 +736,7 @@ function rollShop(r: RunState) {
   out.push(...keptU);
   // 招募同温：温度高时最多 2 格偏向同标签 / 已有同名（只加权不保底）
   const own = units(r).map((o) => card(o.def));
-  const tags = new Set(own.flatMap((d) => [d.line, d.tag2]).filter((t) => t && t !== 'any'));
-  const near = (c: CardDef) => own.some((d) => d.id === c.id) || [...tags].some((t) => hasTag(c, t as (typeof LINES)[number]));
+  const near = (c: CardDef) => own.some(d => relatedCards(d, c));
   let warmLeft = isWarm(r) && own.length ? 2 : 0;
   for (let i = keptU.length + keptB.length; i < unitSlots(r.tavern); i++) {
     let c = pick(r, pool);
@@ -580,8 +750,7 @@ function rollShop(r: RunState) {
   }
   // 只检查本次新刷的单位：锁定卡（含升星奖励）不能替本次刷新消耗保底。
   // 每个队员按同名或非通用主/副标签贡献一次权重，混搭不强制绑定单一流派。
-  const affinity = (c: CardDef) => own.filter((d) => d.id === c.id ||
-    [d.line, d.tag2].some((t) => t && t !== 'any' && t !== 'enemy' && hasTag(c, t))).length;
+  const affinity = (c: CardDef) => own.filter(d => relatedCards(d, c)).length;
   const fresh = out.filter((s) => !s.locked);
   if (own.length && fresh.length && !fresh.some((s) => affinity(card(s.def)) > 0)) {
     const related = pool.map((c) => ({ c, weight: affinity(c) })).filter((x) => x.weight > 0);
@@ -596,7 +765,10 @@ function rollShop(r: RunState) {
   const milk = r.shop.filter((s) => s.kind === 'food' && s.def === 'f_milk');
   const keptF = r.shop.filter((s) => s.kind === 'food' && s.def !== 'f_milk' && (s.locked || s.free));
   out.push(...keptF);
-  for (let i = keptF.filter((s) => !s.free).length; i < foodSlots(r.tavern) && out.filter((s) => s.kind === 'food').length + milk.length < FOOD_SHOP_MAX; i++) out.push({ sid: r.nextId++, kind: 'food', def: pickSupply(r).id, locked: false, free: false });
+  for (let i = keptF.filter((s) => !s.free).length; i < foodSlots(r.tavern) && out.filter((s) => s.kind === 'food').length + milk.length < FOOD_SHOP_MAX; i++) {
+    const f = i === keptF.filter(s => !s.free).length ? pickFood(r) : pickSupply(r);
+    if (f) out.push({ sid:r.nextId++, kind:'food', def:f.id, locked:false, free:false });
+  }
   out.push(...milk);
   r.shop = out;
 }
@@ -647,7 +819,7 @@ export type BuyResult = { ok: false; why: 'gold' | 'full' | 'max' | 'ability' | 
 export function buy(r: RunState, sid: number, slot: number, pt?: number, replacePlayAbility = false): BuyResult {
   if (r.endTurnCommitted) return { ok: false, why: 'ended' };
   const item = r.shop.find((x) => x.sid === sid);
-  if (!item || item.kind !== 'unit') return { ok: false, why: 'full' };
+  if (!item || item.kind !== 'unit' || !cardAvailable(r, card(item.def))) return { ok: false, why: 'full' };
   const cost = itemPrice(item);
   if (r.gold < cost) return { ok: false, why: 'gold' };
   const at = cellAt(r, slot);
@@ -685,11 +857,13 @@ export function buy(r: RunState, sid: number, slot: number, pt?: number, replace
 
 function buyDiscover(r: RunState, o: Owned) {
   const d = card(o.def);
-  if (d.disc === 'buy') pushDiscover(r, tierPool(tierOf(r)), d.name, PRICE);
+  if (d.disc === 'buy') pushDiscover(r, tierPool(tierOf(r), r), d.name, PRICE);
 }
 
 /** 购买钩子：场上单位对「买入」的反应（买进手牌也算） */
 function onBought(r: RunState, o: Owned, fx: ShopFx[]) {
+  prepRules(r, 'ownBuy', fx, o);
+  prepRules(r, 'buy', fx, o);
   for (const t of units(r).filter((x) => x !== o)) {
     switch (hasAbility(t, 'buy', 'dragon') ? 'dragon' : undefined) {
       case 'dragon':
@@ -734,7 +908,7 @@ export function inspectPlayConflict(r: RunState, def: string, slot: number, pt?:
   const incoming: GrantedAbility = { id: 'blood', duration: 'battle', value: card(def).pv?.[lvlOf(copies) - 1] ?? 0, source: card(def).name };
   return target.granted.id !== incoming.id || target.granted.duration !== incoming.duration ? { target, incoming } : null;
 }
-const tacticalPool = (r: RunState) => ['f_bread', 'f_drum', 'f_whet', 'x_bonepact', 'x_ignite', 'x_inscribe'].filter(id => FOOD[id] && FOOD[id].tier <= tierOf(r));
+const tacticalPool = (r: RunState) => [...foodPool(r), ...spellPool(r)].map(f => f.id);
 /** 入场：上场时结算一次；霜冠执政官让它额外触发（同类取最高） */
 function onPlay(r: RunState, o: Owned, fx: ShopFx[], pt?: number, replacePlayAbility = false, onBattleGrant?: (o: Owned) => void) {
   const d = card(o.def);
@@ -768,6 +942,7 @@ function onPlay(r: RunState, o: Owned, fx: ShopFx[], pt?: number, replacePlayAbi
 function addCopies(r: RunState, o: Owned, n: number, fx: ShopFx[], replacePlayAbility = false, pt?: number): boolean {
   const before = lvlOf(o.copies);
   o.copies = Math.min(MAX_COPIES, o.copies + n);
+  o.hpBonus = Math.max(o.hpBonus, 1 - baseStat(card(o.def).hp, o.copies));
   const levelUp = lvlOf(o.copies) > before;
   if (levelUp) {
     grantStarReward(r, o);
@@ -780,6 +955,11 @@ function addCopies(r: RunState, o: Owned, n: number, fx: ShopFx[], replacePlayAb
 
 /** 买到第一个合适的 cell：优先合并同名（场上、手牌），否则场上空格，再否则手牌空格 */
 export function autoSlot(r: RunState, def: string): number {
+  if (card(def).archetype === 'pair') {
+    for (let i = 0; i < r.queue.length; i++) if (r.queue[i]?.def === def) {
+      for (const at of [i + 1, i - 1]) if (at >= 0 && at < QUEUE_MAX && !r.queue[at]) return at;
+    }
+  }
   for (let i = 0; i < CELLS; i++) {
     const o = cellAt(r, i);
     if (o?.def === def && o.copies < MAX_COPIES && !o.merc) return i;
@@ -792,7 +972,7 @@ export function autoSlot(r: RunState, def: string): number {
 
 /** 三连奖励：从酒馆等级 +1 发现一张，白送（进手牌） */
 function grantStarReward(r: RunState, o: Owned) {
-  pushDiscover(r, tierPool(tierOf(r) + 1), `金色${card(o.def).name}`, 0);
+  pushDiscover(r, tierPool(tierOf(r) + 1, r), `金色${card(o.def).name}`, 0);
 }
 
 /** 升级酒馆 */
@@ -812,15 +992,63 @@ export function upgradeTavern(r: RunState): boolean {
 
 /** 补给是否需要指定目标 */
 export const foodNeedsTarget = (id: string) => (FOOD[id].spell ? !!FOOD[id].target : !FOOD[id].n && id !== 'f_can');
+/** 返回当前目标的具体缺项；UI 点选与拖放共用。 */
+export function supportTargetHint(r: RunState, id: string, o: Owned | null | undefined, val?: [number, number]): string | null {
+  const f = FOOD[id];
+  if (!f || !supportAvailable(f, r.activeArchetypes)) return '本局未开放这件道具';
+  if (f.spell) {
+    if (o && (f.spell === 'echo' || f.spell === 'ignite') && !r.queue.includes(o)) return '先把这名队员上阵';
+    return spellTargetOk(r, id, o) ? null : o ? spellRequirement(id, o) : '选择一名队员';
+  }
+  if (!o) return '选择一名友军';
+  if (f.resources?.charge) {
+    const rules = [...(card(o.def).rules ?? []), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
+    if (!rules.some(rule => rule.phase === 'battle' && rule.effect === 'release')) return '需有消耗蓄能射击的技能';
+    if ((o.startCharge ?? 0) >= CHARGE_MAX) return '预装蓄能已满';
+  }
+  const ownRules = [...(card(o.def).rules ?? []), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
+  const teamRules = units(r).flatMap(x => [...(card(x.def).rules ?? []), ...(equipOf(x.ench)?.rules ?? []), ...(x.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])]);
+  const battleRules = f.battleRules ?? [];
+  if (battleRules.some(rule => rule.on === 'released') && !ownRules.some(rule => rule.phase === 'battle' && rule.effect === 'release')) return '需有消耗蓄能射击的技能';
+  if (battleRules.some(rule => rule.on === 'inherited')) {
+    const at = r.queue.indexOf(o);
+    const prior = at < 0 ? undefined : r.queue.slice(0,at).reverse().find((x): x is Owned => !!x);
+    const rules = prior ? [...(card(prior.def).rules ?? []), ...(equipOf(prior.ench)?.rules ?? []), ...(prior.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])] : [];
+    if (!rules.some(rule => rule.phase === 'battle' && rule.effect === 'inherit')) return '身前队友需有传承技能，可装备封存遗嘱';
+  }
+  if (battleRules.some(rule => rule.on === 'move') && !ownRules.some(rule => rule.phase === 'battle' && rule.effect === 'rotate')) return '需有退到队尾的技能，或先喂换班燕麦';
+  if (battleRules.some(rule => rule.on === 'summon') && !teamRules.some(rule => rule.phase === 'battle' && rule.effect === 'summon') && !units(r).some(x => x.granted?.id === 'bone')) return '队伍需有召唤技能，可装备孵兽背篮';
+  if (battleRules.some(rule => rule.when === 'paired')) {
+    const line = units(r);
+    const at = line.indexOf(o);
+    if (at < 0 || ![line[at-1],line[at+1]].some(x => x?.def === o.def)) return '先把同名队友放在旁边';
+  }
+  if (battleRules.some(rule => rule.scale === 'edges') && units(r).length < 2) return '至少上阵两名队员';
+  if (f.resources?.wounds && !ownRules.some(rule => rule.phase === 'battle' && (rule.when === 'half' || rule.when === 'critical' || rule.on === 'hurt'))) return '需有受伤或低血时发动的技能';
+  const [atk,hp] = shownStats(o);
+  const [a,h] = val ?? (id === 'f_milk' ? [1,1] : [f.atk ?? 0,f.hp ?? 0]);
+  const statGain = a > 0 && atk < STAT_CAP || h > 0 && hp < STAT_CAP;
+  const resourceGain = Object.entries(f.resources ?? {}).some(([key,n]) => !!n && (o[key === 'charge' ? 'startCharge' : key === 'block' ? 'startBlock' : key as 'seal' | 'wounds'] ?? 0) < (key === 'block' ? 30 : key === 'charge' ? CHARGE_MAX : STAT_CAP));
+  const newRule = !!f.battleRules?.length && !o.supportFoods?.includes(id);
+  const effectGain = !!f.fx && !o.tfx?.includes(f.fx) || id === 'f_lamp' && !o.lamp && !equipOf(o.ench)?.reborn && !card(o.def).kws?.includes('reborn');
+  if (!statGain && !resourceGain && !newRule && !effectGain && id !== 'f_can') return '这份效果已用满，换一名队员';
+  return null;
+}
+export const foodTargetOk = (r: RunState, id: string, o: Owned | null | undefined, val?: [number, number]) => supportTargetHint(r, id, o, val) === null;
 export const foodAll = (id: string) => FOOD[id]?.n === ALL;
 export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' || (s.kind === 'food' && s.free) ? 0 : FOOD[s.def]?.price ?? PRICE);
 /** 补给的攻血效果（牛奶看货架上的数值） */
 export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def]?.atk ?? 0, FOOD[s.def]?.hp ?? 0];
 
 export type FoodResult = { ok: false; why: 'gold' | 'target' } | { ok: true; fx: ShopFx[]; levelUp: boolean };
-const inheritableFood = (id: string) => (INHERIT_FOODS as readonly string[]).includes(id);
+const inheritableFood = (id: string) => !!FOOD[id]?.inheritable || (INHERIT_FOODS as readonly string[]).includes(id);
 /** 分享餐盘只复制没有额外状态或范围效果的单体攻血补给。 */
 const SHARE_FOODS = new Set(['f_bread', 'f_whet', 'f_roast', 'f_milk', 'f_drum']);
+export function sharesFood(r: RunState, id: string): boolean {
+  const f = FOOD[id];
+  return !!f && r.relics.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0)
+    && (SHARE_FOODS.has(id) || !!(f.inheritable && !f.n && !f.behind && !f.around && !f.resources && !f.battleRules?.length));
+}
 /** 不把分发/分享的二次受益当作原始物件再记录，避免一件物品复制多份传承。 */
 function rememberFood(o: Owned, memory: FoodMemory) {
   if (!card(o.def).inherit || !inheritableFood(memory.id)) return;
@@ -828,7 +1056,7 @@ function rememberFood(o: Owned, memory: FoodMemory) {
   if (history.length < FOOD_HISTORY_MAX && !history.some((x) => x.sourceId === memory.sourceId)) history.push({ ...memory });
 }
 /** 统一食用结算；返回补给本体是否实际生效，食用监听不计作余温石的命中。 */
-function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean {
+function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[], direct = true): boolean {
   return withAction(r, 'eat', e.oid, item.id, () => {
     const f = FOOD[item.id];
     const mul = abOf(e) === 'cat' ? uOf(e) : 1;
@@ -843,6 +1071,16 @@ function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean
     } else growFx(r, fx, null, e, a, h, f.name, f.id);
     if (f.fx && !e.tfx?.includes(f.fx)) { e.tfx = [...(e.tfx ?? []), f.fx]; applied = true; }
     if (f.id === 'f_lamp' && !e.lamp) { e.lamp = true; applied = true; }
+    for (const [resource, value] of Object.entries(f.resources ?? {})) {
+      const n = typeof value === 'number' ? value : 0;
+      const key = resource === 'charge' ? 'startCharge' : resource === 'block' ? 'startBlock' : resource as 'seal' | 'wounds';
+      const before = e[key] ?? 0;
+      if (resource === 'seal') bankSeal(e, n, `supply:${f.id}`);
+      else e[key] = Math.min(resource === 'block' ? 30 : resource === 'charge' ? CHARGE_MAX : STAT_CAP, before + n);
+      const after = e[key] ?? 0;
+      if (after > before) { applied = true; fx.push({kind:'bank', src:e.oid, n:after - before, resource:resource as 'charge' | 'block' | 'seal' | 'wounds', label:f.name}); }
+    }
+    if (f.battleRules?.length && !e.supportFoods?.includes(f.id)) { (e.supportFoods ??= []).push(f.id); applied = true; }
     const v = vOf(e);
     const slot = r.queue.indexOf(e);
     switch (adefOf(e).abilities.find(a => a.role === 'event' && a.timing === 'food')?.effect) {
@@ -874,6 +1112,7 @@ function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean
         }
       }
     }
+    if (direct) prepRules(r, 'food', fx, e);
     return applied;
   });
 }
@@ -895,9 +1134,10 @@ function useFoodImpl(r: RunState, sid: number, slot: number | null, replaceAbili
   const item = r.shop.find((x) => x.sid === sid);
   if (!item || item.kind !== 'food') return { ok: false, why: 'target' };
   const f = FOOD[item.def];
+  if (!f || !supportAvailable(f, r.activeArchetypes)) return { ok:false, why:'target' };
   const tgt = slot === null ? null : cellAt(r, slot);
   if (f.spell) return castSpell(r, item, f, slot, replaceAbility, sourceSlot, purchased);
-  if (foodNeedsTarget(f.id) && !tgt) return { ok: false, why: 'target' };
+  if (foodNeedsTarget(f.id) && (!tgt || !foodTargetOk(r, f.id, tgt, item.val))) return { ok: false, why: 'target' };
   if (!foodNeedsTarget(f.id) && !units(r).length && f.id !== 'f_can') return { ok: false, why: 'target' };
   const price = foodPrice(item);
   if (r.gold < price) return { ok: false, why: 'gold' };
@@ -916,8 +1156,9 @@ function useFoodImpl(r: RunState, sid: number, slot: number | null, replaceAbili
     if (f.around && slot !== null) {
       for (const j of [slot - 1, slot + 1]) if (r.queue[j]) eaters.push(r.queue[j]!);
     }
+    const directEaters = new Set(eaters);
     // 分享餐盘：每回合第一份纯单体攻血补给也喂给相邻友军。
-    if (r.relics?.includes('r_share') && !(r.tc.shareUsed ?? r.tc.foods > 0) && SHARE_FOODS.has(f.id) && tgt && slot !== null) {
+    if (sharesFood(r, f.id) && tgt && slot !== null) {
       r.tc.shareUsed = true;
       for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
     }
@@ -926,24 +1167,27 @@ function useFoodImpl(r: RunState, sid: number, slot: number | null, replaceAbili
       if (f.id === 'f_can') r.canned += 1;
       for (const e of eaters) {
         const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
-        const applied = eatFood(r, e, memory, fx);
+        const applied = eatFood(r, e, memory, fx, directEaters.has(e) && iteration === 0);
         if (f.tmp && applied) emberTargets.add(e);
         if (e === tgt && !f.tmp && !f.n && !f.behind && !f.around) rememberFood(e, memory);
       }
     }
     if (r.relics.includes('r_ember')) for (const e of emberTargets) if (cellExists(r, e)) growFx(r, fx, null, e, 1, 1, '余温石', 'r_ember');
-    r.tc.foods += eaters.length * (repeatFood + 1);
-    spellObservers(r, fx);
+    r.tc.foods += directEaters.size;
+    spellObservers(r, fx, false);
     return { ok: true, fx, levelUp: false };
   }));
 }
 
 export function nativeTimings(d: CardDef): NativeTiming[] {
-  return [...new Set(d.abilities.filter(a => a.role === 'event').map(a => a.timing))];
+  const timings = d.abilities.filter(a => a.role === 'event').map(a => a.timing);
+  const mapping: Record<string, NativeTiming> = { ownBuy:'buy', ownSell:'sell', buy:'buy', sell:'sell', food:'food', spell:'spell', turnStart:'round_start', turnEnd:'end', bloodPay:'bloodPay', start:'start', enter:'enter', afterAttack:'after_attack', clashEnd:'clashEnd', faint:'faint', allyFaint:'ally_faint', summon:'summon', hurt:'hurt' };
+  for (const rule of d.rules ?? []) if (mapping[rule.on]) timings.push(mapping[rule.on]);
+  return [...new Set(timings)];
 }
 export function searchPool(r: RunState, o: Owned): CardDef[] {
   const d = card(o.def), timings = nativeTimings(d);
-  return SHOP_POOL.filter(c => c.id !== d.id && c.tier <= tierOf(r) && nativeTimings(c).some(t => timings.includes(t)));
+  return activeCardPool(r).filter(c => c.id !== d.id && c.tier <= tierOf(r) && nativeTimings(c).some(t => timings.includes(t)));
 }
 
 /** 法术目标是否合法（UI 拖放提示也用） */
@@ -954,7 +1198,7 @@ export function spellTargetOk(r: RunState, id: string, o: Owned | null | undefin
   if (f.spell === 'copy') return o.copies < MAX_COPIES;
   if (f.spell === 'crown') return card(o.def).tier <= 4 && !isGold(o);
   if (f.spell === 'temper') return !!o.granted && o.granted.duration === 'permanent' && o.granted.id !== 'blood' && !o.granted.tempered;
-  if (f.spell === 'reborn') return rebornPool(o).length > 0;
+  if (f.spell === 'reborn') return rebornPool(o, r).length > 0;
   if (f.spell === 'search') return searchPool(r, o).length > 0;
   return true;
 }
@@ -1008,16 +1252,16 @@ function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null,
       case 'search': pushDiscover(r, searchPool(r, tgt!), f.name, 0); break;
       case 'recruit': pushDiscover(r, sameTag(card(tgt!.def), SHOP_POOL.filter((c) => c.tier <= mt)), f.name, 0); break;
       case 'bank': r.bankGold = (r.bankGold ?? 0) + 5; break;
-      case 'draft': pushDiscover(r, tierPool(mt), f.name, 0, { distinct: true }); break;
+      case 'draft': pushDiscover(r, tierPool(mt, r), f.name, 0, { distinct: true }); break;
       case 'copy': levelUp = addCopies(r, tgt!, 1, fx, replaceAbility); break;
-      case 'reborn': pushDiscover(r, rebornPool(tgt!), f.name, 0, { mode: 'morph', oid: tgt!.oid }); break;
+      case 'reborn': pushDiscover(r, rebornPool(tgt!, r), f.name, 0, { mode: 'morph', oid: tgt!.oid }); break;
       case 'omen': r.omen = true; break;
       case 'dismiss': {
         if (!tgt || slot === null || cellAt(r, slot) !== tgt) break;
         const tier = card(tgt!.def).tier;
         const out = sell(r, slot!);
         if (out) { fx.push(...out.fx); r.gold += dismissGold(tier) + (r.relics.includes('r_pouch') ? 1 : 0) - out.gold; }
-        pushDiscover(r, tierPool(tier), f.name, 0);
+        pushDiscover(r, tierPool(tier, r), f.name, 0);
         break;
       }
       case 'ready': r.freeRr = (r.freeRr ?? 0) + 2; break;
@@ -1030,7 +1274,8 @@ function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null,
 }
 
 
-function spellObservers(r: RunState, fx: ShopFx[]) {
+function spellObservers(r: RunState, fx: ShopFx[], actualSpell = true) {
+  if (actualSpell) { r.tc.spells++; prepRules(r, 'spell', fx); }
   for (const o of units(r)) {
     const at = r.queue.indexOf(o);
     if (hasAbility(o, 'spell', 'spellgrow')) growFx(r, fx, o.oid, r.queue.slice(0, at).reverse().find((x): x is Owned => !!x), vOf(o), vOf(o), '施法', 'spellgrow');
@@ -1168,7 +1413,23 @@ function moveOwnedImpl(r: RunState, from: number, to: number, pt?: number, keepA
     if (a.guard || b.guard) b.guard = Math.max(b.guard ?? 0, a.guard ?? 0);
     (r.tc.keeper ??= {})[b.oid] = (r.tc.keeper[b.oid] ?? 0) + (r.tc.keeper[a.oid] ?? 0);
     delete r.tc.keeper[a.oid];
-    b.startBlock = (b.startBlock ?? 0) + (a.startBlock ?? 0) || undefined;
+    for (const ledger of [r.tc.ruleUses, r.tc.ruleEvents]) {
+      for (const key of Object.keys(ledger)) if (key.startsWith(`${a.oid}:`)) {
+        const target = `${b.oid}:${key.slice(key.indexOf(':') + 1)}`;
+        ledger[target] = (ledger[target] ?? 0) + ledger[key];
+        delete ledger[key];
+      }
+    }
+    b.seal = Math.min(STAT_CAP, (b.seal ?? 0) + (a.seal ?? 0)) || undefined;
+    const sources = {...(b.sealSources ?? {})};
+    for (const [key,n] of Object.entries(a.sealSources ?? {})) sources[key] = (sources[key] ?? 0) + n;
+    let supported = b.seal ?? 0;
+    b.sealSources = {};
+    for (const [key,n] of Object.entries(sources)) { const amount = Math.min(n, supported); if (amount) b.sealSources[key] = amount; supported -= amount; }
+    b.startBlock = Math.min(30, (b.startBlock ?? 0) + (a.startBlock ?? 0)) || undefined;
+    b.startCharge = Math.min(CHARGE_MAX, (b.startCharge ?? 0) + (a.startCharge ?? 0)) || undefined;
+    b.wounds = Math.min(STAT_CAP, (b.wounds ?? 0) + (a.wounds ?? 0)) || undefined;
+    b.supportFoods = [...new Set([...(b.supportFoods ?? []), ...(a.supportFoods ?? [])])];
     b.tmpAtk = (b.tmpAtk ?? 0) + (a.tmpAtk ?? 0) || undefined;
     b.tmpHp = (b.tmpHp ?? 0) + (a.tmpHp ?? 0) || undefined;
     b.lamp = b.lamp || a.lamp;
@@ -1202,13 +1463,16 @@ export function sell(r: RunState, slot: number): SellOut | null {
     setCell(r, slot, null);
     if (o.ench) toBag(r, o.ench);
     const fx: ShopFx[] = [];
+    r.tc.sold++;
+    prepRules(r, 'ownSell', fx, o);
+    prepRules(r, 'sell', fx, o);
     const rest = units(r);
     if (hasAbility(o, 'sell', 'beaver') && rest.length) growFx(r, fx, o.oid, pick(r, rest), vOf(o), vOf(o), '出售', 'beaver');
     for (const t of rest) if (hasAbility(t, 'sell', 'salvage')) growFx(r, fx, t.oid, t, vOf(t), vOf(t), '出售其他单位', 'salvage');
     if (card(o.def).inherit && receiver) {
-      for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx);
+      for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx, false);
     }
-    if (card(o.def).disc === 'sell' && !o.merc) pushDiscover(r, tierPool(tierOf(r)), card(o.def).name, PRICE);
+    if (card(o.def).disc === 'sell' && !o.merc) pushDiscover(r, tierPool(tierOf(r), r), card(o.def).name, PRICE);
     questTick(r, 'sell', 1, fx);
     return { gold, fx };
   });
@@ -1249,18 +1513,26 @@ function endTurnImpl(r: RunState): ShopFx[] {
     }
   } });
   for (const o of q) if (o.granted?.id === 'sprout' && o.granted.duration === 'permanent') growFx(r, fx, o.oid, o, 0, o.granted.value, '萌芽印', 'sprout');
-  // 老兵队长：在队里待满 3 回合后，每回合结束 +1/+1
+  prepRules(r, 'turnEnd', fx);
+  // 老兵队长：成熟老兵中选择驻队最久的一名，每回合 +1/+1
   if (r.hero === 'vet') for (const o of q) {
     o.stay = (o.stay ?? 0) + 1;
-    if (o.stay > 3) growFx(r, fx, null, o, 1, 1, '老兵', 'hero_vet');
+  }
+  if (r.hero === 'vet') {
+    const veteran = [...q].filter(o => (o.stay ?? 0) > 3).sort((a, b) => (b.stay ?? 0) - (a.stay ?? 0) || a.oid - b.oid)[0];
+    if (veteran) growFx(r, fx, null, veteran, 1, 1, '老兵', 'hero_vet');
   }
   return fx;
 }
 
+/** 实际猎物初始位置：选定位置缺席时与战斗引擎一致，回到敌方队首。 */
+export const effectiveQuarry = (r: Pick<RunState, 'enemy'> & Partial<Pick<RunState, 'quarry'>>): number =>
+  r.enemy.units[r.quarry ?? 0] ? r.quarry ?? 0 : 0;
+
 export const playerTeam = (r: Pick<RunState, 'queue'>): UnitSpec[] =>
   r.queue.filter((o): o is Owned => !!o).map((o) => {
     const [atk, hp] = equipStats(o.ench, ownedAtk(o) + (o.tmpAtk ?? 0), ownedHp(o) + (o.tmpHp ?? 0));
-    return { def: o.def, lvl: lvlOf(o.copies), atk, hp, oid: o.oid, ench: o.ench ?? null, lamp: o.lamp, tfx: o.tfx, bank: o.bank, granted: o.granted, startBlock: o.startBlock };
+    return { def: o.def, lvl: lvlOf(o.copies), atk, hp, oid: o.oid, ench: o.ench ?? null, lamp: o.lamp, tfx: o.tfx, bank: o.bank, granted: o.granted, startBlock: o.startBlock, startCharge:o.startCharge, wounds:o.wounds, supportFoods:o.supportFoods ? [...o.supportFoods] : undefined, seal:o.seal, sealSources:o.sealSources ? {...o.sealSources} : undefined };
   });
 
 // ── 装备与背包 ──
@@ -1297,14 +1569,14 @@ export function unequip(r: RunState, slot: number): boolean {
   return true;
 }
 export function discardBag(r: RunState, i: number): number {
-  if (!r.bag[i]) return 0;
+  if (r.endTurnCommitted || !r.bag[i]) return 0;
   r.bag.splice(i, 1);
   r.gold += 1;
   return 1;
 }
 
 // ── 装备箱：翻 3 选 1，每件各自抽品质 ──
-const CHEST_POOL = (q: Quality) => EQUIPS.filter((e) => e.q === q && !e.food);
+export const equipmentPool = (r: RunState, q?: Quality) => EQUIPS.filter(e => !e.food && (q === undefined || e.q === q) && supportAvailable(e, r.activeArchetypes));
 function chestWeights(r: RunState): number[] {
   let w = r.turn <= 6 ? [55, 33, 11, 1] : r.turn <= 11 ? [40, 38, 19, 3] : [30, 38, 26, 6];
   if (isWarm(r)) w = w.map((x, i) => 0.5 * x + 0.5 * (w[i - 1] ?? 0));
@@ -1319,9 +1591,10 @@ function rollQ(r: RunState, w: number[]): Quality {
 /** 在品质 q 里抽一件不重复的；橙装受上限约束（cap：本次允许的橙装总数） */
 function rollItem(r: RunState, q: Quality, taken: Ench[], cap: number): Ench {
   if (q === 3 && r.oranges.length + taken.filter((x) => equipOf(x)?.q === 3).length >= cap) q = 2;
-  const pool = CHEST_POOL(q).filter((e) => !taken.includes(e.id) && !r.oranges.includes(e.id));
-  const list = pool.length ? pool : CHEST_POOL(q === 3 ? 2 : q).filter((e) => !taken.includes(e.id));
-  return pick(r, list).id;
+  const pool = equipmentPool(r, q).filter((e) => !taken.includes(e.id) && !r.oranges.includes(e.id));
+  const list = pool.length ? pool : equipmentPool(r, q === 3 ? 2 : q).filter((e) => !taken.includes(e.id));
+  const eligible = list.length ? list : equipmentPool(r).filter(e => !taken.includes(e.id));
+  return pick(r, eligible.length ? eligible : equipmentPool(r)).id;
 }
 export function rollChest(r: RunState, src: Chest['src']): Chest {
   const w = chestWeights(r);
@@ -1333,8 +1606,14 @@ export function rollChest(r: RunState, src: Chest['src']): Chest {
   r.noPurple = items.some((x) => (equipOf(x)?.q ?? 0) >= 2) ? 0 : r.noPurple + 1;
   return { items, ad: false, src };
 }
-/** 这件还能被广告升品吗（橙封顶；紫→橙每局限 ORANGE_MAX 次） */
-const canUp = (r: RunState, id: Ench) => { const q = equipOf(id)?.q ?? 0; return q < 2 || (q === 2 && (r.adOrange ?? 0) < ORANGE_MAX); };
+/** 紫→橙同时遵守全局持有上限与每局广告升橙额度；其余升品按候选池判断。 */
+const canUp = (r: RunState, id: Ench) => {
+  const equipment = equipOf(id);
+  if (!equipment || equipment.q >= 3 || equipment.food) return false;
+  const q = equipment.q;
+  if (q === 2 && (orangeCapped(r) || (r.adOrange ?? 0) >= ORANGE_MAX)) return false;
+  return equipmentPool(r, (q + 1) as Quality).some(e => !r.oranges.includes(e.id) && !r.chest?.items.includes(e.id));
+};
 export const chestCanUp = (r: RunState) => !!r.chest?.items.some((id) => canUp(r, id));
 /** 广告升品：能升的件各 +1 品质后重抽，看就升不限次；紫→橙每件消耗 1 次额度 */
 export function adUpgradeChest(r: RunState): boolean {
@@ -1344,8 +1623,10 @@ export function adUpgradeChest(r: RunState): boolean {
   for (const id of c.items) {
     const q = equipOf(id)?.q ?? 0;
     if (!canUp(r, id)) { items.push(id); continue; }
+    const pool = equipmentPool(r, (q + 1) as Quality).filter(e => !items.includes(e.id) && !c.items.some(x => x !== id && x === e.id) && !r.oranges.includes(e.id));
+    if (!pool.length) { items.push(id); continue; }
     if (q === 2) r.adOrange = (r.adOrange ?? 0) + 1;
-    items.push(rollItem(r, (q + 1) as Quality, [...items, ...c.items.filter((x) => x !== id)], 99));
+    items.push(pick(r, pool).id);
   }
   c.items = items;
   c.ad = true;
@@ -1764,7 +2045,7 @@ function makeFixedMap(r: RunState, solo = false): MapNode[][] {
       const form = n.form ?? pick(c, c.eco);
       const base = synthTeam(c, form);
       const ax = n.k === 'elite' ? pickN(c, ELITE_AX, c.turn >= 9 ? 2 : 1) : undefined;
-      const us = scaleTeam(base, enemyScale(c.turn) * EQUIP_K * DIFFS[c.diff].k);
+      const us = scaleTeam(base, (c.turn === 1 ? 0.55 : 1) * enemyScale(c.turn) * EQUIP_K * DIFFS[c.diff].k);
       n.enemy = { boss: null, form, units: ax ? us.map(u => ({ ...u, ax })) : us, elite: ax };
     }
   }));
@@ -1826,13 +2107,15 @@ function rollNodeEvent(r: RunState): EventId {
 export const SHARD_NEED = 2;
 const merchantSpells = (r: RunState) => {
   const t = Math.min(6, tierOf(r) + 1);
-  const hi = SPELL_POOL.filter((f) => f.tier === t);
-  return hi.length ? hi : SPELL_POOL.filter((f) => f.tier <= t);
+  const pool = spellPool(r, t as Tier);
+  const hi = pool.filter(f => f.tier === t);
+  return hi.length ? hi : pool;
 };
 function rollGoods(r: RunState): Goods[] {
   const out: Goods[] = [];
   const q: Quality = rng(r) < 0.6 ? 1 : 2;
-  out.push({ kind: 'equip', id: rollItem(r, q, [], 0), price: q === 1 ? 4 : 7 });
+  const equipment = rollItem(r, q, [], 0);
+  out.push({ kind:'equip', id:equipment, price:(equipOf(equipment)?.q ?? 1) <= 1 ? 4 : 7 });
   if (relicPool(r).length && rng(r) < 0.5) out.push({ kind: 'shard', id: 'shard', price: 5 });
   else {
     const sp = merchantSpells(r);
@@ -1840,10 +2123,19 @@ function rollGoods(r: RunState): Goods[] {
   }
   return out;
 }
-export function buyGoods(r: RunState, i: number): boolean {
-  if (r.endTurnCommitted) return false;
+export function goodsUnavailableReason(r: RunState, i: number): string | null {
+  if (r.endTurnCommitted) return '备战已结束';
   const g = r.merchant?.[i];
-  if (!g || g.sold || r.gold < g.price) return false;
+  if (!g || g.sold) return '商品已售出';
+  if (r.gold < g.price) return '金币不足';
+  if (g.kind === 'spell' && r.shop.filter(s => s.kind === 'food').length >= FOOD_SHOP_MAX) return '补给栏已满，先用掉一份';
+  if (g.kind === 'spell' && !supplyUsable(r, g.id)) return spellRequirement(g.id);
+  if (g.kind === 'shard' && !relicPool(r).length) return '本局遗物已收集完毕';
+  return null;
+}
+export function buyGoods(r: RunState, i: number): boolean {
+  if (goodsUnavailableReason(r, i)) return false;
+  const g = r.merchant![i];
   r.gold -= g.price;
   g.sold = true;
   if (g.kind === 'equip') toBag(r, g.id as Ench);
@@ -1868,7 +2160,7 @@ function useHeroImpl(r: RunState, slot: number | null): ShopFx[] | null {
     const o = slot === null ? null : cellAt(r, slot);
     if (!o) return null;
     growFx(r, fx, null, o, 1, 2, '军需', 'hero_qm');
-  } else if (r.hero === 'seer') pushDiscover(r, tierPool(tierOf(r)), '先知', 0);
+  } else if (r.hero === 'seer') pushDiscover(r, tierPool(tierOf(r), r), '先知', 0);
   else return null;
   r.gold -= HERO[r.hero].cost!;
   r.heroUsed = r.turn;
@@ -1883,7 +2175,7 @@ function questTick(r: RunState, id: QuestId, n: number, fx: ShopFx[], hurts?: Re
   r.quest = null;
   r.questDone = id;
   if (id === 'summon') r.legion = Math.min(LEGION_MAX, (r.legion ?? 0) + 3);
-  else if (id === 'sell') pushDiscover(r, tierPool(6), '委托', 0);
+  else if (id === 'sell') pushDiscover(r, tierPool(6, r), '委托', 0);
   else {
     const c = units(r).filter((o) => !o.merc && !isGold(o)).sort((a, b) => (hurts?.[b.oid] ?? 0) - (hurts?.[a.oid] ?? 0))[0];
     if (c) addCopies(r, c, MAX_COPIES - c.copies, fx);
@@ -1892,7 +2184,7 @@ function questTick(r: RunState, id: QuestId, n: number, fx: ShopFx[], hurts?: Re
 const FORM_AB: Partial<Record<FormKey, Set<string>>> = { summon: SUMMON_AB, boom: BOOM_AB, wall: WALL_AB, snipe: SNIPE_AB, tank: HURT_AB };
 /** 补阵：按形态挑技能卡；大哥 = 一个单位吃 45% 预算；速攻 = 攻多血少 */
 function synthTeam(r: RunState, f: FormKey): UnitSpec[] {
-  const n = Math.min(5, 1 + Math.ceil(r.turn / 2));
+  const n = r.turn === 1 ? 1 : Math.min(5, 1 + Math.ceil(r.turn / 2));
   const budget = medianBudget(r.turn);
   const tier = maxTier(r.turn);
   const set = FORM_AB[f];
@@ -1901,7 +2193,7 @@ function synthTeam(r: RunState, f: FormKey): UnitSpec[] {
   const lvl: 1 | 2 | 3 = r.turn >= 12 ? 2 : 1;
   return Array.from({ length: n }, (_, i) => {
     const d = pick(r, pool.length >= 2 || i % 2 === 0 ? (pool.length ? pool : all) : all);
-    const share = f === 'carry' ? (i === n - 1 ? 0.45 : 0.55 / (n - 1)) : 1 / n;
+    const share = f === 'carry' && n > 1 ? (i === n - 1 ? 0.45 : 0.55 / (n - 1)) : 1 / n;
     let per = budget * share;
     let a = d.atk, h = d.hp;
     if (f === 'rush') { a = d.atk + d.hp * 0.6; h = d.hp * 0.4; }
@@ -1922,7 +2214,7 @@ function curveTeam(r: RunState): UnitSpec[] {
   });
 }
 
-export const simOpts = (r: Pick<RunState, 'legion'>) => ({ legion: r.legion ?? 0 });
+export const simOpts = (r: Pick<RunState, 'legion'> & Partial<Pick<RunState, 'gold' | 'tc' | 'quarry' | 'enemy'>>) => ({ legion:r.legion ?? 0, gold:r.gold ?? 0, trades:(r.tc?.bought ?? 0) + (r.tc?.sold ?? 0), spells:r.tc?.spells ?? 0, supplies:r.tc?.foods ?? 0, quarry:r.enemy ? effectiveQuarry({enemy:r.enemy,quarry:r.quarry}) : r.quarry });
 export function fight(r: RunState): BattleOut & { settlementId: string; battleQueue: (number | null)[] } {
   if (r.rewards?.length || r.discover?.length) throw new Error('Resolve pending rewards before battle');
   const out = simulate(playerTeam(r), r.enemy.units, (curNode(r)?.battleSeed ?? r.seed), r.relics, simOpts(r));
@@ -1937,11 +2229,15 @@ export function trialFight(r: RunState): BattleOut & { preview: true } {
 export const AD_RETRY_MAX = 2;
 /** 看广告重打：整局退回开战前（snap），可以重新调整阵容再打 */
 export function adRetry(r: RunState, snap: RunState): boolean {
-  const used = r.adRetry ?? 0;
-  if (used >= AD_RETRY_MAX) return false;
-  for (const k of Object.keys(r)) delete (r as unknown as Record<string, unknown>)[k];
-  Object.assign(r, structuredClone(snap), { adRetry: used + 1 });
-  return true;
+  try {
+    const used = r.adRetry ?? 0;
+    if (used >= AD_RETRY_MAX || snap.worldSeed !== r.worldSeed || snap.activeArchetypes.join(',') !== r.activeArchetypes.join(',')) return false;
+    const restored = loadRecord(JSON.stringify(snap), false);
+    if (!restored) return false;
+    for (const k of Object.keys(r)) delete (r as unknown as Record<string, unknown>)[k];
+    Object.assign(r, restored, { adRetry: used + 1 });
+    return true;
+  } catch { return false; }
 }
 
 /** 战斗结算：扣心/记胜，清掉本场加成，进入下一回合 */
@@ -1984,10 +2280,13 @@ function settleBattleImpl(r: RunState, out: SettlementOut) {
     o.lamp = undefined;
     o.tfx = undefined;
     o.startBlock = undefined;
+    o.startCharge = undefined; o.wounds = undefined; o.supportFoods = undefined;
+    o.seal = undefined; o.sealSources = undefined;
     if (o.granted?.duration === 'battle') o.granted = undefined;
   }
   for (const o of r.hand) if (o && !isHeldSpell(o)) {
-    o.tmpAtk = undefined; o.tmpHp = undefined; o.lamp = undefined; o.tfx = undefined; o.startBlock = undefined;
+    o.tmpAtk = undefined; o.tmpHp = undefined; o.lamp = undefined; o.tfx = undefined; o.startBlock = undefined; o.startCharge = undefined; o.wounds = undefined; o.supportFoods = undefined;
+    o.seal = undefined; o.sealSources = undefined;
     if (o.granted?.duration === 'battle') o.granted = undefined;
   }
   r.history.push(result);
@@ -2041,7 +2340,7 @@ function settleBattleImpl(r: RunState, out: SettlementOut) {
     o.guard = (o.guard ?? 0) + 1;
     if (o.guard < GUARD_N) continue;
     o.guard = 0;
-    pushDiscover(r, tierPool(tierOf(r) + 1), card(o.def).name, 0);
+    pushDiscover(r, tierPool(tierOf(r) + 1, r), card(o.def).name, 0);
   }
 }
 
@@ -2087,12 +2386,13 @@ function advance(r: RunState) {
   if (r.omen) {
     r.omen = false;
     const mt = tierOf(r);
-    const pool = mt >= 6 ? units(r).map((o) => card(o.def)).filter((d) => !d.token && !d.enemy) : tierPool(mt + 1);
+    const pool = mt >= 6 ? units(r).map((o) => card(o.def)).filter((d) => !d.token && !d.enemy) : tierPool(mt + 1, r);
     const slot = r.shop.find((s) => s.kind === 'unit' && !s.locked && !s.free);
     if (slot && pool.length) slot.def = pick(r, pool).id;
   }
   grantPrepMilk(r);
   r.pendingFx = [];
+  prepRules(r, 'turnStart', r.pendingFx);
   enterNode(r);
 }
 
@@ -2106,10 +2406,34 @@ export function save(r: RunState | null) {
   } catch { /* 存储受限时照常可玩 */ }
 }
 export function load(): RunState | null {
+  try { return loadRecord(localStorage.getItem(SAVE_KEY), true); }
+  catch { return null; }
+}
+/** 存档与广告快照共用验证；快照只解析和验证，不写入存储。 */
+function loadRecord(raw: string | null, allowStorageEffects: boolean): RunState | null {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
     const r = JSON.parse(raw ?? 'null') as RunState | null;
     if (!r || r.v !== SAVE_VERSION || r.phase !== 'prep' || !Array.isArray(r.queue) || r.queue.length !== QUEUE_MAX) return null;
+    const whole = (n: unknown, min = 0): n is number => typeof n === 'number' && Number.isSafeInteger(n) && n >= min;
+    if (!Array.isArray(r.activeArchetypes) || r.activeArchetypes.length !== 6 || new Set(r.activeArchetypes).size !== 6
+      || !r.activeArchetypes.includes('supply') || r.activeArchetypes.some(id => !ARCHETYPE_IDS.includes(id))) return null;
+    if (!whole(r.seed) || !whole(r.worldSeed) || !whole(r.turn, 1) || !whole(r.gold) || !whole(r.wins)
+      || !whole(r.act) || r.act >= ACTS || !whole(r.layer) || r.layer > LAYERS || !whole(r.nextId, 1)
+      || !whole(r.lives, 1) || !whole(r.diff) || !DIFFS[r.diff]
+      || !Array.isArray(r.history) || r.history.some(x => !['win','lose','draw'].includes(x))
+      || (r.quarry !== undefined && (!whole(r.quarry) || r.quarry >= QUEUE_MAX))) return null;
+    if (!r.tc || !['foods','bought','sold','spells','generatedGold','generatedSpells','generatedRations'].every(key => whole((r.tc as unknown as Record<string, unknown>)[key]))) return null;
+    if (!Array.isArray(r.relics) || r.relics.some(id => !RELICS.some(relic => relic.id === id && supportAvailable(relic, r.activeArchetypes))) || new Set(r.relics).size !== r.relics.length
+      || !Array.isArray(r.pendingFx) || !Array.isArray(r.bag) || !Array.isArray(r.oranges)
+      || !Array.isArray(r.eco) || !Array.isArray(r.seenEv)) return null;
+    const equipOk = (id: unknown): id is Ench => typeof id === 'string' && !!equipOf(id as Ench) && supportAvailable(equipOf(id as Ench)!, r.activeArchetypes);
+    if (r.bag.length > BAG_MAX || r.bag.some(id => !equipOk(id)) || r.oranges.some(id => !equipOk(id) || equipOf(id)?.q !== 3)
+      || (r.chest !== null && (!r.chest || !Array.isArray(r.chest.items) || r.chest.items.length !== 3 || r.chest.items.some(id => !equipOk(id)) || typeof r.chest.ad !== 'boolean' || !['elite','boss'].includes(r.chest.src)))
+      || (r.relicPick !== null && (!r.relicPick || !Array.isArray(r.relicPick.opts) || r.relicPick.opts.length < 1 || r.relicPick.opts.length > 4 || new Set(r.relicPick.opts).size !== r.relicPick.opts.length || r.relicPick.opts.some(id => r.relics.includes(id) || !RELICS.some(x => x.id === id && supportAvailable(x, r.activeArchetypes))) || typeof r.relicPick.ad !== 'boolean'))
+      || !whole(r.relicDue) || (r.shards !== undefined && (!whole(r.shards) || r.shards >= SHARD_NEED))
+      || (r.merchant != null && (!Array.isArray(r.merchant) || r.merchant.some(g => !g || !whole(g.price) || (g.sold !== undefined && typeof g.sold !== 'boolean') || (g.kind === 'equip' ? !equipOk(g.id) : g.kind === 'shard' ? g.id !== 'shard' : g.kind === 'spell' ? !FOOD[g.id]?.spell || !supportAvailable(FOOD[g.id], r.activeArchetypes) : true))))) return null;
+    if (r.tc.generatedGold > 4 || r.tc.generatedSpells > 2 || r.tc.generatedRations > 2) return null;
+    for (const map of [r.tc.ruleUses, r.tc.ruleEvents]) if (!map || typeof map !== 'object' || Array.isArray(map) || Object.values(map).some(n => !whole(n))) return null;
     if (!Array.isArray(r.map) || r.map.length !== LAYERS + 1 || !Array.isArray(r.path) || !Array.isArray(r.bosses) || !HERO[r.hero]) return null;
     if (!Array.isArray(r.hand) || r.hand.length !== HAND_MAX || !Number.isInteger(r.tavern) || r.tavern < 1 || r.tavern > TAVERN_MAX
       || !Number.isInteger(r.tavernCost) || r.tavernCost < 0) return null;
@@ -2133,15 +2457,26 @@ export function load(): RunState | null {
       && finite(g.value) && g.value >= 0 && typeof g.source === 'string'
       && (g.tempered === undefined || typeof g.tempered === 'boolean')
     );
-    const ownedOk = (o: Owned) => !!card(o.def)
+    const ownedOk = (o: Owned) => cardAvailable(r, card(o.def))
       && (o.kind === undefined || o.kind === 'unit')
       && Number.isSafeInteger(o.copies) && o.copies >= 1 && o.copies <= MAX_COPIES
       && finite(o.atkBonus) && finite(o.hpBonus) && abilityOk(o.granted)
       && (o.pendingGoldPlay === undefined || typeof o.pendingGoldPlay === 'boolean')
-      && (o.startBlock === undefined || (Number.isSafeInteger(o.startBlock) && o.startBlock >= 0));
+      && ownedHp(o) >= 1
+      && (o.seal === undefined || (whole(o.seal) && o.seal <= STAT_CAP))
+      && (o.startCharge === undefined || (whole(o.startCharge) && o.startCharge <= CHARGE_MAX))
+      && (o.sealSources === undefined || (!!o.sealSources && typeof o.sealSources === 'object' && !Array.isArray(o.sealSources)
+        && Object.entries(o.sealSources).every(([key,n]) => { const [kind,id,...extra] = key.split(':'); return !extra.length && whole(n) && (kind === 'supply' ? !!FOOD[id] && supportAvailable(FOOD[id], r.activeArchetypes) : kind === 'equipment' ? !!equipOf(id as Ench) && supportAvailable(equipOf(id as Ench)!, r.activeArchetypes) : kind === 'relic' && RELICS.some(x => x.id === id && supportAvailable(x, r.activeArchetypes))); })
+        && Object.values(o.sealSources).reduce((sum,n) => sum + n, 0) <= (o.seal ?? 0)))
+      && (o.wounds === undefined || (whole(o.wounds) && o.wounds <= STAT_CAP))
+      && (o.supportFoods === undefined || (Array.isArray(o.supportFoods) && new Set(o.supportFoods).size === o.supportFoods.length && o.supportFoods.every(id => typeof id === 'string' && !!FOOD[id]?.battleRules?.length && supportAvailable(FOOD[id], r.activeArchetypes))))
+      && (o.ench == null || (!!equipOf(o.ench) && supportAvailable(equipOf(o.ench)!, r.activeArchetypes)))
+      && ['tmpAtk','tmpHp'].every(key => (o as unknown as Record<string,unknown>)[key] === undefined || finite((o as unknown as Record<string,unknown>)[key]))
+      && (o.foodHistory === undefined || (Array.isArray(o.foodHistory) && o.foodHistory.length <= FOOD_HISTORY_MAX && o.foodHistory.every(m => !!m && inheritableFood(m.id) && whole(m.sourceId, 1) && finite(m.atk) && m.atk >= 0 && m.atk <= STAT_CAP && finite(m.hp) && m.hp >= 0 && m.hp <= STAT_CAP)))
+      && (o.startBlock === undefined || (Number.isSafeInteger(o.startBlock) && o.startBlock >= 0 && o.startBlock <= 30));
     const handOk = (o: HandCard) => {
       if (!isHeldSpell(o)) return ownedOk(o);
-      return !!FOOD[o.def] && typeof o.source === 'string'
+      return !!FOOD[o.def] && supportAvailable(FOOD[o.def], r.activeArchetypes) && typeof o.source === 'string'
         && Number.isSafeInteger(o.obtainedTurn) && o.obtainedTurn > 0
         && (o.expiresTurn === undefined || (Number.isSafeInteger(o.expiresTurn) && o.expiresTurn >= o.obtainedTurn))
         && (o.val === undefined || (Array.isArray(o.val) && o.val.length === 2 && o.val.every(v => finite(v) && v >= 0)));
@@ -2151,19 +2486,28 @@ export function load(): RunState | null {
       || (r.lastSettledBattle !== undefined && typeof r.lastSettledBattle !== 'string')) return null;
     if (!r.queue.every(o => !o || (idOk(o.oid) && ownedOk(o)))
       || !r.hand.every(o => !o || (idOk(o.oid) && handOk(o)))
-      || !Array.isArray(r.shop) || !r.shop.every(s => !!s && idOk(s.sid))) return null;
+      || !Array.isArray(r.shop) || !r.shop.every(s => !!s && idOk(s.sid) && ['unit','food'].includes(s.kind)
+        && (s.kind === 'unit' ? cardAvailable(r, card(s.def)) : !!FOOD[s.def] && supportAvailable(FOOD[s.def], r.activeArchetypes))
+        && (s.price === undefined || whole(s.price)))) return null;
     if (!Array.isArray(r.rewards) || !r.rewards.every(x => !!x && idOk(x.id)
       && typeof x.source === 'string' && !!x.card && idOk(x.card.oid) && handOk(x.card))) return null;
     const enemyOk = (e: Enemy | undefined) => !!e && (e.boss === null || !!BOSSES[e.boss])
       && Array.isArray(e.units) && e.units.every(u => !!u && !!card(u.def)
-        && finite(u.atk) && u.atk > 0 && finite(u.hp) && u.hp > 0 && [1, 2, 3].includes(u.lvl));
+        && finite(u.atk) && u.atk > 0 && finite(u.hp) && u.hp > 0 && [1, 2, 3].includes(u.lvl)
+        && (u.startCharge === undefined || u.startCharge <= CHARGE_MAX)
+        && [u.startBlock,u.startCharge,u.seal,u.wounds].every(n => n === undefined || whole(n) && n <= STAT_CAP)
+        && (u.ench == null || !!equipOf(u.ench)) && abilityOk(u.granted)
+        && (u.supportFoods === undefined || Array.isArray(u.supportFoods) && new Set(u.supportFoods).size === u.supportFoods.length && u.supportFoods.every(id => !!FOOD[id]?.battleRules?.length))
+        && (u.sealSources === undefined || !!u.sealSources && typeof u.sealSources === 'object' && !Array.isArray(u.sealSources) && Object.entries(u.sealSources).every(([key,n]) => sealSourceValid(key) && whole(n)) && Object.values(u.sealSources).reduce((sum,n) => sum + n,0) <= (u.seal ?? 0)));
     const kinds: NodeKind[] = ['fight', 'elite', 'camp', 'shop', 'event', 'treasure', 'boss'];
     const validMap = r.map.every((layer, l) => Array.isArray(layer) && layer.length > 0 && layer.every(n => {
       if (!n || !kinds.includes(n.k) || !Array.isArray(n.next)) return false;
       if (!n.next.every(i => Number.isSafeInteger(i) && i >= 0 && l < LAYERS && i < r.map[l + 1].length)) return false;
       return !isCombat(n.k) || (Number.isSafeInteger(n.battleSeed) && n.battleSeed! >= 0 && enemyOk(n.enemy));
     }));
-    if (!validMap || !enemyOk(r.enemy)) return null;
+    if (!validMap || !enemyOk(r.enemy) || r.path.length < r.layer || r.path.length > r.layer + 1
+      || r.path.some((choice, l) => !whole(choice) || !r.map[l]?.[choice]
+        || (l > 0 && !r.map[l - 1][r.path[l - 1]].next.includes(choice)))) return null;
     const ok = r.queue.every((o) => !o || card(o.def)) && r.hand.every((o) => !o || (isHeldSpell(o) ? !!FOOD[o.def] : !!card(o.def))) && r.shop.every((s) => (s.kind === 'food' ? FOOD[s.def] : card(s.def))) && r.enemy.units.every((u) => card(u.def));
     if (!ok || !Number.isInteger(r.nextId) || !Number.isInteger(r.turn)) return null;
     if (!r.tc || !Number.isSafeInteger(r.tc.foods) || r.tc.foods < 0 || !Number.isSafeInteger(r.tc.bought) || r.tc.bought < 0
@@ -2193,6 +2537,7 @@ export function load(): RunState | null {
       }
     }
     if (legacySupply) {
+      if (!allowStorageEffects) return null;
       // 原件先独立留档；无法备份时宁可拒绝迁移，也不在内存中改写用户进度。
       if (!raw) return null;
       if (localStorage.getItem(PRE_SUPPLY_BACKUP_KEY) === null) {
@@ -2222,9 +2567,10 @@ export function load(): RunState | null {
       r.tc.keeper = {};
       if (r.tc.foods > 0) for (const o of units(r)) if (abOf(o) === 'seal') r.tc.keeper[o.oid] = uOf(o);
     }
-    if (r.discover !== undefined && (!Array.isArray(r.discover) || r.discover.some((d) => !d || !Array.isArray(d.opts) || d.opts.some((id) => d.mode === 'spell' ? !FOOD[id] : !card(id))))) return null;
+    if (r.discover !== undefined && (!Array.isArray(r.discover) || r.discover.some((d) => !d || !Array.isArray(d.opts) || d.opts.some((id) => d.mode === 'spell' ? !FOOD[id] || !supportAvailable(FOOD[id], r.activeArchetypes) : !cardAvailable(r, card(id)))))) return null;
     if (!Number.isInteger(r.lives) || r.lives <= 0 || !DIFFS[r.diff ?? 0]) return null;
     if (r.lives > maxLives(r)) {
+      if (!allowStorageEffects) return null;
       // 原存档留底后，仅把超出新上限的生命收至上限，不重置进度。
       const backup = `${SAVE_KEY}_before_health_532`;
       if (localStorage.getItem(backup) === null) localStorage.setItem(backup, raw!);
@@ -2242,16 +2588,15 @@ export function clearAll() {
 }
 
 // ── 遗物 ──
-export const relicPool = (r: RunState) => RELICS.filter((x) => !r.relics.includes(x.id)).map((x) => x.id);
+export const relicPool = (r: RunState) => RELICS.filter(x => supportAvailable(x, r.activeArchetypes) && !r.relics.includes(x.id)).map(x => x.id);
 const RARE_FIRST: RelicId[] = ['r_training'];
-const FIRST_RELICS: RelicId[] = ['r_share', 'r_vanguard', 'r_relay', 'r_reserve', 'r_runebox', 'r_ember', 'r_motley'];
 /** 有待选的遗物就生成本次选项 */
 export function openRelic(r: RunState) {
   if (r.relicPick || r.relicDue <= 0) return;
   const pool = relicPool(r);
   if (!pool.length) { r.relicDue = 0; r.firstRelicPending = false; return; }
   const first = r.firstRelicPending === true;
-  const firstPool = pool.filter(id => FIRST_RELICS.includes(id));
+  const firstPool = pool;
   if (first && !firstPool.length && !pool.some(id => RARE_FIRST.includes(id))) {
     r.firstRelicPending = false;
     r.relicDue--;
@@ -2260,23 +2605,27 @@ export function openRelic(r: RunState) {
   }
   const opts: RelicId[] = [];
   if (first && firstPool.length) opts.push(pick(r, firstPool));
-  const remaining = pool.filter(id => !opts.includes(id) && (!first || FIRST_RELICS.includes(id) || RARE_FIRST.includes(id)));
+  const remaining = pool.filter(id => !opts.includes(id));
   while (opts.length < 3 && remaining.length) {
     const weight = (id: RelicId) => (first ? RARE_FIRST.includes(id) : RELICS.find(x => x.id === id)?.rarity === 'rare') ? 1 : 4;
     let n = rng(r) * remaining.reduce((sum, id) => sum + weight(id), 0);
     let i = 0; while (i < remaining.length - 1 && (n -= weight(remaining[i])) >= 0) i++;
     opts.push(remaining.splice(i, 1)[0]);
   }
+  const related = pool.filter(id => RELICS.find(x => x.id === id)?.archetypes?.some(a => units(r).some(o => card(o.def).archetype === a)));
+  if (related.length && !opts.some(id => related.includes(id))) opts[0] = pick(r, related);
   if (first) r.firstRelicPending = false;
   r.relicPick = { opts, ad: false };
 }
+export const canAdRelic = (r: RunState) => !!r.relicPick && !r.relicPick.ad && relicPool(r).some(id => !r.relicPick!.opts.includes(id));
 /** 广告：遗物多一选（3 → 4） */
 export function adRelic(r: RunState): boolean {
   const p = r.relicPick;
   if (!p || p.ad) return false;
   const more = relicPool(r).filter((x) => !p.opts.includes(x));
+  if (!more.length) return false;
   p.ad = true;
-  if (more.length) p.opts.push(pick(r, more));
+  p.opts.push(pick(r, more));
   return true;
 }
 export function pickRelic(r: RunState, i: number) {
@@ -2293,16 +2642,22 @@ export function pickRelic(r: RunState, i: number) {
 export const EVENTS: EventId[] = ['camp', 'smith', 'morph', 'merc', 'chaos'];
 /** 篝火选项：0 +2 份 / 1 永久 +4/+4 / 2 +1 心 / 3 装备升一品（铁匠） */
 export const fireCopyOk = (o: Owned | null | undefined) => !!o && !o.merc && o.copies < MAX_COPIES;
-export const fireSmithOk = (o: Owned | null | undefined) => !!o?.ench && (equipOf(o.ench)?.q ?? 3) < 3 && !EQUIPS.find((e) => e.id === o.ench)?.food;
+export const fireSmithOk = (o: Owned | null | undefined, r?: RunState) => {
+  const equipment = equipOf(o?.ench);
+  if (!equipment || equipment.q >= 3 || equipment.food) return false;
+  if (!r) return true;
+  const q = (equipment.q + 1) as Quality;
+  return (q < 3 || !orangeCapped(r)) && equipmentPool(r,q).some(e => e.id !== o!.ench && !r.oranges.includes(e.id));
+};
 export const MERC_FIGHTS = 3;
 /** 变形候选：同阶、共享任一标签、不同名 */
-export const morphPool = (o: Owned) => {
+export const morphPool = (o: Owned, r?: RunState) => {
   const d = card(o.def);
   const tags = [d.line, d.tag2].filter((t) => t && t !== 'any') as (typeof LINES)[number][];
-  return SHOP_POOL.filter((c) => c.tier === d.tier && c.id !== d.id && (tags.length ? tags.some((t) => hasTag(c, t)) : true));
+  return (r ? activeCardPool(r) : SHOP_POOL).filter(c => c.tier === d.tier && c.id !== d.id && (d.archetype ? relatedCards(d, c) : tags.length ? tags.some(t => hasTag(c, t)) : true));
 };
 /** 雇佣兵的阶数：当前可买最高阶 +1 */
-export const mercTier = (r: RunState) => Math.min(6, tierOf(r) + 1) as Tier;
+export const mercTier = (r: RunState) => (tierPool(tierOf(r) + 1, r)[0]?.tier ?? 1) as Tier;
 export type EventOut = { ok: false } | { ok: true; fx: ShopFx[]; levelUp?: boolean; lost?: Owned; morphed?: string; bag?: Ench; merc?: number };
 /** 事件选择：choice 0 = 主选项（camp 有 0/1 两个），-1 = 离开；需要单位的选项带 slot */
 export function resolveEvent(r: RunState, choice: number, slot: number | null = null): EventOut {
@@ -2340,9 +2695,10 @@ function resolveEventImpl(r: RunState, choice: number, slot: number | null): Eve
       }
       case 'morph': {
         if (!o || o.merc) return { ok: false };
-        const pool = morphPool(o);
+        const pool = morphPool(o, r);
         if (!pool.length) return { ok: false };
         o.def = pick(r, pool).id;
+        o.hpBonus = Math.max(o.hpBonus, 1 - baseStat(card(o.def).hp, o.copies));
         if (!card(o.def).inherit) o.foodHistory = undefined;
         out = { ok: true, fx, morphed: o.def };
         break;
@@ -2350,7 +2706,8 @@ function resolveEventImpl(r: RunState, choice: number, slot: number | null): Eve
       case 'merc': {
         const at = r.queue.findIndex((x) => !x);
         if (at < 0) return { ok: false };
-        const pool = SHOP_POOL.filter((c) => c.tier === mercTier(r));
+        const pool = tierPool(tierOf(r) + 1, r);
+        if (!pool.length) return { ok:false };
         const m: Owned = { oid: r.nextId++, def: pick(r, pool).id, copies: 3, atkBonus: 0, hpBonus: 0, merc: MERC_FIGHTS };
         r.queue[at] = m;
         onObtained(r, m, fx);
@@ -2371,9 +2728,11 @@ function resolveEventImpl(r: RunState, choice: number, slot: number | null): Eve
           if (!o) return { ok: false };
           growFx(r, fx, null, o, 4, 4, '篝火', 'event_fire');
         } else {
-          if (r.hero !== 'smith' || !fireSmithOk(o)) return { ok: false };
+          if (r.hero !== 'smith' || !fireSmithOk(o, r)) return { ok: false };
           const q = (equipOf(o!.ench!)!.q + 1) as Quality;
-          const id = rollItem(r, q, [o!.ench!], ORANGE_MAX);
+          const pool = equipmentPool(r,q).filter(e => e.id !== o!.ench && !r.oranges.includes(e.id));
+          if (!pool.length) return {ok:false};
+          const id = pick(r,pool).id;
           if (equipOf(id)?.q === 3) r.oranges.push(id);
           o!.ench = id;
           out = { ok: true, fx, bag: id };

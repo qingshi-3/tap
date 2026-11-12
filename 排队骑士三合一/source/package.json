@@ -8,7 +8,16 @@
     "build": "node scripts/subset-fonts.mjs && tsc --noEmit && vite build",
     "build:single": "node scripts/subset-fonts.mjs && tsc --noEmit && vite build --mode single",
     "sim": "vite-node scripts/sim.ts",
-    "calib": "vite-node scripts/calib.ts"
+    "calib": "vite-node scripts/calib.ts",
+    "test": "vite-node scripts/archetype-combat-test.ts && vite-node scripts/archetype-run-test.ts && vite-node scripts/archetype-regression-test.ts && vite-node scripts/battle-stats-test.ts && vite-node scripts/tutorial-check.ts && pnpm test:support && pnpm test:targeting",
+    "test:ui": "node scripts/archetype-ui-test.mjs",
+    "test:ui:copy": "node scripts/copy-ui-test.mjs",
+    "test:support": "vite-node scripts/support-combat-test.ts && vite-node scripts/support-prep-test.ts && vite-node scripts/support-bot-test.ts",
+    "test:ui:support": "node scripts/support-ui-test.mjs",
+    "test:targeting": "vite-node scripts/targeting-test.ts",
+    "test:ui:targeting": "node scripts/targeting-ui-test.mjs",
+    "test:formation": "vite-node scripts/formation-feedback-test.ts",
+    "test:ui:understanding": "node scripts/card-understanding-ui-test.mjs"
   },
   "devDependencies": {
     "@fontsource/cinzel": "^5.3.0",

@@ -1,4 +1,5 @@
 // 备战连线：点选单位时，画出它的技能和哪些位置有关（身前 / 身后 / 敌方队首…），目标不存在时画红色失效箭头
+import { ruleNumber } from '../core/archetypes';
 import { card } from '../core/data';
 import type { ArrowKind } from '../qb/board';
 import type { Side } from '../qb/shim';
@@ -40,6 +41,22 @@ export function computeLinks(sides: [(LinkUnit | null)[], (LinkUnit | null)[]]):
         const targets = known.filter(s => sides[other][s]!.hp === targetHp);
         if (targets.length === 1) add({ side: other, slot: targets[0] }, 'dmg', label);
       };
+      // 新目录直接读规则，备战连线与引擎使用相同目标。随机/全队目标不画方向箭头。
+      for (const r of d.rules ?? []) {
+        const amount = ruleNumber(r.n, u.lvl);
+        const kind: ArrowKind = r.effect === 'damage' || r.effect === 'release' || r.effect === 'detonate' || r.effect === 'mark' ? 'dmg' : r.effect === 'block' || r.effect === 'guard' || r.effect === 'share' ? 'block' : 'buff';
+        const label = r.effect === 'inherit' ? '薪火传承' : r.effect === 'charge' ? `蓄能 +${amount}` : r.effect === 'seal' ? `封印 +${amount}` : r.effect === 'mark' ? `猎标 +${amount}` : r.effect === 'guard' || r.effect === 'share' ? '分担交锋' : r.effect === 'block' ? `+${amount}挡` : r.effect === 'release' ? '释放蓄能' : r.effect === 'detonate' ? '引爆猎标' : r.effect === 'damage' ? `伤害 ${amount}` : r.effect === 'pairEcho' ? '并肩应援' : '增益';
+        if (r.target === 'ahead') front(kind,label);
+        else if (r.target === 'behind') behind(kind,label);
+        else if (r.target === 'neighbors') { if(k>0) ally(mine[k-1],kind,label); if(k+1<mine.length) ally(mine[k+1],kind,label); }
+        else if (r.target === 'partner') {
+          const partners = [mine[k-1],mine[k+1]].filter(s => s != null && sides[side][s]?.def === u.def);
+          if (!partners.length) add({side,slot:slot+1},kind,'缺相邻同名',true);
+          else partners.forEach(s=>ally(s,kind,label));
+        } else if (r.target === 'front' && mine[0] !== slot) ally(mine[0],kind,label);
+        else if (r.target === 'enemyFront') enemyAt(0,kind,label);
+        else if (r.target === 'enemyLast') enemyAt(foe.length-1,kind,label);
+      }
       const u2 = d.u?.[u.lvl - 1] ?? 0;
       // Random targets and team-wide listeners have no fixed directed target.
       // Their complete conditions remain visible in the unit detail.

@@ -1,0 +1,10 @@
+/* 半分辨率绘制，保留硬边像素；单位/准星之上，飘字层之下。 */
+.vfx-canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1280px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 49;
+}
