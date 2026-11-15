@@ -4,13 +4,7 @@ import { supportBadges, supportCounterNote, supportGuide } from '../qb/support';
 import { createRehearsal, type Rehearsal } from '../core/rehearsal';
 import { Tutorial } from './tutorial';
 // 备战界面：货架（单位 + 补给）、队列、HUD；开战后交给 battle.ts 播放
-import '../qb/css/prep-battle.css';
-import '../qb/css/shop-layout.css';
-import '../qb/css/v08.css';
-import '../qb/css/economy-bindings.css';
-import '../qb/css/v05.css';
-import '../qb/css/v07-ops.css';
-import '../qb/css/fusion.css';
+import '../qb/css/prep-features.css';
 import './mixedHand.css';
 import '../qb/css/battle-redesign.css';
 import './tavern-control.css';

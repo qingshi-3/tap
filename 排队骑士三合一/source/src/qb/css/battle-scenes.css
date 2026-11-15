@@ -25,7 +25,6 @@
 }
 /* Suppress the older opaque backdrop and floor while scenery is mounted. */
 .screen.game.has-battle-scene::before,
-.screen.game.has-battle-scene > .board > .arena-bg,
 .screen.game.has-battle-scene > .board > .arena-floor {
   display: none !important;
 }

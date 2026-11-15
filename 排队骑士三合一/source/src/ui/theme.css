@@ -18,7 +18,6 @@
 #stage .title-corner .title-volume {
   background: var(--ui-band-indigo); box-shadow: var(--ui-notch-soft), 0 6px 16px rgba(0, 0, 0, .35);
 }
-#stage .sp-btns .btn.ghost { background: var(--ui-band-indigo); }
 
 /* ── 2. 面板：弹窗 / 详情 / 结算 共用靛紫玻璃 + 黄铜像素框 ── */
 #stage .modal, #stage > .tip, #stage .res-card {
@@ -137,7 +136,7 @@
   outline: 2px dashed rgba(196, 187, 224, .22);
   outline-offset: -6px;
 }
-.screen.game .hand-strip .hand-head, .screen.game .bag-strip .bag-label { color: var(--ui-text-3); letter-spacing: .14em; }
+.screen.game .hand-strip .hand-head { color: var(--ui-text-3); letter-spacing: .14em; }
 .screen.game .bag-strip { background: var(--ui-well); box-shadow: var(--ui-notch-dark); }
 .screen.game.in-battle .bag-strip { display: none !important; }
 

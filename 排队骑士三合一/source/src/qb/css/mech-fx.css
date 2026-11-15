@@ -6,17 +6,12 @@
 
 /* ── 嘲讽：身后钢盾 ── */
 .u-taunt {
-  left: 8px; top: -6px; width: 84px; height: 100px;
   background: var(--px-taunt) center / 84px 100px no-repeat;
   image-rendering: pixelated;
   filter: drop-shadow(0 0 6px rgba(255, 205, 100, .55)) drop-shadow(0 3px 0 rgba(0, 0, 0, .45));
   transform: scale(.7); transition: opacity .25s, transform .3s cubic-bezier(.2, 1.6, .4, 1);
 }
-.unit.side-1 .u-taunt { left: 8px; transform: scale(.7); }
-.u-taunt::before, .u-taunt::after { content: none; }
-.u-taunt i {
-  position: absolute; inset: 0; width: auto; height: auto; top: 0; margin: 0;
-  border: 0; border-radius: 0; filter: none; opacity: 1; overflow: hidden;
+.u-taunt i { inset: 0; margin: 0; overflow: hidden;
   -webkit-mask: var(--px-taunt) center / 84px 100px no-repeat;
   mask: var(--px-taunt) center / 84px 100px no-repeat;
 }
@@ -138,15 +133,8 @@
 .unit:has(.u-eq) .u-charge { top: 40px; }
 
 /* ── 整备：左边我方 5 个放大，右边敌方 5 个缩小（只是参考） ── */
-.prep-ov .prep-allies { transform: scale(1.12); transform-origin: left top; }
-.prep-ov .prep-enemies,
-.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemies { left: 736px; top: 200px; width: 500px; }
-.prep-ov .prep-enemy,
-.prep-ov .prep-panel:has(.pp-say:not(:empty)) .prep-enemy { left: calc(var(--s, 0) * 100px); transform: scale(.76); transform-origin: left top; }
-.prep-ov .prep-enemy .u-tags, .prep-ov .prep-enemy .u-exp { display: none; }
 
 /* ── 整备选着资源：吃得到加成的单位脚下绿光+上升光点，吃不到的压暗 ── */
-.prep-ov .unit.prep-nogain { opacity: .42; filter: grayscale(.7); }
 .u-gain { position: absolute; left: 50%; top: 70px; width: 120px; height: 40px; margin-left: -60px; z-index: -1; pointer-events: none; }
 .u-gain::before {
   content: ''; position: absolute; inset: 0; border-radius: 50%;

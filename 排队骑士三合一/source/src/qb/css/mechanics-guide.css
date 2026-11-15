@@ -16,12 +16,6 @@
 .howto .ht-nav .btn.ghost:active, .howto .ht-tab:active, .codex .cx-tab:active, .codex .cx-back:active { background: #60538a; }
 .howto .ht-tab { border-image: none; }
 .howto .ht-tab:focus-visible, .howto .ht-nav .btn:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
-.cx-kw .cx-kw-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.cx-kw .cx-kw-card { border-image: none; }
-.cx-kw .cx-rule-grid .cx-kw-card { padding: 10px 14px; }
-.cx-kw .cx-rule-grid .kc-tag { color: var(--gold); }
-.cx-kw .cx-kw-card p { font-size: max(22px, calc(var(--control-size, 64px) * .28)); }
-.cx-kw .cx-kw-card .kc-tag, .cx-kw .cx-kw-h span { font-size: max(26px, calc(var(--control-size, 64px) * .3)); }
 .codex .cx-tab, .codex .cx-back { min-height: var(--control-size, 64px); min-width: var(--control-size, 64px); font-size: max(20px, calc(var(--control-size, 64px) * .26)); border: 0; border-image: none; box-shadow: none; }
 .codex .cx-back { background: #3c3659; }
 .codex .cx-tab.on { background: #43356f; }

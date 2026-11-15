@@ -7,7 +7,7 @@
 .formation-feedback-line.condition .feedback-result { color:#d6c9aa; }
 .formation-feedback[hidden] { display:none !important; }
 .tip-projection-label { margin:5px 0; padding:3px 7px; background:#2c2560; color:#dfd8b2; font-size:15px; width:max-content; }
-.screen.game .placement-feedback { position:absolute; left:50%; transform:translateX(-50%); width:440px; z-index:45; pointer-events:none; background:#120e2c; border:2px solid #8d80c4; box-shadow:0 3px #070b16; padding:8px 12px; }
+.screen.game .placement-feedback { position:absolute; left:50%; transform:translateX(-50%); width:440px; z-index:45; pointer-events:none; border:2px solid #8d80c4; padding:8px 12px; }
 .placement-feedback .formation-feedback { border:0; padding:0; margin:0; }
 .placement-feedback .formation-feedback-title { color:#dce9ee; font-size:17px; font-weight:700; }
 .screen.game > .board .unit.benefit-preview .u-mat { outline:2px solid #9ce6c8; outline-offset:2px; }

@@ -4,9 +4,6 @@
    ═════════════════════════════════════════════════════════════ */
 
 /* 触发提示：手机上 ≥18px；「单位名 · 能力」时名字弱一档 */
-.callout { font-size: 18px; padding: 4px 12px; }
-.callout .co-name { color: #e8e4ff; font-weight: 700; margin-right: 6px; opacity: .85; }
-.callout .co-sep { opacity: .5; margin-right: 6px; }
 
 /* 因果连线 */
 .fx-link {
@@ -47,24 +44,10 @@
   text-shadow: 2px 0 0 #0b0820, -2px 0 0 #0b0820, 0 2px 0 #0b0820, 0 -2px 0 #0b0820, 0 0 12px currentColor;
 }
 /* 静默加成：伤害数字后面的小号 +N，用来源阵营色 */
-.float.bonus {
-  font: 20px/1 var(--num);
-  color: var(--c, #ffd36b);
-  -webkit-text-stroke: 0;
-  text-shadow: 2px 0 0 #120a1c, -2px 0 0 #120a1c, 0 2px 0 #120a1c, 0 -2px 0 #120a1c, 0 0 10px currentColor;
-}
 
 /* 授予词条：飞行的图标 / 短词 */
 .fx-token { display: flex; align-items: center; justify-content: center; }
 .fx-token .kpx { width: 40px; height: 40px; filter: drop-shadow(0 0 8px rgba(255, 255, 255, .7)); }
-.fx-token .tk-word {
-  font: 900 22px/1 'Noto Sans SC', sans-serif;
-  color: var(--c);
-  padding: 4px 8px;
-  background: rgba(8, 8, 24, .88);
-  box-shadow: 2px 0 var(--c), -2px 0 var(--c), 0 2px var(--c), 0 -2px var(--c), 0 0 14px color-mix(in srgb, var(--c) 55%, transparent);
-  white-space: nowrap;
-}
 
 /* 冰壳：八角冰块 + 斜向冰面高光 */
 .fx-shell {
@@ -108,14 +91,6 @@
 }
 
 /* 施法法阵按阵营上色 */
-.cast-rune[data-f='light'] { background-image: var(--px-rune-light); }
-.cast-rune[data-f='shadow'] { background-image: var(--px-rune-shadow); }
-.cast-rune[data-f='abyss'] { background-image: var(--px-rune-abyss); }
-.cast-rune[data-f='magma'] { background-image: var(--px-rune-magma); }
-.cast-rune[data-f='frost'] { background-image: var(--px-rune-frost); }
-.cast-rune[data-f='desert'] { background-image: var(--px-rune-desert); }
-.cast-rune[data-f='neutral'] { background-image: var(--px-rune-neutral); }
-.cast-rune[data-f='enemy'] { background-image: var(--px-rune-enemy); }
 
 /* 元素弹道：形状说明元素，颜色跟阵营 */
 .orb.el-blade {
@@ -161,14 +136,6 @@
   -webkit-text-stroke: 0;
   text-shadow: 2px 0 0 #2a0620, -2px 0 0 #2a0620, 0 2px 0 #2a0620, 0 -2px 0 #2a0620, 0 0 10px rgba(255, 120, 180, .8);
 }
-.float.bonus.f-light { --c: #ffd36b; }
-.float.bonus.f-shadow { --c: #ff5f6d; }
-.float.bonus.f-abyss { --c: #c99bff; }
-.float.bonus.f-magma { --c: #ff9a3d; }
-.float.bonus.f-frost { --c: #6fe6ff; }
-.float.bonus.f-desert { --c: #e9bd72; }
-.float.bonus.f-neutral { --c: #e6ebf5; }
-.float.bonus.f-enemy { --c: #ff4b6e; }
 
 /* ═════════════ 第 3 层：常驻状态（只动 transform / opacity） ═════════════ */
 

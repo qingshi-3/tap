@@ -16,7 +16,7 @@
 :is(.card, .cx-chip, .kd-unit, .card-aura).tier-6, .tier-badge.rarity-6 { --tc: #ff4a4a; --tl: #fff2b0; --ts: #a8162a; --td: #4a0610; --tg: #ffd36b; }
 .card.tier-1 { --pxg: var(--pxr-1); } .card.tier-2 { --pxg: var(--pxr-2); } .card.tier-3 { --pxg: var(--pxr-3); }
 .card.tier-4 { --pxg: var(--pxr-4); } .card.tier-5 { --pxg: var(--pxr-5); } .card.tier-6 { --pxg: var(--pxr-6); }
-.cx-chip.tier-5, .kd-unit.tier-5 { --pxg: var(--pxr-5); } .cx-chip.tier-6, .kd-unit.tier-6 { --pxg: var(--pxr-6); }
+.kd-unit.tier-5 { --pxg: var(--pxr-5); } .kd-unit.tier-6 { --pxg: var(--pxr-6); }
 
 /* ═════════ 招募卡 / 图鉴卡（draftCard） ═════════ */
 
@@ -100,8 +100,7 @@
 .card-aura.tier-6 .a-spark { background: var(--tg); }
 /* 各容器缩放 */
 .cx-d-art { --as: .95; }
-.cx-chip-art, .kd-unit-art { --as: .55; }
-.sh-icon.art, .sh-own-art { --as: .45; }
+.kd-unit-art { --as: .55; }
 .eu-art { --as: .6; }
 /* 三阶起单位描边光随阶变色 */
 .card:is(.tier-3, .tier-4, .tier-5, .tier-6) .card-art .uart { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--tc) 75%, transparent)); }
@@ -202,17 +201,10 @@
 :is(.cx-popup-detail, .cx-lv) .tip-lv .tier-badge { display: none; }
 
 /* ═════════ 推荐阵容头像（cx-chip）/ 词条代表单位（kd-unit） ═════════ */
-.cx-chip[class*='tier-'] .cx-chip-art {
-  position: relative;
-  background: radial-gradient(ellipse 60% 45% at 50% 82%, color-mix(in srgb, var(--tc) 42%, transparent) 0 50%, color-mix(in srgb, var(--tc) 18%, transparent) 50% 100%, transparent 100%), #100d2c;
-  box-shadow: inset 0 0 0 2px var(--td);
-}
-.cx-chip.tier-1 .cx-chip-art { background: #100d2c; }
 .kd-unit[class*='tier-'] { position: relative; overflow: hidden; background: radial-gradient(ellipse 60% 45% at 50% 82%, color-mix(in srgb, var(--tc) 36%, transparent) 0 50%, color-mix(in srgb, var(--tc) 14%, transparent) 50% 100%, transparent 100%), #1a1644; box-shadow: inset 0 0 0 2px var(--td); }
 .kd-unit.tier-1 { background: #1a1644; }
 
 /* 六阶流光 */
-.cx-chip.tier-6 .cx-chip-art::after,
 .kd-unit.tier-6::after {
   content: '';
   position: absolute;
@@ -229,9 +221,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .card-aura *, .tier-badge.rarity-6::after, .card.tier-6 .card-shine::before,
-  .cx-chip.tier-6 .cx-chip-art::after, .kd-unit.tier-6::after { animation: none; }
-  .card.tier-6 .card-shine::before, .cx-chip.tier-6 .cx-chip-art::after, .kd-unit.tier-6::after { opacity: 0; }
+  .card-aura *, .tier-badge.rarity-6::after, .card.tier-6 .card-shine::before, .kd-unit.tier-6::after { animation: none; }
+  .card.tier-6 .card-shine::before, .kd-unit.tier-6::after { opacity: 0; }
 }
 /* 头像下的阶徽：带冠的留出冠高，免得压到名字 */
 /* 徽记本体描一圈本阶色辉光，逐阶加强 */

@@ -1,30 +1,12 @@
 /* 排队骑士专用：图鉴补给/词条页、战绩阵容、备战小件 */
 
 /* 图鉴 */
-.screen.codex { display: flex; flex-direction: column; padding: 18px 28px 0; gap: 12px; }
-.codex .cx-head { display: flex; align-items: center; gap: 16px; flex: none; }
-.codex .cx-title { font-size: 34px; color: var(--gold, #ffd36b); text-shadow: 0 3px 0 #000; }
-.codex .cx-tabs { display: flex; gap: 8px; margin-left: auto; }
+.screen.codex { display: flex; flex-direction: column; }
+.codex .cx-head { display: flex; align-items: center; flex: none; }
+.codex .cx-tabs { display: flex; gap: 8px; }
 .codex .cx-tab { padding: 0 22px; color: #fff; background: #2a2450; }
 .codex .cx-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding-bottom: 18px; }
-.codex .ub { height: 100%; }
-
-.cx-foods, .cx-kw { display: flex; flex-direction: column; gap: 14px; }
-.cx-note { margin: 0; font-size: 22px; color: #e8e2ff; line-height: 1.5; }
 .cx-items { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.cx-item {
-  display: flex; align-items: flex-start; gap: 14px; padding: 12px 16px;
-  background: linear-gradient(180deg, #1d1950, #15123a); border: 2px solid #3b3473;
-}
-.cx-item b { display: flex; align-items: center; gap: 8px; font-size: 24px; color: #fff; }
-.cx-item p { margin: 4px 0 0; font-size: 20px; line-height: 1.45; color: #ddd6ff; }
-.cx-item .cx-item-note { color: #b9b0e8; font-size: 18px; }
-.cx-item-icon { flex: none; width: 56px; height: 56px; display: grid; place-items: center; }
-.cx-item-icon > * { transform: scale(1.6); }
-.cx-item-kw { flex: none; min-width: 120px; font-size: 22px; padding-top: 2px; }
-.cx-sec { margin: 6px 0 0; font-size: 24px; color: var(--gold, #ffd36b); letter-spacing: 2px; }
-.cx-rules { display: flex; flex-direction: column; gap: 6px; padding: 12px 18px; background: #18143f; border: 2px solid #3b3473; }
-.cx-rules p { margin: 0; font-size: 20px; line-height: 1.5; color: #e8e2ff; }
 
 /* 战绩阵容 */
 .rec-team { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
@@ -34,7 +16,7 @@
 
 /* 备战 */
 .shelf-note { font-size: 18px; color: #cfc6ff; align-self: center; }
-.tip .shelf-lock { background: #3a3170; border: 0; box-shadow: inset 0 1px 0 #63738c, 0 3px 0 #141c2c; }
+.tip .shelf-lock { box-shadow: inset 0 1px 0 #63738c, 0 3px 0 #141c2c; }
 .game .tray .reroll.primary, .game .tray .reroll.primary i { color: #2a1700; }
 .game .tray .reroll.primary i { opacity: 1; text-shadow: none; }
 .tip .shelf-lock:disabled, .game .tray .reroll:disabled { background: #363c45; color: #9299a3; filter: grayscale(1); }
@@ -48,13 +30,8 @@
 .game .tray-right { left: auto; right: 22px; top: auto; bottom: 18px; width: 176px; height: auto; flex-direction: column; align-items: stretch; }
 .game .fight-controls { width: 176px; }
 .game .fight-controls .btn.fight { width: 100%; }
-.tray.paid-shelf .cards[data-count="5"] > * { zoom: .9; }
-.tray.paid-shelf .cards[data-count="6"] > * { zoom: .78; }
-.tray.paid-shelf .cards[data-count="7"] > * { zoom: .67; }
 .tray.paid-shelf .cards[data-count="8"] > * { zoom: .59; }
 .codex .cx-tab.on { color: #ffe9a8; }
-.cx-item p .kwt { font-size: inherit; }
-.cx-item p .kwt { display: inline-flex; }
 
 /* 备战时场上单位可点可拖（战斗中保持不可点） */
 .game:not(.in-battle) .board .unit { pointer-events: auto; cursor: pointer; touch-action: none; }
@@ -76,15 +53,13 @@
 
 /* 补给栏：开战按钮上方，和单位卡分开 */
 .game .tray .supplies { position: absolute; right: 22px; top: -8px; width: 176px; height: 192px; }
-.game .tray .sp-list { height: 100%; display: grid; grid-template-columns: repeat(2, 84px); grid-auto-rows: 92px; gap: 8px; align-content: start; justify-content: center; }
 .game .tray.paid-shelf .food-tile { position: relative; width: 84px; height: 92px; box-sizing: border-box; display: grid; grid-template-columns: 1fr; grid-template-rows: 26px 22px 16px 20px; align-items: center; padding: 4px; border-radius: 0;
   background: linear-gradient(#493a25, #241d18); box-shadow: inset 0 2px 0 #a68a4e, inset 0 -3px 0 #15100c, 0 3px 0 #090711; cursor: pointer; touch-action: none; user-select: none; }
 .game .tray.paid-shelf .food-tile:hover { filter: brightness(1.12); }
 .game .tray.paid-shelf .food-tile.lifted { opacity: .45; }
 .game .tray.paid-shelf .food-tile .ft-ico { grid-row: 1; grid-column: 1; justify-self: center; width: 28px; height: 28px; display: grid; place-items: center; }
 .game .tray.paid-shelf .food-tile .ft-ico > :first-child { width: 28px; height: 28px; }
-.game .tray.paid-shelf .food-tile .ft-ico > .ft-tgt, .game .tray.paid-shelf .food-tile .ft-ico > .ft-tmp { min-width: 16px; height: 16px; padding: 0 2px; border-radius: 0; font-size: 12px; box-shadow: none; }
-.game .tray.paid-shelf .food-tile .ft-ico > .ft-tgt { left: 0; top: -4px; }
+.game .tray.paid-shelf .food-tile .ft-ico > .ft-tmp { min-width: 16px; height: 16px; padding: 0 2px; border-radius: 0; font-size: 12px; box-shadow: none; }
 .game .tray.paid-shelf .food-tile .ft-ico > .ft-tmp { right: 0; bottom: -4px; }
 .game .tray.paid-shelf .food-tile .ft-name { grid-row: 2; grid-column: 1 / -1; text-align: center; font-size: 18px; color: #fff; text-shadow: 0 2px 0 #000; white-space: nowrap; }
 .game .tray.paid-shelf .food-tile:focus-visible { outline: 3px solid #ffe3a3; outline-offset: 3px; }
@@ -92,10 +67,7 @@
 .game .tray.paid-shelf .food-tile .ft-price { grid-row: 4; grid-column: 1 / -1; display: flex; justify-content: center; align-items: center; gap: 2px; font: 18px/1 var(--num); color: var(--gold); text-shadow: 0 2px 0 #000; }
 .game .tray.paid-shelf .food-tile .ft-price > * { width: 14px; height: 14px; }
 .game .tray.paid-shelf .food-tile .ft-turn { grid-row: 4; grid-column: 1 / -1; text-align: center; font-size: 18px; line-height: 1; color: #aeeaff; white-space: nowrap; }
-.game .tray.paid-shelf .food-tile .ft-locked { position: absolute; right: -4px; top: -8px; display: grid; place-items: center; width: 22px; height: 22px; background: #b78932; color: #171020; }
-.game .tray.paid-shelf .food-tile .ft-locked .ic { width: 18px; height: 18px; }
 .game .tray.paid-shelf .food-tile.unaffordable .ft-price { color: #ff7a7a; }
-.game .tray .sp-list:empty::after { content: '已用完'; align-self: center; color: #7d8aa3; font-size: 16px; }
 
 /* UnitView 的补给记录与装备、蓄能共用 unit-status.css 信息行。 */
 
@@ -110,7 +82,6 @@
 
 /* 240px 高的真实手机横屏仍保留两排补给与下方开战按钮的间隔。 */
 .compact .game .tray .supplies { top: -8px; }
-.compact .game .tray .sp-list { gap: 6px 8px; }
 .compact .game .tray-right { bottom: 8px; }
 
 /* 战场中线留给交锋；预览与战后调整沿用货架实体按钮。 */

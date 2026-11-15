@@ -35,10 +35,8 @@
 .bdemo-tag.below { bottom: auto; top: calc(100% + 16px); }
 .bdemo-tag.below::after { top: auto; bottom: 100%; border-top: 0; border-bottom: 9px solid #ffd36b; }
 /* 框选时让出头顶的触发标签与提示，只留词条气泡 */
-.bdemo.spot .u-tags, .bdemo.spot .callout { visibility: hidden; }
+.bdemo.spot .u-tags { visibility: hidden; }
 /* 说话气泡：白底圆角，单位在说话 */
-.bdemo-tag.talk { font-size: 30px; color: #1c1838; background: #f4f0ff; border-radius: 16px; padding: 8px 18px 10px; }
-.bdemo-tag.talk::after { border-top-color: #f4f0ff; }
 .bdemo-tag.out { animation: bdTagOut .35s steps(3) forwards; }
 @keyframes bdFocusIn { from { opacity: 0; transform: scale(1.25); } to { opacity: 1; transform: scale(1); } }
 @keyframes bdFocusPulse { 50% { transform: scale(1.05); } }

@@ -8,7 +8,6 @@
   top: 126px;
   transform: translateX(-50%);
   display: flex;
-  gap: 2px;
   pointer-events: none;
   z-index: 3;
 }
@@ -38,22 +37,6 @@
   text-shadow: 2px 0 #000, -2px 0 #000, 0 2px #000, 0 -2px #000, 2px 2px #000;
 }
 /* 其余词条：短词牌。直角像素描边，字色即词条色 */
-.kwtx {
-  height: 26px;
-  padding: 0 5px;
-  display: flex;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0;
-  white-space: nowrap;
-  color: var(--kc);
-  background: #0c0a22;
-  box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px color-mix(in srgb, var(--kc) 45%, #0c0a22), 0 3px 0 2px rgba(0, 0, 0, .45);
-  text-shadow: 0 2px 0 #000;
-  clip-path: polygon(0 2px, 2px 2px, 2px 0, calc(100% - 2px) 0, calc(100% - 2px) 2px, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 2px calc(100% - 2px), 0 calc(100% - 2px));
-}
 .kw-taunt { --kc: #ffd36b; }
 .kw-armor { --kc: #b9c7d8; }
 .kw-thorns { --kc: #ff8a6a; }

@@ -227,7 +227,6 @@
   width: 100% !important; height: 100% !important; display: flex !important;
   flex-direction: row; align-items: stretch; gap: 8px;
 }
-.screen.game .tray .fight-controls > .tr-team { flex: none; align-self: stretch; display: grid; place-items: center; }
 .screen.game .tray .fight-controls > .btn.fight {
   flex: 1 1 0; width: 100% !important; height: 100% !important; min-height: 0;
   font-size: 34px !important; letter-spacing: .2em; white-space: nowrap !important;
@@ -241,7 +240,6 @@
 #stage > .tip.dock .shelf-acts { flex-wrap: nowrap; }
 #stage > .tip.dock .shelf-acts .shelf-lock:last-child { flex: 0 1 120px; }
 #stage > .tip :is(.tip-text, .dock-body, .owned-tip-body) { min-width: 0; }
-#stage > .tip .tip-text .trg { white-space: normal; }
 
 
 /* Held supplies share the authored food card and the unit-card silhouette. */
@@ -252,7 +250,6 @@
 .screen.game .hand-strip .hand-slot.hand-spell .card-text {
   position: absolute; inset: 174px 10px 14px; padding: 0; font-size: 18px;
 }
-.screen.game .hand-strip .hand-slot.hand-spell .food-row { flex-wrap: wrap; justify-content: center; gap: 3px; }
 
 /* 短屏横屏：下移单位、收紧货架与扇形手牌，三个区域各自保留完整高度。 */
 #stage.compact .screen.game:not(.in-battle):not(.rehearsal) > .board { top: -80px; }

@@ -158,26 +158,12 @@
 .game.prep-busy .tray [role=button] { cursor: wait; opacity: .6; filter: saturate(.45); }
 .game.prep-busy .board { cursor: wait; }
 .game .tray button:disabled { opacity: .45; cursor: default; }
-.game > .btn.ghost.trial { left: calc(50% - 160px); transform: none; }
 .game > .prep-preview-btn { position: absolute; z-index: 6; top: 160px; left: calc(50% - 50px); min-height: 40px; padding: 0 12px; font-size: 20px; gap: 6px; }
 .game.in-battle > .prep-preview-btn { display: none; }
 .game .prep-preview-btn:disabled { opacity: .45; }
 .inherit-preview { margin-top: 8px; padding-top: 8px; border-top: 2px solid #47636b; font-size: 18px; line-height: 1.4; color: #d3e3df; }
 .inherit-preview b { color: #9fe2c6; }
 .inherit-preview p { margin: 4px 0; }
-.prep-preview-ov { position: absolute; inset: 0; z-index: 42; display: grid; place-items: center; background: #050916c9; }
-.prep-preview-panel { display: flex; flex-direction: column; width: 1040px; max-height: calc(100% - 44px); padding: 22px 26px; gap: 12px; background: #171f31; border-image: var(--pxf-gold) 6 / 12px / 0 stretch; overflow: auto; scrollbar-width: none; }
-.prep-preview-panel::-webkit-scrollbar { display: none; }
-.prep-preview-panel h2 { margin: 0; font-size: 30px; color: #edce91; }
-.preview-hint { margin: 0; font-size: 20px; color: #b6c1d2; }
-.growth-preview-list { display: grid; gap: 4px; overflow: auto; scrollbar-width: none; }
-.growth-preview-list::-webkit-scrollbar { display: none; }
-.growth-preview-row { display: grid; grid-template-columns: 60px 1fr 370px; gap: 12px; align-items: center; min-height: 66px; border-bottom: 2px solid #343c50; padding: 5px; font-size: 21px; }
-.preview-art { width: 60px; height: 60px; overflow: hidden; }
-.preview-art .uart { width: 60px; height: 60px; }
-.growth-preview-row p { margin: 3px 0 0; color: #a9b9ce; font-size: 18px; }
-.preview-stat { color: #a5e3ab; text-align: right; font-family: var(--num); font-size: 22px; }
-.preview-stat small { display: block; font-family: var(--font); font-size: 17px; color: #e6be76; margin-top: 4px; }
 .preview-actions { display: flex; justify-content: flex-end; gap: 16px; }
 .preview-actions .btn { min-height: 48px; font-size: 22px; }
 /* 变形复用招募卡和图鉴技能内容；只有候选列表滚动，操作始终留在页脚。 */
@@ -228,7 +214,7 @@
 .morph-footer .btn { min-height: var(--control-size, 64px); padding: 8px 22px; font-size: 22px; }
 .compact .game .branch-card.morph-panel { padding: 16px 20px; gap: 10px; }
 @media (prefers-reduced-motion: reduce) {
-  .battle-report *, .battle-report, .prep-preview-panel * { animation: none!important; transition: none!important; }
+  .battle-report *, .battle-report { animation: none!important; transition: none!important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

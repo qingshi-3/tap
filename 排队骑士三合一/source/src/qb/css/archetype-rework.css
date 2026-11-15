@@ -17,7 +17,7 @@
 .tip-seal { color:#c8b1ff; }
 .tip-blood { color:#f6a5ac; }
 .screen.game .hud-center { position:absolute; left:50%; top:2px; transform:translateX(-50%); width:320px; height:54px; display:flex; align-items:center; justify-content:center; gap:16px; }
-.screen.game .hud-center .hud-act { font-size:23px; line-height:28px; padding:8px 0; color:var(--ui-brass-hi,#ead49d); border:0; background:transparent; cursor:pointer; white-space:nowrap; }
+.screen.game .hud-center .hud-act { padding:8px 0; color:var(--ui-brass-hi,#ead49d); border:0; background:transparent; cursor:pointer; white-space:nowrap; }
 .screen.game .hud-archetypes { position:relative; display:flex; align-items:center; justify-content:center; gap:10px; width:auto; height:44px; min-height:44px; padding:0 14px; font:inherit; font-size:17px; font-weight:700; line-height:22px; white-space:nowrap; cursor:pointer; }
 .screen.game .hud-archetypes:focus-visible, .screen.game .hud-act:focus-visible { outline:2px solid var(--ui-brass-hi,#ffe0a0); outline-offset:3px; }
 .hud-archetypes .ha-chevron { width:11px; height:11px; transform:rotate(90deg); opacity:.75; }

@@ -1,10 +1,5 @@
 // 图鉴：左侧图标砖、右侧详情（大图标 + 一句话 + 实机演示）。单位页沿用卡面网格。
-import '../qb/css/unit-browser.css';
-import '../qb/css/codex-search.css';
-import '../qb/css/kw-doc.css';
-import '../qb/css/codex-v2.css';
-import '../qb/css/codex-v3.css';
-import '../qb/css/codex-v4.css';
+import '../qb/css/codex.css';
 import { ARCHETYPES, ARCHETYPE_IDS } from '../core/archetypes';
 import { archetypeGuide, ARCHETYPE_COLORS, cardIdentity, HUNT_MARK_TEXT, identityColor } from '../qb/archetypes';
 import { ATOM_INFO, ATOMS, ACTIVE_EQUIPS, EVENT_INFO, FOODS, foodText, KW_INFO, Q_INFO, ACTIVE_RELICS, SHOP_POOL, card, type CardDef, type EventId, type Kw } from '../core/data';

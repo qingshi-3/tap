@@ -2,7 +2,7 @@
 .tip-price { display:inline-flex; align-items:center; gap:4px; color:var(--ui-brass-hi); white-space:nowrap; }
 .tip-price .px-item { width:24px; height:24px; }
 .tip-price b { font:700 18px var(--num); }
-.card-detail .tip-stats-caption { color: #b5c2dc; font-size: 16px; }
+.card-detail .tip-stats-caption { font-size: 16px; }
 .tip-upgrade { display:inline-flex; align-items:center; gap:6px; margin-left:0; min-height:32px; color:var(--ui-text-2); font-size:16px; white-space:nowrap; cursor:pointer; touch-action:manipulation; }
 .tip-upgrade input { appearance:none; width:18px; height:18px; margin:0; border:2px solid var(--ui-brass); border-radius:0; background:var(--ui-well); cursor:pointer; }
 .tip-upgrade input:checked { background:var(--ui-brass-hi); }
@@ -13,7 +13,6 @@
 .card-detail .unit-effect-text { color: #eff2fb; }
 .card-detail mark.tip-number-change { padding: 0; color: #ffdf8c; background: transparent; border-radius: 0; font: inherit; font-weight: 800; }
 .card-detail .tip-traits { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 7px 0; font-size: 18px; }
-.card-detail .tip-current-state { color: #b6d7f0; }
 .card-detail .tip-food-memory { margin-top: 8px; }
 .card-detail .tip-sum { border: 0; border-radius: 0; padding: 5px 0; background: transparent; }
 .viewport-tip .tip-upgrade { font-size:14px; }

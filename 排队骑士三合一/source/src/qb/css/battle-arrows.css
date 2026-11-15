@@ -39,7 +39,7 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .arrows .arw-g.direction-flow, .arrows .arw-head, .arrow-labels .arw-lbl { animation: none; }
-  .arrows .arw-core, .arrows .arw-shine { animation: none; stroke-dashoffset: 0; }
+  .arrows .arw-core, .arrows .arw-shine { stroke-dashoffset: 0; }
   .arrows .arw-spark, .arrows .arw-ring { display: none; }
 }
 
