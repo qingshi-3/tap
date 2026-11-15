@@ -1,4 +1,3 @@
-import { KEYWORDS } from './shim';
 import type { IconName } from './icons';
 import './css/kw-text.css';
 import { KEYWORD_ALIASES, KEYWORD_HELP, markKeyword } from './keywordHelp';
@@ -12,7 +11,6 @@ import { KEYWORD_ALIASES, KEYWORD_HELP, markKeyword } from './keywordHelp';
 // 数字可写成「2→3」表示升星后的变化。
 
 export type MechKind = 'trait' | 'status' | 'action';
-export const MECH_KIND_NAME: Record<MechKind, string> = { trait: '特性', status: '状态', action: '动作' };
 
 interface MechDef { kind: MechKind; icon: IconName; color: string; /** 像素图标（pixel.ts --pxk-*）；有它就只显示图标 */ px?: PxIcon }
 export type PxIcon = 'armor' | 'block' | 'power' | 'thorns' | 'chill' | 'freeze' | 'burn' | 'charge';
@@ -26,8 +24,6 @@ export const MECH: Record<string, MechDef> = {
 };
 
 export type TrigId = 'play' | 'start' | 'before' | 'beat' | 'hurt' | 'faint' | 'kill' | 'summon' | 'buy' | 'sell' | 'food' | 'spell' | 'round_start' | 'shop' | 'enter' | 'clashEnd' | 'bloodPay' | 'cond';
-/** KEYWORDS 释义 */
-const gloss = (k: string) => KEYWORD_HELP[k] ?? KEYWORDS[k] ?? '';
 interface TrigDef { name: string; icon: IconName; color: string; gloss: string; sample: string }
 export const TRIG: Record<TrigId, TrigDef> = {
   play: { name: '入场', icon: 'target', color: '#8ff07a', sample: '入场', gloss: '单位实例首次部署时执行原生入场能力，返手再上场不重复。变金色时按金色数值额外执行一次；手牌中变金色则等上场执行，与首次入场合并为一次。目标和产物以卡面为准，回响可单独执行此能力。' },
@@ -221,9 +217,6 @@ function inline(text: string, trig: boolean, inCap = false): (string | Node)[] {
   return out;
 }
 
-/** 释义正文用：只着色机制和数值，不生成时机胶囊 */
-export const kwInline = (text: string) => inline(text, false);
-
 /** 把描述文本转成富文本子节点：每个分句开头的「……：」若是时机，变成胶囊 */
 export function kwRich(text: string): (string | Node)[] {
   const out: (string | Node)[] = [];
@@ -239,16 +232,6 @@ export function kwRich(text: string): (string | Node)[] {
     } else out.push(...inline(seg, true));
   }
   return out;
-}
-
-/** 机制释义正文（去掉「特性。」「状态。」前缀，类别改用小标表示） */
-export const mechGloss = gloss;
-
-/** 升星只改数字时，合成一句「2→3」；结构变了（多了效果）返回 null */
-export function kwUpgrade(a: string, b: string): string | null {
-  const x = a.split(/(\d+)/), y = b.split(/(\d+)/);
-  if (x.length !== y.length || x.some((t, i) => i % 2 === 0 && t !== y[i])) return null;
-  return x.map((t, i) => (i % 2 && t !== y[i] ? `${t}→${y[i]}` : t)).join('');
 }
 
 /** Highlight changed values within the selected effect, retaining rich keyword nodes. */

@@ -108,7 +108,7 @@ const TIER_C = ['', '#bf9a70', '#46d890', '#4a9cff', '#b46cff', '#ffac2e', '#ff4
 /** Filters follow ability definitions, including passive observers without a colon. */
 export const trigsOf = (id: string): Set<TrigId> => {
   const d = card(id);
-  const mapping = { play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', ally_faint: 'faint', summon: 'summon', before_attack: 'before', after_attack: 'beat', kill: 'kill', end: 'shop', buy: 'buy', sell: 'sell', food: 'food', ally_food: 'food', spell: 'spell', round_start: 'round_start', battle_count: 'cond', unit_obtained: 'cond', permanent_health: 'cond', enter:'enter', clashEnd:'clashEnd', bloodPay:'bloodPay' } as const;
+  const mapping = { play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', ally_faint: 'faint', summon: 'summon', before_attack: 'before', after_attack: 'beat', kill: 'kill', end: 'shop', buy: 'buy', sell: 'sell', food: 'food', ally_food: 'food', spell: 'spell', round_start: 'round_start', battle_count: 'cond', enter:'enter', clashEnd:'clashEnd', bloodPay:'bloodPay' } as const;
   const out = new Set<TrigId>(nativeTimings(d).map(t => mapping[t]));
   if (d.key) out.add(({ play: 'play', start: 'start', hurt: 'hurt', faint: 'faint', end: 'shop' } as const)[d.key]);
   if (d.ab === 'cat') out.add('food');

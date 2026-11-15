@@ -3,7 +3,6 @@ import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPEL
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec, type GrantedAbility } from './engine';
 import ghostData from './ghosts.json';
 import { STAT_CAP } from './data';
-import { authoredEncounters, type AuthoredEncounter } from './encounters';
 import { ARCHETYPE_IDS, ruleNumber, type ArchetypeId, type PrepRule, type PrepTrigger } from './archetypes';
 import { activeCardPool, cardAvailable, chooseArchetypes, relatedCards } from './archetypePool';
 export { activeCardPool } from './archetypePool';
@@ -32,7 +31,6 @@ export function beginNewRunBackup(): boolean {
     return localStorage.getItem(key) === raw;
   } catch { return false; }
 }
-export const MAX_LIVES = 5;
 /** 路线图：3 幕 × (6 层 + Boss)；每个节点一回合，打赢第 3 幕 Boss 通关 */
 export const ACTS = 3;
 export const LAYERS = 6;
@@ -139,7 +137,7 @@ export const FORM_INFO: Record<FormKey, { name: string; hint: string }> = {
   rush: { name: '速攻', hint: '攻高血薄，先手打崩你' },
   mixed: { name: '均衡', hint: '什么都有一点' },
 };
-export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[]; encounter?: Pick<AuthoredEncounter, 'key' | 'name' | 'hint'> }
+export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[]; encounter?: { key: string; name: string; hint: string } }
 /** 装备箱：3 件翻牌；ad 已看过升品；src 来源 */
 export interface Chest { items: Ench[]; ad: boolean; src: 'elite' | 'boss' }
 
@@ -278,16 +276,14 @@ export interface RunState {
   quickUsed?: number;
 }
 export type Diff = 0 | 1 | 2;
-/** 难度：k 敌人系数，temp 温度保留比例，lives 起始心数。通关率以当前版本同种子实测为准 */
-export const DIFFS: { name: string; desc: string; k: number; temp: number; lives: number }[] = [
-  { name: '普通', desc: '适合第一次远征', k: 0.88, temp: 1, lives: 5 },
-  { name: '困难', desc: '敌人更强，手气差时不再放水', k: 0.95, temp: 0.5, lives: 3 },
-  { name: '噩梦', desc: '敌人再强一截，只有 2 颗心', k: 0.82, temp: 0.2, lives: 2 },
+/** 难度：k 敌人系数，lives 起始心数。通关率以当前版本同种子实测为准 */
+export const DIFFS: { name: string; desc: string; k: number; lives: number }[] = [
+  { name: '普通', desc: '适合第一次远征', k: 0.88, lives: 5 },
+  { name: '困难', desc: '敌人更强，手气差时不再放水', k: 0.95, lives: 3 },
+  { name: '噩梦', desc: '敌人再强一截，只有 2 颗心', k: 0.82, lives: 2 },
 ];
 export const maxLives = (r: Pick<RunState, 'diff'>) => DIFFS[r.diff ?? 0].lives;
 const CHAOS_K = 1.15;
-/** 本场敌人的额外系数：难度 × 混沌契约 */
-export const diffK = (r: Pick<RunState, 'diff' | 'chaos'>) => DIFFS[r.diff ?? 0].k * (r.chaos > 0 ? CHAOS_K : 1);
 export const BAG_MAX = 3;
 export const AD_SAVE_MAX = 2;
 export const ORANGE_MAX = 2;
@@ -301,8 +297,6 @@ export type ShopFx =
 /** 三连金色：3 份 = 金色（技能用 ★2 数值） */
 export const lvlOf = (copies: number): 1 | 2 | 3 => (copies >= MAX_COPIES ? 2 : 1);
 export const isGold = (o: Pick<Owned, 'copies'>) => o.copies >= MAX_COPIES;
-/** 凑金色的进度：[已有, 需要] */
-export const starProgress = (copies: number): [number, number] => [Math.min(copies, MAX_COPIES), MAX_COPIES];
 /** 白板：1 份 = 原值，2 份 +1/+1，金色 = 两倍原值；再加永久成长 */
 const baseStat = (v: number, copies: number) => (copies >= MAX_COPIES ? v * 2 : v + copies - 1);
 export const ownedAtk = (o: Owned) => Math.min(STAT_CAP, Math.max(1, baseStat(card(o.def).atk, o.copies) + o.atkBonus));
@@ -364,93 +358,18 @@ export function prepFoodUses(r: RunState, o: Owned): { used: number; max: number
   if (abOf(o) === 'sauropod') return { used: r.tc.bearRefunds ?? 0, max: 2 };
   return null;
 }
-
-/** Facts and their IDs exist only for this in-memory run; reload starts a new observation scope and never replays past effects. */
-export interface GrowthFact { kind: 'growth'; id: number; parentId?: number; phase: 'prep' | 'after_battle'; source: number | null; effectId: string; label: string; target: number; atk: number; hp: number }
-export interface ActionFact { kind: 'action'; id: number; parentId?: number; action: 'buy' | 'obtain' | 'sell' | 'cast' | 'eat'; target: number | null; def: string }
-export type RunFact = GrowthFact | ActionFact;
-const growthObservers = new WeakMap<RunState, Set<(fact: RunFact) => void>>();
-const growthSequence = new WeakMap<RunState, number>();
-const actionContext = new WeakMap<RunState, number>();
-const factBuffers = new WeakMap<RunState, RunFact[]>();
-export function observeFacts(r: RunState, observer: (fact: RunFact) => void): () => void {
-  let observers = growthObservers.get(r);
-  if (!observers) growthObservers.set(r, observers = new Set());
-  observers.add(observer);
-  return () => observers!.delete(observer);
-}
-function publishFacts(r: RunState, facts: RunFact[]) {
-  for (const fact of facts) for (const observer of growthObservers.get(r) ?? []) {
-    try { observer(fact); } catch { /* Diagnostic observers cannot interrupt gameplay. */ }
-  }
-}
-function emitFact(r: RunState, fact: RunFact) {
-  growthSequence.set(r, fact.id);
-  const buffer = factBuffers.get(r);
-  if (buffer) buffer.push(fact);
-  else publishFacts(r, [fact]);
-}
-function withFactBatch<T>(r: RunState, execute: () => T): T {
-  if (factBuffers.has(r)) return execute();
-  const facts: RunFact[] = [];
-  factBuffers.set(r, facts);
-  let completed = false;
-  try {
-    const result = execute();
-    completed = true;
-    return result;
-  } finally {
-    factBuffers.delete(r);
-    if (completed) publishFacts(r, facts);
-  }
-}
-function withAction<T>(r: RunState, action: ActionFact['action'], target: number | null, def: string, execute: () => T): T {
-  return withFactBatch(r, () => {
-    const parentId = actionContext.get(r);
-    const id = (growthSequence.get(r) ?? 0) + 1;
-    emitFact(r, { kind: 'action', id, parentId, action, target, def });
-    actionContext.set(r, id);
-    try { return execute(); }
-    finally {
-      if (parentId === undefined) actionContext.delete(r);
-      else actionContext.set(r, parentId);
-    }
-  });
-}
-function withPurchase<T>(r: RunState, purchased: boolean, target: number | null, def: string, execute: () => T): T {
-  return withFactBatch(r, () => purchased ? withAction(r, 'buy', target, def, execute) : execute());
-}
-function grow(r: RunState, o: Owned, atk: number, hp: number, source: number | null, label: string, effectId: string, fx: ShopFx[], phase: GrowthFact['phase'] = 'prep', parentId?: number, lineup: (Owned | null)[] = r.queue): [number, number] {
-  return withFactBatch(r, () => {
-    const flag = r.relics.includes('r_training') && card(o.def).tier <= 2;
-    const a = Math.max(0, Math.min(atk + (flag && atk > 0 ? 1 : 0), STAT_CAP - ownedAtk(o)));
-    const h = Math.max(0, Math.min(hp + (flag && hp > 0 ? 1 : 0), STAT_CAP - ownedHp(o)));
-    if (!a && !h) return [0, 0];
-    o.atkBonus += a; o.hpBonus += h;
-    const fact: GrowthFact = { kind: 'growth', id: (growthSequence.get(r) ?? 0) + 1, parentId: parentId ?? actionContext.get(r), phase, source, effectId, label, target: o.oid, atk: a, hp: h };
-    fx.push({ kind: 'buff', src: source, tgt: o.oid, atk: a, hp: h, label });
-    emitFact(r, fact);
-    if (h > 0) for (let i = 0; i < lineup.length; i++) {
-      const listener = lineup[i];
-      if (!listener || heldByOid(r, listener.oid) !== listener) continue;
-      const ability = card(listener.def).abilities.find(x => x.effect === 'caretaker' && x.timing === 'permanent_health');
-      if (!ability || lineup.slice(0, i).reverse().find(Boolean) !== o) continue;
-      grow(r, o, ability.values?.[lvlOf(listener.copies) - 1] ?? 0, 0, listener.oid, '养护匠', ability.effect, fx, phase, fact.id, lineup);
-    }
-    return [a, h];
-  });
+/** 永久成长；effectId 标记来源效果，供调用方阅读。 */
+function grow(r: RunState, o: Owned, atk: number, hp: number, source: number | null, label: string, _effectId: string, fx: ShopFx[]): [number, number] {
+  const flag = r.relics.includes('r_training') && card(o.def).tier <= 2;
+  const a = Math.max(0, Math.min(atk + (flag && atk > 0 ? 1 : 0), STAT_CAP - ownedAtk(o)));
+  const h = Math.max(0, Math.min(hp + (flag && hp > 0 ? 1 : 0), STAT_CAP - ownedHp(o)));
+  if (!a && !h) return [0, 0];
+  o.atkBonus += a; o.hpBonus += h;
+  fx.push({ kind: 'buff', src: source, tgt: o.oid, atk: a, hp: h, label });
+  return [a, h];
 }
 function growFx(r: RunState, fx: ShopFx[], src: number | null, o: Owned | undefined, atk: number, hp: number, label: string, effectId: string) {
   if (o) grow(r, o, atk, hp, src, label, effectId, fx);
-}
-function onObtained(r: RunState, obtained: Owned, fx: ShopFx[]) {
-  withAction(r, 'obtain', obtained.oid, obtained.def, () => {
-    for (const listener of units(r)) {
-      if (listener === obtained) continue;
-      const ability = card(listener.def).abilities.find(x => x.effect === 'caravan' && x.timing === 'unit_obtained');
-      if (ability) grow(r, listener, 0, ability.values?.[lvlOf(listener.copies) - 1] ?? 0, listener.oid, '行商护卫', ability.effect, fx);
-    }
-  });
 }
 /** 只在下一场有效的加成 */
 function tmpFx(fx: ShopFx[], src: number | null, o: Owned | undefined, atk: number, hp: number, label: string) {
@@ -685,41 +604,39 @@ export function pickDiscover(r: RunState, i: number): { def: string; sid?: numbe
   const d = r.discover?.[0];
   const id = d?.opts[i];
   if (!d || !id || (d.mode !== 'spell' && !cardAvailable(r, card(id)))) return null;
-  return withFactBatch(r, () => {
-    r.discover!.shift();
-    if (d.mode === 'spell') {
-      for (let n = 0; n < (d.count ?? 1); n++) {
-        const spell: HeldSpell = { kind: 'spell', oid: r.nextId++, def: id, val: d.val, source: d.src, obtainedTurn: r.turn };
-        enqueueCard(r, spell, d.src);
-      }
-      return { def: id };
+  r.discover!.shift();
+  if (d.mode === 'spell') {
+    for (let n = 0; n < (d.count ?? 1); n++) {
+      const spell: HeldSpell = { kind: 'spell', oid: r.nextId++, def: id, val: d.val, source: d.src, obtainedTurn: r.turn };
+      enqueueCard(r, spell, d.src);
     }
-    if (d.mode === 'morph') {
-      const handIndex = d.oid == null ? -1 : r.hand.findIndex(o => o && !isHeldSpell(o) && o.oid === d.oid);
-      const o = d.oid == null ? undefined : byOid(r, d.oid) ?? (handIndex >= 0 ? cellAt(r, HAND_BASE + handIndex) : null);
-      if (!o) return { def: id, missing: true };
-      o.def = id;
-      o.hpBonus = Math.max(o.hpBonus, 1 - baseStat(card(id).hp, o.copies));
-      if (!card(id).inherit) o.foodHistory = undefined;
-      return { def: id, oid: o.oid, hand: handIndex >= 0 ? HAND_BASE + handIndex : undefined };
-    }
-    if (d.price === 0) {
-      const o: Owned = { oid: r.nextId++, def: id, copies: 1, atkBonus: 0, hpBonus: 0, fresh: true };
-      const hi = enqueueCard(r, o, d.src);
-      for (let n = 1; n < (d.count ?? 1); n++) enqueueCard(r, { ...o, oid: r.nextId++ }, d.src);
-      return { def: id, oid: o.oid, hand: hi };
-    }
-    // Paid discoveries remain on the shop shelf.
-    const hi = d.price === 0 ? r.hand.slice(0, handCap(r)).findIndex((o) => !o) : -1;
-    if (hi >= 0) {
-      const o: Owned = { oid: r.nextId++, def: id, copies: 1, atkBonus: 0, hpBonus: 0, fresh: true };
-      r.hand[hi] = o;
-      return { def: id, oid: o.oid, hand: HAND_BASE + hi };
-    }
-    const sid = r.nextId++;
-    r.shop.push({ sid, kind: 'unit', def: id, locked: false, free: true, disc: true, price: d.price });
-    return { def: id, sid };
-  });
+    return { def: id };
+  }
+  if (d.mode === 'morph') {
+    const handIndex = d.oid == null ? -1 : r.hand.findIndex(o => o && !isHeldSpell(o) && o.oid === d.oid);
+    const o = d.oid == null ? undefined : byOid(r, d.oid) ?? (handIndex >= 0 ? cellAt(r, HAND_BASE + handIndex) : null);
+    if (!o) return { def: id, missing: true };
+    o.def = id;
+    o.hpBonus = Math.max(o.hpBonus, 1 - baseStat(card(id).hp, o.copies));
+    if (!card(id).inherit) o.foodHistory = undefined;
+    return { def: id, oid: o.oid, hand: handIndex >= 0 ? HAND_BASE + handIndex : undefined };
+  }
+  if (d.price === 0) {
+    const o: Owned = { oid: r.nextId++, def: id, copies: 1, atkBonus: 0, hpBonus: 0, fresh: true };
+    const hi = enqueueCard(r, o, d.src);
+    for (let n = 1; n < (d.count ?? 1); n++) enqueueCard(r, { ...o, oid: r.nextId++ }, d.src);
+    return { def: id, oid: o.oid, hand: hi };
+  }
+  // Paid discoveries remain on the shop shelf.
+  const hi = d.price === 0 ? r.hand.slice(0, handCap(r)).findIndex((o) => !o) : -1;
+  if (hi >= 0) {
+    const o: Owned = { oid: r.nextId++, def: id, copies: 1, atkBonus: 0, hpBonus: 0, fresh: true };
+    r.hand[hi] = o;
+    return { def: id, oid: o.oid, hand: HAND_BASE + hi };
+  }
+  const sid = r.nextId++;
+  r.shop.push({ sid, kind: 'unit', def: id, locked: false, free: true, disc: true, price: d.price });
+  return { def: id, sid };
 }
 export const itemPrice = (s: ShopItem) => s.price ?? PRICE;
 
@@ -834,25 +751,19 @@ export function buy(r: RunState, sid: number, slot: number, pt?: number, replace
   if (!at) {
     const o: Owned = { oid: r.nextId++, def: item.def, copies: 1, atkBonus: 0, hpBonus: 0 };
     setCell(r, slot, o);
-    return withPurchase(r, cost > 0, o.oid, o.def, () => {
-      if (r.canned && cost > 0) growFx(r, fx, null, o, r.canned, r.canned, '罐头', 'f_can');
-      if (cost > 0) onBought(r, o, fx);
-      onObtained(r, o, fx);
-      // 进手牌的先不算召唤，第一次上场时再算
-      if (isHand(slot)) o.fresh = true;
-      else { o.fresh = true; onSummoned(r, o, fx, pt, replacePlayAbility); }
-      if (cost > 0) buyDiscover(r, o);
-      return { ok: true, merged: false, levelUp: false, fx };
-    });
+    if (r.canned && cost > 0) growFx(r, fx, null, o, r.canned, r.canned, '罐头', 'f_can');
+    if (cost > 0) onBought(r, o, fx);
+    // 进手牌的先不算召唤，第一次上场时再算
+    if (isHand(slot)) o.fresh = true;
+    else { o.fresh = true; onSummoned(r, o, fx, pt, replacePlayAbility); }
+    if (cost > 0) buyDiscover(r, o);
+    return { ok: true, merged: false, levelUp: false, fx };
   }
-  return withPurchase(r, cost > 0, at.oid, at.def, () => {
-    if (r.canned && cost > 0) growFx(r, fx, null, at, r.canned, r.canned, '罐头', 'f_can');
-    const levelUp = addCopies(r, at, 1, fx, replacePlayAbility, pt);
-    if (cost > 0) onBought(r, at, fx);
-    onObtained(r, at, fx);
-    if (cost > 0) buyDiscover(r, at);
-    return { ok: true, merged: true, levelUp, fx };
-  });
+  if (r.canned && cost > 0) growFx(r, fx, null, at, r.canned, r.canned, '罐头', 'f_can');
+  const levelUp = addCopies(r, at, 1, fx, replacePlayAbility, pt);
+  if (cost > 0) onBought(r, at, fx);
+  if (cost > 0) buyDiscover(r, at);
+  return { ok: true, merged: true, levelUp, fx };
 }
 
 function buyDiscover(r: RunState, o: Owned) {
@@ -1035,7 +946,6 @@ export function supportTargetHint(r: RunState, id: string, o: Owned | null | und
   return null;
 }
 export const foodTargetOk = (r: RunState, id: string, o: Owned | null | undefined, val?: [number, number]) => supportTargetHint(r, id, o, val) === null;
-export const foodAll = (id: string) => FOOD[id]?.n === ALL;
 export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' || (s.kind === 'food' && s.free) ? 0 : FOOD[s.def]?.price ?? PRICE);
 /** 补给的攻血效果（牛奶看货架上的数值） */
 export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def]?.atk ?? 0, FOOD[s.def]?.hp ?? 0];
@@ -1057,64 +967,62 @@ function rememberFood(o: Owned, memory: FoodMemory) {
 }
 /** 统一食用结算；返回补给本体是否实际生效，食用监听不计作余温石的命中。 */
 function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[], direct = true): boolean {
-  return withAction(r, 'eat', e.oid, item.id, () => {
-    const f = FOOD[item.id];
-    const mul = abOf(e) === 'cat' ? uOf(e) : 1;
-    const a = item.atk * mul;
-    const h = item.hp * mul;
-    let applied = false;
-    if (f.tmp) {
-      const before = equipStats(e.ench, ownedAtk(e) + (e.tmpAtk ?? 0), ownedHp(e) + (e.tmpHp ?? 0));
-      tmpFx(fx, null, e, a, h, f.name);
-      const after = equipStats(e.ench, ownedAtk(e) + (e.tmpAtk ?? 0), ownedHp(e) + (e.tmpHp ?? 0));
-      applied = after.some((n, i) => n > before[i]);
-    } else growFx(r, fx, null, e, a, h, f.name, f.id);
-    if (f.fx && !e.tfx?.includes(f.fx)) { e.tfx = [...(e.tfx ?? []), f.fx]; applied = true; }
-    if (f.id === 'f_lamp' && !e.lamp) { e.lamp = true; applied = true; }
-    for (const [resource, value] of Object.entries(f.resources ?? {})) {
-      const n = typeof value === 'number' ? value : 0;
-      const key = resource === 'charge' ? 'startCharge' : resource === 'block' ? 'startBlock' : resource as 'seal' | 'wounds';
-      const before = e[key] ?? 0;
-      if (resource === 'seal') bankSeal(e, n, `supply:${f.id}`);
-      else e[key] = Math.min(resource === 'block' ? 30 : resource === 'charge' ? CHARGE_MAX : STAT_CAP, before + n);
-      const after = e[key] ?? 0;
-      if (after > before) { applied = true; fx.push({kind:'bank', src:e.oid, n:after - before, resource:resource as 'charge' | 'block' | 'seal' | 'wounds', label:f.name}); }
-    }
-    if (f.battleRules?.length && !e.supportFoods?.includes(f.id)) { (e.supportFoods ??= []).push(f.id); applied = true; }
-    const v = vOf(e);
-    const slot = r.queue.indexOf(e);
-    switch (adefOf(e).abilities.find(a => a.role === 'event' && a.timing === 'food')?.effect) {
-      case 'ladybug':
-      case 'worm': growFx(r, fx, e.oid, e, v, v, '吃补给', abOf(e)!); break;
-      case 'seal':
-        {
-          const adjacent = [slot - 1, slot + 1].map((j) => r.queue[j]).filter((o): o is Owned => !!o);
-          const used = r.tc.keeper?.[e.oid] ?? 0;
-          if (adjacent.length && used < uOf(e)) {
-            (r.tc.keeper ??= {})[e.oid] = used + 1;
-            for (const o of adjacent) growFx(r, fx, e.oid, o, v, v, '吃补给', abOf(e)!);
-          }
-        }
-        break;
-      case 'tabby': for (const t of units(r)) tmpFx(fx, e.oid, t, v, 0, '吃补给'); break;
-    }
-    for (const t of units(r)) {
-      if (t === e) continue;
-      if (hasAbility(t, 'ally_food', 'rabbit')) growFx(r, fx, t.oid, e, 0, vOf(t), '友军吃补给', abOf(t)!);
-      if (hasAbility(t, 'ally_food', 'wyvern') && (a || h)) {
-        const half = (x: number) => (x ? Math.max(1, Math.floor(x / 2)) : 0);
-        const at = r.queue.indexOf(t);
-        const targets = [r.queue[at - 1], r.queue[at + 1]].filter((x): x is Owned => !!x && x !== e).slice(0, vOf(t));
-        for (const x of targets) {
-          // 这只是属性分发，不广播食用事件，也不记录补给。
-          if (f.tmp) tmpFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
-          else growFx(r, fx, t.oid, x, half(a), half(h), '友军吃补给', abOf(t)!);
+  const f = FOOD[item.id];
+  const mul = abOf(e) === 'cat' ? uOf(e) : 1;
+  const a = item.atk * mul;
+  const h = item.hp * mul;
+  let applied = false;
+  if (f.tmp) {
+    const before = equipStats(e.ench, ownedAtk(e) + (e.tmpAtk ?? 0), ownedHp(e) + (e.tmpHp ?? 0));
+    tmpFx(fx, null, e, a, h, f.name);
+    const after = equipStats(e.ench, ownedAtk(e) + (e.tmpAtk ?? 0), ownedHp(e) + (e.tmpHp ?? 0));
+    applied = after.some((n, i) => n > before[i]);
+  } else growFx(r, fx, null, e, a, h, f.name, f.id);
+  if (f.fx && !e.tfx?.includes(f.fx)) { e.tfx = [...(e.tfx ?? []), f.fx]; applied = true; }
+  if (f.id === 'f_lamp' && !e.lamp) { e.lamp = true; applied = true; }
+  for (const [resource, value] of Object.entries(f.resources ?? {})) {
+    const n = typeof value === 'number' ? value : 0;
+    const key = resource === 'charge' ? 'startCharge' : resource === 'block' ? 'startBlock' : resource as 'seal' | 'wounds';
+    const before = e[key] ?? 0;
+    if (resource === 'seal') bankSeal(e, n, `supply:${f.id}`);
+    else e[key] = Math.min(resource === 'block' ? 30 : resource === 'charge' ? CHARGE_MAX : STAT_CAP, before + n);
+    const after = e[key] ?? 0;
+    if (after > before) { applied = true; fx.push({kind:'bank', src:e.oid, n:after - before, resource:resource as 'charge' | 'block' | 'seal' | 'wounds', label:f.name}); }
+  }
+  if (f.battleRules?.length && !e.supportFoods?.includes(f.id)) { (e.supportFoods ??= []).push(f.id); applied = true; }
+  const v = vOf(e);
+  const slot = r.queue.indexOf(e);
+  switch (adefOf(e).abilities.find(a => a.role === 'event' && a.timing === 'food')?.effect) {
+    case 'ladybug':
+    case 'worm': growFx(r, fx, e.oid, e, v, v, '吃补给', abOf(e)!); break;
+    case 'seal':
+      {
+        const adjacent = [slot - 1, slot + 1].map((j) => r.queue[j]).filter((o): o is Owned => !!o);
+        const used = r.tc.keeper?.[e.oid] ?? 0;
+        if (adjacent.length && used < uOf(e)) {
+          (r.tc.keeper ??= {})[e.oid] = used + 1;
+          for (const o of adjacent) growFx(r, fx, e.oid, o, v, v, '吃补给', abOf(e)!);
         }
       }
+      break;
+    case 'tabby': for (const t of units(r)) tmpFx(fx, e.oid, t, v, 0, '吃补给'); break;
+  }
+  for (const t of units(r)) {
+    if (t === e) continue;
+    if (hasAbility(t, 'ally_food', 'rabbit')) growFx(r, fx, t.oid, e, 0, vOf(t), '友军吃补给', abOf(t)!);
+    if (hasAbility(t, 'ally_food', 'wyvern') && (a || h)) {
+      const half = (x: number) => (x ? Math.max(1, Math.floor(x / 2)) : 0);
+      const at = r.queue.indexOf(t);
+      const targets = [r.queue[at - 1], r.queue[at + 1]].filter((x): x is Owned => !!x && x !== e).slice(0, vOf(t));
+      for (const x of targets) {
+        // 这只是属性分发，不广播食用事件，也不记录补给。
+        if (f.tmp) tmpFx(fx, t.oid, x, half(a), half(h), '友军吃补给');
+        else growFx(r, fx, t.oid, x, half(a), half(h), '友军吃补给', abOf(t)!);
+      }
     }
-    if (direct) prepRules(r, 'food', fx, e);
-    return applied;
-  });
+  }
+  if (direct) prepRules(r, 'food', fx, e);
+  return applied;
 }
 
 function supplyRefund(r: RunState, price: number, fx: ShopFx[]) {
@@ -1141,42 +1049,40 @@ function useFoodImpl(r: RunState, sid: number, slot: number | null, replaceAbili
   if (!foodNeedsTarget(f.id) && !units(r).length && f.id !== 'f_can') return { ok: false, why: 'target' };
   const price = foodPrice(item);
   if (r.gold < price) return { ok: false, why: 'gold' };
-  return withPurchase(r, purchased && price > 0, tgt?.oid ?? null, f.id, () => withAction(r, 'cast', tgt?.oid ?? null, f.id, () => {
-    r.gold -= price;
-    r.shop = r.shop.filter((x) => x !== item);
-    const fx: ShopFx[] = [];
-    supplyRefund(r, price, fx);
-    const firstSpell = !r.tc.spellUsed;
-    r.tc.spellUsed = true;
-    const repeatFood = firstSpell ? units(r).reduce((m, o) => hasAbility(o, 'spell', 'spellEcho') ? Math.max(m, vOf(o)) : m, 0) : 0;
-    const [fa, fh] = foodStats(item);
-    const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
-    if (f.behind && slot !== null && r.queue[slot + 1]) eaters.push(r.queue[slot + 1]!);
-    // 小范围补给只读取实际邻格：不补位、不因队尾/空格重复食用。
-    if (f.around && slot !== null) {
-      for (const j of [slot - 1, slot + 1]) if (r.queue[j]) eaters.push(r.queue[j]!);
+  r.gold -= price;
+  r.shop = r.shop.filter((x) => x !== item);
+  const fx: ShopFx[] = [];
+  supplyRefund(r, price, fx);
+  const firstSpell = !r.tc.spellUsed;
+  r.tc.spellUsed = true;
+  const repeatFood = firstSpell ? units(r).reduce((m, o) => hasAbility(o, 'spell', 'spellEcho') ? Math.max(m, vOf(o)) : m, 0) : 0;
+  const [fa, fh] = foodStats(item);
+  const eaters = f.id === 'f_can' ? [] : f.n === ALL ? units(r) : f.n ? pickN(r, units(r), f.n) : [tgt!];
+  if (f.behind && slot !== null && r.queue[slot + 1]) eaters.push(r.queue[slot + 1]!);
+  // 小范围补给只读取实际邻格：不补位、不因队尾/空格重复食用。
+  if (f.around && slot !== null) {
+    for (const j of [slot - 1, slot + 1]) if (r.queue[j]) eaters.push(r.queue[j]!);
+  }
+  const directEaters = new Set(eaters);
+  // 分享餐盘：每回合第一份纯单体攻血补给也喂给相邻友军。
+  if (sharesFood(r, f.id) && tgt && slot !== null) {
+    r.tc.shareUsed = true;
+    for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
+  }
+  const emberTargets = new Set<Owned>();
+  for (let iteration = 0; iteration <= repeatFood; iteration++) {
+    if (f.id === 'f_can') r.canned += 1;
+    for (const e of eaters) {
+      const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
+      const applied = eatFood(r, e, memory, fx, directEaters.has(e) && iteration === 0);
+      if (f.tmp && applied) emberTargets.add(e);
+      if (e === tgt && !f.tmp && !f.n && !f.behind && !f.around) rememberFood(e, memory);
     }
-    const directEaters = new Set(eaters);
-    // 分享餐盘：每回合第一份纯单体攻血补给也喂给相邻友军。
-    if (sharesFood(r, f.id) && tgt && slot !== null) {
-      r.tc.shareUsed = true;
-      for (const j of [slot - 1, slot + 1]) { const o = r.queue[j]; if (o) eaters.push(o); }
-    }
-    const emberTargets = new Set<Owned>();
-    for (let iteration = 0; iteration <= repeatFood; iteration++) {
-      if (f.id === 'f_can') r.canned += 1;
-      for (const e of eaters) {
-        const memory: FoodMemory = { id: f.id, atk: fa, hp: fh, sourceId: item.sid };
-        const applied = eatFood(r, e, memory, fx, directEaters.has(e) && iteration === 0);
-        if (f.tmp && applied) emberTargets.add(e);
-        if (e === tgt && !f.tmp && !f.n && !f.behind && !f.around) rememberFood(e, memory);
-      }
-    }
-    if (r.relics.includes('r_ember')) for (const e of emberTargets) if (cellExists(r, e)) growFx(r, fx, null, e, 1, 1, '余温石', 'r_ember');
-    r.tc.foods += directEaters.size;
-    spellObservers(r, fx, false);
-    return { ok: true, fx, levelUp: false };
-  }));
+  }
+  if (r.relics.includes('r_ember')) for (const e of emberTargets) if (cellExists(r, e)) growFx(r, fx, null, e, 1, 1, '余温石', 'r_ember');
+  r.tc.foods += directEaters.size;
+  spellObservers(r, fx, false);
+  return { ok: true, fx, levelUp: false };
 }
 
 export function nativeTimings(d: CardDef): NativeTiming[] {
@@ -1228,49 +1134,47 @@ function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null,
   if (!spellTargetOk(r, f.id, tgt)) return { ok: false, why: 'target' };
   const price = foodPrice(item);
   if (r.gold < price) return { ok: false, why: 'gold' };
-  return withPurchase(r, purchased && price > 0, tgt?.oid ?? null, f.id, () => withAction(r, 'cast', tgt?.oid ?? null, f.id, () => {
-    r.gold -= price;
-    r.shop = r.shop.filter((x) => x !== item);
-    const fx: ShopFx[] = [];
-    supplyRefund(r, price, fx);
-    let levelUp = false;
-    const mt = tierOf(r);
-    const first = !r.tc.spellUsed;
-    r.tc.spellUsed = true;
-    const repeats = first ? units(r).reduce((m, o) => hasAbility(o, 'spell', 'spellEcho') ? Math.max(m, vOf(o)) : m, 0) : 0;
-    const battleGrants = new Set<Owned>();
-    for (let iteration = 0; iteration <= repeats; iteration++) switch (f.spell) {
-      case 'echo': onPlay(r, tgt!, fx, undefined, replaceAbility, o => battleGrants.add(o)); break;
-      case 'bonepact': tgt!.granted = { id: 'bone', duration: 'permanent', value: item.val?.[0] ?? 2, source: item.source ?? f.name }; break;
-      case 'ignite': if (!tgt!.granted || tgt!.granted.id !== 'blood' || tgt!.granted.duration !== 'battle' || tgt!.granted.value < 0) { tgt!.granted = { id: 'blood', duration: 'battle', value: 0, source: f.name }; battleGrants.add(tgt!); } break;
-      case 'inscribe': tgt!.granted = { id: 'spark', duration: 'permanent', value: 2, source: f.name }; break;
-      case 'thorn': case 'sprout': if (!tgt!.granted || tgt!.granted.id !== f.spell || tgt!.granted.duration !== 'permanent' || tgt!.granted.value < (f.spell === 'thorn' ? 2 : 1)) tgt!.granted = { id: f.spell, duration: 'permanent', value: f.spell === 'thorn' ? 2 : 1, source: f.name }; break;
-      case 'temper': if (tgt!.granted && !tgt!.granted.tempered) { tgt!.granted.value *= 2; tgt!.granted.tempered = true; } break;
-      case 'crown': if (!isGold(tgt!)) levelUp = addCopies(r, tgt!, MAX_COPIES - tgt!.copies, fx, replaceAbility) || levelUp; break;
-      case 'siphon': if (r.lives > 1) { r.lives--; r.gold += 3; } break;
-      case 'transfer': if (source?.granted) { tgt!.granted = source.granted; source.granted = undefined; if (tgt!.granted.duration === 'battle') battleGrants.add(tgt!); } break;
-      case 'search': pushDiscover(r, searchPool(r, tgt!), f.name, 0); break;
-      case 'recruit': pushDiscover(r, sameTag(card(tgt!.def), SHOP_POOL.filter((c) => c.tier <= mt)), f.name, 0); break;
-      case 'bank': r.bankGold = (r.bankGold ?? 0) + 5; break;
-      case 'draft': pushDiscover(r, tierPool(mt, r), f.name, 0, { distinct: true }); break;
-      case 'copy': levelUp = addCopies(r, tgt!, 1, fx, replaceAbility); break;
-      case 'reborn': pushDiscover(r, rebornPool(tgt!, r), f.name, 0, { mode: 'morph', oid: tgt!.oid }); break;
-      case 'omen': r.omen = true; break;
-      case 'dismiss': {
-        if (!tgt || slot === null || cellAt(r, slot) !== tgt) break;
-        const tier = card(tgt!.def).tier;
-        const out = sell(r, slot!);
-        if (out) { fx.push(...out.fx); r.gold += dismissGold(tier) + (r.relics.includes('r_pouch') ? 1 : 0) - out.gold; }
-        pushDiscover(r, tierPool(tier, r), f.name, 0);
-        break;
-      }
-      case 'ready': r.freeRr = (r.freeRr ?? 0) + 2; break;
-      case 'coin': r.gold += 2; break;
+  r.gold -= price;
+  r.shop = r.shop.filter((x) => x !== item);
+  const fx: ShopFx[] = [];
+  supplyRefund(r, price, fx);
+  let levelUp = false;
+  const mt = tierOf(r);
+  const first = !r.tc.spellUsed;
+  r.tc.spellUsed = true;
+  const repeats = first ? units(r).reduce((m, o) => hasAbility(o, 'spell', 'spellEcho') ? Math.max(m, vOf(o)) : m, 0) : 0;
+  const battleGrants = new Set<Owned>();
+  for (let iteration = 0; iteration <= repeats; iteration++) switch (f.spell) {
+    case 'echo': onPlay(r, tgt!, fx, undefined, replaceAbility, o => battleGrants.add(o)); break;
+    case 'bonepact': tgt!.granted = { id: 'bone', duration: 'permanent', value: item.val?.[0] ?? 2, source: item.source ?? f.name }; break;
+    case 'ignite': if (!tgt!.granted || tgt!.granted.id !== 'blood' || tgt!.granted.duration !== 'battle' || tgt!.granted.value < 0) { tgt!.granted = { id: 'blood', duration: 'battle', value: 0, source: f.name }; battleGrants.add(tgt!); } break;
+    case 'inscribe': tgt!.granted = { id: 'spark', duration: 'permanent', value: 2, source: f.name }; break;
+    case 'thorn': case 'sprout': if (!tgt!.granted || tgt!.granted.id !== f.spell || tgt!.granted.duration !== 'permanent' || tgt!.granted.value < (f.spell === 'thorn' ? 2 : 1)) tgt!.granted = { id: f.spell, duration: 'permanent', value: f.spell === 'thorn' ? 2 : 1, source: f.name }; break;
+    case 'temper': if (tgt!.granted && !tgt!.granted.tempered) { tgt!.granted.value *= 2; tgt!.granted.tempered = true; } break;
+    case 'crown': if (!isGold(tgt!)) levelUp = addCopies(r, tgt!, MAX_COPIES - tgt!.copies, fx, replaceAbility) || levelUp; break;
+    case 'siphon': if (r.lives > 1) { r.lives--; r.gold += 3; } break;
+    case 'transfer': if (source?.granted) { tgt!.granted = source.granted; source.granted = undefined; if (tgt!.granted.duration === 'battle') battleGrants.add(tgt!); } break;
+    case 'search': pushDiscover(r, searchPool(r, tgt!), f.name, 0); break;
+    case 'recruit': pushDiscover(r, sameTag(card(tgt!.def), SHOP_POOL.filter((c) => c.tier <= mt)), f.name, 0); break;
+    case 'bank': r.bankGold = (r.bankGold ?? 0) + 5; break;
+    case 'draft': pushDiscover(r, tierPool(mt, r), f.name, 0, { distinct: true }); break;
+    case 'copy': levelUp = addCopies(r, tgt!, 1, fx, replaceAbility); break;
+    case 'reborn': pushDiscover(r, rebornPool(tgt!, r), f.name, 0, { mode: 'morph', oid: tgt!.oid }); break;
+    case 'omen': r.omen = true; break;
+    case 'dismiss': {
+      if (!tgt || slot === null || cellAt(r, slot) !== tgt) break;
+      const tier = card(tgt!.def).tier;
+      const out = sell(r, slot!);
+      if (out) { fx.push(...out.fx); r.gold += dismissGold(tier) + (r.relics.includes('r_pouch') ? 1 : 0) - out.gold; }
+      pushDiscover(r, tierPool(tier, r), f.name, 0);
+      break;
     }
-    if (r.relics.includes('r_ember')) for (const o of battleGrants) if (cellExists(r, o)) growFx(r, fx, null, o, 1, 1, '余温石', 'r_ember');
-    spellObservers(r, fx);
-    return { ok: true, fx, levelUp };
-  }));
+    case 'ready': r.freeRr = (r.freeRr ?? 0) + 2; break;
+    case 'coin': r.gold += 2; break;
+  }
+  if (r.relics.includes('r_ember')) for (const o of battleGrants) if (cellExists(r, o)) growFx(r, fx, null, o, 1, 1, '余温石', 'r_ember');
+  spellObservers(r, fx);
+  return { ok: true, fx, levelUp };
 }
 
 
@@ -1286,11 +1190,9 @@ function enqueueCard(r: RunState, card: HandCard, source: string): number | unde
   const hi = r.hand.slice(0, handCap(r)).findIndex(x => !x);
   if (hi >= 0) {
     r.hand[hi] = card;
-    if (!isHeldSpell(card)) onObtained(r, card, []);
     return HAND_BASE + hi;
   }
   (r.rewards ??= []).push({ id: r.nextId++, card, source });
-  if (!isHeldSpell(card)) onObtained(r, card, []);
   return undefined;
 }
 export function claimReward(r: RunState, id: number, handCell?: number): boolean {
@@ -1317,9 +1219,6 @@ export function discardHandUnit(r: RunState, cell: number): boolean {
   r.hand[cell - HAND_BASE] = null;
   return true;
 }
-export function discardHandCard(r: RunState, cell: number): boolean {
-  return isHeldSpell(handAt(r, cell)) ? discardHandSpell(r, cell) : discardHandUnit(r, cell);
-}
 export function discardHandSpell(r: RunState, cell: number): boolean {
   if (!isHeldSpell(handAt(r, cell))) return false;
   r.hand[cell - HAND_BASE] = null;
@@ -1334,31 +1233,18 @@ export function buyToHand(r: RunState, sid: number, cell?: number): BuyResult {
   if (item.kind === 'unit') return buy(r, sid, HAND_BASE + h);
   const cost = foodPrice(item);
   if (r.gold < cost) return { ok: false, why: 'gold' };
-  return withPurchase(r, cost > 0, null, item.def, () => {
-    r.gold -= cost;
-    r.shop = r.shop.filter(x => x !== item);
-    r.hand[h] = { kind: 'spell', oid: r.nextId++, def: item.def, val: item.val, source: '酒馆', obtainedTurn: r.turn, expiresTurn: item.def === 'f_milk' ? r.turn : undefined };
-    const fx: ShopFx[] = [];
-    supplyRefund(r, cost, fx);
-    return { ok: true, merged: false, levelUp: false, fx };
-  });
-}
-function beginFactTransaction(r: RunState, c: RunState): RunFact[] {
-  const facts: RunFact[] = [];
-  growthSequence.set(c, growthSequence.get(r) ?? 0);
-  observeFacts(c, fact => facts.push(fact));
-  return facts;
-}
-function commit(r: RunState, c: RunState, facts: RunFact[]) {
-  Object.assign(r, c);
-  for (const fact of facts) emitFact(r, fact);
+  r.gold -= cost;
+  r.shop = r.shop.filter(x => x !== item);
+  r.hand[h] = { kind: 'spell', oid: r.nextId++, def: item.def, val: item.val, source: '酒馆', obtainedTurn: r.turn, expiresTurn: item.def === 'f_milk' ? r.turn : undefined };
+  const fx: ShopFx[] = [];
+  supplyRefund(r, cost, fx);
+  return { ok: true, merged: false, levelUp: false, fx };
 }
 export function useFood(r: RunState, sid: number, slot: number | null, replaceAbility = false, sourceSlot?: number): FoodResult {
   if (r.endTurnCommitted) return { ok: false, why: 'target' };
   const c = structuredClone(r);
-  const facts = beginFactTransaction(r, c);
   const out = useFoodImpl(c, sid, slot, replaceAbility, sourceSlot);
-  if (out.ok) commit(r, c, facts);
+  if (out.ok) Object.assign(r, c);
   return out;
 }
 export function castHandSpell(r: RunState, cell: number, target: number | null, replaceAbility = false, sourceSlot?: number): FoodResult {
@@ -1369,16 +1255,15 @@ export function castHandSpell(r: RunState, cell: number, target: number | null, 
   c.hand[cell - HAND_BASE] = null;
   const sid = c.nextId++;
   c.shop.push({ sid, kind: 'food', def: held.def, val: held.val, source: held.source, locked: false, free: true });
-  const facts = beginFactTransaction(r, c);
   const out = useFoodImpl(c, sid, target, replaceAbility, sourceSlot, false);
-  if (out.ok) commit(r, c, facts);
+  if (out.ok) Object.assign(r, c);
   return out;
 }
 
 /** 场上两格互换，或同名合并（拖动） */
 type MoveResult = { merged: boolean; levelUp: boolean; fx: ShopFx[] } | null;
 export function moveOwned(r: RunState, from: number, to: number, pt?: number, keepAbility?: 'source' | 'target', replacePlayAbility = false): MoveResult {
-  return withFactBatch(r, () => moveOwnedImpl(r, from, to, pt, keepAbility, replacePlayAbility));
+  return moveOwnedImpl(r, from, to, pt, keepAbility, replacePlayAbility);
 }
 function moveOwnedImpl(r: RunState, from: number, to: number, pt?: number, keepAbility?: 'source' | 'target', replacePlayAbility = false): MoveResult {
   if (r.endTurnCommitted) return null;
@@ -1454,33 +1339,31 @@ export function sell(r: RunState, slot: number): SellOut | null {
   if (r.endTurnCommitted) return null;
   const o = cellAt(r, slot);
   if (!o) return null;
-  return withAction(r, 'sell', o.oid, o.def, () => {
-    // 必须在删除或任何出售效果发生前确定对象，空位不改变先后关系；手牌卖出时传给队尾。
-    const receiver = isHand(slot) ? [...r.queue].reverse().find((t): t is Owned => !!t)
-      : r.queue.slice(slot + 1).find((t): t is Owned => !!t) ?? r.queue.slice(0, slot).reverse().find((t): t is Owned => !!t);
-    const gold = sellPrice(o) + (r.relics.includes('r_pouch') ? 1 : 0);
-    r.gold += gold;
-    setCell(r, slot, null);
-    if (o.ench) toBag(r, o.ench);
-    const fx: ShopFx[] = [];
-    r.tc.sold++;
-    prepRules(r, 'ownSell', fx, o);
-    prepRules(r, 'sell', fx, o);
-    const rest = units(r);
-    if (hasAbility(o, 'sell', 'beaver') && rest.length) growFx(r, fx, o.oid, pick(r, rest), vOf(o), vOf(o), '出售', 'beaver');
-    for (const t of rest) if (hasAbility(t, 'sell', 'salvage')) growFx(r, fx, t.oid, t, vOf(t), vOf(t), '出售其他单位', 'salvage');
-    if (card(o.def).inherit && receiver) {
-      for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx, false);
-    }
-    if (card(o.def).disc === 'sell' && !o.merc) pushDiscover(r, tierPool(tierOf(r), r), card(o.def).name, PRICE);
-    questTick(r, 'sell', 1, fx);
-    return { gold, fx };
-  });
+  // 必须在删除或任何出售效果发生前确定对象，空位不改变先后关系；手牌卖出时传给队尾。
+  const receiver = isHand(slot) ? [...r.queue].reverse().find((t): t is Owned => !!t)
+    : r.queue.slice(slot + 1).find((t): t is Owned => !!t) ?? r.queue.slice(0, slot).reverse().find((t): t is Owned => !!t);
+  const gold = sellPrice(o) + (r.relics.includes('r_pouch') ? 1 : 0);
+  r.gold += gold;
+  setCell(r, slot, null);
+  if (o.ench) toBag(r, o.ench);
+  const fx: ShopFx[] = [];
+  r.tc.sold++;
+  prepRules(r, 'ownSell', fx, o);
+  prepRules(r, 'sell', fx, o);
+  const rest = units(r);
+  if (hasAbility(o, 'sell', 'beaver') && rest.length) growFx(r, fx, o.oid, pick(r, rest), vOf(o), vOf(o), '出售', 'beaver');
+  for (const t of rest) if (hasAbility(t, 'sell', 'salvage')) growFx(r, fx, t.oid, t, vOf(t), vOf(t), '出售其他单位', 'salvage');
+  if (card(o.def).inherit && receiver) {
+    for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx, false);
+  }
+  if (card(o.def).disc === 'sell' && !o.merc) pushDiscover(r, tierPool(tierOf(r), r), card(o.def).name, PRICE);
+  questTick(r, 'sell', 1, fx);
+  return { gold, fx };
 }
 
 /** 回合结束（开战前）：从队首到队尾依次结算商店成长；沙域法老让它们额外触发 */
 export function endTurn(r: RunState): ShopFx[] {
-  return withFactBatch(r, () => endTurnImpl(r));
+  return endTurnImpl(r);
 }
 function endTurnImpl(r: RunState): ShopFx[] {
   if (r.endTurnCommitted || r.rewards?.length || r.discover?.length) return [];
@@ -1688,11 +1571,6 @@ export function medianBudget(turn: number): number {
 
 /** 本幕 Boss（地图上一直可见） */
 export const bossOf = (r: Pick<RunState, 'bosses' | 'act'>): BossKey => r.bosses[r.act] ?? 'final';
-/** finalLosses = 对当前 Boss 的连败数：终局 1.1 → 1.0 → 0.9；其他 Boss 连败 2 次起 0.9 */
-export function bossMul(r: RunState, key: BossKey) {
-  if (key === 'final') return r.finalLosses >= 2 ? 0.9 : r.finalLosses === 1 ? 1.0 : 1.1;
-  return r.finalLosses >= 2 ? 0.9 : 1;
-}
 /** Boss 的校准系数：先看 key@回合，再看 key */
 export function bossScaleOf(key: string, turn: number) {
   const b = GHOSTS.bossScale ?? {};
@@ -1709,262 +1587,17 @@ export function bossTeam(def: BossDef, turn: number, mul: number, scale = bossSc
     return { def: d.id, lvl, atk: Math.max(1, Math.min(STAT_CAP, Math.round(d.atk * k))), hp: Math.max(1, Math.min(STAT_CAP, Math.round(d.hp * k))) };
   });
 }
-
-// ── 形态分类：按技能分布 ──
-/** 关键卡按它放大的时机归形态 */
-const KEY_AB: Record<string, string> = { hurt: 'idol', start: 'mosquito', faint: 'mammoth' };
 const SUMMON_AB = new Set(['cricket', 'egg', 'sheep', 'deer', 'rooster', 'spider', 'eagle', 'fly', 'horse', 'dog', 'turkey', 'heart']);
 const BOOM_AB = new Set(['hedgehog', 'badger', 'ant', 'flamingo', 'mammoth']);
 const WALL_AB = new Set(['ox', 'turtle', 'gorilla', 'ironwall']);
 const SNIPE_AB = new Set(['mosquito', 'dolphin', 'croc', 'skunk', 'snake']);
 const HURT_AB = new Set(['peacock', 'elephant', 'camel', 'blowfish', 'anvil', 'idol', 'thornback']);
-export function formOf(team: UnitSpec[]): FormKey {
-  if (!team.length) return 'mixed';
-  const sc: Record<FormKey, number> = { tank: 0, summon: 0, carry: 0, snipe: 0, boom: 0, wall: 0, rush: 0, mixed: 0 };
-  for (const u of team) {
-    const ab = card(u.def).ab ?? KEY_AB[card(u.def).key ?? ''] ?? '';
-    if (SUMMON_AB.has(ab)) sc.summon++;
-    if (BOOM_AB.has(ab)) sc.boom++;
-    if (WALL_AB.has(ab) || (equipOf(u.ench)?.block ?? 0) > 0) sc.wall++;
-    if (SNIPE_AB.has(ab)) sc.snipe++;
-    if (HURT_AB.has(ab)) sc.tank++;
-  }
-  const best = (['summon', 'boom', 'wall', 'snipe', 'tank'] as FormKey[]).sort((a, b) => sc[b] - sc[a])[0];
-  const tot = team.reduce((s, u) => s + u.atk + u.hp, 0);
-  const big = Math.max(...team.map((u) => u.atk + u.hp));
-  if (team.length >= 3 && big >= tot * 0.4 && sc[best] < 3) return 'carry';
-  // 形态名要名副其实：至少 3 个（3 人以下的小队 2 个）同类技能才挂这个名
-  if (sc[best] >= (team.length <= 3 ? 2 : 3)) return best;
-  const atk = team.reduce((s, u) => s + u.atk, 0);
-  const hp = team.reduce((s, u) => s + u.hp, 0);
-  if (atk >= hp * 0.9) return 'rush';
-  return 'mixed';
-}
 
 /** v0.5 装备让玩家整体变强，普通敌阵按此系数补回（Boss 另有校准） */
 export let EQUIP_K = 1.1;
 export const setEquipK = (k: number) => { EQUIP_K = k; };
-/** 对玩家当前阵容的快模拟胜率（平局算半场） */
-function winRate(r: RunState, enemy: UnitSpec[], n = 4) {
-  const me = playerTeam(r);
-  if (!me.length) return 0;
-  let w = 0;
-  for (let i = 0; i < n; i++) {
-    const res = simulate(me, enemy, (r.seed + i * 104729 + r.turn * 7) & 0x7fffffff, r.relics, simOpts(r)).result;
-    w += res === 'win' ? 1 : res === 'draw' ? 0.5 : 0;
-  }
-  return w / n;
-}
-interface Cand { units: UnitSpec[]; form: FormKey; wr: number; encounter?: Enemy['encounter'] }
 
-// ── 压力：玩家阵容太强时，把敌阵整体放大到「这一档该有的胜率上限」（只放大不缩小） ──
-/** 前 4 回合是发育期（金币少、要攒钱升本），不加压；之后满压 */
-const PRESSURE_FROM = 5;
-/** 三档温度（简单 / 中等 / 困难）各自的胜率上限 */
-export let PRESSURE_CAPS: [number, number, number] = [0.93, 0.75, 0.45];
-export const setPressureCaps = (c: [number, number, number]) => { PRESSURE_CAPS = c; };
-const capOf = (r: RunState, gi: number) => {
-  if (r.turn < PRESSURE_FROM) return 1;
-  const early = r.turn < 5 ? 0.08 : 0;
-  return Math.min(0.97, PRESSURE_CAPS[gi] + early - 0.04 * (r.diff ?? 0));
-};
-const liftMax = (r: RunState) => (r.turn < 5 ? 1.3 : 2.2);
-/** 胜率高于 cap 就二分放大系数，压到 cap 附近 */
-function lift(r: RunState, units: UnitSpec[], wr: number, cap: number, maxK = liftMax(r)): { units: UnitSpec[]; wr: number } {
-  if (cap >= 1 || wr <= cap) return { units, wr };
-  const top = scaleTeam(units, maxK);
-  const wTop = winRate(r, top, 6);
-  if (wTop >= cap) return { units: top, wr: wTop };
-  let lo = 1, hi = maxK, best = { units: top, wr: wTop };
-  for (let i = 0; i < 5; i++) {
-    const k = (lo + hi) / 2;
-    const us = scaleTeam(units, k);
-    const w = winRate(r, us, 6);
-    if (w > cap) lo = k;
-    else { hi = k; best = { units: us, wr: w }; }
-  }
-  return best;
-}
-/** 胜率低于 floor 就二分缩小系数（亮出形态后候选少，不能只会放大） */
-function soften(r: RunState, units: UnitSpec[], wr: number, floor: number): { units: UnitSpec[]; wr: number } {
-  if (wr >= floor) return { units, wr };
-  let lo = 0.55, hi = 1, best = { units, wr };
-  for (let i = 0; i < 5; i++) {
-    const k = (lo + hi) / 2;
-    const us = scaleTeam(units, k);
-    const w = winRate(r, us, 6);
-    if (w < floor) hi = k;
-    else { lo = k; best = { units: us, wr: w }; }
-  }
-  return best.wr >= floor ? best : { units: scaleTeam(units, 0.55), wr: floor };
-}
-const FLOOR = [0.75, 0.5, 0.3];
-
-// ── 敌阵整理：幽灵是 bot 的真实阵容，偶尔有站错位、混进凑数小兵的，出场前理一下 ──
-/** 技能要身前有人（站队首就白给） */
-const NEED_FRONT = new Set(['dodo', 'snake', 'kangaroo', 'backstab', 'giraffe', 'tiger']);
-/** 技能作用在身后（站队尾就白给） */
-const NEED_BACK = new Set(['elephant', 'camel', 'flamingo', 'turtle']);
-export function tidyTeam(team: UnitSpec[]): UnitSpec[] {
-  const t = team.map((u) => ({ ...u }));
-  const n = t.length;
-  if (n >= 2) {
-    const ab = (u: UnitSpec) => card(u.def).ab ?? '';
-    const bad = (u: UnitSpec, i: number) => (i === 0 && NEED_FRONT.has(ab(u)) ? 1 : 0) + (i === n - 1 && NEED_BACK.has(ab(u)) ? 1 : 0);
-    const cost = () => t.reduce((s, u, i) => s + bad(u, i), 0);
-    for (let guard = 0; guard < 6 && cost() > 0; guard++) {
-      let moved = false;
-      for (const i of [0, n - 1]) {
-        if (!bad(t[i], i)) continue;
-        // 和最近的、换过去不添新毛病的单位对调
-        const order = [...Array(n).keys()].filter((j) => j !== i).sort((a, b) => Math.abs(a - i) - Math.abs(b - i));
-        for (const j of order) {
-          const before = cost();
-          [t[i], t[j]] = [t[j], t[i]];
-          if (cost() < before) { moved = true; break; }
-          [t[i], t[j]] = [t[j], t[i]];
-        }
-      }
-      if (!moved) break;
-    }
-  }
-  // 凑数小兵：身材不到队伍均值 35% 的（蛋这种靠攒成长的除外），抬到 50%
-  const mean = t.reduce((s, u) => s + u.atk + u.hp, 0) / Math.max(1, n);
-  for (const u of t) {
-    const sz = u.atk + u.hp;
-    if (u.bank != null || sz >= mean * 0.35 || mean < 8) continue;
-    const k = (mean * 0.5) / sz;
-    u.atk = Math.max(1, Math.min(STAT_CAP, Math.round(u.atk * k)));
-    u.hp = Math.max(1, Math.min(STAT_CAP, Math.round(u.hp * k)));
-  }
-  return t;
-}
-/** 候选敌阵：生态内、不连续同形态；不够就放宽 */
-function candidates(r: RunState, k = 8, avoid: FormKey | null = r.lastForm): Cand[] {
-  const pool = ghostPool(r.turn);
-  const sc = enemyScale(r.turn) * EQUIP_K * diffK(r);
-  const all = pool.map((t) => ({ t, form: formOf(t) }));
-  // 幽灵库里太少的生态形态，用同形态技能卡按中位预算补阵
-  // 前 3 回合幽灵形态天然单一，不补合成阵（否则开局敌人偏离校准）
-  if (r.turn >= 4) for (const f of r.eco) if (all.filter((x) => x.form === f).length < 2) for (let i = 0; i < 2; i++) all.push({ t: synthTeam(r, f), form: f });
-  let list = all.filter((x) => r.eco.includes(x.form) && x.form !== avoid);
-  if (list.length < 3) list = all.filter((x) => x.form !== avoid);
-  if (list.length < 3) list = all;
-  // 中后期逐步加入预设配合；仍随机抽取候选，不按玩家技能拼反制阵。
-  const scripted = authoredEncounters(r.turn, medianBudget(r.turn)).filter((x) => x.form !== avoid);
-  const wanted = Math.min(k, r.turn >= 15 ? 4 : r.turn >= 12 ? 2 : r.turn >= 9 ? 1 : 0);
-  const preferred = scripted.filter((x) => r.eco.includes(x.form));
-  const chosen = pickN(r, preferred.length >= wanted ? preferred : scripted, Math.min(wanted, scripted.length));
-  const ghosts: Cand[] = pickN(r, list, Math.max(0, k - chosen.length)).map((x) => {
-    const units = tidyTeam(scaleTeam(x.t, sc));
-    return { units, form: x.form, wr: winRate(r, units) };
-  });
-  return [...ghosts, ...chosen.map(({ key, name, hint, form, units }) => {
-    const scaled = scaleTeam(units, sc);
-    return { units: scaled, form, encounter: { key, name, hint }, wr: winRate(r, scaled) };
-  })];
-}
-/** 温度：简单 / 中等 / 困难 的权重 */
-export function tempWeights(r: RunState): [number, number, number] {
-  // 前两回合是发育期：多给简单局，不出困难局
-  let [e, m, h] = r.turn <= 2 ? [70, 30, 0] : [20, 55, 25];
-  const T = DIFFS[r.diff ?? 0].temp;
-  const lose = Math.max(0, -r.streak);
-  const sh = Math.min(h, Math.round(10 * lose * T));
-  h -= sh;
-  e += sh;
-  if (r.warm) {
-    const x = Math.min(h, 10);
-    h -= x;
-    e += x;
-  }
-  if (r.streak >= 3) {
-    const x = Math.min(10, 45 - h, m);
-    h += x;
-    m -= x;
-  }
-  if (r.lives <= 3 && T >= 0.5) {
-    m += h;
-    h = 0;
-    if (e < 40) {
-      m -= 40 - e;
-      e = 40;
-    }
-  }
-  return [e, m, h];
-}
-const bucketOf = (wr: number) => (wr > 0.75 ? 0 : wr >= 0.45 ? 1 : 2);
-function pickByTemp(r: RunState, cs: Cand[], soft = false): Cand {
-  const w = tempWeights(r);
-  const groups: Cand[][] = [[], [], []];
-  for (const c of cs) groups[bucketOf(c.wr)].push(c);
-  // 先按温度定这一档，再找人：这一档没人时，玩家太强就拿最难的那队放大，太弱就给最容易的
-  const pressure = r.turn >= PRESSURE_FROM;
-  const ws = w.map((x, i) => (groups[i].length || (pressure && i > 0) ? x : 0));
-  const tot = ws.reduce((a, b) => a + b, 0);
-  if (!tot) return pick(r, cs);
-  let t = rng(r) * tot;
-  let gi = ws.findIndex((x) => (t -= x) < 0);
-  if (gi < 0) gi = 1;
-  let c: Cand;
-  if (groups[gi].length) c = pick(r, groups[gi]);
-  else {
-    const sorted = [...cs].sort((x, y) => x.wr - y.wr);
-    c = cs.every((x) => bucketOf(x.wr) < gi) ? sorted[0] : sorted[sorted.length - 1];
-  }
-  const l = soft && c.wr < FLOOR[gi] ? soften(r, c.units, c.wr, FLOOR[gi]) : lift(r, c.units, c.wr, capOf(r, gi));
-  return { ...c, ...l };
-}
 const ELITE_AX: Atom[] = ATOMS.filter((a) => a !== 'pierce');
-/** 精英：在中等档敌阵上挂 1–2 个词缀，挑实测胜率最接近目标的组合 */
-function makeElite(r: RunState, base: Cand): Enemy {
-  const n = r.turn >= 9 ? 2 : 1;
-  const target = isWarm(r) ? 0.5 : 0.38;
-  let best: { ax: Atom[]; units: UnitSpec[]; d: number } | null = null;
-  for (let i = 0; i < 4; i++) {
-    const ax = pickN(r, ELITE_AX, n);
-    const us = base.units.map((u) => ({ ...u, ax }));
-    const d = Math.abs(winRate(r, us) - target);
-    if (!best || d < best.d) best = { ax, units: us, d };
-  }
-  const w0 = winRate(r, best!.units, 6);
-  const boosted = w0 < target - 0.05 ? soften(r, best!.units, w0, target - 0.05) : lift(r, best!.units, w0, target);
-  return { boss: null, units: boosted.units, form: base.form, elite: best!.ax, encounter: base.encounter };
-}
-export function makeBoss(r: RunState): Enemy {
-  const boss = bossOf(r);
-  // 按计划回合定强度：重打 Boss 不因回合数增长而变强
-  const turn = actTurn(r.act, LAYERS);
-  const units = bossTeam(BOSSES[boss], turn, bossMul(r, boss) * diffK(r));
-  // Boss 是关卡：阵容再强也要拼一下；每连败一次放松一点
-  const cap = Math.min(0.88, 0.66 - 0.04 * (r.diff ?? 0) + 0.08 * r.finalLosses);
-  const w = winRate(r, units, 6);
-  const floor = Math.min(0.8, 0.62 - 0.06 * (r.diff ?? 0) + 0.08 * r.finalLosses);
-  return { boss, units: (w < floor ? soften(r, units, w, floor) : lift(r, units, w, cap, 2)).units };
-}
-/** 战斗节点的候选：优先地图上亮出的形态，没有就按该形态补阵 */
-function formCands(r: RunState, form: FormKey | undefined, k: number): Cand[] {
-  const cs = candidates(r, k, form ? null : r.lastForm);
-  if (!form) return cs;
-  const hit = cs.filter((c) => c.form === form);
-  if (hit.length >= 2) return hit;
-  const sc = enemyScale(r.turn) * EQUIP_K * diffK(r);
-  for (let i = hit.length; i < 2; i++) {
-    const units = tidyTeam(scaleTeam(synthTeam(r, form), sc));
-    hit.push({ units, form, wr: winRate(r, units) });
-  }
-  return hit;
-}
-export function makeNodeEnemy(r: RunState, n: MapNode): Enemy {
-  if (!ghostPool(r.turn).length) return { boss: null, units: curveTeam(r) };
-  if (n.k === 'elite') {
-    const cs = formCands(r, n.form, 6);
-    const mid = cs.filter((c) => bucketOf(c.wr) === 1);
-    return makeElite(r, pick(r, mid.length ? mid : cs));
-  }
-  const c = pickByTemp(r, formCands(r, n.form, 8), !!n.form);
-  return { boss: null, units: c.units, form: n.form ?? c.form, encounter: c.encounter };
-}
 
 // ── 路线图 ──
 const NODE_W: [NodeKind, number][] = [['fight', 42], ['elite', 14], ['event', 18], ['shop', 10], ['treasure', 8], ['camp', 8]];
@@ -2150,7 +1783,7 @@ export function buyGoods(r: RunState, i: number): boolean {
 export const heroReady = (r: RunState) => { const h = HERO[r.hero]; return !!h.cost && r.heroUsed !== r.turn && r.gold >= h.cost; };
 /** 主动技能：军需官要指定友军；先知直接发现 */
 export function useHero(r: RunState, slot: number | null = null): ShopFx[] | null {
-  return withFactBatch(r, () => useHeroImpl(r, slot));
+  return useHeroImpl(r, slot);
 }
 function useHeroImpl(r: RunState, slot: number | null): ShopFx[] | null {
   if (r.endTurnCommitted) return null;
@@ -2202,17 +1835,6 @@ function synthTeam(r: RunState, f: FormKey): UnitSpec[] {
     return { def: d.id, lvl, atk: Math.max(1, Math.min(STAT_CAP, Math.round(a * k))), hp: Math.max(1, Math.min(STAT_CAP, Math.round(h * k))), ench };
   });
 }
-/** 没有幽灵库时的兜底：按曲线随机凑一队 */
-function curveTeam(r: RunState): UnitSpec[] {
-  const n = Math.min(5, 1 + Math.ceil(r.turn / 2));
-  const per = medianBudget(r.turn) / n;
-  const pool = SHOP_POOL.filter((c) => c.tier <= maxTier(r.turn));
-  return Array.from({ length: n }, () => {
-    const d = pick(r, pool);
-    const k = per / (d.atk + d.hp || 1);
-    return { def: d.id, lvl: 1 as const, atk: Math.max(1, Math.round(d.atk * k)), hp: Math.max(1, Math.round(d.hp * k)) };
-  });
-}
 
 export const simOpts = (r: Pick<RunState, 'legion'> & Partial<Pick<RunState, 'gold' | 'tc' | 'quarry' | 'enemy'>>) => ({ legion:r.legion ?? 0, gold:r.gold ?? 0, trades:(r.tc?.bought ?? 0) + (r.tc?.sold ?? 0), spells:r.tc?.spells ?? 0, supplies:r.tc?.foods ?? 0, quarry:r.enemy ? effectiveQuarry({enemy:r.enemy,quarry:r.quarry}) : r.quarry });
 export function fight(r: RunState): BattleOut & { settlementId: string; battleQueue: (number | null)[] } {
@@ -2243,7 +1865,7 @@ export function adRetry(r: RunState, snap: RunState): boolean {
 /** 战斗结算：扣心/记胜，清掉本场加成，进入下一回合 */
 type SettlementOut = Pick<BattleOut, 'result' | 'perm'> & Partial<Pick<BattleOut, 'hurts' | 'summons'>> & { settlementId?: string; preview?: boolean; battleQueue?: (number | null)[] };
 export function settleBattle(r: RunState, out: SettlementOut) {
-  return withFactBatch(r, () => settleBattleImpl(r, out));
+  return settleBattleImpl(r, out);
 }
 function settleBattleImpl(r: RunState, out: SettlementOut) {
   if (out.preview) return;
@@ -2258,14 +1880,14 @@ function settleBattleImpl(r: RunState, out: SettlementOut) {
   const scarFx: ShopFx[] = [];
   for (const [oid, p] of Object.entries(out.perm)) {
     const o = heldByOid(r, Number(oid));
-    if (o && battleLineup.includes(o)) grow(r, o, p.atk, p.hp, null, '先锋徽章', 'r_vanguard', scarFx, 'after_battle', undefined, battleLineup);
+    if (o && battleLineup.includes(o)) grow(r, o, p.atk, p.hp, null, '先锋徽章', 'r_vanguard', scarFx);
   }
   // 历战：每实际受伤 2 次记 1 点，输赢都给；每场与累计上限按阶层
   for (const o of battleLineup.filter((x): x is Owned => !!x && heldByOid(r, x.oid) === x)) {
     if (!hasScar(o.def)) continue;
     const n = Math.min(Math.floor((out.hurts?.[o.oid] ?? 0) / 2), scarPer(o.def), scarCap(o.def) - (o.scar ?? 0));
     if (n <= 0) continue;
-    grow(r, o, n, n, null, '历战', 'scar', scarFx, 'after_battle', undefined, battleLineup);
+    grow(r, o, n, n, null, '历战', 'scar', scarFx);
     o.scar = (o.scar ?? 0) + n;
   }
   // 军团规格：本场召唤满 3 / 6 次 +1 / +2
@@ -2661,7 +2283,7 @@ export const mercTier = (r: RunState) => (tierPool(tierOf(r) + 1, r)[0]?.tier ??
 export type EventOut = { ok: false } | { ok: true; fx: ShopFx[]; levelUp?: boolean; lost?: Owned; morphed?: string; bag?: Ench; merc?: number };
 /** 事件选择：choice 0 = 主选项（camp 有 0/1 两个），-1 = 离开；需要单位的选项带 slot */
 export function resolveEvent(r: RunState, choice: number, slot: number | null = null): EventOut {
-  return withFactBatch(r, () => resolveEventImpl(r, choice, slot));
+  return resolveEventImpl(r, choice, slot);
 }
 function resolveEventImpl(r: RunState, choice: number, slot: number | null): EventOut {
   const ev = r.event;
@@ -2710,7 +2332,6 @@ function resolveEventImpl(r: RunState, choice: number, slot: number | null): Eve
         if (!pool.length) return { ok:false };
         const m: Owned = { oid: r.nextId++, def: pick(r, pool).id, copies: 3, atkBonus: 0, hpBonus: 0, merc: MERC_FIGHTS };
         r.queue[at] = m;
-        onObtained(r, m, fx);
         out = { ok: true, fx, merc: at };
         break;
       }

@@ -697,8 +697,3 @@ export function installPixelSprites() {
   const root = document.documentElement.style;
   for (const [k, v] of Object.entries(vars)) root.setProperty(k, v);
 }
-
-/** 说明页等内联 svg 用的小台座 */
-export function pedestalUrl(enemy: boolean) {
-  return pedestal(enemy ? '#8a1c34' : '#a8761e', enemy ? '#ff6a85' : '#ffd36b', false).toDataURL();
-}

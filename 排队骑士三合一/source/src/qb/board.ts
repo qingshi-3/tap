@@ -4,15 +4,12 @@ import './css/battle-arrows.css';
 import './css/unit-keywords.css';
 import './css/unit-fx.css';
 import './css/unit-status.css';
-import { FACTION_INFO, SLOTS, unitDef } from './shim';
-import type { Faction, Side } from './shim';
+import { SLOTS, unitDef } from './shim';
+import type { Side } from './shim';
 import { h } from './dom';
 import { icon, type IconName } from './icons';
 import { unitSvg } from './unitArt';
 import { itemIcon } from './pixelItems';
-
-// 场上单位、备战位共用的阵营徽记（精灵见 pixel.ts SIGILS）
-export const factionSigil = (f: Faction) => h('i', { class: `u-fac f-${f}`, style: `--pxs:var(--pxs-${f});--fc:${FACTION_INFO[f].color}` });
 // Battlefield and bench share the same authored pixel pedestal.
 export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-rune' }), h('div', { class: 'ped-top' }));
 

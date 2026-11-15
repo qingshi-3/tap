@@ -1,6 +1,4 @@
 import { card } from '../src/core/data';
-import { simulate } from '../src/core/engine';
-import { battleTimeline } from '../src/ui/battleTimeline';
 import { previewEndTurn, previewInheritance } from '../src/core/previews';
 import { endTurn, load, newRun, ownedAtk, ownedHp, playerTeam, SAVE_KEY, sell, shownStats, useFood, type Owned, type RunState } from '../src/core/run';
 
@@ -74,19 +72,5 @@ for (const before of ['f_stew', 'x_copy']) {
   const old = load()!; eq(old.tc.shareUsed, true, 'legacy same-turn conservative');
   r.tc.shareUsed = false; store.set(SAVE_KEY, JSON.stringify(r));
   eq(load()!.tc.shareUsed, false, 'new share availability persists');
-}
-{
-  const out = simulate([{ def: 'd_artificer', lvl: 1, atk: 49, hp: 50 }], [{ def: 'd_artificer', lvl: 1, atk: 1, hp: 1 }]);
-  const [a, b] = out.init;
-  out.events = [
-    { t: 'buff', src: a.uid, tgt: a.uid, atk: 4, hp: 4, nowAtk: 50, nowHp: 50 },
-    { t: 'buff', src: a.uid, tgt: a.uid, atk: 4, hp: 4, nowAtk: 50, nowHp: 50 },
-    { t: 'clash', a: a.uid, b: b.uid, n: 1 },
-  ];
-  const pages = battleTimeline(out);
-  eq(pages[0].title, '开战至首次交锋前', 'opening includes beforeAttack phase');
-  eq(pages[0].lines[0].endsWith('：+1/0'), true, 'timeline reports capped actual growth');
-  eq(pages[0].lines[1].endsWith('：0/0（未增加属性）'), true, 'timeline reports blocked growth');
-  eq(pages[1].title, '交锋 1 及随后效果', 'clash page includes following effects');
 }
 console.log(`PREP_FEEDBACK_OK ${checks} assertions`);

@@ -190,21 +190,6 @@ function listen() {
   document.addEventListener('keydown', gesture);
 }
 
-/** Release owned listeners, active sources and in-flight decode ownership. */
-export function disposeAudio() {
-  document.removeEventListener('visibilitychange', visibility);
-  document.removeEventListener('pointerdown', gesture);
-  document.removeEventListener('keydown', gesture);
-  epoch++;
-  loadAbort?.abort(); loadAbort = null; loading = null;
-  stopMusic();
-  listening = false; needsGesture = false; unlockedByGesture = false;
-  runKey = null; currentTrack = null; titleActive = false; musicOffset = 0; ducked = false; paused = false;
-  if (ctx) void ctx.close().catch(() => {});
-  ctx = null; master = null; sfxGain = null; musicGain = null; noiseBuf = null;
-  musicBuffer = null;
-}
-
 export function unlockAudio() {
   listen();
   if (document.hidden) return;
@@ -282,27 +267,6 @@ export function setMusicRun(key: string | null, nextChapter = 0) {
     ducked = false;
   }
   changeTrack(selectedTrack());
-}
-export function setMusicDucked(value: boolean) {
-  if (ducked === value) return;
-  ducked = value;
-  cancelFade();
-  if (!ducked) {
-    if (musicSource && musicGain && ctx) {
-      musicGain.gain.setTargetAtTime(volumes.bgm, ctx.currentTime, 0.08);
-    }
-    syncMusic();
-    return;
-  }
-  if (!musicSource || !musicGain || !ctx || !canPlayMusic()) { stopMusic(); return; }
-  const token = fadeToken, source = musicSource;
-  musicGain.gain.setValueAtTime(musicGain.gain.value, ctx.currentTime);
-  musicGain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-  fadeTimer = setTimeout(() => {
-    if (token !== fadeToken || !ducked || musicSource !== source) return;
-    fadeTimer = null;
-    stopMusic();
-  }, 300);
 }
 export function setAudioPaused(value: boolean) {
   paused = value;

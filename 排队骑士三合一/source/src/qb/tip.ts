@@ -415,8 +415,3 @@ export function hideTip() {
   setTipSource();
   root?.querySelectorAll('.unit.inspected').forEach((unit) => unit.classList.remove('inspected'));
 }
-
-/** A selected tooltip may live in document.body on touch screens. */
-export function isTipTarget(target: EventTarget | null) {
-  return target instanceof Node && !!tipEl?.classList.contains('on') && tipEl.contains(target);
-}

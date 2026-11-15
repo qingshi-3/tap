@@ -250,8 +250,6 @@ export function tierArt(cls: string, defId: string, tier: number, tag: 'div' | '
   return art;
 }
 
-export const PREVIEW_TRIG: Record<string, TrigId> = {};
-
 function previewTag(label: string) {
   if (/×\d+$/.test(label)) return trigCap(triggerOf(label.replace(/×\d+$/, '')), label, true);
   return /[时后]$|^每次交锋|^每回合/.test(label) ? trigCap(triggerOf(label), label, true) : kwTag(label);

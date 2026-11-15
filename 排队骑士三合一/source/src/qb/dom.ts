@@ -31,18 +31,7 @@ export function append(el: HTMLElement, ...children: Child[]) {
   }
 }
 
-export function svg(markup: string, cls = '', viewBox = '0 0 24 24') {
-  const wrap = document.createElement('span');
-  wrap.className = `ic ${cls}`;
-  wrap.innerHTML = `<svg viewBox="${viewBox}" aria-hidden="true">${markup}</svg>`;
-  return wrap;
-}
-
 export const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
-
-export function clear(el: Element) {
-  while (el.firstChild) el.removeChild(el.firstChild);
-}
 
 /** 舞台坐标换算：舞台为固定 1280×720，整体缩放 */
 export const STAGE_W = 1280;

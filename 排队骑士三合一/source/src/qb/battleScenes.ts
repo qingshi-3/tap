@@ -7,7 +7,6 @@
 import './css/battle-scenes.css';
 
 export type SceneId = 'moor' | 'ember' | 'frost' | 'crypt' | 'hive' | 'foundry' | 'abyss';
-export const SCENE_NAMES: Record<SceneId, string> = { moor: '月夜荒原', ember: '熔岩地窟', frost: '霜原极光', crypt: '墓穴回廊', hive: '幽暗巢穴', foundry: '齿轮铸坊', abyss: '星坠深渊' };
 
 export const SCENE_LAYOUT = { width: 320, height: 180, platformTop: 100, standY: 108, platformFront: 128 } as const;
 const W = SCENE_LAYOUT.width, H = SCENE_LAYOUT.height;

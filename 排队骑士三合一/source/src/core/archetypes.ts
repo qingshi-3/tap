@@ -4,7 +4,6 @@ export type CardRole = 'starter' | 'engine' | 'cover' | 'terminal' | 'bridge' | 
 export type RuleNumber = number | readonly [number, number];
 export const ruleNumber = (value: RuleNumber | undefined, level: number): number =>
   typeof value === 'number' ? value : value?.[level > 1 ? 1 : 0] ?? 0;
-export const ROLE_NAMES: Record<CardRole, string> = { starter:'启动', engine:'引擎', cover:'补短板', terminal:'终端', bridge:'桥接', utility:'通用' };
 export const ARCHETYPES: Record<ArchetypeId, { name: string; action: string; resource: string; cost: string }> = {
   wheel: { name:'车轮', action:'安排骑手轮流成为队首', resource:'圈数', cost:'攻击后退到队尾，由下一人接战' },
   charge: { name:'蓄势', action:'让前排掩护后排炮手蓄能', resource:'炮手个人蓄能', cost:'过早成为队首会提前消耗蓄能' },

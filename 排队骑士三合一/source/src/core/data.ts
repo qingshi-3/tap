@@ -17,7 +17,7 @@ export type KeyKind = 'hurt' | 'start' | 'faint' | 'end' | 'play';
 /** 引擎标签：用于图鉴、配色、bot 选卡与商店关联保底，没有战斗羁绊加成。 */
 export type Line = 'death' | 'hurt' | 'start' | 'food' | 'grow' | 'any' | 'enemy';
 export type Faction = 'light' | 'shadow' | 'abyss' | 'magma' | 'frost' | 'desert' | 'neutral' | 'enemy';
-export type NativeTiming = 'play' | 'start' | 'hurt' | 'faint' | 'ally_faint' | 'summon' | 'before_attack' | 'after_attack' | 'kill' | 'end' | 'buy' | 'sell' | 'food' | 'ally_food' | 'spell' | 'round_start' | 'battle_count' | 'unit_obtained' | 'permanent_health' | 'bloodPay' | 'enter' | 'clashEnd';
+export type NativeTiming = 'play' | 'start' | 'hurt' | 'faint' | 'ally_faint' | 'summon' | 'before_attack' | 'after_attack' | 'kill' | 'end' | 'buy' | 'sell' | 'food' | 'ally_food' | 'spell' | 'round_start' | 'battle_count' | 'bloodPay' | 'enter' | 'clashEnd';
 export interface AbilityDef { effect: string; timing: NativeTiming; phase: 'prep' | 'battle' | 'after_battle' | 'multiple'; role: 'event' | 'amplifier'; values?: V3; secondaryValues?: V3 }
 const LINE_IDENTITY: Record<Line, Faction> = { hurt:'light', start:'shadow', death:'abyss', any:'magma', food:'frost', grow:'desert', enemy:'enemy' };
 const TIMINGS: Record<string, NativeTiming[]> = {
@@ -27,10 +27,9 @@ const TIMINGS: Record<string, NativeTiming[]> = {
   egg:['faint','end'], horse:['summon'], spider:['faint'], dog:['summon'], sheep:['faint'], deer:['faint'], turkey:['summon'], rooster:['faint'], eagle:['faint'], heart:['summon'],
   ladybug:['food'], tabby:['food'], rabbit:['ally_food'], abilitygrow:['spell'], seal:['food'], cow:['round_start'], sauropod:['buy'], rhyno:['end'], wyvern:['ally_food'],
   beaver:['sell'], thornback:['hurt'], giraffe:['end'], spellgrow:['spell'], salvage:['sell'], penguin:['end'], recallUnit:['end'], spellEcho:['spell'], dragon:['buy'], idol:['hurt'],
-  ironwall:['start'], gorilla:['hurt'], fly:['ally_faint'], boar:['before_attack'],
-  caravan:['unit_obtained'], caretaker:['permanent_health']
+  ironwall:['start'], gorilla:['hurt'], fly:['ally_faint'], boar:['before_attack']
 };
-const PREP_TIMINGS: NativeTiming[] = ['play','end','buy','sell','food','ally_food','spell','round_start','battle_count','unit_obtained'];
+const PREP_TIMINGS: NativeTiming[] = ['play','end','buy','sell','food','ally_food','spell','round_start','battle_count'];
 
 
 export interface CardDef {
@@ -83,8 +82,7 @@ function C(id: string, name: string, tier: Tier, atk: number, hp: number, line: 
   const v = v3(o.v);
   const pv = v3(o.pv);
   const abilities: AbilityDef[] = (o.ab ? TIMINGS[o.ab] ?? [] : []).map(timing => {
-    const multiPhase = timing === 'permanent_health' ||
-      (timing === 'summon' && ['horse', 'dog', 'turkey'].includes(o.ab!));
+    const multiPhase = (timing === 'summon' && ['horse', 'dog', 'turkey'].includes(o.ab!));
     return {
       effect: o.ab!, timing,
       phase: multiPhase ? 'multiple' : PREP_TIMINGS.includes(timing) ? 'prep' : 'battle',
@@ -112,8 +110,6 @@ const BASE_CARDS: CardDef[] = [
   C('l_shield', '银盾侍卫', 1, 2, 6, 'hurt', '受伤时：自己本场 +{v} 攻，再加最大血的 1/10', { ab: 'peacock', v: [2, 4] }),
   C('l_windblade', '风刃剑士', 1, 3, 6, 'hurt', '交锋前：对身后 {v} 个友军各造成 1 伤害', { ab: 'elephant', v: [2, 4] }),
   C('l_vigil', '守誓者', 2, 3, 6, 'hurt', '受伤时：身后友军本场 +{v}/+{u}', { ab: 'camel', v: [2, 4], u: [2, 4] }),
-  C('n_caravan', '行商护卫', 2, 2, 5, 'grow', '获得其他单位后：自己永久 +{v} 生命', { faction: 'neutral', ab: 'caravan', v: [1, 2], perm: true }),
-  C('n_caretaker', '养护匠', 3, 3, 5, 'grow', '最近身前友军实际获得永久生命后：使其永久 +{v} 攻', { faction: 'neutral', ab: 'caretaker', v: [1, 2], perm: true }),
   C('n_tether', '链誓术士', 2, 2, 4, 'grow', '入场：身前友军永久 +{p} 血。回合结束时：相邻友军永久 +{v} 血', { faction: 'neutral', tag2: 'hurt', ab: 'tfish', v: [1, 2], pl: 'p_hp', pv: [3, 6], perm: true }),
   C('l_warden', '晨光盾卫', 3, 3, 7, 'hurt', '受伤时：随机打一个敌人 {v}＋最大血的 1/5', { ab: 'blowfish', v: [3, 6] }),
   C('n_medic', '苦修导师', 3, 3, 7, 'hurt', '入场：友军下一场开战自伤 1，存活则本场 +{p} 攻', { faction: 'neutral', pl: 'p_ignite', pv: [2, 4], tag2: 'start' }),
@@ -266,12 +262,10 @@ const classicFoods: FoodDef[] = [
   { id: 'f_plate', name: '铁甲片', tier: 3, text: '一个友军下场开战时，获得2层格挡。', icon: 'plate', tmp: true, fx: 'plate', short: '开战时，获得2层格挡' },
   { id: 'f_sushi', name: '寿司', tier: 4, text: '一个友军及其相邻友军永久+1/+1。', icon: 'sushi', atk: 1, hp: 1, around: true },
   { id: 'f_oil', name: '火油', tier: 4, text: '一个友军下场战斗获得「溅射」。', icon: 'oil', tmp: true, fx: 'splash', rollWeight: 0.5, short: '获得「溅射」' },
-  { id: 'f_fury', name: '战意药水', tier: 4, text: '一个友军下场战斗获得「战意」。', icon: 'fury', tmp: true, fx: 'fury', short: '获得「战意」' },
   { id: 'f_roast', inheritable: true, name: '烤全羊', tier: 5, text: '一个友军永久+3/+3。', icon: 'roast', atk: 3, hp: 3 },
   { id: 'f_horn', name: '集结号', tier: 5, text: '全队下场战斗+2/+2。', icon: 'horn', atk: 2, hp: 2, n: ALL, tmp: true },
   { id: 'f_undy', name: '不屈药剂', tier: 5, text: '一个友军下场战斗获得「不屈」。', icon: 'undy', tmp: true, fx: 'undy', rollWeight: 0.5, short: '获得「不屈」' },
   { id: 'f_can', name: '罐头', tier: 6, text: '此后每买一份单位，该单位永久+1/+1；合并也生效，可叠加。', icon: 'can', short: '此后每买一份单位，永久+1/+1，可叠加' },
-  { id: 'f_dragon', name: '龙肉', tier: 6, text: '一个友军及其身后相邻友军永久+2/+2。', icon: 'dragon', atk: 2, hp: 2, behind: true },
   { id: 'f_thunder', name: '雷霆瓶', tier: 6, text: '一个友军下场开战时，对全体敌人造成2伤害。', icon: 'thunder', tmp: true, fx: 'thunder', short: '开战时，对全体敌人造成2伤害' },
   // v0.9 首批法术：效果与目标由经营事务处理。
   { id: 'x_echo', name: '回响', tier: 3, spell: 'echo', target: true, price: 2, icon: 'replay', text: '触发一个在场友军的原生入场效果。' },
@@ -335,7 +329,6 @@ const classicEquips: EquipDef[] = [
   // 白：纯数值
   E('w_sword', '铁剑', 0, 'eq_duel', '+3攻击。', { atk: 3 }),
   E('w_mail', '锁子甲', 0, 'eq_belt', '+5生命。', { hp: 5 }),
-  E('w_helm', '铁盔', 0, 'eq_guard', '+2/+3。', { atk: 2, hp: 3 }),
   E('iron', '铁护腕', 0, 'eq_bracer', '开战时，获得1层格挡。', { block: 1 }),
   E('wine', '重拳护手', 1, 'eq_gauntlet', '交锋伤害+5。', { melee: 5 }),
   // 蓝：单词条
