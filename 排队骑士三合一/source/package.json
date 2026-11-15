@@ -9,7 +9,7 @@
     "build:single": "node scripts/subset-fonts.mjs && tsc --noEmit && vite build --mode single",
     "sim": "vite-node scripts/sim.ts",
     "calib": "vite-node scripts/calib.ts",
-    "test": "vite-node scripts/archetype-combat-test.ts && vite-node scripts/archetype-run-test.ts && vite-node scripts/archetype-regression-test.ts && vite-node scripts/combat-behavior-test.ts && vite-node scripts/battle-stats-test.ts && vite-node scripts/formation-feedback-test.ts && vite-node scripts/prep-feedback-test.ts && vite-node scripts/stat-cap-test.ts && vite-node scripts/shop-affinity-check.ts && vite-node scripts/health-check.ts && vite-node scripts/rehearsal-check.ts && vite-node scripts/tutorial-check.ts && pnpm test:support && pnpm test:targeting",
+    "test": "vite-node scripts/archetype-combat-test.ts && vite-node scripts/archetype-run-test.ts && vite-node scripts/archetype-regression-test.ts && vite-node scripts/combat-behavior-test.ts && vite-node scripts/battle-stats-test.ts && vite-node scripts/formation-feedback-test.ts && vite-node scripts/prep-feedback-test.ts && vite-node scripts/stat-cap-test.ts && vite-node scripts/takeover-test.ts && vite-node scripts/shop-affinity-check.ts && vite-node scripts/health-check.ts && vite-node scripts/rehearsal-check.ts && vite-node scripts/tutorial-check.ts && pnpm test:support && pnpm test:targeting",
     "test:ui": "node scripts/archetype-ui-test.mjs",
     "test:ui:copy": "node scripts/copy-ui-test.mjs",
     "test:support": "vite-node scripts/support-combat-test.ts && vite-node scripts/support-prep-test.ts && vite-node scripts/support-bot-test.ts",

@@ -1,6 +1,6 @@
 // 启发式 bot：和玩家同一套商店规则选卡、合卡、吃补给、排站位。sim、幽灵生成、整局验收共用。
 import { card, EQUIP, FOOD, RELIC, hasTag, type CardDef, type Line, type RelicId } from '../src/core/data';
-import { canPayBlood, payBlood, playerTeam, simOpts, autoSlot, buy, cellAt, HAND_BASE, HAND_MAX, isHand, moveOwned, upgradeTavern, chestPick, pickRelic, resolveEvent, MAX_COPIES, endTurn, equipFromBag, nodeOpts, pickNode, curNode, isCombat, leaveNode, passNode, tavernPrice, handCap, fireCopyOk, buyGoods, foodNeedsTarget, foodTargetOk, foodPrice, itemPrice, lvlOf, maxLives, ownedAtk, ownedHp, pickDiscover, PRICE, reroll, sell, spellTargetOk, useFood, isHeldSpell, castHandSpell, claimReward, discardReward, discardHandSpell, type Owned, type RunState } from '../src/core/run';
+import { canPayBlood, payBlood, playerTeam, simOpts, autoSlot, buy, cellAt, HAND_BASE, HAND_MAX, isHand, moveOwned, upgradeTavern, chestPick, pickRelic, resolveEvent, MAX_COPIES, endTurn, equipFromBag, nodeOpts, pickNode, curNode, isCombat, leaveNode, passNode, tavernPrice, handCap, fireCopyOk, buyGoods, foodNeedsTarget, foodTargetOk, foodPrice, itemPrice, lvlOf, maxLives, ownedAtk, ownedHp, pickDiscover, PRICE, reroll, sell, spellTargetOk, takeover, takeoverInherit, useFood, isHeldSpell, castHandSpell, claimReward, discardReward, discardHandSpell, type Owned, type RunState } from '../src/core/run';
 
 import { simulate, type BattleOut } from '../src/core/engine';
 import { ruleNumber, type ArchetypeId, type BattleRule, type PrepRule, type ReworkRule } from '../src/core/archetypes';
@@ -354,18 +354,19 @@ export function shopTurn(r: RunState, skill = 1, line?: BotFocus) {
       // 手牌只给 bot 用来接发现；买卡不往手牌里囤
       if (slot >= 0 && isHand(slot) && !cellAt(r, slot)) slot = -1;
       if (slot < 0) {
+        // 接替会把永久加成交给新单位，换人时只损失旧单位本身（身材底子、金色翻倍、流派配合）
         let wi = -1;
         let wv = 1e9;
         r.queue.forEach((o, i) => {
-          if (o && retentionValue(r, o, line) < wv) {
-            wv = retentionValue(r, o, line);
-            wi = i;
-          }
+          if (!o || o.merc || o.def === best.def) return;
+          const v = retentionValue(r, o, line) - takeoverInherit(o).reduce((a, b) => a + b, 0);
+          if (v < wv) { wv = v; wi = i; }
         });
-        if (wv + 6 < want(r, best.def, skill, line)) {
-          observe(r, 'sell', { slot: wi }, () => sell(r, wi));
-          slot = wi;
-        } else slot = -1;
+        if (wi >= 0 && wv + 6 < want(r, best.def, skill, line)) {
+          const res = observe(r, 'takeover', { unit: best.def, slot: wi, price: itemPrice(best) }, () => takeover(r, best.sid, wi, playPt(r, line)));
+          if (res.ok) continue;
+        }
+        slot = -1;
       }
       if (slot >= 0) {
         observe(r, 'buy', { unit: best.def, slot, price: itemPrice(best) }, () => buy(r, best.sid, slot, playPt(r, line)));

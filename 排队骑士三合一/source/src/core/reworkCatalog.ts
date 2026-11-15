@@ -7,6 +7,13 @@ const battle = (on: BattleRule['on'], effect: BattleRule['effect'], target: Batt
 const prep = (on: PrepRule['on'], effect: PrepRule['effect'], target: PrepRule['target'], n: RuleNumber, limit: number, opts: Partial<Pick<PrepRule, 'when' | 'scale' | 'every' | 'hp' | 'at'>> = {}): PrepRule =>
   ({ phase:'prep', on, effect, target, n:on === 'ownBuy' && typeof n !== 'number' ? n[0] : n, limit, ...opts });
 
+/**
+ * 阶层身材系数：高阶单卡要能和低阶金色（基础翻倍）比身材，后期追高阶才有意义。
+ * 卡表里写的是原始身材，这里统一放大，卡面、图鉴、战斗都读放大后的值。
+ */
+export const TIER_STAT: Record<Tier, number> = { 1: 1, 2: 1, 3: 1.15, 4: 1.3, 5: 1.5, 6: 1.6 };
+const tierStat = (v: number, tier: Tier) => Math.max(1, Math.round(v * TIER_STAT[tier]));
+
 const artFaction: Record<string, Faction> = { l:'light', s:'shadow', a:'abyss', m:'magma', v:'frost', d:'desert', n:'neutral' };
 const oldLine: Record<ArchetypeId, Line> = { wheel:'start', charge:'start', ember:'death', nest:'death', blood:'hurt', trade:'grow', rune:'grow', pair:'any', hunt:'start', formation:'hurt', supply:'food' };
 function group(archetype?: ArchetypeId) {
@@ -26,7 +33,7 @@ function group(archetype?: ArchetypeId) {
       return ['{v}', '{u}', '{p}'][slot];
     });
     return {
-      id:'rw_' + (archetype ?? 'common') + '_' + id, name, art, faction, role, archetype, bridge, tier, atk, hp,
+      id:'rw_' + (archetype ?? 'common') + '_' + id, name, art, faction, role, archetype, bridge, tier, atk:tierStat(atk, tier), hp:tierStat(hp, tier),
       text, rules, v:values[0], u:values[1], pv:values[2], abilities:[], kws:[],
       line:archetype ? oldLine[archetype] : 'any', tag2:bridge ? oldLine[bridge] : undefined,
       perm:rules.some(r => r.phase === 'prep' && r.effect === 'buff'),

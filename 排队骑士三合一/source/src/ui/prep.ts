@@ -13,7 +13,7 @@ import { mapArt } from './mapArt';
 import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
-  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, toggleLock, unequip, useFood,
+  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, toggleLock, unequip, useFood,
   ACTS, LAYERS, bossOf, curNode, nodeOpts, pickNode, leaveNode, passNode, isCombat, handCap, tavernPrice, buyGoods, heroReady, useHero, fireCopyOk, fireSmithOk, QUESTS, SHARD_NEED, type NodeKind,
   ownedAtk, ownedHp, prepFoodUses, pickDiscover, itemPrice, spellTargetOk, scarCap, hasScar, GUARD_N, LEGION_MAX, type Owned, type RunState, type ShopFx, type ShopItem,
   canPayBlood, payBlood, handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict, foodTargetOk, supportTargetHint, canAdRelic, sharesFood, goodsUnavailableReason, effectiveQuarry,
@@ -1082,7 +1082,11 @@ export class Game {
         if (slot != null && isHand(slot) && !handAt(this.run, slot)) { this.flyOrigin = origin; ok = this.storeToHand(d.idx, slot); }
         else if (slot != null) ok = this.doFood(d.idx, slot);
         else if (!foodNeedsTarget(it.def) && p.y < 520) ok = this.doFood(d.idx, null);
-      } else if (slot != null) ok = this.doBuy(d.idx, slot);
+      } else if (slot != null) {
+        const at = cellAt(this.run, slot);
+        if (it && at && !isHand(slot) && at.def !== it.def) { ghost.remove(); this.handFrom = null; this.askTakeover(d.idx, slot); return; }
+        ok = this.doBuy(d.idx, slot);
+      }
     } else if (d.kind === 'spell') {
       const held = handAt(this.run, d.idx);
       if (held && (slot != null || !foodNeedsTarget(held.def) && p.y < 520)) ok = this.applySpell('spell', d.idx, slot);
@@ -1140,7 +1144,8 @@ export class Game {
         return foodNeedsTarget(it.def) ? (foodTargetOk(r, it.def, at, it.val) ? 'merge' : 'invalid') : 'place';
       }
       if (!at) return 'place';
-      return at.def === it.def && at.copies < MAX_COPIES ? 'merge' : 'invalid';
+      if (at.def === it.def) return at.copies < MAX_COPIES ? 'merge' : 'invalid';
+      return !hand && !at.merc && !this.rehearsal ? 'takeover' : 'invalid';
     }
     if (d.kind === 'spell') {
       const held = handAt(r, d.idx);
@@ -1425,7 +1430,7 @@ export class Game {
       const go = h('button', { class: 'btn primary shelf-recruit', disabled: r.endTurnCommitted || r.gold < p }, p ? '招募' : '免费招募');
       go.addEventListener('click', () => {
         const slot = autoSlot(r, it.def);
-        if (slot < 0) { this.notice('队伍和手牌都满了：拖到同名单位上叠加，或先卖掉一个'); return; }
+        if (slot < 0) { this.notice('队伍和手牌都满了：拖到同名单位上叠加，或拖到别的队员身上接替'); return; }
         const origin = isHand(slot) ? this.shopOrigin(idx) : null;
         hideTip();
         this.handFrom = origin && { ...origin, cell: slot };
@@ -1433,6 +1438,7 @@ export class Game {
         this.handFrom = null;
       });
       acts.appendChild(go);
+      if (r.queue.every(Boolean) && !r.queue.some(o => o?.def === it.def)) tip.appendChild(h('div', { class: 'shelf-hint' }, '拖到队员身上可「接替」：卖掉它，继承它的永久加成和装备'));
     } else {
       const store = h('button', { class: 'btn primary shelf-recruit', disabled: r.endTurnCommitted || r.gold < foodPrice(it) || !r.hand.slice(0, handCap(r)).some(x => !x) }, '收入手牌');
       store.addEventListener('click', () => {
@@ -2130,6 +2136,54 @@ export class Game {
       if (!isHand(slot)) this.fx.burst(p.x, UNIT_Y + 10, lineColor(o.def), { n: 14, speed: 4 });
     }
     if (res.levelUp) sfx.reward();
+    this.discFrom = p;
+    void this.runFx(res.fx).then(() => this.drainDiscover());
+    return true;
+  }
+
+  /** 接替：商店单位拖到不同名的队员身上，确认后卖掉旧单位、新单位继承永久加成和装备 */
+  private askTakeover(idx: number, slot: number) {
+    if (this.rehearsal || !this.editable) return;
+    const r = this.run;
+    const it = r.shop[idx];
+    const old = cellAt(r, slot);
+    if (!it || !old) return;
+    if (!this.allowed({ kind: 'buy', slot, def: it.def })) return;
+    const bad = takeoverCheck(r, it.sid, slot);
+    if (bad && !bad.ok) { this.notice(bad.why === 'gold' ? '金币不够' : bad.why === 'ended' ? '本回合已结束' : '不能接替这个单位'); return; }
+    const [a, hp] = takeoverInherit(old);
+    const refund = sellPrice(old) + (r.relics.includes('r_pouch') ? 1 : 0);
+    const keep = [a || hp ? `永久加成 +${a}/+${hp}` : '', old.ench ? `装备「${equipOf(old.ench)?.name ?? ''}」` : ''].filter(Boolean).join('、');
+    const text = `卖掉${card(old.def).name}（+${refund} 金），${card(it.def).name}接替它的位置${keep ? `，继承${keep}` : ''}。金色带来的基础翻倍不会继承。`;
+    this.app.confirm('接替队员？', text, '接替', () => this.doTakeover(idx, slot));
+  }
+
+  private doTakeover(idx: number, slot: number, replacePlayAbility = false, playTarget?: number): boolean {
+    if (this.rehearsal || !this.editable) return false;
+    const r = this.run;
+    const it = r.shop[idx];
+    const old = cellAt(r, slot);
+    if (!it || !old) return false;
+    if (playTarget === undefined && card(it.def).pl === 'p_ignite'
+      && this.choosePlayTarget([old.oid], oid => this.doTakeover(idx, slot, replacePlayAbility, oid))) return false;
+    const res = takeover(r, it.sid, slot, playTarget, replacePlayAbility);
+    if (!res.ok) {
+      if (res.why === 'ability') {
+        this.app.confirm('替换入场目标的附加能力？', '入场目标已有别的附加能力，接替后会被替换。', '替换并接替', () => this.doTakeover(idx, slot, true, playTarget));
+        return false;
+      }
+      this.notice(res.why === 'gold' ? '金币不够' : '不能接替这个单位');
+      return false;
+    }
+    this.persist(r);
+    hideTip();
+    const p = this.cellPos(slot);
+    sfx.place();
+    this.afterChange(res.fx);
+    const o = cellAt(r, slot)!;
+    this.viewOf(o.oid)?.appear();
+    this.fx.burst(p.x, UNIT_Y + 10, lineColor(o.def), { n: 18, speed: 4 });
+    this.fx.float(p.x, p.y - 60, `+${res.sold.gold} 金`, 'levelup', 900);
     this.discFrom = p;
     void this.runFx(res.fx).then(() => this.drainDiscover());
     return true;

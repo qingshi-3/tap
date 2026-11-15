@@ -162,3 +162,9 @@
   font-weight: 500;
   color: #b8ac90;
 }
+
+/* 接替：商店单位拖到不同名队员身上 */
+.board.dropping .slot.side-0[data-drop='takeover'] .ped { --pc: 255, 150, 80; filter: brightness(1.3); }
+.board.dropping .slot.side-0[data-drop='takeover'] .slot-num { visibility: hidden; }
+.board.dropping .slot.side-0[data-drop='takeover']::after { content: '接替'; color: #2a1000; background: #ff9a50; }
+.shelf-hint { margin-top: 6px; font-size: 12px; line-height: 1.4; color: #ffc48a; }

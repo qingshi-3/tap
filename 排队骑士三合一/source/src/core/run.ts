@@ -595,6 +595,14 @@ const tierPool = (t: number, r?: RunState) => {
   const highest = Math.max(0, ...pool.map(c => c.tier));
   return pool.filter(c => c.tier === highest);
 };
+/** 高本时低阶卡降权：比当前酒馆低 4 阶及以上的卡出现概率减半（只影响商店刷新） */
+export const shopTierWeight = (cardTier: number, tavernTier: number) => (cardTier <= tavernTier - 4 ? 0.5 : 1);
+function pickTiered(r: RunState, pool: CardDef[], tier: number): CardDef {
+  if (pool.every((c) => shopTierWeight(c.tier, tier) === 1)) return pick(r, pool);
+  const w = pool.map((c) => shopTierWeight(c.tier, tier));
+  let t = rng(r) * w.reduce((a, b) => a + b, 0);
+  return pool.find((_, j) => (t -= w[j]) < 0) ?? pool[pool.length - 1];
+}
 /** 同标签（只有通用标签时不限）的单位 */
 const sameTag = (d: CardDef, pool: CardDef[]) => d.archetype ? pool.filter(c => relatedCards(d, c)) : pool;
 /** 转生的候选：同标签、高一阶 */
@@ -656,7 +664,7 @@ function rollShop(r: RunState) {
   const near = (c: CardDef) => own.some(d => relatedCards(d, c));
   let warmLeft = isWarm(r) && own.length ? 2 : 0;
   for (let i = keptU.length + keptB.length; i < unitSlots(r.tavern); i++) {
-    let c = pick(r, pool);
+    let c = pickTiered(r, pool, tier);
     if (warmLeft > 0) {
       warmLeft--;
       const w = pool.map((x) => (near(x) ? 2 : 1));
@@ -764,6 +772,55 @@ export function buy(r: RunState, sid: number, slot: number, pt?: number, replace
   if (cost > 0) onBought(r, at, fx);
   if (cost > 0) buyDiscover(r, at);
   return { ok: true, merged: true, levelUp, fx };
+}
+
+/**
+ * 接替：把商店单位拖到队伍里另一个（非雇佣兵、不同名）单位身上。
+ * 旧单位按正常出售结算（退金、出售技能、传承照常），新单位放进同一格，
+ * 并继承旧单位的永久加成（补给、成长等累计的 +攻/+血）和装备。金色带来的基础翻倍不继承。
+ * 出售退的金币可以抵扣招募价。
+ */
+export type TakeoverResult = { ok: false; why: 'gold' | 'full' | 'ability' | 'ended' } | { ok: true; fx: ShopFx[]; sold: SellOut; inherited: [number, number]; ench: Ench | null; old: Owned };
+export function takeoverCheck(r: RunState, sid: number, slot: number): TakeoverResult | null {
+  if (r.endTurnCommitted) return { ok: false, why: 'ended' };
+  const item = r.shop.find((x) => x.sid === sid);
+  if (!item || item.kind !== 'unit' || !cardAvailable(r, card(item.def))) return { ok: false, why: 'full' };
+  if (slot < 0 || slot >= QUEUE_MAX) return { ok: false, why: 'full' };
+  const old = r.queue[slot];
+  if (!old || old.merc || old.def === item.def) return { ok: false, why: 'full' };
+  const refund = sellPrice(old) + (r.relics.includes('r_pouch') ? 1 : 0);
+  if (r.gold + refund < itemPrice(item)) return { ok: false, why: 'gold' };
+  return null;
+}
+export const takeoverInherit = (o: Pick<Owned, 'atkBonus' | 'hpBonus'>): [number, number] => [Math.max(0, o.atkBonus), Math.max(0, o.hpBonus)];
+export function takeover(r: RunState, sid: number, slot: number, pt?: number, replacePlayAbility = false): TakeoverResult {
+  const bad = takeoverCheck(r, sid, slot);
+  if (bad) return bad;
+  const item = r.shop.find((x) => x.sid === sid)!;
+  if (inspectPlayConflict(r, item.def, slot, pt, 1) && !replacePlayAbility) return { ok: false, why: 'ability' };
+  const backup = structuredClone(r);
+  const old = r.queue[slot]!;
+  const [atk, hp] = takeoverInherit(old);
+  // 装备直接交给接替者，不经过背包（背包满时也不会被挤掉）
+  const ench = old.ench ?? null;
+  old.ench = null;
+  const sold = sell(r, slot)!;
+  const res = buy(r, sid, slot, pt, replacePlayAbility);
+  if (!res.ok) {
+    // 出售技能改变了局面导致招募失败：整体回滚，不留半成品
+    for (const k of Object.keys(r) as (keyof RunState)[]) if (!(k in backup)) delete r[k];
+    Object.assign(r, backup);
+    return { ok: false, why: res.why === 'max' ? 'full' : res.why };
+  }
+  const o = r.queue[slot]!;
+  const fx = [...sold.fx, ...res.fx];
+  const a = Math.min(atk, Math.max(0, STAT_CAP - ownedAtk(o)));
+  const h = Math.min(hp, Math.max(0, STAT_CAP - ownedHp(o)));
+  o.atkBonus += a;
+  o.hpBonus += h;
+  if (a || h) fx.push({ kind: 'buff', src: null, tgt: o.oid, atk: a, hp: h, label: '接替' });
+  if (ench) equipOnto(r, o, ench);
+  return { ok: true, fx, sold, inherited: [a, h], ench, old };
 }
 
 function buyDiscover(r: RunState, o: Owned) {
