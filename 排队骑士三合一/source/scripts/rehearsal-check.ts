@@ -10,12 +10,12 @@ Object.defineProperty(globalThis, 'localStorage', { configurable: true, value: {
 
 function lostBattle(sameUnits = false) {
   const before = newRun(6432);
-  before.queue[0] = { oid: before.nextId++, def: 'a_imp', copies: 1, atkBonus: 1, hpBonus: 2,
+  before.queue[0] = { oid: before.nextId++, def: 'rw_supply_pup', copies: 1, atkBonus: 1, hpBonus: 2,
     ench: 'w_sword', tmpAtk: 1, foodHistory: [{ id: 'f_bread', atk: 1, hp: 1, sourceId: 87 }] };
-  before.queue[1] = { oid: before.nextId++, def: sameUnits ? 'a_imp' : 'a_spine', copies: 1, atkBonus: 0, hpBonus: 0 };
+  before.queue[1] = { oid: before.nextId++, def: sameUnits ? 'rw_supply_pup' : 'rw_common_buckler', copies: 1, atkBonus: 0, hpBonus: 0, foodHistory: [] };
   before.bag = ['w_mail'];
   before.shop = [
-    { sid: before.nextId++, kind: 'unit' as const, def: 'a_spine', locked: false, free: false },
+    { sid: before.nextId++, kind: 'unit' as const, def: 'rw_common_buckler', locked: false, free: false },
     { sid: before.nextId++, kind: 'food' as const, def: 'f_bread', locked: false, free: false },
   ];
   before.enemy = { boss: null, units: [{ def: 'e_guardian', lvl: 1, atk: 50, hp: 100 }] };
@@ -46,14 +46,14 @@ check(JSON.stringify(before) === savedBefore && JSON.stringify(settled) === save
 // Even bypassing the UI can only carry original unit positions into the retry.
 check(useFood(w, w.shop[1].sid, 3).ok, 'food mutation fixture uses real rule');
 w.gold = 999;
-w.bag = ['shroom', 'w_helm'];
+w.bag = ['shroom', 'iron'];
 w.shop.length = 0;
 w.nextId = 9000;
 w.enemy.units[0].hp = 1;
 w.lives = 999;
 w.adRetry = -100;
 const edited = w.queue[3]!;
-edited.def = 'a_spine';
+edited.def = 'rw_common_buckler';
 edited.copies = 6;
 edited.atkBonus = 999;
 edited.hpBonus = 999;

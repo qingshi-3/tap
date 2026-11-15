@@ -11,6 +11,5 @@
     "noEmit": true,
     "resolveJsonModule": true
   },
-  "include": ["src", "scripts"],
-  "exclude": ["scripts/value-audit", "scripts/balance-v2", "scripts/enemy-v4", "scripts/pressure-audit"]
+  "include": ["src", "scripts"]
 }

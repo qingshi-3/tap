@@ -121,7 +121,7 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
   const head = h('div', { class: 'ub-filters' });
   const pop = h('div', { class: 'ub-pop', hidden: true }, head);
   const setOpen = (open: boolean) => { pop.hidden = !open; fbtn.classList.toggle('open', open); };
-  const fbtn = h('button', { class: 'cx-filter-btn', onclick: () => { sfx.click(); setOpen(pop.hidden); } });
+  const fbtn = h('button', { class: 'cx-filter-btn', onclick: () => { sfx.click(); setOpen(!!pop.hidden); } });
   pop.addEventListener('click', (e) => { if (e.target === pop) setOpen(false); });
   const grid = h('div', { class: 'ub-grid' });
   const detail = h('div', { class: 'ub-detail cx-detail' });

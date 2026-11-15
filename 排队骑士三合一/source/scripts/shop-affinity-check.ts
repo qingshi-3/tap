@@ -1,23 +1,30 @@
-import { card, hasTag, SHOP_POOL } from '../src/core/data';
-import { adReroll, maxTier, newRun, reroll, type Diff, type Owned } from '../src/core/run';
+import { card } from '../src/core/data';
+import { activeCardPool, relatedCards } from '../src/core/archetypePool';
+import { adReroll, maxTier, newRun, reroll, type Diff, type Owned, type RunState } from '../src/core/run';
 
 const check = (condition: unknown, message: string) => { if (!condition) throw Error(message); };
 const unit = (def: string, oid: number): Owned => ({ def, oid, copies: 1, atkBonus: 0, hpBonus: 0 });
-const related = (def: string, team: Owned[]) => team.some((o) => {
-  const d = card(o.def);
-  return d.id === def || [d.line, d.tag2].some(t => t && t !== 'any' && t !== 'enemy' && hasTag(card(def), t));
-});
+// Same rule as the shop: a fresh unit is related when it shares a card or archetype with a team member.
+const related = (def: string, team: Owned[]) => team.some((o) => relatedCards(card(o.def), card(def)));
+// Teams are drawn from the run's open pool so every fixture is a legal v5 roster.
+const teams = (r: RunState): string[][] => {
+  const pool = activeCardPool(r);
+  const low = pool.filter(c => c.tier === 1), high = pool.filter(c => c.tier >= 5);
+  const other = low.find(c => c.archetype && c.archetype !== low[0].archetype) ?? low[1];
+  return [[low[0].id], [low[0].id, other.id], [high[0]?.id ?? low[0].id], []];
+};
 let checked = 0;
 for (const diff of [0, 1, 2] as Diff[]) for (const turn of [1, 5, 9, 15]) {
-  for (const defs of [['l_windblade'], ['l_windblade', 'm_egg'], ['l_archon'], []]) {
+  for (let variant = 0; variant < 4; variant++) {
     for (let seed = 1; seed <= 80; seed++) {
       const r = newRun(seed * 7919, { diff });
+      const defs = teams(r)[variant];
       r.turn = turn;
       const team = defs.map((d, i) => unit(d, 1000 + i));
       r.queue = [...team, ...Array(5 - team.length).fill(null)];
       r.gold = 10;
       // Existing matching locked unit must not satisfy the NEW-card guarantee.
-      const locked = { sid: 9000, kind: 'unit' as const, def: 'l_windblade', locked: true, free: false };
+      const locked = { sid: 9000, kind: 'unit' as const, def: teams(r)[0][0], locked: true, free: false };
       const milk = { sid: 9001, kind: 'food' as const, def: 'f_milk', locked: false, free: true, val: [2, 2] as [number, number] };
       r.shop = [locked, milk];
       const before = structuredClone(r);
@@ -25,7 +32,7 @@ for (const diff of [0, 1, 2] as Diff[]) for (const turn of [1, 5, 9, 15]) {
       const repeat = structuredClone(before);
       reroll(repeat);
       check(JSON.stringify(r) === JSON.stringify(repeat), 'seed/save snapshot deterministic');
-      const eligible = SHOP_POOL.some(d => d.tier <= maxTier(turn) && related(d.id, team));
+      const eligible = activeCardPool(r).some(d => d.tier <= maxTier(turn) && related(d.id, team));
       const verify = () => {
         const fresh = r.shop.filter(s => s.kind === 'unit' && !s.locked);
         check(r.shop.find(s => s.sid === 9000)?.def === locked.def, 'locked unit preserved');
@@ -59,4 +66,4 @@ for (const diff of [0, 1, 2] as Diff[]) for (const turn of [1, 5, 9, 15]) {
     }
   }
 }
-console.log(`Shop affinity: ${checked} seeded scenarios passed across all difficulties, early/late tiers, mixed/any/empty teams, paid/ad refresh, locks, reward slots, milk and snapshot replay.`);
+console.log(`Shop affinity: ${checked} seeded scenarios passed across all difficulties, early/late tiers, single/mixed/high-tier/empty teams, paid/ad refresh, locks, reward slots, milk and snapshot replay.`);

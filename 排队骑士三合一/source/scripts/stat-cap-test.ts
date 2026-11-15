@@ -37,6 +37,8 @@ endTurn(r);
 ok(playerTeam(r)[0].hp === preview[0].after[1], 'preview agrees with actual growth');
 const storage = new Map<string, string>();
 Object.defineProperty(globalThis, 'localStorage', { value: { getItem: (k: string) => storage.get(k) ?? null, setItem: (k: string, v: string) => storage.set(k, v), removeItem: (k: string) => storage.delete(k) }, configurable: true });
+// v5 saves only accept units from this run's open pool; keep the grown stats but move them onto a legal unit.
+for (const unit of r.queue) if (unit && card(unit.def).legacy) unit.def = 'rw_supply_pup';
 save(r); const restored = load(); ok(restored, 'high stat save loads');
 ok(JSON.stringify(playerTeam(restored!)) === JSON.stringify(playerTeam(r)), 'save round trip retains permanent, temporary and equipment stats');
 const out = fight(restored!); ok(out.init[0].atk > 50 && out.init[0].hp > 50, 'restored high stats enter real fight');

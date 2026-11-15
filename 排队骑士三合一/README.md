@@ -85,7 +85,10 @@ pnpm build:single   # 单文件包（dist-single/index.html）
 pnpm sim 200 0.65   # bot 整局模拟，用于平衡
 ```
 
+- `pnpm test` 是唯一的回归入口，新的规则测试加进这里；测试夹具只使用本局开放卡池里的合法单位（`activeCardPool`），否则 v5 存档校验会拒绝。
 - 浏览器回归（`pnpm test:ui*`）需要 Playwright 和本机 Chrome，会写入测试存档，请使用独立的浏览器上下文。
+- 分析工具（不属于回归）：`scripts/node-stats.ts`（按节点统计 bot 胜负）、`scripts/demos.ts`（检查关键词和单位演示覆盖）、`scripts/import-hourglass-art.py`（从 Duelyst 图集导入单位帧）。
+- 一次性的调参、审计实验脚本不进仓库。需要保留的结论写进文档，代码依赖 git 历史找回（2026-11-15 清理前的版本为 `6b525de`）。
 - `source/output/` 存放本地验证截图和报告，不进仓库。文档中引用的 `output/...` 路径只在当时执行验证的机器上存在。
 - 新增中文文案后需要重新跑 `pnpm build`，字体子集会随之更新。
 

@@ -12,7 +12,7 @@ function eq(a: unknown, b: unknown, label: string) {
 const unit = (def: string, oid: number, copies = 1): Owned => ({ def, oid, copies, atkBonus: 0, hpBonus: 0 });
 function fixture() {
   const r = newRun(890123); r.gold = 100; r.nextId = 200;
-  r.queue = [unit('d_artificer', 101), unit('d_artificer', 102), unit('d_artificer', 103), null, null];
+  r.queue = [unit('rw_common_buckler', 101), unit('rw_common_buckler', 102), unit('rw_common_buckler', 103), null, null];
   r.shop = []; r.relics = ['r_share']; return r;
 }
 function eat(r: RunState, def: string, slot: number | null) {
@@ -20,9 +20,10 @@ function eat(r: RunState, def: string, slot: number | null) {
   r.shop.push({ sid, kind: 'food', def, locked: false, free: false });
   return useFood(r, sid, slot);
 }
-for (const before of ['f_dragon', 'f_sushi', 'f_stew', 'x_copy', 'f_can']) {
+// Supplies that are not eligible for the shared plate must leave it unused (only foods open in this run's pool).
+for (const before of ['f_stew', 'x_copy']) {
   const r = fixture();
-  eq(eat(r, before, before === 'f_can' ? null : 1).ok, true, `${before} used successfully`);
+  eq(eat(r, before, 1).ok, true, `${before} used successfully`);
   eq(r.tc.shareUsed, false, `${before} preserves share`);
   const stats = r.queue.slice(0, 3).map((o) => [ownedAtk(o!), ownedHp(o!)]);
   eat(r, 'f_bread', 1);

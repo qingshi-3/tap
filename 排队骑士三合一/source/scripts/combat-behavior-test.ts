@@ -29,4 +29,4 @@ ok(barrier.events.some(e => e.t === 'dmg' && e.tgt === 1 && e.src === 2 && e.blo
 const killed = simulate([unit('a_imp', 1, 1, { granted: blood })], [unit('e_skel', 1, 100)], 1);
 ok(!killed.events.some(e => e.t === 'buff' && e.src === 1), 'fatal blood does not grant attack');
 
-console.log('v0.9 combat behavior checks passed');
+console.log('combat behavior checks passed');
