@@ -114,8 +114,8 @@ try {
       ok((await page.locator('.tut-box').innerText()).includes('独立教学'), 'tutorial welcome missing');
       await shot('tutorial-welcome');
       await page.locator('.tut-ok').click();
-      ok((await page.locator('.tut-box').innerText()).includes('后排投石手'), 'tutorial is not teaching new charge card');
-      ok((await page.locator('.cards').innerText()).includes('后排投石手'), 'tutorial shop lacks its new unit');
+      ok((await page.locator('.tut-box').innerText()).includes('掷弹手'), 'tutorial is not teaching new charge card');
+      ok((await page.locator('.cards').innerText()).includes('掷弹手'), 'tutorial shop lacks its new unit');
       ok(await page.locator('.cards .placeholder').count() === 0, 'tutorial unit has placeholder art');
       ok(await page.evaluate(() => localStorage.getItem('pdqs3_run_v5')) === savedBefore, 'tutorial overwrote the real run');
       const box = await page.locator('.tut-box').boundingBox();
@@ -147,7 +147,7 @@ try {
     });
     await step('blood-payment-and-limit', async () => {
       await fixture(); const before = await state();
-      const target = page.getByRole('button', { name: '血钱掮客 位置3', exact:true });
+      const target = page.getByRole('button', { name: '血注赌徒 位置3', exact:true });
       await target.click();
       await page.locator('.blood-pay').click();
       const after = await state();

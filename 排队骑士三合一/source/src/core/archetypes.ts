@@ -8,7 +8,7 @@ export const ARCHETYPES: Record<ArchetypeId, { name: string; action: string; res
   wheel: { name:'车轮', action:'安排骑手轮流成为队首', resource:'圈数', cost:'攻击后退到队尾，由下一人接战' },
   charge: { name:'蓄势', action:'让前排掩护后排炮手蓄能', resource:'炮手个人蓄能', cost:'过早成为队首会提前消耗蓄能' },
   ember: { name:'薪火', action:'把火种放在继承人身前', resource:'继承的攻血和阵亡技能', cost:'继承人过早阵亡会断开传承' },
-  nest: { name:'兽巢', action:'留出空位，让幼兽挡在队首', resource:'本场召唤数', cost:'召唤需空位；合巢者可将攻血并入已有小兵' },
+  nest: { name:'兽巢', action:'留出空位，让幼兽挡在队首', resource:'本场召唤数', cost:'召唤需空位；巢穴巨兽可将攻血并入已有小兵' },
   blood: { name:'血契', action:'备战时献血换取金币或成长', resource:'永久生命与当前血量', cost:'献血会永久降低生命' },
   trade: { name:'行商', action:'留出空位，安排单位买卖顺序', resource:'本回合买卖单位总数', cost:'买卖需要金币和队伍空位' },
   rune: { name:'咒印', action:'安排施法顺序，强化友军下次攻击', resource:'本回合施法次数与追加伤害', cost:'法术消耗金币，追加伤害需要出手' },

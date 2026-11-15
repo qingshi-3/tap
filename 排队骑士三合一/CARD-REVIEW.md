@@ -245,8 +245,8 @@
 
 审过之后落地代码，顺序是：
 
-1. 导入 39 张新形象，更新 `manifest.json` 和卡表的 `art`。注意：现有的 `scripts/import-hourglass-art.py` 需要 OpenDuelyst 仓库里的帧数据（`.plist`），本地 `assets/duelyst-unit-sheets` 只有图集 PNG。落地时要么取对应的 plist，要么改成按图集网格切帧；
-2. 改卡名（卡表、图鉴、教程里出现的名字）；
+1. 导入 39 张新形象，更新 `manifest.json` 和卡表的 `art`。**已完成（2026-11-16）**：`scripts/import-unit-art.py`，帧数据取自 OpenDuelyst 的 `.plist`；
+2. 改卡名（卡表、图鉴、教程里出现的名字）。**已完成（2026-11-16）**；
 3. 金色规则：身材 ×1.5、卡面"金色："行、逐卡实现升级，补测试；
 4. 跑一次模拟，看首个金色出现时间和后期换人（执行方案阶段 1 的完成标准）。
 

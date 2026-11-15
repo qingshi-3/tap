@@ -20,8 +20,8 @@ const first = '.tray .cards > .card:first-child';
 const food = '.tray .cards > .food-tile';
 const STEPS: Step[] = [
   { id: 'welcome', tap: true, at: [slot(0), slot(4)], text: '这是独立教学。<br>左边是你的队伍，靠近中线的 <b>1 号位是前排</b>。' },
-  { id: 'buy', at: [first, slot(0)], text: '把<b>后排投石手</b>拖到 <b>1 号位</b>（花 <b>3 金</b>）。<br>点一下卡牌可看技能。' },
-  { id: 'merge', at: [first, slot(0)], text: '把第二张<b>后排投石手</b>拖到它身上，合并同名单位。' },
+  { id: 'buy', at: [first, slot(0)], text: '把<b>掷弹手</b>拖到 <b>1 号位</b>（花 <b>3 金</b>）。<br>点一下卡牌可看技能。' },
+  { id: 'merge', at: [first, slot(0)], text: '把第二张<b>掷弹手</b>拖到它身上，合并同名单位。' },
   { id: 'star', at: [first, slot(0)], text: '再合并一张：<b>3 张同名变金色</b>，基础攻血翻倍。<br>合成后还能免费选一张单位，放进手牌。' },
   { id: 'discover', at: ['.disc-ov:not(.peek):not(.closing) .disc-cards', '.disc-ov:not(.peek):not(.closing) .disc-take', '.disc-ov:not(.closing) .disc-peek'], text: '三张里<b>免费选一张</b>，放进手牌。<br>点卡片，再点<b>选择</b>。<b>查看战场</b>可随时往返。' },
   { id: 'lock', at: [food], text: '点开<b>面包</b>，选择<b>锁定</b>，留到下一回合。' },
@@ -29,7 +29,7 @@ const STEPS: Step[] = [
   { id: 'rules', tap: true, at: [slot(0)], text: '双方队首互相攻击，叫作一次<b>交锋</b>。<br>前排阵亡后，身后队友接战。' },
   { id: 'battle1', at: ['.tray .fight'], text: '点<b>开战</b>，先看一场普通交锋。' },
   { id: 'report', tap: true, at: ['.result-ov .res-review, .result-ov.review-only .res-card'], text: '点<b>复盘</b>查看伤害和战斗过程。<br>看完点<b>返回</b>，再点<b>知道了</b>和结算中的<b>继续</b>。' },
-  { id: 'ally', at: [first, slot(1)], text: '把<b>沙垒盾手</b>拖到 <b>2 号位</b>。' },
+  { id: 'ally', at: [first, slot(1)], text: '把<b>鳞甲盾卫</b>拖到 <b>2 号位</b>。' },
   { id: 'food', at: [food, slot(0)], text: '把<b>面包</b>拖给<b>投石手</b>，永久 +1 攻击、+1 生命。' },
   { id: 'position', at: [slot(0), slot(1)], text: '把<b>盾手与投石手交换位置</b>，拖到对方身上即可。<br>盾手在前面挡伤害，投石手在后排蓄能，接战时开炮。' },
   { id: 'equip', at: ['.bag-strip', slot(0)], text: '把背包里的<b>锁子甲</b>拖给<b>前排盾手</b>。' },

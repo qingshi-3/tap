@@ -149,31 +149,31 @@ try {
       await page.getByRole('button',{name:'补给 预装弹包',exact:true}).click();await page.getByRole('button',{name:/^收入手牌/}).click();
       const bought=await state();ok(bought.gold===initial.gold-2&&bought.hand.some(o=>o?.def==='f_powder'),'actual hand purchase failed');
       await page.getByRole('button',{name:'手牌 预装弹包',exact:true}).click();await page.getByRole('button',{name:'施放',exact:true}).click();
-      const names=await page.locator('.spell-target:not(:disabled)').allTextContents();ok(names.length===1&&names[0].includes('后排投石手'),`powder targets ${names}`);for(const target of await page.locator('.spell-target:disabled').all())ok((await target.innerText()).includes('需有消耗蓄能射击的技能'),'disabled recipient lacks release reason');
+      const names=await page.locator('.spell-target:not(:disabled)').allTextContents();ok(names.length===1&&names[0].includes('掷弹手'),`powder targets ${names}`);for(const target of await page.locator('.spell-target:disabled').all())ok((await target.innerText()).includes('需有消耗蓄能射击的技能'),'disabled recipient lacks release reason');
       await shot('powder-legal-target');await page.locator('.spell-target:not(:disabled)').first().click();await finishFx();
       ok((await state()).queue[1].startCharge===2,'preloaded charge missing');
-      await useSupply('苦胆酒','赤刃斗士');await finishFx();ok((await state()).queue[2].wounds===3,'wounds missing');
-      await useSupply('蘸印墨','万蹄行军令');await finishFx();ok((await state()).queue[0].seal===3,'seal missing');
-      await page.getByRole('button',{name:'后排投石手 位置2',exact:true}).click();ok((await page.locator('.prepared-support').allTextContents()).join(' ').includes('下一场带 2 点蓄能'),'charge detail missing');await page.mouse.click(10,viewport.height-10);
-      await page.getByRole('button',{name:'赤刃斗士 位置3',exact:true}).click();ok((await page.locator('.prepared-support').allTextContents()).join(' ').includes('下一场开战扣 3 生命'),'wounds detail missing');await page.mouse.click(10,viewport.height-10);
-      await shot('prepared-resources');await noOverflow();const after=await state();await fixture('detail-preview');await page.getByRole('button',{name:'赤刃斗士 位置3',exact:true}).click();ok((await page.locator('.tip-stats .atk').innerText()).trim()==='7','detail temporary attack mismatch');ok((await page.locator('.tip-stats .hp').innerText()).replace(/\s/g,'')==='6/9','detail wound/max health mismatch');ok((await page.locator('.tip-stats .kw-block').innerText()).trim()==='1','detail prepared block missing');await shot('prepared-detail-7-6of9-block1');await page.mouse.click(10,viewport.height-10);const previewBefore=JSON.stringify(await state());await page.getByRole('button',{name:'成长预览',exact:true}).click();await page.getByRole('button',{name:'万蹄行军令 位置1',exact:true}).click();ok((await page.locator('.tip-seal').innerText()).includes('首次攻击追加 3'),'growth preview detail seal missing');ok(JSON.stringify(await state())===previewBefore,'growth preview changed actual save');await shot('growth-preview-seal3');await page.mouse.click(10,viewport.height-10);return {seed:detail.seed,targetNames:names,gold:after.gold,queue:after.queue,detailStats:{atk:7,hp:6,maxHp:9,block:1},previewSeal:3};
+      await useSupply('苦胆酒','赤触魔忍');await finishFx();ok((await state()).queue[2].wounds===3,'wounds missing');
+      await useSupply('蘸印墨','战爪统领');await finishFx();ok((await state()).queue[0].seal===3,'seal missing');
+      await page.getByRole('button',{name:'掷弹手 位置2',exact:true}).click();ok((await page.locator('.prepared-support').allTextContents()).join(' ').includes('下一场带 2 点蓄能'),'charge detail missing');await page.mouse.click(10,viewport.height-10);
+      await page.getByRole('button',{name:'赤触魔忍 位置3',exact:true}).click();ok((await page.locator('.prepared-support').allTextContents()).join(' ').includes('下一场开战扣 3 生命'),'wounds detail missing');await page.mouse.click(10,viewport.height-10);
+      await shot('prepared-resources');await noOverflow();const after=await state();await fixture('detail-preview');await page.getByRole('button',{name:'赤触魔忍 位置3',exact:true}).click();ok((await page.locator('.tip-stats .atk').innerText()).trim()==='7','detail temporary attack mismatch');ok((await page.locator('.tip-stats .hp').innerText()).replace(/\s/g,'')==='6/9','detail wound/max health mismatch');ok((await page.locator('.tip-stats .kw-block').innerText()).trim()==='1','detail prepared block missing');await shot('prepared-detail-7-6of9-block1');await page.mouse.click(10,viewport.height-10);const previewBefore=JSON.stringify(await state());await page.getByRole('button',{name:'成长预览',exact:true}).click();await page.getByRole('button',{name:'战爪统领 位置1',exact:true}).click();ok((await page.locator('.tip-seal').innerText()).includes('首次攻击追加 3'),'growth preview detail seal missing');ok(JSON.stringify(await state())===previewBefore,'growth preview changed actual save');await shot('growth-preview-seal3');await page.mouse.click(10,viewport.height-10);return {seed:detail.seed,targetNames:names,gold:after.gold,queue:after.queue,detailStats:{atk:7,hp:6,maxHp:9,block:1},previewSeal:3};
     });
     await step('spell-invalid-target-reasons','mechanism-fixture',async()=>{
       await fixture('invalid-spells');const before=await state();const names=await page.evaluate(async()=>{const d=await import('/src/core/data.ts');return {temper:d.FOOD.x_temper.name,copy:d.FOOD.x_copy.name};});
       await page.getByRole('button',{name:`法术 ${names.temper}`,exact:true}).click();await page.getByRole('button',{name:/^直接施放/}).click();
-      const tempered=page.locator('.spell-target').filter({hasText:'后排投石手'}), plain=page.locator('.spell-target').filter({hasText:'万蹄行军令'}), valid=page.locator('.spell-target').filter({hasText:'赤刃斗士'});
+      const tempered=page.locator('.spell-target').filter({hasText:'掷弹手'}), plain=page.locator('.spell-target').filter({hasText:'战爪统领'}), valid=page.locator('.spell-target').filter({hasText:'赤触魔忍'});
       ok(await tempered.isDisabled()&&(await tempered.innerText()).includes('这项技能已淬炼'),'tempered target reason');
       ok(await plain.isDisabled()&&(await plain.innerText()).includes('永久技能'),'missing permanent target reason');
       ok(!await valid.isDisabled(),'valid permanent ability disabled');await shot('temper-target-reasons');await valid.click();await finishFx();
       let after=await state();ok(after.queue[2].granted.tempered&&after.queue[2].granted.value===4&&after.gold===before.gold-3,'temper actual effect');
       await page.getByRole('button',{name:`法术 ${names.copy}`,exact:true}).click();await page.getByRole('button',{name:/^直接施放/}).click();
-      const gold=page.locator('.spell-target').filter({hasText:'万蹄行军令'});ok(await gold.isDisabled()&&(await gold.innerText()).includes('这名队员已是金色'),'copy gold target reason');
-      await shot('copy-gold-disabled');const recipient=page.locator('.spell-target').filter({hasText:'赤刃斗士'});ok(!await recipient.isDisabled(),'copy normal disabled');await recipient.click();await finishFx();after=await state();ok(after.queue[2].copies===2,'copy actual effect');return {tempered:after.queue[2].granted,copies:after.queue[2].copies,...await noOverflow()};
+      const gold=page.locator('.spell-target').filter({hasText:'战爪统领'});ok(await gold.isDisabled()&&(await gold.innerText()).includes('这名队员已是金色'),'copy gold target reason');
+      await shot('copy-gold-disabled');const recipient=page.locator('.spell-target').filter({hasText:'赤触魔忍'});ok(!await recipient.isDisabled(),'copy normal disabled');await recipient.click();await finishFx();after=await state();ok(after.queue[2].copies===2,'copy actual effect');return {tempered:after.queue[2].granted,copies:after.queue[2].copies,...await noOverflow()};
     });
     await step('equipment-replace-and-unequip','mechanism-fixture',async()=>{
-      await fixture('equipment');await drag(page.getByRole('button',{name:'折返马刺',exact:true}),page.getByRole('button',{name:'万蹄行军令 位置1',exact:true}));
+      await fixture('equipment');await drag(page.getByRole('button',{name:'折返马刺',exact:true}),page.getByRole('button',{name:'战爪统领 位置1',exact:true}));
       let r=await state();ok(r.queue[0].ench==='e_courier_spurs'&&r.bag.includes('e_loader'),'replacement failed to return old gear');
-      await page.getByRole('button',{name:'万蹄行军令 位置1',exact:true}).click();await page.getByRole('button',{name:'卸下装备',exact:true}).click();
+      await page.getByRole('button',{name:'战爪统领 位置1',exact:true}).click();await page.getByRole('button',{name:'卸下装备',exact:true}).click();
       r=await state();ok(!r.queue[0].ench&&r.bag.includes('e_courier_spurs'),'unequip failed');const slots=await page.locator('.bag-slot').evaluateAll(xs=>xs.map(el=>{const b=el.getBoundingClientRect();return {name:el.getAttribute('aria-label'),x:b.x,y:b.y,width:b.width,height:b.height};}));ok(slots.length===3,'missing third inventory slot');for(const slot of slots)ok(slot.x>=0&&slot.y>=0&&slot.x+slot.width<=viewport.width&&slot.y+slot.height<=viewport.height,`inventory slot outside viewport ${JSON.stringify(slot)}`);await shot('equipment-returned');return {bag:r.bag,slots,...await noOverflow()};
     });
     await step('chest-and-relic-rule-cards','mechanism-fixture',async()=>{
@@ -198,7 +198,7 @@ try {
     });
     await step('shared-preview-and-merchant-availability','mechanism-fixture',async()=>{
       await fixture('share-preview');
-      const before=await state(),a=await page.getByRole('button',{name:'补给 行军干粮',exact:true}).boundingBox(),b=await page.getByRole('button',{name:'后排投石手 位置2',exact:true}).boundingBox();ok(a&&b,'sharing preview endpoints missing');
+      const before=await state(),a=await page.getByRole('button',{name:'补给 行军干粮',exact:true}).boundingBox(),b=await page.getByRole('button',{name:'掷弹手 位置2',exact:true}).boundingBox();ok(a&&b,'sharing preview endpoints missing');
       await page.mouse.move(a.x+a.width/2,a.y+a.height/2);await page.mouse.down();await page.mouse.move(a.x+a.width/2+12,a.y+a.height/2,{steps:3});await page.mouse.move(b.x+b.width/2,b.y+b.height/2,{steps:15});
       const highlighted=await page.locator('.unit.side-0.supply-preview').evaluateAll(xs=>xs.map(el=>el.getAttribute('aria-label')));ok(highlighted.length===3,`shared food preview ${highlighted}`);await shot('shared-rusk-preview');
       ok(JSON.stringify(await state())===JSON.stringify(before),'hover changed saved state');await page.mouse.up();await finishFx();const fed=await state();for(const i of [0,1,2])ok(fed.queue[i].hpBonus===before.queue[i].hpBonus+2,`shared food actual recipient ${i}`);
@@ -214,7 +214,7 @@ try {
       ok((await page.locator('.save-status').innerText()).includes('旧版进度已保留'),'legacy status absent');
       await fixture();const before=await page.evaluate(()=>({v4:localStorage.getItem('pdqs3_run_v4'),v5:localStorage.getItem('pdqs3_run_v5')}));ok(before.v4===legacy&&before.v5,'keys not independent');
       await page.goto(base);await page.getByRole('button',{name:'新手教程',exact:true}).click();await page.locator('.tut-box').waitFor();await shot('tutorial-welcome');await page.locator('.tut-ok').click();
-      ok((await page.locator('.tut-box').innerText()).includes('后排投石手'),'new tutorial lesson absent');
+      ok((await page.locator('.tut-box').innerText()).includes('掷弹手'),'new tutorial lesson absent');
       const after=await page.evaluate(()=>({v4:localStorage.getItem('pdqs3_run_v4'),v5:localStorage.getItem('pdqs3_run_v5')}));ok(JSON.stringify(before)===JSON.stringify(after),'tutorial changed persisted saves');
       const box=await page.locator('.tut-box').boundingBox();ok(box&&box.x>=0&&box.y>=0&&box.x+box.width<=viewport.width+1&&box.y+box.height<=viewport.height+1,'tutorial outside viewport');await shot('tutorial-new-charge');return {legacyPreserved:true,v5Preserved:true,...await noOverflow()};
     });

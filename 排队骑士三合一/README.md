@@ -110,7 +110,7 @@ pnpm sim 200 0.65   # bot 整局模拟，用于平衡
 
 - `pnpm test` 是唯一的回归入口，新的规则测试加进这里；测试夹具只使用本局开放卡池里的合法单位（`activeCardPool`），否则 v5 存档校验会拒绝。
 - 浏览器回归（`pnpm test:ui*`）需要 Playwright 和本机 Chrome，会写入测试存档，请使用独立的浏览器上下文。
-- 分析工具（不属于回归）：`scripts/node-stats.ts`（按节点统计 bot 胜负）、`scripts/demos.ts`（检查关键词和单位演示覆盖）、`scripts/import-hourglass-art.py`（从 Duelyst 图集导入单位帧）。
+- 分析工具（不属于回归）：`scripts/node-stats.ts`（按节点统计 bot 胜负）、`scripts/demos.ts`（检查关键词和单位演示覆盖）、`scripts/import-unit-art.py`（从素材库图集和 OpenDuelyst 帧数据导入单位精灵，用法见脚本开头）。
 - 样式的加载顺序就是层叠顺序：`main.ts` 先依次加载全局样式（`style.css` → `pixel.css` → `duelyst-units.css` → `global-layers.css` → …），组件样式随各自的 TS 模块导入，`ui/theme.css` 最后加载。`global-layers.css` 和 `prep-features.css` 是按原顺序合并的历史覆盖层，新样式写进组件自己的 CSS 文件，不要再新建按版本或巡检轮次命名的覆盖文件。
 - 一次性的调参、审计实验脚本不进仓库。需要保留的结论写进文档，代码依赖 git 历史找回（2026-11-15 清理前的版本为 `6b525de`）。
 - `source/output/` 存放本地验证截图和报告，不进仓库。文档中引用的 `output/...` 路径只在当时执行验证的机器上存在。

@@ -64,7 +64,7 @@ try{for(const setup of [{width:844,height:390,hasTouch:false},{width:720,height:
   await activate(d.locator('.tip-variant[data-level="1"]'));ok(await d.locator('.unit-effect-text').innerText()===effect,'normal skill restore');ok(await page.locator('.formation-feedback:visible').count()===1,'current formation restore');
   for(const label of [/^出售/,/卸下装备/]){const button=page.getByRole('button',{name:label});await button.scrollIntoViewIfNeeded();ok(await button.isVisible(),'action inaccessible');}
   ok(before===await saved(),'detail preview changed persisted save');await shot('owned-complete');await close();
-  await activate(page.getByRole('button',{name:'手牌 递旗手',exact:true}));ok(await page.locator('.tip.on .card-detail .unit-effect-text').count()===1,'hand skill missing');ok(await page.locator('.tip.on details').count()===0,'hand disclosure');await close();
+  await activate(page.getByRole('button',{name:'手牌 风行旗手',exact:true}));ok(await page.locator('.tip.on .card-detail .unit-effect-text').count()===1,'hand skill missing');ok(await page.locator('.tip.on details').count()===0,'hand disclosure');await close();
   await activate(page.locator('.cards .card[data-id="rw_charge_gunner"]'));ok(await page.locator('.tip.on .card-detail .unit-effect-text').count()===1,'shop skill missing');const buy=page.getByRole('button',{name:/^招募 \d+ 金$/});await buy.scrollIntoViewIfNeeded();ok(await buy.isVisible(),'recruit action inaccessible');await close();
   await activate(page.locator('.unit.side-1').first());ok(await page.locator('.tip.on .unit-effect-text').count()===1,'enemy skill missing');ok(await page.locator('.tip.on details').count()===0,'enemy disclosure');return {stats,effect,actions,savePreserved:before===await saved()};
  });

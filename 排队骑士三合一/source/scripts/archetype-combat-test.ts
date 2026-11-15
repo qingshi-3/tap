@@ -78,7 +78,7 @@ try {
   ok(paired.events.some(e => e.t === 'trigger' && e.label === '并肩共鸣'), 'same name pair replays finite actions');
   reset();
   const bell = simulate([unit('t_wisp', 1, 200), unit('rw_wheel_bell', 1, 200), unit('t_bonelet', 1, 200)], [unit('t_drakelet', 1, 300)]);
-  ok(bell.events.some(e => e.t === 'move' && e.uid === 1 && e.reason?.includes('轮铃')), 'real bell rotates front target instead of caster');
+  ok(bell.events.some(e => e.t === 'move' && e.uid === 1 && e.reason?.includes('日钢')), 'real bell rotates front target instead of caster');
   const edges = simulate([unit('rw_formation_ranks'), ...Array.from({ length: 4 }, () => unit('t_bonelet'))], [unit('t_drakelet', 1, 200)]);
   ok(edges.events.some(e => e.t === 'buff' && e.src === 1 && e.atk === 4 && e.hp === 4), 'all four original formation edges count');
   const rich = simulate([unit('rw_trade_tycoon')], [unit('t_drakelet', 1, 200)], 1, [], { gold: 7 });
