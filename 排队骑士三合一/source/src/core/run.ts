@@ -1772,7 +1772,8 @@ export function pickNode(r: RunState, i: number): boolean {
 export function leaveNode(r: RunState) {
   if (r.rewards?.length || r.discover?.length) return;
   const n = curNode(r);
-  if (!n || isCombat(n.k)) return;
+  // 已经在离开流程里（事件可能已结算、只差领奖）就不能再开一次事件，否则篝火等可以反复结算
+  if (!n || isCombat(n.k) || r.leaving) return;
   r.leaving = true;
   r.event = n.k === 'camp' ? 'fire' : n.k === 'treasure' ? 'treasure' : n.k === 'event' ? rollNodeEvent(r) : null;
 }
