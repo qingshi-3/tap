@@ -92,7 +92,8 @@ try {
   const matriarch = simulate([unit('rw_ember_tinder', 1, 1), unit('a_matriarch', 1, 100)], [unit('t_wolf', 10, 100)]);
   ok(matriarch.events.filter(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot').length === 2, 'legacy faint amplifier applies to new rules');
   const tiger = simulate([unit('rw_ember_tinder', 1, 1), unit('l_archon', 1, 100, { lvl: 2 })], [unit('t_wolf', 10, 100)]);
-  ok(tiger.events.some(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot' && e.n === 3), 'legacy tiger repeats new rule at tiger level');
+  // 金色改为技能升级后，规则数值不再随等级变化：重复触发沿用同一数值。
+  ok(tiger.events.filter(e => e.t === 'dmg' && e.src === 1 && e.kind === 'shot' && e.n === 2).length === 2, 'legacy tiger repeats new rule');
   const doubleBell = simulate([unit('t_wolf', 1, 150), unit('rw_common_sapper', 1, 150), unit('rw_wheel_bell', 1, 150), unit('rw_wheel_bell', 1, 150)], [unit('t_wisp', 1, 150)]);
   const firstMove = doubleBell.events.findIndex(e => e.t === 'move');
   const secondMove = doubleBell.events.findIndex((e, i) => i > firstMove && e.t === 'move');

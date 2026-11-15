@@ -2,7 +2,7 @@
 import { ruleNumber, type BattleRule } from '../core/archetypes';
 import { card, equipOf, FOOD, RELIC, STAT_CAP } from '../core/data';
 import { QUEUE_MAX, type BattleOut, type Ev, type Snap } from '../core/engine';
-import { CHARGE_MAX, curNode, endTurn, fight, isCombat, lvlOf, moveOwned, type Owned, type RunState, type ShopFx } from '../core/run';
+import { CHARGE_MAX, curNode, endTurn, fight, isCombat, lvlOf, moveOwned, ownedRules, type Owned, type RunState, type ShopFx } from '../core/run';
 import type { TargetPos } from './targeting';
 
 type Tone = 'benefit' | 'attack' | 'condition';
@@ -91,7 +91,7 @@ function prepChanges(r: RunState, slot: number, fx: ShopFx[], changes: Changes) 
     // bank.src 是领取者。用同名来源和目标筛出唯一发放者，避免把相邻另一份同名技能记到当前卡上。
     const sources = queue.flatMap((o, i) => {
       if (!o || f.label !== card(o.def).name + '·封印') return [];
-      return card(o.def).rules?.some(rule => rule.phase === 'prep' && rule.on === 'turnEnd'
+      return ownedRules(o).some(rule => rule.phase === 'prep' && rule.on === 'turnEnd'
         && rule.effect === 'seal' && (rule.target === 'team' || rule.target === 'ahead'
           && queue.slice(0, i).filter(Boolean).at(-1)?.oid === f.src)) ? [i] : [];
     });
@@ -104,7 +104,7 @@ function prepChanges(r: RunState, slot: number, fx: ShopFx[], changes: Changes) 
 function ruleSources(r: RunState, o: Owned) {
   const equipment = equipOf(o.ench);
   return [
-    { name: card(o.def).name, level: lvlOf(o.copies), rules: card(o.def).rules ?? [] },
+    { name: card(o.def).name, level: lvlOf(o.copies), rules: ownedRules(o) },
     { name: equipment?.name ?? '', level: 1, rules: equipment?.rules ?? [] },
     ...[...new Set(o.supportFoods)].map(id => ({ name: FOOD[id]?.name, level: 1, rules: FOOD[id]?.battleRules ?? [] })),
     ...r.relics.map(id => ({ name: RELIC[id]?.name, level: 1, rules: RELIC[id]?.battleRules ?? [] })),
@@ -130,7 +130,7 @@ function project(r: RunState, slot: number, merged = false): FormationFeedback {
   prepChanges(r, slot, fx, changes);
   if (preparedSeal > 0) rows.add(93, '已备封印', '首击追加' + preparedSeal + '伤害', 'benefit');
   if (o.startCharge) rows.add(92, '预装', '自身已有' + o.startCharge + '点蓄能', 'benefit');
-  for (const rule of card(o.def).rules ?? []) {
+  for (const rule of ownedRules(o)) {
     if (rule.phase !== 'prep' || rule.on !== 'turnEnd' || rule.effect !== 'seal') continue;
     if (rule.target === 'ahead' && ahead == null) rows.add(94, '回合末', '身前缺少接收封印的队友', 'condition');
     else if (rule.scale === 'trades' && !r.tc.bought && !r.tc.sold) rows.add(79, '回合末', '本回合尚未买卖单位，封印增加0', 'condition');

@@ -1,7 +1,7 @@
 // 碰撞制战斗引擎：队首对队首同时互打，后排只靠事件技能参与（规则照搬 SAP）。
 // 纯函数：输入两队，输出事件流 + 结果。播放层只读事件，不再推算规则。
 import { BattleStatsCollector, type BattleDamageSource, type BattleStats, type DamageContribution, type DamageSourceKind } from './battleStats';
-import type { BattleRule } from './archetypes';
+import { rulesAt, type BattleRule } from './archetypes';
 import { STAT_CAP } from './data';
 import { card, equipOf, FOOD, RELIC, SHOP_POOL, summonInfo, type Atom, type CardDef, type Ench, type EquipSp, type FoodFx, type KeyKind, type Kw } from './data';
 
@@ -194,7 +194,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   const runtimeRules = (s: UnitSpec, side: 0 | 1): RuntimeRule[] => {
     const native = card(s.def);
     const create = (rule: CombatRule, source: string, sourceKind: RuntimeRule['sourceKind'], sourceName: string, counter: RuleCounter = { count: 0, seen: 0 }): RuntimeRule => ({ rule, source, sourceKind, sourceName, counter });
-    const rules = (native.rules ?? []).filter((r): r is CombatRule => r.phase === 'battle').map(r => create(r, native.id, 'unit', native.name));
+    const rules = rulesAt(native.rules, s.lvl).filter((r): r is CombatRule => r.phase === 'battle').map(r => create(r, native.id, 'unit', native.name));
     const equipment = equipOf(s.ench);
     for (const r of equipment?.rules ?? []) if (r.phase === 'battle') rules.push(create(r, equipment!.id, 'equipment', equipment!.name));
     // 同种补给规则按一份运行；属性/预装资源仍由备战层逐次累计。
@@ -313,24 +313,37 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   }
 
   const counter = (u: BUnit) => ev.push({ t: 'counter', uid: u.uid, charge: u.charge, mark: u.mark, rounds: u.rounds });
-  const pair = (u: BUnit) => [aheadOf(u), behindOf(u)].find(x => x?.def === u.def) ?? null;
+  /** 金色并肩单位：任意相邻友军都算作同名搭档。 */
+  const goldPair = (u: BUnit | null | undefined) => !!u && u.lvl >= 2 && (u.adef.archetype === 'pair' || u.adef.bridge === 'pair');
+  const pair = (u: BUnit) => {
+    const near = [aheadOf(u), behindOf(u)];
+    return near.find(x => x?.def === u.def) ?? (goldPair(u) ? near.find(x => !!x) : null) ?? null;
+  };
   const amount = (v: CombatRule['n'] | undefined, u: BUnit, level: number = u.lvl) => typeof v === 'number' ? v : v?.[Math.min(level - 1, v.length - 1)] ?? 0;
-  function targets(u: BUnit, target: string = 'self', event?: BUnit, at?: number): BUnit[] {
+  function targets(u: BUnit, target: string = 'self', event?: BUnit, at?: number, count = 1): BUnit[] {
     const friends = alive(u.side), enemies = alive(1 - u.side);
     // 同批死亡开始时锁定邻人；召唤插队和后续位移继续保留这次遗产的接收身份。
     const frozen = u.dead ? faintNeighbors.get(u.uid) : undefined;
     const ahead = frozen ? (frozen[0]?.dead ? null : frozen[0]) : u.dead && at != null ? friends.filter(x => q[u.side].indexOf(x) < at).pop() : aheadOf(u);
     const behind = frozen ? (frozen[1]?.dead ? null : frozen[1]) : u.dead && at != null ? q[u.side].slice(at).find(x => !x.dead) : behindOf(u);
+    // 多目标：从最近的那名开始，沿队伍继续往外取。
+    const more = (first: BUnit | null | undefined, dir: -1 | 1) => {
+      if (!first) return [];
+      const out = [first];
+      let i = friends.indexOf(first);
+      while (out.length < count && i >= 0 && (i += dir) >= 0 && i < friends.length) if (friends[i] !== u) out.push(friends[i]);
+      return out;
+    };
     const quarry = enemies.find(x => x.uid === quarryUid) ?? enemies[0];
     switch (target) {
-      case 'front': return friends.slice(0, 1);
-      case 'ahead': return ahead ? [ahead] : [];
-      case 'behind': return behind ? [behind] : [];
-      case 'neighbors': return [ahead, behind].filter((x): x is BUnit => !!x);
+      case 'front': return friends.slice(0, count);
+      case 'ahead': return more(ahead, -1);
+      case 'behind': return more(behind, 1);
+      case 'neighbors': return [...more(ahead, -1), ...more(behind, 1)];
       case 'team': return friends;
       case 'event': return event && !event.dead ? [event] : [];
-      case 'enemyFront': return enemies.slice(0, 1);
-      case 'enemyLast': return enemies.slice(-1);
+      case 'enemyFront': return enemies.slice(0, count);
+      case 'enemyLast': return enemies.slice(-count);
       case 'enemies': return enemies;
       case 'quarry': return quarry ? [quarry] : [];
       case 'partner': { const p = pair(u); return p ? [p] : []; }
@@ -354,7 +367,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     switch (r.scale) {
       case 'laps': return 1 + Math.floor(teamLaps[u.side] / Math.max(1, startingSize[u.side]));
       case 'legion': return 1 + teamSummons[u.side];
-      case 'pairs': return friends.reduce((n, x, i) => n + (i > 0 && friends[i - 1].def === x.def ? 1 : 0), 0);
+      case 'pairs': return friends.reduce((n, x, i) => n + (i > 0 && (friends[i - 1].def === x.def || goldPair(friends[i - 1]) || goldPair(x)) ? 1 : 0), 0);
       case 'edges': return friends.reduce((n, x, i) => n + (i > 0 && originalEdges.get(friends[i - 1].uid)?.[1] === x.uid ? 1 : 0), 0);
       case 'missingHp': return Math.max(0, u.maxHp - u.hp);
       case 'gold': return u.side === 0 ? opts.gold ?? 0 : 0;
@@ -375,7 +388,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       if (!condition(u, r, event) || state.counter.count >= (r.limit ?? Infinity)) return;
       // 支持规则有实际接收者时才占用有限额度；原生规则沿用原有计数顺序。
       if (state.sourceKind !== 'unit') {
-        const candidates = targets(u, r.target, event, at);
+        const candidates = targets(u, r.target, event, at, r.count);
         if (!['rotate', 'summon'].includes(r.effect) && !candidates.length) return;
         if (r.effect === 'release' && u.charge <= 0) return;
         if (r.effect === 'charge' && (Math.floor(amount(r.n, u, level) * scaleOf(u, r, event)) <= 0 || !candidates.some(t => t.charge < 999))) return;
@@ -388,7 +401,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     const h = Math.max(0, Math.floor(amount(r.hp, u, level) * scaleOf(u, r, event)));
     const label = `${state.sourceName}·${ruleLabels[r.effect]}`;
     tag(u, label);
-    const ts = targets(u, r.target, event, at);
+    const ts = targets(u, r.target, event, at, r.count);
     if (r.effect !== 'rotate' && r.effect !== 'summon' && !ts.length) {
       ev.push({ t: 'fizzle', uid: u.uid, label: '没有有效目标', reason: 'no_target', ability: r.effect, source: state.sourceName, required: 1, available: 0 });
       return;
@@ -403,7 +416,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       case 'damage': for (const t of ts) damage(u, t, n, 'shot', ruleSource(u, state, label)); break;
       case 'charge': for (const t of ts) { t.charge = Math.min(999, t.charge + n); counter(t); } break;
       case 'release': {
-        const charge = u.charge; u.charge = 0; counter(u);
+        const charge = u.charge; u.charge = Math.floor(charge * (r.retain ?? 0)); counter(u);
         for (const t of ts) damage(u, t, charge * n, 'shot', ruleSource(u, state, label));
         emitRules(u, 'released', u);
         break;
@@ -421,7 +434,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
         break;
       }
       case 'summon': {
-        if (n > 0) summon(u, u.side, { def: 't_wolf', lvl: 1, atk: n, hp: h || n }, 0, state.sourceKind === 'unit' ? summonOrigins.get(u.uid) : ruleSource(u, state, label));
+        if (n > 0) for (let k = 0; k < (r.count ?? 1); k++) summon(u, u.side, { def: 't_wolf', lvl: 1, atk: n, hp: h || n }, 0, state.sourceKind === 'unit' ? summonOrigins.get(u.uid) : ruleSource(u, state, label));
         break;
       }
       case 'inherit': {
@@ -444,7 +457,12 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
         const added = Math.min(99 - t.mark, n); t.mark += added;
         markSources.set(t.uid, [...(markSources.get(t.uid) ?? []), ...Array.from({ length: added }, () => ruleSource(u, state, label))]); counter(t);
       } break;
-      case 'detonate': for (const t of ts) { const marks = t.mark; t.mark = 0; markSources.delete(t.uid); counter(t); damage(u, t, marks * n, 'shot', ruleSource(u, state, label)); } break;
+      case 'detonate': for (const t of ts) {
+        const marks = t.mark; t.mark = 0; markSources.delete(t.uid); counter(t); damage(u, t, marks * n, 'shot', ruleSource(u, state, label));
+        const passed = Math.floor(marks * (r.transfer ?? 0));
+        const next = passed > 0 ? alive(1 - u.side).find(x => x !== t) : undefined;
+        if (next) { const added = Math.min(99 - next.mark, passed); next.mark += added; counter(next); }
+      } break;
     }
     if (!echoed && !echoing && state.sourceKind === 'unit' && ['buff', 'block', 'damage', 'mark', 'charge'].includes(r.effect)) {
       const mixedPartner = [aheadOf(u), behindOf(u)].some(p => p?.def === u.def && (p.lvl >= 2) !== (u.lvl >= 2));
@@ -501,7 +519,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
           if (split <= 0) continue;
           r.counter.count++; tag(guard, r.rule.effect === 'guard' ? '护卫分担' : '邻接分担');
           splitting = true;
-          try { damage(src, guard, split, kind, attribution); } finally { splitting = false; }
+          try { damage(src, guard, r.rule.halve ? Math.ceil(split / 2) : split, kind, attribution); } finally { splitting = false; }
           n -= split;
           if (n <= 0) return -1;
         }

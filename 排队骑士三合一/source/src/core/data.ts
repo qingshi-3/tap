@@ -60,6 +60,8 @@ export interface CardDef {
   key?: KeyKind;
   /** 卡面文案；{v} {u} 替换成当前星级数值 */
   text: string;
+  /** 金色时多出的技能（卡面单独一行"金色："）；规则改动在 rules 的 gold / goldOnly 里 */
+  goldText?: string;
   /** 主标签 */
   line: Line;
   /** 副标签：桥接卡同时服务的另一个引擎 */
@@ -193,6 +195,8 @@ const BASE_CARDS: CardDef[] = [
 export const CARDS: CardDef[] = [...BASE_CARDS.map(d => d.enemy || d.token ? d : { ...d, legacy: true }), ...REWORK_CARDS];
 export const CARD: Record<string, CardDef> = Object.fromEntries(CARDS.map((c) => [c.id, c]));
 export const card = (id: string) => CARD[id];
+/** 金色身材：基础攻血 ×1.5（四舍五入）。金色的主要收益是技能升级，身材是次要。 */
+export const goldStat = (v: number) => Math.round(v * 1.5);
 export const SHOP_POOL = REWORK_CARDS;
 
 /** 召唤物预览：战斗里实际召唤什么（说明框小卡也用它）。随机单位只给阶层 */

@@ -2,8 +2,8 @@
 import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPELL_POOL, supportAvailable, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, HERO, type HeroId, type QuestId, QUEST_INFO, type FoodDef, type FoodFx, type Quality, type RelicId, type Tier, type NativeTiming } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec, type GrantedAbility } from './engine';
 import ghostData from './ghosts.json';
-import { STAT_CAP } from './data';
-import { ARCHETYPE_IDS, ruleNumber, type ArchetypeId, type PrepRule, type PrepTrigger } from './archetypes';
+import { STAT_CAP, goldStat } from './data';
+import { ARCHETYPE_IDS, ruleNumber, rulesAt, type ArchetypeId, type PrepRule, type PrepTrigger } from './archetypes';
 import { activeCardPool, cardAvailable, chooseArchetypes, relatedCards } from './archetypePool';
 export { activeCardPool } from './archetypePool';
 
@@ -297,8 +297,12 @@ export type ShopFx =
 /** 三连金色：3 份 = 金色（技能用 ★2 数值） */
 export const lvlOf = (copies: number): 1 | 2 | 3 => (copies >= MAX_COPIES ? 2 : 1);
 export const isGold = (o: Pick<Owned, 'copies'>) => o.copies >= MAX_COPIES;
-/** 白板：1 份 = 原值，2 份 +1/+1，金色 = 两倍原值；再加永久成长 */
-const baseStat = (v: number, copies: number) => (copies >= MAX_COPIES ? v * 2 : v + copies - 1);
+/** 单位当前等级实际生效的原生规则（金色时含金色覆盖和金色专属规则） */
+export const ownedRules = (o: Pick<Owned, 'def' | 'copies'>) => rulesAt(card(o.def).rules, lvlOf(o.copies));
+/** 金色并肩单位：任意相邻友军都算作同名搭档 */
+export const goldPairOwned = (o: Pick<Owned, 'def' | 'copies'> | null | undefined) => !!o && isGold(o) && (card(o.def).archetype === 'pair' || card(o.def).bridge === 'pair');
+/** 白板：1 份 = 原值，2 份 +1/+1，金色 = 原值 ×1.5；再加永久成长 */
+const baseStat = (v: number, copies: number) => (copies >= MAX_COPIES ? goldStat(v) : v + copies - 1);
 export const ownedAtk = (o: Owned) => Math.min(STAT_CAP, Math.max(1, baseStat(card(o.def).atk, o.copies) + o.atkBonus));
 export const ownedHp = (o: Owned) => Math.min(STAT_CAP, baseStat(card(o.def).hp, o.copies) + o.hpBonus);
 /** 含装备的攻血（显示和上场用） */
@@ -398,10 +402,10 @@ function prepTargets(r: RunState, owner: Owned, rule: PrepRule, event?: Owned): 
   switch (rule.target) {
     case 'self': return [owner];
     case 'event': return event && cellExists(r, event) ? [event] : [];
-    case 'front': return q.slice(0, 1);
-    case 'ahead': return i < 0 ? [] : r.queue.slice(0, i).reverse().filter((x): x is Owned => !!x).slice(0, 1);
-    case 'behind': return i < 0 ? [] : r.queue.slice(i + 1).filter((x): x is Owned => !!x).slice(0, 1);
-    case 'neighbors': return i < 0 ? [] : [r.queue[i - 1], r.queue[i + 1]].filter((x): x is Owned => !!x);
+    case 'front': return q.slice(0, rule.count ?? 1);
+    case 'ahead': return i < 0 ? [] : r.queue.slice(0, i).reverse().filter((x): x is Owned => !!x).slice(0, rule.count ?? 1);
+    case 'behind': return i < 0 ? [] : r.queue.slice(i + 1).filter((x): x is Owned => !!x).slice(0, rule.count ?? 1);
+    case 'neighbors': return i < 0 ? [] : [...r.queue.slice(Math.max(0, i - (rule.count ?? 1)), i), ...r.queue.slice(i + 1, i + 1 + (rule.count ?? 1))].filter((x): x is Owned => !!x);
     case 'team': return q;
   }
 }
@@ -424,7 +428,7 @@ function prepRules(r: RunState, trigger: PrepTrigger, fx: ShopFx[], event?: Owne
   if (trigger === 'food' && event && !owners.includes(event)) owners.push(event);
   const candidates: {owner:Owned; index:number|string; rule:PrepRule; label:string}[] = [];
   for (const owner of owners) {
-    for (const [index, rule] of (card(owner.def).rules ?? []).entries()) if (rule.phase === 'prep') candidates.push({owner,index,rule,label:card(owner.def).name});
+    for (const [index, rule] of ownedRules(owner).entries()) if (rule.phase === 'prep') candidates.push({owner,index,rule,label:card(owner.def).name});
     const equipment = equipOf(owner.ench);
     for (const [index, rule] of (equipment?.rules ?? []).entries()) if (rule.phase === 'prep') candidates.push({owner,index:`equip:${equipment!.id}:${index}`,rule,label:equipment!.name});
   }
@@ -487,7 +491,7 @@ function prepRules(r: RunState, trigger: PrepTrigger, fx: ShopFx[], event?: Owne
 export function canPayBlood(r: RunState, slot: number): boolean {
   const o = r.queue[slot];
   return r.phase === 'prep' && !r.endTurnCommitted && !!o && !o.merc && ownedHp(o) > 1
-    && (card(o.def).rules ?? []).some((rule, i) => rule.phase === 'prep' && rule.on === 'bloodPay' && ruleReady(r, o, rule, i));
+    && ownedRules(o).some((rule, i) => rule.phase === 'prep' && rule.on === 'bloodPay' && ruleReady(r, o, rule, i));
 }
 export function payBlood(r: RunState, slot: number): { ok: boolean; fx: ShopFx[] } {
   if (!canPayBlood(r, slot)) return { ok:false, fx:[] };
@@ -970,18 +974,18 @@ export function supportTargetHint(r: RunState, id: string, o: Owned | null | und
   }
   if (!o) return '选择一名友军';
   if (f.resources?.charge) {
-    const rules = [...(card(o.def).rules ?? []), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
+    const rules = [...ownedRules(o), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
     if (!rules.some(rule => rule.phase === 'battle' && rule.effect === 'release')) return '需有消耗蓄能射击的技能';
     if ((o.startCharge ?? 0) >= CHARGE_MAX) return '预装蓄能已满';
   }
-  const ownRules = [...(card(o.def).rules ?? []), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
-  const teamRules = units(r).flatMap(x => [...(card(x.def).rules ?? []), ...(equipOf(x.ench)?.rules ?? []), ...(x.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])]);
+  const ownRules = [...ownedRules(o), ...(equipOf(o.ench)?.rules ?? []), ...(o.supportFoods ?? []).flatMap(x => FOOD[x]?.battleRules ?? []), ...(f.battleRules ?? [])];
+  const teamRules = units(r).flatMap(x => [...ownedRules(x), ...(equipOf(x.ench)?.rules ?? []), ...(x.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])]);
   const battleRules = f.battleRules ?? [];
   if (battleRules.some(rule => rule.on === 'released') && !ownRules.some(rule => rule.phase === 'battle' && rule.effect === 'release')) return '需有消耗蓄能射击的技能';
   if (battleRules.some(rule => rule.on === 'inherited')) {
     const at = r.queue.indexOf(o);
     const prior = at < 0 ? undefined : r.queue.slice(0,at).reverse().find((x): x is Owned => !!x);
-    const rules = prior ? [...(card(prior.def).rules ?? []), ...(equipOf(prior.ench)?.rules ?? []), ...(prior.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])] : [];
+    const rules = prior ? [...ownedRules(prior), ...(equipOf(prior.ench)?.rules ?? []), ...(prior.supportFoods ?? []).flatMap(id => FOOD[id]?.battleRules ?? [])] : [];
     if (!rules.some(rule => rule.phase === 'battle' && rule.effect === 'inherit')) return '身前队友需有传承技能，可装备封存遗嘱';
   }
   if (battleRules.some(rule => rule.on === 'move') && !ownRules.some(rule => rule.phase === 'battle' && rule.effect === 'rotate')) return '需有退到队尾的技能，或先喂换班燕麦';
@@ -989,7 +993,7 @@ export function supportTargetHint(r: RunState, id: string, o: Owned | null | und
   if (battleRules.some(rule => rule.when === 'paired')) {
     const line = units(r);
     const at = line.indexOf(o);
-    if (at < 0 || ![line[at-1],line[at+1]].some(x => x?.def === o.def)) return '先把同名队友放在旁边';
+    if (at < 0 || ![line[at-1],line[at+1]].some(x => x && (x.def === o.def || goldPairOwned(o)))) return '先把同名队友放在旁边';
   }
   if (battleRules.some(rule => rule.scale === 'edges') && units(r).length < 2) return '至少上阵两名队员';
   if (f.resources?.wounds && !ownRules.some(rule => rule.phase === 'battle' && (rule.when === 'half' || rule.when === 'critical' || rule.on === 'hurt'))) return '需有受伤或低血时发动的技能';

@@ -13,7 +13,7 @@ import { mapArt } from './mapArt';
 import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
-  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, toggleLock, unequip, useFood,
+  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, toggleLock, ownedRules, unequip, useFood,
   ACTS, LAYERS, bossOf, curNode, nodeOpts, pickNode, leaveNode, passNode, isCombat, handCap, tavernPrice, buyGoods, heroReady, useHero, fireCopyOk, fireSmithOk, QUESTS, SHARD_NEED, type NodeKind,
   ownedAtk, ownedHp, prepFoodUses, pickDiscover, itemPrice, spellTargetOk, scarCap, hasScar, GUARD_N, LEGION_MAX, type Owned, type RunState, type ShopFx, type ShopItem,
   canPayBlood, payBlood, handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict, foodTargetOk, supportTargetHint, canAdRelic, sharesFood, goodsUnavailableReason, effectiveQuarry,
@@ -1350,7 +1350,7 @@ export class Game {
       if (!this.rehearsal) setTipPrice(tip, sellPrice(o), true);
       if (hasScar(o.def)) tip.appendChild(h('div', { class: 'tip-text tip-scar' }, icon('hit'), `历战 ${o.scar ?? 0}/${scarCap(o.def)}：战斗中每受伤 2 次，战后永久 +1/+1（每场最多 +${scarCap(o.def) / 4}）`));
       if (card(o.def).disc === 'guard') tip.appendChild(h('div', { class: 'tip-text tip-scar' }, icon('eye'), `驻守 ${o.guard ?? 0}/${GUARD_N}`));
-      const bloodRules = (card(o.def).rules ?? []).flatMap((rule,index) => rule.phase === 'prep' && rule.on === 'bloodPay' ? [{ rule,index }] : []);
+      const bloodRules = ownedRules(o).flatMap((rule,index) => rule.phase === 'prep' && rule.on === 'bloodPay' ? [{ rule,index }] : []);
       if (bloodRules.length) {
         const left = Math.max(...bloodRules.map(({rule,index}) => Math.max(0,(rule.limit ?? 3) - (r.tc.ruleUses?.[`${o.oid}:${index}`] ?? 0))));
         let reason = '';

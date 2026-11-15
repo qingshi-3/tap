@@ -1,7 +1,7 @@
 // 预告只读取正式引擎的事件；开战成长在独立副本上结算。
-import { card, equipOf, FOOD, RELIC } from '../core/data';
+import { equipOf, FOOD, RELIC } from '../core/data';
 import { simulate, type Ev } from '../core/engine';
-import { curNode, endTurn, playerTeam, simOpts, type RunState } from '../core/run';
+import { curNode, endTurn, ownedRules, playerTeam, simOpts, type RunState } from '../core/run';
 import type { Side } from './shim';
 
 export interface TargetPos { side: Side; slot: number }
@@ -11,7 +11,7 @@ export interface TargetPreviews { opening: TargetPreview[]; focused: TargetPrevi
 /** 只有本场已上阵的实际规则会启用指定猎物。 */
 export function canSelectQuarry(r: RunState): boolean {
   const hasTarget = (rules: { phase: string; target: string }[] | undefined) => rules?.some(rule => rule.phase === 'battle' && rule.target === 'quarry') ?? false;
-  return r.queue.some(o => !!o && (hasTarget(card(o.def).rules) || hasTarget(equipOf(o.ench)?.rules)
+  return r.queue.some(o => !!o && (hasTarget(ownedRules(o)) || hasTarget(equipOf(o.ench)?.rules)
     || (o.supportFoods ?? []).some(id => hasTarget(FOOD[id]?.battleRules))))
     || r.queue.some(Boolean) && r.relics.some(id => hasTarget(RELIC[id]?.battleRules));
 }

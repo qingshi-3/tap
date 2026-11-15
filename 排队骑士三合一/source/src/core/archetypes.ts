@@ -29,6 +29,17 @@ export interface BattleRule {
   n:RuleNumber; hp?:RuleNumber; scale?:BattleScale; when?:BattleCondition;
   /** 每名持有者、每场独立计数。符合条件的第 every 次事件触发，至多 limit 次。 */
   limit?:number; every?:number;
+  /** 目标个数：身后 / 身前 / 队首 / 敌首 / 敌尾取前 count 个，相邻取左右各 count 个。 */
+  count?:number;
+  /** 释放蓄能后保留的比例（向下取整）。 */
+  retain?:number;
+  /** 分担伤害时自己只受一半（向上取整）。 */
+  halve?:boolean;
+  /** 引爆猎标后，按比例（向下取整）转给下一个敌人。 */
+  transfer?:number;
+  /** 金色时覆盖的字段；goldOnly 的规则只在金色时存在。 */
+  gold?:Partial<Omit<BattleRule, 'phase' | 'gold' | 'goldOnly'>>;
+  goldOnly?:boolean;
 }
 export type PrepTrigger = 'ownBuy' | 'ownSell' | 'buy' | 'sell' | 'food' | 'spell' | 'turnStart' | 'turnEnd' | 'bloodPay';
 export type PrepTarget = 'self' | 'event' | 'front' | 'ahead' | 'behind' | 'neighbors' | 'team';
@@ -39,5 +50,20 @@ export interface PrepRule {
   when?:'selfEvent'|'otherEvent'; limit?:number; every?:number;
   /** 仅在整回合指定的事件序号生效，例如第二、第四次施法。 */
   at?:readonly number[];
+  /** 目标个数：同 BattleRule.count。 */
+  count?:number;
+  gold?:Partial<Omit<PrepRule, 'phase' | 'gold' | 'goldOnly'>>;
+  goldOnly?:boolean;
 }
 export type ReworkRule = BattleRule | PrepRule;
+
+/** 某个等级实际生效的规则：金色时套用 gold 覆盖并加入 goldOnly 规则。goldOnly 规则排在最后，普通规则的序号不变。 */
+export function rulesAt<R extends ReworkRule>(rules: readonly R[] | undefined, level: number): R[] {
+  const gold = level >= 2;
+  const out: R[] = [];
+  for (const rule of rules ?? []) {
+    if (rule.goldOnly && !gold) continue;
+    out.push(gold && rule.gold ? { ...rule, ...rule.gold } as R : rule);
+  }
+  return out;
+}

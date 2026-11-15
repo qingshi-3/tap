@@ -242,7 +242,7 @@ const heirReal = simulate([unit('rw_ember_tinder', { hp: 1 }), unit('rw_common_v
 ok(triggers(heirReal, '承火搭扣').length === 1 && triggers(heirReal, '守火蜡').length === 1, 'clasp and wax trigger on actual heir once');
 ok(heirReal.events.some(e => e.t === 'block' && e.src === 2 && e.tgt === 3), 'ash vow protects the heir successor'); trace(heirReal);
 const quarryReal = simulate([unit('rw_hunt_spotter'), unit('rw_hunt_spotter', { lvl: 2 })], opponents(), 71, ['r_quarry_writ'], { quarry: 1 });
-ok(quarryReal.events.some(e => e.t === 'dmg' && e.src === 1 && e.tgt === 4 && e.kind === 'shot' && e.n === 3), 'quarry writ scales selected quarry marks while front remains unmarked');
+ok(quarryReal.events.some(e => e.t === 'dmg' && e.src === 1 && e.tgt === 4 && e.kind === 'shot' && e.n === 2), 'quarry writ scales selected quarry marks (gold spotter adds its extra mark to the front, not the quarry)');
 ok(quarryReal.stats.units.some(r => r.def === 'r_quarry_writ' && r.damageDealt > 0), 'quarry writ damage has independent row'); trace(quarryReal);
 console.log('support real cards: relay, chamber, heir and selected-quarry combinations passed');
 

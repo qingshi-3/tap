@@ -1,6 +1,6 @@
 import { cardIdentity, identityColor, type EconomyUsage } from './archetypes';
 import { cardText, tierBadge } from './card';
-import { card, equipOf, equipText, EQUIP, FOOD, foodText, fxFood, KW_INFO, Q_INFO, summonInfo, type Ench, type FoodFx, type Tier } from '../core/data';
+import { card, equipOf, equipText, EQUIP, FOOD, foodText, fxFood, goldStat, KW_INFO, Q_INFO, summonInfo, type Ench, type FoodFx, type Tier } from '../core/data';
 import { unitSvg } from './unitArt';
 import { FACTION_INFO, unitDef } from './shim';
 import { h, STAGE_H, STAGE_W } from './dom';
@@ -65,8 +65,8 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   void withUp;
   const d = unitDef(defId), c = card(defId);
   const actualLevel = level >= 3 ? 3 : level >= 2 ? 2 : 1;
-  const atk = st?.atk ?? c.atk * (actualLevel >= 2 ? 2 : 1);
-  const hp = st?.hp ?? c.hp * (actualLevel >= 2 ? 2 : 1);
+  const atk = st?.atk ?? (actualLevel >= 2 ? goldStat(c.atk) : c.atk);
+  const hp = st?.hp ?? (actualLevel >= 2 ? goldStat(c.hp) : c.hp);
   const detail = h('div', { class: 'tip-unit card-detail', style: `--fc:${identityColor(c)}`, 'data-def': defId });
   const effect = h('div', { class: 'unit-effect', 'data-keyword-paragraph': '' });
   const goldToggle = h('input', { type: 'checkbox', 'aria-label': '查看金色' });
@@ -85,7 +85,8 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     const body = h('div', { class: 'tip-text unit-effect-text' }, ...kwRich(text));
     if (canCompare) highlightVariantNumbers(body, text, cardText(defId, viewedLevel === 1 ? 2 : 1));
     if (c.inherit) for (const token of body.querySelectorAll<HTMLElement>('[data-keyword="传承"]')) token.dataset.keywordExplanation = KEYWORD_HELP.补给传承;
-    effect.replaceChildren(...[body, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
+    const goldLine = c.goldText ? h('div', { class: `tip-text tip-gold-line${viewedLevel >= 2 ? ' on' : ''}` }, h('b', null, '金色：'), ...kwRich(c.goldText)) : null;
+    effect.replaceChildren(...[body, goldLine, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
     enableKeywordHelp(detail);
     detail.dispatchEvent(new CustomEvent('tipcontentchange', { bubbles: true }));
     detail.dispatchEvent(new CustomEvent('tipvariantchange', { bubbles: true, detail: { level: viewedLevel, currentLevel: actualLevel, preview } }));

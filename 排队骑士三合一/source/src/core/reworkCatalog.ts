@@ -1,6 +1,7 @@
 // 玩家候选。规则数值直接供卡面取用，例如 {0} 是第一条规则的 n，{0h} 是其 hp。
 import type { CardDef, Faction, Line, Tier, V3 } from './data';
 import { type ArchetypeId, type BattleRule, type CardRole, type PrepRule, type ReworkRule, type RuleNumber } from './archetypes';
+import { applyGold } from './goldCatalog';
 
 const battle = (on: BattleRule['on'], effect: BattleRule['effect'], target: BattleRule['target'], n: RuleNumber, opts: Partial<Pick<BattleRule, 'when' | 'scale' | 'limit' | 'every' | 'hp'>> = {}): BattleRule =>
   ({ phase:'battle', on, effect, target, n, ...opts });
@@ -13,6 +14,10 @@ const prep = (on: PrepRule['on'], effect: PrepRule['effect'], target: PrepRule['
  */
 export const TIER_STAT: Record<Tier, number> = { 1: 1, 2: 1, 3: 1.15, 4: 1.3, 5: 1.5, 6: 1.6 };
 const tierStat = (v: number, tier: Tier) => Math.max(1, Math.round(v * TIER_STAT[tier]));
+
+/** 规则数值固定为普通值（数组取第一个）；金色的数值变化写在 goldCatalog 的覆盖里。 */
+const first = (v: RuleNumber | undefined) => Array.isArray(v) ? v[0] : v;
+const fixNumbers = <R extends ReworkRule>(rule: R): R => ({ ...rule, n: first(rule.n) ?? 0, ...(rule.hp !== undefined ? { hp: first(rule.hp) } : {}) });
 
 const artFaction: Record<string, Faction> = { l:'light', s:'shadow', a:'abyss', m:'magma', v:'frost', d:'desert', n:'neutral' };
 const oldLine: Record<ArchetypeId, Line> = { wheel:'start', charge:'start', ember:'death', nest:'death', blood:'hurt', trade:'grow', rune:'grow', pair:'any', hunt:'start', formation:'hurt', supply:'food' };
@@ -28,13 +33,14 @@ function group(archetype?: ArchetypeId) {
       if (value === undefined) throw Error('卡面数值不存在 ' + id + ':' + index);
       if (typeof value === 'number') return String(value);
       let slot = values.findIndex(([v,g]) => v === value[0] && g === value[1]);
-      if (slot < 0) slot = values.push([value[0], value[1], value[1]]) - 1;
+      // 金色不再整体放大数值：卡面三档都显示普通值，金色收益见"金色："行（goldCatalog）。
+      if (slot < 0) slot = values.push([value[0], value[0], value[0]]) - 1;
       if (slot >= 3) throw Error('卡面变量过多 ' + id);
       return ['{v}', '{u}', '{p}'][slot];
     });
     return {
       id:'rw_' + (archetype ?? 'common') + '_' + id, name, art, faction, role, archetype, bridge, tier, atk:tierStat(atk, tier), hp:tierStat(hp, tier),
-      text, rules, v:values[0], u:values[1], pv:values[2], abilities:[], kws:[],
+      text, rules:rules.map(fixNumbers), v:values[0], u:values[1], pv:values[2], abilities:[], kws:[],
       line:archetype ? oldLine[archetype] : 'any', tag2:bridge ? oldLine[bridge] : undefined,
       perm:rules.some(r => r.phase === 'prep' && r.effect === 'buff'),
       inherit:archetype === 'supply' || undefined,
@@ -53,7 +59,7 @@ const ownBlood = (effect: PrepRule['effect'], n: RuleNumber) => prep('bloodPay',
 const pairStart = (effect: BattleRule['effect'], target: BattleRule['target'], n: RuleNumber, hp?: RuleNumber) =>
   battle('start', effect, target, n, { hp, when:'paired' });
 
-export const REWORK_CARDS: CardDef[] = [
+const RAW_CARDS: CardDef[] = [
   wheel('courier','绕阵快骑','l_knight','starter',1,3,4,'攻击后退到队尾。成为队首时，对敌首造成{1}伤害，全队每转完一圈多{1}伤害。',
     [ride(), battle('enter','damage','enemyFront',[1,2],{scale:'laps'})]),
   wheel('runner','风行旗手','n_windrunner','starter',2,2,6,'成为队首时，身后友军获得{0}层格挡（每场2次）。攻击后退到队尾。',
@@ -254,3 +260,5 @@ export const REWORK_CARDS: CardDef[] = [
   common('veteran','老城守将','l_ironcliffe','utility',4,5,8,'首次成为队首时，本场+{0h}生命。阵亡时，对敌首造成最大生命{1}%的伤害。',
     [battle('enter','buff','self',0,{hp:[3,5],limit:1}),battle('faint','damage','enemyFront',[35,50],{scale:'healthPct'})]),
 ];
+
+export const REWORK_CARDS: CardDef[] = RAW_CARDS.map(applyGold);
