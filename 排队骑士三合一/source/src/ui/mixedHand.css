@@ -12,22 +12,24 @@
 .game .hand-slot:active { filter: brightness(.85); }
 .game .hand-slot:focus-visible, .spell-target:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
 .reward-open { margin-left: auto; }
-.spell-dialog { min-width: 440px; max-width: 1060px; width: max-content; padding: 24px; background: #202a36; border-radius: 8px; color: #fff4dc; box-shadow: 0 16px 50px #0009; }
-.spell-dialog h3 { margin: 0 0 16px; font-size: 28px; }
-.spell-dialog p { margin: 12px 0; font-size: 22px; line-height: 1.45; max-width: 780px; }
-.spell-targets { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; max-width: 960px; }
-.spell-target { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 142px; min-height: 138px; padding: 10px; gap: 6px; border: 0; border-radius: 6px; background: #385264; color: #fff6df; font-size: 22px; cursor: pointer; }
+.spell-dialog { min-width: 440px; max-width: 1060px; width: max-content; padding: 0; color: var(--ui-text); }
+.spell-dialog h3 { min-height: 40px; margin: 0 var(--control-size, 64px) 20px 0; font-size: 28px; color: var(--ui-brass-hi); }
+.spell-dialog p { margin: 12px 0; font-size: 22px; line-height: 1.45; max-width: 780px; color: var(--ui-text-2); }
+.spell-targets { display: flex; flex-wrap: wrap; justify-content: center; align-items: stretch; gap: 16px; max-width: 960px; padding: 4px; }
+.spell-target { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 142px; max-width: 190px; min-height: 154px; padding: 12px; gap: 6px; border: 0 solid transparent; border-image: var(--pxf-steel) 6 / 8px / 0 stretch; border-radius: 0; background: var(--ui-well); box-shadow: 0 5px 0 #080619; color: var(--ui-text); font-size: 22px; cursor: pointer; transition: transform .12s, background .12s; }
 .spell-target > .target-art { height: 65px; width: 72px; }
 .target-art svg { height: 100%; width: 100%; }
-.spell-target small { font-size: 18px; color: #d7e4ea; }
-.spell-target:hover { background: #496a7d; }
-.spell-target:active { filter: brightness(.8); }
-.spell-dialog .dialog-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
-.spell-dialog .btn { min-height: var(--control-size, 64px); font-size: 24px; background: #4a5a6b; border: 0; box-shadow: inset 0 -4px 0 #26303d; }
-.spell-dialog .btn.primary { background: #bb934b; color: #241d12; box-shadow: inset 0 -4px 0 #705326; }
-.spell-dialog .btn:disabled { background: #3a4048; color: #89939d; filter: grayscale(1); cursor: default; }
-.spell-picker .modal { padding: 0; border: 0; border-image: none; border-radius: 8px; background: none; }
-.spell-picker .modal-x { background: #47576b; }
+.spell-target b { line-height: 1.35; text-align: center; overflow-wrap: anywhere; }
+#stage .spell-dialog .spell-target small { font-size: 18px; line-height: 1.4; color: var(--ui-text-2); text-align: center; }
+.spell-target:hover:not(:disabled), .spell-target:is(.on, .selected, [aria-pressed="true"]) { background: var(--ui-raised); border-image-source: var(--pxf-gold); }
+.spell-target:active:not(:disabled) { transform: translateY(2px); }
+.spell-target:disabled { background: var(--ui-well); color: var(--ui-text-3); cursor: default; box-shadow: none; }
+.spell-target:disabled > .target-art { opacity: .45; filter: grayscale(.8); }
+#stage .spell-dialog .spell-target:disabled small { color: var(--ui-text-2); }
+.spell-dialog .dialog-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 16px; margin-top: 24px; }
+.spell-dialog .btn { min-width: 130px; max-width: 100%; min-height: var(--control-size, 64px); height: auto; padding: 12px 22px; font-size: 24px; line-height: 1.4; white-space: normal; background: var(--ui-band-indigo); border: 0; border-image: none; border-radius: 0; box-shadow: var(--ui-notch-dark); }
+#stage .spell-picker .modal { padding: 24px; max-width: calc(100% - 48px); max-height: calc(100% - 48px); overflow-y: auto; touch-action: pan-y; overscroll-behavior: contain; border: 0 solid transparent; border-image: var(--pxf-gold) 6 / 12px / 0 stretch; border-radius: 0; background: var(--ui-panel); }
+.spell-picker .modal-x { background: var(--ui-band-indigo); }
 .save-status { max-width: 600px; font-size: 24px; line-height: 1.5; color: #e4cda4; text-align: center; }
 .disc-spell .card { pointer-events: none; }
 .spell-collect { position: absolute; width: 112px; height: 108px; background-size: 784px 648px; pointer-events: none; z-index: 25; image-rendering: pixelated; }
@@ -35,13 +37,14 @@
 .u-granted .px-item { width: 25px; height: 25px; }
 .game .hand-slot .hs-stats { bottom: -4px; }
 .compact .game .hand-strip { top: 80px; }
-.game .disc-peek { border: 0; background: #435769; color: #fff4db; box-shadow: inset 0 -4px 0 #263440; min-height: var(--control-size, 64px); }
+.game .disc-peek { border: 0; background: var(--ui-band-indigo); color: var(--ui-text); box-shadow: var(--ui-notch-dark); min-height: var(--control-size, 64px); }
 .game .disc-peek:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
-.modal-ov.small .modal { width: 560px; border: 0; border-image: none; border-radius: 8px; background: #222f3d; }
+#stage .modal-ov.small .modal { width: 560px; max-width: calc(100% - 48px); border: 0 solid transparent; border-image: var(--pxf-gold) 6 / 12px / 0 stretch; border-radius: 0; background: var(--ui-panel); }
 .modal-ov.small .confirm h3 { font-size: 28px; }
-.modal-ov.small .confirm p { font-size: 24px; line-height: 1.5; color: #e1e4e7; }
-.modal-ov.small .confirm-btns .btn { min-height: var(--control-size, 64px); font-size: 24px; padding: 12px 22px; border: 0; border-image: none; }
-.modal-ov.small .confirm-btns .btn.ghost { background: #4a5a6b; box-shadow: inset 0 -4px 0 #283545; }
-.modal-ov.small .confirm-btns .btn.danger { background: #b94451; box-shadow: inset 0 -4px 0 #6b2631; }
+.modal-ov.small .confirm p { font-size: 24px; line-height: 1.5; color: var(--ui-text-2); }
+.modal-ov.small .confirm-btns { flex-wrap: wrap; gap: 16px; }
+.modal-ov.small .confirm-btns .btn { min-height: var(--control-size, 64px); font-size: 24px; padding: 12px 22px; border: 0; border-image: none; border-radius: 0; }
+.modal-ov.small .confirm-btns .btn.ghost { background: var(--ui-band-indigo); box-shadow: var(--ui-notch-dark); }
+.modal-ov.small .confirm-btns .btn.danger { background: var(--ui-band-danger); box-shadow: var(--ui-notch-dark); }
 .modal-ov.small .confirm-btns .btn:focus-visible { outline: 3px solid #f9e4a8; outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) { .hand-strip { transition: none; } .spell-collect { display: none; } }
+@media (prefers-reduced-motion: reduce) { .hand-strip, .spell-target { transition: none; } .spell-collect { display: none; } }

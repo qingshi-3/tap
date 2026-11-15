@@ -28,12 +28,18 @@ const pxStat = (k: 'block', v: number) => h('span', { class: `kwic kw-${k}` }, h
 // 单例悬浮说明框：单位 / 补给
 
 let tipEl: HTMLElement | null = null;
+let tipBackdrop: HTMLElement | null = null;
+let tipSourceMarker: HTMLElement | null = null;
+let tipSource: HTMLElement | null = null;
+let tipSourceBox: Box | null = null;
 let root: HTMLElement | null = null;
 
 export function initTip(stage: HTMLElement) {
   root = stage;
+  tipBackdrop = h('div', { class: 'tip-backdrop', 'aria-hidden': 'true' });
+  tipSourceMarker = h('div', { class: 'tip-source-marker', 'aria-hidden': 'true' });
   tipEl = h('div', { class: 'tip' });
-  stage.appendChild(tipEl);
+  stage.append(tipBackdrop, tipSourceMarker, tipEl);
   document.addEventListener('pointerdown', (event) => {
     if (tipEl && !tipEl.contains(event.target as Node)) hideTip();
   }, { capture: true });
@@ -41,6 +47,18 @@ export function initTip(stage: HTMLElement) {
 }
 
 export interface TipStats { atk: number; hp: number; maxHp?: number; block?: number; ench?: Ench | null; tmpAtk?: number; tmpHp?: number; lamp?: boolean; tfx?: readonly FoodFx[]; copies?: number; kws?: readonly string[]; foodHistory?: readonly FoodMemory[]; prepUses?: { used: number; max: number } | null; granted?: GrantedAbility; seal?: number; startCharge?: number; wounds?: number; supportFoods?:readonly string[]; sealSources?:Readonly<Record<string,number>>; economyUsage?: EconomyUsage }
+
+/** 价格与等级同组显示；操作按钮只写动作。 */
+export function setTipPrice(content: HTMLElement, amount: number, income = false) {
+  const head = content.querySelector('.tip-head');
+  if (!head) return;
+  let level = head.querySelector<HTMLElement>('.tip-lv');
+  if (!level) { level = h('span', { class: 'tip-lv' }); head.appendChild(level); }
+  level.querySelector('.tip-price')?.remove();
+  const label = `${income ? '出售可得' : '价格'} ${amount} 金`;
+  level.prepend(h('span', { class: 'tip-price', 'aria-label': label, title: label },
+    itemIcon('coin', 'coin'), h('b', null, `${income ? '+' : ''}${amount}`)));
+}
 
 /** The final legacy argument is retained for callers; eligible cards share one effect switch. */
 export function unitTip(defId: string, level: number, st?: TipStats | null, withUp = true) {
@@ -51,7 +69,9 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
   const hp = st?.hp ?? c.hp * (actualLevel >= 2 ? 2 : 1);
   const detail = h('div', { class: 'tip-unit card-detail', style: `--fc:${identityColor(c)}`, 'data-def': defId });
   const effect = h('div', { class: 'unit-effect', 'data-keyword-paragraph': '' });
-  const tabs = h('div', { class: 'tip-variants', role: 'group', 'aria-label': '查看普通或金色效果' });
+  const goldToggle = h('input', { type: 'checkbox', 'aria-label': '查看金色' });
+  goldToggle.checked = actualLevel >= 2;
+  const compare = h('label', { class: 'tip-upgrade' }, goldToggle, h('span', null, '金色'));
   const canCompare = actualLevel <= 2 && !d.enemyOnly && !d.token;
   let viewedLevel = actualLevel;
   detail.dataset.currentLevel = String(actualLevel);
@@ -60,32 +80,19 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     const preview = viewedLevel !== actualLevel;
     detail.dataset.effectLevel = String(viewedLevel);
     detail.dataset.previewLevel = String(viewedLevel);
-    for (const button of tabs.querySelectorAll<HTMLButtonElement>('button')) {
-      const selected = Number(button.dataset.level) === viewedLevel;
-      button.setAttribute('aria-pressed', String(selected));
-      button.classList.toggle('active', selected);
-    }
+    goldToggle.checked = viewedLevel >= 2;
     const text = cardText(defId, viewedLevel);
     const body = h('div', { class: 'tip-text unit-effect-text' }, ...kwRich(text));
     if (canCompare) highlightVariantNumbers(body, text, cardText(defId, viewedLevel === 1 ? 2 : 1));
     if (c.inherit) for (const token of body.querySelectorAll<HTMLElement>('[data-keyword="传承"]')) token.dataset.keywordExplanation = KEYWORD_HELP.补给传承;
-    const base = preview ? h('div', { class: 'tip-effect-preview' },
-      h('strong', null, viewedLevel === 2 ? '金色预览' : '普通基础预览'),
-      h('span', null, '基础属性 ', h('mark', { class: 'tip-number-change' }, String(c.atk * viewedLevel)), ' / ', h('mark', { class: 'tip-number-change' }, String(c.hp * viewedLevel))),
-      st ? h('span', { class: 'tip-preview-context' }, '当前实际属性见上方') : null) : null;
-    effect.replaceChildren(...[base, body, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
+    effect.replaceChildren(...[body, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
     enableKeywordHelp(detail);
     detail.dispatchEvent(new CustomEvent('tipcontentchange', { bubbles: true }));
     detail.dispatchEvent(new CustomEvent('tipvariantchange', { bubbles: true, detail: { level: viewedLevel, currentLevel: actualLevel, preview } }));
   };
-  if (canCompare) for (const value of [1, 2]) {
-    const label = value === 1 ? '普通效果' : '金色效果';
-    const button = h('button', { type: 'button', class: 'tip-variant', 'data-level': String(value), 'aria-pressed': String(value === viewedLevel) }, label,
-      value === actualLevel ? h('small', null, st?.copies != null ? '当前' : '本卡') : null);
-    button.addEventListener('pointerdown', (event) => event.stopPropagation());
-    button.addEventListener('click', (event) => { event.stopPropagation(); if (viewedLevel !== value) { viewedLevel = value; renderEffect(); } });
-    tabs.append(button);
-  }
+  compare.addEventListener('pointerdown', (event) => event.stopPropagation());
+  compare.addEventListener('click', (event) => event.stopPropagation());
+  goldToggle.addEventListener('change', () => { viewedLevel = goldToggle.checked ? 2 : 1; renderEffect(); });
   const extras: (Node | null)[] = [];
   if (st?.prepUses) extras.push(h('div', { class: 'tip-text tip-current-state' }, `本回合技能剩余 ${Math.max(0, st.prepUses.max - st.prepUses.used)}/${st.prepUses.max} 次`));
   const traits = (st?.kws ?? c.kws).filter((k) => k !== 'block');
@@ -105,12 +112,13 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
       h('div', { class: 'tip-name' }, d.name),
       c.archetype || c.role ? h('span', { class: 'tip-fac' }, cardIdentity(defId)) : null,
       d.token ? h('span', { class: 'tip-fac' }, '召唤物') : d.enemyOnly ? h('span', { class: 'tip-fac' }, '敌军') : null,
-      !d.enemyOnly && !d.token ? h('span', { class: 'tip-lv' }, tierBadge(d.tier), ' ', actualLevel >= 2 ? h('span', { class: 'tip-stars gold' }, '金色') : null) : null),
+      !d.enemyOnly && !d.token ? h('span', { class: 'tip-lv' }, tierBadge(d.tier),
+        canCompare ? compare : actualLevel >= 2 ? h('span', { class: 'tip-stars gold' }, '金色') : null) : null),
     h('div', { class: 'tip-stats' }, h('span', { class: 'tip-stats-caption' }, st ? '当前属性' : actualLevel >= 2 ? '金色基础' : '普通基础'),
       statArt('atk', atk), statArt('hp', st?.maxHp && st.maxHp !== hp ? h('span', { title: `开战生命 ${hp} / 上限 ${st.maxHp}` }, hp, '/', st.maxHp) : hp),
       st?.block ? pxStat('block', st.block) : null,
       st?.copies != null && st.copies < 3 ? h('span', { class: 'ts-act' }, '三连', h('i', null, `${st.copies}/3`)) : st?.copies != null ? h('span', { class: 'ts-act gold' }, '金色') : null),
-    canCompare ? tabs : null, effect, ...extras].filter(n => n !== null));
+    effect, ...extras].filter(n => n !== null));
   renderEffect();
   return enableKeywordHelp(detail);
 }
@@ -172,7 +180,7 @@ export function equipTip(id: Ench, note?: string) {
 
 export function foodTip(id: string, val?: [number, number]) {
   const fd = FOOD[id];
-  return enableKeywordHelp(h('div', { class: 'tip-unit', style: `--fc:${FACTION_INFO.neutral.color}` },
+  return enableKeywordHelp(h('div', { class: 'tip-unit card-detail', style: `--fc:${FACTION_INFO.neutral.color}` },
     h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, fd.name), h('span', { class: 'tip-fac' }, fd.spell ? '法术' : '补给'), h('span', { class: 'tip-lv' }, tierBadge(fd.tier))),
     h('div', { class: 'tip-text' }, ...kwRich(foodText(id, val))), supportGuide(fd)));
 }
@@ -181,10 +189,137 @@ export function foodTip(id: string, val?: [number, number]) {
 /** top：目标上沿（默认同 y），放上方时以它为准，免得盖住目标本身 */
 export interface Box { l: number; t: number; r: number; b: number }
 /** avoid：不许盖住的区域（备战点单位时的关系箭头和标签），舞台坐标 */
-export function showTip(content: HTMLElement, x: number, y: number, prefer: 'above' | 'below' = 'above', top0 = y, avoid?: Box | null) {
+/** A detail panel and its actions share placement, with separate visual surfaces. */
+function mountTip(content: HTMLElement) {
+  if (!tipEl) return null;
+  // Each opening measures its own content; in-place updates keep that frame.
+  tipEl.style.height = '';
+  const actions = content.querySelector<HTMLElement>(':scope > .shelf-acts');
+  tipEl.classList.toggle('composed', !!actions);
+  tipEl.classList.toggle('hand-spell-actions', !!actions && content.classList.contains('hand-spell-tip'));
+  if (actions) {
+    actions.remove();
+    content.classList.add('tip-panel');
+    if (!content.querySelector(':scope > .owned-tip-body, :scope > .tip-panel-body')) {
+      content.replaceChildren(h('div', { class: 'tip-panel-body' }, ...Array.from(content.childNodes)));
+    }
+    tipEl.replaceChildren(content, actions);
+  } else tipEl.replaceChildren(content);
+  return actions;
+}
+
+/** Measure the visible unit, rather than its larger/invisible input container. */
+function setTipSource(source?: HTMLElement) {
+  tipSource?.classList.remove('tip-source-selected');
+  tipSource = null;
+  tipSourceBox = null;
+  tipSourceMarker?.classList.remove('on');
+  if (tipBackdrop) tipBackdrop.style.clipPath = '';
+  if (!source || !root || !root.contains(source)) return;
+  const stageRect = root.getBoundingClientRect();
+  if (!stageRect.width || !stageRect.height) return;
+  tipSource = source;
+  source.classList.add('tip-source-selected');
+  // Settle only the source's finite entry/hover motion; child sprite loops stay live.
+  for (const animation of source.getAnimations()) {
+    if (Number.isFinite(animation.effect?.getComputedTiming().endTime)) animation.finish();
+  }
+  const visual = source.matches('.unit')
+    ? [...source.querySelectorAll<HTMLElement>('.u-bob, .u-stats, .u-tags, .u-pips, .u-exp, .u-pulse, .u-cpips, .u-status-line')]
+    : [source];
+  const rects = visual.flatMap((el) => {
+    const rect = el.getBoundingClientRect();
+    const style = getComputedStyle(el);
+    return rect.width && rect.height && style.visibility !== 'hidden' && style.display !== 'none' && style.opacity !== '0' ? [rect] : [];
+  });
+  if (!rects.length) { setTipSource(); return; }
+  const sx = STAGE_W / stageRect.width, sy = STAGE_H / stageRect.height;
+  const pad = source.matches('.unit') ? 7 : 4;
+  const box = {
+    l: Math.max(0, (Math.min(...rects.map(r => r.left)) - stageRect.left) * sx - pad),
+    t: Math.max(0, (Math.min(...rects.map(r => r.top)) - stageRect.top) * sy - pad),
+    r: Math.min(STAGE_W, (Math.max(...rects.map(r => r.right)) - stageRect.left) * sx + pad),
+    b: Math.min(STAGE_H, (Math.max(...rects.map(r => r.bottom)) - stageRect.top) * sy + pad),
+  };
+  if (box.r <= box.l || box.b <= box.t) { setTipSource(); return; }
+  tipSourceBox = box;
+}
+
+/** The dim layer has a real hole, so the original source keeps its own art and input. */
+function showTipBackdrop(enabled: boolean) {
+  if (!tipBackdrop || !tipEl || !root) return;
+  if (!enabled) { tipBackdrop.classList.remove('on'); tipSourceMarker?.classList.remove('on'); return; }
+  root.insertBefore(tipBackdrop, tipEl);
+  tipBackdrop.style.setProperty('--tip-focus-x', `${tipEl.offsetLeft + tipEl.offsetWidth / 2}px`);
+  tipBackdrop.style.setProperty('--tip-focus-y', `${tipEl.offsetTop + tipEl.offsetHeight / 2}px`);
+  tipBackdrop.style.setProperty('--tip-focus-rx', `${tipEl.offsetWidth / 2 + 40}px`);
+  tipBackdrop.style.setProperty('--tip-focus-ry', `${tipEl.offsetHeight / 2 + 40}px`);
+  if (tipSourceBox) {
+    const { l, t, r, b } = tipSourceBox;
+    tipBackdrop.style.clipPath = `polygon(evenodd, 0px 0px, ${STAGE_W}px 0px, ${STAGE_W}px ${STAGE_H}px, 0px ${STAGE_H}px, 0px 0px, ${l}px ${t}px, ${r}px ${t}px, ${r}px ${b}px, ${l}px ${b}px, ${l}px ${t}px)`;
+    if (tipSourceMarker) {
+      root.insertBefore(tipSourceMarker, tipEl);
+      Object.assign(tipSourceMarker.style, { left: `${l}px`, top: `${t}px`, width: `${r - l}px`, height: `${b - t}px` });
+      tipSourceMarker.classList.add('on');
+    }
+  }
+  tipBackdrop.classList.add('on');
+}
+
+function overlap(a: Box, b: Box) {
+  return Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+}
+
+/** Place the complete detail/action stack around the source, then prefer clear links. */
+function placeBesideSource(need: number, minHeight: number, prefer: 'above' | 'below', avoid?: Box | null, dock?: { top: number; maxHeight: number }) {
+  if (!tipEl || !tipSourceBox) return false;
+  const source = tipSourceBox, pad = 12, gap = 12, w = 440;
+  const height = Math.min(need, STAGE_H - pad * 2, dock?.maxHeight ?? Infinity);
+  const centerX = (source.l + source.r) / 2, centerY = (source.t + source.b) / 2;
+  const clampX = (x: number) => Math.max(pad, Math.min(STAGE_W - w - pad, x));
+  const clampY = (y: number, h: number) => Math.max(pad, Math.min(STAGE_H - h - pad, y));
+  const candidates: { l: number; t: number; h: number; order: number }[] = [];
+  const add = (l: number, t: number, h: number) => {
+    if (h <= 0 || l < pad || l + w > STAGE_W - pad || t < pad || t + h > STAGE_H - pad) return;
+    const box = { l, t, r: l + w, b: t + h };
+    // The extra gap belongs to the whole frame, including its action buttons.
+    if (overlap(box, { l: source.l - gap, t: source.t - gap, r: source.r + gap, b: source.b + gap }) > .1) return;
+    candidates.push({ l, t, h, order: candidates.length });
+  };
+  if (dock) add(pad, dock.top, Math.min(height, STAGE_H - dock.top - pad));
+  for (const side of [prefer, prefer === 'above' ? 'below' : 'above'] as const) {
+    const h = Math.min(height, side === 'above' ? source.t - gap - pad : STAGE_H - source.b - gap - pad);
+    const t = side === 'above' ? source.t - gap - h : source.b + gap;
+    add(clampX(centerX - w / 2), t, h);
+    add(pad, t, h);
+    add(STAGE_W - w - pad, t, h);
+  }
+  const sideXs = centerX < STAGE_W / 2 ? [source.r + gap, source.l - gap - w] : [source.l - gap - w, source.r + gap];
+  for (const l of sideXs) {
+    add(l, clampY(centerY - height / 2, height), height);
+    add(l, pad, height);
+    add(l, STAGE_H - pad - height, height);
+  }
+  for (const l of [pad, STAGE_W - w - pad]) for (const t of [pad, STAGE_H - height - pad]) add(l, t, height);
+  if (!candidates.length) return false;
+  const score = (p: typeof candidates[number]) => {
+    const clipped = height - p.h;
+    const linkHit = avoid ? overlap({ l: p.l, t: p.t, r: p.l + w, b: p.t + p.h }, avoid) : 0;
+    return (p.h < Math.min(minHeight, height) ? 1e8 : 0) + clipped * 1000 + (linkHit ? 10000 + linkHit / 100 : 0) + p.order;
+  };
+  candidates.sort((a, b) => score(a) - score(b));
+  const best = candidates[0];
+  tipEl.style.left = `${best.l}px`;
+  tipEl.style.top = `${best.t}px`;
+  tipEl.style.maxHeight = `${best.h}px`;
+  return true;
+}
+
+export function showTip(content: HTMLElement, x: number, y: number, prefer: 'above' | 'below' = 'above', top0 = y, avoid?: Box | null, source?: HTMLElement) {
   if (!tipEl || !root) return;
   closeKeywordHelp();
-  tipEl.replaceChildren(content);
+  setTipSource(source);
+  const actions = mountTip(content);
   tipEl.classList.add('on');
   tipEl.classList.remove('dock');
   root.appendChild(tipEl);
@@ -199,6 +334,11 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
     // offsetHeight rounds fractional line heights; a tight cap can introduce a
     // scrollbar, narrow the text and wrap another whole line on short screens.
     const need = shownTip.offsetHeight + 2;
+    const minHeight = (content.classList.contains('tip-unit') || content.classList.contains('card-detail') ? 260 : 0) + (actions ? actions.offsetHeight + 10 : 0);
+    if (placeBesideSource(need, minHeight, prefer, avoid)) {
+      shownTip.classList.toggle('interactive', need > shownTip.offsetHeight || content.classList.contains('selected-tip') || !!shownTip.querySelector('button, input, details, [data-keyword][role="button"]'));
+      return;
+    }
 
     const room = { above: top0 - gap - pad, below: STAGE_H - y - gap - pad };
     const other = prefer === 'above' ? 'below' : 'above';
@@ -225,38 +365,41 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
     }
     shownTip.style.maxHeight = `${max}px`;
     // 实在太长时可以滑动查看，所以要能接收触摸
-    shownTip.classList.toggle('interactive', need > max || content.classList.contains('selected-tip') || !!content.querySelector('button, details, [data-keyword][role="button"]'));
+    shownTip.classList.toggle('interactive', need > max || content.classList.contains('selected-tip') || !!shownTip.querySelector('button, input, details, [data-keyword][role="button"]'));
     shownTip.style.top = `${Math.max(pad, Math.min(STAGE_H - max - pad, top))}px`;
   };
   shownTip.scrollTop = 0;
   layout();
-  // Local effect/keyword updates resize this detail while retaining its actions.
-  content.addEventListener('tipcontentchange', layout);
+  if (actions || content.classList.contains('card-detail')) {
+    // Gold previews and keyword help change only the scrolling content. Keep
+    // the original frame and action row at the position chosen on opening.
+    shownTip.style.height = `${shownTip.offsetHeight}px`;
+  } else content.addEventListener('tipcontentchange', layout);
+  showTipBackdrop(!!tipSourceBox || !!actions || content.classList.contains('card-detail'));
 }
 
-/** 牌区详情：固定停靠在舞台左上角，不贴着牌定位，所以永远不挡卡牌；bottom 为舞台坐标下沿 */
-export function showDockTip(content: HTMLElement, bottom: number) {
+/** 牌区详情优先舞台左上角，源卡牌占位时整体避让；bottom 为舞台坐标下沿。 */
+export function showDockTip(content: HTMLElement, bottom: number, source?: HTMLElement) {
   if (!tipEl || !root) return;
   closeKeywordHelp();
-  tipEl.replaceChildren(content);
+  setTipSource(source);
+  const acts = mountTip(content);
   tipEl.classList.add('on', 'interactive', 'dock');
   root.appendChild(tipEl);
-  const acts = content.querySelector(':scope > .shelf-acts');
-  if (acts) {
-    const body = document.createElement('div');
-    body.className = 'dock-body';
-    body.append(...Array.from(content.childNodes).filter((n) => n !== acts));
-    content.replaceChildren(body, acts);
-  }
   const pad = 12, top = 70;
-  // Three shop actions need one full row so the content remains visible in
-  // the upper dock. The anchor stays fixed at the original top-left position.
-  tipEl.style.width = acts && acts.querySelectorAll('button').length > 2 ? '640px' : '440px';
+  // Short action labels fit the regular reading width, including supplies.
+  tipEl.style.width = '440px';
   tipEl.style.left = `${pad}px`;
   tipEl.style.bottom = '';
   tipEl.style.top = `${top}px`;
   tipEl.scrollTop = 0;
-  tipEl.style.maxHeight = `${Math.min(STAGE_H - top - pad, Math.max(280, bottom - top))}px`;
+  // Keep the original reading space; detached actions add to the total budget.
+  const actionsHeight = acts ? acts.offsetHeight + 10 : 0;
+  tipEl.style.maxHeight = `${Math.min(STAGE_H - top - pad, Math.max(280, bottom - top) + actionsHeight)}px`;
+  const need = tipEl.offsetHeight + 2;
+  placeBesideSource(need, 260 + actionsHeight, 'above', null, { top, maxHeight: parseFloat(tipEl.style.maxHeight) });
+  tipEl.style.height = `${tipEl.offsetHeight}px`;
+  showTipBackdrop(!!tipSourceBox || !!acts || content.classList.contains('card-detail'));
 }
 
 let hideHook: (() => void) | null = null;
@@ -268,6 +411,8 @@ export function hideTip() {
   hideHook?.();
   // Closing a scrollable/actionable detail must also retire its input surface.
   tipEl?.classList.remove('on', 'interactive', 'dock');
+  tipBackdrop?.classList.remove('on');
+  setTipSource();
   root?.querySelectorAll('.unit.inspected').forEach((unit) => unit.classList.remove('inspected'));
 }
 

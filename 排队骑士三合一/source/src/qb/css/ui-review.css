@@ -12,18 +12,6 @@
 .bb-log .ll:not(:last-child) { display: none; }
 .bb-log .ll { font-size: 20px; line-height: 30px; }
 
-/* ── 12. 有存档时「新的游戏」是次要按钮 ── */
-.title-btns .title-new.ghost { background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px)); color: #eef0ff; border: 0; border-image: none; }
-
-/* ── 15. 教程完成后，教程键与其他工具键同款 ── */
-.title-tools > .title-tool.title-tut-done:first-child {
-  border: 0; border-image: none; border-radius: 0;
-  background: linear-gradient(180deg, #6b5a8f 0 4px, #45396a 4px 52%, #372d56 52% calc(100% - 6px), #241d3b calc(100% - 6px));
-  box-shadow: 2px 0 #120e24, -2px 0 #120e24, 0 2px #120e24, 0 -2px #120e24, 0 6px 16px rgba(0, 0, 0, .35);
-  color: #eee9ff; font-weight: 700; text-shadow: 0 2px 0 #0008;
-}
-.title-tools > .title-tool.title-tut-done:first-child:active { filter: brightness(.85); transform: translateY(1px); }
-
 /* ── 16. 词条页：可滚动区域底部渐隐，提示下面还有内容 ── */
 .kd-nav {
   -webkit-mask: linear-gradient(180deg, #000 calc(100% - 44px), transparent);
@@ -66,7 +54,7 @@
 .tip .shelf-acts { display: flex; gap: 10px; margin-top: 10px; }
 .tip .shelf-acts .btn { min-height: var(--control-size, 64px); margin: 0; font-size: max(22px, calc(var(--control-size, 64px) * .34)); }
 .tip .shelf-acts .shelf-recruit { flex: 1; min-width: 180px; }
-.tip .shelf-acts .shelf-lock { flex: none; min-width: 120px; padding: 0 18px; background: var(--band-slate, #34445f); color: #eef0ff; }
+.tip .shelf-acts .shelf-lock { flex: none; min-width: 120px; padding: 0 18px; background: var(--band-slate, #3a3170); color: #eef0ff; }
 
 /* 7. 选卡/拖卡聚焦时只压暗我方无关单位，敌方与其词条保持原样 */
 .board.focusing .unit[data-side="1"]:not(.focus):not(.linked) { opacity: 1; filter: none; }
@@ -273,28 +261,6 @@
 .screen.game > .board .unit .u-cpips span { width: 9px; height: 4px; }
 .screen.game > .board .unit.kw-reborn .u-bob::before { display: none; }
 .screen.game > .board .unit .u-pulse { left: 80px; top: 4px; width: 26px; height: 26px; }
-.screen.game > .board .unit .u-food-memory {
-  left: 0; right: auto; top: 6px; width: 48px; height: 22px; min-height: 0;
-  display: flex; align-items: center; justify-content: center; gap: 2px;
-  background: #171f31; box-shadow: none;
-}
-.screen.game > .board .unit .u-food-memory .px-item { width: 18px; height: 18px; }
-.screen.game > .board .unit .u-food-memory b {
-  position: static; min-width: 0; padding: 0; font-size: 16px; background: none; box-shadow: none;
-}
-.screen.game > .board .unit .u-mark { left: 0; top: 6px; height: 24px; box-shadow: none; }
-.screen.game > .board .unit .u-mark.m-guard { left: auto; right: 0; top: 6px; }
-.screen.game > .board .unit:has(.u-food-memory) .u-mark.m-scar { top: 32px; }
-.screen.game > .board .unit .u-eq {
-  left: 0; right: auto; top: 38px; width: 100px;
-  flex-direction: row; flex-wrap: nowrap; gap: 4px;
-}
-.screen.game > .board .unit:has(.u-mark.m-scar):has(.u-food-memory) .u-eq { left: 32px; width: 68px; }
-.screen.game > .board .unit .ueq { width: 24px; height: 24px; flex: none; }
-.screen.game > .board .unit .ueq .px-item { width: 20px; height: 20px; }
-/* The first item is the equipped object. Further temporary-effect icons are
-   already listed in the detail; cap that repeat strip before it hits numbers. */
-.screen.game > .board .unit .ueq:nth-child(n + 4) { display: none; }
 .screen.game > .board .unit .u-charge { left: 0; top: 6px; width: 100px; height: 22px; background: none; }
 .screen.game > .board .unit .u-charge i { left: auto; right: 0; bottom: 0; padding: 0 4px; background: #0d0b20; }
 .screen.game > .board .unit .u-chill { left: 0; right: auto; top: 64px; }
@@ -307,15 +273,15 @@
   top: 132px; width: 100px; flex-wrap: nowrap; gap: 3px; transform: translateX(-50%);
 }
 .screen.game > .board .unit .u-kws > .kwic,
-.screen.game > .board .unit .u-kws > .u-shield.u-px { width: 22px; height: 22px; background-size: 22px 22px; }
+.screen.game > .board .unit .u-kws > .u-shield.u-px { width: 18px; height: 18px; background-size: 18px 18px; }
 .screen.game > .board .unit .u-kws .kwic i,
-.screen.game > .board .unit .u-kws .u-shield.u-px i { right: -2px; bottom: -3px; font-size: 16px; }
+.screen.game > .board .unit .u-kws .u-shield.u-px i { right: -2px; bottom: -2px; font-size: 14px; }
 .screen.game > .board .unit .u-mech {
   left: 0; right: auto; top: 156px; width: 100px;
   flex-direction: row; justify-content: center; gap: 2px;
 }
-.screen.game > .board .unit .mx { width: 18px; height: 18px; }
-.screen.game > .board .unit .mx i { background-size: 16px 16px; }
+.screen.game > .board .unit .mx { width: 14px; height: 14px; }
+.screen.game > .board .unit .mx i { background-size: 14px 14px; }
 .screen.game > .board .unit .mx::before { display: none; }
 
 /* The owned detail uses a scrolling body and a separate, non-shrinking footer.
@@ -374,7 +340,7 @@
   border: 0; border-image: none; border-radius: 0; box-shadow: none;
 }
 #stage > .tip .hand-spell-tip > .shelf-acts .primary { background: var(--band-gold, linear-gradient(#ffe08a, #e0a53a)); color: #2a1700; }
-#stage > .tip .hand-spell-tip > .shelf-acts .shelf-lock { background: var(--band-slate, #34445f); color: #eef0ff; }
+#stage > .tip .hand-spell-tip > .shelf-acts .shelf-lock { background: var(--band-slate, #3a3170); color: #eef0ff; }
 #stage > .tip .hand-spell-tip > .shelf-acts .btn:active { transform: translateY(var(--screen-px, 1px)); }
 #stage > .tip .hand-spell-tip > .shelf-acts .btn:focus-visible {
   outline: calc(2 * var(--screen-px, 1px)) solid #fff4d8;

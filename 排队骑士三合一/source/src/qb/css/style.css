@@ -16,6 +16,37 @@
   --violet: #c590ff;
   --num: 'Russo One', 'Noto Sans SC', sans-serif;
   --latin: 'Cinzel', 'Noto Sans SC', serif;
+
+  /* ── 夜幕酒馆 UI 语言：靛紫玻璃面板 + 黄铜像素描边；组件颜色只取这里 ── */
+  --ui-void: #07061a;
+  --ui-panel-top: #221c4a;
+  --ui-panel-bot: #110d29;
+  --ui-panel: linear-gradient(180deg, var(--ui-panel-top), var(--ui-panel-bot));
+  --ui-well: rgba(6, 5, 20, .62);
+  --ui-raised: #2c2560;
+  --ui-rule: rgba(214, 186, 255, .16);
+  --ui-edge: #4a3f8c;
+  --ui-brass: #d9b066;
+  --ui-brass-hi: #ffe2a0;
+  --ui-brass-lo: #8a6326;
+  --ui-text: #f4ecda;
+  --ui-text-2: #c4bbe0;
+  --ui-text-3: #8f88b4;
+  --ui-good: #8fe8b8;
+  --ui-bad: #ff7a88;
+  --ui-info: #9fd8ff;
+  --ui-atk: #ffc56b;
+  --ui-hp: #ff7e8c;
+  /* 缺角描边：四向 2px 硬阴影，角上留空，与像素单位一致 */
+  --ui-notch-dark: 2px 0 #0b0820, -2px 0 #0b0820, 0 2px #0b0820, 0 -2px #0b0820;
+  --ui-notch-brass: 2px 0 var(--ui-brass), -2px 0 var(--ui-brass), 0 2px var(--ui-brass), 0 -2px var(--ui-brass);
+  --ui-notch-soft: 2px 0 rgba(217, 176, 102, .45), -2px 0 rgba(217, 176, 102, .45), 0 2px rgba(217, 176, 102, .45), 0 -2px rgba(217, 176, 102, .45);
+  /* 按钮色带：高光 4px / 上半 / 下半 / 底部 6px 暗边 */
+  --ui-band-gold: linear-gradient(180deg, #fff1bd 0 4px, #ffd36b 4px 52%, #efae45 52% calc(100% - 6px), #a2601a calc(100% - 6px));
+  --ui-band-indigo: linear-gradient(180deg, #6e60a6 0 4px, #43397a 4px 52%, #362d66 52% calc(100% - 6px), #1f1944 calc(100% - 6px));
+  --ui-band-off: linear-gradient(180deg, #5b5870 0 4px, #44425a 4px 52%, #3a384e 52% calc(100% - 6px), #262536 calc(100% - 6px));
+  --ui-band-danger: linear-gradient(180deg, #ffb2ba 0 4px, #ff6a78 4px 52%, #e3394f 52% calc(100% - 6px), #861024 calc(100% - 6px));
+  --ui-shadow: 0 18px 44px rgba(0, 0, 0, .6);
 }
 * {
   box-sizing: border-box;

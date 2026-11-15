@@ -8,6 +8,7 @@ import { h } from '../qb/dom';
 import type { FX } from '../qb/fx';
 import { icon } from '../qb/icons';
 import { vfxFor, type Pt, type VfxKind, type VfxSource } from '../qb/vfx';
+import './battle-rhythm.css';
 
 const SPEEDS = [1, 2, 3];
 let speedIdx = 0;
@@ -28,12 +29,14 @@ export class BattlePlayer {
   private pendingOrder: Order | null = null;
   private log: HTMLElement;
   private phase: HTMLElement;
+  private clashCue: HTMLElement | null = null;
+  private cueAnimations: Animation[] = [];
   /** 演示用：静音、播放倍率（慢放）、逐事件钩子（返回 Promise 时暂停等待）、中止 */
   private sfx: typeof sfx = sfx;
   private demo = false;
   private playbackRate = 1;
   get rate() { return this.playbackRate; }
-  set rate(value: number) { this.playbackRate = Math.max(0.1, value); this.fx.rate = this.speed; }
+  set rate(value: number) { this.clearClashCue(); this.playbackRate = Math.max(0.1, value); this.fx.rate = this.speed; }
   hook: ((ev: Ev, i: number) => Promise<void> | void) | null = null;
   private stopped = false;
   /** 批量结算中：同一来源一次打到多个目标，特效一次铺开，不逐个过 */
@@ -45,7 +48,7 @@ export class BattlePlayer {
 
   /** bar 为 null：图鉴演示模式（静音、固定 1 倍速，无速度 / 跳过按钮） */
   constructor(private board: Board, private fx: FX, bar: HTMLElement | null) {
-    this.phase = h('b', null, '战斗');
+    this.phase = h('b', { class: 'bb-phase-state' }, '战斗');
     this.log = h('div', { class: 'bb-log' });
     if (!bar) {
       this.demo = true;
@@ -56,18 +59,20 @@ export class BattlePlayer {
     const speedBtn = h('button', { class: 'btn ghost speed' }, icon('ff'), h('span', null, `${SPEEDS[speedIdx]}×`));
     speedBtn.addEventListener('click', () => {
       speedIdx = (speedIdx + 1) % SPEEDS.length;
+      this.clearClashCue();
       speedBtn.querySelector('span')!.textContent = `${SPEEDS[speedIdx]}×`;
       this.fx.rate = SPEEDS[speedIdx];
       this.sfx.click();
     });
     const skipBtn = h('button', { class: 'btn ghost' }, icon('skip'), h('span', null, '跳过'));
     skipBtn.addEventListener('click', () => { this.sfx.click(); this.skip(); });
-    bar.replaceChildren(h('div', { class: 'bb-phase' }, h('span', { class: 'bb-dot' }), this.phase), this.log, h('div', { class: 'bb-btns' }, speedBtn, skipBtn));
+    bar.replaceChildren(h('div', { class: 'bb-phase' }, this.phase), this.log, h('div', { class: 'bb-btns' }, speedBtn, skipBtn));
     this.fx.rate = SPEEDS[speedIdx];
   }
 
   skip() {
     this.skipping = true;
+    this.clearClashCue();
     this.board.clearMarks();
     this.fx.clear();
   }
@@ -75,11 +80,65 @@ export class BattlePlayer {
   stop() {
     this.stopped = true;
     this.skipping = true;
+    this.clearClashCue();
     this.board.clearMarks();
     this.fx.clear();
   }
 
   private get speed() { return (this.demo ? 1 : SPEEDS[speedIdx]) * this.rate; }
+  private clearClashCue() {
+    for (const animation of this.cueAnimations) animation.cancel();
+    this.cueAnimations = [];
+    this.clashCue?.remove();
+    this.clashCue = null;
+  }
+
+  /** 双刃在前冲碰撞的 170ms 处合击；瞬态独立播放，不增加事件等待。 */
+  private showClash(n: number) {
+    this.clearClashCue();
+    const value = String(n).padStart(2, '0');
+    this.phase.replaceChildren(h('span', { class: 'bb-phase-label' }, '交锋'), h('span', { class: 'bb-clash-number' }, value));
+    if (this.demo || this.skipping || this.stopped || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const host = this.phase.closest<HTMLElement>('.screen.game');
+    if (!host) return;
+    const cue = h('div', { class: 'bb-clash-cue', 'aria-hidden': 'true', 'data-clash': String(n) },
+      h('i', { class: 'cc-blade ally' }), h('i', { class: 'cc-blade enemy' }),
+      h('b', { class: 'cc-number upper' }, value), h('b', { class: 'cc-number lower' }, value));
+    this.clashCue = cue;
+    host.append(cue);
+    const duration = Math.min(600, (n === 1 ? 460 : 340) / this.speed);
+    const hit = Math.min(.65, 170 / this.speed / duration);
+    const release = hit + (1 - hit) * .34;
+    const animate = (el: Element, frames: Keyframe[]) => {
+      const animation = el.animate(frames, { duration, easing: 'linear', fill: 'both' });
+      this.cueAnimations.push(animation);
+      return animation;
+    };
+    for (const side of ['ally', 'enemy']) {
+      const direction = side === 'ally' ? -1 : 1;
+      const angle = direction * -28;
+      animate(cue.querySelector(`.cc-blade.${side}`)!, [
+        { transform: `translate(${direction * 116}px, ${direction * 18}px) rotate(${angle}deg) scaleX(.6)`, opacity: 0 },
+        { transform: `translate(${direction * 82}px, ${direction * 12}px) rotate(${angle}deg) scaleX(.9)`, opacity: 1, offset: hit * .32 },
+        { transform: `translate(0, 0) rotate(${angle}deg) scaleX(1)`, opacity: 1, offset: hit },
+        { transform: `translate(${-direction * 42}px, ${-direction * 12}px) rotate(${angle}deg) scaleX(.8)`, opacity: 0, offset: release },
+        { transform: `translate(${-direction * 42}px, ${-direction * 12}px) rotate(${angle}deg) scaleX(.8)`, opacity: 0 },
+      ]);
+    }
+    for (const part of ['upper', 'lower']) {
+      const direction = part === 'upper' ? -1 : 1;
+      animate(cue.querySelector(`.cc-number.${part}`)!, [
+        { transform: 'scale(.65)', opacity: 0 },
+        { transform: 'scale(.65)', opacity: 0, offset: hit * .94 },
+        { transform: 'scale(1.22)', opacity: 1, offset: hit },
+        { transform: 'scale(1)', opacity: 1, offset: release },
+        { transform: `translate(${direction * 14}px, ${direction * 16}px) scale(1)`, opacity: 0 },
+      ]);
+    }
+    const lifetime = cue.animate([{ opacity: 1 }, { opacity: 1 }], { duration });
+    lifetime.onfinish = () => { if (this.clashCue === cue) this.clearClashCue(); };
+    this.cueAnimations.push(lifetime);
+  }
   private w(ms: number) {
     return this.skipping ? Promise.resolve() : new Promise<void>((r) => setTimeout(r, ms / this.speed));
   }
@@ -177,6 +236,7 @@ export class BattlePlayer {
   }
 
   async play(out: BattleOut) {
+    this.clearClashCue();
     this.live.clear();
     this.sides.clear();
     this.defs.clear();
@@ -222,6 +282,7 @@ export class BattlePlayer {
     this.fx.clear();
     // 跳过时最后对齐一次
     this.skipping = false;
+    this.clearClashCue();
     this.phase.textContent = out.result === 'win' ? '胜利' : out.result === 'lose' ? '失败' : '平局';
   }
 
@@ -301,7 +362,7 @@ export class BattlePlayer {
       case 'clash': {
         this.triggerSource = null;
         this.board.setCenter(String(ev.n), '交锋', 'beat');
-        this.phase.textContent = `交锋 ${ev.n}`;
+        this.showClash(ev.n);
         const A = this.live.get(ev.a), B = this.live.get(ev.b);
         if (quiet || !A || !B) return;
         this.lockDamage(clashHits);

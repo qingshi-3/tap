@@ -1,5 +1,5 @@
-/* Animated scenery lives below the board; all rules are scoped to active playback. */
-.screen.game.in-battle.has-battle-scene > .battle-scene {
+/* One continuous scene below the board throughout preparation and combat. */
+.screen.game.has-battle-scene > .battle-scene {
   position: absolute;
   inset: 0;
   z-index: 0;
@@ -7,7 +7,7 @@
   pointer-events: none;
   background: #060713;
 }
-.screen.game.in-battle.has-battle-scene > .battle-scene > canvas {
+.screen.game.has-battle-scene > .battle-scene > canvas {
   display: block;
   width: 100%;
   height: 100%;
@@ -16,19 +16,49 @@
   image-rendering: pixelated;
   filter: brightness(.88) saturate(.9);
 }
-.screen.game.in-battle.has-battle-scene > .battle-scene::after {
+.screen.game.has-battle-scene > .battle-scene::after {
   content: '';
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(180deg, rgba(4, 5, 16, .14), rgba(4, 5, 16, .16) 25%, rgba(4, 5, 16, .27) 48%, transparent 78%);
 }
-/* Suppress the older opaque backdrop and floor only while scenery is mounted. */
-.screen.game.in-battle.has-battle-scene::before,
-.screen.game.in-battle.has-battle-scene > .board > .arena-bg,
-.screen.game.in-battle.has-battle-scene > .board > .arena-floor {
+/* Suppress the older opaque backdrop and floor while scenery is mounted. */
+.screen.game.has-battle-scene::before,
+.screen.game.has-battle-scene > .board > .arena-bg,
+.screen.game.has-battle-scene > .board > .arena-floor {
   display: none !important;
 }
-.screen.game.in-battle.has-battle-scene > .board {
+.screen.game.has-battle-scene > .board {
   background: transparent;
+}
+
+/* 320×180 scenery covers a 1280-wide stage: standY=108 lands at
+   50% + 72px for both stage heights. Unit sprite feet are UNIT_Y + 46px.
+   Move the board itself so playback's stagePos also moves every VFX anchor. */
+.screen.game.in-battle.has-battle-scene > .board {
+  top: calc(50% + var(--scene-ground-offset, 72px) - 346px);
+}
+.compact .screen.game.in-battle.has-battle-scene > .board {
+  top: calc(50% + var(--scene-ground-offset, 72px) - 286px);
+}
+.screen.game.in-battle.has-battle-scene > .board > .slots {
+  display: none;
+}
+.screen.game.in-battle.has-battle-scene > .prep-actions,
+.screen.game.in-battle.has-battle-scene > .hand-strip {
+  display: none !important;
+}
+/* Ground contact comes from a soft shadow on the scene's shared platform. */
+.board .u-ground-shadow { display: none; }
+.screen.game.in-battle.has-battle-scene > .board .u-ground-shadow {
+  display: block;
+  position: absolute;
+  top: 101px;
+  left: 18px;
+  width: 64px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(0, 0, 0, .46), transparent 72%);
+  pointer-events: none;
 }

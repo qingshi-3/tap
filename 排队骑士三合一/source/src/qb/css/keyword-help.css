@@ -7,41 +7,31 @@
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
-[data-keyword-help="true"] [data-keyword][role="button"]:is(:hover, [aria-expanded="true"]) { background: #394260; }
+[data-keyword-help="true"] [data-keyword][role="button"]:is(:hover, [aria-expanded="true"]) { text-decoration-color: currentColor; }
 [data-keyword-help="true"] [data-keyword][role="button"]:focus-visible { outline: 2px solid #f4d182; outline-offset: 3px; }
 .keyword-explanation {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 8px 0;
-  padding: 10px 12px;
-  color: #eef2ff;
-  background: #263550;
-  border-left: 3px solid #d6bd7a;
-  font-size: 17px;
-  line-height: 1.5;
-  text-shadow: none;
-  overflow-wrap: anywhere;
+  display: flex; align-items: flex-start; gap: 8px;
+  margin: 14px 0 2px; padding: 12px 0 0;
+  color: var(--ui-text-2); background: none;
+  border: 0; border-top: 1px solid var(--ui-rule);
+  font-size: 17px; line-height: 1.55; text-shadow: none; overflow-wrap: anywhere;
 }
 .keyword-explanation > span { flex: 1; min-width: 0; }
-.keyword-explanation strong { color: #ffe0a0; font-weight: 700; }
+.keyword-explanation strong { color: var(--ui-brass-hi); font-weight: 700; }
 .keyword-explanation-close {
-  flex: none;
-  min-width: 52px;
-  min-height: 40px;
-  margin: -4px -6px -4px 0;
-  padding: 4px 8px;
-  border: 0;
-  color: #e2e9fa;
-  background: #1a2440;
-  font: inherit;
-  cursor: pointer;
-  touch-action: manipulation;
+  flex: none; display: grid; place-items: center;
+  width: 28px; min-width: 28px; height: 28px; min-height: 28px;
+  margin: -4px 0 0; padding: 0; border: 0; background: none; box-shadow: none;
+  color: var(--ui-text-3); cursor: pointer; touch-action: manipulation;
 }
-.keyword-explanation-close:focus-visible { outline: 2px solid #f4d182; }
-.viewport-tip .keyword-explanation { font-size: 13px; padding: 9px; gap: 6px; }
-.viewport-tip .keyword-explanation-close { min-height: 44px; font-size: 12px; }
+.keyword-explanation-close::before {
+  content: ''; width: 12px; height: 12px; background: currentColor;
+  clip-path: polygon(0 0, 3px 0, 6px 3px, 9px 0, 12px 0, 12px 3px, 9px 6px, 12px 9px, 12px 12px, 9px 12px, 6px 9px, 3px 12px, 0 12px, 0 9px, 3px 6px, 0 3px);
+}
+.keyword-explanation-close:hover { color: var(--ui-brass-hi); }
+.keyword-explanation-close:focus-visible { outline: 2px solid var(--ui-brass-hi); outline-offset: 2px; }
+.viewport-tip .keyword-explanation { font-size: 13px; padding: 10px 0 0; gap: 6px; }
 @media (pointer: coarse) {
   [data-keyword-help="true"] [data-keyword][role="button"] { padding-block: 8px; }
-  .keyword-explanation-close { min-height: 44px; }
+  .keyword-explanation-close { width: 44px; min-width: 44px; height: 44px; min-height: 44px; }
 }

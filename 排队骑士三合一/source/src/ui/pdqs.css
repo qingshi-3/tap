@@ -34,7 +34,7 @@
 
 /* 备战 */
 .shelf-note { font-size: 18px; color: #cfc6ff; align-self: center; }
-.tip .shelf-lock { background: #34445f; border: 0; box-shadow: inset 0 1px 0 #63738c, 0 3px 0 #141c2c; }
+.tip .shelf-lock { background: #3a3170; border: 0; box-shadow: inset 0 1px 0 #63738c, 0 3px 0 #141c2c; }
 .game .tray .reroll.primary, .game .tray .reroll.primary i { color: #2a1700; }
 .game .tray .reroll.primary i { opacity: 1; text-shadow: none; }
 .tip .shelf-lock:disabled, .game .tray .reroll:disabled { background: #363c45; color: #9299a3; filter: grayscale(1); }
@@ -97,10 +97,7 @@
 .game .tray.paid-shelf .food-tile.unaffordable .ft-price { color: #ff7a7a; }
 .game .tray .sp-list:empty::after { content: '已用完'; align-self: center; color: #7d8aa3; font-size: 16px; }
 
-/* 传承单位卡只占一个状态位；逐件内容留给详情，避免与装备牌堆叠。 */
-.u-food-memory { position: absolute; right: -12px; top: 2px; z-index: 4; width: 36px; min-height: 36px; display: grid; place-items: center; pointer-events: none; background: #20384a; box-shadow: 0 0 0 2px #05040f, inset 0 0 0 2px #6fe6ff, 0 3px 0 2px rgba(0,0,0,.45); }
-.u-food-memory .px-item { width: 26px; height: 26px; }
-.u-food-memory b { position: absolute; right: -5px; bottom: -6px; min-width: 25px; padding: 2px 3px; background: #0b0a22; color: #fff; font: 12px/1 var(--num); text-align: center; box-shadow: 0 0 0 2px #05040f; }
+/* UnitView 的补给记录与装备、蓄能共用 unit-status.css 信息行。 */
 
 .tip-food-memory { margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(111,230,255,.32); }
 .tfm-head { display: flex; align-items: baseline; }

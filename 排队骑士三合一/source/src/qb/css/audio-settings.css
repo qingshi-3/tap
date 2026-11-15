@@ -26,7 +26,7 @@
   box-shadow: none;
   border-radius: 0;
   /* A compact 36px face keeps the full 44px touch target. */
-  background: linear-gradient(180deg, #61728b 0 3px, #3c4b65 3px 50%, #303c54 50% calc(100% - 4px), #202b40 calc(100% - 4px));
+  background: linear-gradient(180deg, #6e60a6 0 3px, #43397a 3px 50%, #362d66 50% calc(100% - 4px), #1f1944 calc(100% - 4px));
   background-origin: content-box;
   background-clip: content-box;
   color: #eef0ff;
@@ -43,7 +43,7 @@
   display: block;
   width: 24px;
   height: 24px;
-  filter: drop-shadow(0 2px #202b40);
+  filter: drop-shadow(0 2px #1f1944);
 }
 .audio-dialog .modal-x svg path {
   stroke-width: 4;
@@ -57,7 +57,7 @@
   }
 }
 .audio-dialog .modal-x:active {
-  background-image: linear-gradient(180deg, #202b40 0 3px, #303c54 3px 50%, #3c4b65 50% calc(100% - 3px), #61728b calc(100% - 3px));
+  background-image: linear-gradient(180deg, #1f1944 0 3px, #362d66 3px 50%, #43397a 50% calc(100% - 3px), #6e60a6 calc(100% - 3px));
   transform: none;
 }
 .audio-dialog .modal-x:active svg {
@@ -167,7 +167,7 @@
   box-shadow: none;
 }
 .audio-dialog .menu-btns .btn.ghost {
-  background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
+  background: linear-gradient(180deg, #6e60a6 0 4px, #43397a 4px 52%, #362d66 52% calc(100% - 6px), #1f1944 calc(100% - 6px));
 }
 .audio-dialog .menu-btns .btn:disabled {
   background: #363640;

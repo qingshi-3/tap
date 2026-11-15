@@ -8,12 +8,13 @@
 .cx-tools .ub-stars .ub-star { min-height: 52px; min-width: 0; }
 .cx-filter-btn {
   position: relative; display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 18px;
-  font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: #d8d3f5; background: #2b2550; border: 0; border-radius: 6px; cursor: pointer;
+  font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: var(--ui-text); background: var(--ui-band-indigo); border: 0; border-radius: 0; cursor: pointer;
+  box-shadow: var(--ui-notch-soft); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); transition: filter .12s, transform .08s;
 }
 .cx-filter-btn .ic { width: 22px; height: 22px; }
-.cx-filter-btn.active { color: var(--gold); background: #3a2f56; }
-.cx-filter-btn.open { background: #43356f; }
-.cx-fn { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 13px; background: var(--gold); color: #2a1a00; font-size: 17px; }
+.cx-filter-btn.active { color: var(--ui-brass-hi); box-shadow: var(--ui-notch-brass); }
+.cx-filter-btn.open { filter: brightness(1.12); }
+.cx-fn { min-width: 26px; height: 26px; display: grid; place-items: center; border-radius: 0; background: var(--ui-well); color: var(--ui-brass-hi); font-size: 17px; text-shadow: none; }
 
 /* 单位页：左网格 + 右详情，都吃满剩余高度 */
 .codex .ub { height: 100%; display: flex; flex-direction: column; }
@@ -28,18 +29,39 @@
 .screen.codex .ub-pop .ub-filters {
   flex-direction: column; justify-content: flex-start; align-items: stretch; margin: 0;
   width: 100%; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px 16px 14px;
-  background: #1a1640; border: 0; border-radius: 8px; box-shadow: 0 12px 30px rgba(0, 0, 0, .6);
+  background: var(--ui-panel); border: 0 solid transparent; border-radius: 0; border-image: var(--pxf-gold) 6 / 8px / 0 stretch; box-shadow: var(--ui-shadow);
   animation: v05Fade .15s ease-out;
 }
 .screen.codex .ub-pop .ub-grp { display: grid; grid-template-columns: 48px 1fr; align-items: start; gap: 10px; }
-.screen.codex .ub-pop .ub-lab { padding-top: 10px; font-size: 18px; color: #9f98c9; white-space: nowrap; }
+.screen.codex .ub-pop .ub-lab { padding-top: 10px; font-size: 18px; color: var(--ui-text-2); white-space: nowrap; }
 .screen.codex .ub-pop .ub-set { display: flex; min-width: 0; flex-wrap: wrap; gap: 6px; padding: 0; border: 0; background: none; }
-.screen.codex .ub-pop .ub-chip { min-height: 44px; padding: 0 12px; font-size: 19px; background: #0f0c26; box-shadow: inset 0 0 0 1px #2c2654; }
+.screen.codex .ub-pop .ub-chip {
+  min-height: 44px; padding: 0 12px; font-size: 19px; border-radius: 0;
+  color: var(--ui-text-2); background: var(--ui-well); box-shadow: var(--ui-notch-dark); transition: filter .12s, transform .08s;
+}
+/* v4 弹层的基础样式之后显式定义选中态，覆盖 v3 的低优先级规则。 */
+.screen.codex .ub-pop .ub-chip.on {
+  color: var(--ui-text); background: color-mix(in srgb, var(--fc) 24%, var(--ui-raised)); box-shadow: var(--ui-notch-brass);
+}
+.screen.codex .ub-pop .ub-chip.on .ub-fw { color: var(--ui-text); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); }
 .screen.codex .ub-pop .ub-tiers { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; width: 100%; }
 .screen.codex .ub-pop .ub-tiers .ub-chip { height: 44px; padding: 0; }
 .screen.codex .ub-pop-foot { display: grid; grid-template-columns: 120px 1fr; gap: 10px; margin-top: 4px; }
-.screen.codex .ub-pop-foot .ub-clear { width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 19px; }
-.ub-done { height: 52px; font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: #2a1a00; background: var(--gold); border: 0; border-radius: 6px; cursor: pointer; }
+.screen.codex .ub-pop-foot .ub-clear {
+  width: 100%; height: 52px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 19px;
+  color: var(--ui-text-2); background: var(--ui-band-indigo); border-radius: 0; box-shadow: var(--ui-notch-dark); text-shadow: 0 2px 0 rgba(0, 0, 0, .5);
+}
+.screen.codex .ub-pop-foot .ub-clear:disabled { color: var(--ui-text-3); background: var(--ui-band-off); box-shadow: var(--ui-notch-dark); text-shadow: none; cursor: default; }
+.ub-done {
+  height: 52px; font-family: inherit; font-size: 20px; font-weight: 900; line-height: 1; color: #2a1600; background: var(--ui-band-gold); border: 0; border-radius: 0; cursor: pointer;
+  box-shadow: var(--ui-notch-dark); text-shadow: 0 2px 0 rgba(255, 246, 210, .5);
+}
+.screen.codex :is(.cx-filter-btn, .ub-done, .ub-clear):not(:disabled):active { transform: translateY(2px); filter: brightness(.88); }
+.screen.codex .ub-pop .ub-chip:active { transform: translateY(2px); }
+@media (hover: hover) {
+  .screen.codex :is(.cx-filter-btn, .ub-done, .ub-clear):not(:disabled):not(:active):hover,
+  .screen.codex .ub-pop .ub-chip:hover { filter: brightness(1.12); }
+}
 
 /* 详情：头部收紧，演示 + 说明一屏看全 */
 .codex .cx-detail .cx-d-art { width: 84px; height: 84px; }
@@ -49,8 +71,9 @@
 
 .screen.codex .cx-tools .ub-stars .ub-star { height: 46px; min-height: 46px; font-size: 18px; }
 .screen.codex .cx-tools .ub-stars { height: 52px; grid-template-columns: repeat(2, 66px); gap: 4px; padding: 0; background: none; box-shadow: none; }
-.screen.codex .cx-tools .ub-stars .ub-star:not(.on) { background: #2b2550; color: #d8d3f5; }
-.screen.codex .cx-tools button:focus-visible { outline: 3px solid #ffe08a; outline-offset: 2px; }
+.screen.codex .cx-tools .ub-stars .ub-star:not(.on) { background: var(--ui-band-indigo); color: var(--ui-text-2); box-shadow: var(--ui-notch-dark); }
+.screen.codex .cx-tools .ub-stars .ub-star.on { background: var(--ui-band-indigo); color: var(--ui-brass-hi); box-shadow: var(--ui-notch-brass); }
+.screen.codex :is(.cx-tools, .ub-pop) button:focus-visible { outline: 3px solid var(--ui-brass-hi); outline-offset: 3px; }
 .screen.codex .ub-pop .ub-set { box-shadow: none; }
 .screen.codex .ub-pop .ub-tiers { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 .screen.codex .ub-pop .ub-tiers .ub-chip { width: auto; min-width: 0; }

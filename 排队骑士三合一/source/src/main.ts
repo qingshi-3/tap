@@ -18,6 +18,7 @@ import './ui/pdqs.css';
 import './qb/css/battle-report.css';
 import { CARDS } from './core/data';
 import { App } from './ui/app';
+import './ui/theme.css';
 import { installPixelSprites } from './qb/pixel';
 import { installItemSprites } from './qb/pixelItems';
 import { rasterize } from './qb/unitArt';

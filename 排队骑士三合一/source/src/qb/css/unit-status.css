@@ -1,0 +1,85 @@
+/* One quiet, centered baseline belongs to the unit beneath its stat gems.
+   Contents participate in a single flex row; actor motion stays independent. */
+#stage .board .unit .u-status-line {
+  position: absolute; left: 50%; top: 132px; z-index: 5; transform: translateX(-50%);
+  box-sizing: border-box; width: max-content; max-width: 108px; height: 22px; padding: 0 3px 1px;
+  display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: 4px;
+  background: linear-gradient(transparent 1px, #080c1980 1px, #080c1980 20px, transparent 20px);
+  border-bottom: 1px solid #9eabc92b; pointer-events: none;
+}
+#stage .board .unit .u-status-line.dense { gap: 2px; padding-inline: 2px; }
+#stage .board .unit .u-status-line.is-empty { display: none; }
+#stage .board .unit .u-status-line.has-overflow::after {
+  content: ''; position: absolute; right: 0; bottom: -1px; width: 2px; height: 2px; background: #b3bad285;
+}
+#stage .board .unit .u-status-line :is(.u-meta, .u-meta-counts, .u-eq, .u-kws, .u-mech) {
+  display: contents; position: static; inset: auto; transform: none;
+}
+#stage .board .unit .u-status-line .status-hidden { display: none; }
+#stage .board .unit:not(.has-shield) .u-status-line .u-shield { display: none; }
+#stage .board .unit .u-status-line :is(.ueq, .u-mark, .u-food-memory, .kwic, .u-shield.u-px, .mx) {
+  position: relative; inset: auto; box-sizing: border-box; flex: 0 0 var(--status-width, 14px);
+  width: var(--status-width, 14px); min-width: 0; height: 18px; margin: 0; padding: 0;
+  border: 0; background-color: transparent; box-shadow: none; clip-path: none;
+  color: #c7d0df; font: 14px/18px var(--num); letter-spacing: 0;
+  text-shadow: 0 1px 0 #060815;
+}
+#stage .board .unit .u-status-line :is(.u-mark, .u-food-memory) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 1px;
+}
+#stage .board .unit .u-status-line :is(.u-mark, .u-food-memory) b {
+  position: static; padding: 0; min-width: 8px; width: var(--status-count-width); background: none; box-shadow: none;
+  color: inherit; font: inherit; font-variant-numeric: tabular-nums; text-align: center;
+}
+#stage .board .unit .u-status-line :is(.u-mark .ic, .u-food-memory .px-item, .u-meta-energy) {
+  flex: none; width: 14px; height: 14px;
+}
+#stage .board .unit .u-status-line .u-meta-energy {
+  display: block; background: var(--pxk-charge) center / 14px 14px no-repeat; image-rendering: pixelated;
+}
+#stage .board .unit .u-status-line .ueq {
+  display: grid; place-items: center; height: 20px; background: none;
+  animation: none; filter: drop-shadow(0 1px 0 #080a16);
+}
+#stage .board .unit .u-status-line .ueq .px-item { width: 20px; height: 20px; }
+#stage .board .unit .u-status-line .ueq::after { display: none; }
+#stage .board .unit .u-status-line :is(.kwic, .u-shield.u-px) {
+  display: inline-flex; align-items: center; justify-content: center; gap: 1px; background: none;
+}
+#stage .board .unit .u-status-line .kw-armor { --status-icon: var(--pxk-armor); }
+#stage .board .unit .u-status-line .kw-thorns { --status-icon: var(--pxk-thorns); }
+#stage .board .unit .u-status-line .kw-power { --status-icon: var(--pxk-power); }
+#stage .board .unit .u-status-line .u-shield { --status-icon: var(--pxk-block); }
+#stage .board .unit .u-status-line :is(.kwic, .u-shield.u-px)::before {
+  content: ''; display: block; flex: none; width: 14px; height: 14px;
+  background: var(--status-icon) center / 14px 14px no-repeat; image-rendering: pixelated;
+}
+#stage .board .unit .u-status-line :is(.kwic, .u-shield.u-px) i {
+  position: static; inset: auto; flex: none; width: var(--status-count-width);
+  margin: 0; padding: 0; color: inherit; font: 14px/18px var(--num);
+  font-variant-numeric: tabular-nums; text-align: center; text-shadow: 0 1px 0 #060815;
+}
+#stage .board .unit .u-status-line .mx { display: block; height: 14px; }
+#stage .board .unit .u-status-line .mx::before { display: none; }
+#stage .board .unit .u-status-line .mx i {
+  inset: 0; background-size: 14px 14px; animation: none; filter: drop-shadow(0 1px 0 #080a16);
+}
+#stage .board .unit .u-status-line .u-food-memory { color: #dac8ac; }
+#stage .board .unit .u-status-line .m-energy { color: #dcc894; }
+#stage .board .unit .u-status-line .m-seal { color: #c5b1de; }
+#stage .board .unit .u-status-line .m-scar { color: #d6b19e; }
+#stage .board .unit .u-status-line :is(.m-guard, .u-shield) { color: #a5c8d0; }
+#stage .board .unit .u-status-line .m-quarry { color: #bdcba6; }
+#stage .board .unit .u-status-line .m-station { color: #a8c3b7; }
+#stage .board .unit .u-status-line .u-mark.full { color: #ead4a8; }
+/* Keep the next row of formation labels clear in both unit sizes. */
+#stage .screen.game > .board .slot .slot-num { top: 104px; height: 28px; }
+#stage .screen.game > .board .slot .slot-num b { width: 28px; min-width: 28px; height: 28px; font-size: 18px; line-height: 28px; }
+#stage .screen.game > .board .slot .slot-num span { font-size: 14px; line-height: 28px; }
+#stage.compact .screen.game > .board .slot .slot-num { top: 109px; height: 18px; }
+#stage.compact .screen.game > .board .slot .slot-num b { width: 18px; min-width: 18px; height: 18px; font-size: 14px; line-height: 18px; }
+#stage.compact .screen.game > .board .slot .slot-num span { font-size: 12px; line-height: 18px; }
+
+/* Visibility is decided by the fixed priority budget, never DOM truncation. */
+#stage .board .unit .u-status-line :is(.ueq, .u-mark, .u-food-memory, .kwic, .u-shield.u-px, .mx).status-hidden,
+#stage .board .unit:not(.has-shield) .u-status-line .u-shield.u-px { display: none; }

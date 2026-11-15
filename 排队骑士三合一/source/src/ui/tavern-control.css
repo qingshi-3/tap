@@ -1,0 +1,164 @@
+/* A single two-line tavern plaque. Parent layout owns the 216 × 78 slot. */
+#stage .screen.game .tray.paid-shelf .tavern-box {
+  box-sizing: border-box;
+  display: grid !important;
+  grid-template: 30px 34px / minmax(0, 1fr) !important;
+  align-content: center;
+  align-items: stretch !important;
+  gap: 2px !important;
+  min-width: 0;
+  padding: 4px 6px !important;
+  border: 2px solid #796044;
+  border-radius: 0;
+  background: #19162e;
+  box-shadow: inset 0 2px #3b3555, inset 0 -2px #0b0918;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-lv {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 30px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: #e8ddc4;
+  cursor: pointer;
+  font-family: var(--ui, inherit);
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-title {
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 3px;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 30px;
+  color: #e9d5ff;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank .tier-badge {
+  width: 30px;
+  min-width: 30px;
+  height: 28px;
+  margin-right: 3px;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank .tb-px {
+  max-width: 30px;
+  max-height: 26px;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank :is(.tb-glow, .tb-rays, .tb-spark) {
+  display: none;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank b {
+  color: inherit;
+  font: 24px/1 var(--num);
+  text-shadow: 0 2px #0b0918;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-rank-unit {
+  font-size: 13px;
+  color: #b7a8ca;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box :is(.tv-up, .tv-max) {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  height: 34px;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0 9px;
+  border: 1px solid #8872a2;
+  border-radius: 0;
+  background: #40355e;
+  box-shadow: inset 0 2px #66527f, inset 0 -3px #211a36;
+  color: #f0e6ff;
+  font: 900 15px/1 var(--ui, inherit);
+  text-shadow: 0 1px #171123;
+  animation: none;
+  transform: none;
+  filter: none;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up-price {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-left: 10px;
+  border-left: 1px solid #766487;
+  color: #f6d587;
+  font-style: normal;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up-price .px-item {
+  width: 18px;
+  min-width: 18px;
+  height: 18px;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up-price b {
+  min-width: 13px;
+  text-align: center;
+  font: 20px/1 var(--num);
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up:disabled {
+  border-color: #524961;
+  background: #302c3d;
+  box-shadow: inset 0 2px #454050, inset 0 -3px #1c1926;
+  color: #aaa2b7;
+  filter: none;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up:disabled .tv-up-price {
+  color: #b4a283;
+  border-color: #544b61;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up:not(:disabled):hover {
+  background: #51406f;
+  border-color: #c4a6dd;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-up:not(:disabled):active {
+  background: #312640;
+  box-shadow: inset 0 3px #171123;
+  transform: none;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box :is(.tv-up, .tv-lv):focus-visible {
+  outline: 2px solid #f6d587;
+  outline-offset: -2px;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-max {
+  border-color: #6c6551;
+  background: #343027;
+  box-shadow: inset 0 2px #514937, inset 0 -3px #211e19;
+  color: #e2ca91;
+}
+
+#stage .screen.game .tray.paid-shelf .tavern-box .tv-max span {
+  font-size: 11px;
+  font-weight: 500;
+  color: #b8ac90;
+}

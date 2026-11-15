@@ -3,6 +3,7 @@ import './css/rounds.css';
 import './css/battle-arrows.css';
 import './css/unit-keywords.css';
 import './css/unit-fx.css';
+import './css/unit-status.css';
 import { FACTION_INFO, SLOTS, unitDef } from './shim';
 import type { Faction, Side } from './shim';
 import { h } from './dom';
@@ -109,6 +110,9 @@ export class UnitView {
   private mechKey = '';
   private eqKey = '';
   private foodKey = '';
+  private metaEl: HTMLElement;
+  private marksEl: HTMLElement;
+  private statusLine: HTMLElement;
   private shieldEl!: HTMLElement;
   private mechEl!: HTMLElement;
   /** 蓄力格、节拍牌：只在数值变化时重建 */
@@ -145,6 +149,10 @@ export class UnitView {
     this.kwEl = h('div', { class: 'u-kws' }, this.shieldEl);
     this.cpEl = h('div', { class: 'u-cpips' });
     this.plEl = h('div', { class: 'u-pulse' }, h('i'));
+    this.marksEl = h('div', { class: 'u-meta-counts' });
+    this.metaEl = h('div', { class: 'u-meta' }, this.marksEl);
+    this.mechEl = h('div', { class: 'u-mech' });
+    this.statusLine = h('div', { class: 'u-status-line', role: 'img' }, this.metaEl, this.kwEl, this.mechEl);
     const egg = defId === 'm_egg' || defId === 'x_egg';
     this.body = h(
       'div',
@@ -166,17 +174,17 @@ export class UnitView {
       h('div', { class: 'u-reborn' }, h('i')),
       h('div', { class: 'u-taunt' }, h('i')),
       h('div', { class: 'u-rattle' }, h('i')),
+      h('div', { class: 'u-ground-shadow', 'aria-hidden': 'true' }),
       this.body,
       h('div', { class: 'u-mat' }),
       this.plEl,
-      (this.mechEl = h('div', { class: 'u-mech' })),
       h('div', { class: 'u-chill u-px' }, this.chEl),
       h('div', { class: 'u-burn u-px' }, this.bnEl),
       h('div', { class: 'u-charge u-px' }, this.vnEl),
       h('div', { class: 'u-stats' }, this.atkBox, this.hpBox),
       pips,
       this.cpEl,
-      this.kwEl,
+      this.statusLine,
       this.tags,
     );
     this.place(slot);
@@ -218,6 +226,7 @@ export class UnitView {
     statW(this.atkEl.parentElement, s.atk);
     statW(this.hpEl.parentElement, s.hp);
     this.shEl.textContent = String(s.block);
+    this.shieldEl.setAttribute('aria-label', `格挡 ${s.block}`);
     this.chEl.textContent = String(s.chill);
     this.bnEl.textContent = String(s.burn);
     // 千刃宗师的共享计数留在角标；蓄力用脚下小格，节拍用头顶倒计时牌。
@@ -262,6 +271,7 @@ export class UnitView {
       if (prev.burn !== s.burn && s.burn) popEl(this.el.querySelector('.u-burn')!, false);
     }
     this.last = { ...s };
+    this.layoutStatus();
   }
 
   /** 蓄力：一排小格，差一格就满时整排轻跳，表示下次出手就会释放 */
@@ -352,19 +362,20 @@ export class UnitView {
     }));
   }
 
-  /** 装备：身后上角挂像素装备牌，多件竖排 */
+  /** 装备素材固定在属性下方，和人物、攻击动画分层。 */
   setEquips(ids: string[]) {
     const key = ids.join();
     if (key === this.eqKey) return;
     const fresh = this.eqKey !== '' || ids.length > 0;
     this.eqKey = key;
     this.el.querySelector('.u-eq')?.remove();
-    if (!ids.length) return;
+    if (!ids.length) { this.layoutStatus(); return; }
     const el = h('div', { class: 'u-eq' }, ids.map((id) => {
       const e = EQUIP[id];
-      return h('span', { class: `ueq${e ? ` eq-q${e.q}` : ''}` }, itemIcon(e ? e.icon : id, 'spell'));
+      return h('span', { class: `ueq${e ? ` eq-q${e.q}` : ''}`, 'aria-label': e?.name ?? id }, itemIcon(e ? e.icon : id, 'spell'));
     }));
-    this.el.appendChild(el);
+    this.metaEl.prepend(el);
+    this.layoutStatus();
     if (fresh && this.el.isConnected) popEl(el, true);
   }
 
@@ -374,9 +385,66 @@ export class UnitView {
     if (key === this.foodKey) return;
     this.foodKey = key;
     this.el.querySelector('.u-food-memory')?.remove();
-    if (count === null) return;
-    this.el.appendChild(h('div', { class: 'u-food-memory', 'aria-label': `补给传承 ${count}/${max}` },
-      itemIcon('f_bread', 'spell'), h('b', null, `${count}/${max}`)));
+    if (count === null) { this.sortMetadata(); return; }
+    this.marksEl.appendChild(h('div', { class: 'u-food-memory', 'aria-label': `补给传承，已记录 ${count}，上限 ${max}` },
+      itemIcon('f_bread', 'spell'), h('b', null, count)));
+    this.sortMetadata();
+  }
+
+  /** Stable priority keeps supply memory and energy visible as counters refresh. */
+  private sortMetadata() {
+    const order = ['u-food-memory', 'm-energy', 'm-seal', 'm-scar', 'm-guard', 'm-quarry', 'm-station'];
+    const entries = [...this.marksEl.children];
+    const rank = (el: Element) => order.findIndex((cls) => el.classList.contains(cls));
+    entries.sort((a, b) => rank(a) - rank(b));
+    this.marksEl.replaceChildren(...entries);
+    this.marksEl.setAttribute('role', 'img');
+    this.marksEl.setAttribute('aria-label', entries.map((el) => el.getAttribute('aria-label') ?? '').join('，'));
+    this.layoutStatus();
+  }
+
+  /** One fixed lane: equipment, resources, block, then permanent mechanics.
+   * Keep the first equipment and live block first when choosing what fits;
+   * supply and energy follow, then secondary counters and passive badges.
+   * All entries retain their exact values and labels for the unit detail. */
+  private layoutStatus() {
+    const entries = [...this.statusLine.querySelectorAll<HTMLElement>('.ueq, .u-food-memory, .u-mark, .u-shield, .kwic, .mx')]
+      .filter((el) => el !== this.shieldEl || this.el.classList.contains('has-shield'));
+    const priority = (el: HTMLElement) => {
+      if (el.matches('.ueq:first-child')) return 0;
+      if (el === this.shieldEl) return 1;
+      if (el.matches('.u-food-memory')) return 2;
+      if (el.matches('.m-energy')) return 3;
+      if (el.matches('.u-mark')) return 4;
+      if (el.matches('.kwic')) return 5;
+      if (el.matches('.ueq')) return 6;
+      return 7;
+    };
+    const widths = new Map<HTMLElement, number>();
+    for (const el of entries) {
+      const count = el.querySelector('b, i:not([aria-hidden]):not(.ic):not(.u-meta-energy)');
+      const digits = count?.textContent?.length ?? 0;
+      const width = el.matches('.ueq') ? 20 : el.matches('.mx') ? 14 : 14 + (digits ? 1 + digits * 8 : 0);
+      widths.set(el, width);
+      el.style.setProperty('--status-width', `${width}px`);
+      el.style.setProperty('--status-count-width', `${digits * 8}px`);
+    }
+    const total = [...widths.values()].reduce((sum, n) => sum + n, 0) + Math.max(0, entries.length - 1) * 4;
+    const dense = total > 102;
+    this.statusLine.classList.toggle('dense', dense);
+    const gap = dense ? 2 : 4, available = dense ? 104 : 102;
+    let used = 0, shown = 0;
+    for (const el of [...entries].sort((a, b) => priority(a) - priority(b))) {
+      const width = widths.get(el)!;
+      const fits = used + (shown ? gap : 0) + width <= available;
+      el.classList.toggle('status-hidden', !fits);
+      if (fits) { used += (shown ? gap : 0) + width; shown++; }
+    }
+    const labels = entries.map((el) => el.getAttribute('aria-label')).filter(Boolean).join('，');
+    this.statusLine.setAttribute('aria-label', labels);
+    this.statusLine.setAttribute('title', labels);
+    this.statusLine.classList.toggle('has-overflow', shown < entries.length);
+    this.statusLine.classList.toggle('is-empty', entries.length === 0);
   }
 
   getStats(): StatView | null {
@@ -393,11 +461,14 @@ export class UnitView {
       Array.from({ length: need }, (_, i) => h('span', { class: i < have ? 'on' : '' }))));
   }
 
-  /** 单位左上角的小徽记：历战（伤疤 + 已攒/上限）、驻守（圆点计数）；ico 为 null 时移除 */
+  /** 次级资源统一放在属性下的信息行；ico 为 null 时移除。 */
   setMark(key: 'scar' | 'guard' | 'energy' | 'quarry' | 'station' | 'seal', ico: IconName | null, text = '', full = false, label = '') {
     this.el.querySelector(`.u-mark.m-${key}`)?.remove();
-    if (!ico) return;
-    this.el.appendChild(h('div', { class: `u-mark m-${key}${full ? ' full' : ''}`, 'aria-label': label || text }, icon(ico), h('b', null, text)));
+    if (!ico) { this.sortMetadata(); return; }
+    const glyph = key === 'energy' ? h('i', { class: 'u-meta-energy', 'aria-hidden': 'true' }) : icon(ico);
+    const count = key === 'scar' ? text.split('/')[0] : key === 'guard' ? String((text.match(/●/g) ?? []).length) : text;
+    this.marksEl.appendChild(h('div', { class: `u-mark m-${key}${full ? ' full' : ''}`, 'aria-label': label || text }, glyph, h('b', null, count)));
+    this.sortMetadata();
   }
 
   setTag(text: string | null, cls = '') {

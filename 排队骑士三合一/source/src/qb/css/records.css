@@ -17,7 +17,7 @@
   min-width: var(--control-size, 100px);
   border: 0;
   border-radius: 0;
-  background: linear-gradient(180deg, #61728b 0 4px, #3c4b65 4px 52%, #303c54 52% calc(100% - 6px), #202b40 calc(100% - 6px));
+  background: linear-gradient(180deg, #6e60a6 0 4px, #43397a 4px 52%, #362d66 52% calc(100% - 6px), #1f1944 calc(100% - 6px));
   color: #f4f3ff;
   font: inherit;
   font-weight: 700;

@@ -89,12 +89,12 @@ function showExplanation(token: HTMLElement, scope: HTMLElement) {
   panel.setAttribute('role', 'status');
   const copy = document.createElement('span');
   const name = document.createElement('strong');
-  name.textContent = `${token.dataset.keyword} · `;
+  name.textContent = `${token.dataset.keyword}：`;
   copy.append(name, token.dataset.keywordExplanation ?? '');
   const close = document.createElement('button');
   close.type = 'button';
   close.className = 'keyword-explanation-close';
-  close.textContent = '关闭';
+  close.title = '收起释义';
   close.setAttribute('aria-label', '关闭关键词释义');
   close.addEventListener('click', (event) => { event.stopPropagation(); closeKeywordHelp(); token.focus({ preventScroll: true }); });
   panel.append(copy, close);

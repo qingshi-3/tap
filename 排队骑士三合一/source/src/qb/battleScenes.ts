@@ -1,14 +1,16 @@
 // 战斗场景背景：7 张程序化像素动画背景（320×180，放大 4 倍，pixelated），与 pixel.ts 的 backdrop 同一套手法：
 // Bayer 抖动色带、2 像素台阶的山脊、亮边。每张图的静态层只画一次（烘焙到离屏画布），
 // 动态层（粒子 / 极光 / 熔岩 / 齿轮 / 雾）以 ~12fps 重画，页面隐藏或暂停时停止。
-// 构图原则：画面中段（单位站位带，约第 40-100 行）保持低对比度，亮部与细节放在上下与左右边缘，不抢单位的戏。
+// 构图原则：七种主题共享连续地台（100 行后缘、108 行站脚线、128 行前缘）。
+// 单位站位带约第 75-108 行保持低对比度，主题亮部与细节集中于远景、侧缘和平台立面。
 
 import './css/battle-scenes.css';
 
 export type SceneId = 'moor' | 'ember' | 'frost' | 'crypt' | 'hive' | 'foundry' | 'abyss';
 export const SCENE_NAMES: Record<SceneId, string> = { moor: '月夜荒原', ember: '熔岩地窟', frost: '霜原极光', crypt: '墓穴回廊', hive: '幽暗巢穴', foundry: '齿轮铸坊', abyss: '星坠深渊' };
 
-const W = 320, H = 180;
+export const SCENE_LAYOUT = { width: 320, height: 180, platformTop: 100, standY: 108, platformFront: 128 } as const;
+const W = SCENE_LAYOUT.width, H = SCENE_LAYOUT.height;
 type RGB = [number, number, number];
 const rgbCache = new Map<string, RGB>();
 function rgb(h: string): RGB {
@@ -56,7 +58,7 @@ function sky(b: Buf, bands: string[], o: { gx?: number; gy?: number; gr?: number
   }
 }
 /** 2 像素台阶山脊，带亮边 */
-function ridge(b: Buf, base: number, amp: number, f: number, ph: number, fill: [string, string], rim: string, to = H) {
+function ridge(b: Buf, base: number, amp: number, f: number, ph: number, fill: [string, string], rim: string, to: number = H) {
   const fn = (j: number) => base - amp * (0.55 * Math.abs(Math.sin(j * f + ph)) + 0.3 * Math.abs(Math.sin(j * f * 2.3 + ph * 1.7)) + 0.06 * Math.sin(j * f * 5.1));
   for (let i = 0; i < W; i++) {
     const top = Math.round(fn(i - (i % 2))), prev = Math.round(fn(i - 2 - (i % 2)));
@@ -98,13 +100,70 @@ function drawStars(b: Buf, st: ReturnType<typeof stars>, t: number, tw = true) {
   }
 }
 
+type PlatformMaterial = {
+  surface: [string, string]; rim: string; lip: string; face: [string, string]; base: string; seam: string; grain: string;
+  masonry?: boolean; metal?: boolean;
+};
+const PLATFORM_MATERIALS: Record<SceneId, PlatformMaterial> = {
+  moor: { surface: ['#24213d', '#201c36'], rim: '#4b4263', lip: '#39304e', face: ['#181427', '#100e20'], base: '#090a17', seam: '#292039', grain: '#38304b' },
+  ember: { surface: ['#33232a', '#2a1c25'], rim: '#705044', lip: '#57362f', face: ['#29161d', '#1d1018'], base: '#110b12', seam: '#452328', grain: '#493039' },
+  frost: { surface: ['#516781', '#485d77'], rim: '#9baec3', lip: '#7189a5', face: ['#2e425f', '#21334f'], base: '#14253f', seam: '#3a5371', grain: '#617993' },
+  crypt: { surface: ['#38344c', '#302d44'], rim: '#686077', lip: '#51485f', face: ['#272338', '#1e1b30'], base: '#121226', seam: '#221f34', grain: '#454056', masonry: true },
+  hive: { surface: ['#3c2b39', '#332333'], rim: '#6d4c5d', lip: '#563849', face: ['#30202f', '#211626'], base: '#140e1a', seam: '#4b2c42', grain: '#4a3446' },
+  foundry: { surface: ['#3c4558', '#343d50'], rim: '#788397', lip: '#566176', face: ['#293145', '#1e2639'], base: '#131a2b', seam: '#212b40', grain: '#4b5569', masonry: true, metal: true },
+  abyss: { surface: ['#37304f', '#2d2846'], rim: '#75658c', lip: '#56466f', face: ['#292039', '#1c1830'], base: '#100f22', seam: '#463459', grain: '#4b3c62' },
+};
+
+/** 连续实体地台：相同承重结构，地表、前缘与厚重立面随场景采用不同材质。 */
+function platform(b: Buf, id: SceneId) {
+  const m = PLATFORM_MATERIALS[id];
+  const { platformTop: top, platformFront: front } = SCENE_LAYOUT;
+  const seed = Object.keys(PLATFORM_MATERIALS).indexOf(id) + 30;
+  for (let y = top; y < H; y++) for (let x = 0; x < W; x++) {
+    if (y < front) {
+      // 上表面保留完整、安静的站位走廊；颗粒只作轻微明暗变化。
+      const grain = noise(x * 0.13, y * 0.22, seed);
+      b.set(x, y, m.surface[grain + bay(x, y) * 0.3 > 0.68 ? 1 : 0]);
+      if (y >= 116 && hash(x, y, seed) > 0.982) b.set(x, y, m.grain);
+    } else {
+      const depth = (y - front) / (H - front);
+      const facet = fbm(x * 0.045, y * 0.07, seed);
+      b.set(x, y, depth + bay(x, y) * 0.22 > 0.82 ? m.base : m.face[facet > 0.5 ? 0 : 1]);
+      // 石层/菌壳/晶岩层沿整片立面延伸，始终保留实体底色。
+      const seamY = front + 12 + Math.round(noise(x * 0.035, 0, seed) * 8);
+      if (y === seamY || y === seamY + 22) b.dot(x, y, m.seam, 0.7);
+    }
+  }
+  b.rect(0, top, W, 1, m.rim);
+  b.rect(0, top + 1, W, 1, m.lip);
+  b.rect(0, front - 2, W, 2, m.lip);
+  b.rect(0, front, W, 2, m.rim);
+  b.rect(0, front + 2, W, 2, m.face[1]);
+  if (m.masonry) {
+    // 地砖接缝收在站脚线前方，立面砖缝强化厚度。
+    for (let y = 118; y < front - 2; y++) for (let x = 0; x < W; x++) {
+      if (y === 118 || (x + (y - 118) * 2) % 48 === 0) b.set(x, y, m.seam);
+    }
+    for (let y = front + 5; y < H; y++) for (let x = 0; x < W; x++) {
+      const row = Math.floor((y - front - 5) / 16);
+      if ((y - front - 5) % 16 === 0 || (x + (row % 2) * 24) % 48 === 0) b.set(x, y, m.seam);
+      if (m.metal && (x + (row % 2) * 24) % 48 === 5 && (y - front - 5) % 16 === 4) b.rect(x, y, 2, 2, m.grain);
+    }
+  } else {
+    for (let x = 11; x < W; x += 29) {
+      const end = 145 + Math.floor(hash(x, 0, seed) * 30);
+      for (let y = front + 4; y < end; y++) b.dot(x + Math.floor(noise(x, y * 0.12, seed) * 5), y, m.seam, 0.7);
+    }
+  }
+}
+
 interface Scene { bake(b: Buf): void; frame(b: Buf, t: number): void }
 
 /* ═══════════ 1. 月夜荒原：沿用既有夜空，加漂移云、萤火、地面薄雾 ═══════════ */
 function moor(): Scene {
   const st = stars(80, 7, 60, (x, y) => Math.hypot(x - 262, y - 30) < 24);
   const R = rng(5);
-  const fl = Array.from({ length: 18 }, () => ({ x: R() * W, y: 112 + R() * 60, ph: R() * 6, sp: 0.3 + R() * 0.5 }));
+  const fl = Array.from({ length: 18 }, () => ({ x: R() * W, y: 136 + R() * 34, ph: R() * 6, sp: 0.3 + R() * 0.5 }));
   return {
     bake(b) {
       sky(b, ['#07071c', '#0b0b28', '#111036', '#171444', '#1f1750', '#2a1a5c', '#331d5e'], { gx: 160, gy: 70, gr: 150, gk: 2.2, k: 4.2, to: 120 });
@@ -116,10 +175,10 @@ function moor(): Scene {
       ridge(b, 92, 30, 0.021, 0.6, ['#1d1850', '#17133f'], '#3d3388');
       ridge(b, 104, 20, 0.034, 2.2, ['#141136', '#100d2c'], '#2c2668');
       ridge(b, 116, 12, 0.05, 4.1, ['#0c0a22', '#09081b'], '#1f1b4a');
-      for (let j = 118; j < H; j++) for (let i = 0; i < W; i++) b.set(i, j, bay(i, j) < (j - 118) / 30 ? '#06061a' : '#0a0a24');
-      // 墓碑剪影
-      const G = rng(21);
-      for (let k = 0; k < 9; k++) { const x = 8 + k * 36 + Math.floor(G() * 14), y = 132 + Math.floor(G() * 30), w = 6 + Math.floor(G() * 3), h = 8 + Math.floor(G() * 6); b.rect(x, y - h, w, h, '#0d0b26'); b.rect(x, y - h, w, 1, '#262060'); b.rect(x + 1, y - h - 1, w - 2, 1, '#0d0b26'); }
+      platform(b, 'moor');
+      // 草根和碎石停留在地台侧缘及立面。
+      for (const x of [4, 16, 303, 313]) { b.rect(x, 96, 1, 5, '#333047'); b.set(x - 1, 97, '#403953'); b.set(x + 1, 98, '#403953'); }
+      for (let x = 9; x < W; x += 37) { b.rect(x, 134, 5, 2, '#29243a'); b.rect(x + 1, 133, 3, 1, '#3a314b'); }
     },
     frame(b, t) {
       drawStars(b, st, t);
@@ -140,7 +199,6 @@ function ember(): Scene {
   const R = rng(31);
   const em = Array.from({ length: 70 }, () => ({ x: R() * W, y: R() * H, vy: 5 + R() * 14, ph: R() * 6, hot: R() < 0.5 }));
   const LAVA = ['#4a0f0a', '#7a1c0c', '#b0360f', '#e06a1c', '#ff9a3c', '#ffd36b'];
-  const rock = new Uint8Array(W * H);
   return {
     bake(b) {
       sky(b, ['#0a0410', '#14061a', '#220a1c', '#34101c', '#4c1a1a', '#6a2a1a'], { gx: 160, gy: 100, gr: 170, gk: 2.4, k: 4.4, to: 120 });
@@ -151,27 +209,21 @@ function ember(): Scene {
         glow(b, cx, base - h, 18, '#ff6a2a', 0.5, 10);
       }
       ridge(b, 108, 16, 0.05, 1.3, ['#1a0a12', '#12070d'], '#4a1c18', 120);
-      // 岩岛掩码：fbm 阈值，之外是岩浆
-      for (let j = 108; j < H; j++) for (let i = 0; i < W; i++) rock[j * W + i] = fbm(i * 0.035, (j - 100) * 0.07, 4) > 0.56 - (j - 108) * 0.0016 ? 1 : 0;
-      for (let j = 108; j < H; j++) for (let i = 0; i < W; i++) if (rock[j * W + i]) {
-        const edge = !rock[j * W + i - 1] || !rock[(j - 1) * W + i];
-        b.set(i, j, edge ? '#5a2418' : bay(i, j) < 0.3 ? '#1e0c12' : '#150910');
-      }
+      platform(b, 'ember');
     },
     frame(b, t) {
-      // 岩浆：用正弦+噪声推色阶，向右缓慢流
-      for (let j = 108; j < H; j++) for (let i = 0; i < W; i++) {
-        if (rock[j * W + i]) { if (!rock[j * W + i + 1] || !rock[(j + 1) * W + i]) b.dot(i, j, '#ff7a2a', 0.35 + 0.25 * Math.sin(t * 2 + i * 0.2)); continue; }
-        const v = fbm(i * 0.05 + t * 0.18, j * 0.11 - t * 0.05, 8) + Math.sin(i * 0.09 + j * 0.2 + t * 1.2) * 0.12 - (j - 108) * 0.0022 * 0.0;
-        const lv = clamp((v - 0.3) * 6.2, 0, LAVA.length - 0.01) + (bay(i, j) - 0.5) * 0.7;
-        b.set(i, j, LAVA[Math.max(0, Math.min(LAVA.length - 1, Math.floor(lv)))]);
+      // 熔岩只透过厚岩台前立面的窄裂隙发光。
+      for (let j = 139; j < H; j++) for (let i = 0; i < W; i++) {
+        const vein = Math.abs(Math.sin(i * 0.065 + noise(i * 0.06, j * 0.09, 4) * 4 + j * 0.07));
+        if (vein > 0.045 || fbm(i * 0.06, j * 0.09, 6) < 0.45) continue;
+        const v = fbm(i * 0.05 + t * 0.18, j * 0.11 - t * 0.05, 8);
+        const lv = clamp((v - 0.3) * 6.2 + bay(i, j) * 0.7, 0, LAVA.length - 1);
+        b.set(i, j, LAVA[Math.floor(lv)]);
       }
-      // 地平线辉光脉动
-      const p = 0.5 + 0.2 * Math.sin(t * 1.3);
-      for (let j = 100; j < 118; j++) for (let i = 0; i < W; i++) b.dot(i, j, '#ff6a2a', (1 - Math.abs(j - 108) / 10) * 0.18 * p);
       for (const e of em) {
         e.y -= e.vy * 0.085; e.x += Math.sin(t * 1.2 + e.ph) * 0.18;
         if (e.y < -3) { e.y = H + 2; e.x = R() * W; }
+        if (e.y > 74 && e.y < 116 && e.x > 36 && e.x < 284) continue;
         const a = e.y > 100 ? 1 : clamp(e.y / 100 + 0.3);
         if (bay(Math.floor(e.x), Math.floor(e.y)) < a) { b.set(e.x, e.y, e.hot ? '#ffd36b' : '#ff6a2a'); if (e.hot && Math.sin(t * 6 + e.ph) > 0.6) b.set(e.x + 1, e.y, '#ff9a3c'); }
       }
@@ -192,8 +244,9 @@ function frost(): Scene {
       // 松林剪影（两侧）
       const G = rng(7);
       for (const x0 of [-4, 18, 38, 270, 292, 310]) { const h = 26 + Math.floor(G() * 12), base = 124 + Math.floor(G() * 6); for (let r = 0; r < h; r++) { const hw = Math.floor((r / h) * 9) + 1 + ((r % 6) < 2 ? 2 : 0); for (let i = -hw; i <= hw; i++) b.set(x0 + i, base - h + r, i < -hw + 2 && r % 6 > 3 ? '#5a8ec0' : '#0a1630'); } b.rect(x0 - 1, base, 3, 5, '#0a1226'); }
-      // 冰湖地面：横向反光条
-      for (let j = 128; j < H; j++) for (let i = 0; i < W; i++) { const k = (j - 128) / 52; b.set(i, j, bay(i, j) < 0.55 - k * 0.3 ? '#12284c' : '#0c1c3c'); if ((j % 5 === 0) && bay(i * 3, j) < 0.2) b.set(i, j, '#4e7eb4'); }
+      platform(b, 'frost');
+      // 冰壁裂纹与积雪沿前缘，地表为连续冻土。
+      for (let x = 0; x < W; x++) if (noise(x * 0.08, 0, 41) > 0.5) b.rect(x, 128, 1, 2, '#a0b3c8');
     },
     frame(b, t) {
       drawStars(b, st, t);
@@ -211,7 +264,7 @@ function frost(): Scene {
         if (s.x < -2) s.x = W + 2;
         b.set(s.x, s.y, '#e8f4ff'); if (s.big) { b.set(s.x + 1, s.y, '#9cc8f0'); b.set(s.x, s.y + 1, '#9cc8f0'); }
       }
-      for (let j = 110; j < 128; j++) for (let i = 0; i < W; i++) { const v = fbm((i + t * 4) * 0.03, j * 0.15, 5); if (v > 0.55) b.dot(i, j, '#8fb8e8', (v - 0.5) * 0.7); }
+      for (let j = 135; j < 151; j++) for (let i = 0; i < W; i++) { const v = fbm((i + t * 4) * 0.03, j * 0.15, 5); if (v > 0.55) b.dot(i, j, '#8fb8e8', (v - 0.5) * 0.7); }
     },
   };
 }
@@ -221,7 +274,7 @@ function crypt(): Scene {
   const R = rng(51);
   const wisps = Array.from({ length: 7 }, () => ({ x: R() * W, y: 60 + R() * 90, ph: R() * 6, sp: 0.2 + R() * 0.3 }));
   const dust = Array.from({ length: 26 }, () => ({ x: 30 + R() * 90, y: R() * 130, ph: R() * 6 }));
-  const candles = [[26, 116], [118, 118], [202, 118], [294, 116]];
+  const candles = [[18, 99], [302, 99]];
   return {
     bake(b) {
       sky(b, ['#0a0a18', '#0e0e22', '#131230', '#1a1840', '#201d4a'], { k: 3.4, to: 120 });
@@ -238,11 +291,9 @@ function crypt(): Scene {
         for (let j = 20; j < 124; j++) { b.rect(cx - 6, j, 12, 1, j % 9 === 0 ? '#0d0c20' : '#1b1938'); b.set(cx - 6, j, '#3a3870'); b.set(cx + 5, j, '#0a0a1a'); }
         b.rect(cx - 8, 20, 16, 3, '#2a2860'); b.rect(cx - 8, 122, 16, 3, '#2a2860');
       }
-      // 地面石板：透视线
-      for (let j = 124; j < H; j++) for (let i = 0; i < W; i++) { b.set(i, j, bay(i, j) < 0.4 ? '#15142e' : '#100f26'); if ((j - 124) % 14 === 0) b.set(i, j, '#232150'); }
-      for (let k = -8; k <= 24; k++) for (let j = 124; j < H; j++) { const x = Math.round(160 + (k * 22 - 160 + 160) * 0 + (k * 22 - 160) * (1 + (j - 124) / 40)); b.set(x, j, '#1e1c42'); }
       // 月光束（斜向抖动）
       for (let j = 0; j < 130; j++) for (let i = 0; i < 46; i++) { const x = 34 + i + j * 0.35; if (bay(Math.round(x), j) < 0.12 * (1 - j / 140) * Math.sin((i / 46) * 3.14)) b.set(x, j, '#8fa8ff'); }
+      platform(b, 'crypt');
       for (const [x, y] of candles) { b.rect(x - 3, y, 6, 6, '#2a2860'); b.rect(x - 2, y - 7, 4, 7, '#d8d0b8'); b.set(x - 2, y - 7, '#fff6dc'); }
     },
     frame(b, t) {
@@ -254,10 +305,11 @@ function crypt(): Scene {
         b.set(x, y - 9, '#fff2c0');
       }
       // 地雾
-      for (let j = 96; j < 128; j++) for (let i = 0; i < W; i++) { const v = fbm((i + t * 7) * 0.022, j * 0.1 + Math.sin(t * 0.3), 6); if (v > 0.5) b.dot(i, j, '#3a3a82', (v - 0.48) * 0.9); }
+      for (let j = 137; j < 156; j++) for (let i = 0; i < W; i++) { const v = fbm((i + t * 7) * 0.022, j * 0.1 + Math.sin(t * 0.3), 6); if (v > 0.5) b.dot(i, j, '#3a3a82', (v - 0.48) * 0.9); }
       for (const d of dust) { const x = d.x + Math.sin(t * 0.5 + d.ph) * 4 + d.y * 0.35, y = (d.y + t * 3) % 130; if (Math.sin(t + d.ph) > -0.3) b.set(x, y, '#aab8ff'); }
       for (const w of wisps) {
         const x = w.x + Math.sin(t * w.sp + w.ph) * 16, y = w.y + Math.cos(t * w.sp * 1.4 + w.ph) * 8;
+        if (y > 74 && y < 116 && x > 36 && x < 284) continue;
         b.set(x, y, '#cfe8ff'); b.dot(x - 1, y, '#6a9ae8', 0.8); b.dot(x + 1, y, '#6a9ae8', 0.8); b.dot(x, y + 1, '#4a6ac0', 0.8); b.dot(x, y - 1, '#6a9ae8', 0.5);
       }
     },
@@ -268,8 +320,8 @@ function crypt(): Scene {
 function hive(): Scene {
   const R = rng(61);
   const spores = Array.from({ length: 46 }, () => ({ x: R() * W, y: R() * H, v: 3 + R() * 7, ph: R() * 6, c: R() < 0.5 ? '#6af0c0' : R() < 0.5 ? '#ff7ac8' : '#ffe08a' }));
-  const fungi = Array.from({ length: 14 }, () => ({ x: Math.floor(R() * W), y: 112 + Math.floor(R() * 56), r: 2 + Math.floor(R() * 3), c: R() < 0.6 ? '#6af0c0' : '#ff7ac8', ph: R() * 6 }));
-  const eggs = [[48, 100, 12], [88, 108, 9], [236, 102, 13], [278, 110, 9], [160, 96, 10]];
+  const fungi = Array.from({ length: 14 }, () => ({ x: Math.floor(R() * W), y: 145 + Math.floor(R() * 26), r: 2 + Math.floor(R() * 3), c: R() < 0.6 ? '#6af0c0' : '#ff7ac8', ph: R() * 6 }));
+  const eggs = [[14, 83, 10], [304, 84, 11], [36, 153, 9], [281, 156, 10]];
   const drip = { x: 130, t: 0 };
   return {
     bake(b) {
@@ -278,8 +330,7 @@ function hive(): Scene {
       for (let i = 0; i < W; i++) { const len = 10 + Math.round(14 * Math.abs(Math.sin(i * 0.11) * Math.cos(i * 0.043 + 1)) + 6 * noise(i * 0.2, 0, 3)); for (let j = 0; j < len; j++) b.set(i, j, bay(i, j) < 0.3 ? '#1a0d1c' : '#0f0712'); b.set(i, len, '#4a2a44'); }
       // 洞壁肌理
       for (let j = 30; j < 124; j++) for (let i = 0; i < W; i++) { const v = fbm(i * 0.04, j * 0.06, 12); if (v > 0.62 && bay(i, j) < 0.5) b.set(i, j, '#2c1630'); }
-      // 地面：肉质 + 血管
-      for (let j = 124; j < H; j++) for (let i = 0; i < W; i++) { b.set(i, j, bay(i, j) < 0.45 ? '#2a1226' : '#1e0e1c'); if (fbm(i * 0.05, j * 0.2, 14) > 0.66) b.set(i, j, '#4a1c3a'); }
+      platform(b, 'hive');
       for (const [x, y, r] of eggs) { disc(b, x, y, r, '#8a5a78', '#4a2a48', r * 1.2); b.dot(x - r / 3, y - r / 2, '#e8c8e0', 0.9); b.rect(x - r, y + r, r * 2, 3, '#10060e'); }
     },
     frame(b, t) {
@@ -287,7 +338,7 @@ function hive(): Scene {
       for (const f of fungi) { const p = 0.5 + 0.5 * Math.sin(t * 1.6 + f.ph); glow(b, f.x, f.y - 2, f.r * 3.2, f.c, 0.18 + 0.2 * p, f.r * 2.2); for (let k = -f.r; k <= f.r; k++) b.set(f.x + k, f.y - Math.round(Math.sqrt(f.r * f.r - k * k)), f.c); b.rect(f.x - 1, f.y, 2, 4, '#3a2a38'); }
       for (const s of spores) { s.y -= s.v * 0.08; s.x += Math.sin(t + s.ph) * 0.2; if (s.y < -2) { s.y = H + 2; s.x = R() * W; } if (Math.sin(t * 2 + s.ph) > -0.4) b.set(s.x, s.y, s.c); }
       drip.t += 0.08; const ph = drip.t % 3.2;
-      if (ph < 2) { const y = 22 + ph * ph * 42; b.set(drip.x, y, '#8fe8d0'); b.set(drip.x, y - 1, '#4ab8a0'); }
+      if (ph < 2) { const y = 22 + ph * ph * 42; if (y < 74 || y > 116) { b.set(drip.x, y, '#8fe8d0'); b.set(drip.x, y - 1, '#4ab8a0'); } }
       else if (ph < 2.6) { const g = (ph - 2) / 0.6; for (let k = 0; k < 14; k++) { const a = (k / 14) * 6.28; b.dot(drip.x + Math.cos(a) * 10 * g, 146 + Math.sin(a) * 3 * g, '#6af0c0', 1 - g); } }
     },
   };
@@ -297,8 +348,10 @@ function hive(): Scene {
 function foundry(): Scene {
   const R = rng(71);
   const sparks: { x: number; y: number; vx: number; vy: number; l: number }[] = [];
-  const gears = [{ x: 56, y: 54, r: 46, n: 14, s: 0.18 }, { x: 262, y: 40, r: 38, n: 12, s: -0.22 }, { x: 160, y: 8, r: 30, n: 10, s: 0.3 }, { x: 108, y: 112, r: 20, n: 8, s: -0.4 }];
-  const steam = Array.from({ length: 22 }, () => ({ x: [38, 284][R() < 0.5 ? 0 : 1] + (R() - 0.5) * 8, y: 120 - R() * 70, r: 3 + R() * 5, ph: R() * 6 }));
+  const gears = [{ x: 56, y: 54, r: 46, n: 14, s: 0.18 }, { x: 262, y: 40, r: 38, n: 12, s: -0.22 }, { x: 160, y: 8, r: 30, n: 10, s: 0.3 }, { x: 14, y: 62, r: 15, n: 8, s: -0.4 }];
+  const vents = [38, 284];
+  const ventY = SCENE_LAYOUT.platformTop - 3;
+  const steam = Array.from({ length: 12 }, (_, i) => ({ x: vents[i % 2], age: (Math.floor(i / 2) / 6 + R() * .1) % 1, ph: R() * Math.PI * 2 }));
   return {
     bake(b) {
       sky(b, ['#060818', '#0a0f24', '#101830', '#18223e', '#202c4c'], { k: 3.4, to: 124 });
@@ -307,14 +360,20 @@ function foundry(): Scene {
       // 横梁 + 铆钉
       for (const y of [16, 98]) { b.rect(0, y, W, 5, '#2a3660'); b.rect(0, y, W, 1, '#5a6ca0'); b.rect(0, y + 4, W, 1, '#0a0f24'); for (let i = 6; i < W; i += 18) b.rect(i, y + 2, 2, 2, '#7a8cc0'); }
       for (const x of [10, 150, 310]) b.rect(x, 20, 5, 78, '#1c2646');
-      // 地面金属板
-      for (let j = 124; j < H; j++) for (let i = 0; i < W; i++) { b.set(i, j, bay(i, j) < 0.4 ? '#161e38' : '#101830'); if ((j - 124) % 12 === 0 || i % 40 === 0) b.set(i, j, '#2c3a68'); if (i % 40 === 3 && (j - 124) % 12 === 3) b.set(i, j, '#6a7cb0'); }
+      platform(b, 'foundry');
+      // 排气口落在站台后缘；蒸汽和余烬均留在后方机械层。
+      for (const x of vents) {
+        b.rect(x - 3, ventY - 9, 6, 9, '#253148');
+        b.rect(x - 3, ventY - 9, 1, 8, '#45516a');
+        b.rect(x - 5, ventY - 1, 10, 2, '#192337');
+        b.rect(x - 4, ventY - 2, 8, 1, '#596275');
+      }
     },
     frame(b, t) {
       for (const g of gears) {
         const rot = t * g.s;
         for (let j = -g.r - 4; j <= g.r + 4; j++) for (let i = -g.r - 4; i <= g.r + 4; i++) {
-          const d = Math.hypot(i, j); if (d > g.r + 3) continue;
+          const d = Math.hypot(i, j); if (d > g.r + 3 || g.y + j >= SCENE_LAYOUT.platformTop) continue;
           const a = Math.atan2(j, i), tooth = Math.cos(g.n * (a - rot)) > 0.15;
           const rr = g.r * 0.84 + (tooth ? g.r * 0.16 : 0);
           if (d > rr) continue;
@@ -324,10 +383,42 @@ function foundry(): Scene {
           b.set(g.x + i, g.y + j, d > rr - 2 ? (lit ? '#6a7cb0' : '#2c3a68') : d < g.r * 0.3 ? '#2a3660' : lit ? '#34427a' : '#1e2850');
         }
       }
-      for (const [x, y] of [[96, 24], [224, 24]]) { const fl = 0.7 + 0.3 * Math.sin(t * 7 + x); b.rect(x - 1, 20, 2, 4, '#2a3660'); b.rect(x - 4, y, 8, 5, '#d8a050'); b.rect(x - 3, y + 5, 6, 1, '#ffd36b'); glow(b, x, y + 8, 26, '#ffb050', 0.22 * fl, 18); }
-      for (const s of steam) { s.y -= 0.18; s.r += 0.01; if (s.y < 50) { s.y = 120; s.r = 3; } const a = clamp((s.y - 50) / 70) * 0.55; for (let k = 0; k < 14; k++) { const ang = k * 0.45; b.dot(s.x + Math.cos(ang) * s.r + Math.sin(t + s.ph) * 3, s.y + Math.sin(ang) * s.r * 0.7, '#8aa0c8', a); } }
-      if (R() < 0.18) sparks.push({ x: 20 + R() * 280, y: 126, vx: (R() - 0.5) * 1.6, vy: -1.2 - R() * 1.4, l: 1 });
-      for (let i = sparks.length - 1; i >= 0; i--) { const s = sparks[i]; s.x += s.vx; s.y += s.vy; s.vy += 0.1; s.l -= 0.03; if (s.l <= 0 || s.y > H) { sparks.splice(i, 1); continue; } b.set(s.x, s.y, s.l > 0.5 ? '#ffd36b' : '#ff8a3a'); }
+      for (const [x, y] of [[96, 24], [224, 24]]) {
+        // 向下的连续薄光替代高亮抖动点，灯罩遮住光源上沿。
+        const flicker = .94 + .06 * Math.sin(t * 2 + x);
+        for (let dy = 0; dy < 25; dy++) {
+          const width = 4 + dy * .48;
+          for (let dx = -Math.ceil(width); dx <= width; dx++) {
+            const light = Math.pow(1 - dy / 25, 1.4) * Math.pow(Math.max(0, 1 - Math.abs(dx) / width), 1.5);
+            const alpha = Math.round(light * flicker * 34);
+            if (alpha) b.set(x + dx, y + 5 + dy, '#c79550', alpha);
+          }
+        }
+        b.rect(x - 1, 20, 2, 4, '#303b51');
+        b.rect(x - 4, y, 8, 4, '#394153');
+        b.rect(x - 5, y + 3, 10, 1, '#73706a');
+        b.rect(x - 3, y + 4, 6, 1, '#bb9152');
+        b.rect(x - 2, y + 5, 4, 1, '#e0b873');
+      }
+      for (const s of steam) {
+        s.age = (s.age + .0035) % 1;
+        const radius = 2 + s.age * 4;
+        const cx = s.x + Math.sin(t * .6 + s.ph) * (1 + s.age);
+        const cy = ventY - s.age * 38;
+        const strength = Math.sin(s.age * Math.PI) * .16;
+        for (let dy = -4; dy <= 4; dy++) for (let dx = -6; dx <= 6; dx++) {
+          const d = (dx / radius) ** 2 + (dy / (radius * .6)) ** 2;
+          if (d >= 1 || cy + dy >= SCENE_LAYOUT.platformTop) continue;
+          const alpha = Math.round((1 - d) ** 2 * strength * 255);
+          if (alpha) b.set(cx + dx, cy + dy, '#718096', alpha);
+        }
+      }
+      if (sparks.length < 6 && R() < .08) sparks.push({ x: vents[R() < .5 ? 0 : 1] + (R() - .5) * 4, y: ventY - 1, vx: (R() - .5) * .4, vy: -.35 - R() * .4, l: 1 });
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i]; s.x += s.vx; s.y += s.vy; s.vy += .012; s.l -= .05;
+        if (s.l <= 0 || s.y >= SCENE_LAYOUT.platformTop) { sparks.splice(i, 1); continue; }
+        b.set(s.x, s.y, '#be955e', Math.round(s.l * 140));
+      }
     },
   };
 }
@@ -335,7 +426,7 @@ function foundry(): Scene {
 /* ═══════════ 7. 星坠深渊：虚空星云、巨月、浮岛、符文环、流星 ═══════════ */
 function abyss(): Scene {
   const R = rng(81);
-  const st = stars(140, 77, 120, (x, y) => Math.hypot(x - 160, y - 44) < 36);
+  const st = stars(140, 77, 92, (x, y) => Math.hypot(x - 160, y - 44) < 36);
   const isl = [[40, 56, 22], [268, 70, 26], [210, 30, 14], [100, 20, 12]];
   const meteors: { x: number; y: number; l: number }[] = [];
   return {
@@ -349,13 +440,12 @@ function abyss(): Scene {
       for (let j = -30; j <= 30; j++) for (let i = -30; i <= 30; i++) { const d = Math.hypot(i, j); if (d <= 30 && d > 28) b.set(160 + i, 44 + j, i + j < 0 ? '#8a7ad8' : '#2a2060'); }
       // 浮岛：上亮下碎
       for (const [x, y, w] of isl) { for (let i = -w; i <= w; i++) { const depth = Math.round((w - Math.abs(i)) * 0.7 + noise(i * 0.4, x, 4) * 3); b.set(x + i, y, '#6a5ab8'); for (let j = 1; j <= depth; j++) b.set(x + i, y + j, j < 2 ? '#3a2e78' : bay(x + i, j) < 0.4 ? '#1e1650' : '#150f3a'); } }
-      // 地面：深色晶体地
-      for (let j = 124; j < H; j++) for (let i = 0; i < W; i++) b.set(i, j, bay(i, j) < (j - 124) / 56 + 0.2 ? '#06051a' : '#0b0928');
+      platform(b, 'abyss');
     },
     frame(b, t) {
       drawStars(b, st, t);
-      // 符文环：地平线上的椭圆，刻度缓慢旋转
-      const cx = 160, cy = 112, rx = 120, ry = 20;
+      // 晶岩台前立面的符文刻痕，沿实体石层缓慢流转
+      const cx = 160, cy = 151, rx = 132, ry = 10;
       for (let k = 0; k < 160; k++) { const a = (k / 160) * 6.283; b.dot(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry, '#6a4ad8', 0.5); }
       for (let k = 0; k < 24; k++) { const a = (k / 24) * 6.283 + t * 0.12; const x = cx + Math.cos(a) * rx, y = cy + Math.sin(a) * ry; const on = Math.sin(t * 2 + k) > -0.2; b.set(x, y, on ? '#b49aff' : '#5a3ab0'); b.set(x, y - 1, on ? '#8a6bff' : '#3a2a80'); if (k % 3 === 0) { b.set(x, y - 2, '#d8caff'); b.set(x - 1, y - 1, '#8a6bff'); b.set(x + 1, y - 1, '#8a6bff'); } }
       // 流星

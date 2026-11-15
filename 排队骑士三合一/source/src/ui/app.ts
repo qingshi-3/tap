@@ -12,7 +12,7 @@ import { h, stageState } from '../qb/dom';
 import { ambient, FX } from '../qb/fx';
 import { icon } from '../qb/icons';
 import { hideTip, initTip } from '../qb/tip';
-import { unitSvg } from '../qb/unitArt';
+import { unitPxUrl, unitSvg } from '../qb/unitArt';
 import { tierArt } from '../qb/card';
 import { card, HERO, HEROES, SHOP_POOL, type HeroId } from '../core/data';
 import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, saveStatus, beginNewRunBackup, LAYERS, type Diff, type RunState } from '../core/run';
@@ -114,9 +114,29 @@ export class App {
   toTitle() {
     this.leaveGame(true);
     setTitleMusic(true);
-    // 每个新流派挑一张最高阶的卡做门面
-    const fallback = ARCHETYPE_IDS.map((archetype) => SHOP_POOL.filter((c) => c.archetype === archetype).sort((a, b) => b.tier - a.tier)[0]?.id).filter(Boolean) as string[];
     const foes = ['e_nightk', 'e_lich', 'e_void'].filter((id) => card(id));
+    // 每个流派优先挑高阶单位，已展示的素材跳过。
+    const shownArt = new Set(foes.map(id => unitPxUrl(id, { enemy: true })));
+    const fallback = ARCHETYPE_IDS.flatMap(archetype => {
+      const pick = SHOP_POOL.filter(c => c.archetype === archetype).sort((a, b) => b.tier - a.tier)
+        .find(c => !shownArt.has(unitPxUrl(c.id)));
+      if (!pick) return [];
+      shownArt.add(unitPxUrl(pick.id));
+      return [pick.id];
+    });
+    // 横向中心、离地高度、尺寸、景深：三排友军与错落的敌方剪影。
+    const alliesLayout = [
+      [158, 0, 132, 3], [298, 116, 92, 1], [112, 102, 90, 1],
+      [404, 58, 114, 2], [230, 64, 106, 2], [346, 4, 128, 3],
+      [478, 104, 92, 1], [72, 54, 108, 2], [650, 94, 90, 1],
+      [580, 48, 110, 2], [528, 0, 132, 3],
+    ];
+    const enemiesLayout = [[62, 0, 180, 3], [160, 98, 136, 1], [284, 26, 174, 2]];
+    const titleUnit = (id: string, i: number, enemy = false) => {
+      const [x, y, width, depth] = (enemy ? enemiesLayout : alliesLayout)[i];
+      return h('div', { class: `ta-unit${enemy ? ' boss' : ''}`, 'data-depth': depth,
+        style: `--i:${i};--x:${x}px;--y:${y}px;--w:${width}px;--depth:${depth}`, html: unitSvg(id, { enemy }) });
+    };
     const saved = load();
     const status = saveStatus();
     const start = h('button', { class: `btn ${saved ? 'ghost' : 'primary'} big title-new` }, h('span', null, '新的游戏'), icon('play'));
@@ -130,13 +150,19 @@ export class App {
     if (saved) {
       const btn = h('button', { class: 'btn primary big title-continue' }, h('span', null, '继续游戏'), icon('play'));
       btn.addEventListener('click', () => { sfx.start(); this.startRun(saved); });
-      cont = h('div', { class: 'cont-wrap' }, btn, h('div', { class: 'cont-note' }, `${reached(saved)} · `, h('span', { class: 'cont-health', 'aria-label': `${saved.lives} 点生命` }, String(saved.lives), h('span', { class: 'life on', 'aria-hidden': 'true' }))));
+      cont = h('div', { class: 'cont-wrap' }, btn,
+        h('div', { class: 'cont-note' },
+          h('span', { class: 'cont-progress' }, h('span', null, `第${ACT_CN[saved.act]}幕`),
+            h('span', { class: 'cont-separator', 'aria-hidden': 'true' }, '·'),
+            h('b', null, `${Math.min(saved.layer + 1, LAYERS + 1)}/${LAYERS + 1}`)),
+          h('span', { class: 'cont-health', 'aria-label': `${saved.lives} 点生命` },
+            h('span', { class: 'life on', 'aria-hidden': 'true' }), h('b', null, saved.lives))));
     }
-    const codex = h('button', { class: 'icon-btn title-tool' }, icon('diamond'), h('span', null, '图鉴'));
+    const codex = h('button', { class: 'btn ghost title-tool' }, icon('diamond'), h('span', null, '图鉴'));
     codex.addEventListener('click', () => { sfx.click(); this.toCodex(); });
-    const records = h('button', { class: 'icon-btn title-tool' }, icon('flag'), h('span', null, '战绩'));
+    const records = h('button', { class: 'btn ghost title-tool' }, icon('flag'), h('span', null, '战绩'));
     records.addEventListener('click', () => { sfx.click(); this.toRecords(); });
-    const tutorial = h('button', { class: tutorialDone() ? 'icon-btn title-tool title-tut-done' : 'btn primary title-tool title-tutorial' }, h('span', null, '新手教程'));
+    const tutorial = h('button', { class: `btn ghost title-tool ${tutorialDone() ? 'title-tut-done' : 'title-tutorial'}` }, icon('book'), h('span', null, '新手教程'));
     tutorial.addEventListener('click', () => {
       this.leaveGame();
       this.game = new Game(this, newTutorialRun(), true);
@@ -148,12 +174,13 @@ export class App {
     const el = h(
       'div',
       { class: 'screen title' },
-      h('div', { class: 'title-army left' }, fallback.map((id, i) => h('div', { class: 'ta-unit', style: `--i:${i}`, html: unitSvg(id) }))),
-      h('div', { class: 'title-army right' }, foes.map((id, i) => h('div', { class: 'ta-unit boss', style: `--i:${i}`, html: unitSvg(id, { enemy: true }) }))),
+      h('div', { class: 'title-army left', 'aria-hidden': 'true' }, fallback.map((id, i) => titleUnit(id, i))),
+      h('div', { class: 'title-army right', 'aria-hidden': 'true' }, foes.map((id, i) => titleUnit(id, i, true))),
       h('div', { class: 'title-center' }, h('div', { class: 'logo', style: 'font-size:100px' }, h('span', null, '排队骑士')), h('div', { class: 'logo-sub', style: 'font-size:24px;letter-spacing:0.4em;text-align:center' }, '三合一 · 酒馆试玩'),
         status === 'unsupported' || status === 'invalid' ? h('p', { class: 'save-status', role: 'status' }, status === 'unsupported' ? '旧版进度已保留。新版规则请开始新局。' : '该存档无法恢复。开始新局前会保留原件。') : null,
         h('div', { class: 'title-btns' }, cont, start)),
-      h('div', { class: 'title-tools' }, tutorial, codex, records, volume),
+      h('div', { class: 'title-tools' }, tutorial, codex, records),
+      h('div', { class: 'title-corner' }, volume),
     );
     this.show(el);
   }

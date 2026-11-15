@@ -1,7 +1,7 @@
 import { newRun, type RunState, type ShopItem } from './run';
 
 /** 教程只准备货架和对手；购买、升星、战斗、结算仍走正式规则。 */
-export const TUTORIAL_STEPS = ['buy', 'merge', 'star', 'lock', 'reroll', 'battle1', 'ally', 'food', 'position', 'equip', 'battle2', 'done'] as const;
+export const TUTORIAL_STEPS = ['buy', 'merge', 'star', 'discover', 'lock', 'reroll', 'battle1', 'ally', 'food', 'position', 'equip', 'battle2', 'done'] as const;
 export type TutorialStep = (typeof TUTORIAL_STEPS)[number];
 export const TUTORIAL_UNIT = 'rw_charge_sling';
 export const TUTORIAL_ALLY = 'rw_charge_bunker';
@@ -59,6 +59,7 @@ export function tutorialStepDone(r: RunState, step: TutorialStep): boolean {
     case 'buy': return r.queue[0]?.def === TUTORIAL_UNIT && r.queue[0].copies >= 1;
     case 'merge': return r.queue[0]?.def === TUTORIAL_UNIT && r.queue[0].copies >= 2;
     case 'star': return r.queue[0]?.def === TUTORIAL_UNIT && r.queue[0].copies >= 3;
+    case 'discover': return r.queue[0]?.def === TUTORIAL_UNIT && r.queue[0].copies >= 3 && !r.discover?.length;
     case 'lock': return r.shop.some((s) => s.def === 'f_bread' && s.locked);
     case 'reroll': return r.rerolls >= 1 && r.shop.some((s) => s.def === 'f_bread' && s.locked);
     case 'battle1': return r.history.length >= 1;

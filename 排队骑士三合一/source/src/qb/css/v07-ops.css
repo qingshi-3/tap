@@ -52,6 +52,9 @@
 }
 .disc-wrap { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; transition: opacity .2s; }
 .disc-ov.peek .disc-dim, .disc-ov.peek .disc-wrap { opacity: 0; pointer-events: none; }
+/* 教学说明留在上方，选卡与确认仍可直接点击。 */
+.disc-ov.tutorial-discover .disc-wrap { transform: translateY(70px) scale(.78); }
+.tut[data-step="discover"].discover-peek .tut-mask { display: none; }
 .disc-head { margin-bottom: 8px; display: flex; flex-direction: column; align-items: center; gap: 2px; animation: popIn .35s cubic-bezier(.2, 1.4, .4, 1); }
 .disc-head h2 { margin: 0; font-size: 38px; letter-spacing: .3em; padding-left: .3em; color: #bff4ff; text-shadow: 0 0 22px rgba(90, 210, 255, .7), 0 3px 0 #000; }
 .disc-src { padding: 3px 12px; font-size: 18px; color: #06222e; background: linear-gradient(#bff4ff, #4cc3e8); }
@@ -90,6 +93,6 @@
 .disc-take:disabled { opacity: .5; filter: grayscale(.6); }
 .disc-peek {
   position: absolute; left: 24px; bottom: 24px; height: 52px; padding: 0 16px; gap: 6px; font-size: 20px;
-  background: rgba(11, 10, 34, .85); touch-action: none; user-select: none; -webkit-user-select: none;
+  background: rgba(11, 10, 34, .85); touch-action: manipulation; user-select: none; -webkit-user-select: none;
 }
 .disc-peek .ic { width: 22px; height: 22px; }

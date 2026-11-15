@@ -13,7 +13,7 @@ const ZOOM_MAX = 1.35, PUSH_MS = 360, PULL_MS = 520;
 export function battleDemo(spec: DemoSpec, label: string) {
   const n = Math.max(2, spec.me.length, spec.foe.length);
   const x0 = slotX(0, n - 1) - 80, x1 = slotX(1, n - 1) + 80;
-  const y0 = UNIT_Y - 165, y1 = UNIT_Y + 92;
+  const y0 = UNIT_Y - 165, y1 = UNIT_Y + 108;
   const stage = h('div', { class: 'bdemo-stage' });
   const cam = h('div', { class: 'bdemo-cam' }, stage);
   const replay = h('button', { class: 'bdemo-replay', 'aria-label': '重播' }, '↻');
@@ -35,7 +35,9 @@ export function battleDemo(spec: DemoSpec, label: string) {
       const tag = host.querySelector<HTMLElement>('.bdemo-tag');
       const tw = tag?.offsetWidth ?? 0, th = (tag?.offsetHeight ?? 0) + 36;
       const cx = (r.left + r.width / 2 - sr.left) / s;
-      const top = (r.top - sr.top) / s - 22 - th, bot = (r.bottom - sr.top) / s + 22;
+      const footer = host.querySelector<HTMLElement>('.u-status-line:not(.is-empty)');
+      const footerExtra = footer ? Math.max(0, footer.offsetTop + footer.offsetHeight - host.offsetHeight) : 0;
+      const top = (r.top - sr.top) / s - 22 - th, bot = (r.bottom - sr.top) / s + Math.max(22, footerExtra + 16);
       const w = Math.max(r.width / s + 44, tw) + 56, hgt = bot - top + 40;
       const z = Math.max(1, Math.min(ZOOM_MAX, (x1 - x0) / w, (y1 - y0) / hgt));
       const hw = (x1 - x0) / z / 2, hh = (y1 - y0) / z / 2, cy = (top + bot) / 2;

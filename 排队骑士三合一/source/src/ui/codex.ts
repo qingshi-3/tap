@@ -151,13 +151,15 @@ function unitBrowser(tools: HTMLElement, cap?: number): HTMLElement {
     };
     paintDemo(1);
     description.addEventListener('tipvariantchange', event => paintDemo((event as CustomEvent<{level:1|2}>).detail.level));
+    const compare = description.querySelector('.tip-upgrade');
+    compare?.remove();
     description.querySelector(':scope > .tip-head')?.remove();
     detail.replaceChildren(
       h('div', { class: 'cx-d-head' },
         tierArt('cx-d-art', id, d.tier),
         h('div', { class: 'ub-d-title' },
           h('b', { class: 'cx-d-name' }, d.name),
-          h('div', { class: 'ub-d-meta' }, h('span', { class:'ub-d-fac', style:`--fc:${identityColor(d)}` }, cardIdentity(id)), tierBadge(d.tier),
+          h('div', { class: 'ub-d-meta' }, h('span', { class:'ub-d-fac', style:`--fc:${identityColor(d)}` }, cardIdentity(id)), tierBadge(d.tier), compare,
             cap && d.tier > cap ? h('span', { class: 'ub-d-lock' }, `酒馆升到 ${d.tier} 阶后解锁`) : null))),
       demoBox,
       h('section', { class: 'cx-lv' }, description),

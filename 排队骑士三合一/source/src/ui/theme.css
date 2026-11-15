@@ -1,0 +1,207 @@
+/* ═════════════════════════════════════════════════════════════
+   夜幕酒馆主题层（最后加载）
+   只管材质、颜色、层级；位置与尺寸归各页面布局文件。
+   主次：金色实体 = 当前唯一主操作；靛紫实体 = 次要；描边 = 工具/返回。
+   ═════════════════════════════════════════════════════════════ */
+
+/* ── 1. 按钮 ── */
+#stage .btn { color: var(--ui-text); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); transition: filter .12s, transform .08s; }
+#stage .btn:not(:disabled):active { transform: translateY(2px); filter: brightness(.88); }
+#stage .btn.primary { background: var(--ui-band-gold); color: #2a1600; text-shadow: 0 2px 0 rgba(255, 246, 210, .5); box-shadow: 2px 0 #3d2003, -2px 0 #3d2003, 0 2px #3d2003, 0 -2px #3d2003, 0 8px 22px rgba(255, 180, 60, .28); }
+#stage .btn.ghost, #stage .btn.secondary { background: var(--ui-band-indigo); color: var(--ui-text); }
+#stage .btn:not(.primary):not(.danger) { box-shadow: var(--ui-notch-soft), 0 6px 16px rgba(0, 0, 0, .35); }
+#stage .btn.ghost:hover:not(:disabled) { box-shadow: var(--ui-notch-soft), 0 0 16px rgba(255, 211, 107, .16); }
+#stage .btn.danger { background: var(--ui-band-danger); color: #fff; box-shadow: 2px 0 #3a0610, -2px 0 #3a0610, 0 2px #3a0610, 0 -2px #3a0610; }
+#stage .btn:disabled, #stage .btn.disabled { background: var(--ui-band-off) !important; color: #a6a3bb !important; text-shadow: none; box-shadow: var(--ui-notch-soft) !important; filter: none; cursor: default; }
+#stage .icon-btn { background: rgba(14, 11, 36, .78); color: var(--ui-text); box-shadow: var(--ui-notch-soft); }
+#stage .icon-btn:hover { box-shadow: var(--ui-notch-brass); }
+#stage .title-corner .title-volume {
+  background: var(--ui-band-indigo); box-shadow: var(--ui-notch-soft), 0 6px 16px rgba(0, 0, 0, .35);
+}
+#stage .sp-btns .btn.ghost { background: var(--ui-band-indigo); }
+
+/* ── 2. 面板：弹窗 / 详情 / 结算 共用靛紫玻璃 + 黄铜像素框 ── */
+#stage .modal, #stage > .tip, #stage .res-card {
+  background: var(--ui-panel);
+  color: var(--ui-text);
+  box-shadow: var(--ui-shadow);
+}
+#stage .modal-ov { background: rgba(5, 4, 16, .72); backdrop-filter: blur(2px); }
+#stage > .tip :is(.tip-sum, .tip-projection-label) { background: var(--ui-well); color: var(--ui-text-2); border: 0; }
+#stage > .tip .shelf-acts { border-top: 2px solid var(--ui-rule); padding-top: 8px; background: linear-gradient(180deg, transparent, rgba(10, 8, 28, .9) 30%); }
+#stage > .tip .shelf-acts .shelf-lock { background: var(--ui-band-indigo); color: var(--ui-text); }
+.card-detail .tip-stats-caption { color: var(--ui-text-3); }
+.card-detail .tip-current-state { color: var(--ui-info); }
+
+/* Focus details and their actions while keeping the board available to input. */
+#stage > .tip-backdrop {
+  position: absolute; inset: 0; z-index: 59; pointer-events: none; opacity: 0;
+  background: radial-gradient(ellipse var(--tip-focus-rx, 260px) var(--tip-focus-ry, 220px) at var(--tip-focus-x, 50%) var(--tip-focus-y, 50%),
+    rgba(5, 4, 16, .35) 0%, rgba(5, 4, 16, .44) 55%, rgba(5, 4, 16, .7) 100%);
+  transition: opacity 160ms ease;
+}
+#stage > .tip-backdrop.on { opacity: 1; }
+#stage > .tip-source-marker {
+  position: absolute; z-index: 59; display: none; pointer-events: none;
+  background:
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) left top / 14px 2px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) left top / 2px 14px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) right top / 14px 2px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) right top / 2px 14px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) left bottom / 14px 2px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) left bottom / 2px 14px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) right bottom / 14px 2px,
+    linear-gradient(var(--ui-brass-hi), var(--ui-brass-hi)) right bottom / 2px 14px;
+  background-repeat: no-repeat;
+}
+#stage > .tip-source-marker.on { display: block; }
+#stage .unit.tip-source-selected .u-art { filter: brightness(1.08) drop-shadow(0 5px 4px #0008); }
+#stage .tip-source-selected .uart.duelyst .duelyst-normal { background-image: var(--duelyst-selected-image); }
+#stage :is(.card, .hand-slot, .food-tile, .bag-slot).tip-source-selected { transition: none; }
+#stage .tray .cards > .card.tip-source-selected { transform: translateY(-6px); z-index: 3; }
+#stage .screen.game .hand-strip .hand-slot.tip-source-selected {
+  z-index: 30;
+  transform: translateY(calc(var(--o) * var(--o) * 2.5px - 22px)) translateX(calc(var(--o) * var(--step))) scale(1.12);
+}
+#stage > .tip:not(.composed) > .card-detail { min-height: 260px; }
+
+/* 卡牌说明与操作组合：只有说明带像素框，按钮独立排在框下。 */
+#stage > .tip.composed {
+  display: flex; flex-direction: column; gap: 10px; padding: 0;
+  border: 0; border-image: none; border-radius: 0; background: none; box-shadow: none; overflow: visible;
+}
+#stage > .tip.composed > .tip-panel {
+  display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; max-height: none;
+  padding: 20px 22px; border: 0 solid transparent; border-image: var(--pxf-steel) 6 / 12px / 0 stretch;
+  border-radius: 0; background: var(--ui-panel); box-shadow: var(--ui-shadow); overflow: hidden;
+}
+#stage > .tip.composed > .tip-panel:is(.tip-unit, .card-detail) { min-height: 260px; }
+#stage > .tip.composed .tip-head { margin-bottom: 16px; }
+#stage > .tip.composed .tip-stats { align-items: center; margin: 0 0 16px; }
+#stage > .tip.composed .unit-effect-text { font-size: 20px; line-height: 1.55; }
+#stage > .tip.composed :is(.owned-tip-body, .tip-panel-body) {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none;
+}
+#stage > .tip.composed > .shelf-acts {
+  display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: 10px; margin: 0; padding: 0; border: 0; background: none;
+}
+#stage > .tip.composed > .shelf-acts > .btn {
+  flex: 1 1 120px; min-width: 0; min-height: var(--control-size, 64px); margin: 0; padding: 0 12px; font-size: 22px;
+}
+#stage > .tip.composed.hand-spell-actions > .shelf-acts > .btn {
+  min-height: calc(44 * var(--screen-px, 1px)); min-width: calc(72 * var(--screen-px, 1px));
+  padding: 0 calc(12 * var(--screen-px, 1px)); font-size: calc(16 * var(--screen-px, 1px));
+}
+#stage > .tip.composed.hand-spell-actions > .shelf-acts > .btn:focus-visible {
+  outline: calc(2 * var(--screen-px, 1px)) solid var(--ui-brass-hi); outline-offset: calc(-2 * var(--screen-px, 1px));
+}
+#stage > .tip.composed.hand-spell-actions > .shelf-acts > .btn:not(:disabled):active {
+  transform: translateY(var(--screen-px, 1px));
+}
+
+/* ── 3. 备战指挥台：底部一整块深色台面，把经济 / 商店 / 手牌 / 背包 / 开战收拢成一个区域 ── */
+.screen.game:not(.in-battle) .tray.paid-shelf::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: 0; height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(217, 176, 102, .55) 0 2px, transparent 2px),
+    linear-gradient(180deg, rgba(14, 11, 34, .38), rgba(8, 6, 22, .9) 30%, rgba(6, 5, 18, .96));
+}
+/* 经济列：金币是第一眼信息 */
+.screen.game .tray-left .tl-gold { background: var(--ui-well); box-shadow: var(--ui-notch-soft); color: var(--ui-atk); }
+.screen.game .tavern-box { background: var(--ui-well); box-shadow: var(--ui-notch-dark); color: var(--ui-text-2); }
+.screen.game .tavern-box .tv-up { background: var(--ui-band-indigo); color: var(--ui-text); box-shadow: var(--ui-notch-dark); }
+.screen.game .tavern-box .tv-up:disabled { background: var(--ui-band-off); color: #a6a3bb; }
+/* 刷新是高频次要操作：靛紫，不与开战抢金色 */
+.screen.game .tray-left .reroll { background: var(--ui-band-indigo) !important; color: var(--ui-text) !important; box-shadow: var(--ui-notch-soft), 0 6px 16px rgba(0, 0, 0, .35) !important; }
+.screen.game .tray-left .reroll.rewarded { background: var(--ui-band-gold) !important; color: #2a1600 !important; text-shadow: 0 2px rgba(255,246,210,.5); }
+.screen.game .tray-left .reroll.rewarded .ic { color: inherit; }
+.screen.game .tray-left .reroll:disabled { background: var(--ui-band-off) !important; color: #a6a3bb !important; }
+.screen.game .tray-left .rr-price { display: inline-flex; align-items: center; gap: 4px; color: var(--ui-brass-hi); font-size: 20px; }
+.screen.game .tray-left .rr-price .px-item { width: 24px; min-width: 24px; height: 24px; border-radius: 0; background: var(--pxi) center / contain no-repeat; }
+
+/* 补给与手牌法术：同一种“羊皮卷”材质，区别于单位卡 */
+.screen.game .food-tile, .screen.game .hand-slot.hand-spell {
+  background: linear-gradient(180deg, #3b2f63, #1c1640 70%);
+  box-shadow: var(--ui-notch-soft), 0 6px 14px rgba(0, 0, 0, .45);
+}
+.screen.game .food-tile .ft-ico, .screen.game .hand-spell .hs-ico { animation: spell-glow 2.4s ease-in-out infinite; }
+@keyframes spell-glow { 50% { filter: drop-shadow(0 0 8px rgba(255, 211, 107, .55)); } }
+/* 空位可见：玩家知道还剩几格 */
+.screen.game .hand-slot.empty, .screen.game .bag-strip .bag-slot.empty {
+  background: rgba(6, 5, 18, .35);
+  box-shadow: none;
+  outline: 2px dashed rgba(196, 187, 224, .22);
+  outline-offset: -6px;
+}
+.screen.game .hand-strip .hand-head, .screen.game .bag-strip .bag-label { color: var(--ui-text-3); letter-spacing: .14em; }
+.screen.game .bag-strip { background: var(--ui-well); box-shadow: var(--ui-notch-dark); }
+.screen.game.in-battle .bag-strip { display: none !important; }
+
+/* 摆阵即时反馈：贴近棋盘的短条；隐藏时真正隐藏 */
+.screen.game .placement-feedback.hidden { display: none !important; }
+.screen.game .placement-feedback {
+  background: rgba(12, 10, 32, .92);
+  color: var(--ui-text);
+  box-shadow: var(--ui-notch-soft), 0 10px 24px rgba(0, 0, 0, .45);
+}
+.screen.game .placement-feedback :is(b, strong) { color: var(--ui-good); }
+
+/* ── 4. HUD：上沿一条深色带，信息读得清，不遮单位 ── */
+.screen.game .hud { background: linear-gradient(180deg, rgba(7, 6, 26, .82), rgba(7, 6, 26, 0)); }
+#stage .screen.game .hud-left { width: auto; flex: none; }
+#stage .hud-hero:has(.hh-cost) { display: inline-flex; align-items: center; gap: 8px; width: 98px; background: none; box-shadow: none; }
+#stage .hud-hero:has(.hh-cost) .hh-art {
+  position: relative; inset: auto; flex: none; width: 58px; height: 58px; padding: 2px;
+  background: var(--ui-panel); box-shadow: var(--ui-notch-soft);
+}
+#stage .hud-hero .hh-cost {
+  position: static; display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+  min-width: 0; height: 22px; background: none; color: var(--ui-brass-hi); font: 700 16px/1 var(--num);
+}
+#stage .hud-hero .hh-cost b { font: inherit; }
+#stage .hud-hero .hh-cost :is(.px-item, .ic) { flex: none; width: 16px; height: 16px; }
+#stage .hud-hero .hh-cost.used { color: var(--ui-text-3); }
+#stage .hud-hero:has(.hh-cost).ready::after { inset: -4px auto auto -4px; width: 66px; height: 66px; }
+.screen.game .hud :is(.hud-left, .hud-right) > * { color: var(--ui-text); }
+.screen.game .hud-right .hud-relic { background: none; border: 0; border-image: none; box-shadow: none; }
+
+/* ── 5. 战斗条与结算 ── */
+#stage .battle-bar { background: linear-gradient(180deg, rgba(26, 21, 58, .95), rgba(10, 8, 28, .95)); }
+#stage .battle-bar .bb-btns .btn { min-width: var(--control-size, 64px); min-height: var(--control-size, 64px); font-size: 22px; }
+#stage .battle-bar .bb-log .ll { color: var(--ui-text-2); }
+#stage .res-card .res-sub { color: var(--ui-text-2); }
+#stage .res-card .res-btns :is(.res-review, .res-adjust) { background: var(--ui-band-indigo); color: var(--ui-text); box-shadow: var(--ui-notch-dark); }
+
+/* ── 6. 地图 / 奖励 / 图鉴 / 战绩 / 设置：统一选中态与标签 ── */
+#stage :is(.map-node, .relic-opt, .evt-opt, .disc-opt, .codex-card, .records-row):focus-visible { outline: 3px solid var(--ui-brass-hi); outline-offset: 3px; }
+#stage :is(.relic-opt, .evt-opt, .disc-opt).selected { box-shadow: var(--ui-notch-brass), 0 0 22px rgba(255, 211, 107, .3); }
+#stage :is(.modal h2, .modal .m-title) { color: var(--ui-brass-hi); text-shadow: 0 3px 0 #1c0f00; }
+#stage .modal :is(.m-sub, .modal-sub, small) { color: var(--ui-text-3); }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen.game .food-tile .ft-ico, .screen.game .hand-spell .hs-ico { animation: none; }
+  #stage .btn { transition: none; }
+}
+
+/* 成长预览是查看类操作：靛紫次级，开战独占金色 */
+#stage .screen.game .prep-preview-btn { background: var(--ui-band-indigo); color: var(--ui-text); text-shadow: 0 2px 0 rgba(0, 0, 0, .5); box-shadow: var(--ui-notch-soft), 0 6px 16px rgba(0, 0, 0, .35); }
+
+/* 流派面板沿用游戏的黄铜边框与靛紫按钮材质。 */
+#stage > .tip:has(> .run-archetypes) { border-image-source:var(--pxf-gold); background:var(--ui-panel); }
+.run-archetypes > .tip-head { padding:4px 0 8px; color:var(--ui-brass-hi); font-size:21px; }
+.run-archetypes .run-archetype-tabs { gap:8px; margin:4px 2px 18px; }
+.run-archetypes .run-archetype-tab > span { color:var(--ac,var(--ui-text)); }
+#stage .run-archetypes .run-archetype-tab { box-shadow:var(--ui-notch-dark), 0 4px 0 rgba(0,0,0,.3); }
+#stage .run-archetypes .run-archetype-tab.active,
+#stage .run-archetypes .run-archetype-tab.active:hover { background:var(--ui-band-indigo); box-shadow:var(--ui-notch-brass), 0 0 14px rgba(217,176,102,.12); }
+.run-archetypes .run-archetype-tab.active > span { color:var(--ui-brass-hi); }
+.run-archetypes .archetype-guide { padding:0 2px; margin:0; border:0; background:none; color:var(--ui-text); }
+.run-archetypes .archetype-guide-name { display:none; }
+.run-archetypes .archetype-guide-action { margin:0 0 12px; color:var(--ui-text); font-size:20px; font-weight:700; }
+.run-archetypes .archetype-guide-label { color:var(--ui-text-3); }
+.run-archetypes .archetype-guide > .archetype-rule-note { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--ui-rule); background:none; color:var(--ui-text-2); }
+.run-archetypes .run-economy-limits { margin:16px 2px 2px; padding-top:10px; border-top:1px solid var(--ui-rule); color:var(--ui-text-2); }

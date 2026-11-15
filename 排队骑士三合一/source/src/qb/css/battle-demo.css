@@ -20,6 +20,7 @@
 }
 .vs > .bdemo-focus { left: -22px; right: -22px; top: -22px; bottom: -22px; }
 .vs-pips > .bdemo-focus { left: -12px; right: -12px; top: -10px; bottom: -10px; }
+.unit:has(> .u-status-line:not(.is-empty)) > .bdemo-focus { bottom: -34px; }
 .bdemo-focus.out { animation: bdFade .3s steps(3) forwards; }
 .bdemo-tag {
   position: absolute; left: 50%; bottom: calc(100% + 26px); z-index: 7; pointer-events: none; white-space: nowrap;
