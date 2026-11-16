@@ -25,5 +25,7 @@ ok(rotate.label === '攻击后' && rotate.boiler && rotate.body === '退到队�
 const [blood] = splitAbilities('献出1点永久生命，获得1金（每回合1次）。');
 ok(blood.trig === 'bloodPay' && blood.limit === '每回合1次', 'blood active parsed');
 const [summon] = splitAbilities('每2次交锋后，在队首召唤2/2幼兽（每场3次，需空位）。');
-ok(summon.label === '每2次交锋后' && summon.limit === '每场3次' && summon.body.endsWith('（需空位）'), 'limit split from note');
+ok(summon.label === '每2次交锋后' && summon.trig === 'clashEnd' && summon.limit === '每场3次' && summon.body.endsWith('（需空位）'), 'limit split from note');
+const [bought] = splitAbilities('买下它时，队首下场战斗获得1层格挡。');
+ok(bought.trig === 'buy', 'buy trigger parsed');
 console.log(`ability text: ${SHOP_POOL.length} cards, ${rows} rows (${triggered} with a trigger) parsed`);

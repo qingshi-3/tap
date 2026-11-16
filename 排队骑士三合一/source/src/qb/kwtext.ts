@@ -1,4 +1,5 @@
-import { icon, type IconName } from './icons';
+import type { IconName } from './icons';
+import { rune, type RuneName } from './pxIcons';
 import './css/kw-text.css';
 import { KEYWORD_ALIASES, KEYWORD_HELP, markKeyword } from './keywordHelp';
 
@@ -264,7 +265,7 @@ export function highlightVariantNumbers(container: HTMLElement, text: string, re
 
 // ───────── 技能行：把卡面文案拆成「时机 + 效果 + 次数」 ─────────
 // 卡面文案一句一条技能，形如「成为队首时，身后友军获得1层格挡（每场2次）」。
-// 说明框和卡面都按这个结构画：时机是彩色标签（图标 + 名字），效果是正文，次数是右侧小徽标。
+// 说明框和卡面都按这个结构画：左侧像素符文槽（时机图标），时机名是硬描边彩字，效果是正文，次数是像素小铭牌。
 
 /** 车轮、补给流派每张卡都带的通用句：卡面省略，说明框照常列出 */
 const BOILER = new Set(['攻击后退到队尾', '出售时传承已记录补给']);
@@ -274,7 +275,23 @@ const isTrigger = (head: string) => head.length <= 16 && (/[时后]$/.test(head)
 
 export type AbilityTrig = TrigId | 'passive';
 export interface Ability { trig: AbilityTrig; label: string; body: string; limit?: string; boiler: boolean }
-const PASSIVE = { name: '常驻', icon: 'guard' as IconName, color: '#c3c8e8', gloss: '一直生效，不需要时机触发。' };
+const PASSIVE = { name: '常驻', color: '#c3c8e8', gloss: '一直生效，不需要时机触发。' };
+/** 时机 → 像素符文（pxIcons.ts） */
+const TRIG_RUNE: Record<AbilityTrig, RuneName> = {
+  play: 'arrow', start: 'swords', before: 'burst', beat: 'burst', hurt: 'drop', faint: 'skull', kill: 'skull', summon: 'egg',
+  buy: 'coin', sell: 'coin', food: 'bread', spell: 'spark', round_start: 'sun', shop: 'moon', enter: 'flag', clashEnd: 'hourglass',
+  bloodPay: 'heart', cond: 'eye', passive: 'shield',
+};
+
+/** 技能行的时机归类：在通用 trigMatch 之前补几种卡面写法（交锋后、买下、喂食、致命伤害） */
+function abilityTrig(label: string): TrigId {
+  if (/献/.test(label)) return 'bloodPay';
+  if (/交锋后$/.test(label)) return 'clashEnd';
+  if (/买下/.test(label)) return 'buy';
+  if (/喂食/.test(label)) return 'food';
+  if (/伤害时$/.test(label)) return 'hurt';
+  return trigMatch(label);
+}
 
 export function splitAbilities(text: string): Ability[] {
   const out: Ability[] = [];
@@ -295,7 +312,7 @@ export function splitAbilities(text: string): Ability[] {
     if (/^献出/.test(s)) label = '主动献血';
     else if (head && isTrigger(head)) { label = head; body = s.slice(comma + 1); }
     else { const m = LEAD_TRIG.exec(s); if (m) { label = m[1]; body = s.slice(m[1].length); } }
-    out.push({ trig: label ? trigMatch(label) : 'passive', label: label || PASSIVE.name, body, limit, boiler });
+    out.push({ trig: label ? abilityTrig(label) : 'passive', label: label || PASSIVE.name, body, limit, boiler });
   }
   return out;
 }
@@ -313,32 +330,51 @@ function abilityBody(text: string): HTMLElement {
   return b;
 }
 
-function abilityHead(label: string, ic: IconName, help?: string, term?: string) {
+/** 符文槽：时机色的像素框，里面是像素图标 */
+function socket(name: RuneName) {
+  const sk = el('span', 'ab-socket');
+  sk.append(rune(name));
+  return sk;
+}
+
+function abilityHead(label: string, help?: string, term?: string) {
   const head = el('span', 'ab-head');
-  const name = el('b', 'ab-trig');
-  name.append(icon(ic, 'ab-ic'), label);
+  const name = Object.assign(el('b', 'ab-trig'), { textContent: label });
   if (help) markKeyword(name, term ?? label, help);
   head.append(name);
   return head;
 }
-/** 次数徽标排在正文之后：说明框里跟在句尾，卡面上隐藏 */
-const limitTag = (text?: string) => (text ? Object.assign(el('span', 'ab-limit'), { textContent: text }) : null);
 
-/** 一条技能：左侧色条 + 时机标签 + 正文 */
-export function abilityRow(a: Ability): HTMLElement {
-  const d = trigDef(a.trig);
-  const row = el('div', `ab-row ab-${a.trig}${a.boiler ? ' ab-boiler' : ''}`, tint(d.color));
-  const term = a.trig === 'cond' ? undefined : a.trig === 'passive' ? undefined : d.name;
-  const help = a.trig === 'passive' ? undefined : KEYWORD_HELP[KEYWORD_ALIASES[a.label] ?? a.label] ?? (a.trig === 'cond' ? undefined : d.gloss);
-  row.append(abilityHead(a.label, d.icon, help, term), abilityBody(a.body), ...[limitTag(a.limit)].filter((n): n is HTMLElement => !!n));
+/** 次数铭牌：「每场 2 次」，数字用像素数字字体；紧跟时机名（时机与频率是一组），卡面上隐藏 */
+function limitTag(text?: string, cls = '') {
+  if (!text) return null;
+  const tag = el('span', `ab-limit${cls ? ` ${cls}` : ''}`);
+  const m = /^(每(?:场|回合)(?:共应援)?)(\d+)(次)$/.exec(text);
+  if (m) tag.append(m[1], Object.assign(el('b', 'ab-n'), { textContent: m[2] }), m[3]);
+  else tag.textContent = text;
+  return tag;
+}
+
+/** 一行技能：[符文槽] 时机名 正文 [次数铭牌] */
+function rowOf(cls: string, color: string, runeName: RuneName, head: HTMLElement, body: HTMLElement, limit: HTMLElement | null) {
+  const row = el('div', `ab-row ${cls}`, tint(color));
+  const text = el('span', 'ab-text');
+  if (limit) head.append(limit);
+  text.append(head, body);
+  row.append(socket(runeName), text);
   return row;
 }
 
-/** 金色升级行：金箔底；未到金色时压暗并注明「三连解锁」 */
+export function abilityRow(a: Ability): HTMLElement {
+  const d = trigDef(a.trig);
+  const term = a.trig === 'cond' || a.trig === 'passive' ? undefined : d.name;
+  const help = a.trig === 'passive' ? undefined : KEYWORD_HELP[KEYWORD_ALIASES[a.label] ?? a.label] ?? (a.trig === 'cond' ? undefined : d.gloss);
+  return rowOf(`ab-${a.trig}${a.boiler ? ' ab-boiler' : ''}`, d.color, TRIG_RUNE[a.trig], abilityHead(a.label, help, term), abilityBody(a.body), limitTag(a.limit));
+}
+
+/** 金色升级行：金边铭牌；未到金色时是灰色石牌，注明「三连解锁」 */
 export function goldRow(text: string, on: boolean): HTMLElement {
-  const row = el('div', `ab-row ab-gold${on ? ' on' : ''}`, tint('#ffd36b'));
-  row.append(abilityHead('金色', 'crown'), abilityBody(text), limitTag(on ? '已生效' : '三连解锁')!);
-  return row;
+  return rowOf(`ab-gold${on ? ' on' : ''}`, '#ffd36b', 'crown', abilityHead('金色'), abilityBody(text), limitTag(on ? '已生效' : '三连解锁', 'ab-state'));
 }
 
 /** 说明框：全部技能行（+ 金色行） */

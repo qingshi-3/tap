@@ -99,15 +99,18 @@
   position: absolute; left: 9px; right: 9px; top: 178px; height: 66px; z-index: 3;
   margin: 0; display: block; overflow: hidden; font-size: 17px; text-align: left; color: #e9ecff;
 }
-.card.cf .cf-ability .ab-row { display: block; padding: 2px 4px 0 9px; line-height: 21px; background: none; }
-.card.cf .cf-ability .ab-row::before { top: 3px; bottom: 3px; width: 3px; }
-/* 卡面：标签独占一行，正文两行截断 */
-.card.cf .cf-ability .ab-head { display: flex; align-items: center; gap: 5px; margin: 0; line-height: 20px; }
-.card.cf .cf-ability .ab-trig { font-size: 16px; min-width: 0; overflow: hidden; }
+/* 卡面：符文槽 + 时机名一行，正文两行截断（.ab-text 拆开参与网格） */
+.card.cf .cf-ability .ab-row { grid-template-columns: 22px minmax(0, 1fr); column-gap: 6px; row-gap: 2px; padding: 0 2px 0 3px; line-height: 21px; }
+.card.cf .cf-ability .ab-text { display: contents; }
+.card.cf .cf-ability .ab-socket { grid-area: 1 / 1; width: 22px; height: 22px; margin: 0; }
+.card.cf .cf-ability .ab-socket .rune { width: 16px; height: 16px; }
+.card.cf .cf-ability .ab-head { grid-area: 1 / 2; display: flex; align-items: center; gap: 5px; min-width: 0; margin: 0; line-height: 22px; }
+.card.cf .cf-ability .ab-trig { font-size: 16px; min-width: 0; overflow: hidden; text-overflow: clip; }
 .card.cf .cf-ability .ab-limit { display: none; }
-.card.cf .cf-ability .ab-more { margin-left: auto; font-size: 13px; line-height: 18px; vertical-align: 0; }
+.card.cf .cf-ability .ab-more { margin-left: auto; font-size: 13px; line-height: 16px; vertical-align: 0; }
 .card.cf .cf-ability .ab-body {
-  margin: 1px 0 0; font-size: 17px; line-height: 21px;
+  grid-column: 1 / -1; grid-row: 2;
+  font-size: 17px; line-height: 21px;
   display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
 }
 .card.cf .cf-ability .ab-note { display: none; }
