@@ -170,7 +170,3 @@
 .shelf-hint { margin-top: 6px; font-size: 12px; line-height: 1.4; color: #ffc48a; }
 
 /* 金色技能行：普通时暗显，金色（或预览金色）时点亮 */
-.tip-gold-line { margin-top: 6px; color: #9f93b8; }
-.tip-gold-line b { color: #b8a46a; font-weight: 700; }
-.tip-gold-line.on { color: #fff1c4; }
-.tip-gold-line.on b { color: #ffd166; }

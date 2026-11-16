@@ -1,0 +1,83 @@
+/* ═════════════════════════════════════════════════════════════
+   技能行（2026-11-16）：kwtext.abilityList / abilityBrief
+   每条技能 = 左侧时机色条 + 时机标签（图标 + 名字）+ 右侧次数徽标 + 正文。
+   金色升级单独一行金箔底；未到金色时压暗并注明「三连解锁」。
+   说明框里正文跟随 .tip-text 字号（em）；卡面尺寸在 card-face.css 里另设。
+   ═════════════════════════════════════════════════════════════ */
+
+.ab-list { display: flex; flex-direction: column; gap: .24em; }
+/* 说明框：时机标签、正文、次数徽标同一行内联排，长句在标签下方续行 */
+.ab-row {
+  position: relative; display: block;
+  padding: .14em .5em .18em .78em;
+  line-height: 1.42;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--kc) 13%, transparent), transparent 82%);
+}
+.ab-row::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--kc);
+  box-shadow: 2px 0 0 rgba(0, 0, 0, .35);
+}
+.ab-head { display: inline; margin-right: .45em; }
+.ab-trig {
+  display: inline-flex; align-items: center; gap: .26em; vertical-align: -.02em;
+  color: var(--kc); font-size: .9em; font-weight: 900; letter-spacing: .02em; white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .7);
+}
+.ab-trig .ab-ic { width: 1.05em; height: 1.05em; }
+.ab-trig .ab-ic svg { fill: currentColor; }
+.ab-body { color: #f1f3ff; overflow-wrap: anywhere; }
+.ab-limit, .ab-more {
+  display: inline-block; padding: 0 .48em; font-size: .7em; font-weight: 800; line-height: 1.6; white-space: nowrap; vertical-align: .14em;
+  color: #d9dcf6; background: rgba(4, 3, 16, .55); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14);
+}
+.ab-limit { margin-left: .5em; }
+.ab-more { margin-left: .4em; color: #a9adcf; }
+.ab-note { color: #9ca1c6; font-size: .86em; }
+
+/* 正文里的时机、短词不再套「」：颜色已足够区分 */
+.ab-body .kq { display: none; }
+.ab-body :is(.kwtrig, .kwt) { padding: 0; margin: 0; }
+.ab-body .kwtrig { font-weight: 800; }
+
+/* 释义入口：标签不加下划线；正文里的术语用浅点线，不抢正文 */
+[data-keyword-help="true"] .ab-trig[data-keyword][role="button"] { text-decoration: none; padding-block: 0; }
+[data-keyword-help="true"] .ab-trig[data-keyword][role="button"]:is(:hover, [aria-expanded="true"]) { text-decoration: underline dotted; text-underline-offset: .22em; }
+[data-keyword-help="true"] .ab-body [data-keyword][role="button"] {
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 2px; text-underline-offset: .26em; padding-block: 3px;
+}
+
+/* 车轮「攻击后退到队尾」、补给「出售时传承」这类流派通用句：说明框里收成一行小字 */
+.ab-list .ab-row.ab-boiler { padding-block: .08em; font-size: .9em; background: none; }
+.ab-list .ab-row.ab-boiler::before { opacity: .55; }
+.ab-list .ab-row.ab-boiler .ab-body { color: #c6c9e6; }
+
+/* ───────── 金色行 ───────── */
+.ab-row.ab-gold {
+  margin-top: .1em;
+  background: linear-gradient(90deg, rgba(255, 211, 107, .2), rgba(255, 211, 107, .06) 64%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 228, 150, .28), inset 0 -1px 0 rgba(120, 70, 10, .5);
+  overflow: hidden;
+}
+.ab-row.ab-gold::before { width: 5px; background: linear-gradient(180deg, #fff6d0, #ffd36b 40%, #b7791f); }
+.ab-row.ab-gold .ab-trig { color: #ffd36b; }
+.ab-row.ab-gold .ab-body { color: #fff1c4; }
+.ab-row.ab-gold.on .ab-limit { color: #3a2000; background: #ffd36b; box-shadow: 0 0 0 1px #3a2000; }
+.ab-row.ab-gold.on::after {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 40%; pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255, 246, 210, .22) 50%, transparent);
+  transform: translateX(-120%);
+  animation: abGoldSweep 3.6s ease-in-out infinite;
+}
+@keyframes abGoldSweep { 0%, 60% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }
+.ab-row.ab-gold:not(.on) { background: linear-gradient(90deg, rgba(255, 211, 107, .08), transparent 70%); }
+.ab-row.ab-gold:not(.on)::before { filter: saturate(.3) brightness(.7); }
+.ab-row.ab-gold:not(.on) :is(.ab-trig, .ab-body) { color: #a99f86; }
+.ab-row.ab-gold:not(.on) .ab-body * { color: inherit !important; }
+
+/* 说明框：时机标签与正文的字号节奏 */
+.card-detail .ab-list { margin-top: 2px; }
+.viewport-tip .ab-list { gap: .4em; }
+
+@media (prefers-reduced-motion: reduce) { .ab-row.ab-gold.on::after { animation: none; opacity: 0; } }

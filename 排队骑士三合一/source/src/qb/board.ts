@@ -1,4 +1,4 @@
-import { EQUIP } from '../core/data';
+import { EQUIP, goldStat } from '../core/data';
 import './css/rounds.css';
 import './css/battle-arrows.css';
 import './css/unit-keywords.css';
@@ -10,6 +10,8 @@ import { h } from './dom';
 import { icon, type IconName } from './icons';
 import { unitSvg } from './unitArt';
 import { itemIcon } from './pixelItems';
+import { goldCrown } from './card';
+import './css/gold-unit.css';
 // Battlefield and bench share the same authored pixel pedestal.
 export const seatArt = () => h('div', { class: 'ped' }, h('div', { class: 'ped-rune' }), h('div', { class: 'ped-top' }));
 
@@ -156,10 +158,8 @@ export class UnitView {
       { class: 'u-body' },
       h('div', { class: 'u-bob' }, this.art, h('div', { class: 'u-ice' }), egg ? h('div', { class: 'u-crack' }) : null),
     );
-    const pips =
-      !d.enemyOnly && !d.token && level >= 2
-        ? h('div', { class: 'u-pips gold' }, h('span', { class: 'on' }, icon('crown')))
-        : null;
+    const gold = !d.enemyOnly && !d.token && level >= 2;
+    const pips = gold ? h('div', { class: 'u-pips gold' }, goldCrown('u-crown')) : null;
     this.el = h(
       'div',
       {
@@ -172,7 +172,10 @@ export class UnitView {
       h('div', { class: 'u-taunt' }, h('i')),
       h('div', { class: 'u-rattle' }, h('i')),
       h('div', { class: 'u-ground-shadow', 'aria-hidden': 'true' }),
+      // 金色：脚下金环 + 上升金屑（身后）、身侧星芒（身前）；只在 .u-gold 时显示（gold-unit.css）
+      h('div', { class: 'u-goldfx back', 'aria-hidden': 'true' }, h('i', { class: 'g-ring' }), h('i', { class: 'g-motes m1' }), h('i', { class: 'g-motes m2' })),
       this.body,
+      h('div', { class: 'u-goldfx front', 'aria-hidden': 'true' }, h('i', { class: 'g-spark s1' }), h('i', { class: 'g-spark s2' }), h('i', { class: 'g-spark s3' })),
       h('div', { class: 'u-mat' }),
       this.plEl,
       h('div', { class: 'u-chill u-px' }, this.chEl),
@@ -184,6 +187,7 @@ export class UnitView {
       this.statusLine,
       this.tags,
     );
+    if (gold) this.el.classList.add('u-gold');
     this.place(slot);
     // 每个单位呼吸节奏错开，避免整齐划一
     this.el.style.setProperty('--bob-delay', `${-Math.random() * 3}s`);
@@ -451,7 +455,9 @@ export class UnitView {
   /** 超级自动动物式经验条：本星级已叠份数 / 升下一星所需（三星或非己方不显示） */
   setExp(copies: number | null) {
     this.el.querySelector('.u-exp')?.remove();
+    const wasGold = this.el.classList.contains('u-gold');
     this.el.classList.toggle('u-gold', copies !== null && copies >= 3);
+    if (!wasGold && this.el.classList.contains('u-gold')) this.syncGoldGlint();
     if (copies === null || copies >= 3) return;
     const have = copies, need = 3;
     this.el.appendChild(h('div', { class: 'u-exp', 'aria-label': `三连进度 ${have}/${need}` },
@@ -555,6 +561,30 @@ export class UnitView {
     );
   }
 
+  /** 金色扫光用精灵帧做遮罩，遮罩的逐帧动画必须和精灵呼吸条同相位，否则光会落在上一帧的轮廓上 */
+  syncGoldGlint() {
+    requestAnimationFrame(() => {
+      const anims = this.art.getAnimations({ subtree: true }) as CSSAnimation[];
+      const base = anims.find((a) => a.animationName === 'duelyst-idle-x');
+      if (!base || base.startTime == null) return;
+      for (const a of anims) if (a.animationName === 'goldMaskX') a.startTime = base.startTime;
+    });
+  }
+
+  /** 变金色的一瞬：金光一闪、两圈金环外扩、王冠落下 */
+  goldBurst() {
+    this.el.classList.add('u-gold');
+    this.syncGoldGlint();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const fx = h('div', { class: 'u-goldburst', 'aria-hidden': 'true' }, h('i', { class: 'gb-rays' }), h('i', { class: 'gb-ring' }), h('i', { class: 'gb-ring r2' }), h('i', { class: 'gb-flash' }));
+    this.el.append(fx);
+    setTimeout(() => fx.remove(), 1400);
+    this.art.animate([{ filter: 'brightness(1)' }, { filter: 'brightness(2.6) sepia(.7)', offset: 0.18 }, { filter: 'brightness(1)' }], { duration: 900, easing: 'ease-out' });
+    this.el.querySelector('.u-crown')?.animate(
+      [{ transform: 'translateY(-46px) scale(1.7)', opacity: 0 }, { transform: 'translateY(4px) scale(1)', opacity: 1, offset: 0.55 }, { transform: 'translateY(-3px) scale(1.06)', offset: 0.75 }, { transform: 'translateY(0) scale(1)' }],
+      { duration: 760, delay: 180, easing: 'cubic-bezier(.3,.7,.4,1)', fill: 'backwards' });
+  }
+
   pulse(color = '#fff') {
     this.el.style.setProperty('--pulse', color);
     this.el.classList.remove('pulsing');
@@ -590,7 +620,7 @@ export class UnitView {
 }
 
 function levelBaseAtk(v: UnitView) {
-  return v.level >= 2 ? unitDef(v.defId).atk * 2 : unitDef(v.defId).atk;
+  return v.level >= 2 ? goldStat(unitDef(v.defId).atk) : unitDef(v.defId).atk;
 }
 
 function popEl(el: Element, good: boolean) {

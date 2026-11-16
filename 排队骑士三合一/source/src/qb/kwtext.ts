@@ -1,4 +1,4 @@
-import type { IconName } from './icons';
+import { icon, type IconName } from './icons';
 import './css/kw-text.css';
 import { KEYWORD_ALIASES, KEYWORD_HELP, markKeyword } from './keywordHelp';
 
@@ -260,4 +260,106 @@ export function highlightVariantNumbers(container: HTMLElement, text: string, re
     }
     if (at) { parts.push(node.data.slice(at)); node.replaceWith(...parts); }
   }
+}
+
+// ───────── 技能行：把卡面文案拆成「时机 + 效果 + 次数」 ─────────
+// 卡面文案一句一条技能，形如「成为队首时，身后友军获得1层格挡（每场2次）」。
+// 说明框和卡面都按这个结构画：时机是彩色标签（图标 + 名字），效果是正文，次数是右侧小徽标。
+
+/** 车轮、补给流派每张卡都带的通用句：卡面省略，说明框照常列出 */
+const BOILER = new Set(['攻击后退到队尾', '出售时传承已记录补给']);
+/** 没有逗号、时机直接连着效果的写法 */
+const LEAD_TRIG = /^(攻击后|出售时|每\d*次交锋后)/;
+const isTrigger = (head: string) => head.length <= 16 && (/[时后]$/.test(head) || /^本回合.*施法$/.test(head) || /喂食$/.test(head));
+
+export type AbilityTrig = TrigId | 'passive';
+export interface Ability { trig: AbilityTrig; label: string; body: string; limit?: string; boiler: boolean }
+const PASSIVE = { name: '常驻', icon: 'guard' as IconName, color: '#c3c8e8', gloss: '一直生效，不需要时机触发。' };
+
+export function splitAbilities(text: string): Ability[] {
+  const out: Ability[] = [];
+  for (const raw of text.split('。')) {
+    let s = raw.trim();
+    if (!s) continue;
+    let limit: string | undefined;
+    const lm = /（([^）]*每(?:场|回合)[^）]*)）$/.exec(s);
+    if (lm) {
+      const [first, ...rest] = lm[1].split('，');
+      limit = first;
+      s = s.slice(0, lm.index) + (rest.length ? `（${rest.join('，')}）` : '');
+    }
+    const boiler = BOILER.has(s);
+    let label = '', body = s;
+    const comma = s.search(/[，；]/);
+    const head = comma > 0 ? s.slice(0, comma) : '';
+    if (/^献出/.test(s)) label = '主动献血';
+    else if (head && isTrigger(head)) { label = head; body = s.slice(comma + 1); }
+    else { const m = LEAD_TRIG.exec(s); if (m) { label = m[1]; body = s.slice(m[1].length); } }
+    out.push({ trig: label ? trigMatch(label) : 'passive', label: label || PASSIVE.name, body, limit, boiler });
+  }
+  return out;
+}
+
+const trigDef = (t: AbilityTrig) => (t === 'passive' ? PASSIVE : TRIG[t]);
+
+/** 正文：机制图标照常识别；括号里的补充说明压暗 */
+function abilityBody(text: string): HTMLElement {
+  const b = el('span', 'ab-body');
+  for (const part of text.split(/(（[^）]*）)/)) {
+    if (!part) continue;
+    if (/^（/.test(part)) b.append(Object.assign(el('span', 'ab-note'), { textContent: part }));
+    else b.append(...inline(part, true));
+  }
+  return b;
+}
+
+function abilityHead(label: string, ic: IconName, help?: string, term?: string) {
+  const head = el('span', 'ab-head');
+  const name = el('b', 'ab-trig');
+  name.append(icon(ic, 'ab-ic'), label);
+  if (help) markKeyword(name, term ?? label, help);
+  head.append(name);
+  return head;
+}
+/** 次数徽标排在正文之后：说明框里跟在句尾，卡面上隐藏 */
+const limitTag = (text?: string) => (text ? Object.assign(el('span', 'ab-limit'), { textContent: text }) : null);
+
+/** 一条技能：左侧色条 + 时机标签 + 正文 */
+export function abilityRow(a: Ability): HTMLElement {
+  const d = trigDef(a.trig);
+  const row = el('div', `ab-row ab-${a.trig}${a.boiler ? ' ab-boiler' : ''}`, tint(d.color));
+  const term = a.trig === 'cond' ? undefined : a.trig === 'passive' ? undefined : d.name;
+  const help = a.trig === 'passive' ? undefined : KEYWORD_HELP[KEYWORD_ALIASES[a.label] ?? a.label] ?? (a.trig === 'cond' ? undefined : d.gloss);
+  row.append(abilityHead(a.label, d.icon, help, term), abilityBody(a.body), ...[limitTag(a.limit)].filter((n): n is HTMLElement => !!n));
+  return row;
+}
+
+/** 金色升级行：金箔底；未到金色时压暗并注明「三连解锁」 */
+export function goldRow(text: string, on: boolean): HTMLElement {
+  const row = el('div', `ab-row ab-gold${on ? ' on' : ''}`, tint('#ffd36b'));
+  row.append(abilityHead('金色', 'crown'), abilityBody(text), limitTag(on ? '已生效' : '三连解锁')!);
+  return row;
+}
+
+/** 说明框：全部技能行（+ 金色行） */
+export function abilityList(text: string, gold?: { text: string; on: boolean }): HTMLElement {
+  const list = el('div', 'ab-list');
+  const all = splitAbilities(text);
+  // 流派通用句（攻击后退到队尾……）排在本卡技能之后
+  list.append(...[...all.filter(a => !a.boiler), ...all.filter(a => a.boiler)].map(abilityRow));
+  if (gold?.text) list.append(goldRow(gold.text, gold.on));
+  return list;
+}
+
+/** 卡面：只画主技能（跳过通用句），其余条数用「+n」提示 */
+export function abilityBrief(text: string): HTMLElement {
+  const all = splitAbilities(text);
+  const main = all.find(a => !a.boiler) ?? all[0];
+  const box = el('div', 'card-brief cf-ability');
+  if (!main) return box;
+  const row = abilityRow(main);
+  const more = all.filter(a => a !== main && !a.boiler).length;
+  if (more) row.querySelector('.ab-head')!.append(Object.assign(el('span', 'ab-more'), { textContent: `+${more}` }));
+  box.append(row);
+  return box;
 }

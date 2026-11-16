@@ -4,7 +4,7 @@ import { card, equipOf, equipText, EQUIP, FOOD, foodText, fxFood, goldStat, KW_I
 import { unitSvg } from './unitArt';
 import { FACTION_INFO, unitDef } from './shim';
 import { h, STAGE_H, STAGE_W } from './dom';
-import { highlightVariantNumbers, kwRich, kwTag } from './kwtext';
+import { abilityList, highlightVariantNumbers, kwRich, kwTag } from './kwtext';
 import { closeKeywordHelp, enableKeywordHelp, KEYWORD_HELP, markKeyword } from './keywordHelp';
 import './css/card-details.css';
 import { statArt } from './board';
@@ -82,11 +82,12 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
     detail.dataset.previewLevel = String(viewedLevel);
     goldToggle.checked = viewedLevel >= 2;
     const text = cardText(defId, viewedLevel);
-    const body = h('div', { class: 'tip-text unit-effect-text' }, ...kwRich(text));
+    // 技能按「时机 + 效果 + 次数」分行；金色升级单独一行（kwtext.abilityList）
+    const body = abilityList(text, c.goldText && canCompare ? { text: c.goldText, on: viewedLevel >= 2 } : undefined);
+    body.classList.add('tip-text', 'unit-effect-text');
     if (canCompare) highlightVariantNumbers(body, text, cardText(defId, viewedLevel === 1 ? 2 : 1));
     if (c.inherit) for (const token of body.querySelectorAll<HTMLElement>('[data-keyword="传承"]')) token.dataset.keywordExplanation = KEYWORD_HELP.补给传承;
-    const goldLine = c.goldText ? h('div', { class: `tip-text tip-gold-line${viewedLevel >= 2 ? ' on' : ''}` }, h('b', null, '金色：'), ...kwRich(c.goldText)) : null;
-    effect.replaceChildren(...[body, goldLine, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
+    effect.replaceChildren(...[body, summonCard(defId, viewedLevel as 1 | 2 | 3)].filter(n => n !== null));
     enableKeywordHelp(detail);
     detail.dispatchEvent(new CustomEvent('tipcontentchange', { bubbles: true }));
     detail.dispatchEvent(new CustomEvent('tipvariantchange', { bubbles: true, detail: { level: viewedLevel, currentLevel: actualLevel, preview } }));

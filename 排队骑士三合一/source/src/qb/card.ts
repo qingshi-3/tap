@@ -1,9 +1,9 @@
 import { cardIdentity, identityColor } from './archetypes';
-import { card, FOOD, foodText, KW_INFO } from '../core/data';
+import { card, FOOD, foodText, goldStat, KW_INFO } from '../core/data';
 import { FACTION_INFO, RARITY_NAMES, unitDef, type Rarity } from './shim';
 import { h } from './dom';
 import { icon } from './icons';
-import { kwRich, kwTag, trigCap, trigMatch, type TrigId } from './kwtext';
+import { abilityBrief, kwRich, kwTag, trigCap, trigMatch, type TrigId } from './kwtext';
 import { unitSvg } from './unitArt';
 import { itemIcon } from './pixelItems';
 import { supportIdentity } from './support';
@@ -51,26 +51,32 @@ export function draftCard(defId: string, o: CardOpts = {}) {
   const lvl = o.level ?? 1;
   const plus = o.plus ?? 0;
   const gold = lvl >= 2;
+  const text = cardText(defId, lvl);
+  const atk = o.displayStats?.atk ?? (gold ? goldStat(c.atk) : c.atk) + plus;
+  const hp = o.displayStats?.hp ?? (gold ? goldStat(c.hp) : c.hp) + plus;
+  // 卡面（card-face.css）：通栏立绘窗 + 名牌 + 主技能；金色卡换金框、扫光和王冠
   return h(
     'div',
-    { class: `card tier-${d.tier} fac-${d.faction}`, style: `--fc:${identityColor(c)};--fd:${f.dark};--pxf:var(--pxf-${d.faction});--pxm:var(--pxm-${d.faction});--pxs:var(--pxs-${d.faction})`, 'data-id': defId },
+    { class: `card cf tier-${d.tier} fac-${d.faction}${gold ? ' cf-gold' : ''}`, style: `--fc:${identityColor(c)};--fd:${f.dark};--pxf:var(--pxf-${d.faction});--pxm:var(--pxm-${d.faction});--pxs:var(--pxs-${d.faction})`, 'data-id': defId, 'aria-label': `${d.name}${gold ? '（金色）' : ''}：${text}` },
     h(
       'div',
       { class: 'card-in' },
-      h('div', { class: 'card-shine' }),
+      h('div', { class: 'cf-window', 'aria-hidden': 'true' }, h('i', { class: 'cf-rays' }), h('i', { class: 'cf-floor' })),
       h('i', { class: 'card-sigil' }),
-      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, c.archetype || c.role ? cardIdentity(defId) : c.perm ? '永久成长' : ''), h('span', { class: 'card-tier' }, tierBadge(d.tier))),
       tierArt('card-art', defId, d.tier),
-      h('i', { class: 'card-gems', style: `--n:${d.tier}` }),
-      h('div', { class: 'card-name' }, d.name),
-      c.rules?.length ? h('div', { class: 'card-brief card-mechanism', title: cardText(defId, lvl) }, cardText(defId, lvl).split(/[。；]/)[0]) : h('div', { class: 'card-brief card-keywords' }, ...cardLabels(defId, lvl).map(previewTag)),
-      h('div', { class: 'card-text' }, ...kwRich(cardText(defId, lvl))),
+      h('div', { class: 'card-shine' }),
+      h('div', { class: 'card-top' }, h('span', { class: 'card-fac' }, c.archetype || c.role ? cardIdentity(defId) : c.perm ? '永久成长' : ''), h('span', { class: 'card-tier' }, tierBadge(d.tier))),
+      gold ? goldCrown('cf-crown') : null,
       h(
         'div',
         { class: 'card-stats' },
-        h('span', { class: 'cs atk' }, icon('sword'), h('i', null, o.displayStats?.atk ?? (gold ? c.atk * 2 : c.atk) + plus)),
-        h('span', { class: 'cs hp' }, icon('heart'), h('i', null, o.displayStats?.hp ?? (gold ? c.hp * 2 : c.hp) + plus)),
+        h('span', { class: 'cs atk' }, icon('sword'), h('i', null, atk)),
+        h('span', { class: 'cs hp' }, icon('heart'), h('i', null, hp)),
       ),
+      h('div', { class: 'card-name' }, h('span', null, d.name)),
+      c.rules?.length ? abilityBrief(text) : h('div', { class: 'card-brief card-keywords' }, ...cardLabels(defId, lvl).map(previewTag)),
+      h('div', { class: 'card-text' }, ...kwRich(text)),
+      h('i', { class: 'card-gems', style: `--n:${d.tier}` }),
     ),
     o.mergeTo
       ? h('div', { class: 'card-badge' }, icon('arrowUp'), '变金色')
@@ -80,6 +86,38 @@ export function draftCard(defId: string, o: CardOpts = {}) {
           ? h('div', { class: 'card-badge maxed' }, '已是金色')
           : null,
   );
+}
+
+/** 金色王冠（像素）：金色卡面与场上金色单位共用 */
+const CROWN_PX = [
+  '..y.....y.....y..',
+  '.yry...yry...yry.',
+  '..y.....y.....y..',
+  '..yy...yyy...yy..',
+  '..yyy.yyyyy.yyy..',
+  '..yyyyyyyyyyyyy..',
+  '..ywwyyyryyywwy..',
+  '..yyyyybbbyyyyy..',
+  '..ddddddddddddd..',
+];
+let crownSvg = '';
+export function goldCrown(cls: string) {
+  if (!crownSvg) {
+    const fill: Record<string, string> = { y: '#ffd36b', w: '#fff6d0', r: '#ff5a6e', b: '#6fd3ff', d: '#b7791f' };
+    const paths: Record<string, string> = {};
+    CROWN_PX.forEach((row, y) => [...row].forEach((ch, x) => { if (fill[ch]) paths[ch] = (paths[ch] ?? '') + `M${x + 1} ${y + 1}h1v1h-1z`; }));
+    // 外轮廓：每个实心像素四周补一圈深色
+    const solid = (x: number, y: number) => !!fill[CROWN_PX[y]?.[x] ?? '.'];
+    let ol = '';
+    for (let y = -1; y <= CROWN_PX.length; y++) for (let x = -1; x <= CROWN_PX[0].length; x++) {
+      if (solid(x, y)) continue;
+      let near = false;
+      for (let dy = -1; dy <= 1 && !near; dy++) for (let dx = -1; dx <= 1; dx++) if (solid(x + dx, y + dy)) { near = true; break; }
+      if (near) ol += `M${x + 1} ${y + 1}h1v1h-1z`;
+    }
+    crownSvg = `<svg viewBox="0 0 ${CROWN_PX[0].length + 2} ${CROWN_PX.length + 2}" shape-rendering="crispEdges" aria-hidden="true"><path fill="#2a1600" d="${ol}"/>${Object.entries(paths).map(([k, dd]) => `<path fill="${fill[k]}" d="${dd}"/>`).join('')}</svg>`;
+  }
+  return h('i', { class: `gold-crown ${cls}`, 'aria-hidden': 'true', html: crownSvg });
 }
 
 /** 补给卡：同一套卡框（中立色），立绘换成像素道具 */

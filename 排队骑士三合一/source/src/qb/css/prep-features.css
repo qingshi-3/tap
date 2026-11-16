@@ -499,14 +499,7 @@
 @keyframes tv-ready { 50% { transform: scale(1.05); } }
 .hud-tier .hud-tv { width: 22px; height: 22px; }
 
-/* 金色单位：金光（只动 opacity） */
-.unit.u-gold::after {
-  content: ''; position: absolute; left: 50%; top: 82px; width: 130px; height: 46px; margin-left: -65px;
-  border-radius: 50%; pointer-events: none; mix-blend-mode: screen;
-  background: radial-gradient(ellipse, rgba(255, 211, 107, .75), rgba(255, 211, 107, 0) 70%);
-  animation: u-gold 1.8s ease-in-out infinite;
-}
-@keyframes u-gold { 50% { opacity: .45; } }
+/* 金色单位的表现见 gold-unit.css */
 .tip-stars.gold, .ts-act.gold { color: #ffd36b; font-weight: 900; }
 
 .tavern-box {
@@ -529,7 +522,6 @@
 .tv-up i .px-item { width: 16px; height: 16px; }
 .tv-up:disabled { filter: grayscale(.8) brightness(.6); cursor: default; }
 .tv-up.ready { animation: tv-ready 1.4s ease-in-out infinite; }
-.board .u-pips.gold span { color: #ffd36b; width: 22px; height: 22px; }
 
 /* 数值三位数以上缩字号 */
 .st[data-w="3"] i { font-size: 14px !important; letter-spacing: -1px; }

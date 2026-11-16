@@ -11,6 +11,9 @@ import './qb/css/battle-report.css';
 import { CARDS } from './core/data';
 import { App } from './ui/app';
 import './ui/theme.css';
+// 卡面、技能行、金色单位（2026-11-16）：最后加载，覆盖旧卡面同名元素
+import './qb/css/card-face.css';
+import './qb/css/ability-rows.css';
 import { installPixelSprites } from './qb/pixel';
 import { installItemSprites } from './qb/pixelItems';
 import { rasterize } from './qb/unitArt';

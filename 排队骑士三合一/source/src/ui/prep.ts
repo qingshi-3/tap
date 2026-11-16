@@ -2129,6 +2129,7 @@ export class Game {
         this.fx.ring(p.x, p.y, lineColor(o.def), 70, 30);
         this.fx.statPop(p.x, p.y - 70, `+${o.copies - before}/+${o.copies - before}`, res.levelUp ? '金色！' : '叠加', res.levelUp ? 'pt-power' : 'pt-hp');
         v?.pulse(lineColor(o.def));
+        if (res.levelUp) v?.goldBurst();
       }
     } else {
       sfx.place();
@@ -2242,7 +2243,7 @@ export class Game {
       const p = this.cellPos(to);
       sfx.merge();
       if (!isHand(to)) this.fx.ring(p.x, p.y, lineColor(o.def), 70, 30);
-      if (res.levelUp) { if (!isHand(to)) this.fx.statPop(p.x, p.y - 70, '', '金色！', 'pt-power'); sfx.reward(); }
+      if (res.levelUp) { if (!isHand(to)) { this.fx.statPop(p.x, p.y - 70, '', '金色！', 'pt-power'); this.viewOf(o.oid)?.goldBurst(); } sfx.reward(); }
       this.discFrom = p;
       void this.runFx(res.fx).then(() => this.drainDiscover());
     } else {
