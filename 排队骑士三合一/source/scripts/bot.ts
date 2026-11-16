@@ -354,12 +354,12 @@ export function shopTurn(r: RunState, skill = 1, line?: BotFocus) {
       // 手牌只给 bot 用来接发现；买卡不往手牌里囤
       if (slot >= 0 && isHand(slot) && !cellAt(r, slot)) slot = -1;
       if (slot < 0) {
-        // 接替会把永久加成交给新单位，换人时只损失旧单位本身（身材底子、金色翻倍、流派配合）
+        // 接替会把永久加成交给新单位（同流派全额、跨流派一半），换人时损失旧单位本身和跨流派那一半成长
         let wi = -1;
         let wv = 1e9;
         r.queue.forEach((o, i) => {
           if (!o || o.merc || o.def === best.def) return;
-          const v = retentionValue(r, o, line) - takeoverInherit(o).reduce((a, b) => a + b, 0);
+          const v = retentionValue(r, o, line) - takeoverInherit(o, best.def).reduce((a, b) => a + b, 0);
           if (v < wv) { wv = v; wi = i; }
         });
         if (wi >= 0 && wv + 6 < want(r, best.def, skill, line)) {

@@ -31,7 +31,7 @@ test('resource gate, actual price, and separate food/spell counters',() => {
   equal(r.gold,gold - FOOD.f_powder.price!,'price paid');
   equal(r.queue[0]!.startCharge,2,'charge granted');
   equal([r.tc.foods,r.tc.spells],[1,0],'natural supply counters');
-  const sid = r.nextId++; r.shop.push({sid,kind:'food',def:'x_inscribe',locked:false,free:false});
+  const sid = r.nextId++; r.shop.push({sid,kind:'food',def:'x_ignite',locked:false,free:false});
   ok(useFood(r,sid,0).ok,'real spell intake');
   equal([r.tc.foods,r.tc.spells],[1,1],'spell counters');
 });

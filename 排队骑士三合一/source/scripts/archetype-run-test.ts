@@ -122,10 +122,11 @@ test('discovery spells, hero, camp upgrade, morph and mercenary cannot escape dr
     const base = newRun(seed, { hero: 'seer' }); base.tavern = 3; base.gold = 100;
     const def = activeCardPool(base).find(c => c.tier < 6)!.id;
     base.queue[0] = owned(base, def);
-    for (const spell of ['x_search', 'x_recruit', 'x_draft', 'x_reborn']) {
+    // 定向搜寻 2026-11-16 下架（SUPPORT-REVIEW.md §3）
+    for (const spell of ['x_recruit', 'x_draft', 'x_reborn']) {
       const r = clone(base), sid = r.nextId++;
-      if (spell === 'x_search' || spell === 'x_reborn') {
-        const candidate = activeCardPool(r).find(c => (spell === 'x_search' ? searchPool(r, owned(r, c.id)) : rebornPool(owned(r, c.id), r)).length > 0);
+      if (spell === 'x_reborn') {
+        const candidate = activeCardPool(r).find(c => rebornPool(owned(r, c.id), r).length > 0);
         ok(candidate, `no legal target for ${spell}`);
         r.queue[0] = owned(r, candidate.id);
       }
@@ -250,7 +251,8 @@ test('generated ration limit survives owner replacement', () => {
 test('spell seal honors per-owner limit and repeated end-turn is inert', () => {
   const r = fixture('rune'); r.queue[0] = owned(r, 'rw_rune_scribe');
   for (let i = 0; i < 5; i++) {
-    r.hand[0] = { kind: 'spell', oid: r.nextId++, def: 'x_coin', source: 'test', obtainedTurn: r.turn };
+    // 铸币已下架，用无目标的战备计施法次数
+    r.hand[0] = { kind: 'spell', oid: r.nextId++, def: 'x_ready', source: 'test', obtainedTurn: r.turn };
     ok(castHandSpell(r, HAND_BASE, null).ok, 'seal fixture spell rejected');
   }
   ok(r.tc.spells === 5 && r.queue[0]!.seal === 4, 'scribe did not stop after two triggers');

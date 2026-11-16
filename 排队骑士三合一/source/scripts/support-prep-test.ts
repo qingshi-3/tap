@@ -109,24 +109,25 @@ test('shared meal preserves one direct meal across chef and bell counters',()=>{
 });
 test('advertised relic expansion and camp upgrade preserve state when no reward is available',()=>{
   const r=fixture();const pool=relicPool(r);r.relics=pool.slice(1);r.relicDue=1;openRelic(r);assert.equal(r.relicPick!.opts.length,1);const before=JSON.stringify(r);assert.equal(adRelic(r),false);assert.equal(JSON.stringify(r),before);
-  const f=fixture('ember');f.hero='smith';f.queue[0]=unit(f,'ember');f.queue[0]!.ench='e_testament';f.oranges=EQUIPS.filter(e=>e.q===3&&supportAvailable(e,f.activeArchetypes)).slice(0,2).map(e=>e.id);f.event='fire';assert.equal(fireSmithOk(f.queue[0],f),false);const original=JSON.stringify(f);assert.equal(resolveEvent(f,3,0).ok,false);assert.equal(JSON.stringify(f),original);
+  const f=fixture('ember');f.hero='smith';f.queue[0]=unit(f,'ember');f.queue[0]!.ench='p_reaver';f.oranges=EQUIPS.filter(e=>e.q===3&&supportAvailable(e,f.activeArchetypes)).slice(0,2).map(e=>e.id);f.event='fire';assert.equal(fireSmithOk(f.queue[0],f),false);const original=JSON.stringify(f);assert.equal(resolveEvent(f,3,0).ok,false);assert.equal(JSON.stringify(f),original);
 });
+// 荆棘甲 2026-11-16 起为蓝装，紫装样本换成噬魂刃；白装样本换成单原子白装
 test('advertised purple upgrades respect global orange cap and preserve rejected state',()=>{
-  const r=newRun(3);r.oranges=['o_crown','o_storm'];r.adOrange=1;r.chest={items:['p_thorn'],src:'elite',ad:false};
+  const r=newRun(3);r.oranges=['o_crown','o_storm'];r.adOrange=1;r.chest={items:['p_reaver'],src:'elite',ad:false};
   assert.equal(r.oranges.length,ORANGE_MAX);assert.equal(orangeCapped(r),true);assert.equal(chestCanUp(r),false);
   const before=JSON.stringify(r);assert.equal(adUpgradeChest(r),false);assert.equal(JSON.stringify(r),before);
-  r.hero='smith';r.event='fire';r.queue[0]={...unit(r),ench:'p_thorn'};assert.equal(fireSmithOk(r.queue[0],r),false);
+  r.hero='smith';r.event='fire';r.queue[0]={...unit(r),ench:'p_reaver'};assert.equal(fireSmithOk(r.queue[0],r),false);
   const camp=JSON.stringify(r);assert.equal(resolveEvent(r,3,0).ok,false);assert.equal(JSON.stringify(r),camp);
-  r.chest={items:['p_thorn','w_sword','w_mail'],src:'elite',ad:false};assert.equal(chestCanUp(r),true);assert.equal(adUpgradeChest(r),true);
-  assert.equal(r.chest.items[0],'p_thorn');assert.ok(r.chest.items.every(id=>(equipOf(id)?.q??0)<3));assert.equal(r.adOrange,1);
+  r.chest={items:['p_reaver','b_axe','b_torch'],src:'elite',ad:false};assert.equal(chestCanUp(r),true);assert.equal(adUpgradeChest(r),true);
+  assert.equal(r.chest.items[0],'p_reaver');assert.ok(r.chest.items.every(id=>(equipOf(id)?.q??0)<3));assert.equal(r.adOrange,1);
 });
 test('advertised orange quota and camp upgrade keep separate counters under one global cap',()=>{
-  const r=newRun(3);r.oranges=['o_crown'];r.adOrange=0;r.chest={items:['p_thorn'],src:'elite',ad:false};
+  const r=newRun(3);r.oranges=['o_crown'];r.adOrange=0;r.chest={items:['p_reaver'],src:'elite',ad:false};
   assert.equal(chestCanUp(r),true);assert.equal(adUpgradeChest(r),true);assert.equal(equipOf(r.chest.items[0])?.q,3);assert.equal(r.adOrange,1);
   chestPick(r,0);assert.equal(r.oranges.length,ORANGE_MAX);assert.equal(orangeCapped(r),true);
-  const x=newRun(3);x.adOrange=ORANGE_MAX;x.chest={items:['p_thorn'],src:'elite',ad:false};assert.equal(orangeCapped(x),false);assert.equal(chestCanUp(x),false);
+  const x=newRun(3);x.adOrange=ORANGE_MAX;x.chest={items:['p_reaver'],src:'elite',ad:false};assert.equal(orangeCapped(x),false);assert.equal(chestCanUp(x),false);
   const before=JSON.stringify(x);assert.equal(adUpgradeChest(x),false);assert.equal(JSON.stringify(x),before);
-  x.hero='smith';x.event='fire';x.queue[0]={...unit(x),ench:'p_thorn'};assert.equal(fireSmithOk(x.queue[0],x),true);assert.equal(resolveEvent(x,3,0).ok,true);assert.equal(x.oranges.length,1);assert.equal(x.adOrange,ORANGE_MAX);
+  x.hero='smith';x.event='fire';x.queue[0]={...unit(x),ench:'p_reaver'};assert.equal(fireSmithOk(x.queue[0],x),true);assert.equal(resolveEvent(x,3,0).ok,true);assert.equal(x.oranges.length,1);assert.equal(x.adOrange,ORANGE_MAX);
 });
 test('effective quarry follows the selected existing enemy and falls back without changing selection',()=>{
   const r=newRun(23);r.enemy.units=[{def:'t_wisp',lvl:1,atk:1,hp:10},{def:'t_bonelet',lvl:1,atk:1,hp:10}];
@@ -140,14 +141,14 @@ test('travel rusk sharing query matches actual first-meal eligibility',()=>{
   assert.ok(feed(r,'f_travel_rusk').ok);assert.equal(r.queue[1]!.hpBonus,2);assert.equal(sharesFood(r,'f_travel_rusk'),false);assert.equal(r.tc.foods,1);
 });
 test('merchant availability covers full shelf, missing spell recipient and successful purchase',()=>{
-  const r=fixture();r.queue.fill(null);r.hand.fill(null);r.shop=[];r.merchant=[{kind:'spell',id:'x_bonepact',price:2}];
+  const r=fixture();r.queue.fill(null);r.hand.fill(null);r.shop=[];r.merchant=[{kind:'spell',id:'x_recruit',price:2}];
   for(let i=0;i<FOOD_SHOP_MAX;i++)r.shop.push({sid:r.nextId++,kind:'food',def:'f_bread',locked:false,free:false});
   let before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'补给栏已满，先用掉一份');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
   r.shop=[];before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'先上阵一名队员');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
   r.queue[0]=unit(r);const gold=r.gold;before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),null);assert.equal(JSON.stringify(r),before);assert.equal(buyGoods(r,0),true);
-  assert.equal(r.gold,gold-2);assert.equal(r.merchant[0].sold,true);assert.ok(r.shop.some(s=>s.def==='x_bonepact'&&s.free));
+  assert.equal(r.gold,gold-2);assert.equal(r.merchant[0].sold,true);assert.ok(r.shop.some(s=>s.def==='x_recruit'&&s.free));
   before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'商品已售出');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
-  r.merchant=[{kind:'equip',id:'w_sword',price:4}];r.gold=3;before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'金币不足');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
+  r.merchant=[{kind:'equip',id:'b_axe',price:4}];r.gold=3;before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'金币不足');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
   r.gold=10;r.endTurnCommitted=true;before=JSON.stringify(r);assert.equal(goodsUnavailableReason(r,0),'备战已结束');assert.equal(buyGoods(r,0),false);assert.equal(JSON.stringify(r),before);
 });
 console.log(`${checks} support preparation checks passed`);

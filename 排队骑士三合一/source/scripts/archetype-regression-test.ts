@@ -126,11 +126,12 @@ test('chant observes the actual second and fourth spells and closes its window',
   for (const prior of [1, 4]) {
     const r = fixture('rune');
     r.queue[0] = unit(r, 'rw_common_buckler');
-    for (let i = 0; i < prior; i++) item(r, 'x_coin');
+    // 铸币已下架，用无目标的战备计施法次数
+    for (let i = 0; i < prior; i++) item(r, 'x_ready');
     r.queue[1] = unit(r, 'rw_rune_cantor');
     let seal = 0;
     for (let count = prior + 1; count <= 8; count++) {
-      item(r, 'x_coin');
+      item(r, 'x_ready');
       if (count === 2 || count === 4) seal++;
       assert((r.queue[0]?.seal ?? 0) === seal, 'Unexpected chant on spell ' + count);
     }

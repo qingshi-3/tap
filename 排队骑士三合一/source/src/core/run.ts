@@ -1,5 +1,7 @@
 // 一局状态与商店经济：金币递增、付费升本、混合手牌与三连发现。
-import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPELL_POOL, supportAvailable, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, HERO, type HeroId, type QuestId, QUEST_INFO, type FoodDef, type FoodFx, type Quality, type RelicId, type Tier, type NativeTiming } from './data';
+import { ARCHETYPE_BRIDGES } from './archetypePool';
+import { ECHO_INK_MAX, ECHO_INK_PER, LEDGER_MAX, LEDGER_PER } from './supportCatalog';
+import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, SPELL_POOL, supportAvailable, supportHeld, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, HERO, type HeroId, type QuestId, QUEST_INFO, type FoodDef, type FoodFx, type Quality, type RelicId, type Tier, type NativeTiming } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec, type GrantedAbility } from './engine';
 import ghostData from './ghosts.json';
 import { STAT_CAP, goldStat } from './data';
@@ -137,7 +139,9 @@ export const FORM_INFO: Record<FormKey, { name: string; hint: string }> = {
   rush: { name: '速攻', hint: '攻高血薄，先手打崩你' },
   mixed: { name: '均衡', hint: '什么都有一点' },
 };
-export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[]; encounter?: { key: string; name: string; hint: string } }
+export interface Enemy { boss: BossKey | null; units: UnitSpec[]; form?: FormKey; elite?: Atom[]; encounter?: { key: string; name: string; hint: string };
+  /** 破咒移除的精英词缀（elite 保留原样，精英宝箱仍按它保底） */
+  dispelled?: Atom[] }
 /** 装备箱：3 件翻牌；ad 已看过升品；src 来源 */
 export interface Chest { items: Ench[]; ad: boolean; src: 'elite' | 'boss' }
 
@@ -531,7 +535,7 @@ export const foodPool = (r: RunState) => FOOD_POOL.filter(f => supportAvailable(
 export const spellPool = (r: RunState, max = tierOf(r)) => SPELL_POOL.filter(f => supportAvailable(f, r.activeArchetypes) && f.tier <= max && supplyUsable(r, f.id));
 export function supplyUsable(r: RunState, id: string): boolean {
   const f = FOOD[id];
-  if (!f || !supportAvailable(f, r.activeArchetypes)) return false;
+  if (!f || !supportHeld(f, r.activeArchetypes)) return false;
   if (f.spell === 'echo') return units(r).some(o => !!card(o.def).pl);
   if (f.spell) return f.target ? [...units(r), ...r.hand.filter((o): o is Owned => !!o && !isHeldSpell(o))].some(o => spellTargetOk(r, id, o)) : spellTargetOk(r, id, null);
   return true;
@@ -547,6 +551,9 @@ function spellRequirement(id: string, target?: Owned | null): string {
     case 'search': return target ? '换一名与其他可选单位有相同技能时机的队员' : '本局暂无同技能时机的其他队员';
     case 'echo': return '先上阵带入场技能的队员';
     case 'siphon': return '队长至少要有两颗心';
+    case 'lure': case 'rout': return '本节点没有可调动的敌阵（需普通或精英战，敌方至少两名）';
+    case 'dispel': return '敌方没有护盾或不屈词缀';
+    case 'ignite': return '这名队员已经点过火';
     default: return '先上阵一名队员';
   }
 }
@@ -796,7 +803,18 @@ export function takeoverCheck(r: RunState, sid: number, slot: number): TakeoverR
   if (r.gold + refund < itemPrice(item)) return { ok: false, why: 'gold' };
   return null;
 }
-export const takeoverInherit = (o: Pick<Owned, 'atkBonus' | 'hpBonus'>): [number, number] => [Math.max(0, o.atkBonus), Math.max(0, o.hpBonus)];
+/** 接替的流派关系：同流派，或属于 8 组桥接之一（含卡面自带的桥接流派）为「同源」。通用卡与任何卡都不同源。 */
+export function takeoverKin(oldDef: string, newDef: string): boolean {
+  const a = card(oldDef), b = card(newDef);
+  if (!a.archetype || !b.archetype) return false;
+  if (a.archetype === b.archetype || a.bridge === b.archetype || b.bridge === a.archetype) return true;
+  return ARCHETYPE_BRIDGES.some(([x, y]) => (x === a.archetype && y === b.archetype) || (x === b.archetype && y === a.archetype));
+}
+/** 接替继承的永久攻血：同源全额，跨流派一半（攻、血分别向下取整）；负加成不继承（SUPPORT-REVIEW.md §5） */
+export const takeoverInherit = (o: Pick<Owned, 'def' | 'atkBonus' | 'hpBonus'>, newDef: string): [number, number] => {
+  const k = takeoverKin(o.def, newDef) ? 1 : 0.5;
+  return [Math.floor(Math.max(0, o.atkBonus) * k), Math.floor(Math.max(0, o.hpBonus) * k)];
+};
 export function takeover(r: RunState, sid: number, slot: number, pt?: number, replacePlayAbility = false): TakeoverResult {
   const bad = takeoverCheck(r, sid, slot);
   if (bad) return bad;
@@ -804,7 +822,7 @@ export function takeover(r: RunState, sid: number, slot: number, pt?: number, re
   if (inspectPlayConflict(r, item.def, slot, pt, 1) && !replacePlayAbility) return { ok: false, why: 'ability' };
   const backup = structuredClone(r);
   const old = r.queue[slot]!;
-  const [atk, hp] = takeoverInherit(old);
+  const [atk, hp] = takeoverInherit(old, item.def);
   // 装备直接交给接替者，不经过背包（背包满时也不会被挤掉）
   const ench = old.ench ?? null;
   old.ench = null;
@@ -967,7 +985,7 @@ export const foodNeedsTarget = (id: string) => (FOOD[id].spell ? !!FOOD[id].targ
 /** 返回当前目标的具体缺项；UI 点选与拖放共用。 */
 export function supportTargetHint(r: RunState, id: string, o: Owned | null | undefined, val?: [number, number]): string | null {
   const f = FOOD[id];
-  if (!f || !supportAvailable(f, r.activeArchetypes)) return '本局未开放这件道具';
+  if (!f || !supportHeld(f, r.activeArchetypes)) return '本局未开放这件道具';
   if (f.spell) {
     if (o && (f.spell === 'echo' || f.spell === 'ignite') && !r.queue.includes(o)) return '先把这名队员上阵';
     return spellTargetOk(r, id, o) ? null : o ? spellRequirement(id, o) : '选择一名队员';
@@ -997,6 +1015,9 @@ export function supportTargetHint(r: RunState, id: string, o: Owned | null | und
   }
   if (battleRules.some(rule => rule.scale === 'edges') && units(r).length < 2) return '至少上阵两名队员';
   if (f.resources?.wounds && !ownRules.some(rule => rule.phase === 'battle' && (rule.when === 'half' || rule.when === 'critical' || rule.on === 'hurt'))) return '需有受伤或低血时发动的技能';
+  const sealNow = dynamicSeal(r, id);
+  if (sealNow === 0) return id === 'f_ledger' ? '本回合还没有买卖单位' : '本回合还没有施法';
+  if (sealNow !== null) return (o.seal ?? 0) < STAT_CAP ? null : '这份效果已用满，换一名队员';
   const [atk,hp] = shownStats(o);
   const [a,h] = val ?? (id === 'f_milk' ? [1,1] : [f.atk ?? 0,f.hp ?? 0]);
   const statGain = a > 0 && atk < STAT_CAP || h > 0 && hp < STAT_CAP;
@@ -1011,6 +1032,12 @@ export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' || (s.kind === 'fo
 /** 补给的攻血效果（牛奶看货架上的数值） */
 export const foodStats = (s: ShopItem): [number, number] => s.val ?? [FOOD[s.def]?.atk ?? 0, FOOD[s.def]?.hp ?? 0];
 
+/** 账房算盘 / 双声墨：喂食时按本回合买卖数、施法数换算的首击追伤；其他补给为 null */
+export function dynamicSeal(r: Pick<RunState, 'tc'>, id: string): number | null {
+  if (id === 'f_ledger') return Math.min(LEDGER_MAX, (r.tc.bought + r.tc.sold) * LEDGER_PER);
+  if (id === 'f_echo_ink') return Math.min(ECHO_INK_MAX, r.tc.spells * ECHO_INK_PER);
+  return null;
+}
 export type FoodResult = { ok: false; why: 'gold' | 'target' } | { ok: true; fx: ShopFx[]; levelUp: boolean };
 const inheritableFood = (id: string) => !!FOOD[id]?.inheritable || (INHERIT_FOODS as readonly string[]).includes(id);
 /** 分享餐盘只复制没有额外状态或范围效果的单体攻血补给。 */
@@ -1049,6 +1076,13 @@ function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[], direct =
     else e[key] = Math.min(resource === 'block' ? 30 : resource === 'charge' ? CHARGE_MAX : STAT_CAP, before + n);
     const after = e[key] ?? 0;
     if (after > before) { applied = true; fx.push({kind:'bank', src:e.oid, n:after - before, resource:resource as 'charge' | 'block' | 'seal' | 'wounds', label:f.name}); }
+  }
+  const sealNow = dynamicSeal(r, f.id);
+  if (sealNow) {
+    const before = e.seal ?? 0;
+    bankSeal(e, sealNow, `supply:${f.id}`);
+    const after = e.seal ?? 0;
+    if (after > before) { applied = true; fx.push({kind:'bank', src:e.oid, n:after - before, resource:'seal', label:f.name}); }
   }
   if (f.battleRules?.length && !e.supportFoods?.includes(f.id)) { (e.supportFoods ??= []).push(f.id); applied = true; }
   const v = vOf(e);
@@ -1160,6 +1194,8 @@ export function searchPool(r: RunState, o: Owned): CardDef[] {
 /** 法术目标是否合法（UI 拖放提示也用） */
 export function spellTargetOk(r: RunState, id: string, o: Owned | null | undefined): boolean {
   const f = FOOD[id];
+  if (f.spell === 'lure' || f.spell === 'rout') return enemyMovable(r);
+  if (f.spell === 'dispel') return dispellable(r).length > 0;
   if (!f.target) return f.spell === 'siphon' ? r.lives > 1 : units(r).length > 0 || f.spell === 'bank' || f.spell === 'coin' || f.spell === 'ready' || f.spell === 'omen' || f.spell === 'draft';
   if (!o || o.merc) return false;
   if (f.spell === 'copy') return o.copies < MAX_COPIES;
@@ -1167,8 +1203,14 @@ export function spellTargetOk(r: RunState, id: string, o: Owned | null | undefin
   if (f.spell === 'temper') return !!o.granted && o.granted.duration === 'permanent' && o.granted.id !== 'blood' && !o.granted.tempered;
   if (f.spell === 'reborn') return rebornPool(o, r).length > 0;
   if (f.spell === 'search') return searchPool(r, o).length > 0;
+  if (f.spell === 'ignite') return !o.tfx?.includes('ignite');
   return true;
 }
+/** 诱敌、乱阵：本节点有待打的普通或精英战，敌方至少两名；Boss 战不能调动 */
+const enemyMovable = (r: RunState) => !r.enemy.boss && r.enemy.units.length >= 2 && !!curNode(r) && isCombat(curNode(r)!.k);
+/** 破咒能移除的词缀 */
+const DISPEL: Atom[] = ['shield', 'undying'];
+const dispellable = (r: RunState) => DISPEL.filter((a) => r.enemy.units.some((u) => u.ax?.includes(a)));
 const cellExists = (r: RunState, o: Owned) => r.queue.includes(o) || r.hand.includes(o);
 const dismissGold = (tier: number) => (tier <= 2 ? 2 : tier <= 4 ? 3 : 4);
 function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null, replaceAbility = false, sourceSlot?: number, purchased = true): FoodResult {
@@ -1183,7 +1225,6 @@ function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null,
   if (f.spell === 'transfer' && (!source?.granted || !tgt || source === tgt)) return { ok: false, why: 'target' };
   let incoming: GrantedAbility | undefined;
   if (f.spell === 'bonepact') incoming = { id: 'bone', duration: 'permanent', value: item.val?.[0] ?? 2, source: f.name };
-  else if (f.spell === 'ignite') incoming = { id: 'blood', duration: 'battle', value: 0, source: f.name };
   else if (f.spell === 'inscribe') incoming = { id: 'spark', duration: 'permanent', value: 2, source: f.name };
   else if (f.spell === 'thorn' || f.spell === 'sprout') incoming = { id: f.spell, duration: 'permanent', value: f.spell === 'thorn' ? 2 : 1, source: f.name };
   else if (f.spell === 'transfer') incoming = source?.granted;
@@ -1208,7 +1249,16 @@ function castSpell(r: RunState, item: ShopItem, f: FoodDef, slot: number | null,
   for (let iteration = 0; iteration <= repeats; iteration++) switch (f.spell) {
     case 'echo': onPlay(r, tgt!, fx, undefined, replaceAbility, o => battleGrants.add(o)); break;
     case 'bonepact': tgt!.granted = { id: 'bone', duration: 'permanent', value: item.val?.[0] ?? 2, source: item.source ?? f.name }; break;
-    case 'ignite': if (!tgt!.granted || tgt!.granted.id !== 'blood' || tgt!.granted.duration !== 'battle' || tgt!.granted.value < 0) { tgt!.granted = { id: 'blood', duration: 'battle', value: 0, source: f.name }; battleGrants.add(tgt!); } break;
+    // 点火改用本场特效（不再占附加能力槽）；余温石照旧把它算作施法命中
+    case 'ignite': if (!tgt!.tfx?.includes('ignite')) { tgt!.tfx = [...(tgt!.tfx ?? []), 'ignite']; battleGrants.add(tgt!); } break;
+    case 'lure': if (enemyMovable(r)) r.enemy.units = [r.enemy.units.at(-1)!, ...r.enemy.units.slice(0, -1)]; break;
+    case 'rout': if (enemyMovable(r)) r.enemy.units = [...r.enemy.units.slice(1), r.enemy.units[0]]; break;
+    case 'dispel': {
+      const gone = dispellable(r);
+      for (const u of r.enemy.units) if (u.ax) u.ax = u.ax.filter((a) => !gone.includes(a));
+      r.enemy.dispelled = [...new Set([...(r.enemy.dispelled ?? []), ...gone])];
+      break;
+    }
     case 'inscribe': tgt!.granted = { id: 'spark', duration: 'permanent', value: 2, source: f.name }; break;
     case 'thorn': case 'sprout': if (!tgt!.granted || tgt!.granted.id !== f.spell || tgt!.granted.duration !== 'permanent' || tgt!.granted.value < (f.spell === 'thorn' ? 2 : 1)) tgt!.granted = { id: f.spell, duration: 'permanent', value: f.spell === 'thorn' ? 2 : 1, source: f.name }; break;
     case 'temper': if (tgt!.granted && !tgt!.granted.tempered) { tgt!.granted.value *= 2; tgt!.granted.tempered = true; } break;
@@ -1547,9 +1597,22 @@ export function rollChest(r: RunState, src: Chest['src']): Chest {
   if (r.noPurple >= 3 && !qs.some((q) => q >= 2)) qs[0] = 2;
   const items: Ench[] = [];
   for (const q of qs) items.push(rollItem(r, q, items, 1));
+  // 精英战利品：三件里至少一件带这个精英身上的词缀（打败带灼烧的精英，就能拿到火把）。
+  // 换掉品质最低的一件，优先同品质；橙装不参与保底。
+  const loot = src === 'elite' ? r.enemy.elite ?? [] : [];
+  const carriesLoot = (id: Ench) => !!equipOf(id)?.atoms?.some((a) => loot.includes(a));
+  if (loot.length && !items.some(carriesLoot)) {
+    const at = items.reduce((m, id, i) => ((equipOf(id)?.q ?? 0) < (equipOf(items[m])?.q ?? 0) ? i : m), 0);
+    const q = equipOf(items[at])?.q ?? 0;
+    const pool = equipmentPool(r).filter((e) => e.q < 3 && !items.includes(e.id) && e.atoms?.some((a) => loot.includes(a)));
+    const same = pool.filter((e) => e.q === q);
+    if (pool.length) items[at] = pick(r, same.length ? same : pool).id;
+  }
   r.noPurple = items.some((x) => (equipOf(x)?.q ?? 0) >= 2) ? 0 : r.noPurple + 1;
   return { items, ad: false, src };
 }
+/** 精英战利品保底用：这件装备是否带某个精英词缀 */
+export const lootMatches = (id: Ench, elite: readonly Atom[]) => !!equipOf(id)?.atoms?.some((a) => elite.includes(a));
 /** 紫→橙同时遵守全局持有上限与每局广告升橙额度；其余升品按候选池判断。 */
 const canUp = (r: RunState, id: Ench) => {
   const equipment = equipOf(id);
@@ -2110,12 +2173,13 @@ function loadRecord(raw: string | null, allowStorageEffects: boolean): RunState 
     if (!Array.isArray(r.relics) || r.relics.some(id => !RELICS.some(relic => relic.id === id && supportAvailable(relic, r.activeArchetypes))) || new Set(r.relics).size !== r.relics.length
       || !Array.isArray(r.pendingFx) || !Array.isArray(r.bag) || !Array.isArray(r.oranges)
       || !Array.isArray(r.eco) || !Array.isArray(r.seenEv)) return null;
-    const equipOk = (id: unknown): id is Ench => typeof id === 'string' && !!equipOf(id as Ench) && supportAvailable(equipOf(id as Ench)!, r.activeArchetypes);
+    // 已下架的装备（legacy）仍是合法持有物：旧存档的背包、宝箱、商人货物照常读取，只是不再新出现
+    const equipOk = (id: unknown): id is Ench => typeof id === 'string' && !!equipOf(id as Ench) && supportHeld(equipOf(id as Ench)!, r.activeArchetypes);
     if (r.bag.length > BAG_MAX || r.bag.some(id => !equipOk(id)) || r.oranges.some(id => !equipOk(id) || equipOf(id)?.q !== 3)
       || (r.chest !== null && (!r.chest || !Array.isArray(r.chest.items) || r.chest.items.length !== 3 || r.chest.items.some(id => !equipOk(id)) || typeof r.chest.ad !== 'boolean' || !['elite','boss'].includes(r.chest.src)))
       || (r.relicPick !== null && (!r.relicPick || !Array.isArray(r.relicPick.opts) || r.relicPick.opts.length < 1 || r.relicPick.opts.length > 4 || new Set(r.relicPick.opts).size !== r.relicPick.opts.length || r.relicPick.opts.some(id => r.relics.includes(id) || !RELICS.some(x => x.id === id && supportAvailable(x, r.activeArchetypes))) || typeof r.relicPick.ad !== 'boolean'))
       || !whole(r.relicDue) || (r.shards !== undefined && (!whole(r.shards) || r.shards >= SHARD_NEED))
-      || (r.merchant != null && (!Array.isArray(r.merchant) || r.merchant.some(g => !g || !whole(g.price) || (g.sold !== undefined && typeof g.sold !== 'boolean') || (g.kind === 'equip' ? !equipOk(g.id) : g.kind === 'shard' ? g.id !== 'shard' : g.kind === 'spell' ? !FOOD[g.id]?.spell || !supportAvailable(FOOD[g.id], r.activeArchetypes) : true))))) return null;
+      || (r.merchant != null && (!Array.isArray(r.merchant) || r.merchant.some(g => !g || !whole(g.price) || (g.sold !== undefined && typeof g.sold !== 'boolean') || (g.kind === 'equip' ? !equipOk(g.id) : g.kind === 'shard' ? g.id !== 'shard' : g.kind === 'spell' ? !FOOD[g.id]?.spell || !supportHeld(FOOD[g.id], r.activeArchetypes) : true))))) return null;
     if (r.tc.generatedGold > 4 || r.tc.generatedSpells > 2 || r.tc.generatedRations > 2) return null;
     for (const map of [r.tc.ruleUses, r.tc.ruleEvents]) if (!map || typeof map !== 'object' || Array.isArray(map) || Object.values(map).some(n => !whole(n))) return null;
     if (!Array.isArray(r.map) || r.map.length !== LAYERS + 1 || !Array.isArray(r.path) || !Array.isArray(r.bosses) || !HERO[r.hero]) return null;
@@ -2150,17 +2214,17 @@ function loadRecord(raw: string | null, allowStorageEffects: boolean): RunState 
       && (o.seal === undefined || (whole(o.seal) && o.seal <= STAT_CAP))
       && (o.startCharge === undefined || (whole(o.startCharge) && o.startCharge <= CHARGE_MAX))
       && (o.sealSources === undefined || (!!o.sealSources && typeof o.sealSources === 'object' && !Array.isArray(o.sealSources)
-        && Object.entries(o.sealSources).every(([key,n]) => { const [kind,id,...extra] = key.split(':'); return !extra.length && whole(n) && (kind === 'supply' ? !!FOOD[id] && supportAvailable(FOOD[id], r.activeArchetypes) : kind === 'equipment' ? !!equipOf(id as Ench) && supportAvailable(equipOf(id as Ench)!, r.activeArchetypes) : kind === 'relic' && RELICS.some(x => x.id === id && supportAvailable(x, r.activeArchetypes))); })
+        && Object.entries(o.sealSources).every(([key,n]) => { const [kind,id,...extra] = key.split(':'); return !extra.length && whole(n) && (kind === 'supply' ? !!FOOD[id] && supportHeld(FOOD[id], r.activeArchetypes) : kind === 'equipment' ? !!equipOf(id as Ench) && supportHeld(equipOf(id as Ench)!, r.activeArchetypes) : kind === 'relic' && RELICS.some(x => x.id === id && supportAvailable(x, r.activeArchetypes))); })
         && Object.values(o.sealSources).reduce((sum,n) => sum + n, 0) <= (o.seal ?? 0)))
       && (o.wounds === undefined || (whole(o.wounds) && o.wounds <= STAT_CAP))
-      && (o.supportFoods === undefined || (Array.isArray(o.supportFoods) && new Set(o.supportFoods).size === o.supportFoods.length && o.supportFoods.every(id => typeof id === 'string' && !!FOOD[id]?.battleRules?.length && supportAvailable(FOOD[id], r.activeArchetypes))))
-      && (o.ench == null || (!!equipOf(o.ench) && supportAvailable(equipOf(o.ench)!, r.activeArchetypes)))
+      && (o.supportFoods === undefined || (Array.isArray(o.supportFoods) && new Set(o.supportFoods).size === o.supportFoods.length && o.supportFoods.every(id => typeof id === 'string' && !!FOOD[id]?.battleRules?.length && supportHeld(FOOD[id], r.activeArchetypes))))
+      && (o.ench == null || (!!equipOf(o.ench) && supportHeld(equipOf(o.ench)!, r.activeArchetypes)))
       && ['tmpAtk','tmpHp'].every(key => (o as unknown as Record<string,unknown>)[key] === undefined || finite((o as unknown as Record<string,unknown>)[key]))
       && (o.foodHistory === undefined || (Array.isArray(o.foodHistory) && o.foodHistory.length <= FOOD_HISTORY_MAX && o.foodHistory.every(m => !!m && inheritableFood(m.id) && whole(m.sourceId, 1) && finite(m.atk) && m.atk >= 0 && m.atk <= STAT_CAP && finite(m.hp) && m.hp >= 0 && m.hp <= STAT_CAP)))
       && (o.startBlock === undefined || (Number.isSafeInteger(o.startBlock) && o.startBlock >= 0 && o.startBlock <= 30));
     const handOk = (o: HandCard) => {
       if (!isHeldSpell(o)) return ownedOk(o);
-      return !!FOOD[o.def] && supportAvailable(FOOD[o.def], r.activeArchetypes) && typeof o.source === 'string'
+      return !!FOOD[o.def] && supportHeld(FOOD[o.def], r.activeArchetypes) && typeof o.source === 'string'
         && Number.isSafeInteger(o.obtainedTurn) && o.obtainedTurn > 0
         && (o.expiresTurn === undefined || (Number.isSafeInteger(o.expiresTurn) && o.expiresTurn >= o.obtainedTurn))
         && (o.val === undefined || (Array.isArray(o.val) && o.val.length === 2 && o.val.every(v => finite(v) && v >= 0)));
@@ -2171,7 +2235,7 @@ function loadRecord(raw: string | null, allowStorageEffects: boolean): RunState 
     if (!r.queue.every(o => !o || (idOk(o.oid) && ownedOk(o)))
       || !r.hand.every(o => !o || (idOk(o.oid) && handOk(o)))
       || !Array.isArray(r.shop) || !r.shop.every(s => !!s && idOk(s.sid) && ['unit','food'].includes(s.kind)
-        && (s.kind === 'unit' ? cardAvailable(r, card(s.def)) : !!FOOD[s.def] && supportAvailable(FOOD[s.def], r.activeArchetypes))
+        && (s.kind === 'unit' ? cardAvailable(r, card(s.def)) : !!FOOD[s.def] && supportHeld(FOOD[s.def], r.activeArchetypes))
         && (s.price === undefined || whole(s.price)))) return null;
     if (!Array.isArray(r.rewards) || !r.rewards.every(x => !!x && idOk(x.id)
       && typeof x.source === 'string' && !!x.card && idOk(x.card.oid) && handOk(x.card))) return null;

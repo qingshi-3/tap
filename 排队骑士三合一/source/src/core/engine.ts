@@ -961,6 +961,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       if (u.dead) break;
       if (f === 'plate') { tag(u, '铁甲片'); block(u, u, 2); }
       if (f === 'berry') { tag(u, '刺莓'); damage(u, u, 1, 'shot', sourceOf(u, 'supply', '刺莓')); }
+      if (f === 'ignite') { tag(u, '点火'); damage(u, u, 1, 'shot', sourceOf(u, 'supply', '点火')); }
       if (f === 'bomb') { const t = front(1 - u.side); if (t) { tag(u, '火药包'); damage(u, t, 3, 'shot', sourceOf(u, 'supply', '火药包')); } }
       if (f === 'thunder') { tag(u, '雷霆瓶'); for (const t of alive(1 - u.side)) damage(u, t, 2, 'shot', sourceOf(u, 'supply', '雷霆瓶')); }
     }

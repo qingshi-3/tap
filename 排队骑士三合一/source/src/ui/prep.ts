@@ -13,7 +13,7 @@ import { mapArt } from './mapArt';
 import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
-  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, toggleLock, ownedRules, unequip, useFood,
+  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, takeoverKin, toggleLock, ownedRules, unequip, useFood,
   ACTS, LAYERS, bossOf, curNode, nodeOpts, pickNode, leaveNode, passNode, isCombat, handCap, tavernPrice, buyGoods, heroReady, useHero, fireCopyOk, fireSmithOk, QUESTS, SHARD_NEED, type NodeKind,
   ownedAtk, ownedHp, prepFoodUses, pickDiscover, itemPrice, spellTargetOk, scarCap, hasScar, GUARD_N, LEGION_MAX, type Owned, type RunState, type ShopFx, type ShopItem,
   canPayBlood, payBlood, handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict, foodTargetOk, supportTargetHint, canAdRelic, sharesFood, goodsUnavailableReason, effectiveQuarry,
@@ -440,7 +440,8 @@ export class Game {
     const boss = r.enemy.boss;
     this.banner.className = `stage-banner k-${boss ? 'boss' : 'normal'}`;
 
-    const elite = r.enemy.elite ?? [];
+    // 破咒移除的词缀不再显示（elite 本身保留给精英宝箱保底）
+    const elite = (r.enemy.elite ?? []).filter((a) => !r.enemy.dispelled?.includes(a));
     const form = r.enemy.form;
     if (elite.length) this.banner.classList.add('k-elite');
     this.banner.replaceChildren(
@@ -2152,10 +2153,13 @@ export class Game {
     if (!this.allowed({ kind: 'buy', slot, def: it.def })) return;
     const bad = takeoverCheck(r, it.sid, slot);
     if (bad && !bad.ok) { this.notice(bad.why === 'gold' ? '金币不够' : bad.why === 'ended' ? '本回合已结束' : '不能接替这个单位'); return; }
-    const [a, hp] = takeoverInherit(old);
+    const [a, hp] = takeoverInherit(old, it.def);
+    const kin = takeoverKin(old.def, it.def);
+    const full = [Math.max(0, old.atkBonus), Math.max(0, old.hpBonus)];
     const refund = sellPrice(old) + (r.relics.includes('r_pouch') ? 1 : 0);
-    const keep = [a || hp ? `永久加成 +${a}/+${hp}` : '', old.ench ? `装备「${equipOf(old.ench)?.name ?? ''}」` : ''].filter(Boolean).join('、');
-    const text = `卖掉${card(old.def).name}（+${refund} 金），${card(it.def).name}接替它的位置${keep ? `，继承${keep}` : ''}。金色带来的基础翻倍不会继承。`;
+    const growth = full[0] || full[1] ? (kin ? `同流派全额继承永久加成 +${a}/+${hp}` : `跨流派继承一半永久加成 +${a}/+${hp}（原 +${full[0]}/+${full[1]}）`) : '';
+    const keep = [growth, old.ench ? `装备「${equipOf(old.ench)?.name ?? ''}」` : ''].filter(Boolean).join('；');
+    const text = `卖掉${card(old.def).name}（+${refund} 金），${card(it.def).name}接替它的位置${keep ? `。${keep}` : ''}。金色不会继承。`;
     this.app.confirm('接替队员？', text, '接替', () => this.doTakeover(idx, slot));
   }
 

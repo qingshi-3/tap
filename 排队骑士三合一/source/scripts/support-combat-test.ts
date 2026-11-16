@@ -180,6 +180,7 @@ try {
 
 // 用真实目录逐件交叉十一派；验证至少一个组合实际改变资源、身材或伤害。
 const { SUPPORT_FOODS, SUPPORT_EQUIPS, SUPPORT_RELICS } = await import('../src/core/supportCatalog');
+const { dynamicSeal } = await import('../src/core/run');
 const heroes = ['rw_wheel_courier', 'rw_charge_gunner', 'rw_ember_tinder', 'rw_nest_den', 'rw_blood_razor', 'rw_trade_tycoon', 'rw_rune_chorus', 'rw_pair_cadet', 'rw_hunt_spotter', 'rw_formation_guard', 'rw_supply_cook'];
 const lineup = (hero: string): UnitSpec[] => [unit('rw_ember_tinder', { hp: 1 }), unit(hero, { hp: 28, startCharge: 2 }), unit(hero, { hp: 32, lvl: 2, startCharge: 2 }), unit('rw_charge_gunner', { hp: 40, startCharge: 2 })];
 const opponents = () => [unit('t_wisp', { hp: 3000, atk: 9 }), unit('t_bonelet', { hp: 3000, atk: 9 })];
@@ -196,7 +197,8 @@ for (const item of SUPPORT_FOODS.filter(f => f.battleRules?.length || f.resource
         u.startCharge = (u.startCharge ?? 0) + (item.resources.charge ?? 0);
         u.startBlock = item.resources.block;
         u.wounds = item.resources.wounds;
-        u.seal = item.resources.seal;
+        // 账房算盘 / 双声墨的追伤在喂食时按本回合计数换算，这里取买卖 3 次、施法 2 次的代表值
+        u.seal = item.resources.seal ?? dynamicSeal({ tc: { bought: 2, sold: 1, spells: 2 } } as Parameters<typeof dynamicSeal>[0], item.id) ?? undefined;
         if (u.seal) u.sealSources = { [`supply:${item.id}`]: u.seal };
       }
     }
@@ -239,7 +241,8 @@ const chamberReal = simulate([unit('rw_charge_gunner', { hp: 1, startCharge: 2, 
 ok(chamberReal.events.some(e => e.t === 'counter' && e.uid === 2 && e.charge === 4), 'chamber and team shot chain load actual next gunner');
 ok(chamberReal.stats.units[0].damageBySource.some(s => s.kind === 'supply' && s.label.includes('散弹引信')), 'real release supply keeps own damage contribution'); trace(chamberReal);
 const heirReal = simulate([unit('rw_ember_tinder', { hp: 1 }), unit('rw_common_veteran', { ench: 'e_ember_clasp', supportFoods: ['f_heir_wax'] }), unit('rw_common_veteran')], opponents(), 71, ['r_ash_vow']);
-ok(triggers(heirReal, '承火搭扣').length === 1 && triggers(heirReal, '守火蜡').length === 1, 'clasp and wax trigger on actual heir once');
+// 守火蜡 2026-11-16 起两条规则（攻血 + 格挡）各触发一次；承火搭扣已下架，旧存档装备仍按原规则结算
+ok(triggers(heirReal, '承火搭扣').length === 1 && triggers(heirReal, '守火蜡').length === 2, 'clasp and wax trigger on actual heir once');
 ok(heirReal.events.some(e => e.t === 'block' && e.src === 2 && e.tgt === 3), 'ash vow protects the heir successor'); trace(heirReal);
 const quarryReal = simulate([unit('rw_hunt_spotter'), unit('rw_hunt_spotter', { lvl: 2 })], opponents(), 71, ['r_quarry_writ'], { quarry: 1 });
 ok(quarryReal.events.some(e => e.t === 'dmg' && e.src === 1 && e.tgt === 4 && e.kind === 'shot' && e.n === 2), 'quarry writ scales selected quarry marks (gold spotter adds its extra mark to the front, not the quarry)');
@@ -248,6 +251,6 @@ console.log('support real cards: relay, chamber, heir and selected-quarry combin
 
 const frozenHeir = simulate([unit('rw_nest_den', { hp: 3, atk: 10, ench: 'e_testament' }), unit('rw_common_veteran', { supportFoods: ['f_heir_wax'] })], [unit('t_wisp', { hp: 1000, atk: 60 })]);
 ok(frozenHeir.events.some(e => e.t === 'buff' && e.src === 1 && e.tgt === 2 && e.atk === 3), 'testament retains original heir after native den summon inserts ahead');
-ok(triggers(frozenHeir, '守火蜡').length === 1, 'original heir receives wax interaction');
+ok(triggers(frozenHeir, '守火蜡').length === 2, 'original heir receives wax interaction (buff and block rules)');
 ok(!frozenHeir.events.some(e => e.t === 'buff' && e.src === 1 && e.tgt > 3), 'newly summoned den token receives separate summon body'); trace(frozenHeir);
 console.log('support audit regressions: frozen faint heir and saturated relay budgets passed');

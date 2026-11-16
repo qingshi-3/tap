@@ -37,6 +37,10 @@ function gear(id: string, name: string, q: Quality, icon: string, archetypes: Ar
   template: string, ...rules: ReworkRule[]): EquipDef {
   return { id, name, q, icon, archetypes, role, text:ruleText(template, rules), rules };
 }
+/** 下架的装备：定义保留给旧存档，不再进宝箱和商人（SUPPORT-REVIEW.md §4.5） */
+function retired(...args: Parameters<typeof gear>): EquipDef {
+  return { ...gear(...args), legacy:true };
+}
 function artifact(id: SupportRelicId, name: string, icon: string, archetypes: ArchetypeId[], role: CardRole,
   template: string, counterScope: 'team' | 'holder', ...rules: ReworkRule[]): RelicDef {
   const battleRules = rules.filter((r): r is BattleRule => r.phase === 'battle');
@@ -45,12 +49,14 @@ function artifact(id: SupportRelicId, name: string, icon: string, archetypes: Ar
 }
 
 const travelRuskHp = 2;
+/** 账房算盘、双声墨：喂食时按本回合计数换算成首击追伤（run.ts useFood） */
+export const LEDGER_PER = 1, LEDGER_MAX = 6, ECHO_INK_PER = 2, ECHO_INK_MAX = 8;
 export const SUPPORT_FOODS: FoodDef[] = [
   meal('f_relay_ribbon','接力彩带',1,1,'rl_relay',['wheel'],'cover','轮转到队尾时，新队首获得{0}层格挡（限{0limit}次）。',
     [battle('move','block','front',1,{limit:1})]),
   meal('f_powder','预装弹包',1,2,'f_bomb',['charge'],'starter','开战时，获得{charge}点蓄能。需搭配释放蓄能技能。',[],{charge:2}),
-  meal('f_heir_wax','守火蜡',2,2,'f_lamp',['ember'],'engine','获得传承时，额外+{0}/+{0hp}（限{0limit}次）。',
-    [battle('inherited','buff','self',2,{hp:3,limit:1})]),
+  meal('f_heir_wax','守火蜡',2,2,'f_lamp',['ember'],'engine','获得传承时，额外+{0}/+{0hp}，并获得{1}层格挡（限{0limit}次）。',
+    [battle('inherited','buff','self',2,{hp:3,limit:1}),battle('inherited','block','self',1,{limit:1})]),
   meal('f_den_feed','幼兽饲粮',2,2,'f_bone',['nest'],'engine','召唤友方小兵时，它+{0}/+{0hp}（限{0limit}次）。',
     [battle('summon','buff','event',1,{hp:2,when:'token',limit:2})]),
   meal('f_red_bitters','苦胆酒',2,1,'f_berry',['blood'],'starter','初始生命-{wounds}（至少1血），获得{block}层格挡。',[],{wounds:3,block:1}),
@@ -73,34 +79,48 @@ export const SUPPORT_FOODS: FoodDef[] = [
     [battle('faint','summon','front',4,{hp:4,limit:1})]),
   meal('f_reserve_wax','续契封蜡',6,3,'f_undy',['blood','rune'],'cover','受伤存活且半血及以下时，获得{0}层格挡（每场1次）。下次攻击后追加{seal}伤害。',
     [battle('hurt','block','self',1,{when:'half',limit:1})],{seal:4}),
+  // 2026-11-16：只放大流派资源的装备改成中高阶补给（SUPPORT-REVIEW.md §1.4、§2.2）
+  meal('f_swift_feed','疾行马料',4,2,'f_apple',['wheel'],'engine','轮转到队尾时，本场+{0}/+{0hp}（限{0limit}次）。',
+    [battle('move','buff','self',1,{hp:2,limit:3})]),
+  meal('f_recoil_shot','回压弹药',3,2,'f_iron',['charge'],'engine','释放蓄能后，身后友军蓄能{0}（限{0limit}次）。',
+    [battle('released','charge','behind',2,{limit:2})]),
+  meal('f_den_mask','幼兽护面',4,2,'sp_shield',['nest'],'cover','召唤友方小兵时，它获得{0}层格挡（限{0limit}次）。',
+    [battle('summon','block','event',1,{when:'token',limit:3})]),
+  // 喂食那一刻按本回合计数换算成首击追伤（run.ts dynamicSeal）；resources 为空对象，表示「有资源、不是口粮」
+  { ...meal('f_ledger','账房算盘',2,2,'rl_pouch',['trade'],'engine','',[]), resources:{},
+    text:`下场战斗：下次攻击后追加伤害，本回合每已买卖一个单位 +${LEDGER_PER}（至多${LEDGER_MAX}）。`, short:`追伤：本回合每买卖一个单位 +${LEDGER_PER}` },
+  { ...meal('f_echo_ink','双声墨',3,2,'x_inscribe',['rune'],'engine','',[]), resources:{},
+    text:`下场战斗：下次攻击后追加伤害，本回合每已施法一次 +${ECHO_INK_PER}（至多${ECHO_INK_MAX}）。`, short:`追伤：本回合每施法一次 +${ECHO_INK_PER}` },
+  meal('f_pair_wine','结对酒',2,2,'f_wine',['pair'],'engine','开战时，若与同名友军相邻，搭档本场+{0}/+{0hp}。',
+    [battle('start','buff','partner',2,{hp:2,when:'paired',limit:1})]),
 ];
 
 export const SUPPORT_EQUIPS: EquipDef[] = [
   gear('e_field_cannon','行军臼炮',3,'eq_frost',[],'utility','在后排时，每次交锋后蓄能{0}（每场{0limit}次）。成为队首时，消耗全部蓄能，每点对敌尾造成{1}伤害。',
     battle('clashEnd','charge','self',1,{when:'rear',limit:4}),battle('enter','release','enemyLast',2)),
-  gear('e_courier_spurs','折返马刺',1,'eq_boots',['wheel'],'engine','轮转到队尾时，本场+{0}/+{0hp}（每场{0limit}次）。',
+  retired('e_courier_spurs','折返马刺',1,'eq_boots',['wheel'],'engine','轮转到队尾时，本场+{0}/+{0hp}（每场{0limit}次）。',
     battle('move','buff','self',1,{hp:2,limit:3})),
   gear('e_race_standard','百里风旗',3,'eq_banner',['wheel'],'terminal','成为队首时，对敌尾造成{0}伤害，全队每转完一圈多{0}伤害（每场{0limit}次）。',
     battle('enter','damage','enemyLast',2,{scale:'laps',limit:4})),
-  gear('e_chamber','回压弹膛',2,'eq_bow',['charge'],'engine','释放蓄能后，身后友军蓄能{0}（每场{0limit}次）。',
+  retired('e_chamber','回压弹膛',2,'eq_bow',['charge'],'engine','释放蓄能后，身后友军蓄能{0}（每场{0limit}次）。',
     battle('released','charge','behind',2,{limit:2})),
-  gear('e_loader','递弹臂环',0,'eq_bracer',['charge','formation'],'bridge','在后排时，每次交锋后，身后友军蓄能{0}（每场{0limit}次）。',
+  gear('e_loader','递弹臂环',1,'eq_bracer',['charge','formation'],'bridge','在后排时，每次交锋后，身后友军蓄能{0}（每场{0limit}次）。',
     battle('clashEnd','charge','behind',1,{when:'rear',limit:3})),
-  gear('e_ember_clasp','承火搭扣',1,'eq_halo',['ember'],'cover','获得传承时，获得{0}层格挡（每场{0limit}次）。',
+  retired('e_ember_clasp','承火搭扣',1,'eq_halo',['ember'],'cover','获得传承时，获得{0}层格挡（每场{0limit}次）。',
     battle('inherited','block','self',1,{limit:1})),
-  gear('e_testament','封存遗嘱',2,'eq_tome',['ember'],'engine','阵亡时，身后友军本场继承{0}%攻血及首个可传承的单位阵亡技能（每场{0limit}次）。',
+  gear('e_testament','封存遗嘱',1,'eq_tome',['ember'],'engine','阵亡时，身后友军本场继承{0}%攻血及首个可传承的单位阵亡技能（每场{0limit}次）。',
     battle('faint','inherit','behind',30,{limit:1})),
-  gear('e_hatch_basket','孵兽背篮',0,'eq_belt',['nest'],'starter','阵亡时，在队首召唤{0}/{0hp}幼兽（每场{0limit}次，需空位）。',
+  gear('e_hatch_basket','孵兽背篮',1,'eq_belt',['nest'],'starter','阵亡时，在队首召唤{0}/{0hp}幼兽（每场{0limit}次，需空位）。',
     battle('faint','summon','front',2,{hp:2,limit:1})),
-  gear('e_den_plate','幼兽护面',2,'sp_shield',['nest'],'engine','召唤友方小兵时，它获得{0}层格挡（每场{0limit}次）。',
+  retired('e_den_plate','幼兽护面',2,'sp_shield',['nest'],'engine','召唤友方小兵时，它获得{0}层格挡（每场{0limit}次）。',
     battle('summon','block','event',1,{when:'token',limit:2})),
   gear('e_blood_blade','倒刺短刃',1,'sp_sunder',['blood'],'engine','受伤存活且半血及以下时，对敌首造成{0}伤害（每场{0limit}次）。',
     battle('hurt','damage','enemyFront',3,{when:'half',limit:2})),
-  gear('e_till_chain','收银腰链',1,'eq_hourglass',['trade'],'engine','出售其他单位时，首击追加{0}伤害（每回合{0limit}次）。',
+  retired('e_till_chain','收银腰链',1,'eq_hourglass',['trade'],'engine','出售其他单位时，首击追加{0}伤害（每回合{0limit}次）。',
     prep('sell','seal','self',2,2,{when:'otherEvent'})),
-  gear('e_sigil_quill','双声印笔',2,'eq_tome',['rune'],'engine','本回合第{0at}次施法，各使身后队友的首击追加{0}伤害。',
+  retired('e_sigil_quill','双声印笔',2,'eq_tome',['rune'],'engine','本回合第{0at}次施法，各使身后队友的首击追加{0}伤害。',
     prep('spell','seal','behind',3,2,{at:[2,4]})),
-  gear('e_twin_knot','结对肩绳',0,'eq_gauntlet',['pair'],'starter','开战时，若与同名友军相邻，搭档本场+{0}/+{0hp}。',
+  retired('e_twin_knot','结对肩绳',0,'eq_gauntlet',['pair'],'starter','开战时，若与同名友军相邻，搭档本场+{0}/+{0hp}。',
     battle('start','buff','partner',2,{hp:2,when:'paired',limit:1})),
   gear('e_twin_blade','镜刃',3,'eq_duel',['pair'],'terminal','攻击后，若与同名友军仍相邻，搭档获得{0}层格挡；我对敌尾造成自身攻击{1}%的伤害（每项每场{0limit}次）。',
     battle('afterAttack','block','partner',1,{when:'paired',limit:2}),battle('afterAttack','damage','enemyLast',60,{when:'paired',scale:'attackPct',limit:2})),
@@ -112,9 +132,9 @@ export const SUPPORT_EQUIPS: EquipDef[] = [
     battle('start','share','self',2,{limit:4})),
   gear('e_line_signet','方阵军印',3,'eq_halo',['formation'],'terminal','首次成为队首时，每保留一对原本前后紧邻的队友，身旁队友本场+{0}/+{0hp}。',
     battle('enter','buff','neighbors',2,{hp:2,scale:'edges',limit:1})),
-  gear('e_mess_tin','野炊饭盒',0,'eq_belt',['supply'],'starter','本回合首次被喂食后，下场战斗获得{0}层格挡。',
+  retired('e_mess_tin','野炊饭盒',0,'eq_belt',['supply'],'starter','本回合首次被喂食后，下场战斗获得{0}层格挡。',
     prep('food','block','self',1,1,{when:'selfEvent'})),
-  gear('e_dining_bell','开饭铃',1,'sp_warsong',['supply'],'engine','其他友军被喂食后，永久+{0hp}生命（每回合{0limit}次）。',
+  retired('e_dining_bell','开饭铃',1,'sp_warsong',['supply'],'engine','其他友军被喂食后，永久+{0hp}生命（每回合{0limit}次）。',
     prep('food','buff','self',0,3,{hp:1,when:'otherEvent'})),
 ];
 
