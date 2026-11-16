@@ -124,6 +124,7 @@ pnpm sim 200 0.65   # bot 整局模拟，用于平衡
 | [UNIT-REWORK.md](UNIT-REWORK.md) | 现行 | 11 流派、支援系统的设计与验证记录 |
 | [SYSTEMS.md](SYSTEMS.md) | 现行 | 系统架构与分工、架构决定、英雄与事件方向 |
 | [CARD-REVIEW.md](CARD-REVIEW.md) | 进行中 | 阶段 1 逐卡审查：形象、命名、金色技能升级 |
+| [SUPPORT-REVIEW.md](SUPPORT-REVIEW.md) | 待审 | 阶段 1 ③④：补给 / 法术 / 装备按新分工归类，接替按流派区分继承比例 |
 | [UI-FX-CONVENTIONS.md](UI-FX-CONVENTIONS.md) | 现行 | 视觉、交互、特效约定和派发约束 |
 | [docs/archive/DESIGN-v0.9.md](docs/archive/DESIGN-v0.9.md) | 历史 | v0.9 规划；未实现部分见 §3 |
 | [docs/archive/DESIGN-P4-skills.md](docs/archive/DESIGN-P4-skills.md) | 历史 | 60 张卡时期的技能重做 |
