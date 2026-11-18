@@ -1,16 +1,24 @@
+import { createBattleHistory } from './battle-history.js';
+import { bossRules } from './boss-mechanics.js';
+import { encounterRules, encounterUnitInfo, encounterAnnouncement } from './encounter-system.js';
+import { adventureRules, adventureUnitInfo, adventureAnnouncement } from './adventure-system.js';
+import { createAdventureControls } from './adventure-ui.js';
+import { AdventurePreviewSession, ADVENTURE_PREVIEW_ENABLED, createAdventurePreviewPicker } from './adventure-preview.js';
+import { createAdventureGift } from './adventure-gift-ui.js';
+const scenarioRules = state => state?.adventure ? adventureRules(state) : state?.boss?.id === 'frost-queen' ? bossRules(state) : encounterRules(state).length ? encounterRules(state) : bossRules(state);
 import { GiftCodeUI } from './gift-code-ui.js';
 import {MenuMusic} from './menu-music.js';
 import {AudioSettings} from './audio-settings.js';
 import { createBattleFlow } from './battle-flow.js';
 import { createBattleDrawController } from './battle-draw-controller.js';
 import { createBattleTips } from './battle-tips.js';
+import { getTrialBackground } from './trial-backgrounds.js';
 import './touch-ui.js';
 import './qibing-ui.js';
 import { createHandDrag } from './hand-drag.js';
 import { createPressInspect } from './press-inspect.js';
 import { battleRuleSections, battleObjectiveCopy } from './battle-help.js';
-import { bossRules } from './boss-mechanics.js';
-import { getCard } from './cards.js';
+import { CARDS, getCard } from './cards.js';
 import { createHandLayout } from './hand-layout.js';
 import { cardRuleSections } from './card-rules.js';
 import { renderBattleDetailRules } from './battle-detail-content.js';
@@ -20,29 +28,42 @@ import { getCardRarity } from './card-rarity.js';
 import { createGameCard } from './game-card.js';
 import { createBattleCommandPreview } from './battle-command-preview.js';
 import { getHero, getFaction } from './factions.js';
+import { LEVELS, TRIAL_GROUPS, isTrialUnlocked, nextTrialLevel } from './levels.js';
 import {
-  attackPositions, attackUnit, castSpell, confirmMulligan, endTurn,
+  attackPositions, attackUnit, castSpell, confirmMulligan, createChallengeMatch, endTurn,
   effectiveAttack, findGeneral, getLevel, movementPath, moveUnit, occupiedUnit, playCard, restoreMatch, spellTargets,
   startBotTurn, summonPositions, toggleMulligan, useBattleCommand, battleCommandTargets, spellPositions, getBattleCard, getUnitBattleCard, canUseHandCard, replaceHandCard, canReplaceHandCard
 } from './engine.js';
-import { createCampaignMatch, objectiveText } from './engine.js';
+import { createExpeditionMatch, boardOf, objectiveText, isTacticalMatch } from './engine.js';
 import * as battleRules from './engine.js';
 import { hasAvailablePlayerAction } from './battle-available-actions.js';
-import { EXPEDITION_LEVELS } from './expedition-data.js';
-import { PlayerProfile } from './profile.js';
+import { EXPEDITION_LEVELS, trainingBonus, DEPLOYMENT_BUDGET, deploymentCost } from './expedition-data.js';
+import { ExpeditionProgress } from './expedition-progress.js';
 import { ExpeditionUI } from './expedition-ui.js';
+import { RecruitmentUI } from './recruitment-ui.js';
 import { ResourceRewardsUI } from './resource-rewards-ui.js';
 import { RewardPresentation } from './reward-presentation.js';
 import { renderBattleRewardSummary } from './battle-reward-summary.js';
 import { createPlatformProgress } from './platform-progress.js';
 import { PlatformProgressUI } from './platform-progress-ui.js';
+import { RANKED_CHALLENGE, RankedChallengeSession } from './ranked-challenge.js';
+import { RoguelikeSession, ROGUELIKE_KEY } from './roguelike-session.js';
+import { RoguelikeUI } from './roguelike-ui.js';
+import { RELICS } from './roguelike-rules.js';
+import { RELIC_ICONS } from './roguelike-icons.js';
+import { prepareRoguelikeRewardFx, playRoguelikeRewardFx, cancelRoguelikeRewardFx } from './roguelike-reward-fx.js';
 import { BoardRenderer } from './renderer.js';
 import { SceneLoading } from './scene-loading.js';
+import { changeScene } from './qibing-motion.js';
 import { assetImage, assetFetch } from './asset-loading.js';
+import { SaveManager } from './save-manager.js';
+import { CampaignProgress } from './campaign-progress.js';
+import { MetagameUI } from './metagame-ui.js';
 import { PlayerCloud } from './player-cloud.js';
-import { SAVE_KEYS } from './storage-keys.js';
+import { createAdSelfTest } from './ad-self-test.js';
 import { rewardedAd } from './rewarded-ad.js';
 import { parsePlist, framesWithPrefix, drawAtlasFrame } from './atlas.js';
+import { getUnitSpecializations } from './campaign-rules.js';
 
 const handLayout = createHandLayout(document.getElementById('hand'), document.getElementById('hand-count'));
 const commandIconFrames = new Map();
@@ -77,14 +98,15 @@ function drawCommandIcon(canvas, iconName) {
 
 const $ = (id) => document.getElementById(id);
 const ui = {
-  match: $('match'),
+  lobby: $('lobby'), match: $('match'), start: $('new-game'), levelList: $('level-list'), resumeLocal: $('resume-local'),
+  resumeCloud: $('resume-cloud'), cloudStatus: $('cloud-status'), syncCloud: $('sync-cloud'),
   leave: $('leave-match'), turn: $('turn-label'), phase: $('phase-label'), mana: $('mana-count'),
   levelKicker: $('level-kicker'), levelTitle: $('level-title'), levelGoal: $('level-goal'),
   manaOrbs: $('mana-orbs'), bbs: $('bbs-button'), endTurn: $('end-turn'), playerHp: $('player-hp'),
   enemyHp: $('enemy-hp'), playerDeck: $('player-deck-count'), enemyDeck: $('enemy-deck-count'),
   hand: $('hand'), instruction: $('hand-instruction'), selectedUnit: $('selected-unit-label'),
   replaceCard: $('replace-hand-card'), drawStatus: $('draw-hand-status'),
-  battleLog: $('battle-log'), board: $('board'), hint: $('board-hint'),
+  battleLog: $('battle-log'), matchSync: $('match-sync'), board: $('board'), hint: $('board-hint'),
   battleRow: document.querySelector('.battle-row'), unitInspect: $('unit-inspect'),
   inspectCast: $('inspect-cast'), objective: $('objective-dialog'), objectiveOpen: $('objective-open'),
   objectiveClose: $('objective-close'), objectiveTitle: $('objective-title'), objectiveGoal: $('objective-goal'),
@@ -100,9 +122,22 @@ const ui = {
   confirmCopy: $('confirm-copy'), confirmCancel: $('confirm-cancel'), confirmAccept: $('confirm-accept')
 };
 
+const battleHistory = createBattleHistory({
+  root: $('battle-history'), trigger: $('battle-history-open'), panel: $('battle-history-panel'),
+  list: $('battle-history-list'), state: () => match,
+  drawArt: (canvas, id) => renderer.drawCardArt(canvas, id),
+  beforeOpen: () => {
+    selectedCardIndex = inspectedHandIndex = null;
+    cardFollowup = null; commandMode = false; commandPreview?.close();
+    closeInspect(); closeMapOverview(false); refreshMatch(); drawBoard();
+  }
+});
+
 const battleTips = createBattleTips({ root: document.querySelector('.battle-top-center') });
-const battleFlow = createBattleFlow(ui.match, { onSelect: onHandCard, onConfirm: advanceTurn, makeCard: (id, index) => cardButton(getBattleCard(match, id), index) });
+const battleFlow = createBattleFlow(ui.match, { onSelect: onHandCard, onConfirm: advanceTurn, getCard: id => getBattleCard(match, id), makeCard: (id, index) => cardButton(getBattleCard(match, id), index) });
 let announcedTurn = '', pendingTurn = null;
+let shownBossAnnounce = 0;
+let shownEncounterAnnounce = 0;
 let botRunToken = 0;
 async function announceTurn() {
   if (!match || ui.match.hidden || ui.objective.open || ['mulligan', 'over'].includes(match.phase)) return;
@@ -125,7 +160,16 @@ const renderer = new BoardRenderer(ui.board, {
 
 const drawController = createBattleDrawController(ui.match, ui.hand, {
   state: () => match, epoch: () => matchEpoch,
-  card: (id, owner) => getBattleCard(match,id,owner),
+  card: (id, owner) => {
+    const card=getBattleCard(match,id,owner);
+    if(owner!==0||match.mode!=='expedition'||!card)return card;
+    // Frozen roguelike cards already include their local upgrades. The draw
+    // controller's Lv badge describes permanent training and must stay absent.
+    if (Object.hasOwn(match, 'roguelike')) return { ...card, trainingLevel: undefined };
+    const trainingLevel=card.type==='spell'?match.loadout?.spellTraining?.[id]??0:match.training?.[id]??0;
+    const growth=card.type==='unit'?(match.unitGrowth?.[id]??trainingBonus(id,trainingLevel)):{attack:0,health:0};
+    return {...card,trainingLevel,attack:card.attack+growth.attack,health:card.health+growth.health};
+  },
   drawArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   onBusyChange: () => { if (match && !ui.match.hidden) refreshMatch(); },
   onSettled: () => { if (match && !ui.match.hidden) refreshMatch(); }
@@ -157,6 +201,7 @@ function refreshVisibleHealth(units) {
   }
 }
 function displayedEnemy(units = match?.units ?? []) {
+  if (!isTacticalMatch(match)) return 1;
   const living = units.filter(unit=>unit.owner!==0 && unit.health>0 && getCard(unit.cardId)?.type==='general');
   return living.find(unit=>unit.owner===match.currentPlayer)?.owner ?? living.find(unit=>unit.owner===focusedEnemyOwner)?.owner ?? living[0]?.owner ?? 1;
 }
@@ -171,8 +216,10 @@ let inspectHandSourceIndex = null;
 let inspectHandCardId = null;
 let handPresentationMatch = null;
 let handPresentationKey = '';
+let selectedLevelId = LEVELS[0].id;
 let commandMode = false;
 let commandPreview = null;
+let adventureControls = null;
 let hoveredUnitId = null;
 let inspectedUnitId = null;
 let inspectArtFrame = null;
@@ -205,20 +252,27 @@ let cloudChoice = null;
 let cloudBusy = false;
 let cloudReturnFocus = null;
 let cloudActionError = '';
+let cloudSyncingLatest = false;
+let cloudLatestQueued = false;
 let confirmResolver = null;
 let confirmReturnFocus = null;
+let metagame = null;
 let lastSettlement = null;
 let adRewardSession = null;
 let resultRewardDay = null;
 let expeditionUI = null;
+let roguelikeUI = null;
+let roguelikeSaveNotice = '';
+let recruitmentUI = null;
 let resourceRewardsUI = null;
+let trialError = '';
 let cameraGesture = null;
 let botRunning = false;
 let botFailure = '';
 let focusedEnemyOwner = 1;
 let enemyFocusIndex = 0;
 playerCloud = new PlayerCloud({
-  onChange: () => refreshCloudUI(),
+  onChange: () => { cloudActionError = ''; refreshCloudUI(); },
   onRestore: () => {
     replacingPlayerSave = true;
     invalidateCampAds();
@@ -239,49 +293,252 @@ const playerStorage = {
     localStorage.setItem(key, value);
   }
 };
-const expedition = new PlayerProfile(playerStorage);
-const platformProgress = createPlatformProgress({ readState: () => expedition.state });
-const platformProgressUI = new PlatformProgressUI({ service: platformProgress });
+const expedition = new ExpeditionProgress(playerStorage);
+const rankedChallenge = new RankedChallengeSession();
+const isRankedMatch = (state = match) => !!state && rankedChallenge.owns(state);
+const adventurePreview = new AdventurePreviewSession();
+let adventurePreviewContext = false;
+let adventurePreviewCloudPaused = false;
+const isAdventurePreview = (state = match) => adventurePreview.attempted(state);
+const roguelikeSession = new RoguelikeSession();
+const hasRoguelikeMarker = (state = match) => !!state && Object.hasOwn(state, 'roguelike');
+const isRoguelikeMatch = (state = match) => !!state && roguelikeSession.owns(state);
+const isIndependentMatch = (state = match) => isRankedMatch(state) || hasRoguelikeMarker(state) || isAdventurePreview(state);
+const isRoguelikeActive = () => Boolean(roguelikeUI?.visible) || hasRoguelikeMarker();
+// A detached challenge must fail closed rather than fall through to the player
+// expedition ledger after cancellation, replacement or an asynchronous callback.
+const rankedAttempts = new WeakSet();
+const platformProgress = createPlatformProgress({ readState: () => expedition.state, readChallengeResult: () => rankedChallenge.bestResult });
+const platformProgressUI = new PlatformProgressUI({ service: platformProgress,
+  onChallengeStart: openRankedPreparation, onChallengeResume: resumeRankedChallenge,
+  readChallenge: () => ({ bestResult: rankedChallenge.bestResult, hasResume: rankedChallenge.hasResume }),
+  readProgress: () => expedition.state
+});
+let rankedSubmitBusy = false;
+let rankedResultNotice = '';
+const rankedSubmit = document.createElement('button');
+rankedSubmit.id = 'result-ranked-submit'; rankedSubmit.type = 'button'; rankedSubmit.className = 'button button-primary';
+rankedSubmit.textContent = '提交成绩'; rankedSubmit.hidden = true;
+const rankedStatus = document.createElement('p'); rankedStatus.id = 'result-ranked-status'; rankedStatus.hidden = true;
+rankedStatus.setAttribute('role', 'status'); rankedStatus.setAttribute('aria-live', 'polite');
+ui.nextLevel.before(rankedSubmit);
+ui.result.querySelector('.result-body').append(rankedStatus);
+const platformResultStatus = document.createElement('p');
+platformResultStatus.id = 'result-platform-status'; platformResultStatus.hidden = true;
+platformResultStatus.setAttribute('role', 'status');
+ui.result.querySelector('.result-body').append(platformResultStatus);
+rankedSubmit.addEventListener('click', () => void submitRankedResult());
 let platformProgressSignature = '';
-function syncPlatformProgress() {
-  if (replacingPlayerSave || playerCloud.state.blocked || expedition.error) return;
-  const signature = JSON.stringify([expedition.state.completed, expedition.state.inventory]);
-  if (signature === platformProgressSignature) return;
+function refreshPlatformResultFeedback() {
+  platformResultStatus.hidden = !match || match.mode !== 'expedition' || isIndependentMatch() || match.phase !== 'over' || match.winner !== 0 || !!expedition.error;
+  if (platformResultStatus.hidden) return;
+  const score = platformProgress.score(), status = platformProgress.getStatus().leaderboard;
+  const feedback = status.state === 'unconfigured' ? '排行待开通'
+    : !platformProgress.getCapabilities().leaderboard ? 'TapTap内可同步排行'
+      : status.state === 'error' ? '排行同步失败，可在排行榜重试'
+        : status.state === 'synced' && platformProgress.getStatus().submittedScore >= score ? '排行已同步'
+          : '排行待同步';
+  platformResultStatus.textContent = `远征总进度 ${score} / ${EXPEDITION_LEVELS.length * 6} 关 · ${feedback}`;
+}
+function syncPlatformProgress({ force = false } = {}) {
+  if (replacingPlayerSave || playerCloud.state.blocked || expedition.error || isRoguelikeActive() || adventurePreviewContext) return;
+  const signature = JSON.stringify([expedition.state.factionCompleted, expedition.state.inventory]);
+  if (!force && signature === platformProgressSignature) return;
   platformProgressSignature = signature;
-  void platformProgress.syncAchievements();
+  void platformProgress.sync().then(() => { platformProgressUI.refresh(); refreshPlatformResultFeedback(); });
 }
 expedition.subscribe(syncPlatformProgress);
+window.addEventListener('online', () => syncPlatformProgress({ force:true }));
+window.addEventListener('pageshow', () => syncPlatformProgress({ force:true }));
 const giftCodeUI = new GiftCodeUI({ progress: expedition, onClose: () => {
   audioSettings.open(audioSettings.opener);
   audioSettings.giftCode.focus();
 }, onReward: () => expeditionUI?.refresh() });
 audioSettings.onGiftCode = () => giftCodeUI.open();
+const campaign = new CampaignProgress(LEVELS, playerStorage);
 expedition.subscribe(() => playerCloud.notifyLocalChange());
 
+const saves = new SaveManager((message, status) => {
+  ui.cloudStatus.textContent = message === '浏览器本地存档已就绪' ? '进度自动保存' : message;
+  refreshSaveButtons(status);
+}, playerStorage);
+
+// Permanent chapter progress survives replacing or restoring a battle snapshot.
+campaign.observe(saves.localSnapshot);
+selectedLevelId = saves.localSnapshot?.mode === 'challenge' && saves.localSnapshot.phase !== 'over'
+  ? saves.localSnapshot.levelId
+  : LEVELS.find((level) => !campaign.completed.has(level.id))?.id ?? LEVELS.at(-1).id;
+metagame = new MetagameUI({
+  levels: LEVELS, cards: CARDS,
+  drawCardArt: (canvas, id) => renderer.drawCardArt(canvas, id),
+  drawCardIdle: (canvas, id, time) => renderer.drawCardIdle(canvas, id, time),
+  onSelectLevel: (id) => { selectedLevelId = id; }
+});
+const adSelfTest = createAdSelfTest($('ad-self-test-dialog'));
 const rewardPresentation = new RewardPresentation();
+recruitmentUI = new RecruitmentUI({
+  progress: expedition,
+  drawCardArt: (canvas, id) => renderer.drawCardArt(canvas, id),
+  onClose: () => expeditionUI?.refresh(),
+  onReward: receipt => rewardPresentation.show(receipt)
+});
 resourceRewardsUI = new ResourceRewardsUI({ progress: expedition, onClose: () => expeditionUI?.refresh(), onReward: receipt => rewardPresentation.show(receipt) });
 expeditionUI = new ExpeditionUI({
   root: $('expedition-home'), progress: expedition,
   drawCardArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   drawCardIdle: (canvas, id, time) => renderer.drawCardIdle(canvas, id, time),
   onStart: (id) => void startExpedition(id), onResume: resumeExpedition,
+  onRoguelike: openRoguelike,
+  onAdventurePreview: ADVENTURE_PREVIEW_ENABLED ? openAdventurePreview : null,
   onCloud: openPlayerCloud,
   onLeaderboard: target => platformProgressUI.open('leaderboard', target),
   onAchievements: target => platformProgressUI.open('achievements', target),
   onAudioSettings: (target) => audioSettings.open(target),
   onMusicToggle: (event) => menuMusic.toggle(event),
   musicPreferences: () => menuMusic.preferences,
-  onResourceRewards: () => resourceRewardsUI.open(),
+  onAdSelfTest: () => adSelfTest.open(),
+  onRecruitment: () => { resourceRewardsUI.invalidate(); recruitmentUI.open(); },
+  onResourceRewards: () => { recruitmentUI.invalidate(); resourceRewardsUI.open(); },
+  trials: {
+    levels: LEVELS,
+    read: () => ({
+      completed: completedLevels(),
+      resumeLevelId: saves.localSnapshot?.mode === 'challenge' && saves.localSnapshot.phase !== 'over' ? saves.localSnapshot.levelId : null,
+      cloudAvailable: saves.cloudAvailable, hasCloudArchive: Boolean(saves.archive),
+      hasLocal: saves.localSnapshot?.mode === 'challenge',
+      error: campaign.error || saves.localError?.message || trialError
+    }),
+    start: (id) => {
+      if (saves.localSnapshot?.mode === 'challenge' && saves.localSnapshot.phase !== 'over' && saves.localSnapshot.levelId === id) resumeLocal();
+      else void startLevel(id);
+    },
+    resumeCloud: () => void resumeCloud(), sync: () => void syncNow(saves.localSnapshot)
+  }
+});
+roguelikeUI = new RoguelikeUI({
+  session: roguelikeSession,
+  drawArt: (canvas, id) => renderer.drawCardArt(canvas, id),
+  onBattle: startRoguelikeBattle,
+  onClose: () => {
+    cancelRoguelikeRewardFx(); roguelikeSession.leave();
+    playerCloud.paused = false; showExpeditionHome();
+  },
+  confirm: options => askConfirmation(options.message, options.confirmText || '确认', { title: options.title, cancelFirst: true, intent: 'roguelike' }),
+  playRewardFx: target => void playRoguelikeRewardFx(target)
+});
+const adventureGift = createAdventureGift({
+  progress: expedition,
+  canShow: () => ui.match.hidden && !roguelikeUI.visible && !sceneLoading.busy && !adventurePreviewContext,
+  onPlay() {
+    expeditionUI.chapterId = 'storm-front';
+    expeditionUI.levelId = 'storm-01';
+    expeditionUI.navigate('expedition');
+  }
 });
 expeditionUI.show();
+adventureGift.check();
 syncPlatformProgress();
 
 function showExpeditionHome() {
+  roguelikeUI?.hide(); cancelRoguelikeRewardFx();
+  adventureControls?.cancel(false);
   invalidateCampAds();
   commandPreview?.close();
   closeMapOverview(false);
-  ui.match.hidden = true;
-  expeditionUI.show();
+  ui.lobby.hidden = true; ui.match.hidden = true;
+  metagame.closeOverlays(); expeditionUI.show();
+  adventureGift.check();
+}
+
+const adventurePreviewPicker = createAdventurePreviewPicker({
+  onChoose: levelId => void startAdventurePreview(levelId),
+  onClose: () => { adventurePreview.leave(); releaseAdventurePreview(); }
+});
+const previewSwitch = document.createElement('button');
+previewSwitch.type = 'button'; previewSwitch.className = 'button button-secondary';
+previewSwitch.textContent = '切换测试'; previewSwitch.hidden = true;
+ui.playAgain.after(previewSwitch);
+previewSwitch.addEventListener('click', () => {
+  if (!isAdventurePreview()) return;
+  void returnToLobby({ afterReturn: openAdventurePreview });
+});
+function releaseAdventurePreview() {
+  if (!adventurePreviewContext) return;
+  adventurePreviewContext = false;
+  playerCloud.paused = adventurePreviewCloudPaused;
+}
+function openAdventurePreview() {
+  if (!ADVENTURE_PREVIEW_ENABLED || sceneLoading.busy || adventurePreviewContext || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || playerCloud.state.operationBusy || playerCloud.state.cacheBusy || !ui.match.hidden) return;
+  adventurePreviewContext = true; adventurePreviewCloudPaused = playerCloud.paused;
+  playerCloud.paused = true; invalidateCampAds();
+  adventurePreviewPicker.open();
+}
+async function startAdventurePreview(levelId) {
+  if (!ADVENTURE_PREVIEW_ENABLED || !adventurePreviewContext || sceneLoading.busy || replacingPlayerSave) return;
+  const candidate = adventurePreview.prepare(levelId), capturedEpoch = matchEpoch;
+  let committed = false;
+  try {
+    await sceneLoading.run(() => {
+      if (!adventurePreview.commit(candidate)) return false;
+      committed = true; matchEpoch++; lastSettlement = null; match = candidate.match;
+      enterMatch(true);
+    }, { title: '准备测试战场', battle: candidate.match,
+      isCurrent: () => adventurePreviewContext && !replacingPlayerSave && matchEpoch === capturedEpoch && adventurePreview.isPending(candidate) });
+  } catch (error) {
+    expeditionUI.flash(`测试未进入：${error.message}`);
+  } finally {
+    if (!committed && adventurePreview.isPending(candidate)) {
+      // A cancelled retry may leave the previous test on screen. Keep it owned;
+      // initial entry cancellation returns to the untouched formal home.
+      adventurePreview.pending = null;
+      if (!adventurePreview.owns(match)) { adventurePreview.leave(); releaseAdventurePreview(); }
+    }
+  }
+}
+
+function openRoguelike() {
+  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || !ui.match.hidden) return;
+  invalidateCampAds(); metagame.closeOverlays();
+  expeditionUI.hide(); ui.lobby.hidden = true;
+  playerCloud.paused = true;
+  roguelikeUI.show();
+  // Optional reward art never delays choosing a hero or preparing a battle.
+  void prepareRoguelikeRewardFx();
+}
+
+async function startRoguelikeBattle() {
+  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked) return { ok: false, error: '当前操作尚未完成，请稍后再试。' };
+  const restoring = roguelikeSession.record.run?.phase === 'battle';
+  const prepared = restoring ? roguelikeSession.restoreBattle() : roguelikeSession.prepareBattle();
+  if (!prepared.ok) return prepared;
+  const target = prepared.match, capturedEpoch = matchEpoch, expectedRaw = roguelikeSession.raw;
+  let entered = false;
+  cancelRoguelikeRewardFx();
+  try {
+    entered = await sceneLoading.run(() => {
+      if (!restoring) {
+        const saved = roguelikeSession.commitBattle(target);
+        if (!saved.ok) throw new Error(saved.error || '秘境未保存，请重试。');
+      }
+      roguelikeSaveNotice = '';
+      roguelikeUI.hide(); cancelRoguelikeRewardFx();
+      matchEpoch++; lastSettlement = null; match = target;
+      playerCloud.paused = true;
+      enterMatch(true);
+    }, { title: restoring ? '继续秘境' : '准备秘境', battle: target,
+      isCurrent: () => !replacingPlayerSave && capturedEpoch === matchEpoch && roguelikeSession.raw === expectedRaw && roguelikeUI.visible });
+    return entered ? { ok: true, match: target } : { ok: false, error: '已取消开战，进度已保留。' };
+  } catch (error) {
+    return { ok: false, error: `无法进入秘境：${error.message}` };
+  } finally {
+    if (!entered) {
+      // Cancelled preparation leaves the frozen route intact. A commit followed
+      // by a presentation failure leaves its saved battle available to resume.
+      roguelikeSession.leave();
+      if (match === target) { matchEpoch++; match = null; ui.match.hidden = true; battleFlow.cancel(); drawController.cancel(); }
+      if (!replacingPlayerSave) { playerCloud.paused = true; roguelikeUI.show(); }
+    }
+  }
 }
 
 function cloudSummaryText(element, summary, unavailable = false, protectedLocal = false, unread = false) {
@@ -298,8 +555,9 @@ function cloudSummaryText(element, summary, unavailable = false, protectedLocal 
   const metrics = document.createElement('dl'); metrics.className = 'cloud-metrics';
   for (const [label, value] of [
     ['远征', `${summary.completed ?? 0}/${EXPEDITION_LEVELS.length}`],
-    ['金币', summary.coins ?? 0],
-    ['卡牌', summary.cards ?? 0]
+    ['金币', summary.coins ?? 80],
+    ['培养', `${summary.training ?? 0} 阶`],
+    ['试炼', `${summary.trials ?? 0}/${LEVELS.length}`]
   ]) {
     const row = document.createElement('div');
     const term = document.createElement('dt');
@@ -308,12 +566,17 @@ function cloudSummaryText(element, summary, unavailable = false, protectedLocal 
     const amount = document.createElement('dd'); amount.textContent = String(value);
     row.append(term, amount); metrics.append(row);
   }
-  const battle = document.createElement('span'); battle.className = 'cloud-battle-badge';
-  battle.dataset.active = String(Boolean(summary.hasBattle));
-  battle.textContent = summary.hasBattle ? '可续战' : '无进行中战斗';
-  const date = document.createElement('small'); date.className = 'cloud-updated';
-  date.textContent = summary.savedAt ? `更新 ${new Date(summary.savedAt).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}` : '尚未同步';
-  element.append(metrics, battle, date);
+  element.append(metrics);
+  if (summary.hasBattle) {
+    const battle = document.createElement('span'); battle.className = 'cloud-battle-badge';
+    battle.dataset.active = 'true'; battle.textContent = '可续战';
+    element.append(battle);
+  }
+  if (summary.savedAt) {
+    const date = document.createElement('small'); date.className = 'cloud-updated';
+    date.textContent = `更新 ${new Date(summary.savedAt).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+    element.append(date);
+  }
 }
 
 function refreshCloudUI() {
@@ -323,28 +586,42 @@ function refreshCloudUI() {
     button.dataset.cloudStatus = state.status;
     button.setAttribute('aria-label', `存档：${state.label || '保存在本机'}`);
   });
-  const errorText = cloudActionError || state.error;
-  $('player-cloud-status').textContent = /^读取云存档失败/.test(errorText)
+  const errorText = cloudActionError || state.error || '';
+  const quotaError = state.errorCode === 'STORAGE_QUOTA' || /Total file size exceeds 100MB|maximum size of the file storage limit|1300202/i.test(errorText);
+  $('cloud-dialog').dataset.cacheFull = String(quotaError);
+  $('player-cloud-status').textContent = cloudLatestQueued ? '当前操作结束后同步最新进度…'
+    : cloudSyncingLatest ? '正在核对并同步最新进度…'
+    : (quotaError ? '同步缓存空间不足（100MB 上限），点击“同步最新进度”清理后重试。'
+    : /^读取云存档失败/.test(errorText)
     ? '云存档读取失败，请稍后刷新'
-    : errorText || (!state.available ? '进度自动保存在本机' : state.label) || '进度保存在本机';
+    : errorText || (!state.available ? '进度自动保存在本机' : state.label) || '进度保存在本机');
   $('cloud-dialog').querySelector('footer').hidden = !state.available;
   // A failed/protected read is different from a successfully read empty slot.
   cloudSummaryText($('cloud-local-summary'), state.localSummary, false, !state.localSummary && Boolean(state.blocked || state.error));
   cloudSummaryText($('cloud-remote-summary'), state.cloudSummary, !state.available, false, Boolean(state.error));
-  $('player-cloud-status').dataset.error = String(Boolean(cloudActionError || state.error));
+  $('player-cloud-status').dataset.error = String(!cloudSyncingLatest && !cloudLatestQueued && Boolean(errorText));
+  $('player-cloud-status').dataset.success = String(state.status === 'synced' && !cloudBusy && !errorText);
   const choosing = cloudChoice !== null;
+  $('player-cloud-status').hidden = choosing;
   $('cloud-choice-copy').hidden = !choosing;
   $('cloud-choice-copy').textContent = cloudChoice === 'local'
-    ? '确认用本机进度替换云端？原云端副本会先保存在本机。'
-    : '确认使用云端进度？本机进度会先备份，随后重新进入游戏。';
+    ? '先备份云端原件，再上传本机进度。'
+    : '先备份本机进度，再载入云端存档。';
   $('cloud-refresh').hidden = !state.available || choosing;
-  $('cloud-use-local').hidden = !state.available || choosing || state.blocked;
-  $('cloud-use-local').textContent = state.conflict ? '使用本机进度' : state.hasRemote ? '同步到云端' : '备份到云端';
+  $('cloud-clear-cache').hidden = !state.available || choosing;
+  $('cloud-clear-cache').textContent = cloudLatestQueued ? '等待同步…' : cloudSyncingLatest ? '同步中…' : '同步最新进度';
+  $('cloud-clear-cache').setAttribute('aria-busy', String(cloudSyncingLatest || cloudLatestQueued));
+  $('cloud-use-local').hidden = !state.available || choosing || state.blocked || !state.conflict;
+  $('cloud-use-local').textContent = '使用本机进度';
   $('cloud-use-remote').hidden = !state.available || !state.hasRemote || choosing || state.blocked;
   $('cloud-choice-back').hidden = !choosing;
   $('cloud-choice-confirm').hidden = !choosing;
   $('cloud-choice-confirm').textContent = cloudChoice === 'local' ? '确认使用本机' : '确认使用云端';
-  for (const id of ['cloud-refresh', 'cloud-use-local', 'cloud-use-remote', 'cloud-choice-back', 'cloud-choice-confirm']) $(id).disabled = cloudBusy;
+  const operationBusy = cloudBusy || state.operationBusy || state.cacheBusy;
+  for (const id of ['cloud-refresh', 'cloud-use-local', 'cloud-use-remote', 'cloud-choice-back', 'cloud-choice-confirm']) $(id).disabled = Boolean(operationBusy);
+  // A manual sync request remains available when optional cache APIs are absent.
+  // The action handler coalesces clicks while the current operation finishes.
+  $('cloud-clear-cache').disabled = false;
   if (state.blocked && expeditionUI) {
     expeditionUI.root.inert = true;
     if (!$('cloud-dialog').open) $('cloud-dialog').showModal();
@@ -353,6 +630,7 @@ function refreshCloudUI() {
 }
 
 function openPlayerCloud() {
+  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) { showHint('请先返营再管理云存档。'); return; }
   invalidateCampAds();
   cloudReturnFocus = document.activeElement;
   cloudChoice = null;
@@ -365,22 +643,31 @@ function openPlayerCloud() {
 }
 
 async function runCloudAction(action) {
-  if (cloudBusy) return;
+  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) return;
+  if (cloudBusy) {
+    if (action === 'latest' && !cloudSyncingLatest) { cloudLatestQueued = true; refreshCloudUI(); }
+    return;
+  }
+  if (action === 'latest') cloudLatestQueued = false;
   cloudBusy = true;
   cloudActionError = '';
+  cloudSyncingLatest = action === 'latest';
   refreshCloudUI();
   try {
     let result;
     if (action === 'refresh') result = await playerCloud.refresh();
     else if (action === 'local') result = await playerCloud.sync({ useLocal: playerCloud.state.hasRemote });
     else if (action === 'remote') result = await playerCloud.restore();
-    if (result?.stale) cloudActionError = result.error;
+    else if (action === 'latest') result = await playerCloud.syncLatest();
+    if (result?.ok === false && !result.pending && result.error) cloudActionError = result.error;
   } catch (error) {
     cloudActionError = `云端操作未完成，本机进度保留：${error.message}`;
   } finally {
     cloudBusy = false;
+    cloudSyncingLatest = false;
     cloudChoice = null;
     refreshCloudUI();
+    if (cloudLatestQueued) { cloudLatestQueued = false; void runCloudAction('latest'); }
   }
 }
 
@@ -392,19 +679,27 @@ $('cloud-dialog').addEventListener('close', () => {
   if (cloudReturnFocus?.isConnected) cloudReturnFocus.focus({ preventScroll: true });
 });
 $('cloud-refresh').addEventListener('click', () => void runCloudAction('refresh'));
+$('cloud-clear-cache').addEventListener('click', () => void runCloudAction('latest'));
 $('cloud-use-local').addEventListener('click', () => {
   if (playerCloud.state.hasRemote) { cloudChoice = 'local'; refreshCloudUI(); $('cloud-choice-confirm').focus(); }
   else void runCloudAction('local');
 });
 $('cloud-use-remote').addEventListener('click', () => { cloudChoice = 'remote'; refreshCloudUI(); $('cloud-choice-confirm').focus(); });
-$('cloud-choice-back').addEventListener('click', () => { cloudChoice = null; refreshCloudUI(); $('cloud-use-local').focus(); });
+$('cloud-choice-back').addEventListener('click', () => {
+  const opener = cloudChoice === 'remote' ? $('cloud-use-remote') : $('cloud-use-local');
+  cloudChoice = null;
+  refreshCloudUI();
+  (opener.hidden ? $('cloud-clear-cache') : opener).focus();
+});
 $('cloud-choice-confirm').addEventListener('click', () => void runCloudAction(cloudChoice));
 
 // Never let an older in-memory battle overwrite another tab's newly saved progress.
 window.addEventListener('storage', (event) => {
-  if (event.key !== SAVE_KEYS.profile) return;
+  if (!['duelyst-h5.safe-v1.expedition', 'duelyst-h5.safe-v1.campaign', 'duelyst-h5.safe-v1.match', ROGUELIKE_KEY].includes(event.key)) return;
   replacingPlayerSave = true;
   invalidateCampAds();
+  sceneLoading.cancelRequest?.(); cancelRoguelikeRewardFx(); roguelikeSession.leave();
+  drawController.cancel(); battleFlow.cancel(); botRunToken++; botRunning = false;
   matchEpoch += 1;
   match = null;
   playerCloud.dispose();
@@ -412,17 +707,99 @@ window.addEventListener('storage', (event) => {
 });
 window.addEventListener('online', () => void playerCloud.refresh());
 
+function showRankedError(message) {
+  expeditionUI.flash(message); expeditionUI.refresh();
+  if (platformProgressUI.dialog.open) platformProgressUI.status.textContent = message;
+}
+
+function openRankedPreparation() {
+  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || isRoguelikeActive()) return;
+  platformProgressUI.close();
+  invalidateCampAds();
+  expeditionUI.openChallengePreparation({
+    challengeId: RANKED_CHALLENGE.id, title: RANKED_CHALLENGE.title,
+    heroId: RANKED_CHALLENGE.heroId, levelId: RANKED_CHALLENGE.levelId,
+    inventory: RANKED_CHALLENGE.inventory, initialDeck: rankedChallenge.deck,
+    onStart: ({ deck }) => void startRankedChallenge(deck),
+    onExit: () => { expeditionUI.closeChallengePreparation(); platformProgressUI.open('challenge'); }
+  });
+}
+
+async function startRankedChallenge(deck) {
+  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || isRoguelikeActive()) return;
+  if (isRankedMatch()) {
+    if (!persist()) { refreshMatch(); return; }
+    await returnToLobby();
+    if (isRankedMatch()) return;
+  }
+  const capturedEpoch = matchEpoch;
+  if (rankedChallenge.hasResume && !isRankedMatch()
+    && !await askConfirmation('开始挑战将替换上次未完成的挑战。普通远征保持不变。', '开始挑战', { intent:'replace-ranked' })) return;
+  if (sceneLoading.busy || capturedEpoch !== matchEpoch) return;
+  const attempt = rankedChallenge.createAttempt(deck);
+  if (!attempt.ok) { showRankedError(attempt.error); return; }
+  rankedAttempts.add(attempt.match);
+  platformProgressUI.close();
+  try {
+    const entered = await sceneLoading.run(() => {
+      expeditionUI.closeChallengePreparation();
+      rankedResultNotice = ''; rankedSubmitBusy = false;
+      matchEpoch++; lastSettlement = null; match = attempt.match;
+      playerCloud.paused = true;
+      enterMatch(true);
+    }, { title:'准备挑战', isCurrent: () => capturedEpoch === matchEpoch, battle: attempt.match });
+    // A cancelled/failed load preserves the independently saved attempt for resume.
+    if (!isRankedMatch()) rankedChallenge.leave();
+    return entered;
+  } catch (error) { rankedChallenge.leave(); showRankedError(`无法开始挑战：${error.message}`); }
+}
+
+async function resumeRankedChallenge() {
+  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || isRoguelikeActive()) return;
+  if (isRankedMatch()) return;
+  const restored = rankedChallenge.restore();
+  if (!restored) { showRankedError(rankedChallenge.error || '没有可继续的挑战。'); return; }
+  rankedAttempts.add(restored);
+  platformProgressUI.close();
+  const capturedEpoch = matchEpoch;
+  try {
+    await sceneLoading.run(() => {
+      expeditionUI.closeChallengePreparation();
+      rankedResultNotice = ''; rankedSubmitBusy = false;
+      matchEpoch++; lastSettlement = null; match = restored;
+      playerCloud.paused = true;
+      enterMatch(true);
+    }, { title:'继续挑战', isCurrent: () => capturedEpoch === matchEpoch, battle: restored });
+    if (!isRankedMatch()) rankedChallenge.leave();
+  } catch (error) { rankedChallenge.leave(); showRankedError(`无法继续挑战：${error.message}`); }
+}
+
+async function submitRankedResult() {
+  if (rankedSubmitBusy || !isRankedMatch() || match.phase !== 'over' || match.winner !== 0) return;
+  const target = match, epoch = matchEpoch;
+  if (!persist(target)) { refreshMatch(); return; }
+  rankedSubmitBusy = true; rankedResultNotice = '正在提交最佳成绩…'; refreshMatch();
+  try {
+    const response = await platformProgress.syncChallengeLeaderboard({ force:true });
+    if (match === target && epoch === matchEpoch && isRankedMatch(target)) rankedResultNotice = response.ok ? '最佳成绩已提交。' : `提交未完成：${response.error || '请稍后重试。'}`;
+  } catch (error) {
+    if (match === target && epoch === matchEpoch && isRankedMatch(target)) rankedResultNotice = `提交未完成：${error.message}`;
+  } finally {
+    if (match === target && epoch === matchEpoch && isRankedMatch(target)) { rankedSubmitBusy = false; refreshMatch(); }
+  }
+}
+
 async function startExpedition(levelId) {
-  if (sceneLoading.busy || !expedition.isUnlocked(levelId)) return;
+  if (sceneLoading.busy || isRoguelikeActive() || !expedition.isUnlocked(levelId)) return;
   const capturedEpoch = matchEpoch;
   const snapshot = expedition.state.activeBattle;
   if (snapshot && snapshot.phase !== 'over') {
-    if (!await askConfirmation('开始新战斗将替换未完成的棋局。已获得的金币、卡牌和通关记录会保留。', '开始战斗', { intent: 'replace-battle' })) return;
+    if (!await askConfirmation('开始新战斗将替换未完成的远征棋局。已获得金币、培养和通关记录会保留。', '开始战斗', { intent: 'replace-battle' })) return;
   }
   if (sceneLoading.busy || capturedEpoch !== matchEpoch) return;
   try {
-    const { heroId, deck } = expedition.getBattleLoadout();
-    const next = createCampaignMatch(levelId, heroId, deck);
+    const profile = expedition.state;
+    const next = createExpeditionMatch(levelId, profile.training, profile.squad, profile.selectedHeroId, expedition.getBattleLoadout());
     await sceneLoading.run(() => {
       const saved = expedition.saveBattle(next);
       if (!saved.ok) throw new Error(saved.error || '战斗未保存，尚未进入战场。');
@@ -433,7 +810,7 @@ async function startExpedition(levelId) {
 }
 
 async function resumeExpedition() {
-  if (sceneLoading.busy) return;
+  if (sceneLoading.busy || isRoguelikeActive()) return;
   const capturedEpoch = matchEpoch;
   const snapshot = expedition.state.activeBattle;
   const restored = snapshot && restoreMatch(snapshot);
@@ -447,7 +824,29 @@ async function resumeExpedition() {
   }, { title: '准备战场', isCurrent: () => capturedEpoch === matchEpoch, battle: restored });
 }
 
-let shownBossAnnounce = 0;
+function refreshSaveButtons(status = { cloudAvailable: saves.cloudAvailable, hasCloudArchive: Boolean(saves.archive) }) {
+  const canResumeLocal = Boolean(saves.localSnapshot?.mode === 'challenge' && saves.localSnapshot.phase !== 'over');
+  ui.resumeLocal.hidden = !canResumeLocal;
+  if (canResumeLocal) ui.resumeLocal.textContent = `继续：${getLevel(saves.localSnapshot.levelId).title}`;
+  ui.resumeCloud.hidden = !status.cloudAvailable || !status.hasCloudArchive;
+  ui.syncCloud.hidden = !status.cloudAvailable || !saves.localSnapshot;
+  ui.matchSync.hidden = !status.cloudAvailable || !match || match.mode === 'expedition';
+  refreshLevelChoices();
+}
+
+function completedLevels() {
+  const saved = saves.localSnapshot?.mode === 'challenge' ? saves.localSnapshot.completedLevels : [];
+  return new Set([...campaign.completed, ...(saved ?? []), ...(match?.mode === 'challenge' ? match.completedLevels : [])]);
+}
+
+function refreshLevelChoices() {
+  metagame?.refresh({
+    completed: completedLevels(), attempted: campaign.attempted, selectedLevelId,
+    resumeSnapshot: saves.localSnapshot, progressError: campaign.error
+  });
+  if (expeditionUI?.page === 'trials' && !expeditionUI.root.hidden) expeditionUI.refresh();
+}
+
 function showHint(message) {
   ui.hint.textContent = message;
   ui.hint.classList.add('visible');
@@ -477,7 +876,9 @@ function settleConfirmation(accepted) {
 }
 
 function activeTurn() {
-  return Boolean(match && !ui.objective.open && !battleFlow.busy && !drawController.busy && !movementPlayback && !actionPlayback && !moveGesture?.dragging && match.phase === 'playing' && match.currentPlayer === 0);
+  // AI can switch the engine back to playing before its final draws/announce
+  // finish. Keep all player actions locked until that presentation owner exits.
+  return Boolean(match && !botRunning && !ui.objective.open && !battleFlow.busy && !drawController.busy && !movementPlayback && !actionPlayback && !moveGesture?.dragging && match.phase === 'playing' && match.currentPlayer === 0);
 }
 
 function drawBoard() {
@@ -497,16 +898,26 @@ function drawBoard() {
     commandTargets: cardFollowup ? { type: cardFollowup.type, cells: cardFollowup.cells || [], unitIds: cardFollowup.unitIds || [] } : commandMode ? battleCommandTargets(match, 0) : primaryTargets,
     cardFollowupActive: Boolean(cardFollowup),
     cardPreviewPosition, cardSourcePoint, handDragPointer, handDragging:ui.hand.dataset.dragging === 'true' || Boolean(commandMode && handDragPointer),
-    movementPreview: moveGesture?.dragging ? moveGesture : null
+    movementPreview: moveGesture?.dragging ? moveGesture : null,
+    ...adventureControls?.renderOptions()
   });
+  adventureControls?.sync();
   refreshUnitInspect();
 }
 
 function refreshUnitInspect() {
+  const drawControls = $('draw-hand-controls');
+  drawControls.style.left = '';
+  drawControls.style.right = '';
   if (inspectHandSourceIndex !== null && match?.players[0].hand[inspectHandSourceIndex] !== inspectHandCardId) { inspectHandSourceIndex = null; inspectOpen = false; }
   const handCard = inspectHandSourceIndex === null ? null : getBattleCard(match, match?.players[0].hand[inspectHandSourceIndex]);
   const unit = match?.units.find((entry) => entry.unitId === inspectedUnitId);
   let card = handCard ?? (unit ? getUnitBattleCard(match, unit) : null);
+  if (handCard && match.mode === 'expedition' && card?.type === 'unit') {
+    const bonus=match.unitGrowth?.[card.id] ?? trainingBonus(card.id,match.training[card.id]);
+    card={...card,attack:card.attack+bonus.attack,health:card.health+bonus.health,
+      description:card.description.replace(/^\d+\s*\/\s*\d+[。.]?\s*/, '')};
+  }
   if (!inspectOpen || ui.hand.dataset.dragging === 'true' || !card || ui.match.hidden || ui.objective.open || moveGesture?.dragging || match.phase === 'over') {
     closeHeroEffectDialog({restoreFocus:false});
     if (!card || ui.match.hidden || ui.objective.open || match?.phase === 'over') inspectOpen = false;
@@ -520,15 +931,17 @@ function refreshUnitInspect() {
   ui.unitInspect.classList.toggle('hand-preview', Boolean(handCard));
   ui.unitInspect.classList.toggle('spell-preview', card.type === 'spell');
   ui.unitInspect.style.setProperty('--inspect-frame', `url('./assets/card-backgrounds/${card.faction === 0 ? 'neutral-unit' : `f${card.faction || 1}-${card.type === 'spell' ? 'spell' : 'unit'}`}.png')`);
+  const encounterInfo = !handCard && unit ? adventureUnitInfo(match, unit) ?? encounterUnitInfo(match, unit) : null;
+  const mechanismObject = card.type === 'unit' && encounterInfo?.rooted;
   ui.unitInspectCost.textContent = card.cost == null ? '' : String(card.cost);
-  ui.unitInspectCost.hidden = card.cost == null;
+  ui.unitInspectCost.hidden = card.cost == null || mechanismObject;
   ui.unitInspectCost.setAttribute('aria-label', `${card.cost ?? 0}法力`);
   const attackRange = cardAttackRange(!handCard && unit?.silenced ? { ...card, ranged:false, blast:false } : card);
-  ui.unitInspectRange.hidden = attackRange === null;
+  ui.unitInspectRange.hidden = attackRange === null || mechanismObject;
   ui.unitInspectRange.textContent = attackRange === null ? '' : Number.isFinite(attackRange) ? String(attackRange) : '∞';
   ui.unitInspectRange.setAttribute('aria-label', Number.isFinite(attackRange) ? `攻击射程${attackRange}格` : '无限射程');
-  ui.unitInspectName.textContent = card.name;
-  ui.unitInspectType.textContent = ({ general: '主将', spell: '法术', unit: '随从' })[card.type];
+  ui.unitInspectName.textContent = encounterInfo?.name ?? card.name;
+  ui.unitInspectType.textContent = mechanismObject ? '关卡物件' : ({ general: '主将', spell: '法术', unit: '随从' })[card.type];
   ui.unitInspect.dataset.faction = String(card.faction ?? 0);
   const inspectFace = ui.unitInspect.querySelector('.unit-inspect-card');
   inspectFace.dataset.faction = String(card.faction ?? 0);
@@ -543,13 +956,32 @@ function refreshUnitInspect() {
     rarityLabel.textContent = rarity.label;
     ui.unitInspectType.append(rarityLabel);
   }
+  const showTraining = match.mode === 'expedition' && !isIndependentMatch() && card.type !== 'general'
+    && !unit?.token && (handCard || (unit.controlledFromOwner ?? unit.owner) === 0);
+  if (showTraining) {
+    const rank = card.type === 'spell' ? match.loadout?.spellTraining?.[card.id] ?? 0 : match.training?.[card.id] ?? 0;
+    const level = document.createElement('span');
+    level.className = 'inspect-level';
+    level.textContent = `Lv.${rank}`;
+    level.setAttribute('aria-label', `培养等级${rank}`);
+    ui.unitInspectType.append(level);
+  }
+  const localRank = hasRoguelikeMarker() && !unit?.token && (handCard || (unit?.controlledFromOwner ?? unit?.owner) === 0) ? match.roguelike.upgrades[card.id] ?? 0 : 0;
+  if (localRank) {
+    const level = document.createElement('span'); level.className = 'inspect-level';
+    level.textContent = `强化 ${localRank}`; level.setAttribute('aria-label', `本局强化${localRank}阶`); ui.unitInspectType.append(level);
+  }
   ui.unitInspectAttack.parentElement.hidden = card.type === 'spell';
   ui.unitInspectAttack.textContent = card.type === 'spell' ? '' : String(handCard ? card.attack : effectiveAttack(match, unit));
   ui.unitInspectHealth.textContent = card.type === 'spell' ? '' : String(handCard ? card.health : Math.max(0, unit.health));
-  const hero = card.type === 'general' ? getHero(card.id) : null;
+  const hero = card.type === 'general' && match.schemaVersion >= 4 ? getHero(card.id) : null;
   ui.unitInspect.classList.toggle('hero-preview', Boolean(hero));
-  renderBattleDetailRules(ui.unitInspectDescription, { card, hero, silenced:!handCard && unit?.silenced,
-    unit:handCard?null:unit, drawArt:(canvas,id) => renderer.drawCardArt(canvas,id) });
+  const choice = handCard ? match.loadout?.specializations?.[card.id] : unit?.specialization;
+  const specialty = match.schemaVersion >= 5 && card.type === 'unit' ? getUnitSpecializations(card.id, match?.loadout?.growthVersion?.[card.id]).find(item => item.id === choice) : null;
+  renderBattleDetailRules(ui.unitInspectDescription, { card, hero, silenced:!handCard && unit?.silenced, specialty,
+    unit:handCard?null:unit, encounterInfo, battleState:match,
+    supply: handCard && match.campaignSupply ? match.campaignSupply.remaining[inspectHandSourceIndex] : null,
+    supplyCommand: hero?.id === 418 && Boolean(match.campaignSupply), drawArt:(canvas,id) => renderer.drawCardArt(canvas,id) });
   ui.unitInspectDescription.tabIndex = 0;
   ui.inspectCast.hidden = true;
   ui.inspectCast.textContent = `施放${card.name}`;
@@ -577,6 +1009,11 @@ function refreshUnitInspect() {
   ui.unitInspect.style.setProperty('--inspect-card-height',`${height}px`);
   ui.unitInspect.style.left=`${right?bounds.width-safeRight-width:safeLeft}px`;
   ui.unitInspect.style.top=`${topEdge}px`;
+  // The opposite-side reader must not cover the touch-only hand replacement.
+  if (handCard && right) {
+    drawControls.style.left = `${safeLeft}px`;
+    drawControls.style.right = 'auto';
+  }
   cancelAnimationFrame(inspectLayoutFrame);
 
 }
@@ -628,7 +1065,9 @@ function setObjectiveView(rulesView) {
   ui.objective.querySelector('.objective-heading img').hidden = objectiveFromHome;
   ui.objectiveGoal.hidden = rulesView;
   ui.objectiveLimit.hidden = rulesView;
-  $('objective-boss').hidden = rulesView || !bossRules(match).length || objectiveFromHome;
+  $('objective-boss').hidden = rulesView || !scenarioRules(match).length || objectiveFromHome;
+  $('objective-relics').hidden = rulesView || objectiveFromHome || !hasRoguelikeMarker() || !match.roguelike.relics.length;
+  $('trial-lesson').hidden = rulesView || match?.mode !== 'challenge' || !getLevel(match.levelId)?.lesson;
   $('rule-tabs').hidden = !rulesView;
   $('battle-rules-panel').hidden = !rulesView;
   ui.objective.querySelector('.objective-body').tabIndex = rulesView ? -1 : 0;
@@ -656,16 +1095,32 @@ function showObjective() {
   selectedCardIndex = inspectedHandIndex = null; cardFollowup = null;
   commandMode = false;
   hoveredUnitId = inspectedUnitId = null;
-  const level = getLevel(match.levelId);
+  const level = hasRoguelikeMarker() ? match.roguelikeTemplate ?? getLevel(match.levelId) : match.mode !== 'local-ai' ? getLevel(match.levelId) : null;
+  const lesson = match.mode === 'challenge' ? level?.lesson : null;
   objectiveFromHome = false;
   objectiveReturnFocus = ui.objectiveOpen;
+  $('trial-lesson').hidden = !lesson;
+  $('trial-lesson-summary').textContent = lesson?.summary ?? '';
+  $('trial-lesson-steps').replaceChildren(...(lesson?.steps ?? []).map(text => {
+    const item = document.createElement('li'); item.textContent = text; return item;
+  }));
+  $('trial-lesson-details').open = Boolean(lesson && level.group === 'basics' && !match.lastAction);
   const brief = battleObjectiveCopy(match, level);
   ui.objectiveGoal.textContent = brief.goal;
   ui.objectiveLimit.textContent = brief.limit;
-  $('objective-boss').replaceChildren(...bossRules(match).flatMap(rule => {
+  $('objective-boss').setAttribute('aria-label', '关卡规则');
+  $('objective-boss').replaceChildren(...scenarioRules(match).flatMap(rule => {
     const term = document.createElement('dt'), detail = document.createElement('dd');
     term.textContent = rule.title; detail.textContent = rule.text;
     return [term, detail];
+  }));
+  $('objective-relics').replaceChildren(...(hasRoguelikeMarker() ? match.roguelike.relics : []).flatMap(id => {
+    const relic = RELICS.find(value => value.id === id); if (!relic) return [];
+    const term = document.createElement('dt'), detail = document.createElement('dd');
+    const icon = document.createElement('img');
+    icon.className = 'roguelike-relic-icon'; icon.src = RELIC_ICONS[id]; icon.alt = '';
+    term.append(icon, document.createTextNode(relic.name));
+    detail.textContent = relic.description; return [term, detail];
   }));
   setObjectiveView(false);
   ui.objectiveClose.textContent = match.lastAction ? '返回战场' : '进入战场';
@@ -685,26 +1140,79 @@ function closeObjective() {
 }
 
 function persist(state = match) {
-  if (!state || replacingPlayerSave || state.mode !== 'expedition') return false;
-  const outcome = state.phase === 'over' && state.winner === 0 ? expedition.settle(state) : expedition.saveBattle(state);
-  if (outcome.ok && state.phase === 'over' && state.winner === 0 && (!outcome.duplicate || lastSettlement?.runId !== state.runId)) lastSettlement = { runId: state.runId, ...outcome };
-  if (!outcome.ok && match === state) { ui.battleLog.textContent = outcome.error; showHint(outcome.error); }
-  if (outcome.ok) playerCloud.notifyLocalChange();
-  return outcome.ok;
+  if (isAdventurePreview(state)) return adventurePreview.checkpoint(state).ok;
+  if (!state || replacingPlayerSave) return false;
+  if (isRoguelikeMatch(state)) {
+    const outcome = roguelikeSession.checkpoint(state);
+    if (state === match) {
+      roguelikeSaveNotice = outcome.ok ? '' : `秘境未保存：${outcome.error}`;
+      if (roguelikeSaveNotice) { ui.battleLog.textContent = roguelikeSaveNotice; if (state.phase !== 'over') showHint(roguelikeSaveNotice); }
+    }
+    return outcome.ok;
+  }
+  // Marker ownership may be lost after cancellation or a competing page.
+  // Even malformed/unknown markers must never reach the permanent profile.
+  if (Object.hasOwn(state, 'roguelike')) {
+    if (state === match) { roguelikeSaveNotice = '秘境棋局归属已失效，请重新进入。'; ui.battleLog.textContent = roguelikeSaveNotice; }
+    return false;
+  }
+  if (isRankedMatch(state)) {
+    const outcome = rankedChallenge.checkpoint(state);
+    if (state === match) {
+      if (!outcome.ok) {
+        rankedResultNotice = `挑战未保存：${outcome.error}`; ui.battleLog.textContent = rankedResultNotice;
+        if (state.phase === 'over') clearHint(); else showHint(rankedResultNotice);
+      } else if (rankedResultNotice.startsWith('挑战未保存：')) {
+        rankedResultNotice = ''; clearHint();
+      }
+    }
+    return outcome.ok;
+  }
+  if (rankedAttempts.has(state)) return false;
+  if (state.mode === 'expedition') {
+    const outcome = state.phase === 'over' && state.winner === 0 ? expedition.settle(state) : expedition.saveBattle(state);
+    if (outcome.ok && state.phase === 'over' && state.winner === 0 && (!outcome.duplicate || lastSettlement?.runId !== state.runId)) lastSettlement = { runId: state.runId, ...outcome };
+    if (!outcome.ok && match === state) { ui.battleLog.textContent = outcome.error; showHint(outcome.error); }
+    return outcome.ok;
+  }
+  if (state.mode === 'challenge') {
+    state.completedLevels = [...new Set([...state.completedLevels, ...campaign.completed,
+      ...(state.phase === 'over' && state.winner === 0 ? [state.levelId] : [])])];
+  }
+  if (!saves.saveLocal(state)) {
+    ui.battleLog.textContent = saves.localError?.message ?? '本地棋局未能保存。';
+    showHint(ui.battleLog.textContent);
+    return false;
+  }
+  const outcome = campaign.observe(state);
+  if (outcome.firstClear) lastSettlement = { runId: state.runId, ...outcome };
+  if (campaign.error) { ui.battleLog.textContent = campaign.error; showHint(campaign.error); return false; }
+  playerCloud.notifyLocalChange();
+  return true;
 }
 
 function enterMatch(restored = false) {
-  drawController.cancel(); battleFlow.cancel(); announcedTurn = ""; pendingTurn = null; shownBossAnnounce = 0; botRunToken += 1; botRunning = false; battleTips.setVisible(true);
+  roguelikeUI?.hide(); cancelRoguelikeRewardFx();
+  drawController.cancel(); battleFlow.cancel(); announcedTurn = ""; pendingTurn = null; shownBossAnnounce = 0; shownEncounterAnnounce = 0; botRunToken += 1; botRunning = false; battleTips.setVisible(true);
   invalidateCampAds();
   cancelBattleAd();
+  metagame.closeOverlays();
   expeditionUI?.hide();
   botFailure = ''; focusedEnemyOwner = 1;
   resetMovementInteraction();
   clearHint();
+  ui.lobby.hidden = true;
   ui.match.hidden = false;
   ui.match.dataset.mode = match.mode;
+  ui.match.dataset.roguelike = String(hasRoguelikeMarker());
+  const backdrop = match.mode === 'challenge' ? getTrialBackground(match.levelId) : null;
+  for (const [property, field] of [['--trial-background','background'],['--trial-middleground','middleground'],['--trial-foreground-left','foregroundLeft'],['--trial-foreground-right','foregroundRight']]) {
+    if (backdrop) ui.match.style.setProperty(property, backdrop[field] ? `url("${backdrop[field]}")` : 'none');
+    else ui.match.style.removeProperty(property);
+  }
   closeMapOverview(false);
   updateMapNavigation();
+  ui.matchSync.hidden = match.mode === 'expedition' || !saves.cloudAvailable;
   selectedCardIndex = null; cardFollowup = null;
   inspectedHandIndex = null;
   commandMode = false;
@@ -713,7 +1221,7 @@ function enterMatch(restored = false) {
   cardPreviewPosition = null;
   ui.result.hidden = true;
   refreshMatch();
-  {
+  if (isTacticalMatch(match)) {
     const general = findGeneral(match, 0);
     if (general) renderer.focusCell(general.x, general.y);
     drawVisibleOverview();
@@ -723,9 +1231,74 @@ function enterMatch(restored = false) {
   runBotIfNeeded();
 }
 
-function returnToLobby({ requireSave = false } = {}) {
-  if (requireSave && match && !persist()) return;
-  drawController.cancel(); battleFlow.cancel(); botRunToken += 1; botRunning = false; battleTips.setVisible(false);
+async function startLevel(levelId = selectedLevelId) {
+  if (sceneLoading.busy || isRoguelikeActive()) return;
+  const capturedEpoch = matchEpoch;
+  const levelIndex = LEVELS.findIndex((level) => level.id === levelId);
+  if (levelIndex < 0) return;
+  const completed = completedLevels();
+  if (!isTrialUnlocked(levelId, completed)) return;
+  // Expedition battles have their own save slot and are not replaced by a trial.
+  const hasUnfinishedLocal = Boolean(saves.localSnapshot && saves.localSnapshot.phase !== 'over');
+  if (hasUnfinishedLocal) {
+    const localLabel = saves.localSnapshot?.mode === 'local-ai' ? '旧版对局存档' : '当前本地试炼';
+    const confirmed = await askConfirmation(`进入新关卡会结束${localLabel}中的未完成战斗；已通关的关卡进度会保留。`, '进入关卡', { intent: 'replace-battle' });
+    if (!confirmed) return;
+  }
+  if (sceneLoading.busy || capturedEpoch !== matchEpoch) return;
+  const next = createChallengeMatch(levelId, [...completed]);
+  await sceneLoading.run(() => {
+    matchEpoch += 1;
+    lastSettlement = null;
+    selectedLevelId = levelId;
+    match = next;
+    trialError = '';
+    enterMatch();
+  }, { title: '准备战场', isCurrent: () => capturedEpoch === matchEpoch, battle: next });
+}
+
+async function resumeLocal() {
+  if (sceneLoading.busy || isRoguelikeActive()) return;
+  const capturedEpoch = matchEpoch;
+  const snapshot = saves.localSnapshot && JSON.parse(JSON.stringify(saves.localSnapshot));
+  const restored = snapshot ? restoreMatch(snapshot) : null;
+  if (!restored) {
+    ui.cloudStatus.textContent = saves.localError?.message ?? '没有可继续的本地棋局。';
+    refreshSaveButtons();
+    return;
+  }
+  await sceneLoading.run(() => {
+    match = restored;
+    matchEpoch += 1;
+    lastSettlement = null;
+    if (match.mode === 'challenge') selectedLevelId = match.levelId;
+    campaign.observe(match);
+    if (match.mode === 'challenge') match.completedLevels = [...completedLevels()];
+    if (!campaign.error) playerCloud.notifyLocalChange();
+    enterMatch(true);
+  }, { title: '准备战场', isCurrent: () => capturedEpoch === matchEpoch, battle: restored });
+}
+
+function resumeCloud() { openPlayerCloud(); }
+
+function returnToLobby({ requireSave = false, afterReturn = null } = {}) {
+  const ranked = isRankedMatch(), rogue = hasRoguelikeMarker();
+  if ((requireSave || ranked || rogue) && match && !persist()) { if (ranked || rogue) refreshMatch(); return; }
+  drawController.cancel();
+  battleFlow.cancel();
+  botRunToken += 1;
+  botRunning = false;
+  // Freeze visible controls during the burn-in. Commit remains visual/state
+  // cleanup only; the required save check above still runs synchronously.
+  const leave = () => {
+    finishReturnToLobby(requireSave, ranked, rogue);
+    afterReturn?.();
+  };
+  return match ? changeScene(leave) : leave();
+}
+
+function finishReturnToLobby(requireSave, ranked, rogue) {
+  battleTips.setVisible(false);
   invalidateCampAds();
   commandPreview?.close();
   closeMapOverview(false);
@@ -733,22 +1306,43 @@ function returnToLobby({ requireSave = false } = {}) {
   matchEpoch += 1;
   ui.objective.close();
   resetMovementInteraction();
-  if (match && !requireSave) persist();
+  if (match && !requireSave && !ranked && !rogue) persist();
   ui.match.hidden = true;
+  if (isAdventurePreview()) {
+    adventurePreview.leave(); match = null; releaseAdventurePreview();
+    expeditionUI.page = "menu"; showExpeditionHome(); return;
+  }
+  if (rogue) {
+    cancelRoguelikeRewardFx(); roguelikeSession.leave(); match = null;
+    playerCloud.paused = true; ui.lobby.hidden = true; expeditionUI.hide(); roguelikeUI.show(); return;
+  }
+  if (ranked) {
+    rankedChallenge.leave(); match = null; rankedSubmitBusy = false;
+    playerCloud.paused = false;
+    expeditionUI.closeChallengePreparation(); expeditionUI.page = 'menu';
+    showExpeditionHome(); platformProgressUI.open('challenge'); return;
+  }
+  if (match?.mode === 'expedition') { expedition.selectHero(match.players[0].generalId); expeditionUI.page = 'menu'; showExpeditionHome(); return; }
+  ui.lobby.hidden = true;
   selectedCardIndex = null; cardFollowup = null;
   inspectedHandIndex = null;
   commandMode = false;
   hoveredUnitId = null;
   inspectedUnitId = null;
   cardPreviewPosition = null;
-  if (match) expedition.selectHero(match.players[0].generalId);
-  expeditionUI.page = 'menu';
+  refreshLevelChoices();
+  refreshSaveButtons();
+  expeditionUI.page = 'trials';
+  expeditionUI.pendingFocus = { action: 'trial', levelId: match?.levelId ?? selectedLevelId };
   showExpeditionHome();
 }
+
+function syncNow() { openPlayerCloud(); }
 
 // Invalidate playback evidence before changing routes or replacing the profile.
 function invalidateCampAds() {
   rewardPresentation.close();
+  recruitmentUI?.invalidate();
   resourceRewardsUI?.invalidate();
 }
 
@@ -761,7 +1355,7 @@ function cancelBattleAd() {
 }
 
 function refreshAdReward() {
-  const eligibleBattle = match?.mode === 'expedition' && match.phase === 'over' && match.winner === 0;
+  const eligibleBattle = !isIndependentMatch() && match?.mode === 'expedition' && match.phase === 'over' && match.winner === 0;
   const offer = eligibleBattle ? expedition.dailyAdOffer('gold') : null;
   const session = adRewardSession?.runId === match?.runId ? adRewardSession : null;
   ui.resultAd.hidden = !eligibleBattle;
@@ -774,7 +1368,7 @@ function refreshAdReward() {
 
 async function claimBattleAdReward() {
   if (ui.result.hidden || ui.match.hidden || adRewardSession?.busy || replacingPlayerSave) return;
-  if (match?.mode !== 'expedition' || match.phase !== 'over' || match.winner !== 0) return;
+  if (isIndependentMatch() || match?.mode !== 'expedition' || match.phase !== 'over' || match.winner !== 0) return;
   if (!expedition.dailyAdOffer('gold').eligible && !adRewardSession?.completed) return;
   const target = match, epoch = matchEpoch;
   let session = adRewardSession;
@@ -783,7 +1377,7 @@ async function claimBattleAdReward() {
     adRewardSession = session;
   }
   const valid = () => adRewardSession === session && match === target && matchEpoch === epoch
-    && target.mode === 'expedition' && target.phase === 'over' && target.winner === 0
+    && !isIndependentMatch(target) && target.mode === 'expedition' && target.phase === 'over' && target.winner === 0
     && !ui.match.hidden && !ui.result.hidden && !replacingPlayerSave && !playerCloud.state.blocked;
   const begin = expedition.beginDailyAd('gold', session.requestId);
   if (!begin.ok) { session.message = begin.error; refreshAdReward(); return; }
@@ -817,6 +1411,11 @@ async function claimBattleAdReward() {
 }
 
 function cardButton(card, index) {
+  if (match.mode === 'expedition' && card.type === 'unit') {
+    const bonus = match.unitGrowth?.[card.id] ?? trainingBonus(card.id, match.training[card.id]);
+    card = { ...card, attack:card.attack+bonus.attack, health:card.health+bonus.health,
+      description:card.description.replace(/^\d+\s*\/\s*\d+[。.]?\s*/, '') };
+  }
   const button = document.createElement('button');
   button.type = 'button';
   button.dataset.faction=String(card.faction??0);
@@ -831,11 +1430,28 @@ function cardButton(card, index) {
   const rarity = getCardRarity(card.id);
   if (rarity) {
     const gem = document.createElement('span'); gem.className = 'battle-card-rarity';
-    gem.style.setProperty('background-image', `url('./assets/ui/rarity/${rarity.key === 'basic' ? 'common' : rarity.key}.png')`);
+    gem.style.backgroundImage = `url('./assets/ui/rarity/${rarity.key === 'basic' ? 'common' : rarity.key}.png')`;
     gem.title = rarity.label; face.append(gem);
+  }
+  if (hasRoguelikeMarker()) {
+    const rank = match.roguelike.upgrades[card.id] ?? 0;
+    if (rank) {
+      const level = document.createElement('span'); level.className = 'battle-card-level';
+      level.textContent = `强化 ${rank}`; level.setAttribute('aria-label', `本局强化${rank}阶`); face.append(level);
+    }
+  } else if (match.mode === 'expedition' && !isRankedMatch()) {
+    const rank = card.type === 'spell' ? match.loadout?.spellTraining?.[card.id] ?? 0 : match.training?.[card.id] ?? 0;
+    const level = document.createElement('span'); level.className = 'battle-card-level';
+    level.textContent = `Lv.${rank}`; face.append(level);
   }
   button.append(face);
   const replacement = document.createElement('span'); replacement.className = 'mulligan-mark'; replacement.textContent = '待换'; replacement.setAttribute('aria-hidden', 'true'); button.append(replacement);
+  if (match.campaignSupply) {
+    const stock = document.createElement('span'); stock.className = 'supply-count';
+    stock.textContent = `余${match.campaignSupply.remaining[index]}`;
+    button.append(stock);
+    refreshHandCardState(button, card, index);
+  }
   button.addEventListener('click', event => { if (!event.detail) { if (match?.phase === 'mulligan') onHandCard(index); else inspectHandCard(index); } });
   return button;
 }
@@ -852,6 +1468,13 @@ function refreshHandCardState(button, card, index) {
   if (isMulligan) button.setAttribute('aria-label', `${card.name}，${card.cost}法力${rangeLabel}，${match.mulligan.includes(index) ? '已选待换，再点取消' : '点击选择起手换牌'}。${card.description}`);
   button.disabled = false;
   button.setAttribute('aria-disabled', 'false');
+  if (match.campaignSupply) {
+    const remaining = match.campaignSupply.remaining[index];
+    const stock = button.querySelector('.supply-count');
+    if (stock) stock.textContent = remaining ? `余${remaining}` : '用尽';
+    button.classList.toggle('supply-empty', remaining === 0);
+    button.setAttribute('aria-label', `${card.name}，${card.cost}法力${rangeLabel}，本场剩余${remaining}次。${card.description}`);
+  }
 }
 function setPortraitSource(image, source) {
   if (image.getAttribute('src') !== source) image.src = source;
@@ -859,6 +1482,7 @@ function setPortraitSource(image, source) {
 
 function cardTargetInstruction(card) {
   if (cardFollowup) return cardFollowup.type === 'unit' ? '拖出同张牌，选择高亮目标；拖回红区取消' : '拖出同张牌，选择高亮格子；拖回红区取消';
+  if (match.campaignSupply && !canUseHandCard(match, match.players[0].hand.indexOf(card.id))) return '本局使用次数已用尽，补给可恢复次数';
   if (match.players[0].mana < card.cost) return `法力不足：需要${card.cost}点，当前${match.players[0].mana}点`;
   if (isUntargetedSpell(card)) return '拖到战场松手施放，拖回红区取消';
   if (card.target === 'areaCell') return '拖到高亮区域松手施放';
@@ -886,8 +1510,9 @@ function cardTargetInstruction(card) {
 }
 
 function refreshDrawControls() {
-  const mulligan = match.phase === 'mulligan', player = match.players[0];
-  $('draw-hand-controls').hidden = Boolean(cardFollowup) || match.phase === 'over' || (!mulligan && (inspectedHandIndex === null || !activeTurn()));
+  const isDraw = [6, 7].includes(match.schemaVersion), mulligan = match.phase === 'mulligan', player = match.players[0];
+  $('draw-hand-controls').hidden = Boolean(cardFollowup) || !isDraw || match.phase === 'over' || (!mulligan && (inspectedHandIndex === null || !activeTurn()));
+  if (!isDraw) return;
   ui.drawStatus.hidden = true;
   ui.replaceCard.hidden = mulligan;
   ui.replaceCard.disabled = mulligan || inspectedHandIndex === null || !activeTurn() || !canReplaceHandCard(match, inspectedHandIndex, 0);
@@ -897,6 +1522,7 @@ function refreshDrawControls() {
 }
 
 function refreshMatch() {
+  battleHistory.sync();
   $('inspect-followup-skip').hidden = !cardFollowup?.deployment || !cardFollowup.optional;
   $('inspect-followup-skip').disabled = !activeTurn();
   boardInspect?.invalidate();
@@ -904,20 +1530,34 @@ function refreshMatch() {
   if (!match) return;
   const focusedHandIndex = [...ui.hand.children].indexOf(document.activeElement);
   const human = match.players[0], enemyId = displayedEnemy(), bot = match.players[enemyId];
-  const level = getLevel(match.levelId);
+  const challenge = match.mode === 'challenge';
+  const isExpedition = match.mode === 'expedition';
+  const ranked = isRankedMatch();
+  const rogue = hasRoguelikeMarker();
+  const tactical = isTacticalMatch(match);
+  const level = rogue ? match.roguelikeTemplate ?? getLevel(match.levelId) : challenge || isExpedition ? getLevel(match.levelId) : LEVELS[0];
   const isMulligan = match.phase === 'mulligan';
+  const encounterNote = adventureAnnouncement(match) ?? encounterAnnouncement(match);
+  if (encounterNote && encounterNote.serial !== shownEncounterAnnounce) { shownEncounterAnnounce = encounterNote.serial; if (!isMulligan) showHint(encounterNote.text); }
+  const bossNote = encounterNote ? null : match.boss?.announce;
+  if (bossNote && bossNote.serial !== shownBossAnnounce) { shownBossAnnounce = bossNote.serial; if (!isMulligan) showHint(bossNote.text); }
   const isOver = match.phase === 'over';
   const isHumanTurn = activeTurn();
+  const myGeneral = findGeneral(match, 0);
 
-  const bossNote = match.boss?.announce;
-  if (bossNote && bossNote.serial !== shownBossAnnounce) { shownBossAnnounce = bossNote.serial; if (!isMulligan) showHint(bossNote.text); }
-  ui.levelKicker.textContent = `远征 · ${match.board.columns} × ${match.board.rows}`;
-  ui.levelTitle.textContent = level.title;
-  ui.levelGoal.textContent = objectiveText(match);
-  ui.turn.textContent = isMulligan ? '起手准备' : `第 ${match.round} / ${match.turnLimit} 回合`;
-  ui.phase.textContent = movementPlayback ? '移动中' : actionPlayback ? ({ summon: '召唤中', attack: '攻击中', spell: '施法中', bbs: '施法中' })[match.lastAction?.kind] ?? '行动中'
-    : isMulligan ? `起手换牌 ${match.mulligan.length}/2` : isOver ? (match.winner === 0 ? '远征获胜' : '战斗失利') : match.currentPlayer === 0 ? '你的回合' : `${match.players[match.currentPlayer].name}行动`;
-  const manaCapacity = Math.min(9, human.maxMana + Object.values(match.outposts).filter(owner=>owner===0).length);
+  ui.levelKicker.textContent = challenge ? `战术试炼 · ${match.turnLimit} 回合` : '旧版演武';
+  ui.levelTitle.textContent = challenge ? level.title : '本地对局';
+  ui.levelGoal.textContent = challenge ? level.goal : '击败敌方主将';
+  if (isExpedition) {
+    ui.levelKicker.textContent = rogue ? `秘境 ${match.roguelike.stage}/6 · 难度${match.roguelike.difficulty}` : ranked ? '远征挑战' : `远征 · ${boardOf(match).columns} × ${boardOf(match).rows}`;
+    ui.levelTitle.textContent = level.title;
+    ui.levelGoal.textContent = objectiveText(match);
+  }
+  ui.turn.textContent = isMulligan ? '起手准备' : challenge ? `第 ${Math.max(match.round, 1)} / ${match.turnLimit} 回合` : `第 ${Math.max(match.round, 1)} 回合`;
+  ui.phase.textContent = movementPlayback ? '移动中' : actionPlayback ? ({ summon: '召唤中', attack: '攻击中', spell: '施法中', bbs: '施法中' })[match.lastAction?.kind] ?? '行动中' : isMulligan ? '选择替换手牌' : match.phase === 'ai' ? `${match.players[match.currentPlayer].name}行动` : isOver ? (match.winner === 0 ? '试炼完成' : '试炼失败') : '你的回合';
+  if (tactical && !movementPlayback && !actionPlayback) ui.phase.textContent = isMulligan ? `起手换牌 ${match.mulligan.length}/2` : isOver ? (match.winner === 0 ? challenge ? '试炼完成' : '远征获胜' : '战斗失利') : match.currentPlayer === 0 ? '你的回合' : `${match.players[match.currentPlayer].name}行动`;
+  if (isExpedition) ui.turn.textContent = isMulligan ? '起手准备' : `第 ${match.round} / ${match.turnLimit} 回合`;
+  const manaCapacity = tactical ? Math.min(9, human.maxMana + Object.values(match.outposts).filter(owner=>owner===0).length) : human.maxMana;
   ui.mana.textContent = `${human.mana} / ${Math.max(manaCapacity,human.mana)}`;
   const orbCount = Math.min(9, Math.max(manaCapacity, human.mana));
   if (ui.manaOrbs.children.length !== orbCount) {
@@ -925,12 +1565,13 @@ function refreshMatch() {
   }
   [...ui.manaOrbs.children].forEach((orb, index) => orb.classList.toggle('filled', index < human.mana));
   refreshVisibleHealth(match.units);
-  ui.playerDeck.textContent = String(human.deck.length);
-  ui.playerDeck.parentElement.title = '牌库为空后，每次抽牌使主将受到2点伤害。满手时新抽到的牌会被弃掉。';
+  ui.playerDeck.textContent = String(match.campaignSupply ? match.campaignSupply.resupply : human.deck.length);
+  ui.playerDeck.parentElement.title = match.campaignSupply ? '抽牌效果消耗1补给点，恢复一张牌1次使用次数。' : [6, 7].includes(match.schemaVersion) ? '牌库为空后，每次抽牌使主将受到2点伤害。满手时新抽到的牌会被弃掉。' : '剩余牌库';
+  ui.playerDeck.parentElement.querySelector('img').alt = match.campaignSupply ? '补给' : '牌库';
   ui.enemyDeck.textContent = String(bot.deck.length);
   const enemyPanel = document.querySelector('.general-enemy');
-  enemyPanel.querySelector('.general-name').textContent = match.boss?.owner === enemyId ? bot.name : `${enemyId === 2 ? '紫方' : '红方'} ${bot.name}`;
-  setPortraitSource(enemyPanel.querySelector('.portrait-frame img'), heroPortrait(bot.generalId));
+  enemyPanel.querySelector('.general-name').textContent = match.boss?.owner === enemyId ? bot.name : tactical ? `${enemyId === 2 ? '紫方' : '红方'} ${bot.name}` : bot.name;
+  setBattlePortrait(enemyPanel.querySelector('.portrait-frame img'), bot.generalId);
   const playerPanel = document.querySelector('.general-player');
   playerPanel.querySelector('.general-name').textContent = getCard(human.generalId).name;
   setPortraitSource(playerPanel.querySelector('.portrait-frame img'), heroPortrait(human.generalId));
@@ -957,7 +1598,7 @@ function refreshMatch() {
   ui.bbs.setAttribute('aria-pressed', String(commandMode));
   ui.bbs.title = hero?.target === 'self' ? '点击使用 · 长按查看' : '点击查看 · 拖动使用';
   commandPreview?.sync();
-  const handKey = human.hand.join('|');
+  const handKey = human.hand.map((id) => `${id}:${isExpedition ? match.training[id] ?? 0 : 0}`).join('|');
   if (handPresentationMatch !== match || handPresentationKey !== handKey) {
     ui.hand.replaceChildren(...human.hand.map((id, index) => {
       const card = getBattleCard(match, id);
@@ -969,15 +1610,17 @@ function refreshMatch() {
     human.hand.forEach((id, index) => { const card = getBattleCard(match, id); if (card) refreshHandCardState(ui.hand.children[index], card, index); });
   }
   drawController.applyHand();
-  ui.hand.dataset.drawTiming = 'start';
-  ui.hand.dataset.drawMode = 'true';
+  ui.hand.dataset.supplyMode = String(Boolean(match.campaignSupply));
+  ui.hand.dataset.drawTiming = match.contentVersion === 'campaign-2026-10-15-v4' ? 'start' : 'end';
+  ui.hand.dataset.drawMode = String([6, 7].includes(match.schemaVersion));
   ui.hand.dataset.mulliganMode = String(isMulligan);
   ui.hand.dataset.mulliganCount = String(match.mulligan.length);
+  ui.hand.dataset.supplyRemaining = String(match.campaignSupply?.remaining.reduce((a,b) => a+b, 0) ?? 0);
   handLayout.refresh();
   battleFlow.sync(match, ui.objective.open);
-  [...ui.match.children].forEach(node => { if (!node.classList.contains('opening-hand') && !node.classList.contains('turn-toast') && node !== ui.objective) node.inert = battleFlow.busy || drawController.busy || (isMulligan && !ui.objective.open); });
+  [...ui.match.children].forEach(node => { if (!node.classList.contains('opening-hand') && !node.classList.contains('turn-toast') && node !== ui.objective && node.id !== 'battle-history') node.inert = battleFlow.busy || drawController.busy || (isMulligan && !ui.objective.open); });
   battleTips.setContext(cardFollowup ? cardFollowup.type === 'unit' ? '选择一名高亮单位' : '选择高亮格子' : null);
-  battleTips.setVisible(!ui.match.hidden && !ui.objective.open && !isMulligan && !isOver && !battleFlow.busy && !drawController.busy);
+  battleTips.setVisible(Boolean(cardFollowup) && !ui.match.hidden && !ui.objective.open && !isMulligan && !isOver && !battleFlow.busy && !drawController.busy);
   refreshDrawControls();
   const focusedCard = ui.hand.children[focusedHandIndex];
   if (focusedCard && !focusedCard.disabled) focusedCard.focus({ preventScroll: true });
@@ -988,14 +1631,64 @@ function refreshMatch() {
   const selectedUnit = match.units.find((unit) => unit.unitId === match.selectedUnitId);
   ui.selectedUnit.textContent = selectedUnit ? getCard(selectedUnit.cardId)?.name ?? '' : '';
   ui.battleLog.textContent = actionPlayback && isOver ? '正在完成最后一击…' : match.lastAction ? match.log.at(-1) ?? '' : '';
-  if (expedition.error) ui.battleLog.textContent = expedition.error;
+  if (rogue && (roguelikeSaveNotice || roguelikeSession.error)) ui.battleLog.textContent = roguelikeSaveNotice || `秘境未保存：${roguelikeSession.error}`;
+  else if (ranked && rankedChallenge.error) ui.battleLog.textContent = `挑战未保存：${rankedChallenge.error}`;
+  else if (isExpedition && !isIndependentMatch() && expedition.error) ui.battleLog.textContent = expedition.error;
   if (botFailure) ui.battleLog.textContent = '敌军行动中断，可点击「继续敌军行动」恢复。';
   const resultWasVisible = !ui.result.hidden;
   ui.result.hidden = !isOver || actionPlayback;
+  rankedSubmit.hidden = rankedStatus.hidden = !ranked || !isOver;
+  previewSwitch.hidden = !isAdventurePreview() || !isOver;
+  ui.playAgain.hidden = rogue;
   if (isOver) {
     ui.resultTitle.textContent = match.winner === 0 ? '胜利' : '战败';
+    ui.resultCopy.textContent = challenge
+      ? match.winner === 0 ? level.lesson?.takeaway ?? level.solution : `${match.resultReason === 'turn-limit' ? '超过了回合限制。' : match.resultReason === 'general-defeated' ? '己方主将已倒下。' : '本次未完成目标。'}`
+      : match.winner === 0 ? '敌方主将已被击败。' : '阿杰农已被击败。';
+    const next = challenge ? nextTrialLevel(match.levelId) : null;
+    ui.nextLevel.hidden = !challenge || match.winner !== 0 || !next;
+    ui.resultCopy.hidden = challenge && match.winner === 0;
+    ui.resultReward.hidden = challenge && !campaign.error;
+    ui.resultReward.textContent = challenge && campaign.error ? '进度保存失败，请稍后重试。' : '';
+    const group = challenge ? TRIAL_GROUPS.find(item => item.id === level.group) : null;
+    const groupLevels = challenge ? LEVELS.filter(item => item.group === level.group) : [];
+    ui.resultProgress.textContent = challenge ? `${group?.title ?? '战术试炼'}　${groupLevels.filter(item => completedLevels().has(item.id)).length} / ${groupLevels.length}关` : '';
+    ui.resultProgress.hidden = !challenge;
+    $('trial-result-guide').hidden = !challenge || match.winner === 0;
+    if (!resultWasVisible) $('trial-result-guide').open = false;
+    $('trial-result-solution').textContent = challenge ? level.solution : '';
     ui.nextLevel.textContent = '下一关';
-    {
+    if (isAdventurePreview()) {
+      ui.resultTitle.textContent = match.winner === 0 ? '测试胜利' : '测试结束';
+      ui.resultCopy.hidden = false; ui.resultCopy.textContent = '测试进度仅本次有效，不计奖励。';
+      ui.resultReward.hidden = true; ui.resultProgress.hidden = true; ui.nextLevel.hidden = true;
+      ui.backToLobby.textContent = '返回主菜单';
+    } else if (rogue) {
+      const savingError = roguelikeSaveNotice || roguelikeSession.error;
+      const finishedRun = ['won', 'lost'].includes(roguelikeSession.record.run?.phase);
+      ui.resultTitle.textContent = match.winner === 0 ? finishedRun ? '秘境通关' : '胜利' : '远征结束';
+      ui.resultCopy.hidden = !savingError;
+      ui.resultCopy.textContent = savingError ? `${savingError} 点击下方按钮重试。` : '';
+      ui.resultReward.hidden = true; ui.resultProgress.hidden = true; ui.nextLevel.hidden = true;
+      ui.backToLobby.textContent = savingError ? '重试保存并返回' : finishedRun ? '查看结果' : '领取奖励';
+    } else if (ranked) {
+      const outcome = rankedChallenge.result(match);
+      ui.resultTitle.textContent = match.winner === 0 ? '挑战完成' : '挑战失败';
+      ui.resultCopy.hidden = false;
+      ui.resultCopy.textContent = outcome
+        ? `${outcome.round} 回合 · 战损 ${outcome.deaths} · 主将生命 ${outcome.health}`
+        : '成绩尚未保存，请重试保存。';
+      ui.resultReward.hidden = false;
+      ui.resultReward.textContent = outcome?.won ? `${outcome.score} 分` : '本次未通关';
+      ui.resultReward.removeAttribute('data-reward-status');
+      ui.resultProgress.hidden = true; ui.nextLevel.hidden = true;
+      ui.backToLobby.textContent = '返回挑战';
+      rankedSubmit.disabled = rankedSubmitBusy;
+      rankedSubmit.textContent = rankedChallenge.error ? '重试保存成绩' : rankedSubmitBusy ? '提交中…' : '提交成绩';
+      rankedSubmit.hidden = match.winner !== 0;
+      rankedStatus.textContent = rankedChallenge.error ? `挑战未保存：${rankedChallenge.error}` : rankedResultNotice;
+      rankedStatus.hidden = !rankedStatus.textContent;
+    } else if (isExpedition) {
       const index = EXPEDITION_LEVELS.findIndex(item => item.id === match.levelId);
       const payout = lastSettlement?.runId === match.runId ? lastSettlement : null;
       const reason = ({'enemies-eliminated':'敌方主将已被击败。','survived':'已完成坚守。','survived-rounds':'已完成坚守。','general-defeated':'己方主将已倒下。','player-defeated':'己方主将已倒下。','turn-limit':'未能在回合限制内完成目标。'})[match.resultReason];
@@ -1009,16 +1702,21 @@ function refreshMatch() {
       ui.resultCopy.hidden = match.winner === 0 && progress.completed.length !== EXPEDITION_LEVELS.length;
       ui.nextLevel.hidden = match.winner !== 0 || !EXPEDITION_LEVELS[index + 1] || Boolean(expedition.error);
       ui.backToLobby.textContent = progress.completed.length === EXPEDITION_LEVELS.length ? '选择其他阵营' : '返回主菜单';
-    }
-    ui.playAgain.textContent = match.winner === 0 ? '重玩本关' : '重新出征';
+    } else ui.backToLobby.textContent = challenge ? '返回试炼' : '返回章节';
+    ui.playAgain.textContent = ranked ? '重新挑战' : match.winner === 0 ? '重玩本关' : isExpedition ? '重新出征' : '重新试炼';
     refreshAdReward();
-    if (!ui.result.hidden && !resultWasVisible) (ui.nextLevel.hidden ? ui.playAgain : ui.nextLevel).focus();
+    if (!ui.result.hidden && !resultWasVisible) (rogue ? ui.backToLobby : ranked && !rankedSubmit.hidden ? rankedSubmit : ui.nextLevel.hidden ? ui.playAgain : ui.nextLevel).focus();
   }
-  $('result-prep').hidden = !isOver || match.winner === 0;
+  $('result-collection').hidden = isAdventurePreview() || ranked || rogue || !isOver || !isExpedition || match.winner === 0;
+  $('result-prep').hidden = isAdventurePreview() || ranked || rogue || !isOver || !isExpedition || match.winner === 0;
+  refreshPlatformResultFeedback();
   drawBoard();
   updateMapNavigation();
-  drawVisibleOverview();
-  $('faction-status').textContent = match.players.map((player) => `${['蓝','红','紫'][player.id]}方 ${findGeneral(match,player.id)?.health ?? 0} 生命`).join('　');
+  if (tactical) {
+    drawVisibleOverview();
+    $('faction-status').textContent = match.players.map((player) => `${['蓝','红','紫'][player.id]}方 ${findGeneral(match,player.id)?.health ?? 0} 生命`).join('　');
+  }
+  refreshSaveButtons();
 }
 
 function cardHint(card) {
@@ -1035,6 +1733,7 @@ function closeInspect() {
   refreshUnitInspect();
 }
 function inspectHandCard(index) {
+  adventureControls?.cancel(false);
   if (!match || battleFlow.busy || drawController.busy || ui.match.hidden || !getBattleCard(match, match.players[0].hand[index])) return;
   clearHint();
   selectedCardIndex = null; inspectedHandIndex = index; cardFollowup = null; commandMode = false; commandPreview?.close();
@@ -1108,6 +1807,7 @@ const handDrag = createHandDrag(ui.hand, {
   ready:handDropValid,
   targeted:handUsesTargetLine,
   begin(index) {
+    adventureControls?.cancel(false);
     closeInspect();
     if (!activeTurn()) return false;
     const card = getBattleCard(match, match.players[0].hand[index]);
@@ -1138,6 +1838,7 @@ const handDrag = createHandDrag(ui.hand, {
 
 function onBoardInput(event) {
   if (!match || !activeTurn()) return;
+  if (adventureControls?.active) { adventureControls.aimAt(event, true); return; }
   if (selectedCardIndex === null) inspectedHandIndex = null;
   const selectedCard = selectedCardIndex === null ? null : getBattleCard(match, match.players[0].hand[selectedCardIndex]);
   const deploying = cardFollowup ? cardFollowup.type === 'cell' : selectedCard?.type === 'unit' || ['cell', 'occupiedCell', 'areaCell'].includes(selectedCard?.target) || commandMode && battleCommandTargets(match, 0).type === 'cell';
@@ -1239,6 +1940,10 @@ function onBoardPointerDown(event) {
   if (!event.isPrimary || event.button !== 0 || boardPointerId !== null || !activeTurn()) return;
   boardPointerId = event.pointerId;
   ui.board.setPointerCapture(event.pointerId);
+  if (adventureControls?.active) {
+    cameraGesture = { x: event.clientX, y: event.clientY, moved: false };
+    return;
+  }
   if (selectedCardIndex !== null || commandMode) {
     updateCardPreview(event);
     return;
@@ -1246,7 +1951,7 @@ function onBoardPointerDown(event) {
   const position = renderer.positionFromPointer(event);
   const target = position && occupiedUnit(match, position.x, position.y);
   keyboardInspectUnitId = target?.unitId ?? null;
-  if (!target) {
+  if (isTacticalMatch(match) && !target) {
     inspectedUnitId = null;
     refreshUnitInspect();
     cameraGesture = { x:event.clientX, y:event.clientY, moved:false };
@@ -1321,7 +2026,7 @@ function updateMoveGesture(event) {
 // A captured finger can hold at the edge to reveal a distant landing cell.
 // Keep this separate from the lower HUD cancel area and stop on every exit path.
 function startMoveEdgePan() {
-  if (movePanFrame !== null || !match) return;
+  if (movePanFrame !== null || !isTacticalMatch(match)) return;
   let previous = performance.now();
   const tick = (now) => {
     if (!moveGesture?.dragging || ui.match.hidden) { stopMoveEdgePan(); return; }
@@ -1399,6 +2104,7 @@ function cancelMoveGesture() {
 }
 
 function resetMovementInteraction() {
+  adventureControls?.cancel(false);
   closeInspect();
   handDrag.cancel();
   cancelMoveGesture();
@@ -1439,6 +2145,7 @@ async function executeCombatAction(operation, invalidMessage = '') {
   }
   const targetMatch = match, epoch = matchEpoch;
   actionPlayback = true;
+  adventureControls?.cancel(false);
   selectedCardIndex = null; cardFollowup = null;
   inspectedHandIndex = null;
   commandMode = false;
@@ -1467,12 +2174,14 @@ function onBoardPointerMove(event) {
     if (cameraGesture.moved || Math.hypot(dx,dy)>5) {
       cameraGesture.moved=true; renderer.pan(dx,dy);
       cameraGesture.x=event.clientX; cameraGesture.y=event.clientY;
+      adventureControls?.sync();
       drawVisibleOverview();
     }
     return;
   }
   if (moveGesture) { updateMoveGesture(event); return; }
   if (movementPlayback || actionPlayback) return;
+  if (adventureControls?.active) return;
   if (match && activeTurn() && (selectedCardIndex !== null || commandMode)) {
     updateCardPreview(event);
     return;
@@ -1527,13 +2236,13 @@ function runBotIfNeeded() {
     drawController.capture();
     persist(targetMatch);
     const actor = action && targetMatch.units.find(unit=>unit.unitId === (action.unitId ?? action.sourceId ?? action.attackerId));
-    if (actor) renderer.focusCell(actor.x,actor.y);
+    if (actor && isTacticalMatch(targetMatch)) renderer.focusCell(actor.x,actor.y);
     if (action?.kind === 'move' && action.path?.length > 1) {
       movementPlayback = true;
       const animation = renderer.animateMovement(action.unitId, action.path);
       refreshMatch(); await animation;
       movementPlayback = false;
-    } else if (action && ['attack','summon','spell','bbs','end-turn'].includes(action.kind)) {
+    } else if (action && ['attack','summon','spell','bbs','end-turn','adventure'].includes(action.kind)) {
       actionPlayback = true;
       const animation = renderer.animateAction(action, beforeUnits ?? []);
       refreshMatch(); await animation;
@@ -1559,12 +2268,17 @@ function runBotIfNeeded() {
       botFailure ||= '行动暂停';
       renderer.finishMovement(); renderer.finishAction(); movementPlayback = actionPlayback = false;
       refreshMatch();
+    } else if (!cancelled() && match.phase === 'playing') {
+      // The last AI refresh still saw botRunning=true. Release the same live
+      // battle once, after every awaited draw and turn announcement completes.
+      refreshMatch();
     }
     if (!ui.match.hidden && match?.phase === 'ai' && (match !== targetMatch || matchEpoch !== epoch)) runBotIfNeeded();
   });
 }
 
 async function advanceTurn() {
+  adventureControls?.cancel(false);
   commandPreview?.close();
   if (!match || battleFlow.busy || drawController.busy || ui.objective.open) return;
   if (botFailure && match.phase === 'ai') { runBotIfNeeded(); return; }
@@ -1625,17 +2339,19 @@ function battleCommandPreviewModel() {
   else if (player.mana < cost) reason = `法力不足 · 需要 ${cost}，当前 ${player.mana}`;
   else if (!command.available) reason = '当前没有符合条件的目标或空格';
   let description = cardRuleSections(getCard(player.generalId))[0].text;
+  if (match.schemaVersion < 4 && player.generalId === 201) description = description.replace('2/3铁甲沙魔', '2/2铁甲沙魔');
   description = description.replace(/每个己方回合限用一次。$/, '每回合1次。');
   return {
     interactionKey: `${matchEpoch}:${match.round}:${match.phase}:${match.currentPlayer}`, selected: commandMode,
     battleKey: match, visible: !ui.match.hidden && !ui.objective.open && !ui.bbs.hidden,
     name: hero?.activeName ?? '战术指令', cost, faction: getCard(player.generalId)?.faction ?? 1,
-    description,
+    description: description + (match.campaignSupply && player.generalId === 418 ? '本局抽牌改为消耗1补给点，恢复第一张尚未补满的牌1次使用次数。' : ''),
     available, reason, targetType: command.type
   };
 }
 
 function prepareBattleCommandPreview() {
+  adventureControls?.cancel(false);
   closeInspect();
   selectedCardIndex = null; cardFollowup = null;
   inspectedHandIndex = null;
@@ -1665,8 +2381,28 @@ function heroPortrait(id) {
   return hero?.portrait ?? `./assets/generals/general_portrait_image_f${getCard(id)?.faction ?? 1}${[23,123,223,323,418,527].includes(id) ? 'alt' : ''}.png`;
 }
 
+function setBattlePortrait(image, cardId) {
+  const card = getCard(cardId);
+  let canvas = image.parentElement.querySelector('.adventure-portrait');
+  image.hidden = Boolean(card?.adventure);
+  if (card?.adventure) {
+    if (!canvas) {
+      canvas = document.createElement('canvas');
+      canvas.className = 'adventure-portrait'; canvas.width = canvas.height = 128;
+      canvas.setAttribute('role', 'img'); image.after(canvas);
+    }
+    canvas.hidden = false;
+    canvas.setAttribute('aria-label', card.name);
+    renderer.drawCardArt(canvas, cardId);
+  } else {
+    if (canvas) canvas.hidden = true;
+    setPortraitSource(image, heroPortrait(cardId));
+  }
+}
+
 function isUntargetedSpell(card) { return card?.type === 'spell' && (card.effect === 'tempest' || card.id === 20122 || ['self', 'enemyArea', 'none', 'allMinions'].includes(card.target)); }
 
+ui.start.addEventListener('click', () => { metagame.closeOverlays(); void startLevel(); });
 ui.objectiveOpen.addEventListener('click', showObjective);
 document.addEventListener('open-battle-rules', showBattleRulesFromHome);
 $('objective-rules').addEventListener('click', () => setObjectiveView(!objectiveRulesView));
@@ -1687,6 +2423,10 @@ $('inspect-followup-skip').addEventListener('click', () => {
   const index = selectedCardIndex, cell = cardFollowup.deployment;
   void executeCombatAction(() => playCard(match, index, cell.x, cell.y, 0, null), '当前无法部署。');
 });
+ui.resumeLocal.addEventListener('click', resumeLocal);
+ui.resumeCloud.addEventListener('click', resumeCloud);
+ui.syncCloud.addEventListener('click', () => syncNow(saves.localSnapshot));
+ui.matchSync.addEventListener('click', () => syncNow());
 let leaveConfirmationPending = false;
 ui.leave.addEventListener('click', () => audioSettings.open(ui.leave, { battle:true }));
 $('settings-leave-battle').addEventListener('click', async () => {
@@ -1694,9 +2434,9 @@ $('settings-leave-battle').addEventListener('click', async () => {
   audioSettings.close();
   leaveConfirmationPending = true;
   const battle = match, epoch = matchEpoch;
-  const destination = '主菜单';
+  const destination = isAdventurePreview(battle) ? '主菜单' : hasRoguelikeMarker(battle) ? '秘境' : isRankedMatch(battle) ? '挑战入口' : battle.mode === 'expedition' ? '主菜单' : '试炼';
   try {
-    const accepted = await askConfirmation(`当前战斗会保留，之后可继续。是否返回${destination}？`, '确认返回', { title: `返回${destination}？`, cancelFirst: true, intent: 'leave' });
+    const accepted = await askConfirmation(isAdventurePreview(battle) ? '测试进度将丢弃，返回主菜单？' : `当前战斗会保留，之后可继续。是否返回${destination}？`, '确认返回', { title: `返回${destination}？`, cancelFirst: true, intent: 'leave' });
     if (accepted && match === battle && matchEpoch === epoch && !ui.match.hidden) returnToLobby({ requireSave: true });
   } finally { leaveConfirmationPending = false; }
 });
@@ -1707,6 +2447,17 @@ ui.replaceCard.addEventListener('click', () => {
   if (!replaceHandCard(match, index, 0)) { showHint('当前无法换牌。'); refreshMatch(); return; }
   selectedCardIndex = inspectedHandIndex = null; cardFollowup = null; inspectedUnitId = null;
   afterAction(); void drawController.playPending(); ui.hand.children[index]?.focus({ preventScroll: true });
+});
+adventureControls = createAdventureControls({
+  read: () => match, renderer, board: ui.board, host: ui.match, ready: activeTurn,
+  refresh: refreshMatch, execute: executeCombatAction, hint: showHint, cancelBoundary: handCancelBoundary,
+  prepare() {
+    closeInspect(); commandPreview?.close();
+    selectedCardIndex = inspectedHandIndex = null;
+    cardFollowup = null; commandMode = false;
+    cardPreviewPosition = null; hoveredUnitId = inspectedUnitId = null;
+    clearHint();
+  }
 });
 commandPreview = createBattleCommandPreview({
   button: ui.bbs, read: battleCommandPreviewModel,
@@ -1739,7 +2490,7 @@ const boardInspect = createPressInspect(ui.board, {
     if (!match || battleFlow.busy || drawController.busy || ui.match.hidden || ui.objective.open || !['playing','ai'].includes(match.phase)) return null;
     const position = renderer.positionFromPointer(event, { preferUnits:true });
     const unit = position && occupiedUnit(match, position.x, position.y);
-    if (selectedCardIndex !== null || commandMode || moveGesture?.dragging || ui.hand.dataset.dragging === 'true') return null;
+    if (selectedCardIndex !== null || commandMode || adventureControls?.active || moveGesture?.dragging || ui.hand.dataset.dragging === 'true') return null;
     return unit ? {unitId:unit.unitId, owner:unit.owner, selectedUnitId:match.selectedUnitId} : null;
   },
   tap(reading) {
@@ -1759,7 +2510,7 @@ const boardInspect = createPressInspect(ui.board, {
 // Closing a reading panel must leave the new gesture available to the board or rail.
 document.addEventListener('pointerdown', event => {
   if (isHeroEffectDialogOpen()) return;
-  if (!inspectOpen || ui.unitInspect.contains(event.target)) return;
+  if (!inspectOpen || ui.unitInspect.contains(event.target) || $('draw-hand-controls').contains(event.target)) return;
   closeInspect(); drawBoard();
 }, true);
 ui.board.addEventListener('pointerdown', onBoardPointerDown);
@@ -1771,6 +2522,7 @@ ui.board.addEventListener('lostpointercapture', (event) => { if (event.pointerId
 document.addEventListener('pointerdown', (event) => { if (!event.isPrimary && boardPointerId !== null) cancelMoveGesture(); }, true);
 ui.match.addEventListener('keydown', (event) => {
   if (battleFlow.busy || drawController.busy) { event.preventDefault(); return; }
+  if (adventureControls?.keydown(event)) { event.preventDefault(); return; }
   if (event.key === 'Escape' && inspectOpen) { event.preventDefault(); closeInspect(); return; }
   if (event.target === ui.board && ['Enter',' '].includes(event.key)) {
     event.preventDefault();
@@ -1816,7 +2568,22 @@ ui.result.addEventListener('click', event => {
   resultPress = null;
 }, { capture:true });
 ui.backToLobby.addEventListener('click', returnToLobby);
-$('result-prep').addEventListener('click', () => { const levelId = match.levelId; returnToLobby(); expeditionUI.returnMission = levelId; expeditionUI.navigate('prep'); });
+$('result-collection').addEventListener('click', () => {
+  if (isIndependentMatch()) return;
+  const faction = getHero(match.players[0].generalId).faction;
+  void returnToLobby({ afterReturn: () => {
+    expeditionUI.codexFaction = faction;
+    expeditionUI.navigate('codex');
+  } });
+});
+$('result-prep').addEventListener('click', () => {
+  if (isIndependentMatch()) return;
+  const levelId = match.levelId;
+  void returnToLobby({ afterReturn: () => {
+    expeditionUI.returnMission = levelId;
+    expeditionUI.navigate('prep');
+  } });
+});
 ui.resultAd.addEventListener('click', () => void claimBattleAdReward());
 ui.result.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') { event.preventDefault(); returnToLobby(); }
@@ -1828,11 +2595,23 @@ ui.result.addEventListener('keydown', (event) => {
     else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
   }
 });
-ui.playAgain.addEventListener('click', () => { if (match) void startExpedition(match.levelId); });
+ui.playAgain.addEventListener('click', () => { if (isAdventurePreview()) { void startAdventurePreview(match.levelId); return; } if (hasRoguelikeMarker()) return; if(isRankedMatch()) { if (persist()) void startRankedChallenge(rankedChallenge.deck); else refreshMatch(); } else if(match?.mode === 'expedition') void startExpedition(match.levelId); else void startLevel(match?.levelId ?? selectedLevelId); });
 ui.nextLevel.addEventListener('click', () => {
-  if (!match) return;
-  const index = EXPEDITION_LEVELS.findIndex(level=>level.id===match.levelId);
-  if(EXPEDITION_LEVELS[index+1]) { const id = EXPEDITION_LEVELS[index+1].id; returnToLobby(); expeditionUI.returnMission = id; expeditionUI.levelId = id; expeditionUI.navigate('prep'); }
+  if (isIndependentMatch()) return;
+  if (match?.mode === 'expedition') {
+    const index = EXPEDITION_LEVELS.findIndex(level=>level.id===match.levelId);
+    if (EXPEDITION_LEVELS[index + 1]) {
+      const id = EXPEDITION_LEVELS[index + 1].id;
+      void returnToLobby({ afterReturn: () => {
+        expeditionUI.returnMission = id;
+        expeditionUI.levelId = id;
+        expeditionUI.navigate('prep');
+      } });
+    }
+    return;
+  }
+  const next = nextTrialLevel(match?.levelId);
+  if (next) void startLevel(next.id);
 });
 ui.confirmCancel.addEventListener('click', () => settleConfirmation(false));
 ui.confirmAccept.addEventListener('click', () => settleConfirmation(true));
@@ -1846,6 +2625,7 @@ ui.confirmScreen.addEventListener('keydown', (event) => {
   }
 });
 window.addEventListener('resize', () => { cancelMoveGesture(); closeMapOverview(false); if (match) refreshMatch(); });
+$('return-expedition').addEventListener('click', showExpeditionHome);
 function closeMapOverview(restoreFocus = true) {
   const wasOpen = !$('map-panel').hidden;
   $('map-panel').hidden = true;
@@ -1853,9 +2633,9 @@ function closeMapOverview(restoreFocus = true) {
   if (wasOpen && restoreFocus && !$('map-controls').hidden && !ui.match.hidden) $('map-open').focus({preventScroll:true});
 }
 function updateMapNavigation() {
-  const board = match?.board;
+  const board = match && boardOf(match);
   const key = board ? `${match.runId ?? match.levelId}:${board.columns}:${board.rows}` : '';
-  const available = Boolean(board) && (board.columns > 9 || board.rows > 5);
+  const available = isTacticalMatch(match) && (board.columns > 9 || board.rows > 5);
   if (key !== overviewBoardKey || !available) closeMapOverview(false);
   overviewBoardKey = key;
   $('map-controls').hidden = !available;
@@ -1885,7 +2665,7 @@ $('focus-enemy').addEventListener('click', () => {
 });
 $('map-overview').addEventListener('pointerdown', event => {
   if (!match) return;
-  const canvas=event.currentTarget, rect=canvas.getBoundingClientRect(), board=match.board;
+  const canvas=event.currentTarget, rect=canvas.getBoundingClientRect(), board=boardOf(match);
   // Use drawable map pixels, excluding any CSS border.
   const x=(event.clientX-rect.left-canvas.clientLeft)/canvas.clientWidth;
   const y=(event.clientY-rect.top-canvas.clientTop)/canvas.clientHeight;
@@ -1902,11 +2682,12 @@ window.addEventListener('pagehide', () => {
   cancelMoveGesture();
   sceneLoading.cancelRequest?.();
   cancelBattleAd();
+  cancelRoguelikeRewardFx();
 });
 window.addEventListener('beforeunload', () => { cancelBattleAd(); if (match && !replacingPlayerSave) persist(); playerCloud.dispose(); });
 
 setInterval(() => {
-  if (!document.hidden && !ui.match.hidden && !ui.result.hidden && match?.mode === 'expedition') {
+  if (!document.hidden && !ui.match.hidden && !ui.result.hidden && !isIndependentMatch() && match?.mode === 'expedition') {
     const day = expedition.dailyAdOffer('gold').day;
     if (day !== resultRewardDay) { resultRewardDay = day; refreshAdReward(); }
   }
@@ -1915,6 +2696,7 @@ setInterval(() => {
   if (match.playtimeSeconds % 10 === 0) persist();
 }, 1000);
 
+refreshSaveButtons();
 // A single manager owns all cloud SDK calls and its one-upload-per-minute budget.
 void playerCloud.initialize();
 // Text and stats are immediately available. Failed visible card art can be
@@ -1927,5 +2709,6 @@ document.body.append(artRetry);
 ui.board.addEventListener('card-art-error', () => { if (!sceneLoading.busy) artRetry.hidden = false; });
 ui.board.addEventListener('card-art-ready', () => {
   if (!renderer.assets.failed.size) artRetry.hidden = true;
+  metagame.syncIdleAnimation();
   expeditionUI.syncIdle();
 });

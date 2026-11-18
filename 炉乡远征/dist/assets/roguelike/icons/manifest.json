@@ -1,0 +1,368 @@
+{
+  "sourceRoot": "Duelyst app/resources/",
+  "icons": [
+    {
+      "id": "scout-lantern",
+      "source": "icons/artifact_f1_dawnseye.png",
+      "meaning": "照明与视野",
+      "atlas": true,
+      "frameName": "artifact_f1_dawnseye_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1298,
+      "sourceSha256": "a8a3e739e2c8ffa7c28b36e4f0fe262b90c09f5648b121672665b3ef75a535d4",
+      "sha256": "13544f1970e3f2ba5f55d632e930dcf8c5bb4a5f3a60ec1d2eb34e69f9987713"
+    },
+    {
+      "id": "ember-pouch",
+      "source": "icons/bossspell_livingflame.png",
+      "meaning": "余烬火焰",
+      "atlas": true,
+      "frameName": "bossspell_livingflame_000.png",
+      "frame": [
+        35,
+        140,
+        34,
+        34
+      ],
+      "width": 34,
+      "height": 34,
+      "bytes": 950,
+      "sourceSha256": "1cebdff249e88fc74388747eb9ce6434ae91e8f214ced0678a3c159e5c83702c",
+      "sha256": "4e7e99fa8d13ec90e299bb2317c418b67e4a6180310d74bd9c6bc675ac4be94c"
+    },
+    {
+      "id": "hearth-stone",
+      "source": "icons/boss_christmas_coal.png",
+      "meaning": "暖炉炭石",
+      "atlas": true,
+      "frameName": "boss_christmas_coal_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1171,
+      "sourceSha256": "9cb65aae9560d828357bd16efd6e8f8b1375b178e7f12cf8a77c5926f4cd11c6",
+      "sha256": "dd6a0704c0782a1bf68d636b52e498e8b2a15107232c7c2dab133b9bbb545b52"
+    },
+    {
+      "id": "bone-banner",
+      "source": "icons/artifact_f1_ironbanner.png",
+      "meaning": "战旗",
+      "atlas": true,
+      "frameName": "artifact_f1_ironbanner_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1281,
+      "sourceSha256": "6976b84cc10d0890c4bc74b476978dbf67b1214eba4528c05bdfe0a6b9da5de8",
+      "sha256": "f7f17d4c4ebbbe80c199588bc38312fca335ccbd23c992ed60be2d13810a1b7f"
+    },
+    {
+      "id": "field-kit",
+      "source": "icons/icon_f1_sundropelixir.png",
+      "meaning": "治疗药瓶",
+      "atlas": true,
+      "frameName": "icon_f1_sundropelixir_000.png",
+      "frame": [
+        49,
+        49,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1188,
+      "sourceSha256": "00d2ecd8de733cbc022baa5b16e601bf56877ad5e0374de2acea7539f1e6023d",
+      "sha256": "14274e2b33a8cef8f2f9fc72b33a22be462f64856cfcd5b9ec5e2c06786b2db8"
+    },
+    {
+      "id": "iron-seed",
+      "source": "icons/icon_f5_eggzactly.png",
+      "meaning": "种子般的卵与成长符号",
+      "atlas": true,
+      "frameName": "icon_f5_eggzactly_000.png",
+      "frame": [
+        49,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1158,
+      "sourceSha256": "960ce9429c6ceeb52942d683504c18e3026f71c8ab2262cfe1e8229267080f9a",
+      "sha256": "85130bfbda2ba7888ec9256dd867164cd80d063a8e63be595b1e5acf8c88c569"
+    },
+    {
+      "id": "war-drum",
+      "source": "icons/icon_f1_rally.png",
+      "meaning": "鼓舞友军",
+      "atlas": true,
+      "frameName": "icon_f1_rally_000.png",
+      "frame": [
+        49,
+        98,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1335,
+      "sourceSha256": "1c25c7b41a661ff44fe0e60c8019d0ca149ba10ae322953750eb4f0cf465581f",
+      "sha256": "1a803adfd7eb6e5bd3a0c8cdc4e5036bb86a0db6f4ea78c708257d3caa4e9a35"
+    },
+    {
+      "id": "wing-boots",
+      "source": "icons/generalspell_f6_warbird.png",
+      "meaning": "羽翼与飞行",
+      "atlas": true,
+      "frameName": "generalspell_f6_warbird_000.png",
+      "frame": [
+        105,
+        0,
+        34,
+        34
+      ],
+      "width": 34,
+      "height": 34,
+      "bytes": 928,
+      "sourceSha256": "9fea70071acefdbddf98027d44240cf18a6f66f5ed6d898bcab85562f09b45e1",
+      "sha256": "6270397d87d37097c5efd154e995af80d5acf0e41cf5ca9800a0512e9802f257"
+    },
+    {
+      "id": "oath-shield",
+      "source": "icons/artifact_f1_shieldofphalanx.png",
+      "meaning": "守护盾牌",
+      "atlas": true,
+      "frameName": "artifact_f1_shieldofphalanx_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1351,
+      "sourceSha256": "ae3c1e1e95efa02b9fdc832fff539a6216748394fb8d817e7393ed77a75c5b9f",
+      "sha256": "2f93d527e9c86e951d32ddd1487f37db8bdf9a9c85a5cd76591d89a201e9151b"
+    },
+    {
+      "id": "sun-chalice",
+      "source": "icons/artifact_f5_thegibblecup.png",
+      "meaning": "圣杯",
+      "atlas": true,
+      "frameName": "artifact_f5_thegibblecup_000.png",
+      "frame": [
+        98,
+        0,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1216,
+      "sourceSha256": "1851a7eabfd85e3930f3614f9c08436843429e166cb96a43076b03f704d41c4a",
+      "sha256": "cfedd6564885ecaa0bb1c795f7c438e84234dfa6127ece470c1a04cb7aadbd65"
+    },
+    {
+      "id": "sun-script",
+      "source": "icons/artifact_f4_soulgrimwar.png",
+      "meaning": "书页与典籍",
+      "atlas": true,
+      "frameName": "artifact_f4_soulgrimwar_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1215,
+      "sourceSha256": "b4e284b773ff412ee70356957422eeb13422cbb73b83df8754633b7535a08002",
+      "sha256": "5a44f9e3edacfb4c251dcf2fb8778203d70478e16f2424e143b2305fd5ef894e"
+    },
+    {
+      "id": "sun-hammer",
+      "source": "icons/artifact_f5_godhammer.png",
+      "meaning": "锤",
+      "atlas": true,
+      "frameName": "artifact_f5_godhammer_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1263,
+      "sourceSha256": "db0cacf8d7e6bb84fb0111df803a335712e42837322283bd06b7a5bbd72f2ad2",
+      "sha256": "605ffba90fe42a580d556482506bd0cb58862d94419b6c56685f98535e295fcd"
+    },
+    {
+      "id": "rune-nest",
+      "source": "icons/icon_f4_nethersummoning.png",
+      "meaning": "符文召唤阵",
+      "atlas": true,
+      "frameName": "icon_f4_nethersummoning_000.png",
+      "frame": [
+        49,
+        98,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 934,
+      "sourceSha256": "ccf80e11382e7f9ab6f578edeb02782bd3ef87626bf41cad9be037db3aac4099",
+      "sha256": "5439cf95ea24297f9fc7001aa5809e2991a7eeb1f03de6ab421d8c5636381f63"
+    },
+    {
+      "id": "echo-crystal",
+      "source": "icons/icon_f6_hailstoneprison.png",
+      "meaning": "晶体",
+      "atlas": true,
+      "frameName": "icon_f6_hailstoneprison_000.png",
+      "frame": [
+        98,
+        49,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 927,
+      "sourceSha256": "eb8e45179f82abbe1825756344c4bab8970bca6d7535ca76be50a8319ace125c",
+      "sha256": "b092f86ff1b9fe96c77f1e2c21ebd0fd0c56c7ea16962db96dedf4c101c3ec84"
+    },
+    {
+      "id": "storm-bell",
+      "source": "icons/boss_christmas_jinglebells.png",
+      "meaning": "铃",
+      "atlas": true,
+      "frameName": "boss_christmas_jinglebells_000.png",
+      "frame": [
+        98,
+        196,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1277,
+      "sourceSha256": "5a0ff9a03b4c90203c0ba9d69c8941cda2669685db9f91d535a3f19b2fbfed5f",
+      "sha256": "879e64531c32f8559daf85687982fe845f01f7a2a68e2dd31f5172405b2b6d8a"
+    },
+    {
+      "id": "mourning-quill",
+      "source": "icons/icon_neutral_brilliantplume.png",
+      "meaning": "羽毛",
+      "atlas": true,
+      "frameName": "icon_neutral_brilliantplume_000.png",
+      "frame": [
+        98,
+        0,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1109,
+      "sourceSha256": "bd72af1a447b4ee6d6867d8aa73881fe9361d36e228424b7f14b4e6f0b08f022",
+      "sha256": "0a93850f9fe3603fa54b774940e68ee75230bc2fb474ce0c729a55bcb947a6c3"
+    },
+    {
+      "id": "soul-bowl",
+      "source": "icons/icon_f4_voidpulse.png",
+      "meaning": "灵魂汲取",
+      "atlas": true,
+      "frameName": "icon_f4_voidpulse_000.png",
+      "frame": [
+        49,
+        0,
+        48,
+        48
+      ],
+      "width": 48,
+      "height": 48,
+      "bytes": 1098,
+      "sourceSha256": "a30232c01e3759d22fcc316b115e752a05d15fe850370d70fa1983b7ce03817b",
+      "sha256": "eff73f5473e80e9de164cc49073e0b8f2aa5b1dac7bd096205250b2bca47e331"
+    },
+    {
+      "id": "grave-candle",
+      "source": "icons/bossspell_restoringlight.png",
+      "meaning": "灵魂烛光与恢复符号",
+      "atlas": true,
+      "frameName": "bossspell_restoringlight_000.png",
+      "frame": [
+        70,
+        70,
+        34,
+        34
+      ],
+      "width": 34,
+      "height": 34,
+      "bytes": 939,
+      "sourceSha256": "a59cdba7eb1bfd0dd6c8702a50098c51e1733444de01eab9af3ecaa0f85cec55",
+      "sha256": "49066cfb7e65da39990dc586e9cd3439fefab3e1223f4838dac36d443075905a"
+    },
+    {
+      "id": "safe",
+      "source": "season_rewards/season_rank_bronze.png",
+      "meaning": "原作bronze等级徽章",
+      "atlas": false,
+      "frameName": null,
+      "frame": null,
+      "width": 128,
+      "height": 70,
+      "bytes": 17057,
+      "sourceSha256": "e1652da07f9668dd935da2ec0384e7052d79ded69507c3ed22790a0817afc4a7",
+      "sha256": "236b4442a6aff2a621a93ab45e92c525bba43725f0692e30ab6aef2f3da8a146"
+    },
+    {
+      "id": "elite",
+      "source": "season_rewards/season_rank_gold.png",
+      "meaning": "原作gold等级徽章",
+      "atlas": false,
+      "frameName": null,
+      "frame": null,
+      "width": 128,
+      "height": 62,
+      "bytes": 15768,
+      "sourceSha256": "05dcc6f1b4d416e9b17dd96df8b9fd2241bc39379c158fc16e6f5b905ed9788c",
+      "sha256": "d9943d7a368d29e00cfc663ee42ed75aa46333158830a97ed687735604f818a7"
+    },
+    {
+      "id": "boss",
+      "source": "season_rewards/season_rank_elite.png",
+      "meaning": "原作elite等级徽章",
+      "atlas": false,
+      "frameName": null,
+      "frame": null,
+      "width": 128,
+      "height": 73,
+      "bytes": 16981,
+      "sourceSha256": "385089b01d6850f2164d229da16f06499d880248bae4527f5916588a2f9a9fdf",
+      "sha256": "73ca16047dd7cf6a8b61e31c454e59cd1417e55aff4082e5f2564cc978bb51c5"
+    }
+  ]
+}

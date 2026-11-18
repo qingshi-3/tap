@@ -25,6 +25,34 @@
    Native ::backdrop replaces the source's authored modal-ov element. */
 :root dialog.qibing-modal-open::backdrop { animation:qibing-modal-veil 200ms; }
 @keyframes qibing-modal-veil { from { opacity:0; } to { opacity:1; } }
+/* Original pixelfx burn-away. The host commits battle entry/result exit at
+   full cover. A manual popover stays above native objective/loading dialogs;
+   older WebViews use a native dialog for the same brief visual. */
+.qibing-scene-veil {
+  position:fixed; inset:0; z-index:2147483647; pointer-events:none!important;
+  width:100vw; height:100dvh; max-width:none; max-height:none;
+  margin:0; padding:0; border:0; overflow:hidden; background-color:transparent;
+  background-size:800% 1200%; background-repeat:no-repeat; image-rendering:pixelated;
+}
+.qibing-scene-veil::backdrop { background:transparent; pointer-events:none; }
+.qibing-scene-veil[hidden] { display:none!important; }
+/* close() remains synchronous. Supported browsers retain only the exiting
+   visual in the top layer; closed controls and backdrop stop taking input. */
+:root #cloud-dialog {
+  opacity:0; translate:0 6px; scale:.985; pointer-events:none;
+  transition:opacity 140ms ease-out,translate 140ms ease-out,scale 140ms ease-out,
+    display 140ms allow-discrete,overlay 140ms allow-discrete;
+}
+:root #cloud-dialog[open] { opacity:1; translate:0 0; scale:1; pointer-events:auto; }
+:root #cloud-dialog::backdrop {
+  opacity:0; pointer-events:none; animation:none;
+  transition:opacity 140ms ease-out,display 140ms allow-discrete,overlay 140ms allow-discrete;
+}
+:root #cloud-dialog[open]::backdrop { opacity:1; pointer-events:auto; }
+@starting-style {
+  :root #cloud-dialog[open] { opacity:0; translate:0 6px; scale:.985; }
+  :root #cloud-dialog[open]::backdrop { opacity:0; }
+}
 /* Source's 2px surrounding gold outline is intentionally omitted under the
    host's no-extra-card-frame rule; its actual selected glow is retained. */
 :root .match .hand-card.aiming > .game-card {
@@ -32,7 +60,11 @@
 }
 :root.qibing-motion-paused .qibing-fight::after { animation-play-state:paused; }
 :root.qibing-motion-paused dialog.qibing-modal-open::backdrop { animation:none; }
+:root.qibing-motion-paused #cloud-dialog,
+:root.qibing-motion-paused #cloud-dialog::backdrop { transition:none; }
 @media(prefers-reduced-motion:reduce) {
+  .qibing-scene-veil { display:none!important; }
+  :root #cloud-dialog,:root #cloud-dialog::backdrop { transition:none; translate:none; scale:none; }
   :root dialog.qibing-modal-open::backdrop { animation:none; }
   :root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command { transition:none; }
   :root :is(#expedition-home,#lobby,#match,#audio-settings,#cloud-dialog,#objective-dialog,#confirm-screen) button.qibing-command:is(:hover,:active):not(:disabled):not([aria-disabled="true"]) { transform:none; }

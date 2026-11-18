@@ -1,3 +1,33 @@
+import { ADVENTURE_CHAPTERS, ADVENTURE_LEVELS } from './adventure-content.js';
+import { CARD_ACQUISITION } from './campaign-content.js';
+import { CARDS } from './cards.js';
+import { FACTIONS } from './factions.js';
+
+export const TRAINABLE_IDS = Object.freeze(CARD_ACQUISITION.filter(c=>c.type==='unit').map(c=>c.id));
+export const TRAINING_COSTS = Object.freeze([40, 70, 110, 160]);
+export const DEPLOYMENT_BUDGET = 4;
+
+export function deploymentCost(squad) {
+  if (!Array.isArray(squad)) return Number.POSITIVE_INFINITY;
+  return squad.slice(0, 2).reduce((total, cardId) => total + (CARDS[cardId]?.cost ?? Number.POSITIVE_INFINITY), 0);
+}
+
+const TRAINING_STEPS = Object.freeze([
+  Object.freeze({ attack: 0, health: 0 }),
+  Object.freeze({ attack: 0, health: 1 }),
+  Object.freeze({ attack: 1, health: 2 }),
+  Object.freeze({ attack: 1, health: 3 }),
+  Object.freeze({ attack: 2, health: 4 })
+]);
+
+const LOW_TRAINING_STEPS = Object.freeze([{attack:0,health:0},{attack:0,health:1},{attack:0,health:1},{attack:1,health:1},{attack:1,health:2}]);
+export function trainingBonus(cardId, rank, growthVersion = 'legacy-v1') {
+  if (!TRAINABLE_IDS.includes(cardId) || !Number.isInteger(rank) || rank < 0 || rank >= TRAINING_STEPS.length) {
+    return { attack: 0, health: 0 };
+  }
+  return { ...(growthVersion==='low-v2'?LOW_TRAINING_STEPS:TRAINING_STEPS)[rank] };
+}
+
 const gate = (index) => `assets/metagame/original/challenge-gate-00${index}.jpg`;
 
 const EXPANSION_CHAPTERS = [
@@ -1047,7 +1077,8 @@ export const EXPEDITION_CHAPTERS = Object.freeze([
   {"id": "sand-front", "title": "第四章 · 沙海前线", "subtitle": "突破沙阵", "image": "assets/metagame/original/challenge-gate-000.jpg", "description": "沙魔与远程交叉火力迫使队伍选择通行路线。", "levelIds": ["sand-01", "sand-02", "sand-03"]},
   {"id": "shadow-pass", "title": "第五章 · 暗影关隘", "subtitle": "迎击伏兵", "image": "assets/metagame/original/challenge-gate-001.jpg", "description": "背刺、远程与暗灵从不同方向争夺前哨。", "levelIds": ["shadow-01", "shadow-02", "shadow-03"]},
   {"id": "frost-siege", "title": "第六章 · 冰原围城", "subtitle": "守住最后战线", "image": "assets/metagame/original/challenge-gate-002.jpg", "description": "冰原与玛格玛的敌军在宽阔战场上相互交战。", "levelIds": ["frost-01", "frost-02", "frost-03"]},
-  ...EXPANSION_CHAPTERS
+  ...EXPANSION_CHAPTERS,
+  ...ADVENTURE_CHAPTERS
 ]);
 
 const L = (level) => Object.freeze(level);
@@ -2008,13 +2039,14 @@ export const EXPEDITION_LEVELS = Object.freeze([
           ]
       },
       "reward": {
-          "first": 300,
+          "first": 270,
           "repeat": 70
       },
       "turnLimit": 30,
       "boss": true
   }),
-  ...EXPANSION_LEVELS.map(L)
+  ...EXPANSION_LEVELS.map(L),
+  ...ADVENTURE_LEVELS.map(L)
 ]);
 
 

@@ -3,6 +3,8 @@ import { getHero } from './factions.js';
 import { battleCardIds } from './battle-assets.js';
 import { getCard } from './cards.js';
 import { createBattleTips } from './battle-tips.js';
+import { getTrialBackground } from './trial-backgrounds.js';
+import { changeScene } from './qibing-motion.js';
 
 const BACKGROUNDS = [
   'battlemap2_background.png', 'battlemap2_middleground.png',
@@ -11,10 +13,11 @@ const BACKGROUNDS = [
 const absoluteAsset = path => new URL(path, document.baseURI).href;
 const nextPaint = () => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
-// Authored battle shell only. Hidden collection and other-faction
+// Authored battle shell only. Hidden collection, recruitment and other-faction
 // card frames belong to their own visible UI, not to the battle entry gate.
 function sceneImages(state) {
-  const paths = new Set(BACKGROUNDS);
+  const backdrop = state?.mode === 'challenge' ? getTrialBackground(state.levelId) : null;
+  const paths = new Set(backdrop ? Object.values(backdrop).filter(Boolean).map(absoluteAsset) : BACKGROUNDS);
   for (const path of ['ui/portrait-frame.png', 'ui/icon-mana.png', 'ui/button-secondary.png', 'ui/overview-frame.png', 'ui/keywords/keyword-attack.svg', 'ui/keywords/health.svg']) paths.add(absoluteAsset('./assets/' + path));
   for (const player of state?.players ?? []) {
     const hero = getHero(player.generalId);
@@ -134,7 +137,9 @@ export class SceneLoading {
         this.status.textContent = '正在进入战场…';
         this.cancel.disabled = true;
         this.cancelRequest = null;
-        if (await commit() === false) return false;
+        // Recheck at the actual cover point, after optional motion. Resource
+        // preparation and retry/cancel remain outside this visual operation.
+        if (await changeScene(() => active && isCurrent() ? commit() : false) === false) return false;
         committed = true;
         await nextPaint();
         return true;

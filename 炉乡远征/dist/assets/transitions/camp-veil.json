@@ -1,0 +1,237 @@
+{
+  "frames": [
+    {
+      "filename": "camp-veil 0",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 1",
+      "frame": {
+        "x": 320,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 2",
+      "frame": {
+        "x": 640,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 3",
+      "frame": {
+        "x": 0,
+        "y": 180,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 4",
+      "frame": {
+        "x": 320,
+        "y": 180,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 5",
+      "frame": {
+        "x": 640,
+        "y": 180,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 6",
+      "frame": {
+        "x": 0,
+        "y": 360,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 7",
+      "frame": {
+        "x": 320,
+        "y": 360,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    },
+    {
+      "filename": "camp-veil 8",
+      "frame": {
+        "x": 640,
+        "y": 360,
+        "w": 320,
+        "h": 180
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 320,
+        "h": 180
+      },
+      "sourceSize": {
+        "w": 320,
+        "h": 180
+      },
+      "duration": 30
+    }
+  ],
+  "meta": {
+    "app": "https://github.com/patch-gg/pixelfx",
+    "version": "1",
+    "image": "camp-veil.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 960,
+      "h": 540
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "camp-veil",
+        "from": 0,
+        "to": 8,
+        "direction": "forward"
+      }
+    ],
+    "pixelfx": {
+      "id": "transitions/camp-veil",
+      "name": "Camp veil",
+      "fps": 33.333333333333336,
+      "loop": false,
+      "frames": 9,
+      "frameSize": [
+        320,
+        180
+      ],
+      "pivot": [
+        0,
+        0
+      ],
+      "columns": 3
+    }
+  }
+}

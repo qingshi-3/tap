@@ -7,28 +7,42 @@ import { fileURLToPath } from 'node:url';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(project, 'dist');
-const version = '0.5.0';
+const version = '0.4.10';
 const files = [];
-const args = process.argv.slice(2).filter(arg => arg !== '--browser');
-if (args.length && (args.length !== 2 || args[0] !== '--output-dir')) throw new Error('Usage: package.mjs [--browser] [--output-dir <workspace-contained-directory>]');
+const args = process.argv.slice(2);
+if (args.length && (args.length !== 2 || args[0] !== '--output-dir')) throw new Error('Usage: package.mjs [--output-dir <workspace-contained-directory>]');
 const workspace = resolve(project, '../..');
 const output = args.length ? resolve(process.cwd(), args[1]) : join(project, 'build');
 const outputRelative = relative(workspace, output);
 if (outputRelative === '..' || outputRelative.startsWith(`..${sep}`) || isAbsolute(outputRelative)) throw new Error('Package output must remain inside the workspace.');
 // Mandatory for all callers and output locations; no ZIP is created on failure.
-// Every tools/check-*.mjs is a gate; browser checks run only with --browser.
-const browser = process.argv.includes('--browser');
-const checks = (await readdir(join(project, 'tools'))).filter(name => /^check-.*\.mjs$/.test(name)).sort();
-const run = [];
+const checks = ['check-expedition-progress.mjs','check-hero-progress.mjs','check-profile-expansion.mjs','check-ad-rewards.mjs','check-campaign-progress.mjs','check-local-trial-save.mjs','check-player-cloud.mjs','check-cloud-archive.mjs','check-save-compatibility.mjs','check-campaign-v2-progress.mjs','check-recruitment.mjs','check-draw-profile.mjs','check-draw-battle.mjs','check-progressive-fatigue.mjs','check-campaign-content.mjs','check-campaign-economy.mjs','check-daily-ad-rewards.mjs','check-attack-range.mjs','check-content-expansion-mechanics.mjs','check-content-expansion-progress.mjs','check-collection-training.mjs','check-random-recruitment.mjs','check-recruitment-mechanics.mjs'];
+// A solvable lesson can still teach nothing. Gate both the intended solutions
+// and the known ways to win while omitting their central mechanics.
+checks.push('check-trial-lessons.mjs', 'check-trial-mechanisms.mjs', 'check-trial-design.mjs');
+checks.push('check-battle-command-gesture.mjs');
+checks.push('check-battle-available-actions.mjs');
+checks.push('check-gift-codes.mjs');
+checks.push('check-battle-reward-summary.mjs', 'check-deck-filters.mjs', 'check-deck-recommendation.mjs', 'check-platform-progress.mjs');
+checks.push('check-ranked-challenge.mjs', 'check-challenge-preparation.mjs', 'check-ranked-main-isolation.mjs');
+checks.push('check-boss-mechanics.mjs', 'check-enemy-ai-targets.mjs', 'check-enemy-encounters.mjs', 'check-battle-history.mjs', 'check-battle-history-model.mjs', 'check-camera-bounds.mjs');
+checks.push('check-battle-history-spells.mjs', 'check-audio-mix.mjs');
+checks.push('check-encounter-mechanics.mjs', 'check-encounter-persistence.mjs', 'check-encounter-ui-model.mjs');
+checks.push('check-adventure-content.mjs', 'check-adventure-mechanics.mjs', 'check-adventure-persistence.mjs', 'check-adventure-progress.mjs', 'check-adventure-fx.mjs');
+checks.push('check-roguelike-rules.mjs', 'check-roguelike-session.mjs');
+let compatibility;
 for (const check of checks) {
-  const source = await readFile(join(project, 'tools', check), 'utf8');
-  if (!browser && /playwright|chromium/.test(source)) continue;
-  const result = spawnSync(process.execPath, [join(project, 'tools', check)], { encoding: 'utf8', cwd: project });
-  if (result.status !== 0 || result.error) throw new Error(`Gate failed: ${check}\n${result.stderr || result.error || result.stdout}`);
-  run.push(check);
+  const checkArgs = check === 'check-roguelike-session.mjs' ? ['--require-engine'] : [];
+  const result = spawnSync(process.execPath, [join(project, 'tools', check), ...checkArgs], { encoding: 'utf8', cwd: project });
+  if (result.status !== 0 || result.error) throw new Error(`Save compatibility gate failed: ${check}\n${result.stderr || result.error || result.stdout}`);
+  if (check === 'check-save-compatibility.mjs') compatibility = JSON.parse(result.stdout.trim().split('\n').at(-1));
 }
-if (!run.includes('check-profile-v2.mjs')) throw new Error('Save v2 gate is missing; packaging stopped.');
-const compatibility = { passed: true, save: 'safe-v2', packageVersion: version, checkedAt: new Date().toISOString(), checks: run };
+if (compatibility?.passed !== true || compatibility.singleDeviceUpdate?.passed !== true
+  || compatibility.singleDeviceUpdate.storageContractChecked !== true
+  || !Number.isSafeInteger(compatibility.singleDeviceUpdate.roundTrips) || compatibility.singleDeviceUpdate.roundTrips < 1) {
+  throw new Error('Single-device update compatibility evidence is missing or failed; packaging stopped.');
+}
+compatibility = { ...compatibility, packageVersion: version, checkedAt: new Date().toISOString(), checks };
 
 async function collect(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {

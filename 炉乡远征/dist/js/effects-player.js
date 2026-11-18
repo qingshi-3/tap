@@ -1,12 +1,15 @@
+import { AdventureEffects, hasAdventureSteps, compileAdventureTimeline, adventureDisplayUnit } from './adventure-effects.js';
 import { battleDelay, battleElapsed } from './battle-motion.js';
 import { assetImage as image, assetFetch, assetFont } from './asset-loading.js';
 import { EFFECT_MANIFEST } from './effect-manifest.js';
 import { getHero } from './factions.js';
+import { getCard } from './cards.js';
 import { drawAtlasFrame, framesWithPrefix, parsePlist } from './atlas.js';
 import { effectDependencies } from './battle-assets.js';
 
 const ROOT = './assets/';
 const DEFAULT_FRAME_MS = 80;
+export const SFX_MIX = Object.freeze({ master:0.42, spell:0.7, maxVoices:6, perSound:2, duplicateMs:60 });
 
 function localPath(value, fallbackFolder = 'fx') {
   if (!value) return null;
@@ -50,6 +53,8 @@ function noise(index, salt = 0) {
 export class EffectsPlayer {
   constructor(renderer) {
     this.renderer = renderer;
+    this.adventure = new AdventureEffects(renderer);
+    globalThis.document?.addEventListener?.('visibilitychange',()=>{if(globalThis.document.hidden)this.finish();});
     this.manifest = EFFECT_MANIFEST ?? {};
     this.atlases = new Map();
     this.staticImages = new Map();
@@ -64,6 +69,8 @@ export class EffectsPlayer {
     this.failedSounds = new Set();
     this.audioBytes = 0;
     this.activeSounds = new Set();
+    this.soundDetails = new WeakMap();
+    this.soundStarts = new Map();
     this.mediaVoices = new Map();
     this.mediaVoiceCount = 0;
     this.mediaGeneration = new WeakMap();
@@ -72,12 +79,21 @@ export class EffectsPlayer {
     catch { this.audioContext = null; }
     this.soundVolume = 1;
     this.soundGain = this.audioContext?.createGain() ?? null;
-    this.soundGain?.connect(this.audioContext.destination);
+    this.soundCompressor = this.audioContext?.createDynamicsCompressor?.() ?? null;
+    if (this.soundCompressor) {
+      this.soundCompressor.threshold.value=-12;this.soundCompressor.knee.value=12;
+      this.soundCompressor.ratio.value=6;this.soundCompressor.attack.value=0.004;this.soundCompressor.release.value=0.18;
+      this.soundCompressor.connect(this.audioContext.destination);
+    }
+    this.soundGain?.connect(this.soundCompressor ?? this.audioContext.destination);
+    if(this.soundGain)this.soundGain.gain.value=SFX_MIX.master;
     this.frameLists = new WeakMap();
     this.persistentEntries = new Map();
   }
 
   async load(cardIds = null) {
+    // Failed optional atlases keep an explicit fallback and remain retryable on the next load.
+    if(!cardIds||cardIds.some(id=>Number(id)>=9201&&Number(id)<=9212))await this.adventure.load();
     const selected = cardIds ? effectDependencies(cardIds, this.manifest) : null;
     const options = { priority: cardIds ? 1 : 0 };
     const recipes = selected?.recipes ?? Object.values(this.manifest.recipes ?? {});
@@ -168,7 +184,7 @@ export class EffectsPlayer {
   finish({ cancelAudio = true } = {}) {
     const playback = this.playback;
     if (cancelAudio) for (const sound of this.activeSounds) { try { this.mediaGeneration.set(sound,(this.mediaGeneration.get(sound)??0)+1);sound.stop?.(); sound.pause?.(); sound.disconnect?.(); } catch { /* Already ended. */ } }
-    if (cancelAudio) this.activeSounds.clear();
+    if (cancelAudio) { this.activeSounds.clear();this.soundStarts.clear(); }
     if (!playback) return;
     this.playback = null;
     for (const timer of playback.timers) clearTimeout(timer);
@@ -178,7 +194,9 @@ export class EffectsPlayer {
 
   play(action, beforeUnits = []) {
     this.finish({cancelAudio:false});
-    if (!action || this.renderer.motionPreference.matches) return Promise.resolve();
+    if (!action) return Promise.resolve();
+    if(hasAdventureSteps(action,this.renderer.state))return this.playAdventure(action,beforeUnits);
+    const reducedMotion = this.renderer.motionPreference.matches;
     const after = this.renderer.state?.units ?? [];
     const byBefore = new Map(beforeUnits.map((unit) => [unit.unitId, unit]));
     const byAfter = new Map(after.map((unit) => [unit.unitId, unit]));
@@ -196,13 +214,17 @@ export class EffectsPlayer {
     const entries = [];
     const startedAt = performance.now();
     const timers = [];
-    const schedule = (callback, delay) => setTimeout(callback, battleDelay(delay));
+    // Reduced motion changes presentation only: dispatch the same committed
+    // action sounds immediately, without leaving animation or audio timers.
+    const schedule = (callback, delay) => reducedMotion ? (callback(), null) : setTimeout(callback, battleDelay(delay));
     const addBody = (unit, state, at = 0) => {
+      if (reducedMotion) return;
       const animationDuration = unit ? this.bodyDuration(unit.cardId, state) : 0;
       if (!unit || !animationDuration) return;
       entries.push({ kind: 'body', unit, state, at, animationDuration, duration: animationDuration + (state === 'death' ? 1000 : 0) });
     };
     const addRecipe = (recipe, names, units, at = 0, scope = 'target', sourceUnit = source) => {
+      if (reducedMotion) return;
       for (const unit of units) {
         for (const item of flatten(eventList(recipe, names), Number(unit.unitId ?? 0))) {
           const itemDelay = item.delayMs != null ? Number(item.delayMs) : Number(item.delay ?? 0) * 1000;
@@ -219,7 +241,7 @@ export class EffectsPlayer {
     if (action.kind === 'summon') {
       addBody(source, 'idle', 0);
       resolved.forEach((recipe) => addRecipe(recipe, ['UnitSpawnFX', 'unitSpawnFx', 'spawn'], source ? [source] : [], 0, 'game'));
-      this.playSound(this.manifest.bodies?.[cardId]?.sounds?.apply);
+      this.playSound(this.bodySounds(cardId)?.apply);
     } else if (action.kind === 'attack') {
       const delay = Number(this.manifest.bodies?.[cardId]?.attackDelayMs ?? 600);
       if (source && targets[0] && targets[0].x !== source.x) this.renderer.facings.set(source.unitId, targets[0].x < source.x);
@@ -235,11 +257,11 @@ export class EffectsPlayer {
         addRecipe(recipe, ['UnitDamagedFX', 'unitDamagedFx', 'damaged'], aliveOnFirstImpact(target) ? [target] : [], reactionAt, 'target', source);
         addRecipe(recipe, ['UnitDiedFX', 'unitDiedFx', 'died'], aliveOnFirstImpact(target) ? [] : [target], reactionAt, 'target', source);
       }
-      this.playSound(this.manifest.bodies?.[cardId]?.sounds?.attack);
+      this.playSound(this.bodySounds(cardId)?.attack);
       timers.push(schedule(() => {
-        this.playSound(this.manifest.bodies?.[cardId]?.sounds?.attackDamage);
+        this.playSound(this.bodySounds(cardId)?.attackDamage);
         for (const target of targets) {
-          const targetSounds = this.manifest.bodies?.[target.cardId]?.sounds;
+          const targetSounds = this.bodySounds(target.cardId);
           this.playSound(aliveOnFirstImpact(target) ? targetSounds?.receiveDamage : targetSounds?.death);
         }
       }, reactionAt));
@@ -257,7 +279,7 @@ export class EffectsPlayer {
           counterResolvedAt = counterReactionAt;
           addBody(targets[0],'death',counterReactionAt);
           for (const recipe of counterRecipes) addRecipe(recipe,['UnitDiedFX'],[targets[0]],counterReactionAt,'target',targets[0]);
-          timers.push(schedule(() => this.playSound(this.manifest.bodies?.[targets[0].cardId]?.sounds?.death),counterReactionAt));
+          timers.push(schedule(() => this.playSound(this.bodySounds(targets[0].cardId)?.death),counterReactionAt));
         }
         addBody(targets[0], 'attack', counterStartAt);
         if (source && targets[0].x !== source.x) this.renderer.facings.set(targets[0].unitId, source.x < targets[0].x);
@@ -268,15 +290,16 @@ export class EffectsPlayer {
           addRecipe(recipe, ['UnitDamagedFX'], byAfter.has(sourceId) && source ? [source] : [], counterReactionAt, 'target', targets[0]);
           addRecipe(recipe, ['UnitDiedFX'], !byAfter.has(sourceId) && source ? [source] : [], counterReactionAt, 'target', targets[0]);
         }
-        const counterSounds = this.manifest.bodies?.[targets[0].cardId]?.sounds;
+        const counterSounds = this.bodySounds(targets[0].cardId);
         timers.push(schedule(() => this.playSound(counterSounds?.attack), counterStartAt));
         timers.push(schedule(() => {
           this.playSound(counterSounds?.attackDamage);
-          const sourceSounds = this.manifest.bodies?.[source?.cardId]?.sounds;
+          const sourceSounds = this.bodySounds(source?.cardId);
           this.playSound(byAfter.has(sourceId) ? sourceSounds?.receiveDamage : sourceSounds?.death);
         }, counterReactionAt));
       }
     } else if (action.kind === 'spell' || action.kind === 'bbs') {
+      this.playSound(this.manifest.spellSounds?.[cardId] ?? this.bodySounds(cardId)?.cast, {kind:'spell'});
       const casterBody = this.manifest.bodies?.[source?.cardId];
       if (casterBody?.states?.castStart) {
         const startDuration = this.bodyDuration(source.cardId, 'castStart');
@@ -298,6 +321,7 @@ export class EffectsPlayer {
         const before = byBefore.get(target.unitId), alive = byAfter.has(target.unitId);
         if (Number(before?.health ?? target.health) > Number(byAfter.get(target.unitId)?.health ?? 0)) {
           addBody(target, alive ? 'hit' : 'death');
+          this.playSound(alive ? this.bodySounds(target.cardId)?.receiveDamage : this.bodySounds(target.cardId)?.death);
           for (const recipe of recipesForCard(target.cardId)) {
             addRecipe(recipe, ['UnitDamagedFX'], alive ? [target] : [], 0, 'target');
             addRecipe(recipe, ['UnitDiedFX'], alive ? [] : [target], 0, 'target');
@@ -307,12 +331,12 @@ export class EffectsPlayer {
       const lightchasers = after.filter((unit) => unit.cardId === 15
         && action.effect === 'heal' && Number(unit.attackBuff ?? 0) > Number(byBefore.get(unit.unitId)?.attackBuff ?? 0));
       addRecipe(recipes['FX.Modifiers.ModifierGenericBuff'], ['ModifierTriggeredTargetFX'], lightchasers, 0, 'target');
-      this.playSound(action.sound ?? this.manifest.spellSounds?.[cardId] ?? this.manifest.bodies?.[cardId]?.sounds?.cast);
     }
     if (action.kind === 'end-turn') for (const target of targets) {
       const before = byBefore.get(target.unitId), alive = byAfter.has(target.unitId);
       if (!before || before.health <= (byAfter.get(target.unitId)?.health ?? 0)) continue;
       addBody(target, alive ? 'hit' : 'death');
+          this.playSound(alive ? this.bodySounds(target.cardId)?.receiveDamage : this.bodySounds(target.cardId)?.death);
       for (const recipe of recipesForCard(target.cardId)) addRecipe(recipe, alive ? ['UnitDamagedFX'] : ['UnitDiedFX'], [target], 0, 'target', target);
     }
     // Secondary summons and death wishes belong to their own card's original FX.
@@ -326,7 +350,7 @@ export class EffectsPlayer {
       birthAt.set(unit.unitId,at);
       addBody(unit, 'idle',at);
       for (const recipe of recipesForCard(unit.cardId)) addRecipe(recipe, ['UnitSpawnFX', 'unitSpawnFx', 'spawn'], [unit], at, 'game', unit);
-      const apply = this.manifest.bodies?.[unit.cardId]?.sounds?.apply;
+      const apply = this.bodySounds(unit.cardId)?.apply;
       if(at) timers.push(schedule(()=>this.playSound(apply),at));else this.playSound(apply);
     }
     for (const unit of ghosts) {
@@ -334,6 +358,7 @@ export class EffectsPlayer {
       const at = action.kind === 'attack' ? Math.max(0,...ghosts.map(ghost=>statRevealAt.get(ghost.unitId)??0)) : 0;
       if(action.kind === 'attack') statRevealAt.set(unit.unitId,at);
       addBody(unit, 'death',at);
+      timers.push(schedule(()=>this.playSound(this.bodySounds(unit.cardId)?.death),at));
       for (const recipe of recipesForCard(unit.cardId)) addRecipe(recipe, ['UnitDiedFX', 'unitDiedFx', 'died'], [unit], at, 'target', unit);
     }
     const feedback = this.manifest.statFeedback;
@@ -349,6 +374,7 @@ export class EffectsPlayer {
       });
     }
     if (!entries.length) return Promise.resolve();
+    if (reducedMotion) return Promise.resolve();
     const duration = Math.max(1, ...entries.map((entry) => entry.at + entry.duration));
     let resolve;
     const completed = new Promise((done) => { resolve = done; });
@@ -363,6 +389,34 @@ export class EffectsPlayer {
     this.renderer.onVisualFrame?.(this.displayUnits(startedAt));
     this.renderer.requestPaint();
     return completed;
+  }
+
+  playAdventure(action,beforeUnits) {
+    const after=this.renderer.state?.units??[],byBefore=new Map(beforeUnits.map(u=>[u.unitId,u])),byAfter=new Map(after.map(u=>[u.unitId,u])),timeline=compileAdventureTimeline(action,beforeUnits,after);
+    const staticOnly=this.renderer.motionPreference.matches,startedAt=performance.now(),entries=[...timeline.entries],bodyStates=new Map(),birthAt=new Map(),statRevealAt=new Map(),timers=[];
+    const body=(unit,state,at)=>{if(!unit||staticOnly)return;const animationDuration=Math.min(state==='death'?380:300,this.bodyDuration(unit.cardId,state)||250);const entry={kind:'body',unit,state,at,animationDuration,duration:animationDuration+(state==='death'?120:0)};entries.push(entry);const list=bodyStates.get(unit.unitId)??[];list.push(entry);bodyStates.set(unit.unitId,list);};
+    const source=byBefore.get(timeline.sourceId)??byAfter.get(timeline.sourceId);body(source,this.bodyDuration(source?.cardId,'cast')?'cast':'attack',0);
+    if(!this.adventure.sheets.size)this.adventure.load().then(()=>this.renderer.requestPaint());
+    const ghosts=beforeUnits.filter(u=>!byAfter.has(u.unitId));
+    for(const [id,hits] of timeline.hits){const unit=byBefore.get(id)??byAfter.get(id);if(!unit)continue;statRevealAt.set(id,hits.at(-1).at);for(const [i,hit] of hits.entries()){const dead=!byAfter.has(id)&&i===hits.length-1;body({...unit,...hit.cell},dead?'death':'hit',hit.at);if(hit.amount>0)entries.push({kind:'stat',unit:{...unit,...hit.cell},change:{kind:'damage',amount:hit.amount},at:hit.at,duration:500});if(!staticOnly)timers.push(setTimeout(()=>this.playSound(dead?this.bodySounds(unit.cardId)?.death:this.bodySounds(unit.cardId)?.receiveDamage),battleDelay(hit.at)));}}
+    for(const ghost of ghosts)if(!timeline.hits.has(ghost.unitId)){statRevealAt.set(ghost.unitId,timeline.lastImpact);body(ghost,'death',timeline.lastImpact);}
+    for(const unit of after)if(!byBefore.has(unit.unitId)){birthAt.set(unit.unitId,staticOnly?0:timeline.lastImpact);body(unit,'idle',timeline.lastImpact);}
+    for(const list of bodyStates.values())list.sort((a,b)=>b.at-a.at);
+    const duration=staticOnly?180:Math.max(timeline.duration,...entries.map(e=>e.at+e.duration));
+    let resolve;const completed=new Promise(done=>resolve=done);
+    this.playback={action,startedAt,duration,entries,ghosts,bodyStates,timers,resolve,byBefore,byAfter,statRevealAt,birthAt,adventureTimeline:timeline,staticOnly};
+    timers.push(setTimeout(()=>this.finish({cancelAudio:false}),battleDelay(duration+20)));
+    this.playSound(this.bodySounds(source?.cardId)?.cast,{kind:'spell'});
+    this.renderer.onVisualFrame?.(this.displayUnits(startedAt));this.renderer.requestPaint();return completed;
+  }
+
+  adventureCharge(unitId,finalCharge,now=performance.now()) {
+    const playback=this.playback;if(!playback?.adventureTimeline||playback.staticOnly)return finalCharge;
+    const elapsed=battleElapsed(now,playback.startedAt),steps=playback.action.steps??[],beam=steps.find(s=>s.kind==='beam'&&s.unitId===unitId);
+    if(beam?.damage===10&&elapsed<(playback.adventureTimeline.entries.find(e=>e.name==='beam')?.at??180)+130)return 2;
+    const pending=steps.filter(s=>s.kind==='charge'&&s.unitId===unitId),at=playback.adventureTimeline.charges.get(unitId);
+    if(pending.length&&elapsed<at)return Math.max(0,pending[0].charge-1);
+    return finalCharge;
   }
 
   bodyDuration(cardId, state) {
@@ -418,6 +472,7 @@ export class EffectsPlayer {
   displayUnit(unit, now = performance.now()) {
     const playback = this.playback;
     if (!playback) return unit;
+    if(playback.adventureTimeline)return adventureDisplayUnit(playback,unit,battleElapsed(now,playback.startedAt));
     if (playback.action.kind !== 'attack') return playback.byAfter.has(unit.unitId) ? unit : {...unit,health:0};
     const revealAt = playback.statRevealAt.get(unit.unitId);
     if (revealAt == null) return unit;
@@ -443,7 +498,7 @@ export class EffectsPlayer {
     }
     const elapsed = battleElapsed(now, playback.startedAt);
     const death = playback.bodyStates.get(unitId)?.find((entry) => entry.state === 'death');
-    if (death && elapsed > death.at + death.animationDuration) return Math.max(0, 1 - (elapsed - death.at - death.animationDuration) / 1000);
+    if (death && elapsed > death.at + death.animationDuration) return Math.max(0, 1 - (elapsed - death.at - death.animationDuration) / (playback.adventureTimeline?120:1000));
     return 1;
   }
 
@@ -452,7 +507,10 @@ export class EffectsPlayer {
     if (!playback) return;
     const elapsed = battleElapsed(now, playback.startedAt);
     for (const entry of playback.entries) {
+      if(entry.kind==='stat'&&playback.staticOnly){if(pass==='front')this.drawStatFeedback(ctx,metrics,entry,150);continue;}
+      if(entry.kind==='adventure-fx'&&playback.staticOnly){this.adventure.draw(ctx,metrics,entry,entry.duration*.4,pass,true);continue;}
       if (elapsed < entry.at || elapsed >= entry.at + entry.duration) continue;
+      if(entry.kind==='adventure-fx'){this.adventure.draw(ctx,metrics,entry,elapsed-entry.at,pass);continue;}
       if (entry.kind === 'stat') {
         if (pass === 'front') this.drawStatFeedback(ctx, metrics, entry, elapsed - entry.at);
         continue;
@@ -673,7 +731,7 @@ export class EffectsPlayer {
     const signature = `${state.runId}:${[...ids].sort((a,b)=>a-b).join(',')}`;
     if(signature===this.warmAudioSignature) return;this.warmAudioSignature=signature;
     for (const id of ids) {
-      const sounds = this.manifest.bodies?.[id]?.sounds ?? {};
+      const sounds = this.bodySounds(id) ?? {};
       for (const symbol of [...Object.values(sounds), this.manifest.spellSounds?.[id]]) {
         const key = Array.isArray(symbol) ? symbol[0] : symbol;
         const path = this.manifest.sounds?.[key]; if (path) this.prepareSound(path);
@@ -725,19 +783,34 @@ export class EffectsPlayer {
 
   setSoundVolume(value) {
     this.soundVolume = Math.max(0, Math.min(1, Number(value) || 0));
-    if (this.soundGain) this.soundGain.gain.value = this.soundVolume;
-    for (const voices of this.mediaVoices.values()) for (const voice of voices) voice.volume = this.soundVolume;
+    if (this.soundGain) this.soundGain.gain.value = this.soundVolume * SFX_MIX.master;
+    for (const voices of this.mediaVoices.values()) for (const voice of voices) voice.volume = this.soundVolume * SFX_MIX.master * (this.soundDetails.get(voice)?.gain ?? 1);
   }
 
-  playSound(symbol) {
+  bodySounds(cardId) {
+    const sourceId=getCard(cardId)?.spriteFrom ?? cardId;
+    return this.manifest.bodies?.[cardId]?.sounds ?? this.manifest.bodies?.[sourceId]?.sounds;
+  }
+
+  playMovementSound(cardId) {
+    // The original card factory owns walk cues, including shared/aliased sounds.
+    // Keep this on the ordinary sound path so volume and browser unlocking apply.
+    this.playSound(this.bodySounds(cardId)?.walk);
+  }
+
+  playSound(symbol, {kind='unit'} = {}) {
     const sound = Array.isArray(symbol) ? symbol[0] : symbol;
     const path = this.manifest.sounds?.[sound];
-    if (!path) return;
+    if (!path || this.soundVolume===0) return;
+    const now=performance.now(),gain=kind==='spell'?SFX_MIX.spell:1;
+    if(now-(this.soundStarts.get(path)??-Infinity)<SFX_MIX.duplicateMs) return;
+    if(this.activeSounds.size>=SFX_MIX.maxVoices || [...this.activeSounds].filter(voice=>this.soundDetails.get(voice)?.path===path).length>=SFX_MIX.perSound) return;
+    const register=voice=>{this.soundStarts.set(path,now);this.soundDetails.set(voice,{path,gain});this.activeSounds.add(voice);};
     try {
       const buffer = this.audioBuffers.get(path);
       if (buffer && this.audioContext?.state === 'running') {
         // A fresh source allows attack/impact sounds to overlap without restarting each other.
-        const source=this.audioContext.createBufferSource();source.buffer=buffer;source.connect(this.soundGain ?? this.audioContext.destination);source.onended=()=>{source.disconnect();this.activeSounds.delete(source);};this.activeSounds.add(source);source.start();
+        const source=this.audioContext.createBufferSource(),voiceGain=this.audioContext.createGain();source.buffer=buffer;source.loop=false;voiceGain.gain.value=gain;source.connect(voiceGain);voiceGain.connect(this.soundGain ?? this.audioContext.destination);source.onended=()=>{source.disconnect();voiceGain.disconnect();this.activeSounds.delete(source);};register(source);source.start();
         this.audioBuffers.delete(path);this.audioBuffers.set(path,buffer);return;
       }
       this.prepareSound(path);
@@ -745,13 +818,13 @@ export class EffectsPlayer {
       if(!base) return;
       const voices = this.mediaVoices.get(path);
       let audio = voices.find(voice => !this.activeSounds.has(voice));
-      if(!audio && voices.length < 8 && this.mediaVoiceCount < 32) {
+      if(!audio && voices.length < SFX_MIX.perSound && this.mediaVoiceCount < 32) {
         audio=base.cloneNode(true);audio.preload='auto';voices.push(audio);this.mediaVoiceCount++;
       }
       if (!audio) return;
       const generation=(this.mediaGeneration.get(audio)??0)+1;this.mediaGeneration.set(audio,generation);
       const release=()=>{if(this.mediaGeneration.get(audio)===generation)this.activeSounds.delete(audio);};
-      audio.volume=this.soundVolume;audio.currentTime=0;this.activeSounds.add(audio);audio.onended=release;audio.onerror=release;
+      audio.loop=false;audio.volume=this.soundVolume*SFX_MIX.master*gain;audio.currentTime=0;register(audio);audio.onended=release;audio.onerror=release;
       audio.play().catch(release);
     } catch { /* Browsers may keep audio locked until a user gesture. */ }
   }

@@ -1,0 +1,1579 @@
+{
+  "frames": [
+    {
+      "filename": "chest-open 0",
+      "frame": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 1",
+      "frame": {
+        "x": 176,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 2",
+      "frame": {
+        "x": 352,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 3",
+      "frame": {
+        "x": 528,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 4",
+      "frame": {
+        "x": 704,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 5",
+      "frame": {
+        "x": 880,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 6",
+      "frame": {
+        "x": 1056,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 7",
+      "frame": {
+        "x": 0,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 8",
+      "frame": {
+        "x": 176,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 9",
+      "frame": {
+        "x": 352,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 10",
+      "frame": {
+        "x": 528,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 11",
+      "frame": {
+        "x": 704,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 12",
+      "frame": {
+        "x": 880,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 13",
+      "frame": {
+        "x": 1056,
+        "y": 112,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 14",
+      "frame": {
+        "x": 0,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 15",
+      "frame": {
+        "x": 176,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 16",
+      "frame": {
+        "x": 352,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 17",
+      "frame": {
+        "x": 528,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 18",
+      "frame": {
+        "x": 704,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 19",
+      "frame": {
+        "x": 880,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 20",
+      "frame": {
+        "x": 1056,
+        "y": 224,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 21",
+      "frame": {
+        "x": 0,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 22",
+      "frame": {
+        "x": 176,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 23",
+      "frame": {
+        "x": 352,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 24",
+      "frame": {
+        "x": 528,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 25",
+      "frame": {
+        "x": 704,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 26",
+      "frame": {
+        "x": 880,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 27",
+      "frame": {
+        "x": 1056,
+        "y": 336,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 28",
+      "frame": {
+        "x": 0,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 29",
+      "frame": {
+        "x": 176,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 30",
+      "frame": {
+        "x": 352,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 31",
+      "frame": {
+        "x": 528,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 32",
+      "frame": {
+        "x": 704,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 33",
+      "frame": {
+        "x": 880,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 34",
+      "frame": {
+        "x": 1056,
+        "y": 448,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 35",
+      "frame": {
+        "x": 0,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 36",
+      "frame": {
+        "x": 176,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 37",
+      "frame": {
+        "x": 352,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 38",
+      "frame": {
+        "x": 528,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 39",
+      "frame": {
+        "x": 704,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 40",
+      "frame": {
+        "x": 880,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 41",
+      "frame": {
+        "x": 1056,
+        "y": 560,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 42",
+      "frame": {
+        "x": 0,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 43",
+      "frame": {
+        "x": 176,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 44",
+      "frame": {
+        "x": 352,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 45",
+      "frame": {
+        "x": 528,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 46",
+      "frame": {
+        "x": 704,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 47",
+      "frame": {
+        "x": 880,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 48",
+      "frame": {
+        "x": 1056,
+        "y": 672,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 49",
+      "frame": {
+        "x": 0,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 50",
+      "frame": {
+        "x": 176,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 51",
+      "frame": {
+        "x": 352,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 52",
+      "frame": {
+        "x": 528,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 53",
+      "frame": {
+        "x": 704,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 54",
+      "frame": {
+        "x": 880,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 55",
+      "frame": {
+        "x": 1056,
+        "y": 784,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 56",
+      "frame": {
+        "x": 0,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 57",
+      "frame": {
+        "x": 176,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 58",
+      "frame": {
+        "x": 352,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 59",
+      "frame": {
+        "x": 528,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 60",
+      "frame": {
+        "x": 704,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 61",
+      "frame": {
+        "x": 880,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 62",
+      "frame": {
+        "x": 1056,
+        "y": 896,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 63",
+      "frame": {
+        "x": 0,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 64",
+      "frame": {
+        "x": 176,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 65",
+      "frame": {
+        "x": 352,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 66",
+      "frame": {
+        "x": 528,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 67",
+      "frame": {
+        "x": 704,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 68",
+      "frame": {
+        "x": 880,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    },
+    {
+      "filename": "chest-open 69",
+      "frame": {
+        "x": 1056,
+        "y": 1008,
+        "w": 176,
+        "h": 112
+      },
+      "rotated": false,
+      "trimmed": false,
+      "spriteSourceSize": {
+        "x": 0,
+        "y": 0,
+        "w": 176,
+        "h": 112
+      },
+      "sourceSize": {
+        "w": 176,
+        "h": 112
+      },
+      "duration": 67
+    }
+  ],
+  "meta": {
+    "app": "https://github.com/patch-gg/pixelfx",
+    "version": "1",
+    "image": "chest-open.png",
+    "format": "RGBA8888",
+    "size": {
+      "w": 1232,
+      "h": 1120
+    },
+    "scale": "1",
+    "frameTags": [
+      {
+        "name": "chest-open",
+        "from": 0,
+        "to": 69,
+        "direction": "forward"
+      }
+    ],
+    "pixelfx": {
+      "id": "pickups/chest-open",
+      "name": "Chest open",
+      "fps": 15,
+      "loop": false,
+      "frames": 70,
+      "frameSize": [
+        176,
+        112
+      ],
+      "pivot": [
+        88,
+        96
+      ],
+      "columns": 7
+    }
+  }
+}

@@ -125,7 +125,7 @@
 
 /* Explicit bridges for legacy host rules with two ID selectors. Paint stays
    with the transferred .btn materials above; no global !important escalation. */
-:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-use-local,#cloud-choice-confirm),
+:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-clear-cache,#cloud-use-local,#cloud-choice-confirm),
 :root[data-ui="qibing"][data-ui] #objective-dialog :is(#objective-close,#objective-rules),
 :root[data-ui="qibing"][data-ui] #objective-dialog #rule-tabs button,
 :root[data-ui="qibing"][data-ui] #audio-settings :is(#settings-music-toggle,#settings-music-retry),
@@ -134,7 +134,7 @@
  background:var(--qibing-button-background); box-shadow:var(--qibing-button-shadow);
  color:var(--qibing-button-ink,#e9e3ff); text-shadow:var(--qibing-button-text-shadow,none);
 }
-:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-use-local,#cloud-choice-confirm):focus-visible,
+:root[data-ui="qibing"][data-ui] #cloud-dialog :is(#cloud-close,#cloud-refresh,#cloud-clear-cache,#cloud-use-local,#cloud-choice-confirm):focus-visible,
 :root[data-ui="qibing"][data-ui] #objective-dialog :is(#objective-close,#objective-rules):focus-visible {
  outline:3px solid #6fe6ff; outline-offset:2px;
 }
@@ -347,9 +347,9 @@
 :root[data-ui="qibing"][data-ui] #expedition-home[data-page="prep"] .deck-card-controls button::before { inset:9px; border-radius:50%; background:linear-gradient(180deg,#515173 0 12%,#303253 12% 72%,#22243e 72%); box-shadow:inset 0 1px rgba(255,255,255,.25),0 2px 3px rgba(0,0,0,.4); }
 
 /* Collection uses the original card's lower engraving area, without an external essay. */
-:root[data-ui="qibing"][data-ui] #expedition-home:is([data-page="codex"],[data-page="shop"]) .expedition-codex-rail { grid-template-columns:repeat(auto-fill,minmax(172px,1fr)); gap:22px 16px; align-items:start; align-content:start; padding:10px 12px 16px; }
-:root[data-ui="qibing"][data-ui] #expedition-home:is([data-page="codex"],[data-page="shop"]) .expedition-codex-card { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; max-width:202px; justify-self:center; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
-:root[data-ui="qibing"][data-ui] #expedition-home:is([data-page="codex"],[data-page="shop"]) .expedition-codex-card .game-card { width:100%; max-width:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-rail { grid-template-columns:repeat(auto-fill,minmax(172px,1fr)); gap:22px 16px; align-items:start; align-content:start; padding:10px 12px 16px; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-card { display:flex; flex-direction:column; align-items:center; gap:7px; width:100%; max-width:202px; justify-self:center; padding:0; border:0; border-radius:0; background:none; box-shadow:none; }
+:root[data-ui="qibing"][data-ui] #expedition-home[data-page="codex"] .expedition-codex-card .game-card { width:100%; max-width:none; }
 :root[data-ui="qibing"][data-ui] .game-card.is-collection .game-card-description { top:69%; left:10%; width:80%; height:23%; gap:5px; color:#e6eef7; font-size:11px; line-height:1.35; }
 :root[data-ui="qibing"][data-ui] .game-card.is-collection .card-keywords { display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:5px 8px; }
 :root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-chip { display:inline-flex; align-items:center; gap:3px; min-width:0; min-height:0; padding:0; border:0; border-radius:0; background:none; box-shadow:none; color:#e6eef7; }
@@ -416,24 +416,24 @@
  :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-portrait-medallion::after { animation:none; }
 }
 
-/* Battle chrome keeps the round state on the viewport centre, independently
-   of the two hero groups. Only the host's narrow landscape pocket needs a
-   second row; the board itself keeps its full-screen input surface. */
+/* The round and objective share the space between the two hero groups.
+   Gesture guidance appears only during the action that requires it. */
 :root[data-ui="qibing"][data-ui] #match {
  --battle-hud-top:max(4px,var(--safe-top,0px));
  --battle-hero-edge:max(8px,var(--ui-left,8px),calc(50% - 570px));
  --battle-enemy-edge:max(8px,var(--ui-right,8px),var(--host-capsule-width,0px),calc(50% - 570px));
+ --battle-hero-width:128px;
 }
 :root[data-ui="qibing"][data-ui] #match .match-topbar { position:absolute; inset:0 0 auto; height:0; min-height:0; padding:0; background:none; overflow:visible; z-index:8; }
 :root[data-ui="qibing"][data-ui] #match .mission-title { display:none; }
-:root[data-ui="qibing"][data-ui] #match .battle-top-center { position:absolute; top:var(--battle-hud-top); left:50%; transform:translateX(-50%); display:grid; grid-template-columns:minmax(0,1fr) 76px 80px; align-items:center; gap:8px; width:min(400px,calc(100vw - 344px)); min-height:44px; pointer-events:none; }
-:root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips { grid-column:1; grid-row:1; position:static; inset:auto; display:flex; align-items:center; width:100%; max-width:none; height:auto; min-height:40px; margin:0; padding:4px 0; box-sizing:border-box; overflow:visible; background:none; box-shadow:none; font-size:12px; line-height:17px; text-align:left; text-shadow:0 1px 2px #09101a,0 0 4px #09101a,1px 0 2px #09101a,-1px 0 2px #09101a; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center { position:absolute; top:var(--battle-hud-top); left:calc(var(--battle-hero-edge) + var(--battle-hero-width) + 6px); right:calc(var(--battle-enemy-edge) + var(--battle-hero-width) + 6px); transform:none; display:grid; grid-template-columns:80px 72px; justify-content:center; align-items:center; gap:4px 8px; min-height:44px; pointer-events:none; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips { grid-column:1/-1; grid-row:2; position:static; inset:auto; display:block; width:max-content; max-width:100%; height:auto; min-height:0; margin:0 auto; padding:3px 6px; box-sizing:border-box; overflow:visible; border-radius:3px; background:#152839ed; box-shadow:none; font-size:13px; line-height:18px; text-align:center; text-shadow:0 1px 2px #09101a; }
 :root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips[hidden] { display:none; }
 :root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips-text { white-space:normal; word-break:normal; overflow-wrap:normal; text-wrap:pretty; }
-:root[data-ui="qibing"][data-ui] #match .battle-top-center .turn-marker { grid-column:2; grid-row:1; min-width:0; margin:0; gap:3px; padding:3px 0; background:none; box-shadow:none; color:#f4f0ff; text-shadow:0 1px 2px #09101a,0 0 4px #09101a,1px 0 2px #09101a,-1px 0 2px #09101a; text-align:center; white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #match .battle-top-center .turn-marker { grid-column:1; grid-row:1; min-width:0; margin:0; gap:3px; padding:3px 0; background:none; box-shadow:none; color:#f4f0ff; text-shadow:0 1px 2px #09101a,0 0 4px #09101a,1px 0 2px #09101a,-1px 0 2px #09101a; text-align:center; white-space:nowrap; }
 :root[data-ui="qibing"][data-ui] #match .turn-marker span { font-size:12px; line-height:16px; }
 :root[data-ui="qibing"][data-ui] #match .turn-marker strong { font-size:14px; line-height:18px; white-space:normal; overflow-wrap:anywhere; }
-:root[data-ui="qibing"][data-ui] #app #match #objective-open { grid-column:3; grid-row:1; width:80px; min-width:0; min-height:44px; height:44px; padding:0 5px; font-size:12px; letter-spacing:0; white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #app #match #objective-open { grid-column:2; grid-row:1; width:72px; min-width:0; min-height:44px; height:44px; padding:0 5px; font-size:13px; letter-spacing:0; white-space:nowrap; }
 :root[data-ui="qibing"][data-ui] #match .general-panel { top:var(--battle-hud-top); transform:none; gap:4px; min-width:0; z-index:7; }
 :root[data-ui="qibing"][data-ui] #match .general-player { left:var(--battle-hero-edge); }
 :root[data-ui="qibing"][data-ui] #match .general-enemy { right:var(--battle-enemy-edge); }
@@ -447,36 +447,14 @@
 :root[data-ui="qibing"][data-ui] #match #leave-match::after { content:none; }
 :root[data-ui="qibing"][data-ui] #match #leave-match svg { display:block; width:25px; height:25px; fill:currentColor; }
 @media(max-width:720px) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:304px; grid-template-columns:minmax(0,1fr) 72px 76px; gap:6px; }
- :root[data-ui="qibing"][data-ui] #app #match #objective-open { width:76px; }
+ :root[data-ui="qibing"][data-ui] #match { --battle-hero-width:112px; }
  :root[data-ui="qibing"][data-ui] #match .portrait-frame { flex-basis:44px; width:44px; height:50px; }
  :root[data-ui="qibing"][data-ui] #match .general-copy { width:64px; }
  :root[data-ui="qibing"][data-ui] #match .general-name { max-width:64px; }
 }
-@media(max-width:720px) and (pointer:coarse) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { top:max(72px,calc(var(--battle-hud-top) + 68px)); width:248px; grid-template-columns:minmax(0,1fr) 72px 76px; }
-}
-/* Equal side tracks keep the turn marker itself at the exact viewport centre. */
-:root[data-ui="qibing"][data-ui] #match .battle-top-center { grid-template-columns:minmax(0,1fr) 76px minmax(0,1fr); }
-:root[data-ui="qibing"][data-ui] #app #match #objective-open { justify-self:start; }
-@media(max-width:720px) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { grid-template-columns:minmax(0,1fr) 72px minmax(0,1fr); }
-}
 :root[data-ui="qibing"][data-ui] #audio-settings #settings-leave-battle { flex:none; margin:0 20px 14px; min-height:44px; background:#59303e; color:#ffe7eb; border:0; border-image:none; box-shadow:inset 0 2px #805061,inset 0 -3px #321c28; }
 :root[data-ui="qibing"][data-ui] #audio-settings #settings-effects-value { color:#ffd36b; }
 
-/* Keep instructions wide where the hero HUD leaves room, without shifting the round. */
-:root[data-ui="qibing"][data-ui] #match .battle-top-center { width:min(660px,calc(100vw - 312px)); }
-@media(min-width:721px) and (pointer:coarse) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:min(660px,calc(100vw - 408px)); }
-}
-@media(max-width:720px) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:304px; }
-}
-@media(max-width:720px) and (pointer:coarse) {
- :root[data-ui="qibing"][data-ui] #match .battle-top-center { width:248px; }
- :root[data-ui="qibing"][data-ui] #match .battle-top-center .battle-tips { width:max-content; max-width:calc(50vw - var(--ui-left,8px) - 48px); justify-self:end; }
-}
 /* The power art and mana gem carry the control; no extra backing plate. */
 :root[data-ui="qibing"][data-ui] #app #match #bbs-button,
 :root[data-ui="qibing"][data-ui] #app #match #bbs-button:is([aria-pressed="true"],.is-unavailable,:disabled,:active) { background:none; border:0; border-image:none; box-shadow:none; }
@@ -494,3 +472,35 @@
 :root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-foreground-left { background-image:var(--trial-foreground-left); }
 :root[data-ui="qibing"][data-ui] #match[data-mode="challenge"] .battle-foreground-right { background-image:var(--trial-foreground-right); }
 :root[data-ui="qibing"][data-ui] .trial-card .trial-cover { display:block; background-size:cover; background-position:center; background-repeat:no-repeat; }
+
+/* Cloud recovery actions use solid fills; extra button frames obscure disabled states. */
+:root[data-ui="qibing"][data-ui] #cloud-dialog button:is(#cloud-close,#cloud-refresh,#cloud-clear-cache,#cloud-use-local,#cloud-use-remote,#cloud-choice-back,#cloud-choice-confirm) {
+ --qibing-button-shadow:inset 0 2px #ffffff18,inset 0 -3px #07091b80;
+ box-shadow:var(--qibing-button-shadow); border:0; letter-spacing:0; text-shadow:none;
+}
+:root[data-ui="qibing"][data-ui] #cloud-dialog button:is(#cloud-close,#cloud-refresh,#cloud-clear-cache,#cloud-use-local,#cloud-use-remote,#cloud-choice-back,#cloud-choice-confirm):disabled {
+ --qibing-button-background:#3c3b4c; --qibing-button-ink:#9d9aa9;
+ background:var(--qibing-button-background); color:var(--qibing-button-ink);
+ opacity:1; filter:none;
+}
+:root[data-ui="qibing"][data-ui] #cloud-dialog[data-cache-full="true"] #cloud-clear-cache:not(:disabled) {
+ background:linear-gradient(180deg,#ffe9a0,#efbb59 65%,#c58a37); color:#2a1700;
+}
+:root[data-ui="qibing"][data-ui] #cloud-dialog[data-cache-full="true"] #cloud-use-local:not(:disabled) {
+ background:#36324e; color:#e9e3ff;
+}
+:root[data-ui="qibing"][data-ui] #cloud-dialog #player-cloud-status[data-error="true"] { color:#ffc3ac; }
+:root[data-ui="qibing"][data-ui] #cloud-dialog #player-cloud-status[data-success="true"] { color:#bde5cb; }
+:root[data-ui="qibing"][data-ui] #cloud-dialog > footer button { white-space:nowrap; }
+:root[data-ui="qibing"][data-ui] #cloud-dialog #cloud-choice-copy {
+ margin:0; padding:4px 14px; border:0; background:none; flex:none;
+ font-size:14px; line-height:1.4;
+}
+@media(max-height:350px) {
+ :root[data-ui="qibing"][data-ui] #cloud-dialog > header { padding:0 12px; }
+ :root[data-ui="qibing"][data-ui] #cloud-dialog .cloud-body { padding:6px 14px; }
+ :root[data-ui="qibing"][data-ui] #cloud-dialog #player-cloud-status { margin-bottom:8px; }
+ :root[data-ui="qibing"][data-ui] #cloud-dialog .cloud-slot h3 { margin-bottom:7px; font-size:14px; }
+ :root[data-ui="qibing"][data-ui] #cloud-dialog .cloud-metrics { gap:3px; margin-bottom:6px; }
+ :root[data-ui="qibing"][data-ui] #cloud-dialog .cloud-metrics dd { font-size:15px; line-height:1.2; }
+}

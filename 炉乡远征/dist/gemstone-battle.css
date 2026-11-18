@@ -1,0 +1,80 @@
+/* Battle chrome uses P3 woodcut materials. Card faces, authored portrait rims,
+   board painting, stat components and layout remain with their original owners. */
+:root .match :is(#leave-match,#objective-open,#map-open,#map-close,#replace-hand-card,#match-sync,#inspect-close,#inspect-followup-skip,.opening-confirm,#end-turn,#inspect-cast,#result-ad-reward,#next-level,#play-again,#result-prep,#result-collection),
+:root #objective-dialog :is(#objective-close,#objective-rules),
+:root .hero-effect-back {
+  --battle-wood-art:var(--p3-wood-brown,url("./assets/ui/generated/ui-art-v2-wood.webp"));
+  border:0; border-radius:0; background:none; clip-path:none; box-shadow:none;
+  border-image-source:var(--battle-wood-art);
+  border-image-slice:64 fill; border-image-width:10px;
+  border-image-outset:0; border-image-repeat:stretch;
+  color:#fff3d3; text-shadow:0 1px 0 #422616;
+  transition:filter .12s ease,transform .12s ease;
+}
+
+/* Honey wood commits an action; green cloth marks spell casting. Ordinary navigation
+   and hand replacement keep the chestnut wood material. */
+:root .match :is(.opening-confirm,#end-turn,#inspect-followup-skip,#result-ad-reward,#next-level,#play-again),
+:root #objective-dialog #objective-close {
+  --battle-wood-art:var(--p3-wood-gold,url("./assets/ui/generated/ui-art-v2-gold.webp"));
+  color:var(--p3-action-ink); text-shadow:0 1px 0 #edc780;
+}
+:root .match #inspect-cast {
+  --battle-wood-art:var(--p3-wood-cloth,url("./assets/ui/generated/ui-art-v2-cloth.webp"));
+  color:#f2ebcf; text-shadow:0 1px 0 #253b24;
+}
+
+/* The circular hero skill retains battle-controls-v2's portrait-frame artwork
+   and its original selected/unavailable states; no rectangular wood overlay. */
+
+/* Only battle-owned overlays receive a new frame here. Shared settings,
+   objectives and result panels are already styled by gemstone-theme.css. */
+:root .match .map-panel {
+  border:0; border-radius:0; background:none; clip-path:none;
+  border-image-source:var(--p3-wood-brown,url("./assets/ui/generated/ui-art-v2-wood.webp"));
+  border-image-slice:64 fill; border-image-width:16px;
+  border-image-outset:0; border-image-repeat:stretch;
+  box-shadow:none; color:#493322;
+}
+:root .match :is(.map-heading,.map-legend) { color:#59432d; }
+:root .match .map-heading { border-color:transparent; background:none; }
+:root .match :is(.general-name,.turn-marker strong) { color:#f2dfbb; }
+:root .match .turn-marker span { color:#dbc5a0; }
+:root .match :is(.battle-tips,.hand-count,.draw-hand-controls span) {
+  border:0; background:#4c3423; color:#efdfc0; box-shadow:none;
+}
+:root .match .hand-count.is-full { color:#f5ce7b; }
+:root .match .turn-toast {
+  border:0; border-radius:0; background:none; clip-path:none; box-shadow:none;
+  border-image:var(--p3-wood-brown,url("./assets/ui/generated/ui-art-v2-wood.webp")) 64 fill / 10px / 0 stretch;
+  color:#fff3d3; text-shadow:0 1px 0 #422616;
+}
+
+/* State changes affect the complete painted control, including its alpha
+   corners, without adding rectangular backplates or synthetic rims. */
+:root .match :is(#objective-open,#map-open)[aria-expanded="true"] {
+  border-image-source:var(--p3-wood-gold,url("./assets/ui/generated/ui-art-v2-gold.webp"));
+  color:var(--p3-action-ink); text-shadow:0 1px 0 #edc780;
+  box-shadow:none;
+}
+:root .match :is(#leave-match,#objective-open,#map-open,#map-close,#replace-hand-card,#match-sync,#inspect-close,#inspect-followup-skip,.opening-confirm,#end-turn,#inspect-cast,#result-ad-reward,#next-level,#play-again,#result-prep,#result-collection):disabled,
+:root #objective-dialog :is(#objective-close,#objective-rules):disabled,
+:root .hero-effect-back:disabled {
+  --battle-wood-art:var(--p3-wood); border-image-source:var(--p3-wood); color:#eee6d7; text-shadow:none; box-shadow:none;
+  filter:grayscale(1) brightness(.65); opacity:1; cursor:default;
+}
+:root .match :is(#leave-match,#objective-open,#map-open,#map-close,#replace-hand-card,#match-sync,#inspect-close,#inspect-followup-skip,.opening-confirm,#end-turn,#inspect-cast,#result-ad-reward,#next-level,#play-again,#result-prep,#result-collection):focus-visible,
+:root #objective-dialog :is(button,.objective-body):focus-visible,
+:root :is(.hero-effect-back,.hero-effect-copy):focus-visible {
+  outline:2px solid #e8ae50; outline-offset:-4px;
+}
+:root .match :is(#leave-match,#objective-open,#map-open,#map-close,#replace-hand-card,#match-sync,#inspect-close,#inspect-followup-skip,.opening-confirm,#end-turn,#inspect-cast,#result-ad-reward,#next-level,#play-again,#result-prep,#result-collection):active:not(:disabled),
+:root #objective-dialog :is(#objective-close,#objective-rules):active:not(:disabled),
+:root .hero-effect-back:active:not(:disabled) {
+  background:none; box-shadow:none; filter:brightness(.96);
+}
+@media(prefers-reduced-motion:reduce) {
+  :root .match :is(#leave-match,#objective-open,#map-open,#map-close,#replace-hand-card,#match-sync,#inspect-close,#inspect-followup-skip,.opening-confirm,#end-turn,#inspect-cast,#result-ad-reward,#next-level,#play-again,#result-prep,#result-collection),
+  :root #objective-dialog :is(#objective-close,#objective-rules),
+  :root .hero-effect-back { transition:none; }
+}

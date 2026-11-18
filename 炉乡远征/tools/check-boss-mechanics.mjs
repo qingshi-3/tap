@@ -13,7 +13,7 @@ const queen = s => findGeneral(s, s.boss.owner);
 const shards = s => s.units.filter(u => u.cardId === ICE_SHARD_ID && u.health > 0);
 const at = (s, x, y) => s.units.find(u => u.x === x && u.y === y && u.health > 0);
 const roundTrip = s => { assert.ok(validateMatch(s)); const r = restoreMatch(JSON.parse(JSON.stringify(s))); assert.ok(r); assert.deepEqual(r.boss, s.boss); return r; };
-const playerUnitId = s => s.playerDeck.find(id => getCard(id).type === 'unit');
+const playerUnitId = s => s.loadout.deck.find(id => getCard(id).type === 'unit');
 const ally = (s, x, y, extra = {}) => { const u = makeUnit(playerUnitId(s), 0, x, y, 900 + s.units.length, extra); s.units.push(u); return u; };
 const free = (s, x0) => { for (let x = x0; x >= 0; x--) for (let y = 0; y < s.board.rows; y++) if (!at(s, x, y)) return { x, y }; };
 
@@ -125,5 +125,22 @@ const free = (s, x0) => { for (let x = x0; x >= 0; x--) for (let y = 0; y < s.bo
       assert.ok(validateMatch(s));
     }
   } finally { Math.random = original; }
+}
+// A nested guard backlash can end combat before the attack's damage-dealt listeners.
+// Preserve the terminal player's HP; no Sunriser healing or attack-watch buffs afterward.
+{
+  const s = campaignMatch({ levelId: 'road-03' }), player = findGeneral(s, 0), boss = findGeneral(s, 1);
+  player.health = 10; boss.health = 1;
+  s.board.tiles = [];
+  player.x = 0; player.y = 0; boss.x = 7; boss.y = 2;
+  const guard = makeUnit(11, 1, 6, 2, 901, { health: 1 });
+  const striker = makeUnit(10301, 0, 5, 2, 902);
+  s.units = [player, boss, guard, striker];
+  assert.ok(validateMatch(s));
+  assert.ok(attackUnit(s, striker.unitId, guard.unitId));
+  assert.equal(s.phase, 'over'); assert.equal(s.winner, 0);
+  assert.equal(player.health, 10, 'terminal backlash must prevent later damage-heal triggers');
+  assert.ok(validateMatch(s));
+  roundTrip(s);
 }
 console.log('Boss mechanics passed: setup, telegraph resolve, shard growth, frost armor, shatter, single phase entry, corrupt-state rejection, seeded randomness.');

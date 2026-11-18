@@ -45,7 +45,8 @@
 :root #cloud-dialog .cloud-battle-badge[data-active="true"] { color:#a9e1df; }
 :root #cloud-dialog .cloud-updated { margin:5px 0 0; font-size:12px; line-height:1.4; color:#a9b9cd; }
 :root #cloud-dialog > footer { flex:none; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin:0; padding:10px 16px; border:0; background:#0a132c55; }
-:root #cloud-dialog #cloud-refresh { margin-right:auto; }
+:root #cloud-dialog #cloud-refresh { margin-right:0; }
+:root #cloud-dialog #cloud-clear-cache { margin-right:auto; }
 :root #cloud-dialog #cloud-choice-copy { flex:none; padding:10px 18px; margin:0; border:0; background:#6d50323b; color:#f0d9b2; font-size:14px; line-height:1.5; }
 :root #objective-dialog .objective-heading h2 { flex:1; }
 :root #objective-dialog .objective-heading img { width:32px; height:36px; }

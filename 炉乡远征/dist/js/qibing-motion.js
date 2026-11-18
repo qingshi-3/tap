@@ -5,6 +5,7 @@
 const EXCLUDE = '.recruitment-dialog,.recruitment-presentation,.resource-rewards-dialog,.reward-presentation,.hand-zone,.game-card,.hand-card,.training-card-open,.spell-card-open,.expedition-codex-card,.squad-slot,.deck-card-detail,.portrait-frame,#bbs-button,#unit-inspect,.atlas-enemy-card-open,.card-dialog,.expedition-card-dialog';
 const DIALOGS = '.atlas-enemy-card-dialog,.game-dialog,.hero-dialog,.hero-effect-dialog,.atlas-dialog,#audio-settings,#cloud-dialog,#objective-dialog,#game-result,#confirm-screen';
 const FIGHT = '.menu-play,.prep-start,.atlas-start,#new-game,#play-again,#next-level';
+import { createSceneTransitions } from './scene-transitions.js';
 const installations = new WeakMap();
 
 export function installQibingMotion(doc = document) {
@@ -13,10 +14,9 @@ export function installQibingMotion(doc = document) {
   const media = win.matchMedia('(prefers-reduced-motion: reduce)');
   const animations = new Map();
   const dialogs = new Map();
-  const roots = [...doc.querySelectorAll('#expedition-home,#match')];
-  const rootStates = new Map();
   let disposed = false;
   const permitted = () => !disposed && !doc.hidden && !media.matches;
+  const transitions = createSceneTransitions(doc, permitted);
   const visible = node => node.isConnected && !node.closest('[hidden],dialog:not([open])');
   function cancel(node) { animations.get(node)?.cancel(); animations.delete(node); }
   function animate(node, frames, options) {
@@ -45,6 +45,9 @@ export function installQibingMotion(doc = document) {
     cancel(node);
     cancel(target);
     node.classList.toggle('qibing-modal-open',open && node.id !== 'game-result');
+    // Native discrete CSS transitions retain the top-layer visual briefly
+    // after close(), while the host still restores focus and state at once.
+    if (node.id === 'cloud-dialog') return;
     if (!open) {
       for (const animated of animations.keys()) if (node.contains(animated)) cancel(animated);
       return;
@@ -76,16 +79,6 @@ export function installQibingMotion(doc = document) {
     }
   }
   decorate(doc);
-  for (const root of roots) rootStates.set(root,{page:root.dataset.page,visible:visible(root)});
-  const rootObserver = new win.MutationObserver(() => {
-    for (const [root,state] of rootStates) {
-      const next = {page:root.dataset.page,visible:visible(root)};
-      if (next.visible && (!state.visible || next.page !== state.page)) screenIn(root);
-      if (!next.visible) cancel(root);
-      rootStates.set(root,next);
-    }
-  });
-  for (const root of roots) rootObserver.observe(root,{attributes:true,attributeFilter:['hidden','data-page']});
   const rulesPanel = doc.getElementById('battle-rules-panel');
   const ruleTabs = [...doc.querySelectorAll('#rule-tabs [role="tab"]')];
   let rulePage = rulesPanel?.getAttribute('aria-labelledby');
@@ -110,16 +103,17 @@ export function installQibingMotion(doc = document) {
   tree.observe(doc.body,{childList:true,subtree:true});
   function syncMotion() {
     doc.documentElement.classList.toggle('qibing-motion-paused',doc.hidden);
-    if (!permitted()) for (const node of animations.keys()) cancel(node);
+    if (!permitted()) { transitions.cancel(); for (const node of animations.keys()) cancel(node); }
   }
-  const leave = () => { for (const node of animations.keys()) cancel(node); doc.documentElement.classList.add('qibing-motion-paused'); };
+  const leave = () => { transitions.cancel(); for (const node of animations.keys()) cancel(node); doc.documentElement.classList.add('qibing-motion-paused'); };
   doc.addEventListener('visibilitychange',syncMotion);
   media.addEventListener('change',syncMotion);
   win.addEventListener('pagehide',leave);
   win.addEventListener('pageshow',syncMotion);
   syncMotion();
   const dispose = () => {
-    disposed = true; leave(); tree.disconnect(); rootObserver.disconnect(); rulesObserver.disconnect();
+    disposed = true; leave(); tree.disconnect(); rulesObserver.disconnect();
+    transitions.dispose();
     for (const {observer} of dialogs.values()) observer.disconnect();
     dialogs.clear();
     doc.removeEventListener('visibilitychange',syncMotion);
@@ -131,10 +125,12 @@ export function installQibingMotion(doc = document) {
     doc.documentElement.classList.remove('qibing-motion-paused');
     installations.delete(doc);
   };
-  const api = {dispose,screenIn,screenOut};
+  const api = {dispose,screenIn,screenOut,changeScene:transitions.change};
   installations.set(doc,api);
   return api;
 }
+
+export const changeScene = callback => installQibingMotion().changeScene(callback);
 
 if (typeof document !== 'undefined') {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded',() => installQibingMotion(),{once:true});

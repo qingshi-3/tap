@@ -48,10 +48,10 @@
   grid-column:1/-1; color:#e7ddc5; margin:12px 4px; font-size:12px;
 }
 
-/* The main journey keeps its own row. Four secondary destinations share one
+/* The main journey keeps its own row. Five secondary destinations share one
    compact row, alongside the existing trial action above. */
 :root #expedition-home .faction-menu .menu-destinations {
-  grid-template-columns:repeat(4,minmax(44px,1fr)); gap:4px;
+  grid-template-columns:repeat(5,minmax(44px,1fr)); gap:4px;
 }
 :root #expedition-home .faction-menu .menu-destinations .menu-destination {
   min-width:44px; min-height:44px; padding:3px; font-size:12px;
@@ -65,7 +65,7 @@
 }
 :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-destinations {
   grid-column:1/-1; grid-row:3; display:grid;
-  grid-template-columns:repeat(4,minmax(44px,1fr)); width:100%; gap:4px;
+  grid-template-columns:repeat(5,minmax(44px,1fr)); width:100%; gap:4px;
 }
 :root[data-ui="qibing"][data-ui] #expedition-home[data-page="menu"] .menu-destinations .menu-destination {
   width:100%; max-width:none;

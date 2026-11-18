@@ -3,8 +3,10 @@ import { CARDS } from './cards.js';
 import { getHero } from './factions.js';
 import { getEnemyPlan } from './enemy-plans.js';
 import { createGameCard } from './game-card.js';
+import { getSpellUpgrade } from './campaign-rules.js';
 import { cardRuleSections } from './card-rules.js';
 import { EXPANSION_RACES } from './expansion-mechanics.js';
+import { getAdventureDefinition } from './adventure-content.js';
 
 const node = (tag, cls, text) => { const n = document.createElement(tag); n.className = cls; if (text != null) n.textContent = text; return n; };
 const choice = (cls, action) => { const n = node('button', cls); n.type = 'button'; n.dataset.action = action; return n; };
@@ -18,7 +20,7 @@ function shape(tag, attrs) { const n = document.createElementNS(SVG, tag); for (
 export function atlasEnemyCard(id, army) {
   const base = CARDS[id];
   if (!base) return null;
-  const card = { ...base };
+  const card = base.type === 'spell' ? getSpellUpgrade(id, army.spellRank ?? 0, 'power') : { ...base };
   if (EXPANSION_RACES[id]) card.race = EXPANSION_RACES[id];
   if (army.unitStats?.[id]) Object.assign(card, army.unitStats[id]);
   if (Number(id) === Number(army.generalId)) {
@@ -69,9 +71,10 @@ function miniature(level, plan) {
   const tiles = new Map((level.tiles || []).map(t => [`${t.x},${t.y}`,t.type]));
   const occupants = new Map();
   if (level.playerStart) occupants.set(`${level.playerStart.x},${level.playerStart.y}`,'friendly');
+  for (const unit of getAdventureDefinition(level.id)?.allies ?? []) occupants.set(`${unit.x},${unit.y}`, 'friendly');
   for (const [owner,army] of Object.entries(plan.players || {})) for (const unit of army.garrison || []) occupants.set(`${unit.x},${unit.y}`,Number(owner) === 2 ? 'third' : 'enemy');
   if (!Object.values(plan.players || {}).some(army => army.garrison?.length)) for (const unit of level.enemies || []) occupants.set(`${unit.x},${unit.y}`,unit.owner === 2 ? 'third' : 'enemy');
-  const palettes = ['#648474','#547681','#646b82','#aa8b60','#756580','#7f9ba5','#6c8581','#8b8070','#776f8e','#8a7970'];
+  const palettes = ['#648474','#547681','#646b82','#aa8b60','#756580','#7f9ba5','#6c8581','#8b8070','#776f8e','#8a7970','#567f95','#567b8f','#4a687f','#766391','#7f6383','#625076'];
   const chapterIndex = EXPEDITION_CHAPTERS.findIndex(c => c.id === level.chapterId);
   for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) {
     const px = (x-y+rows)*sx+12, py = (x+y)*sy+22;
@@ -138,7 +141,7 @@ export function buildCampaignAtlas(ui) {
   });
   for (const id of chapter.levelIds) {
     const level = EXPEDITION_LEVELS.find(l => l.id === id), unlocked = ui.progress.isUnlocked(id), selected = id === ui.levelId;
-    const plan = getEnemyPlan(id), status = ui.completed(id) ? '已完成' : unlocked ? '可出征' : '未解锁';
+    const plan = getEnemyPlan(id,3,ui.faction.id), status = ui.completed(id) ? '已完成' : unlocked ? '可出征' : '未解锁';
     const b = choice(`atlas-level${selected ? ' is-selected' : ''}${unlocked ? '' : ' is-locked'}${ui.completed(id) ? ' is-complete' : ''}`,'level'); b.dataset.levelId = id;
     b.setAttribute('aria-pressed',String(selected)); b.setAttribute('aria-label',`${level.title}，${status}${selected ? '，当前选择' : ''}`);
     const caption = node('div','atlas-level-caption'), title = node('strong','atlas-level-name');
@@ -147,26 +150,32 @@ export function buildCampaignAtlas(ui) {
     const portraits = node('span','atlas-enemy-portraits');
     for (const army of Object.values(plan.players || {})) {
       const general = CARDS[army.generalId]; if (!general) continue;
-      const portrait = node('img','atlas-enemy'); portrait.src = getHero(general.id)?.portrait || `./assets/generals/general_portrait_image_f${general.faction}.png`; portrait.alt = general.name; portrait.title = general.name; portraits.append(portrait);
+      if (general.adventure) {
+        const portrait = node('canvas', 'atlas-enemy'); portrait.width = portrait.height = 96;
+        portrait.setAttribute('role', 'img'); portrait.setAttribute('aria-label', general.name);
+        ui.paint(portrait, general.id); portraits.append(portrait);
+      } else {
+        const portrait = node('img','atlas-enemy'); portrait.src = getHero(general.id)?.portrait || `./assets/generals/general_portrait_image_f${general.faction}.png`; portrait.alt = general.name; portrait.title = general.name; portraits.append(portrait);
+      }
     }
     caption.append(title,meta,portraits); b.append(miniature(level,plan),caption); levels.append(b);
   }
-  const level = EXPEDITION_LEVELS.find(l => l.id === ui.levelId), payout = ui.progress.rewardPreview(level.id);
+  const level = EXPEDITION_LEVELS.find(l => l.id === ui.levelId), payout = ui.progress.rewardPreview(level.id,ui.faction.id);
   const summary = node('footer','atlas-summary'), copy = node('div','atlas-summary-copy');
   copy.append(node('p','atlas-goal',level.goal));
   const rewards = node('div','atlas-rewards');
-  rewards.append(node('span','atlas-reward-kind',payout.firstClear ? '首通' : '重打'));
-  for (const [amount,file,label] of [[payout.coins,'resource-gold.png','金币']]) if (amount) {
+  rewards.append(node('span','atlas-reward-kind',payout.accountFirst || payout.factionFirst ? '首通' : '重打'));
+  for (const [amount,file,label] of [[payout.coins,'resource-gold.png','金币'],[payout.tickets,'spirit-orb.png','宝珠']]) if (amount) {
     const reward = node('span','atlas-reward'), icon = node('img',''); icon.src = `./assets/metagame/original/${file}`; icon.alt = label; reward.append(icon,document.createTextNode(String(amount))); rewards.append(reward);
   }
-  const unlocks = [...payout.units,...payout.spells].filter(id => CARDS[id]?.faction === ui.faction.id || CARDS[id]?.faction === 0).map(id => CARDS[id]?.name).filter(Boolean);
+  const unlocks = [...(payout.cards?.units || []),...(payout.cards?.spells || [])].filter(id => CARDS[id]?.faction === ui.faction.id || CARDS[id]?.faction === 0).map(id => CARDS[id]?.name).filter(Boolean);
   if (unlocks.length) rewards.append(node('span','atlas-unlocks',`解锁：${unlocks.join('、')}`));
   copy.append(rewards);
   const intel = node('button','atlas-intel','敌情'); intel.type = 'button'; intel.setAttribute('aria-haspopup','dialog');
   const dialog = node('dialog','atlas-dialog atlas-intel-dialog'); dialog.setAttribute('aria-label',`${level.title}敌情`);
   const dialogHead = node('div','atlas-dialog-heading'), close = node('button','atlas-dialog-close','关闭'); close.type = 'button';
   dialogHead.append(node('h3','',level.title),close);
-  const body = node('div','atlas-dialog-body'), plan = getEnemyPlan(level.id);
+  const body = node('div','atlas-dialog-body'), plan = getEnemyPlan(level.id,3,ui.faction.id);
   body.tabIndex = 0;
   body.setAttribute('aria-label','敌军与奖励详情');
   for (const [owner,army] of Object.entries(plan.players || {})) {
@@ -195,6 +204,13 @@ export function buildCampaignAtlas(ui) {
   close.addEventListener('click',() => dialog.close());
   dialog.addEventListener('close',() => intel.focus({preventScroll:true}));
   const start = choice('atlas-start','adjust-loadout'); start.dataset.levelId = level.id; start.disabled = !ui.progress.isUnlocked(level.id); start.textContent = start.disabled ? '未解锁' : '战前准备';
+  if (level.adventureVersion && start.disabled) {
+    const access = ui.progress.adventureAccessStatus();
+    if (access.eligible) {
+      start.disabled = false; start.dataset.action = 'retry-adventure'; start.textContent = '重试领取';
+      copy.replaceChild(node('p', 'atlas-goal', access.error || '赠送保存未完成，请重试领取。'), copy.firstChild);
+    } else copy.replaceChild(node('p', 'atlas-goal', `战役累计通关 ${access.completed}/31 · 达标赠送18关`), copy.firstChild);
+  }
   const actions = node('div','atlas-actions'); actions.append(intel,start);
   summary.append(copy,actions); view.append(heading,chapters,levels,summary,dialog); return view;
 }
