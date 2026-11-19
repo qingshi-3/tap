@@ -692,8 +692,12 @@ export class Game {
         : cell !== sourceSlot));
     const buttons = targets.map(({ cell, unit }) => {
       const hint = transferSource ? null : supportTargetHint(r, item.def, unit, 'val' in item ? item.val : undefined);
-      const button = h('button', { class: 'spell-target', disabled:!!hint, 'aria-label': `${card(unit!.def).name} ${isHand(cell) ? '手牌' : `位置${cell + 1}`}` },
-        h('span', { class: 'target-art', html: unitSvg(unit!.def) }), h('b', null, card(unit!.def).name),
+      const st = this.ownedStats(unit!);
+      const gold = lvlOf(unit!.copies) >= 2;
+      const button = h('button', { class: `spell-target${gold ? ' is-gold' : ''}`, disabled:!!hint, 'aria-label': `${card(unit!.def).name} ${st.atk}/${st.hp} ${isHand(cell) ? '手牌' : `位置${cell + 1}`}` },
+        h('span', { class: 'target-art', html: unitSvg(unit!.def) }),
+        h('span', { class: 'target-stats' }, statArt('atk', st.atk), statArt('hp', st.hp)),
+        h('b', null, card(unit!.def).name),
         h('small', null, hint ?? (isHand(cell) ? '手牌' : `位置 ${cell + 1}`)));
       button.addEventListener('click', () => {
         close();
@@ -713,7 +717,14 @@ export class Game {
     const targets = this.run.queue.filter((unit): unit is Owned => !!unit && !exclude.includes(unit.oid));
     if (!targets.length) return false;
     const buttons = targets.map(unit => {
-      const button = h('button', { class: 'spell-target' }, h('span', { class: 'target-art', html: unitSvg(unit.def) }), h('b', null, card(unit.def).name));
+      const st = this.ownedStats(unit);
+      const gold = lvlOf(unit.copies) >= 2;
+      const pos = this.run.queue.indexOf(unit);
+      const button = h('button', { class: `spell-target${gold ? ' is-gold' : ''}` },
+        h('span', { class: 'target-art', html: unitSvg(unit.def) }),
+        h('span', { class: 'target-stats' }, statArt('atk', st.atk), statArt('hp', st.hp)),
+        h('b', null, card(unit.def).name),
+        pos >= 0 ? h('small', null, `位置 ${pos + 1}`) : null);
       button.addEventListener('click', () => { close(); apply(unit.oid); });
       return button;
     });
@@ -1614,7 +1625,7 @@ export class Game {
       { label: '锤炼', sub: '选一个友军 · 永久', unit: () => true, choice: 1,
         vis: () => h('div', { class: 'fv fv-stat' }, statArt('atk', h('i', null, '+4')), statArt('hp', h('i', null, '+4'))) },
       { label: '休整', sub: '回复生命', choice: 2, no: '已满血',
-        vis: () => h('div', { class: 'fv fv-heart' }, icon('heart'), plus('+1')) },
+        vis: () => h('div', { class: 'fv fv-heart' }, h('span', { class: 'life on fv-px-heart', 'aria-hidden': 'true' }), plus('+1')) },
       ...(r.hero === 'smith' ? [{ label: '锻打', sub: '选一件装备', unit: (o:Owned) => fireSmithOk(o,r), choice: 3, no: '需携带可升品装备，且有更高品质装备可领取',
         vis: () => h('div', { class: 'fv fv-smith' }, itemIcon('eq_hammer', 'spell'), plus('+1 品')) }] : []),
     ] : ev === 'quest' ? QUESTS.map((id, i) => ({ label: QUEST_INFO[id].name, sub: `${QUEST_INFO[id].text} → ${QUEST_INFO[id].reward}`, choice: i }))
@@ -1940,9 +1951,10 @@ export class Game {
       const slots = d.opts.map((id, i) => {
         const spell = d.mode === 'spell';
         const name = spell ? FOOD[id].name : card(id).name;
+        const showDesc = spell || d.mode === 'morph';
         const el = h('button', { class: `disc-slot${spell ? ' disc-spell' : ''}`, 'aria-pressed': 'false', 'aria-label': name },
           h('i', { class: 'disc-rays' }), h('i', { class: 'disc-glow' }), spell ? foodCard(id, d.val) : this.unitCard(id),
-          h('div', { class: 'disc-desc' }, h('span', null, ...kwRich(spell ? FOOD[id].text : cardText(id, d.mode === 'morph' ? lvlOf(r.queue.find((o) => o?.oid === d.oid)?.copies ?? 1) : 1)))));
+          showDesc ? h('div', { class: 'disc-desc' }, h('span', null, ...kwRich(spell ? FOOD[id].text : cardText(id, lvlOf(r.queue.find((o) => o?.oid === d.oid)?.copies ?? 1))))) : null);
         el.addEventListener('click', () => {
           if (closing || !this.allowed({ kind: 'discover' })) return;
           sfx.click();

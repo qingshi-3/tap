@@ -156,7 +156,11 @@ export function battleReport(out: BattleOut) {
       return isOpen ? [r, detail(row)] : [r];
     };
     const col = (rs: UnitBattleStats[], side: 0 | 1) => h('div', { class: `br-col${side ? ' foe' : ''}` }, ...rs.flatMap(bar));
+    const legend = metric === 'damageDealt' ? h('div', { class: 'br-legend', 'aria-label': '伤害来源图例' },
+      ...Object.entries(SOURCES).map(([kind, info]) => h('span', { class: 'br-legend-item', style: `--sc:${info.color}` },
+        h('i', { class: 'br-legend-dot', 'aria-hidden': 'true' }), SOURCE_NAMES[kind as DamageSourceKind]))) : null;
     stage.replaceChildren(h('div', { class: 'br-chart-top' }, metricBtns, tug),
+      ...(legend ? [legend] : []),
       h('div', { class: 'br-chart' }, col(mine, 0), h('span', { class: 'br-axis' }), col(foe, 1)));
   }
 

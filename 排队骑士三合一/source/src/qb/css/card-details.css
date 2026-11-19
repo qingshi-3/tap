@@ -23,3 +23,15 @@
 .tip.viewport-tip > .owned-tip, .tip.viewport-tip > .tip-unit:has(> .dock-body) { display: flex; flex-direction: column; min-height: 0; max-height: inherit; }
 .tip.viewport-tip :is(.owned-tip-body, .dock-body) { min-height: 0; flex: 1 1 auto; overflow-y: auto; overscroll-behavior: contain; }
 .tip.viewport-tip .shelf-acts { flex: 0 0 auto; }
+/* Prevent hp/maxHp (e.g. 8/10) from overflowing circular HP badge */
+.card-detail .tip-stats .st.hp:has(span) { width: auto; min-width: 46px; padding: 0 8px; border-radius: 0; box-shadow: 2px 0 #4d0818, -2px 0 #4d0818, 0 2px #4d0818, 0 -2px #4d0818; }
+.card-detail .tip-stats .st.hp:has(span) i { font-size: 15px; white-space: nowrap; }
+.card-detail .tfm-count { font-style: normal; font-family: var(--num); color: var(--ui-brass-hi); margin-left: 2px; }
+/* Subtle bottom scroll cue when detail body overflows */
+#stage > .tip.composed :is(.owned-tip-body, .tip-panel-body) {
+  background:
+    linear-gradient(var(--ui-panel-top) 30%, rgba(34, 28, 74, 0)) center top / 100% 18px no-repeat local,
+    linear-gradient(rgba(17, 13, 41, 0), var(--ui-panel-bot) 70%) center bottom / 100% 24px no-repeat local,
+    radial-gradient(farthest-side at 50% 0, rgba(0, 0, 0, .45), transparent) center top / 100% 10px no-repeat scroll,
+    radial-gradient(farthest-side at 50% 100%, rgba(217, 176, 102, .35), transparent) center bottom / 100% 12px no-repeat scroll;
+}

@@ -26,10 +26,10 @@
 /* ── 关卡信息横幅（底部布局见下方“备战底部布局”） ── */
 .screen.game .stage-banner {
   left: 1000px !important; top: 84px !important; width: 244px; z-index: 5;
-  padding: 8px 12px; border-radius: 10px;
-  background: linear-gradient(180deg, rgba(34, 26, 72, .9), rgba(10, 8, 28, .94));
-  border: 2px solid rgba(242, 211, 156, .45);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 14px rgba(0, 0, 0, .45);
+  padding: 8px 12px; border-radius: 0;
+  background: var(--ui-panel);
+  border: 0;
+  box-shadow: var(--ui-notch-soft), 0 6px 14px rgba(0, 0, 0, .5);
 }
 /* 关卡信息进场：置灰屏幕 → 居中弹出 → 飞向顶部幕次标题并收起；点击标题可再次展开详情 */
 .screen.game .stage-dim {
@@ -180,7 +180,7 @@
   --step: min(96px, calc(560px / var(--n)));
   --fan: translateX(calc(var(--o) * var(--step))) translateY(calc(var(--o) * var(--o) * 2.5px)) rotate(calc(var(--o) * 4deg));
   position: absolute !important; left: 50%; bottom: 0; margin-left: -63.92px;
-  width: 127.84px !important; height: 178.16px !important; zoom: 1 !important; border-radius: 10px; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
+  width: 127.84px !important; height: 178.16px !important; zoom: 1 !important; border-radius: 0; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
   transform-origin: 50% 160%; transform: var(--fan);
   z-index: calc(var(--i) + 1); pointer-events: auto;
   transition: transform .2s cubic-bezier(.2, .8, .3, 1), box-shadow .2s, opacity .2s;
@@ -281,8 +281,9 @@
 .game .buy-zone {
   position: absolute; z-index: 40; pointer-events: none; box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  border: 3px dashed rgba(217, 180, 255, 0.7); border-radius: 14px; color: #f9e2ad;
-  background: rgba(52, 26, 84, 0.88);
+  border: 3px dashed rgba(217, 176, 102, 0.75); border-radius: 0; color: #f9e2ad;
+  background: rgba(24, 18, 52, 0.92);
+  box-shadow: var(--ui-notch-dark);
   transition: background 0.12s, border-color 0.12s, transform 0.12s;
 }
 .game .buy-zone b { font-size: 30px; letter-spacing: 2px; }

@@ -204,3 +204,220 @@
 .run-archetypes .archetype-guide-label { color:var(--ui-text-3); }
 .run-archetypes .archetype-guide > .archetype-rule-note { margin:12px 0 0; padding:10px 0 0; border-top:1px solid var(--ui-rule); background:none; color:var(--ui-text-2); }
 .run-archetypes .run-economy-limits { margin:16px 2px 2px; padding-top:10px; border-top:1px solid var(--ui-rule); color:var(--ui-text-2); }
+
+/* ── 7. 暗夜紫金纯像素切角与材质统一（P1 / P2） ── */
+/* 7.1 硬边像素主标题与结算标题：移除模糊发光与入场 blur */
+#stage .screen.title .logo { animation: pxLogoIn .55s cubic-bezier(.2, 1.1, .3, 1); }
+#stage .screen.title .logo span {
+  filter: drop-shadow(0 5px 0 #261002) drop-shadow(3px 0 0 #261002) drop-shadow(-3px 0 0 #261002) drop-shadow(0 -2px 0 #261002);
+}
+#stage .res-title, #stage .end-title {
+  filter: drop-shadow(0 5px 0 #261002) drop-shadow(2px 0 0 #261002) drop-shadow(-2px 0 0 #261002);
+}
+#stage .r-lose .res-title, #stage .end.defeat .end-title {
+  filter: drop-shadow(0 5px 0 #20060c) drop-shadow(2px 0 0 #20060c) drop-shadow(-2px 0 0 #20060c);
+}
+@keyframes pxLogoIn {
+  from { opacity: 0; transform: translateY(-14px) scale(1.06); }
+}
+
+/* 7.2 全站事件 / 宝箱 / 篝火 / 商人 / 英雄卡片统一像素切角，废弃大圆角渐变 */
+#stage :is(.chest-item, .fire-opt, .branch-opt, .ev-unit, .rl-card, .diff-opt, .hero-opt, .tut-box, .tut-ring, .tip-sum) {
+  border-radius: 0 !important;
+}
+#stage :is(.chest-item, .fire-opt, .branch-opt, .ev-unit) {
+  background: var(--ui-panel);
+  border: 0 solid transparent;
+  border-image: var(--pxf-steel) 6 / 10px / 0 stretch;
+  box-shadow: 0 6px 0 #070516, 0 12px 24px rgba(0, 0, 0, .48);
+  transition: transform .12s ease-out, filter .12s ease-out;
+}
+#stage :is(.chest-item, .fire-opt, .branch-opt, .ev-unit):hover:not(:disabled) {
+  border-image-source: var(--pxf-gold);
+  transform: translateY(-3px);
+  filter: brightness(1.08);
+}
+#stage :is(.chest-item, .fire-opt, .branch-opt, .ev-unit):active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #070516;
+}
+
+/* 7.3 英雄详情独立像素底板 + 开局选英雄展示台增强 */
+#stage .branch-card.hero-card {
+  padding: 26px 32px;
+  background: var(--ui-panel);
+  border: 0 solid transparent;
+  border-image: var(--pxf-gold) 6 / 12px / 0 stretch;
+  box-shadow: var(--ui-shadow), 0 8px 0 #070516;
+}
+#stage .hero-pick .hero-opt {
+  background: radial-gradient(circle at 50% 28%, rgba(217, 176, 102, .16), transparent 60%), var(--ui-panel);
+  border: 0 solid transparent;
+  border-image: var(--pxf-steel) 6 / 10px / 0 stretch;
+  box-shadow: 0 6px 0 #070516;
+  transition: transform .14s ease-out, filter .14s;
+}
+#stage .hero-pick .hero-opt:hover {
+  border-image-source: var(--pxf-gold);
+  transform: translateY(-4px);
+}
+#stage .hero-pick .hero-opt:active { transform: translateY(2px); }
+
+/* 7.4 篝火像素化图标（红心与进度块） */
+#stage .fire-opt .fv-pips i {
+  border-radius: 0 !important;
+  box-shadow: 2px 0 #0c0918, -2px 0 #0c0918, 0 2px #0c0918, 0 -2px #0c0918;
+}
+#stage .fire-opt .fv-px-heart {
+  display: inline-block;
+  width: 44px;
+  height: 44px;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 0 #260610);
+}
+
+/* 7.5 发现三选一对比度 + 禁用按钮可读性 + 清理非键盘焦点框 */
+#stage .disc-slot.off { opacity: .74; filter: saturate(.75); }
+#stage .btn:disabled, #stage .btn.disabled {
+  background: linear-gradient(180deg, #4b4664 0 3px, #35314d 3px 55%, #2b2740 55% calc(100% - 5px), #1b182a calc(100% - 5px)) !important;
+  color: #c6c0dc !important;
+  opacity: .88 !important;
+}
+#stage [data-keyword]:focus:not(:focus-visible) { outline: none; }
+#stage [data-keyword]:focus-visible { outline: 2px solid var(--ui-brass-hi); outline-offset: 2px; }
+
+/* 7.6 拖放出售警示框像素红边 + 稀疏图鉴详情居中呈现 */
+#stage .sell-zone { border-radius: 0 !important; box-shadow: var(--ui-notch-dark); }
+#stage .sell-zone.hot {
+  border-color: #ff6a78 !important;
+  background: rgba(96, 16, 32, .94) !important;
+  box-shadow: 2px 0 #ff6a78, -2px 0 #ff6a78, 0 2px #ff6a78, 0 -2px #ff6a78, 0 0 22px rgba(255, 90, 106, .45);
+}
+#stage .codex-detail:not(:has(.cd-demo)):not(:has(.unit-effect)) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #stage .screen.title .logo { animation: none; }
+  #stage :is(.chest-item, .fire-opt, .branch-opt, .ev-unit, .hero-opt) { transition: none; }
+}
+
+/* ── 8. 主屏像素风质变层（标题页 / 备战顶栏 HUD / 底部指挥台 / 立体像素按钮） ── */
+/* 8.1 标题页：硬边像素标牌与立体像素按钮 */
+#stage .screen.title .logo-sub {
+  margin-top: 8px;
+  padding: 6px 22px;
+  background: linear-gradient(180deg, rgba(38, 30, 78, .9), rgba(16, 12, 38, .94));
+  color: var(--ui-brass-hi);
+  text-shadow: 0 2px 0 #090616;
+  box-shadow: var(--ui-notch-soft), 0 4px 0 #070516;
+}
+#stage .btn.primary {
+  box-shadow:
+    inset 0 3px 0 rgba(255, 250, 224, .75),
+    inset 0 -5px 0 #9a5510,
+    2px 0 #261202, -2px 0 #261202, 0 2px #261202, 0 -2px #261202,
+    0 6px 0 #160902,
+    0 10px 22px rgba(255, 180, 60, .28) !important;
+}
+#stage .btn.primary:not(:disabled):active {
+  transform: translateY(3px) !important;
+  box-shadow:
+    inset 0 3px 0 rgba(255, 240, 190, .5),
+    inset 0 -2px 0 #9a5510,
+    2px 0 #261202, -2px 0 #261202, 0 2px #261202, 0 -2px #261202,
+    0 2px 0 #160902 !important;
+}
+#stage .btn.ghost, #stage .btn.secondary {
+  box-shadow:
+    inset 0 2px 0 rgba(168, 152, 232, .38),
+    inset 0 -4px 0 #181236,
+    2px 0 #09071a, -2px 0 #09071a, 0 2px #09071a, 0 -2px #09071a,
+    0 5px 0 #070516 !important;
+}
+#stage .btn.ghost:not(:disabled):active, #stage .btn.secondary:not(:disabled):active {
+  transform: translateY(2px) !important;
+  box-shadow:
+    inset 0 2px 0 rgba(168, 152, 232, .25),
+    inset 0 -2px 0 #181236,
+    2px 0 #09071a, -2px 0 #09071a, 0 2px #09071a, 0 -2px #09071a,
+    0 2px 0 #070516 !important;
+}
+
+/* 8.2 备战顶栏 HUD：《元气骑士》式紧凑像素胶囊槽 */
+#stage .screen.game .hud {
+  background:
+    linear-gradient(180deg, rgba(16, 12, 40, .94) 0%, rgba(11, 8, 30, .86) 82%, transparent 100%);
+}
+#stage .screen.game .hud-lives {
+  padding: 6px 12px;
+  background: linear-gradient(180deg, #251d4c 0 3px, #141030 3px calc(100% - 3px), #0a071c calc(100% - 3px));
+  box-shadow: var(--ui-notch-soft), 0 4px 0 #070516;
+}
+#stage .screen.game .hud-center {
+  height: 52px;
+  top: 10px;
+  padding: 0 18px;
+  background: linear-gradient(180deg, #282054 0 3px, #161134 3px calc(100% - 3px), #0a071c calc(100% - 3px));
+  box-shadow: var(--ui-notch-brass), 0 4px 0 #070516;
+}
+#stage .screen.game .hud-center .hud-act {
+  padding: 4px 10px;
+  color: var(--ui-brass-hi);
+  background: rgba(217, 176, 102, .14);
+  box-shadow: inset 0 0 0 1px rgba(217, 176, 102, .45);
+  text-shadow: 0 2px 0 #090616;
+}
+#stage .screen.game .hud-right > .icon-btn {
+  background: linear-gradient(180deg, #2c235a 0 3px, #181338 3px calc(100% - 3px), #0b081e calc(100% - 3px)) !important;
+  box-shadow: var(--ui-notch-soft), 0 4px 0 #070516 !important;
+  transition: transform .1s, filter .12s;
+}
+#stage .screen.game .hud-right > .icon-btn:hover {
+  box-shadow: var(--ui-notch-brass), 0 4px 0 #070516 !important;
+  filter: brightness(1.14);
+}
+#stage .screen.game .hud-right > .icon-btn:active {
+  transform: translateY(2px);
+  box-shadow: var(--ui-notch-soft), 0 1px 0 #070516 !important;
+}
+
+/* 8.3 备战底部指挥台：暗夜紫金像素石砖台面 + 铸铁黄铜经济/背包槽 */
+#stage .screen.game:not(.in-battle) .tray.paid-shelf::after {
+  background:
+    linear-gradient(180deg, #ffe2a0 0 2px, #b88435 2px 5px, #1c1438 5px 8px, transparent 8px),
+    repeating-linear-gradient(90deg, rgba(255, 226, 160, .03) 0 2px, transparent 2px 32px),
+    repeating-linear-gradient(0deg, rgba(255, 226, 160, .025) 0 2px, transparent 2px 32px),
+    linear-gradient(180deg, #1b153b 0%, #110d28 38%, #09071a 100%) !important;
+  box-shadow: inset 0 10px 24px rgba(0, 0, 0, .55);
+}
+#stage .screen.game .tray-left .tl-gold {
+  background: linear-gradient(180deg, #261e4e 0 3px, #130f2c 3px calc(100% - 3px), #090618 calc(100% - 3px)) !important;
+  box-shadow: var(--ui-notch-brass), 0 4px 0 #060412 !important;
+  text-shadow: 0 2px 0 #090616;
+}
+#stage .screen.game .tray.paid-shelf .tavern-box {
+  border: 0 !important;
+  background: linear-gradient(180deg, #271f50 0 3px, #151030 3px calc(100% - 3px), #09071a calc(100% - 3px)) !important;
+  box-shadow: var(--ui-notch-brass), 0 4px 0 #060412 !important;
+}
+#stage .screen.game > .bag-strip {
+  background: linear-gradient(180deg, #241c4a 0 3px, #130f2b 3px calc(100% - 3px), #090618 calc(100% - 3px)) !important;
+  box-shadow: var(--ui-notch-soft), 0 4px 0 #060412 !important;
+}
+#stage .screen.game .tray.paid-shelf .cards {
+  background: radial-gradient(ellipse at 50% 45%, rgba(44, 34, 92, .45), rgba(8, 6, 22, .65) 85%);
+  box-shadow: inset 0 3px 0 rgba(0, 0, 0, .5), inset 0 -2px 0 rgba(217, 176, 102, .22), 0 0 0 2px rgba(90, 74, 150, .35);
+  padding: 8px 10px;
+  box-sizing: border-box;
+}
+#stage .screen.game .food-tile {
+  background: linear-gradient(180deg, #433474 0 3px, #241b4e 3px calc(100% - 4px), #130d2e calc(100% - 4px)) !important;
+  box-shadow: var(--ui-notch-brass), 0 4px 0 #070516 !important;
+}
+#stage .screen.game .tray .fight-controls > .btn.fight {
+  text-shadow: 0 2px 0 rgba(255, 248, 214, .65) !important;
+}

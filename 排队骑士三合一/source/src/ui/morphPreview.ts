@@ -60,7 +60,10 @@ export function morphOutcomePreview(u: Owned, r: RunState, onBack: () => void, o
   const cancel = h('button', { class: 'btn ghost', type: 'button', onclick: onBack }, '重新选人');
   const confirm = h('button', { class: 'btn primary', type: 'button', disabled:!pool.length }, `变形「${card(u.def).name}」`);
   confirm.addEventListener('click', () => { confirm.disabled = true; onConfirm(); });
-  const root = panel('可能变成', `以下 ${pool.length} 个候选随机其一 · 点卡牌仅查看技能`,
+  const hint = pool.length === 1
+    ? `${card(u.def).name} → ${pool[0].name}（唯一候选，点卡牌查看技能）`
+    : `${card(u.def).name} → 以下 ${pool.length} 个候选随机其一 · 点卡牌仅查看技能`;
+  const root = panel('变形预览', hint,
     h('div', { class: 'morph-candidates', role: 'list', 'aria-label': '随机变形候选' }, ...cells), detail,
     h('div', { class: 'preview-actions' }, cancel, confirm),
     '份数、累计成长和装备保留；基础属性随新单位变化');

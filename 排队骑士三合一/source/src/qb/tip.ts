@@ -126,12 +126,21 @@ export function unitTip(defId: string, level: number, st?: TipStats | null, with
 }
 
 function foodHistory(items?: readonly FoodMemory[]) {
+  const grouped: { id: string; atk: number; hp: number; count: number }[] = [];
+  if (items?.length) {
+    for (const x of items) {
+      const existing = grouped.find((g) => g.id === x.id && g.atk === x.atk && g.hp === x.hp);
+      if (existing) existing.count++;
+      else grouped.push({ id: x.id, atk: x.atk, hp: x.hp, count: 1 });
+    }
+  }
   return h('div', { class: 'tip-food-memory' },
     h('div', { class: 'tfm-head' }, markKeyword(h('b', null, items ? `补给传承 ${items.length}/${FOOD_HISTORY_MAX}` : '补给传承'), '补给传承')),
-    items?.length
-      ? h('div', { class: 'tfm-list' }, ...items.map((x) => h('div', { class: 'tfm-item' },
-        itemIcon(x.id, 'spell', 'tip-item'), h('span', null, FOOD[x.id]?.name ?? x.id),
-        h('span', { class: 'tfm-stats' }, statArt('atk', x.atk), statArt('hp', x.hp)))))
+    grouped.length
+      ? h('div', { class: 'tfm-list' }, ...grouped.map((x) => h('div', { class: 'tfm-item' },
+        itemIcon(x.id, 'spell', 'tip-item'),
+        h('span', null, FOOD[x.id]?.name ?? x.id, x.count > 1 ? h('em', { class: 'tfm-count' }, ` ×${x.count}`) : null),
+        h('span', { class: 'tfm-stats' }, statArt('atk', x.atk * x.count), statArt('hp', x.hp * x.count)))))
       : null);
 }
 

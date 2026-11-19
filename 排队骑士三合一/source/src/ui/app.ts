@@ -66,6 +66,7 @@ export class App {
   private game: Game | null = null;
   private ambientControl: ReturnType<typeof ambient>;
   private titleAtmosphere: ReturnType<typeof mountTitleAtmosphere> | null = null;
+  private endingTimers: number[] = [];
 
   private syncRendering = () => {
     const paused = document.hidden;
@@ -95,8 +96,14 @@ export class App {
     this.fx.resize(stageState.scale);
   }
 
+  private clearEndingFx() {
+    for (const t of this.endingTimers) clearTimeout(t);
+    this.endingTimers = [];
+  }
+
   private leaveGame(keepTitleMusic = false) {
     if (!keepTitleMusic) setTitleMusic(false);
+    this.clearEndingFx();
     this.game?.dispose();
     this.game = null;
     this.fx.clear();
@@ -104,6 +111,8 @@ export class App {
 
   show(el: HTMLElement) {
     hideTip();
+    this.clearEndingFx();
+    this.fx.clear();
     this.titleAtmosphere?.dispose();
     this.titleAtmosphere = null;
     this.screenEl.replaceChildren(el);
@@ -279,7 +288,9 @@ export class App {
         tierArt('eu-art', o!.def, card(o!.def).tier), h('div', { class: 'eu-name' }, card(o!.def).name), h('div', { class: 'eu-lv' }, lvlOf(o!.copies) >= 2 ? '金色' : '')))),
       h('div', { class: 'end-btns' }, home, again));
     this.show(el);
-    if (won) for (let i = 0; i < 4; i++) setTimeout(() => this.fx.burst(320 + i * 220, 200 + (i % 2) * 60, ['#ffd36b', '#7dffb0', '#8fd8ff', '#ff9ad6'][i], { n: 40, speed: 9 }), i * 220);
+    if (won) for (let i = 0; i < 4; i++) {
+      this.endingTimers.push(window.setTimeout(() => this.fx.burst(320 + i * 220, 200 + (i % 2) * 60, ['#ffd36b', '#7dffb0', '#8fd8ff', '#ff9ad6'][i], { n: 40, speed: 9 }), i * 220));
+    }
   }
 
   modal(content: HTMLElement, cls = '', mount: HTMLElement = this.stage) {
