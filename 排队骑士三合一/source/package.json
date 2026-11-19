@@ -27,5 +27,9 @@
     "vite": "^6.4.4",
     "vite-node": "^3.2.4",
     "vite-plugin-singlefile": "^2.3.3"
+  },
+  "dependencies": {
+    "@types/three": "^0.187.0",
+    "three": "^0.187.0"
   }
 }

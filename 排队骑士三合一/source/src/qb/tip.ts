@@ -41,7 +41,16 @@ export function initTip(stage: HTMLElement) {
   tipEl = h('div', { class: 'tip' });
   stage.append(tipBackdrop, tipSourceMarker, tipEl);
   document.addEventListener('pointerdown', (event) => {
-    if (tipEl && !tipEl.contains(event.target as Node)) hideTip();
+    if (!tipEl || !tipEl.classList.contains('on')) return;
+    const target = event.target as HTMLElement | null;
+    if (target && !tipEl.contains(target)) {
+      hideTip();
+      // Dismissing an open detail shouldn't accidentally trigger top-bar banners/popups
+      if (target.closest('.hud-act, .hud-help, .hud-archetypes')) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+    }
   }, { capture: true });
   window.addEventListener('resize', hideTip);
 }
@@ -191,7 +200,7 @@ export function equipTip(id: Ench, note?: string) {
 
 export function foodTip(id: string, val?: [number, number]) {
   const fd = FOOD[id];
-  return enableKeywordHelp(h('div', { class: 'tip-unit card-detail', style: `--fc:${FACTION_INFO.neutral.color}` },
+  return enableKeywordHelp(h('div', { class: 'tip-unit card-detail tip-compact', style: `--fc:${FACTION_INFO.neutral.color}` },
     h('div', { class: 'tip-head' }, h('div', { class: 'tip-name' }, fd.name), h('span', { class: 'tip-fac' }, fd.spell ? '法术' : '补给'), h('span', { class: 'tip-lv' }, tierBadge(fd.tier))),
     h('div', { class: 'tip-text' }, ...kwRich(foodText(id, val))), supportGuide(fd)));
 }
@@ -281,42 +290,52 @@ function overlap(a: Box, b: Box) {
   return Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l)) * Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
 }
 
-/** Place the complete detail/action stack around the source, then prefer clear links. */
+/** Place the complete detail/action stack right next to the source card, minimizing pointer travel and avoiding clipping. */
 function placeBesideSource(need: number, minHeight: number, prefer: 'above' | 'below', avoid?: Box | null, dock?: { top: number; maxHeight: number }) {
   if (!tipEl || !tipSourceBox) return false;
-  const source = tipSourceBox, pad = 12, gap = 12, w = 440;
-  const height = Math.min(need, STAGE_H - pad * 2, dock?.maxHeight ?? Infinity);
+  const source = tipSourceBox, pad = 12, gap = 12;
+  const w = parseFloat(tipEl.style.width) || 420;
+  const topBound = dock ? Math.min(dock.top, 64) : pad;
+  const maxAvail = STAGE_H - topBound - pad;
+  const height = Math.min(need, maxAvail);
   const centerX = (source.l + source.r) / 2, centerY = (source.t + source.b) / 2;
   const clampX = (x: number) => Math.max(pad, Math.min(STAGE_W - w - pad, x));
-  const clampY = (y: number, h: number) => Math.max(pad, Math.min(STAGE_H - h - pad, y));
+  const clampY = (y: number, h: number) => Math.max(topBound, Math.min(STAGE_H - h - pad, y));
   const candidates: { l: number; t: number; h: number; order: number }[] = [];
   const add = (l: number, t: number, h: number) => {
     if (h <= 0 || l < pad || l + w > STAGE_W - pad || t < pad || t + h > STAGE_H - pad) return;
     const box = { l, t, r: l + w, b: t + h };
-    // The extra gap belongs to the whole frame, including its action buttons.
     if (overlap(box, { l: source.l - gap, t: source.t - gap, r: source.r + gap, b: source.b + gap }) > .1) return;
     candidates.push({ l, t, h, order: candidates.length });
   };
-  if (dock) add(pad, dock.top, Math.min(height, STAGE_H - dock.top - pad));
+  // 1. Prefer directly above/below the clicked card (shortest thumb/mouse travel)
   for (const side of [prefer, prefer === 'above' ? 'below' : 'above'] as const) {
-    const h = Math.min(height, side === 'above' ? source.t - gap - pad : STAGE_H - source.b - gap - pad);
+    const h = Math.min(height, side === 'above' ? source.t - gap - topBound : STAGE_H - source.b - gap - pad);
     const t = side === 'above' ? source.t - gap - h : source.b + gap;
     add(clampX(centerX - w / 2), t, h);
-    add(pad, t, h);
-    add(STAGE_W - w - pad, t, h);
   }
+  // 2. Immediately beside the clicked card (full vertical headroom for tall descriptions!)
   const sideXs = centerX < STAGE_W / 2 ? [source.r + gap, source.l - gap - w] : [source.l - gap - w, source.r + gap];
   for (const l of sideXs) {
     add(l, clampY(centerY - height / 2, height), height);
-    add(l, pad, height);
-    add(l, STAGE_H - pad - height, height);
+    add(l, clampY(source.b - height, height), height);
+    add(l, topBound, height);
   }
-  for (const l of [pad, STAGE_W - w - pad]) for (const t of [pad, STAGE_H - height - pad]) add(l, t, height);
+  // 3. Fallback corners
+  for (const side of [prefer, prefer === 'above' ? 'below' : 'above'] as const) {
+    const h = Math.min(height, side === 'above' ? source.t - gap - topBound : STAGE_H - source.b - gap - pad);
+    const t = side === 'above' ? source.t - gap - h : source.b + gap;
+    add(pad, t, h);
+    add(STAGE_W - w - pad, t, h);
+  }
+  if (dock) add(pad, dock.top, Math.min(height, STAGE_H - dock.top - pad));
+  for (const l of [pad, STAGE_W - w - pad]) for (const t of [topBound, STAGE_H - height - pad]) add(l, t, height);
   if (!candidates.length) return false;
   const score = (p: typeof candidates[number]) => {
-    const clipped = height - p.h;
+    const clipped = Math.max(0, height - p.h);
     const linkHit = avoid ? overlap({ l: p.l, t: p.t, r: p.l + w, b: p.t + p.h }, avoid) : 0;
-    return (p.h < Math.min(minHeight, height) ? 1e8 : 0) + clipped * 1000 + (linkHit ? 10000 + linkHit / 100 : 0) + p.order;
+    const dist = Math.hypot((p.l + w / 2) - centerX, (p.t + p.h / 2) - centerY);
+    return (p.h < Math.min(minHeight, height) ? 1e8 : 0) + clipped * 1200 + (linkHit ? 10000 + linkHit / 100 : 0) + dist * 0.8 + p.order * 15;
   };
   candidates.sort((a, b) => score(a) - score(b));
   const best = candidates[0];
@@ -335,17 +354,17 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
   tipEl.classList.remove('dock');
   root.appendChild(tipEl);
   const shownTip = tipEl;
+  const isCompact = content.classList.contains('tip-compact');
   const layout = () => {
     if (!shownTip.classList.contains('on') || shownTip.firstElementChild !== content || shownTip.classList.contains('dock')) return;
-    const w = 440, pad = 12, gap = 8;
+    const w = isCompact ? 340 : 420, pad = 12, gap = 8;
     shownTip.style.width = `${w}px`;
     shownTip.style.left = `${Math.max(pad, Math.min(STAGE_W - w - pad, x - w / 2))}px`;
     shownTip.style.bottom = '';
     shownTip.style.maxHeight = 'none';
-    // offsetHeight rounds fractional line heights; a tight cap can introduce a
-    // scrollbar, narrow the text and wrap another whole line on short screens.
-    const need = shownTip.offsetHeight + 2;
-    const minHeight = (content.classList.contains('tip-unit') || content.classList.contains('card-detail') ? 260 : 0) + (actions ? actions.offsetHeight + 10 : 0);
+    shownTip.style.height = '';
+    const need = shownTip.offsetHeight + 4;
+    const minHeight = (isCompact ? 120 : content.classList.contains('tip-unit') || content.classList.contains('card-detail') ? 190 : 0) + (actions ? actions.offsetHeight + 10 : 0);
     if (placeBesideSource(need, minHeight, prefer, avoid)) {
       shownTip.classList.toggle('interactive', need > shownTip.offsetHeight || content.classList.contains('selected-tip') || !!shownTip.querySelector('button, input, details, [data-keyword][role="button"]'));
       return;
@@ -362,12 +381,10 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
       max = need;
       top = side === 'above' ? top0 - gap - need : y + gap;
     } else {
-      // 上下都放不下：挪到目标左右两侧，按整屏高度放，不盖住目标
       const off = 64;
       max = Math.min(need, STAGE_H - pad * 2);
       top = Math.max(pad, Math.min(STAGE_H - max - pad, (top0 + y) / 2 - max / 2));
       const clamp = (l: number) => Math.max(pad, Math.min(STAGE_W - w - pad, l));
-      // 先放目标朝屏幕中间那侧；有箭头就整体让到箭头外面，放不下再换另一侧
       const right = clamp(Math.max(x + off, avoid ? avoid.r + gap : 0));
       const leftSide = clamp(Math.min(x - off - w, avoid ? avoid.l - gap - w : STAGE_W));
       const order = x < STAGE_W / 2 ? [right, leftSide] : [leftSide, right];
@@ -375,21 +392,16 @@ export function showTip(content: HTMLElement, x: number, y: number, prefer: 'abo
       shownTip.style.left = `${pick}px`;
     }
     shownTip.style.maxHeight = `${max}px`;
-    // 实在太长时可以滑动查看，所以要能接收触摸
     shownTip.classList.toggle('interactive', need > max || content.classList.contains('selected-tip') || !!shownTip.querySelector('button, input, details, [data-keyword][role="button"]'));
     shownTip.style.top = `${Math.max(pad, Math.min(STAGE_H - max - pad, top))}px`;
   };
   shownTip.scrollTop = 0;
   layout();
-  if (actions || content.classList.contains('card-detail')) {
-    // Gold previews and keyword help change only the scrolling content. Keep
-    // the original frame and action row at the position chosen on opening.
-    shownTip.style.height = `${shownTip.offsetHeight}px`;
-  } else content.addEventListener('tipcontentchange', layout);
+  content.addEventListener('tipcontentchange', layout);
   showTipBackdrop(!!tipSourceBox || !!actions || content.classList.contains('card-detail'));
 }
 
-/** 牌区详情优先舞台左上角，源卡牌占位时整体避让；bottom 为舞台坐标下沿。 */
+/** 牌区详情优先贴近所点卡牌（上方或侧方），自适应内容高度，防止跨屏折返与文字裁切。 */
 export function showDockTip(content: HTMLElement, bottom: number, source?: HTMLElement) {
   if (!tipEl || !root) return;
   closeKeywordHelp();
@@ -397,19 +409,20 @@ export function showDockTip(content: HTMLElement, bottom: number, source?: HTMLE
   const acts = mountTip(content);
   tipEl.classList.add('on', 'interactive', 'dock');
   root.appendChild(tipEl);
-  const pad = 12, top = 70;
-  // Short action labels fit the regular reading width, including supplies.
-  tipEl.style.width = '440px';
+  const pad = 12, top = 66;
+  const isCompact = content.classList.contains('tip-compact');
+  tipEl.style.width = isCompact ? '340px' : '420px';
   tipEl.style.left = `${pad}px`;
   tipEl.style.bottom = '';
   tipEl.style.top = `${top}px`;
+  tipEl.style.height = '';
+  tipEl.style.maxHeight = 'none';
   tipEl.scrollTop = 0;
-  // Keep the original reading space; detached actions add to the total budget.
   const actionsHeight = acts ? acts.offsetHeight + 10 : 0;
-  tipEl.style.maxHeight = `${Math.min(STAGE_H - top - pad, Math.max(280, bottom - top) + actionsHeight)}px`;
-  const need = tipEl.offsetHeight + 2;
-  placeBesideSource(need, 260 + actionsHeight, 'above', null, { top, maxHeight: parseFloat(tipEl.style.maxHeight) });
-  tipEl.style.height = `${tipEl.offsetHeight}px`;
+  const need = tipEl.offsetHeight + 4;
+  const maxBudget = STAGE_H - top - pad;
+  tipEl.style.maxHeight = `${Math.min(maxBudget, Math.max(need, bottom - top + actionsHeight))}px`;
+  placeBesideSource(need, (isCompact ? 110 : 180) + actionsHeight, 'above', null, { top, maxHeight: maxBudget });
   showTipBackdrop(!!tipSourceBox || !!acts || content.classList.contains('card-detail'));
 }
 

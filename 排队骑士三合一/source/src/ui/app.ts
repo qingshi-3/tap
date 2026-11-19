@@ -14,10 +14,11 @@ import { icon } from '../qb/icons';
 import { hideTip, initTip } from '../qb/tip';
 import { unitPxUrl, unitSvg } from '../qb/unitArt';
 import { tierArt } from '../qb/card';
-import { card, HERO, HEROES, SHOP_POOL, type HeroId } from '../core/data';
+import { card, HEROES, SHOP_POOL, type HeroId } from '../core/data';
 import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, saveStatus, beginNewRunBackup, LAYERS, type Diff, type RunState } from '../core/run';
 import { Game } from './prep';
 import { codexScreen } from './codex';
+import { heroCampScreen } from './heroCamp';
 
 // ── 本地战绩 ──
 const REC_KEY = 'pdqs3_records';
@@ -66,6 +67,7 @@ export class App {
   private game: Game | null = null;
   private ambientControl: ReturnType<typeof ambient>;
   private titleAtmosphere: ReturnType<typeof mountTitleAtmosphere> | null = null;
+  private screenCleanup: (() => void) | null = null;
   private endingTimers: number[] = [];
 
   private syncRendering = () => {
@@ -109,10 +111,12 @@ export class App {
     this.fx.clear();
   }
 
-  show(el: HTMLElement) {
+  show(el: HTMLElement, onDispose?: () => void) {
     hideTip();
     this.clearEndingFx();
     this.fx.clear();
+    this.screenCleanup?.();
+    this.screenCleanup = onDispose ?? null;
     this.titleAtmosphere?.dispose();
     this.titleAtmosphere = null;
     this.screenEl.replaceChildren(el);
@@ -229,30 +233,27 @@ export class App {
       h('div', { class: 'records-list' }, rows.length ? rows : h('p', { class: 'records-empty' }, '还没有完成的对局'))));
   }
 
-  /** 选难度后开新局；默认高亮上次的选择 */
-  pickDiff() {
-    const cur = lastDiff();
-    const btns = DIFFS.map((d, i) => {
-      const b = h('button', { class: `diff-opt d${i}${i === cur ? ' on' : ''}` },
-        h('b', null, d.name), h('span', null, d.desc), h('i', null, Array.from({ length: d.lives }, () => icon('heart'))));
-      b.addEventListener('click', () => { close(); sfx.click(); this.pickHero(i as Diff); });
-      return b;
+  /** 出征营地：全屏开放式像素英雄与难度展示台（首局至少 2 位可用，全阵容可见并随对局解锁） */
+  pickDiff(initialDiff: Diff = lastDiff()) {
+    const rec = loadRecords();
+    const first = rec.runs === 0;
+    const unlockedCount = rec.clears > 0 || rec.runs >= 2 ? HEROES.length : rec.runs === 1 ? 4 : 2;
+    this.leaveGame(true);
+    setTitleMusic(true);
+    const camp = heroCampScreen({
+      stage: this.stage,
+      fx: this.fx,
+      initialDiff,
+      unlockedCount,
+      onBack: () => this.toTitle(),
+      onStart: (diff, hero) => this.startRun(freshRun(diff, hero, first)),
     });
-    const close = this.modal(h('div', { class: 'confirm diff-pick' }, h('h3', null, '选择难度'), h('div', { class: 'diff-opts' }, btns)), 'diff-dialog');
+    this.show(camp.el, camp.dispose);
   }
 
-  /** 选英雄：6 抽 2；首局固定老兵队长，且不出商人 / 委托 */
+  /** 兼容单独选英雄入口：统一进入全屏出征营地 */
   pickHero(diff: Diff) {
-    const first = loadRecords().runs === 0;
-    const pool = [...HEROES].sort(() => Math.random() - 0.5);
-    const opts = first ? [HERO.vet] : pool.slice(0, 2);
-    const btns = opts.map((hd) => {
-      const b = h('button', { class: 'hero-opt' }, h('span', { class: 'ho-art', html: unitSvg(hd.art) }), h('b', null, hd.name),
-        h('span', { class: 'ho-text' }, hd.text), hd.cost ? h('i', { class: 'ho-cost' }, `${hd.cost} 金 / 回合`) : h('i', { class: 'ho-cost' }, '被动'));
-      b.addEventListener('click', () => { close(); sfx.start(); this.startRun(freshRun(diff, hd.id, first)); });
-      return b;
-    });
-    const close = this.modal(h('div', { class: 'confirm hero-pick' }, h('h3', null, '选择英雄'), h('div', { class: 'hero-opts' }, btns)), 'diff-dialog');
+    this.pickDiff(diff);
   }
 
   startRun(r: RunState) {
