@@ -676,95 +676,184 @@ export class BoardRenderer {
     const abilityId = castStep?.abilityId;
     ctx.save();
     const pNow = performance.now(), pRed = this.motionPreference.matches;
-    const drawMiniChevron = (x, y, angle, outlineCol, bodyCol, tipCol, px = 2.3) => {
+    const pulse = pRed ? 0.5 : 0.5 + Math.sin(pNow / 200) * 0.5;
+    const drawMiniChevron = (x, y, angle, outlineCol, bodyCol, tipCol, px = 2.8) => {
       ctx.save();
       ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(angle);
       const pts = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
       ctx.fillStyle = outlineCol;
-      for (const [bx, by] of pts) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+      for (const [bx, by] of pts) ctx.fillRect(bx * px - 1.2, by * px - 1.2, px + 2.4, px + 2.4);
       ctx.fillStyle = bodyCol;
       for (const [bx, by] of pts) ctx.fillRect(bx * px, by * px, px, px);
       ctx.fillStyle = tipCol;
-      ctx.fillRect(0.4 * px, -0.4 * px, px, px);
+      ctx.fillRect(0.45 * px, -0.45 * px, px, px);
       ctx.restore();
     };
+    const drawTileBrackets = (cell, outCol, mainCol, tipCol, fillCol) => {
+      const [p0, p1, p2, p3] = cell.points;
+      const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+      const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+      ctx.save();
+      if (fillCol) {
+        ctx.fillStyle = fillCol;
+        ctx.beginPath(); cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.fill();
+      }
+      const inset = pRed ? 0.06 : 0.04 + pulse * 0.05, arm = 0.25;
+      const corners = [
+        [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+        [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+        [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+        [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+      ];
+      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+      for (const [a, pt, b] of corners) {
+        ctx.strokeStyle = outCol; ctx.lineWidth = 4.4;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.strokeStyle = mainCol; ctx.lineWidth = 2.3;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.fillStyle = tipCol; ctx.fillRect(Math.round(pt.x - 1.5), Math.round(pt.y - 1.5), 3, 3);
+      }
+      ctx.restore();
+    };
+    const drawCutBadge = (cx, cy, text, bg, border, fg) => {
+      ctx.save();
+      ctx.font = '700 11.5px "Luxiang UI", sans-serif';
+      const w = Math.round(Math.max(46, ctx.measureText(text).width + 14)), h = 21;
+      const bx = Math.round(cx - w / 2), by = Math.round(cy - h / 2), c = 3;
+      const trace = (ox, oy, ow, oh) => {
+        ctx.beginPath();
+        ctx.moveTo(ox + c, oy); ctx.lineTo(ox + ow - c, oy); ctx.lineTo(ox + ow, oy + c);
+        ctx.lineTo(ox + ow, oy + oh - c); ctx.lineTo(ox + ow - c, oy + oh);
+        ctx.lineTo(ox + c, oy + oh); ctx.lineTo(ox, oy + oh - c); ctx.lineTo(ox, oy + c);
+        ctx.closePath();
+      };
+      ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2;
+      trace(bx, by, w, h); ctx.fillStyle = bg; ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = 'rgba(255, 240, 200, 0.22)'; ctx.fillRect(bx + c, by + 1, w - c * 2, 2);
+      trace(bx + 0.5, by + 0.5, w - 1, h - 1);
+      ctx.strokeStyle = border; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, cx, cy + 0.5);
+      ctx.restore();
+    };
+
+    const hopByUnit = new Map();
     if (abilityId === 'chain-lightning') {
       const chains = steps.filter(s => s.kind === 'chain' && s.from && s.to);
-      const phase = pRed ? 0.5 : (pNow / 460) % 1;
-      for (const link of chains) {
+      const tick = pRed ? 0 : Math.floor(pNow / 110);
+      const phase = pRed ? 0.5 : (pNow / 440) % 1;
+      chains.forEach((link, idx) => {
+        if (link.unitId != null && !hopByUnit.has(link.unitId)) hopByUnit.set(link.unitId, idx + 1);
+        const targetUnit = state.units.find(u => u.unitId === link.unitId);
+        const isAllyRelay = targetUnit && targetUnit.owner === 0;
+        const toCell = this.cellGeometry(metrics, link.to.x, link.to.y);
+        drawTileBrackets(toCell,
+          isAllyRelay ? 'rgba(44, 28, 6, 0.92)' : 'rgba(6, 22, 42, 0.92)',
+          isAllyRelay ? '#ffd866' : '#4aeaff',
+          '#ffffff',
+          isAllyRelay ? 'rgba(255, 214, 96, 0.16)' : 'rgba(56, 220, 255, 0.16)');
+      });
+      // High-contrast dark-outlined jagged pixel lightning bolts between hops
+      chains.forEach((link, idx) => {
         const a = this.cellGeometry(metrics, link.from.x, link.from.y).center;
         const b = this.cellGeometry(metrics, link.to.x, link.to.y).center;
-        const p0 = { x: a.x, y: a.y - 14 }, p2 = { x: b.x, y: b.y - 14 };
-        const p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - 16 };
+        const x0 = a.x, y0 = a.y - 16, x1 = b.x, y1 = b.y - 16;
+        const dx = x1 - x0, dy = y1 - y0, dist = Math.hypot(dx, dy);
+        if (dist < 4) return;
+        const nx = -dy / dist, ny = dx / dist;
+        const segs = Math.max(4, Math.min(8, Math.round(dist / 26)));
+        const pts = [{ x: x0, y: y0 }];
+        for (let sIdx = 1; sIdx < segs; sIdx++) {
+          const t = sIdx / segs;
+          const seed = Math.sin((tick * 13.7 + idx * 7.3 + sIdx * 19.1)) * 43758.5453;
+          const jitter = ((seed - Math.floor(seed)) - 0.5) * 14 * (sIdx % 2 ? 1 : -1);
+          pts.push({ x: Math.round(x0 + dx * t + nx * jitter), y: Math.round(y0 + dy * t + ny * jitter) });
+        }
+        pts.push({ x: x1, y: y1 });
+        const tracePts = () => {
+          ctx.beginPath();
+          pts.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+        };
         ctx.save();
-        ctx.strokeStyle = 'rgba(72, 224, 255, 0.34)'; ctx.lineWidth = 6; ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
-        for (let k = 0; k < 3; k++) {
-          const t = ((k + phase) / 3) % 1, u = 1 - t;
-          const x = u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y = u*u*p0.y + 2*u*t*p1.y + t*t*p2.y;
-          const tx = 2*u*(p1.x - p0.x) + 2*t*(p2.x - p1.x), ty = 2*u*(p1.y - p0.y) + 2*t*(p2.y - p1.y);
-          drawMiniChevron(x, y, Math.atan2(ty, tx), '#092c40', '#5ee8ff', '#ffffff', 2.4);
+        ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+        // 1. Thick dark navy silhouette so bright lightning pops over bright sand & sprites
+        tracePts(); ctx.strokeStyle = 'rgba(6, 16, 36, 0.86)'; ctx.lineWidth = 9; ctx.stroke();
+        // 2. Electric cyan plasma body
+        tracePts(); ctx.strokeStyle = '#3ce6ff'; ctx.lineWidth = 4.2; ctx.stroke();
+        // 3. White-gold hot core
+        tracePts(); ctx.strokeStyle = '#f4ffff'; ctx.lineWidth = 1.8; ctx.stroke();
+        // 4. Crisp marching directional pixel arrows along the bolt
+        const ang = Math.atan2(dy, dx);
+        const arrowCount = Math.max(2, Math.min(4, Math.round(dist / 52)));
+        for (let k = 0; k < arrowCount; k++) {
+          const t = ((k + phase) / arrowCount) % 1;
+          if (t < 0.1 || t > 0.9) continue;
+          const ax = x0 + dx * t, ay = y0 + dy * t;
+          drawMiniChevron(ax, ay, ang, '#071a33', '#ffe27a', '#ffffff', 3.0);
         }
         ctx.restore();
-      }
+      });
+      // Friendly relay / charge badges
       chains.forEach((link, idx) => {
-        const pt = this.cellGeometry(metrics, link.to.x, link.to.y).center;
-        ctx.save();
-        ctx.fillStyle = '#0c334a'; ctx.strokeStyle = '#8cf2ff'; ctx.lineWidth = 1.8;
-        ctx.fillRect(Math.round(pt.x - 9), Math.round(pt.y - 35), 18, 18);
-        ctx.strokeRect(Math.round(pt.x - 9), Math.round(pt.y - 35), 18, 18);
-        ctx.fillStyle = '#ffffff'; ctx.font = '700 11px Lato, sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(String(idx + 1), pt.x, pt.y - 26);
-        ctx.restore();
+        const u = state.units.find(item => item.unitId === link.unitId);
+        if (!u || u.owner !== 0) return;
+        const cell = this.cellGeometry(metrics, u.x, u.y);
+        const tag = u.cardId === 9202 ? `#${idx + 1} 充能+1` : `#${idx + 1} 导雷中继`;
+        drawCutBadge(cell.center.x, cell.center.y - cell.height * 0.74, tag, '#18284a', '#ffd978', '#fff6d1');
       });
     }
-    if (abilityId === 'prism-beam' && preview.cells?.length) {
+
+    if (abilityId === 'arcane-beam' && preview.cells?.length) {
       const overcharged = (preview.statChanges ?? []).some(c => c.kind === 'damage' && c.amount >= 10);
       const first = this.cellGeometry(metrics, preview.cells[0].x, preview.cells[0].y).center;
       const last = this.cellGeometry(metrics, preview.cells[preview.cells.length - 1].x, preview.cells[preview.cells.length - 1].y).center;
       const start = source ? this.cellGeometry(metrics, source.x, source.y).center : first;
       const bx0 = start.x, by0 = start.y - 12, bx1 = last.x, by1 = last.y - 12;
       const bDist = Math.hypot(bx1 - bx0, by1 - by0), bAng = Math.atan2(by1 - by0, bx1 - bx0);
-      const pulse = pRed ? 0.5 : 0.5 + Math.sin(pNow / 140) * 0.5;
       ctx.save();
-      ctx.strokeStyle = overcharged ? `rgba(255, 200, 72, ${0.44 + pulse * 0.18})` : `rgba(90, 224, 255, ${0.38 + pulse * 0.16})`;
-      ctx.lineWidth = (overcharged ? 18 : 13) + pulse * 3;
       ctx.lineCap = 'square';
+      ctx.strokeStyle = overcharged ? 'rgba(44, 18, 4, 0.78)' : 'rgba(6, 22, 42, 0.78)';
+      ctx.lineWidth = (overcharged ? 20 : 15) + pulse * 2;
       ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
-      ctx.strokeStyle = overcharged ? '#fff8d6' : '#ebfeff';
-      ctx.lineWidth = overcharged ? 4.5 : 3;
+      ctx.strokeStyle = overcharged ? `rgba(255, 198, 64, ${0.72 + pulse * 0.2})` : `rgba(68, 226, 255, ${0.68 + pulse * 0.2})`;
+      ctx.lineWidth = (overcharged ? 12 : 9) + pulse * 2;
       ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
-      const bPhase = pRed ? 0.5 : (pNow / 360) % 1;
-      const bCount = Math.max(3, Math.min(9, Math.round(bDist / 34)));
+      ctx.strokeStyle = overcharged ? '#fffbe0' : '#f0ffff';
+      ctx.lineWidth = overcharged ? 4 : 2.8;
+      ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
+      const bPhase = pRed ? 0.5 : (pNow / 340) % 1;
+      const bCount = Math.max(3, Math.min(9, Math.round(bDist / 38)));
       for (let k = 0; k < bCount; k++) {
         const t = ((k + bPhase) / bCount) % 1;
         drawMiniChevron(bx0 + (bx1 - bx0) * t, by0 + (by1 - by0) * t, bAng,
           overcharged ? '#4a2404' : '#082a40',
-          overcharged ? '#ffd866' : '#68eeff', '#ffffff', overcharged ? 2.6 : 2.2);
+          overcharged ? '#ffd866' : '#68eeff', '#ffffff', overcharged ? 3.0 : 2.6);
       }
       ctx.restore();
     }
-    if (abilityId === 'gravity-well') {
+
+    if (abilityId === 'black-hole') {
       if (castStep?.cell) {
         const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
         const [p0, p1, p2, p3] = c.points;
         const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
         const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+        drawTileBrackets(c, 'rgba(34, 10, 66, 0.92)', '#d194ff', '#fff4ff', 'rgba(110, 48, 214, 0.24)');
         ctx.save();
         for (let i = 0; i < 2; i++) {
-          const vp = pRed ? (0.3 + i * 0.4) : ((pNow / 1000 + i * 0.5) % 1);
-          const r = (1 - vp) * 0.40 + 0.08;
+          const vp = pRed ? (0.3 + i * 0.4) : ((pNow / 950 + i * 0.5) % 1);
+          const r = (1 - vp) * 0.38 + 0.08;
           const vt = quadPt(0.5, 0.5 - r), vr = quadPt(0.5 + r, 0.5), vb = quadPt(0.5, 0.5 + r), vl = quadPt(0.5 - r, 0.5);
-          ctx.strokeStyle = `rgba(222, 178, 255, ${Math.sin(vp * Math.PI) * 0.92})`;
-          ctx.lineWidth = 2.2;
+          ctx.strokeStyle = `rgba(232, 194, 255, ${Math.sin(vp * Math.PI) * 0.95})`;
+          ctx.lineWidth = 2.4;
           ctx.beginPath(); ctx.moveTo(vt.x, vt.y); ctx.lineTo(vr.x, vr.y); ctx.lineTo(vb.x, vb.y); ctx.lineTo(vl.x, vl.y); ctx.closePath(); ctx.stroke();
         }
         ctx.fillStyle = '#2a0e54'; ctx.fillRect(Math.round(c.center.x - 4), Math.round(c.center.y - 4), 8, 8);
-        ctx.fillStyle = '#efd6ff'; ctx.fillRect(Math.round(c.center.x - 2), Math.round(c.center.y - 2), 4, 4);
+        ctx.fillStyle = '#f3dcff'; ctx.fillRect(Math.round(c.center.x - 2), Math.round(c.center.y - 2), 4, 4);
         ctx.restore();
       }
-      const gPhase = pRed ? 0.5 : (pNow / 520) % 1;
+      const gPhase = pRed ? 0.5 : (pNow / 500) % 1;
       for (const mv of preview.moves ?? []) {
         const u = state.units.find(item => item.unitId === mv.unitId);
         if (!u || !mv.to) continue;
@@ -774,47 +863,44 @@ export class BoardRenderer {
         if (dist < 6) continue;
         const ang = Math.atan2(b.y - a.y, b.x - a.x);
         ctx.save();
-        ctx.strokeStyle = 'rgba(198, 138, 255, 0.32)'; ctx.lineWidth = 5; ctx.lineCap = 'round';
+        ctx.strokeStyle = 'rgba(30, 10, 56, 0.8)'; ctx.lineWidth = 7; ctx.lineCap = 'round';
         ctx.beginPath(); ctx.moveTo(a.x, a.y - 10); ctx.lineTo(b.x, b.y - 10); ctx.stroke();
-        const cnt = Math.max(2, Math.min(5, Math.round(dist / 32)));
+        ctx.strokeStyle = 'rgba(206, 146, 255, 0.72)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 10); ctx.lineTo(b.x, b.y - 10); ctx.stroke();
+        const cnt = Math.max(2, Math.min(5, Math.round(dist / 30)));
         for (let k = 0; k < cnt; k++) {
           const t = ((k + gPhase) / cnt) % 1;
-          drawMiniChevron(a.x + (b.x - a.x) * t, (a.y - 10) + (b.y - a.y) * t, ang, '#260c48', '#c888ff', '#fff2ff', 2.2);
+          drawMiniChevron(a.x + (b.x - a.x) * t, (a.y - 10) + (b.y - a.y) * t, ang, '#260c48', '#d294ff', '#ffffff', 2.6);
         }
         ctx.restore();
       }
     }
-    if (abilityId === 'meteor-strike' && castStep?.cell) {
+
+    if (abilityId === 'meteor' && castStep?.cell) {
       const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
       const [p0, p1, p2, p3] = c.points;
       const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
       const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
-      const mp = pRed ? 0.5 : 0.5 + Math.sin(pNow / 180) * 0.5;
-      const inset = pRed ? 0.06 : 0.04 + mp * 0.05, arm = 0.26;
-      const corners = [
-        [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
-        [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
-        [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
-        [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
-      ];
-      ctx.save();
-      ctx.fillStyle = `rgba(255, 76, 36, ${0.24 + mp * 0.14})`;
-      ctx.beginPath(); c.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.fill();
-      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
-      for (const [a, pt, b] of corners) {
-        ctx.strokeStyle = 'rgba(54, 10, 6, 0.92)'; ctx.lineWidth = 4.6;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-        ctx.strokeStyle = '#ff6e36'; ctx.lineWidth = 2.4;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-        ctx.fillStyle = '#fff1a8'; ctx.fillRect(Math.round(pt.x - 1.5), Math.round(pt.y - 1.5), 3, 3);
+      for (const pos of preview.cells ?? []) {
+        if (pos.x === castStep.cell.x && pos.y === castStep.cell.y) continue;
+        const oc = this.cellGeometry(metrics, pos.x, pos.y);
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 92, 42, 0.16)';
+        ctx.strokeStyle = 'rgba(255, 168, 92, 0.58)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); oc.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
       }
+      drawTileBrackets(c, 'rgba(54, 10, 6, 0.94)', '#ff6e36', '#fff1a8', `rgba(255, 76, 36, ${0.24 + pulse * 0.14})`);
       const ping = pRed ? 0.35 : (pNow % 850) / 850;
       const pr = (1 - ping) * 0.36 + 0.06;
       const dt = quadPt(0.5, 0.5 - pr), dr = quadPt(0.5 + pr, 0.5), db = quadPt(0.5, 0.5 + pr), dl = quadPt(0.5 - pr, 0.5);
-      ctx.strokeStyle = `rgba(255, 226, 130, ${Math.sin(ping * Math.PI) * 0.92})`; ctx.lineWidth = 2;
+      ctx.save();
+      ctx.strokeStyle = `rgba(255, 226, 130, ${Math.sin(ping * Math.PI) * 0.94})`; ctx.lineWidth = 2.2;
       ctx.beginPath(); ctx.moveTo(dt.x, dt.y); ctx.lineTo(dr.x, dr.y); ctx.lineTo(db.x, db.y); ctx.lineTo(dl.x, dl.y); ctx.closePath(); ctx.stroke();
       ctx.restore();
     }
+
     const dmgByUnit = new Map();
     for (const ch of preview.statChanges ?? []) {
       if (ch.kind === 'damage' && ch.unitId != null) dmgByUnit.set(ch.unitId, (dmgByUnit.get(ch.unitId) ?? 0) + ch.amount);
@@ -825,20 +911,17 @@ export class BoardRenderer {
       const cell = this.cellGeometry(metrics, u.x, u.y);
       const after = Math.max(0, u.health - amount);
       const lethal = after <= 0;
-      const label = lethal ? '-' + amount + ' 斩杀' : '-' + amount + ' → ' + after;
-      ctx.save();
-      ctx.font = '700 11px "Luxiang UI", sans-serif';
-      const w = Math.max(46, ctx.measureText(label).width + 12), h = 20;
-      const x = cell.center.x, y = cell.center.y - cell.height * 0.72;
-      ctx.fillStyle = lethal ? 'rgba(168, 34, 34, 0.96)' : 'rgba(38, 22, 18, 0.92)';
-      ctx.strokeStyle = lethal ? '#ffd875' : '#ff9b7a';
-      ctx.lineWidth = 1.5;
-      roundRect(ctx, x - w / 2, y - h / 2, w, h, 4);
-      ctx.fill(); ctx.stroke();
-      ctx.fillStyle = lethal ? '#fff4cc' : '#ffe0d4';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(label, x, y);
-      ctx.restore();
+      const hop = hopByUnit.get(unitId);
+      const prefix = hop ? `#${hop} · ` : '';
+      const label = lethal ? `${prefix}-${amount} 斩杀` : `${prefix}-${amount} → ${after}`;
+      drawCutBadge(
+        cell.center.x,
+        cell.center.y - cell.height * 0.74,
+        label,
+        lethal ? '#6b1414' : '#1b1832',
+        lethal ? '#ffd978' : '#ff9b7a',
+        lethal ? '#fff4cc' : '#ffe2d4'
+      );
     }
     ctx.restore();
   }

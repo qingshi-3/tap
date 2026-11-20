@@ -1051,3 +1051,114 @@
   color: #eafaff;
   text-shadow: 0 1px 3px rgba(6, 14, 28, 0.95);
 }
+
+
+/* ============================================================================
+   20. Real-Device QA P0 Fixes (568x320 Topbar Squeeze + Offscreen Telegraph Overlap)
+   ============================================================================ */
+
+/* 20a. Keep #telegraph-locate clear of #leave-match (Settings gear) at top-right */
+:root[data-ui="qibing"][data-ui] #app #match #telegraph-locate {
+  top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 64px);
+  right: calc(var(--battle-enemy-edge, max(8px, var(--ui-right, 8px))) + 50px);
+  height: 32px;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid #ffd873;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(146, 74, 24, 0.95) 0%, rgba(88, 38, 14, 0.97) 100%);
+  box-shadow: inset 0 1px rgba(255, 240, 196, 0.35), 0 3px 10px rgba(0, 0, 0, 0.55);
+  color: #fff5d6;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 20b. Prevent turn-marker vertical text wrapping on narrow / short screens (568x320) */
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker,
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker span,
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker strong {
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: keep-all;
+}
+
+@media (max-width: 660px), (max-height: 350px) {
+  :root[data-ui="qibing"][data-ui] #match {
+    --battle-hero-width: 106px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-panel {
+    padding: 2px 5px 2px 3px;
+    gap: 4px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-enemy {
+    padding: 2px 3px 2px 5px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .portrait-frame {
+    flex-basis: 34px;
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    min-height: 34px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-copy {
+    width: 62px;
+    gap: 1px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-name {
+    max-width: 62px;
+    font-size: 9.5px;
+    line-height: 11px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-health {
+    height: 14px;
+    font-size: 10px;
+    line-height: 13px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .health-meter {
+    height: 13px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .deck-count {
+    font-size: 9.5px;
+    line-height: 12px;
+    padding: 0 3px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center {
+    gap: 3px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker {
+    padding: 1px 6px;
+    min-width: max-content;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker span {
+    font-size: 9px;
+    line-height: 11px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker strong {
+    font-size: 11px;
+    line-height: 13px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #objective-open {
+    min-width: 0;
+    padding: 0 6px;
+    font-size: 10.5px;
+    gap: 3px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #battle-speed {
+    min-width: 32px;
+    padding: 0 5px;
+    font-size: 10.5px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #battle-history,
+  :root[data-ui="qibing"][data-ui] #app #match #leave-match {
+    top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 44px);
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #telegraph-locate {
+    top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 50px);
+    right: calc(var(--battle-enemy-edge, max(8px, var(--ui-right, 8px))) + 48px);
+    height: 28px;
+    min-height: 28px;
+    font-size: 10.5px;
+    padding: 0 8px;
+  }
+}
