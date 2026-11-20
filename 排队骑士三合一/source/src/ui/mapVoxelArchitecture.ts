@@ -109,66 +109,140 @@ export function landing(box: Box, land: Terrain, theme: string, b: Biome) {
 }
 
 export function distantSkyline(box: Box, theme: string, b: Biome) {
-  const haze = new Color(b.sky[1]).lerp(new Color(b.sky[0]), 0.56);
-  const stone = haze.clone().lerp(new Color(b.rock[1]), 0.34).getHex();
-  const rim = haze.clone().lerp(new Color(b.turf[1]), 0.27).getHex();
-  const shade = haze.clone().lerp(new Color(b.rock[0]), 0.39).getHex();
-  // Offset the far shelves outward and above the near shore so their rooflines
-  // remain visible behind the island when its framing changes between themes.
-  const far = (x: number, y: number, z: number, w: number, h: number, d: number, c = stone) =>
-    box(x + (x < 0 ? -6 : 19), y + (x < 0 ? 6 : 10), z - 3.5, w, h, d, c, 'light');
-  function shelf(x: number, z: number, width: number) {
-    far(x + 1, -26, z, width * 0.59, 4, 5.5, shade);
-    far(x, -22, z, width, 4, 8);
-    far(x, -18, z, width * 1.025, 0.58, 8.1, rim);
+  const haze = new Color(b.sky[1]).lerp(new Color(b.sky[0]), 0.48);
+  const tint = (color: number, amount: number) => haze.clone().lerp(new Color(color), amount).getHex();
+  const dark = tint(b.rock[0], 0.57), stone = tint(b.rock[2], 0.47);
+  const roof = tint(b.flag, 0.46), grass = tint(b.turf[1], 0.42);
+  const distantRock = tint(b.rock[1], 0.28), distantTop = tint(b.turf[1], 0.22);
+  const night = theme === 'moonlit_woods' || theme === 'ashen_citadel';
+  const cloud = tint(b.cloud, night ? 0.13 : 0.34), cloudTop = tint(b.cloud, night ? 0.22 : 0.52);
+  const far = (x: number, y: number, z: number, w: number, h: number, d: number, color: number) =>
+    box(x, y, z, w, h, d, color, 'light');
+
+  const swatch = new Color(), skylight = new Color(b.cloud);
+  function faceted(x: number, y: number, z: number, w: number, h: number, d: number, color: number) {
+    const sideColor = swatch.setHex(color).multiplyScalar(0.71).getHex();
+    const topColor = swatch.setHex(color).lerp(skylight, night ? 0.075 : 0.17).getHex();
+    // Split the existing volume at its top and front. The exposed side keeps
+    // a soft shadow in both renderers, with no coincident exterior faces.
+    const cap = Math.min(0.1, h * 0.18), front = Math.min(0.09, d * 0.18), body = h - cap;
+    far(x, y, z - front * 0.5, w, body, d - front, sideColor);
+    far(x, y, z + (d - front) * 0.5, w, body, front, color);
+    far(x, y + body, z, w, cap, d, topColor);
   }
-  const floor = -17.42;
-  if (theme === 'emerald_day') {
-    shelf(-47, -45, 23);
-    for (const [dx, size] of [[-6, 0.85], [0, 1.26], [4.6, 0.78]]) {
-      far(-47 + dx, floor, -46, 0.72 * size, 2 * size, 0.65 * size, shade);
-      for (let i = 0; i < 3; i++)
-        far(-47 + dx, floor + (1.34 + i * 1.18) * size, -46, (4.7 - i * 1.22) * size,
-          1.22 * size, (3.1 - i * 0.82) * size, i === 2 ? rim : stone);
-    }
-  } else if (theme === 'autumn_sunset') {
-    shelf(47, -42, 23);
-    for (let i = 0; i < 3; i++) {
-      const w = 5.8 - i * 1.26, y = floor + i * 2.5;
-      far(46, y, -43, w, 1.71, w * 0.74);
-      far(46, y + 1.71, -43, w + 3.2, 0.5, w * 0.81 + 1.7, shade);
-      far(46, y + 2.21, -43, w + 1.1, 0.29, w * 0.81, rim);
-    }
-    far(46, floor + 7.5, -43, 0.6, 1.57, 0.61, shade);
-  } else if (theme === 'moonlit_woods') {
-    shelf(-48, -44, 21);
-    for (const [dx, ht] of [[-5.1, 3.1], [0, 7.2], [4, 4.3]]) {
-      far(-48 + dx, floor, -45, 2.8, ht, 2.4, shade);
-      far(-48 + dx, floor + ht, -45, 1.82, 1.55, 1.76);
-      far(-48 + dx + 0.32, floor + ht + 1.55, -45, 0.75, 1.2, 0.81, rim);
-    }
-  } else if (theme === 'golden_oasis') {
-    shelf(-46, -45, 24);
-    for (const dx of [-7, 0, 7]) {
-      far(-46 + dx, floor, -46, 2.2, 4.15, 2.61, shade);
-      far(-46 + dx, floor + 4.15, -46, 3.65, 1.23, 2.69);
-      far(-46 + dx, floor + 5.38, -46, 5.48, 0.98, 2.76);
-    }
-    far(-46, floor + 6.36, -46, 21.3, 1.06, 2.81);
-    far(-46, floor + 7.42, -46, 21.8, 0.37, 2.96, rim);
-  } else if (theme === 'alpine_snow') {
-    for (const [x, y, z, size] of [[-47,-23,-44,1.4],[-36,-23,-48,0.88],[48,-22,-43,1.22]]) {
-      for (let i = 0; i < 5; i++)
-        far(x - i * 0.62 * size, y + i * 2.2 * size, z, (15.4 - i * 3.2) * size,
-          2.22 * size, (7.9 - i * 1.47) * size, i >= 3 ? rim : stone);
-    }
-  } else {
-    shelf(47, -43, 27);
-    far(46, floor, -43, 16.2, 2.75, 5.4, shade);
-    for (const [dx, ht] of [[-5.5, 3.3], [-1.7, 6.7], [4.5, 4.4]]) {
-      far(46 + dx, floor + 2.75, -43, 1.63, ht, 1.62, shade);
-      far(46 + dx, floor + 2.75 + ht, -43, 2.23, 0.58, 2.11);
-    }
-    far(46, floor + 4.12, -43, 11.2, 0.77, 1.13);
+
+  // Two tiers of stepped vapour sit behind the rocks. Breaks in each band leave
+  // clear sky around the route's landmark, especially when the camera orbits.
+  function cloudBank(x: number, y: number, z: number, w: number, h: number) {
+    far(x, y, z, w, h, 2.8, cloud);
+    far(x - w * 0.08, y + h, z - 0.43, w * 0.73, h * 0.8, 2.75, cloud);
+    far(x - w * 0.17, y + h * 1.8, z - 0.73, w * 0.35, h * 0.67, 2.23, cloudTop);
+    far(x + w * 0.47, y + h * 0.19, z + 0.21, w * 0.22, h * 0.48, 2.1, cloudTop);
   }
+  const leansRight = theme === 'emerald_day' || theme === 'ashen_citadel';
+  const side = leansRight ? 1 : -1;
+  // The glacier and caldera rise far above their western/eastern shores respectively.
+  const highShore = theme === 'alpine_snow' ? 8.8 : theme === 'ashen_citadel' ? 6.5 : 0;
+  const mainX = theme === 'alpine_snow' ? -56 : theme === 'ashen_citadel' ? 49 : side * 44;
+  const cloudLift = highShore * 0.79;
+  cloudBank(mainX - side * 4, -14.8 + cloudLift, -89, 33, 1.14);
+  cloudBank(-side * 54, -16.1 + cloudLift, -74, 25, 0.88);
+  cloudBank(mainX + side * 14, -20.6 + cloudLift, -67, 16, 0.56);
+
+  // A broken underside and offset toes give each silhouette a suspended mass.
+  function island(x: number, y: number, z: number, w: number, d: number, near: boolean) {
+    const block = near ? faceted : far;
+    const depth = Math.min(w * 0.24, 4.2);
+    const base = near ? dark : distantRock, top = near ? grass : distantTop;
+    block(x + w * 0.06, y - depth, z, w * 0.88, depth, d * 0.88, base);
+    block(x - w * 0.1, y - depth * 1.81, z - 0.25, w * 0.49, depth, d * 0.65, base);
+    block(x - w * 0.13, y - depth * 2.24, z, w * 0.2, depth * 0.58, d * 0.41, base);
+    block(x + w * 0.28, y - depth * 1.55, z, w * 0.17, depth * 0.72, d * 0.49, base);
+    block(x, y - 1.02, z, w, 0.72, d, near ? stone : distantRock);
+    block(x, y - 0.3, z, w * 0.98, 0.3, d * 0.98, top);
+  }
+
+  // The large silhouette is on the shoulder opposite the main island's wonder.
+  // The smaller outcrop recedes by 18 world units; both have open sky behind them.
+  function crown(x: number, y: number, z: number, scale: number, near: boolean) {
+    const wall = near ? stone : distantRock, cap = near ? roof : distantTop;
+    const shadow = near ? dark : distantRock;
+    const block = near ? faceted : far;
+    const piece = (dx: number, base: number, dz: number, w: number, h: number, d: number, color = wall) =>
+      block(x + dx * scale, y + base * scale, z + dz * scale, w * scale, h * scale, d * scale, color);
+    island(x, y, z, 22 * scale, 7 * scale, near);
+    if (theme === 'autumn_sunset') {
+      // Temple roofs turn up at each end, above a lower gatehouse.
+      for (let tier = 0; tier < 3; tier++) {
+        const w = 8.3 - tier * 1.8, level = tier * 2.65;
+        piece(-3, level, 0, w * 0.75, 1.83, w * 0.47);
+        piece(-3, level + 1.83, 0, w + 1.7, 0.49, w * 0.69, cap);
+        for (const dir of [-1, 1]) piece(-3 + dir * (w * 0.5 + 0.51), level + 2.32, 0, 0.69, 0.37, w * 0.61, cap);
+        piece(-3, level + 2.32, 0, w * 0.78, 0.33, w * 0.53, cap);
+      }
+      piece(-3, 7.95, 0, 0.62, 1.55, 0.61, cap);
+      for (const dx of [3.2, 7.2]) piece(dx, 0, 0, 0.72, 2.55, 0.81, shadow);
+      piece(5.2, 2.55, 0, 6.6, 0.58, 2.1, cap);
+    } else if (theme === 'golden_oasis') {
+      // A column arcade terminating in a stepped sandstone obelisk.
+      for (const dx of [-8, -3.6, 0.8]) {
+        piece(dx, 0, 0, 1.42, 3.5, 2.3, shadow);
+        piece(dx, 3.5, 0, 2.8, 0.83, 2.62);
+      }
+      piece(-3.6, 4.33, 0, 11.65, 0.99, 2.85);
+      for (const [level, w, h] of [[0, 6.1, 1.1], [1.1, 4.1, 3.5], [4.6, 3, 3.1], [7.7, 1.91, 1.9], [9.6, 0.81, 1.1]])
+        piece(6.5, level, -0.35, w, h, w * 0.82, level === 9.6 ? cap : wall);
+    } else if (theme === 'alpine_snow') {
+      // Offset summit and shoulder create two asymmetric snow cornices.
+      for (const [dx, dz, size, lean] of [[-3.8, -0.7, 1.23, 1], [5.8, 0.65, 0.76, -1]]) {
+        for (let i = 0; i < 6; i++) {
+          const width = (10.1 - 1.75 * i) * size;
+          piece(dx + lean * i * 0.49 * size, i * 1.67 * size, dz, width, 1.68 * size,
+            (5.35 - i * 0.85) * size, i >= 3 ? (near ? grass : distantTop) : wall);
+        }
+      }
+    } else if (theme === 'moonlit_woods') {
+      // A high stone walkway ties the forked observatory to a shorter needle.
+      for (const [dx, h, w] of [[-4.2, 8.5, 3.7], [5.4, 5, 2.65]]) {
+        piece(dx, 0, 0, w + 1.2, 1.3, w);
+        piece(dx, 1.3, 0, w * 0.69, h - 1.3, w * 0.66, shadow);
+        piece(dx, h, 0, w, 0.84, w * 0.86, cap);
+        for (const dir of [-1, 1]) {
+          piece(dx + dir * w * 0.34, h + 0.84, 0, w * 0.31, w * 0.63, w * 0.43, cap);
+          piece(dx + dir * w * 0.38, h + 0.84 + w * 0.63, 0, w * 0.18, w * 0.41, w * 0.26, cap);
+        }
+      }
+      piece(0.6, 3.74, 0, 9.5, 0.68, 1.23);
+    } else if (theme === 'ashen_citadel') {
+      // A heavy furnace wall, a raised gantry and a staggered chimney cluster.
+      piece(-3.4, 0, 0, 10.3, 2.4, 4.4, shadow);
+      for (const [dx, h, w] of [[-6.8, 8.5, 2.08], [-2.7, 10.6, 2.48], [4.9, 5.6, 3.26]]) {
+        piece(dx, 0, -0.41, w + 0.72, h * 0.42, w);
+        piece(dx, h * 0.42, -0.41, w * 0.71, h * 0.58, w * 0.72, shadow);
+        piece(dx, h, -0.41, w + 0.33, 0.87, w + 0.12, cap);
+      }
+      piece(1.3, 3.82, -0.35, 7.5, 1.08, 1.31);
+    } else {
+      // Pale hill fort with steep roofs and a lower curtain opening between towers.
+      for (const [dx, dz, h, w] of [[-6.7, 0.55, 4.5, 2.65], [-1.6, -0.8, 7.7, 3.83], [6.25, 0.2, 4.9, 3.1]]) {
+        piece(dx, 0, dz, w, h, w * 0.82);
+        for (let i = 0; i < 3; i++) {
+          const width = w * (1.33 - i * 0.44);
+          piece(dx, h + i * w * 0.38, dz, width, w * 0.38, width * 0.86, cap);
+        }
+      }
+      piece(2.5, 2.4, 0, 5.2, 0.88, 1.7, shadow);
+    }
+  }
+  crown(mainX - side * 17, -20.8 + highShore * 0.83, -72, 0.62, false);
+  crown(mainX, -12.6 + highShore, -52, 1.08, true);
+  const flank = -side * 61;
+  island(flank, -12.7, -48, 15, 5, true);
+  for (const [dx, size] of [[-2.8, 1], [2.4, 0.59]]) {
+    faceted(flank + dx, -12.7, -48, 3.3 * size, 2.72 * size, 2.74 * size, stone);
+    faceted(flank + dx, -12.7 + 2.72 * size, -48, 2 * size, 1.73 * size, 1.83 * size, roof);
+    faceted(flank + dx + 0.13, -12.7 + 4.45 * size, -48, 0.79 * size, 1.05 * size, 0.72 * size, roof);
+  }
+  island(-side * 49, -15.7, -53, 6.8, 3.4, false);
+  island(mainX + side * 16, -15.8, -55, 5.6, 3.5, false);
 }

@@ -1991,6 +1991,9 @@ export class Game {
           finishEnter();
           return;
         }
+        walkedEdges.add(edgeTo(targetLayer, currentIndex, targetIdx));
+        availableEdges.clear();
+        realm.setPathState({ walked: walkedEdges, available: availableEdges, preview: new Set(), chosen: '' });
         origin?.remove();
         nodes.forEach(el => {
           if (!el.matches('.current,.can')) return;

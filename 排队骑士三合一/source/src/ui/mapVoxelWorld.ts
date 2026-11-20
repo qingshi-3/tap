@@ -10,12 +10,16 @@ import {
 } from 'three';
 import type { MapPathState, MapPulse } from './mapArt';
 import { voxelBatches, type Box, type Motion } from './mapVoxelBatch';
-import { landmark, summit, tree } from './mapVoxelModels';
+import { expeditionMarker, landmark, summit, tree, type MarkerStamp } from './mapVoxelModels';
 import { crossing, distantSkyline, landing } from './mapVoxelArchitecture';
 import { BIOMES, type Biome, type VoxelThemeInfo } from './mapVoxelThemes';
-import { clamp, follow, GRID, TILE_WIDTH, noise, random, type Terrain } from './mapVoxelTerrain';
+import { clamp, follow, GRID, TILE_WIDTH, noise, random, type Site, type Terrain } from './mapVoxelTerrain';
 
 type Rand = () => number;
+const INSTANCE_LIMIT = 7500;
+const FX_RESERVE = 500;
+const SCENERY_LIMIT = INSTANCE_LIMIT - FX_RESERVE;
+const PULSE_SLOTS = 48;
 const pick = (c: number[], r: number) => c[Math.min(c.length - 1, Math.floor(r * c.length))];
 function tint(c: number, factor: number) {
   return (
@@ -119,26 +123,23 @@ function riverLight(box: Box, land: Terrain, b: Biome) {
   }
 }
 
-function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand) {
+function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand, lava: boolean) {
   // Each wet column ends at its own cliff lip, even on a diagonally stepped shoreline.
-  const lip = [...land.cells.values()].filter(c => c.wet && c.z > 8 && !land.at(c.x, c.z + GRID));
-  const outlet = lip.length
-    ? lip
-    : [...land.cells.values()]
-        .filter(c => c.wet && c.z > 8)
-        .sort((a, b) => b.z - a.z)
-        .slice(0, 2);
+  const outlet = [...land.cells.values()].filter(c => c.wet && !land.at(c.x, c.z + GRID));
   if (!outlet.length) return null;
   const center = new Vector3();
   const cascade = new Color(b.water).lerp(new Color(b.foam), 0.25).getHex();
+  const vapor = lava ? 0xaa655d : new Color(b.foam).lerp(new Color(0xd1e2ea), 0.52).getHex();
   for (const c of outlet) {
     const z = c.z + GRID * 0.48,
       level = land.waterLevel(c.z),
       base = c.root - 3.8;
     center.add(new Vector3(c.x, level, z));
+    let impact = 0;
     for (let strand = 0; strand < 2; strand++) {
       const x = c.x + (TILE_WIDTH * (strand - 0.5)) / 2,
         bottom = base - rng() * 1.4;
+      impact += bottom / 2;
       box(x, bottom, z, TILE_WIDTH / 2, level - bottom, 0.29, tint(cascade, 0.91 + strand * 0.1), 'water');
       box(x, level - 0.17, z + 0.05, TILE_WIDTH / 2, 0.19, 0.40, cascade, 'light');
       // A bright head and a longer blue (or molten) tail travel together. The
@@ -162,16 +163,23 @@ function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand) {
         });
       }
     }
+    // A low, overlapping bed catches the ends of both strands. Vapour rolls
+    // out from this same stepped shoreline, with sparks rising above hot rock.
+    box(c.x, impact - 0.48, z + 0.26, TILE_WIDTH * 1.7, 1.08, 1.73, vapor, 'mist');
     for (let j = 0; j < 5; j++) {
       const a = rng() * Math.PI * 2,
         phase = rng(),
-        s = 0.18 + rng() * 0.46;
-      box(c.x, base, z, s, s * 0.67, s, b.foam, 'cloud', (o, t) => {
-        const u = (phase + t * 0.57) % 1;
-        o.position.x += Math.cos(a) * u * 1.6;
-        o.position.z += Math.sin(a) * u * 1.1;
-        o.position.y += Math.sin(u * Math.PI) * 0.85;
-        o.scale.multiplyScalar(0.1 + Math.sin(u * Math.PI) * 0.95);
+        size = rng(),
+        puff = j < 3,
+        w = puff ? 1.15 + size * 0.9 : 0.17 + size * 0.18;
+      box(c.x, impact, z + 0.48, w, w * (puff ? 0.57 : 1.25), w * 0.84,
+        puff ? vapor : lava ? 0xffa150 : b.foam, puff ? 'mist' : 'light', (o, t) => {
+        const u = (phase + t * (puff ? 0.38 : 0.55)) % 1;
+        const envelope = Math.sin(u * Math.PI);
+        o.position.x += Math.cos(a) * (0.25 + u * 2.35);
+        o.position.z += (0.4 + Math.sin(a) * 0.72) * u;
+        o.position.y += puff ? u * 1.1 : lava ? u * 2.8 : envelope * 1.38;
+        o.scale.multiplyScalar(envelope * (puff ? 0.7 + u * 1.2 : 1));
       });
     }
   }
@@ -179,7 +187,7 @@ function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand) {
   const middle = outlet.reduce((closest, c) => Math.abs(c.x - center.x) < Math.abs(closest.x - center.x) ? c : closest);
   const front = middle.z + GRID * 0.48 + 0.3;
   aura(box, middle.x, land.waterLevel(middle.z) - 0.26, front, 3.7, 1.75, b.foam);
-  aura(box, middle.x, middle.root - 3.68, front + 0.5, 3.4, 1.55, cascade, 2.1);
+  aura(box, middle.x, middle.root - 4.35, front + 0.78, 4.6, 2.15, lava ? 0xeb593c : cascade, 2.1);
   return center;
 }
 
@@ -450,15 +458,15 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
   const scene = new Scene(),
     b = BIOMES[theme.id],
     lava = theme.id === 'ashen_citadel';
-  const batch = voxelBatches(scene, lava),
+  const batch = voxelBatches(scene, lava, SCENERY_LIMIT),
     { box } = batch,
     rng = random(51793);
   geology(box, land, b, theme);
   riverLight(box, land, b);
-  const lip = waterfall(box, land, b, rng);
+  const lip = waterfall(box, land, b, rng, lava);
   const busy = infrastructure(box, land, theme, b);
   heavens(box, theme, b, random(16123));
-  const wonder = garden(box, land, theme, b, rng, busy, () => 7000 - batch.count);
+  const wonder = garden(box, land, theme, b, rng, busy, () => SCENERY_LIMIT - batch.count);
   wonderLight(box, wonder.x, wonder.h, wonder.z, theme.id, b);
   batch.finish();
   const key = new DirectionalLight(b.key, theme.tone === 'night' ? 1.72 : 2.02);
@@ -488,21 +496,17 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     scene.add(spill);
   }
 
-  // Pack only visible route beads and pulse particles in one extra emissive draw call.
+  // Markers, visible route beads and interaction bursts share one emissive draw.
   const trails = [...land.roads.values()].map(road => ({
     road,
+    destination: land.sites.get(road.key.split('->')[1])!,
     mode: 0,
     wanted: Math.max(2, Math.ceil(road.length / 0.48)),
   }));
-  const beadBudget = Math.max(
-    0,
-    Math.min(
-      trails.reduce((sum, e) => sum + e.wanted, 0),
-      7500 - batch.count - 48,
-    ),
-  );
+  const routeSlots = trails.reduce((sum, trail) => sum + trail.wanted, 0);
+  const fxCapacity = Math.min(INSTANCE_LIMIT - batch.count, routeSlots + FX_RESERVE);
   const beads: { p: Vector3; yaw: number; tilt: number; length: number; dist: number; mode: number }[] = [];
-  const fx = batch.effects(beadBudget + 48);
+  const fx = batch.effects(fxCapacity);
   fx.count = 0;
   fx.instanceMatrix.setUsage(DynamicDrawUsage);
   const pose = new Object3D(),
@@ -510,14 +514,27 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
   const pulse = new Vector3();
   let burst = -10;
   let pulseKind: MapPulse = 'depart';
+  let current: Site | undefined;
+  const reachable = new Set<Site>();
+  function markers(stamp: MarkerStamp, t: number) {
+    expeditionMarker(stamp, 'current', current?.pos ?? land.gate, current?.spec.kind, t);
+    for (const site of reachable) expeditionMarker(stamp, 'can', site.pos, site.spec.kind, t);
+  }
   function state(st: MapPathState) {
     let wanted = 0;
+    current = undefined;
+    reachable.clear();
     for (const t of trails) {
       const key = t.road.key;
       t.mode = st.walked.has(key) ? 1 : st.chosen === key ? 4 : st.available.has(key) ? 2 : st.preview.has(key) ? 3 : 0;
       if (t.mode) wanted += t.wanted;
+      // The last visited layer owns the flag even when inspecting a future branch or the final keep.
+      if (t.mode === 1 && t.destination.spec.layer > (current?.spec.layer ?? -1)) current = t.destination;
+      if (st.available.has(key)) reachable.add(t.destination);
     }
-    let budget = Math.min(wanted, beadBudget);
+    let markerCount = 0;
+    markers(() => { markerCount++; }, 0);
+    let budget = Math.min(wanted, Math.max(0, fxCapacity - PULSE_SLOTS - markerCount));
     beads.length = 0;
     for (const trail of trails) {
       if (!trail.mode) continue;
@@ -543,18 +560,27 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     }
   }
   const hues = [0, 0xffd266, 0x74ffe6, 0xb8d4c8, 0x5effd8];
+  let slot = 0;
+  function stamp(c: number) {
+    if (slot >= fxCapacity) return;
+    pose.updateMatrix();
+    fx.setMatrixAt(slot, pose.matrix);
+    fx.setColorAt(slot++, paint.setHex(c));
+  }
+  const stampMarker: MarkerStamp = (x, y, z, w, h, d, color, yaw = 0, roll = 0) => {
+    pose.position.set(x, y, z);
+    pose.rotation.set(0, yaw, roll, 'YXZ');
+    pose.scale.set(w, h, d);
+    stamp(color);
+  };
   function frame(t: number) {
     batch.animate(t);
     fires.forEach((f, i) => {
       f.intensity = 12 + 1.9 * Math.sin(t * 8.3 + i) + Math.sin(t * 13 + i);
     });
     if (lava && spill) spill.intensity = 31 + 5 * Math.sin(t * 2.6);
-    let slot = 0;
-    const stamp = (c: number) => {
-      pose.updateMatrix();
-      fx.setMatrixAt(slot, pose.matrix);
-      fx.setColorAt(slot++, paint.setHex(c));
-    };
+    slot = 0;
+    markers(stampMarker, t);
     for (const bead of beads) {
       const { mode } = bead;
       const wave = 0.5 + 0.5 * Math.cos(bead.dist * 1.78 - t * (mode === 4 ? 8 : 3.6));
@@ -579,7 +605,7 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
         stamp(0xffdf88);
       }
     } else if (u >= 0 && u < 1)
-      for (let i = 0; i < 48; i++) {
+      for (let i = 0; i < PULSE_SLOTS; i++) {
         const a = (i * Math.PI * 2) / 32,
           ring = i < 32,
           radius = ring ? 0.62 + 3.08 * (1 - (1 - u) ** 2) : 0.6 + u * (1.3 + (i % 5) * 0.32);

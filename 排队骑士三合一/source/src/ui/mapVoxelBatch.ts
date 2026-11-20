@@ -12,7 +12,7 @@ import {
 } from 'three';
 import { voxelGlowMaterial } from './mapVoxelGlow';
 
-export type Batch = 'solid' | 'light' | 'water' | 'cloud' | 'aura';
+export type Batch = 'solid' | 'light' | 'water' | 'cloud' | 'mist' | 'aura';
 export type Motion = (pose: Object3D, seconds: number) => void;
 export type Box = (
   x: number,
@@ -47,7 +47,7 @@ function place(pose: Object3D, b: Block, t: number) {
 }
 
 // A block's y argument is its foot so roofs, masonry courses and stairs stack exactly.
-export function voxelBatches(scene: Scene, lava: boolean) {
+export function voxelBatches(scene: Scene, lava: boolean, staticLimit = Infinity) {
   const geometry = new BoxGeometry(1, 1, 1);
   const billboard = new PlaneGeometry(1, 1);
   const materials = {
@@ -57,11 +57,13 @@ export function voxelBatches(scene: Scene, lava: boolean) {
       ? new MeshBasicMaterial({ toneMapped: false })
       : new MeshLambertMaterial({ transparent: true, opacity: 0.81, depthWrite: false }),
     cloud: new MeshLambertMaterial({ depthWrite: true }),
+    mist: new MeshBasicMaterial({ transparent: true, opacity: 0.34, depthWrite: false, toneMapped: false }),
     aura: voxelGlowMaterial(),
   };
-  const blocks: Record<Batch, Block[]> = { solid: [], light: [], water: [], cloud: [], aura: [] };
+  const blocks: Record<Batch, Block[]> = { solid: [], light: [], water: [], cloud: [], mist: [], aura: [] };
   let count = 0;
   const box: Box = (x, base, z, w, h, d, color, batch = 'solid', motion, yaw = 0) => {
+    if (count >= staticLimit) return;
     count++;
     blocks[batch].push({ x, y: base + h / 2, z, w, h, d, color, yaw, motion });
   };
@@ -74,7 +76,7 @@ export function voxelBatches(scene: Scene, lava: boolean) {
     const mesh = new InstancedMesh(aura ? billboard : geometry, material, Math.max(1, max));
     if (aura) {
       mesh.userData.mapAura = true;
-      mesh.renderOrder = 2;
+      mesh.renderOrder = 3;
     }
     meshes.push(mesh);
     mesh.frustumCulled = false;
@@ -90,6 +92,7 @@ export function voxelBatches(scene: Scene, lava: boolean) {
       const mesh = meshFor(list.length, materials[batch]);
       mesh.castShadow = mesh.receiveShadow = batch === 'solid';
       if (batch === 'water') mesh.renderOrder = 1;
+      if (batch === 'mist') mesh.renderOrder = 2;
       const moving: { slot: number; block: Block }[] = [];
       list.forEach((block, slot) => {
         place(pose, block, 0);

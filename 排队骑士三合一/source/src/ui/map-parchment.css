@@ -515,6 +515,12 @@
   box-shadow: 0 0 0 1px #159d91;
 }
 #stage .map-parchment .map-node.can:not(.current) .mn-plate { background: #173b3d; }
+/* With a rendered realm the flag and rune own these silhouettes. Keep the
+   pad's layout box for pointer targets and the departure burst anchor. */
+#stage .map-parchment:has(.map-realm-canvas) .mn-signal,
+#stage .map-parchment:has(.map-realm-canvas) .map-node.can .mn-pad {
+  visibility: hidden;
+}
 @keyframes mapRouteArrow {
   0%, 84%, 100% { transform: translateX(-1px); }
   42% { transform: translateX(3px); }
@@ -627,6 +633,10 @@
   left: 6px;
   background: #b5fff2;
 }
+#stage .map-parchment:has(.map-realm-canvas) .mk-current::before {
+  clip-path: polygon(0 0, 20% 0, 20% 12%, 83% 12%, 83% 24%, 100% 24%, 100% 58%, 70% 58%, 70% 66%, 20% 66%, 20% 100%, 0 100%);
+}
+#stage .map-parchment:has(.map-realm-canvas) .mk-next::before { scale: -1 1; }
 
 #stage .map-parchment .map-info {
   display: flex;

@@ -1,3 +1,5 @@
+import type { Vector3 } from 'three';
+import type { MapNodeKind } from './mapArt';
 import type { Box, Motion } from './mapVoxelBatch';
 import type { Biome } from './mapVoxelThemes';
 import type { Site } from './mapVoxelTerrain';
@@ -148,6 +150,102 @@ function castle(box: Box, x: number, y: number, z: number, theme: string, b: Bio
     o.scale.x *= crest;
     o.scale.y *= crest;
   });
+
+  // Two forked ruby beacons grow out of the gate-tower roofs. The space
+  // between their tips frames the flag on the taller keep behind them.
+  for (const side of [-1, 1]) {
+    const cx = x + side * 2.24, cz = z - 0.62, base = y + 5.13;
+    const breathe: Motion = (o, t) => {
+      const rise = 0.95 + 0.14 * Math.sin(t * 1.46 + side * 0.52);
+      o.position.y = base + (o.position.y - base) * rise;
+      o.scale.y *= rise;
+    };
+    box(cx, base - 0.14, cz, 1.12, 0.34, 1.01, 0x66364a);
+    box(cx + side * 0.23, base, cz + 0.09, 2.76, 3.78, 1, 0xa34c65, 'aura', breathe);
+    box(cx + side * 0.13, base + 0.17, cz, 1.11, 1.80, 0.85, 0x94465f, 'mist', breathe);
+    box(cx + side * 0.53, base + 1.35, cz, 0.72, 1.45, 0.59, 0xa45168, 'mist', breathe);
+    box(cx, base + 0.17, cz, 0.79, 0.95, 0.70, 0x84384e, 'light', breathe);
+    box(cx + side * 0.18, base + 1.03, cz, 0.67, 0.78, 0.56, 0xa64e64, 'light', breathe);
+    box(cx + side * 0.44, base + 1.71, cz, 0.48, 0.77, 0.46, 0xbb6979, 'light', breathe);
+    box(cx + side * 0.63, base + 2.39, cz, 0.34, 0.70, 0.30, 0xc37f88, 'light', breathe);
+    box(cx - side * 0.38, base + 0.77, cz + 0.09, 0.40, 0.85, 0.42, 0xab586c, 'light', breathe);
+    box(cx - side * 0.55, base + 1.55, cz + 0.09, 0.25, 0.48, 0.30, 0xbe7985, 'light', breathe);
+  }
+  // The stone shield stays visible while its red halo slowly wells up and recedes.
+  box(x, y + 2.07, z + 0.84, 2.32, 1.82, 1, 0xaa5d6c, 'aura', (o, t) => {
+    const pulse = 0.90 + 0.15 * Math.cos(t * 1.55);
+    o.scale.x *= pulse;
+    o.scale.y *= pulse;
+  });
+}
+
+/** A centred cuboid in world coordinates. Rotations are yaw, then local roll. */
+export type MarkerStamp = (
+  x: number, y: number, z: number, width: number, height: number, depth: number,
+  color: number, yaw?: number, roll?: number,
+) => void;
+
+// Glints sit on the front face of the stone plinth, wagon counter or castle arch.
+// Each row gives the half-spacing, height and depth relative to the site's position.
+const markerTrim: Record<MapNodeKind, readonly [number, number, number]> = {
+  fight: [0.9, 0.32, -0.81],
+  elite: [0.83, 0.28, -0.81],
+  camp: [0.8, 0.15, -0.80],
+  shop: [1.22, 1.49, -0.73],
+  treasure: [1.17, 0.23, -0.65],
+  event: [1.08, 0.24, -0.77],
+  boss: [1.09, 2.96, -1.06],
+};
+
+export function expeditionMarker(
+  stamp: MarkerStamp, kind: 'current' | 'can', pos: Vector3, siteKind: MapNodeKind | undefined, t: number,
+) {
+  const { x, y, z } = pos;
+  const phase = x * 0.32 + z * 0.22;
+  if (kind === 'current') {
+    // The banner flies outwards from the approach, clear of the landmark and its front plate.
+    // At the starting quay the existing harbour pennant occupies the left side.
+    const dir = siteKind ? -1 : 1;
+    const poleX = x + dir * (siteKind === 'boss' ? 3.57 : siteKind ? 1.8 : 0.99);
+    const poleZ = z + 0.33;
+    const hover = y + 0.15 * Math.sin(2.12 * t + phase);
+    const fold = 0.10 * Math.sin(2.66 * t + phase);
+    const clothX = poleX + dir * 0.80;
+    const hemZ = poleZ + fold;
+    stamp(poleX, y + 0.13, poleZ, 0.58, 0.13, 0.52, 0x8a573c, Math.PI / 4);
+    stamp(poleX, y + 0.26, poleZ, 0.31, 0.14, 0.31, 0xf7c56d, Math.PI / 4);
+    stamp(poleX, hover + 1.91, poleZ, 0.25, 2.52, 0.24, 0x70434a);
+    stamp(poleX, hover + 2.01, poleZ + 0.13, 0.11, 2.54, 0.09, 0xffcf76);
+    stamp(poleX, hover + 3.32, poleZ, 0.35, 0.35, 0.29, 0xffde8b, 0, Math.PI / 4);
+    stamp(clothX, hover + 2.57, poleZ, 1.52, 1.12, 0.24, 0x804050);
+    stamp(clothX, hover + 2.69, poleZ + 0.13, 1.50, 0.81, 0.09, 0xe7a33f);
+    stamp(poleX + dir * 0.78, hover + 3.09, poleZ + 0.15, 1.47, 0.15, 0.13, 0xffdd87);
+    stamp(poleX + dir * 1.60, hover + 2.75, hemZ, 0.48, 0.75, 0.25, 0xb65a49);
+    stamp(poleX + dir * 1.83, hover + 2.94, hemZ + 0.03, 0.30, 0.37, 0.24, 0xf4b454);
+    stamp(poleX + dir * 0.33, hover + 1.98, poleZ, 0.41, 0.45, 0.21, 0xac5348);
+    // A pale four-point spur on the field gives the knight's standard its own device.
+    stamp(clothX, hover + 2.68, poleZ + 0.20, 0.43, 0.43, 0.12, 0x834652, 0, Math.PI / 4);
+    stamp(clothX, hover + 2.68, poleZ + 0.28, 0.61, 0.14, 0.09, 0xffefbb);
+    stamp(clothX, hover + 2.68, poleZ + 0.29, 0.15, 0.62, 0.10, 0xffefbb);
+    return;
+  }
+
+  const breath = (1 + Math.cos(2.26 * t + phase)) / 2;
+  const radius = (siteKind === 'boss' ? 1.93 : 1.56) + 0.15 * breath;
+  for (let sx = -1; sx <= 1; sx += 2) {
+    // Split the rune at the front and back, leaving the road and node plate visible.
+    for (let sz = -1; sz <= 1; sz += 2) {
+      const yaw = sx * sz * 0.60;
+      const cx = x + sx * radius, cz = z + 0.07 + sz * 0.41;
+      stamp(cx, y + 0.08, cz, 1.20, 0.15, 0.43, 0x1d676c, yaw);
+      stamp(cx, y + 0.18, cz, 0.86 + 0.19 * breath, 0.10, 0.23, 0x80ebcf, yaw);
+    }
+    stamp(x + sx * (radius + 0.41), y + 0.24, z + 0.07, 0.27, 0.15, 0.27, 0xb6f6d9, Math.PI / 4);
+    if (siteKind) {
+      const [half, height, depth] = markerTrim[siteKind];
+      stamp(x + sx * half, y + height, z + depth, 0.36 + 0.17 * breath, 0.12, 0.11, 0x8acfc0);
+    }
+  }
 }
 
 export function landmark(box: Box, site: Site, theme: string, b: Biome) {
