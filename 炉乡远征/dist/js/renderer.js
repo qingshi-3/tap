@@ -894,11 +894,19 @@ export class BoardRenderer {
       ctx.beginPath();
       cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
       ctx.closePath();
-      ctx.fillStyle = `rgba(124, 82, 232, ${.16 + pulse * .1})`;
+      const isCenter = marker.showLabel !== false;
+      ctx.fillStyle = isCenter ? `rgba(104, 48, 212, ${.34 + pulse * .16})` : `rgba(124, 82, 232, ${.11 + pulse * .06})`;
       ctx.fill();
-      ctx.strokeStyle = 'rgba(182, 146, 255, .75)';
-      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = isCenter ? '#e0b8ff' : 'rgba(176, 138, 255, .42)';
+      ctx.lineWidth = isCenter ? 2.4 : 1.1;
       ctx.stroke();
+      if (isCenter) {
+        const cx = cell.center.x, cy = cell.center.y, r = Math.min(cell.width, cell.height) * .32;
+        ctx.strokeStyle = 'rgba(232, 200, 255, .92)';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
+        ctx.beginPath(); ctx.arc(cx, cy, r * .48, 0, Math.PI * 2); ctx.stroke();
+      }
     }
     const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
     glow.addColorStop(0, isDamage ? 'rgba(255,78,52,.36)' : isGravity ? 'rgba(164,122,255,.32)' : 'rgba(110,183,255,.32)');

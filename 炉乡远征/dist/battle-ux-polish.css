@@ -389,3 +389,88 @@
   font: 700 14px/1 var(--font-ui, sans-serif);
   box-shadow: inset 0 1px rgba(255, 248, 220, 0.6), inset 0 -2px rgba(96, 58, 10, 0.6);
 }
+
+/* 13. Mulligan screen polish: move "待换" badge to top of card so name/stats stay 100% readable */
+.opening-hand > p {
+  padding: 5px 16px;
+  border: 1px solid rgba(201, 164, 92, 0.45);
+  border-radius: 999px;
+  background: rgba(18, 22, 38, 0.9);
+  color: #fff2d4;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+.match .opening-cards .replacing .mulligan-mark {
+  inset: 6px 10px auto;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #ffd97d;
+  background: rgba(142, 62, 24, 0.94);
+  color: #fff4d6;
+  font-size: 11px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand .opening-card-toggle {
+  height: 36px;
+  min-height: 36px;
+  border: 1px solid rgba(186, 214, 232, 0.35);
+  border-radius: 4px;
+  background: linear-gradient(180deg, #344462, #1f293e);
+  color: #eaf2fb;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.14), inset 0 -2px rgba(6, 10, 18, 0.65);
+}
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand .opening-card-toggle[aria-pressed="true"] {
+  border-color: #f3c861;
+  background: linear-gradient(180deg, #b86624, #7c3f14);
+  color: #fff4d6;
+}
+
+/* 14. Trim hand-zone height slightly on 844px so bottom-row units (e.g. starfall-03) have more breathing room */
+@media (min-width: 621px) and (min-height: 351px) {
+  .match .hand-zone {
+    height: calc(110px + var(--safe-bottom));
+  }
+  .match .hand-card {
+    width: 70px;
+  }
+}
+
+/* 15. Atlas Boss & Adventure expansion badges */
+.atlas-goal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.atlas-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 16px;
+}
+.atlas-tag-boss {
+  background: linear-gradient(180deg, #a8322c, #6e1c1a);
+  border: 1px solid #ff9e8a;
+  color: #fff2df;
+}
+.atlas-tag-adv {
+  background: linear-gradient(180deg, #2d4e78, #1b3152);
+  border: 1px solid #86c8ff;
+  color: #dcf2ff;
+}
+
+/* 16. Clean up home screen music button stray outer frame & gift badge spacing */
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-music-toggle {
+  outline: none;
+  box-shadow: inset 0 1px rgba(255, 244, 210, 0.45), inset 0 -3px rgba(96, 58, 12, 0.55);
+}
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-music-toggle::before,
+:root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-music-toggle::after {
+  content: none;
+}
