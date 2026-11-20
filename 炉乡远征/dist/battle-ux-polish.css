@@ -474,3 +474,138 @@
 :root[data-ui="qibing"][data-ui] #expedition-home .faction-menu .menu-music-toggle::after {
   content: none;
 }
+
+/* ============================================================================
+   17. Full-Game Cohesive Pixel Tactical UI Controls & Micro-Interactions
+   ============================================================================ */
+
+/* Global primary CTA shimmer + tactile mechanical press across Home, Atlas, Prep, Mulligan, Battle */
+@keyframes ui-gold-sheen {
+  0%, 72% { transform: translateX(-140%) skewX(-24deg); opacity: 0; }
+  78% { opacity: 0.42; }
+  94% { transform: translateX(260%) skewX(-24deg); opacity: 0.25; }
+  100% { transform: translateX(260%) skewX(-24deg); opacity: 0; }
+}
+@keyframes ui-dialog-pop {
+  from { opacity: 0; transform: scale(0.95) translateY(5px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes ui-hint-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+:root[data-ui="qibing"][data-ui] :is(.menu-play, .atlas-start, .expedition-primary, .opening-confirm, #end-turn):not(:disabled) {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #ffe49b;
+  box-shadow: inset 0 2px rgba(255, 250, 224, 0.55), inset 0 -3px rgba(108, 64, 10, 0.72), 0 4px 12px rgba(0, 0, 0, 0.45);
+  transition: transform 90ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] :is(.menu-play, .atlas-start, .expedition-primary, .opening-confirm, #end-turn):not(:disabled)::after {
+  content: '';
+  position: absolute;
+  inset: -4px auto -4px 0;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(255, 250, 224, 0.75), transparent);
+  pointer-events: none;
+  animation: ui-gold-sheen 4.4s ease-in-out infinite;
+}
+:root[data-ui="qibing"][data-ui] :is(.menu-play, .atlas-start, .expedition-primary, .opening-confirm, #end-turn):not(:disabled):active {
+  transform: translateY(2px);
+  filter: brightness(0.92);
+  box-shadow: inset 0 2px rgba(72, 42, 6, 0.55), 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+
+/* Unified stepped-pixel secondary controls across Home, Atlas, Prep, Battle */
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed) {
+  border: 1px solid rgba(176, 206, 232, 0.34);
+  box-shadow: inset 0 1px rgba(232, 244, 255, 0.16), inset 0 -3px rgba(6, 10, 20, 0.72), 0 2px 8px rgba(0, 0, 0, 0.42);
+  transition: transform 85ms ease, filter 110ms ease, border-color 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed):hover:not(:disabled) {
+  border-color: rgba(244, 208, 126, 0.65);
+  filter: brightness(1.09);
+}
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed):active:not(:disabled) {
+  transform: translateY(1.5px);
+  filter: brightness(0.88);
+}
+
+/* Unified obsidian-purple & gold pixel modal chrome + crisp pop-in */
+:root[data-ui="qibing"][data-ui] :is(#objective-dialog[open], #audio-settings[open], #cloud-dialog[open], #gift-code-dialog[open], .opening-card-detail[open], .adventure-gift[open]) {
+  border: 2px solid #c9a45c;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #241f3a 0%, #151326 100%);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.78), inset 0 1px rgba(255, 236, 184, 0.24);
+  animation: ui-dialog-pop 170ms cubic-bezier(0.2, 0.85, 0.3, 1) both;
+}
+:root[data-ui="qibing"][data-ui] :is(#game-result:not([hidden]) .result-panel, #confirm-screen:not([hidden]) .confirm-panel) {
+  border: 2px solid #c9a45c;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #241f3a 0%, #151326 100%);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.78), inset 0 1px rgba(255, 236, 184, 0.24);
+  animation: ui-dialog-pop 190ms cubic-bezier(0.2, 0.85, 0.3, 1) both;
+}
+
+/* End-turn hint bubble: crisp pixel-gold tag with gentle bobbing */
+.match-footer .end-turn-hint {
+  border: 1px solid #fff0be;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #fae09c, #d9a74c);
+  color: #261808;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55);
+  animation: ui-hint-bob 1.5s ease-in-out infinite;
+}
+.match-footer .end-turn-hint::after {
+  background: #d9a74c;
+  border-right: 1px solid #fff0be;
+  border-bottom: 1px solid #fff0be;
+}
+
+/* Hand card tactile hover/select lift & glow */
+.match .hand .hand-card {
+  transition: transform 120ms cubic-bezier(0.2, 0.85, 0.3, 1), filter 120ms ease;
+}
+.match .hand .hand-card:hover:not(:disabled) {
+  transform: translateY(-6px);
+  filter: brightness(1.08) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.55));
+  z-index: 6;
+}
+.match .hand .hand-card.selected {
+  transform: translateY(-10px);
+  filter: brightness(1.14) drop-shadow(0 0 10px rgba(120, 232, 255, 0.75));
+  z-index: 8;
+}
+
+/* Turn toast banner: crisp gold-framed tactical war-banner */
+.match .turn-toast {
+  border: 2px solid #e3bc6d;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(34, 28, 56, 0.96), rgba(18, 16, 34, 0.98));
+  color: #fff3d1;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.72), inset 0 1px rgba(255, 240, 196, 0.35), 0 0 22px rgba(235, 188, 92, 0.25);
+  letter-spacing: 0.06em;
+}
+
+/* Deck prep mana filter gems & home faction cards tactile highlight */
+:root[data-ui="qibing"][data-ui] .menu-faction,
+:root[data-ui="qibing"][data-ui] .atlas-chapter,
+:root[data-ui="qibing"][data-ui] .atlas-level {
+  transition: transform 100ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] :is(.menu-faction, .atlas-chapter, .atlas-level):active:not(:disabled) {
+  transform: translateY(1.5px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-ui="qibing"][data-ui] :is(.menu-play, .atlas-start, .expedition-primary, .opening-confirm, #end-turn)::after,
+  :root[data-ui="qibing"][data-ui] :is(#objective-dialog, #audio-settings, #cloud-dialog, #gift-code-dialog, .opening-card-detail, .adventure-gift, .result-panel, .confirm-panel),
+  .match-footer .end-turn-hint {
+    animation: none !important;
+  }
+  .match .hand .hand-card,
+  :root[data-ui="qibing"][data-ui] button {
+    transition: none !important;
+  }
+}

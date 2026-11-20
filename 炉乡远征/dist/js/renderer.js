@@ -560,7 +560,7 @@ export class BoardRenderer {
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
     const sceneMarkers = [...encounterMarkers(state), ...adventureMarkers(state)];
     const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
-    this.hasActiveTelegraph = marks.size > 0 || sceneMarkers.some(m => m.kind === 'damage' || m.kind === 'gravity');
+    this.hasActiveTelegraph = marks.size > 0 || sceneMarkers.some(m => m.kind === 'damage' || m.kind === 'gravity') || Boolean(movingUnit || options.movementPreview?.path?.length > 1 || options.adventurePreview);
 
     for (let y = 0; y < metrics.rows; y++) {
       for (let x = 0; x < metrics.columns; x++) {
@@ -673,31 +673,45 @@ export class BoardRenderer {
     const castStep = steps.find(s => s.kind === 'cast');
     const abilityId = castStep?.abilityId;
     ctx.save();
+    const pNow = performance.now(), pRed = this.motionPreference.matches;
+    const drawMiniChevron = (x, y, angle, outlineCol, bodyCol, tipCol, px = 2.3) => {
+      ctx.save();
+      ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(angle);
+      const pts = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+      ctx.fillStyle = outlineCol;
+      for (const [bx, by] of pts) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+      ctx.fillStyle = bodyCol;
+      for (const [bx, by] of pts) ctx.fillRect(bx * px, by * px, px, px);
+      ctx.fillStyle = tipCol;
+      ctx.fillRect(0.4 * px, -0.4 * px, px, px);
+      ctx.restore();
+    };
     if (abilityId === 'chain-lightning') {
       const chains = steps.filter(s => s.kind === 'chain' && s.from && s.to);
+      const phase = pRed ? 0.5 : (pNow / 460) % 1;
       for (const link of chains) {
         const a = this.cellGeometry(metrics, link.from.x, link.from.y).center;
         const b = this.cellGeometry(metrics, link.to.x, link.to.y).center;
-        const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2 - 12;
+        const p0 = { x: a.x, y: a.y - 14 }, p2 = { x: b.x, y: b.y - 14 };
+        const p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - 16 };
         ctx.save();
-        ctx.strokeStyle = 'rgba(96, 232, 255, 0.45)';
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'round';
-        ctx.beginPath(); ctx.moveTo(a.x, a.y - 14); ctx.quadraticCurveTo(midX, midY, b.x, b.y - 14); ctx.stroke();
-        ctx.strokeStyle = '#e8fdff';
-        ctx.lineWidth = 2.6;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y - 14); ctx.quadraticCurveTo(midX, midY, b.x, b.y - 14); ctx.stroke();
+        ctx.strokeStyle = 'rgba(72, 224, 255, 0.34)'; ctx.lineWidth = 6; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
+        for (let k = 0; k < 3; k++) {
+          const t = ((k + phase) / 3) % 1, u = 1 - t;
+          const x = u*u*p0.x + 2*u*t*p1.x + t*t*p2.x, y = u*u*p0.y + 2*u*t*p1.y + t*t*p2.y;
+          const tx = 2*u*(p1.x - p0.x) + 2*t*(p2.x - p1.x), ty = 2*u*(p1.y - p0.y) + 2*t*(p2.y - p1.y);
+          drawMiniChevron(x, y, Math.atan2(ty, tx), '#092c40', '#5ee8ff', '#ffffff', 2.4);
+        }
         ctx.restore();
       }
       chains.forEach((link, idx) => {
         const pt = this.cellGeometry(metrics, link.to.x, link.to.y).center;
         ctx.save();
-        ctx.fillStyle = '#0e3b52';
-        ctx.strokeStyle = '#8cf2ff';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(pt.x, pt.y - 26, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '700 11px Lato, sans-serif';
+        ctx.fillStyle = '#0c334a'; ctx.strokeStyle = '#8cf2ff'; ctx.lineWidth = 1.8;
+        ctx.fillRect(Math.round(pt.x - 9), Math.round(pt.y - 35), 18, 18);
+        ctx.strokeRect(Math.round(pt.x - 9), Math.round(pt.y - 35), 18, 18);
+        ctx.fillStyle = '#ffffff'; ctx.font = '700 11px Lato, sans-serif';
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(String(idx + 1), pt.x, pt.y - 26);
         ctx.restore();
@@ -1125,11 +1139,46 @@ export class BoardRenderer {
 
   // Telegraphed boss intent: a frosted cell that resolves on the boss's next turn.
   drawBossMark(ctx, cell) {
-    const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 260) * .5;
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const pulse = reduced ? .5 : .5 + Math.sin(now / 260) * .5;
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
     ctx.save();
     ctx.beginPath(); cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
-    ctx.fillStyle = `rgba(120,210,255,${.34 + pulse * .2})`; ctx.fill();
-    ctx.strokeStyle = '#dff6ff'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = `rgba(76, 188, 255, ${.20 + pulse * .14})`; ctx.fill();
+    const inset = reduced ? 0.08 : 0.06 + pulse * 0.05;
+    const arm = 0.25;
+    const corners = [
+      [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+      [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+      [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+      [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+    ];
+    ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+    for (const [a, c, b] of corners) {
+      ctx.strokeStyle = 'rgba(8, 32, 54, 0.9)'; ctx.lineWidth = 4.2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.strokeStyle = '#7ce8ff'; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+    }
+    const ping = reduced ? 0.35 : (now % 1150) / 1150;
+    const pr = 0.10 + ping * 0.26;
+    const dt = quadPt(0.5, 0.5 - pr), dr = quadPt(0.5 + pr, 0.5), db = quadPt(0.5, 0.5 + pr), dl = quadPt(0.5 - pr, 0.5);
+    ctx.strokeStyle = `rgba(218, 250, 255, ${(1 - ping) * 0.88})`;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(dt.x, dt.y); ctx.lineTo(dr.x, dr.y); ctx.lineTo(db.x, db.y); ctx.lineTo(dl.x, dl.y); ctx.closePath(); ctx.stroke();
+    if (!reduced) {
+      for (let i = 0; i < 3; i++) {
+        const sp = ((now / 1000) + i * 0.33) % 1;
+        const sx = Math.round(cell.center.x + Math.sin(i * 2.1 + sp * 4) * cell.width * 0.24);
+        const sy = Math.round(cell.center.y - cell.height * 0.36 + sp * cell.height * 0.62);
+        ctx.fillStyle = `rgba(220, 250, 255, ${Math.sin(sp * Math.PI) * 0.9})`;
+        ctx.fillRect(sx, sy, 2.5, 2.5);
+      }
+    }
     ctx.restore();
   }
 
@@ -1272,12 +1321,35 @@ export class BoardRenderer {
 
   drawSelectionBox(ctx, metrics, unit) {
     const cell = this.cellGeometry(metrics, unit.x, unit.y);
-    const pulse = this.motionPreference.matches ? 1 : .95 + Math.cos(performance.now()/700*Math.PI*2)*.05;
-    ctx.save(); ctx.translate(cell.center.x,cell.center.y+cell.height*.12); ctx.scale(1,.44);
-    const halo = ctx.createRadialGradient(0,0,cell.width*.14,0,0,cell.width*.48*pulse);
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const pulse = reduced ? 1 : .95 + Math.cos(now / 650 * Math.PI * 2) * .05;
+    const wave = reduced ? .5 : .5 + Math.sin(now / 260) * .5;
+    ctx.save(); ctx.translate(cell.center.x, cell.center.y + cell.height * .12); ctx.scale(1, .44);
+    const halo = ctx.createRadialGradient(0, 0, cell.width * .14, 0, 0, cell.width * .48 * pulse);
     const rgb = unit.owner === 0 ? '134,231,255' : '255,146,119';
-    halo.addColorStop(0,`rgba(${rgb},.06)`); halo.addColorStop(.5,`rgba(${rgb},.64)`); halo.addColorStop(1,`rgba(${rgb},0)`);
-    ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,cell.width*.48*pulse,0,Math.PI*2);ctx.fill();ctx.restore();
+    halo.addColorStop(0, `rgba(${rgb},.08)`); halo.addColorStop(.5, `rgba(${rgb},.62)`); halo.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(0, 0, cell.width * .48 * pulse, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // Crisp breathing pixel corner brackets around the selected tile
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+    const inset = reduced ? 0.07 : 0.05 + wave * 0.045, arm = 0.22;
+    const corners = [
+      [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+      [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+      [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+      [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+    ];
+    ctx.save(); ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+    for (const [a, c, b] of corners) {
+      ctx.strokeStyle = 'rgba(8, 28, 44, 0.85)'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.strokeStyle = unit.owner === 0 ? '#78ecff' : '#ff8a70'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.fillStyle = '#fff5cc';
+      ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+    }
+    ctx.restore();
   }
 
   drawAttackPath(ctx, metrics, source, target) {
@@ -1340,9 +1412,49 @@ export class BoardRenderer {
         rotation = Math.atan2(incoming.y, incoming.x) * 180 / Math.PI;
         flippedY = incoming.x * outgoing.y - incoming.y * outgoing.x < 0;
       } else part = index === 1 ? 'straight_from_start' : 'straight';
-      const image = this.tintedTile(`tile-path-move-${part}`, '#ffffff', rotation, flippedY);
-      if (image) drawTexturedQuad(ctx, image, this.cellPoints(metrics, point.x, point.y), .78);
+      const image = this.tintedTile(`tile-path-move-${part}`, '#c8f6ff', rotation, flippedY);
+      if (image) drawTexturedQuad(ctx, image, this.cellPoints(metrics, point.x, point.y), .58);
     }
+    // Flowing cyan-white pixel chevrons marching along the movement path
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const phase = reduced ? 0.5 : (now / 420) % 1;
+    const px = 2.2;
+    ctx.save();
+    for (let i = 0; i < path.length - 1; i++) {
+      const a = this.cellGeometry(metrics, path[i].x, path[i].y).center;
+      const b = this.cellGeometry(metrics, path[i + 1].x, path[i + 1].y).center;
+      const angle = Math.atan2(b.y - a.y, b.x - a.x);
+      for (const offset of [0, 0.5]) {
+        const t = (phase + offset) % 1;
+        const x = Math.round(a.x + (b.x - a.x) * t), y = Math.round(a.y + (b.y - a.y) * t);
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(angle);
+        ctx.globalAlpha = Math.min(1, t / 0.2, (1 - t) / 0.15) * 0.95;
+        const outline = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+        ctx.fillStyle = '#092b3f';
+        for (const [bx, by] of outline) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+        ctx.fillStyle = '#74efff';
+        for (const [bx, by] of outline) ctx.fillRect(bx * px, by * px, px, px);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0.4 * px, -0.4 * px, px, px);
+        ctx.restore();
+      }
+    }
+    // Pulsing destination pixel diamond
+    const end = path[path.length - 1];
+    if (end) {
+      const cell = this.cellGeometry(metrics, end.x, end.y);
+      const p = reduced ? 0.5 : 0.5 + Math.sin(now / 200) * 0.5;
+      const r = 6 + p * 3;
+      ctx.strokeStyle = '#9cf5ff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cell.center.x, cell.center.y - r);
+      ctx.lineTo(cell.center.x + r * 1.25, cell.center.y);
+      ctx.lineTo(cell.center.x, cell.center.y + r);
+      ctx.lineTo(cell.center.x - r * 1.25, cell.center.y);
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
   }
 
   drawManaRune(ctx, x, y, radius) {
