@@ -438,6 +438,34 @@ export const ADVENTURE_DEFINITIONS = freeze(
 );
 export const getAdventureDefinition = (id) =>
   Object.hasOwn(ADVENTURE_DEFINITIONS, id) ? ADVENTURE_DEFINITIONS[id] : null;
+const rebalancedBossIds = { "starfall-03": 9222, "starfall-09": 9226 };
+const legacyAdventureCards = freeze({
+  ...ADVENTURE_CARDS,
+  9222: { ...ADVENTURE_CARDS[9222], health: 64 },
+  9226: { ...ADVENTURE_CARDS[9226], health: 84 },
+});
+const legacyAdventureDefinitions = freeze(
+  Object.fromEntries(
+    Object.entries(rebalancedBossIds).map(([id, cardId]) => {
+      const definition = getAdventureDefinition(id);
+      return [id, {
+        ...definition,
+        boss: { ...definition.boss, threshold: legacyAdventureCards[cardId].health / 2 },
+      }];
+    }),
+  ),
+);
+export function getAdventureSnapshotRules(id, playerCards) {
+  const legacy = playerCards?.[9222]?.health === legacyAdventureCards[9222].health
+    && playerCards?.[9226]?.health === legacyAdventureCards[9226].health;
+  const cards = legacy ? legacyAdventureCards : ADVENTURE_CARDS;
+  return {
+    cards,
+    definition: legacy && Object.hasOwn(legacyAdventureDefinitions, id)
+      ? legacyAdventureDefinitions[id] : getAdventureDefinition(id),
+    bossCard: cards[rebalancedBossIds[id]],
+  };
+}
 export const ADVENTURE_LEVELS = freeze(
   layouts.map((r, i) => {
     const {

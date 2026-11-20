@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict';
 import { campaignMatch } from './battle-fixture.mjs';
 import { ADVENTURE_LEVELS } from '../dist/js/adventure-content.js';
+import { adventureFinishAction, adventureRules } from '../dist/js/adventure-system.js';
 import {
+  confirmMulligan,
   restoreMatch,
   validateMatch,
   endTurn,
@@ -96,6 +98,98 @@ test('paired metadata/config, forged costs, charges, identity and events are ref
     const b = structuredClone(base);
     mutate(b);
     assert.equal(restoreMatch(b), null);
+  }
+});
+const oldBossHealth = { 9222: 64, 9226: 84 };
+function useOldAdventureBalance(match) {
+  for (const table of Object.values(match.battleCards))
+    for (const [id, health] of Object.entries(oldBossHealth)) table[id].health = health;
+  const boss = findGeneral(match, 1), health = oldBossHealth[boss.cardId];
+  if (health === undefined) return match;
+  const plan = match.enemyPlan.players[1];
+  plan.generalHealth = plan.garrison.find((unit) => unit.id === boss.cardId).health = health;
+  boss.health = boss.maxHealth = health;
+  match.adventure.config.boss.threshold = health / 2;
+  return match;
+}
+test('old and new Starfall battles use their own boss stats and keep queued events frozen', () => {
+  for (const [levelId, oldHealth, newHealth, attack2] of [
+    ['starfall-03', 64, 56, 5],
+    ['starfall-09', 84, 72, 6],
+  ]) {
+    for (const health of [oldHealth, newHealth]) {
+      const threshold = health / 2;
+      let match = campaignMatch({ levelId, mulligan: false });
+      if (health === oldHealth) useOldAdventureBalance(match);
+      match = save(match);
+      assert.equal(match.phase, 'mulligan');
+      const boss = findGeneral(match, 1);
+      assert.deepEqual([boss.health, boss.maxHealth, match.adventure.config.boss.threshold], [health, health, threshold]);
+      assert.match(adventureRules(match)[0].text, new RegExp(`${threshold}血及以下`));
+      assert.equal(confirmMulligan(match), true);
+      boss.health = threshold + 1;
+      const nextPlayerTurn = () => {
+        assert.equal(endTurn(match, 0), true);
+        assert.equal(endTurn(match, 1), true);
+        match = save(match);
+        return match.adventure.events[0];
+      };
+      const gravity = nextPlayerTurn();
+      assert.deepEqual([gravity.kind, gravity.rounds, match.adventure.phase], ['gravity', 1, 0]);
+      const meteor = structuredClone(nextPlayerTurn());
+      assert.deepEqual([meteor.kind, meteor.damage, match.adventure.phase], ['meteor', 4, 0]);
+      findGeneral(match, 1).health = threshold;
+      adventureFinishAction(match);
+      match = save(match);
+      assert.deepEqual([match.adventure.phase, findGeneral(match, 1).attack], [1, attack2]);
+      assert.deepEqual(match.adventure.events[0], meteor);
+      const nextGravity = nextPlayerTurn(), nextMeteor = nextPlayerTurn();
+      assert.deepEqual([nextGravity.kind, nextGravity.rounds, nextMeteor.kind, nextMeteor.damage], ['gravity', 2, 'meteor', 6]);
+      const continuedBoss = findGeneral(match, 1);
+      assert.equal(continuedBoss.maxHealth, health);
+      continuedBoss.maxHealth += 2;
+      assert.equal(findGeneral(save(match), 1).maxHealth, health + 2);
+    }
+  }
+  save(useOldAdventureBalance(campaignMatch({ levelId: 'storm-01', mulligan: false })));
+});
+test('mixed balance, forged cards, and inconsistent boss health are refused', () => {
+  const base = useOldAdventureBalance(campaignMatch({ levelId: 'starfall-03', mulligan: false }));
+  for (const mutate of [
+    (match) => (match.battleCards[0][9222].health = 56),
+    (match) => (match.battleCards[1][9226].health = 72),
+    (match) => (match.battleCards[0][9222].attack++),
+    (match) => (match.adventure.config.boss.threshold = 28),
+    (match) => (match.adventure.config.boss.threshold = 31),
+    (match) => (match.adventure.config.boss.attack2++),
+    (match) => (match.enemyPlan.players[1].generalHealth = 56),
+    (match) => (match.enemyPlan.players[1].garrison[0].health = 56),
+    (match) => { const boss = findGeneral(match, 1); boss.health = boss.maxHealth + 1; },
+  ]) {
+    const invalid = structuredClone(base);
+    mutate(invalid);
+    assert.equal(restoreMatch(invalid), null);
+  }
+});
+test('both boss balance versions reject missing, swapped, and mixed-health opening bosses', () => {
+  for (const [levelId, oldHealth, newHealth, otherBoss] of [
+    ['starfall-03', 64, 56, 9226],
+    ['starfall-09', 84, 72, 9222],
+  ]) {
+    for (const useOld of [true, false]) {
+      const base = campaignMatch({ levelId, mulligan: false });
+      if (useOld) useOldAdventureBalance(base);
+      assert.ok(restoreMatch(structuredClone(base)));
+      for (const mutate of [
+        (match, boss) => (boss.cardId = otherBoss),
+        (match, boss) => (match.units = match.units.filter(unit => unit.unitId !== boss.unitId)),
+        (match, boss) => (boss.health = boss.maxHealth = useOld ? newHealth : oldHealth),
+      ]) {
+        const invalid = structuredClone(base);
+        mutate(invalid, findGeneral(invalid, 1));
+        assert.equal(restoreMatch(invalid), null);
+      }
+    }
   }
 });
 test('half-life phase changes once; established event damage stays frozen', () => {

@@ -4,7 +4,7 @@ import { CAMPAIGN_UNIT_IDS } from './campaign-rules.js';
 import { getFaction } from './factions.js';
 
 // Self-test build switch. Disable for a formal public release.
-export const ADVENTURE_PREVIEW_ENABLED = (() => { try { return new URLSearchParams(globalThis.location?.search ?? "").get("adventure-preview") === "1"; } catch { return false; } })();
+export const ADVENTURE_PREVIEW_ENABLED = false;
 export const ADVENTURE_PREVIEW_SCENARIOS = Object.freeze([
   { id: 'storm-02', label: '雷电光束' },
   { id: 'starfall-02', label: '引力陨星' }

@@ -42,7 +42,9 @@ assert.equal(encounterMarkerLabel({kind:'spawn',intent:'attackFlag',amount:0}),'
 assert.equal(encounterMarkerLabel({kind:'spawn',intent:'healFlag',amount:0}),'⌛ +2血');
 assert.equal(encounterMarkerLabel({kind:'spawn',amount:0}),'⌛ 援');
 assert.equal(encounterMarkerLabel({kind:'portal',marked:true,remaining:1}),'⌛ 门');
-assert.equal(encounterMarkerLabel({kind:'portal',marked:false,remaining:2}),'门 ×2');
+assert.equal(encounterMarkerLabel({kind:'portal',marked:false,remaining:2}),'门 余2次');
+assert.equal(encounterMarkerLabel({kind:'corpse',marked:false,remaining:2}),'骸 余2轮');
+assert.equal(encounterMarkerLabel({kind:'corpse',marked:true,remaining:1}),'⌛ 余1轮');
 console.log('Actual interface semantics passed: lifecycle prefix priority, healing summaries, flag intent and entrance countdown versus charges.');
 
 assert.equal(encounterMarkerLabel({kind:'portal',marked:true,intent:'retreat',label:'回撤',remaining:1}),'⌛ 回撤');

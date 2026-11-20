@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 
 const project = fileURLToPath(new URL('../', import.meta.url));
 const dist = join(project, 'dist');
-const version = '0.4.10';
+const version = '0.4.17';
 const files = [];
 const args = process.argv.slice(2);
 if (args.length && (args.length !== 2 || args[0] !== '--output-dir')) throw new Error('Usage: package.mjs [--output-dir <workspace-contained-directory>]');
@@ -15,6 +15,7 @@ const workspace = resolve(project, '../..');
 const output = args.length ? resolve(process.cwd(), args[1]) : join(project, 'build');
 const outputRelative = relative(workspace, output);
 if (outputRelative === '..' || outputRelative.startsWith(`..${sep}`) || isAbsolute(outputRelative)) throw new Error('Package output must remain inside the workspace.');
+await collect(dist);
 // Mandatory for all callers and output locations; no ZIP is created on failure.
 const checks = ['check-expedition-progress.mjs','check-hero-progress.mjs','check-profile-expansion.mjs','check-ad-rewards.mjs','check-campaign-progress.mjs','check-local-trial-save.mjs','check-player-cloud.mjs','check-cloud-archive.mjs','check-save-compatibility.mjs','check-campaign-v2-progress.mjs','check-recruitment.mjs','check-draw-profile.mjs','check-draw-battle.mjs','check-progressive-fatigue.mjs','check-campaign-content.mjs','check-campaign-economy.mjs','check-daily-ad-rewards.mjs','check-attack-range.mjs','check-content-expansion-mechanics.mjs','check-content-expansion-progress.mjs','check-collection-training.mjs','check-random-recruitment.mjs','check-recruitment-mechanics.mjs'];
 // A solvable lesson can still teach nothing. Gate both the intended solutions
@@ -47,6 +48,9 @@ compatibility = { ...compatibility, packageVersion: version, checkedAt: new Date
 async function collect(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name);
+    if (/(?:^|[-_.])preview(?:[-_.]|$)/i.test(entry.name) && /\.html?$/i.test(entry.name)) {
+      throw new Error(`Temporary preview asset is not allowed in the release package: dist/${relative(dist, path)}`);
+    }
     if (entry.isDirectory()) await collect(path);
     else files.push(path);
   }
@@ -61,7 +65,6 @@ function crc32(bytes) {
   return (crc ^ 0xffffffff) >>> 0;
 }
 
-await collect(dist);
 files.sort();
 const manifest = [], local = [], central = [];
 let offset = 0;

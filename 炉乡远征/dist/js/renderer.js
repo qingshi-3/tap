@@ -662,14 +662,14 @@ export class BoardRenderer {
     this.drawEncounterBadges(statsContext, visualState, metrics, sceneMarkers);
     statsContext.restore();
     if (options.adventurePreview && !this.effects.playback) {
-      this.drawAdventurePreview(statsContext, state, metrics, options.adventurePreview, options.adventureSource);
+      this.drawAdventurePreview(statsContext, state, metrics, options.adventurePreview);
     }
     this.attackPreviewLayout = [];
     drawAttackResults(this, statsContext, metrics, targetingOptions.attackPreview, targetingOptions.attackGesture);
     ctx.restore();
   }
 
-  drawAdventurePreview(ctx, state, metrics, preview, source) {
+  drawAdventurePreview(ctx, state, metrics, preview) {
     if (!preview) return;
     const steps = preview.steps ?? [];
     const castStep = steps.find(s => s.kind === 'cast');
@@ -795,42 +795,28 @@ export class BoardRenderer {
         ctx.restore();
       });
       // Friendly relay / charge badges
+      const chargedUnitIds = new Set(steps.filter(step => step.kind === 'charge').map(step => step.unitId));
       chains.forEach((link, idx) => {
         const u = state.units.find(item => item.unitId === link.unitId);
         if (!u || u.owner !== 0) return;
         const cell = this.cellGeometry(metrics, u.x, u.y);
-        const tag = u.cardId === 9202 ? `#${idx + 1} 充能+1` : `#${idx + 1} 导雷中继`;
+        const role = u.cardId === 9202 ? (chargedUnitIds.has(u.unitId) ? '充能+1' : '充能已满') : '导雷中继';
+        const tag = `#${idx + 1} ${role}`;
         drawCutBadge(cell.center.x, cell.center.y - cell.height * 0.74, tag, '#18284a', '#ffd978', '#fff6d1');
       });
     }
 
-    if (abilityId === 'arcane-beam' && preview.cells?.length) {
-      const overcharged = (preview.statChanges ?? []).some(c => c.kind === 'damage' && c.amount >= 10);
-      const first = this.cellGeometry(metrics, preview.cells[0].x, preview.cells[0].y).center;
-      const last = this.cellGeometry(metrics, preview.cells[preview.cells.length - 1].x, preview.cells[preview.cells.length - 1].y).center;
-      const start = source ? this.cellGeometry(metrics, source.x, source.y).center : first;
-      const bx0 = start.x, by0 = start.y - 12, bx1 = last.x, by1 = last.y - 12;
-      const bDist = Math.hypot(bx1 - bx0, by1 - by0), bAng = Math.atan2(by1 - by0, bx1 - bx0);
-      ctx.save();
-      ctx.lineCap = 'square';
-      ctx.strokeStyle = overcharged ? 'rgba(44, 18, 4, 0.78)' : 'rgba(6, 22, 42, 0.78)';
-      ctx.lineWidth = (overcharged ? 20 : 15) + pulse * 2;
-      ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
-      ctx.strokeStyle = overcharged ? `rgba(255, 198, 64, ${0.72 + pulse * 0.2})` : `rgba(68, 226, 255, ${0.68 + pulse * 0.2})`;
-      ctx.lineWidth = (overcharged ? 12 : 9) + pulse * 2;
-      ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
-      ctx.strokeStyle = overcharged ? '#fffbe0' : '#f0ffff';
-      ctx.lineWidth = overcharged ? 4 : 2.8;
-      ctx.beginPath(); ctx.moveTo(bx0, by0); ctx.lineTo(bx1, by1); ctx.stroke();
-      const bPhase = pRed ? 0.5 : (pNow / 340) % 1;
-      const bCount = Math.max(3, Math.min(9, Math.round(bDist / 38)));
-      for (let k = 0; k < bCount; k++) {
-        const t = ((k + bPhase) / bCount) % 1;
-        drawMiniChevron(bx0 + (bx1 - bx0) * t, by0 + (by1 - by0) * t, bAng,
-          overcharged ? '#4a2404' : '#082a40',
-          overcharged ? '#ffd866' : '#68eeff', '#ffffff', overcharged ? 3.0 : 2.6);
+    if (abilityId === 'arcane-beam') {
+      const beam = steps.find(step => step.kind === 'beam');
+      const endpoint = beam?.cells?.at(-1);
+      if (beam?.from && endpoint && this.effects.adventure.sheets.has('beam')) {
+        const duration = 850;
+        const progress = 0.4 + (pRed ? 0 : ((pNow / 400) % 1) * 0.2);
+        ctx.save();
+        ctx.globalAlpha *= beam.damage >= 10 ? 0.88 : 0.68;
+        this.effects.adventure.draw(ctx, metrics, { name: 'beam', from: beam.from, cell: endpoint, duration }, duration * progress, 'front', pRed);
+        ctx.restore();
       }
-      ctx.restore();
     }
 
     if (abilityId === 'black-hole') {
@@ -855,9 +841,8 @@ export class BoardRenderer {
       }
       const gPhase = pRed ? 0.5 : (pNow / 500) % 1;
       for (const mv of preview.moves ?? []) {
-        const u = state.units.find(item => item.unitId === mv.unitId);
-        if (!u || !mv.to) continue;
-        const a = this.cellGeometry(metrics, u.x, u.y).center;
+        if (!mv.from || !mv.to) continue;
+        const a = this.cellGeometry(metrics, mv.from.x, mv.from.y).center;
         const b = this.cellGeometry(metrics, mv.to.x, mv.to.y).center;
         const dist = Math.hypot(b.x - a.x, b.y - a.y);
         if (dist < 6) continue;

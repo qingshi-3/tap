@@ -400,9 +400,10 @@ const adventurePreview = new AdventurePreviewSession();
 let adventurePreviewContext = false;
 let adventurePreviewCloudPaused = false;
 const isAdventurePreview = (state = match) => adventurePreview.attempted(state);
-const roguelikeSession = new RoguelikeSession();
+const ROGUELIKE_ENABLED = false;
+const roguelikeSession = ROGUELIKE_ENABLED ? new RoguelikeSession() : null;
 const hasRoguelikeMarker = (state = match) => !!state && Object.hasOwn(state, 'roguelike');
-const isRoguelikeMatch = (state = match) => !!state && roguelikeSession.owns(state);
+const isRoguelikeMatch = (state = match) => !!state && Boolean(roguelikeSession?.owns(state));
 const isIndependentMatch = (state = match) => isRankedMatch(state) || hasRoguelikeMarker(state) || isAdventurePreview(state);
 const isRoguelikeActive = () => Boolean(roguelikeUI?.visible) || hasRoguelikeMarker();
 // A detached challenge must fail closed rather than fall through to the player
@@ -488,7 +489,7 @@ expeditionUI = new ExpeditionUI({
   drawCardArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   drawCardIdle: (canvas, id, time) => renderer.drawCardIdle(canvas, id, time),
   onStart: (id) => void startExpedition(id), onResume: resumeExpedition,
-  onRoguelike: openRoguelike,
+  onRoguelike: ROGUELIKE_ENABLED ? openRoguelike : null,
   onAdventurePreview: ADVENTURE_PREVIEW_ENABLED ? openAdventurePreview : null,
   onCloud: openPlayerCloud,
   onLeaderboard: target => platformProgressUI.open('leaderboard', target),
@@ -515,7 +516,7 @@ expeditionUI = new ExpeditionUI({
     resumeCloud: () => void resumeCloud(), sync: () => void syncNow(saves.localSnapshot)
   }
 });
-roguelikeUI = new RoguelikeUI({
+if (ROGUELIKE_ENABLED) roguelikeUI = new RoguelikeUI({
   session: roguelikeSession,
   drawArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   onBattle: startRoguelikeBattle,
@@ -528,7 +529,7 @@ roguelikeUI = new RoguelikeUI({
 });
 const adventureGift = createAdventureGift({
   progress: expedition,
-  canShow: () => ui.match.hidden && !roguelikeUI.visible && !sceneLoading.busy && !adventurePreviewContext,
+  canShow: () => ui.match.hidden && !roguelikeUI?.visible && !sceneLoading.busy && !adventurePreviewContext,
   onPlay() {
     expeditionUI.chapterId = 'storm-front';
     expeditionUI.levelId = 'storm-01';
@@ -550,18 +551,20 @@ function showExpeditionHome() {
   adventureGift.check();
 }
 
-const adventurePreviewPicker = createAdventurePreviewPicker({
+const adventurePreviewPicker = ADVENTURE_PREVIEW_ENABLED ? createAdventurePreviewPicker({
   onChoose: levelId => void startAdventurePreview(levelId),
   onClose: () => { adventurePreview.leave(); releaseAdventurePreview(); }
-});
-const previewSwitch = document.createElement('button');
-previewSwitch.type = 'button'; previewSwitch.className = 'button button-secondary';
-previewSwitch.textContent = '切换测试'; previewSwitch.hidden = true;
-ui.playAgain.after(previewSwitch);
-previewSwitch.addEventListener('click', () => {
-  if (!isAdventurePreview()) return;
-  void returnToLobby({ afterReturn: openAdventurePreview });
-});
+}) : null;
+const previewSwitch = ADVENTURE_PREVIEW_ENABLED ? document.createElement('button') : null;
+if (previewSwitch) {
+  previewSwitch.type = 'button'; previewSwitch.className = 'button button-secondary';
+  previewSwitch.textContent = '切换测试'; previewSwitch.hidden = true;
+  ui.playAgain.after(previewSwitch);
+  previewSwitch.addEventListener('click', () => {
+    if (!isAdventurePreview()) return;
+    void returnToLobby({ afterReturn: openAdventurePreview });
+  });
+}
 function releaseAdventurePreview() {
   if (!adventurePreviewContext) return;
   adventurePreviewContext = false;
@@ -597,7 +600,7 @@ async function startAdventurePreview(levelId) {
 }
 
 function openRoguelike() {
-  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || !ui.match.hidden) return;
+  if (!ROGUELIKE_ENABLED || sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || !ui.match.hidden) return;
   invalidateCampAds(); metagame.closeOverlays();
   expeditionUI.hide(); ui.lobby.hidden = true;
   playerCloud.paused = true;
@@ -607,6 +610,7 @@ function openRoguelike() {
 }
 
 async function startRoguelikeBattle() {
+  if (!ROGUELIKE_ENABLED) return { ok: false, error: '秘境暂未开放。' };
   if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked) return { ok: false, error: '当前操作尚未完成，请稍后再试。' };
   const restoring = roguelikeSession.record.run?.phase === 'battle';
   const prepared = restoring ? roguelikeSession.restoreBattle() : roguelikeSession.prepareBattle();
@@ -730,7 +734,7 @@ function refreshCloudUI() {
 }
 
 function openPlayerCloud() {
-  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) { showHint('请先返营再管理云存档。'); return; }
+  if (isIndependentMatch() || roguelikeUI?.visible || adventurePreviewContext) { showHint('请先返营再管理云存档。'); return; }
   invalidateCampAds();
   cloudReturnFocus = document.activeElement;
   cloudChoice = null;
@@ -743,7 +747,7 @@ function openPlayerCloud() {
 }
 
 async function runCloudAction(action) {
-  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) return;
+  if (isIndependentMatch() || roguelikeUI?.visible || adventurePreviewContext) return;
   if (cloudBusy) {
     if (action === 'latest' && !cloudSyncingLatest) { cloudLatestQueued = true; refreshCloudUI(); }
     return;
@@ -795,10 +799,11 @@ $('cloud-choice-confirm').addEventListener('click', () => void runCloudAction(cl
 
 // Never let an older in-memory battle overwrite another tab's newly saved progress.
 window.addEventListener('storage', (event) => {
+  if (!ROGUELIKE_ENABLED && event.key === ROGUELIKE_KEY) return;
   if (!['duelyst-h5.safe-v1.expedition', 'duelyst-h5.safe-v1.campaign', 'duelyst-h5.safe-v1.match', ROGUELIKE_KEY].includes(event.key)) return;
   replacingPlayerSave = true;
   invalidateCampAds();
-  sceneLoading.cancelRequest?.(); cancelRoguelikeRewardFx(); roguelikeSession.leave();
+  sceneLoading.cancelRequest?.(); cancelRoguelikeRewardFx(); roguelikeSession?.leave();
   drawController.cancel(); battleFlow.cancel(); botRunToken++; botRunning = false;
   matchEpoch += 1;
   match = null;
@@ -1746,7 +1751,7 @@ function refreshMatch() {
   const resultWasVisible = !ui.result.hidden;
   ui.result.hidden = !isOver || actionPlayback;
   rankedSubmit.hidden = rankedStatus.hidden = !ranked || !isOver;
-  previewSwitch.hidden = !isAdventurePreview() || !isOver;
+  if (previewSwitch) previewSwitch.hidden = !isAdventurePreview() || !isOver;
   ui.playAgain.hidden = rogue;
   if (isOver) {
     ui.resultTitle.textContent = match.winner === 0 ? '胜利' : '战败';
