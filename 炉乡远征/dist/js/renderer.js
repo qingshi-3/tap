@@ -560,6 +560,7 @@ export class BoardRenderer {
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
     const sceneMarkers = [...encounterMarkers(state), ...adventureMarkers(state)];
     const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
+    this.hasActiveTelegraph = marks.size > 0 || sceneMarkers.some(m => m.kind === 'damage' || m.kind === 'gravity');
 
     for (let y = 0; y < metrics.rows; y++) {
       for (let x = 0; x < metrics.columns; x++) {
@@ -864,54 +865,114 @@ export class BoardRenderer {
 
   // Scene intent is a filled footprint, with badges kept clear of unit health.
   drawEncounterGround(ctx, cell, marker) {
-    const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 240) * .5;
+    const now = performance.now();
+    const reduced = this.motionPreference.matches;
+    const pulse = reduced ? .5 : .5 + Math.sin(now / 240) * .5;
     const isDamage = marker.kind === 'damage';
     const isGravity = marker.kind === 'gravity';
-    const color = isDamage ? '#ff4d3d' : isGravity ? '#9d7bff' : marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+    const traceQuad = (pad = 0) => {
+      const q0 = quadPt(pad, pad), q1 = quadPt(1 - pad, pad), q2 = quadPt(1 - pad, 1 - pad), q3 = quadPt(pad, 1 - pad);
+      ctx.beginPath(); ctx.moveTo(q0.x, q0.y); ctx.lineTo(q1.x, q1.y); ctx.lineTo(q2.x, q2.y); ctx.lineTo(q3.x, q3.y); ctx.closePath();
+    };
     ctx.save();
-    drawTexturedQuad(ctx, this.tintedTile(isDamage ? 'tile-spell' : 'tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : isDamage ? .58 : .52);
     if (isDamage) {
-      ctx.beginPath();
-      cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-      ctx.closePath();
-      ctx.fillStyle = `rgba(218, 38, 32, ${.22 + pulse * .16})`;
+      // 1. Clipped translucent crimson base + slowly scrolling diagonal hazard scanlines
+      ctx.save();
+      traceQuad(0.02);
+      ctx.fillStyle = `rgba(196, 30, 26, ${.18 + pulse * .10})`;
       ctx.fill();
-      ctx.strokeStyle = '#ff4b3a';
-      ctx.lineWidth = 2.6;
-      ctx.stroke();
-      // Inner gold-amber reticle corners so target tile pops even on bright desert maps
-      const rx = cell.width * .24, ry = cell.height * .24, cx = cell.center.x, cy = cell.center.y;
-      ctx.strokeStyle = 'rgba(255, 224, 148, .92)';
+      ctx.clip();
+      const stripeShift = reduced ? 0 : ((now / 45) % 14);
+      const minX = Math.min(p0.x, p3.x) - 24, maxX = Math.max(p1.x, p2.x) + 24;
+      const minY = Math.min(p0.y, p1.y) - 24, maxY = Math.max(p2.y, p3.y) + 24;
+      ctx.strokeStyle = `rgba(255, 118, 72, ${.18 + pulse * .08})`;
+      ctx.lineWidth = 3;
+      for (let x = minX - (maxY - minY); x < maxX + 24; x += 14) {
+        ctx.beginPath();
+        ctx.moveTo(x + stripeShift, minY);
+        ctx.lineTo(x + stripeShift + (maxY - minY) * 0.7, maxY);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 2. Breathing pixel-style corner lock-on brackets (┌ ┐ └ ┘) inside perspective quad
+      const inset = reduced ? 0.08 : 0.06 + pulse * 0.055;
+      const arm = 0.24;
+      const corners = [
+        [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+        [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+        [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+        [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+      ];
+      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+      for (const [a, c, b] of corners) {
+        ctx.strokeStyle = 'rgba(42, 8, 8, 0.9)'; ctx.lineWidth = 4.5;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.strokeStyle = '#ff543e'; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        // Bright gold pixel highlight right at each corner apex
+        ctx.fillStyle = '#ffe99e';
+        ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+      }
+
+      // 3. Expanding pixel diamond ping in tile center
+      const ping = reduced ? 0.35 : (now % 1100) / 1100;
+      const pr = 0.10 + ping * 0.28;
+      const pa = (1 - ping) * 0.85;
+      const dTop = quadPt(0.5, 0.5 - pr), dRight = quadPt(0.5 + pr, 0.5), dBot = quadPt(0.5, 0.5 + pr), dLeft = quadPt(0.5 - pr, 0.5);
+      ctx.strokeStyle = `rgba(255, 224, 130, ${pa})`;
       ctx.lineWidth = 1.8;
-      ctx.beginPath();
-      ctx.arc(cx, cy, Math.min(rx, ry) * .72, 0, Math.PI * 2);
-      ctx.moveTo(cx - rx, cy); ctx.lineTo(cx - rx * .45, cy);
-      ctx.moveTo(cx + rx * .45, cy); ctx.lineTo(cx + rx, cy);
-      ctx.moveTo(cx, cy - ry); ctx.lineTo(cx, cy - ry * .45);
-      ctx.moveTo(cx, cy + ry * .45); ctx.lineTo(cx, cy + ry);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(dTop.x, dTop.y); ctx.lineTo(dRight.x, dRight.y); ctx.lineTo(dBot.x, dBot.y); ctx.lineTo(dLeft.x, dLeft.y); ctx.closePath(); ctx.stroke();
+      // Crisp 4x4 center pixel core
+      ctx.fillStyle = '#3a0b09';
+      ctx.fillRect(Math.round(cell.center.x - 3), Math.round(cell.center.y - 3), 6, 6);
+      ctx.fillStyle = '#ffe48f';
+      ctx.fillRect(Math.round(cell.center.x - 2), Math.round(cell.center.y - 2), 4, 4);
+
+      // 4. Tiny rising 2x2 pixel embers
+      if (!reduced) {
+        for (let i = 0; i < 3; i++) {
+          const ep = ((now / 900) + i * 0.33 + (marker.x * 0.17 + marker.y * 0.29)) % 1;
+          const ex = Math.round(cell.center.x + Math.sin(i * 2.4 + marker.x) * cell.width * 0.24);
+          const ey = Math.round(cell.center.y + cell.height * 0.12 - ep * cell.height * 0.55);
+          ctx.fillStyle = `rgba(255, ${165 + Math.round((1 - ep) * 75)}, 90, ${(1 - ep) * 0.85})`;
+          ctx.fillRect(ex, ey, 2.5, 2.5);
+        }
+      }
     } else if (isGravity) {
-      ctx.beginPath();
-      cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
-      ctx.closePath();
       const isCenter = marker.showLabel !== false;
-      ctx.fillStyle = isCenter ? `rgba(104, 48, 212, ${.34 + pulse * .16})` : `rgba(124, 82, 232, ${.11 + pulse * .06})`;
+      traceQuad(0.02);
+      ctx.fillStyle = isCenter ? `rgba(96, 40, 206, ${.28 + pulse * .14})` : `rgba(124, 82, 232, ${.10 + pulse * .05})`;
       ctx.fill();
-      ctx.strokeStyle = isCenter ? '#e0b8ff' : 'rgba(176, 138, 255, .42)';
-      ctx.lineWidth = isCenter ? 2.4 : 1.1;
+      ctx.strokeStyle = isCenter ? '#dfb8ff' : 'rgba(176, 138, 255, .36)';
+      ctx.lineWidth = isCenter ? 2.2 : 1;
       ctx.stroke();
       if (isCenter) {
-        const cx = cell.center.x, cy = cell.center.y, r = Math.min(cell.width, cell.height) * .32;
-        ctx.strokeStyle = 'rgba(232, 200, 255, .92)';
-        ctx.lineWidth = 2;
-        ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2); ctx.stroke();
-        ctx.beginPath(); ctx.arc(cx, cy, r * .48, 0, Math.PI * 2); ctx.stroke();
+        // Two staggered inward-contracting pixel vortex rings
+        for (let i = 0; i < 2; i++) {
+          const vp = reduced ? (0.3 + i * 0.4) : ((now / 1200 + i * 0.5) % 1);
+          const r = (1 - vp) * 0.36 + 0.06;
+          const alpha = Math.sin(vp * Math.PI) * 0.9;
+          const vt = quadPt(0.5, 0.5 - r), vr = quadPt(0.5 + r, 0.5), vb = quadPt(0.5, 0.5 + r), vl = quadPt(0.5 - r, 0.5);
+          ctx.strokeStyle = `rgba(226, 188, 255, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(vt.x, vt.y); ctx.lineTo(vr.x, vr.y); ctx.lineTo(vb.x, vb.y); ctx.lineTo(vl.x, vl.y); ctx.closePath(); ctx.stroke();
+        }
+        ctx.fillStyle = '#250e4d';
+        ctx.fillRect(Math.round(cell.center.x - 4), Math.round(cell.center.y - 4), 8, 8);
+        ctx.fillStyle = '#e8ccff';
+        ctx.fillRect(Math.round(cell.center.x - 2), Math.round(cell.center.y - 2), 4, 4);
       }
+    } else {
+      const color = marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+      drawTexturedQuad(ctx, this.tintedTile('tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : .55);
+      const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
+      glow.addColorStop(0, 'rgba(110,183,255,.32)'); glow.addColorStop(1, 'rgba(110,183,255,0)');
+      ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
     }
-    const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
-    glow.addColorStop(0, isDamage ? 'rgba(255,78,52,.36)' : isGravity ? 'rgba(164,122,255,.32)' : 'rgba(110,183,255,.32)');
-    glow.addColorStop(1, 'rgba(110,183,255,0)');
-    ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
     if (marker.kind === 'corpse') {
       drawTexturedQuad(ctx, this.images.get('terrain-rough'), cell.points, .9);
       const card = getCard(marker.cardId), atlas = this.atlases.get(card?.sprite?.sheet);
@@ -931,26 +992,65 @@ export class BoardRenderer {
   drawEncounterBadges(ctx, state, metrics, markers) {
     const rect = this.canvas.getBoundingClientRect();
     const viewport = this.battlefieldViewport(rect.width, rect.height);
-    // Draw subtle dashed targeting arcs from enemy shooter units (e.g. sentry/cannon) to their marked damage cells
+    // Draw animated flowing pixel-art chevron arrows from enemy shooter units to their marked damage cells
+    const flowNow = performance.now();
+    const flowReduced = this.motionPreference.matches;
     for (const marker of markers) {
       if (marker.kind !== 'damage' || marker.sourceUnitId == null) continue;
       const shooter = state.units.find(u => u.unitId === marker.sourceUnitId && u.health > 0);
       if (!shooter) continue;
-      const from = this.cellGeometry(metrics, shooter.x, shooter.y).center;
-      const to = this.cellGeometry(metrics, marker.x, marker.y).center;
-      const midX = (from.x + to.x) / 2;
-      const midY = Math.min(from.y, to.y) - 26;
+      const fromCell = this.cellGeometry(metrics, shooter.x, shooter.y).center;
+      const toCell = this.cellGeometry(metrics, marker.x, marker.y).center;
+      const p0 = { x: fromCell.x, y: fromCell.y - 18 };
+      const p2 = { x: toCell.x, y: toCell.y - 2 };
+      const dist = Math.hypot(p2.x - p0.x, p2.y - p0.y);
+      const lift = Math.min(34, Math.max(12, dist * 0.16));
+      const p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - lift };
+      const bezPt = t => {
+        const u = 1 - t;
+        return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
+      };
+      const bezTan = t => {
+        const u = 1 - t;
+        return { x: 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x), y: 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y) };
+      };
+
       ctx.save();
-      ctx.strokeStyle = 'rgba(255, 110, 82, 0.72)';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([6, 5]);
-      ctx.beginPath();
-      ctx.moveTo(from.x, from.y - 18);
-      ctx.quadraticCurveTo(midX, midY, to.x, to.y - 4);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.fillStyle = '#ff6b52';
-      ctx.beginPath(); ctx.arc(to.x, to.y - 4, 3.8, 0, Math.PI * 2); ctx.fill();
+      // Soft glowing under-track so arrows pop over sprites
+      ctx.strokeStyle = 'rgba(255, 74, 48, 0.24)';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
+
+      // Marching pixel chevrons along the arc
+      const count = Math.max(3, Math.min(7, Math.round(dist / 36)));
+      const phase = flowReduced ? 0.5 : (flowNow / 680) % 1;
+      const px = 2.5;
+      for (let i = 0; i < count; i++) {
+        const t = ((i + phase) / count) % 1;
+        if (t < 0.06 || t > 0.96) continue;
+        const pt = bezPt(t);
+        const tan = bezTan(t);
+        const angle = Math.atan2(tan.y, tan.x);
+        const edgeFade = Math.min(1, t / 0.18, (1 - t) / 0.12);
+        const scale = 0.85 + t * 0.25;
+        ctx.save();
+        ctx.translate(Math.round(pt.x), Math.round(pt.y));
+        ctx.rotate(angle);
+        ctx.scale(scale, scale);
+        ctx.globalAlpha = edgeFade * 0.96;
+        // Stepped pixel chevron (>) with dark pixel outline + vermilion body + gold tip
+        const outlineBlocks = [[-2,-3],[-1,-2],[0,-1],[1,0],[0,1],[-1,2],[-2,3],[-3,-2],[-2,-1],[-1,0],[-2,1],[-3,2]];
+        ctx.fillStyle = '#330807';
+        for (const [bx, by] of outlineBlocks) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+        const bodyBlocks = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+        ctx.fillStyle = '#ff4b36';
+        for (const [bx, by] of bodyBlocks) ctx.fillRect(bx * px, by * px, px, px);
+        // Hot gold-white leading tip pixel
+        ctx.fillStyle = '#fff0b3';
+        ctx.fillRect(0.6 * px, -0.5 * px, px, px);
+        ctx.restore();
+      }
       ctx.restore();
     }
     for (const marker of markers) {
@@ -996,15 +1096,29 @@ export class BoardRenderer {
   drawEncounterBadge(ctx, x, y, size, text, owner, danger, opacity = 1) {
     ctx.save();
     ctx.globalAlpha *= opacity;
-    ctx.fillStyle = danger ? 'rgba(128,46,24,.94)' : owner === 2 ? 'rgba(80,52,101,.94)' : owner === 0 ? 'rgba(32,74,104,.94)' : 'rgba(86,46,44,.94)';
-    ctx.font = `700 ${Math.max(11,size*.66)}px "Luxiang UI", sans-serif`;
-    const width = Math.max(size, ctx.measureText(text).width + 10);
-    this.encounterBadgeLayout?.push({ x:x-width/2, y:y-size/2, width, height:size, text, owner, danger });
-    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
-    roundRect(ctx, x-width/2, y-size/2, width, size, 4); ctx.fill();
+    ctx.font = `700 ${Math.max(11,size*.64)}px "Luxiang UI", sans-serif`;
+    const width = Math.round(Math.max(size, ctx.measureText(text).width + 12));
+    const h = Math.round(size);
+    const bx = Math.round(x - width / 2), by = Math.round(y - h / 2), c = 3;
+    this.encounterBadgeLayout?.push({ x:bx, y:by, width, height:h, text, owner, danger });
+    const traceCut = (ox, oy, ow, oh, cut) => {
+      ctx.beginPath();
+      ctx.moveTo(ox + cut, oy); ctx.lineTo(ox + ow - cut, oy); ctx.lineTo(ox + ow, oy + cut);
+      ctx.lineTo(ox + ow, oy + oh - cut); ctx.lineTo(ox + ow - cut, oy + oh);
+      ctx.lineTo(ox + cut, oy + oh); ctx.lineTo(ox, oy + oh - cut); ctx.lineTo(ox, oy + cut);
+      ctx.closePath();
+    };
+    ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+    traceCut(bx, by, width, h, c);
+    ctx.fillStyle = danger ? '#5c1814' : owner === 2 ? '#3d2452' : owner === 0 ? '#1b3e59' : '#3a2228';
+    ctx.fill();
     ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = danger ? 'rgba(255,212,132,.85)' : 'rgba(182,220,245,.62)';
-    ctx.lineWidth = 1.25; ctx.stroke();
+    // Crisp 1px top inner highlight + pixel-cut metallic rim
+    ctx.fillStyle = danger ? 'rgba(255, 198, 120, 0.25)' : 'rgba(210, 236, 255, 0.16)';
+    ctx.fillRect(bx + c, by + 1, width - c * 2, 2);
+    traceCut(bx + 0.5, by + 0.5, width - 1, h - 1, c);
+    ctx.strokeStyle = danger ? '#ffba66' : 'rgba(184, 214, 238, 0.72)';
+    ctx.lineWidth = 1.5; ctx.stroke();
     ctx.fillStyle = '#fff4da';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);ctx.restore();
   }
@@ -1084,7 +1198,7 @@ export class BoardRenderer {
       this.pending = null;
       const currentBounds = this.canvas.getBoundingClientRect();
       if (currentBounds.width && currentBounds.height && this.state && (this.paintRequested || !['mulligan', 'over'].includes(this.state.phase) || this.effects.playback)) {
-        if (this.paintRequested || this.movement || this.effects.playback || this.cardTargetingActive || now - this.lastFrame >= SCENE_ANIMATION_FRAME_MS) {
+        if (this.paintRequested || this.movement || this.effects.playback || this.cardTargetingActive || (this.hasActiveTelegraph && !this.motionPreference.matches && now - this.lastFrame >= 33) || now - this.lastFrame >= SCENE_ANIMATION_FRAME_MS) {
           this.paintRequested = false;
           this.lastFrame = now;
           this.paint();
