@@ -518,16 +518,16 @@
 }
 
 /* Unified stepped-pixel secondary controls across Home, Atlas, Prep, Battle */
-:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed) {
-  border: 1px solid rgba(176, 206, 232, 0.34);
-  box-shadow: inset 0 1px rgba(232, 244, 255, 0.16), inset 0 -3px rgba(6, 10, 20, 0.72), 0 2px 8px rgba(0, 0, 0, 0.42);
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #map-open, #objective-open, #battle-speed) {
+  border: 1px solid rgba(214, 178, 102, 0.44);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.18), inset 0 -3px rgba(6, 8, 18, 0.72), 0 2px 8px rgba(0, 0, 0, 0.42);
   transition: transform 85ms ease, filter 110ms ease, border-color 120ms ease;
 }
-:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed):hover:not(:disabled) {
-  border-color: rgba(244, 208, 126, 0.65);
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #map-open, #objective-open, #battle-speed):hover:not(:disabled) {
+  border-color: rgba(255, 218, 132, 0.8);
   filter: brightness(1.09);
 }
-:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #battle-history > button, #leave-match, #map-open, #objective-open, #battle-speed):active:not(:disabled) {
+:root[data-ui="qibing"][data-ui] :is(.menu-destination, .menu-utility, .menu-hero-switch, .atlas-intel, #map-open, #objective-open, #battle-speed):active:not(:disabled) {
   transform: translateY(1.5px);
   filter: brightness(0.88);
 }
@@ -605,7 +605,376 @@
     animation: none !important;
   }
   .match .hand .hand-card,
-  :root[data-ui="qibing"][data-ui] button {
+  :root[data-ui="qibing"][data-ui] button,
+  .health-meter i {
     transition: none !important;
+  }
+}
+
+/* ============================================================================
+   18. Battle Top HUD Overhaul (General Plaques, Top-Center Command Bar, Side Controls)
+   Unified obsidian-purple & antique-gold pixel tactical chrome
+   ============================================================================ */
+
+/* 18a. Left & Right General Plaques: grounded obsidian-gold tactical frame */
+:root[data-ui="qibing"][data-ui] #match .general-panel {
+  top: var(--battle-hud-top);
+  gap: 7px;
+  padding: 4px 8px 4px 5px;
+  border: 1px solid rgba(214, 178, 102, 0.56);
+  border-left: 3px solid #68d6f0;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(28, 24, 50, 0.92) 0%, rgba(14, 13, 28, 0.95) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.22), inset 0 -2px rgba(4, 4, 12, 0.72), 0 4px 14px rgba(0, 0, 0, 0.52);
+  filter: none;
+}
+:root[data-ui="qibing"][data-ui] #match .general-enemy {
+  padding: 4px 5px 4px 8px;
+  border-left: 1px solid rgba(214, 178, 102, 0.56);
+  border-right: 3px solid #eb6b6b;
+}
+
+/* Portrait medallion: crisp beveled gold pixel frame, full-bleed square crop */
+:root[data-ui="qibing"][data-ui] #match .portrait-frame {
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1.5px solid #d6b266;
+  border-radius: 3px;
+  background: #0c0b1a;
+  box-shadow: inset 0 1px rgba(255, 242, 204, 0.35), 0 2px 6px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+  transition: transform 90ms ease, filter 120ms ease, border-color 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] #match .portrait-frame::after {
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: linear-gradient(180deg, rgba(255, 246, 214, 0.16) 0%, transparent 38%, rgba(0, 0, 0, 0.28) 100%);
+  box-shadow: none;
+}
+:root[data-ui="qibing"][data-ui] #match .portrait-frame img {
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  clip-path: none;
+  border-radius: 2px;
+  object-fit: cover;
+  object-position: 50% 24%;
+}
+:root[data-ui="qibing"][data-ui] #match .portrait-frame:hover {
+  border-color: #ffe399;
+  filter: brightness(1.1);
+}
+:root[data-ui="qibing"][data-ui] #match .portrait-frame:active {
+  transform: scale(0.96);
+}
+
+/* General name, segmented pixel-beveled HP bar & inline deck counter */
+:root[data-ui="qibing"][data-ui] #match .general-copy {
+  width: 94px;
+  gap: 3px;
+}
+:root[data-ui="qibing"][data-ui] #match .general-name {
+  max-width: 94px;
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 14px;
+  color: #fff3d4;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+:root[data-ui="qibing"][data-ui] #match .general-enemy .general-name {
+  color: #ffd8d0;
+}
+:root[data-ui="qibing"][data-ui] #match .general-health {
+  height: 18px;
+  font-size: 12px;
+  line-height: 17px;
+}
+:root[data-ui="qibing"][data-ui] #match .general-health strong {
+  color: #fffaf0;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-shadow: 0 1px 2px rgba(4, 8, 16, 0.95), 0 0 3px rgba(4, 8, 16, 0.85);
+}
+:root[data-ui="qibing"][data-ui] #match .health-meter {
+  height: 17px;
+  border: 1px solid rgba(214, 178, 102, 0.48);
+  border-radius: 2px;
+  background: #0c0e1c;
+  box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.72);
+}
+:root[data-ui="qibing"][data-ui] #match .health-meter i {
+  position: relative;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 10px, rgba(0, 0, 0, 0.2) 10px 11px),
+    linear-gradient(180deg, #56d6cb 0%, #248a96 55%, #155563 100%);
+  border-right: 1px solid #a8fff5;
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.36);
+  transition: width 220ms cubic-bezier(0.2, 0.85, 0.3, 1);
+}
+:root[data-ui="qibing"][data-ui] #match .enemy-health .health-meter {
+  border-color: rgba(235, 134, 124, 0.52);
+}
+:root[data-ui="qibing"][data-ui] #match .enemy-health .health-meter i {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 10px, rgba(0, 0, 0, 0.2) 10px 11px),
+    linear-gradient(180deg, #f27e74 0%, #c03d44 55%, #781f28 100%);
+  border-right: 1px solid #ffc0b8;
+}
+:root[data-ui="qibing"][data-ui] #match .deck-count {
+  padding: 0 5px;
+  gap: 4px;
+  border: 1px solid rgba(214, 178, 102, 0.3);
+  border-radius: 2px;
+  background: rgba(10, 10, 22, 0.78);
+  color: #eadbb8;
+  font-size: 11px;
+  line-height: 15px;
+}
+:root[data-ui="qibing"][data-ui] #match .deck-count img {
+  width: 11px;
+  height: 12px;
+  opacity: 0.92;
+}
+
+/* 18b. Top-Center Command Bar: Turn Crest + Objective + Speed unified to 34px obsidian-gold */
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center {
+  grid-template-columns: auto auto auto;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  min-height: 36px;
+}
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker {
+  grid-column: 1;
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 34px;
+  height: 34px;
+  padding: 2px 10px;
+  gap: 0;
+  border: 1px solid rgba(214, 178, 102, 0.56);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(28, 24, 50, 0.93) 0%, rgba(14, 13, 28, 0.96) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.24), inset 0 -2px rgba(4, 4, 12, 0.72), 0 3px 10px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+}
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker span {
+  font-size: 10px;
+  line-height: 12px;
+  color: #d6c08a;
+  letter-spacing: 0.03em;
+}
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker strong {
+  font-size: 12.5px;
+  line-height: 15px;
+  color: #fff6da;
+}
+:root[data-ui="qibing"][data-ui] #app #match #objective-open {
+  grid-column: 2;
+  grid-row: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: auto;
+  min-width: 68px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 10px;
+  border: 1px solid rgba(214, 178, 102, 0.52);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(36, 31, 64, 0.94) 0%, rgba(18, 16, 36, 0.96) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.22), inset 0 -2px rgba(4, 4, 12, 0.75), 0 3px 10px rgba(0, 0, 0, 0.45);
+  color: #f6e7c1;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+:root[data-ui="qibing"][data-ui] #app #match #objective-open::before {
+  content: '◆';
+  color: #ffd36b;
+  font-size: 9px;
+  line-height: 1;
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed {
+  grid-column: 3;
+  grid-row: 1;
+  min-width: 40px;
+  height: 34px;
+  min-height: 34px;
+  padding: 0 9px;
+  border: 1px solid rgba(214, 178, 102, 0.48);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(36, 31, 64, 0.94) 0%, rgba(18, 16, 36, 0.96) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.2), inset 0 -2px rgba(4, 4, 12, 0.75), 0 3px 10px rgba(0, 0, 0, 0.45);
+  color: #f2e4be;
+  font-size: 12px;
+  font-weight: 700;
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed[data-speed="2"] {
+  border-color: rgba(114, 224, 255, 0.78);
+  background: linear-gradient(180deg, rgba(28, 72, 98, 0.95) 0%, rgba(15, 38, 56, 0.97) 100%);
+  box-shadow: inset 0 1px rgba(184, 244, 255, 0.35), inset 0 -2px rgba(6, 16, 26, 0.75), 0 0 10px rgba(96, 214, 255, 0.28);
+  color: #d6f8ff;
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed[data-speed="3"] {
+  border-color: #ffd873;
+  background: linear-gradient(180deg, rgba(164, 114, 34, 0.96) 0%, rgba(98, 62, 16, 0.97) 100%);
+  box-shadow: inset 0 1px rgba(255, 244, 200, 0.45), inset 0 -2px rgba(48, 26, 6, 0.75), 0 0 12px rgba(255, 204, 88, 0.35);
+  color: #fff6d6;
+}
+
+/* 18c. Side Utility Buttons (记录 & ⚙): sleek 32px obsidian-gold faces inside 44px touch targets */
+:root[data-ui="qibing"][data-ui] #app #match #battle-history {
+  top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 58px);
+  left: var(--battle-hero-edge, max(8px, var(--ui-left, 8px)));
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button {
+  position: relative;
+  isolation: isolate;
+  min-width: 48px;
+  min-height: 44px;
+  height: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 1;
+  color: #f3e4be;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.85);
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button::before {
+  content: '';
+  position: absolute;
+  inset: 6px 0;
+  z-index: -1;
+  border: 1px solid rgba(214, 178, 102, 0.48);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(34, 30, 58, 0.92) 0%, rgba(16, 15, 32, 0.95) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.2), inset 0 -2px rgba(4, 4, 12, 0.72), 0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: border-color 120ms ease, filter 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button[aria-expanded="true"]::before {
+  border-color: #7ee4ff;
+  background: linear-gradient(180deg, rgba(34, 72, 98, 0.95) 0%, rgba(16, 36, 54, 0.97) 100%);
+}
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button:hover::before {
+  border-color: rgba(255, 218, 132, 0.82);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #leave-match {
+  position: absolute;
+  isolation: isolate;
+  top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 58px);
+  right: var(--battle-enemy-edge, max(8px, var(--ui-right, 8px)));
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  opacity: 1;
+  color: #f3e4be;
+}
+:root[data-ui="qibing"][data-ui] #app #match #leave-match::before {
+  content: '';
+  position: absolute;
+  inset: 6px;
+  z-index: -1;
+  border: 1px solid rgba(214, 178, 102, 0.48);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(34, 30, 58, 0.92) 0%, rgba(16, 15, 32, 0.95) 100%);
+  box-shadow: inset 0 1px rgba(255, 236, 184, 0.2), inset 0 -2px rgba(4, 4, 12, 0.72), 0 3px 8px rgba(0, 0, 0, 0.45);
+  transition: border-color 120ms ease, filter 120ms ease;
+}
+:root[data-ui="qibing"][data-ui] #app #match #leave-match:hover::before {
+  border-color: rgba(255, 218, 132, 0.82);
+}
+:root[data-ui="qibing"][data-ui] #app #match #leave-match svg {
+  width: 19px;
+  height: 19px;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+}
+
+/* Harmonize hand-count pill with obsidian-gold palette */
+.match .hand-count {
+  border: 1px solid rgba(214, 178, 102, 0.48);
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(28, 24, 50, 0.93), rgba(14, 13, 28, 0.96));
+  color: #f2e5c4;
+}
+
+/* Compact screens (<= 660px or <= 350px height): keep plaques & command bar sleek without crowding */
+@media (max-width: 660px), (max-height: 350px) {
+  :root[data-ui="qibing"][data-ui] #match .general-panel {
+    padding: 3px 6px 3px 4px;
+    gap: 5px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-enemy {
+    padding: 3px 4px 3px 6px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .portrait-frame {
+    flex-basis: 40px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-copy {
+    width: 74px;
+    gap: 2px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-name {
+    max-width: 74px;
+    font-size: 10.5px;
+    line-height: 12px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .general-health {
+    height: 16px;
+    font-size: 11px;
+    line-height: 15px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .health-meter {
+    height: 15px;
+  }
+  :root[data-ui="qibing"][data-ui] #match .deck-count {
+    font-size: 10px;
+    line-height: 13px;
+    padding: 0 4px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker,
+  :root[data-ui="qibing"][data-ui] #app #match #objective-open,
+  :root[data-ui="qibing"][data-ui] #app #match #battle-speed {
+    height: 30px;
+    min-height: 30px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker {
+    padding: 1px 7px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #objective-open {
+    min-width: 60px;
+    padding: 0 7px;
+    font-size: 11px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #battle-speed {
+    min-width: 36px;
+    padding: 0 7px;
+    font-size: 11px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match #battle-history,
+  :root[data-ui="qibing"][data-ui] #app #match #leave-match {
+    top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 50px);
   }
 }
