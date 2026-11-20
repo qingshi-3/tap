@@ -2197,25 +2197,24 @@ export class Game {
           return slotEl;
         });
 
-        // 阵轨流向箭头（连接 5 → 4 → 3 → 2 → 1 队首）
+        // 阵轨流向箭头（严格居中于相邻两格之间的空隙：5→4→3→2→1）
         const flowTrack = h('div', { class: 'ms-flow-track', 'aria-hidden': 'true' },
           ...Array.from({ length: QUEUE_MAX - 1 }, (_, i) => h('span', { class: `ms-flow-seg${i === QUEUE_MAX - 2 ? ' is-vanguard' : ''}` },
             h('i', { class: 'ms-flow-dots' }),
-            h('em', { class: 'ms-flow-chevrons' }))));
+            h('em', { class: 'ms-flow-chevrons' }),
+            h('i', { class: 'ms-flow-dots' }))));
 
-        const multiRelics = r.relics.length > 2;
         const relicItems = r.relics.map((id) => {
           const charm = h('button', {
-            class: `ms-relic-charm${multiRelics ? ' is-compact' : ''}`,
+            class: 'ms-relic-charm',
             type: 'button',
-            title: `${RELIC[id].name}：${RELIC[id].text}`,
+            'aria-label': `遗物：${RELIC[id].name}`,
+            title: RELIC[id].name,
           },
             h('span', { class: 'ms-wax-seal', 'aria-hidden': 'true' },
               h('i', { class: 'ms-wax-ribbons' }),
               h('span', { class: 'ms-wax-core' }, itemIcon(`rl_${id.slice(2)}`, 'spell'))),
-            h('div', { class: 'ms-relic-copy' },
-              h('b', null, RELIC[id].name),
-              multiRelics ? null : h('span', null, RELIC[id].text)));
+            h('span', { class: 'ms-relic-name' }, RELIC[id].name));
           charm.addEventListener('click', (ev) => {
             ev.stopPropagation();
             sfx.click();

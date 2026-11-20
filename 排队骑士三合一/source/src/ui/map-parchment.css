@@ -1060,8 +1060,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 0 10px;
+  gap: 6px;
+  padding: 0 56px;
 }
 #stage .map-parchment .ms-flow-dots {
   flex: 1;
@@ -1355,38 +1355,45 @@
   font-size: 14px;
 }
 
-/* ── 底部悬垂火漆封蜡遗物栏 ── */
+/* ── 底部悬垂火漆封蜡遗物挂坠（默认仅展示火漆徽章+简称，点击弹出完整遗物说明） ── */
 #stage .map-parchment .ms-relic-bar {
   position: relative;
   z-index: 5;
   display: flex;
   justify-content: center;
-  margin: 4px 0 -42px;
+  margin: 6px 0 -54px;
   pointer-events: none;
 }
 #stage .map-parchment .ms-relics {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 14px;
+  gap: 18px;
   pointer-events: auto;
 }
 #stage .map-parchment .ms-relic-charm {
   position: relative;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 0;
+  gap: 4px;
   padding: 0;
   border: 0;
   background: transparent;
-  color: #f4ecff;
-  text-align: left;
+  color: #ffe8a8;
   cursor: pointer;
   transition: transform 130ms ease, filter 130ms ease;
 }
 #stage .map-parchment .ms-relic-charm:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.08);
+  transform: translateY(-3px);
+  filter: brightness(1.12);
+}
+#stage .map-parchment .ms-relic-charm:hover .ms-wax-core {
+  border-color: #ffd86f;
+  box-shadow:
+    inset 0 0 0 2px #470c17,
+    0 0 0 2px #1a0c18,
+    0 0 16px rgba(255, 212, 92, .48);
 }
 
 /* 绯红火漆印章 + 双燕尾丝带 */
@@ -1413,8 +1420,8 @@
 #stage .map-parchment .ms-wax-core {
   position: relative;
   z-index: 1;
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   border: 3px solid #c9464f;
   background: radial-gradient(circle at 38% 35%, #b5323e, #6b1522 76%);
@@ -1424,39 +1431,23 @@
     0 5px 12px rgba(4, 2, 12, .78);
   display: grid;
   place-items: center;
+  transition: border-color 130ms ease, box-shadow 130ms ease;
 }
 #stage .map-parchment .ms-wax-core .px-item {
   width: 24px;
   height: 24px;
 }
-
-/* 遗物暗紫金签条 */
-#stage .map-parchment .ms-relic-copy {
-  margin-left: -12px;
-  padding: 7px 14px 7px 20px;
-  border: 2px solid #8c7050;
-  background: linear-gradient(180deg, rgba(32, 27, 58, .96), rgba(18, 15, 36, .98));
-  box-shadow: inset 0 1px 0 rgba(255, 232, 178, .22), 0 4px 0 #0c0818, 0 8px 18px rgba(4, 2, 12, .65);
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: 340px;
-}
-#stage .map-parchment .ms-relic-charm.is-compact .ms-relic-copy {
-  padding: 8px 12px 8px 18px;
-}
-#stage .map-parchment .ms-relic-copy b {
-  font-size: 13px;
-  font-weight: 900;
+#stage .map-parchment .ms-relic-name {
+  position: relative;
+  z-index: 3;
+  padding: 2px 8px;
+  border: 1px solid #8c7050;
+  background: rgba(20, 16, 40, .94);
+  box-shadow: 0 2px 0 #0b0716;
+  font-size: 11px;
+  font-weight: 800;
   color: #ffe8a8;
   white-space: nowrap;
-}
-#stage .map-parchment .ms-relic-copy span {
-  font-size: 12px;
-  color: #cdc4e6;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 @keyframes mapScrollUnfurl {
