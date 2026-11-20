@@ -2136,9 +2136,9 @@ export class Game {
       };
       window.addEventListener('keydown', onKey);
 
-      // 战术军阵面板：按真实 5 格战场站位（5 → 1 队首）+ 英雄徽章 + 像素资源条 + 遗物展示，杜绝空洞大黑框
+      // 暗夜战旗卷轴：左右木金卷轴 + 暗紫金符文羊皮纸 + 5 格行军阵轨（5 → 1 队首）+ 底部火漆遗物挂坠
       const hasSquad = r.queue.some(Boolean) || r.relics.length > 0;
-      const squadDrawer = h('div', { class: 'map-squad-drawer hidden', role: 'region', 'aria-label': '当前阵容与遗物' });
+      const squadDrawer = h('div', { class: 'map-squad-drawer ms-scroll hidden', role: 'region', 'aria-label': '当前阵容与遗物' });
       const squadLabel = h('span', null, '查看阵容');
       const squadBtn = hasSquad ? h('button', { class: 'btn ghost map-squad-btn', type: 'button', 'aria-pressed': 'false' }, icon('eye'), squadLabel) : null;
       const setSquadOpen = (open: boolean) => {
@@ -2151,21 +2151,21 @@ export class Game {
       if (squadBtn) {
         const heroDef = HERO[r.hero];
         const livesCap = maxLives(r);
-        const closeDrawerBtn = h('button', { class: 'ms-close', type: 'button', 'aria-label': '关闭阵容面板' }, icon('x'));
+        const closeDrawerBtn = h('button', { class: 'ms-close ms-bookmark', type: 'button', 'aria-label': '收起阵容卷轴' },
+          icon('x'),
+          h('span', null, '收起'));
         closeDrawerBtn.addEventListener('click', () => { sfx.click(); setSquadOpen(false); });
 
-        // 严格按战场从左到右 5 → 4 → 3 → 2 → 1(队首) 排列 5 个战术槽位
+        // 严格按战场从左到右 5 → 4 → 3 → 2 → 1(队首) 排列 5 个阵眼
         const slots = Array.from({ length: QUEUE_MAX }, (_, idx) => {
           const posIdx = QUEUE_MAX - 1 - idx; // 4, 3, 2, 1, 0
           const isLead = posIdx === 0;
           const u = r.queue[posIdx];
           if (!u) {
             return h('div', { class: `ms-slot is-empty${isLead ? ' is-lead' : ''}` },
-              h('div', { class: 'ms-slot-head' },
-                h('span', { class: 'ms-pos' }, isLead ? '1 队首' : `位置 ${posIdx + 1}`)),
-              h('div', { class: 'ms-empty-pad' },
-                h('span', { class: 'ms-empty-diamond', 'aria-hidden': 'true' }),
-                h('small', null, '空位')));
+              h('span', { class: 'ms-pos' }, isLead ? '1 队首' : `位置 ${posIdx + 1}`),
+              h('div', { class: 'ms-rune-ring', 'aria-hidden': 'true' },
+                h('i', null, String(posIdx + 1))));
           }
           const st = this.ownedStats(u);
           const gold = lvlOf(u.copies) >= 2;
@@ -2178,12 +2178,13 @@ export class Game {
             class: `ms-slot ms-unit${gold ? ' is-gold' : ''}${isLead ? ' is-lead' : ''}`,
             type: 'button',
           },
-            h('div', { class: 'ms-slot-head' },
-              h('span', { class: 'ms-pos' }, isLead ? '1 队首' : `位置 ${posIdx + 1}`),
+            h('span', { class: 'ms-pos' }, isLead ? '1 队首' : `位置 ${posIdx + 1}`),
+            h('div', { class: 'ms-medallion' },
+              isLead ? h('span', { class: 'ms-lead-crown', 'aria-hidden': 'true' }, icon('crown')) : null,
+              h('div', { class: 'ms-stage' },
+                h('span', { class: 'ms-art', html: unitSvg(u.def) }),
+                u.ench ? h('span', { class: 'ms-eq', title: `${EQUIP[u.ench].name}：${EQUIP[u.ench].text}` }, equipIcon(u.ench)) : null),
               pips),
-            h('div', { class: 'ms-stage' },
-              h('span', { class: 'ms-art', html: unitSvg(u.def) }),
-              u.ench ? h('span', { class: 'ms-eq', title: `${EQUIP[u.ench].name}：${EQUIP[u.ench].text}` }, equipIcon(u.ench)) : null),
             h('b', { class: 'ms-name' }, def.name),
             h('span', { class: 'ms-stats' }, statArt('atk', st.atk), statArt('hp', st.hp)));
           slotEl.addEventListener('click', (ev) => {
@@ -2196,16 +2197,43 @@ export class Game {
           return slotEl;
         });
 
-        const relicItems = r.relics.map((id) => h('div', { class: 'ms-relic', title: `${RELIC[id].name}：${RELIC[id].text}` },
-          itemIcon(`rl_${id.slice(2)}`, 'spell'),
-          h('div', { class: 'ms-relic-copy' },
-            h('b', null, RELIC[id].name),
-            h('span', null, RELIC[id].text))));
+        // 阵轨流向箭头（连接 5 → 4 → 3 → 2 → 1 队首）
+        const flowTrack = h('div', { class: 'ms-flow-track', 'aria-hidden': 'true' },
+          ...Array.from({ length: QUEUE_MAX - 1 }, (_, i) => h('span', { class: `ms-flow-seg${i === QUEUE_MAX - 2 ? ' is-vanguard' : ''}` },
+            h('i', { class: 'ms-flow-dots' }),
+            h('em', { class: 'ms-flow-chevrons' }))));
 
-        squadDrawer.replaceChildren(
+        const multiRelics = r.relics.length > 2;
+        const relicItems = r.relics.map((id) => {
+          const charm = h('button', {
+            class: `ms-relic-charm${multiRelics ? ' is-compact' : ''}`,
+            type: 'button',
+            title: `${RELIC[id].name}：${RELIC[id].text}`,
+          },
+            h('span', { class: 'ms-wax-seal', 'aria-hidden': 'true' },
+              h('i', { class: 'ms-wax-ribbons' }),
+              h('span', { class: 'ms-wax-core' }, itemIcon(`rl_${id.slice(2)}`, 'spell'))),
+            h('div', { class: 'ms-relic-copy' },
+              h('b', null, RELIC[id].name),
+              multiRelics ? null : h('span', null, RELIC[id].text)));
+          charm.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            sfx.click();
+            const cr = charm.getBoundingClientRect();
+            const pt = toStage(cr.left + cr.width / 2, cr.top);
+            showTip(relicTip(id), pt.x, pt.y, 'above', pt.y, null, charm);
+          });
+          return charm;
+        });
+
+        const parchment = h('div', { class: 'ms-parchment' },
+          h('div', { class: 'ms-scroll-frame', 'aria-hidden': 'true' }),
+          closeDrawerBtn,
           h('div', { class: 'ms-head' },
             h('div', { class: 'ms-hero-badge' },
-              h('span', { class: 'ms-hero-art', html: unitSvg(heroDef.art) }),
+              h('span', { class: 'ms-hero-crest' },
+                h('span', { class: 'ms-hero-crown', 'aria-hidden': 'true' }, icon('crown')),
+                h('span', { class: 'ms-hero-art', html: unitSvg(heroDef.art) })),
               h('div', { class: 'ms-hero-copy' },
                 h('small', null, '当前统帅'),
                 h('b', null, heroDef.name))),
@@ -2219,14 +2247,19 @@ export class Game {
                 h('small', null, '金')),
               h('div', { class: 'ms-res-chip ms-tavern' },
                 icon('crown'),
-                h('b', null, `酒馆 ${r.tavern} 级`))),
-            closeDrawerBtn),
-          h('div', { class: 'ms-formation' }, ...slots),
+                h('b', null, `酒馆 ${r.tavern} 级`)))),
+          h('div', { class: 'ms-formation-wrap' },
+            flowTrack,
+            h('div', { class: 'ms-formation' }, ...slots)),
           ...(relicItems.length
             ? [h('div', { class: 'ms-relic-bar' },
-              h('span', { class: 'ms-relic-kicker' }, '遗物'),
               h('div', { class: 'ms-relics' }, ...relicItems))]
             : []));
+
+        squadDrawer.replaceChildren(
+          h('div', { class: 'ms-roller left', 'aria-hidden': 'true' }, h('span', null)),
+          parchment,
+          h('div', { class: 'ms-roller right', 'aria-hidden': 'true' }, h('span', null)));
 
         squadBtn.addEventListener('click', () => {
           sfx.click();
