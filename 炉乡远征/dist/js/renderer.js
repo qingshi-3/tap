@@ -864,11 +864,45 @@ export class BoardRenderer {
 
   // Scene intent is a filled footprint, with badges kept clear of unit health.
   drawEncounterGround(ctx, cell, marker) {
-    const color = marker.kind === 'damage' ? '#ed995f' : marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+    const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 240) * .5;
+    const isDamage = marker.kind === 'damage';
+    const isGravity = marker.kind === 'gravity';
+    const color = isDamage ? '#ff4d3d' : isGravity ? '#9d7bff' : marker.kind === 'corpse' ? '#bb98df' : '#76bded';
     ctx.save();
-    drawTexturedQuad(ctx, this.tintedTile(marker.kind === 'damage' ? 'tile-spell' : 'tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : .62);
+    drawTexturedQuad(ctx, this.tintedTile(isDamage ? 'tile-spell' : 'tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : isDamage ? .58 : .52);
+    if (isDamage) {
+      ctx.beginPath();
+      cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.closePath();
+      ctx.fillStyle = `rgba(218, 38, 32, ${.22 + pulse * .16})`;
+      ctx.fill();
+      ctx.strokeStyle = '#ff4b3a';
+      ctx.lineWidth = 2.6;
+      ctx.stroke();
+      // Inner gold-amber reticle corners so target tile pops even on bright desert maps
+      const rx = cell.width * .24, ry = cell.height * .24, cx = cell.center.x, cy = cell.center.y;
+      ctx.strokeStyle = 'rgba(255, 224, 148, .92)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.min(rx, ry) * .72, 0, Math.PI * 2);
+      ctx.moveTo(cx - rx, cy); ctx.lineTo(cx - rx * .45, cy);
+      ctx.moveTo(cx + rx * .45, cy); ctx.lineTo(cx + rx, cy);
+      ctx.moveTo(cx, cy - ry); ctx.lineTo(cx, cy - ry * .45);
+      ctx.moveTo(cx, cy + ry * .45); ctx.lineTo(cx, cy + ry);
+      ctx.stroke();
+    } else if (isGravity) {
+      ctx.beginPath();
+      cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y));
+      ctx.closePath();
+      ctx.fillStyle = `rgba(124, 82, 232, ${.16 + pulse * .1})`;
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(182, 146, 255, .75)';
+      ctx.lineWidth = 1.6;
+      ctx.stroke();
+    }
     const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
-    glow.addColorStop(0, marker.kind === 'damage' ? 'rgba(246,149,68,.34)' : 'rgba(110,183,255,.34)'); glow.addColorStop(1, 'rgba(110,183,255,0)');
+    glow.addColorStop(0, isDamage ? 'rgba(255,78,52,.36)' : isGravity ? 'rgba(164,122,255,.32)' : 'rgba(110,183,255,.32)');
+    glow.addColorStop(1, 'rgba(110,183,255,0)');
     ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
     if (marker.kind === 'corpse') {
       drawTexturedQuad(ctx, this.images.get('terrain-rough'), cell.points, .9);
@@ -889,6 +923,28 @@ export class BoardRenderer {
   drawEncounterBadges(ctx, state, metrics, markers) {
     const rect = this.canvas.getBoundingClientRect();
     const viewport = this.battlefieldViewport(rect.width, rect.height);
+    // Draw subtle dashed targeting arcs from enemy shooter units (e.g. sentry/cannon) to their marked damage cells
+    for (const marker of markers) {
+      if (marker.kind !== 'damage' || marker.sourceUnitId == null) continue;
+      const shooter = state.units.find(u => u.unitId === marker.sourceUnitId && u.health > 0);
+      if (!shooter) continue;
+      const from = this.cellGeometry(metrics, shooter.x, shooter.y).center;
+      const to = this.cellGeometry(metrics, marker.x, marker.y).center;
+      const midX = (from.x + to.x) / 2;
+      const midY = Math.min(from.y, to.y) - 26;
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 110, 82, 0.72)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y - 18);
+      ctx.quadraticCurveTo(midX, midY, to.x, to.y - 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#ff6b52';
+      ctx.beginPath(); ctx.arc(to.x, to.y - 4, 3.8, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
     for (const marker of markers) {
       if (marker.showLabel === false) continue;
       const cell = this.cellGeometry(metrics, marker.x, marker.y);
@@ -896,7 +952,8 @@ export class BoardRenderer {
       // edge. Only keep the label visible for a cell actually in this view.
       if (cell.center.x < 0 || cell.center.x > rect.width || cell.center.y < viewport.top - cell.height || cell.center.y > viewport.bottom + cell.height / 2) continue;
       const size = Math.max(18, cell.width * .28);
-      const value = encounterMarkerLabel(marker);
+      const rawValue = encounterMarkerLabel(marker);
+      const value = marker.kind === 'damage' && !marker.intent?.includes('storm') && !marker.intent?.includes('meteor') && !marker.intent?.includes('beam') ? `瞄准 ${marker.amount}伤` : rawValue;
       const labelWidth = Math.max(size, value.length * size * .48 + 8);
       // Foot-level labels disappear behind the hand on short screens. Keep
       // intent beside the body, above the unit's attack/health numerals.
