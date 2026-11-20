@@ -2108,7 +2108,7 @@ export class Game {
         });
         return b;
       });
-      const showDebugThemes = location.search.includes('debug');
+      const showDebugThemes = !location.search.includes('nodebug');
       const themeStrip = showDebugThemes
         ? h('div', { class: 'map-theme-strip', role: 'group', 'aria-label': '切换体素风貌' }, ...themeBtns)
         : h('div', { class: 'map-legend', 'aria-label': '路线图例' },
