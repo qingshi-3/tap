@@ -1,5 +1,5 @@
 /* 远征战盘 · 暗夜像素动态路线图
- * 彻底告别静态羊皮纸，与全站暗夜星穹像素美学统一，支持三幕地貌、路线推演高亮、活体英雄行军与像素特效。 */
+ * 彻底告别静态羊皮纸，与全站暗夜星穹像素美学统一，支持三幕地貌、路线推演高亮、位置指引与像素特效。 */
 
 #stage .map-ov.map-parchment {
   --map-accent: #f5c156;
@@ -7,6 +7,10 @@
   --map-danger: #ff5b73;
   --map-bg: #0c0e20;
   --map-panel: rgba(14, 15, 32, .92);
+  --current-gold: #ffcb56;
+  --next-aqua: #60eed5;
+  --map-crystal: polygon(36% 0, 68% 0, 68% 10%, 84% 10%, 84% 23%, 100% 23%, 100% 49%, 84% 49%, 84% 63%, 69% 63%, 69% 78%, 57% 78%, 57% 94%, 43% 94%, 43% 78%, 31% 78%, 31% 63%, 16% 63%, 16% 49%, 0 49%, 0 23%, 16% 23%, 16% 10%, 36% 10%);
+  --map-chevron: polygon(0 0, 40% 0, 40% 16%, 60% 16%, 60% 32%, 80% 32%, 80% 42%, 100% 42%, 100% 58%, 80% 58%, 80% 68%, 60% 68%, 60% 84%, 40% 84%, 40% 100%, 0 100%, 0 84%, 20% 84%, 20% 68%, 40% 68%, 40% 32%, 20% 32%, 20% 16%, 0 16%);
   --map-border: #484072;
   position: absolute;
   inset: 0;
@@ -248,335 +252,285 @@
   height: 100%;
   image-rendering: auto;
 }
-
-/* 路线 SVG 层：流动能量虚线 + 推演支线高亮 + 选中灼亮光轨 */
-#stage .map-parchment .map-lines {
+.map-skylight {
   position: absolute;
-  inset: 0;
+  inset: -3%;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
   pointer-events: none;
-  z-index: 2;
 }
-#stage .map-parchment .map-lines svg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.map-illustration .map-realm-canvas { position: relative; }
+@media (prefers-reduced-motion: no-preference) {
+  .map-skylight { animation: mapSkyDrift 18s ease-in-out infinite alternate; }
 }
-#stage .map-parchment .map-lines path {
-  fill: none;
-  stroke: rgba(168, 178, 224, .34);
-  stroke-width: 2.5;
-  stroke-dasharray: 5 9;
-  stroke-linecap: square;
-  vector-effect: non-scaling-stroke;
-  transition: stroke 180ms ease, opacity 180ms ease, stroke-width 180ms ease;
-}
-#stage .map-parchment .map-lines path.dim-branch {
-  opacity: .16;
-}
-#stage .map-parchment .map-lines path.walked {
-  stroke: #f6c453;
-  stroke-width: 3.5;
-  stroke-dasharray: none;
-  opacity: .92;
-  filter: drop-shadow(0 0 6px rgba(246, 196, 83, .55));
-}
-#stage .map-parchment .map-lines path.available {
-  stroke: var(--map-glow);
-  stroke-width: 3;
-  stroke-dasharray: 8 7;
-  opacity: .88;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--map-glow) 60%, transparent));
-  animation: mapDashFlow 1.1s linear infinite;
-}
-#stage .map-parchment .map-lines path.preview {
-  stroke: color-mix(in srgb, var(--map-accent) 78%, #fff);
-  stroke-width: 3;
-  stroke-dasharray: 7 7;
-  opacity: .82;
-  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--map-accent) 48%, transparent));
-  animation: mapDashFlow 1.4s linear infinite;
-}
-#stage .map-parchment .map-lines path.chosen {
-  stroke: #fff3b8;
-  stroke-width: 4.5;
-  stroke-dasharray: 12 6;
-  opacity: 1;
-  filter: drop-shadow(0 0 10px var(--map-accent));
-  animation: mapDashFlow 0.55s linear infinite;
+@keyframes mapSkyDrift {
+  from { transform: translate(-1.1%, .5%); opacity: .76; }
+  to { transform: translate(1.1%, -.5%); opacity: 1; }
 }
 
-/* ── 3D 体素世界融入式节点：贴地等轴光环 + 前缘低矮地标铭牌，彻底敞开身后 3D 体素微缩建筑！ ── */
-#stage .map-parchment .map-node {
-  --nd-color: #9e96c8;
+/* The pointer target includes the miniature above the paving and its caption below. */
+#stage .map-parchment :is(.map-node, .map-origin) {
+  --nd-color: var(--rune, #bdadce);
+  --signal-offset: -20px;
+  --nd-anchor: 60%;
   position: absolute;
   z-index: 4;
+  width: 70px;
+  height: 72px;
   display: block;
-  width: 76px;
-  height: 76px;
   padding: 0;
   margin: 0;
   border: 0;
-  border-radius: 0;
+  border-image: none;
   background: transparent;
   box-shadow: none;
-  color: #efe8ff;
-  translate: -50% -50%;
+  translate: -50% calc(-1 * var(--nd-anchor));
   scale: var(--nd-scale, 1);
+  transform-origin: 50% var(--nd-anchor);
   transform: none;
+  animation: none;
   cursor: pointer;
-  isolation: isolate;
-  animation: mapNodeIn 320ms cubic-bezier(.2, 1.25, .35, 1) calc(var(--col, 0) * 32ms) both;
-  transition: opacity 180ms ease, filter 150ms ease;
 }
 #stage .map-parchment .map-node::before,
-#stage .map-parchment .map-node::after {
-  content: none;
-}
-
-/* 节点类型主题色 */
-#stage .map-parchment .map-node.k-fight    { --nd-color: #96a4d6; }
-#stage .map-parchment .map-node.k-camp     { --nd-color: #ff9a44; }
-#stage .map-parchment .map-node.k-treasure { --nd-color: #ffd056; }
-#stage .map-parchment .map-node.k-shop     { --nd-color: #4ee0a8; }
-#stage .map-parchment .map-node.k-event    { --nd-color: #b48cff; }
-#stage .map-parchment .map-node.k-elite    { --nd-color: #ff5c72; }
-#stage .map-parchment .map-node.k-boss     { --nd-color: #ff4f68; width: 96px; height: 96px; }
-
-/* 贴合 3×3 体素石砖地面的等轴透视菱形光圈（精准平躺在 50% 地面中心，绝不遮挡上方 3D 建筑） */
-#stage .map-parchment .map-node .mn-pad {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 38px;
-  height: 38px;
-  transform: translate(-50%, -50%) scaleY(0.46) rotate(45deg);
-  border: 2px solid color-mix(in srgb, var(--nd-color) 58%, rgba(255, 255, 255, .28));
-  background: radial-gradient(circle, color-mix(in srgb, var(--nd-color) 20%, transparent), transparent 72%);
+#stage .map-parchment .map-node::after { content: none; }
+#stage .map-parchment .map-node.past { opacity: 1; }
+#stage .map-parchment .map-origin {
+  --rune: #e6bc72;
+  --signal-offset: -6px;
   pointer-events: none;
-  z-index: 0;
-  transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  cursor: default;
 }
-#stage .map-parchment .map-node.k-boss .mn-pad {
-  width: 56px;
-  height: 56px;
-  border-width: 3px;
-  border-color: rgba(255, 108, 126, .85);
-  background: radial-gradient(circle, rgba(255, 68, 96, .28), transparent 72%);
-  box-shadow: 0 0 24px rgba(255, 68, 96, .55);
-  animation: mapBossPadPulse 2.2s ease-in-out infinite;
+#stage .map-parchment .map-node.k-boss {
+  --nd-anchor: 83%;
+  --signal-offset: -32px;
+  --nd-color: #e8a37c;
+  width: 94px;
+  height: 156px;
 }
-
-/* 贴在石砖前缘下方的低矮 RPG 铭牌（迷你像素图标 + 名称 + 完成勾，完全不遮挡石砖与 3D 建筑） */
-#stage .map-parchment .map-node .mn-plate {
+/* The miniature and its icon identify the encounter. Gold and aqua belong to the route state. */
+#stage .map-parchment .k-fight    { --rune: #a4ccdf; }
+#stage .map-parchment .k-elite    { --rune: #ef8b76; }
+#stage .map-parchment .k-camp     { --rune: #edbf80; }
+#stage .map-parchment .k-shop     { --rune: #9cdcc0; }
+#stage .map-parchment .k-treasure { --rune: #f1cc73; }
+#stage .map-parchment .k-event    { --rune: #c5a1e9; }
+#stage .map-parchment .k-boss     { --rune: #ff9568; }
+#stage .map-parchment :is(.map-node, .map-origin) .mn-pad {
   position: absolute;
   left: 50%;
-  top: calc(50% + 12px);
+  top: var(--nd-anchor);
+  width: 21px;
+  height: 21px;
+  transform: translate(-50%, -50%) scaleY(.45) rotate(45deg);
+  border: 2px solid color-mix(in srgb, var(--rune) 52%, #43404a);
+  background: color-mix(in srgb, var(--rune) 16%, transparent);
+  pointer-events: none;
+}
+#stage .map-parchment .mn-pad::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  translate: -50% -50%;
+  background: var(--rune);
+  box-shadow: 1px 1px 0 #473e45;
+}
+#stage .map-parchment .map-node.preview-node .mn-pad { border-color: #c3b7d1; }
+#stage .map-parchment .map-node:is(.past,.dim-branch) .mn-pad { opacity: .42; }
+#stage .map-parchment .k-boss .mn-pad {
+  width: 30px;
+  height: 30px;
+  border-color: #efa07c;
+  box-shadow: inset 0 0 0 2px #7e444a;
+}
+#stage .map-parchment :is(.map-node, .map-origin) .mn-plate {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--nd-anchor) + 6px);
   transform: translateX(-50%);
-  z-index: 2;
-  display: inline-flex;
+  display: none;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  box-sizing: border-box;
+  gap: 4px;
+  min-width: 24px;
   height: 24px;
-  padding: 0 8px 0 5px;
-  background: rgba(11, 10, 22, .86);
-  border: 1px solid color-mix(in srgb, var(--nd-color) 62%, rgba(255, 255, 255, .22));
-  border-left: 3px solid var(--nd-color);
-  border-radius: 0;
-  box-shadow: 0 3px 0 rgba(5, 4, 14, .82), 0 4px 12px rgba(0, 0, 0, .48);
+  padding: 0 7px;
   white-space: nowrap;
-  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+  background: color-mix(in srgb, var(--rune) 16%, #141826);
+  border-top: 2px solid var(--rune);
+  box-shadow: 0 2px #101321;
 }
 #stage .map-parchment .map-node .mn-ico {
-  width: 18px;
-  height: 18px;
-  flex: none;
-  filter: drop-shadow(0 1px 0 rgba(6, 5, 16, .85));
-}
-#stage .map-parchment .map-node .mn-tag {
-  position: static;
+  width: 17px;
+  height: 17px;
   transform: none;
+}
+#stage .map-parchment :is(.map-node, .map-origin) .mn-tag {
+  display: none;
+  position: static;
   padding: 0;
-  background: transparent;
+  transform: none;
   border: 0;
-  box-shadow: none;
-  color: #f3eeff;
+  background: transparent;
+  color: #fff3d9;
   font-size: 12px;
   font-weight: 800;
   line-height: 1;
-  letter-spacing: .04em;
-  text-shadow: 0 1px 0 #070512;
+  text-shadow: none;
 }
-#stage .map-parchment .map-node .mn-done {
-  font-style: normal;
-  font-size: 11px;
-  font-weight: 900;
-  color: #ffd86f;
-  margin-left: 1px;
-}
-
-/* Boss 铭牌略大气，坐落在三塔城堡大门正前方 */
-#stage .map-parchment .map-node.k-boss .mn-plate {
-  height: 30px;
-  padding: 0 11px 0 7px;
-  background: linear-gradient(180deg, rgba(64, 14, 28, .92), rgba(28, 8, 18, .96));
-  border: 2px solid #f06068;
-  box-shadow: 0 4px 0 #070410, 0 0 18px rgba(255, 68, 92, .45);
-}
-#stage .map-parchment .map-node.k-boss .mn-ico {
-  width: 22px;
-  height: 22px;
-}
-#stage .map-parchment .map-node.k-boss .mn-tag {
-  font-size: 14px;
-  color: #ffe0e4;
-}
-
-/* 节点状态：已略过 / 暗化支线 / 推演可达 / 已走过 / 可前往 / 已选中 */
-#stage .map-parchment .map-node.past {
-  opacity: .34;
-  filter: saturate(.45);
-}
-#stage .map-parchment .map-node.past .mn-pad {
-  opacity: .35;
-}
-#stage .map-parchment .map-node.dim-branch {
-  opacity: .42;
-}
-#stage .map-parchment .map-node.preview-node {
+#stage .map-parchment .mn-done { display: none; color: #b3c6bf; font-style: normal; }
+#stage .map-parchment .map-node.past .mn-plate { opacity: .76; }
+#stage .map-parchment :is(.map-origin, .map-node:is(.can,.current,.k-boss,.sel,:hover,:focus-visible)) .mn-plate {
+  display: inline-flex;
   opacity: 1;
+  clip-path: none;
+  padding: 0 7px;
+  border-top: 0;
+  border-bottom: 2px solid var(--nd-color);
+  box-shadow: 0 3px 0 #10121e;
 }
-#stage .map-parchment .map-node.preview-node .mn-pad {
-  border-color: color-mix(in srgb, var(--map-accent) 82%, #fff);
-  box-shadow: 0 0 16px color-mix(in srgb, var(--map-accent) 44%, transparent);
+#stage .map-parchment :is(.map-origin, .map-node:is(.can,.current,.k-boss,.sel,:hover,:focus-visible)) :is(.mn-tag,.mn-done) {
+  display: inline;
 }
-#stage .map-parchment .map-node.preview-node .mn-plate {
-  border-color: color-mix(in srgb, var(--map-accent) 72%, #fff);
-}
-
-#stage .map-parchment .map-node.on {
-  opacity: .92;
-}
-#stage .map-parchment .map-node.on .mn-pad {
-  border-color: rgba(246, 196, 83, .72);
-  background: radial-gradient(circle, rgba(246, 196, 83, .18), transparent 72%);
-}
-#stage .map-parchment .map-node.on .mn-plate {
-  border-color: rgba(212, 166, 74, .7);
-  border-left-color: #f6c453;
-}
-
-/* 可前往节点：贴地青金脉冲光菱 + 顶部轻巧悬浮指引三角，醒目但不挡 3D 地标 */
+#stage .map-parchment .map-node.on .mn-pad { border-color: #a5b4a8; }
 #stage .map-parchment .map-node.can {
-  z-index: 6;
+  --nd-color: var(--next-aqua);
+  z-index: 5;
 }
-#stage .map-parchment .map-node.can .mn-pad {
-  width: 50px;
-  height: 50px;
-  border-width: 2.5px;
-  border-color: var(--map-glow);
-  background: radial-gradient(circle, color-mix(in srgb, var(--map-glow) 30%, transparent), transparent 72%);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--map-glow) 65%, transparent);
-  animation: mapPadPulse 1.8s ease-in-out infinite;
+#stage .map-parchment :is(.map-node, .map-origin).current {
+  --nd-color: var(--current-gold);
+  z-index: 7;
 }
-#stage .map-parchment .map-node.can .mn-plate {
-  background: rgba(14, 20, 42, .92);
-  border-color: color-mix(in srgb, var(--map-glow) 85%, #fff);
-  border-left-color: var(--map-glow);
-  box-shadow: 0 3px 0 #070512, 0 0 14px color-mix(in srgb, var(--map-glow) 42%, transparent);
+#stage .map-parchment .map-node:is(.sel,:hover,:focus-visible) { z-index: 8; }
+#stage .map-parchment .mn-signal { display: none; pointer-events: none; }
+#stage .map-parchment :is(.map-origin.current, .map-node:is(.current,.can)) .mn-signal {
+  position: absolute;
+  display: block;
+  left: calc(50% + var(--signal-offset));
+  top: var(--nd-anchor);
+  z-index: 2;
+  filter: drop-shadow(-1px 0 #262640) drop-shadow(1px 0 #262640) drop-shadow(0 2px #272136);
 }
-#stage .map-parchment .map-node.can::after {
+#stage .map-parchment .mn-signal::before,
+#stage .map-parchment .mn-signal::after {
   content: '';
   position: absolute;
-  top: -2px;
-  left: 50%;
-  width: 0;
-  height: 0;
-  transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 7px solid var(--map-glow);
-  filter: drop-shadow(0 2px 0 #070512) drop-shadow(0 0 6px var(--map-glow));
-  animation: mapChevronBob 1.3s ease-in-out infinite;
+  display: block;
+}
+
+/* The broad amber crystal always rests over the western edge of the current tile. */
+#stage .map-parchment .current .mn-signal {
+  width: 22px;
+  height: 31px;
+  translate: -50% -100%;
+}
+#stage .map-parchment .current .mn-signal::before {
+  inset: 0 0 auto;
+  height: 24px;
+  clip-path: var(--map-crystal);
+  background: linear-gradient(90deg, #f49a32 0 28%, #fff4ab 28% 49%, #ffcf51 49% 73%, #e99325 73%);
+  animation: mapBeaconHover 1.8s steps(6, end) infinite;
+}
+#stage .map-parchment .current .mn-signal::after {
+  bottom: 0;
+  left: 9px;
+  width: 4px;
+  height: 6px;
+  background: linear-gradient(#ffed99 0 50%, transparent 50% 67%, #ffcd51 67%);
+}
+#stage .map-parchment :is(.map-origin, .map-node).current .mn-pad {
+  width: 36px;
+  height: 36px;
+  opacity: 1;
+  border: 3px solid var(--current-gold);
+  background: #d9952870;
+  box-shadow: 0 0 0 2px #754424, inset 0 0 0 2px #fff1af;
+}
+#stage .map-parchment .current .mn-pad::before {
+  width: 7px;
+  height: 7px;
+  background: #fff6cc;
+  box-shadow: 0 0 0 2px #a86c27;
+}
+#stage .map-parchment .current .mn-pad::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 2px solid #ffe79b;
   pointer-events: none;
+  animation: mapBeaconEcho 2.3s ease-out infinite;
+}
+#stage .map-parchment .current .mn-plate {
+  color: #fff1be;
+  background: #43311f;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+}
+#stage .map-parchment .current .mn-tag { color: #fff1be; }
+@keyframes mapBeaconHover {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+@keyframes mapBeaconEcho {
+  0% { opacity: .85; transform: scale(.98); }
+  76%, 100% { opacity: 0; transform: scale(1.53); }
 }
 
-/* 选中目标节点：鎏金脉冲光菱 + 实心金铭牌 + 金色指路尖标 */
-#stage .map-parchment .map-node.sel {
-  z-index: 8;
+/* Reachability sits low on the paving. Its two cyan chevrons travel in the direction of play. */
+#stage .map-parchment .map-node.can:not(.current) .mn-signal {
+  width: 22px;
+  height: 14px;
+  translate: -64% -66%;
 }
-#stage .map-parchment .map-node.sel .mn-pad {
-  width: 56px;
-  height: 56px;
-  border-width: 3px;
-  border-color: #fff2be;
-  background: radial-gradient(circle, rgba(255, 224, 122, .42), transparent 72%);
-  box-shadow: 0 0 26px rgba(255, 214, 102, .85), inset 0 0 12px rgba(255, 246, 200, .45);
+#stage .map-parchment .map-node.can:not(.current) .mn-signal::before,
+#stage .map-parchment .map-node.can:not(.current) .mn-signal::after {
+  top: 0;
+  width: 11px;
+  height: 14px;
+  clip-path: var(--map-chevron);
+  background: #41d7c4;
+  animation: mapRouteArrow 1.65s steps(5, end) var(--signal-delay, 0s) infinite;
 }
-#stage .map-parchment .map-node.sel .mn-plate {
-  background: linear-gradient(180deg, #ffe388, #df9b2e);
-  border: 2px solid #fff6d2;
-  box-shadow: 0 4px 0 #5b330c, 0 0 18px rgba(255, 212, 102, .65);
-  transform: translateX(-50%) translateY(-2px) scale(1.06);
+#stage .map-parchment .map-node.can:not(.current) .mn-signal::after {
+  left: 9px;
+  background: #b5fff2;
+  animation-delay: calc(var(--signal-delay, 0s) + 140ms);
 }
-#stage .map-parchment .map-node.sel .mn-tag,
-#stage .map-parchment .map-node.sel .mn-done {
-  color: #1f1204;
-  text-shadow: 0 1px 0 rgba(255, 246, 204, .5);
+#stage .map-parchment .map-node.can:not(.current) .mn-pad {
+  width: 32px;
+  height: 32px;
+  opacity: 1;
+  border: 3px solid #84ffee;
+  background: rgba(42, 168, 148, .48);
+  box-shadow: 0 0 0 2px #163d38, 0 0 14px rgba(102, 240, 220, .65);
 }
-#stage .map-parchment .map-node.sel.can::after {
-  border-top-color: #ffe48a;
-  filter: drop-shadow(0 2px 0 #5b330c) drop-shadow(0 0 8px #ffd86f);
+#stage .map-parchment .map-node.can:not(.current) .mn-pad::before {
+  width: 7px;
+  height: 7px;
+  background: #e6fff8;
+  box-shadow: 0 0 0 1px #159d91;
+}
+#stage .map-parchment .map-node.can:not(.current) .mn-plate { background: #173b3d; }
+@keyframes mapRouteArrow {
+  0%, 84%, 100% { transform: translateX(-1px); }
+  42% { transform: translateX(3px); }
 }
 
-#stage .map-parchment .map-node:hover {
-  z-index: 9;
+/* Inspecting a location changes its caption. Persistent travel signals keep their own colours. */
+#stage .map-parchment .map-node.sel:not(.current,.can) .mn-plate {
+  color: #fff;
+  border-color: #ded5f4;
+  background: #443d5e;
 }
-#stage .map-parchment .map-node:hover .mn-plate {
-  transform: translateX(-50%) translateY(-2px) scale(1.05);
-  border-color: #ffe48a;
-}
-#stage .map-parchment .map-node:hover .mn-pad {
-  border-color: #ffe48a;
-}
+#stage .map-parchment .map-node.sel .mn-plate { box-shadow: 0 2px #171925, 0 0 0 1px #fff2db; }
+#stage .map-parchment .map-node:focus-visible { outline: none; }
 #stage .map-parchment .map-node:focus-visible .mn-plate {
-  outline: 2px solid #ffe285;
+  outline: 3px solid #fff9e7;
   outline-offset: 2px;
-}
-
-/* ── 活体英雄行军棋子（稳稳站在体素石砖地面中央，绝不遮挡铭牌与地标） ── */
-#stage .map-parchment .map-hero-token {
-  position: absolute;
-  z-index: 10;
-  width: 58px;
-  height: 66px;
-  translate: -50% -90%;
-  scale: var(--nd-scale, 1);
-  pointer-events: none;
-  filter: drop-shadow(0 5px 0 rgba(5, 4, 14, .82)) drop-shadow(0 0 12px color-mix(in srgb, var(--map-accent) 62%, transparent));
-}
-#stage .map-parchment .map-hero-token .uart.duelyst {
-  width: 58px;
-  height: 66px;
-}
-#stage .map-parchment .map-hero-token .uart.duelyst .duelyst-normal {
-  background-image: var(--duelyst-selected-image);
-}
-#stage .map-parchment .map-hero-token::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 4px;
-  width: 44px;
-  height: 10px;
-  transform: translateX(-50%);
-  border: 2px solid #ffe285;
-  background: rgba(255, 214, 102, .24);
-  box-shadow: 0 0 12px rgba(255, 214, 102, .6);
-  z-index: -1;
-}
-#stage .map-parchment .map-hero-token.marching {
-  animation: mapHeroLeap 320ms cubic-bezier(.3, .9, .3, 1) both;
 }
 
 /* 就近悬浮「前往 ▶」按钮（硬像素金块，零跨屏折返） */
@@ -633,36 +587,81 @@
   border-top: 2px solid color-mix(in srgb, var(--map-accent) 44%, #3c3563);
   box-shadow: 0 -8px 24px rgba(4, 3, 12, .6);
 }
+#stage .map-parchment .map-key {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 14px;
+  color: #e5e0ef;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+#stage .map-parchment .map-key > span { display: inline-flex; align-items: center; gap: 5px; }
+#stage .map-parchment .map-key > :is([hidden],.hidden) { display: none; }
+#stage .map-parchment .mk-current::before,
+#stage .map-parchment .mk-next::before {
+  content: '';
+  display: inline-block;
+  flex: none;
+}
+#stage .map-parchment .mk-current::before {
+  width: 13px;
+  height: 16px;
+  clip-path: var(--map-crystal);
+  background: linear-gradient(90deg, var(--current-gold) 0 48%, #fff1b5 48% 70%, #eaaa41 70%);
+}
+#stage .map-parchment .mk-next { position: relative; }
+#stage .map-parchment .mk-next::before,
+#stage .map-parchment .mk-next::after {
+  width: 8px;
+  height: 12px;
+  clip-path: var(--map-chevron);
+  background: #3dc3af;
+}
+#stage .map-parchment .mk-next::before { margin-right: 6px; }
+#stage .map-parchment .mk-next::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  background: #b5fff2;
+}
+
 #stage .map-parchment .map-info {
   display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 3px 12px;
   flex: 1;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 18px;
   min-width: 0;
-  color: #c8bfe2;
+  color: #d2cddd;
   font-size: 16px;
-  line-height: 1.35;
+  line-height: 1.3;
 }
-#stage .map-parchment .map-info > span {
+#stage .map-parchment .map-landmark-portrait {
+  width: 128px;
+  height: 90px;
+  flex: none;
+  image-rendering: pixelated;
+  background: radial-gradient(ellipse at 50% 72%, color-mix(in srgb, var(--map-accent) 13%, transparent), transparent 68%);
+}
+#stage .map-parchment .map-info-copy {
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 14px;
+}
+#stage .map-parchment .map-info-title {
   flex-basis: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
-#stage .map-parchment .map-info b {
-  color: #fff6df;
-  font-size: 22px;
-  font-weight: 900;
-  text-shadow: 0 2px 0 #080614;
-}
-#stage .map-parchment .map-info em {
-  color: #ffd972;
-  font-style: normal;
-  font-weight: 800;
-}
-#stage .map-parchment .map-info .px-item {
-  width: 34px;
-  height: 34px;
-  filter: drop-shadow(0 2px 0 #080614);
-}
+#stage .map-parchment .map-info b { font-size: 22px; color: #fff1d6; }
+#stage .map-parchment .map-info small { font-size: 13px; color: #b8abc5; }
+#stage .map-parchment .map-info em { font-style: normal; font-weight: 700; color: #e5bc77; }
 
 #stage .map-parchment .map-foot .btn:is(.map-go, .map-close) {
   flex: none;
@@ -686,7 +685,9 @@
   filter: brightness(1.08);
 }
 #stage .map-parchment .map-foot .btn.map-close {
-  min-width: 132px;
+  min-width: 124px;
+  height: 50px;
+  font-size: 17px;
   border: 2px solid #5c538a;
   background: linear-gradient(180deg, #2b264e, #1a1734);
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, .1), 0 4px 0 #090714;
@@ -1098,26 +1099,6 @@
   from { opacity: 0; }
   to { opacity: 1; }
 }
-@keyframes mapNodeIn {
-  from { opacity: 0; transform: translateY(10px) scale(.86); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes mapCanFloat {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
-@keyframes mapDashFlow {
-  from { stroke-dashoffset: 30; }
-  to { stroke-dashoffset: 0; }
-}
-@keyframes mapCampFlicker {
-  0%, 100% { filter: drop-shadow(0 3px 0 #080512) drop-shadow(0 0 6px rgba(255, 152, 64, .55)); }
-  50% { filter: drop-shadow(0 3px 0 #080512) drop-shadow(0 0 14px rgba(255, 198, 96, .85)); }
-}
-@keyframes mapBossPulse {
-  0%, 100% { box-shadow: inset 0 2px 0 rgba(255, 180, 168, .35), 0 6px 0 #070410, 0 0 22px rgba(255, 68, 92, .45); }
-  50% { box-shadow: inset 0 2px 0 rgba(255, 180, 168, .5), 0 6px 0 #070410, 0 0 38px rgba(255, 76, 108, .78); }
-}
 @keyframes mapQuickPop {
   from { opacity: 0; transform: translate(-50%, -35%) scale(.88); }
   to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
@@ -1126,24 +1107,6 @@
   from { opacity: 0; transform: translate(-50%, 14px); }
   to { opacity: 1; transform: translate(-50%, 0); }
 }
-@keyframes mapHeroLeap {
-  0% { transform: translateY(0) scale(1); }
-  45% { transform: translateY(-22px) scale(1.18); filter: brightness(1.35) drop-shadow(0 18px 0 rgba(5, 4, 14, .55)) drop-shadow(0 0 22px #ffe285); }
-  100% { transform: translateY(0) scale(1.05); }
-}
-@keyframes mapPadPulse {
-  0%, 100% { transform: translate(-50%, -50%) scaleY(0.46) rotate(45deg) scale(1); opacity: .88; }
-  50% { transform: translate(-50%, -50%) scaleY(0.46) rotate(45deg) scale(1.1); opacity: 1; }
-}
-@keyframes mapBossPadPulse {
-  0%, 100% { transform: translate(-50%, -50%) scaleY(0.46) rotate(45deg) scale(1); box-shadow: 0 0 18px rgba(255, 68, 96, .48); }
-  50% { transform: translate(-50%, -50%) scaleY(0.46) rotate(45deg) scale(1.08); box-shadow: 0 0 32px rgba(255, 78, 108, .85); }
-}
-@keyframes mapChevronBob {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50% { transform: translateX(-50%) translateY(-4px); }
-}
-
 /* ── 手机横屏紧凑适配（844×390） ── */
 #stage.compact .map-parchment .map-card {
   grid-template-rows: 60px minmax(0, 1fr) 88px;
@@ -1169,9 +1132,17 @@
 #stage.compact .map-parchment .map-info b {
   font-size: 21px;
 }
+#stage.compact .map-parchment .map-landmark-portrait {
+  width: 112px;
+  height: 79px;
+}
+#stage.compact .map-parchment .map-key {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
 #stage.compact .map-parchment .map-node .mn-plate {
-  height: 27px;
-  padding: 0 9px 0 6px;
+  height: 24px;
 }
 #stage.compact .map-parchment .map-node .mn-tag {
   font-size: 13px;
@@ -1179,8 +1150,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   #stage .map-parchment,
-  #stage .map-parchment :is(.map-node, .map-node::after, .mn-pad, .map-hero-token, .map-quick-go, .map-squad-drawer) {
+  #stage .map-parchment :is(.map-node, .mn-pad, .map-quick-go, .map-squad-drawer, .map-skylight),
+  #stage .map-parchment .mn-signal::before,
+  #stage .map-parchment .mn-signal::after,
+  #stage .map-parchment .mn-pad::after {
     animation: none !important;
     transition: none !important;
   }
+  #stage .map-parchment .mn-pad::after { display: none; }
 }

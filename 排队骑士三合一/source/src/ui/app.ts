@@ -103,8 +103,7 @@ export class App {
     this.endingTimers = [];
   }
 
-  private leaveGame(keepTitleMusic = false) {
-    if (!keepTitleMusic) setTitleMusic(false);
+  private leaveGame() {
     this.clearEndingFx();
     this.game?.dispose();
     this.game = null;
@@ -125,7 +124,7 @@ export class App {
   }
 
   toTitle() {
-    this.leaveGame(true);
+    this.leaveGame();
     setTitleMusic(true);
     const foes = ['e_nightk', 'e_lich', 'e_void'].filter((id) => card(id));
     // 每个流派优先挑高阶单位，已展示的素材跳过。
@@ -209,13 +208,13 @@ export class App {
   }
 
   toCodex() {
-    this.leaveGame(true);
+    this.leaveGame();
     setTitleMusic(true);
     this.show(codexScreen(() => this.toTitle()));
   }
 
   toRecords() {
-    this.leaveGame(true);
+    this.leaveGame();
     setTitleMusic(true);
     const rec = loadRecords();
     const back = h('button', { class: 'records-button records-back', type: 'button' }, icon('x'), '返回');
@@ -238,7 +237,7 @@ export class App {
     const rec = loadRecords();
     const first = rec.runs === 0;
     const unlockedCount = rec.clears > 0 || rec.runs >= 2 ? HEROES.length : rec.runs === 1 ? 4 : 2;
-    this.leaveGame(true);
+    this.leaveGame();
     setTitleMusic(true);
     const camp = heroCampScreen({
       stage: this.stage,
@@ -269,6 +268,7 @@ export class App {
     recordRun(r);
     save(null);
     this.leaveGame();
+    setTitleMusic(false);
     const won = r.phase === 'won';
     if (won) sfx.win(); else sfx.lose();
     const again = h('button', { class: 'btn primary big' }, h('span', null, '再来一局'), icon('play'));

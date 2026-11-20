@@ -6,11 +6,13 @@ import {
   MeshBasicMaterial,
   MeshLambertMaterial,
   Object3D,
+  PlaneGeometry,
   Scene,
   type Material,
 } from 'three';
+import { voxelGlowMaterial } from './mapVoxelGlow';
 
-export type Batch = 'solid' | 'light' | 'water' | 'cloud';
+export type Batch = 'solid' | 'light' | 'water' | 'cloud' | 'aura';
 export type Motion = (pose: Object3D, seconds: number) => void;
 export type Box = (
   x: number,
@@ -47,6 +49,7 @@ function place(pose: Object3D, b: Block, t: number) {
 // A block's y argument is its foot so roofs, masonry courses and stairs stack exactly.
 export function voxelBatches(scene: Scene, lava: boolean) {
   const geometry = new BoxGeometry(1, 1, 1);
+  const billboard = new PlaneGeometry(1, 1);
   const materials = {
     solid: new MeshLambertMaterial(),
     light: new MeshBasicMaterial({ toneMapped: false }),
@@ -54,8 +57,9 @@ export function voxelBatches(scene: Scene, lava: boolean) {
       ? new MeshBasicMaterial({ toneMapped: false })
       : new MeshLambertMaterial({ transparent: true, opacity: 0.81, depthWrite: false }),
     cloud: new MeshLambertMaterial({ depthWrite: true }),
+    aura: voxelGlowMaterial(),
   };
-  const blocks: Record<Batch, Block[]> = { solid: [], light: [], water: [], cloud: [] };
+  const blocks: Record<Batch, Block[]> = { solid: [], light: [], water: [], cloud: [], aura: [] };
   let count = 0;
   const box: Box = (x, base, z, w, h, d, color, batch = 'solid', motion, yaw = 0) => {
     count++;
@@ -66,7 +70,12 @@ export function voxelBatches(scene: Scene, lava: boolean) {
     paint = new Color();
   const actors: { mesh: InstancedMesh; moving: { slot: number; block: Block }[] }[] = [];
   function meshFor(max: number, material: Material) {
-    const mesh = new InstancedMesh(geometry, material, Math.max(1, max));
+    const aura = material === materials.aura;
+    const mesh = new InstancedMesh(aura ? billboard : geometry, material, Math.max(1, max));
+    if (aura) {
+      mesh.userData.mapAura = true;
+      mesh.renderOrder = 2;
+    }
     meshes.push(mesh);
     mesh.frustumCulled = false;
     scene.add(mesh);
@@ -113,6 +122,7 @@ export function voxelBatches(scene: Scene, lava: boolean) {
     }
     for (const mat of Object.values(materials)) mat.dispose();
     geometry.dispose();
+    billboard.dispose();
   }
   return {
     box,

@@ -1,4 +1,5 @@
 import { Color, DirectionalLight, InstancedMesh, Matrix4, Vector3, type Camera, type Scene } from 'three';
+import { drawStillGlow } from './mapVoxelGlow';
 
 // A small z-buffer for the WebGL-free still. Rasterizing the actual instance matrices
 // keeps towers, arches, paths and DOM anchors in register, including after resize.
@@ -23,7 +24,7 @@ export function renderStill(scene: Scene, camera: Camera, width: number, height:
     sunlight = new Color();
   const sun = scene.children.find((v): v is DirectionalLight => v instanceof DirectionalLight);
   const light = sun?.position.clone().normalize() ?? new Vector3(-0.5, 0.8, 0.35);
-  function triangle(a: Vector3, b: Vector3, c: Vector3, r: number, g: number, blue: number, alpha: number) {
+  function triangle(a: Vector3, b: Vector3, c: Vector3, r: number, g: number, blue: number, alpha: number, writeDepth: boolean) {
     const dx1 = b.x - a.x,
       dy1 = b.y - a.y,
       dx2 = c.x - a.x,
@@ -44,7 +45,7 @@ export function renderStill(scene: Scene, camera: Camera, width: number, height:
         const z = a.z + s * (b.z - a.z) + t * (c.z - a.z),
           at = y * width + x;
         if (z >= depth[at]) continue;
-        depth[at] = z;
+        if (writeDepth) depth[at] = z;
         const idx = at * 4,
           under = (pixels[idx + 3] / 255) * (1 - alpha),
           total = alpha + under;
@@ -61,6 +62,10 @@ export function renderStill(scene: Scene, camera: Camera, width: number, height:
     for (let i = 0; i < mesh.count; i++) {
       mesh.getMatrixAt(i, instance);
       mesh.getColorAt(i, paint);
+      if (mesh.userData.mapAura) {
+        drawStillGlow(instance, paint, camera, pixels, depth, width, height);
+        continue;
+      }
       mvp.multiplyMatrices(vp, instance);
       points.forEach((p, j) => {
         p.set((j & 1) - 0.5, ((j >> 1) & 1) - 0.5, ((j >> 2) & 1) - 0.5).applyMatrix4(mvp);
@@ -80,8 +85,8 @@ export function renderStill(scene: Scene, camera: Camera, width: number, height:
           r = hex >> 16,
           g = (hex >> 8) & 255,
           blue = hex & 255;
-        triangle(p, q, v, r, g, blue, mat.opacity);
-        triangle(p, v, points[d], r, g, blue, mat.opacity);
+        triangle(p, q, v, r, g, blue, mat.opacity, mat.depthWrite);
+        triangle(p, v, points[d], r, g, blue, mat.opacity, mat.depthWrite);
       }
     }
   }

@@ -9,11 +9,12 @@ import './mixedHand.css';
 import '../qb/css/battle-redesign.css';
 import './tavern-control.css';
 import './map-parchment.css';
-import { ACT_DEFAULT_THEME, mountMapRealm, VOXEL_THEMES, type MapNodeSpec, type MapPathState } from './mapArt';
+import { landmarkPortrait } from './mapLandmarkPortrait';
+import { ACT_DEFAULT_THEME, mountMapRealm, VOXEL_THEMES, type MapNodeSpec, type MapPathState, type ProjectedPoint } from './mapArt';
 import { ATOM_INFO, BOSSES, card, EQUIP, equipOf, equipStats, EVENT_INFO, FOOD, fxFood, HERO, Q_INFO, QUEST_INFO, RELIC, type RelicId } from '../core/data';
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
-  FORM_INFO, tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, takeoverKin, toggleLock, ownedRules, unequip, useFood,
+  tierOf, upgradeTavern, cellAt, isHand, HAND_BASE, HAND_MAX, lvlOf, MAX_COPIES, maxLives, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, takeover, takeoverCheck, takeoverInherit, takeoverKin, toggleLock, ownedRules, unequip, useFood,
   ACTS, LAYERS, bossOf, curNode, nodeOpts, pickNode, leaveNode, passNode, isCombat, handCap, tavernPrice, buyGoods, heroReady, useHero, fireCopyOk, fireSmithOk, QUESTS, SHARD_NEED, type NodeKind,
   ownedAtk, ownedHp, prepFoodUses, pickDiscover, itemPrice, spellTargetOk, scarCap, hasScar, GUARD_N, LEGION_MAX, type Owned, type RunState, type ShopFx, type ShopItem,
   canPayBlood, payBlood, handAt, isHeldSpell, buyToHand, castHandSpell, discardHandSpell, discardHandUnit, claimReward, discardReward, inspectPlayConflict, foodTargetOk, supportTargetHint, canAdRelic, sharesFood, goodsUnavailableReason, effectiveQuarry,
@@ -84,6 +85,7 @@ export class Game {
   private fastFx = false;
   private releaseFxWait: (() => void) | null = null;
   private disposed = false;
+  private closeMap?: () => void;
   private player: BattlePlayer | null = null;
   private battleScene: SceneHandle | null = null;
   private battleSceneId: SceneId | null = null;
@@ -156,6 +158,7 @@ export class Game {
     closeKeywordHelp();
     this.clearPlacementFeedback();
     this.disposed = true;
+    this.closeMap?.();
     clearTimeout(this.introTimer);
     this.tutorial?.dispose();
     this.fastFx = true;
@@ -461,15 +464,14 @@ export class Game {
 
     // 破咒移除的词缀不再显示（elite 本身保留给精英宝箱保底）
     const elite = (r.enemy.elite ?? []).filter((a) => !r.enemy.dispelled?.includes(a));
-    const form = r.enemy.form;
     if (elite.length) this.banner.classList.add('k-elite');
     this.banner.replaceChildren(
       h('div', { class: 'sb-title' },
         boss ? h('span', { class: 'sb-kind' }, 'Boss') : elite.length ? h('span', { class: 'sb-kind elite' }, '精英') : null,
         h('span', { class: 'sb-no' }, this.rehearsal ? '调整站位' : `${this.where()} · 输掉扣 ${enemyLossCost(r)} 心`),
-        h('b', null, boss ? BOSSES[boss].name : r.enemy.encounter?.name ?? (form ? FORM_INFO[form].name : '对手阵容')),
+        h('b', null, boss ? BOSSES[boss].name : elite.length ? '精英战斗' : '普通战斗'),
         ...elite.map((a) => h('span', { class: 'sb-ax', title: ATOM_INFO[a].name }, itemIcon(ATOM_INFO[a].icon, 'spell'), ATOM_INFO[a].name))),
-      ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : r.enemy.encounter ? [h('div', { class: 'sb-hint' }, r.enemy.encounter.hint)] : form ? [h('div', { class: 'sb-hint' }, FORM_INFO[form].hint)] : []),
+      ...(boss ? [h('div', { class: 'sb-hint' }, BOSSES[boss].desc)] : r.enemy.encounter ? [h('div', { class: 'sb-hint' }, r.enemy.encounter.hint)] : []),
       h('div', { class: 'sb-foot' }, '点击任意位置继续'),
     );
   }
@@ -1821,8 +1823,13 @@ export class Game {
 
   /** 路线图：3D 体素浮空大陆 + 3D 贴地光路/地标 + 6 套可切换风景主题 + 严丝合缝透视投影；单击仅选点预览，点「前往」出发 */
   private showMap(pickable: boolean): Promise<void> {
+    if (this.closeMap || this.disposed) return Promise.resolve();
     const r = this.run;
-    const opts = nodeOpts(r);
+    const currentLayer = r.path[r.layer] === undefined ? r.layer - 1 : r.layer;
+    const currentIndex = r.path[currentLayer];
+    const nextLayer = currentLayer + 1;
+    const options = r.map[nextLayer] ? nodeOpts({ map: r.map, path: r.path, layer: nextLayer }) : [];
+    const isNext = (layer: number, index: number) => layer === nextLayer && options.includes(index);
     return new Promise((done) => {
       const cols = r.map.length;
       const nodeSpecs: MapNodeSpec[] = r.map.flatMap((L, l) => L.map((n, i) => ({
@@ -1841,7 +1848,7 @@ export class Game {
       const initialThemeId = VOXEL_THEMES.some((t) => t.id === savedTheme) ? savedTheme : defaultThemeId;
 
       const realm = mountMapRealm(r.act, nodeSpecs, initialThemeId);
-      const ov = h('div', { class: `map-ov map-parchment act-${r.act} tone-${realm.theme.tone}`, role: 'dialog', 'aria-modal': 'true', 'aria-label': '远征地图' });
+      const ov = h('div', { class: `map-ov map-parchment act-${r.act} tone-${realm.theme.tone}`, role: 'dialog', tabindex: -1, 'aria-modal': 'true', 'aria-label': '远征地图' });
       const realmNameEl = h('span', { class: 'map-realm-name' }, realm.theme.name);
 
       const applyThemeStyle = () => {
@@ -1853,37 +1860,27 @@ export class Game {
       };
       applyThemeStyle();
 
-      // 静态已知的已走边与当前可前往边集合
-      const walkedEdges = new Set<string>();
-      const availableEdges = new Set<string>();
-      r.map.forEach((L, l) => L.forEach((n, i) => n.next.forEach((j) => {
-        if (!r.map[l + 1]) return;
-        const key = `${l}-${i}->${l + 1}-${j}`;
-        if (r.path[l] === i && r.path[l + 1] === j) walkedEdges.add(key);
-        else if (l + 1 === r.layer && r.path[l] === i && opts.includes(j)) availableEdges.add(key);
-      })));
-
+      const edgeTo = (layer: number, from: number, to: number) =>
+        layer === 0 ? `camp-${to}->0-${to}` : `${layer - 1}-${from}->${layer}-${to}`;
+      const walkedEdges = new Set(r.path.slice(0, currentLayer + 1).map((index, layer) =>
+        edgeTo(layer, r.path[layer - 1], index)));
+      const availableEdges = new Set(options.map(index => edgeTo(nextLayer, currentIndex, index)));
       const info = h('div', { class: 'map-info' });
+      let viewed: MapNodeSpec | undefined;
+      let inspecting = false;
       const go = h('button', { class: 'btn primary map-go', disabled: true }, h('span', null, '前往'), icon('play'));
       const quickGo = h('button', { class: 'map-quick-go hidden', type: 'button' }, h('span', null, '前往'), icon('play'));
 
-      const heroToken = h('div', {
-        class: 'map-hero-token',
-        'aria-hidden': 'true',
-        html: unitSvg(HERO[r.hero].art),
-      });
-
+      const origin = currentLayer < 0 ? h('div', { class: 'map-origin current', role: 'img', 'aria-label': '当前位置，远征起点' },
+        h('span', { class: 'mn-signal', 'aria-hidden': 'true' }),
+        h('span', { class: 'mn-pad', 'aria-hidden': 'true' }),
+        h('span', { class: 'mn-plate' }, '起点')) : null;
+      const mapKey = h('span', { class: 'map-key' },
+        h('span', { class: 'mk-current' }, '当前位置'),
+        ...(options.length ? [h('span', { class: 'mk-next' }, '下一步')] : []));
       let sel = -1;
-      let selLayer = -1;
-      let campAimIdx = opts[0] ?? 0;
       let entering = false;
-      let marchAnim: {
-        from: { layer: number; index: number } | { campIndex: number };
-        to: { layer: number; index: number };
-        startAt: number;
-        dur: number;
-      } | null = null;
-      let marchTimer = 0;
+      let departTimer = 0;
 
       const onMove = (e: PointerEvent) => {
         const rect = ov.getBoundingClientRect();
@@ -1894,11 +1891,15 @@ export class Game {
       };
       ov.addEventListener('pointermove', onMove);
 
-      const cleanup = () => {
-        if (marchTimer) clearTimeout(marchTimer);
+      const closeMap = () => {
+        if (departTimer) clearTimeout(departTimer);
         ov.removeEventListener('pointermove', onMove);
         window.removeEventListener('keydown', onKey);
         realm.dispose();
+        ov.remove();
+        this.closeMap = undefined;
+        if (!this.disposed && !pickable) this.el.querySelector<HTMLElement>('.hud-map')?.focus({ preventScroll: true });
+        done();
       };
 
       // 前向路线推演高亮：同时更新 3D 贴地光轨与 2D 节点分支状态
@@ -1925,9 +1926,7 @@ export class Game {
             }
           }
         }
-        if (isChosenReachable && r.layer > 0 && r.path[r.layer - 1] !== undefined) {
-          chosen = `${r.layer - 1}-${r.path[r.layer - 1]}->${startLayer}-${startIdx}`;
-        }
+        if (isChosenReachable) chosen = edgeTo(startLayer, currentIndex, startIdx);
         const state: MapPathState = {
           walked: walkedEdges,
           available: availableEdges,
@@ -1946,39 +1945,21 @@ export class Game {
         });
       };
 
-      const heroAnchorPoint = () => {
-        if (marchAnim) {
-          const raw = Math.min(1, Math.max(0, (performance.now() - marchAnim.startAt) / marchAnim.dur));
-          const eased = 1 - Math.pow(1 - raw, 3);
-          return realm.projectAlong(marchAnim.from, marchAnim.to, eased);
-        }
-        if (!pickable && r.path[r.layer] !== undefined && r.map[r.layer]) {
-          const p = realm.projectNode(r.layer, r.path[r.layer]);
-          return { x: p.x, y: p.y - 0.6, scale: p.scale };
-        }
-        if (r.layer > 0 && r.path[r.layer - 1] !== undefined && r.map[r.layer - 1]) {
-          const p = realm.projectNode(r.layer - 1, r.path[r.layer - 1]);
-          return { x: p.x, y: p.y - 0.6, scale: p.scale };
-        }
-        return realm.projectCampEntry(campAimIdx);
+      const restoreBranch = () => {
+        if (inspecting && viewed) highlightBranch(viewed.layer, viewed.index, isNext(viewed.layer, viewed.index));
+        else highlightBranch(-1, -1, false);
       };
 
-      // 每帧由 3D 相机投影驱动节点、就近按钮与活体英雄棋子，与体素地形 100% 透视锁死
+      const positionMarker = (el: HTMLElement, pt: ProjectedPoint) => {
+        el.style.left = `${pt.x.toFixed(2)}%`;
+        el.style.top = `${pt.y.toFixed(2)}%`;
+        el.style.setProperty('--nd-scale', pt.scale.toFixed(3));
+      };
       const syncOverlay = () => {
-        nodes.forEach((el) => {
-          const nl = Number(el.dataset.layer);
-          const ni = Number(el.dataset.node);
-          const pt = realm.projectNode(nl, ni);
-          el.style.left = `${pt.x.toFixed(2)}%`;
-          el.style.top = `${pt.y.toFixed(2)}%`;
-          el.style.setProperty('--nd-scale', pt.scale.toFixed(3));
-        });
-        const hp = heroAnchorPoint();
-        heroToken.style.left = `${hp.x.toFixed(2)}%`;
-        heroToken.style.top = `${hp.y.toFixed(2)}%`;
-        heroToken.style.setProperty('--nd-scale', hp.scale.toFixed(3));
+        nodes.forEach((el, i) => positionMarker(el, realm.projectNode(nodeSpecs[i].layer, nodeSpecs[i].index)));
+        if (origin) positionMarker(origin, realm.projectEntry());
 
-        if (!entering && pickable && sel >= 0 && selLayer === r.layer) {
+        if (!entering && inspecting && pickable && sel >= 0) {
           const sp = realm.projectNode(r.layer, sel);
           const leftPct = Math.min(88, Math.max(12, sp.x));
           const placeAbove = sp.y > 76;
@@ -1995,10 +1976,6 @@ export class Game {
         const targetLayer = r.layer;
         const targetIdx = sel;
         const targetEl = nodes.find((x) => Number(x.dataset.layer) === targetLayer && Number(x.dataset.node) === targetIdx);
-        const fromAnchor: { layer: number; index: number } | { campIndex: number } =
-          targetLayer > 0 && r.path[targetLayer - 1] !== undefined
-            ? { layer: targetLayer - 1, index: r.path[targetLayer - 1] }
-            : { campIndex: campAimIdx };
         if (!pickNode(r, targetIdx)) return;
         entering = true;
         go.disabled = true;
@@ -2007,42 +1984,52 @@ export class Game {
         this.persist(r);
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const finishEnter = () => {
-          cleanup();
-          ov.remove();
+          closeMap();
           this.renderAll();
-          done();
         };
         if (reduced || !targetEl) {
           finishEnter();
           return;
         }
-        // 英雄沿 3D 体素地形起伏弧线跃迁至目标节点 + 3D 体素波纹与像素火花
-        realm.pulseNode(targetLayer, targetIdx);
-        heroToken.classList.add('marching');
-        marchAnim = { from: fromAnchor, to: { layer: targetLayer, index: targetIdx }, startAt: performance.now(), dur: 340 };
-        const tr = targetEl.getBoundingClientRect();
+        origin?.remove();
+        nodes.forEach(el => {
+          if (!el.matches('.current,.can')) return;
+          const name = el.querySelector('.mn-tag')?.textContent;
+          const status = el === targetEl ? '当前位置' : el.classList.contains('current') ? '已走过' : '已略过';
+          el.classList.toggle('current', el === targetEl);
+          el.classList.remove('can');
+          el.setAttribute('aria-label', `${name}，${status}`);
+          if (el === targetEl) el.setAttribute('aria-current', 'step');
+          else el.removeAttribute('aria-current');
+        });
+        realm.pulseNode(targetLayer, targetIdx, 'depart');
+        const tr = targetEl.querySelector<HTMLElement>('.mn-pad')!.getBoundingClientRect();
         const pt = toStage(tr.left + tr.width / 2, tr.top + tr.height / 2);
         this.fx.wave(pt.x, pt.y, '#ffd86f', 190, 380);
         this.fx.burst(pt.x, pt.y, '#ffe48a', { n: 22, speed: 6, kind: 'spark', size: 3.5, up: 1.8, life: 28 });
-        marchTimer = window.setTimeout(finishEnter, 360);
+        departTimer = window.setTimeout(finishEnter, 300);
       };
 
       quickGo.addEventListener('click', (e) => { e.stopPropagation(); enterSelected(); });
 
-      const nodes = r.map.flatMap((L, l) => L.map((n, i) => {
-        const can = l === r.layer && opts.includes(i);
+      const nodes = nodeSpecs.map((spec) => {
+        const { layer: l, index: i } = spec;
+        const n = r.map[l][i];
+        const can = isNext(l, i);
         const on = r.path[l] === i;
-        const current = l === r.layer && on;
-        const name = n.k === 'boss' ? BOSSES[bossOf(r)].name : n.form ? FORM_INFO[n.form].name : NODE_INFO[n.k].name;
-        const status = current ? '当前位置' : on ? '已走过' : can ? '可前往' : l < r.layer ? '已略过' : '未探索';
+        const current = l === currentLayer && i === currentIndex;
+        const name = n.k === 'boss' ? BOSSES[bossOf(r)].name : NODE_INFO[n.k].name;
+        const status = current ? '当前位置' : on ? '已走过' : can ? (pickable ? '可前往' : '下一步可达') : l <= currentLayer ? '已略过' : '未探索';
         const el = h('button', {
-          class: `map-node k-${n.k}${can ? ' can' : ''}${on ? ' on' : ''}${current ? ' current' : ''}${l < r.layer && !on ? ' past' : ''}`,
-          style: `--col:${l}`,
+          class: `map-node k-${n.k}${can ? ' can' : ''}${on ? ' on' : ''}${current ? ' current' : ''}${l <= currentLayer && !on ? ' past' : ''}`,
+          style: `--signal-delay:-${((l * 0.71 + i * 1.17) % 3.2).toFixed(2)}s`,
           'aria-label': `${name}，${status}`,
           'aria-pressed': 'false',
+          ...(current ? { 'aria-current': 'step' } : {}),
           'data-layer': l,
           'data-node': i,
         },
+          can || current ? h('span', { class: 'mn-signal', 'aria-hidden': 'true' }) : null,
           h('span', { class: 'mn-pad', 'aria-hidden': 'true' }),
           h('span', { class: 'mn-plate' },
             itemIcon(nodeIco(n.k), 'spell', 'mn-ico'),
@@ -2053,30 +2040,44 @@ export class Game {
           if (can) sfx.hover();
           highlightBranch(l, i, can);
         });
-        el.addEventListener('pointerleave', () => {
-          if (entering) return;
-          highlightBranch(selLayer, sel, sel >= 0);
-        });
+        el.addEventListener('pointerleave', () => { if (!entering) restoreBranch(); });
         el.addEventListener('click', () => {
           if (entering) return;
-          // 地图节点仅负责点选与路线推演预览，绝不单击误进；须明确点击「前往」按钮才出发
           sfx.click();
-          const nk = NODE_INFO[n.k];
-          const title = n.k === 'boss' ? BOSSES[bossOf(r)].name : nk.name;
-          const hint = n.k === 'boss' ? BOSSES[bossOf(r)].desc : n.form ? `${FORM_INFO[n.form].name}：${FORM_INFO[n.form].hint}` : nk.hint;
-          info.replaceChildren(itemIcon(nodeIco(n.k), 'spell'), h('b', null, title), h('span', null, hint), ...(nk.tail ? [h('em', null, nk.tail)] : []));
-          nodes.forEach((x) => { x.classList.remove('sel'); x.setAttribute('aria-pressed', 'false'); });
-          el.classList.add('sel');
-          el.setAttribute('aria-pressed', 'true');
-          sel = can ? i : -1;
-          selLayer = l;
-          go.disabled = sel < 0;
-          if (pickable && can && r.layer === 0) campAimIdx = i;
-          highlightBranch(l, i, can);
-          syncOverlay();
+          selectNode(spec, true);
         });
         return el;
-      }));
+      });
+
+      const showInfo = (spec: MapNodeSpec) => {
+        const n = r.map[spec.layer][spec.index];
+        const kind = NODE_INFO[n.k];
+        const boss = n.k === 'boss' ? BOSSES[bossOf(r)] : undefined;
+        const name = boss?.name ?? kind.name;
+        const hint = boss?.desc ?? kind.hint;
+        info.replaceChildren(landmarkPortrait(spec, realm.theme),
+          h('div', { class: 'map-info-copy' },
+            h('div', { class: 'map-info-title' }, h('b', null, name),
+              ...(boss ? [h('small', null, kind.name)] : [])),
+            ...(hint ? [h('span', null, hint)] : []),
+            ...(kind.tail ? [h('em', null, kind.tail)] : [])));
+      };
+      const selectNode = (spec: MapNodeSpec, explicit: boolean) => {
+        const { layer, index } = spec;
+        viewed = spec;
+        inspecting = explicit;
+        sel = pickable && isNext(layer, index) ? index : -1;
+        go.disabled = sel < 0;
+        nodes.forEach((el, i) => {
+          const selected = nodeSpecs[i] === spec;
+          el.classList.toggle('sel', selected);
+          el.setAttribute('aria-pressed', String(selected));
+        });
+        showInfo(spec);
+        restoreBranch();
+        syncOverlay();
+        if (explicit) realm.pulseNode(layer, index, 'inspect');
+      };
 
       // 6 套体素地貌风景实时切换栏（方便随时欣赏不同体素世界风貌）
       const themeBtns = VOXEL_THEMES.map((t) => {
@@ -2098,27 +2099,31 @@ export class Game {
             btn.setAttribute('aria-pressed', String(active));
           });
           try { localStorage.setItem(themeStorageKey, t.id); } catch { /* ignore */ }
-          highlightBranch(selLayer, sel, sel >= 0);
+          if (viewed) showInfo(viewed);
+          restoreBranch();
           syncOverlay();
         });
         return b;
       });
-      const themeStrip = h('div', { class: 'map-theme-strip', role: 'group', 'aria-label': '切换体素风貌' }, ...themeBtns);
+      const showDebugThemes = location.search.includes('debug');
+      const themeStrip = showDebugThemes
+        ? h('div', { class: 'map-theme-strip', role: 'group', 'aria-label': '切换体素风貌' }, ...themeBtns)
+        : h('div', { class: 'map-legend', 'aria-label': '路线图例' },
+          ...([['walked', '已走过'], ['available', '可前往'], ['future', '未探索']] as const).map(([cls, label]) => h('span', { class: cls }, h('i', null), label)));
 
       go.addEventListener('click', enterSelected);
       const close = h('button', { class: 'btn ghost map-close' }, h('span', null, '返回'));
       const closePeek = () => {
         if (entering) return;
         sfx.click();
-        cleanup();
-        ov.remove();
-        done();
+        closeMap();
       };
       close.addEventListener('click', closePeek);
 
       const onKey = (e: KeyboardEvent) => {
         if (entering) return;
-        if (e.key === 'Enter' && pickable && sel >= 0) {
+        const focusedButton = e.target instanceof Element ? e.target.closest('button') : null;
+        if (e.key === 'Enter' && pickable && sel >= 0 && (!focusedButton || focusedButton.matches('.map-node.sel'))) {
           e.preventDefault();
           enterSelected();
         } else if (e.key === 'Escape' && !pickable) {
@@ -2233,19 +2238,17 @@ export class Game {
             realmNameEl),
           h('div', { class: 'map-acts', 'aria-label': '远征进度' }, ...Array.from({ length: ACTS }, (_, a) => h('i', { class: a < r.act ? 'done' : a === r.act ? 'cur' : '', 'aria-label': `第${'一二三'[a]}幕${a === r.act ? '，当前' : ''}` }, '一二三'[a]))),
           themeStrip),
-        h('div', { class: 'map-field' }, realm.el, ...nodes, heroToken, ...(pickable ? [quickGo] : []), squadDrawer),
-        h('div', { class: 'map-foot' }, info, ...(squadBtn ? [squadBtn] : []), pickable ? go : close)));
+        h('div', { class: 'map-field' }, realm.el, ...(origin ? [origin] : []), ...nodes, ...(pickable ? [quickGo] : []), squadDrawer),
+        h('div', { class: 'map-foot' }, info, mapKey, ...(squadBtn ? [squadBtn] : []), pickable ? go : close)));
       this.el.appendChild(ov);
+      this.closeMap = closeMap;
+      ov.focus({ preventScroll: true });
       realm.onFrame(syncOverlay);
-      if (!pickable) {
-        const current = nodes.find(x => x.classList.contains('current'));
-        if (current) current.click();
-        else { info.replaceChildren(h('span', null, '点击地点，查看详情')); highlightBranch(-1, -1, false); }
-      }
-      if (pickable) {
-        const first = nodes.find((x) => x.classList.contains('can'));
-        if (first) first.click();
-        else { info.replaceChildren(h('span', null, '选择下一处地点')); highlightBranch(-1, -1, false); }
+      const first = nodeSpecs.find(s => pickable ? isNext(s.layer, s.index) : s.layer === currentLayer && s.index === currentIndex);
+      if (first) selectNode(first, false);
+      else {
+        info.replaceChildren(h('span', null, pickable ? '选择下一处地点' : '点击地点，查看详情'));
+        restoreBranch();
       }
       syncOverlay();
       sfx.whoosh();

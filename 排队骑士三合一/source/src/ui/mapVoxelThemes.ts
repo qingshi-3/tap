@@ -19,7 +19,7 @@ export const VOXEL_THEMES: readonly VoxelThemeInfo[] = [
   {
     id: 'autumn_sunset',
     name: '金霞枫林',
-    subtitle: '晚霞红叶与暖金石桥',
+    subtitle: '斜坡枫台与朱栏木桥',
     tone: 'sunset',
     accent: '#ff9d42',
     glow: '#ffd66b',
@@ -27,7 +27,7 @@ export const VOXEL_THEMES: readonly VoxelThemeInfo[] = [
   {
     id: 'moonlit_woods',
     name: '暮星林境',
-    subtitle: '月光萤火与幽蓝溪瀑',
+    subtitle: '双悬岛与跨空星桥',
     tone: 'night',
     accent: '#f5c65c',
     glow: '#66e3ff',
@@ -35,7 +35,7 @@ export const VOXEL_THEMES: readonly VoxelThemeInfo[] = [
   {
     id: 'golden_oasis',
     name: '霜砂绿洲',
-    subtitle: '古道岩拱与星尘绿洲',
+    subtitle: '砂岩台地与绿洲水渠',
     tone: 'sunset',
     accent: '#ffbe5c',
     glow: '#5ae6d0',
@@ -43,7 +43,7 @@ export const VOXEL_THEMES: readonly VoxelThemeInfo[] = [
   {
     id: 'alpine_snow',
     name: '雪峰圣境',
-    subtitle: '皑皑雪岭与冰瀑营火',
+    subtitle: '冰川峡湾与悬冰拱桥',
     tone: 'day',
     accent: '#ffd872',
     glow: '#86e2ff',
@@ -61,7 +61,7 @@ export const VOXEL_THEMES: readonly VoxelThemeInfo[] = [
 export const ACT_DEFAULT_THEME: readonly string[] = ['emerald_day', 'golden_oasis', 'ashen_citadel'] as const;
 export const ACT_REALMS = [
   { name: '晴空翠谷', subtitle: '阳光松林与飞瀑溪谷' },
-  { name: '霜砂绿洲', subtitle: '古道岩拱与星尘绿洲' },
+  { name: '霜砂绿洲', subtitle: '砂岩台地与绿洲水渠' },
   { name: '烬火王城', subtitle: '黑曜城垛与熔岩裂瀑' },
 ] as const;
 
@@ -158,7 +158,7 @@ export const BIOMES: Record<string, Biome> = {
     rock: [0x272738, 0x3c374a, 0x504757, 0x705462, 0x61464c],
     leaf: [0x312f45, 0x4c4157, 0x65516b, 0x99635f],
     flag: 0x9d303b,
-    road: 0x8a7272,
+    road: 0xa98d8d,
     water: 0xf25721,
     foam: 0xffc351,
     key: 0xffc0a0,

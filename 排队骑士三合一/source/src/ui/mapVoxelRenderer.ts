@@ -1,5 +1,5 @@
 import { ACESFilmicToneMapping, PCFShadowMap, WebGLRenderer, type Camera, type Vector3 } from 'three';
-import type { MapPathState } from './mapArt';
+import type { MapPathState, MapPulse } from './mapArt';
 import type { VoxelThemeInfo } from './mapVoxelThemes';
 import type { Terrain } from './mapVoxelTerrain';
 import { buildWorld } from './mapVoxelWorld';
@@ -96,8 +96,8 @@ export function createRealmRenderer(el: HTMLElement, land: Terrain, theme: Voxel
         ctx.putImageData(img, 0, 0);
       }
     },
-    setTheme(next: VoxelThemeInfo) {
-      const replacement = buildWorld(land, next);
+    setTheme(nextLand: Terrain, next: VoxelThemeInfo) {
+      const replacement = buildWorld(nextLand, next);
       world.dispose();
       world = replacement;
       dirty = true;
@@ -107,8 +107,8 @@ export function createRealmRenderer(el: HTMLElement, land: Terrain, theme: Voxel
       world.state(state);
       dirty = true;
     },
-    pulse(p: Vector3, t: number) {
-      if (gpu) world.pulse(p, t);
+    pulse(p: Vector3, t: number, kind: MapPulse) {
+      if (gpu) world.pulse(p, t, kind);
     },
     dispose() {
       surface.removeEventListener('webglcontextlost', lost);

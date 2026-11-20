@@ -8,11 +8,12 @@ import {
   Scene,
   Vector3,
 } from 'three';
-import type { MapPathState } from './mapArt';
+import type { MapPathState, MapPulse } from './mapArt';
 import { voxelBatches, type Box, type Motion } from './mapVoxelBatch';
-import { landmark, relic, summit, tree } from './mapVoxelModels';
+import { landmark, summit, tree } from './mapVoxelModels';
+import { crossing, distantSkyline, landing } from './mapVoxelArchitecture';
 import { BIOMES, type Biome, type VoxelThemeInfo } from './mapVoxelThemes';
-import { bridgeTop, clamp, follow, GATE_X, GRID, TILE_WIDTH, noise, random, type Terrain } from './mapVoxelTerrain';
+import { clamp, follow, GRID, TILE_WIDTH, noise, random, type Terrain } from './mapVoxelTerrain';
 
 type Rand = () => number;
 const pick = (c: number[], r: number) => c[Math.min(c.length - 1, Math.floor(r * c.length))];
@@ -24,6 +25,7 @@ function tint(c: number, factor: number) {
   );
 }
 function geology(box: Box, land: Terrain, b: Biome, theme: VoxelThemeInfo) {
+  const greenCliffs = ['emerald_day', 'autumn_sunset', 'moonlit_woods'].includes(theme.id);
   const exposures = [
     [TILE_WIDTH, 0],
     [-TILE_WIDTH, 0],
@@ -31,14 +33,13 @@ function geology(box: Box, land: Terrain, b: Biome, theme: VoxelThemeInfo) {
     [0, -GRID],
   ];
   for (const cell of land.cells.values()) {
-    const { x, z, h, root, wet } = cell,
-      r = noise(x, z);
+    const { x, z, h, root, wet } = cell;
     const neighbours = exposures.map(([dx, dz]) => land.at(x + dx, z + dz));
     const recess = neighbours.filter(n => n && n.h > h + 0.4).length;
-    const patch = 0.5 + 0.24 * Math.sin(x * 0.38 + z * 0.21) + 0.18 * Math.cos(z * 0.52 - x * 0.13) + (r - 0.5) * 0.23;
+    const patch = 0.5 + 0.25 * Math.sin(x * 0.14 + z * 0.09) + 0.2 * Math.cos(z * 0.19 - x * 0.055);
     const top = wet
       ? tint(b.water, 0.56)
-      : tint(pick(b.turf, clamp(patch, 0, 0.999)), 1 - recess * 0.024 + (r - 0.5) * 0.035);
+      : tint(pick(b.turf, clamp(patch, 0, 0.999)), 1 - recess * 0.025);
     box(x, h - 0.4, z, TILE_WIDTH, 0.4, GRID, top);
     const cuts = [
       root,
@@ -51,45 +52,68 @@ function geology(box: Box, land: Terrain, b: Biome, theme: VoxelThemeInfo) {
       const low = cuts[i - 1],
         high = cuts[i];
       if (high <= low || neighbours.every(n => n && n.h >= high && n.root <= low)) continue;
-      box(x, low, z, TILE_WIDTH, high - low, GRID, tint(b.rock[[0, 1, 2, 4][i - 1]], 0.94 + 0.1 * r));
-      if (i === 3 && high - low > 1.35 && r > 0.38)
-        box(x, high - 0.65, z, TILE_WIDTH + 0.025, 0.24, GRID + 0.025, tint(b.rock[3], 0.88 + r * 0.12));
+      box(x, low, z, TILE_WIDTH, high - low, GRID, tint(b.rock[[0, 1, 2, 4][i - 1]], 0.94 + 0.055 * patch));
+      if (i === 3 && high - low > 1.35 && patch > 0.68)
+        box(x, high - 0.65, z, TILE_WIDTH + 0.025, 0.24, GRID + 0.025, tint(b.rock[3], 0.94));
     }
     if (wet) {
       const level = land.waterLevel(z);
       box(x, h, z, TILE_WIDTH, level - h, GRID, b.water, 'water');
-      if (r > 0.7)
-        box(x + (r - 0.78) * 0.5, level + 0.012, z, 0.12, 0.065, 0.45 + r * 0.41, b.foam, 'light', (o, t) => {
-          o.position.z += Math.sin(t * 1.9 + r * 21) * 0.27;
-          o.scale.z *= 0.7 + 0.29 * Math.sin(t * 2 + r * 41);
+    }
+    // A few nearby columns share a spur, so each buttress reads as a single rock mass.
+    if (wet || land.at(x, z + GRID)) continue;
+    const spur = Math.max(...[-29, -13, 9, 29].map(crest => 1 - Math.abs(x - crest) / 3.4));
+    if (spur <= 0) continue;
+    const base = root - 0.6 - 1.8 * spur;
+    const crown = Math.min(h - 0.64, 1.2 + 1.4 * spur);
+    box(x, base, z + 0.48, TILE_WIDTH, crown - base, 0.85 + spur * 0.51, b.rock[1]);
+    box(x, crown, z + 0.5, TILE_WIDTH, 0.4, 0.95 + spur * 0.54, b.rock[2]);
+    if (greenCliffs && spur > 0.49)
+      box(x, h - 0.76 - spur, z + GRID * 0.49, 0.84, 0.71 + spur, 0.23, b.turf[0]);
+  }
+}
+
+// A hard-edged, two-colour glint. All three bars share their centre and motion,
+// so it stays coherent as it swells and fades, including in the still renderer.
+function glint(box: Box, x: number, y: number, z: number, size: number, rim: number, motion: Motion) {
+  function bar(w: number, h: number, depth: number, color: number) {
+    box(x, y - h * size / 2, z, w * size, h * size, depth * size, color, 'light', motion);
+  }
+  bar(1.38, 0.19, 0.18, rim);
+  bar(0.21, 1.26, 0.18, rim);
+  bar(0.42, 0.42, 0.34, 0xfff4cf);
+}
+
+function aura(box: Box, x: number, y: number, z: number, w: number, h: number, color: number, phase = 0) {
+  box(x, y - h / 2, z, w, h, 1, color, 'aura', (o, t) => {
+    const breath = 0.94 + 0.10 * Math.cos(t * 1.8 + phase);
+    o.scale.x *= breath;
+    o.scale.y *= breath;
+  });
+}
+
+function riverLight(box: Box, land: Terrain, b: Biome) {
+  // Small crests drift downstream in the gaps between the bridges. Each patch
+  // breaks into two offset steps; the bridge and its route stay visually clear.
+  const spans = [...land.spans.values()];
+  const placed: number[] = [];
+  const sheen = new Color(b.water).lerp(new Color(b.foam), 0.55).getHex();
+  for (const target of [-12, -4, 4, 13]) {
+    const start = [0, -1.25, 1.25, -2.5, 2.5].map(dz => target + dz).find(z => {
+      if (spans.some(s => Math.abs(s.z - z) < 2.65) || placed.some(p => Math.abs(p - z) < 3.8)) return false;
+      return [-0.95, 0, 0.95].every(dz => land.at(land.river(z + dz), z + dz)?.wet);
+    });
+    if (start === undefined) continue;
+    placed.push(start);
+    for (const [side, offset] of [[-1, 0], [1, 0.48]]) {
+      const phase = ((target + 16) * 0.09 + offset) % 1;
+      for (const [dx, dz, width] of [[0, 0, 0.88], [0.48, -0.24, 0.43]]) {
+        box(0, 0, 0, width, 0.12, 0.19, dx === 0 ? sheen : b.foam, 'light', (o, t) => {
+          const u = (phase + t * 0.34) % 1;
+          const z = start + (u - 0.5) * 1.65 + dz;
+          o.position.set(land.river(z) + side * (0.29 + dx), land.waterLevel(z) + 0.10, z);
+          o.scale.x *= 0.18 + Math.sin(u * Math.PI) * 0.95;
         });
-    }
-    // Projecting shelves break the continuous cliff bands into columnar buttresses.
-    // The outcrop and mineral vein sit on the outward-facing side of the actual cell.
-    if (!wet && !land.at(x, z + GRID) && r > 0.48) {
-      const base = root - 0.8 - r * 1.85,
-        crown = Math.min(h - 0.52, 1.4 + r * 1.65);
-      box(x, base, z + 0.48, 0.68 + r * 0.39, crown - base, 0.74, tint(b.rock[1], 0.87 + r * 0.22));
-      box(x, crown - 0.12, z + 0.5, 0.82 + r * 0.38, 0.38, 0.82, b.rock[2]);
-      box(x, base - 0.77, z + 0.4, 0.47, 0.81, 0.43, b.rock[0]);
-      if (r > 0.58) {
-        box(x + 0.18, base - 0.85, z + 0.62, 0.22, 0.92, 0.27, tint(b.foam, 0.83), 'light');
-        box(x + 0.18, base - 1.16, z + 0.62, 0.12, 0.32, 0.16, b.foam, 'light');
-      }
-      if (theme.id === 'emerald_day' || theme.id === 'autumn_sunset' || theme.id === 'moonlit_woods') {
-        box(x - 0.25, h - 1.17, z + 0.62, 0.37, 1.18, 0.23, b.turf[0]);
-        box(x - 0.19, h - 1.62, z + 0.65, 0.19, 0.5, 0.19, b.leaf[2]);
-      }
-    }
-    if (theme.id === 'ashen_citadel' && !wet && Math.abs(x - land.river(z)) < 3.7 && r > 0.5) {
-      box(x, h + 0.015, z, 0.33 + r * 0.37, 0.052, 0.09, 0xfa7239, 'light');
-      box(x + 0.15, h + 0.015, z + 0.13, 0.11, 0.052, 0.31, 0xff9d4e, 'light');
-    }
-    if (z > 0 && neighbours.some(n => !n || n.root > root + 2) && r > 0.68) {
-      box(x, root - 0.57, z, 0.56, 1.14, 0.62, b.rock[1]);
-      if (r > 0.8) {
-        box(x, root - 1.17, z, 0.32, 0.8, 0.34, tint(b.foam, 0.76), 'light');
-        box(x, root - 1.48, z, 0.15, 0.34, 0.18, b.foam, 'light');
       }
     }
   }
@@ -104,25 +128,41 @@ function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand) {
         .filter(c => c.wet && c.z > 8)
         .sort((a, b) => b.z - a.z)
         .slice(0, 2);
+  if (!outlet.length) return null;
   const center = new Vector3();
+  const cascade = new Color(b.water).lerp(new Color(b.foam), 0.25).getHex();
   for (const c of outlet) {
     const z = c.z + GRID * 0.48,
       level = land.waterLevel(c.z),
       base = c.root - 3.8;
     center.add(new Vector3(c.x, level, z));
-    for (let strand = 0; strand < 4; strand++) {
-      const x = c.x + (TILE_WIDTH * (strand - 1.5)) / 4,
+    for (let strand = 0; strand < 2; strand++) {
+      const x = c.x + (TILE_WIDTH * (strand - 0.5)) / 2,
         bottom = base - rng() * 1.4;
-      box(x, bottom, z, TILE_WIDTH / 4, level - bottom, 0.29, tint(b.water, 0.9 + strand * 0.055), 'water');
-      for (let j = 0; j < 3; j++) {
-        const phase = rng(),
-          height = 0.42 + rng() * 1.14;
-        box(x, bottom, z + 0.17, 0.1 + rng() * 0.085, height, 0.11, b.foam, 'light', (o, t) => {
-          o.position.y = level - height / 2 - ((phase + t * 0.76) % 1) * (level - bottom - height);
+      box(x, bottom, z, TILE_WIDTH / 2, level - bottom, 0.29, tint(cascade, 0.91 + strand * 0.1), 'water');
+      box(x, level - 0.17, z + 0.05, TILE_WIDTH / 2, 0.19, 0.40, cascade, 'light');
+      // A bright head and a longer blue (or molten) tail travel together. The
+      // current gathers into a band across the lip, then breaks up as it falls.
+      const phase = (0.26 + (c.x - outlet[0].x) * 0.088 + strand * 0.23) % 1;
+      for (const [length, width, offset, color] of [
+        [1.48, 0.23, 0.92, cascade], [0.77, 0.32, 0, b.foam],
+      ]) {
+        box(x, bottom, z + 0.23, width, length, 0.16, color, 'light', (o, t) => {
+          const u = (1 + phase + t * 0.68) % 1;
+          const weight = Math.min(1, u * 9, (1 - u) * 7);
+          o.position.y = level - 0.88 - (level - bottom - 1.36) * u + offset;
+          o.scale.y *= weight;
+          o.scale.x *= 0.42 + 0.58 * weight;
+        });
+      }
+      if (strand === 0) {
+        glint(box, x, level + 0.29, z + 0.15, 0.82, b.foam, (o, t) => {
+          const pulse = Math.max(0, Math.cos(t * 2.1 - c.x * 0.8));
+          o.scale.multiplyScalar(0.04 + pulse ** 3 * 0.96);
         });
       }
     }
-    for (let j = 0; j < 13; j++) {
+    for (let j = 0; j < 5; j++) {
       const a = rng() * Math.PI * 2,
         phase = rng(),
         s = 0.18 + rng() * 0.46;
@@ -135,7 +175,12 @@ function waterfall(box: Box, land: Terrain, b: Biome, rng: Rand) {
       });
     }
   }
-  return center.divideScalar(outlet.length || 1);
+  center.divideScalar(outlet.length);
+  const middle = outlet.reduce((closest, c) => Math.abs(c.x - center.x) < Math.abs(closest.x - center.x) ? c : closest);
+  const front = middle.z + GRID * 0.48 + 0.3;
+  aura(box, middle.x, land.waterLevel(middle.z) - 0.26, front, 3.7, 1.75, b.foam);
+  aura(box, middle.x, middle.root - 3.68, front + 0.5, 3.4, 1.55, cascade, 2.1);
+  return center;
 }
 
 function infrastructure(box: Box, land: Terrain, theme: VoxelThemeInfo, b: Biome) {
@@ -160,14 +205,15 @@ function infrastructure(box: Box, land: Terrain, theme: VoxelThemeInfo, b: Biome
       const a = follow(road, i / n),
         v = follow(road, (i + 1) / n);
       const r = noise(i, road.length);
+      const bottom = Math.min(p.y - 0.28, land.ground(p.x, p.z) - 0.08);
       box(
         p.x,
-        p.y - 0.28,
+        bottom,
         p.z,
-        0.96 + r * 0.16,
-        0.28,
+        1.03,
+        p.y - bottom,
         Math.hypot(v.x - a.x, v.z - a.z) + 0.045,
-        tint(b.road, 0.9 + r * 0.12),
+        tint(b.road, 0.97 + r * 0.04),
         'solid',
         undefined,
         Math.atan2(v.x - a.x, v.z - a.z),
@@ -175,43 +221,15 @@ function infrastructure(box: Box, land: Terrain, theme: VoxelThemeInfo, b: Biome
     }
   }
   for (const span of land.spans.values()) {
-    const { x, z, half } = span,
-      step = (half * 2) / 11;
-    for (let i = 0; i < 11; i++) {
-      const dx = -half + (i + 0.5) * step,
-        top = bridgeTop(span, x + dx);
-      const thick = 0.35 + Math.pow(Math.abs(dx) / half, 2) * 0.95;
-      box(x + dx, top - thick, z, step + 0.008, thick, 1.72, i % 2 ? b.rock[3] : b.road);
-      for (const sign of [-1, 1]) {
-        box(x + dx, top - 0.21, z + sign * 0.8, step, 0.32, 0.21, b.rock[3]);
-        box(x + dx, top + 0.55, z + sign * 0.83, step + 0.012, 0.14, 0.15, b.road);
-        if (i % 3 === 0 || i === 10) box(x + dx, top, z + sign * 0.83, 0.17, 0.59, 0.18, b.rock[2]);
-      }
-    }
-    for (const dir of [-1, 1]) {
-      const px = x + dir * (half - 0.3),
-        floor = land.ground(px, z) - 0.3;
-      box(px, floor, z, 0.65, Math.max(0.3, bridgeTop(span, px) - floor), 1.9, b.rock[2]);
-      box(px, bridgeTop(span, px) + 0.6, z - 0.84, 0.23, 0.22, 0.24, 0xffcf76, 'light');
-    }
+    crossing(box, land, span, theme.id, b);
+    for (let dx = -span.half; dx <= span.half; dx += 1) reserve(span.x + dx, span.z, 2);
   }
   for (const site of land.sites.values()) {
     landmark(box, site, theme.id, b);
     reserve(site.pos.x, site.pos.z - 1, site.spec.kind === 'boss' ? 5 : 3);
   }
-  // Western landing pier, with a square timber gate and a hanging banner.
-  const gateZ = 0,
-    gateX = GATE_X,
-    h = land.ground(gateX, gateZ);
-  reserve(gateX, gateZ, 3);
-  for (let i = 0; i < 7; i++) box(gateX - i * 0.43, h - 0.18, gateZ, 0.41, 0.28, 2.45, i % 2 ? 0x96704e : 0xaa8158);
-  for (const side of [-1, 1]) {
-    box(gateX, h, gateZ + side * 1.26, 0.34, 2.58, 0.34, 0x725747);
-    box(gateX - 0.14, h + 1.48, gateZ + side * 1.26, 0.34, 0.41, 0.31, 0xffcc71, 'light');
-    box(gateX - 2.3, h - 1.7, gateZ + side * 0.98, 0.31, 1.8, 0.31, 0x695346);
-  }
-  box(gateX, h + 2.58, gateZ, 0.48, 0.34, 2.98, 0x745343);
-  box(gateX, h + 2.08, gateZ - 0.55, 0.18, 0.51, 0.8, b.flag);
+  landing(box, land, theme.id, b);
+  reserve(land.gate.x, land.gate.z, 3);
   return (x: number, z: number) => occupied.has(gridKey(x, z));
 }
 
@@ -224,135 +242,112 @@ function garden(
   busy: (x: number, z: number) => boolean,
   remaining: () => number,
 ) {
-  const trunks: Vector3[] = [],
-    sites = [...land.sites.values()];
-  for (let attempt = 0; attempt < 490 && trunks.length < 47 && remaining() > 230; attempt++) {
-    const x = (rng() - 0.5) * 80,
-      z = (rng() - 0.5) * 33,
-      c = land.at(x, z),
-      r = rng();
-    if (!c || c.wet || busy(x, z) || Math.abs(x - land.river(z)) < 2.3) continue;
-    const grove = Math.sin(x * 0.31 + z * 0.18) + Math.cos(z * 0.46 - x * 0.11);
-    if ((grove < -0.23 && r < 0.85) || trunks.some(p => Math.hypot(p.x - x, p.z - z) < 2.05)) continue;
-    // Preserve foreground sight lines to the platform, including from either end of the orbit.
-    if (sites.some(s => Math.abs(s.pos.x - x) < 2.4 && z > s.pos.z && z < s.pos.z + 6)) continue;
-    tree(box, theme.id, b, x, c.h, z, (z > 6 ? 0.58 : 0.76) + r * 0.51, r);
-    trunks.push(new Vector3(x, c.h, z));
+  const sites = [...land.sites.values()];
+  const roads = [...land.roads.values()].flatMap(road => road.points.filter((_, i) => i % 2 === 0));
+  const used: { x: number; z: number; radius: number }[] = [];
+  const [bearing, elevation] = land.viewAngles;
+  const azimuth = bearing * Math.PI / 180;
+  const sightX = Math.tan(azimuth);
+  const sightY = Math.tan(elevation * Math.PI / 180) / Math.cos(azimuth);
+  // Each grove has one tall silhouette and two smaller companions. Search the
+  // actual dry cells, since routes and their reserved viewing corridors vary by run.
+  function placeNear(x: number, z: number, radius: number, reach: number, treeScale: number) {
+    let best: ReturnType<Terrain['at']>;
+    let nearest = reach;
+    for (const cell of land.cells.values()) {
+      const d = Math.hypot(cell.x - x, cell.z - z);
+      if (d >= nearest || cell.wet || Math.abs(cell.x - land.river(cell.z)) < radius + 1.8) continue;
+      if (used.some(p => Math.hypot(p.x - cell.x, p.z - cell.z) < radius + p.radius)) continue;
+      if (sites.some(s => {
+        const depth = cell.z - s.pos.z;
+        return depth > -1 && depth < 8 && Math.abs(s.pos.x + depth * sightX - cell.x) < radius + 2;
+      })) continue;
+      const clear = [[0, 0], [-radius, 0], [radius, 0], [0, -radius], [0, radius]].every(([dx, dz]) => {
+        const ground = land.at(cell.x + dx, cell.z + dz);
+        return ground && !ground.wet && Math.abs(ground.h - cell.h) <= 1.45 && !busy(cell.x + dx, cell.z + dz);
+      });
+      if (!clear) continue;
+      // Look through the crown toward the road from the map's oblique viewing angle.
+      // Terrain height matters near the high eastern shelf and the stepped riverbanks.
+      if (treeScale && roads.some(p => {
+        const depth = cell.z - p.z;
+        const height = p.y + depth * sightY - cell.h;
+        const sideways = p.x - cell.x + depth * sightX;
+        return depth > 0 && height > 0.8 * treeScale && height < 3.9 * treeScale && Math.abs(sideways) < 1.35 * treeScale;
+      })) continue;
+      nearest = d;
+      best = cell;
+    }
+    if (best) used.push({ x: best.x, z: best.z, radius });
+    return best;
   }
-  let relics = 0;
-  for (let i = 0; i < 235 && remaining() > 28; i++) {
-    const x = (rng() - 0.5) * 80,
-      z = (rng() - 0.5) * 34,
-      c = land.at(x, z);
-    if (!c || c.wet || busy(x, z) || trunks.some(p => Math.hypot(p.x - x, p.z - z) < 1)) continue;
-    if (relics < (theme.id === 'golden_oasis' ? 2 : 11) && i % 5 === 0 && z < 4) {
-      relic(box, theme.id, b, x, c.h, z);
-      relics++;
+  // The terrain survey levels this rear terrace and keeps branches off its footprint.
+  const { x, z } = land.focal;
+  const wonder = { x, z, h: land.ground(x, z) };
+  summit(box, theme.id, b, x, wonder.h, z, 1.48, land.ground);
+  used.push({ x, z, radius: 4.65 });
+
+  // Give the foreground one broad mass per shoulder, with clear ground between it and the wonder.
+  const groves: Record<string, number[][]> = {
+    emerald_day: [[-24, 12, 1.45], [32, 8.5, 1.64], [18, -14, 0.94]],
+    autumn_sunset: [[-32, 6, 1.62], [17, 15, 1.29]],
+    moonlit_woods: [[-21, 14, 1.32], [29, -9, 1.52]],
+    golden_oasis: [[-31, -7, 1.42], [26, 12, 1.64]],
+    alpine_snow: [[-29, 12, 1.42], [31, -8.5, 1.34]],
+    ashen_citadel: [[-33, 4, 1.7], [16, 14, 1.54]],
+  };
+  for (const [x, z, scale] of groves[theme.id]) {
+    if (remaining() < 90) break;
+    const radius = 1.25 * scale;
+    const cell = placeNear(x, z, radius, 9, scale);
+    if (!cell) {
+      // Where branches run immediately behind the cliff lip, use low, broad
+      // outcrops. Each stone finds its own terrace and has a distinct sunlit cap.
+      const ledge = placeNear(x, z, 1.7, 8, 0.42);
+      if (!ledge) continue;
+      for (const [dx, dz, size] of [[0, 0, 1.38], [-1.8, -0.27, 0.86], [1.59, 0.44, 0.62]]) {
+        const px = ledge.x + dx, pz = ledge.z + dz;
+        const ledgeCell = land.at(px, pz);
+        if (!ledgeCell || ledgeCell.wet || busy(px, pz)) continue;
+        const base = Math.min(ledgeCell.h, land.ground(px - size * 0.62, pz), land.ground(px + size * 0.62, pz));
+        box(px, base - 0.08, pz, size * 1.62, ledgeCell.h - base + size * 0.64 + 0.08, size * 1.35, b.rock[2]);
+        box(px - 0.12, ledgeCell.h + size * 0.64, pz, size * 1.34, size * 0.38, size * 1.09, b.rock[3]);
+        box(px - 0.19, ledgeCell.h + size * 1.02, pz, size * 0.92, size * 0.18, size * 0.88, b.turf[0]);
+      }
       continue;
     }
-    const r = rng(),
-      snow = theme.id === 'alpine_snow',
-      ash = theme.id === 'ashen_citadel';
-    box(x, c.h, z, 0.23 + r * 0.25, 0.19 + r * 0.31, 0.2 + r * 0.19, ash || snow ? b.rock[2] : b.leaf[2]);
-    box(x + 0.18, c.h, z + 0.12, 0.16, 0.23, 0.17, ash ? b.rock[3] : b.leaf[3]);
-    if (r > 0.58)
-      box(
-        x,
-        c.h + 0.17 + r * 0.31,
-        z,
-        0.21,
-        0.16,
-        0.22,
-        ash ? b.foam : snow ? b.turf[0] : pick([0xe4c66d, 0xffeac1, 0xd98997], rng()),
-        ash ? 'light' : 'solid',
-      );
-  }
-  if (theme.id === 'moonlit_woods')
-    for (const { pos } of sites.filter((_, i) => i % 3 === 0)) {
-      const x = pos.x - 1.62,
-        z = pos.z - 0.52,
-        y = land.ground(x, z);
-      box(x, y, z, 0.14, 1.81, 0.15, 0x5f5551);
-      box(x + 0.18, y + 1.8, z, 0.52, 0.12, 0.16, b.road);
-      box(x + 0.37, y + 1.37, z, 0.31, 0.4, 0.31, 0xffd47b, 'light');
+    // Broad deciduous crowns on the sunny foreground, conifers receding along the ridge.
+    const shape = theme.id === 'emerald_day' ? (z > 0 ? 0.83 : 0.28) : rng();
+    tree(box, theme.id, b, cell.x, cell.h, cell.z, scale, shape);
+    for (const [dx, dz, size] of [[-1.9, -0.75, 0.77], [1.54, 0.66, 0.64]]) {
+      const flank = placeNear(cell.x + dx * scale, cell.z + dz * scale, size * scale, 3.2, size * scale);
+      if (flank) tree(box, theme.id, b, flank.x, flank.h, flank.z, size * scale, rng());
     }
+  }
+  return wonder;
 }
 
 function heavens(box: Box, theme: VoxelThemeInfo, b: Biome, rng: Rand) {
-  // Distant stepped silhouettes, with a second band of clouds below the island roots.
-  for (let n = 0; n < 24; n++) {
-    const x = ((n % 8) - 3.5) * 12 + (rng() - 0.5) * 9,
-      far = n < 10;
-    const z = far ? -27 - rng() * 21 : 3 + rng() * 17,
-      y = far ? -13 - rng() * 5 : -10 - rng() * 4;
-    const phase = rng() * 6,
-      size = far ? 1.2 + rng() * 0.8 : 0.68 + rng() * 0.65;
+  distantSkyline(box, theme.id, b);
+  // Broad, widely separated cloud banks frame the sky and leave the cliff face open.
+  for (const [x, y, z, size] of [
+    [-37, -8, -31, 1.35], [-15, -13, -34, 1.05], [12, -6.8, -33, 1.4], [36, -8, -27, 0.95],
+    [-30, -13, 12, 0.78], [23, -15, 9, 1.1],
+  ]) {
+    const phase = rng() * 6;
+    const thin = theme.id === 'golden_oasis' || theme.id === 'alpine_snow';
+    const stretch = thin ? 1.46 : 1;
     const drift: Motion = (o, t) => {
-      o.position.x += Math.sin(t * 0.1 + phase) * 1.15;
-      o.position.y += Math.cos(t * 0.17 + phase) * 0.24;
+      o.position.x += Math.sin(t * 0.09 + phase) * 1.05;
+      o.position.y += Math.cos(t * 0.14 + phase) * 0.18;
     };
-    for (let j = 0; j < 6; j++) {
-      const dx = (j - 2.5) * 1.46,
-        dome = 1 - Math.abs(j - 2.5) / 3;
-      box(
-        x + dx * size,
-        y + rng() * 0.36,
-        z + rng() * 1.1,
-        2.75 * size,
-        (0.5 + dome * 1.08) * size,
-        (1.8 + rng()) * size,
-        tint(b.cloud, 0.97 + rng() * 0.03),
-        'cloud',
-        drift,
-      );
-      if (j === 2 || j === 3)
-        box(
-          x + dx * size,
-          y + size,
-          z + 0.5,
-          2.1 * size,
-          (0.83 + rng() * 0.3) * size,
-          2 * size,
-          b.cloud,
-          'cloud',
-          drift,
-        );
-    }
+    for (const [dx, dy, dz, w, h, d] of [
+      [-2.7, 0, 0, 3.8, 0.65, 2], [0, 0, -0.3, 4.4, 1.35, 2.65],
+      [0.1, 1.35, -0.4, 2, 0.57, 1.8], [3, 0.05, -0.2, 2.9, 0.79, 2.1],
+    ]) box(x + dx * size * stretch, y + dy * size / stretch, z + dz * size, w * size * stretch, h * size / stretch, d * size, b.cloud, 'cloud', drift);
   }
-  const night = theme.tone === 'night',
-    crescent = theme.id === 'moonlit_woods',
-    eclipse = theme.id === 'ashen_citadel';
-  const sunX = -37,
-    sunZ = -38,
-    sunY = -1.8,
-    unit = 0.59;
-  // Build the heavenly body from contiguous horizontal voxel runs; the crescent has a real cutout.
-  for (let row = -5; row <= 5; row++) {
-    let start = -6,
-      color = 0;
-    for (let col = -5; col <= 6; col++) {
-      const rr = col * col + row * row;
-      let pixel = rr <= 29 ? (eclipse ? (col + row < 1 ? 0xff805f : 0xf5534f) : 0xffe8a4) : 0;
-      if (crescent) pixel = rr <= 29 && (col - 2.5) ** 2 + (row - 1.65) ** 2 > 22 ? 0xffecc1 : 0;
-      if (eclipse && rr <= 19) pixel = 0x7b3547;
-      if (pixel === color) continue;
-      if (color)
-        box(
-          sunX + ((start + col - 1) * unit) / 2,
-          sunY + row * unit,
-          sunZ,
-          (col - start) * unit,
-          unit,
-          0.68,
-          color,
-          'light',
-        );
-      color = pixel;
-      start = col;
-    }
-  }
-  if (night)
-    for (let i = 0; i < 85; i++) {
+  if (theme.tone === 'night')
+    for (let i = 0; i < 24; i++) {
       const x = (rng() - 0.5) * 118,
         z = -37 - rng() * 26,
         y = -28 + rng() * 28,
@@ -363,60 +358,91 @@ function heavens(box: Box, theme: VoxelThemeInfo, b: Biome, rng: Rand) {
         box(x, y - s * 0.55, z, s * 0.28, s * 2.2, s * 0.6, b.foam, 'light');
       }
     }
-  for (const [n, coords] of [
-    [-44, 2, -8],
-    [-30, 3.3, -24],
-    [-8, 4, -23],
-    [40, 3, -22],
-    [44, -3, 7],
-    [-39, -4, 13],
-  ].entries()) {
-    const [x, y, z] = coords,
-      phase = n * 1.9;
-    const float: Motion = (o, t) => {
-      o.position.y += 0.36 * Math.sin(t * 0.52 + phase);
-    };
-    const part: Box = (dx, dy, dz, w, h, d, c, batch) => box(x + dx, y + dy, z + dz, w, h, d, c, batch, float);
-    const s = 0.73 + (n % 3) * 0.2;
-    for (let ix = -2; ix <= 2; ix++)
-      for (let iz = -1; iz <= 1; iz++) {
-        if (Math.abs(ix) + Math.abs(iz) > 2 && rng() > 0.36) continue;
-        const depth = (3 - Math.abs(ix) * 0.62 - Math.abs(iz) * 0.61) * s;
-        part(ix * s, -depth, iz * s, s, depth, s, b.rock[Math.abs(ix) % 3]);
-        part(ix * s, 0, iz * s, s, 0.31, s, pick(b.turf, rng()));
-      }
-    if (n === 1 || n === 2 || n === 4) summit(part, theme.id, b, 0, 0.31, 0, 0.76);
-    else tree(part, theme.id, b, 0, 0.31, 0, 0.54 + rng() * 0.24, rng());
-    if (n % 2 === 0) {
-      part(0.68 * s, -2.33, s * 1.45, 0.38, 2.65, 0.19, b.water, 'water');
-      part(0.67 * s, -2.71, s * 1.46, 0.12, 2.9, 0.22, b.foam, 'light');
-    }
-  }
 }
 
-function weather(box: Box, land: Terrain, id: string, b: Biome, rng: Rand) {
-  const snow = id === 'alpine_snow',
-    leaf = id === 'autumn_sunset',
-    ash = id === 'ashen_citadel',
-    night = id === 'moonlit_woods';
-  for (let i = 0; i < (snow || night ? 91 : 54); i++) {
-    const x = (rng() - 0.5) * 70,
-      z = (rng() - 0.5) * 34,
-      y = land.ground(x, z),
-      p = rng(),
-      a = rng() * 6.28;
-    const s = snow ? 0.1 + p * 0.11 : leaf ? 0.15 + p * 0.12 : 0.065 + p * 0.1;
-    const c = leaf ? pick(b.leaf, rng()) : snow ? 0xf5faff : ash ? 0xff9b45 : night ? 0xffe991 : 0xffe7a6;
-    box(x, y + 0.5, z, s, leaf ? s * 0.39 : s, leaf ? s * 0.69 : s, c, leaf ? 'solid' : 'light', (o, t) => {
-      const u = (p + t * (snow ? 0.11 : ash ? 0.22 : 0.15)) % 1;
-      o.position.x += Math.sin(t * 0.73 + a) * 0.71 + (snow || leaf ? u * 0.94 : 0);
-      o.position.z += Math.cos(t * 0.63 + a) * 0.52;
-      o.position.y += snow || leaf ? (1 - u) * 6 : ash ? u * 5 : 1.2 + Math.sin(t * 0.79 + a) * 0.92;
-      if (leaf) o.rotation.set(t + a, t * 0.74, 0.43);
-      o.scale.multiplyScalar(
-        snow || leaf || ash ? 0.12 + 0.88 * Math.sin(u * Math.PI) : 0.68 + 0.32 * Math.sin(t * 2 + a),
-      );
-    });
+// Keep the strongest light attached to each theme's actual source. Secondary
+// motes share a short, staggered cycle rather than covering the entire board.
+function wonderLight(box: Box, x: number, y: number, z: number, id: string, b: Biome) {
+  const pulse = (phase: number, speed = 1.8): Motion => (o, t) => {
+    const crest = 0.5 + 0.5 * Math.cos(t * speed + phase);
+    o.scale.multiplyScalar(0.15 + 0.85 * crest ** 2);
+  };
+  if (id === 'golden_oasis') {
+    // Lapis inlay kindles from the two sandstone piers up to the keystone.
+    for (const side of [-1, 1]) {
+      for (const [step, [dx, dy]] of [[2.48, 2.7], [2.48, 3.45], [2.39, 5.09], [1.9, 6.14]].entries()) {
+        box(x + dx * side, y + dy, z + 1.35, 0.42, 0.47, 0.21, step < 2 ? 0x71e6cf : 0xffde8a, 'light', (o, t) => {
+          const wave = 0.5 + 0.5 * Math.cos(t * 2.5 - step * 0.78);
+          o.scale.multiplyScalar(0.32 + 0.68 * wave ** 2);
+        });
+      }
+    }
+    aura(box, x, y + 6.93, z + 1.59, 3.55, 3.05, 0x60e9cc);
+    glint(box, x, y + 6.93, z + 1.66, 1.18, 0x81fff1, pulse(-0.6, 2.5));
+    // A small star of sand rises through the open arch and dissolves below the lintel.
+    for (let i = 0; i < 4; i++) {
+      const rise: Motion = (o, t) => {
+        const u = (0.21 + i / 4 + t * 0.23) % 1;
+        o.position.x += Math.sin(u * 4.6 + i * 1.5) * 0.82;
+        o.position.y += u * 4.5;
+        o.scale.multiplyScalar(Math.sin(u * Math.PI) ** 1.25);
+      };
+      if (i % 2 === 0) glint(box, x, y + 0.73, z + 0.82, 0.74, 0xfbc875, rise);
+      else box(x, y + 0.81, z + 0.78, 0.29, 0.32, 0.29, 0xa6ffdf, 'light', rise);
+    }
+  } else if (id === 'moonlit_woods') {
+    for (let i = 0; i < 3; i++) {
+      glint(box, x, y + 5.14, z + 0.85, i ? 0.67 : 0.94, i === 1 ? 0xa18cf2 : b.foam, (o, t) => {
+        const angle = t * 0.46 + i * Math.PI * 2 / 3;
+        o.position.x += Math.cos(angle) * 3.45;
+        o.position.y += Math.sin(angle) * 3.05;
+        o.position.z += Math.sin(angle) * 0.45;
+        o.scale.multiplyScalar(0.52 + 0.48 * (0.5 + Math.sin(t * 1.5 + i) * 0.5));
+      });
+    }
+    aura(box, x, y + 5.23, z + 0.55, 4.4, 3.8, 0xffbd73);
+    glint(box, x, y + 5.29, z + 0.75, 1.05, 0xffda9d, pulse(0));
+  } else if (id === 'alpine_snow') {
+    aura(box, x + 0.24, y + 7.6, z + 0.28, 2.9, 3.8, 0x7cdeef);
+    for (const [i, [dx, dy, dz]] of [[0.24, 7.6, 0.2], [-2.4, 4.1, 0.82], [2.34, 5.2, 1.13]].entries())
+      glint(box, x + dx, y + dy, z + dz, i === 0 ? 1.24 : 0.9, b.foam, pulse(-i * 1.6));
+  } else if (id === 'autumn_sunset' || id === 'ashen_citadel') {
+    const ember = id === 'ashen_citadel';
+    if (ember) {
+      aura(box, x, y + 1.9, z + 1.56, 5.1, 3.45, 0xff832d);
+    } else {
+      for (const side of [-1, 1]) {
+        const lanternX = x + (0.78 + side * 1.9) * 1.48;
+        box(lanternX, y + 4.5, z + 1.48, 0.11, 0.76, 0.12, 0x714134);
+        box(lanternX, y + 4.0, z + 1.48, 0.49, 0.58, 0.47, 0xffbf57, 'light');
+        aura(box, lanternX, y + 4.3, z + 1.76, 2.3, 2.26, 0xff9e41, side);
+      }
+    }
+    for (let i = 0; i < 9; i++) {
+      const side = i % 2 ? 1 : -1;
+      const sx = ember ? side * 1.76 : -1.8 + side * 1.4;
+      const sy = ember ? (side < 0 ? 8.9 : 7.35) : 6.4;
+      const width = ember ? 0.28 + (i % 3) * 0.09 : 0.46;
+      const color = ember ? (i % 3 ? 0xff9738 : 0xffdb75) : (i % 3 ? 0xffb74f : 0xe7733c);
+      box(x + sx, y + sy, z + (ember ? -0.59 : 1.2), width, width * (ember ? 1.5 : 0.58), width * 0.68, color, 'light', (o, t) => {
+        const u = (0.17 + i / 9 + t * (ember ? 0.32 : 0.22)) % 1;
+        o.position.x += u * (ember ? 1.35 : 3.6) + Math.sin(u * 5 + i * 1.9) * 0.53;
+        o.position.z += Math.cos(i * 2 + u * 4.5) * 0.52;
+        o.position.y += u * (ember ? 3.1 : -4.6);
+        o.rotation.z = u * (ember ? 0.55 : 4) + i;
+        o.scale.multiplyScalar(0.1 + Math.sin(u * Math.PI) * 0.9);
+      });
+    }
+  } else {
+    // Two flights of sunlit chaff peel off the windmill sails in a short gust.
+    for (let i = 0; i < 6; i++) {
+      box(x, y + 4.9, z + 2.2, i % 3 ? 0.52 : 0.93, 0.16, 0.18, i % 3 ? 0xffd68c : 0xfff2bc, 'light', (o, t) => {
+        const u = (0.22 + (i % 3) * 0.07 + Math.floor(i / 3) * 0.5 + t * 0.24) % 1;
+        o.position.x += 1.85 + u * 4.5;
+        o.position.y += 0.75 * Math.sin(u * Math.PI * 1.65) + Math.floor(i / 3) * 0.73;
+        o.scale.x *= Math.sin(u * Math.PI);
+      });
+    }
   }
 }
 
@@ -428,11 +454,12 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     { box } = batch,
     rng = random(51793);
   geology(box, land, b, theme);
+  riverLight(box, land, b);
   const lip = waterfall(box, land, b, rng);
   const busy = infrastructure(box, land, theme, b);
   heavens(box, theme, b, random(16123));
-  weather(box, land, theme.id, b, random(20911));
-  garden(box, land, theme, b, rng, busy, () => 7000 - batch.count);
+  const wonder = garden(box, land, theme, b, rng, busy, () => 7000 - batch.count);
+  wonderLight(box, wonder.x, wonder.h, wonder.z, theme.id, b);
   batch.finish();
   const key = new DirectionalLight(b.key, theme.tone === 'night' ? 1.72 : 2.02);
   key.position.set(-27, 48, 21);
@@ -455,9 +482,11 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
       scene.add(lamp);
       return lamp;
     });
-  const spill = new PointLight(lava ? 0xff6a28 : b.foam, lava ? 34 : 8, 9);
-  spill.position.copy(lip).y += 0.65;
-  scene.add(spill);
+  const spill = lip ? new PointLight(lava ? 0xff6a28 : b.foam, lava ? 34 : 8, 9) : null;
+  if (spill && lip) {
+    spill.position.copy(lip).y += 0.65;
+    scene.add(spill);
+  }
 
   // Pack only visible route beads and pulse particles in one extra emissive draw call.
   const trails = [...land.roads.values()].map(road => ({
@@ -480,11 +509,12 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     paint = new Color();
   const pulse = new Vector3();
   let burst = -10;
+  let pulseKind: MapPulse = 'depart';
   function state(st: MapPathState) {
     let wanted = 0;
     for (const t of trails) {
       const key = t.road.key;
-      t.mode = st.chosen === key ? 4 : st.walked.has(key) ? 1 : st.available.has(key) ? 2 : st.preview.has(key) ? 3 : 0;
+      t.mode = st.walked.has(key) ? 1 : st.chosen === key ? 4 : st.available.has(key) ? 2 : st.preview.has(key) ? 3 : 0;
       if (t.mode) wanted += t.wanted;
     }
     let budget = Math.min(wanted, beadBudget);
@@ -512,13 +542,13 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
       }
     }
   }
-  const hues = [0, 0xffc359, 0x66e6d5, 0xeabf7a, 0xfff0ab];
+  const hues = [0, 0xffd266, 0x74ffe6, 0xb8d4c8, 0x5effd8];
   function frame(t: number) {
     batch.animate(t);
     fires.forEach((f, i) => {
       f.intensity = 12 + 1.9 * Math.sin(t * 8.3 + i) + Math.sin(t * 13 + i);
     });
-    if (lava) spill.intensity = 31 + 5 * Math.sin(t * 2.6);
+    if (lava && spill) spill.intensity = 31 + 5 * Math.sin(t * 2.6);
     let slot = 0;
     const stamp = (c: number) => {
       pose.updateMatrix();
@@ -527,15 +557,28 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     };
     for (const bead of beads) {
       const { mode } = bead;
-      const wave = 0.5 + 0.5 * Math.cos(bead.dist * 1.78 - t * (mode === 4 ? 8 : 3.3));
-      const w = mode === 1 ? 0.23 : mode === 3 ? 0.14 : 0.16 + wave * 0.16;
+      const wave = 0.5 + 0.5 * Math.cos(bead.dist * 1.78 - t * (mode === 4 ? 8 : 3.6));
+      const w = mode === 1 ? 0.25 : mode === 3 ? 0.16 : 0.21 + wave * 0.18;
       pose.position.copy(bead.p).y += 0.28;
       pose.rotation.set(bead.tilt, bead.yaw, 0, 'YXZ');
       pose.scale.set(w, 0.095 + w * 0.2, mode === 1 || mode === 4 ? bead.length + 0.025 : 0.22 + 0.14 * wave);
-      stamp(mode === 4 && wave > 0.55 ? 0xfffbe6 : mode === 2 && wave > 0.8 ? 0xffe5a0 : hues[mode]);
+      stamp(mode === 4 && wave > 0.55 ? 0xb1ffe1 : mode === 2 && wave > 0.8 ? 0x9af4ce : hues[mode]);
     }
-    const u = (t - burst) / 0.72;
-    if (u >= 0 && u < 1)
+    const u = (t - burst) / (pulseKind === 'inspect' ? 0.48 : 0.72);
+    if (u >= 0 && u < 1 && pulseKind === 'inspect') {
+      // Four pairs of brass corner marks close around the chosen tile.
+      const radius = 1.22 + 1.5 * (1 - u) ** 2;
+      const size = 1 - u ** 3;
+      for (const dx of [-1, 1]) for (const dz of [-1, 1]) {
+        pose.rotation.set(0, 0, 0);
+        pose.position.set(pulse.x + dx * (radius - 0.26), pulse.y + 0.28, pulse.z + dz * radius);
+        pose.scale.set(0.69 * size, 0.14 * size, 0.18 * size);
+        stamp(0xffedaa);
+        pose.position.set(pulse.x + dx * radius, pulse.y + 0.28, pulse.z + dz * (radius - 0.26));
+        pose.scale.set(0.18 * size, 0.14 * size, 0.69 * size);
+        stamp(0xffdf88);
+      }
+    } else if (u >= 0 && u < 1)
       for (let i = 0; i < 48; i++) {
         const a = (i * Math.PI * 2) / 32,
           ring = i < 32,
@@ -566,9 +609,10 @@ export function buildWorld(land: Terrain, theme: VoxelThemeInfo) {
     scene,
     state,
     frame,
-    pulse(p: Vector3, t: number) {
+    pulse(p: Vector3, t: number, kind: MapPulse = 'depart') {
       pulse.copy(p);
       burst = t;
+      pulseKind = kind;
     },
     dispose() {
       batch.dispose();

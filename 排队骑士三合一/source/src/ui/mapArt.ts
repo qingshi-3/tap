@@ -1,8 +1,9 @@
-import { Vector3 } from 'three';
+import type { Vector3 } from 'three';
 import { expeditionCamera } from './mapVoxelCamera';
 import { ACT_DEFAULT_THEME, BIOMES, VOXEL_THEMES, type VoxelThemeInfo } from './mapVoxelThemes';
-import { clamp, follow, nodeKey, ROAD_LIFT, survey } from './mapVoxelTerrain';
+import { clamp, nodeKey, survey } from './mapVoxelTerrain';
 import { createRealmRenderer, type RealmRenderer } from './mapVoxelRenderer';
+import { skyLight } from './mapVoxelSky';
 
 export { ACT_DEFAULT_THEME, ACT_REALMS, VOXEL_THEMES, type VoxelThemeInfo } from './mapVoxelThemes';
 export type MapNodeKind = 'fight' | 'elite' | 'camp' | 'shop' | 'event' | 'treasure' | 'boss';
@@ -20,14 +21,11 @@ export interface MapPathState {
   preview: Set<string>;
   chosen: string;
 }
+export type MapPulse = 'inspect' | 'depart';
 export interface ProjectedPoint {
   x: number;
   y: number;
   scale: number;
-}
-interface NodeRef {
-  layer: number;
-  index: number;
 }
 export interface MapRealm {
   el: HTMLElement;
@@ -36,10 +34,9 @@ export interface MapRealm {
   setParallax: (nx: number, ny: number) => void;
   setPathState: (state: MapPathState) => void;
   projectNode: (layer: number, index: number) => ProjectedPoint;
-  projectCampEntry: (index: number) => ProjectedPoint;
-  projectAlong: (from: NodeRef | { campIndex: number }, to: NodeRef, t: number) => ProjectedPoint;
+  projectEntry: () => ProjectedPoint;
   onFrame: (cb: () => void) => void;
-  pulseNode: (layer: number, index: number) => void;
+  pulseNode: (layer: number, index: number, kind?: MapPulse) => void;
   dispose: () => void;
 }
 
@@ -50,28 +47,34 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
   el.className = 'map-illustration';
   el.setAttribute('aria-hidden', 'true');
   Object.assign(el.style, { position: 'absolute', inset: '0', overflow: 'hidden', pointerEvents: 'none' });
+  const sky = document.createElement('div');
+  sky.className = 'map-skylight';
+  el.appendChild(sky);
   function backdrop() {
     const [top, horizon, base] = BIOMES[theme.id].sky;
-    el.style.background = `radial-gradient(ellipse at 18% 34%, ${base}60, transparent 57%), linear-gradient(180deg, ${top} 0%, ${horizon} 64%, ${base} 100%)`;
+    // 分阶像素天空色带 + 四周暗角压边，避免平滑塑料渐变与体素浮空岛割裂
+    el.style.background = [
+      'radial-gradient(ellipse 84% 78% at 50% 48%, transparent 54%, rgba(7, 5, 18, .62) 100%)',
+      `radial-gradient(ellipse at 20% 34%, ${base}48, transparent 54%)`,
+      `linear-gradient(180deg, ${top} 0% 18%, color-mix(in srgb, ${top} 66%, ${horizon}) 18% 36%, color-mix(in srgb, ${top} 28%, ${horizon}) 36% 54%, ${horizon} 54% 72%, color-mix(in srgb, ${horizon} 45%, ${base}) 72% 86%, ${base} 86% 100%)`,
+    ].join(', ');
     el.dataset.theme = theme.id;
+    sky.style.backgroundImage = skyLight(theme);
   }
   backdrop();
-  const land = survey(nodes);
-  const { camera, aim, project } = expeditionCamera(land);
-  const target = new Vector3(), point = new Vector3();
+  let land = survey(nodes, theme.id);
+  let view = expeditionCamera(land);
   let width = 0,
     height = 0,
     yaw = 0,
     pitch = 0,
     nx = 0,
     ny = 0;
-  const entryAt = (i: number) => land.entries.get(i) ?? land.entries.values().next().value ?? target;
-  const nodeAt = (l: number, i: number) => land.sites.get(nodeKey(l, i))?.pos ?? target;
   let paths: MapPathState = { walked: new Set(), available: new Set(), preview: new Set(), chosen: '' };
   const listeners = new Set<() => void>();
   const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let renderer: RealmRenderer | undefined;
-  let pendingPulse: Vector3 | undefined;
+  let pendingPulse: { pos: Vector3; kind: MapPulse } | undefined;
   let dead = false,
     loading = false,
     failed = false;
@@ -100,10 +103,10 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
     } else {
       yaw = pitch = 0;
     }
-    aim(yaw, pitch);
+    view.aim(yaw, pitch);
     if (moving) redraw();
     for (const cb of listeners) cb();
-    if (!dead) renderer?.draw(camera, motion.matches ? 0 : elapsed);
+    if (!dead) renderer?.draw(view.camera, motion.matches ? 0 : elapsed);
   }
   function start() {
     loading = true;
@@ -112,7 +115,7 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
       renderer = createRealmRenderer(el, land, theme, redraw);
       renderer.resize(width, height);
       renderer.setPaths(paths);
-      if (pendingPulse && !motion.matches) renderer.pulse(pendingPulse, elapsed);
+      if (pendingPulse && !motion.matches) renderer.pulse(pendingPulse.pos, elapsed, pendingPulse.kind);
       pendingPulse = undefined;
     } catch (error) {
       failed = true;
@@ -134,7 +137,7 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
     width = Math.round(w);
     height = Math.round(h);
     if (width && height) {
-      aim(yaw, pitch, width / height);
+      view.aim(yaw, pitch, width / height);
       renderer?.resize(width, height);
     }
     refresh();
@@ -162,8 +165,14 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
     setTheme(id) {
       const next = VOXEL_THEMES.find(v => v.id === id);
       if (dead || !next || next === theme) return;
-      renderer?.setTheme(next);
+      const nextLand = survey(nodes, next.id);
+      const nextView = expeditionCamera(nextLand);
+      if (width && height) nextView.aim(yaw, pitch, width / height);
+      renderer?.setTheme(nextLand, next);
+      land = nextLand;
+      view = nextView;
       theme = next;
+      pendingPulse = undefined;
       backdrop();
       renderer?.setPaths(paths);
       redraw();
@@ -179,32 +188,10 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
       redraw();
     },
     projectNode(l, i) {
-      return project(nodeAt(l, i));
+      return view.project(land.sites.get(nodeKey(l, i))?.pos ?? land.gate);
     },
-    projectCampEntry(i) {
-      return project(entryAt(i));
-    },
-    projectAlong(from, to, t) {
-      const camp = 'campIndex' in from;
-      const start = camp ? entryAt(from.campIndex) : nodeAt(from.layer, from.index);
-      const dest = nodeAt(to.layer, to.index),
-        u = Number.isFinite(t) ? clamp(t, 0, 1) : 0;
-      if (u === 0 || u === 1) return project(u === 0 ? start : dest);
-      // All entry lanes share the timber landing. A hero starting in another
-      // lane first crosses the deck, then follows the destination's built spur.
-      const key = (camp ? `camp-${to.index}` : nodeKey(from.layer, from.index)) + '->' + nodeKey(to.layer, to.index);
-      const road = land.roads.get(key);
-      if (road) {
-        const lead = start.distanceTo(road.points[0]);
-        const travel = u * (lead + road.length);
-        if (travel < lead) point.lerpVectors(start, road.points[0], travel / lead);
-        else follow(road, (travel - lead) / road.length, point);
-      } else {
-        point.lerpVectors(start, dest, u);
-        point.y = land.ground(point.x, point.z) + ROAD_LIFT;
-      }
-      point.y += Math.sin(Math.PI * u) * 1.4;
-      return project(point);
+    projectEntry() {
+      return view.project(land.gate);
     },
     onFrame(cb) {
       if (!dead) {
@@ -212,11 +199,11 @@ export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThe
         redraw();
       }
     },
-    pulseNode(l, i) {
+    pulseNode(l, i, kind = 'depart') {
       const site = land.sites.get(nodeKey(l, i));
       if (!dead && site && !motion.matches) {
-        if (renderer) renderer.pulse(site.pos, elapsed);
-        else pendingPulse = site.pos;
+        if (renderer) renderer.pulse(site.pos, elapsed, kind);
+        else pendingPulse = { pos: site.pos, kind };
         redraw();
       }
     },
