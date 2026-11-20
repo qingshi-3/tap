@@ -2056,9 +2056,9 @@ export function autoAct(state, playerId = state.currentPlayer) {
 async function botAct(state, notify, options, sessionId) {
   const isCancelled = options?.isCancelled ?? (() => false);
   const cancelled = () => isCancelled() || botSessions.get(state) !== sessionId;
-  const delay = options?.delayMs ?? 380;
+  const stepDelay = () => typeof options?.delayMs === "function" ? options.delayMs() : (options?.delayMs ?? 380);
   if (cancelled()) return;
-  if (delay > 0) await sleep(delay);
+  if (stepDelay() > 0) await sleep(stepDelay());
   let guard = 0;
   while (state.phase === 'ai' && state.players[state.currentPlayer]?.ai && guard++ < 100) {
     if (cancelled()) return;
@@ -2067,7 +2067,7 @@ async function botAct(state, notify, options, sessionId) {
     const action = state.lastAction ? clone(state.lastAction) : { kind: 'end-turn' };
     await notify(beforeUnits, action);
     if (cancelled()) return;
-    if (state.phase === 'ai' && delay > 0) await sleep(action.kind === 'attack' ? delay + 40 : delay);
+    const wait = stepDelay(); if (state.phase === 'ai' && wait > 0) await sleep(action.kind === 'attack' ? wait + 30 : wait);
   }
 }
 

@@ -361,6 +361,61 @@ export class BoardRenderer {
     this.pan((viewport.left + viewport.right) / 2 - point.x, (viewport.top + viewport.bottom) / 2 + 18 - point.y);
   }
 
+  triggerShake(intensity = 5, duration = 200) {
+    if (this.motionPreference.matches) return;
+    this.shake = { startedAt: performance.now(), intensity, duration };
+  }
+
+  sampleShake(now = performance.now()) {
+    if (!this.shake || this.motionPreference.matches) return { x: 0, y: 0 };
+    const elapsed = now - this.shake.startedAt;
+    if (elapsed >= this.shake.duration) { this.shake = null; return { x: 0, y: 0 }; }
+    const decay = 1 - elapsed / this.shake.duration;
+    const mag = this.shake.intensity * decay;
+    return { x: Math.sin(elapsed * 0.095) * mag, y: Math.cos(elapsed * 0.13) * mag * 0.7 };
+  }
+
+  getTelegraphCells(state = this.state) {
+    if (!state) return [];
+    const cells = [];
+    for (const m of [...encounterMarkers(state), ...adventureMarkers(state)]) {
+      if (m.marked || m.kind === 'damage' || m.kind === 'gravity') cells.push({ x: m.x, y: m.y, marker: m, priority: m.showLabel === false ? 0 : 2 });
+    }
+    for (const c of bossMarks(state)) cells.push({ x: c.x, y: c.y, marker: { kind: 'boss-mark', intent: state.boss?.id }, priority: 3 });
+    return cells;
+  }
+
+  getOffscreenTelegraph(state = this.state) {
+    if (!state || !isTacticalMatch(state)) return null;
+    const cells = this.getTelegraphCells(state);
+    if (!cells.length) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const metrics = this.boardMetrics(rect.width, rect.height);
+    const viewport = this.battlefieldViewport(rect.width, rect.height);
+    const pad = 16;
+    const prioritized = [...cells].sort((a, b) => b.priority - a.priority);
+    for (const item of prioritized) {
+      const p = this.cellGeometry(metrics, item.x, item.y).center;
+      if (p.x < viewport.left + pad || p.x > viewport.right - pad || p.y < viewport.top + pad || p.y > viewport.bottom - pad) return item;
+    }
+    return null;
+  }
+
+  focusTelegraphs(state = this.state) {
+    if (!state || !isTacticalMatch(state)) return false;
+    const cells = this.getTelegraphCells(state);
+    if (!cells.length) return false;
+    const offscreen = this.getOffscreenTelegraph(state);
+    if (!offscreen) return false;
+    const primary = cells.filter(c => c.priority >= 2);
+    const targetList = primary.length ? primary : cells;
+    const avgX = targetList.reduce((s, c) => s + c.x, 0) / targetList.length;
+    const avgY = targetList.reduce((s, c) => s + c.y, 0) / targetList.length;
+    this.focusCell(Math.round(avgX), Math.round(avgY));
+    return true;
+  }
+
   drawOverview(canvas) {
     if (!canvas || !isTacticalMatch(this.state)) return;
     const ctx = canvas.getContext('2d'), board = boardOf(this.state);
@@ -433,6 +488,12 @@ export class BoardRenderer {
   }
 
   animateAction(action, beforeUnits = []) {
+    if (action) {
+      const lethal = this.state?.phase === 'over';
+      const bigAdventure = action.kind === 'adventure' && (action.abilityId === 'meteor-strike' || (action.abilityId === 'prism-beam' && action.overcharged));
+      if (lethal) this.triggerShake(7, 260);
+      else if (bigAdventure) this.triggerShake(5.5, 220);
+    }
     const completed = this.effects.play(action, beforeUnits);
     if (this.motionPreference.matches) this.onVisualFrame?.(this.state?.units ?? []);
     return completed;
@@ -493,6 +554,9 @@ export class BoardRenderer {
       : selectedSpell?.type === 'spell' ? spellTargets(state, selectedSpell) : [];
 
     ctx.clearRect(0, 0, width, height);
+    const shakeOffset = this.sampleShake();
+    ctx.save();
+    if (shakeOffset.x || shakeOffset.y) ctx.translate(shakeOffset.x, shakeOffset.y);
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
     const sceneMarkers = [...encounterMarkers(state), ...adventureMarkers(state)];
     const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
@@ -594,8 +658,122 @@ export class BoardRenderer {
     if (state.boss) { this.drawBossArmor(statsContext, visualState, metrics); this.drawBossMarkBadges(statsContext, visualState, metrics); }
     this.drawEncounterBadges(statsContext, visualState, metrics, sceneMarkers);
     statsContext.restore();
+    if (options.adventurePreview && !this.effects.playback) {
+      this.drawAdventurePreview(statsContext, state, metrics, options.adventurePreview, options.adventureSource);
+    }
     this.attackPreviewLayout = [];
     drawAttackResults(this, statsContext, metrics, targetingOptions.attackPreview, targetingOptions.attackGesture);
+    ctx.restore();
+  }
+
+  drawAdventurePreview(ctx, state, metrics, preview, source) {
+    if (!preview) return;
+    const steps = preview.steps ?? [];
+    const castStep = steps.find(s => s.kind === 'cast');
+    const abilityId = castStep?.abilityId;
+    ctx.save();
+    if (abilityId === 'chain-lightning') {
+      const chains = steps.filter(s => s.kind === 'chain' && s.from && s.to);
+      for (const link of chains) {
+        const a = this.cellGeometry(metrics, link.from.x, link.from.y).center;
+        const b = this.cellGeometry(metrics, link.to.x, link.to.y).center;
+        const midX = (a.x + b.x) / 2, midY = (a.y + b.y) / 2 - 12;
+        ctx.save();
+        ctx.strokeStyle = 'rgba(96, 232, 255, 0.45)';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 14); ctx.quadraticCurveTo(midX, midY, b.x, b.y - 14); ctx.stroke();
+        ctx.strokeStyle = '#e8fdff';
+        ctx.lineWidth = 2.6;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 14); ctx.quadraticCurveTo(midX, midY, b.x, b.y - 14); ctx.stroke();
+        ctx.restore();
+      }
+      chains.forEach((link, idx) => {
+        const pt = this.cellGeometry(metrics, link.to.x, link.to.y).center;
+        ctx.save();
+        ctx.fillStyle = '#0e3b52';
+        ctx.strokeStyle = '#8cf2ff';
+        ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(pt.x, pt.y - 26, 10, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '700 11px Lato, sans-serif';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(idx + 1), pt.x, pt.y - 26);
+        ctx.restore();
+      });
+    }
+    if (abilityId === 'prism-beam' && preview.cells?.length) {
+      const overcharged = (preview.statChanges ?? []).some(c => c.kind === 'damage' && c.amount >= 10);
+      const first = this.cellGeometry(metrics, preview.cells[0].x, preview.cells[0].y).center;
+      const last = this.cellGeometry(metrics, preview.cells[preview.cells.length - 1].x, preview.cells[preview.cells.length - 1].y).center;
+      const start = source ? this.cellGeometry(metrics, source.x, source.y).center : first;
+      ctx.save();
+      ctx.strokeStyle = overcharged ? 'rgba(255, 200, 72, 0.52)' : 'rgba(110, 224, 255, 0.48)';
+      ctx.lineWidth = overcharged ? 18 : 13;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(start.x, start.y - 12); ctx.lineTo(last.x, last.y - 12); ctx.stroke();
+      ctx.strokeStyle = overcharged ? '#fff7cf' : '#e8fdff';
+      ctx.lineWidth = overcharged ? 5 : 3.5;
+      ctx.beginPath(); ctx.moveTo(start.x, start.y - 12); ctx.lineTo(last.x, last.y - 12); ctx.stroke();
+      ctx.restore();
+    }
+    if (abilityId === 'gravity-well') {
+      if (castStep?.cell) {
+        const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
+        ctx.save();
+        ctx.strokeStyle = '#d19cff';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath(); ctx.ellipse(c.center.x, c.center.y, c.width * 0.34, c.height * 0.24, 0, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
+      }
+      for (const mv of preview.moves ?? []) {
+        const u = state.units.find(item => item.unitId === mv.unitId);
+        if (!u || !mv.to) continue;
+        const a = this.cellGeometry(metrics, u.x, u.y).center;
+        const b = this.cellGeometry(metrics, mv.to.x, mv.to.y).center;
+        ctx.save();
+        ctx.strokeStyle = '#e2b8ff';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 10); ctx.lineTo(b.x, b.y - 10); ctx.stroke();
+        ctx.restore();
+      }
+    }
+    if (abilityId === 'meteor-strike' && castStep?.cell) {
+      const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 84, 48, 0.32)';
+      ctx.strokeStyle = '#ffb870';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath(); c.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+    }
+    const dmgByUnit = new Map();
+    for (const ch of preview.statChanges ?? []) {
+      if (ch.kind === 'damage' && ch.unitId != null) dmgByUnit.set(ch.unitId, (dmgByUnit.get(ch.unitId) ?? 0) + ch.amount);
+    }
+    for (const [unitId, amount] of dmgByUnit) {
+      const u = state.units.find(item => item.unitId === unitId);
+      if (!u) continue;
+      const cell = this.cellGeometry(metrics, u.x, u.y);
+      const after = Math.max(0, u.health - amount);
+      const lethal = after <= 0;
+      const label = lethal ? '-' + amount + ' 斩杀' : '-' + amount + ' → ' + after;
+      ctx.save();
+      ctx.font = '700 11px "Luxiang UI", sans-serif';
+      const w = Math.max(46, ctx.measureText(label).width + 12), h = 20;
+      const x = cell.center.x, y = cell.center.y - cell.height * 0.72;
+      ctx.fillStyle = lethal ? 'rgba(168, 34, 34, 0.96)' : 'rgba(38, 22, 18, 0.92)';
+      ctx.strokeStyle = lethal ? '#ffd875' : '#ff9b7a';
+      ctx.lineWidth = 1.5;
+      roundRect(ctx, x - w / 2, y - h / 2, w, h, 4);
+      ctx.fill(); ctx.stroke();
+      ctx.fillStyle = lethal ? '#fff4cc' : '#ffe0d4';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(label, x, y);
+      ctx.restore();
+    }
+    ctx.restore();
   }
 
   drawBoardFloor(ctx, metrics, width, height, mode) {
@@ -753,11 +931,15 @@ export class BoardRenderer {
   drawEncounterBadge(ctx, x, y, size, text, owner, danger, opacity = 1) {
     ctx.save();
     ctx.globalAlpha *= opacity;
-    ctx.fillStyle = danger ? 'rgba(112,64,32,.92)' : owner === 2 ? 'rgba(80,52,101,.92)' : owner === 0 ? 'rgba(35,76,104,.92)' : 'rgba(99,63,58,.92)';
+    ctx.fillStyle = danger ? 'rgba(128,46,24,.94)' : owner === 2 ? 'rgba(80,52,101,.94)' : owner === 0 ? 'rgba(32,74,104,.94)' : 'rgba(86,46,44,.94)';
     ctx.font = `700 ${Math.max(11,size*.66)}px "Luxiang UI", sans-serif`;
-    const width = Math.max(size, ctx.measureText(text).width + 8);
+    const width = Math.max(size, ctx.measureText(text).width + 10);
     this.encounterBadgeLayout?.push({ x:x-width/2, y:y-size/2, width, height:size, text, owner, danger });
+    ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 1;
     roundRect(ctx, x-width/2, y-size/2, width, size, 4); ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = danger ? 'rgba(255,212,132,.85)' : 'rgba(182,220,245,.62)';
+    ctx.lineWidth = 1.25; ctx.stroke();
     ctx.fillStyle = '#fff4da';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);ctx.restore();
   }
@@ -1248,6 +1430,21 @@ export class BoardRenderer {
       effectiveAttack(state, logicalUnit), this.images.get(`stat-attack${suffix}`));
     this.drawStat(ctx, centerX + spacing, footY - cell.height * .11, iconSize,
       Math.max(0, unit.health), this.images.get(`stat-health${suffix}`));
+    if (unit.owner === 0 && unit.cardId === 9202 && state.adventure) {
+      const adv = state.adventure.units?.find(item => item.unitId === unit.unitId);
+      const charge = Math.max(0, Math.min(2, adv?.charge ?? 0));
+      const pipY = footY + cell.height * 0.08;
+      for (let i = 0; i < 2; i++) {
+        const px = centerX + (i === 0 ? -7 : 7);
+        const lit = i < charge;
+        ctx.save();
+        ctx.fillStyle = lit ? (charge >= 2 ? '#ffd86b' : '#6eeeff') : 'rgba(18, 28, 38, 0.85)';
+        ctx.strokeStyle = lit ? '#ffffff' : 'rgba(160, 195, 215, 0.55)';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(px, pipY, 4.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+    }
     this.unitFeedbackLayout?.push({ unitId:unit.unitId, owner:unit.owner,
       resting:this.unitRestingAfterAction(unit), suffix,
       stats:[

@@ -1,0 +1,289 @@
+/* Phase 1 UX & Battlefield Readability Polish */
+
+/* 1. Lift hand-count pill cleanly above cards so it never covers mana/range badges */
+.match .hand-zone {
+  overflow: visible;
+}
+.match .hand-count {
+  top: -15px;
+  padding: 2px 8px;
+  border: 1px solid rgba(201, 181, 128, 0.35);
+  border-radius: 4px;
+  background: rgba(13, 24, 36, 0.92);
+  color: #dbe8ee;
+  font-size: 11px;
+  line-height: 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+.match .hand-count.is-full {
+  border-color: rgba(244, 211, 122, 0.65);
+  color: #ffe299;
+}
+
+/* 2. Compact 568px hand scroll affordance & tighter card fit */
+@media (max-width: 620px), (max-height: 350px) {
+  .match .hand-card {
+    width: 62px;
+  }
+  .match .hand[data-overflow-right="true"] {
+    mask-image: linear-gradient(90deg, #000 0%, #000 88%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 88%, transparent 100%);
+  }
+  .match .hand-count {
+    top: -14px;
+    font-size: 10px;
+    padding: 1px 6px;
+  }
+}
+
+/* 3. Speed toggle button beside #objective-open + synced settings row */
+#match .battle-top-center {
+  gap: 6px;
+}
+:root #match #battle-speed {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid rgba(186, 214, 232, 0.35);
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(45, 68, 86, 0.92), rgba(22, 36, 50, 0.95));
+  color: #e9f2f7;
+  font: 700 13px/1 var(--font-ui, sans-serif);
+  letter-spacing: 0.02em;
+  box-shadow: inset 0 -2px rgba(5, 12, 20, 0.65), 0 2px 6px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  pointer-events: auto;
+}
+:root #match #battle-speed[data-speed="2"] {
+  border-color: rgba(124, 216, 245, 0.72);
+  background: linear-gradient(180deg, rgba(38, 92, 118, 0.95), rgba(20, 52, 72, 0.96));
+  color: #d6f7ff;
+}
+:root #match #battle-speed[data-speed="3"] {
+  border-color: rgba(247, 206, 108, 0.85);
+  background: linear-gradient(180deg, rgba(168, 118, 36, 0.96), rgba(108, 69, 18, 0.97));
+  color: #fff3cf;
+}
+:root #match #battle-speed:active {
+  transform: translateY(1px);
+  filter: brightness(0.88);
+}
+.settings-speed-group {
+  display: flex;
+  gap: 6px;
+}
+.settings-speed-group button {
+  min-width: 44px;
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(176, 204, 224, 0.35);
+  border-radius: 4px;
+  background: #223544;
+  color: #dce9f2;
+  font: 600 13px/1 var(--font-ui, sans-serif);
+}
+.settings-speed-group button[aria-pressed="true"] {
+  border-color: #f3ce74;
+  background: #b8842c;
+  color: #171e26;
+}
+
+/* 4. Slimmer, cleaner side HUD controls so they stop chopping board badges & units */
+#battle-history {
+  top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 68px);
+  left: max(4px, var(--ui-left, 0px));
+}
+#battle-history > button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 9px;
+  font-size: 12px;
+  opacity: 0.9;
+  border: 1px solid rgba(178, 206, 224, 0.28);
+  border-radius: 4px;
+  background: rgba(24, 38, 52, 0.86);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+:root .match #leave-match {
+  min-width: 44px;
+  min-height: 44px;
+  opacity: 0.9;
+  border: 1px solid rgba(178, 206, 224, 0.28);
+  border-radius: 4px;
+  background: rgba(24, 38, 52, 0.86);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+}
+@media (max-width: 620px), (max-height: 350px) {
+  #battle-history {
+    top: calc(var(--battle-hud-top, var(--ui-top, 6px)) + 64px);
+  }
+  :root .match #leave-match {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* 5. Adventure borrowed-unit controls: float cleanly above hand zone, never overlapping card #1 */
+#match .adventure-controls {
+  top: auto !important;
+  bottom: calc(124px + var(--safe-bottom, 0px));
+  left: max(8px, var(--ui-left, 8px)) !important;
+  width: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: min(290px, calc(100% - var(--ui-left, 8px) - var(--ui-right, 8px)));
+}
+#match .adventure-controls.is-aiming {
+  width: auto;
+}
+#match .adventure-controls .adventure-ability {
+  flex-direction: row;
+  gap: 6px;
+  padding: 0 12px;
+  min-height: 44px;
+  border-radius: 5px;
+  border: 1px solid rgba(255, 224, 144, 0.55);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5), inset 0 -2px rgba(0, 0, 0, 0.3);
+}
+#match .adventure-controls .adventure-ability.is-overcharged {
+  border-color: #ffe27a;
+  box-shadow: 0 0 14px rgba(255, 210, 96, 0.65), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+#match .adventure-controls .adventure-cancel {
+  padding: 0 12px;
+  min-height: 44px;
+  border-radius: 5px;
+}
+#match .adventure-summary {
+  bottom: calc(100% + 6px);
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(12, 22, 34, 0.9);
+  border: 1px solid rgba(162, 212, 240, 0.35);
+  font-size: 12px;
+}
+@media (max-height: 350px) {
+  #match .adventure-controls {
+    bottom: calc(112px + var(--safe-bottom, 0px));
+  }
+}
+
+/* 6. Non-blocking top Boss/Encounter event banner (replaces center-blocking toast for announcements) */
+.battle-event-banner {
+  position: absolute;
+  z-index: 26;
+  top: calc(var(--ui-top, 6px) + 52px);
+  left: 50%;
+  transform: translate(-50%, -6px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: max-content;
+  max-width: min(440px, calc(100vw - 140px));
+  padding: 6px 14px;
+  border: 1px solid rgba(244, 206, 122, 0.55);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(24, 38, 56, 0.94), rgba(14, 24, 36, 0.96));
+  color: #fff2d4;
+  font: 600 13px/1.35 var(--font-ui, sans-serif);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.battle-event-banner::before {
+  content: '◆';
+  color: #ffd36b;
+  font-size: 11px;
+  flex: none;
+}
+.battle-event-banner.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.battle-event-banner[hidden] {
+  display: none;
+}
+
+/* 7. Tap-to-inspect telegraph popover & offscreen telegraph locator */
+.telegraph-popover {
+  position: absolute;
+  z-index: 28;
+  max-width: min(270px, calc(100vw - 32px));
+  padding: 7px 11px;
+  border: 1px solid rgba(247, 184, 108, 0.72);
+  border-radius: 6px;
+  background: rgba(16, 26, 38, 0.95);
+  color: #fff3da;
+  font: 500 12px/1.45 var(--font-ui, sans-serif);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+.telegraph-popover strong {
+  display: block;
+  margin-bottom: 2px;
+  color: #ffd36b;
+  font-size: 12px;
+}
+.telegraph-popover[hidden] {
+  display: none;
+}
+.telegraph-locate {
+  position: absolute;
+  z-index: 22;
+  top: calc(var(--ui-top, 6px) + 54px);
+  right: max(10px, var(--ui-right, 10px));
+  min-height: 36px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 192, 104, 0.85);
+  border-radius: 999px;
+  background: rgba(126, 62, 24, 0.92);
+  color: #fff3da;
+  font: 600 12px/1 var(--font-ui, sans-serif);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.48);
+  cursor: pointer;
+}
+.telegraph-locate[hidden] {
+  display: none;
+}
+
+/* 8. Objective dialog: prevent last-line clipping & make boss rules scannable cards */
+#objective-dialog .objective-body {
+  padding-bottom: 24px;
+}
+#objective-dialog .objective-boss {
+  gap: 8px 12px;
+  padding: 10px 12px;
+  background: rgba(24, 46, 68, 0.45);
+  border-color: rgba(162, 214, 242, 0.38);
+}
+#objective-dialog .objective-boss dt {
+  align-self: start;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(110, 184, 224, 0.18);
+  color: #cbeeff;
+  font-size: 12px;
+}
+#objective-dialog .objective-boss dd {
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* 9. Align adventure-gift modal with qibing dark-purple/gold palette */
+.adventure-gift {
+  border: 2px solid #c9a45c;
+  border-radius: 6px;
+  background: linear-gradient(180deg, #25203b, #171428);
+  color: #f2ead9;
+}
+.adventure-gift .gift-play {
+  background: linear-gradient(180deg, #f3c861, #c98f29);
+  color: #1d1508;
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .battle-event-banner { transition: none; }
+}

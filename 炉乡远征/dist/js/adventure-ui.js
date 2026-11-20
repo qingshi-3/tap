@@ -143,12 +143,13 @@ export function createAdventureControls({ read, renderer, board, host, ready, pr
     }
     summary.hidden = !summary.textContent;
     summary.classList.toggle('is-charged', !aim && unit.cardId === 9202 && choice.charge === 2);
+    button.classList.toggle('is-overcharged', unit.cardId === 9202 && choice.charge === 2);
     if (summary.hidden) button.removeAttribute('aria-describedby');
     else button.setAttribute('aria-describedby', summary.id);
     // One fixed operation lane keeps both allies and enemies directly touchable.
     // The aiming summary floats above this lane without moving the buttons.
-    panel.style.left = 'var(--ui-left, 8px)';
-    panel.style.top = `${cancelBoundary() - host.getBoundingClientRect().top}px`;
+    panel.style.left = '';
+    panel.style.top = '';
   }
 
   button.addEventListener('click', event => {
