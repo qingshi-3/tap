@@ -2,3 +2,4 @@
 # Preserve their original line endings on every checkout.
 排队骑士/source/scripts/**/baseline/** -text
 排队骑士/source/scripts/**/candidate-no-authored/** -text
+/duelyst-main.zip filter=lfs diff=lfs merge=lfs -text
