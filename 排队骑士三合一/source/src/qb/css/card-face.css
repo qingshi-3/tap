@@ -1,0 +1,176 @@
+/* ═════════════════════════════════════════════════════════════
+   卡面（2026-11-16）：draftCard() 生成的 .card.cf
+   结构：通栏立绘窗（流派色背光 + 光芒 + 地台）→ 名牌 → 主技能行；攻血宝石压在立绘窗下角。
+   金色（.cf-gold）：金框、金色背光、周期扫光、立绘金描边、王冠。
+   画面 188×262（货架里再按 --shop-card-zoom 缩放）。像素风：硬边色阶；常驻动画只动 transform / opacity。
+   本文件在 main.ts 最后加载，覆盖 global-layers / card-tiers 里旧卡面的同名元素。
+   ═════════════════════════════════════════════════════════════ */
+
+.card.cf .card-in {
+  background: linear-gradient(180deg, #19173f, #0d0c25 64%, #0a0920);
+}
+.card.cf.fac-neutral .card-in { background: linear-gradient(180deg, #20243a, #12141f 64%, #0d0f18); }
+
+/* ───────── 立绘窗 ───────── */
+.card.cf .cf-window {
+  position: absolute; left: 7px; right: 7px; top: 7px; height: 146px; z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 62% 58% at 50% 92%,
+      color-mix(in srgb, var(--fc) 72%, transparent) 0 20%,
+      color-mix(in srgb, var(--fc) 40%, transparent) 20% 44%,
+      color-mix(in srgb, var(--fc) 16%, transparent) 44% 72%, transparent 72%),
+    linear-gradient(180deg, color-mix(in srgb, var(--fc) 22%, #0b0a1f) 0, #0c0b22 78%);
+  box-shadow: inset 0 0 0 2px rgba(4, 3, 14, .7), inset 0 -4px 0 0 color-mix(in srgb, var(--tc) 70%, #000);
+}
+.card.cf.fac-neutral .cf-window { background:
+    radial-gradient(ellipse 62% 58% at 50% 92%, rgba(190, 200, 230, .34) 0 22%, rgba(190, 200, 230, .16) 22% 48%, transparent 72%),
+    linear-gradient(180deg, #262a40, #12141f 78%); }
+/* 背光光芒：从地台放射，三阶起缓慢转动 */
+.card.cf .cf-rays {
+  position: absolute; left: 50%; top: 100%; width: 340px; height: 340px; margin: -170px 0 0 -170px;
+  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--fc) 26%, transparent) 0 7deg, transparent 7deg 20deg);
+  -webkit-mask: radial-gradient(circle, #000 0 18%, rgba(0, 0, 0, .55) 18% 34%, rgba(0, 0, 0, .2) 34% 48%, transparent 48%);
+  mask: radial-gradient(circle, #000 0 18%, rgba(0, 0, 0, .55) 18% 34%, rgba(0, 0, 0, .2) 34% 48%, transparent 48%);
+  opacity: .8;
+}
+.card.cf:is(.tier-3, .tier-4, .tier-5, .tier-6) .cf-rays { animation: cfSpin 28s linear infinite; will-change: transform; }
+.card.cf:is(.tier-5, .tier-6) .cf-rays { opacity: 1; background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tc) 30%, transparent) 0 6deg, transparent 6deg 15deg); }
+@keyframes cfSpin { to { transform: rotate(360deg); } }
+/* 地台：单位脚下的椭圆台面，硬边三档 */
+.card.cf .cf-floor {
+  position: absolute; left: 50%; bottom: 8px; width: 132px; height: 26px; margin-left: -66px;
+  background: radial-gradient(ellipse 50% 50%, rgba(3, 2, 12, .62) 0 46%, color-mix(in srgb, var(--fc) 46%, #05040f) 46% 62%, rgba(3, 2, 12, .38) 62% 100%);
+  -webkit-mask: radial-gradient(ellipse 50% 50%, #000 99%, transparent 100%);
+  mask: radial-gradient(ellipse 50% 50%, #000 99%, transparent 100%);
+}
+/* 阵营徽记降为立绘窗里的水印 */
+.card.cf .card-in > .card-sigil { top: 26px; width: 104px; height: 104px; margin-left: -52px; background-size: 104px 104px; opacity: .14; z-index: 0; }
+
+/* ───────── 立绘：放大，脚踩地台，头可以探出窗口 ───────── */
+.card.cf .card-in > .card-art {
+  position: absolute; left: 0; right: 0; top: 4px; height: 142px; z-index: 2;
+  width: auto; margin: 0; display: flex; align-items: flex-end; justify-content: center;
+}
+.card.cf .card-in > .card-art .uart { width: 118px; height: 132px; flex: none; transform: none; }
+.card.cf .card-in > .card-art .card-aura { bottom: 4px; }
+
+/* ───────── 顶栏：流派签、阶徽压在立绘窗上 ───────── */
+.card.cf .card-in > .card-top { z-index: 5; top: 12px; left: 12px; right: 12px; }
+.card.cf .card-top .card-fac { box-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+
+/* ───────── 攻血宝石：压在立绘窗下角 ───────── */
+.card.cf .card-in > .card-stats {
+  position: absolute; top: 102px; left: 6px; right: 6px; bottom: auto; z-index: 6;
+  display: flex; justify-content: space-between; pointer-events: none;
+}
+.card.cf .card-stats .cs { width: 44px; height: 44px; background-size: 44px 44px !important; filter: drop-shadow(0 3px 0 rgba(0, 0, 0, .6)); }
+.card.cf .card-stats .cs i { font-size: 25px; text-shadow: 0 2px 0 rgba(0, 0, 0, .55); }
+.card.cf .card-stats .cs .ic { display: none; }
+
+/* ───────── 名牌：两端折角的阶级色缎带 ───────── */
+.card.cf .card-in > .card-name {
+  position: absolute; left: 0; right: 0; top: 142px; height: 32px; z-index: 5; margin: 0;
+  display: flex; align-items: center; justify-content: center; text-align: center;
+}
+.card.cf .card-name > span {
+  position: relative; z-index: 0; display: block; padding: 0 18px;
+  font-size: 23px; line-height: 32px; font-weight: 900; color: #fff; white-space: nowrap; letter-spacing: .02em;
+  text-shadow: 0 2px 0 #07051a, 2px 0 0 #07051a, -2px 0 0 #07051a, 0 -2px 0 #07051a;
+}
+.card.cf .card-name > span::before,
+.card.cf .card-name > span::after {
+  content: ''; position: absolute; z-index: -1;
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%);
+}
+.card.cf .card-name > span::after { inset: -2px -4px; background: #07051a; z-index: -2; }
+.card.cf .card-name > span::before {
+  inset: 0;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--tl) 30%, var(--ts)) 0 3px,
+    color-mix(in srgb, var(--tc) 46%, #1b1842) 3px 55%,
+    color-mix(in srgb, var(--tc) 28%, #110f2c) 55% 100%);
+}
+.card.cf.tier-1 .card-name > span::before { background: linear-gradient(180deg, #5d4a38 0 3px, #3a3047 3px 55%, #282236 55% 100%); }
+.card.cf:is(.tier-5, .tier-6) .card-name > span { color: var(--tl); }
+
+/* ───────── 主技能：一行时机标签 + 两行正文 ───────── */
+.card.cf .card-in > .card-brief.cf-ability {
+  position: absolute; left: 9px; right: 9px; top: 178px; height: 66px; z-index: 3;
+  margin: 0; display: block; overflow: hidden; font-size: 17px; text-align: left; color: #e9ecff;
+}
+/* 卡面：符文槽 + 时机名一行，正文两行截断（.ab-text 拆开参与网格） */
+.card.cf .cf-ability .ab-row { grid-template-columns: 22px minmax(0, 1fr); column-gap: 6px; row-gap: 2px; padding: 0 2px 0 3px; line-height: 21px; }
+.card.cf .cf-ability .ab-text { display: contents; }
+.card.cf .cf-ability .ab-socket { grid-area: 1 / 1; width: 22px; height: 22px; margin: 0; }
+.card.cf .cf-ability .ab-socket .rune { width: 16px; height: 16px; }
+.card.cf .cf-ability .ab-head { grid-area: 1 / 2; display: flex; align-items: center; gap: 5px; min-width: 0; margin: 0; line-height: 22px; }
+.card.cf .cf-ability .ab-trig { font-size: 16px; min-width: 0; overflow: hidden; text-overflow: clip; }
+.card.cf .cf-ability .ab-limit { display: none; }
+.card.cf .cf-ability .ab-more { margin-left: auto; font-size: 13px; line-height: 16px; vertical-align: 0; }
+.card.cf .cf-ability .ab-body {
+  grid-column: 1 / -1; grid-row: 2;
+  font-size: 17px; line-height: 21px;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden;
+}
+.card.cf .cf-ability .ab-note { display: none; }
+/* 无规则卡（旧词条标签）仍放在同一块区域 */
+.card.cf .card-in > .card-brief.card-keywords { top: 178px; height: 66px; z-index: 3; }
+
+.card.cf .card-in > .card-gems { z-index: 3; bottom: 4px; }
+
+/* ═════════ 金色卡 ═════════ */
+.card.cf.cf-gold .card-in {
+  border-image-source: var(--pxf-gold);
+  background: linear-gradient(180deg, #3a2a0e, #1c1408 64%, #140e05);
+}
+.card.cf.cf-gold .cf-window {
+  background:
+    radial-gradient(ellipse 62% 58% at 50% 92%, rgba(255, 236, 160, .95) 0 16%, rgba(255, 196, 70, .62) 16% 38%, rgba(214, 140, 30, .3) 38% 66%, transparent 66%),
+    linear-gradient(180deg, #4a3110 0, #24180a 80%);
+  box-shadow: inset 0 0 0 2px #2a1600, inset 0 0 0 4px #ffd36b, inset 0 -6px 0 2px #b7791f;
+}
+.card.cf.cf-gold .cf-rays {
+  opacity: 1; animation: cfSpin 16s linear infinite; will-change: transform;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 228, 140, .42) 0 6deg, transparent 6deg 15deg);
+}
+.card.cf.cf-gold .cf-floor { background: radial-gradient(ellipse 50% 50%, rgba(40, 22, 0, .6) 0 46%, #ffd36b 46% 60%, rgba(120, 70, 10, .5) 60% 100%); }
+.card.cf.cf-gold .card-in > .card-sigil { opacity: .2; filter: sepia(1) saturate(3) hue-rotate(-12deg); }
+/* 立绘：金色硬边描边（四向 0 模糊投影叠成像素外框） */
+.card.cf.cf-gold .card-art .uart .duelyst-frame {
+  filter: drop-shadow(0 -2px 0 #fff3b8) drop-shadow(2px 0 0 #ffc845) drop-shadow(-2px 0 0 #ffc845) drop-shadow(0 2px 0 #9a5f0e);
+}
+/* 立绘扫光：用精灵自身做遮罩，只亮在角色身上；底下再铺一层淡金 */
+.card.cf.cf-gold .card-art .duelyst-frame::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask: var(--duelyst-normal-image) 0 0 / calc(var(--duelyst-frames) * 100%) 100% no-repeat;
+  mask: var(--duelyst-normal-image) 0 0 / calc(var(--duelyst-frames) * 100%) 100% no-repeat;
+  background:
+    linear-gradient(115deg, transparent 0 42%, rgba(255, 246, 204, .9) 46% 54%, transparent 58%) 100% 0 / 300% 100% no-repeat,
+    linear-gradient(rgba(255, 206, 96, .14), rgba(255, 206, 96, .14));
+  animation: goldGlint 3.4s ease-in-out infinite;
+}
+/* 名牌：金缎带 */
+.card.cf.cf-gold .card-name > span { color: #3a2000; text-shadow: 0 1px 0 rgba(255, 246, 210, .7); }
+.card.cf.cf-gold .card-name > span::before { background: linear-gradient(180deg, #fff6d0 0 3px, #ffd36b 3px 52%, #e0a53a 52% 100%); }
+.card.cf.cf-gold .card-name > span::after { background: #3a2000; }
+/* 王冠 */
+.gold-crown { display: block; pointer-events: none; }
+.gold-crown svg { display: block; width: 100%; height: 100%; }
+.card.cf .cf-crown {
+  position: absolute; left: 50%; top: 8px; width: 46px; height: 30px; margin-left: -23px; z-index: 6;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .5));
+  animation: crownBob 2.4s ease-in-out infinite;
+}
+/* 整卡扫光：金色卡周期扫过一道亮带 */
+.card.cf.cf-gold .card-shine { background: none; overflow: hidden; z-index: 7; }
+.card.cf.cf-gold .card-shine::before {
+  content: ''; position: absolute; top: -10%; bottom: -10%; left: 0; width: 60%;
+  background: linear-gradient(105deg, transparent 14%, rgba(255, 236, 170, .16) 34%, rgba(255, 250, 225, .5) 48%, rgba(255, 210, 120, .18) 60%, transparent 84%);
+  transform: translateX(-130%);
+  animation: tierSweep 3.4s ease-in-out infinite;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .card.cf .cf-rays, .card.cf .cf-crown, .card.cf.cf-gold .card-shine::before, .card.cf.cf-gold .card-art .duelyst-frame::after { animation: none !important; }
+}

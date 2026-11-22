@@ -87,10 +87,12 @@ export type Ev =
   | { t: 'end'; result: Result };
 
 export type Result = 'win' | 'lose' | 'draw';
-/** burn：灼烧/不屈耗尽，无视格挡与护盾 */
+/** burn：灼烧无视格挡，护盾仍可吸收；不屈耗尽为强制死亡。 */
 export type DmgKind = 'melee' | 'shot' | 'splash' | 'burn';
 export interface BattleOut {
   stats: BattleStats;
+  hurtCounts?: Record<number, number>;
+  summons?: number;
   init: Snap[];
   initOrder: Order;
   events: Ev[];
@@ -104,12 +106,14 @@ const val = (d: CardDef, lvl: number) => (d.v ? d.v[lvl - 1] : 0);
 const val2 = (d: CardDef, lvl: number) => (d.u ? d.u[lvl - 1] : 0);
 
 /** relics：我方（左侧）遗物 */
-export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: readonly string[] = []): BattleOut {
+export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: readonly string[] = [], legion = 0): BattleOut {
   const R = new Set(relics);
   let uid = 1;
   let rs = seed || 1;
   const rnd = () => ((rs = (rs * 1103515245 + 12345) & 0x7fffffff), rs / 0x7fffffff);
   const ev: Ev[] = [];
+  const hurtCounts: Record<number, number> = {};
+  let summons = 0;
   const stats = new BattleStatsCollector();
   const burnSources = new Map<number, BattleDamageSource[]>();
   const q: [BUnit[], BUnit[]] = [[], []];
@@ -202,7 +206,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       ev.push({ t: 'dmg', src: ds, tgt: tgt.uid, n, blocked: true, kind, hp: tgt.hp, block: tgt.block, shield: tgt.shield });
       return -1;
     }
-    if (kind !== 'burn' && tgt.shield > 0) {
+    if (tgt.shield > 0) {
       const a = Math.min(tgt.shield, n);
       tgt.shield -= a;
       n -= a;
@@ -233,6 +237,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     }
     // 锁血期间不触发受伤（不灭圣杯除外）
     if (tgt.lock > 0 && tgt.sp !== 'grail') return over;
+    if (tgt.side === 0 && tgt.oid != null) hurtCounts[tgt.oid] = (hurtCounts[tgt.oid] ?? 0) + 1;
     onHurt(tgt, src);
     if (tgt.sp === 'thorn' && foe && !src!.dead) {
       tag(tgt, '荆棘');
@@ -270,6 +275,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     }
     const u = mk(s, side);
     stats.register(u, card(u.def).name, src?.uid ?? null);
+    if (side === 0) { summons++; u.atk = Math.min(50, u.atk + legion); u.hp = Math.min(50, u.hp + legion); u.maxHp = u.hp; }
     if (u.splash) splashSources.set(u.uid, sourceOf(u, 'skill', '天生溅射'));
     q[side].splice(Math.max(0, Math.min(at, q[side].length)), 0, u);
     ev.push({ t: 'summon', src: src?.uid ?? null, unit: snap(u), order: order() });
@@ -311,7 +317,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     for (const a of alive(t.side)) if (a !== t && a.ab === 'storm') fire(a, '友军受伤', (L) => buff(a, a, V(a, L), V(a, L)));
     switch (t.ab) {
       case 'thornback':
-        if (src && src.side !== t.side && !src.dead) fire(t, '受伤', (L) => damage(t, src, V(t, L), 'shot'));
+        if (src && src.side !== t.side && !src.dead) fire(t, '受伤', (L) => damage(t, src, V(t, L) + Math.floor(t.maxHp / 5), 'shot'));
         break;
       case 'idol':
         if (!t.dead && t.uses < 3) {
@@ -328,7 +334,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
       case 'blowfish':
         fire(t, '受伤', (L) => {
           const fs = alive(1 - t.side);
-          if (fs.length) damage(t, fs[Math.floor(rnd() * fs.length)], V(t, L), 'shot');
+          if (fs.length) damage(t, fs[Math.floor(rnd() * fs.length)], V(t, L) + (t.adef.id === 'l_warden' ? Math.floor(t.maxHp / 5) : 0), 'shot');
         });
         break;
       case 'gorilla':
@@ -343,7 +349,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
     for (const a of alive(u.side)) {
       if (a === u) continue;
       switch (a.ab) {
-        case 'horse': fire(a, '友军被召唤', (L) => buff(a, u, V(a, L), 0)); break;
+        case 'horse': fire(a, '友军被召唤', (L) => buff(a, u, V(a, L), V(a, L))); break;
         case 'dog': fire(a, '友军被召唤', (L) => buff(a, a, V(a, L), V(a, L))); break;
         case 'turkey': fire(a, '友军被召唤', (L) => buff(a, u, V(a, L), V(a, L))); break;
         case 'heart':
@@ -461,6 +467,7 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
             r.reap = u.reap;
             r.charged = u.charged;
             stats.register(r, card(r.def).name, u.uid, true);
+            if (side === 0) { summons++; r.atk = Math.min(50, r.atk + legion); r.hp = Math.min(50, r.hp + legion); r.maxHp = r.hp; }
             const splashOrigin = splashSources.get(u.uid);
             if (splashOrigin) splashSources.set(r.uid, { ...splashOrigin, uid: r.uid });
             line.splice(Math.min(at, line.length), 0, r);
@@ -706,5 +713,5 @@ export function simulate(left: UnitSpec[], right: UnitSpec[], seed = 1, relics: 
   const r = alive(1).length;
   const result: Result = l && !r ? 'win' : r && !l ? 'lose' : 'draw';
   ev.push({ t: 'end', result });
-  return { init, initOrder, events: ev, result, survivors: l, perm: {}, stats: stats.finish() };
+  return { init, initOrder, events: ev, result, survivors: l, perm: {}, stats: stats.finish(), hurtCounts, summons };
 }

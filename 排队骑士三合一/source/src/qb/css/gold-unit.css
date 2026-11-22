@@ -1,0 +1,127 @@
+/* ═════════════════════════════════════════════════════════════
+   场上金色单位（2026-11-16）：UnitView .unit.u-gold
+   四层：精灵金色硬边描边 → 精灵遮罩扫光（与呼吸帧同相位，board.ts syncGoldGlint）
+   → 脚下金环 + 上升金屑（身后）、星芒（身前）→ 头顶像素王冠。
+   变金色瞬间：.u-goldburst（UnitView.goldBurst）。
+   像素风：描边用 0 模糊投影叠成；常驻动画只动 transform / opacity，扫光例外（只在金色精灵上）。
+   ═════════════════════════════════════════════════════════════ */
+
+/* 1. 精灵描边：上亮、左右金、下暗金，像一圈金属包边。攻击帧（.duelyst-act）同样带边 */
+.board .unit.u-gold .u-art .uart.duelyst {
+  filter: drop-shadow(0 -2px 0 #fff1b0) drop-shadow(2px 0 0 #ffc845) drop-shadow(-2px 0 0 #ffc845) drop-shadow(0 2px 0 #9a5f0e);
+}
+.board .unit.u-gold.focus .u-art .uart.duelyst { filter: drop-shadow(0 -2px 0 #fff) drop-shadow(2px 0 0 #ffe9a0) drop-shadow(-2px 0 0 #ffe9a0) drop-shadow(0 2px 0 #c98a1e); }
+
+/* 2. 扫光：精灵当前帧做遮罩，淡金底色 + 周期扫过的亮带 */
+.board .unit.u-gold .uart.duelyst .duelyst-frame::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  -webkit-mask: var(--duelyst-normal-image) 0 0 / calc(var(--duelyst-frames) * 100%) 100% no-repeat;
+  mask: var(--duelyst-normal-image) 0 0 / calc(var(--duelyst-frames) * 100%) 100% no-repeat;
+  background:
+    linear-gradient(115deg, transparent 0 42%, rgba(255, 246, 204, .85) 46% 54%, transparent 58%) 100% 0 / 300% 100% no-repeat,
+    linear-gradient(rgba(255, 206, 96, .12), rgba(255, 206, 96, .12));
+  animation: goldMaskX var(--duelyst-duration) steps(var(--duelyst-frames), end) infinite, goldGlint 3.6s ease-in-out infinite;
+  animation-delay: 0s, var(--bob-delay, 0s);
+}
+@keyframes goldMaskX {
+  from { -webkit-mask-position: 0 0; mask-position: 0 0; }
+  to { -webkit-mask-position: var(--duelyst-idle-end) 0; mask-position: var(--duelyst-idle-end) 0; }
+}
+@keyframes goldGlint {
+  0%, 55% { background-position: 100% 0, 0 0; }
+  100% { background-position: 0 0, 0 0; }
+}
+[data-unit-motion="off"] .board .unit.u-gold .uart.duelyst .duelyst-frame::after { animation: goldGlint 3.6s ease-in-out infinite; }
+
+/* 3. 金环与金屑 */
+.unit .u-goldfx { display: none; position: absolute; left: 50%; pointer-events: none; }
+.unit.u-gold .u-goldfx { display: block; }
+.unit .u-goldfx.back { top: 74px; width: 124px; height: 44px; margin-left: -62px; }
+.unit .u-goldfx.front { top: -6px; width: 112px; height: 96px; margin-left: -56px; z-index: 3; }
+.u-goldfx > i { position: absolute; display: block; }
+/* 金环：硬边椭圆三档，缓慢呼吸 */
+.u-goldfx .g-ring {
+  inset: 6px 0 0;
+  background: radial-gradient(ellipse 50% 50%,
+    transparent 0 52%, #ffd36b 52% 60%, rgba(255, 211, 107, .45) 60% 72%, rgba(255, 211, 107, .16) 72% 86%, transparent 86%);
+  animation: gRing 2.4s ease-in-out infinite alternate;
+  will-change: opacity, transform;
+}
+@keyframes gRing { from { opacity: .55; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
+/* 金屑：一组像素点从脚边升起 */
+.u-goldfx .g-motes { left: 50%; bottom: 14px; width: 4px; height: 4px; background: #fff1b0; will-change: transform, opacity; }
+.u-goldfx .g-motes.m1 {
+  box-shadow: -40px -2px 0 0 #ffd36b, 34px -10px 0 0 #fff1b0, -22px -26px 0 0 #ffc845, 44px -34px 0 0 #ffd36b, -48px -46px 0 0 #fff1b0, 18px -52px 0 0 #ffc845;
+  animation: gRise 2.6s linear infinite;
+}
+.u-goldfx .g-motes.m2 {
+  width: 2px; height: 2px; background: #ffd36b;
+  box-shadow: 30px -4px 0 0 #fff1b0, -34px -16px 0 0 #ffc845, 50px -24px 0 0 #fff1b0, -50px -36px 0 0 #ffd36b, 8px -44px 0 0 #fff1b0, -12px -58px 0 0 #ffc845;
+  animation: gRise 3.4s linear -1.3s infinite;
+}
+@keyframes gRise {
+  0% { transform: translate(0, 10px); opacity: 0; } 15% { opacity: 1; }
+  50% { transform: translate(3px, -22px); } 85% { opacity: .9; }
+  100% { transform: translate(0, -56px); opacity: 0; }
+}
+/* 星芒：身侧三颗四角星交替闪 */
+.u-goldfx .g-spark {
+  width: 12px; height: 12px; background: #fff6d0;
+  clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+  opacity: 0; animation: gTwinkle 2.2s steps(4) infinite;
+}
+.u-goldfx .g-spark.s1 { left: 4px; top: 30px; }
+.u-goldfx .g-spark.s2 { right: 2px; top: 52px; width: 9px; height: 9px; animation-delay: -.8s; }
+.u-goldfx .g-spark.s3 { right: 18px; top: 4px; width: 7px; height: 7px; background: #ffd36b; animation-delay: -1.5s; }
+@keyframes gTwinkle { 0%, 100% { opacity: 0; transform: scale(.6); } 50% { opacity: 1; transform: scale(1); } }
+/* 场上单位的错开节奏 */
+.unit.u-gold .g-motes, .unit.u-gold .g-spark, .unit.u-gold .g-ring { animation-delay: var(--bob-delay, 0s); }
+.unit.u-gold .g-motes.m2 { animation-delay: calc(var(--bob-delay, 0s) - 1.3s); }
+
+/* 4. 攻血宝石：金色包边 */
+.board .unit.u-gold .u-stats .st:is(.atk, .hp) {
+  filter: drop-shadow(0 -2px 0 #fff1b0) drop-shadow(2px 0 0 #e8a83a) drop-shadow(-2px 0 0 #e8a83a) drop-shadow(0 2px 0 #7a4a08) drop-shadow(0 3px 0 rgba(0, 0, 0, .45));
+}
+
+/* 5. 王冠 */
+.board .unit .u-pips.gold { gap: 0; }
+.board .unit .u-pips.gold .u-crown {
+  width: 38px; height: 22px;
+  filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .55));
+  animation: crownBob 2.4s ease-in-out infinite;
+  animation-delay: var(--bob-delay, 0s);
+}
+@keyframes crownBob { 50% { transform: translateY(-3px); } }
+
+/* 敌方的金色单位：同样四层，颜色不变（金色是单位的属性，不分阵营） */
+.unit.side-1.u-gold .u-goldfx.front { transform: scaleX(-1); }
+
+/* 变金色的一瞬 */
+.u-goldburst { position: absolute; left: 50%; top: 52px; width: 0; height: 0; pointer-events: none; z-index: 6; }
+.u-goldburst > i { position: absolute; display: block; left: 0; top: 0; }
+.u-goldburst .gb-flash {
+  width: 150px; height: 150px; margin: -75px 0 0 -75px;
+  background: radial-gradient(circle, rgba(255, 252, 230, .95) 0 14%, rgba(255, 220, 120, .7) 14% 30%, rgba(255, 190, 70, .28) 30% 50%, transparent 50%);
+  animation: gbFlash .7s ease-out forwards;
+}
+@keyframes gbFlash { 0% { opacity: 0; transform: scale(.3); } 20% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.5); } }
+.u-goldburst .gb-ring {
+  width: 120px; height: 120px; margin: -60px 0 0 -60px;
+  background: radial-gradient(circle, transparent 0 60%, #ffd36b 60% 66%, rgba(255, 211, 107, .4) 66% 70%, transparent 70%);
+  animation: gbRing .9s cubic-bezier(.2, .7, .3, 1) forwards;
+}
+.u-goldburst .gb-ring.r2 { animation-delay: .16s; opacity: 0; }
+@keyframes gbRing { 0% { opacity: 1; transform: scale(.25); } 100% { opacity: 0; transform: scale(2.1); } }
+.u-goldburst .gb-rays {
+  width: 220px; height: 220px; margin: -110px 0 0 -110px;
+  background: repeating-conic-gradient(from 0deg, rgba(255, 230, 150, .55) 0 8deg, transparent 8deg 30deg);
+  -webkit-mask: radial-gradient(circle, #000 0 22%, rgba(0, 0, 0, .5) 22% 40%, transparent 50%);
+  mask: radial-gradient(circle, #000 0 22%, rgba(0, 0, 0, .5) 22% 40%, transparent 50%);
+  animation: gbRays 1.3s ease-out forwards;
+}
+@keyframes gbRays { 0% { opacity: 0; transform: rotate(0) scale(.4); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(50deg) scale(1.2); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .u-goldfx > i, .board .unit .u-pips.gold .u-crown, .board .unit.u-gold .uart.duelyst .duelyst-frame::after { animation: none !important; }
+  .u-goldfx .g-motes, .u-goldfx .g-spark { display: none; }
+}

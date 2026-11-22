@@ -1,0 +1,42 @@
+/* 新目录共享展示：身份、可执行机制和战斗资源。 */
+.card .card-in > .card-top .card-fac { font-size:16px; line-height:20px; max-width:130px; overflow:hidden; text-overflow:ellipsis; }
+.card .card-in > .card-name { font-size:22px; line-height:28px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card .card-in > .card-brief.card-mechanism { position:absolute; left:12px; right:12px; top:170px; height:66px; margin:0; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; overflow:hidden; white-space:normal; font-size:18px; line-height:22px; text-align:left; color:#e5decc; }
+.archetype-guide {
+  padding:10px 12px; margin:8px 0; border:1px solid #434c68; border-left:3px solid var(--ac,#d8bd80);
+  background:#181e32; color:#e0e4ef; font-size:18px; line-height:1.45;
+}
+.archetype-guide > .archetype-guide-name { display:block; margin-bottom:3px; color:var(--ac,#d8bd80); font-size:1.05em; }
+.archetype-guide > p { margin:0; }
+.archetype-guide > .archetype-guide-action { margin:0 0 8px; color:#f1eee5; }
+.archetype-guide > .archetype-guide-row { display:grid; grid-template-columns:3em minmax(0,1fr); gap:4px; margin-top:5px; }
+.archetype-guide-label { color:#9faecb; white-space:nowrap; }
+.archetype-guide-value { min-width:0; overflow-wrap:anywhere; }
+.tip .archetype-guide { font-size:16px; }
+.archetype-guide > .archetype-rule-note { color:#bbc8e0; margin-top:8px; padding:7px 8px; background:#111629; font-size:.94em; line-height:1.45; }
+.tip-seal { color:#c8b1ff; }
+.tip-blood { color:#f6a5ac; }
+.screen.game .hud-center { position:absolute; left:50%; top:2px; transform:translateX(-50%); width:320px; height:54px; display:flex; align-items:center; justify-content:center; gap:16px; }
+.screen.game .hud-center .hud-act { padding:8px 0; color:var(--ui-brass-hi,#ead49d); border:0; background:transparent; cursor:pointer; white-space:nowrap; }
+.screen.game .hud-archetypes { position:relative; display:flex; align-items:center; justify-content:center; gap:10px; width:auto; height:44px; min-height:44px; padding:0 14px; font:inherit; font-size:17px; font-weight:700; line-height:22px; white-space:nowrap; cursor:pointer; }
+.screen.game .hud-archetypes:focus-visible, .screen.game .hud-act:focus-visible { outline:2px solid var(--ui-brass-hi,#ffe0a0); outline-offset:3px; }
+.hud-archetypes .ha-chevron { width:11px; height:11px; transform:rotate(90deg); opacity:.75; }
+/* 扩大触摸热区，文字与按钮面仍留在顶栏分隔线上方。 */
+@media (pointer:coarse) { .screen.game .hud-archetypes::after { content:''; position:absolute; left:0; right:0; top:50%; height:var(--control-size,64px); transform:translateY(-50%); } }
+.screen.game.in-battle .hud-archetypes { display:none; }
+.tip .run-archetypes { max-height:none; overflow:visible; }
+.screen.game > .board .unit.is-quarry .u-mat { filter:drop-shadow(0 0 9px #f4ca69); }
+.unit .utag.quarry { color:#ffe39a; border-color:#dca34c; background:#3a251a; }
+.br-capacity { display:flex; gap:12px; flex-wrap:wrap; max-height:60px; overflow:auto; font-size:18px; color:#edb38f; }
+.br-capacity > span { display:flex; align-items:center; gap:4px; }
+.br-capacity .br-face { width:32px; height:32px; }
+.br-act.counter .br-word { font-size:17px; }
+.br-chip.br-fizzle { font-size:16px; color:#f0b994; }
+.tip .shelf-acts .blood-pay { font-size:18px; padding:8px; }
+
+.run-economy-limits { margin:6px 0; color:#e6d7b9; font-size:16px; line-height:1.35; }
+.run-economy-limits > b { display:block; color:#c4b795; font-size:15px; font-weight:400; margin-bottom:2px; }
+.economy-remaining { display:flex; flex-wrap:wrap; gap:3px 12px; }
+.economy-remaining > span { white-space:nowrap; }
+
+.tip .blood-disabled-reason { margin:5px 0 0; color:#ffd093; font-size:17px; }

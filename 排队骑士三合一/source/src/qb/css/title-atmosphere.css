@@ -1,0 +1,30 @@
+.screen.title > .title-atmosphere {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  image-rendering: pixelated;
+}
+
+.screen.title > .title-army {
+  z-index: 1;
+}
+
+.screen.title > .title-mist {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  contain: layout paint;
+}
+
+.screen.title .title-mist-layer {
+  display: block;
+  width: 200%;
+  height: 100%;
+  image-rendering: auto;
+}

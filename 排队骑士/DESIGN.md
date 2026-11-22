@@ -1,5 +1,7 @@
 # 排队骑士 · 设计稿 v0.2（已确认）
 
+当前 v0.7 玩法与验证入口见 [V0.7-IMPLEMENTATION.md](V0.7-IMPLEMENTATION.md)；涉及发现、历战、军团与法术时，以该记录和当前实现为准。
+
 当前补给专项的有效规则与验证入口见 [SUPPLY-ADJUSTMENT.md](SUPPLY-ADJUSTMENT.md)；本页其余内容保留为 v0.2 历史设计，不用于覆盖当前源码或专项确认要求。
 
 2026-10-28 素材去重：沙漏构装 `d_hourglass` 从与遗迹守卫相近的 `f3_zodiac02` 换为本地 Duelyst 素材库的 `neutral_sunsteeldefender`，遗迹守卫不变。同步导入待机、静态、选中、攻击和受击帧；复现入口 `source/scripts/import-hourglass-art.py <Duelyst素材库路径>`，原始图集只读。

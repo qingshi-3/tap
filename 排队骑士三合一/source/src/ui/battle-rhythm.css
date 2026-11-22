@@ -1,0 +1,34 @@
+/* 实战中央留给单位，交锋的双刃仅在上方景深短促合击。 */
+#stage .screen.game.in-battle > .board > .vs { display: none; }
+
+#stage .battle-bar .bb-phase { flex: none; min-width: 100px; padding-right: 14px; }
+#stage .battle-bar .bb-phase-state { display: inline-flex; align-items: baseline; gap: 8px; }
+#stage .battle-bar .bb-phase-label { color: var(--ui-text-2); font-size: 18px; letter-spacing: .04em; }
+#stage .battle-bar .bb-clash-number {
+  display: inline-block; min-width: 2ch; color: var(--ui-text-2);
+  font: 700 20px/1 var(--num); letter-spacing: .02em;
+}
+
+#stage .screen.game > .bb-clash-cue {
+  position: absolute; z-index: 8; left: calc(50% - 180px); top: 112px;
+  width: 360px; height: 88px; overflow: hidden; pointer-events: none;
+  contain: layout style; isolation: isolate;
+}
+#stage .bb-clash-cue > :is(i, b) { position: absolute; display: block; opacity: 0; will-change: transform, opacity; }
+#stage .bb-clash-cue > .cc-blade {
+  z-index: 1; left: 105px; top: 39px; width: 150px; height: 10px;
+  transform-origin: center;
+  background: linear-gradient(180deg, #fff9df 0 72%, #e7af54 72% 100%);
+  clip-path: polygon(0 50%, 20% 10%, 88% 10%, 100% 50%, 80% 90%, 12% 90%);
+}
+#stage .bb-clash-cue > .cc-number {
+  z-index: 2; top: 8px; left: 124px; width: 112px; height: 68px;
+  color: #fff0b5; text-align: center; font: 900 54px/68px var(--num);
+  letter-spacing: .01em; text-shadow: 0 3px #4c2810, 0 5px #171020;
+  transform-origin: center;
+}
+#stage .bb-clash-cue > .cc-number.upper { clip-path: inset(0 0 50% 0); }
+#stage .bb-clash-cue > .cc-number.lower { clip-path: inset(50% 0 0 0); }
+@media (prefers-reduced-motion: reduce) {
+  #stage .screen.game > .bb-clash-cue { display: none; }
+}

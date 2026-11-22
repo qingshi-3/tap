@@ -1,0 +1,121 @@
+/* ═════════════════════════════════════════════════════════════
+   技能行（2026-11-16）：kwtext.abilityList / abilityBrief
+   一行 = 左侧像素符文槽（时机图标，pxIcons.ts）+ 硬描边彩色时机名 + 正文 + 次数小铭牌。
+   技能之间用像素点线分隔；金色升级是一块金边铭牌，未解锁时是灰色石牌。
+   像素风：硬边、切角（clip-path 台阶）、无圆角无模糊；常驻动画只动 transform / opacity。
+   说明框里字号跟随 .tip-text（em）；卡面尺寸在 card-face.css 里另设。
+   ═════════════════════════════════════════════════════════════ */
+
+.ab-list { display: flex; flex-direction: column; }
+.ab-row {
+  position: relative;
+  display: grid; grid-template-columns: 1.45em minmax(0, 1fr); column-gap: .5em; align-items: start;
+  padding: .18em 0 .2em;
+  line-height: 1.42;
+}
+/* 像素点线分隔，左端一颗小菱形 */
+.ab-row + .ab-row::before {
+  content: ''; position: absolute; left: .3em; right: 0; top: -1px; height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(212, 184, 120, .4) 0 2px, transparent 2px 6px);
+}
+.ab-row + .ab-row::after {
+  content: ''; position: absolute; left: 0; top: -4px; width: 8px; height: 8px;
+  background: #d4b878; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+/* ───────── 符文槽 ───────── */
+.ab-socket {
+  position: relative; display: grid; place-items: center;
+  width: 1.45em; height: 1.45em; margin-top: -.02em;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--kc) 34%, #1c1640) 0 50%, color-mix(in srgb, var(--kc) 18%, #0e0b24) 50% 100%);
+  clip-path: polygon(3px 0, calc(100% - 3px) 0, 100% 3px, 100% calc(100% - 3px), calc(100% - 3px) 100%, 3px 100%, 0 calc(100% - 3px), 0 3px);
+  box-shadow:
+    inset 0 0 0 2px color-mix(in srgb, var(--kc) 72%, #000),
+    inset 0 3px 0 2px color-mix(in srgb, var(--kc) 40%, transparent),
+    inset 0 -3px 0 2px rgba(0, 0, 0, .35);
+}
+.ab-socket .rune { display: block; width: 1.05em; height: 1.05em; }
+.rune svg { display: block; width: 100%; height: 100%; }
+
+/* ───────── 文字 ───────── */
+.ab-text { min-width: 0; padding-top: .04em; overflow-wrap: anywhere; }
+.ab-head { display: inline; margin-right: .4em; }
+.ab-trig {
+  color: var(--kc); font-weight: 900; letter-spacing: .03em; white-space: nowrap;
+  text-shadow: 1px 0 0 #07051a, -1px 0 0 #07051a, 0 1px 0 #07051a, 0 -1px 0 #07051a, 0 2px 0 #07051a;
+}
+.ab-body { color: #eeeaff; text-shadow: 0 1px 0 rgba(0, 0, 0, .55); }
+.ab-note { color: #9a96bd; font-size: .86em; }
+
+/* 次数铭牌：切角暗底 + 黄铜细边，数字用像素数字字体 */
+.ab-limit, .ab-more {
+  display: inline-flex; align-items: baseline; gap: .12em;
+  padding: .06em .5em .1em; vertical-align: .08em;
+  font-size: .72em; font-weight: 800; line-height: 1.3; white-space: nowrap; letter-spacing: .04em;
+  color: #cbbf9c; background: #171230;
+  clip-path: polygon(2px 0, calc(100% - 2px) 0, 100% 2px, 100% calc(100% - 2px), calc(100% - 2px) 100%, 2px 100%, 0 calc(100% - 2px), 0 2px);
+  box-shadow: inset 0 0 0 1px rgba(212, 184, 120, .6), inset 0 2px 0 1px rgba(255, 255, 255, .06);
+}
+.ab-limit .ab-n { font: 1.3em/1 var(--num); color: #ffd36b; text-shadow: 0 1px 0 #2a1600; }
+.ab-limit { margin-left: .4em; }
+.ab-more { margin-left: .5em; color: #a9a4c8; }
+
+/* 正文里的时机、短词不再套「」：颜色已足够区分 */
+.ab-body .kq { display: none; }
+.ab-body :is(.kwtrig, .kwt) { padding: 0; margin: 0; }
+.ab-body .kwtrig { font-weight: 800; }
+
+/* 释义入口：时机名不加下划线；正文术语用浅点线，不抢正文 */
+[data-keyword-help="true"] .ab-trig[data-keyword][role="button"] { text-decoration: none; padding-block: 0; }
+[data-keyword-help="true"] .ab-trig[data-keyword][role="button"]:is(:hover, [aria-expanded="true"]) { text-decoration: underline dotted; text-underline-offset: .22em; }
+[data-keyword-help="true"] .ab-body [data-keyword][role="button"] {
+  text-decoration: underline dotted color-mix(in srgb, currentColor 45%, transparent);
+  text-decoration-thickness: 2px; text-underline-offset: .26em; padding-block: 3px;
+}
+
+/* 流派通用句（车轮「攻击后退到队尾」、补给「出售时传承」）：小一号、压暗 */
+.ab-list .ab-row.ab-boiler { font-size: .88em; padding-block: .18em; }
+.ab-list .ab-row.ab-boiler .ab-socket { filter: saturate(.55) brightness(.85); }
+.ab-list .ab-row.ab-boiler .ab-body { color: #bdb8da; }
+
+/* ═════════ 金色铭牌 ═════════ */
+.ab-row.ab-gold {
+  margin-top: .24em; padding: .22em .45em .24em .34em;
+  background: linear-gradient(180deg, #3d2c10 0 50%, #2a1e0b 50% 100%);
+  clip-path: polygon(4px 0, calc(100% - 4px) 0, 100% 4px, 100% calc(100% - 4px), calc(100% - 4px) 100%, 4px 100%, 0 calc(100% - 4px), 0 4px);
+  box-shadow: inset 0 0 0 2px #ffd36b, inset 0 0 0 4px #5a3a08, inset 0 6px 0 4px rgba(255, 236, 170, .07);
+  overflow: hidden;
+}
+.ab-row.ab-gold::before, .ab-row.ab-gold::after { content: none; }
+.ab-row.ab-gold .ab-socket {
+  background: linear-gradient(180deg, #6a4a14 0 50%, #3d2a0a 50% 100%);
+  box-shadow: inset 0 0 0 2px #2a1600, inset 0 3px 0 2px rgba(255, 236, 170, .35), inset 0 -3px 0 2px rgba(0, 0, 0, .35);
+}
+.ab-row.ab-gold .ab-trig { color: #ffd36b; }
+.ab-row.ab-gold .ab-body { color: #fff1c4; }
+.ab-row.ab-gold .ab-state { color: #3a2000; background: #ffd36b; box-shadow: inset 0 0 0 1px #3a2000, inset 0 2px 0 1px rgba(255, 255, 255, .45); }
+/* 生效：一道亮光周期扫过铭牌 */
+.ab-row.ab-gold.on .ab-text { position: relative; }
+.ab-row.ab-gold.on .ab-text::after {
+  content: ''; position: absolute; top: -.6em; bottom: -.6em; left: -2.4em; width: 30%; pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255, 246, 210, .2) 50%, transparent);
+  transform: translateX(-140%); animation: abGoldSweep 3.6s ease-in-out infinite;
+}
+@keyframes abGoldSweep { 0%, 60% { transform: translateX(-140%); } 100% { transform: translateX(420%); } }
+/* 未解锁：灰色石牌 */
+.ab-row.ab-gold:not(.on) {
+  background: linear-gradient(180deg, #2a2741 0 50%, #1f1c33 50% 100%);
+  box-shadow: inset 0 0 0 2px #77718f, inset 0 0 0 4px #2b2842, inset 0 6px 0 4px rgba(255, 255, 255, .04);
+}
+.ab-row.ab-gold:not(.on) .ab-socket { background: linear-gradient(180deg, #3a3654 0 50%, #29263e 50% 100%); box-shadow: inset 0 0 0 2px #1a1830, inset 0 3px 0 2px rgba(255, 255, 255, .08); }
+.ab-row.ab-gold:not(.on) .rune { filter: grayscale(.85) brightness(.9); }
+.ab-row.ab-gold:not(.on) .ab-trig { color: #c9c2a4; }
+.ab-row.ab-gold:not(.on) .ab-body, .ab-row.ab-gold:not(.on) .ab-body * { color: #a6a1bf !important; }
+.ab-row.ab-gold:not(.on) .ab-state { color: #c9c2a4; background: #2b2842; box-shadow: inset 0 0 0 1px #77718f; }
+
+.card-detail .ab-list { margin-top: -4px; }
+/* 招募 / 手牌详情框宽 440：技能行用 18px，与已上阵单位详情一致；超出时面板内滚动而不是裁掉 */
+#stage > .tip .card-detail .unit-effect-text.ab-list { font-size: 18px; line-height: 1.42; }
+#stage > .tip.composed > .tip-panel.card-detail { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+
+@media (prefers-reduced-motion: reduce) { .ab-row.ab-gold.on .ab-text::after { animation: none; opacity: 0; } }

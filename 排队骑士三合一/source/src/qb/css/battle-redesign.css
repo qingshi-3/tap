@@ -1,0 +1,328 @@
+/* 战斗主界面重构：动效与交互层。最后加载，只覆盖 .game 备战界面。
+   循环动画只动 transform / opacity；悬停和按下只改变 transform / filter。 */
+
+/* ── 招募货架：入场与交互 ── */
+.game .tray .cards > .card {
+  transition: transform .18s ease-out, filter .18s ease-out;
+}
+.game .tray .cards > .card:not(.unaffordable):hover {
+  transform: translateY(-6px);
+  filter: drop-shadow(0 0 10px rgba(255, 211, 107, .6));
+}
+.game .tray .cards > .card:not(.unaffordable):active { transform: translateY(-2px) scale(.98); }
+
+/* ── 手牌：空槽弱化，有牌时悬停抬起 ── */
+.game .hand-slot.empty { background: rgba(20, 16, 42, .28); outline-color: #2a2660; }
+.game .hand-slot:not(.empty) { transition: transform .15s ease-out, box-shadow .15s ease-out; }
+.game .hand-slot:not(.empty):hover { transform: translateY(-4px); }
+.game .hand-slot:not(.empty):active { transform: translateY(-1px) scale(.98); }
+.game .hand-slot[data-drop="place"], .game .hand-slot[data-drop="move"], .game .hand-slot[data-drop="swap"] {
+  box-shadow: inset 0 0 0 3px #7be3ff, 0 0 16px rgba(123, 227, 255, .55);
+}
+.game .hand-slot[data-drop="merge"] {
+  box-shadow: inset 0 0 0 3px #ffd36b, 0 0 16px rgba(255, 211, 107, .6);
+}
+
+/* ── 关卡信息横幅：非阻断顶部轻提示，纯像素直角，点标题可开可关 ── */
+.screen.game .stage-banner {
+  left: 50% !important; top: 74px !important; width: auto; max-width: 560px; z-index: 25;
+  padding: 10px 22px; border-radius: 0;
+  background: var(--ui-panel);
+  border: 0;
+  box-shadow: var(--ui-notch-brass), 0 10px 26px rgba(0, 0, 0, .58);
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.screen.game .stage-dim {
+  position: absolute; inset: 0; z-index: 900;
+  background: transparent;
+  opacity: 0; pointer-events: none;
+}
+.screen.game .stage-dim.on { opacity: 0; pointer-events: none; }
+.screen.game .stage-banner.sb-modal {
+  left: 50% !important; top: 74px !important; z-index: 25; pointer-events: none; cursor: default;
+  width: auto; min-width: 300px; max-width: 560px; padding: 10px 24px; border-radius: 0; text-align: center;
+  background: var(--ui-panel);
+  border: 0;
+  box-shadow: var(--ui-notch-brass), 0 12px 30px rgba(0, 0, 0, .6);
+  animation: sb-enter .24s cubic-bezier(.2, .8, .2, 1) both;
+}
+.screen.game .stage-banner.sb-modal.sb-open { pointer-events: auto; cursor: pointer; }
+.screen.game .stage-banner.sb-modal .sb-title { flex-direction: row; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.screen.game .stage-banner.sb-modal .sb-no {
+  background: none; border: 0; padding: 0; color: rgba(242, 211, 156, .78);
+  font-size: 14px; letter-spacing: .12em;
+}
+.screen.game .stage-banner.sb-modal .sb-nico { width: 28px; height: 28px; }
+.screen.game .stage-banner.sb-modal .sb-title b {
+  font-size: 24px; letter-spacing: .06em; color: #fff8e6;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .45);
+}
+.screen.game .stage-banner.sb-modal .sb-hint {
+  margin-top: 4px; padding: 0; background: none; border: 0; font-size: 15px; color: #e2d8f8;
+}
+.screen.game .stage-banner.sb-modal .sb-hint:empty { display: none; }
+.screen.game .stage-banner .sb-foot,
+.screen.game .stage-banner.sb-modal .sb-foot { display: none; }
+
+@keyframes sb-enter {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+.screen.game .stage-banner.sb-fly {
+  left: 50% !important; top: 76px !important; pointer-events: none;
+  animation: sb-fly .35s ease-in both;
+}
+@keyframes sb-fly {
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-14px); }
+}
+.screen.game .stage-banner.sb-fly .sb-foot { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen.game .stage-dim { transition: none; }
+  .screen.game .stage-banner.sb-modal { animation: none; }
+  .screen.game .stage-banner.sb-fly:not(.sb-open) { animation: none; opacity: 0; }
+}
+
+/* ── 备战指挥台（底部布局）：底部区域坐标只在这里定义 ──
+   常规指挥台高 392；短屏高 352，为顶栏和单位头顶标记预留独立空间。
+   列：左 经济 16–232 ｜ 中 货架（上）/ 手牌（下）248–1032，轴线 x=640 ｜ 右 背包 / 成长预览 / 开战 1048–1264
+   层级：开战 / 免费刷新用金色；升级 / 刷新 / 成长预览用描边次级按钮。 */
+.screen.game .board { top: -120px; }
+.screen.game .board .slot .slot-num { top: 76px; }
+.screen.game .board.ordering .slot .slot-num { top: 92px; }
+.screen.game .hud-right { width: auto; flex: none; white-space: nowrap; }
+#stage .screen.game .hud-left { min-width: 0; max-width: calc(50% - 126px); gap: 10px; }
+.screen.game .hud-left > :is(.hud-hero, .hud-lives, .hud-legion, .hud-quest) { flex: none; }
+.screen.game .hud-left .hud-relics {
+  position: static !important; margin: 0 !important; opacity: 1 !important;
+  flex: 0 1 auto; min-width: 0; max-width: 206px; gap: 4px;
+  overflow-x: auto; overflow-y: hidden; scrollbar-width: none;
+}
+.screen.game .hud-left .hud-relics::-webkit-scrollbar { display: none; }
+#stage .screen.game .hud-left .hud-relic {
+  flex: 0 0 38px; width: 38px; height: 44px; min-height: 0; padding: 0;
+  background: none; border: 0; border-image: none; box-shadow: none;
+}
+.screen.game .hud-left .hud-relic:focus-visible { outline-offset: -3px; }
+#stage .screen.game .hud-left :is(.hud-legion, .hud-quest) {
+  position: static; min-height: 0; height: 36px; gap: 3px; padding: 0 4px;
+  background: none; box-shadow: none; font-size: 16px;
+}
+#stage .screen.game .hud-center {
+  top: 0; width: auto; height: 68px; gap: 16px; white-space: nowrap;
+}
+.screen.game .hud-center .hud-wins { margin: 0; align-items: center; gap: 6px; font-size: 13px; }
+.screen.game .hud-center .hud-wins b { font-size: 25px; line-height: 1; }
+.screen.game .hud-center .hud-act { font-size: 23px; line-height: 1; }
+/* 五个工具图标放大触控热区，去除沉重套框。 */
+.screen.game .hud-right > .icon-btn {
+  flex: 0 0 58px; width: 58px; height: 58px; min-height: 0; padding: 0; aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.screen.game .hud-right > .hud-archetypes::after { display: none; }
+.screen.game.in-battle .hud-right > .hud-archetypes { display: none; }
+#stage .screen.game .hud-right > .icon-btn {
+  background: none; border: 0; border-image: none; box-shadow: none;
+}
+#stage .screen.game .hud-right > .icon-btn:hover { background: none; box-shadow: none; }
+#stage .screen.game .hud-right > .icon-btn:focus-visible { outline: 2px solid var(--ui-brass-hi); outline-offset: 2px; }
+.screen.game .hud-right .hud-tool-icon {
+  display: block; flex: none; width: 38px; height: 38px; pointer-events: none;
+  filter: drop-shadow(0 2px 0 #080917);
+}
+.screen.game .hud-right .hud-tool-icon svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.screen.game .hud-right > .icon-btn .ic { width: 24px; height: 24px; }
+.screen.game .hud-right > .icon-btn .ic svg { display: block; }
+
+.screen.game > .tray { top: auto !important; bottom: 0 !important; height: 396px !important; }
+.screen.game .tray::before { top: 0; left: 0; right: 0; }
+
+/* 左栏：金币 / 放大后的酒馆升级卡 / 刷新 / 低调紧凑的免费刷新（广告） */
+.screen.game .tray.paid-shelf .tray-left {
+  left: 16px !important; top: 18px !important; bottom: 16px !important; width: 216px !important; height: auto !important;
+  display: grid !important; grid-template: 46px 96px minmax(0, 1fr) 64px 44px / minmax(0, 1fr);
+  gap: 10px !important;
+  padding: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .tl-gold { grid-row: 1; height: 46px; min-height: 0; }
+.screen.game .tray.paid-shelf .tray-left > .tavern-box {
+  position: static !important; left: auto !important; top: auto !important;
+  grid-row: 2; width: 216px !important; height: 96px !important; flex: none !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll {
+  grid-row: 4; width: 216px !important; height: 64px !important; min-height: 0 !important;
+  margin: 0 !important; padding: 5px 10px !important; gap: 4px !important; font-size: 21px !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded {
+  grid-row: 5; height: 44px !important; flex-direction: row !important; font-size: 17px !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded .rr-main { font-size: 16px !important; gap: 6px !important; }
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-price { font-size: 18px; line-height: 22px; }
+.screen.game .tray.paid-shelf .tray-left > .reroll .rr-price .px-item { width: 20px; height: 20px; }
+
+/* 中列上：货架（上移并控制缩放，与下方手牌留出清晰呼吸间距，零叠压） */
+.screen.game .tray.paid-shelf .cards {
+  left: 248px !important; top: 12px !important; width: 784px !important; height: 184px !important;
+  display:grid !important; grid-template-rows:repeat(2, 82px); grid-auto-flow:column; grid-auto-columns:max-content;
+  column-gap:12px; row-gap:10px; justify-content:center !important; align-content:start; align-items:center !important;
+}
+/* 单位卡占两行，补给按两行排布，按实际货品数分配阅读空间。 */
+.screen.game .tray.paid-shelf .cards[data-count] > .card { grid-row:span 2; zoom:var(--shop-card-zoom,.60) !important; align-self:start; }
+.screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width:84px; height:82px; zoom:1 !important; }
+.screen.game .tray.paid-shelf .cards > .shelf-div { grid-row:span 2; width:1px; height:158px; margin:0; zoom:1 !important; }
+
+/* 手牌：摊开不互遮、不撞上方商店卡、不切屏幕底边；悬停优雅上浮 */
+.screen.game .hand-strip {
+  left: 256px !important; top: auto !important; bottom: 8px !important; width: 768px !important; height: 158px !important; z-index: 7;
+  display: block !important; padding: 0 !important; gap: 0 !important; pointer-events: none;
+}
+.screen.game .hand-strip .hand-head { display: none; }
+.screen.game .hand-strip .hand-slot {
+  --o: calc(var(--i) - (var(--n) - 1) / 2);
+  --step: min(124px, calc(680px / var(--n)));
+  --fan: translateX(calc(var(--o) * var(--step))) translateY(calc(var(--o) * var(--o) * 1.6px)) rotate(calc(var(--o) * 2deg));
+  position: absolute !important; left: 50%; bottom: 0; margin-left: -55px;
+  width: 110px !important; height: 154px !important; zoom: 1 !important; border-radius: 0; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
+  transform-origin: 50% 170%; transform: var(--fan);
+  z-index: calc(var(--i) + 1); pointer-events: auto;
+  transition: transform .18s cubic-bezier(.2, .8, .3, 1), filter .18s, opacity .18s;
+  box-shadow: none;
+}
+.screen.game .hand-strip .hand-slot:not(.empty):hover,
+.screen.game .hand-strip .hand-slot:not(.empty):focus-visible {
+  z-index: 30; transform: translateY(-20px) translateX(calc(var(--o) * var(--step))) scale(1.12);
+  box-shadow: none;
+}
+.screen.game .hand-strip .hand-slot:not(.empty):active { transform: translateY(-12px) translateX(calc(var(--o) * var(--step))) scale(1.06); }
+.screen.game .hand-strip .hand-slot.drop-hover { transform: var(--fan) scale(1.08); }
+.screen.game .hand-strip .hand-slot.empty { opacity: 0 !important; background: none !important; box-shadow: none !important; }
+.screen.game .hand-strip .hand-slot.empty[data-drop] { opacity: .55 !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.7); border-radius: 6px; }
+.screen.game .hand-strip .hand-slot > .card { position: absolute; left: 0; top: 0; margin: 0 !important; zoom: 1 !important; transform-origin: 0 0; transform: scale(.585); pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.55)); }
+.screen.game .hand-strip .hand-slot:not(.empty):hover { filter: drop-shadow(0 0 14px rgba(255,211,107,.6)); }
+.screen.game .hand-strip .hand-slot::after { display: none !important; }
+.screen.game .hand-strip .hand-slot.hand-spell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.screen.game .hand-strip .hand-slot.hand-spell b { font-size: 16px; }
+.screen.game .hand-strip .hand-slot.hand-spell .px-item { width: 52px; height: 52px; }
+
+/* 右列：背包（上）/ 成长预览（中）/ 开战（下） */
+.screen.game > .bag-strip {
+  left: 1048px !important; top: auto !important; bottom: 196px !important; width: 216px !important;
+  grid-template-columns: repeat(3, 1fr) !important; grid-auto-rows: 64px !important; gap: 6px !important;
+  padding: 8px !important; box-sizing: border-box; border-image: none !important; z-index: 7 !important;
+}
+.screen.game > .bag-strip .bag-head { grid-column: 1 / -1; height: 24px; font-size: 18px; }
+.screen.game > .bag-strip .bag-slot { width: 100% !important; height: 64px !important; }
+.screen.game > .prep-actions {
+  position: absolute !important; inset: auto 0 0 auto !important; width: 0 !important; height: 0 !important;
+  display: block !important; overflow: visible; z-index: 6;
+}
+/* 待领奖励与成长预览共用右列入口，由渲染逻辑择一显示。 */
+.screen.game > .prep-actions .reward-open,
+.screen.game > .prep-actions .prep-preview-btn {
+  position: absolute !important; right: 16px; bottom: 96px; left: auto !important; top: auto !important;
+  width: 216px !important; min-width: 0 !important; height: 70px; min-height: 0 !important; margin: 0 !important; font-size: 22px;
+}
+.screen.game .tray .tray-right {
+  left: 1048px !important; top: auto !important; bottom: 16px !important; width: 216px !important; height: 70px !important;
+}
+.screen.game .tray .fight-controls {
+  width: 100% !important; height: 100% !important; display: flex !important;
+  flex-direction: row; align-items: stretch; gap: 8px;
+}
+.screen.game .tray .fight-controls > .btn.fight {
+  flex: 1 1 0; width: 100% !important; height: 100% !important; min-height: 0;
+  font-size: 34px !important; letter-spacing: .2em; white-space: nowrap !important;
+}
+/* 彩排：返回 / 重打放左列 */
+.screen.game.rehearsal > .prep-actions :is(.rehearsal-back, .btn:not(.prep-preview-btn)) {
+  position: absolute !important; left: auto !important; top: auto !important; right: calc(1280px - 232px); width: 216px !important; height: 70px;
+}
+.screen.game.rehearsal > .prep-actions .rehearsal-back { bottom: 96px; }
+.screen.game.rehearsal > .prep-actions .btn:not(.prep-preview-btn):not(.rehearsal-back) { bottom: 16px; }
+#stage > .tip.dock .shelf-acts { flex-wrap: nowrap; }
+#stage > .tip.dock .shelf-acts .shelf-lock:last-child { flex: 0 1 120px; }
+#stage > .tip :is(.tip-text, .dock-body, .owned-tip-body) { min-width: 0; }
+
+
+/* Held supplies share the authored food card and the unit-card silhouette. */
+.screen.game .hand-strip .hand-slot.hand-spell {
+  background: none !important; border: 0 !important; box-shadow: none !important;
+}
+.screen.game .hand-strip .hand-slot.hand-spell .food-art .food-icon { width: 72px; height: 72px; }
+.screen.game .hand-strip .hand-slot.hand-spell .card-text {
+  position: absolute; inset: 174px 10px 14px; padding: 0; font-size: 18px;
+}
+
+/* 短屏横屏：下移单位、收紧货架与扇形手牌，三个区域各自保留完整高度。 */
+#stage.compact .screen.game:not(.in-battle):not(.rehearsal) > .board { top: -80px; }
+/* 备战标签沿头顶基线展开，避免旧的向上堆叠侵入顶栏。 */
+#stage.compact .screen.game:not(.in-battle):not(.rehearsal) > .board .u-tags { top: -12px; bottom: auto; }
+#stage.compact .screen.game:not(.in-battle):not(.rehearsal) > .board .unit:has(.u-pips) .u-tags {
+  left: calc(50% + 17px); transform: none;
+}
+#stage.compact .screen.game > .tray { height: 356px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left {
+  top: 12px !important; bottom: 10px !important;
+  grid-template: 40px 92px minmax(0, 1fr) 58px 40px / minmax(0, 1fr);
+  gap: 8px !important;
+}
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .tl-gold { height: 40px; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .tavern-box { height: 92px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .reroll { height: 58px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .reroll.rewarded { height: 40px !important; }
+#stage.compact .screen.game .tray.paid-shelf .cards {
+  top: 10px !important; height: 164px !important; grid-template-rows: repeat(2, 74px);
+}
+#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .card { zoom: calc(var(--shop-card-zoom, .60) * .93) !important; }
+#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width: 80px; height: 74px; }
+#stage.compact .screen.game .hand-strip { bottom: 6px !important; height: 146px !important; }
+#stage.compact .screen.game .hand-strip .hand-slot {
+  --step: min(116px, calc(660px / var(--n)));
+  width: 102px !important; height: 142px !important; margin-left: -51px;
+}
+#stage.compact .screen.game .hand-strip .hand-slot > .card { transform: scale(.54); }
+@media (prefers-reduced-motion: reduce) {
+  .screen.game .hand-strip .hand-slot,
+  .screen.game .hand-strip .hand-slot:not(.empty):is(:hover, :focus-visible, :active) {
+    transition: none; transform: var(--fan);
+  }
+  .screen.game .stage-banner.sb-modal { transform: translateX(-50%) scale(1.25); }
+}
+
+/* Dragging a shop card reveals the whole hand tray as a purchase destination. */
+.game .buy-zone {
+  position: absolute; z-index: 40; pointer-events: none; box-sizing: border-box;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  border: 3px dashed rgba(217, 176, 102, 0.75); border-radius: 0; color: #f9e2ad;
+  background: rgba(24, 18, 52, 0.92);
+  box-shadow: var(--ui-notch-dark);
+  transition: background 0.12s, border-color 0.12s, transform 0.12s;
+}
+.game .buy-zone b { font-size: 30px; letter-spacing: 2px; }
+.game .buy-zone.hot { background: rgba(78, 38, 118, 0.95); border-style: solid; border-color: #ffd36b; transform: scale(1.03); color: #fff3cc; }
+.game .buy-zone.unavailable { background: rgba(40, 36, 52, 0.9); border-color: rgba(189, 185, 197, 0.6); color: #bdb9c5; }
+.screen.game .unit.supply-preview .u-glow {
+  background: radial-gradient(ellipse at center, rgba(90, 170, 255, 0.6) 0%, rgba(90, 170, 255, 0.24) 46%, rgba(90, 170, 255, 0) 72%);
+  animation: none;
+  opacity: 1;
+  pointer-events: none;
+}
+.screen.game .unit.supply-preview .u-art {
+  filter: drop-shadow(0 0 4px rgba(90, 170, 255, 0.7));
+}
+@media (prefers-reduced-motion: reduce) { .game .buy-zone { transition: none; } }
+
+/* 试打调整：队伍居中落在场景地台，保留阵位台座供拖动。 */
+.screen.game.rehearsal:not(.in-battle) > .board {
+  top: calc(50% + var(--scene-ground-offset, 72px) - 346px);
+}
+.compact .screen.game.rehearsal:not(.in-battle) > .board {
+  top: calc(50% + var(--scene-ground-offset, 72px) - 286px);
+}
+.screen.game.rehearsal:not(.in-battle) > .rehearsal-heading {
+  position: absolute; top: 96px; left: 50%; transform: translateX(-50%); z-index: 5;
+  color: var(--ui-brass-hi); font-size: 24px; text-align: center; pointer-events: none;
+}
+.screen.game.rehearsal.in-battle > .rehearsal-heading { display: none; }

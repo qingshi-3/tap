@@ -10,7 +10,7 @@ import { ALL, ATOM_INFO, BOSSES, card, EQUIP, equipStats, EVENT_INFO, FOOD, fxFo
 import {
   AD_SAVE_MAX, adSaveHeart, adRelic, trialFight, adReroll, adUpgradeChest, autoSlot, BAG_MAX, buy, chestPick, discardBag, endTurn, enemyLossCost, equipFromBag, fight, foodNeedsTarget, foodPrice, foodStats,
   FORM_INFO, lvlOf, MAX_COPIES, maxLives, maxTier, MERC_FIGHTS, mercTier, morphPool, moveOwned, pickRelic, resolveEvent, orangeCapped, ORANGE_MAX, chestCanUp, pickBranch, PRICE, REROLL, reroll, save, sell, sellPrice, settleBattle, shownStats, toggleLock, unequip, useFood,
-  WIN_GOAL, ownedAtk, ownedHp, prepFoodUses, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
+  WIN_GOAL, SCAR_PER, resolveDiscover, ownedAtk, ownedHp, prepFoodUses, type Enemy, type Owned, type RunState, type ShopFx, type ShopItem,
 } from '../core/run';
 import { QUEUE_MAX, type BattleOut } from '../core/engine';
 import { setMusicRun, sfx } from '../qb/audio';
@@ -31,6 +31,7 @@ import type { App } from './app';
 import { BattlePlayer } from './battle';
 import { battleReport } from './battleReport';
 import { inheritancePreview } from './prepPreview';
+import { showDiscover } from './discover';
 import { morphOutcomePreview, morphUnitPicker } from './morphPreview';
 
 type DragKind = 'card' | 'unit' | 'bag';
@@ -57,11 +58,12 @@ export class Game {
   private sellZone: { el: HTMLElement; rect: { x: number; y: number; w: number; h: number } } | null = null;
   private _busy = false;
   private get busy() { return this._busy; }
-  private set busy(value: boolean) { this._busy = value; this.syncBusy(); }
+  private set busy(value: boolean) { this._busy = value; this.syncBusy(); if (!value) this.scheduleDiscover(); }
   private settling = h('div', { class: 'prep-settling', role: 'status', 'aria-live': 'polite' });
   private fastFx = false;
   private releaseFxWait: (() => void) | null = null;
   private disposed = false;
+  private discovering = false;
   private player: BattlePlayer | null = null;
   /** 播放商店效果时，每个单位当前显示的攻血（效果逐条加上去） */
   private shown = new Map<number, { atk: number; hp: number }>();
@@ -80,7 +82,7 @@ export class Game {
   private allowed(a: Parameters<Tutorial['allows']>[0]) { return !this.tutorial || this.tutorial.allows(a); }
 
   get fx() { return this.app.fx; }
-  private get editable() { return !this.busy && !this.disposed && this.run.phase === 'prep'; }
+  private get editable() { return !this.busy && !this.disposed && !this.run.discoverQueue?.length && this.run.phase === 'prep'; }
 
   private syncBusy() {
     if (!this.el) return;
@@ -110,12 +112,16 @@ export class Game {
     this.releaseFxWait?.();
     setTipHideHook(null);
     this.releaseDrag?.();
-    this.player?.skip();
+    this.app.cancelSceneTransition();
+    this.player?.stop();
+  }
+
+  prepare() {
+    this.renderAll(this.run.pendingFx);
   }
 
   start() {
     setMusicRun('pdqs', Math.min(2, Math.floor((this.run.turn - 1) / 4)));
-    this.renderAll(this.run.pendingFx);
     this.cardsIn();
     this.board.views.forEach((v, i) => v.appear(Number(i.slice(1)) % 5 * 60));
     if (this.teaching) this.tutorial = new Tutorial({
@@ -138,6 +144,7 @@ export class Game {
     if (this.disposed) return;
     this.busy = false;
     await this.playPending();
+    this.scheduleDiscover();
   }
 
   private async playPending() {
@@ -148,6 +155,27 @@ export class Game {
     this.busy = true;
     await this.playFx(fx);
     this.busy = false;
+  }
+
+  private scheduleDiscover() {
+    queueMicrotask(() => { if (!this.busy && !this.discovering && !this.disposed && !this.el.classList.contains('in-battle') && this.run.discoverQueue?.length) void this.drainDiscover(); });
+  }
+
+  private async drainDiscover() {
+    if (this.discovering) return;
+    this.discovering = true;
+    this.busy = true;
+    try {
+      while (!this.disposed && this.run.discoverQueue?.length) {
+        const offer = this.run.discoverQueue[0];
+        await showDiscover(this.el, offer, (index, destination) => {
+          if (!resolveDiscover(this.run, index, destination)) return false;
+          this.persist(this.run);
+          return true;
+        });
+        this.afterChange();
+      }
+    } finally { this.discovering = false; this.busy = false; }
   }
 
   // ───────────── 渲染 ─────────────
@@ -184,6 +212,10 @@ export class Game {
     const book = h('button', { class: 'icon-btn hud-book', 'aria-label': '图鉴' }, icon('book'));
     book.addEventListener('click', () => { sfx.click(); this.showCodex(); });
     const tierNow = h('div', { class: 'hud-tier', title: '商店当前能刷到的最高阶' }, h('span', null, '可刷'), tierBadge(maxTier(r.turn)));
+    this.el.querySelector('.legion-badge')?.remove();
+    const legion = h('button', { class: 'legion-badge', 'aria-label': `军团 ${r.legion ?? 0} 层` }, itemIcon('crown', 'spell'), h('b', null, String(r.legion ?? 0)));
+    legion.addEventListener('click', () => { const rc = legion.getBoundingClientRect(), sc = this.el.getBoundingClientRect(), k = 1280 / sc.width; showTip(h('div', { class: 'tip-unit' }, h('div', { class: 'tip-name' }, `军团 ${r.legion ?? 0}/8`), h('div', { class: 'tip-text' }, '每场召唤 3/6 个单位获得 1/2 层；每层使友方召唤单位 +1/+1。')), (rc.left + rc.width / 2 - sc.left) * k, (rc.top - sc.top) * k - 6, 'above'); });
+    this.el.appendChild(legion);
     this.hud.replaceChildren(
       h('div', { class: 'hud-left' }, lives, relics),
       route,
@@ -262,6 +294,7 @@ export class Game {
       if (!o) return;
       const v = new UnitView(o.def, 0, i, lvlOf(o.copies));
       b.add(`o${o.oid}`, v);
+      v.el.dataset.oid = String(o.oid);
       this.paintOwned(v, o);
       v.el.addEventListener('pointerdown', (e) => this.dragStart(e, 'unit', i, v.el));
     });
@@ -358,6 +391,11 @@ export class Game {
     v.setStats({ atk, hp, maxHp: hp, block: 0, chill: 0, burn: 0, kw: keywordsOf(kws) }, { pop });
     v.setExp(o.copies);
     v.setEquips([...(o.ench ? [o.ench] : []), ...(o.tmpAtk || o.tmpHp ? ['f_drum'] : []), ...(o.lamp ? ['f_lamp'] : []), ...(o.tfx ?? []).map((x) => fxFood(x).id)]);
+    v.el.querySelector('.v07-unit-progress')?.remove();
+    const progress = h('div', { class: 'v07-unit-progress' });
+    if (['l_warden', 'd_dune'].includes(o.def) && (o.scar ?? 0) > 0) progress.append(h('span', { title: '历战', 'aria-label': `历战 ${o.scar ?? 0}/${SCAR_PER * 4}` }, `历战 ${o.scar ?? 0}/${SCAR_PER * 4}`));
+    if (o.def === 's_ninja') progress.append(h('span', { title: '驻守', 'aria-label': `驻守 ${o.stationed ?? 0}/3` }, `驻守 ${'●'.repeat(o.stationed ?? 0)}${'○'.repeat(3 - (o.stationed ?? 0))}`));
+    if (progress.childNodes.length) v.el.append(progress);
     v.setFoodHistory(card(o.def).inherit ? (o.foodHistory?.length ?? 0) : null);
     if (o.merc) v.setTag(`雇佣 剩${o.merc}场`, 'merc');
     else if (card(o.def).ab === 'egg') v.setTag(`幼龙 ${1 + (o.bank ?? 0)}/${1 + (o.bank ?? 0)}`, 'bank'); else v.setTag(null);
@@ -384,7 +422,7 @@ export class Game {
   private renderTray() {
     const r = this.run;
     this.tray.classList.remove('hidden');
-    const rerollBtn = h('button', { class: 'btn primary reroll', disabled: r.gold < REROLL }, h('span', { class: 'rr-main' }, icon('refresh'), h('span', null, '刷新')), h('i', null, `${REROLL} 金`));
+    const rerollBtn = h('button', { class: `btn primary reroll${r.freeRerolls ? ' free-reroll' : ''}`, disabled: !r.freeRerolls && r.gold < REROLL }, h('span', { class: 'rr-main' }, icon('refresh'), h('span', null, '刷新')), h('i', null, r.freeRerolls ? `免费 ×${r.freeRerolls}` : `${REROLL} 金`));
     rerollBtn.addEventListener('click', () => void this.doReroll());
     const adUsed = !!this.rehearsal || r.adRr === r.turn;
     const adBtn = h('button', { class: 'btn primary reroll rewarded', disabled: adUsed, 'aria-label': adUsed ? '免费刷新已用完' : '免费刷新（观看视频）' }, h('span', { class: 'rr-main' }, h('span', null, adUsed ? '已用完' : '免费刷新')), icon('video'));
@@ -449,7 +487,7 @@ export class Game {
   /** 补给单独一栏：小方块（图标 + 名字 + 价格），点开详情，拖到单位身上使用 */
   private foodTile(it: ShopItem, i: number) {
     const f = FOOD[it.def];
-    const c = h('div', { class: `food-tile${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', tabindex: 0, 'aria-label': `补给 ${f.name}`, 'data-idx': i },
+    const c = h('div', { class: `food-tile${f.spell ? ' spell-tile' : ''}${it.locked ? ' locked' : ''}${this.run.gold < foodPrice(it) ? ' unaffordable' : ''}`, role: 'button', tabindex: 0, 'aria-label': `${f.spell ? '法术' : '补给'} ${f.name}`, 'data-idx': i },
       h('div', { class: 'ft-ico' }, itemIcon(it.def, 'pack'),
         f.n || f.behind || f.around ? h('span', { class: `ft-tgt${f.n === ALL ? ' all' : ''}` }, f.n === ALL ? icon('flag') : `×${f.around ? 3 : f.n ?? 2}`) : null,
         f.tmp ? h('span', { class: 'ft-tmp' }, icon('hourglass')) : null),
@@ -479,17 +517,17 @@ export class Game {
       });
     }
     // 顶部只放一条标签：奖励卡把「叠加 / 升星」并进去；锁定改成右上角小角标
-    if (it.free) {
+    if (it.discovered) {
       const badge = c.querySelector(':scope > .card-badge');
       const extra = badge?.textContent?.trim();
       badge?.remove();
-      c.classList.add('bonus-card');
-      c.append(h('span', { class: 'bonus-tag' }, icon('star'), extra ? `升星奖励 · ${extra}` : '升星奖励', h('i', { class: 'bonus-price' }, itemIcon('coin', 'coin', 'sm'), String(PRICE))));
+      c.classList.add('discover-card');
+      c.append(h('span', { class: 'discover-shelf-tag' }, extra ? `发现 · ${extra}` : '发现', h('i', null, it.free ? '免费' : `${PRICE} 金`)));
     }
     if (it.locked) c.classList.add('locked');
     const ch = this.chainsFor(it, c);
     if (ch) c.append(ch);
-    if (r.gold < PRICE) c.classList.add('unaffordable');
+    if (!it.free && r.gold < PRICE) c.classList.add('unaffordable');
     c.dataset.idx = String(i);
     c.setAttribute('role', 'button');
     c.addEventListener('pointerdown', (e) => this.dragStart(e, 'card', i, c));
@@ -688,7 +726,7 @@ export class Game {
     const tip = it.kind === 'food' ? foodTip(it.def, it.val) : unitTip(it.def, 1, r.canned ? { atk: c0.atk + r.canned, hp: c0.hp + r.canned, kws: c0.kws } : null, false);
     const acts = h('div', { class: 'shelf-acts' });
     if (it.kind === 'unit') {
-      const go = h('button', { class: 'btn primary shelf-recruit' }, `招募 ${PRICE} 金`);
+      const go = h('button', { class: 'btn primary shelf-recruit' }, it.free ? '免费招募' : `招募 ${PRICE} 金`);
       go.addEventListener('click', () => {
         const slot = autoSlot(r, it.def);
         if (slot < 0) { this.notice('没有空位：拖到同名单位上叠加，或先卖掉一个'); return; }
@@ -1115,6 +1153,7 @@ export class Game {
     this.renderHud();
     this.renderTray();
     this.renderBoard(pending);
+    this.scheduleDiscover();
   }
 
   private async runFx(fx: ShopFx[], gone: Record<number, { x: number; y: number }> = {}) {
@@ -1212,25 +1251,39 @@ export class Game {
     if (this.disposed) return;
     const out = fight(r);
     const before = { lives: r.lives, wins: r.wins, turn: r.turn, boss: r.enemy.boss };
-    settleBattle(r, out);
+    const legionGain = settleBattle(r, out);
     this.persist(r);
     // 战斗表现
-    this.el.classList.add('in-battle');
-    this.tray.classList.add('hidden');
-    this.bar.classList.add('on');
-    await this.playOut(out);
+    if (!await this.playOut(out) || this.disposed) return;
+    if (legionGain > 0) {
+      this.renderHud();
+      const badge = this.el.querySelector<HTMLElement>('.legion-badge');
+      if (badge) {
+        const rect = badge.getBoundingClientRect();
+        const pos = toStage(rect.left + rect.width / 2, rect.top);
+        this.fx.float(pos.x, pos.y, `军团 +${legionGain}`, 'levelup', 900);
+      }
+    }
+    await wait(legionGain > 0 && !reduced() ? 900 : 400);
     if (this.disposed) return;
-    await wait(400);
     this.showResult(out, before, snap);
   }
 
-  private async playOut(out: BattleOut) {
-    this.el.classList.add('in-battle');
-    this.tray.classList.add('hidden');
-    this.bar.classList.add('on');
-    this.player = new BattlePlayer(this.board, this.fx, this.bar);
-    await this.player.play(out);
-    this.player = null;
+  private async playOut(out: BattleOut): Promise<boolean> {
+    let player: BattlePlayer | null = null;
+    const completed = await this.app.transitionScene(() => {
+      if (this.disposed) return;
+      this.el.classList.add('in-battle');
+      this.tray.classList.add('hidden');
+      this.bar.classList.add('on');
+      player = new BattlePlayer(this.board, this.fx, this.bar);
+      this.player = player;
+      player.prepare(out);
+    }, undefined, this.fx.rate);
+    if (!completed || this.disposed || !player) return false;
+    await (player as BattlePlayer).play(out, true);
+    if (this.player === player) this.player = null;
+    return !this.disposed;
   }
 
   /** 复盘：关掉结算框重播一遍，播完再弹回来 */
@@ -1239,10 +1292,9 @@ export class Game {
     b.addEventListener('click', async () => {
       sfx.click();
       ov.remove();
-      await this.playOut(out);
-      if (this.disposed) return;
+      if (!await this.playOut(out) || this.disposed) return;
       await wait(300);
-      this.el.appendChild(ov);
+      if (!this.disposed) this.el.appendChild(ov);
     });
     return b;
   }
@@ -1262,17 +1314,24 @@ export class Game {
   }
 
   /** 回到备战（结算/试打/重打之后） */
-  private backToPrep(intro: boolean) {
+  private async backToPrep(intro: boolean): Promise<boolean> {
     this.growthPreview = null;
     const r = this.run;
-    this.el.classList.remove('in-battle');
-    this.bar.classList.remove('on');
-    this.busy = false;
-    this.board.clearArrows();
-    setMusicRun('pdqs', Math.min(2, Math.floor((r.turn - 1) / 4)));
-    this.renderAll(intro ? r.pendingFx : []);
-    this.cardsIn();
-    if (intro) void this.intro();
+    this.busy = true;
+    const completed = await this.app.transitionScene(() => {
+      if (this.disposed) return;
+      this.el.classList.remove('in-battle');
+      this.bar.classList.remove('on');
+      this.board.clearArrows();
+      setMusicRun('pdqs', Math.min(2, Math.floor((r.turn - 1) / 4)));
+      this.renderAll(intro ? r.pendingFx : []);
+    }, () => {
+      if (this.disposed) return;
+      this.cardsIn();
+      if (intro) void this.intro();
+      else this.busy = false;
+    }, this.fx.rate);
+    return completed && !this.disposed;
   }
 
   private leaveRehearsal() {
@@ -1311,8 +1370,7 @@ export class Game {
     this.el.classList.remove('rehearsal');
     this.el.querySelectorAll('.result-ov').forEach(el => el.remove());
     this.persist(restored);
-    this.backToPrep(false);
-    await this.startBattle();
+    if (await this.backToPrep(false)) await this.startBattle();
   }
 
   /** 战后试打：调整副本，不计结果、不改存档 */
@@ -1323,8 +1381,7 @@ export class Game {
     hideTip();
     sfx.start();
     const out = trialFight(this.run);
-    await this.playOut(out);
-    if (this.disposed || this.rehearsal !== session) return;
+    if (!await this.playOut(out) || this.disposed || this.rehearsal !== session) return;
     await wait(300);
     if (this.disposed || this.rehearsal !== session) return;
     const title = out.result === 'win' ? '试打：胜' : out.result === 'lose' ? '试打：负' : '试打：平';
@@ -1335,7 +1392,7 @@ export class Game {
     const leave = h('button', { class: 'btn primary rehearsal-back' }, h('span', null, '返回结算'));
     leave.addEventListener('click', () => { ov.remove(); this.leaveRehearsal(); });
     ov.querySelector('.res-btns')!.append(this.reviewButton(out, ov), leave, back);
-    back.addEventListener('click', () => { sfx.click(); ov.remove(); this.backToPrep(false); });
+    back.addEventListener('click', () => { sfx.click(); ov.remove(); void this.backToPrep(false); });
     this.el.appendChild(ov);
   }
 
@@ -1361,7 +1418,7 @@ export class Game {
         this.rehearsal = { session: createRehearsal(r, snap, result), report: ov };
         this.run = this.rehearsal.session.working;
         this.el.classList.add('rehearsal');
-        this.backToPrep(false);
+        void this.backToPrep(false);
       });
       ov.querySelector('.res-btns')!.prepend(adjust);
     }
@@ -1377,7 +1434,7 @@ export class Game {
         if (!ok || !adSaveHeart(r)) { buttons.forEach(b => b.disabled = false); return; }
         this.persist(r);
         ov.remove();
-        this.backToPrep(true);
+        void this.backToPrep(true);
       });
       ov.querySelector('.res-btns')!.insertBefore(protect, go);
     }
@@ -1390,7 +1447,7 @@ export class Game {
       ov.remove();
       if (this.teaching && r.history.length >= 2) { this.tutorial?.complete(); return; }
       if (r.phase !== 'prep') { if (this.teaching) this.app.toTitle(); else this.app.endRun(r); return; }
-      this.backToPrep(true);
+      void this.backToPrep(true);
     });
   }
 }

@@ -128,16 +128,22 @@ export class BattlePlayer {
     return Promise.all(moves);
   }
 
-  async play(out: BattleOut) {
+  prepare(out: BattleOut) {
+    this.live.clear();
     this.board.clearUnits();
     this.board.clearArrows();
     this.board.setCenter('0', '交锋', 'beat');
     for (const s of out.init) {
       const slot = out.initOrder[s.side].indexOf(s.uid);
       if (slot < 0 || slot >= 5) continue;
-      const L = this.mk(s, slot);
-      L.v.appear(slot * 60 + s.side * 30);
+      this.mk(s, slot);
     }
+  }
+
+  async play(out: BattleOut, prepared = false) {
+    if (!prepared) this.prepare(out);
+    if (this.stopped) return;
+    for (const L of this.live.values()) L.v.appear(L.v.slot * 60 + L.s.side * 30);
     await this.w(700);
     for (let i = 0; i < out.events.length; i++) {
       const ev = out.events[i];

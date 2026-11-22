@@ -1,5 +1,5 @@
 // 一局的状态与商店经济：框架照搬 SAP（6 阶、货架 3→5、补给 1→2、10 金、3 份/6 份升星、按难度 5/3/2 心、15 胜）。
-import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type FoodFx, type Quality, type RelicId, type Tier } from './data';
+import { ATOMS, BOSSES, card, equipOf, equipStats, EQUIPS, FOOD, FOOD_POOL, ALL, hasTag, LINES, RELICS, SHOP_POOL, type Atom, type BossDef, type CardDef, type Ench, type EventId, type FoodFx, type Line, type Quality, type RelicId, type Tier } from './data';
 import { QUEUE_MAX, simulate, type BattleOut, type UnitSpec } from './engine';
 import ghostData from './ghosts.json';
 import { authoredEncounters, type AuthoredEncounter } from './encounters';
@@ -13,6 +13,7 @@ export const PRICE = 3;
 export const REROLL = 1;
 export const MAX_COPIES = 6;
 export const STAT_CAP = 50;
+export const SCAR_PER = 1;
 export const FOOD_HISTORY_MAX = 5;
 export const MILK_MAX = 2;
 export const FOOD_SHOP_MAX = 4;
@@ -26,6 +27,9 @@ export const BOSS_TURNS: Record<number, BossKey> = { 4: 'wall', 8: 'tide', 12: '
 export interface Owned {
   oid: number;
   def: string;
+  scar?: number;
+  scarHurt?: number;
+  stationed?: number;
   copies: number;
   atkBonus: number;
   hpBonus: number;
@@ -47,7 +51,8 @@ export interface Owned {
   foodHistory?: FoodMemory[];
 }
 /** free：升星奖励卡（SAP 式：照常 3 金，刷新/新回合会被刷走，可锁定；不占普通单位格）。val：牛奶的攻血 */
-export interface ShopItem { sid: number; kind: 'unit' | 'food'; def: string; locked: boolean; free: boolean; val?: [number, number] }
+export interface ShopItem { sid: number; kind: 'unit' | 'food'; def: string; locked: boolean; free: boolean; discovered?: boolean; val?: [number, number] }
+export interface DiscoverOffer { source: string; title: string; options: { def: string }[]; targetOid?: number; free: boolean }
 export type BossKey = keyof typeof BOSSES;
 /** 敌阵形态：前肉后放大 / 召唤海 / 养成大哥 / 狙击队 / 自爆群 / 格挡墙 / 速攻 / 均衡 */
 export type FormKey = 'tank' | 'summon' | 'carry' | 'snipe' | 'boom' | 'wall' | 'rush' | 'mixed';
@@ -78,6 +83,12 @@ export interface TurnCount {
 }
 export interface RunState {
   v: number;
+  discoverQueue?: DiscoverOffer[];
+  legion?: number;
+  bankGold?: number;
+  freeRerolls?: number;
+  prophecy?: boolean;
+  prophecyTurn?: number;
   seed: number;
   turn: number;
   lives: number;
@@ -195,6 +206,35 @@ const units = (r: RunState) => r.queue.filter((o): o is Owned => !!o);
 const byOid = (r: RunState, oid: number) => units(r).find((o) => o.oid === oid);
 const newCount = (): TurnCount => ({ foods: 0, bought: 0, bear: {}, bearRefunds: 0, keeper: {}, shareUsed: false });
 
+/** 发现候选在创建时固定，存档与重绘不会重抽。 */
+function enqueueDiscover(r: RunState, source: string, pool: CardDef[], free: boolean, targetOid?: number, distinctTags = false) {
+  let candidates = pickN(r, pool, pool.length);
+  if (distinctTags) {
+    const seen = new Set<Line>();
+    candidates = candidates.filter((c) => { if (seen.has(c.line)) return false; seen.add(c.line); return true; });
+  }
+  const options = candidates.slice(0, 3).map((c) => ({ def: c.id }));
+  if (options.length) (r.discoverQueue ??= []).push({ source, title: source, options, targetOid, free });
+}
+export function resolveDiscover(r: RunState, index: number, destination?: 'shop' | 'replace'): boolean {
+  const offer = r.discoverQueue?.[0];
+  const option = offer?.options[index];
+  if (!offer || !option) return false;
+  const target = offer.targetOid == null ? undefined : byOid(r, offer.targetOid);
+  const replace = destination === 'replace' || (destination === undefined && offer.targetOid != null);
+  if (replace && !target) return false;
+  if (offer.source === '转生' && !replace) return false;
+  if (replace && target) {
+    target.def = option.def;
+    target.copy = undefined;
+    if (!card(target.def).inherit) target.foodHistory = undefined;
+  } else r.shop.push({ sid: r.nextId++, kind: 'unit', def: option.def, locked: false, free: offer.free, discovered: true });
+  r.discoverQueue!.shift();
+  return true;
+}
+const discoverPending = (r: RunState) => !!r.discoverQueue?.length;
+const tierPool = (tier: number) => SHOP_POOL.filter((c) => c.tier === Math.min(6, tier));
+
 export function prepFoodUses(r: RunState, o: Owned): { used: number; max: number } | null {
   if (abOf(o) === 'seal') return { used: r.tc.keeper?.[o.oid] ?? 0, max: uOf(o) };
   if (abOf(o) === 'sauropod') return { used: r.tc.bearRefunds ?? 0, max: 2 };
@@ -257,9 +297,9 @@ function rollShop(r: RunState) {
   const pool = SHOP_POOL.filter((c) => c.tier <= tier);
   const kept = r.shop.filter((s) => s.locked);
   const out: ShopItem[] = [];
-  const keptU = kept.filter((s) => s.kind === 'unit' && !s.free);
+  const keptU = kept.filter((s) => s.kind === 'unit' && !s.discovered && !s.free);
   // 锁住的升星奖励卡和普通卡一样占刷新席位
-  const keptB = kept.filter((s) => s.kind === 'unit' && s.free);
+  const keptB = kept.filter((s) => s.kind === 'unit' && (s.discovered || s.free));
   out.push(...keptU);
   // 招募同温：温度高时最多 2 格偏向同标签 / 已有同名（只加权不保底）
   const own = units(r).map((o) => card(o.def));
@@ -291,6 +331,10 @@ function rollShop(r: RunState) {
     }
   }
   out.push(...keptB);
+  if (r.prophecy && r.turn >= (r.prophecyTurn ?? r.turn)) {
+    const freshUnit = out.find((x) => x.kind === 'unit' && !x.locked);
+    if (freshUnit) { freshUnit.def = pick(r, tierPool(tier + 1)).id; r.prophecy = false; r.prophecyTurn = undefined; }
+  }
   const milk = r.shop.filter((s) => s.kind === 'food' && s.def === 'f_milk');
   const keptF = kept.filter((s) => s.kind === 'food' && s.def !== 'f_milk');
   out.push(...keptF);
@@ -315,8 +359,8 @@ export function grantPrepMilk(r: RunState) {
 }
 
 export function reroll(r: RunState): ShopFx[] | null {
-  if (r.gold < REROLL) return null;
-  r.gold -= REROLL;
+  if (discoverPending(r) || (!(r.freeRerolls ?? 0) && r.gold < REROLL)) return null;
+  if (r.freeRerolls) r.freeRerolls--; else r.gold -= REROLL;
   r.rerolls++;
   rollShop(r);
   return [];
@@ -324,7 +368,7 @@ export function reroll(r: RunState): ShopFx[] | null {
 
 /** 广告刷新：每回合 1 次，免费 */
 export function adReroll(r: RunState): ShopFx[] | null {
-  if (r.adRr === r.turn) return null;
+  if (discoverPending(r) || r.adRr === r.turn) return null;
   r.adRr = r.turn;
   rollShop(r);
   return [];
@@ -340,8 +384,9 @@ export type BuyResult = { ok: false; why: 'gold' | 'full' | 'max' } | { ok: true
 /** 买单位到指定格：空格放下；同名合并；不同名的单位格拒绝 */
 export function buy(r: RunState, sid: number, slot: number): BuyResult {
   const item = r.shop.find((x) => x.sid === sid);
+  if (discoverPending(r)) return { ok: false, why: 'full' };
   if (!item || item.kind !== 'unit') return { ok: false, why: 'full' };
-  const cost = PRICE;
+  const cost = item.free ? 0 : PRICE;
   if (r.gold < cost) return { ok: false, why: 'gold' };
   const at = r.queue[slot];
   if (at && (at.def !== item.def || at.merc)) return { ok: false, why: 'full' };
@@ -364,6 +409,7 @@ export function buy(r: RunState, sid: number, slot: number): BuyResult {
 
 /** 购买后的商店钩子；新放下的单位算一次「召唤」 */
 function onBought(r: RunState, o: Owned, isNew: boolean, fx: ShopFx[]) {
+  if (o.def === 's_fox') enqueueDiscover(r, '灯笼狐', tierPool(maxTier(r.turn)), true);
   const others = units(r).filter((t) => t !== o);
   for (const t of others) {
     switch (abOf(t)) {
@@ -374,7 +420,7 @@ function onBought(r: RunState, o: Owned, isNew: boolean, fx: ShopFx[]) {
     }
     if (!isNew) continue;
     switch (abOf(t)) {
-      case 'horse': tmpFx(fx, t.oid, o, vOf(t), 0, '友军被召唤'); break;
+      case 'horse': tmpFx(fx, t.oid, o, vOf(t), vOf(t), '友军被召唤'); break;
       case 'dog': growFx(fx, t.oid, t, vOf(t), vOf(t), '友军被召唤'); break;
       case 'turkey': tmpFx(fx, t.oid, o, vOf(t), vOf(t), '友军被召唤'); break;
     }
@@ -402,11 +448,11 @@ export function autoSlot(r: RunState, def: string): number {
 function grantStarReward(r: RunState) {
   const tier = Math.min(6, maxTier(r.turn) + 1);
   const pool = SHOP_POOL.filter((c) => c.tier === tier);
-  r.shop.push({ sid: r.nextId++, kind: 'unit', def: pick(r, pool).id, locked: false, free: true });
+  enqueueDiscover(r, '升星奖励', pool, false);
 }
 
 /** 补给是否需要指定目标 */
-export const foodNeedsTarget = (id: string) => !FOOD[id].n && id !== 'f_can';
+export const foodNeedsTarget = (id: string) => FOOD[id]?.spell ? ['s_recruit', 's_copy', 's_rebirth', 's_dismiss'].includes(id) : !FOOD[id].n && id !== 'f_can';
 export const foodAll = (id: string) => FOOD[id]?.n === ALL;
 export const foodPrice = (s: ShopItem) => (s.def === 'f_milk' ? 0 : FOOD[s.def]?.price ?? PRICE);
 /** 补给的攻血效果（牛奶看货架上的数值） */
@@ -469,14 +515,34 @@ function eatFood(r: RunState, e: Owned, item: FoodMemory, fx: ShopFx[]): boolean
 
 export function useFood(r: RunState, sid: number, slot: number | null): FoodResult {
   const item = r.shop.find((x) => x.sid === sid);
+  if (discoverPending(r)) return { ok: false, why: 'target' };
   if (!item || item.kind !== 'food') return { ok: false, why: 'target' };
   const f = FOOD[item.def];
   const tgt = slot === null ? null : r.queue[slot];
   if (foodNeedsTarget(f.id) && !tgt) return { ok: false, why: 'target' };
-  if (!foodNeedsTarget(f.id) && !units(r).length && f.id !== 'f_can') return { ok: false, why: 'target' };
+  if (!foodNeedsTarget(f.id) && !units(r).length && f.id !== 'f_can' && !f.spell) return { ok: false, why: 'target' };
   if (f.id === 'f_elixir' && tgt && tgt.copies >= MAX_COPIES) return { ok: false, why: 'target' };
   const price = foodPrice(item);
   if (r.gold < price) return { ok: false, why: 'gold' };
+  if (f.spell) {
+    const recruitPool = f.id === 's_recruit' ? SHOP_POOL.filter((c) => c.tier <= maxTier(r.turn) && [card(tgt!.def).line, card(tgt!.def).tag2].some((tag) => tag && tag !== 'enemy' && hasTag(c, tag))) : [];
+    if ((f.id === 's_recruit' && !recruitPool.length) || (f.id === 's_dismiss' && tgt!.merc) || (f.id === 's_copy' && tgt!.copies >= MAX_COPIES) || (f.id === 's_rebirth' && (tgt!.merc || card(tgt!.def).tier >= 6))) return { ok: false, why: 'target' };
+    r.gold -= price;
+    r.shop = r.shop.filter((x) => x !== item);
+    const fx: ShopFx[] = [];
+    let levelUp = false;
+    switch (f.id) {
+      case 's_recruit': enqueueDiscover(r, '招募令', recruitPool, true); break;
+      case 's_bank': r.bankGold = (r.bankGold ?? 0) + 5; break;
+      case 's_conscript': enqueueDiscover(r, '征兵', tierPool(maxTier(r.turn)), true, undefined, true); break;
+      case 's_copy': levelUp = addCopies(r, tgt!, 1, fx); break;
+      case 's_rebirth': enqueueDiscover(r, '转生', tierPool(card(tgt!.def).tier + 1), true, tgt!.oid); break;
+      case 's_prophecy': r.prophecy = true; r.prophecyTurn = r.turn + 1; break;
+      case 's_dismiss': { const tier = card(tgt!.def).tier; const refund = lvlOf(tgt!.copies) + 1; sell(r, slot!); r.gold += refund - sellPrice(tgt!); enqueueDiscover(r, '遣散', tierPool(tier), true); break; }
+      case 's_war': r.freeRerolls = (r.freeRerolls ?? 0) + 2; break;
+    }
+    return { ok: true, fx, levelUp };
+  }
   r.gold -= price;
   r.shop = r.shop.filter((x) => x !== item);
   const fx: ShopFx[] = [];
@@ -516,11 +582,16 @@ export function useFood(r: RunState, sid: number, slot: number | null): FoodResu
 
 /** 场上两格互换，或同名合并（拖动） */
 export function moveOwned(r: RunState, from: number, to: number): { merged: boolean; levelUp: boolean; fx: ShopFx[] } | null {
-  if (from === to) return null;
+  if (discoverPending(r) || from === to) return null;
   const a = r.queue[from];
   const b = r.queue[to];
   if (!a) return null;
   if (b && b.def === a.def && b.copies < MAX_COPIES && a.copies < MAX_COPIES && !a.merc && !b.merc) {
+    const scarTotal = Math.min(SCAR_PER * 4, (a.scar ?? 0) + (b.scar ?? 0));
+    const excess = (a.scar ?? 0) + (b.scar ?? 0) - scarTotal;
+    b.scar = scarTotal;
+    b.scarHurt = undefined;
+    b.atkBonus -= excess; b.hpBonus -= excess;
     b.atkBonus += a.atkBonus;
     b.hpBonus += a.hpBonus;
     if (card(b.def).inherit) {
@@ -554,7 +625,7 @@ export function moveOwned(r: RunState, from: number, to: number): { merged: bool
 export interface SellOut { gold: number; fx: ShopFx[] }
 export function sell(r: RunState, slot: number): SellOut | null {
   const o = r.queue[slot];
-  if (!o) return null;
+  if (discoverPending(r) || !o) return null;
   // 必须在删除或任何出售效果发生前确定对象，空位不改变先后关系。
   const receiver = r.queue.slice(slot + 1).find((t): t is Owned => !!t)
     ?? r.queue.slice(0, slot).reverse().find((t): t is Owned => !!t);
@@ -564,6 +635,7 @@ export function sell(r: RunState, slot: number): SellOut | null {
   if (o.ench) toBag(r, o.ench);
   const fx: ShopFx[] = [];
   const rest = units(r);
+  if (o.def === 'a_graveguard') enqueueDiscover(r, '墓园守卫', tierPool(card(o.def).tier), true);
   if (abOf(o) === 'beaver' && rest.length) growFx(fx, o.oid, pick(r, rest), vOf(o), vOf(o), '出售');
   if (card(o.def).inherit && receiver) {
     for (const item of o.foodHistory ?? []) eatFood(r, receiver, item, fx);
@@ -1057,13 +1129,13 @@ function curveTeam(r: RunState): UnitSpec[] {
 }
 
 export function fight(r: RunState): BattleOut {
-  return simulate(playerTeam(r), r.enemy.units, (r.seed ^ (r.turn * 7919)) & 0x7fffffff, r.relics);
+  return simulate(playerTeam(r), r.enemy.units, (r.seed ^ (r.turn * 7919)) & 0x7fffffff, r.relics, r.legion ?? 0);
 }
 /** 试打：在副本上结束回合再开打，不改存档；随机种子每次不同，只看大概 */
 export function trialFight(r: RunState): BattleOut {
   const c = structuredClone(r);
   endTurn(c);
-  return simulate(playerTeam(c), c.enemy.units, (Math.random() * 2 ** 31) | 0, c.relics);
+  return simulate(playerTeam(c), c.enemy.units, (Math.random() * 2 ** 31) | 0, c.relics, c.legion ?? 0);
 }
 export const AD_RETRY_MAX = 2;
 /** 看广告重打：整局退回开战前（snap），可以重新调整阵容再打 */
@@ -1076,13 +1148,27 @@ export function adRetry(r: RunState, snap: RunState): boolean {
 }
 
 /** 战斗结算：扣心/记胜，清掉本场加成，进入下一回合 */
-export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'>) {
+export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'> & Partial<Pick<BattleOut, 'hurtCounts' | 'summons'>>) {
   const result = out.result;
   for (const [oid, p] of Object.entries(out.perm)) {
     const o = byOid(r, Number(oid));
     if (o) grow(o, p.atk, p.hp);
   }
+  const previousLegion = r.legion ?? 0;
+  r.legion = Math.min(8, previousLegion + ((out.summons ?? 0) >= 6 ? 2 : (out.summons ?? 0) >= 3 ? 1 : 0));
+  const legionGain = r.legion - previousLegion;
   for (const o of units(r)) {
+    if (['l_warden', 'd_dune'].includes(o.def)) {
+      const hits = out.hurtCounts?.[o.oid] ?? 0;
+      const gained = Math.min(SCAR_PER, Math.floor(hits / 2), SCAR_PER * 4 - (o.scar ?? 0), STAT_CAP - ownedAtk(o), STAT_CAP - ownedHp(o));
+      o.scarHurt = undefined;
+      if (gained > 0) { const [a, h] = grow(o, gained, gained); o.scar = (o.scar ?? 0) + Math.min(a, h); }
+    }
+    if (o.def === 's_ninja') o.stationed = (o.stationed ?? 0) + 1;
+    if (o.def === 's_ninja' && o.stationed! >= 3) {
+      o.stationed = 0;
+      enqueueDiscover(r, '连环忍者', tierPool(card(o.def).tier + 1), true);
+    }
     o.tmpAtk = undefined;
     o.tmpHp = undefined;
     o.lamp = undefined;
@@ -1116,14 +1202,15 @@ export function settleBattle(r: RunState, out: Pick<BattleOut, 'result' | 'perm'
   if (r.enemy.form) r.lastForm = r.enemy.form;
   if (r.wins >= WIN_GOAL) {
     r.phase = 'won';
-    return;
+    return legionGain;
   }
   if (r.lives <= 0) {
     r.lives = 0;
     r.phase = 'lost';
-    return;
+    return legionGain;
   }
   advance(r);
+  return legionGain;
 }
 
 /** 看广告保心：退回上一场扣的心（每局 2 次）；若因此免于出局则继续 */
@@ -1144,7 +1231,9 @@ function advance(r: RunState) {
   r.turn++;
   r.rerolls = 0;
   r.tc = newCount();
-  r.gold = GOLD_PER_ROUND;
+  r.gold = GOLD_PER_ROUND + (r.bankGold ?? 0);
+  r.bankGold = 0;
+  r.freeRerolls = 0;
   // 额外牛奶只属于上一备战，锁定也不跨回合。
   r.shop = r.shop.filter((s) => s.kind !== 'food' || s.def !== 'f_milk');
   rollShop(r);
@@ -1177,6 +1266,19 @@ export function load(): RunState | null {
     });
     if (!validUses(r.tc.bear)) return null;
     if (r.tc.keeper !== undefined && (!r.tc.keeper || typeof r.tc.keeper !== 'object' || Array.isArray(r.tc.keeper) || !validUses(r.tc.keeper))) return null;
+    // 旧档中的 unit.free 标记升星奖励槽，购买仍需 3 金。
+    for (const s of r.shop) if (s.kind === 'unit' && s.free && s.discovered === undefined) { s.discovered = true; s.free = false; }
+    if (r.shop.some((s) => s.discovered !== undefined && (typeof s.discovered !== 'boolean' || s.kind !== 'unit'))) return null;
+    if (r.legion !== undefined && (!Number.isInteger(r.legion) || r.legion < 0 || r.legion > 8)) return null;
+    for (const key of ['bankGold', 'freeRerolls'] as const) if (r[key] !== undefined && (!Number.isSafeInteger(r[key]) || r[key]! < 0)) return null;
+    if (r.prophecy !== undefined && typeof r.prophecy !== 'boolean') return null;
+    if (r.prophecyTurn !== undefined && (!Number.isSafeInteger(r.prophecyTurn) || r.prophecyTurn < 1)) return null;
+    if (r.discoverQueue !== undefined && (!Array.isArray(r.discoverQueue) || r.discoverQueue.some((d) => !d || typeof d.source !== 'string' || typeof d.title !== 'string' || typeof d.free !== 'boolean' || !Array.isArray(d.options) || d.options.length < 1 || d.options.length > 3 || d.options.some((x) => !x || !SHOP_POOL.some((c) => c.id === x.def)) || (d.targetOid !== undefined && !byOid(r, d.targetOid))))) return null;
+    for (const o of units(r)) {
+      if (o.scar !== undefined && (!Number.isInteger(o.scar) || o.scar < 0 || o.scar > SCAR_PER * 4)) return null;
+      if (o.scarHurt !== undefined && (!Number.isInteger(o.scarHurt) || o.scarHurt < 0 || o.scarHurt > 1)) return null;
+      if (o.stationed !== undefined && (!Number.isInteger(o.stationed) || o.stationed < 0 || o.stationed > 2)) return null;
+    }
     const legacySupply = r.supplyVersion === undefined;
     if (!legacySupply && r.supplyVersion !== SUPPLY_VERSION) return null;
     // 同版本增量字段：旧档没有记录就从空开始，不能从累计属性反推来源。

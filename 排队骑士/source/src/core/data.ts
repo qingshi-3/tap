@@ -45,25 +45,25 @@ export const CARDS: CardDef[] = [
   C('l_windblade', '风刃剑士', 1, 3, 6, 'hurt', '交锋前：对身后 {v} 个友军各造成 1 伤害', { ab: 'elephant', v: [2, 3, 4] }),
   C('l_vigil', '守誓者', 2, 3, 6, 'hurt', '受伤时：身后友军本场 +{v}/+{u}', { ab: 'camel', v: [2, 3, 4], u: [2, 4, 6] }),
   C('n_tether', '链誓术士', 2, 2, 4, 'grow', '回合结束时：相邻友军永久 +{v} 血', { tag2: 'hurt', ab: 'tfish', v: [1, 2, 3], perm: true }),
-  C('l_warden', '晨光盾卫', 3, 3, 7, 'hurt', '受伤时：随机打一个敌人 {v}', { ab: 'blowfish', v: [3, 6, 9] }),
+  C('l_warden', '晨光盾卫', 3, 3, 7, 'hurt', '受伤时：随机打一个敌人 {v} + 最大血的 1/5', { ab: 'blowfish', v: [3, 6, 9] }),
   C('n_medic', '苦修导师', 3, 3, 7, 'hurt', '开战时：对身后 {v} 个友军各造成 1 伤害，并让它们本场 +1 攻', { ab: 'drill', v: [1, 2, 3], tag2: 'start' }),
   C('l_caliber', '圣铸机兵', 4, 7, 11, 'hurt', '开战时：对所有友军（含自己）造成 1 伤害，重复 {v} 次', { ab: 'anvil', v: [1, 2, 3] }),
   C('l_knight', '晨曦骑士', 4, 7, 9, 'any', '击杀敌人时：打新的敌方队首 {v}', { ab: 'rhino', v: [4, 8, 12] }),
   C('l_storm', '风暴剑圣', 5, 9, 11, 'hurt', '友军受伤时：自己本场 +{v}/+{v}', { ab: 'storm', v: [2, 4, 6] }),
   C('l_archon', '曙光执政官', 6, 7, 8, 'any', '身前友军的技能额外释放 1 次（按我的星级结算）', { ab: 'tiger', v: [1, 2, 3] }),
   C('s_dart', '飞镖手', 1, 2, 3, 'start', '开战时：随机 {v} 个敌人各受 1 伤害', { ab: 'mosquito', v: [1, 2, 3] }),
-  C('s_fox', '灯笼狐', 1, 2, 1, 'grow', '回合结束时：队尾友军永久 +{v} 攻', { ab: 'bluebird', v: [1, 2, 3], perm: true }),
+  C('s_fox', '灯笼狐', 1, 2, 1, 'grow', '回合结束时：队尾友军永久 +{v} 攻。购买时：免费发现当前最高阶单位', { ab: 'bluebird', v: [1, 2, 3], perm: true }),
   C('s_step', '影步刺客', 2, 3, 5, 'start', '开战时：身前友军本场获得我攻击的 {v}%', { ab: 'dodo', v: [50, 100, 150] }),
   C('s_backstab', '背刺者', 2, 3, 4, 'grow', '回合结束时：身前友军永久 +{v} 攻', { tag2: 'start', ab: 'backstab', v: [1, 2, 3], perm: true }),
   C('s_dancer', '影舞者', 3, 4, 5, 'start', '身前友军攻击后：打敌方队首，伤害 = 我攻击的 {v}%', { ab: 'snake', v: [50, 100, 150] }),
-  C('s_ninja', '连环忍者', 3, 1, 2, 'start', '身前友军攻击后：自己本场 +{v}/+{v}', { ab: 'kangaroo', v: [2, 4, 6] }),
+  C('s_ninja', '连环忍者', 3, 1, 2, 'start', '身前友军攻击后：自己本场 +{v}/+{v}。驻守 3 场后：免费发现高一阶单位', { ab: 'kangaroo', v: [2, 4, 6] }),
   C('s_hunter', '暗隙猎手', 4, 7, 7, 'start', '开战时：打敌方血最低的单位 {v}', { ab: 'dolphin', v: [4, 8, 12] }),
   C('s_viper', '赤蛇刺客', 5, 10, 6, 'start', '开战时：打敌方队尾 {v}', { ab: 'croc', v: [6, 12, 18] }),
   C('s_master', '千刃宗师', 5, 6, 9, 'start', '开战时：敌方血最高的单位失去 {v}% 血', { ab: 'skunk', v: [33, 66, 99] }),
   C('s_lord', '岚影宗主', 6, 12, 7, 'start', '开战时：随机 {v} 个敌人各受我攻击 50% 的伤害', { ab: 'leopard', v: [1, 2, 3] }),
   C('a_imp', '残魂小鬼', 1, 2, 2, 'death', '阵亡时：原位召唤 {v}/{v} 魂火', { ab: 'cricket', v: [2, 3, 4], sum: 't_wisp' }),
   C('a_spine', '暗棘', 1, 3, 2, 'death', '阵亡时：随机一个友军本场 +{v}/+{u}', { ab: 'ant', v: [3, 6, 9], u: [2, 4, 6] }),
-  C('a_graveguard', '墓园守卫', 2, 4, 2, 'death', '阵亡时：身后 2 个友军本场 +{v}/+{v}', { ab: 'flamingo', v: [2, 4, 6] }),
+  C('a_graveguard', '墓园守卫', 2, 4, 2, 'death', '阵亡时：身后 2 个友军本场 +{v}/+{v}。出售时：免费发现同阶单位', { ab: 'flamingo', v: [2, 4, 6] }),
   C('a_reaper', '灵魂收割者', 2, 3, 2, 'death', '阵亡时：场上所有单位（敌我都算）受到 {v} 伤害', { tag2: 'hurt', ab: 'hedgehog', v: [2, 4, 6] }),
   C('a_ritualist', '唤亡祭师', 3, 2, 6, 'death', '友军阵亡时：自己本场 +{v} 攻，并获得 1 层格挡（每场 {u} 次）', { ab: 'ox', v: [2, 4, 6], u: [2, 2, 3] }),
   C('a_chanter', '魂缚吟者', 4, 5, 8, 'death', '阵亡时：身后 {v} 个友军各获得 1 层格挡', { ab: 'turtle', v: [1, 2, 3] }),
@@ -72,7 +72,7 @@ export const CARDS: CardDef[] = [
   C('a_matriarch', '深渊主母', 6, 8, 10, 'death', '友军阵亡时：在它原位召唤 {v}/{v} 骷髅（每场 3 次，骷髅阵亡不触发）', { ab: 'fly', v: [5, 10, 15], sum: 't_bonelet' }),
   C('a_nightmare', '夜魇', 6, 7, 14, 'death', '阵亡时：所有友军本场 +{v}/+{v}', { ab: 'mammoth', v: [3, 6, 9] }),
   C('m_egg', '幼兽蛋', 1, 0, 3, 'death', '阵亡时：原位孵出幼龙（1/1 + 蛋里攒的成长）。回合结束时：幼龙永久 +{v}/+{v}', { tag2: 'grow', ab: 'egg', v: [1, 2, 3], perm: true, sum: 't_drakelet' }),
-  C('m_whelp', '炽棘幼龙', 1, 2, 1, 'death', '友军被召唤时：它本场 +{v} 攻', { ab: 'horse', v: [1, 2, 3] }),
+  C('m_whelp', '炽棘幼龙', 1, 3, 2, 'death', '友军被召唤时：它本场 +{v}/+{v}', { ab: 'horse', v: [1, 2, 3] }),
   C('m_raptor', '白鬃猎龙', 2, 2, 2, 'death', '阵亡时：原位召唤一个随机 3 阶单位（2/2，{v} 星）', { ab: 'spider', v: [1, 2, 3], sum: 3 }),
   C('m_incubator', '孵化看守', 3, 3, 4, 'death', '友军被召唤时：自己 +{v}/+{v}（商店里永久，战斗中本场）', { tag2: 'grow', ab: 'dog', v: [1, 2, 3] }),
   C('m_kujata', '驮岩兽', 3, 2, 2, 'death', '阵亡时：原位召唤 2 只 {v}/{v} 小兽', { ab: 'sheep', v: [3, 6, 9], sum: 't_wolf' }),
@@ -92,7 +92,7 @@ export const CARDS: CardDef[] = [
   C('v_queen', '霜冠执政官', 6, 7, 9, 'food', '自己吃的补给，攻血效果 ×{v}', { ab: 'cat', v: [2, 2, 3], inherit: true }),
   C('v_wyvern', '白霜巨龙', 6, 8, 11, 'food', '友军吃补给时：相邻另外至多 {v} 个友军获得其攻血效果的一半（至少 +1，身前优先）', { ab: 'wyvern', v: [1, 1, 2], perm: true, inherit: true }),
   C('d_artificer', '构装学徒', 1, 2, 3, 'grow', '出售时：随机一个友军永久 +{v}/+{v}', { ab: 'beaver', v: [1, 2, 3], perm: true }),
-  C('d_dune', '棘网蛛', 2, 3, 6, 'hurt', '受伤时：对伤害来源造成 {v} 伤害', { ab: 'thornback', v: [3, 6, 9] }),
+  C('d_dune', '棘网蛛', 2, 3, 6, 'hurt', '受伤时：对伤害来源造成 {v} + 最大血的 1/5 伤害', { ab: 'thornback', v: [3, 6, 9] }),
   C('d_howler', '沙嚎者', 3, 3, 6, 'grow', '回合结束时：身前 {v} 个友军各永久 +1/+1', { ab: 'giraffe', v: [1, 2, 3], perm: true }),
   C('d_keeper', '遗迹守卫', 3, 3, 5, 'grow', '自己升星时：所有友军永久 +{v}/+{v}（升 2 星 +1，升 3 星 +2）', { ab: 'fish', v: [2, 3, 4], perm: true }),
   C('d_dunecaster', '沙灵塑师', 4, 7, 7, 'grow', '每买一个友军：自己永久 +{v}/+{v}', { ab: 'buffalo', v: [1, 2, 3], perm: true }),
@@ -150,6 +150,8 @@ export type Ench = string;
 export type FoodFx = 'bomb' | 'berry' | 'bone' | 'plate' | 'splash' | 'fury' | 'undy' | 'thunder';
 export interface FoodDef {
   id: string; name: string; tier: Tier; text: string; icon: string; ench?: Ench;
+  /** 法术与食物共享补给货架，但不触发进食效果。 */
+  spell?: boolean;
   /** 攻血效果（n 个随机友军，99 为全队；tmp 为只在下一场有效） */
   atk?: number; hp?: number; n?: number; tmp?: boolean;
   /** 指定目标及紧邻身后的实际队列格，不跳过空位。 */
@@ -190,13 +192,21 @@ export const FOODS: FoodDef[] = [
   { id: 'f_can', name: '罐头', tier: 6, text: '之后每买 1 份单位（含合并）额外 +1/+1，可叠加', icon: 'can', short: '之后每买 1 份单位额外 +1/+1，可叠加' },
   { id: 'f_dragon', name: '龙肉', tier: 6, text: '指定友军及其紧邻身后友军各永久 +2/+2', icon: 'dragon', atk: 2, hp: 2, behind: true },
   { id: 'f_thunder', name: '雷霆瓶', tier: 6, text: '一个友军本场「开战时」：所有敌人受 2 伤害', icon: 'thunder', tmp: true, fx: 'thunder', short: '开战时：所有敌人受 2 伤害' },
+  { id: 's_recruit', name: '招募令', tier: 1, text: '发现同标签单位', icon: 'can', spell: true },
+  { id: 's_bank', name: '储金罐', tier: 1, text: '下回合 +5 金', icon: 'can', spell: true },
+  { id: 's_conscript', name: '征兵', tier: 2, text: '发现最高阶单位', icon: 'can', spell: true },
+  { id: 's_copy', name: '复刻', tier: 3, text: '一个友军多叠 1 份', icon: 'can', spell: true },
+  { id: 's_rebirth', name: '转生', tier: 3, text: '发现高一阶单位替换', icon: 'can', spell: true },
+  { id: 's_prophecy', name: '预言', tier: 4, text: '下回合货架必出高一阶单位', icon: 'can', spell: true },
+  { id: 's_dismiss', name: '遣散', tier: 4, text: '出售友军并发现同阶单位', icon: 'can', spell: true },
+  { id: 's_war', name: '战备', tier: 5, text: '本回合免费刷新 2 次', icon: 'can', spell: true },
   { id: 'f_milk', name: '牛奶', tier: 1, text: '免费！一个友军永久 +{a}/+{h}', icon: 'milk', price: 0, noPool: true, short: '免费！' },
 ];
 /** 补给文案（牛奶带货架上的数值） */
 export const foodText = (id: string, val?: [number, number]) =>
   FOOD[id].text.replace('+{a}/+{h}', val ? `+${val[0]}/+${val[1]}` : '攻血');
 export const FOOD: Record<string, FoodDef> = Object.fromEntries(FOODS.map((f) => [f.id, f]));
-export const FOOD_POOL = FOODS.filter((f) => !f.noPool);
+export const FOOD_POOL = FOODS.filter((f) => !f.noPool && !['f_bomb', 'f_elixir', 'f_fury', 'f_undy', 'f_thunder'].includes(f.id));
 
 // ── 词条原子库（装备 / 精英词缀共用，全部带上限） ──
 export type Atom = 'exec' | 'reap' | 'undying' | 'pierce' | 'shield' | 'burn' | 'fury' | 'charge';
@@ -207,7 +217,7 @@ export const ATOM_INFO: Record<Atom, { name: string; desc: string; icon: string 
   undying: { name: '不屈', desc: '致命伤时锁住 1 血，两次交锋结算后倒下（触发当次计入）；期间不回血、不触发受伤，每场 1 次。', icon: 'eq_banner' },
   pierce: { name: '穿透', desc: '交锋击杀时，溢出的伤害打身后下一个敌人。', icon: 'eq_bow' },
   shield: { name: '护盾', desc: '开战时获得 20% 最大血的护盾，先于血量扣除。', icon: 'sp_shield' },
-  burn: { name: '灼烧', desc: '交锋打中的敌人叠 1 层灼烧（最多 3 层），每次交锋后每层扣 2 血，无视格挡。', icon: 'sp_firerain' },
+  burn: { name: '灼烧', desc: '交锋打中的敌人叠 1 层灼烧（最多 3 层），每次交锋后每层造成 2 伤害，无视格挡，护盾可吸收。', icon: 'sp_firerain' },
   fury: { name: '战意', desc: '每次交锋后本场 +1 攻（最多 +5）。', icon: 'sp_warsong' },
   charge: { name: '冲锋', desc: '第一次交锋伤害 ×2。', icon: 'eq_boots' },
 };

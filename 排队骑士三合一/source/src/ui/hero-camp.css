@@ -1,0 +1,832 @@
+/* 出征营地 · 全屏开放式像素英雄展示台
+ * 保持全站直角像素语法（border-radius: 0），去弹窗化、去灰底小药丸，强调角色气场与动效反馈。 */
+
+.screen.hero-camp {
+  --hc-accent: #f5b642;
+  --hc-glow: #ff6238;
+  --hc-bg: #261419;
+  --hc-danger: 0;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    radial-gradient(ellipse 68% 64% at 32% 48%, color-mix(in srgb, var(--hc-accent) 18%, transparent), transparent 68%),
+    radial-gradient(ellipse 56% 52% at 28% 72%, color-mix(in srgb, var(--hc-glow) 16%, transparent), transparent 64%),
+    linear-gradient(180deg, #0b0a18 0%, var(--hc-bg) 62%, #0a0915 100%);
+  transition: background 420ms ease;
+}
+
+/* 难度氛围覆盖层：困难加深战云，噩梦叠加暗红脉动警戒暗角 */
+.hero-camp::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 84% 76% at 50% 48%, transparent 48%, rgba(168, 20, 42, .46) 100%),
+    linear-gradient(180deg, rgba(120, 12, 28, .22), transparent 30%, rgba(92, 10, 22, .32) 100%);
+  transition: opacity 360ms ease;
+}
+.hero-camp.diff-1::before {
+  opacity: .38;
+}
+.hero-camp.diff-2::before {
+  opacity: .92;
+  animation: hc-nightmare-pulse 2.6s ease-in-out infinite;
+}
+
+/* 半分辨率像素粒子画布（星点、英雄主题余烬/星尘、斜光柱、地面反射） */
+.hc-canvas {
+  position: absolute;
+  inset: 0;
+  width: 1280px;
+  height: 720px;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 1;
+}
+
+/* 营地像素地平线与远山石阶层 */
+.hc-horizon {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 228px;
+  pointer-events: none;
+  z-index: 2;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--hc-accent) 28%, #282246) 0,
+      color-mix(in srgb, var(--hc-accent) 28%, #282246) 2px,
+      rgba(12, 11, 24, .76) 2px,
+      rgba(9, 8, 18, .92) 56%,
+      rgba(6, 5, 13, .98) 100%);
+}
+.hc-horizon::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -6px;
+  height: 6px;
+  background: repeating-linear-gradient(90deg,
+    color-mix(in srgb, var(--hc-accent) 44%, transparent) 0 8px,
+    transparent 8px 18px);
+  opacity: .55;
+}
+
+/* ── 顶栏：极简开放布局，左返回 + 标题，右三档难度战旗 ── */
+.hc-top {
+  position: relative;
+  z-index: 6;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 36px 0;
+}
+.hc-top-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.hc-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 16px;
+  background: rgba(15, 14, 30, .78);
+  border: 2px solid #595083;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .1), 0 4px 0 #090714;
+  color: #e9e2ff;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 90ms ease, border-color 140ms ease, background 140ms ease;
+}
+.hc-back:hover {
+  border-color: var(--hc-accent);
+  background: rgba(28, 24, 52, .9);
+  color: #fff6dc;
+  transform: translateY(-1px);
+}
+.hc-back:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, .25), 0 1px 0 #090714;
+}
+.hc-back-arrow {
+  color: var(--hc-accent);
+  font-size: 18px;
+  line-height: 1;
+}
+.hc-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.hc-kicker {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .24em;
+  color: var(--hc-accent);
+  text-shadow: 0 2px 0 #090616;
+}
+.hc-unlock-meta {
+  font-size: 13px;
+  color: #a99ec9;
+  letter-spacing: .04em;
+}
+
+.hc-diff-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 7px;
+}
+.hc-diff-bar {
+  display: flex;
+  gap: 8px;
+}
+.hc-diff-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 152px;
+  height: 44px;
+  padding: 0 14px;
+  background: rgba(15, 13, 28, .76);
+  border: 2px solid #443c69;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .07), 0 4px 0 #090714;
+  color: #cfc6ea;
+  cursor: pointer;
+  transition: transform 100ms ease, border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+.hc-diff-tab b {
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-shadow: 0 2px 0 #090616;
+}
+.hc-diff-tab.d0 b { color: #75e8a2; }
+.hc-diff-tab.d1 b { color: #ffc157; }
+.hc-diff-tab.d2 b { color: #ff6982; }
+.hc-diff-tab:hover {
+  border-color: #8476b8;
+  background: rgba(28, 24, 52, .9);
+  transform: translateY(-2px);
+}
+.hc-diff-tab.on {
+  background: linear-gradient(180deg, rgba(48, 39, 82, .96), rgba(26, 20, 48, .98));
+  border-color: #f4d378;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 240, 186, .35),
+    0 4px 0 #090714,
+    0 0 18px rgba(244, 211, 120, .28);
+  transform: translateY(-2px);
+}
+.hc-diff-tab.d2.on {
+  background: linear-gradient(180deg, rgba(84, 24, 40, .96), rgba(44, 14, 26, .98));
+  border-color: #ff6982;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 170, 186, .32),
+    0 4px 0 #090714,
+    0 0 22px rgba(255, 72, 108, .42);
+}
+.hc-diff-tab.on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  height: 3px;
+  background: currentColor;
+}
+.hc-diff-tab.d0.on::after { background: #75e8a2; }
+.hc-diff-tab.d1.on::after { background: #ffc157; }
+.hc-diff-tab.d2.on::after { background: #ff6982; }
+.hc-hearts {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.hc-hearts .life {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+}
+.hc-diff-tab.on .hc-hearts .life {
+  animation: hc-heart-pop 340ms cubic-bezier(.2, 1.4, .4, 1) both;
+}
+.hc-diff-desc {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #d6cceb;
+  letter-spacing: .04em;
+  text-shadow: 0 2px 0 #090616;
+}
+.hero-camp.diff-2 .hc-diff-desc {
+  color: #ffa5b4;
+}
+
+/* ── 中部开放展示主舞台：左大型角色祭坛 + 右无框档案与出征 CTA ── */
+.hc-main {
+  position: relative;
+  z-index: 4;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 600px minmax(0, 1fr);
+  align-items: center;
+  padding: 0 52px 8px 36px;
+}
+
+/* 左侧：英雄动态展台 */
+.hc-stage {
+  position: relative;
+  height: 468px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 56px;
+}
+
+/* 斜切战旗光带（像素硬边，随英雄主色变化） */
+.hc-banner-slash {
+  position: absolute;
+  left: 112px;
+  top: 8px;
+  width: 344px;
+  height: 432px;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--hc-accent) 24%, transparent) 0%,
+      color-mix(in srgb, var(--hc-glow) 14%, transparent) 58%,
+      transparent 100%);
+  clip-path: polygon(16% 0%, 100% 0%, 84% 100%, 0% 100%);
+  transition: background 360ms ease;
+}
+.hc-banner-slash::before,
+.hc-banner-slash::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 24px;
+  width: 3px;
+  background: linear-gradient(180deg, var(--hc-accent), transparent 88%);
+  opacity: .55;
+}
+.hc-banner-slash::before {
+  left: 52px;
+  transform: skewX(-8deg);
+}
+.hc-banner-slash::after {
+  right: 52px;
+  transform: skewX(-8deg);
+  opacity: .28;
+}
+
+/* 巨型主题汉字水印（纯气氛背景，不抢信息） */
+.hc-watermark {
+  position: absolute;
+  left: 24px;
+  top: 24px;
+  font-size: 164px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: .04em;
+  color: var(--hc-accent);
+  opacity: .09;
+  user-select: none;
+  pointer-events: none;
+  white-space: nowrap;
+  text-shadow: 6px 6px 0 rgba(0, 0, 0, .55);
+}
+
+/* 多层像素石阶祭坛 + 发光法阵环 */
+.hc-altar {
+  position: absolute;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 360px;
+  height: 76px;
+  pointer-events: none;
+}
+.hc-altar-ring {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  width: 288px;
+  height: 46px;
+  transform: translateX(-50%);
+  border: 2px solid color-mix(in srgb, var(--hc-accent) 72%, #fff);
+  box-shadow:
+    inset 0 0 18px color-mix(in srgb, var(--hc-accent) 36%, transparent),
+    0 0 26px color-mix(in srgb, var(--hc-glow) 34%, transparent);
+  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--hc-accent) 24%, transparent), transparent 72%);
+  animation: hc-altar-breathe 2.4s ease-in-out infinite;
+}
+.hc-altar-ring::before {
+  content: '';
+  position: absolute;
+  inset: 6px 18px;
+  border: 2px dashed color-mix(in srgb, var(--hc-accent) 55%, transparent);
+}
+.hc-altar-slab {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: 332px;
+  height: 22px;
+  background: linear-gradient(180deg, #352e58 0 6px, #211c3a 6px 14px, #120f24 14px 22px);
+  border: 2px solid #594f86;
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--hc-accent) 42%, #8e82c4),
+    0 8px 0 rgba(5, 4, 12, .75);
+}
+.hc-altar-slab::before {
+  content: '';
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  top: -8px;
+  height: 8px;
+  background: #2b2448;
+  border: 2px solid #6b5f9e;
+  border-bottom: 0;
+}
+
+/* 大号活体英雄精灵（点击可再次挥砍/施法演示！） */
+.hc-hero-figure {
+  position: relative;
+  z-index: 3;
+  width: 268px;
+  height: 300px;
+  margin-bottom: 6px;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  outline: none;
+  filter: drop-shadow(0 14px 0 rgba(6, 5, 14, .68)) drop-shadow(0 0 24px color-mix(in srgb, var(--hc-accent) 34%, transparent));
+  transition: filter 220ms ease, transform 180ms ease;
+}
+.hc-hero-figure:hover {
+  filter: drop-shadow(0 14px 0 rgba(6, 5, 14, .75)) drop-shadow(0 0 34px color-mix(in srgb, var(--hc-accent) 62%, transparent));
+}
+.hc-hero-figure .uart.duelyst {
+  width: 268px;
+  height: 300px;
+}
+/* 展示台上使用 selectedImage 战备呼吸姿态，比普通 idle 更有张力 */
+.hc-hero-figure .uart.duelyst .duelyst-normal {
+  background-image: var(--duelyst-selected-image);
+}
+.hc-hero-figure.is-locked .uart.duelyst {
+  filter: brightness(0) saturate(0) drop-shadow(0 0 6px color-mix(in srgb, var(--hc-accent) 65%, transparent));
+  opacity: .84;
+}
+.hero-camp .hidden {
+  display: none !important;
+}
+
+.hc-lock-seal {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  z-index: 6;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  background: rgba(12, 10, 24, .94);
+  border: 2px solid var(--hc-accent);
+  box-shadow: 0 5px 0 #080612, 0 0 28px rgba(0, 0, 0, .82);
+  color: #ffe8a8;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: .06em;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.hc-lock-seal .ic {
+  width: 18px;
+  height: 18px;
+  color: var(--hc-accent);
+}
+.hc-poke-hint {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  color: color-mix(in srgb, var(--hc-accent) 72%, #d8d0f0);
+  opacity: .58;
+  pointer-events: none;
+  text-shadow: 0 2px 0 #080614;
+  transition: opacity 180ms ease;
+}
+.hc-stage:hover .hc-poke-hint {
+  opacity: .95;
+}
+
+/* 右侧：无框开放式英雄档案（彻底消灭灰底框与套娃框） */
+.hc-dossier {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 8px 0 18px 20px;
+}
+.hc-role-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.hc-role-bar {
+  width: 28px;
+  height: 4px;
+  background: var(--hc-accent);
+  box-shadow: 0 0 12px var(--hc-accent);
+}
+.hc-role-text {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .18em;
+  color: var(--hc-accent);
+  text-shadow: 0 2px 0 #090616;
+}
+.hc-name {
+  margin: 0 0 22px;
+  font-size: 52px;
+  font-weight: 900;
+  line-height: 1.06;
+  letter-spacing: .04em;
+  color: #fff6e0;
+  text-shadow:
+    0 4px 0 #090616,
+    0 0 28px color-mix(in srgb, var(--hc-accent) 32%, transparent);
+}
+
+/* 英雄能力块：开放左竖光条 + 像素金币/星芒内联标识 + 大号高亮技能文（零灰框、零光晕矩形！） */
+.hc-ability {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  padding: 2px 0 4px 22px;
+}
+.hc-ability::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 4px;
+  width: 4px;
+  background: var(--hc-accent);
+  box-shadow: 0 0 14px var(--hc-accent);
+}
+.hc-ability-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .06em;
+}
+.hc-ability-meta .pxi {
+  width: 20px;
+  height: 20px;
+}
+.hc-ability-meta .ic {
+  width: 17px;
+  height: 17px;
+  color: var(--hc-accent);
+}
+.hc-cost-val {
+  color: #ffd972;
+  font-size: 17px;
+  font-weight: 900;
+  text-shadow: 0 2px 0 #090616;
+}
+.hc-skill-kind {
+  color: #bfb5de;
+  font-weight: 700;
+}
+.hc-skill-kind.passive {
+  color: color-mix(in srgb, var(--hc-accent) 82%, #f4edff);
+}
+.hc-ability-text {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.55;
+  color: #f6eedc;
+  text-shadow: 0 2px 0 #090616;
+}
+.hc-ability-tip {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #a89dc9;
+  letter-spacing: .02em;
+}
+
+/* 出征 CTA 区：保留硬朗实心像素金按钮 + 周期斜向像素扫光 */
+.hc-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+.hc-go.btn.primary {
+  position: relative;
+  overflow: hidden;
+  min-width: 248px;
+  height: 60px;
+  padding: 0 32px;
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.hc-go.btn.primary:not(:disabled)::after {
+  content: '';
+  position: absolute;
+  top: -12px;
+  bottom: -12px;
+  left: -48%;
+  width: 34%;
+  background: linear-gradient(90deg, transparent, rgba(255, 252, 232, .48), transparent);
+  transform: skewX(-22deg);
+  pointer-events: none;
+  animation: hc-sheen 3.4s ease-in-out infinite;
+}
+.hc-go.btn.primary:disabled {
+  min-width: 268px;
+  font-size: 17px;
+  letter-spacing: .05em;
+  opacity: .72;
+}
+.hc-pick-unlocked.btn.ghost {
+  height: 52px;
+  padding: 0 18px;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* ── 底部全阵容英雄选择带（6位全展示，已解锁立选，未解锁神秘剪影） ── */
+.hc-roster-wrap {
+  position: relative;
+  z-index: 6;
+  padding: 0 36px 20px;
+}
+.hc-roster {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+  align-items: end;
+}
+.hc-slot {
+  --slot-accent: #f5b642;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 112px;
+  padding: 0 8px 10px;
+  background: linear-gradient(180deg, rgba(24, 21, 44, .78), rgba(13, 11, 26, .94));
+  border: 2px solid #413968;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, .07),
+    0 5px 0 #080614;
+  color: #dcd4f2;
+  cursor: pointer;
+  transition: transform 140ms cubic-bezier(.2, 1.3, .4, 1), border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+}
+.hc-slot:hover {
+  transform: translateY(-5px);
+  border-color: color-mix(in srgb, var(--slot-accent) 78%, #fff);
+  background: linear-gradient(180deg, rgba(38, 33, 68, .92), rgba(19, 16, 38, .96));
+}
+.hc-slot:hover .hc-slot-art .uart.duelyst .duelyst-normal {
+  background-image: var(--duelyst-selected-image);
+}
+.hc-slot.on {
+  transform: translateY(-9px);
+  border-color: var(--slot-accent);
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--slot-accent) 26%, #241e44),
+    rgba(18, 15, 36, .98));
+  box-shadow:
+    inset 0 2px 0 color-mix(in srgb, var(--slot-accent) 62%, #fff),
+    0 7px 0 #070512,
+    0 0 24px color-mix(in srgb, var(--slot-accent) 42%, transparent);
+}
+/* 选中槽位顶部的发光像素指示三角 + 底边主题光条 */
+.hc-slot.on::before {
+  content: '';
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--slot-accent);
+  filter: drop-shadow(0 0 6px var(--slot-accent));
+  animation: hc-arrow-bob 1.2s ease-in-out infinite;
+}
+.hc-slot.on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--slot-accent);
+}
+.hc-slot-art {
+  position: relative;
+  width: 78px;
+  height: 86px;
+  margin-top: -16px;
+  margin-bottom: 2px;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 0 rgba(6, 5, 14, .75));
+}
+.hc-slot-art .uart.duelyst {
+  width: 78px;
+  height: 86px;
+}
+.hc-slot.on .hc-slot-art .uart.duelyst .duelyst-normal {
+  background-image: var(--duelyst-selected-image);
+}
+.hc-slot-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  color: #ebe4ff;
+  text-shadow: 0 2px 0 #080614;
+}
+.hc-slot.on .hc-slot-name {
+  color: #fff6dc;
+}
+.hc-slot-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--slot-accent);
+  flex: none;
+}
+
+/* 未解锁槽位：神秘剪影 + 像素小锁，仍可点击预览解锁条件 */
+.hc-slot.is-locked {
+  background: linear-gradient(180deg, rgba(16, 14, 28, .72), rgba(9, 8, 18, .92));
+  border-color: #2d2748;
+  color: #7d739e;
+}
+.hc-slot.is-locked .hc-slot-art .uart.duelyst {
+  filter: brightness(0) saturate(0) drop-shadow(0 0 2px rgba(180, 166, 238, .48));
+  opacity: .72;
+}
+.hc-slot.is-locked .hc-slot-name {
+  color: #887ea8;
+}
+.hc-slot-lock {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 15px;
+  height: 15px;
+  color: #7d739e;
+}
+.hc-slot.is-locked.on {
+  border-color: #9e8ec8;
+  box-shadow: inset 0 2px 0 rgba(210, 198, 255, .24), 0 6px 0 #070512, 0 0 18px rgba(158, 142, 200, .28);
+}
+.hc-slot.is-locked.on .hc-slot-lock {
+  color: #ffd972;
+}
+
+/* ── 动效关键帧 ── */
+@keyframes hc-altar-breathe {
+  0%, 100% {
+    opacity: .78;
+    box-shadow: inset 0 0 14px color-mix(in srgb, var(--hc-accent) 30%, transparent), 0 0 18px color-mix(in srgb, var(--hc-glow) 26%, transparent);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: inset 0 0 24px color-mix(in srgb, var(--hc-accent) 52%, transparent), 0 0 32px color-mix(in srgb, var(--hc-glow) 48%, transparent);
+  }
+}
+@keyframes hc-arrow-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+@keyframes hc-sheen {
+  0%, 66% { left: -48%; }
+  100% { left: 132%; }
+}
+@keyframes hc-heart-pop {
+  0% { transform: scale(.6); }
+  60% { transform: scale(1.24); }
+  100% { transform: scale(1); }
+}
+@keyframes hc-nightmare-pulse {
+  0%, 100% { opacity: .76; }
+  50% { opacity: 1; }
+}
+
+/* ── 手机横屏紧凑适配（844×390 等触控优先，严格锁在 1280×720 舞台内不裁切） ── */
+#stage.compact .hc-top {
+  padding: 14px 24px 0;
+}
+#stage.compact .hc-back {
+  height: 50px;
+  padding: 0 18px;
+  font-size: 18px;
+}
+#stage.compact .hc-diff-tab {
+  min-width: 162px;
+  height: 50px;
+  padding: 0 14px;
+}
+#stage.compact .hc-diff-tab b {
+  font-size: 19px;
+}
+#stage.compact .hc-diff-desc {
+  font-size: 15px;
+}
+#stage.compact .hc-main {
+  grid-template-columns: 540px minmax(0, 1fr);
+  padding: 0 36px 0 24px;
+}
+#stage.compact .hc-stage {
+  height: 432px;
+  padding-bottom: 46px;
+}
+#stage.compact .hc-altar {
+  bottom: 18px;
+}
+#stage.compact .hc-hero-figure,
+#stage.compact .hc-hero-figure .uart.duelyst {
+  width: 244px;
+  height: 274px;
+}
+#stage.compact .hc-name {
+  font-size: 46px;
+  margin-bottom: 14px;
+}
+#stage.compact .hc-ability-text {
+  font-size: 21px;
+}
+#stage.compact .hc-cta-row {
+  margin-top: 22px;
+}
+#stage.compact .hc-go.btn.primary {
+  height: 62px;
+  min-width: 256px;
+  font-size: 23px;
+}
+#stage.compact .hc-roster-wrap {
+  padding: 0 24px 16px;
+}
+#stage.compact .hc-slot {
+  height: 108px;
+}
+#stage.compact .hc-slot-name {
+  font-size: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-camp::before,
+  .hc-altar-ring,
+  .hc-slot.on::before,
+  .hc-go.btn.primary::after,
+  .hc-diff-tab.on .hc-hearts .life {
+    animation: none !important;
+  }
+  .hc-slot, .hc-diff-tab, .hc-back {
+    transition: none;
+  }
+}

@@ -1,0 +1,217 @@
+import type { RunState } from '../core/run';
+import { prepareTutorialStep, tutorialStepDone, tutorialPositionAllowed, TUTORIAL_UNIT, TUTORIAL_ALLY, type TutorialStep } from '../core/tutorial';
+import { h, STAGE_W, STAGE_H, stageState, toStage } from '../qb/dom';
+import { sfx } from '../qb/audio';
+import { hideTip } from '../qb/tip';
+import '../qb/css/tutorial-guide.css';
+
+// Presentation and target placement are reused from 奇兵列阵/ui/tutorial.ts.
+// Only the lesson route and legal actions belong to 排队骑士.
+export const TUTORIAL_FLAG = 'pdqs3_tutorial_done_v1';
+export function tutorialDone() { try { return localStorage.getItem(TUTORIAL_FLAG) === '1'; } catch { return false; } }
+interface Rect { x: number; y: number; w: number; h: number }
+type Action = { kind: 'buy' | 'food' | 'move' | 'equip' | 'sell' | 'lock' | 'reroll' | 'battle' | 'discover' | 'other'; slot?: number; from?: number; def?: string };
+interface Host { el: HTMLElement; run: RunState; busy(): boolean; render(): void; finish(): void }
+interface Step { id: TutorialStep | 'welcome' | 'rules' | 'report'; text: string; at: string[]; tap?: boolean }
+// Read the rendered pedestal, number and unit together so layout shifts and
+// occupied/empty slots keep the lesson's highlight and input guard aligned.
+const slot = (n: number) => `.board .slot[data-side="0"][data-slot="${n}"] :is(.ped, .slot-num), .board .unit[data-side="0"][data-slot="${n}"]`;
+const first = '.tray .cards > .card:first-child';
+const food = '.tray .cards > .food-tile';
+const STEPS: Step[] = [
+  { id: 'welcome', tap: true, at: [slot(0), slot(4)], text: '这是独立教学。<br>左边是你的队伍，靠近中线的 <b>1 号位是前排</b>。' },
+  { id: 'buy', at: [first, slot(0)], text: '把<b>掷弹手</b>拖到 <b>1 号位</b>（花 <b>3 金</b>）。<br>点一下卡牌可看技能。' },
+  { id: 'merge', at: [first, slot(0)], text: '把第二张<b>掷弹手</b>拖到它身上，合并同名单位。' },
+  { id: 'star', at: [first, slot(0)], text: '再合并一张：<b>3 张同名变金色</b>，基础攻血翻倍。<br>合成后还能免费选一张单位，放进手牌。' },
+  { id: 'discover', at: ['.disc-ov:not(.peek):not(.closing) .disc-cards', '.disc-ov:not(.peek):not(.closing) .disc-take', '.disc-ov:not(.closing) .disc-peek'], text: '三张里<b>免费选一张</b>，放进手牌。<br>点卡片，再点<b>选择</b>。<b>查看战场</b>可随时往返。' },
+  { id: 'lock', at: [food], text: '点开<b>面包</b>，选择<b>锁定</b>，留到下一回合。' },
+  { id: 'reroll', at: ['.tray .reroll:not(.rewarded)'], text: '点<b>刷新</b>（花 <b>1 金</b>）。锁定的面包会保留。' },
+  { id: 'rules', tap: true, at: [slot(0)], text: '双方队首互相攻击，叫作一次<b>交锋</b>。<br>前排阵亡后，身后队友接战。' },
+  { id: 'battle1', at: ['.tray .fight'], text: '点<b>开战</b>，先看一场普通交锋。' },
+  { id: 'report', tap: true, at: ['.result-ov .res-review, .result-ov.review-only .res-card'], text: '点<b>复盘</b>查看伤害和战斗过程。<br>看完点<b>返回</b>，再点<b>知道了</b>和结算中的<b>继续</b>。' },
+  { id: 'ally', at: [first, slot(1)], text: '把<b>鳞甲盾卫</b>拖到 <b>2 号位</b>。' },
+  { id: 'food', at: [food, slot(0)], text: '把<b>面包</b>拖给<b>投石手</b>，永久 +1 攻击、+1 生命。' },
+  { id: 'position', at: [slot(0), slot(1)], text: '把<b>盾手与投石手交换位置</b>，拖到对方身上即可。<br>盾手在前面挡伤害，投石手在后排蓄能，接战时开炮。' },
+  { id: 'equip', at: ['.bag-strip', slot(0)], text: '把背包里的<b>锁子甲</b>拖给<b>前排盾手</b>。' },
+  { id: 'battle2', at: ['.tray .fight'], text: '点<b>开战</b>，看看盾手掩护、投石手蓄能开炮。' },
+  { id: 'done', tap: true, at: [], text: '<b>教学完成。</b><br>拖单位到招募栏可出售，点开详情也能出售。接下来搭配你自己的队伍吧。' },
+];
+
+export class Tutorial {
+  private i = 0;
+  private el = h('div', { class: 'tut' });
+  private mask = h('div', { class: 'tut-mask' });
+  private ring = h('div', { class: 'tut-rings' });
+  private box = h('div', { class: 'tut-box', role: 'status', 'aria-live': 'polite' });
+  private timer = 0;
+  private rects: Rect[] = [];
+  private disposed = false;
+  private sig = '';
+  private shown = false;
+  private resultCount = 0;
+  constructor(private host: Host) {
+    const skip = h('button', { class: 'tut-skip' }, '跳过教学');
+    skip.addEventListener('click', () => this.finish(false));
+    this.el.append(this.mask, this.ring, this.box, skip);
+    host.el.appendChild(this.el);
+    for (const t of ['pointerdown', 'click', 'keydown', 'wheel'] as const) host.el.addEventListener(t, this.guard, true);
+    this.timer = window.setInterval(() => this.update(), 100);
+  }
+  dispose() {
+    this.disposed = true;
+    clearInterval(this.timer);
+    for (const t of ['pointerdown', 'click', 'keydown', 'wheel'] as const) this.host.el.removeEventListener(t, this.guard, true);
+    this.el.remove();
+  }
+  private finish(completed: boolean) {
+    if (this.disposed) return;
+    if (completed) { try { localStorage.setItem(TUTORIAL_FLAG, '1'); } catch { /* storage unavailable */ } }
+    hideTip(); this.dispose(); this.host.finish();
+  }
+  complete() { if (this.resultCount >= 2) this.finish(true); }
+  result() { this.resultCount++; this.update(); }
+  refresh() { this.update(); }
+  allows(a: Action) {
+    const id = STEPS[this.i].id;
+    if (id === 'discover') return a.kind === 'discover' && !!this.host.el.querySelector('.disc-ov:not(.closing)');
+    if (this.host.busy()) return false;
+    if (['buy', 'merge', 'star'].includes(id)) return a.kind === 'buy' && a.slot === 0 && a.def === TUTORIAL_UNIT;
+    if (id === 'ally') return a.kind === 'buy' && a.slot === 1 && a.def === TUTORIAL_ALLY;
+    if (id === 'food') return a.kind === 'food' && a.slot === 0 && a.def === 'f_bread';
+    if (id === 'position') return a.kind === 'move' && tutorialPositionAllowed(a.from, a.slot);
+    if (id === 'equip') return a.kind === 'equip' && a.slot === 0;
+    if (id === 'lock') return a.kind === 'lock' && a.def === 'f_bread';
+    return (id === 'reroll' && a.kind === 'reroll') || ((id === 'battle1' || id === 'battle2') && a.kind === 'battle');
+  }
+  private next() {
+    hideTip();
+    this.i++; this.shown = false; this.sig = '';
+    const s = STEPS[this.i];
+    if (!s) { this.finish(true); return; }
+    if (!['welcome', 'rules', 'report'].includes(s.id)) {
+      prepareTutorialStep(this.host.run, s.id as TutorialStep);
+      if (!this.host.busy()) this.host.render();
+    }
+    this.update();
+  }
+  private resolve(t: string): Rect | null {
+    const bounds = [...this.host.el.querySelectorAll<HTMLElement>(t)]
+      .filter(e => e.isConnected && e.getClientRects().length)
+      .map(e => e.getBoundingClientRect())
+      .filter(b => b.width > 0 && b.height > 0);
+    if (!bounds.length) return null;
+    const a = toStage(Math.min(...bounds.map(b => b.left)), Math.min(...bounds.map(b => b.top)));
+    const z = toStage(Math.max(...bounds.map(b => b.right)), Math.max(...bounds.map(b => b.bottom)));
+    return { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
+  }
+  private resolveTargets(): Rect[] {
+    return STEPS[this.i].at.map(t => this.resolve(t)).filter((r): r is Rect => !!r)
+      .map(r => ({ x: r.x - 6, y: r.y - 6, w: r.w + 12, h: r.h + 12 }));
+  }
+  private active() {
+    const id = STEPS[this.i].id;
+    if (id === 'done') return false;
+    if (id === 'report') return !!this.host.el.querySelector('.result-ov');
+    if (id === 'discover') return !!this.host.el.querySelector('.disc-ov:not(.closing)');
+    return !this.host.busy() && !this.host.el.querySelector('.result-ov');
+  }
+  private update() {
+    if (this.disposed) return;
+    const s = STEPS[this.i];
+    // Discovery owns the busy lock. Enter when its dialog mounts; leave after
+    // its reward animation closes and prep releases that lock.
+    const discover = this.host.el.querySelector('.disc-ov');
+    const complete = s.id === 'battle1' ? this.resultCount >= 1 : s.id === 'battle2' ? this.resultCount >= 2 :
+      s.id === 'star' ? tutorialStepDone(this.host.run, 'star') && (this.active() || !!discover) :
+      s.id === 'discover' ? !discover && !this.host.busy() && tutorialStepDone(this.host.run, 'discover') :
+      !s.tap && this.active() && tutorialStepDone(this.host.run, s.id as TutorialStep);
+    if (complete) { this.next(); return; }
+    const on = this.active();
+    this.el.classList.toggle('on', on);
+    this.el.classList.toggle('focus-fight', s.id === 'battle1' || s.id === 'battle2');
+    const peeking = s.id === 'discover' && !!discover?.classList.contains('peek');
+    this.el.classList.toggle('discover-peek', peeking);
+    this.el.dataset.step = s.id;
+    if (!on) { this.shown = false; this.sig = ''; return; }
+    this.rects = this.resolveTargets();
+    const tip = document.querySelector<HTMLElement>('.tip.on');
+    const sig = `${this.i}|${peeking}|${STAGE_H}|${stageState.scale}|${tip?.textContent}|${JSON.stringify(this.rects)}`;
+    if (sig === this.sig && this.shown) return;
+    this.sig = sig;
+    const holes = this.rects.map(r => `M${r.x},${r.y}h${r.w}v${r.h}h${-r.w}z`).join('');
+    this.mask.innerHTML = `<svg viewBox="0 0 ${STAGE_W} ${STAGE_H}" width="${STAGE_W}" height="${STAGE_H}"><path fill-rule="evenodd" d="M0,0H${STAGE_W}V${STAGE_H}H0z${holes}"/></svg>`;
+    this.ring.replaceChildren(...this.rects.map(r => h('div', { class: 'tut-ring', style: `left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px` })));
+    if (!this.shown || s.id === 'discover') {
+      this.shown = true;
+      const btn = s.tap ? h('button', { class: 'btn primary tut-ok' }, h('span', null, s.id === 'report' ? '知道了' : s.id === 'done' ? '完成' : '继续')) : null;
+      btn?.addEventListener('click', () => { sfx.click(); this.next(); });
+      const text = peeking ? '看看队伍和手牌。<br>点<b>返回三选一</b>，继续选卡。' : s.text;
+      this.box.replaceChildren(h('div', { class: 'tut-step' }, `${this.i + 1}/${STEPS.length - 1}`), h('div', { class: 'tut-text', html: text }), ...(btn ? [btn] : []));
+    }
+    this.place();
+  }
+
+  /** 说明框：在候选位置里挑与高亮区域重叠最少的，尽量贴近第一个高亮 */
+  private place() {
+    const choosing = STEPS[this.i].id === 'discover' && !this.el.classList.contains('discover-peek');
+    const W = choosing ? 720 : Math.max(440, Math.min(720, 320 / stageState.scale)), M = 12;
+    this.box.style.width = `${W}px`;
+    if (choosing) { this.box.style.cssText = `left:${(STAGE_W - W) / 2}px;top:84px;width:${W}px`; return; }
+    const H = this.box.offsetHeight || 150;
+    const f = this.rects[0];
+    const clampX = (x: number) => Math.max(16, Math.min(STAGE_W - W - 16, x));
+    const clampY = (y: number) => Math.max(84, Math.min(STAGE_H - H - 12, y));
+    const cx = f ? clampX(f.x + f.w / 2 - W / 2) : STAGE_W / 2 - W / 2;
+    const cand: { x: number; y: number }[] = [];
+    if (f) {
+      cand.push({ x: cx, y: clampY(f.y - H - M) }, { x: cx, y: clampY(f.y + f.h + M) });
+      cand.push({ x: clampX(f.x + f.w + M), y: clampY(f.y + f.h / 2 - H / 2) }, { x: clampX(f.x - W - M), y: clampY(f.y + f.h / 2 - H / 2) });
+    }
+    for (const y of [92, STAGE_H / 2 - H / 2, STAGE_H - H - 12]) for (const x of [cx, 16, STAGE_W - W - 16]) cand.push({ x, y: clampY(y) });
+    // 固定退出入口也参与避让，不能被移动中的讲解框盖住。
+    const skip = this.resolve('.tut-skip');
+    const avoid = skip ? [...this.rects, { x: skip.x - 12, y: skip.y - 12, w: skip.w + 24, h: skip.h + 24 }] : [...this.rects];
+    // 查看详情时仍需读说明并点继续；详情出现、移动或关闭后重新避让。
+    const tip = this.tipRect();
+    if (tip) avoid.push(tip);
+    const overlap = (p: { x: number; y: number }) => avoid.reduce((a, r) =>
+      a + Math.max(0, Math.min(p.x + W, r.x + r.w) - Math.max(p.x, r.x)) * Math.max(0, Math.min(p.y + H, r.y + r.h) - Math.max(p.y, r.y)), 0);
+    let best = cand[0], score = Infinity;
+    for (const p of cand) { const o = overlap(p); if (o < score - 1) { best = p; score = o; } }
+    this.box.style.cssText = `left:${best.x}px;top:${best.y}px;width:${W}px`;
+  }
+
+  private tipRect(): Rect | null {
+    const tip = document.querySelector<HTMLElement>('.tip.on');
+    if (!tip) return null;
+    const b = tip.getBoundingClientRect(), a = toStage(b.left, b.top), z = toStage(b.right, b.bottom);
+    return { x: a.x, y: a.y, w: z.x - a.x, h: z.y - a.y };
+  }
+  private guard = (e: Event) => {
+    if (this.disposed || !this.active()) return;
+    const t = e.target as HTMLElement | null;
+    if (t && this.el.contains(t)) return;
+    // Overlays can change between timer ticks; validate against their live DOM
+    // without advancing the lesson while handling the user's current input.
+    const rects = this.resolveTargets();
+    // The existing detail popup lives outside Game. Mutations are independently
+    // checked in Game, so opening a detail never grants permission to buy/sell.
+    const allowed = (el: HTMLElement) => {
+      if (this.el.contains(el)) return true;
+      const b = el.getBoundingClientRect(), p = toStage(b.left + b.width / 2, b.top + b.height / 2);
+      return rects.some(r => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h);
+    };
+    if (e instanceof KeyboardEvent) {
+      if (e.key === 'Tab') {
+        const targets = [...this.host.el.querySelectorAll<HTMLElement>('button:not(:disabled),[tabindex="0"]')].filter(el => el.getClientRects().length && allowed(el));
+        const i = targets.indexOf(document.activeElement as HTMLElement);
+        targets[(i + (e.shiftKey ? targets.length - 1 : 1)) % targets.length]?.focus();
+      } else if (e.key === 'Escape' || (t && allowed(t))) return;
+    } else if (e instanceof MouseEvent) {
+      if (e.detail === 0 && t && allowed(t)) return;
+      const p = toStage(e.clientX, e.clientY);
+      if (rects.some(r => p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h)) return;
+    }
+    e.stopPropagation(); e.preventDefault();
+  };
+}

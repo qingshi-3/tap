@@ -1,6 +1,6 @@
 // 启发式 bot：和玩家同一套商店规则选卡、合卡、吃补给、排站位。sim、幽灵生成、整局验收共用。
 import { card, EQUIP, FOOD, hasTag, type CardDef, type Line } from '../src/core/data';
-import { autoSlot, buy, chestPick, pickRelic, resolveEvent, MAX_COPIES, endTurn, equipFromBag, pickBranch, foodNeedsTarget, foodPrice, lvlOf, ownedAtk, ownedHp, PRICE, reroll, sell, useFood, type Owned, type RunState } from '../src/core/run';
+import { autoSlot, buy, chestPick, pickRelic, resolveEvent, resolveDiscover, maxLives, MAX_COPIES, endTurn, equipFromBag, pickBranch, foodNeedsTarget, foodPrice, lvlOf, ownedAtk, ownedHp, PRICE, reroll, sell, useFood, type Owned, type RunState } from '../src/core/run';
 
 const units = (r: RunState) => r.queue.filter((o): o is Owned => !!o);
 const tagsOf = (d: CardDef) => (d.tag2 ? [d.line, d.tag2] : [d.line]);
@@ -24,15 +24,18 @@ const EATERS = ['cat', 'worm', 'seal', 'tabby'];
 
 /** skill 0..1：越高越会凑引擎、越肯刷新；skill < 0 随手玩 */
 export function shopTurn(r: RunState, skill = 1, line?: Line) {
+  drainDiscover(r, skill, line);
   intro(r, skill, line);
+  drainDiscover(r, skill, line);
   for (let guard = 0; guard < 40; guard++) {
+    drainDiscover(r, skill, line);
     const free = r.shop.find((s) => s.free && s.kind === 'unit');
     const unitsShop = r.shop.filter((s) => s.kind === 'unit');
     const owned = (def: string) => units(r).some((o) => o.def === def && o.copies < 6);
     const score = (def: string) => (owned(def) ? 25 : 0) + want(r, def, skill, line);
     // skill < 0：随手玩（随机买、不吃补给、不刷新、不排站位），用来模拟弱玩家
     const best = skill < 0 ? unitsShop[Math.floor(Math.random() * unitsShop.length)] : free ?? [...unitsShop].sort((a, b) => score(b.def) - score(a.def))[0];
-    if (best && r.gold >= PRICE) {
+    if (best && r.gold >= (best.free ? 0 : PRICE)) {
       let slot = autoSlot(r, best.def);
       if (slot < 0) {
         let wi = -1;
@@ -66,23 +69,36 @@ export function shopTurn(r: RunState, skill = 1, line?: Line) {
       const f = FOOD[food.def];
       const us = units(r);
       let target: Owned | undefined;
-      if (f.fx) target = [...us].sort((a, b) => ownedValue(b) - ownedValue(a)).find((o) => !o.tfx?.includes(f.fx!));
+      if (f.id === 's_dismiss' && us.length < 5) { /* do not spend on dismissal until full */ }
+      else if (f.id === 's_copy') target = us.filter((o) => o.copies < MAX_COPIES).sort((a, b) => b.copies - a.copies)[0];
+      else if (f.id === 's_recruit') target = [...us].sort((a, b) => ownedValue(b, line) - ownedValue(a, line))[0];
+      else if (f.spell) target = [...us].filter((o) => !o.merc && (f.id !== 's_rebirth' || card(o.def).tier < 6)).sort((a, b) => ownedValue(a, line) - ownedValue(b, line))[0];
+      else if (f.fx) target = [...us].sort((a, b) => ownedValue(b) - ownedValue(a)).find((o) => !o.tfx?.includes(f.fx!));
       else if (f.id === 'f_elixir') target = us.filter((o) => o.copies < 6).sort((a, b) => b.copies - a.copies)[0];
       else if (f.id === 'f_lamp') target = us.find((o) => !o.lamp);
       else target = us.find((o) => EATERS.includes(card(o.def).ab ?? '')) ?? [...us].sort((a, b) => ownedValue(b) - ownedValue(a))[0];
-      if (!foodNeedsTarget(f.id) || target) {
+      if ((f.id !== 's_dismiss' || us.length === 5) && (!foodNeedsTarget(f.id) || target)) {
         const slot = target ? r.queue.indexOf(target) : null;
         if (useFood(r, food.sid, slot).ok) continue;
       }
     }
-    if (r.gold >= (skill > 0.5 ? 1 : 4)) {
+    if ((r.freeRerolls ?? 0) > 0 || r.gold >= (skill > 0.5 ? 1 : 4)) {
       reroll(r);
       continue;
     }
     break;
   }
+  drainDiscover(r, skill, line);
   if (skill >= 0) arrange(r);
   endTurn(r);
+}
+
+function drainDiscover(r: RunState, skill: number, line?: Line) {
+  while (r.discoverQueue?.length) {
+    const offer = r.discoverQueue[0];
+    const ranked = offer.options.map((x, i) => ({ i, value: want(r, x.def, skill, line) })).sort((a, b) => b.value - a.value);
+    if (!ranked.length || !resolveDiscover(r, ranked[0].i)) break;
+  }
 }
 
 /** 回合开始：开箱拿品质最高的；岔路心多才挑精英；背包装备给最值钱、没装备（或装备更差）的单位 */
@@ -97,9 +113,10 @@ function intro(r: RunState, skill: number, line?: Line) {
       const t = us.find((o) => o.copies < MAX_COPIES);
       resolveEvent(r, t ? 0 : -1, t ? r.queue.indexOf(t) : null);
     } else if (ev === 'merc') resolveEvent(r, 0);
-    else if (ev === 'chaos' && r.lives >= 7) resolveEvent(r, 0);
+    else if (ev === 'chaos' && r.lives >= maxLives(r)) resolveEvent(r, 0);
     else resolveEvent(r, -1);
     if (r.event) resolveEvent(r, -1);
+    drainDiscover(r, skill, line);
   }
   if (r.chest) {
     const it = r.chest.items;
