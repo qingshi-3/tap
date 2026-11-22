@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Duelyst H5 接入示例</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: system-ui, -apple-system, "PingFang SC", sans-serif;
+      background: #10151a;
+      color: #e8eef3;
+      --muted: #a8b6c0;
+      --accent: #81ebd1;
+      --line: #33434c;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 64rem; margin: auto; padding: clamp(1rem, 4vw, 2.5rem); }
+    h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2.25rem); }
+    header p { margin: .5rem 0 1.5rem; color: var(--muted); }
+    code { color: var(--accent); }
+    .examples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+    section { min-width: 0; padding: 1rem; border: 1px solid var(--line); border-radius: 1rem; background: #1a2229; }
+    h2 { margin: 0 0 .85rem; font-size: 1.125rem; }
+    canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: .5rem;
+      image-rendering: pixelated;
+      background-color: #121b21;
+      background-image: linear-gradient(#ffffff0c 1px, transparent 1px), linear-gradient(90deg, #ffffff0c 1px, transparent 1px);
+      background-size: 8.333% 13.636%;
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+    #manual-stage { cursor: crosshair; }
+    .controls { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .875rem; }
+    button {
+      min-height: 44px;
+      padding: .5rem .8rem;
+      border-radius: .45rem;
+      border: 1px solid #518577;
+      background: #233a36;
+      color: #c3fae9;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover:not(:disabled) { background: #305149; }
+    button:disabled { opacity: .55; cursor: wait; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .hint, .state { margin: .65rem 0 0; color: var(--muted); font-size: .875rem; line-height: 1.55; }
+    .state { font-variant-numeric: tabular-nums; }
+    #load-status { color: #ffbb9c; }
+    @media (max-width: 44rem) {
+      .examples { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Duelyst H5 接入示例</h1>
+      <p>同一个 <code>fxClawSlash</code> 可直接播放，也可由不同单位的命中事件触发。</p>
+    </header>
+    <p id="load-status" role="status">正在加载本地素材…</p>
+    <div class="examples">
+      <section aria-labelledby="manual-title">
+        <h2 id="manual-title">独立特效 · 自选落点</h2>
+        <canvas id="manual-stage" width="360" height="220" tabindex="0"
+          aria-label="特效落点画布" aria-describedby="manual-hint"></canvas>
+        <div class="controls">
+          <button id="play-effect" type="button" disabled>播放爪痕</button>
+        </div>
+        <p id="manual-hint" class="hint">点击画布设置落点，或聚焦画布后用方向键移动。</p>
+        <p id="position" class="state"></p>
+      </section>
+      <section aria-labelledby="combat-title">
+        <h2 id="combat-title">两个单位 · 共用命中特效</h2>
+        <canvas id="combat-stage" width="360" height="220" role="img"
+          aria-label="Skyfall Tyrant 和 Bloodtear Alchemist 分别攻击同一个目标"></canvas>
+        <div class="controls">
+          <button id="attack-skyfall" type="button" disabled>Skyfall 攻击</button>
+          <button id="attack-alchemist" type="button" disabled>炼金师攻击</button>
+        </div>
+        <p class="hint">待机 → 攻击 → 目标出现爪痕 → 回到待机</p>
+        <p id="combat-state" class="state" role="status"></p>
+      </section>
+    </div>
+  </main>
+  <script src="assets/manifest.js"></script>
+  <script src="duelyst-h5.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>
