@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>午夜酒馆 v10.0 · 发牌凑型 × 秘宝引擎</title>
+  <link rel="stylesheet" href="./css/v10.css?v=104" />
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+
+      <!-- ═══ PHASE 1 & 3: INDOOR MIDNIGHT TAVERN HALL ═══ -->
+      <div id="tavern-view">
+        <canvas id="tavern-canvas" width="1280" height="720"></canvas>
+
+        <!-- Top Compact Steel HUD + Left-to-Right Reorderable Relic Rack -->
+        <header id="top-hud">
+          <div class="hud-stats-cluster steel-panel">
+            <span class="hud-pill wave" id="hud-wave">W1/8</span>
+            <span class="hud-pill hearts" id="hud-hearts">❤❤❤</span>
+            <span class="hud-pill gold" id="hud-gold">12G</span>
+            <button class="steel-btn hud-roster-btn" id="btn-roster-open">花名册 <b id="hud-roster-count">8</b></button>
+          </div>
+
+          <div id="top-relic-rack" class="steel-panel"></div>
+
+          <div class="hud-tools-cluster">
+            <button class="steel-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
+            <button class="steel-btn hud-mini-btn" id="btn-mute">音效</button>
+            <button class="steel-btn hud-mini-btn" id="btn-restart">重开</button>
+          </div>
+        </header>
+
+        <!-- Live Hand Combo Meter (visible in Deal Phase) -->
+        <div id="hand-meter-bar"></div>
+
+        <!-- Bottom Steel Dock A: Deal-5-Pick-3 Squad Selection -->
+        <section id="deal-dock" class="bottom-dock steel-panel">
+          <button id="btn-discard" class="steel-btn gold dock-wing-btn"></button>
+          <div id="deal-cards-row"></div>
+          <button id="btn-fight" class="steel-btn crimson dock-wing-btn"></button>
+        </section>
+
+        <!-- Bottom Steel Dock B: Black-Market Tavern Shop -->
+        <section id="shop-dock" class="bottom-dock steel-panel hidden">
+          <button id="btn-shop-reroll" class="steel-btn dock-wing-btn"></button>
+          <div class="shop-center-grid">
+            <div id="shop-relics-row" class="shop-subrow"></div>
+            <div class="shop-divider"></div>
+            <div id="shop-packs-row" class="shop-subrow"></div>
+          </div>
+          <button id="btn-shop-next" class="steel-btn emerald dock-wing-btn"></button>
+        </section>
+      </div>
+
+      <!-- ═══ PHASE 2: OUTDOOR MIRROR-LAKE ECLIPSE AUTO-BATTLE (ZERO INTERVENTION) ═══ -->
+      <div id="battle-view" class="hidden">
+        <canvas id="battle-canvas" width="1280" height="720"></canvas>
+
+        <div id="battle-top-bar">
+          <div class="bt-wave-box steel-panel">
+            <div id="bt-title">W1/8 · 回合 1/5</div>
+            <div id="bt-affix-chip"></div>
+          </div>
+          <div class="bt-boss-box steel-panel">
+            <div class="bt-boss-head">
+              <span id="bt-boss-name">Boss</span>
+              <span id="bt-boss-hp-text">0 / 0</span>
+            </div>
+            <div id="bt-boss-hp-bar"></div>
+          </div>
+          <button id="bt-speed-btn" class="steel-btn">速度 1×</button>
+        </div>
+
+        <div id="bt-relic-chain" class="steel-panel"></div>
+
+        <div id="battle-bottom-telemetry" class="steel-panel">
+          <div id="bt-hand-pill"></div>
+          <div id="bt-chain-stats"></div>
+          <span class="bt-auto-tag">✦ 全自动连锁演出</span>
+        </div>
+      </div>
+
+      <!-- ═══ SHOWSTOPPER: FULL-SCREEN BOOSTER PACK OPENING CEREMONY ═══ -->
+      <div id="pack-ceremony-modal" class="hidden">
+        <canvas id="pack-fx-canvas" width="1280" height="720"></canvas>
+        <div class="pack-ceremony-hud">
+          <div class="pack-header">
+            <div id="pack-ceremony-title">秘宝秘匣</div>
+            <div id="pack-ceremony-sub"></div>
+          </div>
+
+          <div id="pack-sealed-stage">
+            <div id="pack-foil-envelope"></div>
+          </div>
+
+          <div id="pack-reveal-stage" class="hidden">
+            <div id="pack-cards-grid"></div>
+          </div>
+
+          <div id="pack-target-stage" class="hidden">
+            <div id="pack-target-title"></div>
+            <div id="pack-target-grid"></div>
+            <button id="btn-pack-target-back" class="steel-btn hud-mini-btn">← 返回重选塔罗</button>
+          </div>
+
+          <div class="pack-footer">
+            <button id="btn-pack-abandon" class="steel-btn">放弃本包 (+2G)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ WAVE PAYOUT MODAL ═══ -->
+      <div id="payout-modal" class="modal-backdrop hidden">
+        <div class="payout-box steel-panel">
+          <div id="po-title" class="po-title win">讨伐成功!</div>
+          <div id="po-sub"></div>
+          <div id="po-rows"></div>
+          <button id="po-next-btn" class="steel-btn gold">进入黑市酒馆商店 →</button>
+        </div>
+      </div>
+
+      <!-- ═══ ROSTER & HAND TYPE GUIDE MODAL ═══ -->
+      <div id="roster-modal" class="modal-backdrop hidden">
+        <div class="roster-box steel-panel">
+          <div class="rm-head">
+            <div class="rm-tabs">
+              <button id="rm-tab-roster" class="steel-btn rm-tab active">酒馆花名册</button>
+              <button id="rm-tab-hands" class="steel-btn rm-tab">牌型倍率表</button>
+            </div>
+            <button id="rm-close-btn" class="steel-btn hud-mini-btn">关闭 ✕</button>
+          </div>
+          <div id="rm-summary"></div>
+          <div id="rm-body"></div>
+        </div>
+      </div>
+
+      <div id="toast-banner"></div>
+    </div>
+  </div>
+
+  <!-- Duelyst H5 Kit & v10 Engine Scripts (Zero-Build Classic IIFE) -->
+  <script src="./assets/duelyst/duelyst-h5.js?v=100"></script>
+  <script src="./assets/duelyst/assets/manifest.js?v=100"></script>
+  <script src="./js/audio.js?v=100"></script>
+  <script src="./js/vfxPlayer.js?v=100"></script>
+  <script src="./js/sprites.js?v=100"></script>
+  <script src="./js/tavernCanvas.js?v=100"></script>
+  <script src="./js/v10Data.js?v=100"></script>
+  <script src="./js/v10Battle.js?v=103"></script>
+  <script src="./js/v10Main.js?v=104"></script>
+</body>
+</html>

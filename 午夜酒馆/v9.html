@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>午夜酒馆：秘宝引擎流 v9.0</title>
+  <link rel="stylesheet" href="./css/engine.css?v=91" />
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <!-- Indoor Midnight Tavern Hall (Shop / Persistent Squad Home!) -->
+      <canvas id="tavern-canvas"></canvas>
+
+      <!-- Top Floating Chunky Steel Pixel HUD -->
+      <header id="top-hud">
+        <div class="hud-bar">
+          <div class="hud-seg"><strong id="hud-wave">W1/8</strong></div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg"><span id="hud-hearts">❤❤❤</span></div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg"><strong id="hud-gold">12G</strong><span id="hud-interest">+息2G</span></div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg"><span id="hud-next-boss">下波: 毒棘虫群霸主 280血 · 无词条</span></div>
+        </div>
+        <div class="hud-actions">
+          <button class="px-btn" id="btn-mute">声:开</button>
+          <button class="px-btn amber" id="btn-restart">重开</button>
+        </div>
+      </header>
+
+      <!-- Upper-Center 5-Slot Equipped Relic Bar (Click 2 Slots to Swap Left <-> Right Order!) -->
+      <section id="relic-rack-wrap">
+        <div class="rack-hint">秘宝结算顺序：<b>左 → 右</b>（点击两格互换位置，<b>+</b> 放左、<b>×</b> 放右）</div>
+        <div id="shop-relic-bar"></div>
+      </section>
+
+      <!-- Transient Toast & Quick Hero Inspect Popover -->
+      <div id="event-toast" class="hidden"></div>
+      <aside id="hero-quick-pop" class="hidden"></aside>
+
+      <!-- Bottom-Center Heavy Steel-Beveled Shop Dock (3 Relics | 2 Heroes | 1 Drink + Fight Wing!) -->
+      <nav id="shop-steel-dock" aria-label="酒馆秘宝商店">
+        <div class="shop-tray">
+          <div class="shop-wing-left">
+            <button class="wing-action" id="btn-reroll-shop">
+              <span>刷新</span>
+              <small id="btn-reroll-cost">3G</small>
+            </button>
+            <button class="wing-sub" id="btn-lock-shop">锁定</button>
+          </div>
+
+          <div class="shop-shelf" id="shop-shelf"></div>
+
+          <button class="shop-wing-right" id="btn-fight-go">
+            <strong id="btn-fight-wave">迎战 W1</strong>
+            <small id="btn-fight-hp">280血</small>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Starter 3-Pick Captain Modal -->
+      <div class="modal-backdrop hidden" id="starter-modal">
+        <div class="steel-dialog">
+          <h2>午夜酒馆 · 选一名首发队长</h2>
+          <p class="sub">每波胜利回酒馆买秘宝、2合1升星、叠出左→右乘算连锁，打穿 8 波日蚀盲注！</p>
+          <div class="starter-grid" id="starter-grid"></div>
+        </div>
+      </div>
+
+      <!-- Full-Bleed Outdoor Mirror-Lake Eclipse Battle Theater -->
+      <div class="modal-backdrop hidden" id="theater-modal">
+        <div class="v9-theater">
+          <canvas id="battle-canvas"></canvas>
+
+          <div class="bt-top-overlay">
+            <div class="bt-left-box">
+              <div class="bt-px-plate">
+                <strong id="bt-title">W1/8 · 回合 1/6</strong>
+                <span class="bt-affix-chip" id="bt-affix-chip">无词条</span>
+              </div>
+              <div class="bt-chain-stats" id="bt-chain-stats">连锁 ×0 · 最高一击 0</div>
+            </div>
+
+            <div class="bt-boss-hud">
+              <div class="bt-boss-name-row">
+                <strong id="bt-boss-name">毒棘虫群霸主</strong>
+                <span id="bt-boss-hp-text">280 / 280</span>
+              </div>
+              <div class="bt-boss-hp-bar" id="bt-boss-hp-bar"></div>
+            </div>
+
+            <div class="bt-speed-group">
+              <button class="bt-spd-btn active" id="btn-bt-speed-1">1×</button>
+              <button class="bt-spd-btn" id="btn-bt-speed-2">2×</button>
+            </div>
+          </div>
+
+          <!-- Live 5-Slot Balatro Relic Chain Bar (Lights Up Left -> Right with Ascending Chimes!) -->
+          <div id="bt-relic-chain"></div>
+
+          <!-- Bottom Tactical Drink Tray Floating over Mirror Lake -->
+          <div class="bt-dock-wrap">
+            <div class="bt-steel-tray">
+              <div class="bt-tray-wing left"><span>特调</span><small>战中泼</small></div>
+              <div class="bt-drink-dock" id="bt-drink-dock"></div>
+              <div class="bt-tray-wing right"><span>瞄准</span><small>0.25x</small></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wave Clear / Consolation Advance Payout Modal -->
+      <div class="modal-backdrop hidden" id="payout-modal">
+        <div class="steel-dialog sm">
+          <div class="payout-stamp win" id="payout-stamp">W1 盲注击破！</div>
+          <p class="sub" id="payout-sub">最高一击 0 · 秘宝连锁 0 次</p>
+          <div class="payout-rows" id="payout-rows"></div>
+          <button class="big-go-btn" id="btn-payout-next">回酒馆逛店 →</button>
+        </div>
+      </div>
+
+      <!-- Run Victory / Defeat Summary Modal -->
+      <div class="modal-backdrop hidden" id="end-modal">
+        <div class="steel-dialog sm">
+          <h2 id="end-title">★ 通关！午夜日蚀征服者 ★</h2>
+          <p class="sub" id="end-sub"></p>
+          <div class="end-stats" id="end-stats"></div>
+          <button class="big-go-btn" id="btn-end-again">再来一局</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duelyst H5 Asset Kit + Core Shared Visual/Audio Modules + v9.0 Relic Engine -->
+  <script src="./assets/duelyst/assets/manifest.js?v=90"></script>
+  <script src="./assets/duelyst/duelyst-h5.js?v=90"></script>
+  <script src="./js/manifest.js?v=44"></script>
+  <script src="./js/vfxManifest.js?v=68"></script>
+  <script src="./js/uiIcons.js?v=44"></script>
+  <script src="./js/vfxPlayer.js?v=90"></script>
+  <script src="./js/audio.js?v=90"></script>
+  <script src="./js/sprites.js?v=90"></script>
+  <script src="./js/tavernCanvas.js?v=90"></script>
+  <script src="./js/engineData.js?v=90"></script>
+  <script src="./js/engineBattle.js?v=90"></script>
+  <script src="./js/engineMain.js?v=90"></script>
+</body>
+</html>

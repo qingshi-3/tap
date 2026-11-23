@@ -2,305 +2,189 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>午夜酒馆：佣兵经纪人 v3.2</title>
-  <link rel="stylesheet" href="./css/style.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>日蚀战团 v13.0 · 镜湖 4 回合破题 × 星界黑市牌桌</title>
+  <link rel="stylesheet" href="./css/v13.css?v=130" />
 </head>
 <body>
   <div id="viewport">
     <div id="stage">
-      <!-- HD-2D Atmospheric Midnight Tavern Canvas -->
-      <canvas id="tavern-canvas"></canvas>
 
-      <!-- Minimal Single-Row Mobile Landscape Top HUD -->
-      <header id="top-hud">
-        <div class="hud-left">
-          <div class="hd-panel hd-gold hud-chip day-chip">
-            <i class="pxi pxi-moon"></i>
-            <strong id="hud-day">D1/7</strong>
+      <!-- ═══ BEAT 1: OUTDOOR MIRROR-LAKE 4-ROUND ACTIVE-BOSS BATTLE ═══ -->
+      <div id="battle-view" class="hidden">
+        <canvas id="battle-canvas" width="1280" height="720"></canvas>
+
+        <div id="battle-top-bar">
+          <div class="bt-squad-box steel-panel">
+            <div class="bt-sq-head">
+              <span id="bt-title">W1/8 · 第 1/4 回合</span>
+              <span id="bt-squad-hp-text">小队 100/100</span>
+            </div>
+            <div class="bt-sq-bar-wrap">
+              <div id="bt-squad-hp-fill" style="width:100%"></div>
+              <div id="bt-squad-shield-fill" style="width:0%"></div>
+            </div>
           </div>
-          <div class="hd-panel hd-gold hud-chip gold-chip">
-            <i class="pxi pxi-coin"></i>
-            <strong id="hud-gold">165</strong>
+
+          <div class="bt-boss-box steel-panel">
+            <div class="bt-boss-head">
+              <span id="bt-boss-name">Boss</span>
+              <span id="bt-boss-hp-text">0 / 0</span>
+            </div>
+            <div id="bt-boss-hp-bar"></div>
           </div>
-          <div class="hd-panel hud-chip rep-chip">
-            <i class="pxi pxi-star"></i>
-            <strong id="hud-rep">50</strong>
-          </div>
-          <div class="hd-panel hd-crimson hud-chip rent-chip" id="hud-rent-pill">
-            <i class="pxi pxi-scroll pxi-sm"></i>
-            <span id="hud-rent-text">2夜缴租 120G</span>
+
+          <div class="bt-tools-box">
+            <button id="btn-bt-roster" class="steel-btn hud-mini-btn">牌组</button>
+            <button id="btn-bt-hands" class="steel-btn hud-mini-btn">牌型</button>
+            <button id="bt-speed-btn" class="steel-btn">速度 1×</button>
           </div>
         </div>
 
-        <div class="hud-right">
-          <button class="hd-btn hd-btn-amber" id="btn-upgrades">
-            <i class="pxi pxi-hammer pxi-sm"></i>
-            <span>装潢</span>
-          </button>
-          <button class="hd-btn" id="btn-mute" title="开关音效">声:开</button>
+        <div id="bt-relic-chain" class="steel-panel"></div>
+
+        <div id="bt-forecast-bar" class="bt-forecast-bar">
+          <div class="fc-piles">
+            <button id="btn-draw-pile" class="steel-btn pile-btn">抽牌堆 <b>3</b></button>
+            <button id="btn-discard-pile" class="steel-btn pile-btn">弃牌堆 <b>0</b></button>
+          </div>
+          <div id="fc-core-content"></div>
         </div>
-      </header>
 
-      <!-- Transient Toast (Only appears briefly on key events, never clutters the tavern) -->
-      <div id="event-toast" class="hidden"></div>
+        <section id="bt-hand-dock" class="bottom-dock steel-panel">
+          <button id="btn-bt-discard" class="steel-btn gold dock-wing-btn"></button>
+          <button id="btn-shadow-box" class="shadow-box-slot empty hidden"></button>
+          <div id="bt-cards-row"></div>
+          <button id="btn-bt-strike" class="steel-btn crimson dock-wing-btn"></button>
+        </section>
 
-      <!-- Compact Bottom-Left Thumb-Friendly Drink Dock -->
-      <section id="drink-tray" class="hd-panel hd-gold" aria-label="吧台特调">
-        <div class="drink-list" id="drink-list"></div>
-      </section>
-
-      <!-- Compact Floating Mercenary Inspect Card (Tap a merc to inspect) -->
-      <aside id="merc-dossier" class="hd-panel hd-gold hidden">
-        <button class="px-close" id="dossier-close">X</button>
-        <div class="dossier-top">
-          <div class="dossier-portrait" id="dossier-portrait"></div>
-          <div class="dossier-meta">
-            <div class="dossier-name-row">
-              <strong id="dossier-name">铁砧</strong>
-              <span class="dossier-role" id="dossier-role">前排</span>
-            </div>
-            <div class="dossier-tags" id="dossier-tags"></div>
-            <div class="dossier-stats">
-              <div class="d-stat-row">
-                <span><i class="pxi pxi-sword pxi-sm"></i> <b id="dossier-power">34</b></span>
-                <span class="seg-bar" id="dossier-power-bar"></span>
-              </div>
-              <div class="d-stat-row">
-                <span><i class="pxi pxi-coin pxi-sm"></i> <b id="dossier-fee">22G</b></span>
-                <span>忠诚 <b id="dossier-loyalty">74</b></span>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="dossier-quirk" id="dossier-quirk"></div>
-        <button class="hd-btn hd-btn-amber full-btn" id="dossier-assign-btn">拉入小队</button>
-      </aside>
-
-      <!-- Streamlined Mobile-First Obsidian Contract Console (348px) -->
-      <aside id="contract-desk">
-        <div class="contract-tabs" id="contract-tabs"></div>
-        <div class="parchment-body hd-panel hd-gold" id="parchment-body">
-          <div class="contract-head">
-            <div class="contract-boss-box" id="contract-boss-sprite"></div>
-            <div class="contract-info">
-              <div class="contract-tier-row">
-                <span class="tier-badge" id="contract-tier">I阶</span>
-                <strong class="boss-name-tag" id="contract-boss-name">猩红头目</strong>
-              </div>
-              <h2 id="contract-title">废弃商道清剿</h2>
-              <div class="contract-numbers">
-                <div class="stat-line threat">
-                  <i class="pxi pxi-skull pxi-sm"></i>
-                  <span class="seg-bar" id="contract-threat-bar"></span>
-                  <span class="stat-val" id="contract-threat">82</span>
-                </div>
-                <div class="stat-line reward">
-                  <i class="pxi pxi-coin pxi-sm"></i>
-                  <span class="seg-bar" id="contract-reward-bar"></span>
-                  <span class="stat-val" id="contract-reward">165G</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="intel-strip locked" id="intel-strip">
-            <i class="pxi pxi-lock pxi-sm"></i>
-            <span id="intel-text">喝【迷雾苦艾】套取弱点情报</span>
-          </div>
-
-          <div class="hd-divider"></div>
-
-          <div class="squad-section">
-            <div class="squad-head">
-              <span>出征小队</span>
-              <span class="fee-total">定金 <b id="squad-fee">0G</b></span>
-            </div>
-            <div class="squad-slots" id="squad-slots">
-              <div class="squad-slot" data-slot="0"><span class="slot-plus">+</span></div>
-              <div class="squad-slot" data-slot="1"><span class="slot-plus">+</span></div>
-              <div class="squad-slot" data-slot="2"><span class="slot-plus">+</span></div>
-            </div>
-            <div class="synergy-bar" id="synergy-bar">
-              <span class="synergy-empty">同词条×2 激活羁绊</span>
-            </div>
-          </div>
-
-          <div class="hd-divider"></div>
-
-          <div class="dispatch-footer">
-            <div class="winrate-panel">
-              <div class="wr-top">
-                <span class="wr-lbl">胜率</span>
-                <strong id="winrate-text">0%</strong>
-              </div>
-              <div class="seg-bar" id="winrate-bar"></div>
-            </div>
-
-            <button class="wax-seal-btn disabled" id="wax-seal-btn">
-              <svg class="seal-ring" viewBox="0 0 84 84">
-                <rect class="ring-bg" x="4" y="4" width="76" height="76" />
-                <rect class="ring-fill" id="seal-progress" x="4" y="4" width="76" height="76" />
-              </svg>
-              <div class="wax-disc">
-                <i class="pxi pxi-wax pxi-xl"></i>
-                <span class="wax-text" id="wax-btn-label">按住派单</span>
-              </div>
-            </button>
-          </div>
-        </div>
-      </aside>
-
-      <!-- Midnight Battle Theater Modal -->
-      <div class="modal-backdrop hidden" id="theater-modal">
-        <div class="theater-card hd-panel hd-gold">
-          <div class="theater-top">
-            <div class="theater-title">
-              <i class="pxi pxi-sword"></i>
-              <span>午夜实况</span>
-              <small id="theater-subtitle">废弃商道清剿</small>
-            </div>
-            <div class="theater-controls">
-              <button class="hd-btn" id="btn-bt-speed">2x</button>
-              <button class="hd-btn hd-btn-amber" id="btn-bt-skip">开盲盒</button>
-            </div>
-          </div>
-          <canvas id="battle-canvas"></canvas>
-          <div class="bt-log-box" id="bt-log-box"></div>
+        <div id="battle-live-telemetry" class="steel-panel hidden">
+          <div id="bt-hand-pill"></div>
+          <div id="bt-chain-stats"></div>
         </div>
       </div>
 
-      <!-- Loot Sack Blind-Box & Broker-Cut Settlement Modal -->
-      <div class="modal-backdrop hidden" id="settlement-modal">
-        <div class="settlement-card hd-panel hd-gold">
-          <div class="settlement-header">
-            <div class="result-stamp" id="result-stamp">大获全胜</div>
-            <h2 id="settlement-title">战利品麻袋砸在了吧台上！</h2>
+      <!-- ═══ BEAT 2: ECLIPSE BLACK-MARKET TABLETOP (DIRECTION A — HIGH-WEIGHT 2-COLUMN HUB) ═══ -->
+      <div id="tavern-view">
+        <canvas id="altar-bg-canvas" width="1280" height="720"></canvas>
+
+        <!-- Top Asset & Hero Relic Chain Rack -->
+        <header id="top-hud" class="hidden">
+          <div class="hud-stats-cluster steel-panel">
+            <span class="hud-pill wave" id="hud-wave">W2/8</span>
+            <span class="hud-pill hearts" id="hud-hearts">❤❤❤</span>
+            <span class="hud-pill gold lg" id="hud-gold">18G</span>
           </div>
 
-          <div class="sack-stage" id="sack-stage">
-            <button class="loot-sack-btn hd-panel hd-gold" id="loot-sack-btn">
-              <i class="pxi pxi-sack pxi-hero"></i>
-              <div class="sack-prompt">点击砸开战利品！</div>
-            </button>
+          <div id="top-relic-rack" class="steel-panel"></div>
+
+          <div class="hud-tools-cluster">
+            <button class="steel-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
+            <button class="steel-btn hud-mini-btn" id="btn-mute">音效</button>
+            <button class="steel-btn hud-mini-btn" id="btn-restart">重开</button>
           </div>
+        </header>
 
-          <div class="split-stage hidden" id="split-stage">
-            <div class="loot-banner">
-              <div class="loot-col hd-panel">
-                <span class="loot-lbl">总战利品</span>
-                <strong class="loot-val gold" id="settle-gross">240G</strong>
+        <!-- Tap-to-Inspect Equipped Relic Floating Strip -->
+        <div id="relic-inspect-bar" class="steel-panel hidden"></div>
+
+        <!-- FULL-HEIGHT 2-COLUMN MAIN STAGE (Zero Dead Space!) -->
+        <main id="market-main-stage" class="hidden">
+          <!-- LEFT COLUMN: Next Boss Live Bounty + Deck Composition + Launch Button -->
+          <aside class="market-left-col">
+            <section id="boss-bounty-panel" class="steel-panel"></section>
+            <section id="deck-overview-panel" class="steel-panel" role="button" tabindex="0"></section>
+            <button id="btn-shop-next" class="steel-btn emerald market-launch-btn"></button>
+          </aside>
+
+          <!-- RIGHT COLUMN: Upper 3 Big Relic Cards + Lower 2 Giant Foil Packs & Planet Tome -->
+          <section class="market-right-col">
+            <div class="market-shelf steel-panel" id="shelf-relics-panel">
+              <div class="shelf-head">
+                <span class="shelf-title">✦ 星界秘宝陈列 <i>（左→右连锁：+伤放左 / ×倍放右）</i></span>
+                <button id="btn-shop-reroll" class="steel-btn gold shelf-reroll-btn"></button>
               </div>
-              <div class="loot-col hd-panel">
-                <span class="loot-lbl">附带奇物</span>
-                <strong class="loot-val relic" id="settle-relic">镀金徽章 (+25G)</strong>
-              </div>
-              <div class="loot-col hd-panel">
-                <span class="loot-lbl">高光时刻</span>
-                <strong class="loot-val note" id="settle-highlight">全员稳健推进</strong>
-              </div>
+              <div id="shop-relics-row" class="big-relics-grid"></div>
             </div>
 
-            <div class="lever-panel hd-panel">
-              <div class="lever-head">
-                <span>抽成拉杆</span>
-                <strong class="cut-badge" id="cut-badge">抽成 45% · 业内行规</strong>
+            <div class="market-shelf steel-panel" id="shelf-packs-panel">
+              <div class="shelf-head">
+                <span class="shelf-title">✦ 命运补给包 <i>（点击全屏光效撕开）</i> &amp; 战技酒谱 <i>（永久升倍率 · 0栏位）</i></span>
               </div>
-              <input type="range" id="cut-slider" min="20" max="80" step="5" value="45" />
-              <div class="lever-ticks">
-                <span>20% 慈善</span>
-                <span>45% 行规</span>
-                <span>65% 黑心</span>
-                <span>80% 吸血</span>
-              </div>
-
-              <div class="merc-reactions" id="merc-reactions"></div>
-
-              <div class="split-preview">
-                <div class="preview-box mine">
-                  <span>老板落袋</span>
-                  <strong id="preview-my-gold">+108G</strong>
-                </div>
-                <div class="preview-box theirs">
-                  <span>佣兵分得</span>
-                  <strong id="preview-merc-gold">132G</strong>
-                </div>
-                <div class="preview-box rep">
-                  <span>声望 / 忠诚</span>
-                  <strong id="preview-rep-delta">声望 +6 · 忠诚 +4</strong>
-                </div>
-              </div>
+              <div id="shop-packs-row" class="big-packs-grid"></div>
             </div>
+          </section>
+        </main>
+      </div>
 
-            <div class="settlement-actions">
-              <button class="hd-btn hd-btn-amber big-amber" id="btn-confirm-settle">落袋为安 · 下一夜</button>
-            </div>
+      <!-- ═══ OPENING 3-STARTER-DECK SELECTOR MODAL ═══ -->
+      <div id="deck-select-modal" class="modal-backdrop hidden">
+        <div class="deck-select-box steel-panel">
+          <div class="ds-head">
+            <div class="ds-title">✦ 日蚀战团 · 选择今晚初始牌组 ✦</div>
+            <div class="ds-sub">镜湖 4 回合破 Boss 考题 ↔ 星界黑市买秘宝与撕卡包 · 选定后直进镜湖 W1</div>
           </div>
+          <div id="deck-select-grid"></div>
         </div>
       </div>
 
-      <!-- Tavern Upgrades & Menu Modal -->
-      <div class="modal-backdrop hidden" id="upgrade-modal">
-        <div class="upgrade-card hd-panel hd-gold">
-          <div class="modal-head">
-            <h2>酒馆装潢升级</h2>
-            <button class="px-close" id="upgrade-close">X</button>
+      <!-- ═══ SHOWSTOPPER: FULL-SCREEN BOOSTER PACK OPENING CEREMONY ═══ -->
+      <div id="pack-ceremony-modal" class="hidden">
+        <canvas id="pack-fx-canvas" width="1280" height="720"></canvas>
+        <div class="pack-ceremony-hud">
+          <div class="pack-header">
+            <div id="pack-ceremony-title">秘宝秘匣</div>
+            <div id="pack-ceremony-sub"></div>
           </div>
-          <div class="upgrade-grid" id="upgrade-grid"></div>
-          <div class="upgrade-footer">
-            <button class="hd-btn hd-btn-crimson" id="btn-reset">重置存档 · 重开第 1 夜</button>
+          <div id="pack-sealed-stage"><div id="pack-foil-envelope"></div></div>
+          <div id="pack-reveal-stage" class="hidden"><div id="pack-cards-grid"></div></div>
+          <div id="pack-target-stage" class="hidden">
+            <div id="pack-target-title"></div>
+            <div id="pack-target-grid"></div>
+            <button id="btn-pack-target-back" class="steel-btn hud-mini-btn">← 返回重选塔罗</button>
           </div>
+          <div class="pack-footer"><button id="btn-pack-abandon" class="steel-btn">放弃本包 (+2G)</button></div>
         </div>
       </div>
 
-      <!-- Rent Notice Modal -->
-      <div class="modal-backdrop hidden" id="rent-modal">
-        <div class="rent-card hd-panel hd-crimson">
-          <i class="pxi pxi-scroll pxi-hero"></i>
-          <h2 id="rent-modal-title">地税官敲响了酒馆大门</h2>
-          <p id="rent-modal-desc"></p>
-          <button class="hd-btn hd-btn-amber big-amber" id="btn-rent-ok">继续营业</button>
+      <!-- ═══ WAVE PAYOUT MODAL ═══ -->
+      <div id="payout-modal" class="modal-backdrop hidden">
+        <div class="payout-box steel-panel">
+          <div id="po-title" class="po-title win">讨伐成功!</div>
+          <div id="po-sub"></div>
+          <div id="po-rows"></div>
+          <button id="po-next-btn" class="steel-btn gold">进入星界黑市 · 开包构筑 →</button>
         </div>
       </div>
 
-      <!-- 7-Night / Bankruptcy TapTap Shareable Broker Resume Card -->
-      <div class="modal-backdrop hidden" id="summary-modal">
-        <div class="summary-card hd-panel hd-gold">
-          <div class="summary-ribbon">午夜酒馆 · 经纪人战绩档案</div>
-          <div class="summary-rank" id="summary-rank">传奇暗夜教父</div>
-          <div class="summary-grid">
-            <div class="sum-stat"><span>结余金币</span><strong id="sum-gold">0G</strong></div>
-            <div class="sum-stat"><span>酒馆声望</span><strong id="sum-rep">0</strong></div>
-            <div class="sum-stat"><span>完成委托</span><strong id="sum-wins">0 / 7</strong></div>
-            <div class="sum-stat"><span>平均抽成</span><strong id="sum-greed">45%</strong></div>
-          </div>
-          <div class="summary-mvp">
-            <div class="mvp-sprite" id="sum-mvp-sprite"></div>
-            <div>
-              <div class="mvp-label">头号摇钱树</div>
-              <strong id="sum-mvp-name">黑胡子巴克</strong>
-              <p id="sum-mvp-quote">“老板虽然爱抽成，但给的朗姆酒确实够烈！”</p>
+      <!-- ═══ ROSTER / PILE / HAND GUIDE MODAL ═══ -->
+      <div id="roster-modal" class="modal-backdrop hidden">
+        <div class="roster-box steel-panel">
+          <div class="rm-head">
+            <div class="rm-tabs">
+              <button id="rm-tab-roster" class="steel-btn rm-tab active">当前战团牌组</button>
+              <button id="rm-tab-hands" class="steel-btn rm-tab">牌型倍率表</button>
             </div>
+            <button id="rm-close-btn" class="steel-btn hud-mini-btn">关闭 ✕</button>
           </div>
-          <div class="summary-actions">
-            <button class="hd-btn" id="btn-continue-endless">继续无尽模式</button>
-            <button class="hd-btn hd-btn-amber big-amber" id="btn-new-run">重开 7 夜挑战</button>
-          </div>
+          <div id="rm-summary"></div>
+          <div id="rm-body"></div>
         </div>
       </div>
+
+      <div id="toast-banner"></div>
     </div>
   </div>
 
-  <!-- Floating Drag Ghost directly under body so position:fixed matches mouse/touch 1:1 -->
-  <div id="drag-ghost" class="hidden"></div>
-
-  <script src="./js/manifest.js"></script>
-  <script src="./js/pixelArt.js"></script>
-  <script src="./js/audio.js"></script>
-  <script src="./js/data.js"></script>
-  <script src="./js/sprites.js"></script>
-  <script src="./js/tavernCanvas.js"></script>
-  <script src="./js/battleTheater.js"></script>
-  <script src="./js/main.js"></script>
+  <!-- Duelyst H5 Kit & v13 Engine Scripts -->
+  <script src="./assets/duelyst/duelyst-h5.js?v=130"></script>
+  <script src="./assets/duelyst/assets/manifest.js?v=130"></script>
+  <script src="./js/audio.js?v=130"></script>
+  <script src="./js/vfxPlayer.js?v=130"></script>
+  <script src="./js/sprites.js?v=130"></script>
+  <script src="./js/v13AltarBg.js?v=130"></script>
+  <script src="./js/v12Data.js?v=130"></script>
+  <script src="./js/v12Battle.js?v=130"></script>
+  <script src="./js/v13Main.js?v=130"></script>
 </body>
 </html>

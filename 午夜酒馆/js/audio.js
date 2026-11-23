@@ -150,10 +150,29 @@
       this.tone(659, 0.2, 'triangle', 0.11, 0.16);
     }
 
+    playSplash() {
+      this.noise(0.18, 0.14, 1400, 0);
+      this.tone(360, 0.12, 'triangle', 0.12, 0, 740);
+      this.tone(740, 0.16, 'sine', 0.09, 0.05, 520);
+    }
+
+    // Iconic Balatro-style pitch-rising chime as each Relic slot lights up left-to-right!
+    playChainDing(step = 0, isMult = false) {
+      const notes = [523.25, 659.25, 783.99, 987.77, 1174.66, 1396.91, 1567.98];
+      const base = notes[Math.min(notes.length - 1, Math.max(0, step))];
+      if (isMult) {
+        this.tone(base, 0.14, 'square', 0.08, 0, base * 1.12);
+        this.tone(base * 1.5, 0.18, 'triangle', 0.10, 0.03);
+      } else {
+        this.tone(base, 0.11, 'triangle', 0.09, 0, base * 1.05);
+      }
+    }
+
     playError() {
       this.tone(175, 0.12, 'square', 0.06, 0, 130);
     }
   }
 
   window.MT.sfx = new TavernAudio();
+  window.MT.audio = window.MT.sfx;
 })();

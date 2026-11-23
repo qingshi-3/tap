@@ -1,0 +1,445 @@
+/* v9.0 《午夜酒馆：秘宝引擎流》 — Unified Heavy Steel-Bevel Pixel UI (Zero Web-UI Look!) */
+* { box-sizing: border-box; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; width: 100%; height: 100%;
+  background: #070510; overflow: hidden;
+  font-family: "Noto Sans SC", "PingFang SC", system-ui, monospace;
+  color: #f4f7ff;
+}
+.hidden { display: none !important; }
+
+#viewport {
+  width: 100vw; height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 50% 50%, #151029 0%, #06040e 100%);
+}
+#stage {
+  position: relative;
+  flex: 0 0 auto;
+  width: 1280px; height: 720px;
+  min-width: 1280px; min-height: 720px;
+  transform-origin: center center;
+  background: #090712;
+  overflow: hidden;
+  box-shadow: 0 0 0 4px #090712, 0 24px 72px rgba(0, 0, 0, 0.9);
+}
+#tavern-canvas, #battle-canvas {
+  position: absolute; inset: 0;
+  width: 1280px; height: 720px;
+  display: block; image-rendering: pixelated;
+}
+
+/* ─── Top Floating Steel Pixel HUD ─── */
+#top-hud {
+  position: absolute; top: 12px; left: 14px; right: 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; z-index: 12; pointer-events: none;
+}
+.hud-bar {
+  display: inline-flex; align-items: center; gap: 0;
+  padding: 5px 10px; pointer-events: auto;
+  background: #23273b; border: 3px solid #090712;
+  box-shadow: inset 0 3px 0 #828db0, inset 3px 0 0 #5b6380, inset 0 -3px 0 #131624, 0 4px 0 rgba(0,0,0,0.6);
+}
+.hud-seg {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 10px; font-size: 14px; font-weight: 900;
+  text-shadow: 2px 2px 0 #090712; white-space: nowrap;
+}
+.hud-vdiv { width: 2px; height: 18px; background: #090712; box-shadow: 1px 0 0 #4d5575; }
+#hud-wave { color: #7ceeff; }
+#hud-hearts { color: #ff5978; letter-spacing: 2px; font-size: 15px; }
+#hud-gold { color: #ffe07d; }
+#hud-interest {
+  padding: 1px 6px; background: #141726; border: 2px solid #090712;
+  color: #7affad; font-size: 11px;
+}
+#hud-next-boss {
+  padding: 2px 10px; background: #591627; border: 2px solid #090712;
+  color: #ffd8e0; font-size: 12.5px; font-weight: 900;
+  box-shadow: inset 0 2px 0 #99314b;
+}
+
+.hud-actions { display: inline-flex; gap: 8px; pointer-events: auto; }
+.px-btn {
+  height: 36px; padding: 0 13px;
+  border: 3px solid #090712; background: #363d57; color: #eef2ff;
+  font-size: 13px; font-weight: 900; cursor: pointer;
+  text-shadow: 2px 2px 0 #090712;
+  box-shadow: inset 0 3px 0 #8d98ba, inset 3px 0 0 #6d7799, inset 0 -3px 0 #1c2033, 0 4px 0 rgba(0,0,0,0.6);
+}
+.px-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
+.px-btn:active { transform: translateY(1px); }
+.px-btn.crimson {
+  background: #a8324a;
+  box-shadow: inset 0 3px 0 #ff8da3, inset 3px 0 0 #d95570, inset 0 -3px 0 #5c1324, 0 4px 0 rgba(0,0,0,0.6);
+}
+.px-btn.amber {
+  background: #8c5920;
+  box-shadow: inset 0 3px 0 #ffd278, inset 3px 0 0 #d99b42, inset 0 -3px 0 #47280a, 0 4px 0 rgba(0,0,0,0.6);
+}
+
+/* ─── Upper-Center 5-Slot Equipped Relic Rack (Tap 2 Slots to Reorder Left -> Right!) ─── */
+#relic-rack-wrap {
+  position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  z-index: 10; pointer-events: auto;
+}
+.rack-hint {
+  padding: 2px 10px; background: rgba(14, 16, 28, 0.88); border: 2px solid #090712;
+  font-size: 11px; font-weight: 900; color: #c7d2f0; text-shadow: 1px 1px 0 #090712;
+}
+.rack-hint b { color: #ffe07d; }
+#shop-relic-bar {
+  display: flex; align-items: stretch; gap: 7px; padding: 5px;
+  background: #5c6580; border: 3px solid #090712;
+  box-shadow: inset 0 3px 0 #b2bcd6, inset 0 -3px 0 #2d3247, 0 5px 0 rgba(5,4,14,0.68);
+}
+.rack-slot {
+  position: relative; width: 138px; height: 48px;
+  display: flex; align-items: center; gap: 6px; padding: 4px 6px;
+  background: #1a1d2e; border: 3px solid #090712;
+  color: #eef2ff; cursor: pointer; text-align: left;
+  box-shadow: inset 0 2px 0 #0d0f1a, inset 0 -2px 0 #313752;
+  transition: transform 0.08s steps(2);
+}
+.rack-slot.empty { justify-content: center; color: #677294; font-size: 12px; font-weight: 900; }
+.rack-slot.filled {
+  background: #282d45;
+  box-shadow: inset 0 2px 0 var(--rcol, #78d8ff), inset 0 -3px 0 #141726;
+}
+.rack-slot.filled:hover { transform: translateY(-2px); filter: brightness(1.1); }
+.rack-slot.selected {
+  background: #3d2a52; transform: translateY(-4px);
+  box-shadow: inset 0 0 0 3px #ffe07d, 0 0 14px rgba(255, 224, 125, 0.7);
+}
+.rack-slot img {
+  width: 34px; height: 34px; flex-shrink: 0; image-rendering: pixelated;
+  border: 2px solid #090712; background: #141726;
+}
+.rack-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rack-info strong { font-size: 11.5px; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 1px 1px 0 #090712; }
+.rack-badge { font-size: 11px; font-weight: 900; color: var(--rcol, #ffe07d); }
+.rack-sell {
+  position: absolute; top: -8px; right: -6px;
+  padding: 1px 5px; background: #6b1a2d; border: 2px solid #090712;
+  color: #ffd0da; font-size: 10px; font-weight: 900; cursor: pointer;
+}
+.rack-sell:hover { background: #a82844; }
+
+/* ─── Bottom Heavy Steel-Beveled Shop Tray (1:1 Reference Silhouette!) ─── */
+#shop-steel-dock {
+  position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%);
+  z-index: 12; pointer-events: auto;
+}
+.shop-tray {
+  display: flex; align-items: stretch; gap: 7px; padding: 8px;
+  background: #6c758f; border: 3px solid #090712;
+  box-shadow:
+    inset 0 3px 0 #c4cde3, inset 3px 0 0 #9aa4bf,
+    inset 0 -4px 0 #343a4f, inset -3px 0 0 #454c66,
+    0 8px 0 rgba(5, 4, 14, 0.78), 0 14px 30px rgba(0, 0, 0, 0.72);
+}
+.shop-wing-left {
+  display: flex; flex-direction: column; gap: 5px; width: 102px;
+}
+.wing-action {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border: 3px solid #090712; background: #464e69; color: #f4f7ff;
+  font-size: 13px; font-weight: 900; cursor: pointer; text-shadow: 2px 2px 0 #090712;
+  box-shadow: inset 0 3px 0 #9ca7c7, inset 0 -3px 0 #262b3d;
+}
+.wing-action:hover { filter: brightness(1.12); }
+.wing-action small { color: #ffe07d; font-size: 12px; }
+.wing-sub {
+  height: 30px; border: 3px solid #090712; background: #2c324a; color: #c7d2f0;
+  font-size: 11.5px; font-weight: 900; cursor: pointer;
+  box-shadow: inset 0 2px 0 #6c7696, inset 0 -2px 0 #161929;
+}
+.wing-sub.locked { background: #7a561e; color: #fff2b8; }
+
+.shop-shelf {
+  display: flex; align-items: stretch; gap: 6px; padding: 6px;
+  background: #1a1d2e; border: 3px solid #090712;
+  box-shadow: inset 0 3px 0 #0c0e18, inset 0 -2px 0 #313752;
+}
+.shop-div {
+  width: 4px; margin: 2px 1px; background: #6c758f; border: 2px solid #090712;
+}
+.shop-card {
+  position: relative; width: 128px; padding: 5px 5px 6px;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  background: #272c42; border: 3px solid #090712; color: #f4f7ff;
+  cursor: pointer; text-align: center;
+  box-shadow: inset 0 3px 0 #5b6488, inset 0 -3px 0 #141726;
+  transition: transform 0.08s steps(2), filter 0.08s;
+}
+.shop-card:hover:not(.sold) { transform: translateY(-3px); filter: brightness(1.12); }
+.shop-card.sold { opacity: 0.35; filter: grayscale(0.9); cursor: default; }
+.shop-card.kind-mult { box-shadow: inset 0 3px 0 #ff6e91, inset 0 -3px 0 #381222; background: #332038; }
+.shop-card.mergeable {
+  background: #423318;
+  box-shadow: inset 0 0 0 2px #ffe07d, 0 0 12px rgba(255, 224, 125, 0.45);
+}
+.sc-kind {
+  font-size: 10px; font-weight: 900; padding: 1px 6px;
+  background: #141726; border: 2px solid #090712; color: var(--ccol, #ffe07d);
+  white-space: nowrap;
+}
+.sc-ico-wrap, .sc-sprite-wrap {
+  width: 42px; height: 42px; display: flex; align-items: center; justify-content: center;
+  background: #141726; border: 2px solid #090712; overflow: hidden;
+}
+.sc-ico-wrap img { width: 34px; height: 34px; image-rendering: pixelated; }
+.sc-name { font-size: 12.5px; font-weight: 900; color: #fff6dc; white-space: nowrap; text-shadow: 1px 1px 0 #090712; }
+.sc-short { font-size: 10.5px; font-weight: 800; color: var(--ccol, #a6e8ff); white-space: nowrap; }
+.sc-price {
+  margin-top: 2px; width: 100%; padding: 2px 0;
+  background: #141726; border: 2px solid #090712;
+  color: #ffe07d; font-size: 12px; font-weight: 900;
+}
+
+.shop-wing-right {
+  width: 124px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  border: 3px solid #090712; background: #b0324c; color: #fff6de;
+  cursor: pointer; text-shadow: 2px 2px 0 #090712;
+  box-shadow: inset 0 3px 0 #ff91a7, inset 3px 0 0 #de5974, inset 0 -4px 0 #5e1324;
+  transition: transform 0.08s steps(2), filter 0.08s;
+}
+.shop-wing-right:hover { transform: translateY(-2px); filter: brightness(1.12); }
+.shop-wing-right strong { font-size: 16px; font-weight: 900; }
+.shop-wing-right small {
+  padding: 2px 8px; background: #4a0e1d; border: 2px solid #090712;
+  color: #ffd8e0; font-size: 11px; font-weight: 900;
+}
+
+/* ─── Hero Quick Inspect Popover ─── */
+#hero-quick-pop {
+  position: absolute; top: 158px; right: 24px; width: 250px; padding: 10px 12px;
+  background: #23273b; border: 3px solid #090712; z-index: 15;
+  box-shadow: inset 0 3px 0 #828db0, inset 0 -3px 0 #131624, 0 8px 0 rgba(0,0,0,0.7);
+}
+.hq-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 14px; color: #ffe07d; }
+.hq-x { background: #591627; border: 2px solid #090712; color: #fff; font-weight: 900; cursor: pointer; }
+.hq-stats { font-size: 12px; font-weight: 900; color: #7ceeff; margin-bottom: 6px; }
+.hq-desc { font-size: 11.5px; color: #d5ddf5; line-height: 1.4; margin-bottom: 10px; }
+.hq-sell {
+  width: 100%; padding: 6px; border: 3px solid #090712; background: #8f263c; color: #fff;
+  font-size: 12px; font-weight: 900; cursor: pointer;
+}
+.hq-sell:disabled { opacity: 0.4; cursor: default; }
+
+/* ─── Transient Toast ─── */
+#event-toast {
+  position: absolute; top: 148px; left: 50%; transform: translateX(-50%);
+  padding: 6px 16px; background: #141726; border: 3px solid #090712;
+  box-shadow: inset 0 2px 0 #ffe07d, 0 6px 0 rgba(0,0,0,0.65);
+  color: #fff3c4; font-size: 13px; font-weight: 900; z-index: 30; pointer-events: none;
+}
+
+/* ─── Full-Bleed Battle Theater Overlay & 5-Slot Live Relic Chain Bar ─── */
+.modal-backdrop {
+  position: absolute; inset: 0; z-index: 40;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(6, 5, 16, 0.76);
+}
+#theater-modal { background: #070510; }
+.v9-theater { position: relative; width: 1280px; height: 720px; overflow: hidden; }
+.bt-top-overlay {
+  position: absolute; top: 12px; left: 16px; right: 16px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 14px;
+  pointer-events: none; z-index: 8;
+}
+.bt-left-box { display: flex; flex-direction: column; gap: 6px; pointer-events: auto; }
+.bt-px-plate {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px;
+  background: #23273b; border: 3px solid #090712;
+  box-shadow: inset 0 3px 0 #7e89ab, inset 0 -3px 0 #131624, 0 4px 0 rgba(0,0,0,0.6);
+  font-size: 14px; font-weight: 900; text-shadow: 2px 2px 0 #090712;
+}
+.bt-affix-chip {
+  padding: 2px 8px; background: #591627; border: 2px solid #090712; color: #ffd0da; font-size: 11.5px;
+}
+.bt-chain-stats {
+  padding: 4px 10px; background: rgba(18, 20, 36, 0.88); border: 2px solid #090712;
+  color: #ffe07d; font-size: 12px; font-weight: 900; text-shadow: 1px 1px 0 #090712;
+}
+.bt-boss-hud { width: 450px; display: flex; flex-direction: column; gap: 4px; pointer-events: auto; }
+.bt-boss-name-row {
+  display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 900;
+  color: #fff2f6; text-shadow: 2px 2px 0 #090712;
+}
+.bt-boss-hp-bar {
+  display: flex; gap: 2px; padding: 3px; background: #141524; border: 3px solid #090712;
+  box-shadow: inset 0 2px 0 #5b6380, 0 4px 0 rgba(0,0,0,0.55);
+}
+.bt-boss-seg { flex: 1; height: 12px; background: #251728; }
+.bt-boss-seg.on { background: linear-gradient(180deg, #ff7d95 0 3px, #e32c4c 3px 9px, #9e1430 9px); }
+
+.bt-speed-group { display: inline-flex; gap: 6px; pointer-events: auto; }
+.bt-spd-btn {
+  min-width: 44px; height: 36px; border: 3px solid #090712; background: #343b54; color: #c8d2eb;
+  font-size: 14px; font-weight: 900; cursor: pointer; text-shadow: 1px 2px 0 #090712;
+  box-shadow: inset 0 3px 0 #8c97b8, inset 0 -3px 0 #1b1f30, 0 4px 0 rgba(0,0,0,0.55);
+}
+.bt-spd-btn.active {
+  background: #c73c58; color: #fff6d6;
+  box-shadow: inset 0 3px 0 #ff94aa, inset 0 -3px 0 #6e1529, 0 4px 0 rgba(0,0,0,0.6);
+}
+
+/* LIVE 5-Slot Balatro Relic Chain Bar right below Boss HP in Battle! */
+#bt-relic-chain {
+  position: absolute; top: 76px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px; padding: 6px 10px;
+  background: rgba(26, 29, 46, 0.88); border: 3px solid #090712;
+  box-shadow: inset 0 2px 0 #667096, 0 6px 0 rgba(0,0,0,0.6);
+  z-index: 9;
+}
+.bt-relic-slot {
+  position: relative; width: 72px; height: 64px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: #1a1d2e; border: 3px solid #090712;
+  box-shadow: inset 0 2px 0 #454e70;
+  transition: transform 0.12s steps(2);
+}
+.bt-relic-slot.empty { color: #5b6587; font-size: 12px; font-weight: 900; }
+.bt-relic-slot.filled {
+  background: #282d45;
+  box-shadow: inset 0 2px 0 var(--rcol, #ffe07d), inset 0 -3px 0 #141726;
+}
+.bt-relic-slot.sealed { opacity: 0.42; filter: grayscale(0.85); border-color: #ff475b; }
+.bt-relic-slot.pop {
+  animation: relicPop 0.28s ease-out;
+  box-shadow: inset 0 0 0 3px var(--rcol, #ffe07d), 0 0 18px var(--rcol, #ffe07d);
+}
+@keyframes relicPop {
+  0% { transform: scale(1) translateY(0); }
+  45% { transform: scale(1.22) translateY(-6px); }
+  100% { transform: scale(1) translateY(0); }
+}
+.bt-relic-slot img { width: 32px; height: 32px; image-rendering: pixelated; }
+.bt-relic-badge { font-size: 10.5px; font-weight: 900; color: var(--rcol, #ffe07d); text-shadow: 1px 1px 0 #090712; }
+.bt-relic-pop {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; font-size: 15px; font-weight: 900; opacity: 0; pointer-events: none;
+  text-shadow: 2px 2px 0 #090712, -1px -1px 0 #090712;
+}
+.bt-relic-pop.show { animation: badgeDrop 0.65s ease-out forwards; }
+@keyframes badgeDrop {
+  0% { opacity: 1; transform: translate(-50%, 0) scale(1.25); }
+  100% { opacity: 0; transform: translate(-50%, 16px) scale(0.95); }
+}
+
+/* Bottom Battle Drink Tray */
+.bt-dock-wrap { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); z-index: 9; }
+.bt-steel-tray {
+  display: flex; align-items: stretch; gap: 6px; padding: 8px;
+  background: #6c758f; border: 3px solid #090712;
+  box-shadow: inset 0 3px 0 #c1cae0, inset 0 -4px 0 #343a4f, 0 8px 0 rgba(5,4,14,0.72);
+}
+.bt-tray-wing {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-width: 72px; padding: 6px 8px; border: 3px solid #090712;
+  font-size: 12px; font-weight: 900; text-shadow: 1px 2px 0 #090712;
+}
+.bt-tray-wing.left { background: #464e69; box-shadow: inset 0 3px 0 #9aa5c4, inset 0 -3px 0 #262b3d; }
+.bt-tray-wing.right { background: #a8324a; box-shadow: inset 0 3px 0 #ff8da3, inset 0 -3px 0 #5c1324; }
+.bt-drink-dock {
+  display: flex; align-items: stretch; gap: 8px; padding: 6px;
+  background: #1a1d2e; border: 3px solid #090712;
+}
+.bt-drink-empty { display: flex; align-items: center; padding: 10px 24px; font-size: 13px; font-weight: 900; color: #9ba5c9; }
+.bt-drink-btn {
+  min-width: 248px; display: flex; align-items: center; gap: 10px; padding: 7px 12px;
+  border: 3px solid #090712; background: #2b3047; color: #fff5dc; cursor: grab; touch-action: none;
+  box-shadow: inset 0 3px 0 #667096, inset 0 -3px 0 #161929;
+}
+.bt-drink-btn.used { opacity: 0.48; filter: grayscale(0.8); cursor: default; }
+.bt-vial-bezel {
+  width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  background: #141726; border: 3px solid #090712; box-shadow: inset 0 0 0 2px var(--dcol, #ffd966);
+}
+.duelyst-drink-ico.md { width: 34px; height: 34px; image-rendering: pixelated; }
+.bt-drink-meta { flex: 1; display: flex; flex-direction: column; gap: 5px; text-align: left; }
+.bt-drink-head { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+.bt-drink-head strong { font-size: 14px; font-weight: 900; white-space: nowrap; }
+.bt-drink-tag { padding: 1px 6px; background: #141726; border: 2px solid #090712; color: var(--dcol, #ffd966); font-size: 10.5px; font-weight: 900; white-space: nowrap; }
+.bt-slowmo-track { width: 100%; height: 7px; background: #0e101c; border: 2px solid #090712; }
+.bt-slowmo-fill { display: block; height: 100%; background: var(--dcol, #ffd966); }
+.bt-ready-gem { color: var(--dcol, #ffd966); font-size: 13px; }
+.bt-used-tag { padding: 2px 6px; background: #591627; border: 2px solid #090712; color: #ffb8c6; font-size: 10.5px; font-weight: 900; white-space: nowrap; }
+
+/* ─── Starter Pick, Payout & Summary Steel Modals ─── */
+.steel-dialog {
+  width: 780px; max-width: 94%; padding: 20px 24px;
+  background: #23273b; border: 4px solid #090712;
+  box-shadow: inset 0 4px 0 #828db0, inset 0 -4px 0 #131624, 0 12px 0 rgba(0,0,0,0.8);
+  text-align: center;
+}
+.steel-dialog.sm { width: 500px; }
+.steel-dialog h2 { margin: 0 0 6px; font-size: 22px; color: #ffe07d; text-shadow: 2px 2px 0 #090712; }
+.steel-dialog .sub { margin: 0 0 16px; font-size: 13px; color: #c7d2f0; }
+
+.starter-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.starter-card {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 12px;
+  background: #1a1d2e; border: 3px solid #090712; color: #f4f7ff; cursor: pointer;
+  box-shadow: inset 0 3px 0 var(--elcol, #ffd966), inset 0 -3px 0 #0e101c;
+  transition: transform 0.08s steps(2);
+}
+.starter-card:hover { transform: translateY(-4px); background: #262b45; }
+.starter-sprite { width: 100px; height: 96px; display: flex; align-items: flex-end; justify-content: center; }
+.starter-name { display: flex; flex-direction: column; gap: 3px; }
+.starter-name strong { font-size: 17px; color: #fff6dc; }
+.starter-el { font-size: 11.5px; font-weight: 900; color: var(--elcol, #ffd966); }
+.starter-stats { font-size: 12px; font-weight: 900; color: #7ceeff; }
+.starter-desc { margin: 0; font-size: 11.5px; color: #c7d2f0; line-height: 1.45; min-height: 36px; }
+.starter-pick-btn {
+  margin-top: auto; width: 100%; padding: 8px; background: #a8324a; border: 3px solid #090712;
+  color: #fff6de; font-size: 13px; font-weight: 900;
+  box-shadow: inset 0 2px 0 #ff8da3, inset 0 -2px 0 #5c1324;
+}
+
+.payout-stamp {
+  display: inline-block; padding: 4px 14px; margin-bottom: 10px;
+  border: 3px solid #090712; font-size: 18px; font-weight: 900;
+}
+.payout-stamp.win { background: #1e6b43; color: #a8ffd0; }
+.payout-stamp.lose { background: #8f2238; color: #ffd0da; }
+.payout-rows { display: flex; flex-direction: column; gap: 8px; margin: 14px 0 18px; }
+.pay-row {
+  display: flex; justify-content: space-between; padding: 7px 12px;
+  background: #161929; border: 2px solid #090712; font-size: 13.5px;
+}
+.pay-row strong { color: #ffe07d; }
+.pay-row.total { background: #2c243b; border-color: #ffe07d; font-size: 16px; }
+.big-go-btn {
+  width: 100%; height: 46px; border: 3px solid #090712; background: #b0324c; color: #fff6de;
+  font-size: 16px; font-weight: 900; cursor: pointer; text-shadow: 2px 2px 0 #090712;
+  box-shadow: inset 0 3px 0 #ff91a7, inset 0 -4px 0 #5e1324, 0 5px 0 rgba(0,0,0,0.6);
+}
+.big-go-btn:hover { filter: brightness(1.12); }
+
+.end-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 16px 0 20px; }
+.end-stat { padding: 10px; background: #161929; border: 3px solid #090712; display: flex; flex-direction: column; gap: 4px; }
+.end-stat span { font-size: 12px; color: #9ba5c9; }
+.end-stat strong { font-size: 20px; color: #ffe07d; }
+.duelyst-dom-sprite {
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+}
+.duelyst-dom-strip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  image-rendering: pixelated;
+  will-change: transform;
+}
+@keyframes duelyst-strip-play {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+.duelyst-kit-dom { display: flex; align-items: flex-end; justify-content: center; }
+.duelyst-kit-dom canvas { display: block; image-rendering: pixelated; }

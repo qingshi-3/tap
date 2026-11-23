@@ -387,31 +387,295 @@
     ], { o: '#1e0e14', B: '#a36b32', Y: '#d9a45b', D: '#6e421c', R: '#d62828', G: '#ffd452' })
   };
 
+  // Razor-sharp 24x24 dark-gold 9-slice frame (slice=6: ALL 6px of the rail are continuous sculpted metal, zero invisible gaps!)
+  function makeOrnatePlaque({ outer, hi, mid, lo, fill, gem, gemHi }) {
+    const S = 24;
+    const { c, ctx } = makeCanvas(S, S);
+    const px = (x, y, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); };
+    const rect = (x, y, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); };
+
+    // Interior fill
+    rect(5, 5, S - 10, S - 10, fill);
+
+    // Layer 0 (y=0, x=0): Solid dark pixel outline with 1px chamfered corner
+    rect(1, 0, S - 2, 1, outer);
+    rect(1, S - 1, S - 2, 1, outer);
+    rect(0, 1, 1, S - 2, outer);
+    rect(S - 1, 1, 1, S - 2, outer);
+
+    // Layer 1 (y=1, x=1): Bright top/left specular brass, deep bottom/right shadow
+    rect(2, 1, S - 4, 1, hi);
+    rect(1, 2, 1, S - 4, hi);
+    rect(2, S - 2, S - 4, 1, lo);
+    rect(S - 2, 2, 1, S - 4, lo);
+
+    // Layer 2 & 3 (2px thick solid antique gold/iron rail all 4 sides)
+    rect(2, 2, S - 4, 2, mid);
+    rect(2, S - 4, S - 4, 2, mid);
+    rect(2, 2, 2, S - 4, mid);
+    rect(S - 4, 2, 2, S - 4, mid);
+
+    // Layer 4: Crisp inner dark recess groove (separates metal frame from obsidian panel)
+    rect(4, 4, S - 8, 1, outer);
+    rect(4, S - 5, S - 8, 1, outer);
+    rect(4, 4, 1, S - 8, outer);
+    rect(S - 5, 4, 1, S - 8, outer);
+
+    // Layer 5: Subtle inner top-light shelf inside the obsidian well
+    rect(5, 5, S - 10, 1, 'rgba(255, 240, 200, 0.14)');
+    rect(5, 5, 1, S - 10, 'rgba(255, 240, 200, 0.10)');
+
+    // 4 Corner Studded Filigree Caps + Glowing Corner Gem
+    const drawCorner = (cx, cy, sx, sy) => {
+      px(cx + 1 * sx, cy + 1 * sy, outer);
+      px(cx + 2 * sx, cy + 1 * sy, hi);
+      px(cx + 1 * sx, cy + 2 * sy, hi);
+      // 2x2 corner gem inset into the 4px corner plate
+      px(cx + 2 * sx, cy + 2 * sy, gemHi || '#fff6cc');
+      px(cx + 3 * sx, cy + 2 * sy, gem || hi);
+      px(cx + 2 * sx, cy + 3 * sy, gem || hi);
+      px(cx + 3 * sx, cy + 3 * sy, lo);
+      // Inner corner notch accent
+      px(cx + 4 * sx, cy + 4 * sy, mid);
+      px(cx + 5 * sx, cy + 4 * sy, outer);
+      px(cx + 4 * sx, cy + 5 * sy, outer);
+    };
+    drawCorner(0, 0, 1, 1);
+    drawCorner(S - 1, 0, -1, 1);
+    drawCorner(0, S - 1, 1, -1);
+    drawCorner(S - 1, S - 1, -1, -1);
+
+    return c.toDataURL('image/png');
+  }
+
+  // Sculpted 24x24 Pixel-Art RPG Button 9-slice (notched corners, glossy top bevel, deep bottom lip, side rivets)
+  function makePixelButton({ outer, hi, top, body, bot, rivet }) {
+    const S = 24;
+    const { c, ctx } = makeCanvas(S, S);
+    const px = (x, y, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); };
+    const rect = (x, y, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); };
+
+    rect(2, 2, S - 4, S - 4, body);
+    rect(2, 2, S - 4, 3, top);
+    rect(2, S - 5, S - 4, 3, bot);
+
+    // Outer pixel border with chamfered corners
+    rect(2, 0, S - 4, 1, outer);
+    rect(2, S - 1, S - 4, 1, outer);
+    rect(0, 2, 1, S - 4, outer);
+    rect(S - 1, 2, 1, S - 4, outer);
+    [[1, 1], [S - 2, 1], [1, S - 2], [S - 2, S - 2]].forEach(([x, y]) => px(x, y, outer));
+
+    // Specular highlight & shadow bevel
+    rect(2, 1, S - 4, 1, hi);
+    rect(1, 2, 1, S - 5, hi);
+    rect(2, S - 2, S - 4, 1, outer);
+    rect(S - 2, 2, 1, S - 4, bot);
+
+    // Corner rivets
+    if (rivet) {
+      [[3, 3], [S - 4, 3], [3, S - 4], [S - 4, S - 4]].forEach(([x, y]) => px(x, y, rivet));
+    }
+    return c.toDataURL('image/png');
+  }
+
+  // Carved Recessed Pixel Socket (for Squad Slots & Gear Slots)
+  function makePixelSocket({ outer, rim, inner, corner }) {
+    const S = 24;
+    const { c, ctx } = makeCanvas(S, S);
+    const px = (x, y, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, 1, 1); };
+    const rect = (x, y, w, h, col) => { ctx.fillStyle = col; ctx.fillRect(x, y, w, h); };
+
+    rect(2, 2, S - 4, S - 4, inner);
+    rect(2, 2, S - 4, 2, 'rgba(0,0,0,0.45)');
+    rect(2, 2, 2, S - 4, 'rgba(0,0,0,0.38)');
+
+    rect(2, 0, S - 4, 1, outer);
+    rect(2, S - 1, S - 4, 1, outer);
+    rect(0, 2, 1, S - 4, outer);
+    rect(S - 1, 2, 1, S - 4, outer);
+    rect(2, 1, S - 4, 1, rim);
+    rect(1, 2, 1, S - 4, rim);
+    rect(2, S - 2, S - 4, 1, rim);
+    rect(S - 2, 2, 1, S - 4, rim);
+
+    // 4 pixel claw corner teeth
+    [[1, 1], [2, 1], [1, 2], [S - 2, 1], [S - 3, 1], [S - 2, 2], [1, S - 2], [2, S - 2], [1, S - 3], [S - 2, S - 2], [S - 3, S - 2], [S - 2, S - 3]]
+      .forEach(([x, y]) => px(x, y, corner));
+
+    return c.toDataURL('image/png');
+  }
+
+  // ─── v5.2 Procedural Luxury Textures (100% Pure Code Canvas Drawing) ───
+
+  function makeParchmentGrainTexture() {
+    const S = 128;
+    const c = document.createElement('canvas');
+    c.width = S; c.height = S;
+    const ctx = c.getContext('2d');
+    // Subtle deterministic pseudo-random grain + woven paper fibers
+    let seed = 4219;
+    const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+    for (let y = 0; y < S; y += 2) {
+      const rowAlpha = 0.012 + rnd() * 0.022;
+      ctx.fillStyle = rnd() > 0.5 ? `rgba(255, 224, 168, ${rowAlpha})` : `rgba(8, 4, 2, ${rowAlpha * 1.4})`;
+      ctx.fillRect(0, y, S, 1);
+    }
+    for (let i = 0; i < 420; i++) {
+      const x = Math.floor(rnd() * S);
+      const y = Math.floor(rnd() * S);
+      const w = 1 + Math.floor(rnd() * 3);
+      const a = 0.02 + rnd() * 0.035;
+      ctx.fillStyle = rnd() > 0.45 ? `rgba(255, 214, 150, ${a})` : `rgba(12, 6, 4, ${a * 1.5})`;
+      ctx.fillRect(x, y, w, 1);
+    }
+    // Delicate distressed flecks
+    for (let i = 0; i < 36; i++) {
+      const x = Math.floor(rnd() * S);
+      const y = Math.floor(rnd() * S);
+      ctx.fillStyle = `rgba(92, 54, 24, ${0.06 + rnd() * 0.07})`;
+      ctx.fillRect(x, y, 2, 2);
+    }
+    return c.toDataURL('image/png');
+  }
+
+  function makeAstrolabeTexture() {
+    const W = 540, H = 320;
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const ctx = c.getContext('2d');
+    const cx = W * 0.5, cy = H * 0.46;
+
+    // Fine engraved tactical astrolabe concentric rings
+    const radii = [56, 108, 164, 226];
+    radii.forEach((r, idx) => {
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = idx === 1 ? 'rgba(212, 160, 72, 0.13)' : 'rgba(155, 175, 235, 0.075)';
+      ctx.lineWidth = idx === 1 ? 1.2 : 1;
+      if (idx === 2) ctx.setLineDash([4, 6]);
+      else ctx.setLineDash([]);
+      ctx.stroke();
+    });
+    ctx.setLineDash([]);
+
+    // Compass radial ticks along the primary astrolabe ring
+    for (let deg = 0; deg < 360; deg += 15) {
+      const rad = (deg * Math.PI) / 180;
+      const major = deg % 45 === 0;
+      const r1 = major ? 100 : 104;
+      const r2 = major ? 116 : 112;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(rad) * r1, cy + Math.sin(rad) * r1);
+      ctx.lineTo(cx + Math.cos(rad) * r2, cy + Math.sin(rad) * r2);
+      ctx.strokeStyle = major ? 'rgba(212, 160, 72, 0.22)' : 'rgba(155, 175, 235, 0.09)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Subtle crosshair axes
+    ctx.beginPath();
+    ctx.moveTo(28, cy); ctx.lineTo(W - 28, cy);
+    ctx.moveTo(cx, 18); ctx.lineTo(cx, H - 18);
+    ctx.strokeStyle = 'rgba(212, 160, 72, 0.07)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Small engraved diamond markers at cardinal points
+    [[cx, cy - 108], [cx, cy + 108], [cx - 108, cy], [cx + 108, cy]].forEach(([x, y]) => {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.PI / 4);
+      ctx.fillStyle = 'rgba(212, 160, 72, 0.28)';
+      ctx.fillRect(-3, -3, 6, 6);
+      ctx.restore();
+    });
+    return c.toDataURL('image/png');
+  }
+
+  function makeBrassFiligreeCorner() {
+    // 22x22 pixel-art ornate brass corner bracket (top-left orientation)
+    return drawGrid([
+      'oooooooooooooooooooooo',
+      'oHHHHHHHHHHHHHHHHHHHoo',
+      'oHMMMMMMGGGGGGMMMMMMHo',
+      'oHMGGMMMMMMMMMMMMMMMo.',
+      'oHMGGMDooooooooooooo..',
+      'oHMMMMo...............',
+      'oHMMMooHHHo...........',
+      'oHMMM.oHGHo...........',
+      'oHGMo..oHoo...........',
+      'oHGMo...oo............',
+      'oHGMo.................',
+      'oHGMo.................',
+      'oHGMo.................',
+      'oHGMo.................',
+      'oHMMo.................',
+      'oHMMo.................',
+      'oHMMo.................',
+      'oHMMo.................',
+      'oHMMo.................',
+      'oHMHo.................',
+      'oHHo..................',
+      'ooo...................'
+    ], {
+      o: '#0c0704',
+      H: '#fff0b3',
+      M: '#d49a35',
+      G: '#ffe07d',
+      D: '#6e420e'
+    });
+  }
+
   function injectPixelTheme() {
     const root = document.documentElement.style;
 
-    // 9-slice pixel frames
-    root.setProperty('--pxf-gold', `url("${makeNineSlice({
-      outer: '#12081c', hi: '#fff0ad', mid: '#d69e32', lo: '#7d4f12',
-      fill: '#201233', rivet: '#fff6cc', dither: 'rgba(255,215,120,0.03)'
+    // v5.2 Procedural Luxury Textures
+    root.setProperty('--tex-parchment', `url("${makeParchmentGrainTexture()}")`);
+    root.setProperty('--tex-astrolabe', `url("${makeAstrolabeTexture()}")`);
+    root.setProperty('--tex-filigree-corner', `url("${makeBrassFiligreeCorner()}")`);
+
+    // Ornate 36x36 Dark-Fantasy 9-Slice Plaques
+    root.setProperty('--pxf-gold', `url("${makeOrnatePlaque({
+      outer: '#090612', hi: '#ffe9a3', mid: '#c68d2e', lo: '#5e390c',
+      fill: '#131226', fill2: '#1a1833', gem: '#4de8e8', gemHi: '#dcffff'
     })}")`);
 
-    root.setProperty('--pxf-plum', `url("${makeNineSlice({
-      outer: '#0e0717', hi: '#7c53a8', mid: '#4b2f6e', lo: '#26153b',
-      fill: '#180e28', rivet: '#d4a348', dither: 'rgba(190,140,255,0.03)'
+    root.setProperty('--pxf-plum', `url("${makeOrnatePlaque({
+      outer: '#090612', hi: '#8aa4e6', mid: '#48588a', lo: '#222a48',
+      fill: '#101224', fill2: '#171a33', gem: '#ffd166', gemHi: '#fff5cc'
     })}")`);
 
-    root.setProperty('--pxf-wood', `url("${makeNineSlice({
-      outer: '#170a10', hi: '#b5763c', mid: '#7d4924', lo: '#472514',
-      fill: '#2a151c', rivet: '#f5cb5c', dither: 'rgba(255,190,120,0.03)'
+    root.setProperty('--pxf-crimson', `url("${makeOrnatePlaque({
+      outer: '#14040a', hi: '#ff7a95', mid: '#a81d38', lo: '#4f0a18',
+      fill: '#1f0c18', fill2: '#2b1022', gem: '#ffd966', gemHi: '#fff4c2'
     })}")`);
 
-    root.setProperty('--pxf-crimson', `url("${makeNineSlice({
-      outer: '#1f050c', hi: '#ff758f', mid: '#b5172a', lo: '#5e0814',
-      fill: '#330c19', rivet: '#ffd166', dither: null
+    root.setProperty('--pxf-wood', `url("${makeOrnatePlaque({
+      outer: '#12080a', hi: '#d69952', mid: '#875224', lo: '#45240e',
+      fill: '#1d121a', fill2: '#261722', gem: '#ffae42', gemHi: '#fff0b8'
     })}")`);
 
     root.setProperty('--pxf-parchment', `url("${makeParchmentSlice()}")`);
+
+    // Sculpted 24x24 Pixel Buttons
+    root.setProperty('--pxb-amber', `url("${makePixelButton({
+      outer: '#140903', hi: '#fff0ad', top: '#d99a32', body: '#9e6416', bot: '#5c3408', rivet: '#ffe699'
+    })}")`);
+    root.setProperty('--pxb-cyan', `url("${makePixelButton({
+      outer: '#06121a', hi: '#a8ffff', top: '#257c94', body: '#155066', bot: '#0b2c3b', rivet: '#7effef'
+    })}")`);
+    root.setProperty('--pxb-crimson', `url("${makePixelButton({
+      outer: '#1a040a', hi: '#ff9eb0', top: '#b82844', body: '#80162c', bot: '#4a0916', rivet: '#ffd166'
+    })}")`);
+    root.setProperty('--pxb-iron', `url("${makePixelButton({
+      outer: '#090b14', hi: '#9eb4e0', top: '#3a4668', body: '#242c47', bot: '#14192b', rivet: '#cbd8f5'
+    })}")`);
+
+    // Carved Recessed Pixel Sockets
+    root.setProperty('--pxs-socket', `url("${makePixelSocket({
+      outer: '#070812', rim: '#3b4870', inner: '#0d0f20', corner: '#c68d2e'
+    })}")`);
 
     for (const [k, url] of Object.entries(ICONS)) {
       root.setProperty(`--px-${k}`, `url("${url}")`);
