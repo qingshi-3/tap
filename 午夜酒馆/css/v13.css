@@ -8,8 +8,8 @@
 }
 
 :root {
-  --font-px: 'FusionPixel', 'Silkscreen', monospace;
-  --font-px-num: 'Silkscreen', 'FusionPixel', monospace;
+  --font-px: 'FusionPixel', monospace;
+  --font-px-num: 'FusionPixel', monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; -webkit-tap-highlight-color: transparent; }
@@ -26,20 +26,23 @@ html, body {
 }
 
 #viewport {
-  width: 100vw; height: 100vh;
+  width: 100%; height: 100%; height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   display: flex; align-items: center; justify-content: center;
   overflow: hidden; background: #07050f;
 }
 
 #stage {
+  --stage-width: 1280px;
+  --tap-size: 48px;
+  --market-hud-height: max(72px, calc(var(--tap-size) + 8px));
   position: relative;
   flex: 0 0 auto;
-  width: 1280px; height: 720px;
+  width: var(--stage-width); height: 720px;
   min-width: 1280px; min-height: 720px;
   transform-origin: center center;
   overflow: hidden;
   background: #0d0919;
-  box-shadow: 0 0 0 4px #090712, 0 24px 64px rgba(0, 0, 0, 0.82);
 }
 
 .hidden { display: none !important; }
@@ -77,8 +80,9 @@ html, body {
   color: #effff6;
 }
 
-#tavern-view, #battle-view { position: absolute; inset: 0; width: 1280px; height: 720px; }
+#tavern-view, #battle-view { position: absolute; inset: 0; }
 #tavern-canvas, #battle-canvas, #altar-bg-canvas { display: block; width: 1280px; height: 720px; image-rendering: pixelated; }
+#battle-canvas, #altar-bg-canvas { width: 100%; }
 
 /* ═══════════════════════════════════════════════════════════════════════════
    v13.2 FULL-SCREEN WALNUT TABLETOP × STITCHED BAIZE MAT × PHYSICAL ARTIFACTS
@@ -118,7 +122,7 @@ html, body {
 
 /* ─── Sculpted Riveted Brass & Walnut Top Ledger Beam (72px — Bold Core Readouts!) ─── */
 #top-hud.tavern-top-beam {
-  position: absolute; top: 0; left: 0; right: 0; height: 72px;
+  position: absolute; top: 0; left: 0; right: 0; height: var(--market-hud-height);
   padding: 0 20px;
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
   background:
@@ -268,7 +272,7 @@ html, body {
 
 /* Tap-to-Inspect Equipped Relic Floating Strip */
 #relic-inspect-bar.tavern-inspect-strip {
-  position: absolute; top: 78px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: calc(var(--market-hud-height) + 6px); left: 50%; transform: translateX(-50%);
   min-width: 660px; max-width: 960px; padding: 9px 16px;
   display: flex; align-items: center; justify-content: space-between; gap: 14px; z-index: 40;
   background: linear-gradient(180deg, #362216 0%, #1d110a 100%);
@@ -283,8 +287,8 @@ html, body {
 
 /* ─── UNBOXED FULL-TABLETOP STAGE (Exact Pixel Alignment with Painted Walnut + Baize Mat: 436px | 1fr) ─── */
 #market-main-stage.tabletop-stage {
-  position: absolute; top: 82px; left: 24px; right: 28px; height: 618px;
-  display: grid; grid-template-columns: 436px 1fr; gap: 20px;
+  position: absolute; top: calc(var(--market-hud-height) + 8px); left: 24px; right: 28px; bottom: 20px;
+  display: grid; grid-template-columns: 35.5% 1fr; gap: 20px;
   z-index: 15;
 }
 
@@ -572,13 +576,6 @@ html, body {
 }
 .felt-title.sm { font-size: 13.5px; letter-spacing: 0.8px; }
 .felt-title.teal { color: #84ead9; }
-.felt-sub {
-  font-size: 11px; color: rgba(214, 228, 212, 0.72);
-}
-
-/* Remove redundant right-side gold readout (top HUD plaque already shows big gold!) */
-.felt-gold-dish { display: none; }
-
 /* Chamfered Embossed Brass Reroll Medallion Button */
 .brass-reroll-stamp {
   appearance: none; cursor: pointer; font-family: inherit;
@@ -756,14 +753,6 @@ html, body {
 }
 .sdp-title { font-size: 16px; color: #fff7de; text-shadow: 0 2px 0 #120804; }
 .sdp-stat { font-size: 13px; color: #ffe07d; white-space: nowrap; }
-.sdp-close {
-  appearance: none; border: none; cursor: pointer; font-family: inherit;
-  width: 22px; height: 22px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(14, 7, 4, 0.8); color: #d8c29d; font-size: 16px; line-height: 1;
-  box-shadow: inset 0 0 0 1.5px rgba(214, 168, 86, 0.45);
-}
-.sdp-close:hover { background: #4a2416; color: #fff6dc; }
 .sdp-tags { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .sdp-badge {
   font-size: 11px; padding: 2px 7px;
@@ -1212,20 +1201,13 @@ html, body {
 /* ─── Enlarged Battle Hand Dock (198px) & Wide Black-Market Shop Showcase (208px) ─── */
 .bottom-dock {
   position: absolute; left: 14px; right: 14px; bottom: 8px;
-  height: 198px; padding: 9px 10px;
+  height: 170px; padding: 7px 8px;
   display: grid; grid-template-columns: 150px 1fr 188px; gap: 10px;
   align-items: stretch; z-index: 20;
 }
 .dock-wing-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; text-align: center; }
-.wing-mult-hero { font-size: 26px; font-weight: 900; line-height: 1; text-shadow: 0 3px 0 #090712; }
 .wing-title { font-size: 18px; font-weight: 900; }
 .wing-sub { font-size: 12px; font-weight: 800; opacity: 0.94; }
-
-@keyframes strike-ready-pulse {
-  0%, 100% { box-shadow: inset 0 2px 0 #ff94a6, 0 0 12px rgba(255, 88, 118, 0.55), 0 3px 0 #090712; }
-  50%      { box-shadow: inset 0 2px 0 #ffe58f, 0 0 26px rgba(255, 217, 102, 0.85), 0 3px 0 #090712; }
-}
-#btn-bt-strike.ready-pulse { animation: strike-ready-pulse 1.25s ease-in-out infinite; }
 
 /* Wide 6-Card Black-Market Shop Showcase */
 .shop-dock-wide {
@@ -1339,7 +1321,7 @@ html, body {
 
 /* Chunky Balatro-Style Tactical Scoreboard Bar + Transparent Draw/Discard Piles */
 #bt-forecast-bar {
-  position: absolute; left: 14px; right: 14px; bottom: 218px; height: 44px; padding: 0 14px;
+  position: absolute; left: 14px; right: 14px; bottom: 184px; min-height: max(58px, calc(var(--tap-size) + 6px)); padding: 0 10px;
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
   background: linear-gradient(180deg, #272e4a 0%, #161a2c 100%);
   border: 3px solid #090712; box-shadow: inset 0 2px 0 #7e8ab3, 0 4px 0 #090712; z-index: 18;
@@ -1377,7 +1359,7 @@ html, body {
    v13.3 RAINY MIDNIGHT TAVERN TITLE SCREEN & UNBOXED PARCHMENT WARBAND CONTRACTS
    ═══════════════════════════════════════════════════════════════════════════ */
 #title-screen-view {
-  position: absolute; inset: 0; width: 1280px; height: 720px; z-index: 60;
+  position: absolute; inset: 0; z-index: 60;
   overflow: hidden; background: #0c0d1c;
   transition: opacity 0.34s ease, transform 0.34s ease, filter 0.34s ease;
 }
@@ -1386,12 +1368,13 @@ html, body {
   pointer-events: none;
 }
 .title-bg-art {
-  position: absolute; inset: 0; width: 1280px; height: 720px;
-  object-fit: cover; image-rendering: pixelated;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 58%; image-rendering: pixelated;
   display: block; pointer-events: none;
 }
 #title-fx-canvas {
-  position: absolute; inset: 0; width: 1280px; height: 720px;
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 58%;
   pointer-events: none; z-index: 2;
 }
 .title-vignette {
@@ -1418,10 +1401,6 @@ html, body {
     inset 0 0 24px rgba(0, 0, 0, 0.65);
   filter: drop-shadow(0 12px 24px rgba(4, 2, 1, 0.8));
 }
-.ts-eyebrow {
-  font-size: 12.5px; color: #e8c37c; letter-spacing: 3px;
-  margin-bottom: 6px;
-}
 .ts-main-title {
   font-size: 56px; line-height: 1.08; letter-spacing: 12px;
   padding-left: 12px;
@@ -1433,10 +1412,6 @@ html, body {
   margin-top: 8px;
   display: flex; align-items: center; justify-content: center; gap: 12px;
   font-size: 13px; color: #e0c9a2; letter-spacing: 2.5px;
-}
-.ts-rule {
-  width: 38px; height: 2px;
-  background: linear-gradient(90deg, transparent, rgba(232, 184, 96, 0.8), transparent);
 }
 
 /* Doorway Wax-Seal Primary CTA + Chamfered Brass Aux Row */
@@ -1470,10 +1445,7 @@ html, body {
   box-shadow: inset 0 0 0 2.5px #f0c46c, inset 0 0 0 5px #4d0812;
   text-shadow: 0 2px 0 #260409;
 }
-.te-copy { flex: 1; display: flex; flex-direction: column; gap: 3px; }
 .te-main { font-size: 20px; color: #fff7e2; letter-spacing: 1px; text-shadow: 0 2px 0 #2b050a; }
-.te-sub { font-size: 11.5px; color: #f2cab8; letter-spacing: 0.4px; }
-.te-arrow { font-size: 22px; color: #f6d88b; text-shadow: 0 2px 0 #2b050a; }
 
 .title-aux-row { display: flex; align-items: center; gap: 12px; }
 .title-aux-btn {
@@ -1503,7 +1475,6 @@ html, body {
 }
 .contracts-rail-title { text-align: center; display: flex; flex-direction: column; gap: 2px; }
 .crt-main { font-size: 20px; color: #ffe08a; letter-spacing: 2.5px; text-shadow: 0 2px 0 #120804; }
-.crt-sub { font-size: 12px; color: #d6c19d; letter-spacing: 0.4px; }
 .contracts-rail-tools { display: flex; align-items: center; gap: 8px; }
 
 .contracts-spread {
@@ -1544,7 +1515,6 @@ html, body {
   border-bottom: 1.5px double rgba(94, 48, 22, 0.45);
 }
 .wc-seal-tag { font-size: 12px; color: #691b14; letter-spacing: 0.4px; }
-.wc-count { font-size: 11px; color: #6e4522; letter-spacing: 0.4px; }
 
 /* 16-Bit Pixel-Art 2.5D Head-Pop-Out Gothic Arch Portrait + Enlarged 162px General Idle Animation */
 .wc-arch-stage {
@@ -1684,7 +1654,6 @@ html, body {
 .fc-mult { padding: 2px 10px; border: 2px solid #090712; color: #140c04; font-size: 18px; font-weight: 900; }
 .fc-dmg { color: #ffe599; font-size: 15px; }
 .fc-shield { color: #7cf0ff; font-size: 15px; }
-.fc-hint { font-size: 12px; color: #c4cef0; font-weight: 700; }
 .fc-pill { padding: 4px 12px; border: 2px solid #090712; font-size: 13px; font-weight: 900; }
 .fc-pill.ok { background: #164f36; color: #7dffba; }
 .fc-pill.warn { background: #4f3112; color: #ffd966; }
@@ -1736,9 +1705,10 @@ html, body {
     radial-gradient(ellipse at 50% 48%, rgba(48, 26, 16, 0.92) 0%, rgba(12, 7, 5, 0.97) 72%);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
 }
-#pack-fx-canvas { position: absolute; inset: 0; width: 1280px; height: 720px; pointer-events: none; z-index: 1; }
+#pack-fx-canvas { position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1280px; height: 720px; pointer-events: none; z-index: 1; }
 .pack-ceremony-hud { position: relative; z-index: 5; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 24px 36px 24px; }
 .pack-header { text-align: center; }
+#pack-ceremony-modal:has(#pack-sealed-stage:not(.hidden)) .pack-header { visibility: hidden; }
 #pack-ceremony-title {
   font-size: 32px; color: #ffe38a; letter-spacing: 3px;
   text-shadow: 0 3px 0 #160904, 0 0 24px rgba(255, 198, 72, 0.58);
@@ -1780,7 +1750,6 @@ html, body {
   animation: seam-glow 0.45s ease-in-out infinite;
 }
 .foil-shimmer { position: absolute; inset: 0; width: 55%; pointer-events: none; z-index: 3; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.42), transparent); animation: foil-sweep 1.15s linear infinite; }
-.foil-seal-top { position: relative; z-index: 4; font-size: 13px; color: #ffebb0; letter-spacing: 2px; text-shadow: 0 2px 0 #140804; }
 .foil-emblem-crest {
   position: relative; z-index: 4; width: 118px; height: 118px;
   display: flex; align-items: center; justify-content: center;
@@ -2109,18 +2078,6 @@ html, body {
 .rm-spr { width: 88px; height: 82px; display: flex; align-items: center; justify-content: center; }
 .rm-hname { font-size: 13px; font-weight: 900; color: #fff6dc; }
 .rm-htags { font-size: 11px; font-weight: 800; color: #cbb694; }
-.rm-hands-list { display: flex; flex-direction: column; gap: 8px; }
-.rm-hand-row {
-  display: grid; grid-template-columns: 140px 64px 74px 80px 1fr; align-items: center; gap: 10px;
-  padding: 11px 14px;
-  background: linear-gradient(180deg, rgba(44, 27, 17, 0.85) 0%, rgba(25, 15, 10, 0.92) 100%);
-  border: 1.5px solid #120905;
-  box-shadow: inset 0 1px 0 rgba(214, 168, 86, 0.24);
-  font-size: 14px; font-weight: 900; font-variant-numeric: tabular-nums;
-}
-.rm-lv { color: #84ead9; }
-.rm-bonus { color: #ffe399; }
-.rm-perk { font-size: 12px; color: #e2d1b3; font-weight: 700; }
 
 #toast-banner {
   position: absolute; top: 96px; left: 50%; transform: translateX(-50%) translateY(-10px);
@@ -2132,9 +2089,193 @@ html, body {
   transition: opacity 0.16s ease, transform 0.16s ease;
 }
 #toast-banner.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast-banner:empty { visibility: hidden; }
+
+/* Landscape UI shares the scene's height while the controls use the available width. */
+button:focus-visible, [tabindex]:focus-visible {
+  outline: 4px solid #fff3be;
+  outline-offset: -5px;
+}
+
+.title-enter-seal, .title-aux-btn, .hud-mini-btn, #bt-speed-btn, .pile-btn,
+.brass-reroll-stamp, .wax-contract-cta, .sdp-confirm-btn, .sdp-cancel-btn,
+.tavern-modal-cta, .rm-tab, .rib-btn, #btn-pack-abandon {
+  min-height: var(--tap-size);
+  min-width: var(--tap-size);
+}
+
+.title-hero-overlay { padding: 26px 32px 22px; }
+.title-signboard { padding: 12px 36px 15px; }
+.ts-main-title { font-size: 64px; }
+.ts-sub-line { margin-top: 5px; font-size: 19px; }
+.title-enter-seal {
+  min-width: 228px; justify-content: center; padding: 0 18px; gap: 12px;
+  box-shadow: inset 0 2px 0 #da826c, inset 0 -4px 0 #480c16;
+}
+.te-main { font-size: 28px; }
+.title-aux-row { position: absolute; right: 26px; bottom: 22px; gap: 8px; }
+.title-aux-btn { padding: 0 16px; font-size: 20px; }
+
+.contracts-top-rail {
+  min-height: calc(var(--tap-size) + 10px);
+  display: grid; grid-template-columns: 1fr auto 1fr;
+}
+#btn-contracts-back { justify-self: start; }
+.contracts-rail-tools { justify-self: end; }
+.crt-main { font-size: 30px; }
+.contracts-spread { padding: 10px 28px 16px; gap: clamp(20px, 2%, 36px); }
+.warband-contract-card { width: clamp(350px, 29%, 450px); height: min(576px, 100%); }
+.wc-scroll-content { padding: 49px 14%; }
+.wc-seal-tag, .wc-fac-item { font-size: 17px; }
+.wc-relic-kicker { font-size: 15px; }
+.wc-relic-txt b, .wc-pitch { font-size: 18px; }
+.wc-relic-txt em { font-size: 16px; }
+.wc-name-ribbon b, .wc-sign-cta { font-size: 23px; }
+.wc-sign-cta { height: 50px; flex-shrink: 0; }
+
+#battle-top-bar { align-items: flex-start; }
+.bt-squad-box, .bt-boss-box { gap: 5px; border-width: 1px; }
+.bt-squad-box { min-width: 292px; }
+.bt-sq-head, .bt-boss-head, #bt-squad-hp-text { font-size: 20px; gap: 12px; }
+.bt-boss-head { flex-wrap: wrap; }
+.bt-boss-head .vuln-tag { font-size: 16px; }
+#bt-relic-chain {
+  top: 74px; left: 14px; transform: none; padding: 4px; gap: 4px;
+  border: none; background: none; box-shadow: none;
+}
+.bt-relic-slot.empty, .bt-chain-arrow:has(+ .bt-relic-slot.empty) { display: none; }
+.bt-relic-slot { width: 62px; height: 54px; border-width: 1px; }
+.bt-relic-badge { font-size: 14px; line-height: 19px; }
+.hud-mini-btn, #bt-speed-btn, .pile-btn { font-size: 20px; }
+.pile-btn { padding: 0 12px; white-space: nowrap; }
+.pile-btn b { font-size: 22px; }
+#bt-forecast-bar, #bt-forecast-bar.ready { border: 1px solid #344464; box-shadow: none; }
+#bt-forecast-bar.ready { border-color: #d9b363; }
+.fc-left { font-size: 24px; flex-wrap: wrap; gap: 4px 10px; }
+.fc-mult, .fc-dmg, .fc-shield, .fc-pill { font-size: 20px; }
+.fc-pill { display: inline-block; }
+.fc-right { flex-shrink: 0; }
+.bottom-dock { border-width: 1px; box-shadow: none; background: #141927; }
+#bt-cards-row { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.hero-hand-card { min-width: 0; padding: 5px 4px; border-width: 1px; }
+.hero-hand-card.selected { transform: translateY(-4px); box-shadow: inset 0 3px 0 #ffe192; }
+.hero-hand-card.frozen { filter: grayscale(0.6); }
+.hhc-top { font-size: 15px; gap: 2px; }
+.hhc-fac { padding: 2px 4px; border: 0; }
+.hhc-role { text-align: right; line-height: 1.05; }
+.hhc-sprite { height: 75px; width: 100%; }
+.hhc-name { font-size: 19px; white-space: normal; line-height: 1.05; text-align: center; }
+.hhc-atk, .hhc-atk b { font-size: 18px; }
+.hhc-pick-badge, .hhc-held-badge { top: 31px; font-size: 15px; border: 0; }
+.wing-title { font-size: 27px; }
+.wing-sub { font-size: 17px; }
+#btn-bt-discard:not(:disabled) { background: #49405a; box-shadow: inset 0 2px 0 #88799b, inset 0 -3px 0 #262135; }
+#btn-bt-strike:disabled { background: #353946; color: #b9bac2; box-shadow: none; opacity: 0.84; }
+
+#top-relic-rack.tavern-relic-rack {
+  min-width: 0; height: auto; max-height: 100%;
+  overflow-x: auto; scrollbar-width: none;
+}
+.rack-slot { font-family: inherit; border: none; }
+.rack-slot.empty { min-width: 30px; }
+.rack-slot.filled { min-width: var(--tap-size); min-height: var(--tap-size); flex-shrink: 0; }
+.rack-slot img { width: 33px; height: 33px; }
+.rack-badge { font-size: 16px; line-height: 23px; }
+.rib-info, .rib-info b, .rib-btn { font-size: 21px; }
+.wax-contract-cta { width: min(360px, 91%); margin-top: -6px; }
+.wax-cta-main { font-size: 23px; white-space: normal; overflow: visible; }
+.squad-promenade { height: clamp(147px, 29%, 210px); }
+.tabletop-felt-zone {
+  display: grid;
+  grid-template-rows: var(--tap-size) minmax(0, 1fr) 25px minmax(0, 1fr);
+  gap: 6px; padding: 0 23px 8px;
+}
+.felt-top-header, .felt-mid-divider, .portrait-relics-row { height: auto; margin: 0; }
+.felt-top-header { padding: 0 8px; }
+.felt-mid-divider { grid-template-columns: 2fr 1fr; padding: 0; text-align: center; }
+.felt-mid-left, .felt-mid-right { justify-content: center; }
+.felt-title, .felt-title.sm { font-size: 22px; letter-spacing: 0.4px; }
+.brass-reroll-stamp, .brass-reroll-stamp b { font-size: 21px; }
+.portrait-relics-row, .tabletop-artifacts-row { min-height: 0; gap: 16px; }
+.relic-tarot-card, .foil-sachet-card, .grimoire-book-card { height: min(244px, 100%); }
+.rtc-alcove { height: 44%; }
+.rtc-tablet { padding: 6px 11px 10px; gap: 3px; }
+.rtc-nameplate { min-height: 30px; }
+.rtc-name, .rtc-stat { font-size: 21px; }
+.rtc-note { display: none; }
+.rtc-price, .sachet-price, .gb-clasp { font-size: 20px; }
+.pp-title, .pp-hp-stamp, .pp-name-ribbon b { font-size: 19px; }
+.shop-detail-popover { width: 435px; padding: 14px 17px; gap: 10px; }
+.sdp-title { font-size: 27px; }
+.sdp-stat, .sdp-desc, .sdp-badge, .sdp-ed, .sdp-foot,
+.sdp-confirm-btn, .sdp-cancel-btn { font-size: 21px; }
+.sdp-confirm-btn:disabled { background: #353137; color: #d7c4bd; box-shadow: none; }
+
+.roster-box.tavern-tome-modal { width: min(1110px, calc(100% - 72px)); max-height: 654px; }
+#rm-body { max-height: none; min-height: 0; }
+.rm-tab, .rm-guide-note, .rm-fac-pill { font-size: 20px; }
+.rm-hname, .rm-htags { font-size: 19px; }
+.rm-empty { padding: 28px; color: #e2d1b3; text-align: center; font-size: 22px; }
+
+#roster-modal[data-view="hands"] .tavern-tome-modal {
+  width: min(1170px, calc(100% - 72px)); padding: 0 15px 14px;
+  background: #241915; border: none;
+  box-shadow: inset 0 -2px 0 #6d492d, 0 15px 40px #0a0606;
+}
+#roster-modal[data-view="hands"] .rm-head { padding: 10px 10px 0; border: 0; }
+#roster-modal[data-view="hands"] .rm-tab {
+  background: #463025; box-shadow: inset 0 2px #76523b;
+}
+#roster-modal[data-view="hands"] .rm-tab.active {
+  color: #392116; background: #e1bc7e; text-shadow: none; box-shadow: inset 0 2px #f8dfa8;
+}
+#roster-modal[data-view="hands"] #rm-summary { padding-inline: 14px; }
+#roster-modal[data-view="hands"] #rm-body { padding: 0; }
+.rm-guide-note { padding: 0; background: none; border: 0; color: #f1d7aa; }
+.rm-hands-list {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px;
+  background: #8b653f; padding: 4px 6px 12px;
+  box-shadow: inset 0 -3px #a37e52, inset 0 -7px #d0ab75;
+  clip-path: polygon(8px 0, calc(50% - 12px) 0, 50% 7px, calc(50% + 12px) 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+.rm-hand-page {
+  display: grid; grid-auto-rows: 1fr;
+  padding: 14px 21px;
+  color: #302017;
+  background: linear-gradient(90deg, #f0d9a6 0%, #eddaab 91%, #c39a68 100%);
+}
+.rm-hand-page + .rm-hand-page {
+  background: linear-gradient(90deg, #c39a68 0%, #eddaab 9%, #f0d9a6 100%);
+}
+.rm-hand-row {
+  display: grid; grid-template-columns: 52px minmax(0, 1fr) max-content;
+  align-items: center; gap: 12px; min-height: 103px; padding: 11px 0;
+  font-variant-numeric: tabular-nums;
+}
+.rm-hand-row + .rm-hand-row { border-top: 1px solid #ae8a5c; }
+.rm-hand-info, .rm-hand-values { display: grid; gap: 3px; }
+.rm-hand-values { text-align: right; white-space: nowrap; }
+.rm-hand-name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 9px; font-size: 25px; line-height: 1.15; }
+.rm-lv, .rm-condition, .rm-perk, .rm-bonus { font-size: 20px; line-height: 1.2; }
+.rm-lv, .rm-perk { color: #654527; }
+.rm-mult { font-size: 31px; color: #732926; }
+.rm-bonus { color: #4e321e; }
+.rm-hand-icon {
+  width: 50px; height: 50px; display: grid; place-items: center;
+  background: #382a36; box-shadow: inset 0 2px var(--hand-color);
+  clip-path: polygon(8px 0, 42px 0, 100% 8px, 100% 42px, 42px 100%, 8px 100%, 0 42px, 0 8px);
+}
+.rm-hand-icon img { width: 35px; height: 35px; image-rendering: pixelated; }
+.payout-box.tavern-ledger-modal { width: 720px; }
+.po-title { font-size: 35px; }
+#po-sub, .po-row, .po-row.total, .po-row.total b, .tavern-modal-cta { font-size: 24px; }
+#btn-pack-abandon, #pack-target-title { font-size: 22px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pack-pulse-bg, .pack-foil-streak, .ed-polychrome, #btn-bt-strike.ready-pulse, .fc-pill.danger {
-    animation: none !important;
+  #stage *, #stage *::before, #stage *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
+  #stage .pack-pulse-bg, #stage .pack-foil-streak { display: none; }
 }

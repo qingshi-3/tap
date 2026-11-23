@@ -1076,6 +1076,8 @@
       this.packTimers = [];
       this.muted = false;
       this._enteringFromTitle = false;
+      this.reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.reducedMotion.addEventListener('change', () => this.syncTitleMotion());
 
       this.bindGlobalEvents();
       this.fitStage();
@@ -1083,8 +1085,19 @@
     }
 
     fitStage() {
-      const sc = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
-      this.stageEl.style.transform = `scale(${sc})`;
+      const viewport = this.stageEl.parentElement;
+      const { paddingLeft, paddingRight, paddingTop, paddingBottom } = getComputedStyle(viewport);
+      const width = viewport.clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
+      const height = viewport.clientHeight - parseFloat(paddingTop) - parseFloat(paddingBottom);
+      if (width <= 0 || height <= 0) return;
+
+      const scale = Math.min(width / 1280, height / 720);
+      const stageWidth = Math.max(1280, Math.min(1640, width / scale));
+      this.stageEl.style.setProperty('--stage-width', `${stageWidth}px`);
+      this.stageEl.style.setProperty('--tap-size', `${width >= height ? Math.max(48, Math.ceil(44 / scale)) : 48}px`);
+      this.stageEl.style.transform = `scale(${scale})`;
+      const pop = document.getElementById('shop-detail-popover');
+      if (this.shopAnchor && !pop.classList.contains('hidden')) this.positionShopInspector(pop, this.shopAnchor);
     }
 
     async init() {
@@ -1110,8 +1123,14 @@
       if (titleEl) {
         titleEl.classList.remove('hidden', 'entering');
       }
-      if (this.titleFx) this.titleFx.start();
+      this.syncTitleMotion();
       this.syncMuteLabels();
+    }
+
+    syncTitleMotion() {
+      if (!this.titleFx || document.getElementById('title-screen-view').classList.contains('hidden')) return;
+      if (this.reducedMotion.matches) this.titleFx.stop();
+      else this.titleFx.start();
     }
 
     enterDeckSelectFromTitle() {
@@ -1129,7 +1148,7 @@
         this.tavern.start();
         this.showStarterDeckSelect();
         this._enteringFromTitle = false;
-      }, 340);
+      }, this.reducedMotion.matches ? 0 : 340);
     }
 
     syncMuteLabels() {
@@ -1198,8 +1217,7 @@
             ${hsScrollBackdropSvg('contract', dk.id)}
             <div class="wc-scroll-content">
               <div class="wc-head">
-                <span class="wc-seal-tag">✦ ${dk.tag}</span>
-                <span class="wc-count">❖ 8侠客</span>
+                <span class="wc-seal-tag">${dk.tag}</span>
               </div>
               <div class="wc-arch-stage">
                 <div class="wc-arch-backdrop">
@@ -1230,7 +1248,7 @@
               <div class="wc-pitch">${shortPitch[dk.id] || dk.desc}</div>
               <div class="wc-sign-cta">
                 <span class="wc-wax-holder" aria-hidden="true">${hsWaxSealSvg('契')}</span>
-                <span class="wc-cta-label">签契出征 · 镜湖 W1 →</span>
+                <span class="wc-cta-label">签约出战</span>
               </div>
             </div>
           </button>`;
@@ -1343,6 +1361,7 @@
     // ─── BEAT 1: Enter Outdoor Mirror-Lake 4-Round Battle ───
     enterBattleWave() {
       const D = window.MT.V12_DATA;
+      this.dismissToast();
       this.state.view = 'battle';
       document.getElementById('tavern-view').classList.add('hidden');
       document.getElementById('battle-view').classList.remove('hidden');
@@ -1537,6 +1556,8 @@
       const selected = this.state.selectedIds.map((uid) => this.state.hand.find((h) => h.uid === uid)).filter(Boolean);
       const ev = D.evaluateHand(selected, this.state.handLevels);
       const intent = this.battle.bossIntent;
+      const row = document.getElementById('bt-cards-row');
+      const focusedHero = row.contains(document.activeElement) ? document.activeElement.dataset.huid : null;
 
       // Update Transparent Draw / Discard Pile Counts!
       document.getElementById('btn-draw-pile').innerHTML = `抽牌堆 <b>${this.state.drawPile.length}</b>`;
@@ -1549,15 +1570,15 @@
         if (intent.kind === 'charge') {
           const strikerBonus = selected.some((h) => h.role === 'striker') ? 1.15 : 1.0;
           const estBreak = Math.round(ev.estBaseDmg * strikerBonus);
-          if (ev.ready && estBreak >= intent.breakNeed) counterTag = `<span class="fc-pill ok">💥 预估足够破招眩晕!</span>`;
-          else counterTag = `<span class="fc-pill warn">🔥 破招需 ${intent.breakNeed}伤${ev.ready ? ` (基础差${Math.max(0, intent.breakNeed - estBreak)})` : ''}</span>`;
+          if (ev.ready && estBreak >= intent.breakNeed) counterTag = `<span class="fc-pill ok">可破招</span>`;
+          else counterTag = `<span class="fc-pill warn">${ev.ready ? `差 ${Math.max(0, intent.breakNeed - estBreak)} 伤破招` : `破招需 ${intent.breakNeed} 伤`}</span>`;
         } else if (intent.dmg > 0) {
           const hpLoss = Math.max(0, intent.dmg - ev.shield);
-          if (ev.shield >= intent.dmg) counterTag = `<span class="fc-pill ok">🛡 护盾 ${ev.shield} 完美格挡 ${intent.dmg}伤!</span>`;
-          else if (hpLoss >= this.battle.squadHp) counterTag = `<span class="fc-pill danger">⚠ 致命威胁! 实扣 ${hpLoss}HP · 快选铁壁!</span>`;
-          else counterTag = `<span class="fc-pill warn">⚔ 来袭 ${intent.dmg}伤 · 盾挡${ev.shield} (实扣 ${hpLoss}HP)</span>`;
+          if (ev.shield >= intent.dmg) counterTag = `<span class="fc-pill ok">完全格挡</span>`;
+          else if (hpLoss >= this.battle.squadHp) counterTag = `<span class="fc-pill danger">致命 · −${hpLoss} 气血</span>`;
+          else counterTag = `<span class="fc-pill warn">预计失去 ${hpLoss} 气血</span>`;
         } else if (intent.kind === 'stunned') {
-          counterTag = `<span class="fc-pill ok">💫 Boss眩晕易伤 +50% · 全力输出!</span>`;
+          counterTag = `<span class="fc-pill ok">眩晕易伤 +50%</span>`;
         }
       }
 
@@ -1577,7 +1598,6 @@
         fcCore.innerHTML = `
           <div class="fc-left">
             <b>已选 ${ev.count}/3</b>
-            <span class="fc-hint">未出战2张自动留手 · 铁壁+28盾 · 突袭破招+25% · 秘术秘宝+25%</span>
           </div>
           <div class="fc-right">${counterTag}</div>`;
       }
@@ -1586,7 +1606,7 @@
       const discBtn = document.getElementById('btn-bt-discard');
       const swappable = this.state.hand.filter((h) => !this.state.selectedIds.includes(h.uid) && h.uid !== this.state.frozenUid).length;
       discBtn.disabled = this.state.discardsLeft <= 0 || swappable === 0;
-      discBtn.innerHTML = `<span class="wing-title">换桌重抽</span><span class="wing-sub">剩 ${this.state.discardsLeft} 次 · 换未选 ${swappable} 人</span>`;
+      discBtn.innerHTML = `<span class="wing-title">重抽</span><span class="wing-sub">剩 ${this.state.discardsLeft} 次</span><span class="wing-sub">换未选 ${swappable} 张</span>`;
 
       // Relic-Unlocked 《暗影包厢》 Slot (Hidden unless player owns r_shadowbox!)
       const hasBox = this.hasShadowBox();
@@ -1617,17 +1637,11 @@
         }
       }
 
-      // Strike Wing (Pulses dramatically with multiplier when 3 heroes are ready!)
       const strikeBtn = document.getElementById('btn-bt-strike');
-      const roundsLeft = this.battle.maxRounds - this.battle.round + 1;
       strikeBtn.disabled = !ev.ready;
-      strikeBtn.classList.toggle('ready-pulse', ev.ready);
-      strikeBtn.innerHTML = ev.ready
-        ? `<span class="wing-mult-hero" style="color:${ev.hand.color}">×${ev.mult}</span><span class="wing-title">出击! (剩${roundsLeft}回)</span><span class="wing-sub">${ev.hand.name}</span>`
-        : `<span class="wing-title">出击! (剩${roundsLeft}回)</span><span class="wing-sub">点选下方还差 ${3 - ev.count} 人</span>`;
+      strikeBtn.innerHTML = '<span class="wing-title">出击</span>';
 
       // Main Hand Cards (4 or 5) — Big Tactile Cards!
-      const row = document.getElementById('bt-cards-row');
       row.innerHTML = this.state.hand.map((h) => {
         const fac = D.FACTIONS[h.faction], role = D.ROLES[h.role];
         const selIdx = this.state.selectedIds.indexOf(h.uid);
@@ -1635,7 +1649,7 @@
         const isFrozen = h.uid === this.state.frozenUid;
         const effAtk = Math.round(h.atk * (h.boxMult || 1));
         return `
-          <button class="hero-hand-card ${isSel ? 'selected' : ''} ${h.redSeal ? 'has-seal' : ''} ${h.heldFromPrev ? 'is-held' : ''} ${isFrozen ? 'frozen' : ''}" data-huid="${h.uid}" style="--fcol:${fac.color};--fbg:${fac.bg}">
+          <button class="hero-hand-card ${isSel ? 'selected' : ''} ${h.redSeal ? 'has-seal' : ''} ${h.heldFromPrev ? 'is-held' : ''} ${isFrozen ? 'frozen' : ''}" data-huid="${h.uid}" aria-pressed="${isSel}" ${isFrozen ? 'disabled' : ''} style="--fcol:${fac.color};--fbg:${fac.bg}">
             <div class="hhc-top">
               <span class="hhc-fac">${fac.name}</span>
               <span class="hhc-role" style="color:${role.color}">${role.short}·${role.perkShort}</span>
@@ -1654,6 +1668,7 @@
       });
       row.querySelectorAll('.hero-hand-card').forEach((btn) => {
         btn.onclick = () => this.toggleSelectBattleHero(btn.dataset.huid);
+        if (btn.dataset.huid === focusedHero) btn.focus({ preventScroll: true });
       });
     }
 
@@ -1664,20 +1679,17 @@
       // Sort by faction so draw order is NEVER leaked!
       list.sort((a, b) => a.faction.localeCompare(b.faction) || a.name.localeCompare(b.name));
 
-      const modal = document.getElementById('roster-modal');
-      modal.classList.remove('hidden');
-      document.getElementById('rm-tab-roster').classList.remove('active');
-      document.getElementById('rm-tab-hands').classList.remove('active');
+      this.showRosterDialog('pile');
 
       const counts = {};
       for (const h of list) counts[h.faction] = (counts[h.faction] || 0) + 1;
       document.getElementById('rm-summary').innerHTML =
-        `<span class="rm-fac-pill" style="background:#262d47;color:#ffd966">${kind === 'draw' ? `抽牌堆剩余 (${list.length}张 · 已按阵营排序不透顺序)` : `弃牌堆 (${list.length}张 · 抽空自动洗回)`}</span>` +
+        `<span class="rm-fac-pill" style="background:#262d47;color:#ffd966">${kind === 'draw' ? '抽牌堆' : '弃牌堆'} ${list.length} 张</span>` +
         Object.entries(counts).map(([fid, c]) => `<span class="rm-fac-pill" style="background:${D.FACTIONS[fid].bg};color:${D.FACTIONS[fid].color}">${D.FACTIONS[fid].name} ×${c}</span>`).join('');
 
       const body = document.getElementById('rm-body');
       if (list.length === 0) {
-        body.innerHTML = `<div style="padding:36px;text-align:center;color:#9ea9cc;font-weight:900">当前牌堆为空（抽牌时会自动将弃牌堆洗回）</div>`;
+        body.innerHTML = '<p class="rm-empty">牌堆为空</p>';
         return;
       }
       body.innerHTML = `<div class="rm-roster-grid">` + list.map((h) => {
@@ -1875,6 +1887,7 @@
     }
 
     openPackCeremony(packTpl) {
+      this.dismissToast();
       this.clearPackTimers();
       this.activePack = { tpl: packTpl, choices: this.generatePackChoices(packTpl), stage: 'charge' };
       const modal = document.getElementById('pack-ceremony-modal'), env = document.getElementById('pack-foil-envelope');
@@ -1897,7 +1910,6 @@
           <div class="foil-volume-sheen" aria-hidden="true"></div>
           <div class="foil-shimmer" aria-hidden="true"></div>
           <div class="ceremony-tear-seam" aria-hidden="true"></div>
-          <div class="foil-seal-top">✦ 午夜黑市封印 ✦</div>
           <div class="foil-emblem-crest">
             <img src="${iconUrl}" alt="${packTpl.name}" onerror="this.onerror=null;this.src='${fallbackIcon}'" />
           </div>
@@ -2236,8 +2248,6 @@
       for (let i = 0; i < this.state.maxHearts; i++) heartsHtml += pixelHeartSvg(i < this.state.hearts);
       document.getElementById('hud-hearts').innerHTML = heartsHtml;
       document.getElementById('hud-gold').textContent = `${gold}G`;
-      const shelfGoldEl = document.querySelector('#shelf-gold-readout b');
-      if (shelfGoldEl) shelfGoldEl.textContent = `${gold}G`;
 
       // 1. Unified Brass Top Relic Chain Rack
       const rack = document.getElementById('top-relic-rack');
@@ -2252,11 +2262,11 @@
         const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon, fallbackIcon) : fallbackIcon;
         const isSel = this.swapSlotIdx === i;
         html += `
-          <div class="rack-slot filled cat-${r.cat} ed-${inst.edition} ${isSel ? 'swap-active' : ''}" data-ridx="${i}" title="${r.name}：${r.desc}">
+          <button type="button" class="rack-slot filled cat-${r.cat} ed-${inst.edition} ${isSel ? 'swap-active' : ''}" data-ridx="${i}" aria-label="${r.name}" aria-pressed="${isSel}">
             ${ed.badge ? `<i class="ed-pip ed-${inst.edition}">${ed.badge}</i>` : ''}
             <img src="${iconUrl}" alt="${r.name}" ${fallbackAttr} />
             <span class="rack-badge">${r.short}</span>
-          </div>`;
+          </button>`;
       }
       rack.innerHTML = html;
       rack.querySelectorAll('.rack-slot.filled').forEach((el) => {
@@ -2435,7 +2445,7 @@
         const priceLabel = item.sold ? '已购' : `${item.cost}G`;
         const noteText = ed.desc ? ed.desc : r.desc;
         return `
-          <button class="relic-tarot-card tilt-${idx} cat-${r.cat} ed-${item.edition} ${item.sold ? 'sold' : ''} ${!item.sold && !canBuy ? 'cant-afford' : ''}" data-srid="${item.shopId}" style="--gem:${gemCol}">
+          <button class="relic-tarot-card tilt-${idx} cat-${r.cat} ed-${item.edition} ${item.sold ? 'sold' : ''} ${!item.sold && !canBuy ? 'cant-afford' : ''}" data-srid="${item.shopId}" style="--gem:${gemCol}" aria-haspopup="dialog" aria-expanded="false" ${item.sold ? 'disabled' : ''}>
             ${pixelShopRelicSvg(r.cat, gemCol)}
             <div class="rtc-alcove">
               <div class="rtc-top">
@@ -2516,7 +2526,7 @@
         const pitch = packPitch[p.tpl.id] || p.tpl.desc;
         const priceLabel = p.sold ? '已拆' : `${p.cost}G`;
         return `
-          <button class="foil-sachet-card pack-theme-${p.tpl.id} sachet-${idx} ${p.sold ? 'sold' : ''} ${!p.sold && !canBuy ? 'cant-afford' : ''}" data-spid="${p.shopId}" style="--pcol:${p.tpl.accent};--pglow:${p.tpl.glow}">
+          <button class="foil-sachet-card pack-theme-${p.tpl.id} sachet-${idx} ${p.sold ? 'sold' : ''} ${!p.sold && !canBuy ? 'cant-afford' : ''}" data-spid="${p.shopId}" style="--pcol:${p.tpl.accent};--pglow:${p.tpl.glow}" aria-haspopup="dialog" aria-expanded="false" ${p.sold ? 'disabled' : ''}>
             <span class="sachet-teeth-top" aria-hidden="true"></span>
             <div class="sachet-crimp-band top" aria-hidden="true"></div>
             <div class="sachet-body">
@@ -2548,7 +2558,7 @@
       const canBuyTome = gold >= t.cost;
       const tomePriceLabel = t.sold ? '已研读' : `${t.cost}G`;
       const tomeHtml = `
-        <button class="grimoire-book-card ${t.sold ? 'sold' : ''} ${!t.sold && !canBuyTome ? 'cant-afford' : ''}" id="btn-buy-tome">
+        <button class="grimoire-book-card ${t.sold ? 'sold' : ''} ${!t.sold && !canBuyTome ? 'cant-afford' : ''}" id="btn-buy-tome" aria-haspopup="dialog" aria-expanded="false" ${t.sold ? 'disabled' : ''}>
           <span class="gb-bookmark" aria-hidden="true">Lv.${curLv}→${curLv + 1}</span>
           <span class="gb-pages-right" aria-hidden="true"></span>
           <span class="gb-pages-bottom" aria-hidden="true"></span>
@@ -2636,11 +2646,18 @@
 
       // Clear any previous selection & top relic inspect bar
       this.closeShopInspector();
-      const topBar = document.getElementById('relic-inspect-bar');
-      if (topBar) topBar.classList.add('hidden');
+      this.swapSlotIdx = -1;
+      document.getElementById('relic-inspect-bar').classList.add('hidden');
+      const selectedRelic = document.querySelector('#top-relic-rack .swap-active');
+      if (selectedRelic) {
+        selectedRelic.classList.remove('swap-active');
+        selectedRelic.setAttribute('aria-pressed', 'false');
+      }
 
       this.inspectedShopKey = key;
+      this.shopAnchor = anchorEl;
       anchorEl.classList.add('is-inspected');
+      anchorEl.setAttribute('aria-expanded', 'true');
       if (window.MT.sfx) window.MT.sfx.playChainDing(1, false);
 
       pop.innerHTML = `
@@ -2649,7 +2666,6 @@
             <span class="sdp-title">${data.title}</span>
             <span class="sdp-stat">${data.stat}</span>
           </div>
-          <button type="button" class="sdp-close" aria-label="关闭详情">×</button>
         </div>
         <div class="sdp-tags">
           <span class="sdp-badge" style="--bc:${data.badgeColor || '#ffd966'}">${data.badge}</span>
@@ -2666,11 +2682,9 @@
       pop.classList.remove('hidden');
 
       pop.onclick = (e) => e.stopPropagation();
-      const closeBtn = pop.querySelector('.sdp-close');
       const cancelBtn = pop.querySelector('.sdp-cancel-btn');
       const confirmBtn = pop.querySelector('.sdp-confirm-btn');
-      if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); this.closeShopInspector(); };
-      if (cancelBtn) cancelBtn.onclick = (e) => { e.stopPropagation(); this.closeShopInspector(); };
+      cancelBtn.onclick = () => this.closeShopInspector(true);
       if (confirmBtn) {
         confirmBtn.onclick = (e) => {
           e.stopPropagation();
@@ -2680,47 +2694,78 @@
         };
       }
 
-      // Position cleanly beside the tapped card inside 1280x720 stage
+      this.positionShopInspector(pop, anchorEl);
+      if (anchorEl.matches(':focus-visible')) (confirmBtn.disabled ? cancelBtn : confirmBtn).focus({ preventScroll: true });
+    }
+
+    positionShopInspector(pop, anchorEl) {
       const sRect = this.stageEl.getBoundingClientRect();
       const aRect = anchorEl.getBoundingClientRect();
       if (!sRect.width || !sRect.height) return;
-      const scaleX = 1280 / sRect.width;
-      const scaleY = 720 / sRect.height;
+      const stageWidth = this.stageEl.offsetWidth;
+      const stageHeight = this.stageEl.offsetHeight;
+      const scaleX = stageWidth / sRect.width;
+      const scaleY = stageHeight / sRect.height;
       const ax = (aRect.left - sRect.left) * scaleX;
       const ay = (aRect.top - sRect.top) * scaleY;
       const aw = aRect.width * scaleX;
       const ah = aRect.height * scaleY;
-      const popW = pop.offsetWidth || 286;
-      const popH = pop.offsetHeight || 200;
+      const popW = pop.offsetWidth;
+      const popH = pop.offsetHeight;
 
-      // Prefer right side if room, otherwise left side (so it never covers the card itself!)
+      // Leave the selected card visible and keep the actions within the table.
+      const edge = 18;
       let left = ax + aw + 14;
-      if (left + popW > 1266) left = ax - popW - 14;
-      if (left < 436) left = Math.max(436, Math.min(1266 - popW, ax + (aw - popW) * 0.5));
-      let top = ay + (ah - popH) * 0.5;
-      top = Math.max(82, Math.min(706 - popH, top));
+      if (left + popW > stageWidth - edge) left = ax - popW - 14;
+      left = Math.max(edge, Math.min(stageWidth - edge - popW, left));
+      const hudHeight = document.getElementById('top-hud').offsetHeight;
+      const top = Math.max(hudHeight + 8, Math.min(stageHeight - edge - popH, ay + (ah - popH) * 0.5));
       pop.style.left = `${Math.round(left)}px`;
       pop.style.top = `${Math.round(top)}px`;
     }
 
-    closeShopInspector() {
+    closeShopInspector(restoreFocus = false) {
       this.inspectedShopKey = null;
       const pop = document.getElementById('shop-detail-popover');
       if (pop) pop.classList.add('hidden');
-      document.querySelectorAll('.is-inspected').forEach((el) => el.classList.remove('is-inspected'));
+      if (this.shopAnchor) {
+        this.shopAnchor.classList.remove('is-inspected');
+        this.shopAnchor.setAttribute('aria-expanded', 'false');
+        if (restoreFocus) this.shopAnchor.focus({ preventScroll: true });
+        this.shopAnchor = null;
+      }
+    }
+
+    showRosterDialog(view) {
+      const modal = document.getElementById('roster-modal');
+      const opening = modal.classList.contains('hidden');
+      if (opening) {
+        this.rosterOpener = document.activeElement;
+        this.dismissToast();
+      }
+      modal.dataset.view = view;
+      modal.classList.remove('hidden');
+      const rosterTabBtn = document.getElementById('rm-tab-roster');
+      const handsTabBtn = document.getElementById('rm-tab-hands');
+      rosterTabBtn.classList.toggle('hidden', !Array.isArray(this.state?.roster));
+      for (const [button, name] of [[rosterTabBtn, 'roster'], [handsTabBtn, 'hands']]) {
+        button.classList.toggle('active', name === view);
+        button.setAttribute('aria-pressed', String(name === view));
+      }
+      if (opening) document.getElementById('rm-close-btn').focus({ preventScroll: true });
+    }
+
+    closeRosterDialog(restoreFocus = true) {
+      document.getElementById('roster-modal').classList.add('hidden');
+      if (restoreFocus) this.rosterOpener?.focus({ preventScroll: true });
+      this.rosterOpener = null;
     }
 
     openRosterModal(tab = 'roster') {
       const D = window.MT.V12_DATA;
-      const hasRun = Boolean(this.state && Array.isArray(this.state.roster));
-      const activeTab = (!hasRun && tab === 'roster') ? 'hands' : tab;
-
-      document.getElementById('roster-modal').classList.remove('hidden');
-      const rosterTabBtn = document.getElementById('rm-tab-roster');
-      const handsTabBtn = document.getElementById('rm-tab-hands');
-      rosterTabBtn.classList.toggle('hidden', !hasRun);
-      rosterTabBtn.classList.toggle('active', activeTab === 'roster');
-      handsTabBtn.classList.toggle('active', activeTab === 'hands');
+      const hasRun = Array.isArray(this.state?.roster);
+      const activeTab = !hasRun ? 'hands' : tab;
+      this.showRosterDialog(activeTab);
 
       const summaryEl = document.getElementById('rm-summary');
       if (hasRun && activeTab === 'roster') {
@@ -2729,18 +2774,35 @@
         summaryEl.innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1])
           .map(([fid, c]) => `<span class="rm-fac-pill" style="background:${D.FACTIONS[fid].bg};color:${D.FACTIONS[fid].color}">${D.FACTIONS[fid].name} ×${c}</span>`).join('');
       } else {
-        summaryEl.innerHTML = `<span class="rm-guide-note">六大牌型按倍率从高到低优先判定 · 每次出击仅结算最高牌型，酒谱可永久升阶</span>`;
+        summaryEl.innerHTML = '<span class="rm-guide-note">按书页顺序，结算首个符合的牌型</span>';
       }
 
       const body = document.getElementById('rm-body');
       if (activeTab === 'hands') {
         const levels = (this.state && this.state.handLevels) || {};
-        body.innerHTML = `<div class="rm-hands-list">` + D.HAND_TYPES.map((ht) => {
+        const conditions = {
+          royal_triangle: '同阵营，且盾、刃、法各一张', three_kind: '三张同名', flush: '三张同阵营',
+          triangle: '盾、刃、法各一张', pair: '两张同名', high_card: '任意三张'
+        };
+        const entries = D.HAND_TYPES.map((ht) => {
           const lv = levels[ht.id] || 1;
           const mult = +(ht.baseMult + (lv - 1) * ht.multPerLv).toFixed(2);
           const bonus = ht.baseBonus + (lv - 1) * ht.bonusPerLv;
-          return `<div class="rm-hand-row"><b style="color:${ht.color}">${ht.name}</b><span class="rm-lv">Lv.${lv}</span><span class="rm-mult" style="color:${ht.color}">×${mult}</span><span class="rm-bonus">+${bonus}伤</span><span class="rm-perk">${ht.perk}</span></div>`;
-        }).join('') + `</div>`;
+          const icon = window.MT.vfx?.getIconUrl(ht.icon, './assets/gear/eq_storm_staff.png');
+          const effect = ht.factionBlast ? '阵营合体技' : ht.fusion ? '融合为三星战神' : ht.twinSlash ? '双子连斩 +15% 伤' : '';
+          const perks = [effect, ht.shieldBonus ? `+${ht.shieldBonus} 盾` : ''].filter(Boolean).join(' · ');
+          return `<article class="rm-hand-row">
+            <span class="rm-hand-icon" style="--hand-color:${ht.color}">${icon ? `<img src="${icon}" alt="" />` : ''}</span>
+            <div class="rm-hand-info">
+              <div class="rm-hand-name"><b>${ht.name}</b><span class="rm-lv">Lv.${lv}</span></div>
+              <p class="rm-condition">${conditions[ht.id]}</p>
+              ${perks ? `<p class="rm-perk">${perks}</p>` : ''}
+            </div>
+            <div class="rm-hand-values"><b class="rm-mult">×${mult}</b><span class="rm-bonus">+${bonus} 伤</span></div>
+          </article>`;
+        });
+        const split = Math.ceil(entries.length / 2);
+        body.innerHTML = `<div class="rm-hands-list"><div class="rm-hand-page">${entries.slice(0, split).join('')}</div><div class="rm-hand-page">${entries.slice(split).join('')}</div></div>`;
       } else {
         body.innerHTML = `<div class="rm-roster-grid">` + this.state.roster.map((h) => {
           const fac = D.FACTIONS[h.faction], role = D.ROLES[h.role];
@@ -2756,7 +2818,7 @@
     closeAllModals() {
       document.getElementById('deck-select-modal').classList.add('hidden');
       document.getElementById('payout-modal').classList.add('hidden');
-      document.getElementById('roster-modal').classList.add('hidden');
+      this.closeRosterDialog(false);
       document.getElementById('pack-ceremony-modal').classList.add('hidden');
     }
 
@@ -2767,6 +2829,13 @@
       el.classList.add('show');
       clearTimeout(this._toastId);
       this._toastId = setTimeout(() => el.classList.remove('show'), 2300);
+    }
+
+    dismissToast() {
+      clearTimeout(this._toastId);
+      const banner = document.getElementById('toast-banner');
+      banner.classList.remove('show');
+      banner.textContent = '';
     }
 
     bindGlobalEvents() {
@@ -2806,15 +2875,27 @@
         });
       }
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && this.inspectedShopKey) this.closeShopInspector();
+        if (e.key !== 'Escape') return;
+        if (!document.getElementById('roster-modal').classList.contains('hidden')) this.closeRosterDialog();
+        else if (this.inspectedShopKey) this.closeShopInspector(true);
       });
 
       const rosterOpenBtn = document.getElementById('btn-roster-open');
       if (rosterOpenBtn) rosterOpenBtn.onclick = () => this.openRosterModal('roster');
       document.getElementById('btn-hands-open').onclick = () => this.openRosterModal('hands');
-      document.getElementById('rm-close-btn').onclick = () => document.getElementById('roster-modal').classList.add('hidden');
+      document.getElementById('rm-close-btn').onclick = () => this.closeRosterDialog();
       document.getElementById('rm-tab-roster').onclick = () => this.openRosterModal('roster');
       document.getElementById('rm-tab-hands').onclick = () => this.openRosterModal('hands');
+      document.getElementById('roster-modal').addEventListener('keydown', (event) => {
+        if (event.key !== 'Tab') return;
+        const targets = [...event.currentTarget.querySelectorAll('button:not(.hidden), [tabindex="0"]')];
+        const first = targets[0];
+        const last = targets.at(-1);
+        if (event.shiftKey ? document.activeElement === first : document.activeElement === last) {
+          event.preventDefault();
+          (event.shiftKey ? last : first).focus({ preventScroll: true });
+        }
+      });
 
       document.getElementById('btn-pack-abandon').onclick = () => this.abandonActivePack();
       document.getElementById('btn-pack-target-back').onclick = () => {
@@ -2829,7 +2910,8 @@
       spdBtn.onclick = () => {
         const next = this.battle.speed >= 2 ? 1 : 2;
         this.battle.setSpeed(next);
-        spdBtn.textContent = next >= 2 ? '速度 2×' : '速度 1×';
+        spdBtn.textContent = `${next}×`;
+        spdBtn.setAttribute('aria-label', `战斗速度 ${next} 倍`);
         spdBtn.classList.toggle('fast', next >= 2);
       };
     }

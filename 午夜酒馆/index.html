@@ -2,15 +2,12 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>午夜酒馆 · 日蚀战团 v13.9 · 手游点选确认与修长卡牌比例</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>午夜酒馆 · 日蚀战团</title>
   <meta name="description" content="午夜酒馆 · 日蚀战团：推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
   <meta property="og:title" content="午夜酒馆 · 日蚀战团" />
   <meta property="og:description" content="推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" />
-  <link rel="stylesheet" href="./css/v13.css?v=139" />
+  <link rel="stylesheet" href="./css/v13.css?v=140" />
 </head>
 <body>
   <div id="viewport">
@@ -24,23 +21,14 @@
 
         <div class="title-hero-overlay">
           <div class="title-signboard">
-            <div class="ts-eyebrow">✦ 镜湖破招 · 实木牌桌构筑 ✦</div>
             <h1 class="ts-main-title">午夜酒馆</h1>
-            <div class="ts-sub-line">
-              <span class="ts-rule" aria-hidden="true"></span>
-              <span>日蚀战团 · ECLIPSE TAVERN</span>
-              <span class="ts-rule" aria-hidden="true"></span>
-            </div>
+            <p class="ts-sub-line">日蚀战团</p>
           </div>
 
           <div class="title-door-actions">
             <button id="btn-title-enter" class="title-enter-seal">
               <span class="te-wax-disc" aria-hidden="true">入</span>
-              <span class="te-copy">
-                <span class="te-main">推门入座 · 开启牌局</span>
-                <span class="te-sub">挑选日蚀战团契约 · 迎战镜湖八大悬赏</span>
-              </span>
-              <span class="te-arrow" aria-hidden="true">→</span>
+              <span class="te-main">推门入座</span>
             </button>
             <div class="title-aux-row">
               <button id="btn-title-hands" class="title-aux-btn">牌型图鉴</button>
@@ -77,7 +65,7 @@
           <div class="bt-tools-box">
             <button id="btn-bt-roster" class="steel-btn hud-mini-btn">牌组</button>
             <button id="btn-bt-hands" class="steel-btn hud-mini-btn">牌型</button>
-            <button id="bt-speed-btn" class="steel-btn">速度 1×</button>
+            <button id="bt-speed-btn" class="steel-btn" aria-label="战斗速度 1 倍">1×</button>
           </div>
         </div>
 
@@ -116,7 +104,6 @@
               <b id="hud-wave">W2/8</b>
             </div>
             <div class="hud-plaque hearts">
-              <span class="hud-plaque-lbl">气血</span>
               <div id="hud-hearts" class="hud-hearts-row" aria-label="剩余气血"></div>
             </div>
             <div class="hud-plaque gold">
@@ -135,7 +122,6 @@
                 <rect x="9" y="9" width="3" height="2" fill="#a8620e"/>
               </svg>
               <div class="hud-gold-stack">
-                <span class="hud-plaque-lbl">金币</span>
                 <b id="hud-gold">18G</b>
               </div>
             </div>
@@ -175,12 +161,8 @@
             <div class="felt-top-header">
               <div class="felt-head-left">
                 <span class="felt-title">星界秘宝</span>
-                <span class="felt-sub">点选查详规 · 再点确认</span>
               </div>
               <div class="felt-head-right">
-                <span class="felt-gold-dish" id="shelf-gold-readout" title="当前可用金币">
-                  <i class="hud-coin-dot sm" aria-hidden="true"></i><b>18G</b>
-                </span>
                 <button id="btn-shop-reroll" class="brass-reroll-stamp"></button>
               </div>
             </div>
@@ -205,10 +187,9 @@
       <!-- ═══ UNBOXED TABLETOP: 3 AGED-PARCHMENT WARBAND CONTRACTS ═══ -->
       <div id="deck-select-modal" class="tabletop-contracts-layer hidden">
         <header class="contracts-top-rail">
-          <button id="btn-contracts-back" class="steel-btn tavern-btn hud-mini-btn">← 返回酒馆门前</button>
+          <button id="btn-contracts-back" class="steel-btn tavern-btn hud-mini-btn">返回</button>
           <div class="contracts-rail-title">
-            <span class="crt-main">✦ 挑选今晚的日蚀战团 ✦</span>
-            <span class="crt-sub">签署战团契约直进镜湖 W1 · 首战凯旋即可步入黑市牌桌</span>
+            <h2 class="crt-main">选择战团</h2>
           </div>
           <div class="contracts-rail-tools">
             <button id="btn-contracts-hands" class="steel-btn tavern-btn hud-mini-btn">牌型图鉴</button>
@@ -294,17 +275,17 @@
       </div>
 
       <!-- ═══ ROSTER / PILE / HAND GUIDE TOME MODAL ═══ -->
-      <div id="roster-modal" class="modal-backdrop tavern-backdrop hidden">
+      <div id="roster-modal" class="modal-backdrop tavern-backdrop hidden" role="dialog" aria-modal="true" aria-label="牌组与牌型">
         <div class="roster-box tavern-tome-modal">
           <div class="rm-head">
             <div class="rm-tabs">
-              <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">当前战团牌组</button>
-              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">牌型倍率图鉴</button>
+              <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">牌组</button>
+              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">牌型图鉴</button>
             </div>
-            <button id="rm-close-btn" class="steel-btn tavern-btn hud-mini-btn">合上典籍 ✕</button>
+            <button id="rm-close-btn" class="steel-btn tavern-btn hud-mini-btn">关闭</button>
           </div>
           <div id="rm-summary"></div>
-          <div id="rm-body"></div>
+          <div id="rm-body" tabindex="0"></div>
         </div>
       </div>
 
@@ -318,9 +299,10 @@
   <script src="./js/audio.js?v=139"></script>
   <script src="./js/vfxPlayer.js?v=139"></script>
   <script src="./js/sprites.js?v=139"></script>
-  <script src="./js/v13AltarBg.js?v=139"></script>
+  <script src="./js/v13AltarBg.js?v=140"></script>
   <script src="./js/v12Data.js?v=139"></script>
-  <script src="./js/v12Battle.js?v=139"></script>
-  <script src="./js/v13Main.js?v=139"></script>
+  <script src="./js/v13BattleAtmosphere.js?v=141"></script>
+  <script src="./js/v12Battle.js?v=141"></script>
+  <script src="./js/v13Main.js?v=140"></script>
 </body>
 </html>

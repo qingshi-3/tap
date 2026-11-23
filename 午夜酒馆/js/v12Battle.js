@@ -162,6 +162,8 @@
     startWave({ bossCfg, relics, maxRelicSlots, runCtx, onRoundReady, onDone }) {
       const D = window.MT.V12_DATA;
       this.clearTimers();
+      if (this.atmosphere) this.atmosphere.dispose();
+      this.atmosphere = window.MT.V13BattleAtmosphere ? window.MT.V13BattleAtmosphere.create() : null;
       this.bossCfg = bossCfg;
       this.runCtx = runCtx;
       this.relics = relics.map((r, idx) => ({ ...r, slotIdx: idx }));
@@ -240,6 +242,7 @@
     }
 
     stop() {
+      if (this.atmosphere) this.atmosphere.dispose();
       this.running = false;
       this.clearTimers();
       if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
@@ -1045,6 +1048,8 @@
         ctx.fillRect(Math.round(m.x), Math.round(m.y), m.size, m.size);
       }
       ctx.restore();
+
+      if (this.atmosphere) this.atmosphere.draw(ctx, this.time);
 
       for (const ag of this.afterimages) {
         sprites.drawUnit(ctx, ag.unitId, ag.anim, ag.time, ag.x, ag.y, { scale: ag.scale, flipX: ag.flipX, alpha: (ag.life / ag.maxLife) * 0.48, outlineColor: ag.tint });

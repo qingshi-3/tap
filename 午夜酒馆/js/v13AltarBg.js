@@ -532,13 +532,17 @@
       this.lastTs = 0;
       this.time = 0;
 
-      this.drops = Array.from({ length: 110 }, () => ({
-        x: Math.random() * (W + 180),
-        y: Math.random() * H,
-        len: 12 + Math.random() * 14,
-        spd: 540 + Math.random() * 260,
-        alpha: 0.16 + Math.random() * 0.24
-      }));
+      // The painted rain already gives the scene its silhouette. Keep moving droplets behind the sign and controls.
+      this.drops = Array.from({ length: 54 }, (_, i) => {
+        const near = i % 4 === 0;
+        return {
+          x: Math.random() * (W + 180),
+          y: Math.random() * H,
+          len: (near ? 16 : 6) + Math.random() * 8,
+          spd: (near ? 570 : 390) + Math.random() * 140,
+          alpha: (near ? 0.18 : 0.07) + Math.random() * 0.1
+        };
+      });
 
       this.ripples = Array.from({ length: 14 }, () => ({
         x: 80 + Math.random() * (W - 160),
