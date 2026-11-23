@@ -32,6 +32,7 @@
     constructor() {
       this.images = new Map();        // pixelfx fallback images
       this.duelystImages = new Map(); // duelyst effect key -> HTMLImageElement
+      this.iconImages = new Map();    // duelyst icon key -> HTMLImageElement
       this.kit = null;
       this.loaded = false;
     }
@@ -49,7 +50,7 @@
     async load() {
       const promises = [];
 
-      // 1. Preload all imported Duelyst H5 independent effects
+      // 1. Preload all imported Duelyst H5 independent effects & shop icons
       const kit = this.initKit();
       if (kit && kit.manifest && kit.manifest.effects) {
         for (const [key, clip] of Object.entries(kit.manifest.effects)) {
@@ -60,8 +61,43 @@
           );
         }
       }
+      if (kit && kit.manifest && kit.manifest.icons) {
+        for (const [key, rec] of Object.entries(kit.manifest.icons)) {
+          if (!rec || !rec.path) continue;
+          promises.push(
+            kit.image(rec)
+              .then((img) => { this.iconImages.set(key, img); })
+              .catch(() => {})
+          );
+        }
+      }
 
-      // 2. Preload pixelfx fallback sheets (e.g. coin, weather)
+      // 2. Preload local pixel UI icons & gear fallbacks
+      const localUiIcons = [
+        './assets/icons/role_tank.png',
+        './assets/icons/role_assassin.png',
+        './assets/icons/role_ranged.png',
+        './assets/icons/role_warrior.png',
+        './assets/icons/el_fire.png',
+        './assets/icons/el_ice.png',
+        './assets/icons/el_light.png',
+        './assets/icons/el_dark.png',
+        './assets/icons/el_bolt.png',
+        './assets/gear/eq_dragon_heart.png',
+        './assets/gear/eq_aegis_seal.png',
+        './assets/gear/eq_storm_staff.png',
+        './assets/gear/eq_greed_dice.png'
+      ];
+      for (const src of localUiIcons) {
+        promises.push(new Promise((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
+          img.src = src;
+        }));
+      }
+
+      // 3. Preload pixelfx fallback sheets (e.g. coin, weather)
       const manifest = window.MT.VFX_MANIFEST;
       if (manifest) {
         for (const [key, info] of Object.entries(manifest)) {
@@ -194,10 +230,10 @@
       ctx.restore();
     }
 
-    getIconUrl(iconId) {
+    getIconUrl(iconId, fallback = './assets/gear/eq_dragon_heart.png') {
       const kit = this.initKit();
       const rec = kit && kit.icon(iconId);
-      return rec ? kit.assetURL(rec) : null;
+      return rec ? kit.assetURL(rec) : fallback;
     }
   }
 

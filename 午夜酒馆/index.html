@@ -3,12 +3,52 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>日蚀战团 v13.0 · 镜湖 4 回合破题 × 星界黑市牌桌</title>
-  <link rel="stylesheet" href="./css/v13.css?v=130" />
+  <title>午夜酒馆 · 日蚀战团 v13.9 · 手游点选确认与修长卡牌比例</title>
+  <meta name="description" content="午夜酒馆 · 日蚀战团：推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
+  <meta property="og:title" content="午夜酒馆 · 日蚀战团" />
+  <meta property="og:description" content="推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" />
+  <link rel="stylesheet" href="./css/v13.css?v=139" />
 </head>
 <body>
   <div id="viewport">
     <div id="stage">
+
+      <!-- ═══ TITLE SCREEN: RAINY MIDNIGHT TAVERN EXTERIOR ═══ -->
+      <section id="title-screen-view">
+        <img class="title-bg-art" src="./assets/tavern/lv2.png" alt="午夜酒馆雨夜门面" />
+        <canvas id="title-fx-canvas" width="1280" height="720"></canvas>
+        <div class="title-vignette" aria-hidden="true"></div>
+
+        <div class="title-hero-overlay">
+          <div class="title-signboard">
+            <div class="ts-eyebrow">✦ 镜湖破招 · 实木牌桌构筑 ✦</div>
+            <h1 class="ts-main-title">午夜酒馆</h1>
+            <div class="ts-sub-line">
+              <span class="ts-rule" aria-hidden="true"></span>
+              <span>日蚀战团 · ECLIPSE TAVERN</span>
+              <span class="ts-rule" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="title-door-actions">
+            <button id="btn-title-enter" class="title-enter-seal">
+              <span class="te-wax-disc" aria-hidden="true">入</span>
+              <span class="te-copy">
+                <span class="te-main">推门入座 · 开启牌局</span>
+                <span class="te-sub">挑选日蚀战团契约 · 迎战镜湖八大悬赏</span>
+              </span>
+              <span class="te-arrow" aria-hidden="true">→</span>
+            </button>
+            <div class="title-aux-row">
+              <button id="btn-title-hands" class="title-aux-btn">牌型图鉴</button>
+              <button id="btn-title-mute" class="title-aux-btn">音效：开</button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- ═══ BEAT 1: OUTDOOR MIRROR-LAKE 4-ROUND ACTIVE-BOSS BATTLE ═══ -->
       <div id="battle-view" class="hidden">
@@ -64,68 +104,118 @@
         </div>
       </div>
 
-      <!-- ═══ BEAT 2: ECLIPSE BLACK-MARKET TABLETOP (DIRECTION A — HIGH-WEIGHT 2-COLUMN HUB) ═══ -->
+      <!-- ═══ BEAT 2: FULL-SCREEN WALNUT TAVERN TABLETOP & UNIFIED BAIZE MARKET ═══ -->
       <div id="tavern-view">
         <canvas id="altar-bg-canvas" width="1280" height="720"></canvas>
 
-        <!-- Top Asset & Hero Relic Chain Rack -->
-        <header id="top-hud" class="hidden">
-          <div class="hud-stats-cluster steel-panel">
-            <span class="hud-pill wave" id="hud-wave">W2/8</span>
-            <span class="hud-pill hearts" id="hud-hearts">❤❤❤</span>
-            <span class="hud-pill gold lg" id="hud-gold">18G</span>
+        <!-- Sculpted Riveted Brass & Walnut Top Ledger Beam (72px) -->
+        <header id="top-hud" class="tavern-top-beam hidden">
+          <div class="hud-stats-cluster">
+            <div class="hud-plaque wave">
+              <span class="hud-plaque-lbl">波次</span>
+              <b id="hud-wave">W2/8</b>
+            </div>
+            <div class="hud-plaque hearts">
+              <span class="hud-plaque-lbl">气血</span>
+              <div id="hud-hearts" class="hud-hearts-row" aria-label="剩余气血"></div>
+            </div>
+            <div class="hud-plaque gold">
+              <svg class="hud-coin-svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="5" y="1" width="6" height="14" fill="#3a1c06"/>
+                <rect x="3" y="2" width="10" height="12" fill="#3a1c06"/>
+                <rect x="2" y="4" width="12" height="8" fill="#3a1c06"/>
+                <rect x="1" y="5" width="14" height="6" fill="#3a1c06"/>
+                <rect x="5" y="2" width="6" height="12" fill="#d48c1d"/>
+                <rect x="3" y="3" width="10" height="10" fill="#f0b636"/>
+                <rect x="2" y="5" width="12" height="6" fill="#f0b636"/>
+                <rect x="4" y="3" width="5" height="2" fill="#fff3b0"/>
+                <rect x="3" y="5" width="2" height="4" fill="#ffe680"/>
+                <rect x="7" y="5" width="2" height="6" fill="#9c590c"/>
+                <rect x="6" y="6" width="1" height="4" fill="#fff5c0"/>
+                <rect x="9" y="9" width="3" height="2" fill="#a8620e"/>
+              </svg>
+              <div class="hud-gold-stack">
+                <span class="hud-plaque-lbl">金币</span>
+                <b id="hud-gold">18G</b>
+              </div>
+            </div>
           </div>
 
-          <div id="top-relic-rack" class="steel-panel"></div>
+          <div id="top-relic-rack" class="tavern-relic-rack"></div>
 
           <div class="hud-tools-cluster">
-            <button class="steel-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
-            <button class="steel-btn hud-mini-btn" id="btn-mute">音效</button>
-            <button class="steel-btn hud-mini-btn" id="btn-restart">重开</button>
+            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
+            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-mute">音效</button>
+            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-restart">重开</button>
           </div>
         </header>
 
         <!-- Tap-to-Inspect Equipped Relic Floating Strip -->
-        <div id="relic-inspect-bar" class="steel-panel hidden"></div>
+        <div id="relic-inspect-bar" class="tavern-inspect-strip hidden"></div>
 
-        <!-- FULL-HEIGHT 2-COLUMN MAIN STAGE (Zero Dead Space!) -->
-        <main id="market-main-stage" class="hidden">
-          <!-- LEFT COLUMN: Next Boss Live Bounty + Deck Composition + Launch Button -->
-          <aside class="market-left-col">
-            <section id="boss-bounty-panel" class="steel-panel"></section>
-            <section id="deck-overview-panel" class="steel-panel" role="button" tabindex="0"></section>
-            <button id="btn-shop-next" class="steel-btn emerald market-launch-btn"></button>
+        <!-- UNBOXED FULL-TABLETOP LAYOUT: Pinned Parchment + Free-Roaming Squad | Unified Baize Market Mat -->
+        <main id="market-main-stage" class="tabletop-stage hidden">
+          <!-- LEFT WALNUT SIDE: Pinned Parchment Wanted Poster + Wax-Seal Battle Stamp + Open Roaming Squad Floor -->
+          <aside class="tabletop-left-zone">
+            <div class="bounty-contract-assembly">
+              <section id="boss-bounty-panel" class="parchment-poster"></section>
+              <button id="btn-shop-next" class="wax-contract-cta"></button>
+            </div>
+
+            <section id="deck-overview-panel" class="squad-promenade" role="button" tabindex="0" aria-label="查看战团名册">
+              <div class="sp-ledger-strip" id="squad-ledger-strip"></div>
+              <div class="sp-open-floor" id="squad-roam-zone">
+                <div class="sp-hover-tip hidden" id="squad-hover-tip"></div>
+              </div>
+            </section>
           </aside>
 
-          <!-- RIGHT COLUMN: Upper 3 Big Relic Cards + Lower 2 Giant Foil Packs & Planet Tome -->
-          <section class="market-right-col">
-            <div class="market-shelf steel-panel" id="shelf-relics-panel">
-              <div class="shelf-head">
-                <span class="shelf-title">✦ 星界秘宝陈列 <i>（左→右连锁：+伤放左 / ×倍放右）</i></span>
-                <button id="btn-shop-reroll" class="steel-btn gold shelf-reroll-btn"></button>
+          <!-- RIGHT BAIZE MAT: Mobile-Density Scannable Market Artifacts + On-Demand Detail Inspector -->
+          <section class="tabletop-felt-zone">
+            <div class="felt-top-header">
+              <div class="felt-head-left">
+                <span class="felt-title">星界秘宝</span>
+                <span class="felt-sub">点选查详规 · 再点确认</span>
               </div>
-              <div id="shop-relics-row" class="big-relics-grid"></div>
+              <div class="felt-head-right">
+                <span class="felt-gold-dish" id="shelf-gold-readout" title="当前可用金币">
+                  <i class="hud-coin-dot sm" aria-hidden="true"></i><b>18G</b>
+                </span>
+                <button id="btn-shop-reroll" class="brass-reroll-stamp"></button>
+              </div>
             </div>
 
-            <div class="market-shelf steel-panel" id="shelf-packs-panel">
-              <div class="shelf-head">
-                <span class="shelf-title">✦ 命运补给包 <i>（点击全屏光效撕开）</i> &amp; 战技酒谱 <i>（永久升倍率 · 0栏位）</i></span>
+            <div id="shop-relics-row" class="portrait-relics-row"></div>
+
+            <div class="felt-mid-divider">
+              <div class="felt-mid-left">
+                <span class="felt-title sm">命运卡包</span>
               </div>
-              <div id="shop-packs-row" class="big-packs-grid"></div>
+              <div class="felt-mid-right">
+                <span class="felt-title sm teal">战技酒谱</span>
+              </div>
             </div>
+
+            <div id="shop-packs-row" class="tabletop-artifacts-row"></div>
           </section>
         </main>
+        <div id="shop-detail-popover" class="shop-detail-popover hidden" role="dialog" aria-label="商品详情与购买确认"></div>
       </div>
 
-      <!-- ═══ OPENING 3-STARTER-DECK SELECTOR MODAL ═══ -->
-      <div id="deck-select-modal" class="modal-backdrop hidden">
-        <div class="deck-select-box steel-panel">
-          <div class="ds-head">
-            <div class="ds-title">✦ 日蚀战团 · 选择今晚初始牌组 ✦</div>
-            <div class="ds-sub">镜湖 4 回合破 Boss 考题 ↔ 星界黑市买秘宝与撕卡包 · 选定后直进镜湖 W1</div>
+      <!-- ═══ UNBOXED TABLETOP: 3 AGED-PARCHMENT WARBAND CONTRACTS ═══ -->
+      <div id="deck-select-modal" class="tabletop-contracts-layer hidden">
+        <header class="contracts-top-rail">
+          <button id="btn-contracts-back" class="steel-btn tavern-btn hud-mini-btn">← 返回酒馆门前</button>
+          <div class="contracts-rail-title">
+            <span class="crt-main">✦ 挑选今晚的日蚀战团 ✦</span>
+            <span class="crt-sub">签署战团契约直进镜湖 W1 · 首战凯旋即可步入黑市牌桌</span>
           </div>
-          <div id="deck-select-grid"></div>
-        </div>
+          <div class="contracts-rail-tools">
+            <button id="btn-contracts-hands" class="steel-btn tavern-btn hud-mini-btn">牌型图鉴</button>
+            <button id="btn-contracts-mute" class="steel-btn tavern-btn hud-mini-btn">音效</button>
+          </div>
+        </header>
+        <div id="deck-select-grid" class="contracts-spread"></div>
       </div>
 
       <!-- ═══ SHOWSTOPPER: FULL-SCREEN BOOSTER PACK OPENING CEREMONY ═══ -->
@@ -141,31 +231,77 @@
           <div id="pack-target-stage" class="hidden">
             <div id="pack-target-title"></div>
             <div id="pack-target-grid"></div>
-            <button id="btn-pack-target-back" class="steel-btn hud-mini-btn">← 返回重选塔罗</button>
+            <button id="btn-pack-target-back" class="steel-btn tavern-btn hud-mini-btn">← 返回重选塔罗</button>
           </div>
-          <div class="pack-footer"><button id="btn-pack-abandon" class="steel-btn">放弃本包 (+2G)</button></div>
+          <div class="pack-footer"><button id="btn-pack-abandon" class="steel-btn tavern-btn">放弃本包 (+2G)</button></div>
         </div>
       </div>
 
-      <!-- ═══ WAVE PAYOUT MODAL ═══ -->
-      <div id="payout-modal" class="modal-backdrop hidden">
-        <div class="payout-box steel-panel">
-          <div id="po-title" class="po-title win">讨伐成功!</div>
-          <div id="po-sub"></div>
-          <div id="po-rows"></div>
-          <button id="po-next-btn" class="steel-btn gold">进入星界黑市 · 开包构筑 →</button>
+      <!-- ═══ WAVE PAYOUT 16-BIT PIXEL ROLLED PARCHMENT SCROLL MODAL ═══ -->
+      <div id="payout-modal" class="modal-backdrop tavern-backdrop hidden">
+        <div class="payout-box tavern-ledger-modal">
+          <svg class="hs-scroll-svg payout" viewBox="0 0 116 86" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+            <!-- Stepped Pixel Parchment Body -->
+            <rect x="9" y="7" width="98" height="72" fill="#3a1c0a"/>
+            <rect x="10" y="8" width="96" height="70" fill="#c79e60"/>
+            <rect x="11" y="9" width="94" height="68" fill="#ebd5a4"/>
+            <rect x="12" y="10" width="92" height="4" fill="#f6e7c4"/>
+            <!-- Hand-Torn Pixel Notches (Top & Bottom) -->
+            <rect x="49" y="7" width="3" height="2" fill="#120905"/>
+            <rect x="50" y="9" width="1" height="1" fill="#3a1c0a"/>
+            <rect x="65" y="77" width="3" height="2" fill="#120905"/>
+            <rect x="66" y="76" width="1" height="1" fill="#3a1c0a"/>
+            <!-- Roll Cast Shadows -->
+            <rect x="10" y="8" width="3" height="70" fill="#6b3e19" opacity="0.5"/>
+            <rect x="103" y="8" width="3" height="70" fill="#6b3e19" opacity="0.5"/>
+            <!-- Etched Pixel Rules -->
+            <rect x="15" y="12" width="86" height="1" fill="#8b5a28" opacity="0.55"/>
+            <rect x="15" y="73" width="86" height="1" fill="#8b5a28" opacity="0.55"/>
+            <!-- Left Vertical Pixel Wooden/Brass Scroll Roller + Paper Tube -->
+            <rect x="3" y="1" width="5" height="4" fill="#1a0b04"/>
+            <rect x="4" y="2" width="3" height="2" fill="#e5af46"/>
+            <rect x="4" y="2" width="1" height="1" fill="#fff4bd"/>
+            <rect x="3" y="81" width="5" height="4" fill="#1a0b04"/>
+            <rect x="4" y="82" width="3" height="2" fill="#e5af46"/>
+            <rect x="4" y="82" width="1" height="1" fill="#fff4bd"/>
+            <rect x="2" y="5" width="7" height="76" fill="#2b1307"/>
+            <rect x="3" y="6" width="5" height="74" fill="#b78646"/>
+            <rect x="4" y="6" width="3" height="74" fill="#ebd4a2"/>
+            <rect x="5" y="6" width="1" height="74" fill="#fff8de"/>
+            <rect x="3" y="6" width="5" height="1" fill="#613a18"/>
+            <rect x="3" y="79" width="5" height="1" fill="#613a18"/>
+            <!-- Right Vertical Pixel Wooden/Brass Scroll Roller + Paper Tube -->
+            <rect x="108" y="1" width="5" height="4" fill="#1a0b04"/>
+            <rect x="109" y="2" width="3" height="2" fill="#e5af46"/>
+            <rect x="109" y="2" width="1" height="1" fill="#fff4bd"/>
+            <rect x="108" y="81" width="5" height="4" fill="#1a0b04"/>
+            <rect x="109" y="82" width="3" height="2" fill="#e5af46"/>
+            <rect x="109" y="82" width="1" height="1" fill="#fff4bd"/>
+            <rect x="107" y="5" width="7" height="76" fill="#2b1307"/>
+            <rect x="108" y="6" width="5" height="74" fill="#b78646"/>
+            <rect x="109" y="6" width="3" height="74" fill="#ebd4a2"/>
+            <rect x="110" y="6" width="1" height="74" fill="#fff8de"/>
+            <rect x="108" y="6" width="5" height="1" fill="#613a18"/>
+            <rect x="108" y="79" width="5" height="1" fill="#613a18"/>
+          </svg>
+          <div class="po-scroll-content">
+            <div id="po-title" class="po-title win">讨伐成功!</div>
+            <div id="po-sub"></div>
+            <div id="po-rows"></div>
+            <button id="po-next-btn" class="tavern-modal-cta">进入酒馆黑市 · 开包构筑 →</button>
+          </div>
         </div>
       </div>
 
-      <!-- ═══ ROSTER / PILE / HAND GUIDE MODAL ═══ -->
-      <div id="roster-modal" class="modal-backdrop hidden">
-        <div class="roster-box steel-panel">
+      <!-- ═══ ROSTER / PILE / HAND GUIDE TOME MODAL ═══ -->
+      <div id="roster-modal" class="modal-backdrop tavern-backdrop hidden">
+        <div class="roster-box tavern-tome-modal">
           <div class="rm-head">
             <div class="rm-tabs">
-              <button id="rm-tab-roster" class="steel-btn rm-tab active">当前战团牌组</button>
-              <button id="rm-tab-hands" class="steel-btn rm-tab">牌型倍率表</button>
+              <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">当前战团牌组</button>
+              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">牌型倍率图鉴</button>
             </div>
-            <button id="rm-close-btn" class="steel-btn hud-mini-btn">关闭 ✕</button>
+            <button id="rm-close-btn" class="steel-btn tavern-btn hud-mini-btn">合上典籍 ✕</button>
           </div>
           <div id="rm-summary"></div>
           <div id="rm-body"></div>
@@ -177,14 +313,14 @@
   </div>
 
   <!-- Duelyst H5 Kit & v13 Engine Scripts -->
-  <script src="./assets/duelyst/duelyst-h5.js?v=130"></script>
-  <script src="./assets/duelyst/assets/manifest.js?v=130"></script>
-  <script src="./js/audio.js?v=130"></script>
-  <script src="./js/vfxPlayer.js?v=130"></script>
-  <script src="./js/sprites.js?v=130"></script>
-  <script src="./js/v13AltarBg.js?v=130"></script>
-  <script src="./js/v12Data.js?v=130"></script>
-  <script src="./js/v12Battle.js?v=130"></script>
-  <script src="./js/v13Main.js?v=130"></script>
+  <script src="./assets/duelyst/duelyst-h5.js?v=139"></script>
+  <script src="./assets/duelyst/assets/manifest.js?v=139"></script>
+  <script src="./js/audio.js?v=139"></script>
+  <script src="./js/vfxPlayer.js?v=139"></script>
+  <script src="./js/sprites.js?v=139"></script>
+  <script src="./js/v13AltarBg.js?v=139"></script>
+  <script src="./js/v12Data.js?v=139"></script>
+  <script src="./js/v12Battle.js?v=139"></script>
+  <script src="./js/v13Main.js?v=139"></script>
 </body>
 </html>

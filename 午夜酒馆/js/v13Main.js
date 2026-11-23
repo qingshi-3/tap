@@ -6,7 +6,719 @@
 (function () {
   window.MT = window.MT || {};
 
-  // ─── Pack Opening Ceremony 60fps Canvas FX ───
+  // ─── Bespoke Crisp Pixel-Art SVG Ornaments & Foil Pack Illustrations ───
+  function pixelHeartSvg(filled) {
+    if (filled) {
+      return `<svg class="hud-heart-svg full" viewBox="0 0 13 12" shape-rendering="crispEdges" aria-hidden="true">
+        <path d="M2 1h3v1h1v1h1V2h1V1h3v1h1v4h-1v1h-1v1H9v1H8v1H7v1H6v-1H5V9H4V8H3V7H2V6H1V2h1V1z" fill="#22060a"/>
+        <path d="M2 2h3v1h1v1h1V3h1V2h3v4h-1v1H9v1H8v1H7v1H6V9H5V8H4V7H3V6H2V2z" fill="#d9263e"/>
+        <path d="M3 2h2v1H3V2zm-1 1h2v2H2V3zm6-1h2v1H8V2z" fill="#ff7084"/>
+        <rect x="3" y="3" width="1" height="1" fill="#ffd9df"/>
+        <path d="M9 5h2v1h-1v1H9v1H8v1H7v1H6V9h1V8h1V7h1V5z" fill="#8f1022"/>
+      </svg>`;
+    }
+    return `<svg class="hud-heart-svg empty" viewBox="0 0 13 12" shape-rendering="crispEdges" aria-hidden="true">
+      <path d="M2 1h3v1h1v1h1V2h1V1h3v1h1v4h-1v1h-1v1H9v1H8v1H7v1H6v-1H5V9H4V8H3V7H2V6H1V2h1V1z" fill="#180a07"/>
+      <path d="M2 2h3v1h1v1h1V3h1V2h3v4h-1v1H9v1H8v1H7v1H6V9H5V8H4V7H3V6H2V2z" fill="#3a231b"/>
+      <path d="M3 3h2v1h1v1h1V4h1V3h2v2H9v1H8v1H7v1H6V7H5V6H4V5H3V3z" fill="#21120d"/>
+    </svg>`;
+  }
+
+  function packFoilArtSvg(packId) {
+    if (packId === 'pack_relic') {
+      // Royal Crimson & Burnished Gold: Sunburst Crown & Arcane Chalice Filigree
+      return `<svg class="sachet-bg-art" viewBox="0 0 120 156" shape-rendering="crispEdges" aria-hidden="true">
+        <g opacity="0.26" fill="#ffd966">
+          <rect x="59" y="8" width="2" height="140"/>
+          <rect x="10" y="64" width="100" height="2"/>
+          <path d="M20 24l4-4 76 86-4 4z"/>
+          <path d="M100 24l-4-4-76 86 4 4z"/>
+        </g>
+        <g fill="none" stroke="#f6c85e" stroke-width="1.5" opacity="0.52">
+          <polygon points="60,12 108,36 108,120 60,144 12,120 12,36"/>
+          <polygon points="60,20 100,40 100,116 60,136 20,116 20,40" opacity="0.55"/>
+        </g>
+        <g fill="#ffe38a" opacity="0.88">
+          <rect x="52" y="14" width="16" height="3"/>
+          <rect x="50" y="10" width="3" height="5"/>
+          <rect x="58" y="8" width="4" height="7"/>
+          <rect x="67" y="10" width="3" height="5"/>
+          <rect x="59" y="138" width="2" height="6"/>
+          <rect x="57" y="140" width="6" height="2"/>
+        </g>
+        <g fill="#ffda75" opacity="0.72">
+          <rect x="16" y="20" width="6" height="2"/><rect x="16" y="20" width="2" height="6"/>
+          <rect x="98" y="20" width="6" height="2"/><rect x="102" y="20" width="2" height="6"/>
+          <rect x="16" y="132" width="6" height="2"/><rect x="16" y="128" width="2" height="6"/>
+          <rect x="98" y="132" width="6" height="2"/><rect x="102" y="128" width="2" height="6"/>
+        </g>
+      </svg>`;
+    }
+    if (packId === 'pack_hero') {
+      // Royal Cobalt Sapphire & Silver-Gold: Crossed Greatswords & Heraldic Banner Crest
+      return `<svg class="sachet-bg-art" viewBox="0 0 120 156" shape-rendering="crispEdges" aria-hidden="true">
+        <g opacity="0.28" fill="#8ce8ff">
+          <path d="M22 18h8l68 112h-8z"/>
+          <path d="M98 18h-8l-68 112h8z"/>
+        </g>
+        <g fill="none" stroke="#8ce8ff" stroke-width="1.5" opacity="0.48">
+          <path d="M14 18h92v84L60 142 14 102V18z"/>
+          <path d="M22 25h76v72L60 132 22 97V25z" opacity="0.5"/>
+        </g>
+        <g fill="#e6f7ff" opacity="0.82">
+          <rect x="59" y="10" width="2" height="10"/><rect x="55" y="14" width="10" height="2"/>
+          <rect x="16" y="114" width="4" height="4"/><rect x="100" y="114" width="4" height="4"/>
+          <rect x="58" y="134" width="4" height="4"/>
+        </g>
+        <g fill="#f6d88b" opacity="0.72">
+          <rect x="14" y="18" width="8" height="2"/><rect x="14" y="18" width="2" height="8"/>
+          <rect x="98" y="18" width="8" height="2"/><rect x="104" y="18" width="2" height="8"/>
+        </g>
+      </svg>`;
+    }
+    // pack_alchemy: Emerald-Amethyst & Rose-Gold Transmutation Circle + Twin Moons
+    return `<svg class="sachet-bg-art" viewBox="0 0 120 156" shape-rendering="crispEdges" aria-hidden="true">
+      <g fill="none" stroke="#e4a6ff" stroke-width="1.5" opacity="0.46">
+        <circle cx="60" cy="68" r="46"/>
+        <circle cx="60" cy="68" r="36" stroke-dasharray="4 3"/>
+        <polygon points="60,22 98,88 22,88"/>
+        <polygon points="60,114 98,48 22,48" opacity="0.65"/>
+      </g>
+      <g fill="#ffd9a8" opacity="0.82">
+        <rect x="58" y="11" width="4" height="4"/>
+        <rect x="55" y="13" width="10" height="1"/>
+        <rect x="18" y="18" width="5" height="2"/><rect x="18" y="18" width="2" height="5"/>
+        <rect x="97" y="18" width="5" height="2"/><rect x="100" y="18" width="2" height="5"/>
+        <rect x="18" y="132" width="5" height="2"/><rect x="18" y="129" width="2" height="5"/>
+        <rect x="97" y="132" width="5" height="2"/><rect x="100" y="129" width="2" height="5"/>
+      </g>
+    </svg>`;
+  }
+
+  // ─── Unified 16-Bit Pixel-Art Full-Bleed Scenic Dioramas & Single Forged TCG Card Frames ───
+  function pixelCardSceneSvg(sceneKey) {
+    // 64 x 96 exact integer pixel grid (4x scale on 256x384 / 252x378 reveal cards)
+    // Upper half (y=3..50) = full-bleed scenic pixel diorama; Lower half (y=50..92) = engraved dark tablet
+    const scenes = {
+      holy: `
+        <rect x="3" y="3" width="58" height="47" fill="#2a1929"/>
+        <rect x="3" y="3" width="58" height="16" fill="#462638"/>
+        <rect x="3" y="19" width="58" height="14" fill="#6b3b3c"/>
+        <rect x="3" y="33" width="58" height="8" fill="#9a6444"/>
+        <!-- Stained Glass Rose Window & Cathedral Pillars -->
+        <rect x="24" y="8" width="16" height="16" fill="#c78a46" opacity="0.45"/>
+        <rect x="27" y="10" width="10" height="12" fill="#ffe188" opacity="0.52"/>
+        <rect x="30" y="12" width="4" height="8" fill="#fff6cc" opacity="0.72"/>
+        <rect x="10" y="6" width="5" height="35" fill="#1e1118" opacity="0.78"/>
+        <rect x="11" y="6" width="1" height="35" fill="#9a6e4a" opacity="0.5"/>
+        <rect x="49" y="6" width="5" height="35" fill="#1e1118" opacity="0.78"/>
+        <rect x="50" y="6" width="1" height="35" fill="#9a6e4a" opacity="0.5"/>
+        <!-- Sunbeams -->
+        <rect x="20" y="20" width="6" height="20" fill="#ffe89c" opacity="0.14"/>
+        <rect x="38" y="20" width="6" height="20" fill="#ffe89c" opacity="0.14"/>
+        <!-- Limestone Sanctuary Floor -->
+        <rect x="3" y="40" width="58" height="10" fill="#3a241b"/>
+        <rect x="3" y="40" width="58" height="1" fill="#c79758" opacity="0.6"/>
+        <rect x="12" y="43" width="10" height="1" fill="#613e2a"/>
+        <rect x="42" y="43" width="10" height="1" fill="#613e2a"/>
+        <rect x="24" y="46" width="16" height="1" fill="#613e2a"/>
+        <rect x="3" y="50" width="58" height="43" fill="#1c110d"/>
+        <rect x="5" y="52" width="54" height="39" fill="#251610"/>`,
+      flame: `
+        <rect x="3" y="3" width="58" height="47" fill="#1f0a0e"/>
+        <rect x="3" y="3" width="58" height="15" fill="#3d1115"/>
+        <rect x="3" y="18" width="58" height="14" fill="#6e1d18"/>
+        <rect x="3" y="32" width="58" height="9" fill="#a83519"/>
+        <!-- Jagged Basalt Crags -->
+        <rect x="5" y="22" width="8" height="19" fill="#1c080a"/>
+        <rect x="7" y="17" width="4" height="5" fill="#1c080a"/>
+        <rect x="50" y="20" width="9" height="21" fill="#1c080a"/>
+        <rect x="53" y="14" width="4" height="6" fill="#1c080a"/>
+        <!-- Rising Cinder Sparks -->
+        <rect x="18" y="12" width="1" height="1" fill="#ffcf66"/>
+        <rect x="44" y="16" width="1" height="1" fill="#ff9442"/>
+        <rect x="26" y="8" width="1" height="1" fill="#ffe699"/>
+        <rect x="39" y="24" width="1" height="1" fill="#ffcf66"/>
+        <!-- Cracked Volcanic Floor with Lava Vein -->
+        <rect x="3" y="40" width="58" height="10" fill="#260e0d"/>
+        <rect x="3" y="40" width="58" height="1" fill="#e86428" opacity="0.72"/>
+        <rect x="14" y="44" width="8" height="1" fill="#ff9038" opacity="0.65"/>
+        <rect x="40" y="45" width="9" height="1" fill="#ff9038" opacity="0.65"/>
+        <rect x="3" y="50" width="58" height="43" fill="#190b0a"/>
+        <rect x="5" y="52" width="54" height="39" fill="#23100e"/>`,
+      frost: `
+        <rect x="3" y="3" width="58" height="47" fill="#0d1b2e"/>
+        <rect x="3" y="3" width="58" height="14" fill="#142d4a"/>
+        <rect x="3" y="17" width="58" height="15" fill="#1d4a6e"/>
+        <rect x="3" y="32" width="58" height="9" fill="#2e6f92"/>
+        <!-- Aurora Ribbon & Glacial Spires -->
+        <rect x="12" y="9" width="24" height="3" fill="#6bf0e8" opacity="0.28"/>
+        <rect x="24" y="12" width="26" height="2" fill="#8cf6ff" opacity="0.24"/>
+        <rect x="6" y="21" width="9" height="19" fill="#10253c"/>
+        <rect x="9" y="15" width="4" height="6" fill="#163552"/>
+        <rect x="49" y="19" width="10" height="21" fill="#10253c"/>
+        <rect x="51" y="13" width="4" height="6" fill="#163552"/>
+        <!-- Snowflakes -->
+        <rect x="18" y="15" width="1" height="1" fill="#e8fbff"/>
+        <rect x="42" y="11" width="1" height="1" fill="#e8fbff"/>
+        <rect x="33" y="22" width="1" height="1" fill="#b8f2ff"/>
+        <!-- Frozen Ice Lake Floor -->
+        <rect x="3" y="40" width="58" height="10" fill="#152b40"/>
+        <rect x="3" y="40" width="58" height="1" fill="#82e4ff" opacity="0.65"/>
+        <rect x="16" y="44" width="12" height="1" fill="#4aa2c7" opacity="0.5"/>
+        <rect x="38" y="46" width="10" height="1" fill="#4aa2c7" opacity="0.5"/>
+        <rect x="3" y="50" width="58" height="43" fill="#0e1621"/>
+        <rect x="5" y="52" width="54" height="39" fill="#142030"/>`,
+      shadow: `
+        <rect x="3" y="3" width="58" height="47" fill="#140b24"/>
+        <rect x="3" y="3" width="58" height="15" fill="#23123b"/>
+        <rect x="3" y="18" width="58" height="14" fill="#3a1c5c"/>
+        <rect x="3" y="32" width="58" height="9" fill="#522675"/>
+        <!-- Eclipsed Violet Moon -->
+        <rect x="26" y="9" width="12" height="12" fill="#d994ff" opacity="0.45"/>
+        <rect x="28" y="11" width="8" height="8" fill="#f3d4ff" opacity="0.55"/>
+        <rect x="29" y="12" width="6" height="6" fill="#23123b"/>
+        <!-- Gothic Spires -->
+        <rect x="7" y="20" width="6" height="20" fill="#10081c"/>
+        <rect x="9" y="13" width="2" height="7" fill="#10081c"/>
+        <rect x="51" y="18" width="6" height="22" fill="#10081c"/>
+        <rect x="53" y="11" width="2" height="7" fill="#10081c"/>
+        <!-- Ritual Obsidian Floor -->
+        <rect x="3" y="40" width="58" height="10" fill="#1b102b"/>
+        <rect x="3" y="40" width="58" height="1" fill="#c77dff" opacity="0.62"/>
+        <rect x="20" y="44" width="24" height="1" fill="#8244b8" opacity="0.5"/>
+        <rect x="3" y="50" width="58" height="43" fill="#120a1c"/>
+        <rect x="5" y="52" width="54" height="39" fill="#1a1026"/>`,
+      beast: `
+        <rect x="3" y="3" width="58" height="47" fill="#0d1e17"/>
+        <rect x="3" y="3" width="58" height="14" fill="#153226"/>
+        <rect x="3" y="17" width="58" height="15" fill="#214d38"/>
+        <rect x="3" y="32" width="58" height="9" fill="#2d6647"/>
+        <!-- Ancient Forest Trunks & Moonlit Canopy -->
+        <rect x="6" y="7" width="7" height="33" fill="#0c1c14"/>
+        <rect x="13" y="7" width="4" height="8" fill="#122b1e"/>
+        <rect x="51" y="7" width="7" height="33" fill="#0c1c14"/>
+        <rect x="47" y="7" width="4" height="9" fill="#122b1e"/>
+        <!-- Fireflies -->
+        <rect x="20" y="14" width="1" height="1" fill="#9effb8"/>
+        <rect x="43" y="18" width="1" height="1" fill="#d4ff9c"/>
+        <rect x="35" y="10" width="1" height="1" fill="#9effb8"/>
+        <!-- Mossy Glade Floor -->
+        <rect x="3" y="40" width="58" height="10" fill="#13291d"/>
+        <rect x="3" y="40" width="58" height="1" fill="#63e09b" opacity="0.58"/>
+        <rect x="14" y="44" width="9" height="1" fill="#3a7d56"/>
+        <rect x="41" y="45" width="9" height="1" fill="#3a7d56"/>
+        <rect x="3" y="50" width="58" height="43" fill="#0d1712"/>
+        <rect x="5" y="52" width="54" height="39" fill="#13211a"/>`,
+      sand: `
+        <rect x="3" y="3" width="58" height="47" fill="#2b1812"/>
+        <rect x="3" y="3" width="58" height="14" fill="#4f291c"/>
+        <rect x="3" y="17" width="58" height="15" fill="#824626"/>
+        <rect x="3" y="32" width="58" height="9" fill="#ba7338"/>
+        <!-- Desert Sun & Obelisks -->
+        <rect x="26" y="11" width="12" height="10" fill="#ffd978" opacity="0.48"/>
+        <rect x="28" y="13" width="8" height="6" fill="#fff2b5" opacity="0.62"/>
+        <rect x="8" y="23" width="6" height="17" fill="#381d12"/>
+        <rect x="10" y="19" width="2" height="4" fill="#381d12"/>
+        <rect x="50" y="21" width="6" height="19" fill="#381d12"/>
+        <rect x="52" y="17" width="2" height="4" fill="#381d12"/>
+        <!-- Sun-Baked Sandstone Floor -->
+        <rect x="3" y="40" width="58" height="10" fill="#3d2415"/>
+        <rect x="3" y="40" width="58" height="1" fill="#f0b95b" opacity="0.68"/>
+        <rect x="14" y="44" width="12" height="1" fill="#8c5a2c"/>
+        <rect x="39" y="46" width="11" height="1" fill="#8c5a2c"/>
+        <rect x="3" y="50" width="58" height="43" fill="#1c110b"/>
+        <rect x="5" y="52" width="54" height="39" fill="#26170f"/>`,
+      relic_add: `
+        <rect x="3" y="3" width="58" height="47" fill="#26160a"/>
+        <rect x="3" y="3" width="58" height="18" fill="#3d2410"/>
+        <rect x="12" y="10" width="40" height="30" fill="#5e3a18" opacity="0.5"/>
+        <rect x="20" y="14" width="24" height="22" fill="#9c6928" opacity="0.45"/>
+        <rect x="26" y="18" width="12" height="14" fill="#ffe188" opacity="0.28"/>
+        <rect x="31" y="7" width="2" height="36" fill="#ffe188" opacity="0.16"/>
+        <rect x="12" y="24" width="40" height="2" fill="#ffe188" opacity="0.14"/>
+        <rect x="3" y="41" width="58" height="9" fill="#2e1b0d"/>
+        <rect x="3" y="41" width="58" height="1" fill="#e8b854" opacity="0.65"/>
+        <rect x="3" y="50" width="58" height="43" fill="#1a1008"/>
+        <rect x="5" y="52" width="54" height="39" fill="#24160c"/>`,
+      relic_vfx: `
+        <rect x="3" y="3" width="58" height="47" fill="#0d1f29"/>
+        <rect x="3" y="3" width="58" height="18" fill="#153545"/>
+        <rect x="12" y="10" width="40" height="30" fill="#1d4d61" opacity="0.55"/>
+        <rect x="20" y="14" width="24" height="22" fill="#2d7a94" opacity="0.45"/>
+        <rect x="26" y="18" width="12" height="14" fill="#94f2ff" opacity="0.28"/>
+        <rect x="31" y="7" width="2" height="36" fill="#82ebff" opacity="0.18"/>
+        <rect x="12" y="24" width="40" height="2" fill="#82ebff" opacity="0.14"/>
+        <rect x="3" y="41" width="58" height="9" fill="#112633"/>
+        <rect x="3" y="41" width="58" height="1" fill="#70dcf2" opacity="0.65"/>
+        <rect x="3" y="50" width="58" height="43" fill="#0c171f"/>
+        <rect x="5" y="52" width="54" height="39" fill="#12222d"/>`,
+      relic_mult: `
+        <rect x="3" y="3" width="58" height="47" fill="#260c1a"/>
+        <rect x="3" y="3" width="58" height="18" fill="#42142b"/>
+        <rect x="12" y="10" width="40" height="30" fill="#631e40" opacity="0.52"/>
+        <rect x="20" y="14" width="24" height="22" fill="#942d5e" opacity="0.42"/>
+        <rect x="26" y="18" width="12" height="14" fill="#ff9cc8" opacity="0.28"/>
+        <rect x="31" y="7" width="2" height="36" fill="#ff9cc8" opacity="0.18"/>
+        <rect x="12" y="24" width="40" height="2" fill="#ff9cc8" opacity="0.14"/>
+        <rect x="3" y="41" width="58" height="9" fill="#2b0f1e"/>
+        <rect x="3" y="41" width="58" height="1" fill="#f082b4" opacity="0.65"/>
+        <rect x="3" y="50" width="58" height="43" fill="#1a0912"/>
+        <rect x="5" y="52" width="54" height="39" fill="#240d19"/>`,
+      alchemy: `
+        <rect x="3" y="3" width="58" height="47" fill="#1a0e29"/>
+        <rect x="3" y="3" width="58" height="18" fill="#2d1747"/>
+        <rect x="14" y="11" width="36" height="26" fill="#46226b" opacity="0.5"/>
+        <rect x="22" y="15" width="20" height="18" fill="#7c3ea8" opacity="0.42"/>
+        <rect x="16" y="14" width="1" height="1" fill="#ffe89c"/>
+        <rect x="47" y="12" width="1" height="1" fill="#e6a8ff"/>
+        <rect x="44" y="30" width="1" height="1" fill="#ffe89c"/>
+        <rect x="19" y="32" width="1" height="1" fill="#e6a8ff"/>
+        <rect x="3" y="41" width="58" height="9" fill="#201133"/>
+        <rect x="3" y="41" width="58" height="1" fill="#d994ff" opacity="0.65"/>
+        <rect x="3" y="50" width="58" height="43" fill="#140a1f"/>
+        <rect x="5" y="52" width="54" height="39" fill="#1d0f2c"/>`
+    };
+    return `<svg class="pcard-scene-svg" viewBox="0 0 64 96" shape-rendering="crispEdges" aria-hidden="true">
+      ${scenes[sceneKey] || scenes.relic_add}
+    </svg>`;
+  }
+
+  function pixelCardFrameSvg(midCol = '#c99742', hiCol = '#ffe9a3', loCol = '#5c3b14', gemCol = '#ffd966') {
+    // ONE single hand-sculpted 16-bit cast-metal TCG frame (64 x 96) — ZERO concentric inner boxes!
+    return `<svg class="pcard-frame-svg" viewBox="0 0 64 96" shape-rendering="crispEdges" aria-hidden="true">
+      <!-- Outer Forged Dark Silhouette Outline (Stepped Beveled Corners) -->
+      <rect x="3" y="1" width="58" height="1" fill="#0d0604"/>
+      <rect x="2" y="2" width="2" height="1" fill="#0d0604"/><rect x="60" y="2" width="2" height="1" fill="#0d0604"/>
+      <rect x="1" y="3" width="1" height="90" fill="#0d0604"/><rect x="62" y="3" width="1" height="90" fill="#0d0604"/>
+      <rect x="2" y="93" width="2" height="1" fill="#0d0604"/><rect x="60" y="93" width="2" height="1" fill="#0d0604"/>
+      <rect x="3" y="94" width="58" height="1" fill="#0d0604"/>
+
+      <!-- Main Forged Metallic Rim (2px thick, single cohesive border) -->
+      <rect x="4" y="2" width="56" height="2" fill="${midCol}"/>
+      <rect x="4" y="2" width="56" height="1" fill="${hiCol}"/>
+      <rect x="2" y="4" width="2" height="88" fill="${midCol}"/>
+      <rect x="2" y="4" width="1" height="86" fill="${hiCol}" opacity="0.72"/>
+      <rect x="60" y="4" width="2" height="88" fill="${midCol}"/>
+      <rect x="61" y="5" width="1" height="86" fill="${loCol}"/>
+      <rect x="4" y="92" width="56" height="2" fill="${midCol}"/>
+      <rect x="4" y="93" width="56" height="1" fill="${loCol}"/>
+
+      <!-- Sculpted Cast-Corner Studs (Integrated directly into the rim corners!) -->
+      <rect x="2" y="2" width="4" height="4" fill="${midCol}"/><rect x="3" y="3" width="2" height="2" fill="${hiCol}"/><rect x="4" y="4" width="1" height="1" fill="${loCol}"/>
+      <rect x="58" y="2" width="4" height="4" fill="${midCol}"/><rect x="59" y="3" width="2" height="2" fill="${hiCol}"/><rect x="60" y="4" width="1" height="1" fill="${loCol}"/>
+      <rect x="2" y="90" width="4" height="4" fill="${midCol}"/><rect x="3" y="91" width="2" height="2" fill="${hiCol}"/><rect x="4" y="92" width="1" height="1" fill="${loCol}"/>
+      <rect x="58" y="90" width="4" height="4" fill="${midCol}"/><rect x="59" y="91" width="2" height="2" fill="${hiCol}"/><rect x="60" y="92" width="1" height="1" fill="${loCol}"/>
+
+      <!-- Recessed Inner Dark Bevel Hairline (separates metal frame from art) -->
+      <rect x="4" y="4" width="56" height="1" fill="#0d0604" opacity="0.8"/>
+      <rect x="4" y="4" width="1" height="88" fill="#0d0604" opacity="0.7"/>
+      <rect x="59" y="4" width="1" height="88" fill="#0d0604" opacity="0.7"/>
+      <rect x="4" y="91" width="56" height="1" fill="#0d0604" opacity="0.8"/>
+
+      <!-- Forged Top Crown Keystone + Faceted Pixel Gem Breaking the Top Silhouette -->
+      <rect x="26" y="0" width="12" height="6" fill="#0d0604"/>
+      <rect x="27" y="1" width="10" height="4" fill="${midCol}"/>
+      <rect x="28" y="1" width="8" height="1" fill="${hiCol}"/>
+      <rect x="29" y="2" width="6" height="3" fill="#1a0b08"/>
+      <rect x="30" y="2" width="4" height="3" fill="${gemCol}"/>
+      <rect x="30" y="2" width="2" height="1" fill="#ffffff" opacity="0.85"/>
+      <rect x="25" y="2" width="2" height="2" fill="${hiCol}"/>
+      <rect x="37" y="2" width="2" height="2" fill="${hiCol}"/>
+
+      <!-- Side Hinge Brackets Anchoring the Horizontal Nameplate Horizon (y=47..55) -->
+      <rect x="1" y="46" width="4" height="10" fill="#0d0604"/>
+      <rect x="2" y="47" width="2" height="8" fill="${midCol}"/>
+      <rect x="2" y="47" width="1" height="3" fill="${hiCol}"/>
+      <rect x="59" y="46" width="4" height="10" fill="#0d0604"/>
+      <rect x="60" y="47" width="2" height="8" fill="${midCol}"/>
+      <rect x="60" y="47" width="1" height="3" fill="${hiCol}"/>
+    </svg>`;
+  }
+
+  function pixelShopRelicSvg(cat, gemCol = '#ffd966') {
+    // Unified 56 x 84 (exact 2:3 slender TCG ratio!) 16-bit Shop Relic Card: Full-bleed alcove + single forged frame
+    const pal = cat === 'mult'
+      ? { mid: '#d96b9f', hi: '#ffc4df', lo: '#5e1a3a', bg1: '#260b19', bg2: '#4a1530', bg3: '#75234c', tab: '#1c0913', ray: '#ff9ec8' }
+      : cat === 'vfx'
+      ? { mid: '#56bed6', hi: '#c2f6ff', lo: '#194959', bg1: '#0c1e29', bg2: '#16394a', bg3: '#245b73', tab: '#0c1821', ray: '#8ceeff' }
+      : { mid: '#d4a146', hi: '#ffebb0', lo: '#5e3c10', bg1: '#24150a', bg2: '#422710', bg3: '#6b4218', tab: '#1a1008', ray: '#ffe188' };
+    return `<svg class="rtc-pixel-svg" viewBox="0 0 56 84" shape-rendering="crispEdges" aria-hidden="true">
+      <!-- Full-Bleed Upper Velvet Altar Alcove (y=3..41) -->
+      <rect x="3" y="3" width="50" height="39" fill="${pal.bg1}"/>
+      <rect x="6" y="5" width="44" height="35" fill="${pal.bg2}"/>
+      <rect x="12" y="8" width="32" height="29" fill="${pal.bg3}" opacity="0.65"/>
+      <rect x="19" y="12" width="18" height="21" fill="${pal.ray}" opacity="0.22"/>
+      <!-- Subtle Pixel Starlight Rays -->
+      <rect x="27" y="6" width="2" height="33" fill="${pal.ray}" opacity="0.16"/>
+      <rect x="10" y="22" width="36" height="2" fill="${pal.ray}" opacity="0.14"/>
+      <rect x="3" y="39" width="50" height="3" fill="${pal.bg1}" opacity="0.72"/>
+      <!-- Engraved Lower Tablet (y=42..81) -->
+      <rect x="3" y="42" width="50" height="39" fill="${pal.tab}"/>
+      <rect x="5" y="44" width="46" height="35" fill="${pal.bg1}"/>
+
+      <!-- Single Cohesive Forged Outer Rim (ZERO nested concentric boxes!) -->
+      <rect x="3" y="1" width="50" height="1" fill="#0d0604"/>
+      <rect x="2" y="2" width="2" height="1" fill="#0d0604"/><rect x="52" y="2" width="2" height="1" fill="#0d0604"/>
+      <rect x="1" y="3" width="1" height="78" fill="#0d0604"/><rect x="54" y="3" width="1" height="78" fill="#0d0604"/>
+      <rect x="2" y="81" width="2" height="1" fill="#0d0604"/><rect x="52" y="81" width="2" height="1" fill="#0d0604"/>
+      <rect x="3" y="82" width="50" height="1" fill="#0d0604"/>
+
+      <rect x="4" y="2" width="48" height="2" fill="${pal.mid}"/>
+      <rect x="4" y="2" width="48" height="1" fill="${pal.hi}"/>
+      <rect x="2" y="4" width="2" height="76" fill="${pal.mid}"/>
+      <rect x="2" y="4" width="1" height="74" fill="${pal.hi}" opacity="0.72"/>
+      <rect x="52" y="4" width="2" height="76" fill="${pal.mid}"/>
+      <rect x="53" y="5" width="1" height="74" fill="${pal.lo}"/>
+      <rect x="4" y="80" width="48" height="2" fill="${pal.mid}"/>
+      <rect x="4" y="81" width="48" height="1" fill="${pal.lo}"/>
+
+      <!-- Forged Corner Studs -->
+      <rect x="2" y="2" width="4" height="4" fill="${pal.mid}"/><rect x="3" y="3" width="2" height="2" fill="${pal.hi}"/>
+      <rect x="50" y="2" width="4" height="4" fill="${pal.mid}"/><rect x="51" y="3" width="2" height="2" fill="${pal.hi}"/>
+      <rect x="2" y="78" width="4" height="4" fill="${pal.mid}"/><rect x="3" y="79" width="2" height="2" fill="${pal.hi}"/>
+      <rect x="50" y="78" width="4" height="4" fill="${pal.mid}"/><rect x="51" y="79" width="2" height="2" fill="${pal.hi}"/>
+
+      <!-- Top Crown Keystone + Faceted Gem -->
+      <rect x="23" y="0" width="10" height="5" fill="#0d0604"/>
+      <rect x="24" y="1" width="8" height="3" fill="${pal.mid}"/>
+      <rect x="26" y="1" width="4" height="3" fill="${gemCol}"/>
+      <rect x="26" y="1" width="2" height="1" fill="#ffffff" opacity="0.85"/>
+
+      <!-- Side Brackets Anchoring the Nameplate Seam -->
+      <rect x="1" y="39" width="3" height="8" fill="#0d0604"/><rect x="2" y="40" width="2" height="6" fill="${pal.mid}"/>
+      <rect x="52" y="39" width="3" height="8" fill="#0d0604"/><rect x="52" y="40" width="2" height="6" fill="${pal.mid}"/>
+    </svg>`;
+  }
+
+  function tarotBackSvg() {
+    // Pure 16-Bit Pixel-Art Eclipse Card Back (64 x 96 matching exact front silhouette!)
+    return `<svg class="tarot-back-svg" viewBox="0 0 64 96" shape-rendering="crispEdges" aria-hidden="true">
+      <rect x="2" y="2" width="60" height="92" fill="#180a0b"/>
+      <rect x="4" y="4" width="56" height="88" fill="#2c1215"/>
+      <rect x="8" y="8" width="48" height="80" fill="#1c0b0d"/>
+      <!-- Stepped Pixel Gold Rim -->
+      <rect x="3" y="2" width="58" height="2" fill="#d4a146"/><rect x="3" y="2" width="58" height="1" fill="#ffe89c"/>
+      <rect x="3" y="92" width="58" height="2" fill="#9c6c22"/>
+      <rect x="2" y="3" width="2" height="90" fill="#d4a146"/><rect x="60" y="3" width="2" height="90" fill="#9c6c22"/>
+      <!-- Pixel Sunburst & Eclipsed Crescent Emblem -->
+      <rect x="31" y="16" width="2" height="64" fill="#d4a146" opacity="0.38"/>
+      <rect x="14" y="47" width="36" height="2" fill="#d4a146" opacity="0.38"/>
+      <rect x="24" y="36" width="16" height="24" fill="#3d171c"/>
+      <rect x="22" y="40" width="20" height="16" fill="#3d171c"/>
+      <rect x="25" y="39" width="14" height="18" fill="#e5b34c"/>
+      <rect x="27" y="41" width="10" height="14" fill="#1a090c"/>
+      <rect x="28" y="43" width="6" height="10" fill="#ffe48c"/>
+      <rect x="31" y="44" width="5" height="8" fill="#1a090c"/>
+      <rect x="30" y="12" width="4" height="4" fill="#ffe48c"/>
+      <rect x="30" y="80" width="4" height="4" fill="#ffe48c"/>
+    </svg>`;
+  }
+
+  // ─── 16-Bit Pixel-Art Hearthstone Sculpted Parchment Scrolls, Arches & Melted Wax Seals ───
+  function hsScrollBackdropSvg(kind) {
+    if (kind === 'bounty') {
+      // 16-Bit Pixel-Art Tall Vertical Hanging Boss Bounty Scroll (78 x 90 => crisp 4px blocks, vertical scroll silhouette!)
+      return `<svg class="hs-scroll-svg bounty" viewBox="0 0 78 90" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+        <!-- Forged Iron Nail & Brass Hanging Loop -->
+        <rect x="37" y="0" width="4" height="3" fill="#180a04"/>
+        <rect x="38" y="1" width="2" height="1" fill="#fff0b0"/>
+        <rect x="35" y="3" width="2" height="3" fill="#c89034"/>
+        <rect x="41" y="3" width="2" height="3" fill="#c89034"/>
+        <rect x="36" y="2" width="6" height="1" fill="#e5b34c"/>
+
+        <!-- Stepped Pixel Hand-Torn Vertical Parchment Body -->
+        <rect x="6" y="10" width="66" height="77" fill="#2e1508"/>
+        <rect x="7" y="11" width="64" height="75" fill="#c69d5f"/>
+        <rect x="8" y="12" width="62" height="73" fill="#ebd5a4"/>
+        <rect x="9" y="13" width="60" height="4" fill="#f6e9c8"/>
+        <!-- Subtle Edge Vignette Pixel Shading & Dither -->
+        <rect x="8" y="12" width="1" height="73" fill="#d4b175"/>
+        <rect x="69" y="12" width="1" height="73" fill="#d4b175"/>
+        <rect x="8" y="83" width="62" height="2" fill="#cfa96b"/>
+        <rect x="9" y="82" width="2" height="1" fill="#cfa96b"/>
+        <rect x="13" y="82" width="2" height="1" fill="#cfa96b"/>
+        <rect x="59" y="82" width="2" height="1" fill="#cfa96b"/>
+        <rect x="65" y="82" width="2" height="1" fill="#cfa96b"/>
+        <!-- Hand-Torn Pixel Notches (Left, Right, Bottom) -->
+        <rect x="6" y="36" width="2" height="3" fill="#26170f"/>
+        <rect x="8" y="37" width="2" height="1" fill="#26170f"/>
+        <rect x="8" y="36" width="1" height="1" fill="#5b3416"/>
+        <rect x="8" y="38" width="1" height="1" fill="#5b3416"/>
+        <rect x="70" y="54" width="2" height="3" fill="#26170f"/>
+        <rect x="68" y="55" width="2" height="1" fill="#26170f"/>
+        <rect x="69" y="54" width="1" height="1" fill="#5b3416"/>
+        <rect x="69" y="56" width="1" height="1" fill="#5b3416"/>
+        <rect x="28" y="85" width="3" height="2" fill="#26170f"/>
+        <rect x="29" y="84" width="1" height="1" fill="#5b3416"/>
+
+        <!-- Stepped Pixel Dog-Eared Curled Corner at Bottom-Right -->
+        <rect x="65" y="80" width="7" height="7" fill="#26170f"/>
+        <rect x="64" y="79" width="1" height="8" fill="#5b3416"/>
+        <rect x="64" y="79" width="8" height="1" fill="#5b3416"/>
+        <rect x="65" y="80" width="6" height="1" fill="#9c6c34"/>
+        <rect x="65" y="81" width="5" height="1" fill="#e6cf9b"/>
+        <rect x="65" y="82" width="4" height="1" fill="#fff4d4"/>
+        <rect x="65" y="83" width="3" height="1" fill="#f3e2b8"/>
+        <rect x="65" y="84" width="2" height="1" fill="#d9ba80"/>
+        <rect x="65" y="85" width="1" height="1" fill="#5b3416"/>
+
+        <!-- Vintage Ink Corner Brackets & Subtle Paper Fold -->
+        <rect x="10" y="15" width="4" height="1" fill="#7c4b22" opacity="0.7"/>
+        <rect x="10" y="15" width="1" height="3" fill="#7c4b22" opacity="0.7"/>
+        <rect x="64" y="15" width="4" height="1" fill="#7c4b22" opacity="0.7"/>
+        <rect x="67" y="15" width="1" height="3" fill="#7c4b22" opacity="0.7"/>
+        <rect x="11" y="50" width="56" height="1" fill="#8b5a28" opacity="0.18"/>
+
+        <!-- Cast Shadow Beneath Top Roll -->
+        <rect x="7" y="11" width="64" height="2" fill="#4f290e" opacity="0.48"/>
+        <rect x="9" y="13" width="60" height="1" fill="#6b3e19" opacity="0.26"/>
+
+        <!-- TOP PROTRUDING PIXEL WOODEN & BRASS SCROLL ROLLER + 3D ROLLED PARCHMENT CYLINDER -->
+        <rect x="0" y="5" width="4" height="5" fill="#180a04"/>
+        <rect x="1" y="6" width="2" height="3" fill="#d99f3c"/>
+        <rect x="1" y="6" width="2" height="1" fill="#fff2b5"/>
+        <rect x="3" y="4" width="3" height="7" fill="#180a04"/>
+        <rect x="4" y="5" width="1" height="5" fill="#e5af46"/>
+        <rect x="4" y="5" width="1" height="2" fill="#fff4bd"/>
+
+        <rect x="74" y="5" width="4" height="5" fill="#180a04"/>
+        <rect x="75" y="6" width="2" height="3" fill="#d99f3c"/>
+        <rect x="75" y="6" width="2" height="1" fill="#fff2b5"/>
+        <rect x="72" y="4" width="3" height="7" fill="#180a04"/>
+        <rect x="73" y="5" width="1" height="5" fill="#e5af46"/>
+        <rect x="73" y="5" width="1" height="2" fill="#fff4bd"/>
+
+        <!-- Rolled Paper Cylinder -->
+        <rect x="6" y="4" width="66" height="7" fill="#2e1508"/>
+        <rect x="7" y="5" width="64" height="1" fill="#fff9e2"/>
+        <rect x="7" y="6" width="64" height="2" fill="#efd8a4"/>
+        <rect x="7" y="8" width="64" height="1" fill="#c79755"/>
+        <rect x="7" y="9" width="64" height="1" fill="#75471c"/>
+        <rect x="6" y="6" width="2" height="3" fill="#593112"/>
+        <rect x="6" y="7" width="1" height="1" fill="#1f0d05"/>
+        <rect x="70" y="6" width="2" height="3" fill="#593112"/>
+        <rect x="71" y="7" width="1" height="1" fill="#1f0d05"/>
+      </svg>`;
+    }
+
+    // Full 16-Bit Pixel-Art Double-Roller Unrolled Warband Contract Scroll (92 x 146 pixel grid => crisp 4px blocks!)
+    return `<svg class="hs-scroll-svg contract" viewBox="0 0 92 146" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+      <!-- Pixel Crimson Bookmark Ribbon Tail Peeking Below Bottom Roll -->
+      <rect x="72" y="140" width="7" height="5" fill="#2b0409"/>
+      <rect x="73" y="140" width="5" height="4" fill="#a81d2f"/>
+      <rect x="74" y="140" width="1" height="3" fill="#e5b34c"/>
+      <rect x="77" y="140" width="1" height="3" fill="#e5b34c"/>
+      <rect x="75" y="143" width="1" height="2" fill="#140905"/>
+
+      <!-- Stepped Pixel Hand-Torn Parchment Body -->
+      <rect x="8" y="10" width="76" height="125" fill="#2e1508"/>
+      <rect x="9" y="11" width="74" height="123" fill="#c79e5e"/>
+      <rect x="10" y="12" width="72" height="121" fill="#ebd6a6"/>
+      <!-- Stepped Pixel Warm Highlight & Edge Patina -->
+      <rect x="11" y="13" width="70" height="5" fill="#f7e9c7"/>
+      <rect x="10" y="12" width="2" height="121" fill="#d7b67c"/>
+      <rect x="80" y="12" width="2" height="121" fill="#d7b67c"/>
+      <!-- Subtle Pixel Checkerboard Dither on Edges -->
+      <rect x="12" y="20" width="1" height="2" fill="#d7b67c"/>
+      <rect x="12" y="26" width="1" height="2" fill="#d7b67c"/>
+      <rect x="12" y="96" width="1" height="2" fill="#d7b67c"/>
+      <rect x="79" y="24" width="1" height="2" fill="#d7b67c"/>
+      <rect x="79" y="88" width="1" height="2" fill="#d7b67c"/>
+
+      <!-- Authentic Stepped Pixel Torn Notches Along Left & Right Paper Sides -->
+      <rect x="8" y="40" width="2" height="4" fill="#1b100a"/>
+      <rect x="10" y="41" width="2" height="2" fill="#1b100a"/>
+      <rect x="10" y="40" width="1" height="1" fill="#5b3416"/>
+      <rect x="10" y="43" width="1" height="1" fill="#5b3416"/>
+      <rect x="8" y="102" width="2" height="3" fill="#1b100a"/>
+      <rect x="10" y="103" width="1" height="1" fill="#5b3416"/>
+
+      <rect x="82" y="54" width="2" height="4" fill="#1b100a"/>
+      <rect x="80" y="55" width="2" height="2" fill="#1b100a"/>
+      <rect x="81" y="54" width="1" height="1" fill="#5b3416"/>
+      <rect x="81" y="57" width="1" height="1" fill="#5b3416"/>
+      <rect x="82" y="108" width="2" height="3" fill="#1b100a"/>
+      <rect x="81" y="109" width="1" height="1" fill="#5b3416"/>
+
+      <!-- Pixel Medieval Corner Flourishes & Faint Age Creases -->
+      <rect x="13" y="15" width="5" height="1" fill="#7c4b22" opacity="0.68"/>
+      <rect x="13" y="15" width="1" height="4" fill="#7c4b22" opacity="0.68"/>
+      <rect x="74" y="15" width="5" height="1" fill="#7c4b22" opacity="0.68"/>
+      <rect x="78" y="15" width="1" height="4" fill="#7c4b22" opacity="0.68"/>
+      <rect x="13" y="129" width="5" height="1" fill="#7c4b22" opacity="0.68"/>
+      <rect x="13" y="126" width="1" height="4" fill="#7c4b22" opacity="0.68"/>
+      <rect x="74" y="129" width="5" height="1" fill="#7c4b22" opacity="0.68"/>
+      <rect x="78" y="126" width="1" height="4" fill="#7c4b22" opacity="0.68"/>
+      <rect x="14" y="73" width="64" height="1" fill="#8b5a28" opacity="0.18"/>
+      <rect x="16" y="23" width="1" height="1" fill="#8b5a28" opacity="0.28"/>
+      <rect x="76" y="31" width="1" height="1" fill="#8b5a28" opacity="0.28"/>
+      <rect x="15" y="119" width="1" height="1" fill="#8b5a28" opacity="0.28"/>
+
+      <!-- Cast Shadows Below Top Roll & Above Bottom Roll -->
+      <rect x="9" y="11" width="74" height="2" fill="#4d280d" opacity="0.5"/>
+      <rect x="11" y="13" width="70" height="1" fill="#6b3e19" opacity="0.25"/>
+      <rect x="9" y="132" width="74" height="2" fill="#4d280d" opacity="0.45"/>
+      <rect x="11" y="131" width="70" height="1" fill="#6b3e19" opacity="0.22"/>
+
+      <!-- ═══ TOP PIXEL WOODEN & BRASS SCROLL ROLLER + ROLLED PAPER TUBE ═══ -->
+      <rect x="0" y="4" width="5" height="6" fill="#180a04"/>
+      <rect x="1" y="5" width="3" height="4" fill="#d99f3c"/>
+      <rect x="1" y="5" width="2" height="1" fill="#fff2b5"/>
+      <rect x="2" y="8" width="2" height="1" fill="#7c4b12"/>
+      <rect x="4" y="3" width="3" height="8" fill="#180a04"/>
+      <rect x="5" y="4" width="1" height="6" fill="#e5af46"/>
+      <rect x="5" y="4" width="1" height="2" fill="#fff4bd"/>
+
+      <rect x="87" y="4" width="5" height="6" fill="#180a04"/>
+      <rect x="88" y="5" width="3" height="4" fill="#d99f3c"/>
+      <rect x="88" y="5" width="2" height="1" fill="#fff2b5"/>
+      <rect x="89" y="8" width="2" height="1" fill="#7c4b12"/>
+      <rect x="85" y="3" width="3" height="8" fill="#180a04"/>
+      <rect x="86" y="4" width="1" height="6" fill="#e5af46"/>
+      <rect x="86" y="4" width="1" height="2" fill="#fff4bd"/>
+
+      <rect x="7" y="3" width="78" height="8" fill="#2e1508"/>
+      <rect x="8" y="4" width="76" height="1" fill="#fff9e2"/>
+      <rect x="8" y="5" width="76" height="2" fill="#f0d9a6"/>
+      <rect x="8" y="7" width="76" height="2" fill="#c79755"/>
+      <rect x="8" y="9" width="76" height="1" fill="#704219"/>
+      <rect x="7" y="5" width="2" height="4" fill="#593112"/>
+      <rect x="7" y="6" width="1" height="2" fill="#1f0d05"/>
+      <rect x="83" y="5" width="2" height="4" fill="#593112"/>
+      <rect x="84" y="6" width="1" height="2" fill="#1f0d05"/>
+
+      <!-- ═══ BOTTOM PIXEL WOODEN & BRASS SCROLL ROLLER + ROLLED PAPER TUBE ═══ -->
+      <rect x="0" y="135" width="5" height="6" fill="#180a04"/>
+      <rect x="1" y="136" width="3" height="4" fill="#d99f3c"/>
+      <rect x="1" y="136" width="2" height="1" fill="#fff2b5"/>
+      <rect x="2" y="139" width="2" height="1" fill="#7c4b12"/>
+      <rect x="4" y="134" width="3" height="8" fill="#180a04"/>
+      <rect x="5" y="135" width="1" height="6" fill="#e5af46"/>
+      <rect x="5" y="135" width="1" height="2" fill="#fff4bd"/>
+
+      <rect x="87" y="135" width="5" height="6" fill="#180a04"/>
+      <rect x="88" y="136" width="3" height="4" fill="#d99f3c"/>
+      <rect x="88" y="136" width="2" height="1" fill="#fff2b5"/>
+      <rect x="89" y="139" width="2" height="1" fill="#7c4b12"/>
+      <rect x="85" y="134" width="3" height="8" fill="#180a04"/>
+      <rect x="86" y="135" width="1" height="6" fill="#e5af46"/>
+      <rect x="86" y="135" width="1" height="2" fill="#fff4bd"/>
+
+      <rect x="7" y="134" width="78" height="8" fill="#2e1508"/>
+      <rect x="8" y="135" width="76" height="1" fill="#8f5c28"/>
+      <rect x="8" y="136" width="76" height="1" fill="#fff8de"/>
+      <rect x="8" y="137" width="76" height="2" fill="#ebd29e"/>
+      <rect x="8" y="139" width="76" height="1" fill="#b78544"/>
+      <rect x="8" y="140" width="76" height="1" fill="#5e3615"/>
+      <rect x="7" y="136" width="2" height="4" fill="#593112"/>
+      <rect x="7" y="137" width="1" height="2" fill="#1f0d05"/>
+      <rect x="83" y="136" width="2" height="4" fill="#593112"/>
+      <rect x="84" y="137" width="1" height="2" fill="#1f0d05"/>
+    </svg>`;
+  }
+
+  function hsArchFrameSvg(accentColor) {
+    // Pure 16-Bit Stepped Pixel-Art Gothic Arch Bezel + Side Volutes + Faceted Apex Jewel (64 x 44 pixel grid)
+    return `<svg class="hs-arch-frame-svg" viewBox="0 0 64 44" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
+      <!-- Outer Dark Ink Outline of Stepped Pixel Arch -->
+      <rect x="19" y="2" width="26" height="4" fill="#1c0d05"/>
+      <rect x="13" y="4" width="7" height="4" fill="#1c0d05"/>
+      <rect x="44" y="4" width="7" height="4" fill="#1c0d05"/>
+      <rect x="9" y="7" width="5" height="4" fill="#1c0d05"/>
+      <rect x="50" y="7" width="5" height="4" fill="#1c0d05"/>
+      <rect x="6" y="10" width="4" height="5" fill="#1c0d05"/>
+      <rect x="54" y="10" width="4" height="5" fill="#1c0d05"/>
+      <rect x="4" y="14" width="4" height="24" fill="#1c0d05"/>
+      <rect x="56" y="14" width="4" height="24" fill="#1c0d05"/>
+
+      <!-- Burnished Gold Stepped Pixel Arch Core -->
+      <rect x="20" y="3" width="24" height="2" fill="#e5af46"/>
+      <rect x="14" y="5" width="7" height="2" fill="#e5af46"/>
+      <rect x="43" y="5" width="7" height="2" fill="#e5af46"/>
+      <rect x="10" y="8" width="5" height="2" fill="#d99f3c"/>
+      <rect x="49" y="8" width="5" height="2" fill="#d99f3c"/>
+      <rect x="7" y="11" width="2" height="4" fill="#c98e30"/>
+      <rect x="55" y="11" width="2" height="4" fill="#c98e30"/>
+      <rect x="5" y="15" width="2" height="22" fill="#b67d26"/>
+      <rect x="57" y="15" width="2" height="22" fill="#b67d26"/>
+
+      <!-- Crisp Cream-Gold Top Pixel Specular Highlights -->
+      <rect x="21" y="3" width="22" height="1" fill="#fff4bd"/>
+      <rect x="15" y="5" width="5" height="1" fill="#fff4bd"/>
+      <rect x="44" y="5" width="5" height="1" fill="#fff4bd"/>
+      <rect x="5" y="15" width="1" height="18" fill="#f3ca6e"/>
+      <rect x="57" y="15" width="1" height="18" fill="#f3ca6e"/>
+
+      <!-- Chunky Pixel Shoulder Volute Ornaments (Left & Right) -->
+      <rect x="2" y="21" width="3" height="6" fill="#1c0d05"/>
+      <rect x="3" y="22" width="2" height="4" fill="#e5af46"/>
+      <rect x="3" y="22" width="1" height="2" fill="#fff4bd"/>
+      <rect x="59" y="21" width="3" height="6" fill="#1c0d05"/>
+      <rect x="59" y="22" width="2" height="4" fill="#e5af46"/>
+      <rect x="59" y="22" width="1" height="2" fill="#fff4bd"/>
+
+      <!-- Faceted Pixel Diamond Crown Jewel at Arch Apex -->
+      <rect x="30" y="0" width="4" height="7" fill="#1c0d05"/>
+      <rect x="28" y="1" width="8" height="5" fill="#1c0d05"/>
+      <rect x="27" y="2" width="10" height="3" fill="#1c0d05"/>
+      <rect x="30" y="1" width="4" height="5" fill="#e5af46"/>
+      <rect x="28" y="2" width="8" height="3" fill="#e5af46"/>
+      <rect x="30" y="2" width="4" height="3" fill="${accentColor || '#ffd966'}"/>
+      <rect x="31" y="1" width="2" height="5" fill="${accentColor || '#ffd966'}"/>
+      <rect x="30" y="2" width="2" height="1" fill="#ffffff" opacity="0.82"/>
+    </svg>`;
+  }
+
+  function hsWaxSealSvg(char) {
+    // Pure 16-Bit 18x18 Pixel-Art Scalloped Melted Wax Seal + Embossed Seal Glyph
+    return `<span class="hs-wax-pixel-wrap">
+      <svg class="hs-wax-svg" viewBox="0 0 18 18" shape-rendering="crispEdges" aria-hidden="true">
+        <!-- Irregular Melted Pixel Wax Outline -->
+        <rect x="6" y="0" width="6" height="18" fill="#260308"/>
+        <rect x="3" y="1" width="12" height="16" fill="#260308"/>
+        <rect x="1" y="3" width="16" height="12" fill="#260308"/>
+        <rect x="0" y="6" width="18" height="6" fill="#260308"/>
+        <!-- Organic Scalloped Melted Wax Drips -->
+        <rect x="2" y="2" width="2" height="2" fill="#260308"/>
+        <rect x="14" y="2" width="2" height="2" fill="#260308"/>
+        <rect x="2" y="14" width="2" height="2" fill="#260308"/>
+        <rect x="14" y="14" width="2" height="2" fill="#260308"/>
+        <!-- Crimson Melted Wax Body -->
+        <rect x="6" y="1" width="6" height="16" fill="#a8182a"/>
+        <rect x="4" y="2" width="10" height="14" fill="#a8182a"/>
+        <rect x="2" y="4" width="14" height="10" fill="#a8182a"/>
+        <rect x="1" y="6" width="16" height="6" fill="#a8182a"/>
+        <!-- Top-Left Glossy Wax Highlight Pixels -->
+        <rect x="6" y="1" width="5" height="1" fill="#f04c60"/>
+        <rect x="4" y="2" width="3" height="1" fill="#f04c60"/>
+        <rect x="2" y="4" width="2" height="3" fill="#f04c60"/>
+        <rect x="4" y="3" width="2" height="1" fill="#ff9ca8"/>
+        <!-- Bottom-Right Deep Wax Shadow -->
+        <rect x="6" y="16" width="6" height="1" fill="#5e0914"/>
+        <rect x="12" y="14" width="2" height="2" fill="#5e0914"/>
+        <rect x="15" y="8" width="2" height="4" fill="#5e0914"/>
+        <!-- Stamped Inner Gold Pixel Ring -->
+        <rect x="6" y="3" width="6" height="1" fill="#e5b34c"/>
+        <rect x="6" y="14" width="6" height="1" fill="#c98e30"/>
+        <rect x="3" y="6" width="1" height="6" fill="#e5b34c"/>
+        <rect x="14" y="6" width="1" height="6" fill="#c98e30"/>
+        <rect x="4" y="4" width="2" height="1" fill="#e5b34c"/>
+        <rect x="4" y="5" width="1" height="1" fill="#e5b34c"/>
+        <rect x="12" y="4" width="2" height="1" fill="#e5b34c"/>
+        <rect x="13" y="5" width="1" height="1" fill="#e5b34c"/>
+        <rect x="4" y="13" width="2" height="1" fill="#c98e30"/>
+        <rect x="4" y="12" width="1" height="1" fill="#c98e30"/>
+        <rect x="12" y="13" width="2" height="1" fill="#c98e30"/>
+        <rect x="13" y="12" width="1" height="1" fill="#c98e30"/>
+        <!-- Recessed Dark Stamp Center -->
+        <rect x="5" y="5" width="8" height="8" fill="#6b0d19"/>
+      </svg>
+      <span class="hs-wax-glyph">${char}</span>
+    </span>`;
+  }
+
+  // ─── Pack Opening Ceremony 60fps Artisan Ritual Canvas FX ───
   class PackCeremonyFX {
     constructor(canvas) {
       this.canvas = canvas;
@@ -21,10 +733,12 @@
       this.accent = '#ffd966';
       this.glow = '#ff942e';
       this.sparks = [];
+      this.embers = [];
       this.rings = [];
       this.activeVfx = [];
       this.pillars = [];
       this.flashAlpha = 0;
+      this.slashLife = 0;
     }
 
     start(accent, glow) {
@@ -37,6 +751,15 @@
       this.activeVfx = [];
       this.pillars = [];
       this.flashAlpha = 0;
+      this.slashLife = 0;
+      this.embers = Array.from({ length: 34 }, () => ({
+        x: Math.random() * 1280,
+        y: Math.random() * 720,
+        vy: -14 - Math.random() * 28,
+        vx: (Math.random() - 0.5) * 16,
+        size: Math.random() < 0.35 ? 4 : 2.5,
+        phase: Math.random() * 6.28
+      }));
       this.running = true;
       this.lastTs = performance.now();
       this.loop(this.lastTs);
@@ -50,32 +773,47 @@
 
     triggerBurst(burstVfxKey) {
       this.phase = 'burst';
-      this.flashAlpha = 0.92;
-      this.rings.push({ x: 640, y: 340, r: 24, maxR: 460, color: '#ffffff', life: 0.55, maxLife: 0.55, lw: 10 });
-      this.rings.push({ x: 640, y: 340, r: 16, maxR: 380, color: this.accent, life: 0.65, maxLife: 0.65, lw: 7 });
+      this.flashAlpha = 0.88;
+      this.slashLife = 0.52;
+      this.rings.push({ x: 640, y: 345, r: 22, maxR: 520, color: '#fff7d6', life: 0.58, maxLife: 0.58, lw: 9 });
+      this.rings.push({ x: 640, y: 345, r: 16, maxR: 410, color: this.accent, life: 0.72, maxLife: 0.72, lw: 6 });
 
       if (window.MT.vfx) {
-        const v1 = window.MT.vfx.createInstance('fxExplosionBigWhiteHot', 640, 345, { scale: 3.1 });
+        const v1 = window.MT.vfx.createInstance('fxExplosionBigWhiteHot', 640, 345, { scale: 3.0 });
         if (v1) this.activeVfx.push(v1);
-        const v2 = window.MT.vfx.createInstance(burstVfxKey || 'fx_f1_holyimmolation', 640, 355, { scale: 2.8 });
+        const v2 = window.MT.vfx.createInstance(burstVfxKey || 'fx_f1_holyimmolation', 640, 355, { scale: 2.7 });
         if (v2) this.activeVfx.push(v2);
       }
 
-      const colors = ['#ffffff', this.accent, this.glow, '#fff3b8'];
-      for (let i = 0; i < 88; i++) {
-        const ang = (i / 88) * Math.PI * 2 + (Math.random() - 0.5) * 0.16;
-        const spd = 220 + Math.random() * 680;
-        this.sparks.push({ x: 640, y: 340, px: 640, py: 340, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 60, size: 3 + Math.random() * 4, color: colors[i % colors.length], life: 0.55 + Math.random() * 0.55, maxLife: 1.1 });
+      const colors = ['#fff9e2', this.accent, this.glow, '#ffe08a'];
+      for (let i = 0; i < 96; i++) {
+        const ang = (i / 96) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+        const spd = 190 + Math.random() * 690;
+        this.sparks.push({
+          x: 640, y: 345, px: 640, py: 345,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 55,
+          size: 3 + Math.random() * 5,
+          star: i % 3 === 0,
+          color: colors[i % colors.length],
+          life: 0.6 + Math.random() * 0.6, maxLife: 1.2
+        });
       }
     }
 
     addCardRevealPillar(x, color, isRainbow = false) {
       this.phase = 'reveal';
-      this.pillars.push({ x, color, rainbow: isRainbow, alpha: 0, targetAlpha: isRainbow ? 0.58 : 0.42 });
-      this.rings.push({ x, y: 365, r: 14, maxR: 135, color: isRainbow ? '#ffffff' : color, life: 0.38, maxLife: 0.38, lw: 5 });
-      for (let i = 0; i < 20; i++) {
-        const ang = Math.random() * Math.PI * 2, spd = 80 + Math.random() * 240;
-        this.sparks.push({ x, y: 365, px: x, py: 365, vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 110, size: 3 + Math.random() * 3, color: isRainbow ? `hsl(${(i * 25) % 360}, 100%, 72%)` : color, life: 0.45 + Math.random() * 0.3, maxLife: 0.75 });
+      this.pillars.push({ x, color, rainbow: isRainbow, alpha: 0, targetAlpha: isRainbow ? 0.52 : 0.36, born: this.time });
+      this.rings.push({ x, y: 365, r: 18, maxR: 158, color: isRainbow ? '#fff7d6' : color, life: 0.44, maxLife: 0.44, lw: 4.5 });
+      for (let i = 0; i < 24; i++) {
+        const ang = Math.random() * Math.PI * 2, spd = 75 + Math.random() * 230;
+        this.sparks.push({
+          x, y: 365, px: x, py: 365,
+          vx: Math.cos(ang) * spd, vy: Math.sin(ang) * spd - 115,
+          size: 3 + Math.random() * 4.5,
+          star: i % 2 === 0,
+          color: isRainbow ? `hsl(${(i * 25) % 360}, 95%, 74%)` : color,
+          life: 0.5 + Math.random() * 0.38, maxLife: 0.88
+        });
       }
     }
 
@@ -90,16 +828,47 @@
     }
 
     update(dt) {
-      if (this.flashAlpha > 0) this.flashAlpha = Math.max(0, this.flashAlpha - dt * 2.4);
-      if (this.phase === 'charge' && Math.random() < 0.45) {
-        const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 140;
-        const sx = 640 + Math.cos(ang) * dist, sy = 340 + Math.sin(ang) * dist;
-        this.sparks.push({ x: sx, y: sy, px: sx, py: sy, vx: (640 - sx) * 2.8, vy: (340 - sy) * 2.8, size: 4, color: Math.random() < 0.4 ? '#ffffff' : this.accent, life: 0.35, maxLife: 0.35 });
+      if (this.flashAlpha > 0) this.flashAlpha = Math.max(0, this.flashAlpha - dt * 2.2);
+      if (this.slashLife > 0) this.slashLife = Math.max(0, this.slashLife - dt);
+
+      if (this.phase === 'charge' && Math.random() < 0.55) {
+        const ang = Math.random() * Math.PI * 2, dist = 135 + Math.random() * 170;
+        const sx = 640 + Math.cos(ang) * dist, sy = 345 + Math.sin(ang) * dist;
+        this.sparks.push({
+          x: sx, y: sy, px: sx, py: sy,
+          vx: (640 - sx) * 3.1, vy: (345 - sy) * 3.1,
+          size: 4.5, star: true,
+          color: Math.random() < 0.45 ? '#fff8de' : this.accent,
+          life: 0.34, maxLife: 0.34
+        });
       }
-      for (const pil of this.pillars) pil.alpha += (pil.targetAlpha - pil.alpha) * Math.min(1, dt * 8);
+
+      // Gentle upward ambient gold/rarity motes under revealed cards
+      if (this.phase === 'reveal' && this.pillars.length > 0 && Math.random() < 0.32) {
+        const pil = this.pillars[Math.floor(Math.random() * this.pillars.length)];
+        const sx = pil.x + (Math.random() - 0.5) * 185;
+        const sy = 530 + (Math.random() - 0.5) * 34;
+        this.sparks.push({
+          x: sx, y: sy, px: sx, py: sy,
+          vx: (Math.random() - 0.5) * 18, vy: -52 - Math.random() * 58,
+          size: 3 + Math.random() * 3, star: true,
+          color: pil.rainbow ? `hsl(${(this.time * 180 + sx) % 360}, 95%, 74%)` : pil.color,
+          life: 0.9 + Math.random() * 0.6, maxLife: 1.5
+        });
+      }
+
+      for (const e of this.embers) {
+        e.x += (e.vx + Math.sin(this.time * 1.4 + e.phase) * 10) * dt;
+        e.y += e.vy * dt;
+        if (e.y < -12) { e.y = 732; e.x = Math.random() * 1280; }
+        if (e.x < -12) e.x = 1292;
+        if (e.x > 1292) e.x = -12;
+      }
+
+      for (const pil of this.pillars) pil.alpha += (pil.targetAlpha - pil.alpha) * Math.min(1, dt * 6.5);
       for (let i = this.sparks.length - 1; i >= 0; i--) {
         const s = this.sparks[i]; s.px = s.x; s.py = s.y; s.x += s.vx * dt; s.y += s.vy * dt;
-        if (this.phase !== 'charge') { s.vx *= Math.pow(0.18, dt); s.vy += 220 * dt; }
+        if (this.phase === 'burst') { s.vx *= Math.pow(0.16, dt); s.vy += 170 * dt; }
         s.life -= dt; if (s.life <= 0) this.sparks.splice(i, 1);
       }
       for (let i = this.rings.length - 1; i >= 0; i--) { this.rings[i].life -= dt; if (this.rings[i].life <= 0) this.rings.splice(i, 1); }
@@ -111,43 +880,183 @@
       }
     }
 
+    drawPixelStar(ctx, x, y, r, color, alpha) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+      const w = Math.max(1.5, r * 0.28);
+      ctx.fillRect(x - r, y - w * 0.5, r * 2, w);
+      ctx.fillRect(x - w * 0.5, y - r, w, r * 2);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(x - w * 0.7, y - w * 0.7, w * 1.4, w * 1.4);
+      ctx.restore();
+    }
+
+    drawSacredMandala(ctx) {
+      const cx = 640, cy = 358;
+      const scale = this.phase === 'charge' ? (0.94 + Math.sin(this.time * 9) * 0.04) : 1.08;
+      const alpha = this.phase === 'charge' ? 0.34 : 0.16;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(scale, scale);
+
+      // Outer rotating astrolabe ring with arcane compass ticks
+      ctx.save();
+      ctx.rotate(this.time * (this.phase === 'charge' ? 0.65 : 0.14));
+      ctx.strokeStyle = this.accent;
+      ctx.globalAlpha = alpha;
+      ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(0, 0, 236, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath(); ctx.arc(0, 0, 218, 0, Math.PI * 2); ctx.stroke();
+      ctx.setLineDash([]);
+
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        const r0 = i % 2 === 0 ? 196 : 218;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(a) * r0, Math.sin(a) * r0);
+        ctx.lineTo(Math.cos(a) * 244, Math.sin(a) * 244);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Counter-rotating 8-point celestial star
+      ctx.save();
+      ctx.rotate(-this.time * (this.phase === 'charge' ? 0.9 : 0.2));
+      ctx.strokeStyle = '#ffe79e';
+      ctx.globalAlpha = alpha * 0.85;
+      ctx.lineWidth = 1.5;
+      for (let k = 0; k < 2; k++) {
+        ctx.save();
+        ctx.rotate((k * Math.PI) / 4);
+        ctx.strokeRect(-132, -132, 264, 264);
+        ctx.restore();
+      }
+      ctx.beginPath(); ctx.arc(0, 0, 148, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+
+      ctx.restore();
+    }
+
     render() {
       const ctx = this.ctx;
       ctx.clearRect(0, 0, 1280, 720);
-      ctx.save(); ctx.globalCompositeOperation = 'lighter';
-      const rayCount = 14, raySpeed = this.phase === 'charge' ? 1.45 : 0.32, baseAlpha = this.phase === 'charge' ? 0.24 : 0.12;
-      ctx.save(); ctx.translate(640, 345); ctx.rotate(this.time * raySpeed);
+      ctx.save();
+
+      // 1. Sacred rotating astrolabe & celestial sunburst rays
+      ctx.globalCompositeOperation = 'lighter';
+      this.drawSacredMandala(ctx);
+
+      const rayCount = 12, raySpeed = this.phase === 'charge' ? 1.1 : 0.18, baseAlpha = this.phase === 'charge' ? 0.16 : 0.075;
+      ctx.save(); ctx.translate(640, 355); ctx.rotate(this.time * raySpeed);
       for (let i = 0; i < rayCount; i++) {
-        const a0 = (i / rayCount) * Math.PI * 2, a1 = a0 + (Math.PI / rayCount) * 0.72;
-        const g = ctx.createRadialGradient(0, 0, 20, 0, 0, 620);
+        const a0 = (i / rayCount) * Math.PI * 2, a1 = a0 + (Math.PI / rayCount) * 0.56;
+        const g = ctx.createRadialGradient(0, 0, 26, 0, 0, 620);
         g.addColorStop(0, this.accent); g.addColorStop(0.45, this.glow); g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.globalAlpha = baseAlpha * (i % 2 === 0 ? 1 : 0.55);
+        ctx.globalAlpha = baseAlpha * (i % 2 === 0 ? 1 : 0.48);
         ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(0, 0); ctx.arc(0, 0, 620, a0, a1); ctx.closePath(); ctx.fill();
       }
       ctx.restore();
+
+      // 2. Tapered Volumetric Cathedral Light Cones + Glowing Elliptical Floor Magic Sigils (NO flat rectangles!)
       for (const pil of this.pillars) {
-        const col = pil.rainbow ? `hsl(${(this.time * 160 + pil.x) % 360}, 95%, 65%)` : pil.color;
-        const pw = pil.rainbow ? 170 : 140;
-        const g = ctx.createLinearGradient(pil.x - pw / 2, 0, pil.x + pw / 2, 0);
-        g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(0.5, col); g.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.globalAlpha = pil.alpha * (0.85 + Math.sin(this.time * 5 + pil.x) * 0.15);
-        ctx.fillStyle = g; ctx.fillRect(pil.x - pw / 2, 70, pw, 540);
+        const col = pil.rainbow ? `hsl(${(this.time * 140 + pil.x) % 360}, 95%, 68%)` : pil.color;
+        const pulse = 0.88 + Math.sin(this.time * 4.2 + pil.x) * 0.12;
+        const topW = pil.rainbow ? 128 : 106;
+        const botW = pil.rainbow ? 210 : 178;
+
+        // Tapered volumetric cone from ceiling canopy down to card pedestal
+        const coneGrad = ctx.createLinearGradient(pil.x, 76, pil.x, 595);
+        coneGrad.addColorStop(0, 'rgba(0,0,0,0)');
+        coneGrad.addColorStop(0.28, col);
+        coneGrad.addColorStop(0.76, col);
+        coneGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.globalAlpha = pil.alpha * 0.42 * pulse;
+        ctx.fillStyle = coneGrad;
+        ctx.beginPath();
+        ctx.moveTo(pil.x - topW * 0.5, 76);
+        ctx.lineTo(pil.x + topW * 0.5, 76);
+        ctx.lineTo(pil.x + botW * 0.5, 595);
+        ctx.lineTo(pil.x - botW * 0.5, 595);
+        ctx.closePath();
+        ctx.fill();
+
+        // Soft glowing elliptical floor rune pedestal under each card
+        ctx.save();
+        ctx.translate(pil.x, 562);
+        ctx.scale(1, 0.24);
+        const floorGrad = ctx.createRadialGradient(0, 0, 8, 0, 0, 112);
+        floorGrad.addColorStop(0, '#fff7dc');
+        floorGrad.addColorStop(0.35, col);
+        floorGrad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.globalAlpha = pil.alpha * 0.9 * pulse;
+        ctx.fillStyle = floorGrad;
+        ctx.beginPath(); ctx.arc(0, 0, 112, 0, Math.PI * 2); ctx.fill();
+
+        ctx.strokeStyle = col;
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = pil.alpha * 0.72;
+        ctx.beginPath(); ctx.arc(0, 0, 92, 0, Math.PI * 2); ctx.stroke();
+        ctx.restore();
       }
+
+      // 3. Diagonal Blazing Tear-Open Slash Arc on Burst
+      if (this.slashLife > 0) {
+        const p = this.slashLife / 0.52;
+        ctx.save();
+        ctx.translate(640, 345);
+        ctx.rotate(-0.32);
+        const sg = ctx.createLinearGradient(-460, 0, 460, 0);
+        sg.addColorStop(0, 'rgba(255,255,255,0)');
+        sg.addColorStop(0.32, this.accent);
+        sg.addColorStop(0.5, '#ffffff');
+        sg.addColorStop(0.68, this.accent);
+        sg.addColorStop(1, 'rgba(255,255,255,0)');
+        ctx.globalAlpha = Math.min(1, p * 1.4);
+        ctx.fillStyle = sg;
+        const thick = 26 * p;
+        ctx.beginPath();
+        ctx.moveTo(-460, 0);
+        ctx.quadraticCurveTo(0, -thick, 460, 0);
+        ctx.quadraticCurveTo(0, thick, -460, 0);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // 4. Shockwave rings
       for (const rg of this.rings) {
         const p = 1 - Math.max(0, rg.life / rg.maxLife), r = rg.r + (rg.maxR - rg.r) * (1 - Math.pow(1 - p, 3));
-        ctx.globalAlpha = (1 - p) * 0.9; ctx.strokeStyle = rg.color; ctx.lineWidth = Math.max(2, rg.lw * (1 - p * 0.6));
+        ctx.globalAlpha = (1 - p) * 0.85; ctx.strokeStyle = rg.color; ctx.lineWidth = Math.max(1.5, rg.lw * (1 - p * 0.6));
         ctx.beginPath(); ctx.arc(rg.x, rg.y, r, 0, Math.PI * 2); ctx.stroke();
       }
+
+      // 5. Duelyst Burst VFX sprites
       if (window.MT.vfx) {
         ctx.globalCompositeOperation = 'source-over';
         for (const inst of this.activeVfx) window.MT.vfx.draw(ctx, inst);
         ctx.globalCompositeOperation = 'lighter';
       }
-      for (const s of this.sparks) {
-        ctx.globalAlpha = Math.max(0, s.life / s.maxLife); ctx.strokeStyle = s.color; ctx.lineWidth = s.size;
-        ctx.beginPath(); ctx.moveTo(s.px, s.py); ctx.lineTo(s.x, s.y); ctx.stroke();
+
+      // 6. Floating Candle Embers + 4-Point Diamond Pixel Stars
+      for (const e of this.embers) {
+        const a = 0.28 + Math.sin(this.time * 3 + e.phase) * 0.2;
+        ctx.globalAlpha = a;
+        ctx.fillStyle = '#ffda7a';
+        ctx.fillRect(Math.round(e.x), Math.round(e.y), e.size, e.size);
       }
-      if (this.flashAlpha > 0) { ctx.globalAlpha = this.flashAlpha; ctx.fillStyle = '#fff9e6'; ctx.fillRect(0, 0, 1280, 720); }
+      for (const s of this.sparks) {
+        const a = Math.max(0, s.life / s.maxLife);
+        if (s.star) {
+          this.drawPixelStar(ctx, s.x, s.y, s.size * 1.65, s.color, a);
+        } else {
+          ctx.globalAlpha = a; ctx.strokeStyle = s.color; ctx.lineWidth = s.size;
+          ctx.beginPath(); ctx.moveTo(s.px, s.py); ctx.lineTo(s.x, s.y); ctx.stroke();
+        }
+      }
+
+      if (this.flashAlpha > 0) { ctx.globalAlpha = this.flashAlpha * 0.72; ctx.fillStyle = '#fff5d6'; ctx.fillRect(0, 0, 1280, 720); }
       ctx.restore();
     }
   }
@@ -156,6 +1065,7 @@
   class V12Game {
     constructor() {
       this.stageEl = document.getElementById('stage');
+      this.titleFx = window.MT.TitleRainFX ? new window.MT.TitleRainFX(document.getElementById('title-fx-canvas')) : null;
       this.tavern = new window.MT.EclipseAltarBg(document.getElementById('altar-bg-canvas'));
       this.battle = new window.MT.V12Battle(document.getElementById('battle-canvas'));
       this.packFx = new PackCeremonyFX(document.getElementById('pack-fx-canvas'));
@@ -165,6 +1075,7 @@
       this.activePack = null;
       this.packTimers = [];
       this.muted = false;
+      this._enteringFromTitle = false;
 
       this.bindGlobalEvents();
       this.fitStage();
@@ -181,43 +1092,155 @@
         window.MT.sprites ? window.MT.sprites.load() : Promise.resolve(),
         window.MT.vfx ? window.MT.vfx.load() : Promise.resolve()
       ]);
-      this.tavern.start();
-      this.showStarterDeckSelect();
+      this.showTitleScreen();
     }
 
-    // ─── Opening 3-Starter-Deck Selector ───
+    // ─── BEAT 0: Rainy Midnight Tavern Exterior Title Screen ───
+    showTitleScreen() {
+      this._enteringFromTitle = false;
+      this.closeAllModals();
+      if (this.tavern) this.tavern.stop();
+      document.getElementById('battle-view').classList.add('hidden');
+      document.getElementById('tavern-view').classList.add('hidden');
+      document.getElementById('top-hud').classList.add('hidden');
+      document.getElementById('market-main-stage').classList.add('hidden');
+      document.getElementById('relic-inspect-bar').classList.add('hidden');
+
+      const titleEl = document.getElementById('title-screen-view');
+      if (titleEl) {
+        titleEl.classList.remove('hidden', 'entering');
+      }
+      if (this.titleFx) this.titleFx.start();
+      this.syncMuteLabels();
+    }
+
+    enterDeckSelectFromTitle() {
+      if (this._enteringFromTitle) return;
+      this._enteringFromTitle = true;
+      if (window.MT.sfx) window.MT.sfx.playChainDing(4, false);
+
+      const titleEl = document.getElementById('title-screen-view');
+      if (titleEl) titleEl.classList.add('entering');
+
+      // Warm doorway transition onto the live candlelit walnut tabletop
+      setTimeout(() => {
+        if (this.titleFx) this.titleFx.stop();
+        if (titleEl) titleEl.classList.add('hidden', 'entering');
+        this.tavern.start();
+        this.showStarterDeckSelect();
+        this._enteringFromTitle = false;
+      }, 340);
+    }
+
+    syncMuteLabels() {
+      const topBtn = document.getElementById('btn-mute');
+      if (topBtn) topBtn.textContent = this.muted ? '静音' : '音效';
+      const cBtn = document.getElementById('btn-contracts-mute');
+      if (cBtn) cBtn.textContent = this.muted ? '静音' : '音效';
+      const tBtn = document.getElementById('btn-title-mute');
+      if (tBtn) tBtn.textContent = this.muted ? '音效：关' : '音效：开';
+    }
+
+    toggleMute() {
+      this.muted = !this.muted;
+      if (window.MT.sfx) window.MT.sfx.muted = this.muted;
+      this.syncMuteLabels();
+    }
+
+    // ─── Opening 3 Aged-Parchment Warband Contracts Spread Directly on the Walnut Tabletop ───
     showStarterDeckSelect() {
       const D = window.MT.V12_DATA;
+      const fallbackIcon = './assets/gear/eq_dragon_heart.png';
       this.closeAllModals();
+      if (this.titleFx) this.titleFx.stop();
+      const titleEl = document.getElementById('title-screen-view');
+      if (titleEl) titleEl.classList.add('hidden', 'entering');
+
       document.getElementById('battle-view').classList.add('hidden');
       document.getElementById('tavern-view').classList.remove('hidden');
       document.getElementById('top-hud').classList.add('hidden');
       document.getElementById('market-main-stage').classList.add('hidden');
       document.getElementById('relic-inspect-bar').classList.add('hidden');
+      this.tavern.syncMercenaries([]);
+      this.tavern.start();
+      this.syncMuteLabels();
+
+      const shortPitch = {
+        deck_balanced: '盾刃法均衡稳健，主打换桌凑铁三角与稳定破招。',
+        deck_frostsand: '秘术偏多放大秘宝收益，专克魔盾与蓄力 Boss。',
+        deck_shadowbox: '开局解锁《暗影包厢》，暂存蓄力 ×1.5 一击核爆。'
+      };
 
       const grid = document.getElementById('deck-select-grid');
-      grid.innerHTML = D.STARTER_DECKS.map((dk) => {
+      grid.innerHTML = D.STARTER_DECKS.map((dk, idx) => {
         const relic = D.RELICS.find((r) => r.id === dk.relicId);
-        const rIcon = relic && window.MT.vfx ? window.MT.vfx.getIconUrl(relic.icon) : null;
+        const rIcon = relic && window.MT.vfx ? window.MT.vfx.getIconUrl(relic.icon, fallbackIcon) : fallbackIcon;
+
+        // Compute live faction breakdown from heroIds for visual ratio bar
+        const facCounts = {};
+        for (const hid of dk.heroIds) {
+          const tpl = D.HEROES.find((h) => h.id === hid);
+          if (tpl) facCounts[tpl.faction] = (facCounts[tpl.faction] || 0) + 1;
+        }
+        const total = Math.max(1, dk.heroIds.length);
+        const sortedFacs = Object.entries(facCounts).sort((a, b) => b[1] - a[1]);
+        const segBar = sortedFacs.map(([fid, cnt]) => {
+          const f = D.FACTIONS[fid];
+          return `<i style="width:${(cnt / total) * 100}%;background:${f.color}"></i>`;
+        }).join('');
+        const facTags = sortedFacs.map(([fid, cnt]) => {
+          const f = D.FACTIONS[fid];
+          return `<span class="wc-fac-item"><em style="background:${f.color}"></em>${f.name} <b>${cnt}</b></span>`;
+        }).join('');
+
         return `
-          <button class="deck-pick-card" data-deckid="${dk.id}" style="--dcol:${dk.color}">
-            <div class="dpc-tag">${dk.tag}</div>
-            <div class="dpc-sprite" data-unit="${dk.previewUnit}"></div>
-            <div class="dpc-name">${dk.name}</div>
-            <div class="dpc-relic">
-              ${rIcon ? `<img src="${rIcon}" alt="${relic.name}" />` : ''}
-              <span>自带秘宝：<b>${relic ? relic.name : ''}</b> (${relic ? relic.short : ''})</span>
+          <button class="warband-contract-card tilt-${idx}" data-deckid="${dk.id}" style="--dcol:${dk.color}">
+            ${hsScrollBackdropSvg('contract', dk.id)}
+            <div class="wc-scroll-content">
+              <div class="wc-head">
+                <span class="wc-seal-tag">✦ ${dk.tag}</span>
+                <span class="wc-count">❖ 8侠客</span>
+              </div>
+              <div class="wc-arch-stage">
+                <div class="wc-arch-backdrop">
+                  <div class="wc-plinth" aria-hidden="true"></div>
+                </div>
+                ${hsArchFrameSvg(dk.color, dk.id)}
+                <div class="wc-sprite" data-unit="${dk.previewUnit}"></div>
+                <div class="wc-name-ribbon">
+                  <span class="wc-rib-tail l" aria-hidden="true"></span>
+                  <b>${dk.name}</b>
+                  <span class="wc-rib-tail r" aria-hidden="true"></span>
+                </div>
+              </div>
+              <div class="wc-comp">
+                <div class="wc-comp-tags">${facTags}</div>
+                <div class="wc-comp-bar">${segBar}</div>
+              </div>
+              <div class="wc-ink-divider" aria-hidden="true"><span></span><i>◆</i><span></span></div>
+              <div class="wc-relic-crest">
+                <div class="wc-relic-medallion">
+                  <img src="${rIcon}" alt="${relic ? relic.name : ''}" onerror="this.onerror=null;this.src='${fallbackIcon}'" />
+                </div>
+                <div class="wc-relic-txt">
+                  <span class="wc-relic-kicker">开局秘宝</span>
+                  <b>${relic ? relic.name : ''} <em>${relic ? relic.short : ''}</em></b>
+                </div>
+              </div>
+              <div class="wc-pitch">${shortPitch[dk.id] || dk.desc}</div>
+              <div class="wc-sign-cta">
+                <span class="wc-wax-holder" aria-hidden="true">${hsWaxSealSvg('契')}</span>
+                <span class="wc-cta-label">签契出征 · 镜湖 W1 →</span>
+              </div>
             </div>
-            <div class="dpc-desc">${dk.desc}</div>
-            <div class="dpc-cta">选择并直进镜湖 W1 →</div>
           </button>`;
       }).join('');
 
-      grid.querySelectorAll('.dpc-sprite').forEach((s) => {
-        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, { width: 92, height: 84 });
+      grid.querySelectorAll('.wc-sprite').forEach((s) => {
+        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, 'idle', 162);
         if (sp) s.appendChild(sp);
       });
-      grid.querySelectorAll('.deck-pick-card').forEach((btn) => {
+      grid.querySelectorAll('.warband-contract-card').forEach((btn) => {
         btn.onclick = () => {
           if (window.MT.sfx) window.MT.sfx.playChainDing(4, true);
           this.startNewRun(btn.dataset.deckid);
@@ -589,7 +1612,7 @@
             <div class="sb-name">${bh.name.slice(0, 5)}</div>
             <div class="sb-atk">攻 ${effAtk} · 点取回</div>`;
           const spWrap = boxBtn.querySelector('.sb-sprite');
-          const sp = window.MT.sprites.createDomSprite(bh.unitId, { width: 54, height: 48 });
+          const sp = window.MT.sprites.createDomSprite(bh.unitId, 'idle', 68);
           if (sp && spWrap) spWrap.appendChild(sp);
         }
       }
@@ -626,7 +1649,7 @@
       }).join('');
 
       row.querySelectorAll('.hhc-sprite').forEach((s) => {
-        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, { width: 84, height: 74 });
+        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, 'idle', 96);
         if (sp) s.appendChild(sp);
       });
       row.querySelectorAll('.hero-hand-card').forEach((btn) => {
@@ -662,7 +1685,7 @@
         return `<div class="rm-hero-tile" style="--fcol:${fac.color}"><div class="rm-spr" data-unit="${h.unitId}"></div><div class="rm-hname">${h.redSeal ? '◈' : ''}${h.ironPlated ? '🛡' : ''}${h.name}</div><div class="rm-htags"><span style="color:${fac.color}">${fac.name}</span> · <span style="color:${role.color}">${role.name}</span> · 攻${h.atk}</div></div>`;
       }).join('') + `</div>`;
       body.querySelectorAll('.rm-spr').forEach((s) => {
-        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, { width: 64, height: 58 });
+        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, 'idle', 78);
         if (sp) s.appendChild(sp);
       });
     }
@@ -743,12 +1766,26 @@
 
     syncTavernHeroes() {
       const D = window.MT.V12_DATA;
-      const featured = this.state.roster.slice(0, 3);
-      const mercs = featured.map((h) => ({
-        id: h.uid, unitId: h.unitId, name: h.name, power: h.atk, effectivePower: h.atk,
-        tier: 'A', factionColor: D.FACTIONS[h.faction].color, factionTag: D.FACTIONS[h.faction].short,
-        roleTag: D.ROLES[h.role].short, redSeal: h.redSeal
-      }));
+      const mercs = this.state.roster.map((h) => {
+        const fac = D.FACTIONS[h.faction] || { name: '', short: '', color: '#ffd966' };
+        const role = D.ROLES[h.role] || { name: '', short: '', color: '#d6c3a5' };
+        return {
+          id: h.uid,
+          unitId: h.unitId,
+          name: h.name,
+          power: h.atk,
+          effectivePower: h.atk,
+          tier: 'A',
+          factionName: fac.name,
+          factionColor: fac.color,
+          factionTag: fac.short,
+          roleName: role.name,
+          roleColor: role.color,
+          roleTag: role.short,
+          redSeal: Boolean(h.redSeal),
+          ironPlated: Boolean(h.ironPlated)
+        };
+      });
       this.tavern.syncMercenaries(mercs, new Set());
     }
 
@@ -841,7 +1878,8 @@
       this.clearPackTimers();
       this.activePack = { tpl: packTpl, choices: this.generatePackChoices(packTpl), stage: 'charge' };
       const modal = document.getElementById('pack-ceremony-modal'), env = document.getElementById('pack-foil-envelope');
-      const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(packTpl.icon) : null;
+      const fallbackIcon = './assets/gear/eq_greed_dice.png';
+      const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(packTpl.icon, fallbackIcon) : fallbackIcon;
 
       modal.classList.remove('hidden');
       document.getElementById('pack-sealed-stage').classList.remove('hidden');
@@ -850,14 +1888,27 @@
 
       env.style.setProperty('--p-accent', packTpl.accent);
       env.style.setProperty('--p-glow', packTpl.glow);
-      env.classList.remove('tearing');
+      env.className = `ceremony-foil-pouch pack-theme-${packTpl.id}`;
       env.innerHTML = `
-        <div class="foil-shimmer"></div>
-        <div class="foil-seal-top">✦ 午夜黑市封印 ✦</div>
-        <div class="foil-emblem">${iconUrl ? `<img src="${iconUrl}" alt="${packTpl.name}" />` : ''}</div>
-        <div class="foil-title">${packTpl.name}</div>
-        <div class="foil-sub">${packTpl.subtitle}</div>
-        <div class="foil-tap-hint">点击立即撕开 (蓄力中…)</div>`;
+        <span class="sachet-teeth-top" aria-hidden="true"></span>
+        <div class="sachet-crimp-band top" aria-hidden="true"></div>
+        <div class="ceremony-pouch-body">
+          ${packFoilArtSvg(packTpl.id)}
+          <div class="foil-volume-sheen" aria-hidden="true"></div>
+          <div class="foil-shimmer" aria-hidden="true"></div>
+          <div class="ceremony-tear-seam" aria-hidden="true"></div>
+          <div class="foil-seal-top">✦ 午夜黑市封印 ✦</div>
+          <div class="foil-emblem-crest">
+            <img src="${iconUrl}" alt="${packTpl.name}" onerror="this.onerror=null;this.src='${fallbackIcon}'" />
+          </div>
+          <div class="foil-title-banner">
+            <div class="foil-title">${packTpl.name}</div>
+            <div class="foil-sub">${packTpl.subtitle}</div>
+          </div>
+          <div class="foil-tap-hint">点击撕开封印</div>
+        </div>
+        <div class="sachet-crimp-band bot" aria-hidden="true"></div>
+        <span class="sachet-teeth-bot" aria-hidden="true"></span>`;
       document.getElementById('pack-ceremony-title').textContent = `${packTpl.name} · ${packTpl.subtitle}`;
       document.getElementById('pack-ceremony-sub').textContent = packTpl.desc;
 
@@ -868,7 +1919,7 @@
         this.packTimers.push(setTimeout(() => window.MT.sfx && window.MT.sfx.playChainDing(5, false), 440));
       }
       env.onclick = () => this.tearOpenPack();
-      this.packTimers.push(setTimeout(() => this.tearOpenPack(), 700));
+      this.packTimers.push(setTimeout(() => this.tearOpenPack(), 760));
     }
 
     tearOpenPack() {
@@ -878,7 +1929,7 @@
       document.getElementById('pack-foil-envelope').classList.add('tearing');
       this.packFx.triggerBurst(this.activePack.tpl.burstVfx);
       if (window.MT.sfx) window.MT.sfx.playChainDing(7, true);
-      this.packTimers.push(setTimeout(() => this.showPackRevealCards(), 310));
+      this.packTimers.push(setTimeout(() => this.showPackRevealCards(), 320));
     }
 
     showPackRevealCards() {
@@ -888,78 +1939,150 @@
       document.getElementById('pack-reveal-stage').classList.remove('hidden');
 
       const grid = document.getElementById('pack-cards-grid'), D = window.MT.V12_DATA, choices = this.activePack.choices;
+      const fallbackIcon = './assets/gear/eq_dragon_heart.png';
       grid.innerHTML = choices.map((c, idx) => {
         if (c.kind === 'relic') {
-          const r = c.tpl, ed = D.EDITIONS[c.edition], iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon) : null;
-          const beamCol = c.edition === 'polychrome' ? '#ff7be5' : c.edition === 'foil' ? '#ffd966' : c.edition === 'negative' ? '#9e7aff' : (r.cat === 'mult' ? '#ff6b9d' : r.cat === 'vfx' ? '#6be5ff' : '#ffd966');
+          const r = c.tpl, ed = D.EDITIONS[c.edition], iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon, fallbackIcon) : fallbackIcon;
+          const gemCol = r.cat === 'mult' ? '#ff84b8' : r.cat === 'vfx' ? '#7ce8ff' : '#ffd966';
+          const framePal = r.cat === 'mult' ? ['#d96b9f', '#ffc7e1', '#5e1a3a'] : r.cat === 'vfx' ? ['#56bed6', '#c2f6ff', '#194959'] : ['#d6a346', '#ffebb0', '#5e3c10'];
+          const beamCol = c.edition === 'polychrome' ? '#ff7be5' : c.edition === 'foil' ? '#ffd966' : c.edition === 'negative' ? '#b088ff' : gemCol;
           return `
             <div class="pcard-wrap ed-${c.edition}" data-cidx="${idx}" data-beam="${beamCol}" data-rainbow="${c.edition === 'polychrome' ? '1' : '0'}">
               <div class="pcard-inner">
-                <div class="pcard-back"><span>✦</span></div>
-                <div class="pcard-front cat-${r.cat} ed-${c.edition}">
-                  <div class="pcard-top"><span class="pcard-cat">${r.cat === 'mult' ? '× 倍率秘宝' : r.cat === 'vfx' ? '⚡ 连锁特效' : '+ 基础增伤'}</span>${ed.badge ? `<span class="ed-pill ed-${c.edition}">${ed.badge}</span>` : ''}</div>
-                  <div class="pcard-icon-box">${iconUrl ? `<img src="${iconUrl}" alt="${r.name}" />` : ''}</div>
-                  <div class="pcard-name">${r.name}</div>
-                  <div class="pcard-short">${r.short}</div>
-                  <div class="pcard-desc">${r.desc}${ed.desc ? `<br><b class="ed-note">${ed.desc}</b>` : ''}</div>
-                  <div class="pcard-cta">点击收入秘宝栏</div>
+                <div class="pcard-back">${tarotBackSvg()}</div>
+                <div class="pcard-front cat-${r.cat} ed-${c.edition}" style="--gem:${gemCol}">
+                  ${pixelCardSceneSvg(`relic_${r.cat}`)}
+                  ${pixelCardFrameSvg(framePal[0], framePal[1], framePal[2], gemCol)}
+                  <div class="pcard-glare" aria-hidden="true"></div>
+                  <div class="pcard-art-stage">
+                    <div class="pcard-top">
+                      <span class="pcard-crest-tag" style="--tag-c:${gemCol}">${r.cat === 'mult' ? '× 倍率秘宝' : r.cat === 'vfx' ? '⚡ 连锁特效' : '+ 基础增伤'}</span>
+                      ${ed.badge ? `<span class="ed-pill ed-${c.edition}">${ed.badge}</span>` : ''}
+                    </div>
+                    <div class="pcard-relic-pedestal" aria-hidden="true"></div>
+                    <img class="pcard-relic-img" src="${iconUrl}" alt="${r.name}" onerror="this.onerror=null;this.src='${fallbackIcon}'" />
+                  </div>
+                  <div class="pcard-nameplate">
+                    <span class="pcard-rivet" aria-hidden="true"></span>
+                    <div class="pcard-name">${r.name}</div>
+                    <span class="pcard-rivet" aria-hidden="true"></span>
+                  </div>
+                  <div class="pcard-tablet">
+                    <div class="pcard-stat-strip">${r.short}</div>
+                    <div class="pcard-desc">${this.formatRichDesc(r.desc)}${ed.desc ? `<br><b class="ed-note">${this.formatRichDesc(ed.desc)}</b>` : ''}</div>
+                    <div class="pcard-cta">收入秘宝栏</div>
+                  </div>
                 </div>
               </div>
             </div>`;
         }
         if (c.kind === 'hero') {
           const h = c.tpl, fac = D.FACTIONS[h.faction], role = D.ROLES[h.role];
+          const rarityCls = c.redSeal ? 'hero-redseal' : c.ironPlated ? 'hero-iron' : '';
+          const gemCol = c.redSeal ? '#ff5268' : c.ironPlated ? '#70e8ff' : fac.color;
+          const framePal = c.redSeal
+            ? ['#d94358', '#ffb3bf', '#59101c']
+            : c.ironPlated
+            ? ['#52bce0', '#ccf7ff', '#164559']
+            : [fac.color, '#fff2c4', '#3b2412'];
           const perkBadge = c.redSeal ? `<span class="ed-pill seal-pill">◈ 红印·2连击</span>`
             : c.ironPlated ? `<span class="ed-pill iron-pill">🛡 铁甲·+15盾</span>`
-            : `<span class="role-chip" style="color:${role.color}">${role.name}</span>`;
-          const perkDesc = c.redSeal ? '<b style="color:#ff6b81">自带【红印】：每次出击打 2 下!</b>'
-            : c.ironPlated ? '<b style="color:#7cf0ff">自带【铁甲】：出战额外 +15 蓝盾!</b>'
-            : `加入花名册，助你凑齐【${fac.name}】同花!`;
+            : `<span class="pcard-role-tag" style="--tag-c:${role.color}">${role.name}</span>`;
+          const perkDesc = c.redSeal ? '<b class="perk-red">自带【红印】：每次出击打 2 下！</b>'
+            : c.ironPlated ? '<b class="perk-iron">自带【铁甲】：出战额外 +15 蓝盾！</b>'
+            : `加入战团花名册，助你凑齐【${fac.name}】同花！`;
           return `
-            <div class="pcard-wrap ${c.redSeal || c.ironPlated ? 'ed-foil' : ''}" data-cidx="${idx}" data-beam="${c.redSeal ? '#ff5268' : c.ironPlated ? '#6be5ff' : fac.color}" data-rainbow="${c.redSeal ? '1' : '0'}">
+            <div class="pcard-wrap ${c.redSeal || c.ironPlated ? 'ed-foil' : ''} ${rarityCls}" data-cidx="${idx}" data-beam="${gemCol}" data-rainbow="${c.redSeal ? '1' : '0'}">
               <div class="pcard-inner">
-                <div class="pcard-back"><span>⚔</span></div>
-                <div class="pcard-front hero-card" style="--fcol:${fac.color}">
-                  <div class="pcard-top"><span class="fac-chip" style="background:${fac.bg};color:${fac.color}">${fac.name}</span>${perkBadge}</div>
-                  <div class="pcard-sprite-slot" data-unit="${h.unitId}"></div>
-                  <div class="pcard-name">${c.redSeal ? '◈ ' : ''}${c.ironPlated ? '🛡 ' : ''}${h.name}</div>
-                  <div class="pcard-short">攻 ${h.atk + c.bonusAtk}${c.bonusAtk ? ` (+${c.bonusAtk})` : ''} · ${role.perkShort}</div>
-                  <div class="pcard-desc">${perkDesc}</div>
-                  <div class="pcard-cta">点击招募入花名册</div>
+                <div class="pcard-back">${tarotBackSvg()}</div>
+                <div class="pcard-front hero-card ${rarityCls}" style="--fcol:${fac.color};--gem:${gemCol}">
+                  ${pixelCardSceneSvg(h.faction)}
+                  ${pixelCardFrameSvg(framePal[0], framePal[1], framePal[2], gemCol)}
+                  <div class="pcard-glare" aria-hidden="true"></div>
+                  <div class="pcard-art-stage">
+                    <div class="pcard-top">
+                      <span class="pcard-crest-tag" style="--tag-c:${fac.color}">${fac.name}</span>
+                      ${perkBadge}
+                    </div>
+                    <div class="pcard-plinth" aria-hidden="true"></div>
+                    <div class="pcard-sprite-slot" data-unit="${h.unitId}"></div>
+                  </div>
+                  <div class="pcard-nameplate">
+                    <span class="pcard-rivet" aria-hidden="true"></span>
+                    <div class="pcard-name">${c.redSeal ? '◈ ' : ''}${c.ironPlated ? '🛡 ' : ''}${h.name}</div>
+                    <span class="pcard-rivet" aria-hidden="true"></span>
+                  </div>
+                  <div class="pcard-tablet">
+                    <div class="pcard-stat-strip">攻 ${h.atk + c.bonusAtk}${c.bonusAtk ? ` (+${c.bonusAtk})` : ''} · ${role.perkShort}</div>
+                    <div class="pcard-desc">${perkDesc}</div>
+                    <div class="pcard-cta">招募入战团</div>
+                  </div>
                 </div>
               </div>
             </div>`;
         }
-        const al = c.tpl, iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(al.icon) : null;
+        const al = c.tpl, iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(al.icon, fallbackIcon) : fallbackIcon;
         const disabled = al.minRoster && this.state.roster.length < al.minRoster;
         return `
           <div class="pcard-wrap ${disabled ? 'disabled' : ''}" data-cidx="${idx}" data-beam="${al.color}" data-rainbow="0">
             <div class="pcard-inner">
-              <div class="pcard-back"><span>☾</span></div>
-              <div class="pcard-front alchemy-card" style="--acol:${al.color}">
-                <div class="pcard-top"><span class="pcard-cat">炼金塔罗</span></div>
-                <div class="pcard-icon-box">${iconUrl ? `<img src="${iconUrl}" alt="${al.name}" />` : ''}</div>
-                <div class="pcard-name">${al.name}</div>
-                <div class="pcard-desc">${al.desc}</div>
-                <div class="pcard-cta">${disabled ? '花名册已达3人下限' : '点击施展秘术'}</div>
+              <div class="pcard-back">${tarotBackSvg()}</div>
+              <div class="pcard-front alchemy-card" style="--acol:${al.color};--gem:${al.color}">
+                ${pixelCardSceneSvg('alchemy')}
+                ${pixelCardFrameSvg('#b973e8', '#f0d4ff', '#421a66', al.color)}
+                <div class="pcard-glare" aria-hidden="true"></div>
+                <div class="pcard-art-stage">
+                  <div class="pcard-top">
+                    <span class="pcard-crest-tag" style="--tag-c:${al.color}">炼金塔罗</span>
+                  </div>
+                  <div class="pcard-relic-pedestal alchemy" aria-hidden="true"></div>
+                  <img class="pcard-relic-img" src="${iconUrl}" alt="${al.name}" onerror="this.onerror=null;this.src='${fallbackIcon}'" />
+                </div>
+                <div class="pcard-nameplate">
+                  <span class="pcard-rivet" aria-hidden="true"></span>
+                  <div class="pcard-name">${al.name}</div>
+                  <span class="pcard-rivet" aria-hidden="true"></span>
+                </div>
+                <div class="pcard-tablet">
+                  <div class="pcard-stat-strip">即刻施法 · 永久改造</div>
+                  <div class="pcard-desc">${al.desc}</div>
+                  <div class="pcard-cta">${disabled ? '花名册已达3人下限' : '施展炼金秘术'}</div>
+                </div>
               </div>
             </div>
           </div>`;
       }).join('');
 
       grid.querySelectorAll('.pcard-sprite-slot').forEach((slot) => {
-        const spr = window.MT.sprites.createDomSprite(slot.dataset.unit, { width: 96, height: 96 });
+        const spr = window.MT.sprites.createDomSprite(slot.dataset.unit, 'idle', 152);
         if (spr) slot.appendChild(spr);
       });
 
-      const centerXs = choices.length === 3 ? [380, 640, 900] : [250, 510, 770, 1030];
+      const centerXs = choices.length === 3 ? [380, 640, 900] : [235, 505, 775, 1045];
       grid.querySelectorAll('.pcard-wrap').forEach((el, i) => {
         this.packTimers.push(setTimeout(() => {
           el.classList.add('flipped');
           const isRainbow = el.dataset.rainbow === '1';
           this.packFx.addCardRevealPillar(centerXs[i] || 640, el.dataset.beam || '#ffd966', isRainbow);
           if (window.MT.sfx) window.MT.sfx.playChainDing(2 + i, isRainbow);
-        }, 120 + i * 150));
+        }, 120 + i * 145));
+
+        // Tactile 3D perspective tilt + dynamic specular foil glare on hover
+        el.addEventListener('mousemove', (e) => {
+          if (!el.classList.contains('flipped') || el.classList.contains('disabled')) return;
+          const r = el.getBoundingClientRect();
+          if (!r.width || !r.height) return;
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          el.style.setProperty('--rx', `${((0.5 - py) * 14).toFixed(1)}deg`);
+          el.style.setProperty('--ry', `${((px - 0.5) * 16).toFixed(1)}deg`);
+          el.style.setProperty('--gx', `${(px * 100).toFixed(0)}%`);
+          el.style.setProperty('--gy', `${(py * 100).toFixed(0)}%`);
+        });
+        el.addEventListener('mouseleave', () => {
+          el.style.setProperty('--rx', '0deg');
+          el.style.setProperty('--ry', '0deg');
+        });
         el.onclick = () => {
           if (!el.classList.contains('flipped') || el.classList.contains('disabled')) return;
           this.claimPackChoice(Number(el.dataset.cidx));
@@ -1019,7 +2142,7 @@
           </button>`;
       }).join('');
       grid.querySelectorAll('.th-sprite').forEach((s) => {
-        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, { width: 58, height: 58 });
+        const sp = window.MT.sprites.createDomSprite(s.dataset.unit, 'idle', 72);
         if (sp) s.appendChild(sp);
       });
       grid.querySelectorAll('.target-hero-btn').forEach((btn) => { btn.onclick = () => this.applyAlchemyToHero(al, btn.dataset.huid); });
@@ -1095,27 +2218,43 @@
       this.toast(`出售【${r.tpl.name}】回收 +${refund}G`);
     }
 
+    formatRichDesc(text) {
+      if (!text) return '';
+      return String(text)
+        .replace(/([×xX]\d+(?:\.\d+)?)/g, '<em class="num-hi mult">$1</em>')
+        .replace(/(\+\d+\s*[伤攻盾G%]?)/g, '<em class="num-hi add">$1</em>');
+    }
+
     renderShopAll() {
       const D = window.MT.V12_DATA;
-      document.getElementById('hud-wave').textContent = `W${this.state.wave}${this.state.endless ? ' 无尽' : '/8'}`;
-      document.getElementById('hud-hearts').textContent = '❤'.repeat(this.state.hearts) + '♡'.repeat(Math.max(0, this.state.maxHearts - this.state.hearts));
-      document.getElementById('hud-gold').textContent = `${this.state.gold}G`;
+      const gold = this.state.gold;
+      const fallbackIcon = './assets/gear/eq_dragon_heart.png';
+      const fallbackAttr = `onerror="this.onerror=null;this.src='${fallbackIcon}'"`;
 
-      // 1. Hero-Sized Top Relic Rack with Chain Arrows
+      document.getElementById('hud-wave').textContent = `W${this.state.wave}${this.state.endless ? '∞' : '/8'}`;
+      let heartsHtml = '';
+      for (let i = 0; i < this.state.maxHearts; i++) heartsHtml += pixelHeartSvg(i < this.state.hearts);
+      document.getElementById('hud-hearts').innerHTML = heartsHtml;
+      document.getElementById('hud-gold').textContent = `${gold}G`;
+      const shelfGoldEl = document.querySelector('#shelf-gold-readout b');
+      if (shelfGoldEl) shelfGoldEl.textContent = `${gold}G`;
+
+      // 1. Unified Brass Top Relic Chain Rack
       const rack = document.getElementById('top-relic-rack');
       const maxSlots = this.getMaxRelicSlots();
-      let html = `<span class="rack-dir-tag">左→右</span>`;
+      const roman = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+      let html = `<span class="rack-dir-tag" title="战斗按从左到右顺序依次触发">连锁</span>`;
       for (let i = 0; i < maxSlots; i++) {
-        if (i > 0) html += `<span class="rack-arrow">›</span>`;
+        if (i > 0) html += `<span class="rack-arrow" aria-hidden="true">›</span>`;
         const inst = this.state.relics[i];
-        if (!inst) { html += `<div class="rack-slot empty"><span>空位</span></div>`; continue; }
+        if (!inst) { html += `<div class="rack-slot empty"><span>${roman[i] || (i + 1)}</span></div>`; continue; }
         const r = inst.tpl, ed = D.EDITIONS[inst.edition] || D.EDITIONS.normal;
-        const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon) : null;
+        const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon, fallbackIcon) : fallbackIcon;
         const isSel = this.swapSlotIdx === i;
         html += `
           <div class="rack-slot filled cat-${r.cat} ed-${inst.edition} ${isSel ? 'swap-active' : ''}" data-ridx="${i}" title="${r.name}：${r.desc}">
             ${ed.badge ? `<i class="ed-pip ed-${inst.edition}">${ed.badge}</i>` : ''}
-            ${iconUrl ? `<img src="${iconUrl}" alt="${r.name}" />` : ''}
+            <img src="${iconUrl}" alt="${r.name}" ${fallbackAttr} />
             <span class="rack-badge">${r.short}</span>
           </div>`;
       }
@@ -1139,7 +2278,7 @@
           <div class="rib-actions">
             <span class="rib-tip">点另一秘宝可互换顺序</span>
             <button class="steel-btn crimson rib-btn" id="btn-rib-sell">出售 +${refund}G</button>
-            <button class="steel-btn rib-btn" id="btn-rib-cancel">取消</button>
+            <button class="steel-btn tavern-btn rib-btn" id="btn-rib-cancel">取消</button>
           </div>`;
         document.getElementById('btn-rib-sell').onclick = () => this.sellRelicAt(this.swapSlotIdx);
         document.getElementById('btn-rib-cancel').onclick = () => { this.swapSlotIdx = -1; this.renderShopAll(); };
@@ -1147,158 +2286,457 @@
         inspBar.classList.add('hidden');
       }
 
-      // 2. LEFT COLUMN TOP: Next Boss Live Bounty Panel (Animated Giant Boss + 4-Round Exam Pattern!)
+      // 2. LEFT WALNUT SIDE: Pinned Aged-Parchment Wanted Poster + Wax-Seal Battle Contract
       const nextBoss = D.getWaveBoss(this.state.wave, this.state.runSeed);
-      const intentLabels = {
-        heavy:  { txt: '⚔重击', cls: 'it-heavy' },
-        charge: { txt: '🔥蓄力', cls: 'it-charge' },
-        shield: { txt: '🛡魔盾', cls: 'it-shield' },
-        freeze: { txt: '❄霜锁', cls: 'it-freeze' }
+      const intentMeta = {
+        heavy:  { txt: '重击', ico: './assets/icons/role_assassin.png', cls: 'it-heavy' },
+        charge: { txt: '蓄力', ico: './assets/icons/el_fire.png',       cls: 'it-charge' },
+        shield: { txt: '魔盾', ico: './assets/icons/role_tank.png',     cls: 'it-shield' },
+        freeze: { txt: '霜锁', ico: './assets/icons/el_ice.png',        cls: 'it-freeze' }
       };
-      const patternHtml = (nextBoss.pattern || ['heavy', 'charge', 'heavy', 'heavy']).slice(0, 4).map((k, idx) => {
+      const patternSlice = (nextBoss.pattern || ['heavy', 'charge', 'heavy', 'heavy']).slice(0, 4);
+      let chargeRound = -1;
+      const patternHtml = patternSlice.map((k, idx) => {
         const safeK = (k === 'charge' && idx >= 2) ? 'heavy' : k;
-        const info = intentLabels[safeK] || intentLabels.heavy;
-        return `<span class="bp-step ${info.cls}"><i>R${idx + 1}</i>${info.txt}</span>`;
+        if (safeK === 'charge' && chargeRound < 0) chargeRound = idx + 1;
+        const info = intentMeta[safeK] || intentMeta.heavy;
+        return `
+          <span class="pp-step ${info.cls}">
+            <i>R${idx + 1}</i>
+            <img class="px-ico" src="${info.ico}" alt="${info.txt}" />
+            <span>${info.txt}</span>
+          </span>`;
       }).join('');
 
       const bossPanel = document.getElementById('boss-bounty-panel');
       bossPanel.innerHTML = `
-        <div class="bp-head">
-          <span class="bp-wave-tag">下战考题 · W${this.state.wave}</span>
-          <span class="bp-hp-pill">${nextBoss.maxHp.toLocaleString()} HP</span>
+        ${hsScrollBackdropSvg('bounty', `w${this.state.wave}`)}
+        <div class="pp-scroll-content">
+          <div class="pp-header">
+            <span class="pp-title">W${this.state.wave} 悬赏令</span>
+            <span class="pp-hp-stamp">${nextBoss.maxHp.toLocaleString()} HP</span>
+          </div>
+          <div class="pp-arch-stage">
+            <div class="pp-arch-backdrop">
+              <div class="pp-plinth" aria-hidden="true"></div>
+            </div>
+            ${hsArchFrameSvg('#e04658', `boss${this.state.wave}`)}
+            <div class="pp-boss-sprite" data-unit="${nextBoss.unitId}"></div>
+            <div class="pp-name-ribbon">
+              <b>${nextBoss.name}</b>
+              <span>${nextBoss.title}</span>
+            </div>
+          </div>
+          <div class="pp-pattern-row">${patternHtml}</div>
+          <div class="pp-break-note">
+            <span class="pp-break-main">${chargeRound > 0 ? `R${chargeRound}破招` : '蓄力破招'} ≥ <b>${nextBoss.breakThreshold}</b> · 灭世 <b>${nextBoss.ultDmg}</b>伤</span>
+          </div>
         </div>
-        <div class="bp-stage">
-          <div class="bp-eclipse-glow"></div>
-          <div class="bp-boss-sprite" data-unit="${nextBoss.unitId}"></div>
-          <div class="bp-name-plate"><b>${nextBoss.name}</b><span>${nextBoss.title}</span></div>
-        </div>
-        <div class="bp-pattern-row">${patternHtml}</div>
-        <div class="bp-meta-line">破招阈值 <b>${nextBoss.breakThreshold}</b> · 重击 <b>${nextBoss.heavyDmg}伤</b> · 灭世 <b>${nextBoss.ultDmg}伤</b></div>
       `;
-      const bossSlot = bossPanel.querySelector('.bp-boss-sprite');
-      const bossSpr = window.MT.sprites.createDomSprite(nextBoss.unitId, { width: 152, height: 128 });
+      const bossSlot = bossPanel.querySelector('.pp-boss-sprite');
+      const bossSpr = window.MT.sprites.createDomSprite(nextBoss.unitId, 'idle', 156);
       if (bossSpr && bossSlot) bossSlot.appendChild(bossSpr);
 
-      // 3. LEFT COLUMN MIDDLE: Live Deck Overview (Visual Faction Bars + Role Counts — Clickable!)
-      const facCounts = {}, roleCounts = { tank: 0, striker: 0, ranged: 0 };
-      let sealCnt = 0, ironCnt = 0;
-      for (const h of this.state.roster) {
-        facCounts[h.faction] = (facCounts[h.faction] || 0) + 1;
-        roleCounts[h.role] = (roleCounts[h.role] || 0) + 1;
-        if (h.redSeal) sealCnt++;
-        if (h.ironPlated) ironCnt++;
-      }
-      const totalN = Math.max(1, this.state.roster.length);
-      const facBarsHtml = Object.entries(facCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).map(([fid, cnt]) => {
-        const f = D.FACTIONS[fid];
-        const pct = Math.min(100, Math.round((cnt / totalN) * 100));
-        return `
-          <div class="do-fac-row">
-            <span class="do-fname" style="color:${f.color}">${f.name}</span>
-            <div class="do-ftrack"><i style="width:${pct}%;background:${f.color}"></i></div>
-            <b style="color:${f.color}">${cnt}</b>
-          </div>`;
-      }).join('');
-
-      const deckPanel = document.getElementById('deck-overview-panel');
-      deckPanel.innerHTML = `
-        <div class="do-head">
-          <span>当前牌组 · <b>${this.state.roster.length}</b> 张</span>
-          <span class="do-more">查看全表 ›</span>
-        </div>
-        <div class="do-fac-bars">${facBarsHtml}</div>
-        <div class="do-roles-row">
-          <span style="color:#6fd3ff">🛡铁壁 ${roleCounts.tank}</span>
-          <span style="color:#ff8a5c">⚔突袭 ${roleCounts.striker}</span>
-          <span style="color:#d48cff">✦秘术 ${roleCounts.ranged}</span>
-          ${sealCnt > 0 ? `<span style="color:#ff6b81">◈红印 ${sealCnt}</span>` : ''}
-          ${ironCnt > 0 ? `<span style="color:#7cf0ff">铁甲 ${ironCnt}</span>` : ''}
-        </div>
-      `;
-      deckPanel.onclick = () => this.openRosterModal('roster');
-
-      // 4. LEFT COLUMN BOTTOM: Giant Emerald Launch Button
+      // Attached Crimson Swallowtail Ribbon + Oversized Melted Wax-Seal Battle CTA
       const nextBtn = document.getElementById('btn-shop-next');
       nextBtn.innerHTML = `
-        <span class="launch-main">迎战 W${this.state.wave} · ${nextBoss.name} →</span>
-        <span class="launch-sub">直进镜湖 · 4 回合破招决胜负</span>
+        <span class="wax-seal-holder" aria-hidden="true">${hsWaxSealSvg('战')}</span>
+        <span class="wax-cta-copy">
+          <span class="wax-cta-main">迎战 W${this.state.wave} · ${nextBoss.name}</span>
+        </span>
+        <span class="wax-cta-arrow" aria-hidden="true">→</span>
       `;
 
-      // 5. RIGHT COLUMN: 3 Huge Zero-Truncation Relic Cards + 2 Giant Standing Foil Packs + 1 Tall Planet Tome
+      // 3. LOWER-LEFT OPEN WALNUT PROMENADE: Slim Single-Bar Squad Ledger + Free-Roaming Squad Canvas Floor
+      const facCounts = {};
+      for (const h of this.state.roster) {
+        facCounts[h.faction] = (facCounts[h.faction] || 0) + 1;
+      }
+      const totalN = Math.max(1, this.state.roster.length);
+      const sortedFacs = Object.entries(facCounts).sort((a, b) => b[1] - a[1]);
+      const segBarHtml = sortedFacs.map(([fid, cnt]) => {
+        const f = D.FACTIONS[fid];
+        const pct = Math.max(8, (cnt / totalN) * 100);
+        return `<i style="width:${pct}%;background:${f.color}" title="${f.name} ${cnt}人"></i>`;
+      }).join('');
+      const facInlineHtml = sortedFacs.slice(0, 3).map(([fid, cnt]) => {
+        const f = D.FACTIONS[fid];
+        return `<span class="sp-fac-txt" style="color:${f.color}">${f.name}<b>${cnt}</b></span>`;
+      }).join('');
+
+      const ledgerStrip = document.getElementById('squad-ledger-strip');
+      if (ledgerStrip) {
+        ledgerStrip.innerHTML = `
+          <div class="sp-top-row">
+            <span class="sp-title">战团 <b>${this.state.roster.length}</b>人</span>
+            <div class="sp-fac-inline">${facInlineHtml}</div>
+            <span class="sp-more">全表 ›</span>
+          </div>
+          <div class="sp-ratio-bar">${segBarHtml}</div>
+        `;
+      }
+
+      const deckPanel = document.getElementById('deck-overview-panel');
+      deckPanel.onclick = () => this.openRosterModal('roster');
+      deckPanel.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.openRosterModal('roster'); }
+      };
+
+      // Interactive pointer hover over roaming squad heroes on the bare walnut promenade
+      const roamZone = document.getElementById('squad-roam-zone');
+      const hoverTip = document.getElementById('squad-hover-tip');
+      if (roamZone && hoverTip && !roamZone._boundHover) {
+        roamZone._boundHover = true;
+        roamZone.addEventListener('mousemove', (e) => {
+          const rect = this.stageEl.getBoundingClientRect();
+          if (!rect.width || !rect.height) return;
+          const sx = ((e.clientX - rect.left) / rect.width) * 1280;
+          const sy = ((e.clientY - rect.top) / rect.height) * 720;
+          const hit = this.tavern.pickHeroAt(sx, sy);
+          if (hit) {
+            this.tavern.setHoveredHero(hit.uid);
+            const zRect = roamZone.getBoundingClientRect();
+            const localX = ((e.clientX - zRect.left) / zRect.width) * roamZone.offsetWidth;
+            const localY = ((e.clientY - zRect.top) / zRect.height) * roamZone.offsetHeight;
+            hoverTip.innerHTML = `
+              <b>${hit.redSeal ? '◈' : ''}${hit.ironPlated ? '🛡' : ''}${hit.name}</b>
+              <span><em style="color:${hit.factionColor}">${hit.factionName}</em> · ${hit.roleName} · 攻 ${hit.atk}</span>
+            `;
+            hoverTip.style.left = `${Math.max(66, Math.min(roamZone.offsetWidth - 66, localX))}px`;
+            hoverTip.style.top = `${Math.max(4, localY - 46)}px`;
+            hoverTip.classList.remove('hidden');
+          } else {
+            this.tavern.setHoveredHero(null);
+            hoverTip.classList.add('hidden');
+          }
+        });
+        roamZone.addEventListener('mouseleave', () => {
+          this.tavern.setHoveredHero(null);
+          hoverTip.classList.add('hidden');
+        });
+      }
+
+      // 4. RIGHT BAIZE TABLETOP MAT: Mobile-First Tap-to-Inspect + Confirm-to-Buy Cards (NO hover dependency!)
+      this.closeShopInspector();
       const sh = this.state.shop;
       if (!sh) return;
       const rerollBtn = document.getElementById('btn-shop-reroll');
-      rerollBtn.innerHTML = `<span>↻ 刷新黑市</span> <b>${this.state.rerollCost}G</b>`;
-      rerollBtn.disabled = this.state.gold < this.state.rerollCost;
+      rerollBtn.innerHTML = `<span class="rr-ico">↻</span><span>刷新</span><b>${this.state.rerollCost}G</b>`;
+      rerollBtn.disabled = gold < this.state.rerollCost;
 
       const relicsRow = document.getElementById('shop-relics-row');
-      relicsRow.innerHTML = sh.relics.map((item) => {
-        const r = item.tpl, ed = D.EDITIONS[item.edition], iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon) : null;
+      relicsRow.innerHTML = sh.relics.map((item, idx) => {
+        const r = item.tpl;
+        const ed = D.EDITIONS[item.edition] || D.EDITIONS.normal;
+        const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(r.icon, fallbackIcon) : fallbackIcon;
+        const canBuy = gold >= item.cost;
+        const catLabel = r.cat === 'mult' ? '×倍率' : r.cat === 'vfx' ? '⚡连锁' : '+增伤';
+        const gemCol = r.cat === 'mult' ? '#ff84b8' : r.cat === 'vfx' ? '#7ce8ff' : '#ffd966';
+        const priceLabel = item.sold ? '已购' : `${item.cost}G`;
+        const noteText = ed.desc ? ed.desc : r.desc;
         return `
-          <button class="big-relic-card cat-${r.cat} ed-${item.edition} ${item.sold ? 'sold' : ''}" data-srid="${item.shopId}">
-            <div class="brc-top">
-              <span class="sc-cat">${r.cat === 'mult' ? '× 倍率秘宝' : r.cat === 'vfx' ? '⚡ 连锁特效' : '+ 基础增伤'}</span>
-              ${ed.badge ? `<span class="ed-pill ed-${item.edition}">${ed.badge}</span>` : ''}
-            </div>
-            <div class="brc-mid">
-              <div class="brc-ico">${iconUrl ? `<img src="${iconUrl}" alt="${r.name}" />` : ''}</div>
-              <div class="brc-txt">
-                <div class="brc-name">${r.name}</div>
-                <div class="brc-desc">${r.desc}${ed.desc ? `<br><b class="ed-note">${ed.desc}</b>` : ''}</div>
+          <button class="relic-tarot-card tilt-${idx} cat-${r.cat} ed-${item.edition} ${item.sold ? 'sold' : ''} ${!item.sold && !canBuy ? 'cant-afford' : ''}" data-srid="${item.shopId}" style="--gem:${gemCol}">
+            ${pixelShopRelicSvg(r.cat, gemCol)}
+            <div class="rtc-alcove">
+              <div class="rtc-top">
+                <span class="rtc-cat">${catLabel}</span>
+                ${ed.badge ? `<span class="ed-pill ed-${item.edition}">${ed.badge}</span>` : ''}
               </div>
+              <div class="rtc-glow-ring" aria-hidden="true"></div>
+              <img class="rtc-icon-img" src="${iconUrl}" alt="${r.name}" ${fallbackAttr} />
             </div>
-            <div class="sc-price-bar">${item.sold ? '已购入' : `购买 · ${item.cost}G`}</div>
+            <div class="rtc-nameplate">
+              <span class="rtc-name">${r.name}</span>
+            </div>
+            <div class="rtc-tablet">
+              <div class="rtc-stat">${r.short}</div>
+              <div class="rtc-note ${ed.desc ? 'has-ed' : ''}">${noteText}</div>
+              <div class="rtc-price ${!item.sold && !canBuy ? 'poor' : ''}">${priceLabel}</div>
+            </div>
           </button>`;
       }).join('');
-      relicsRow.querySelectorAll('.big-relic-card').forEach((btn) => { btn.onclick = () => this.buyShopRelic(btn.dataset.srid); });
+      relicsRow.querySelectorAll('.relic-tarot-card').forEach((btn) => {
+        const item = sh.relics.find((x) => x.shopId === btn.dataset.srid);
+        if (!item || item.sold) return;
+        const key = `relic:${item.shopId}`;
+        const r = item.tpl;
+        const ed = D.EDITIONS[item.edition] || D.EDITIONS.normal;
+        const catTag = r.cat === 'mult' ? '× 乘区倍率' : r.cat === 'vfx' ? '⚡ 连锁特效' : '+ 基础增伤';
+        const gemCol = r.cat === 'mult' ? '#ff84b8' : r.cat === 'vfx' ? '#7ce8ff' : '#ffd966';
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          if (this.inspectedShopKey === key) {
+            this.closeShopInspector();
+            this.buyShopRelic(item.shopId);
+            return;
+          }
+          const slotsFull = item.edition !== 'negative' && this.state.relics.length >= this.getMaxRelicSlots();
+          const canAfford = this.state.gold >= item.cost;
+          let btnLabel = `确认购入 · ${item.cost}G`;
+          let disabled = false;
+          if (!canAfford) { btnLabel = `金币不足 · 需 ${item.cost}G`; disabled = true; }
+          else if (slotsFull) { btnLabel = '秘宝栏已满 · 先卸除'; disabled = true; }
+          this.inspectShopItem(key, btn, {
+            title: r.name,
+            stat: r.short,
+            badge: catTag,
+            badgeColor: gemCol,
+            edBadge: ed.badge ? `<span class="ed-pill ed-${item.edition}">${ed.badge}</span>` : '',
+            descHtml: this.formatRichDesc(r.desc),
+            edHtml: ed.desc ? this.formatRichDesc(ed.desc) : '',
+            foot: '摆放提示：+伤秘宝居左 → ×倍秘宝居右',
+            confirmLabel: btnLabel,
+            confirmTheme: 'gold',
+            confirmDisabled: disabled,
+            onConfirm: () => this.buyShopRelic(item.shopId)
+          });
+        };
+      });
 
+      const packTag = {
+        pack_relic:   '4选1',
+        pack_hero:    '4选1',
+        pack_alchemy: '3选1'
+      };
+      const packPitch = {
+        pack_relic:   '稀有秘宝 · 概率闪金',
+        pack_hero:    '传奇侠客 · 概率红印',
+        pack_alchemy: '烙印 · 同化 · 淬体'
+      };
+      const packDetailDesc = {
+        pack_relic:   '撕开即享全屏抽卡仪式，从 4 件稀有星界秘宝中任选 1 件，高概率开出闪金、多彩或负片版本。',
+        pack_hero:    '从 4 名高阶侠客中招募 1 名入团，概率自带【红印·2连击】或【铁甲·+15盾】强力词条。',
+        pack_alchemy: '从 3 张炼金塔罗中择 1 张施法：为侠客刻印红印/铁甲、同化阵营或永久淬炼攻击力。'
+      };
       const packsRow = document.getElementById('shop-packs-row');
-      const packsHtml = sh.packs.map((p) => {
-        const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(p.tpl.icon) : null;
+      const packsHtml = sh.packs.map((p, idx) => {
+        const iconUrl = window.MT.vfx ? window.MT.vfx.getIconUrl(p.tpl.icon, './assets/gear/eq_greed_dice.png') : './assets/gear/eq_greed_dice.png';
+        const canBuy = gold >= p.cost;
+        const tag = packTag[p.tpl.id] || '4选1';
+        const pitch = packPitch[p.tpl.id] || p.tpl.desc;
+        const priceLabel = p.sold ? '已拆' : `${p.cost}G`;
         return `
-          <button class="big-pack-card ${p.sold ? 'sold' : ''}" data-spid="${p.shopId}" style="--pcol:${p.tpl.accent};--pglow:${p.tpl.glow}">
-            <div class="pack-pulse-bg"></div>
-            <div class="pack-foil-streak"></div>
-            <div class="bpc-seal-top">✦ ${p.tpl.subtitle} ✦</div>
-            <div class="bpc-emblem">${iconUrl ? `<img src="${iconUrl}" alt="${p.tpl.name}" />` : ''}</div>
-            <div class="bpc-name">${p.tpl.name}</div>
-            <div class="bpc-desc">${p.tpl.desc}</div>
-            <div class="sc-price-bar pack">${p.sold ? '已拆封' : `✦ 撕开卡包 · ${p.cost}G`}</div>
+          <button class="foil-sachet-card pack-theme-${p.tpl.id} sachet-${idx} ${p.sold ? 'sold' : ''} ${!p.sold && !canBuy ? 'cant-afford' : ''}" data-spid="${p.shopId}" style="--pcol:${p.tpl.accent};--pglow:${p.tpl.glow}">
+            <span class="sachet-teeth-top" aria-hidden="true"></span>
+            <div class="sachet-crimp-band top" aria-hidden="true"></div>
+            <div class="sachet-body">
+              ${packFoilArtSvg(p.tpl.id)}
+              <div class="foil-volume-sheen" aria-hidden="true"></div>
+              <div class="pack-pulse-bg" aria-hidden="true"></div>
+              <div class="pack-foil-streak" aria-hidden="true"></div>
+              <span class="sachet-tear-notch" aria-hidden="true"></span>
+              <div class="sachet-sub">${tag}</div>
+              <div class="sachet-medallion">
+                <img src="${iconUrl}" alt="${p.tpl.name}" ${fallbackAttr} />
+              </div>
+              <div class="sachet-copy">
+                <div class="sachet-name">${p.tpl.name}</div>
+                <div class="sachet-desc">${pitch}</div>
+              </div>
+              <div class="sachet-price ${!p.sold && !canBuy ? 'poor' : ''}">${priceLabel}</div>
+            </div>
+            <div class="sachet-crimp-band bot" aria-hidden="true"></div>
+            <span class="sachet-teeth-bot" aria-hidden="true"></span>
           </button>`;
       }).join('');
 
-      const t = sh.tome, tIcon = window.MT.vfx ? window.MT.vfx.getIconUrl(t.hand.icon) : null, curLv = this.state.handLevels[t.handId] || 1;
+      const t = sh.tome;
+      const tIcon = window.MT.vfx ? window.MT.vfx.getIconUrl(t.hand.icon, './assets/gear/eq_storm_staff.png') : './assets/gear/eq_storm_staff.png';
+      const curLv = this.state.handLevels[t.handId] || 1;
       const curM = +(t.hand.baseMult + (curLv - 1) * t.hand.multPerLv).toFixed(2);
       const nextM = +(t.hand.baseMult + curLv * t.hand.multPerLv).toFixed(2);
+      const canBuyTome = gold >= t.cost;
+      const tomePriceLabel = t.sold ? '已研读' : `${t.cost}G`;
       const tomeHtml = `
-        <button class="big-tome-card ${t.sold ? 'sold' : ''}" id="btn-buy-tome">
-          <div class="btc-top"><span class="sc-cat">战技酒谱</span><span class="sc-sub-tag">0 秘宝栏</span></div>
-          <div class="btc-ico">${tIcon ? `<img src="${tIcon}" alt="${t.hand.name}" />` : ''}</div>
-          <div class="btc-name">${t.hand.name}谱</div>
-          <div class="btc-upgrade">Lv.${curLv} → Lv.${curLv + 1}<br><b>×${curM} → ×${nextM}</b></div>
-          <div class="btc-sub">基伤 +${t.hand.bonusPerLv} · 永久生效</div>
-          <div class="sc-price-bar tome">${t.sold ? '已研读' : `研读酒谱 · ${t.cost}G`}</div>
+        <button class="grimoire-book-card ${t.sold ? 'sold' : ''} ${!t.sold && !canBuyTome ? 'cant-afford' : ''}" id="btn-buy-tome">
+          <span class="gb-bookmark" aria-hidden="true">Lv.${curLv}→${curLv + 1}</span>
+          <span class="gb-pages-right" aria-hidden="true"></span>
+          <span class="gb-pages-bottom" aria-hidden="true"></span>
+          <span class="gb-metal-clasp" aria-hidden="true"></span>
+          <div class="gb-cover">
+            <div class="gb-spine" aria-hidden="true">
+              <i></i><i></i><i></i><i></i>
+            </div>
+            <div class="gb-face">
+              <span class="gb-brass-corner tl" aria-hidden="true"></span>
+              <span class="gb-brass-corner tr" aria-hidden="true"></span>
+              <span class="gb-brass-corner bl" aria-hidden="true"></span>
+              <span class="gb-brass-corner br" aria-hidden="true"></span>
+              <div class="gb-crest">
+                <img src="${tIcon}" alt="${t.hand.name}谱" ${fallbackAttr} />
+              </div>
+              <div class="gb-name">${t.hand.name}谱</div>
+              <div class="gb-mult">×${curM} → ×${nextM}</div>
+              <div class="gb-bonus">基伤 +${t.hand.bonusPerLv}</div>
+              <div class="gb-clasp ${!t.sold && !canBuyTome ? 'poor' : ''}">${tomePriceLabel}</div>
+            </div>
+          </div>
         </button>`;
       packsRow.innerHTML = packsHtml + tomeHtml;
-      packsRow.querySelectorAll('.big-pack-card').forEach((btn) => { btn.onclick = () => this.buyBoosterPack(btn.dataset.spid); });
+      packsRow.querySelectorAll('.foil-sachet-card').forEach((btn) => {
+        const p = sh.packs.find((x) => x.shopId === btn.dataset.spid);
+        if (!p || p.sold) return;
+        const key = `pack:${p.shopId}`;
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          if (this.inspectedShopKey === key) {
+            this.closeShopInspector();
+            this.buyBoosterPack(p.shopId);
+            return;
+          }
+          const canAfford = this.state.gold >= p.cost;
+          this.inspectShopItem(key, btn, {
+            title: p.tpl.name,
+            stat: packTag[p.tpl.id] || '4选1',
+            badge: '命运卡包',
+            badgeColor: p.tpl.accent || '#ffd966',
+            edBadge: '',
+            descHtml: this.formatRichDesc(packDetailDesc[p.tpl.id] || p.tpl.desc),
+            edHtml: '',
+            foot: '拆封进入全屏抽卡仪式，可放弃不拿',
+            confirmLabel: canAfford ? `确认撕开 · ${p.cost}G` : `金币不足 · 需 ${p.cost}G`,
+            confirmTheme: 'gold',
+            confirmDisabled: !canAfford,
+            onConfirm: () => this.buyBoosterPack(p.shopId)
+          });
+        };
+      });
       const tomeBtn = document.getElementById('btn-buy-tome');
-      if (tomeBtn) tomeBtn.onclick = () => this.buyPlanetTome();
+      if (tomeBtn && !t.sold) {
+        const key = 'tome';
+        tomeBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (this.inspectedShopKey === key) {
+            this.closeShopInspector();
+            this.buyPlanetTome();
+            return;
+          }
+          const canAfford = this.state.gold >= t.cost;
+          this.inspectShopItem(key, tomeBtn, {
+            title: `${t.hand.name}谱`,
+            stat: `Lv.${curLv} → Lv.${curLv + 1}`,
+            badge: '战技升阶',
+            badgeColor: '#84ead9',
+            edBadge: '',
+            descHtml: this.formatRichDesc(`永久提升【${t.hand.name}】牌型倍率 ×${curM} → ×${nextM}，基础伤害 +${t.hand.bonusPerLv}。`),
+            edHtml: '',
+            foot: '不占用任何秘宝栏位 · 本局永久生效',
+            confirmLabel: canAfford ? `确认研读 · ${t.cost}G` : `金币不足 · 需 ${t.cost}G`,
+            confirmTheme: 'teal',
+            confirmDisabled: !canAfford,
+            onConfirm: () => this.buyPlanetTome()
+          });
+        };
+      }
+    }
+
+    inspectShopItem(key, anchorEl, data) {
+      const pop = document.getElementById('shop-detail-popover');
+      if (!pop || !anchorEl || !this.stageEl) return;
+
+      // Clear any previous selection & top relic inspect bar
+      this.closeShopInspector();
+      const topBar = document.getElementById('relic-inspect-bar');
+      if (topBar) topBar.classList.add('hidden');
+
+      this.inspectedShopKey = key;
+      anchorEl.classList.add('is-inspected');
+      if (window.MT.sfx) window.MT.sfx.playChainDing(1, false);
+
+      pop.innerHTML = `
+        <div class="sdp-head">
+          <div class="sdp-title-group">
+            <span class="sdp-title">${data.title}</span>
+            <span class="sdp-stat">${data.stat}</span>
+          </div>
+          <button type="button" class="sdp-close" aria-label="关闭详情">×</button>
+        </div>
+        <div class="sdp-tags">
+          <span class="sdp-badge" style="--bc:${data.badgeColor || '#ffd966'}">${data.badge}</span>
+          ${data.edBadge || ''}
+        </div>
+        <div class="sdp-desc">${data.descHtml}</div>
+        ${data.edHtml ? `<div class="sdp-ed">${data.edHtml}</div>` : ''}
+        ${data.foot ? `<div class="sdp-foot">${data.foot}</div>` : ''}
+        <div class="sdp-actions">
+          <button type="button" class="sdp-confirm-btn ${data.confirmTheme || 'gold'}" ${data.confirmDisabled ? 'disabled' : ''}>${data.confirmLabel}</button>
+          <button type="button" class="sdp-cancel-btn">取消</button>
+        </div>
+      `;
+      pop.classList.remove('hidden');
+
+      pop.onclick = (e) => e.stopPropagation();
+      const closeBtn = pop.querySelector('.sdp-close');
+      const cancelBtn = pop.querySelector('.sdp-cancel-btn');
+      const confirmBtn = pop.querySelector('.sdp-confirm-btn');
+      if (closeBtn) closeBtn.onclick = (e) => { e.stopPropagation(); this.closeShopInspector(); };
+      if (cancelBtn) cancelBtn.onclick = (e) => { e.stopPropagation(); this.closeShopInspector(); };
+      if (confirmBtn) {
+        confirmBtn.onclick = (e) => {
+          e.stopPropagation();
+          if (data.confirmDisabled) return;
+          this.closeShopInspector();
+          if (typeof data.onConfirm === 'function') data.onConfirm();
+        };
+      }
+
+      // Position cleanly beside the tapped card inside 1280x720 stage
+      const sRect = this.stageEl.getBoundingClientRect();
+      const aRect = anchorEl.getBoundingClientRect();
+      if (!sRect.width || !sRect.height) return;
+      const scaleX = 1280 / sRect.width;
+      const scaleY = 720 / sRect.height;
+      const ax = (aRect.left - sRect.left) * scaleX;
+      const ay = (aRect.top - sRect.top) * scaleY;
+      const aw = aRect.width * scaleX;
+      const ah = aRect.height * scaleY;
+      const popW = pop.offsetWidth || 286;
+      const popH = pop.offsetHeight || 200;
+
+      // Prefer right side if room, otherwise left side (so it never covers the card itself!)
+      let left = ax + aw + 14;
+      if (left + popW > 1266) left = ax - popW - 14;
+      if (left < 436) left = Math.max(436, Math.min(1266 - popW, ax + (aw - popW) * 0.5));
+      let top = ay + (ah - popH) * 0.5;
+      top = Math.max(82, Math.min(706 - popH, top));
+      pop.style.left = `${Math.round(left)}px`;
+      pop.style.top = `${Math.round(top)}px`;
+    }
+
+    closeShopInspector() {
+      this.inspectedShopKey = null;
+      const pop = document.getElementById('shop-detail-popover');
+      if (pop) pop.classList.add('hidden');
+      document.querySelectorAll('.is-inspected').forEach((el) => el.classList.remove('is-inspected'));
     }
 
     openRosterModal(tab = 'roster') {
       const D = window.MT.V12_DATA;
-      document.getElementById('roster-modal').classList.remove('hidden');
-      const counts = {};
-      for (const h of this.state.roster) counts[h.faction] = (counts[h.faction] || 0) + 1;
-      document.getElementById('rm-summary').innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1])
-        .map(([fid, c]) => `<span class="rm-fac-pill" style="background:${D.FACTIONS[fid].bg};color:${D.FACTIONS[fid].color}">${D.FACTIONS[fid].name} ×${c}</span>`).join('');
-      const body = document.getElementById('rm-body');
-      document.getElementById('rm-tab-roster').classList.toggle('active', tab === 'roster');
-      document.getElementById('rm-tab-hands').classList.toggle('active', tab === 'hands');
+      const hasRun = Boolean(this.state && Array.isArray(this.state.roster));
+      const activeTab = (!hasRun && tab === 'roster') ? 'hands' : tab;
 
-      if (tab === 'hands') {
+      document.getElementById('roster-modal').classList.remove('hidden');
+      const rosterTabBtn = document.getElementById('rm-tab-roster');
+      const handsTabBtn = document.getElementById('rm-tab-hands');
+      rosterTabBtn.classList.toggle('hidden', !hasRun);
+      rosterTabBtn.classList.toggle('active', activeTab === 'roster');
+      handsTabBtn.classList.toggle('active', activeTab === 'hands');
+
+      const summaryEl = document.getElementById('rm-summary');
+      if (hasRun && activeTab === 'roster') {
+        const counts = {};
+        for (const h of this.state.roster) counts[h.faction] = (counts[h.faction] || 0) + 1;
+        summaryEl.innerHTML = Object.entries(counts).sort((a, b) => b[1] - a[1])
+          .map(([fid, c]) => `<span class="rm-fac-pill" style="background:${D.FACTIONS[fid].bg};color:${D.FACTIONS[fid].color}">${D.FACTIONS[fid].name} ×${c}</span>`).join('');
+      } else {
+        summaryEl.innerHTML = `<span class="rm-guide-note">六大牌型按倍率从高到低优先判定 · 每次出击仅结算最高牌型，酒谱可永久升阶</span>`;
+      }
+
+      const body = document.getElementById('rm-body');
+      if (activeTab === 'hands') {
+        const levels = (this.state && this.state.handLevels) || {};
         body.innerHTML = `<div class="rm-hands-list">` + D.HAND_TYPES.map((ht) => {
-          const lv = this.state.handLevels[ht.id] || 1;
+          const lv = levels[ht.id] || 1;
           const mult = +(ht.baseMult + (lv - 1) * ht.multPerLv).toFixed(2);
           const bonus = ht.baseBonus + (lv - 1) * ht.bonusPerLv;
           return `<div class="rm-hand-row"><b style="color:${ht.color}">${ht.name}</b><span class="rm-lv">Lv.${lv}</span><span class="rm-mult" style="color:${ht.color}">×${mult}</span><span class="rm-bonus">+${bonus}伤</span><span class="rm-perk">${ht.perk}</span></div>`;
@@ -1309,7 +2747,7 @@
           return `<div class="rm-hero-tile" style="--fcol:${fac.color}"><div class="rm-spr" data-unit="${h.unitId}"></div><div class="rm-hname">${h.redSeal ? '◈' : ''}${h.ironPlated ? '🛡' : ''}${h.name}</div><div class="rm-htags"><span style="color:${fac.color}">${fac.name}</span> · <span style="color:${role.color}">${role.name}</span> · 攻${h.atk}</div></div>`;
         }).join('') + `</div>`;
         body.querySelectorAll('.rm-spr').forEach((s) => {
-          const sp = window.MT.sprites.createDomSprite(s.dataset.unit, { width: 64, height: 58 });
+          const sp = window.MT.sprites.createDomSprite(s.dataset.unit, 'idle', 78);
           if (sp) s.appendChild(sp);
         });
       }
@@ -1332,6 +2770,21 @@
     }
 
     bindGlobalEvents() {
+      // Title Screen & Warband Contracts navigation
+      const enterBtn = document.getElementById('btn-title-enter');
+      if (enterBtn) enterBtn.onclick = () => this.enterDeckSelectFromTitle();
+      const titleHandsBtn = document.getElementById('btn-title-hands');
+      if (titleHandsBtn) titleHandsBtn.onclick = () => this.openRosterModal('hands');
+      const titleMuteBtn = document.getElementById('btn-title-mute');
+      if (titleMuteBtn) titleMuteBtn.onclick = () => this.toggleMute();
+
+      const cBackBtn = document.getElementById('btn-contracts-back');
+      if (cBackBtn) cBackBtn.onclick = () => this.showTitleScreen();
+      const cHandsBtn = document.getElementById('btn-contracts-hands');
+      if (cHandsBtn) cHandsBtn.onclick = () => this.openRosterModal('hands');
+      const cMuteBtn = document.getElementById('btn-contracts-mute');
+      if (cMuteBtn) cMuteBtn.onclick = () => this.toggleMute();
+
       document.getElementById('btn-bt-discard').onclick = () => this.discardAndRedrawBattle();
       document.getElementById('btn-bt-strike').onclick = () => this.strikeWithSelectedHand();
       document.getElementById('btn-shadow-box').onclick = () => this.handleShadowBoxClick();
@@ -1340,8 +2793,21 @@
       document.getElementById('btn-bt-hands').onclick = () => this.openRosterModal('hands');
       document.getElementById('btn-bt-roster').onclick = () => this.openRosterModal('roster');
 
-      document.getElementById('btn-shop-reroll').onclick = () => this.rerollShop();
-      document.getElementById('btn-shop-next').onclick = () => this.enterBattleWave();
+      document.getElementById('btn-shop-reroll').onclick = () => { this.closeShopInspector(); this.rerollShop(); };
+      document.getElementById('btn-shop-next').onclick = () => { this.closeShopInspector(); this.enterBattleWave(); };
+
+      // Dismiss mobile tap-to-inspect popover when tapping anywhere outside cards/popover or pressing Escape
+      const tavernView = document.getElementById('tavern-view');
+      if (tavernView) {
+        tavernView.addEventListener('click', (e) => {
+          if (!this.inspectedShopKey) return;
+          if (e.target.closest('#shop-detail-popover, .relic-tarot-card, .foil-sachet-card, .grimoire-book-card')) return;
+          this.closeShopInspector();
+        });
+      }
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.inspectedShopKey) this.closeShopInspector();
+      });
 
       const rosterOpenBtn = document.getElementById('btn-roster-open');
       if (rosterOpenBtn) rosterOpenBtn.onclick = () => this.openRosterModal('roster');
@@ -1357,11 +2823,7 @@
       };
 
       document.getElementById('btn-restart').onclick = () => this.showStarterDeckSelect();
-      document.getElementById('btn-mute').onclick = (e) => {
-        this.muted = !this.muted;
-        if (window.MT.sfx) window.MT.sfx.muted = this.muted;
-        e.currentTarget.textContent = this.muted ? '静音' : '音效';
-      };
+      document.getElementById('btn-mute').onclick = () => this.toggleMute();
 
       const spdBtn = document.getElementById('bt-speed-btn');
       spdBtn.onclick = () => {
