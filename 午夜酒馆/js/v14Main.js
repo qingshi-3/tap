@@ -85,7 +85,10 @@
 
       this.battleStage = new window.MT.V14BattleStage($('battle-canvas'));
       this.altarBg = window.MT.EclipseAltarBg ? new window.MT.EclipseAltarBg($('altar-bg-canvas')) : null;
+      this.tavernShopStage = window.MT.TavernShopStage ? new window.MT.TavernShopStage($('altar-bg-canvas'), this.sprites) : null;
+      this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
       this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas')) : null;
+      this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
 
       this.run = null;
       this.battle = null;
@@ -96,6 +99,7 @@
       this.discardPicks = new Set();
       this.swapSlotIdx = -1;
       this.selectedRelicUid = null;
+      this.inspectedShopKey = null;
       this.activePackState = null;
       this.prepTab = 'heroes'; // 'heroes' | 'themes'
       this.previewHeroId = this.meta.data.selectedHeroId || 'hero_01';
@@ -518,12 +522,40 @@
       $('btn-title-hands').onclick = () => this.openCodexModal('codex');
       $('btn-title-mute').onclick = () => this.toggleMute();
 
-      $('btn-contracts-back').onclick = () => this.showTitleScreen();
+      $('btn-contracts-back').onclick = () => {
+        if (this.prepTab === 'themes') {
+          this.prepTab = 'heroes';
+          this.renderPrepHall({ triggerEntryFlourish: false });
+        } else {
+          this.showTitleScreen();
+        }
+      };
+      if ($('btn-prep-themes-top')) {
+        $('btn-prep-themes-top').onclick = () => {
+          this.prepTab = this.prepTab === 'themes' ? 'heroes' : 'themes';
+          this.audio.playPickup();
+          this.renderPrepHall({ triggerEntryFlourish: false });
+        };
+      }
       $('btn-contracts-hands').onclick = () => this.openCodexModal('codex');
       $('btn-contracts-mute').onclick = () => this.toggleMute();
       $('btn-meta-daily-ad').onclick = () => this.handleDailyAdButton();
       $('btn-meta-board').onclick = () => this.openLeaderboardModal();
       $('btn-meta-ach').onclick = () => this.openAchievementsModal();
+
+      // Keyboard Left/Right hero cycling on the Rainy Night Porch Muster Dais
+      window.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        const modal = $('deck-select-modal');
+        if (!modal || modal.classList.contains('hidden') || this.prepTab !== 'heroes') return;
+        if (!$('roster-modal').classList.contains('hidden') || !$('ad-sim-modal').classList.contains('hidden')) return;
+        const list = M.HEROES_META || [];
+        if (!list.length) return;
+        const idx = Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
+        const nextIdx = (idx + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length;
+        e.preventDefault();
+        this.selectMusterHero(list[nextIdx].id, true);
+      });
 
       $('btn-bt-roster').onclick = () => this.openCodexModal('roster');
       $('btn-bt-hands').onclick = () => this.openCodexModal('codex');
@@ -543,6 +575,29 @@
       $('btn-shop-ad-reroll').onclick = () => this.handleShopAdReroll();
       $('btn-shop-next').onclick = () => this.startNextWaveBattle();
       $('deck-overview-panel').onclick = () => this.openCodexModal('roster');
+      $('deck-overview-panel').onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.openCodexModal('roster');
+        }
+      };
+
+      // Outside-click & Escape dismissal for mobile Tap-to-Inspect shop popover
+      $('tavern-view').addEventListener('click', (e) => {
+        if (!this.inspectedShopKey) return;
+        if (e.target.closest('#shop-detail-popover')) return;
+        if (e.target.closest('[data-shop-inspect]')) return;
+        this.closeShopInspector();
+      });
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (this.inspectedShopKey) this.closeShopInspector();
+          if (this.selectedRelicUid) {
+            this.selectedRelicUid = null;
+            if (this.run && this.run.phase === 'shop') this.renderShop();
+          }
+        }
+      });
 
       $('rm-tab-roster').onclick = () => this.renderCodexModal('roster');
       $('rm-tab-hands').onclick = () => this.renderCodexModal('codex');
@@ -553,6 +608,7 @@
         if (!this.activePackState) return;
         this.run.gold += 2;
         this.activePackState = null;
+        if (this.packCeremonyFX) this.packCeremonyFX.stop();
         $('pack-ceremony-modal').classList.add('hidden');
         this.toast('放弃本包，返还 +2G');
         this.renderShop();
@@ -574,30 +630,40 @@
 
     showTitleScreen() {
       this.battleStage.stop();
+      if (this.heroMusterStage) this.heroMusterStage.stop();
+      if (this.tavernShopStage) this.tavernShopStage.stop();
+      if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
       if (this.titleRain && this.titleRain.start) this.titleRain.start();
+      this.closeShopInspector();
       $('title-screen-view').classList.remove('hidden');
       $('deck-select-modal').classList.add('hidden');
       $('battle-view').classList.add('hidden');
       $('tavern-view').classList.add('hidden');
       $('payout-modal').classList.add('hidden');
+      $('pack-ceremony-modal').classList.add('hidden');
     }
 
     // =========================================================================
-    // META PREP HALL: 10 NEUTRAL HEROES + ORBS + DAILY AD + THEME PACKS
+    // META PREP HALL: RAINY NIGHT PORCH MUSTER DAIS + UNTOUCHED 8 THEME PACKS
     // =========================================================================
     openPrepHall() {
       this.battleStage.stop();
       if (this.titleRain && this.titleRain.stop) this.titleRain.stop();
-      if (this.altarBg && this.altarBg.start) this.altarBg.start();
+      if (this.tavernShopStage) this.tavernShopStage.stop();
+      if (this.packCeremonyFX) this.packCeremonyFX.stop();
+      if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
+      this.closeShopInspector();
+      this.prepTab = 'heroes';
       $('title-screen-view').classList.add('hidden');
       $('battle-view').classList.add('hidden');
       $('tavern-view').classList.remove('hidden');
       $('top-hud').classList.add('hidden');
       $('market-main-stage').classList.add('hidden');
       $('payout-modal').classList.add('hidden');
+      $('pack-ceremony-modal').classList.add('hidden');
       $('deck-select-modal').classList.remove('hidden');
-      this.renderPrepHall();
+      this.renderPrepHall({ triggerEntryFlourish: true });
     }
 
     handleDailyAdButton() {
@@ -668,14 +734,221 @@
       return '纯高战力底座';
     }
 
-    getIconUrlSafe(iconId) {
-      if (this.vfx && this.vfx.getIconUrl && iconId) {
-        return this.vfx.getIconUrl(iconId);
-      }
-      return '';
+    getThemeFallbackGear(themeOrKind = 'core') {
+      const map = {
+        core: './assets/gear/eq_dragon_heart.png',
+        discard: './assets/gear/eq_shadow_cloak.png',
+        shield: './assets/gear/eq_aegis_seal.png',
+        poison: './assets/gear/eq_venom_fang.png',
+        frost: './assets/gear/eq_frost_bow.png',
+        hand: './assets/gear/eq_oak_charm.png',
+        exhaust: './assets/gear/eq_void_fan.png',
+        blood: './assets/gear/eq_blood_edge.png',
+        gamble: './assets/gear/eq_greed_dice.png',
+        pack_hero: './assets/gear/eq_dawn_lance.png',
+        pack_inscription: './assets/gear/eq_storm_staff.png'
+      };
+      return map[themeOrKind] || './assets/gear/eq_dragon_heart.png';
     }
 
-    renderPrepHall() {
+    getIconUrlSafe(iconId, fallbackKind = 'core') {
+      const fb = this.getThemeFallbackGear(fallbackKind);
+      if (this.vfx && this.vfx.getIconUrl && iconId) {
+        return this.vfx.getIconUrl(iconId, fb) || fb;
+      }
+      return fb;
+    }
+
+    renderSafeIconImg(iconId, fallbackKind, className = 'v14-shop-pixel-icon', extraStyle = '') {
+      const fb = this.getThemeFallbackGear(fallbackKind);
+      const url = this.getIconUrlSafe(iconId, fallbackKind);
+      const stylePart = extraStyle ? ` style="${extraStyle}"` : '';
+      return `<img class="${className}" src="${url}" onerror="this.onerror=null;this.src='${fb}';" alt=""${stylePart} />`;
+    }
+
+    _shortHeroLabel(name) {
+      const idx = name.indexOf('·');
+      return idx >= 0 ? name.slice(idx + 1).trim() : name;
+    }
+
+    selectMusterHero(heroId, playSound = true, isUnlockCelebrate = false) {
+      const hero = this.meta.getHero(heroId);
+      if (!hero) return;
+      this.previewHeroId = hero.id;
+      if (this.heroMusterStage) {
+        this.heroMusterStage.selectHero(hero, true, isUnlockCelebrate);
+      }
+      if (playSound) {
+        if (isUnlockCelebrate && this.audio.playCheer) this.audio.playCheer();
+        else if (this.audio.playSlash) this.audio.playSlash();
+        else this.audio.playPickup();
+      }
+      this.syncMusterSpots();
+      this.updateMusterFolio();
+    }
+
+    syncMusterSpots() {
+      const hitLayer = $('muster-hit-layer');
+      if (!hitLayer) return;
+      hitLayer.querySelectorAll('.muster-hero-spot').forEach((spot) => {
+        const hid = spot.dataset.pickHero;
+        const hero = this.meta.getHero(hid);
+        const unlocked = this.meta.isHeroUnlocked(hid);
+        const active = hid === this.previewHeroId;
+        spot.classList.toggle('is-active', active);
+        spot.classList.toggle('is-unlocked', unlocked);
+        spot.classList.toggle('is-locked', !unlocked);
+        spot.setAttribute('aria-pressed', active ? 'true' : 'false');
+        const tagEl = spot.querySelector('.mhs-state');
+        if (tagEl && hero) {
+          tagEl.innerHTML = active
+            ? '登台中'
+            : (unlocked ? '待命' : `${pxIcon('orb')}${hero.cost}`);
+        }
+      });
+    }
+
+    updateMusterSavedBar() {
+      const slot = $('muster-saved-slot');
+      if (!slot) return;
+      const savedRun = this.meta.data.activeRun;
+      if (!savedRun) {
+        slot.innerHTML = '';
+        return;
+      }
+      slot.innerHTML = `
+        <div class="muster-saved-strip">
+          <span class="v14-body-text"><b>未完成对局</b> · ${esc(savedRun.hero.name)} · 第 ${savedRun.wave}/8 波 · ${pxIcon('gold')}${savedRun.gold} · ${savedRun.roster.length}人</span>
+          <div class="muster-saved-actions">
+            <button class="steel-btn crimson hud-mini-btn" id="btn-resume-run">${pxIcon('play')} 继续对局</button>
+            <button class="steel-btn hud-mini-btn" id="btn-discard-run">放弃旧局</button>
+          </div>
+        </div>
+      `;
+      if ($('btn-resume-run')) $('btn-resume-run').onclick = () => this.resumeSavedRun();
+      if ($('btn-discard-run')) $('btn-discard-run').onclick = () => {
+        this.meta.clearActiveRun();
+        this.toast('已放弃旧对局');
+        this.updateMusterSavedBar();
+      };
+    }
+
+    updateMusterFolio() {
+      const folio = $('muster-folio');
+      if (!folio) return;
+      const d = this.meta.data;
+      const curHero = this.meta.getHero(this.previewHeroId);
+      const curUnlocked = this.meta.isHeroUnlocked(curHero.id);
+      const curCanTrial = this.meta.canTrialHero(curHero.id);
+      const curAsc = this.meta.getAscension(d.selectedAscension || 0);
+      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
+      const canRandom = liveUnlocked.length >= 4;
+      const activeThemeLabels = d.themeMode === 'random' && canRandom
+        ? ['随机 3 包 (+25%碎片)']
+        : (d.selectedThemes || []).map((id) => (D.THEMES[id] && D.THEMES[id].name) || id);
+      const accent = window.MT.HeroMusterStage
+        ? window.MT.HeroMusterStage.getHeroAccent(curHero.id)
+        : { main: '#ffd966' };
+
+      folio.style.setProperty('--hero-accent', accent.main);
+      folio.innerHTML = `
+        <div class="mf-block mf-hero-head">
+          <div class="mf-meta-row">
+            <span class="mf-status-text ${curUnlocked ? 'owned' : 'locked'}">
+              ${curUnlocked ? '已入酒馆名册 · 可出征' : `未解锁 · 需 ${curHero.cost} 宝珠`}
+            </span>
+            <button class="mf-flourish-btn" id="btn-folio-flourish" type="button">↻ 演武</button>
+          </div>
+          <h3 class="mf-hero-name">${esc(curHero.name)}</h3>
+          <p class="mf-hero-desc v14-body-text">${esc(curHero.desc)}</p>
+        </div>
+
+        <div class="mf-divider"></div>
+
+        <div class="mf-block">
+          <div class="mf-section-head">
+            <span class="mf-kicker">难度阶梯</span>
+            <span class="mf-kicker-val">${esc(curAsc.name)}</span>
+          </div>
+          <div class="v14-asc-row">
+            ${M.ASCENSIONS.map((a) => {
+              const locked = a.lv > (d.maxAscensionUnlocked || 0);
+              const active = a.lv === (d.selectedAscension || 0);
+              return `<button class="v14-asc-btn ${active ? 'active' : ''}" data-asc="${a.lv}" ${locked ? 'disabled' : ''}>${a.lv === 0 ? '标准' : `阶${a.lv}`}</button>`;
+            }).join('')}
+          </div>
+          <p class="mf-sub-note v14-body-text">${esc(curAsc.desc)}</p>
+        </div>
+
+        <div class="mf-divider"></div>
+
+        <div class="mf-block">
+          <div class="mf-section-head">
+            <span class="mf-kicker">本局卡池 · 51张</span>
+            <button class="mf-link-btn" id="btn-folio-themes" type="button">配置 8 大主题包 (${liveUnlocked.length}/8) →</button>
+          </div>
+          <div class="mf-theme-line v14-body-text">
+            ${activeThemeLabels.map((lbl) => `<span>${esc(lbl)}</span>`).join('<span class="mf-sep" aria-hidden="true">·</span>')}
+          </div>
+        </div>
+
+        <div class="mf-cta-row">
+          ${curUnlocked
+            ? `<button class="v15-primary-cta mf-start-btn" id="btn-prep-start">${pxIcon('atk')} 开始出征</button>`
+            : `<button class="v15-primary-cta gold" id="btn-prep-buy" ${d.orbs < curHero.cost ? 'disabled' : ''}>${pxIcon('orb')} ${curHero.cost} 购买解锁</button>
+               ${curCanTrial
+                 ? `<button class="v14-ad-btn mf-trial-btn" id="btn-prep-trial">${pxIcon('play')} 免费试用</button>`
+                 : `<button class="steel-btn mf-trial-btn" disabled>已试用</button>`}`
+          }
+        </div>
+      `;
+
+      if ($('btn-folio-flourish')) {
+        $('btn-folio-flourish').onclick = () => {
+          if (this.heroMusterStage) this.heroMusterStage.triggerFlourish(curHero, false);
+          if (this.audio.playSlash) this.audio.playSlash();
+        };
+      }
+      if ($('btn-folio-themes')) {
+        $('btn-folio-themes').onclick = () => {
+          this.prepTab = 'themes';
+          this.audio.playPickup();
+          this.renderPrepHall();
+        };
+      }
+      if ($('btn-prep-start')) {
+        $('btn-prep-start').onclick = () => {
+          if (this.audio.playWaxSlam) this.audio.playWaxSlam();
+          this.startNewRun(curHero.id, false);
+        };
+      }
+      if ($('btn-prep-buy')) {
+        $('btn-prep-buy').onclick = () => {
+          if (this.meta.buyHero(curHero.id)) {
+            this.toast(`已解锁【${curHero.name}】！`);
+            this.syncPrepTopRail();
+            this.selectMusterHero(curHero.id, true, true);
+          }
+        };
+      }
+      if ($('btn-prep-trial')) {
+        $('btn-prep-trial').onclick = () => {
+          this.playRewardedAd(`免费试用【${curHero.name}】（每英雄限 1 次）`, () => {
+            this.meta.markHeroTrialed(curHero.id);
+            this.startNewRun(curHero.id, true);
+          });
+        };
+      }
+      folio.querySelectorAll('[data-asc]').forEach((btn) => {
+        btn.onclick = () => {
+          this.meta.setSelectedAscension(Number(btn.dataset.asc));
+          this.audio.playPickup();
+          this.updateMusterFolio();
+        };
+      });
+    }
+
+    syncPrepTopRail() {
       this.meta.checkDailyReset();
       const d = this.meta.data;
       $('meta-orbs-badge').innerHTML = `${pxIcon('orb')} 宝珠 <b>${d.orbs}</b> · 碎片 ${d.shards || 0}/10`;
@@ -697,181 +970,171 @@
       const achTotal = T ? T.ACHIEVEMENTS.length : 12;
       if ($('btn-meta-ach')) $('btn-meta-ach').textContent = `成就 ${achCount}/${achTotal}`;
 
-      const curHero = this.meta.getHero(this.previewHeroId);
-      const curUnlocked = this.meta.isHeroUnlocked(curHero.id);
-      const curCanTrial = this.meta.canTrialHero(curHero.id);
-      const curAsc = this.meta.getAscension(d.selectedAscension || 0);
+      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
+      const topThemesBtn = $('btn-prep-themes-top');
+      if (topThemesBtn) {
+        topThemesBtn.textContent = this.prepTab === 'themes'
+          ? '← 返回点将台'
+          : `8大主题包 (${liveUnlocked.length}/8)`;
+        topThemesBtn.classList.toggle('gold', this.prepTab === 'themes');
+      }
+      const titleEl = document.querySelector('#deck-select-modal .crt-main');
+      if (titleEl) {
+        titleEl.textContent = this.prepTab === 'themes' ? '出征准备 · 8 大主题包' : '雨夜门廊 · 点将台';
+      }
+    }
+
+    renderPrepHall(opts = {}) {
+      this.syncPrepTopRail();
+      const modal = $('deck-select-modal');
+      const body = $('deck-select-grid');
+      const d = this.meta.data;
       const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
       const canRandom = liveUnlocked.length >= 4;
-      const savedRun = d.activeRun;
-      const activeThemeLabels = d.themeMode === 'random' && canRandom
-        ? ['随机3包 (+25%碎片)']
-        : (d.selectedThemes || []).map((id) => (D.THEMES[id] && D.THEMES[id].name) || id);
 
-      const body = $('deck-select-grid');
-      body.innerHTML = `
-        ${savedRun ? `
-          <div class="v15-saved-run-bar">
-            <div class="v14-body-text" style="font-size:13px;"><b>未完成对局：</b>${esc(savedRun.hero.name)} · 第 ${savedRun.wave}/8 波 · ${pxIcon('gold')}${savedRun.gold} · ${savedRun.roster.length}人</div>
-            <div style="display:flex;gap:8px;">
-              <button class="steel-btn crimson" id="btn-resume-run">${pxIcon('play')} 继续对局</button>
-              <button class="steel-btn" id="btn-discard-run">放弃旧局</button>
-            </div>
-          </div>
-        ` : ''}
+      if (this.prepTab === 'heroes') {
+        modal.classList.add('muster-mode');
+        modal.classList.remove('themes-mode');
 
-        <div class="v14-prep-split">
-          <!-- LEFT: 3D LIVING PIXEL HERO SHOWCASE + ASCENSION + PRIMARY CTA -->
-          <aside class="v14-prep-left">
-            <div class="v15-prep-hero-showcase v15-idle-tilt v15-gentle-tilt ${curUnlocked ? 'is-owned' : 'is-locked'}">
-              ${renderCardTierOrnament(curUnlocked ? 'S' : 'A', 92, 74)}
-              <div class="v14-prep-hero-stage" id="prep-hero-big-sprite" data-unit="${curHero.unitId}"></div>
-              <div class="v14-prep-hero-title">${esc(curHero.name)}</div>
-              <p class="v14-prep-desc">${esc(curHero.desc)}</p>
-            </div>
+        const existingStage = $('muster-stage-root');
+        if (!existingStage) {
+          const seats = window.MT.HeroMusterStage ? window.MT.HeroMusterStage.getSeatLayout() : [];
+          const dais = window.MT.HeroMusterStage ? window.MT.HeroMusterStage.getDais() : { x: 455, y: 454 };
 
-            <div class="v15-prep-section">
-              <div class="v15-prep-label" style="color:#ffd966;">难度阶梯 · ${esc(curAsc.name)}</div>
-              <div class="v14-asc-row">
-                ${M.ASCENSIONS.map((a) => {
-                  const locked = a.lv > (d.maxAscensionUnlocked || 0);
-                  const active = a.lv === (d.selectedAscension || 0);
-                  return `<button class="v14-asc-btn ${active ? 'active' : ''}" data-asc="${a.lv}" ${locked ? 'disabled' : ''}>${a.lv === 0 ? '标准' : `阶${a.lv}`}</button>`;
-                }).join('')}
-              </div>
-              <div class="v14-body-text" style="font-size:12px;color:#b8c4de;">${esc(curAsc.desc)}</div>
-            </div>
-
-            <div class="v15-prep-section">
-              <div class="v15-prep-label" style="color:#6be5ff;">本局生效主题（51张卡池）</div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                ${activeThemeLabels.map((lbl) => `<span class="v15-theme-chip">${esc(lbl)}</span>`).join('')}
-              </div>
-            </div>
-
-            <div style="display:flex;gap:8px;margin-top:auto;">
-              ${curUnlocked
-                ? `<button class="v15-primary-cta" id="btn-prep-start">${pxIcon('atk')} 开始出征</button>`
-                : `<button class="v15-primary-cta gold" id="btn-prep-buy" ${d.orbs < curHero.cost ? 'disabled' : ''}>${pxIcon('orb')} ${curHero.cost} 购买解锁</button>
-                   ${curCanTrial ? `<button class="v14-ad-btn" id="btn-prep-trial" style="height:46px;padding:0 14px;">${pxIcon('play')} 免费试用</button>` : `<button class="steel-btn" disabled style="height:46px;">已试用</button>`}`
-              }
-            </div>
-          </aside>
-
-          <!-- RIGHT: DUAL TAB (HEROES / 8 THEME PACKS) -->
-          <section class="v14-prep-right">
-            <div class="v14-prep-tabs">
-              <div class="v14-tab-group">
-                <button class="v14-tab-btn ${this.prepTab === 'heroes' ? 'active' : ''}" id="btn-tab-heroes">选择英雄 (10)</button>
-                <button class="v14-tab-btn ${this.prepTab === 'themes' ? 'active' : ''}" id="btn-tab-themes">8 大主题包 (${liveUnlocked.length}/8 已解锁)</button>
-              </div>
-              ${this.prepTab === 'themes' && canRandom ? `
-                <div style="display:flex;gap:6px;">
-                  <button class="steel-btn hud-mini-btn ${d.themeMode === 'pick' ? 'crimson' : ''}" id="btn-theme-pick">自选3包</button>
-                  <button class="steel-btn hud-mini-btn ${d.themeMode === 'random' ? 'gold' : ''}" id="btn-theme-rand">随机3包 (+25%碎片)</button>
-                </div>
-              ` : ''}
-            </div>
-
-            ${this.prepTab === 'heroes' ? `
-              <div class="v14-hero-grid">
-                ${M.HEROES_META.map((h) => {
+          body.innerHTML = `
+            <div id="muster-stage-root" class="muster-stage-root">
+              <canvas id="hero-muster-canvas" class="hero-muster-canvas" width="1280" height="720"></canvas>
+              <div id="muster-saved-slot" class="muster-saved-slot"></div>
+              <div id="muster-hit-layer" class="muster-hit-layer">
+                <button id="btn-dais-replay" class="muster-dais-hit" type="button"
+                  style="left:${dais.x}px;top:${dais.y - 84}px;"
+                  title="点击演武" aria-label="点击重播当前英雄演武"></button>
+                ${M.HEROES_META.map((h, i) => {
+                  const seat = seats[i] || { x: 140 + i * 74, y: 630 };
+                  const shortName = this._shortHeroLabel(h.name);
                   const unlocked = this.meta.isHeroUnlocked(h.id);
-                  const selected = h.id === curHero.id;
-                  const cardFx = selected
-                    ? renderCardTierOrnament('SSS', 60, 74)
-                    : (unlocked ? renderCardTierOrnament('B', 56, 68) : `<div class="v15-card-window"><div class="v15-b-specular"></div></div>`);
+                  const active = h.id === this.previewHeroId;
                   return `
-                    <div class="v14-hero-card ${selected ? 'selected v15-idle-tilt v15-gentle-tilt' : ''} ${unlocked ? 'unlocked' : 'locked'}" data-pick-hero="${h.id}">
-                      ${cardFx}
-                      <div class="v14-card-sprite" data-unit="${h.unitId}"></div>
-                      <div class="v14-hero-name">${esc(h.name)}</div>
-                      <span class="v14-hero-badge ${unlocked ? 'owned' : 'price'}">${unlocked ? `${pxIcon('check')} 已拥有` : `${pxIcon('orb')} ${h.cost} 宝珠`}</span>
-                    </div>
+                    <button class="muster-hero-spot ${active ? 'is-active' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'}"
+                      type="button"
+                      data-pick-hero="${h.id}"
+                      style="left:${seat.x}px;top:${seat.y}px;"
+                      aria-pressed="${active ? 'true' : 'false'}"
+                      aria-label="${esc(h.name)}">
+                      <span class="mhs-plate">
+                        <span class="mhs-name">${esc(shortName)}</span>
+                        <span class="mhs-state">${active ? '登台中' : (unlocked ? '待命' : `${pxIcon('orb')}${h.cost}`)}</span>
+                      </span>
+                    </button>
                   `;
                 }).join('')}
               </div>
-            ` : `
-              <div class="v14-themes-grid-8">
-                ${M.THEME_PACKS_META.map((tp) => {
-                  const unlocked = this.meta.isThemeUnlocked(tp.id);
-                  const selected = (d.selectedThemes || []).includes(tp.id);
-                  const th = D.THEMES[tp.id] || D.THEMES.core;
-                  const isPicked = unlocked && selected && d.themeMode === 'pick';
-                  return `
-                    <div class="v14-theme-card ${isPicked ? 'active-pick' : ''}" style="--th-col:${th.color};--th-bg:${th.bg};">
-                      <div class="v15-card-window"><div class="v15-b-specular"></div></div>
-                      <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2;">
-                        <b style="font-size:14px;color:${th.color};">${esc(tp.name)}</b>
-                        <span class="v14-tier ${unlocked ? 'tier-B' : 'tier-S'}">${tp.cost === 0 ? '免费' : `${pxIcon('orb')}${tp.cost}`}</span>
-                      </div>
-                      <div class="v14-body-text" style="font-size:12.5px;line-height:1.4;color:#d6e0f5;flex:1;position:relative;z-index:2;">${esc(tp.desc)}</div>
-                      ${unlocked
-                        ? `<button class="steel-btn ${isPicked ? 'crimson' : ''}" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-toggle-theme="${tp.id}">${d.themeMode === 'random' ? '已入随机池' : (selected ? `${pxIcon('check')} 本局已选` : '点选入局')}</button>`
-                        : `<button class="steel-btn gold" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-buy-theme="${tp.id}" ${d.orbs < tp.cost ? 'disabled' : ''}>${pxIcon('orb')} ${tp.cost} 购买解锁</button>`
-                      }
-                    </div>
-                  `;
-                }).join('')}
+              <div class="muster-stage-hint" aria-hidden="true">点选门廊侠客登台演武 · 轻触石台重播招式 · 方向键 ← → 切换</div>
+              <aside id="muster-folio" class="muster-folio"></aside>
+            </div>
+          `;
+
+          const canvas = $('hero-muster-canvas');
+          if (this.heroMusterStage && canvas) {
+            this.heroMusterStage.attach(canvas, M.HEROES_META, this.previewHeroId);
+            if (opts.triggerEntryFlourish) {
+              this.heroMusterStage.triggerFlourish(this.meta.getHero(this.previewHeroId), false);
+            }
+          }
+
+          if ($('btn-dais-replay')) {
+            $('btn-dais-replay').onclick = () => {
+              const cur = this.meta.getHero(this.previewHeroId);
+              if (this.heroMusterStage && cur) this.heroMusterStage.triggerFlourish(cur, false);
+              if (this.audio.playSlash) this.audio.playSlash();
+            };
+          }
+
+          const hitLayer = $('muster-hit-layer');
+          if (hitLayer) {
+            hitLayer.querySelectorAll('.muster-hero-spot').forEach((spot) => {
+              const hid = spot.dataset.pickHero;
+              spot.onclick = () => this.selectMusterHero(hid, true, false);
+              spot.onmouseenter = () => {
+                if (this.heroMusterStage) this.heroMusterStage.setHovered(hid);
+              };
+              spot.onmouseleave = () => {
+                if (this.heroMusterStage) this.heroMusterStage.setHovered(null);
+              };
+            });
+          }
+        } else if (this.heroMusterStage) {
+          this.heroMusterStage.setHeroes(M.HEROES_META);
+          this.heroMusterStage.start();
+          if (opts.triggerEntryFlourish) {
+            this.heroMusterStage.selectHero(this.meta.getHero(this.previewHeroId), true, false);
+          }
+        }
+
+        this.syncMusterSpots();
+        this.updateMusterSavedBar();
+        this.updateMusterFolio();
+        return;
+      }
+
+      // ─── UNTOUCHED 8 THEME PACKS VIEW ("卡包先不动") ───
+      if (this.heroMusterStage) this.heroMusterStage.stop();
+      modal.classList.remove('muster-mode');
+      modal.classList.add('themes-mode');
+
+      body.innerHTML = `
+        <section class="v14-prep-right v15-themes-only-shell">
+          <div class="v14-prep-tabs">
+            <div class="v14-tab-group">
+              <button class="v14-tab-btn" id="btn-tab-heroes">← 雨夜门廊点将台 (10)</button>
+              <button class="v14-tab-btn active" id="btn-tab-themes">8 大主题包 (${liveUnlocked.length}/8 已解锁)</button>
+            </div>
+            ${canRandom ? `
+              <div style="display:flex;gap:6px;">
+                <button class="steel-btn hud-mini-btn ${d.themeMode === 'pick' ? 'crimson' : ''}" id="btn-theme-pick">自选3包</button>
+                <button class="steel-btn hud-mini-btn ${d.themeMode === 'random' ? 'gold' : ''}" id="btn-theme-rand">随机3包 (+25%碎片)</button>
               </div>
-            `}
-          </section>
-        </div>
+            ` : ''}
+          </div>
+
+          <div class="v14-themes-grid-8">
+            ${M.THEME_PACKS_META.map((tp) => {
+              const unlocked = this.meta.isThemeUnlocked(tp.id);
+              const selected = (d.selectedThemes || []).includes(tp.id);
+              const th = D.THEMES[tp.id] || D.THEMES.core;
+              const isPicked = unlocked && selected && d.themeMode === 'pick';
+              return `
+                <div class="v14-theme-card ${isPicked ? 'active-pick' : ''}" style="--th-col:${th.color};--th-bg:${th.bg};">
+                  <div class="v15-card-window"><div class="v15-b-specular"></div></div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2;">
+                    <b style="font-size:14px;color:${th.color};">${esc(tp.name)}</b>
+                    <span class="v14-tier ${unlocked ? 'tier-B' : 'tier-S'}">${tp.cost === 0 ? '免费' : `${pxIcon('orb')}${tp.cost}`}</span>
+                  </div>
+                  <div class="v14-body-text" style="font-size:12.5px;line-height:1.4;color:#d6e0f5;flex:1;position:relative;z-index:2;">${esc(tp.desc)}</div>
+                  ${unlocked
+                    ? `<button class="steel-btn ${isPicked ? 'crimson' : ''}" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-toggle-theme="${tp.id}">${d.themeMode === 'random' ? '已入随机池' : (selected ? `${pxIcon('check')} 本局已选` : '点选入局')}</button>`
+                    : `<button class="steel-btn gold" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-buy-theme="${tp.id}" ${d.orbs < tp.cost ? 'disabled' : ''}>${pxIcon('orb')} ${tp.cost} 购买解锁</button>`
+                  }
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </section>
       `;
 
-      // Hydrate animated Duelyst sprites + bind 3D hover tilt + start living pixel canvas loop
-      const bigSp = $('prep-hero-big-sprite');
-      if (bigSp && this.sprites && this.sprites.createDomSprite) {
-        bigSp.appendChild(this.sprites.createDomSprite(bigSp.dataset.unit, 'idle', 88));
-      }
-      body.querySelectorAll('.v14-card-sprite').forEach((sp) => {
-        if (this.sprites && this.sprites.createDomSprite) {
-          sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 54));
-        }
-      });
-      const showcase = body.querySelector('.v15-prep-hero-showcase');
-      if (showcase) this.bindInteractive3DTilt(showcase, 9, 7, false);
-      body.querySelectorAll('.v14-hero-card').forEach((el) => {
-        this.bindInteractive3DTilt(el, 12, 10, !el.classList.contains('selected'));
-      });
       body.querySelectorAll('.v14-theme-card').forEach((el) => {
         this.bindInteractive3DTilt(el, 9, 7, true);
       });
-      this.startCardFxLoop();
 
-      if ($('btn-resume-run')) $('btn-resume-run').onclick = () => this.resumeSavedRun();
-      if ($('btn-discard-run')) $('btn-discard-run').onclick = () => {
-        this.meta.clearActiveRun();
-        this.toast('已放弃旧对局');
-        this.renderPrepHall();
-      };
-      if ($('btn-tab-heroes')) $('btn-tab-heroes').onclick = () => { this.prepTab = 'heroes'; this.renderPrepHall(); };
-      if ($('btn-tab-themes')) $('btn-tab-themes').onclick = () => { this.prepTab = 'themes'; this.renderPrepHall(); };
+      if ($('btn-tab-heroes')) {
+        $('btn-tab-heroes').onclick = () => {
+          this.prepTab = 'heroes';
+          this.audio.playPickup();
+          this.renderPrepHall({ triggerEntryFlourish: false });
+        };
+      }
       if ($('btn-theme-pick')) $('btn-theme-pick').onclick = () => { this.meta.setThemeMode('pick'); this.renderPrepHall(); };
       if ($('btn-theme-rand')) $('btn-theme-rand').onclick = () => { this.meta.setThemeMode('random'); this.renderPrepHall(); };
-
-      body.querySelectorAll('[data-pick-hero]').forEach((card) => {
-        card.onclick = () => {
-          this.previewHeroId = card.dataset.pickHero;
-          this.audio.playPickup();
-          this.renderPrepHall();
-        };
-      });
-      if ($('btn-prep-start')) $('btn-prep-start').onclick = () => this.startNewRun(curHero.id, false);
-      if ($('btn-prep-buy')) $('btn-prep-buy').onclick = () => {
-        if (this.meta.buyHero(curHero.id)) {
-          this.audio.playPickup();
-          this.toast(`已解锁【${curHero.name}】！`);
-          this.renderPrepHall();
-        }
-      };
-      if ($('btn-prep-trial')) $('btn-prep-trial').onclick = () => {
-        this.playRewardedAd(`免费试用【${curHero.name}】（每英雄限 1 次）`, () => {
-          this.meta.markHeroTrialed(curHero.id);
-          this.startNewRun(curHero.id, true);
-        });
-      };
-
       body.querySelectorAll('[data-buy-theme]').forEach((btn) => {
         btn.onclick = () => {
           if (this.meta.buyThemePack(btn.dataset.buyTheme)) {
@@ -884,12 +1147,6 @@
       body.querySelectorAll('[data-toggle-theme]').forEach((btn) => {
         btn.onclick = () => {
           this.meta.toggleSelectTheme(btn.dataset.toggleTheme);
-          this.renderPrepHall();
-        };
-      });
-      body.querySelectorAll('[data-asc]').forEach((btn) => {
-        btn.onclick = () => {
-          this.meta.setSelectedAscension(Number(btn.dataset.asc));
           this.renderPrepHall();
         };
       });
@@ -932,6 +1189,7 @@
       };
       this.selectedRelicUid = null;
       this.meta.saveActiveRun(this.run);
+      if (this.heroMusterStage) this.heroMusterStage.stop();
       $('title-screen-view').classList.add('hidden');
       $('deck-select-modal').classList.add('hidden');
       $('payout-modal').classList.add('hidden');
@@ -944,6 +1202,7 @@
       this.audio.ensure();
       this.run = JSON.parse(JSON.stringify(saved));
       this.selectedRelicUid = null;
+      if (this.heroMusterStage) this.heroMusterStage.stop();
       $('title-screen-view').classList.add('hidden');
       $('deck-select-modal').classList.add('hidden');
       $('payout-modal').classList.add('hidden');
@@ -958,7 +1217,12 @@
     // BEAT 1: MIRROR-LAKE 7-PHASE BATTLE
     // =========================================================================
     startWaveBattle(wave) {
+      if (this.tavernShopStage) this.tavernShopStage.stop();
+      if (this.packCeremonyFX) this.packCeremonyFX.stop();
+      if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
+      this.closeShopInspector();
       $('tavern-view').classList.add('hidden');
+      $('pack-ceremony-modal').classList.add('hidden');
       $('battle-view').classList.remove('hidden');
       $('payout-modal').classList.add('hidden');
 
@@ -2241,12 +2505,19 @@
     }
 
     // =========================================================================
-    // BEAT 2: BLACK-MARKET TAVERN SHOP
+    // BEAT 2: MIDNIGHT TAVERN INTERIOR BLACK-MARKET SHOP (v15.2)
     // =========================================================================
     openShop() {
       this.battleStage.stop();
+      if (this.heroMusterStage) this.heroMusterStage.stop();
       if (this.titleRain && this.titleRain.stop) this.titleRain.stop();
-      if (this.altarBg && this.altarBg.start) this.altarBg.start();
+      if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
+      if (this.tavernShopStage) {
+        this.tavernShopStage.setState({ wave: this.run.wave, roster: this.run.roster });
+        this.tavernShopStage.start();
+      } else if (this.altarBg && this.altarBg.start) {
+        this.altarBg.start();
+      }
       this.run.phase = 'shop';
       this.meta.saveActiveRun(this.run);
       $('battle-view').classList.add('hidden');
@@ -2255,6 +2526,7 @@
       $('top-hud').classList.remove('hidden');
       $('market-main-stage').classList.remove('hidden');
       this.selectedRelicUid = null;
+      this.closeShopInspector();
 
       const asc = this.meta.getAscension(this.run.ascension || 0);
       this.shop = { rerollCost: asc.rerollCost || 3, relicOffers: [], packSold: {} };
@@ -2284,9 +2556,11 @@
         this.toast(`金币不足（需 ${this.shop.rerollCost}G）`);
         return;
       }
+      this.closeShopInspector();
       this.spendGold(this.shop.rerollCost);
       this.rollShopOffers(false);
       this.audio.playPickup();
+      if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#ffd966');
       this.renderShop();
     }
 
@@ -2295,9 +2569,11 @@
         this.toast('本局免费必出 S/SSS 刷新次数已用完');
         return;
       }
+      this.closeShopInspector();
       this.playRewardedAd('免费刷新货架 · 必出 1 件 S/SSS 秘宝', () => {
         this.run.adShopRerollLeft -= 1;
         this.rollShopOffers(true);
+        if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#ff9ee8');
         this.toast('已刷新货架（含保底 S/SSS 秘宝）！');
         this.renderShop();
       });
@@ -2320,10 +2596,12 @@
         this.toast(`金币不足（需 ${offer.tpl.cost}G）`);
         return;
       }
+      this.closeShopInspector();
       this.spendGold(offer.tpl.cost);
       this.run.relics.push(D.makeRelicInstance(offer.tpl));
       offer.sold = true;
       this.audio.playPickup();
+      if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#ffd966');
       this.renderShop();
     }
 
@@ -2334,9 +2612,11 @@
         this.toast(`金币不足（需 ${u.cost}G）`);
         return;
       }
+      this.closeShopInspector();
       this.spendGold(u.cost);
       this.run.slotLevels[slotId] = (this.run.slotLevels[slotId] || 1) + 1;
       this.audio.playPickup();
+      if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate(u.color || '#ffd966');
       this.toast(`${u.name} 升至 Lv.${this.run.slotLevels[slotId]}！`);
       this.renderShop();
     }
@@ -2358,31 +2638,18 @@
           this.toast(`金币不足（需 ${cost}G）`);
           return;
         }
+        this.closeShopInspector();
         this.spendGold(cost);
         this.shop.packSold[packId] = true;
-        this.audio.playPickup();
+        this.audio.playCoin ? this.audio.playCoin() : this.audio.playPickup();
+        if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate(pack.accent || '#6be5ff');
       }
 
-      const modal = $('pack-ceremony-modal');
-      modal.classList.remove('hidden');
-      $('pack-sealed-stage').classList.add('hidden');
-      $('pack-target-stage').classList.add('hidden');
-      $('pack-reveal-stage').classList.remove('hidden');
-      $('pack-ceremony-title').textContent = pack.name;
-      $('pack-ceremony-sub').textContent = pack.desc;
-
-      const adBtn = $('btn-pack-ad-reroll');
-      adBtn.disabled = this.run.adPackRerollLeft <= 0;
-      adBtn.textContent = this.run.adPackRerollLeft > 0 ? `▶ 看广告重抽本包 (${this.run.adPackRerollLeft}/1)` : '重抽次数已用完';
-
-      const grid = $('pack-cards-grid');
-      grid.className = 'v14-modal-choices';
-
+      // Roll contents immediately so the ceremony can preview jackpot intensity & deal seamlessly
       if (packId === 'pack_hero') {
-        grid.className = 'v14-modal-choices';
         const heroPool = D.getActiveShopHeroes(this.run.activeThemes);
         const picks = D.weightedPick(heroPool, 4);
-        const inscripRate = this.run.hero.bonusHeroInscripRate || 0.24; // Exact 40% for Hero08, 24% standard
+        const inscripRate = this.run.hero.bonusHeroInscripRate || 0.24;
         const instances = picks.map((tpl) => {
           const ov = {};
           if (Math.random() < inscripRate) {
@@ -2393,11 +2660,141 @@
           }
           return D.makeHeroInstance(tpl, ov);
         });
-        this.activePackState = { type: 'hero', packId, instances };
+        this.activePackState = { type: 'hero', packId, pack, instances, torn: false };
+      } else {
+        const picks = shuffle(D.INSCRIPTIONS).slice(0, 3);
+        this.activePackState = { type: 'inscription', packId, pack, picks, chosenInscription: null, torn: false };
+      }
+
+      const modal = $('pack-ceremony-modal');
+      modal.classList.remove('hidden', 'ceremony-shake');
+      $('pack-target-stage').classList.add('hidden');
+      $('pack-ceremony-title').textContent = pack.name;
+      $('pack-ceremony-sub').textContent = pack.desc;
+
+      const adBtn = $('btn-pack-ad-reroll');
+      adBtn.disabled = this.run.adPackRerollLeft <= 0;
+      adBtn.textContent = this.run.adPackRerollLeft > 0 ? `▶ 看广告重抽本包 (${this.run.adPackRerollLeft}/1)` : '重抽次数已用完';
+
+      this.renderShop();
+
+      if (isAdReroll) {
+        // Re-roll skips waiting on the sealed pack and immediately erupts into fresh cards
+        $('pack-sealed-stage').classList.add('hidden');
+        $('pack-reveal-stage').classList.remove('hidden');
+        if (this.packCeremonyFX) this.packCeremonyFX.triggerTearBurst(packId);
+        if (this.audio.playSackBurst) this.audio.playSackBurst();
+        this._renderPackRevealCards();
+        return;
+      }
+
+      // Phase 1: Interactive Sealed Foil Booster Sachet / Arcane Rune Coffer Ceremony
+      $('pack-reveal-stage').classList.add('hidden');
+      $('pack-sealed-stage').classList.remove('hidden');
+      const footer = modal.querySelector('.pack-footer');
+      if (footer) footer.classList.add('is-sealed');
+
+      if (this.packCeremonyFX) this.packCeremonyFX.startCharging(packId);
+      if (this.audio.playStampCharge) this.audio.playStampCharge();
+
+      const env = $('pack-foil-envelope');
+      const isHeroPack = packId === 'pack_hero';
+      const hasJackpot = isHeroPack
+        ? this.activePackState.instances.some((h) => h.tier === 'S' || h.tier === 'SSS')
+        : this.activePackState.picks.some((ins) => ins.id === 'm_clone' || ins.id === 'm_red_seal');
+
+      env.className = `v152-ceremony-pack ${isHeroPack ? 'hero-foil' : 'rune-coffer'} ${hasJackpot ? 'has-jackpot' : ''}`;
+      env.innerHTML = isHeroPack ? `
+        <div class="v152-cp-cap">
+          <div class="v152-foil-crimp top"></div>
+          <div class="v152-cp-cap-band"><span>${pack.count}选1 · 稀客招募</span></div>
+        </div>
+        <div class="v152-cp-seam" aria-hidden="true"></div>
+        <div class="v152-cp-body">
+          <div class="v152-foil-sheen" aria-hidden="true"></div>
+          <div class="v152-cp-halo" aria-hidden="true"></div>
+          <div class="v152-cp-vfx-fan" aria-hidden="true">
+            <span class="cp-card left"></span>
+            <span class="cp-card right"></span>
+            <span class="cp-card center"><i>✦</i></span>
+          </div>
+          <div class="v152-cp-titles">
+            <div class="v152-cp-name">${esc(pack.name)}</div>
+            <div class="v152-cp-sub">${esc(pack.subtitle)}</div>
+          </div>
+          <div class="v152-cp-prompt">✦ 轻触或划开封口 ✦</div>
+          <div class="v152-foil-crimp bottom"></div>
+        </div>
+      ` : `
+        <div class="v152-cp-cap coffer-lid">
+          <div class="v152-cp-cap-band"><span>${pack.count}选1 · 秘传铭文</span></div>
+          <div class="v152-cp-wax-latch" aria-hidden="true">封</div>
+        </div>
+        <div class="v152-cp-seam arcane" aria-hidden="true"></div>
+        <div class="v152-cp-body coffer-body">
+          <div class="v152-foil-sheen arcane" aria-hidden="true"></div>
+          <div class="v152-cp-halo arcane" aria-hidden="true"></div>
+          <div class="v152-cp-vfx-sigil" aria-hidden="true">
+            <span class="cp-ring outer"></span>
+            <span class="cp-ring inner"></span>
+            <span class="cp-core-gem"></span>
+          </div>
+          <div class="v152-cp-titles">
+            <div class="v152-cp-name">${esc(pack.name)}</div>
+            <div class="v152-cp-sub">${esc(pack.subtitle)}</div>
+          </div>
+          <div class="v152-cp-prompt">✦ 轻触启封铭文匣 ✦</div>
+        </div>
+      `;
+
+      let swipeStartX = null;
+      const doTear = () => {
+        if (!this.activePackState || this.activePackState.torn) return;
+        this.activePackState.torn = true;
+        env.classList.add('tearing');
+        modal.classList.remove('ceremony-shake');
+        void modal.offsetWidth;
+        modal.classList.add('ceremony-shake');
+
+        if (this.packCeremonyFX) this.packCeremonyFX.triggerTearBurst(packId);
+        if (this.audio.playSlash) this.audio.playSlash();
+        setTimeout(() => {
+          if (this.audio.playSackBurst) this.audio.playSackBurst();
+        }, 90);
+
+        setTimeout(() => {
+          if (!this.activePackState) return;
+          $('pack-sealed-stage').classList.add('hidden');
+          $('pack-reveal-stage').classList.remove('hidden');
+          if (footer) footer.classList.remove('is-sealed');
+          this._renderPackRevealCards();
+        }, 440);
+      };
+
+      env.onclick = () => doTear();
+      env.onpointerdown = (e) => { swipeStartX = e.clientX; };
+      env.onpointermove = (e) => {
+        if (swipeStartX !== null && Math.abs(e.clientX - swipeStartX) > 36) {
+          swipeStartX = null;
+          doTear();
+        }
+      };
+      env.onpointerup = () => { swipeStartX = null; };
+    }
+
+    _renderPackRevealCards() {
+      const st = this.activePackState;
+      if (!st) return;
+      const modal = $('pack-ceremony-modal');
+      const grid = $('pack-cards-grid');
+
+      if (st.type === 'hero') {
+        const instances = st.instances;
+        grid.className = 'v14-modal-choices';
         grid.innerHTML = instances.map((h, i) => {
           const th = D.THEMES[h.theme] || D.THEMES.core;
           return `
-            <div class="v14-shop-card v15-shop-3d tier-border-${h.tier} ${h.tier === 'S' || h.tier === 'SSS' ? 'v15-idle-tilt v15-gentle-tilt' : ''}" data-pidx="${i}">
+            <div class="v14-shop-card v15-shop-3d v152-deal-card tier-border-${h.tier} ${h.tier === 'S' || h.tier === 'SSS' ? 'v15-idle-tilt v15-gentle-tilt' : ''}" data-pidx="${i}" style="--deal-delay:${i * 105}ms">
               ${renderCardTierOrnament(h.tier, 72, 92)}
               <div class="v14-shop-card-head">
                 <span class="v14-tier tier-${h.tier}">${h.tier}</span>
@@ -2417,7 +2814,7 @@
         }).join('');
         grid.querySelectorAll('.v14-pack-sprite-stage').forEach((sp) => {
           if (this.sprites && this.sprites.createDomSprite) {
-            sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 64));
+            sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 74));
           }
         });
         grid.querySelectorAll('[data-pidx]').forEach((el) => {
@@ -2426,23 +2823,40 @@
             const chosen = instances[Number(el.dataset.pidx)];
             this.run.roster.push(chosen);
             this.activePackState = null;
+            if (this.packCeremonyFX) this.packCeremonyFX.stop();
             modal.classList.add('hidden');
+            if (this.audio.playSynergy) this.audio.playSynergy();
+            if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#7ef28a');
             this.toast(`已招募【${chosen.name}】加入牌组！`);
             this.renderShop();
           };
         });
+
+        if (this.packCeremonyFX) {
+          this.packCeremonyFX.startReveal(instances.map((h) => ({ tier: h.tier })));
+        }
+        instances.forEach((h, i) => {
+          setTimeout(() => {
+            if (!this.activePackState) return;
+            if (h.tier === 'SSS' && this.audio.playCrit) this.audio.playCrit();
+            else if (h.tier === 'S' && this.audio.playSynergy) this.audio.playSynergy();
+            else if (this.audio.playChainDing) this.audio.playChainDing(i, false);
+          }, i * 105 + 60);
+        });
         this.startCardFxLoop();
       } else {
+        const picks = st.picks;
         grid.className = 'v14-modal-choices cols-3';
-        const picks = shuffle(D.INSCRIPTIONS).slice(0, 3);
-        this.activePackState = { type: 'inscription', packId, picks, chosenInscription: null };
+        const insTier = (ins) => (ins.id === 'm_clone' ? 'SSS' : (ins.id === 'm_red_seal' || ins.id === 'm_glass' ? 'S' : 'A'));
         grid.innerHTML = picks.map((ins, i) => {
-          const iconUrl = this.getIconUrlSafe(ins.icon);
+          const t = insTier(ins);
           return `
-            <div class="v14-shop-card v15-shop-3d tier-border-A" data-pidx="${i}" style="align-items:center;text-align:center;padding:16px 14px;">
-              ${renderCardTierOrnament('A', 64, 72)}
-              ${iconUrl ? `<img class="v14-shop-pixel-icon" src="${iconUrl}" alt="" style="width:52px;height:52px;position:relative;z-index:2;" />` : ''}
-              <div class="v14-shop-card-name" style="color:${ins.color};font-size:15px;">${esc(ins.name)}</div>
+            <div class="v14-shop-card v15-shop-3d v152-deal-card tier-border-${t}" data-pidx="${i}" style="--deal-delay:${i * 115}ms;align-items:center;text-align:center;padding:18px 16px;">
+              ${renderCardTierOrnament(t, 64, 72)}
+              <div class="v152-ins-float-stage">
+                ${this.renderSafeIconImg(ins.icon, 'pack_inscription', 'v152-ins-float-icon')}
+              </div>
+              <div class="v14-shop-card-name" style="color:${ins.color};font-size:15.5px;">${esc(ins.name)}</div>
               <div class="v14-shop-card-desc">${esc(ins.desc)}</div>
             </div>
           `;
@@ -2451,9 +2865,17 @@
           this.bindInteractive3DTilt(el, 12, 10, true);
           el.onclick = () => this.selectInscriptionTarget(picks[Number(el.dataset.pidx)]);
         });
+        if (this.packCeremonyFX) {
+          this.packCeremonyFX.startReveal(picks.map((ins) => ({ tier: insTier(ins) })));
+        }
+        picks.forEach((ins, i) => {
+          setTimeout(() => {
+            if (!this.activePackState) return;
+            if (this.audio.playChainDing) this.audio.playChainDing(i, insTier(ins) !== 'A');
+          }, i * 115 + 60);
+        });
         this.startCardFxLoop();
       }
-      this.renderShop();
     }
 
     handlePackAdReroll() {
@@ -2500,36 +2922,231 @@
           else if (ins.id === 'm_banish') this.run.roster.splice(idx, 1);
 
           this.activePackState = null;
+          if (this.packCeremonyFX) this.packCeremonyFX.stop();
           $('pack-ceremony-modal').classList.add('hidden');
+          if (this.audio.playWaxSlam) this.audio.playWaxSlam();
+          if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate(ins.color || '#ffd966');
           this.toast(`已对【${h.name}】施加 ${ins.name}！`);
           this.renderShop();
         };
       });
     }
 
-    renderShop() {
-      $('hud-wave').textContent = `第${this.run.wave}/${this.run.maxWaves}波`;
-      $('hud-gold').innerHTML = `${pxIcon('gold')} ${this.run.gold}`;
-      $('hud-hearts').innerHTML = `<span style="font-size:12px;color:#ffd966;font-weight:900;display:inline-flex;align-items:center;gap:4px;">${esc(this.run.hero.name)} · ${pxIcon('orb')}${this.meta.data.orbs}</span>`;
+    _slotEmblemSvg(slotId) {
+      if (slotId === 'slot1') {
+        // Vanguard Shield + Spear
+        return `<svg class="v152-slot-emblem" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="3" y="2" width="10" height="8" fill="#18324c"/>
+          <rect x="4" y="3" width="8" height="6" fill="#68b6ff"/>
+          <rect x="5" y="10" width="6" height="2" fill="#68b6ff"/>
+          <rect x="7" y="12" width="2" height="2" fill="#4d94e0"/>
+          <rect x="5" y="4" width="2" height="4" fill="#d8f2ff"/>
+          <rect x="7" y="4" width="2" height="6" fill="#ffd966"/>
+        </svg>`;
+      }
+      if (slotId === 'slot2') {
+        // Midguard Crossed Blade
+        return `<svg class="v152-slot-emblem" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="11" y="2" width="3" height="3" fill="#fff5cc"/>
+          <rect x="9" y="4" width="3" height="3" fill="#ffd966"/>
+          <rect x="7" y="6" width="3" height="3" fill="#f0b636"/>
+          <rect x="5" y="8" width="3" height="3" fill="#d48c1d"/>
+          <rect x="3" y="9" width="5" height="2" fill="#9c590c"/>
+          <rect x="2" y="11" width="3" height="3" fill="#6e3610"/>
+        </svg>`;
+      }
+      if (slotId === 'slot3') {
+        // Finisher Crimson Crown / Flame
+        return `<svg class="v152-slot-emblem" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="7" y="1" width="2" height="3" fill="#ffd966"/>
+          <rect x="5" y="4" width="6" height="4" fill="#ff7b6b"/>
+          <rect x="3" y="7" width="10" height="5" fill="#d93b48"/>
+          <rect x="6" y="7" width="4" height="4" fill="#fff0b8"/>
+          <rect x="4" y="12" width="8" height="2" fill="#8c1d2c"/>
+        </svg>`;
+      }
+      // Hand Reserve Lantern Scroll
+      return `<svg class="v152-slot-emblem" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="3" y="2" width="10" height="12" fill="#1e4429"/>
+        <rect x="4" y="3" width="8" height="10" fill="#5bd674"/>
+        <rect x="5" y="4" width="6" height="2" fill="#d8ffe0"/>
+        <rect x="5" y="7" width="6" height="2" fill="#235730"/>
+        <rect x="5" y="10" width="4" height="2" fill="#235730"/>
+      </svg>`;
+    }
 
-      const rack = $('top-relic-rack');
-      rack.innerHTML = this.run.relics.length === 0
-        ? `<span style="font-size:12px;color:#9ea9c4">秘宝架 (0/${this.run.maxRelicSlots})</span>`
-        : this.run.relics.map((r, idx) => {
-          const iconUrl = this.getIconUrlSafe(r.icon);
-          return `
-          <div class="v14-relic-chip v15-shop-rack-chip v15-relic-tier-${r.tier || 'S'} ${this.selectedRelicUid === r.uid ? 'pulse' : ''}" data-ridx="${idx}">
-            ${iconUrl ? `<img class="v14-relic-mini-icon" src="${iconUrl}" alt="" />` : ''}
-            <div class="v14-relic-chip-text">
-              <div class="v14-relic-chip-title">${esc(r.name)}</div>
-              <div class="v14-relic-chip-sub">${esc(this.formatRelicLiveStat(r))}</div>
-            </div>
+    _bossPatternChip(code, roundIdx) {
+      const map = {
+        heavy:  { label: '重击', cls: 'heavy' },
+        charge: { label: '蓄力', cls: 'charge' },
+        shield: { label: '魔盾', cls: 'shield' },
+        thorns: { label: '荆棘', cls: 'thorns' },
+        lock3:  { label: '封位', cls: 'lock' }
+      };
+      const info = map[code] || { label: '重击', cls: 'heavy' };
+      return `<span class="v152-pat-chip ${info.cls}"><b>R${roundIdx + 1}</b>${info.label}</span>`;
+    }
+
+    _slotLevelPreview(u, curLv) {
+      const nextLv = curLv + 1;
+      const curBonus = curLv - 1;
+      const nextBonus = nextLv - 1;
+      if (u.id === 'slot1') {
+        return `当前 Lv.${curLv}（+${curBonus * 15}攻 / +${curBonus * 12}盾） → 升至 Lv.${nextLv}（+${nextBonus * 15}攻 / +${nextBonus * 12}盾）`;
+      }
+      if (u.id === 'slot2') {
+        return `当前 Lv.${curLv}（+${curBonus * 28}攻） → 升至 Lv.${nextLv}（+${nextBonus * 28}攻）`;
+      }
+      if (u.id === 'slot3') {
+        return `当前 Lv.${curLv}（+${(curBonus * 0.25).toFixed(2)}×） → 升至 Lv.${nextLv}（+${(nextBonus * 0.25).toFixed(2)}×）`;
+      }
+      return `当前 Lv.${curLv}（留手 +${curBonus * 6}永久攻） → 升至 Lv.${nextLv}（留手 +${nextBonus * 6}永久攻）`;
+    }
+
+    closeShopInspector() {
+      this.inspectedShopKey = null;
+      const pop = $('shop-detail-popover');
+      if (pop) {
+        pop.classList.add('hidden');
+        pop.innerHTML = '';
+      }
+      document.querySelectorAll('#market-main-stage .is-inspected').forEach((el) => {
+        el.classList.remove('is-inspected');
+      });
+    }
+
+    inspectShopItem(key, anchorEl, spec) {
+      // Tap #2 on the same selected card: fast-confirm if allowed
+      if (this.inspectedShopKey === key) {
+        if (spec.canConfirm) {
+          spec.onConfirm();
+        } else {
+          this.toast(spec.disabledReason || '当前无法购买');
+        }
+        return;
+      }
+
+      // Close top relic strip so only one inspector is active at a time
+      if (this.selectedRelicUid) {
+        this.selectedRelicUid = null;
+        const insp = $('relic-inspect-bar');
+        if (insp) insp.classList.add('hidden');
+        document.querySelectorAll('#top-relic-rack .pulse').forEach((el) => el.classList.remove('pulse'));
+      }
+
+      this.inspectedShopKey = key;
+      document.querySelectorAll('#market-main-stage .is-inspected').forEach((el) => {
+        el.classList.remove('is-inspected');
+      });
+      if (anchorEl) anchorEl.classList.add('is-inspected');
+
+      const pop = $('shop-detail-popover');
+      if (!pop) return;
+
+      pop.innerHTML = `
+        <div class="sdp-head">
+          <div class="sdp-icon-wrap">${spec.iconHtml}</div>
+          <div class="sdp-head-text">
+            <div class="sdp-badges">${spec.badgesHtml}</div>
+            <div class="sdp-title">${esc(spec.title)}</div>
           </div>
-        `;
-        }).join('');
+          <div class="sdp-price-badge">${pxIcon('gold')}${spec.cost}G</div>
+        </div>
+        <div class="sdp-desc">${esc(spec.desc)}</div>
+        ${spec.extraHtml ? `<div class="sdp-extra">${spec.extraHtml}</div>` : ''}
+        <div class="sdp-actions">
+          <button type="button" class="sdp-btn-cancel" id="sdp-btn-cancel">取消</button>
+          <button type="button" class="sdp-btn-confirm ${spec.canConfirm ? '' : 'disabled'}" id="sdp-btn-confirm" ${spec.canConfirm ? '' : 'aria-disabled="true"'}>
+            ${spec.canConfirm ? `${esc(spec.confirmLabel)} · ${spec.cost}G` : esc(spec.disabledReason)}
+          </button>
+        </div>
+      `;
+
+      pop.classList.remove('hidden');
+
+      // Smart positioning inside the 1280x720 #stage coordinate space
+      const stageRect = this.stage.getBoundingClientRect();
+      const anchorRect = anchorEl.getBoundingClientRect();
+      const scaleX = 1280 / Math.max(1, stageRect.width);
+      const scaleY = 720 / Math.max(1, stageRect.height);
+
+      const aLeft = (anchorRect.left - stageRect.left) * scaleX;
+      const aRight = (anchorRect.right - stageRect.left) * scaleX;
+      const aTop = (anchorRect.top - stageRect.top) * scaleY;
+      const aCenterY = aTop + (anchorRect.height * scaleY) / 2;
+
+      const popW = pop.offsetWidth || 356;
+      const popH = pop.offsetHeight || 200;
+
+      // Prefer placing neatly to the left of the shelf item so the card itself stays unobstructed
+      let left = aLeft - popW - 14;
+      if (left < 18) {
+        left = aRight + 14;
+      }
+      if (left + popW > 1262) {
+        left = Math.max(18, Math.min(1262 - popW, aLeft - popW * 0.35));
+      }
+      let top = Math.round(aCenterY - popH / 2);
+      top = Math.max(70, Math.min(704 - popH, top));
+
+      pop.style.left = `${Math.round(left)}px`;
+      pop.style.top = `${Math.round(top)}px`;
+
+      $('sdp-btn-cancel').onclick = (e) => {
+        e.stopPropagation();
+        this.closeShopInspector();
+      };
+      $('sdp-btn-confirm').onclick = (e) => {
+        e.stopPropagation();
+        if (spec.canConfirm) {
+          spec.onConfirm();
+        } else {
+          this.toast(spec.disabledReason || '当前无法购买');
+        }
+      };
+    }
+
+    renderShop() {
+      this.closeShopInspector();
+
+      // 1. Top Walnut & Brass Ledger Beam (fixes duplicate gold icon!)
+      $('hud-wave').textContent = `W${this.run.wave}/${this.run.maxWaves}`;
+      $('hud-gold').textContent = `${this.run.gold}G`;
+      $('hud-hearts').innerHTML = `
+        <span class="v152-hud-hero">${esc(this.run.hero.name)}</span>
+        <span class="v152-hud-sep">·</span>
+        <span class="v152-hud-orbs">${pxIcon('orb')}${this.meta.data.orbs}</span>
+      `;
+
+      // 2. Real Visual 5/6-Slot Brass Relic Rack (Ⅰ ~ Ⅴ/Ⅵ)
+      const romans = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ'];
+      const maxSlots = this.run.maxRelicSlots || 5;
+      const rack = $('top-relic-rack');
+      const slotHtml = [];
+      for (let i = 0; i < maxSlots; i++) {
+        const r = this.run.relics[i];
+        if (r) {
+          const isSel = this.selectedRelicUid === r.uid;
+          slotHtml.push(`
+            <button type="button" class="v152-rack-slot filled tier-${r.tier || 'A'} ${isSel ? 'pulse' : ''}" data-ridx="${i}" title="${esc(r.name)}">
+              ${this.renderSafeIconImg(r.icon, r.theme || 'core', 'v152-rack-icon')}
+              <span class="v152-rack-stat">${esc(this.formatRelicLiveStat(r) || r.short || r.tier)}</span>
+            </button>
+          `);
+        } else {
+          slotHtml.push(`
+            <div class="v152-rack-slot empty" aria-label="空秘宝槽 ${romans[i] || i + 1}">
+              <span class="v152-rack-roman">${romans[i] || (i + 1)}</span>
+            </div>
+          `);
+        }
+      }
+      rack.innerHTML = `<span class="v152-rack-lbl">秘宝<br>${this.run.relics.length}/${maxSlots}</span><div class="v152-rack-slots">${slotHtml.join('<span class="v152-rack-arrow">›</span>')}</div>`;
 
       rack.querySelectorAll('[data-ridx]').forEach((el) => {
-        el.onclick = () => {
+        el.onclick = (e) => {
+          e.stopPropagation();
+          this.closeShopInspector();
           const r = this.run.relics[Number(el.dataset.ridx)];
           this.selectedRelicUid = this.selectedRelicUid === r.uid ? null : r.uid;
           this.renderShop();
@@ -2564,6 +3181,7 @@
           this.run.relics.splice(selIdx, 1);
           this.run.gold += sellVal;
           this.selectedRelicUid = null;
+          if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#ffd966');
           this.toast(`出售秘宝 +${sellVal}G`);
           this.renderShop();
         };
@@ -2575,127 +3193,322 @@
         insp.classList.add('hidden');
       }
 
+      // 3. Left Top: 4-Rank Escalating Live Boss Wanted Warrant + Crimson Wax Seal CTA
       const nextBoss = D.getWaveBoss(this.run.wave);
       const asc = this.meta.getAscension(this.run.ascension || 0);
       const nextBossHp = Math.round(nextBoss.maxHp * asc.hpMult);
       const nextBossBreak = Math.round(nextBoss.breakThreshold * asc.hpMult);
       const nextBossHeavy = Math.round(nextBoss.heavyDmg * asc.dmgMult);
       const nextBossUlt = Math.round(nextBoss.ultDmg * asc.dmgMult);
-      $('boss-bounty-panel').innerHTML = `
-        ${renderCardTierOrnament('SSS', 76, 68)}
-        <div class="v15-bounty-inner">
-          <div class="v15-bounty-wave">第 ${this.run.wave} 波悬赏${asc.lv > 0 ? ` · 进阶${asc.lv}` : ''}</div>
-          <div class="v14-boss-poster-sprite" id="shop-boss-sprite" data-unit="${nextBoss.unitId}"></div>
-          <div class="v15-bounty-name">${esc(nextBoss.name)}</div>
-          <div class="v15-bounty-hp">HP ${nextBossHp} · 破招 ${nextBossBreak}</div>
-          <div class="v15-bounty-sub">重击 ${nextBossHeavy} / 大招 ${nextBossUlt} · 赏金 +${pxIcon('gold')}${Math.max(1, nextBoss.reward + (this.run.hero.rewardDelta || 0))}</div>
+      const bountyGold = Math.max(1, nextBoss.reward + (this.run.hero.rewardDelta || 0));
+      const patHtml = (nextBoss.pattern || ['heavy', 'charge', 'heavy', 'heavy'])
+        .slice(0, 4)
+        .map((code, i) => this._bossPatternChip(code, i))
+        .join('');
+
+      // Boss Threat Tier & Elemental Aura Profile (W1-2 Elite / W3-4 Blood Rival / W5-6 Calamity Overlord / W7-8 Eclipse Sovereign)
+      let bossTier = this.run.wave >= 7 ? 4 : this.run.wave >= 5 ? 3 : this.run.wave >= 3 ? 2 : 1;
+      if (asc.lv >= 3 && bossTier < 4) bossTier += 1;
+      const bossRankLabels = { 1: '精英悬赏', 2: '猩红大敌', 3: '灾厄霸主', 4: '终末魔王' };
+      const bossStars = '★'.repeat(bossTier);
+      let bossAura = 'ember';
+      if (bossTier === 4) bossAura = 'eclipse';
+      else if (bossTier === 3) bossAura = nextBoss.id === 'b_boreal' ? 'frost' : 'inferno';
+      else if (bossTier === 2) bossAura = 'blood';
+
+      const bountyEl = $('boss-bounty-panel');
+      bountyEl.className = `v152-boss-monolith boss-tier-${bossTier} aura-${bossAura}`;
+      bountyEl.style.transform = '';
+      bountyEl.innerHTML = `
+        ${bossTier >= 3 ? `<div class="v152-monolith-crest" aria-hidden="true">${bossTier === 4 ? '♛' : '❖'}</div>` : ''}
+        <div class="v152-boss-stage-wrap" title="点击激怒 Boss 预览气场">
+          <canvas class="v152-boss-fx-canvas" id="shop-boss-fx-canvas" width="362" height="188"></canvas>
+          <div class="v152-boss-top-hud">
+            <span class="v152-boss-rank-line tier-${bossTier}">
+              <i class="v152-rank-stars">${bossStars}</i>
+              <span>${bossRankLabels[bossTier]}</span>
+              <span class="v152-rank-sep">·</span>
+              <span class="v152-bounty-wave">W${this.run.wave}${asc.lv > 0 ? ` 阶${asc.lv}` : ''}</span>
+            </span>
+            <span class="v152-bounty-hp-readout">${nextBossHp.toLocaleString()} <small>HP</small></span>
+          </div>
+          <div class="v152-boss-name-scrim">
+            <span class="v152-boss-name">${esc(nextBoss.name)}</span>
+            <span class="v152-boss-title">${esc(nextBoss.title || '镜湖强敌')}</span>
+          </div>
+        </div>
+        <div class="v152-boss-tactical-bar">
+          <div class="v152-boss-pattern">${patHtml}</div>
+          <div class="v152-boss-metrics">
+            <span>破招 <b>≥${nextBossBreak}</b></span>
+            <span class="v152-m-dot">·</span>
+            <span>重击 <b>${nextBossHeavy}</b> / 大招 <b>${nextBossUlt}</b></span>
+            <span class="v152-m-dot">·</span>
+            <span class="v152-m-gold">赏金 <b>+${bountyGold}G</b></span>
+          </div>
         </div>
       `;
-      const bossSp = $('shop-boss-sprite');
-      if (bossSp && this.sprites && this.sprites.createDomSprite) {
-        bossSp.appendChild(this.sprites.createDomSprite(bossSp.dataset.unit, 'idle', 92));
+      const bossFxCanvas = $('shop-boss-fx-canvas');
+      if (this.tavernShopStage && bossFxCanvas) {
+        this.tavernShopStage.attachBossCanvas(bossFxCanvas, {
+          tier: bossTier,
+          aura: bossAura,
+          unitId: nextBoss.unitId
+        });
       }
-      this.bindInteractive3DTilt($('boss-bounty-panel'), 9, 7, true);
-      $('btn-shop-next').innerHTML = `${pxIcon('atk')} 出战第 ${this.run.wave} 波`;
+      bountyEl.onclick = () => {
+        if (this.tavernShopStage) this.tavernShopStage.triggerBossRoar();
+        if (this.audio && this.audio.playSlash) this.audio.playSlash();
+      };
 
-      $('squad-ledger-strip').innerHTML = `<b>当前牌组 (${this.run.roster.length}人)</b> · 点击查看全部`;
-      $('squad-roam-zone').innerHTML = this.run.roster.slice(0, 10).map((h) => `
-        <div class="v15-roster-pill">
-          <span class="v14-tier tier-${h.tier}">${h.tier}</span>
-          <span>${esc(h.shortName)}</span>
-          <b style="color:${h.atk > h.baseAtk ? '#7ef28a' : '#ffd966'};display:inline-flex;align-items:center;gap:2px;">${pxIcon('atk')}${h.atk}</b>
-        </div>
-      `).join('');
+      $('btn-shop-next').innerHTML = `
+        <span class="v152-wax-disc" aria-hidden="true">战</span>
+        <span class="v152-cta-text">迎战 W${this.run.wave} · ${esc(nextBoss.name)}</span>
+        <span class="v152-cta-arrow" aria-hidden="true">→</span>
+      `;
 
+      // 4. Left Bottom: Sync Live Resting Squad to Tavern Floor Canvas + Minimal Ledger Strip
+      if (this.tavernShopStage) {
+        this.tavernShopStage.setState({ wave: this.run.wave, roster: this.run.roster });
+      }
+      const themeCounts = {};
+      for (const h of this.run.roster) {
+        const k = h.theme || 'core';
+        themeCounts[k] = (themeCounts[k] || 0) + 1;
+      }
+      const themeSummary = Object.entries(themeCounts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([k, cnt]) => {
+          const th = D.THEMES[k] || D.THEMES.core;
+          return `<span class="v152-sq-th" style="color:${th.color}">${th.short}${cnt}</span>`;
+        }).join('');
+      $('squad-ledger-strip').innerHTML = `
+        <span class="v152-sq-count">战团 <b>${this.run.roster.length}</b> 人</span>
+        <span class="v152-sq-themes">${themeSummary}</span>
+        <span class="v152-sq-link">名册 →</span>
+      `;
+      $('squad-roam-zone').innerHTML = `
+        <div class="v152-roam-hint">${this.run.roster.length > 10 ? `地板展示前 10 位 / 共 ${this.run.roster.length} 人` : '点击休整区管理牌组'}</div>
+      `;
+
+      // 5. Right Top Shelf Controls
       const adRerollBtn = $('btn-shop-ad-reroll');
       adRerollBtn.disabled = this.run.adShopRerollLeft <= 0;
-      adRerollBtn.innerHTML = this.run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费刷新(必出S/SSS)` : '保底刷新已用';
-      $('btn-shop-reroll').innerHTML = `刷新 (${pxIcon('gold')}${this.shop.rerollCost})`;
+      adRerollBtn.innerHTML = this.run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费必出S刷新` : '保底刷新已用';
+      $('btn-shop-reroll').innerHTML = `<span class="v152-reroll-lbl">刷新</span><span class="v152-reroll-cost">${pxIcon('gold')}${this.shop.rerollCost}G</span>`;
 
+      // 6. Right Upper Shelf: 3 Full-Art Illustrated Collectible Relic Cards (ZERO Box-in-Box!)
       const rRow = $('shop-relics-row');
-      rRow.className = 'v14-shop-grid';
+      rRow.className = 'v152-relics-row';
       rRow.innerHTML = this.shop.relicOffers.map((o, idx) => {
-        const th = D.THEMES[o.tpl.theme] || D.THEMES.core;
-        const iconUrl = this.getIconUrlSafe(o.tpl.icon);
-        let srcHint = '';
+        const thKey = o.tpl.theme || 'core';
+        const th = D.THEMES[thKey] || D.THEMES.core;
+        const canAfford = this.run.gold >= o.tpl.cost;
+        let srcStatus = '';
         if (o.tpl.requiresSource) {
           const cnt = E.countThemeSources(this.run.roster, this.run.hero, o.tpl.requiresSource);
-          srcHint = `<span class="v14-src-pill ${cnt === 0 ? 'zero' : ''}">启动源: ${cnt}张</span>`;
+          srcStatus = `<span class="v152-src-line ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt}张`}</span>`;
         }
         return `
-          <div class="v14-shop-card v15-shop-3d tier-border-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && (o.tpl.tier === 'S' || o.tpl.tier === 'SSS') ? 'v15-idle-tilt v15-gentle-tilt' : ''}" data-buyr="${idx}">
-            ${o.sold ? '' : renderCardTierOrnament(o.tpl.tier, 64, 52)}
-            <div class="v14-shop-card-head">
-              <span class="v14-tier tier-${o.tpl.tier}">${o.tpl.tier}</span>
-              <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-              ${o.tpl.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}
+          <button type="button" class="v152-relic-card v15-shop-3d theme-${thKey} tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'unaffordable' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" style="--rc-accent:${th.color}" ${o.sold ? 'disabled' : ''}>
+            ${renderCardTierOrnament(o.tpl.tier, 76, 118)}
+            <div class="v152-rc-art-layer" aria-hidden="true">
+              <div class="v152-rc-rays"></div>
+              <div class="v152-rc-filigree"></div>
+              ${this.renderSafeIconImg(o.tpl.icon, thKey, 'v152-rc-art-img')}
+              <div class="v152-rc-vignette"></div>
             </div>
-            <div class="v14-shop-icon-row">
-              ${iconUrl ? `<img class="v14-shop-pixel-icon" src="${iconUrl}" alt="" />` : ''}
-              <div class="v14-shop-card-name">${esc(o.tpl.name)}</div>
+            <div class="v152-rc-top-meta">
+              <span class="v152-rc-tier-emblem tier-${o.tpl.tier}">${o.tpl.tier}</span>
+              <span class="v152-rc-theme-line" style="color:${th.color}">
+                ${th.short}${o.tpl.isBridge ? '<i class="v152-rc-bridge-dot">·</i><b class="v152-rc-bridge-txt">接口</b>' : ''}
+              </span>
             </div>
-            <div class="v14-shop-card-desc">${esc(o.tpl.desc)}</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;position:relative;z-index:2;">
-              ${srcHint || '<span></span>'}
-              <div class="v14-shop-price">${o.sold ? '已购' : `${pxIcon('gold')}${o.tpl.cost}`}</div>
+            <div class="v152-rc-bottom-scrim">
+              <div class="v152-rc-name">${esc(o.tpl.name)}</div>
+              <div class="v152-rc-perk">${esc(o.tpl.short || o.tpl.desc)}</div>
+              ${srcStatus ? `<div class="v152-rc-meta">${srcStatus}</div>` : ''}
+              <div class="v152-rc-price-strip ${o.sold ? 'sold' : canAfford ? 'ready' : 'short'}">
+                ${o.sold ? '已购入' : `${pxIcon('gold')}<span>${o.tpl.cost}G</span>`}
+              </div>
             </div>
-          </div>
+          </button>
         `;
       }).join('');
+
       rRow.querySelectorAll('[data-buyr]').forEach((el) => {
-        this.bindInteractive3DTilt(el, 10, 8, !el.classList.contains('v15-idle-tilt'));
-        el.onclick = () => this.buyRelicOffer(Number(el.dataset.buyr));
+        if (!el.classList.contains('sold')) {
+          this.bindInteractive3DTilt(el, 8, 7, true);
+        }
+        el.onclick = (e) => {
+          e.stopPropagation();
+          const idx = Number(el.dataset.buyr);
+          const offer = this.shop.relicOffers[idx];
+          if (!offer || offer.sold) return;
+          const th = D.THEMES[offer.tpl.theme] || D.THEMES.core;
+          const rackFull = this.run.relics.length >= this.run.maxRelicSlots;
+          const afford = this.run.gold >= offer.tpl.cost;
+          let extraHtml = '';
+          if (offer.tpl.requiresSource) {
+            const cnt = E.countThemeSources(this.run.roster, this.run.hero, offer.tpl.requiresSource);
+            extraHtml += `<div class="sdp-note ${cnt === 0 ? 'warn' : 'ok'}">当前牌组启动源：<b>${cnt} 张</b>${cnt === 0 ? '（建议同时招募对应流派侠客）' : '（已就绪，购入即可生效）'}</div>`;
+          }
+          if (rackFull) {
+            extraHtml += `<div class="sdp-note warn">秘宝架已满（${this.run.relics.length}/${this.run.maxRelicSlots}），可先点击顶部已装秘宝出售腾位。</div>`;
+          }
+          this.inspectShopItem(`relic:${idx}`, el, {
+            iconHtml: this.renderSafeIconImg(offer.tpl.icon, offer.tpl.theme || 'core', 'sdp-icon-img'),
+            badgesHtml: `<span class="v14-tier tier-${offer.tpl.tier}">${offer.tpl.tier}</span><span class="v152-theme-chip" style="color:${th.color};border-color:${th.color}66;background:${th.bg}">${th.short}</span>${offer.tpl.isBridge ? '<span class="v152-bridge-chip">跨流派接口</span>' : ''}`,
+            title: offer.tpl.name,
+            cost: offer.tpl.cost,
+            desc: offer.tpl.desc,
+            extraHtml,
+            canConfirm: !rackFull && afford,
+            confirmLabel: '确认购入',
+            disabledReason: rackFull ? `秘宝栏已满 (${this.run.relics.length}/${this.run.maxRelicSlots})` : `金币不足 · 需 ${offer.tpl.cost}G`,
+            onConfirm: () => this.buyRelicOffer(idx)
+          });
+        };
       });
 
+      // 7. Right Lower Shelf: Pure-VFX Foil Booster Sachet + Pure-VFX Arcane Rune Coffer + 4 Forged Slot Plaques
       const lower = $('shop-packs-row');
-      lower.className = 'v14-lower-shop';
+      lower.className = 'v152-lower-shop';
       lower.innerHTML = `
-        <div class="v14-packs-col">
+        <div class="v152-packs-col">
           ${D.PACKS.map((p) => {
             const c = this.getPackCost(p);
-            const iconUrl = this.getIconUrlSafe(p.icon);
-            const sold = this.shop.packSold[p.id];
+            const sold = Boolean(this.shop.packSold[p.id]);
+            const canAfford = this.run.gold >= c;
+            const isHeroPack = p.id === 'pack_hero';
+            if (isHeroPack) {
+              return `
+                <button type="button" class="v152-pack-card hero-pack ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'unaffordable' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
+                  <div class="v152-foil-crimp top" aria-hidden="true"></div>
+                  <div class="v152-pack-body">
+                    <div class="v152-foil-sheen" aria-hidden="true"></div>
+                    <div class="v152-foil-tearline" aria-hidden="true"><span>${p.count}选1</span></div>
+                    <div class="v152-pack-vfx-stage">
+                      <canvas class="v152-pack-fx-canvas" id="shop-pack-hero-fx" width="184" height="136"></canvas>
+                    </div>
+                    <div class="v152-pack-foot">
+                      <div class="v152-pack-name" style="color:${p.accent}">${esc(p.name)}</div>
+                      <div class="v152-pack-sub">${esc(p.subtitle)}</div>
+                      <div class="v152-price-bar ${sold ? 'sold' : canAfford ? 'ready' : 'short'}">
+                        ${sold ? '已撕开' : `${pxIcon('gold')}<span>${c}G 撕开</span>`}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="v152-foil-crimp bottom" aria-hidden="true"></div>
+                </button>
+              `;
+            }
             return `
-              <div class="v14-shop-card v15-shop-3d v15-pack-card ${sold ? 'sold' : ''}" data-pack="${p.id}">
-                ${sold ? '' : renderCardTierOrnament(p.id === 'pack_hero' ? 'A' : 'B', 64, 48)}
-                <div class="v14-shop-icon-row">
-                  ${iconUrl ? `<img class="v14-shop-pixel-icon" src="${iconUrl}" alt="" />` : ''}
-                  <div>
-                    <div class="v14-shop-card-name" style="color:${p.accent}">${esc(p.name)}</div>
-                    <div style="font-size:11px;color:#c2cee8">${esc(p.subtitle)}</div>
+              <button type="button" class="v152-pack-card inscrip-pack ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'unaffordable' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
+                <div class="v152-coffer-lid" aria-hidden="true">
+                  <span class="v152-coffer-tag">${p.count}选1</span>
+                  <span class="v152-coffer-clasp">封</span>
+                </div>
+                <div class="v152-coffer-body">
+                  <div class="v152-foil-sheen arcane" aria-hidden="true"></div>
+                  <div class="v152-pack-vfx-stage">
+                    <canvas class="v152-pack-fx-canvas" id="shop-pack-inscrip-fx" width="184" height="136"></canvas>
+                  </div>
+                  <div class="v152-pack-foot">
+                    <div class="v152-pack-name" style="color:${p.accent}">${esc(p.name)}</div>
+                    <div class="v152-pack-sub">${esc(p.subtitle)}</div>
+                    <div class="v152-price-bar ${sold ? 'sold' : canAfford ? 'ready' : 'short'}">
+                      ${sold ? '已启封' : `${pxIcon('gold')}<span>${c}G 启封</span>`}
+                    </div>
                   </div>
                 </div>
-                <div class="v14-shop-card-desc">${esc(p.desc)}</div>
-                <div style="display:flex;justify-content:flex-end;position:relative;z-index:2;">
-                  <div class="v14-shop-price">${sold ? '已开' : `${pxIcon('gold')}${c}`}</div>
-                </div>
-              </div>
+              </button>
             `;
           }).join('')}
         </div>
-        <div class="v14-slots-upgrade-col">
+        <div class="v152-slots-col">
           ${D.SLOT_UPGRADES.map((u) => {
             const lv = this.run.slotLevels[u.id] || 1;
+            const canAfford = this.run.gold >= u.cost;
             return `
-              <button class="v14-slot-upg-btn" data-upgs="${u.id}">
-                <div class="v14-slot-upg-top">
-                  <span style="color:${u.color}">${esc(u.name)} Lv.${lv}</span>
-                  <span style="color:#ffd966;display:inline-flex;align-items:center;gap:2px;">${pxIcon('gold')}${u.cost}</span>
+              <button type="button" class="v152-slot-plaque slot-${u.id} ${canAfford ? '' : 'unaffordable'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" style="--slot-col:${u.color}">
+                <div class="v152-slot-head">
+                  <div class="v152-slot-id">
+                    ${this._slotEmblemSvg(u.id)}
+                    <span class="v152-slot-name">${esc(u.name)}</span>
+                  </div>
+                  <span class="v152-slot-lv">Lv.${lv}</span>
                 </div>
-                <div class="v14-slot-upg-sub">${esc(u.short)}</div>
+                <div class="v152-slot-body">
+                  <span class="v152-slot-perk">${esc(u.short)}</span>
+                  <span class="v152-slot-cost ${canAfford ? 'ready' : 'short'}">${pxIcon('gold')}${u.cost}G</span>
+                </div>
               </button>
             `;
           }).join('')}
         </div>
       `;
+
+      if (this.tavernShopStage && this.tavernShopStage.attachPackCanvases) {
+        this.tavernShopStage.attachPackCanvases({
+          heroCanvas: $('shop-pack-hero-fx'),
+          inscripCanvas: $('shop-pack-inscrip-fx')
+        });
+      }
+
       lower.querySelectorAll('[data-pack]').forEach((el) => {
-        this.bindInteractive3DTilt(el, 9, 7, true);
-        el.onclick = () => this.openPack(el.dataset.pack, false);
+        el.onclick = (e) => {
+          e.stopPropagation();
+          const p = D.PACKS.find((x) => x.id === el.dataset.pack);
+          if (!p || this.shop.packSold[p.id]) return;
+          const cost = this.getPackCost(p);
+          const afford = this.run.gold >= cost;
+          const isHeroPack = p.id === 'pack_hero';
+          const extraHtml = isHeroPack
+            ? `<div class="sdp-note ok">当前可抽取主题池：<b>${this.run.activeThemes.map((k) => (D.THEMES[k] && D.THEMES[k].short) || k).join(' / ')}</b></div>`
+            : `<div class="sdp-note ok">${this.run.hero.inscriptionDiscount ? `已享英雄铭文折减（原价 ${p.cost}G → ${cost}G）` : '开启后先 3 选 1 铭文，再指定 1 名战团侠客施加。'}</div>`;
+          const vfxMiniHtml = isHeroPack
+            ? `<div class="sdp-vfx-badge hero-fan" aria-hidden="true"><span>✦</span></div>`
+            : `<div class="sdp-vfx-badge coffer-seal" aria-hidden="true"><span>封</span></div>`;
+          this.inspectShopItem(`pack:${p.id}`, el, {
+            iconHtml: vfxMiniHtml,
+            badgesHtml: `<span class="v152-theme-chip" style="color:${p.accent};border-color:${p.accent}66;background:rgba(16,14,24,0.85)">${p.subtitle}</span>`,
+            title: p.name,
+            cost,
+            desc: p.desc,
+            extraHtml,
+            canConfirm: afford,
+            confirmLabel: isHeroPack ? '确认撕开' : '确认启封',
+            disabledReason: `金币不足 · 需 ${cost}G`,
+            onConfirm: () => this.openPack(p.id, false)
+          });
+        };
       });
-      lower.querySelectorAll('[data-upgs]').forEach((el) => {
-        el.onclick = () => this.upgradeSlot(el.dataset.upgs);
-      });
+
       this.startCardFxLoop();
+
+      lower.querySelectorAll('[data-upgs]').forEach((el) => {
+        el.onclick = (e) => {
+          e.stopPropagation();
+          const u = D.SLOT_UPGRADES.find((x) => x.id === el.dataset.upgs);
+          if (!u) return;
+          const lv = this.run.slotLevels[u.id] || 1;
+          const afford = this.run.gold >= u.cost;
+          this.inspectShopItem(`slot:${u.id}`, el, {
+            iconHtml: this._slotEmblemSvg(u.id),
+            badgesHtml: `<span class="v152-theme-chip" style="color:${u.color};border-color:${u.color}66;background:rgba(16,12,10,0.85)">战位锻造 · Lv.${lv} → Lv.${lv + 1}</span>`,
+            title: u.name,
+            cost: u.cost,
+            desc: u.desc,
+            extraHtml: `<div class="sdp-note ok">${esc(this._slotLevelPreview(u, lv))}</div>`,
+            canConfirm: afford,
+            confirmLabel: '确认强化',
+            disabledReason: `金币不足 · 需 ${u.cost}G`,
+            onConfirm: () => this.upgradeSlot(u.id)
+          });
+        };
+      });
     }
 
     startNextWaveBattle() {

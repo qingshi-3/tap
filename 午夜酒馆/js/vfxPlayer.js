@@ -231,9 +231,18 @@
     }
 
     getIconUrl(iconId, fallback = './assets/gear/eq_dragon_heart.png') {
+      if (!iconId) return fallback;
+      const manifest = globalThis.DuelystH5Manifest;
+      const directRec = manifest && manifest.icons && manifest.icons[iconId];
+      if (directRec && directRec.path) {
+        return `./assets/duelyst/${directRec.path}`;
+      }
       const kit = this.initKit();
       const rec = kit && kit.icon(iconId);
-      return rec ? kit.assetURL(rec) : fallback;
+      if (rec && rec.path) {
+        return `./assets/duelyst/${rec.path}`;
+      }
+      return fallback;
     }
   }
 
