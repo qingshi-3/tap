@@ -1,0 +1,365 @@
+{
+  "version": 1,
+  "units": {
+    "l_shield": {
+      "image": "l_shield.png",
+      "still": "l_shield-still.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_silverguardsquire",
+      "selectedImage": "l_shield-selected.png",
+      "attack": {
+        "image": "l_shield-attack.png",
+        "frames": 13
+      },
+      "hit": {
+        "image": "l_shield-hit.png",
+        "frames": 3
+      }
+    },
+    "l_windblade": {
+      "image": "l_windblade.png",
+      "still": "l_windblade-still.png",
+      "selectedImage": "l_windblade-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f1_windbladecommander",
+      "attack": {
+        "image": "l_windblade-attack.png",
+        "frames": 11
+      },
+      "hit": {
+        "image": "l_windblade-hit.png",
+        "frames": 3
+      }
+    },
+    "l_sunriser": {
+      "image": "l_sunriser.png",
+      "still": "l_sunriser-still.png",
+      "selectedImage": "l_sunriser-selected.png",
+      "frames": 11,
+      "durationMs": 917,
+      "width": 100,
+      "height": 112,
+      "source": "f1_sunriser",
+      "attack": {
+        "image": "l_sunriser-attack.png",
+        "frames": 14
+      },
+      "hit": {
+        "image": "l_sunriser-hit.png",
+        "frames": 3
+      }
+    },
+    "n_pirate": {
+      "image": "n_pirate.png",
+      "still": "n_pirate-still.png",
+      "selectedImage": "n_pirate-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercpirate",
+      "attack": {
+        "image": "n_pirate-attack.png",
+        "frames": 12
+      },
+      "hit": {
+        "image": "n_pirate-hit.png",
+        "frames": 3
+      }
+    },
+    "n_gambit": {
+      "image": "n_gambit.png",
+      "still": "n_gambit-still.png",
+      "selectedImage": "n_gambit-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercgambitgirl",
+      "attack": {
+        "image": "n_gambit-attack.png",
+        "frames": 15
+      },
+      "hit": {
+        "image": "n_gambit-hit.png",
+        "frames": 3
+      }
+    },
+    "n_kiri": {
+      "image": "n_kiri.png",
+      "still": "n_kiri-still.png",
+      "selectedImage": "n_kiri-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercdaggerkiri",
+      "attack": {
+        "image": "n_kiri-attack.png",
+        "frames": 16
+      },
+      "hit": {
+        "image": "n_kiri-hit.png",
+        "frames": 3
+      }
+    },
+    "s_fox": {
+      "image": "s_fox.png",
+      "still": "s_fox-still.png",
+      "selectedImage": "s_fox-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f2_lanternfox",
+      "attack": {
+        "image": "s_fox-attack.png",
+        "frames": 16
+      },
+      "hit": {
+        "image": "s_fox-hit.png",
+        "frames": 3
+      }
+    },
+    "s_backstab": {
+      "image": "s_backstab.png",
+      "still": "s_backstab-still.png",
+      "frames": 16,
+      "durationMs": 1333,
+      "width": 100,
+      "height": 112,
+      "source": "f2_keshraifanblade",
+      "selectedImage": "s_backstab-selected.png",
+      "attack": {
+        "image": "s_backstab-attack.png",
+        "frames": 17
+      },
+      "hit": {
+        "image": "s_backstab-hit.png",
+        "frames": 3
+      }
+    },
+    "a_cult": {
+      "image": "a_cult.png",
+      "still": "a_cult-still.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_shadowdancer",
+      "selectedImage": "a_cult-selected.png",
+      "attack": {
+        "image": "a_cult-attack.png",
+        "frames": 12
+      },
+      "hit": {
+        "image": "a_cult-hit.png",
+        "frames": 3
+      }
+    },
+    "a_bloodmoon": {
+      "image": "a_bloodmoon.png",
+      "still": "a_bloodmoon-still.png",
+      "selectedImage": "a_bloodmoon-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f4_bloodmoon",
+      "attack": {
+        "image": "a_bloodmoon-attack.png",
+        "frames": 12
+      },
+      "hit": {
+        "image": "a_bloodmoon-hit.png",
+        "frames": 3
+      }
+    },
+    "n_grenadier": {
+      "image": "n_grenadier.png",
+      "still": "n_grenadier-still.png",
+      "selectedImage": "n_grenadier-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercgrenadier",
+      "attack": {
+        "image": "n_grenadier-attack.png",
+        "frames": 9
+      },
+      "hit": {
+        "image": "n_grenadier-hit.png",
+        "frames": 3
+      }
+    },
+    "n_medic": {
+      "image": "n_medic.png",
+      "still": "n_medic-still.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_healingmystic",
+      "selectedImage": "n_medic-selected.png",
+      "attack": {
+        "image": "n_medic-attack.png",
+        "frames": 16
+      },
+      "hit": {
+        "image": "n_medic-hit.png",
+        "frames": 3
+      }
+    },
+    "n_locke": {
+      "image": "n_locke.png",
+      "still": "n_locke-still.png",
+      "selectedImage": "n_locke-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_ladylocke",
+      "attack": {
+        "image": "n_locke-attack.png",
+        "frames": 23
+      },
+      "hit": {
+        "image": "n_locke-hit.png",
+        "frames": 3
+      }
+    },
+    "v_fenrir": {
+      "image": "v_fenrir.png",
+      "still": "v_fenrir-still.png",
+      "selectedImage": "v_fenrir-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f6_fenrirwarmaster",
+      "attack": {
+        "image": "v_fenrir-attack.png",
+        "frames": 19
+      },
+      "hit": {
+        "image": "v_fenrir-hit.png",
+        "frames": 3
+      }
+    },
+    "e_warlord": {
+      "image": "e_warlord.png",
+      "still": "e_warlord-still.png",
+      "selectedImage": "e_warlord-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_mercswornavanger",
+      "attack": {
+        "image": "e_warlord-attack.png",
+        "frames": 14
+      },
+      "hit": {
+        "image": "e_warlord-hit.png",
+        "frames": 3
+      }
+    },
+    "e_lich": {
+      "image": "e_lich.png",
+      "still": "e_lich-still.png",
+      "selectedImage": "e_lich-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_bonereaper",
+      "attack": {
+        "image": "e_lich-attack.png",
+        "frames": 22
+      },
+      "hit": {
+        "image": "e_lich-hit.png",
+        "frames": 3
+      }
+    },
+    "a_deep": {
+      "image": "a_deep.png",
+      "still": "a_deep-still.png",
+      "selectedImage": "a_deep-selected.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f4_daemondeep",
+      "attack": {
+        "image": "a_deep-attack.png",
+        "frames": 16
+      },
+      "hit": {
+        "image": "a_deep-hit.png",
+        "frames": 3
+      }
+    },
+    "e_guardian": {
+      "image": "e_guardian.png",
+      "still": "e_guardian-still.png",
+      "selectedImage": "e_guardian-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "neutral_primusshieldmaster",
+      "attack": {
+        "image": "e_guardian-attack.png",
+        "frames": 18
+      },
+      "hit": {
+        "image": "e_guardian-hit.png",
+        "frames": 3
+      }
+    },
+    "d_howler": {
+      "image": "d_howler.png",
+      "still": "d_howler-still.png",
+      "selectedImage": "d_howler-selected.png",
+      "frames": 14,
+      "durationMs": 1167,
+      "width": 100,
+      "height": 112,
+      "source": "f3_sandhowler",
+      "attack": {
+        "image": "d_howler-attack.png",
+        "frames": 24
+      },
+      "hit": {
+        "image": "d_howler-hit.png",
+        "frames": 3
+      }
+    },
+    "m_rex": {
+      "image": "m_rex.png",
+      "still": "m_rex-still.png",
+      "frames": 12,
+      "durationMs": 1000,
+      "width": 100,
+      "height": 112,
+      "source": "f5_unstableleviathan",
+      "selectedImage": "m_rex-selected.png",
+      "attack": {
+        "image": "m_rex-attack.png",
+        "frames": 28
+      },
+      "hit": {
+        "image": "m_rex-hit.png",
+        "frames": 3
+      }
+    }
+  }
+}

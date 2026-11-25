@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>午夜酒馆 v11.0 · 镜湖 4 回合发牌出招 × 黑市开包</title>
+  <link rel="stylesheet" href="./css/v11.css?v=110" />
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+
+      <!-- ═══ BEAT 1: OUTDOOR MIRROR-LAKE 4-ROUND ACTIVE-BOSS BATTLE ═══ -->
+      <div id="battle-view">
+        <canvas id="battle-canvas" width="1280" height="720"></canvas>
+
+        <div id="battle-top-bar">
+          <div class="bt-squad-box steel-panel">
+            <div class="bt-sq-head">
+              <span id="bt-title">W1/8 · 第 1/4 回合</span>
+              <span id="bt-squad-hp-text">小队 100/100</span>
+            </div>
+            <div class="bt-sq-bar-wrap">
+              <div id="bt-squad-hp-fill" style="width:100%"></div>
+              <div id="bt-squad-shield-fill" style="width:0%"></div>
+            </div>
+          </div>
+
+          <div class="bt-boss-box steel-panel">
+            <div class="bt-boss-head">
+              <span id="bt-boss-name">Boss</span>
+              <span id="bt-boss-hp-text">0 / 0</span>
+            </div>
+            <div id="bt-boss-hp-bar"></div>
+          </div>
+
+          <div class="bt-tools-box">
+            <button id="btn-bt-roster" class="steel-btn hud-mini-btn">花名册</button>
+            <button id="btn-bt-hands" class="steel-btn hud-mini-btn">牌型</button>
+            <button id="bt-speed-btn" class="steel-btn">速度 1×</button>
+          </div>
+        </div>
+
+        <!-- Live Left-to-Right Relic Chain Bar -->
+        <div id="bt-relic-chain" class="steel-panel"></div>
+
+        <!-- Live Tactical Forecast Bar (Shield / Break / Hand Preview during Picking) -->
+        <div id="bt-forecast-bar" class="bt-forecast-bar"></div>
+
+        <!-- Mirror-Lake Bottom 5-Card Tactical Hand Dock -->
+        <section id="bt-hand-dock" class="bottom-dock steel-panel">
+          <button id="btn-bt-discard" class="steel-btn gold dock-wing-btn"></button>
+          <div id="bt-cards-row"></div>
+          <button id="btn-bt-strike" class="steel-btn crimson dock-wing-btn"></button>
+        </section>
+
+        <!-- Minimized Telemetry Bar during Strike Spectacle (Leaves Mirror Lake Wide Open!) -->
+        <div id="battle-live-telemetry" class="steel-panel hidden">
+          <div id="bt-hand-pill"></div>
+          <div id="bt-chain-stats"></div>
+        </div>
+      </div>
+
+      <!-- ═══ BEAT 2: INDOOR MIDNIGHT TAVERN PURE BLACK-MARKET SHOP ═══ -->
+      <div id="tavern-view" class="hidden">
+        <canvas id="tavern-canvas" width="1280" height="720"></canvas>
+
+        <header id="top-hud">
+          <div class="hud-stats-cluster steel-panel">
+            <span class="hud-pill wave" id="hud-wave">W2/8</span>
+            <span class="hud-pill hearts" id="hud-hearts">❤❤❤</span>
+            <span class="hud-pill gold" id="hud-gold">18G</span>
+            <button class="steel-btn hud-roster-btn" id="btn-roster-open">花名册 <b id="hud-roster-count">8</b></button>
+          </div>
+
+          <div id="top-relic-rack" class="steel-panel"></div>
+
+          <div class="hud-tools-cluster">
+            <button class="steel-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
+            <button class="steel-btn hud-mini-btn" id="btn-mute">音效</button>
+            <button class="steel-btn hud-mini-btn" id="btn-restart">重开</button>
+          </div>
+        </header>
+
+        <div id="shop-boss-preview" class="steel-panel"></div>
+
+        <section id="shop-dock" class="bottom-dock steel-panel">
+          <button id="btn-shop-reroll" class="steel-btn dock-wing-btn"></button>
+          <div class="shop-center-grid">
+            <div id="shop-relics-row" class="shop-subrow"></div>
+            <div class="shop-divider"></div>
+            <div id="shop-packs-row" class="shop-subrow"></div>
+          </div>
+          <button id="btn-shop-next" class="steel-btn emerald dock-wing-btn"></button>
+        </section>
+      </div>
+
+      <!-- ═══ SHOWSTOPPER: FULL-SCREEN BOOSTER PACK OPENING CEREMONY ═══ -->
+      <div id="pack-ceremony-modal" class="hidden">
+        <canvas id="pack-fx-canvas" width="1280" height="720"></canvas>
+        <div class="pack-ceremony-hud">
+          <div class="pack-header">
+            <div id="pack-ceremony-title">秘宝秘匣</div>
+            <div id="pack-ceremony-sub"></div>
+          </div>
+
+          <div id="pack-sealed-stage">
+            <div id="pack-foil-envelope"></div>
+          </div>
+
+          <div id="pack-reveal-stage" class="hidden">
+            <div id="pack-cards-grid"></div>
+          </div>
+
+          <div id="pack-target-stage" class="hidden">
+            <div id="pack-target-title"></div>
+            <div id="pack-target-grid"></div>
+            <button id="btn-pack-target-back" class="steel-btn hud-mini-btn">← 返回重选塔罗</button>
+          </div>
+
+          <div class="pack-footer">
+            <button id="btn-pack-abandon" class="steel-btn">放弃本包 (+2G)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ═══ WAVE PAYOUT MODAL ═══ -->
+      <div id="payout-modal" class="modal-backdrop hidden">
+        <div class="payout-box steel-panel">
+          <div id="po-title" class="po-title win">讨伐成功!</div>
+          <div id="po-sub"></div>
+          <div id="po-rows"></div>
+          <button id="po-next-btn" class="steel-btn gold">推门进酒馆 · 开包构筑 →</button>
+        </div>
+      </div>
+
+      <!-- ═══ ROSTER & HAND TYPE GUIDE MODAL ═══ -->
+      <div id="roster-modal" class="modal-backdrop hidden">
+        <div class="roster-box steel-panel">
+          <div class="rm-head">
+            <div class="rm-tabs">
+              <button id="rm-tab-roster" class="steel-btn rm-tab active">酒馆花名册</button>
+              <button id="rm-tab-hands" class="steel-btn rm-tab">牌型倍率表</button>
+            </div>
+            <button id="rm-close-btn" class="steel-btn hud-mini-btn">关闭 ✕</button>
+          </div>
+          <div id="rm-summary"></div>
+          <div id="rm-body"></div>
+        </div>
+      </div>
+
+      <div id="toast-banner"></div>
+    </div>
+  </div>
+
+  <!-- Duelyst H5 Kit & v11 Engine Scripts -->
+  <script src="./assets/duelyst/duelyst-h5.js?v=110"></script>
+  <script src="./assets/duelyst/assets/manifest.js?v=110"></script>
+  <script src="./js/audio.js?v=110"></script>
+  <script src="./js/vfxPlayer.js?v=110"></script>
+  <script src="./js/sprites.js?v=110"></script>
+  <script src="./js/tavernCanvas.js?v=110"></script>
+  <script src="./js/v11Data.js?v=110"></script>
+  <script src="./js/v11Battle.js?v=110"></script>
+  <script src="./js/v11Main.js?v=110"></script>
+</body>
+</html>

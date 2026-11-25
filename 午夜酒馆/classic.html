@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>午夜酒馆：佣兵经纪人 v8.0</title>
+  <link rel="stylesheet" href="./css/style.css?v=83" />
+</head>
+<body>
+  <div id="viewport">
+    <div id="stage">
+      <!-- HD-2D Atmospheric Midnight Tavern Canvas (3-stage horizontal scroll) -->
+      <canvas id="tavern-canvas"></canvas>
+
+      <!-- Unified Single-Bar Top HUD (Zero patchwork boxes, leaves upper windows & Bounty Board unobstructed!) -->
+      <header id="top-hud">
+        <div class="hud-unified-bar" id="hud-status-bar">
+          <div class="hud-seg day-seg">
+            <i class="pxi pxi-moon pxi-sm"></i>
+            <strong id="hud-day">D1/15</strong>
+            <span class="hud-lv-tag" id="hud-tavern-lv">Lv.1 小馆</span>
+          </div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg gold-seg">
+            <i class="pxi pxi-coin pxi-sm"></i>
+            <strong id="hud-gold">150</strong>
+          </div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg rep-seg">
+            <i class="pxi pxi-star pxi-sm"></i>
+            <strong id="hud-rep">50</strong>
+          </div>
+          <div class="hud-vdiv hidden" id="hud-wanted-div"></div>
+          <div class="hud-seg wanted-seg hidden" id="hud-wanted-chip">
+            <span>通缉</span>
+            <strong id="hud-wanted">0</strong>
+          </div>
+          <div class="hud-vdiv"></div>
+          <div class="hud-seg rent-seg" id="hud-rent-pill">
+            <i class="pxi pxi-scroll pxi-sm"></i>
+            <span id="hud-rent-text">2夜缴租 110G</span>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <button class="hd-btn hd-btn-cyan" id="btn-armory">
+            <i class="pxi pxi-sword pxi-sm"></i>
+            <span id="btn-armory-label">军火(1)</span>
+          </button>
+          <button class="hd-btn hd-btn-amber" id="btn-upgrades">
+            <i class="pxi pxi-hammer pxi-sm"></i>
+            <span>扩建</span>
+          </button>
+          <button class="hd-btn" id="btn-mute" title="开关音效">声:开</button>
+        </div>
+      </header>
+
+      <!-- Transient Toast -->
+      <div id="event-toast" class="hidden"></div>
+
+      <!-- Collapsible Steel-Beveled Bar Drink Drawer (Pops directly above the bottom Steel Command Tray!) -->
+      <section id="drink-tray" class="hd-panel hd-gold drawer-hidden" aria-label="吧台特调">
+        <div class="drink-drawer-head">
+          <strong>午夜吧台 · 特调酒单</strong>
+          <small>点击或拖给码头酒客</small>
+          <button class="px-close drink-close-btn" id="btn-close-drink-tray">×</button>
+        </div>
+        <div class="drink-list" id="drink-list"></div>
+      </section>
+
+      <!-- Floating Mercenary Inspect Card (Tap a merc to inspect) -->
+      <aside id="merc-dossier" class="hd-panel hd-gold hidden">
+        <button class="px-close" id="dossier-close">X</button>
+        <div class="dossier-top">
+          <div class="dossier-portrait" id="dossier-portrait"></div>
+          <div class="dossier-meta">
+            <div class="dossier-name-row">
+              <span class="tier-pill" id="dossier-tier">C</span>
+              <strong id="dossier-name">铁砧</strong>
+              <span class="dossier-role" id="dossier-role">前排</span>
+            </div>
+            <div class="dossier-tags" id="dossier-tags"></div>
+            <div class="dossier-stats">
+              <div class="d-stat-row">
+                <span><i class="pxi pxi-sword pxi-sm"></i> <b id="dossier-power">35</b></span>
+                <span class="seg-bar" id="dossier-power-bar"></span>
+              </div>
+              <div class="d-stat-row">
+                <span><i class="pxi pxi-coin pxi-sm"></i> <b id="dossier-fee">20G</b></span>
+                <span id="dossier-limit-text">红线 ≤50%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dossier-lifetag" id="dossier-lifetag"></div>
+        <div class="dossier-gear-row" id="dossier-gear-row"></div>
+        <div class="dossier-quirk" id="dossier-quirk"></div>
+        <div class="dossier-btn-row">
+          <button class="hd-btn hd-btn-amber" id="dossier-assign-btn">拉入小队</button>
+          <button class="hd-btn hd-btn-cyan" id="dossier-sign-btn">花样签约</button>
+        </div>
+      </aside>
+
+      <!-- Bottom-Center Heavy Steel-Beveled Pixel Command Tray (Floating directly over the Mirror Lake!) -->
+      <nav id="tavern-steel-dock" aria-label="午夜酒馆指挥台">
+        <div class="tv-steel-tray">
+          <button class="tv-wing-btn left" id="btn-bar-drawer">
+            <i class="pxi pxi-rum pxi-md"></i>
+            <span class="fab-title">吧台调酒</span>
+            <small class="bar-fab-badge" id="bar-fab-badge">3款特调</small>
+          </button>
+
+          <div class="tv-center-sockets" id="tavern-squad-tray" title="点击打开悬赏派单台"></div>
+
+          <button class="tv-wing-btn right" id="btn-bounty-drawer">
+            <i class="pxi pxi-scroll pxi-md"></i>
+            <span class="fab-title" id="bounty-fab-label">悬赏布告栏</span>
+            <small class="bounty-fab-badge" id="bounty-fab-badge">小队 0/3</small>
+          </button>
+        </div>
+      </nav>
+
+      <!-- Centered Diegetic Bounty Dossier & Tactical Sandtable (v5.2 Luxury Code-Craft) -->
+      <div class="modal-backdrop hidden" id="contract-modal">
+        <aside id="contract-desk" class="bounty-dispatch-modal hd-panel hd-gold">
+          <!-- 4 Handcrafted Pixel Brass Filigree Corner Brackets -->
+          <i class="desk-filigree tl" aria-hidden="true"></i>
+          <i class="desk-filigree tr" aria-hidden="true"></i>
+          <i class="desk-filigree bl" aria-hidden="true"></i>
+          <i class="desk-filigree br" aria-hidden="true"></i>
+
+          <!-- Floating Corner Close Rivet -->
+          <button class="bounty-close-rivet" id="btn-close-contract-desk" title="关闭悬赏台">×</button>
+
+          <!-- Top Edge: Overlapping Dossier Folder Bookmarks -->
+          <div class="bounty-modal-head">
+            <div class="contract-tabs" id="contract-tabs"></div>
+          </div>
+
+          <!-- Middle Main Stage: Left Aged Parchment Wanted Dossier <-> Right Obsidian Sandtable -->
+          <div class="bounty-upper-grid" id="parchment-body">
+            <!-- Left: Aged Dark-Parchment Wanted Dossier -->
+            <div class="bounty-boss-col" id="bounty-boss-col">
+              <div class="dossier-head-row">
+                <span class="tier-badge" id="contract-tier">I阶</span>
+                <h2 id="contract-title">废弃商道清剿</h2>
+                <span class="boss-el-badges" id="contract-boss-els"></span>
+              </div>
+
+              <div class="boss-showcase">
+                <div class="boss-ambient-halo"></div>
+                <div class="boss-dust-layer" aria-hidden="true">
+                  <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                </div>
+                <div class="contract-boss-box" id="contract-boss-sprite"></div>
+                <strong class="boss-name-tag" id="contract-boss-name">猩红掠夺者</strong>
+              </div>
+
+              <div class="contract-numbers">
+                <div class="stat-line threat">
+                  <i class="pxi pxi-skull pxi-md"></i>
+                  <span class="seg-bar" id="contract-threat-bar"></span>
+                  <span class="stat-val" id="contract-threat">74</span>
+                </div>
+                <div class="stat-line reward">
+                  <i class="pxi pxi-coin pxi-md"></i>
+                  <span class="seg-bar" id="contract-reward-bar"></span>
+                  <span class="stat-val" id="contract-reward">155G</span>
+                </div>
+              </div>
+
+              <div class="intel-strip hidden" id="intel-strip">
+                <i class="pxi pxi-lock pxi-sm"></i>
+                <span id="intel-text"></span>
+                <button class="hd-btn hd-btn-cyan mini-scout-btn hidden" id="btn-scout">踩点 18G</button>
+              </div>
+            </div>
+
+            <!-- Right: Obsidian Tactical Sandtable + Unified Horizontal Command Strip -->
+            <div class="bounty-squad-col">
+              <div class="synergy-float-bar" id="synergy-bar"></div>
+
+              <div class="squad-slots" id="squad-slots">
+                <div class="squad-slot" data-slot="0"></div>
+                <div class="squad-slot" data-slot="1"></div>
+                <div class="squad-slot" data-slot="2"></div>
+              </div>
+
+              <!-- Compact 2-Slot Carried Battle Drink Loadout (Tap to cycle!) -->
+              <div class="bounty-drink-loadout" id="bounty-drink-loadout"></div>
+
+              <!-- Unified Horizontal Command Strip (Winrate | Segmented Bar | Fee | Wax Seal) -->
+              <div class="bounty-action-row">
+                <div class="cmd-strip-bar">
+                  <div class="wr-hero-row">
+                    <strong id="winrate-text">0%</strong>
+                    <span class="wr-lbl" id="winrate-lbl">胜率</span>
+                  </div>
+                  <i class="cmd-sep" aria-hidden="true"></i>
+                  <div class="cmd-seg-bar" id="winrate-seg-bar"></div>
+                  <i class="cmd-sep" aria-hidden="true"></i>
+                  <div class="fee-pill-wrap">
+                    <i class="pxi pxi-coin pxi-md"></i>
+                    <b id="squad-fee">0G</b>
+                  </div>
+                </div>
+                <button class="wax-seal-btn disabled" id="wax-seal-btn" title="按住盖章派单">
+                  <svg class="wax-seal-svg" viewBox="0 0 100 100" aria-hidden="true">
+                    <defs>
+                      <radialGradient id="waxBodyGrad" cx="38%" cy="32%" r="68%">
+                        <stop offset="0%" stop-color="#e33042" />
+                        <stop offset="48%" stop-color="#a81022" />
+                        <stop offset="86%" stop-color="#690612" />
+                        <stop offset="100%" stop-color="#42020a" />
+                      </radialGradient>
+                      <radialGradient id="waxWellGrad" cx="55%" cy="58%" r="58%">
+                        <stop offset="0%" stop-color="#8f0d1c" />
+                        <stop offset="72%" stop-color="#680612" />
+                        <stop offset="100%" stop-color="#42020a" />
+                      </radialGradient>
+                      <linearGradient id="waxGoldEmb" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#ffe7b5" />
+                        <stop offset="45%" stop-color="#e6926a" />
+                        <stop offset="100%" stop-color="#9e2f24" />
+                      </linearGradient>
+                    </defs>
+                    <!-- Organic Melted-Wax Scalloped Silhouette -->
+                    <path class="wax-blob"
+                      d="M50,5 C57,5 62,10 69,10 C77,10 83,16 85,24 C87,31 94,36 94,45 C94,53 89,58 90,66 C91,75 84,83 76,85 C69,87 64,94 55,94 C47,94 42,90 34,91 C25,92 17,85 15,77 C13,70 6,65 6,56 C6,48 11,42 9,34 C7,25 14,16 23,14 C30,12 36,6 44,6 Z"
+                      fill="url(#waxBodyGrad)" stroke="#3b0208" stroke-width="1.6" />
+                    <!-- Glossy Melted-Wax Specular Rim Highlight -->
+                    <path d="M22,22 C29,13 42,9 55,10 C63,11 71,13 77,19"
+                      fill="none" stroke="rgba(255, 195, 200, 0.55)" stroke-width="3.2" stroke-linecap="round" />
+                    <path d="M13,44 C13,34 17,26 23,21"
+                      fill="none" stroke="rgba(255, 180, 188, 0.38)" stroke-width="2.4" stroke-linecap="round" />
+                    <!-- Recessed Circular Stamp Impression -->
+                    <circle cx="50" cy="50" r="32" fill="url(#waxWellGrad)" stroke="#d94252" stroke-width="1.4" opacity="0.92" />
+                    <circle cx="50" cy="50" r="33.5" fill="none" stroke="#360208" stroke-width="1.6" />
+                    <!-- Embossed Rose-Gold Twin Laurel Wreaths -->
+                    <g fill="none" stroke="url(#waxGoldEmb)" stroke-width="1.8" stroke-linecap="round">
+                      <path d="M46,72 C32,68 24,57 25,43 C26,38 28,34 31,30" />
+                      <path d="M54,72 C68,68 76,57 75,43 C74,38 72,34 69,30" />
+                    </g>
+                    <g fill="url(#waxGoldEmb)">
+                      <!-- Left Laurel Leaves -->
+                      <ellipse cx="26" cy="40" rx="2.2" ry="4.2" transform="rotate(-24 26 40)" />
+                      <ellipse cx="25" cy="49" rx="2.2" ry="4.4" transform="rotate(-10 25 49)" />
+                      <ellipse cx="28" cy="58" rx="2.2" ry="4.3" transform="rotate(14 28 58)" />
+                      <ellipse cx="34" cy="65" rx="2.1" ry="4.1" transform="rotate(38 34 65)" />
+                      <ellipse cx="41" cy="70" rx="2.0" ry="3.8" transform="rotate(62 41 70)" />
+                      <!-- Right Laurel Leaves -->
+                      <ellipse cx="74" cy="40" rx="2.2" ry="4.2" transform="rotate(24 74 40)" />
+                      <ellipse cx="75" cy="49" rx="2.2" ry="4.4" transform="rotate(10 75 49)" />
+                      <ellipse cx="72" cy="58" rx="2.2" ry="4.3" transform="rotate(-14 72 58)" />
+                      <ellipse cx="66" cy="65" rx="2.1" ry="4.1" transform="rotate(-38 66 65)" />
+                      <ellipse cx="59" cy="70" rx="2.0" ry="3.8" transform="rotate(-62 59 70)" />
+                    </g>
+                    <!-- Embossed Rose-Gold 4-Point Compass Star -->
+                    <polygon points="50,24 54,46 72,50 54,54 50,74 46,54 28,50 46,46" fill="url(#waxGoldEmb)" />
+                    <polygon points="50,24 54,46 50,50" fill="#fff2cc" opacity="0.65" />
+                    <polygon points="28,50 46,46 50,50" fill="#fff2cc" opacity="0.45" />
+                    <polygon points="43,43 47,47 45,49 41,45" fill="url(#waxGoldEmb)" />
+                    <polygon points="57,43 59,45 55,49 53,47" fill="url(#waxGoldEmb)" />
+                    <polygon points="43,57 45,51 47,53 45,59" fill="url(#waxGoldEmb)" />
+                    <polygon points="57,57 55,59 53,53 55,51" fill="url(#waxGoldEmb)" />
+                    <!-- Live Molten-Gold Press-and-Hold Charge Ring -->
+                    <circle class="ring-fill" id="seal-progress" cx="50" cy="50" r="33" />
+                  </svg>
+                  <span class="wax-cap-lbl" id="wax-btn-label">按住派单</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lower Recessed Bronze Guild Tray: 3-Column Horizontal Sculpted Plaques -->
+          <div class="bounty-roster-section">
+            <div class="bounty-roster-grid" id="bounty-roster-grid"></div>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Armory & 10-Second Midnight Auction Modal -->
+      <div class="modal-backdrop hidden" id="armory-modal">
+        <div class="armory-card hd-panel hd-gold">
+          <div class="modal-head">
+            <h2>黑市军火架 · 10秒午夜拍卖</h2>
+            <button class="px-close" id="armory-close">X</button>
+          </div>
+          <div id="armory-list-view">
+            <div class="armory-grid" id="armory-grid"></div>
+          </div>
+          <div id="auction-stage" class="hidden">
+            <div class="auction-header">
+              <div class="auction-item-preview">
+                <div class="gear-icon-frame lg" id="auction-item-icon"></div>
+                <strong id="auction-item-name">晨曦圣枪</strong>
+              </div>
+              <span class="auction-timer" id="auction-timer">10.0s</span>
+            </div>
+            <div class="auction-bids" id="auction-bids"></div>
+            <div class="auction-price-row">
+              <div>当前最高出价：<strong class="gold-big" id="auction-price">185G</strong></div>
+              <div>流拍风险：<strong id="auction-risk">低 (15%)</strong></div>
+            </div>
+            <div class="auction-actions">
+              <button class="hd-btn hd-btn-crimson" id="btn-auction-hype">拱一次火 (+22%)</button>
+              <button class="hd-btn hd-btn-amber big-amber" id="btn-auction-hammer">落槌成交！</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fancy Signing Modal -->
+      <div class="modal-backdrop hidden" id="sign-modal">
+        <div class="sign-card hd-panel hd-gold">
+          <div class="modal-head">
+            <h2 id="sign-modal-title">花样签约</h2>
+            <button class="px-close" id="sign-close">X</button>
+          </div>
+          <div id="sign-modal-body"></div>
+        </div>
+      </div>
+
+      <!-- Live Tavern Event Modal -->
+      <div class="modal-backdrop hidden" id="event-modal">
+        <div class="event-card hd-panel hd-crimson">
+          <div class="event-badge">酒馆突发事件</div>
+          <h2 id="event-modal-title">讨债打手踹开了大门！</h2>
+          <p id="event-modal-desc"></p>
+          <div class="event-choices" id="event-choices"></div>
+        </div>
+      </div>
+
+      <!-- v7.5 Full-Bleed Mirror-Lake Eclipse Pixel Battle Theater (Zero Web-UI Modal!) -->
+      <div class="modal-backdrop hidden" id="theater-modal">
+        <div class="theater-card v7-theater">
+          <!-- Full-Stage 1280x720 Live Mirror-Lake Pixel Battle Canvas -->
+          <canvas id="battle-canvas"></canvas>
+
+          <!-- Floating Top Pixel HUD Overlay (Zero web header bar!) -->
+          <div class="bt-top-overlay">
+            <div class="bt-left-hud">
+              <div class="bt-px-plate">
+                <i class="bt-star-dot">✦</i>
+                <strong id="bt-title">废弃商道清剿 · R1</strong>
+              </div>
+              <div class="bt-squad-mini-list" id="bt-squad-mini-list"></div>
+            </div>
+
+            <div class="bt-boss-hud">
+              <span class="bt-boss-el" id="bt-boss-el"></span>
+              <div class="bt-boss-bar-wrap">
+                <div class="bt-boss-name-row">
+                  <span id="bt-boss-name">毒棘虫群霸主</span>
+                  <span class="bt-boss-hp-text" id="bt-boss-hp-text">355/355</span>
+                </div>
+                <div class="bt-boss-hp-bar" id="bt-boss-hp-bar"></div>
+              </div>
+            </div>
+
+            <div class="bt-speed-group">
+              <button class="bt-spd-btn active" id="btn-bt-speed-1">1×</button>
+              <button class="bt-spd-btn" id="btn-bt-speed-2">2×</button>
+            </div>
+          </div>
+
+          <!-- Floating Bottom-Center Steel-Beveled Pixel Tactical Drink Tray (Over Mirror Lake!) -->
+          <div class="bt-dock-wrap">
+            <div class="bt-steel-tray">
+              <div class="bt-tray-wing left" title="随队战中酒 · 点击或拖拽泼出">
+                <i class="pxi pxi-rum pxi-md"></i>
+                <span>特调</span>
+              </div>
+              <div class="bt-drink-dock" id="bt-drink-dock"></div>
+              <div class="bt-tray-wing right" title="拖到桥面单位可精准瞄准并触发0.25x子弹时间">
+                <span class="bt-wing-aim">瞄准</span>
+                <small>0.25x</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loot Sack Blind-Box & Broker-Cut Settlement Modal -->
+      <div class="modal-backdrop hidden" id="settlement-modal">
+        <div class="settlement-card hd-panel hd-gold">
+          <div class="settlement-header">
+            <div class="result-stamp" id="result-stamp">大获全胜</div>
+            <h2 id="settlement-title">战利品麻袋砸在了吧台上！</h2>
+          </div>
+
+          <div class="sack-stage" id="sack-stage">
+            <button class="loot-sack-btn hd-panel hd-gold" id="loot-sack-btn">
+              <i class="pxi pxi-sack pxi-hero"></i>
+              <div class="sack-prompt">点击砸开战利品！</div>
+            </button>
+          </div>
+
+          <div class="split-stage hidden" id="split-stage">
+            <div class="loot-banner">
+              <div class="loot-col hd-panel">
+                <span class="loot-lbl">总战利品</span>
+                <strong class="loot-val gold" id="settle-gross">240G</strong>
+              </div>
+              <div class="loot-col hd-panel">
+                <span class="loot-lbl">掉落军火 / 损毁</span>
+                <strong class="loot-val relic" id="settle-relic">无掉落</strong>
+              </div>
+              <div class="loot-col hd-panel">
+                <span class="loot-lbl">高光时刻</span>
+                <strong class="loot-val note" id="settle-highlight">全员稳健推进</strong>
+              </div>
+            </div>
+
+            <div class="lever-panel hd-panel">
+              <div class="lever-head">
+                <span>抽成拉杆 <small id="cut-limit-hint"></small></span>
+                <strong class="cut-badge" id="cut-badge">抽成 45% · 业内行规</strong>
+              </div>
+              <input type="range" id="cut-slider" min="20" max="80" step="5" value="45" />
+              <div class="lever-ticks">
+                <span>20% 慈善</span>
+                <span>45% 行规</span>
+                <span>65% 黑心</span>
+                <span>80% 吸血</span>
+              </div>
+
+              <div class="merc-reactions" id="merc-reactions"></div>
+
+              <div class="split-preview">
+                <div class="preview-box mine">
+                  <span>老板落袋</span>
+                  <strong id="preview-my-gold">+108G</strong>
+                </div>
+                <div class="preview-box theirs">
+                  <span>佣兵分得</span>
+                  <strong id="preview-merc-gold">132G</strong>
+                </div>
+                <div class="preview-box rep">
+                  <span>口碑 / 忠诚</span>
+                  <strong id="preview-rep-delta">声望 +6 · 忠诚 +4</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="settlement-actions">
+              <button class="hd-btn hd-btn-amber big-amber" id="btn-confirm-settle">落袋为安 · 下一夜</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tavern Expansion & Signed Roster Modal -->
+      <div class="modal-backdrop hidden" id="upgrade-modal">
+        <div class="upgrade-card hd-panel hd-gold">
+          <div class="modal-head">
+            <h2>酒馆扩建 · 签约花名册</h2>
+            <button class="px-close" id="upgrade-close">X</button>
+          </div>
+          <div class="upgrade-grid" id="upgrade-grid"></div>
+          <div class="signed-roster-box" id="signed-roster-box"></div>
+          <div class="upgrade-footer">
+            <span class="codex-counter" id="codex-counter">图鉴已签约：0 / 14</span>
+            <button class="hd-btn hd-btn-crimson" id="btn-reset">重置存档 · 重开第 1 夜</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rent Notice Modal -->
+      <div class="modal-backdrop hidden" id="rent-modal">
+        <div class="rent-card hd-panel hd-crimson">
+          <i class="pxi pxi-scroll pxi-hero"></i>
+          <h2 id="rent-modal-title">地税官敲响了酒馆大门</h2>
+          <p id="rent-modal-desc"></p>
+          <button class="hd-btn hd-btn-amber big-amber" id="btn-rent-ok">继续营业</button>
+        </div>
+      </div>
+
+      <!-- 15-Night / Bankruptcy Algorithmic Title Resume Card -->
+      <div class="modal-backdrop hidden" id="summary-modal">
+        <div class="summary-card hd-panel hd-gold">
+          <div class="summary-ribbon">午夜酒馆 v4.0 · 15夜经纪人终局档案</div>
+          <div class="summary-rank" id="summary-rank">暗夜军火教父</div>
+          <div class="summary-sub" id="summary-sub">你用铁腕与眼光撑起了一座地下帝国</div>
+          <div class="summary-grid">
+            <div class="sum-stat"><span>结余金币</span><strong id="sum-gold">0G</strong></div>
+            <div class="sum-stat"><span>声望 / 通缉</span><strong id="sum-rep">50 / 0</strong></div>
+            <div class="sum-stat"><span>完成委托</span><strong id="sum-wins">0 / 15</strong></div>
+            <div class="sum-stat"><span>平均抽成</span><strong id="sum-greed">45%</strong></div>
+          </div>
+          <div class="summary-mvp">
+            <div class="mvp-sprite" id="sum-mvp-sprite"></div>
+            <div>
+              <div class="mvp-label">头号王牌 / 图鉴收录</div>
+              <strong id="sum-mvp-name">铁砧</strong>
+              <p id="sum-mvp-quote">“老板，下次开张记得留位置！”</p>
+            </div>
+          </div>
+          <!-- GPT Playtest Fix #3: Neutral side-by-side buttons to observe genuine replay intent -->
+          <div class="summary-actions">
+            <button class="hd-btn" id="btn-end-run">结束营业</button>
+            <button class="hd-btn hd-btn-amber big-amber" id="btn-new-run">再来一局</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Drag Ghost -->
+  <div id="drag-ghost" class="hidden"></div>
+
+  <script src="./assets/duelyst/assets/manifest.js?v=78"></script>
+  <script src="./assets/duelyst/duelyst-h5.js?v=78"></script>
+  <script src="./js/manifest.js?v=44"></script>
+  <script src="./js/vfxManifest.js?v=68"></script>
+  <script src="./js/pixelArt.js?v=55"></script>
+  <script src="./js/uiIcons.js?v=44"></script>
+  <script src="./js/vfxPlayer.js?v=78"></script>
+  <script src="./js/audio.js?v=44"></script>
+  <script src="./js/data.js?v=78"></script>
+  <script src="./js/sprites.js?v=78"></script>
+  <script src="./js/tavernScene.js?v=75"></script>
+  <script src="./js/tavernCanvas.js?v=85"></script>
+  <script src="./js/battleTheater.js?v=81"></script>
+  <script src="./js/main.js?v=83"></script>
+</body>
+</html>
