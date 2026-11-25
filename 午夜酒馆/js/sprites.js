@@ -3,6 +3,8 @@
 // and uses exact transform: translateX(0 -> -100%) with steps(N, end) — ZERO sliding/drift anywhere!
 (function () {
   window.MT = window.MT || {};
+  // Global unified animation pacing config (single source of truth for Canvas + DOM cards/posters)
+  window.MT.ANIM_CONFIG = Object.assign({ idleRate: 0.80 }, window.MT.ANIM_CONFIG || {});
 
   class SpriteLibrary {
     constructor() {
@@ -116,7 +118,8 @@
           const dc = this.getDuelystClip(item.unitId, item.anim);
           if (!dc) continue;
           const { kit, clip, img } = dc;
-          const cell = kit.frame(clip, now - item.t0, { loop: true });
+          const idleRate = (item.anim === 'idle' && window.MT.ANIM_CONFIG) ? window.MT.ANIM_CONFIG.idleRate : 1;
+          const cell = kit.frame(clip, (now - item.t0) * idleRate, { loop: true });
           if (!cell) continue;
           const ctx = item.ctx;
           const cw = item.canvas.width;
@@ -202,7 +205,8 @@
           squashY = 1
         } = opts;
         const rawSec = elapsedOverride !== null ? elapsedOverride : timeSec;
-        const tMs = Math.max(0, rawSec * 1000 * speedMult);
+        const idleRate = (anim === 'idle' && elapsedOverride === null && window.MT.ANIM_CONFIG) ? window.MT.ANIM_CONFIG.idleRate : 1;
+        const tMs = Math.max(0, rawSec * 1000 * speedMult * idleRate);
         const totalMs = kit.duration(clip) || 1;
         const safeMs = (!loop && tMs >= totalMs) ? Math.max(0, totalMs - 1) : tMs;
 

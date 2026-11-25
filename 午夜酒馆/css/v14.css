@@ -1,0 +1,2452 @@
+/* v14.4 Commercial-Grade UI Overhaul (built on top of v13.css)
+ * 1. Font Hierarchy: Pixel font for headers/numbers; crisp sans-serif (>=12-14px) for all descriptions.
+ * 2. Hand Cards: Large animated Duelyst sprite + short 4-8 char perk tag (zero tiny wall-of-text).
+ * 3. Prep Hall: Left Hero Preview + Ascension + CTA | Right Dual-Tab (Heroes / 8 Theme Packs).
+ * 4. Shop & Pack Modal: Animated Boss on Wanted Poster, colored pixel icons on all relics/packs, zero overlap!
+ */
+
+/* Crisp readable font for all body descriptions */
+.v14-body-text,
+.v14-card-desc,
+.v14-shop-card-desc,
+.v14-hero-desc,
+.v14-prep-desc,
+.v14-inspect-desc,
+#rm-body,
+#rm-summary {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif !important;
+  letter-spacing: 0.2px;
+}
+
+/* Tier Badges (C / B / A / S / SSS) */
+.v14-tier {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  border: 1px solid currentColor;
+  line-height: 1.25;
+}
+.v14-tier.tier-C   { color: #c4ccde; background: #2c3242; }
+.v14-tier.tier-B   { color: #79d2ff; background: #16334a; }
+.v14-tier.tier-A   { color: #d48cff; background: #341c4a; }
+.v14-tier.tier-S   { color: #ffd966; background: #473311; box-shadow: 0 0 8px rgba(255, 217, 102, 0.45); }
+.v14-tier.tier-SSS { color: #ff7a98; background: linear-gradient(135deg, #5c1230, #2e154f); box-shadow: 0 0 12px rgba(255, 107, 139, 0.65); }
+
+.v14-card-tier-S, .v14-shop-card.tier-border-S {
+  border-color: #f0b840 !important;
+  box-shadow: 0 0 12px rgba(240, 184, 64, 0.28);
+}
+.v14-card-tier-SSS, .v14-shop-card.tier-border-SSS {
+  border-color: #ff6b8b !important;
+  box-shadow: 0 0 16px rgba(255, 107, 139, 0.42);
+}
+
+.v14-theme-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.v14-bridge-tag {
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 900;
+  color: #16101f;
+  background: #ffd966;
+}
+
+.v14-ver-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(18, 12, 24, 0.85);
+  border: 1px solid rgba(255, 217, 102, 0.45);
+  color: #f6e7c4;
+  font-size: 12px;
+  font-weight: 700;
+}
+.v14-ver-pill a { color: #79d2ff; text-decoration: underline; }
+
+/* ═══ BATTLE: SLIM FORMATION BAR & FORECAST BAR ═══ */
+#v14-slots-bar {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 170px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 24;
+  pointer-events: auto;
+}
+.v14-slot-box {
+  width: 244px;
+  height: 36px;
+  padding: 3px 9px;
+  border-radius: 7px;
+  background: rgba(16, 12, 26, 0.88);
+  border: 1.5px dashed rgba(255, 255, 255, 0.26);
+  color: #e8e2d6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  cursor: pointer;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+  user-select: none;
+}
+.v14-slot-box.filled {
+  border-style: solid;
+  border-color: #ffd966;
+  background: rgba(31, 22, 46, 0.94);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+.v14-slot-box.locked {
+  border-color: #6be5ff;
+  background: rgba(14, 34, 48, 0.84);
+  opacity: 0.78;
+  cursor: not-allowed;
+}
+.v14-slot-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  flex: 1;
+}
+.v14-slot-idx { font-size: 11px; font-weight: 900; color: #b7c0d8; white-space: nowrap; }
+.v14-slot-name { font-size: 12px; font-weight: 900; color: #fff6dc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v14-slot-atk { font-size: 13px; font-weight: 900; color: #ffd966; white-space: nowrap; }
+.v14-slot-atk.grown { color: #7ef28a; text-shadow: 0 0 8px rgba(126, 242, 138, 0.6); }
+.v14-slot-sub { font-size: 11px; color: #9ba7c7; white-space: nowrap; }
+.v14-slot-actions { display: flex; gap: 4px; flex-shrink: 0; }
+.v14-slot-mini-btn {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: #eef2ff;
+  cursor: pointer;
+}
+.v14-slot-mini-btn:hover { background: rgba(255, 217, 102, 0.28); border-color: #ffd966; }
+
+#bt-forecast-bar.v14-forecast {
+  bottom: 212px !important;
+  min-height: 36px;
+  padding: 4px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: rgba(15, 11, 24, 0.9);
+  border: 1.5px solid rgba(255, 217, 102, 0.4);
+  border-radius: 8px;
+}
+.v14-fc-metrics { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.v14-fc-pill {
+  padding: 3px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #f4efe6;
+}
+.v14-fc-pill.direct { color: #ffd966; border-color: rgba(255, 217, 102, 0.6); background: rgba(255, 217, 102, 0.12); }
+.v14-fc-pill.poison { color: #7ef28a; border-color: rgba(126, 242, 138, 0.55); background: rgba(126, 242, 138, 0.1); }
+.v14-fc-pill.shield { color: #78b7ff; border-color: rgba(120, 183, 255, 0.55); }
+.v14-fc-pill.break  { color: #1a1008; background: #ffd966; border-color: #fff2b2; }
+.v14-fc-links { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 520px; }
+.v14-link-chip {
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(255, 217, 102, 0.18);
+  border: 1px solid rgba(255, 217, 102, 0.55);
+  color: #ffe89e;
+}
+
+/* Battle top-left HUD single-line guard (never wraps onto relic rack) */
+#battle-top-bar .bt-sq-head {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  white-space: nowrap !important;
+}
+#bt-title, #bt-squad-hp-text {
+  white-space: nowrap !important;
+  font-size: 13px !important;
+}
+
+/* On-demand Card Detail Pill (hover / tap in battle — floats cleanly in upper sky) */
+#v14-card-tip {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 108px;
+  bottom: auto;
+  max-width: 760px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background: rgba(14, 10, 24, 0.94);
+  border: 1.5px solid #ffd966;
+  color: #fff6dc;
+  font-size: 13px;
+  line-height: 1.4;
+  z-index: 30;
+  pointer-events: none;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#v14-card-tip.hidden { display: none !important; }
+
+/* ═══ BATTLE HAND CARDS: CLEAN SPRITE-FIRST DESIGN (NO TINY TEXT WALL!) ═══ */
+#bt-cards-row.v14-hand-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  padding: 0 6px;
+}
+.v14-card {
+  position: relative;
+  width: 142px;
+  height: 146px;
+  padding: 6px 7px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #2b2040 0%, #171224 100%);
+  border: 2px solid #5e5078;
+  color: #f4efe6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  user-select: none;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+.v14-card:hover { transform: translateY(-7px); border-color: #ffd966; box-shadow: 0 8px 18px rgba(0, 0, 0, 0.6); }
+.v14-card.in-slot { opacity: 0.4; transform: scale(0.95); border-style: dashed; }
+.v14-card.discard-pick {
+  transform: translateY(-10px);
+  border-color: #6be5ff !important;
+  box-shadow: 0 0 16px rgba(107, 229, 255, 0.65);
+}
+.v14-card-top {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+}
+.v14-card-atk {
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffd966;
+  text-shadow: 0 2px 3px rgba(0, 0, 0, 0.7);
+}
+.v14-card-atk.grown {
+  color: #7ef28a;
+  text-shadow: 0 0 8px rgba(126, 242, 138, 0.65);
+}
+.v14-card-hero-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  width: 100%;
+}
+.v14-card-sprite {
+  width: 58px;
+  height: 54px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.v14-card-name {
+  font-size: 13px;
+  font-weight: 900;
+  color: #fff6dc;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+.v14-card-perk {
+  width: 100%;
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: rgba(12, 9, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif !important;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #dbe4ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.v14-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+}
+.v14-inscrip-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(255, 92, 114, 0.25);
+  border: 1px solid rgba(255, 92, 114, 0.7);
+  color: #ffc2cc;
+}
+.v14-inscrip-pill.glass { background: rgba(123, 232, 255, 0.22); border-color: #7be8ff; color: #c7f6ff; }
+.v14-inscrip-pill.greed { background: rgba(255, 217, 102, 0.22); border-color: #ffd966; color: #ffedaa; }
+.v14-inscrip-pill.iron  { background: rgba(120, 183, 255, 0.22); border-color: #78b7ff; color: #c7e5ff; }
+.v14-leftmost-tag {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 900;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #6be5ff;
+  color: #0f1b26;
+  white-space: nowrap;
+}
+
+/* Legacy v14.4 wing button box rules removed in favor of v15.0 pixel diamond crests */
+
+/* ═══ RELIC RACK ═══ */
+#bt-relic-chain.v14-relic-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+}
+.v14-relic-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  min-width: 118px;
+  max-width: 164px;
+  border-radius: 8px;
+  background: rgba(24, 17, 36, 0.94);
+  border: 1.5px solid rgba(255, 217, 102, 0.45);
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.v14-relic-chip.pulse {
+  transform: scale(1.08);
+  border-color: #ffffff;
+  box-shadow: 0 0 16px rgba(255, 217, 102, 0.9);
+}
+.v14-relic-mini-icon {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.v14-relic-chip-text { min-width: 0; display: flex; flex-direction: column; }
+.v14-relic-chip-title { font-size: 11px; font-weight: 900; color: #fff6dc; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.v14-relic-chip-sub { font-size: 10.5px; color: #7ef28a; font-weight: 800; }
+
+/* ═══ BLACK-MARKET SHOP: PIXEL ICONS + ANIMATED BOSS + ZERO OVERLAP ═══ */
+#boss-bounty-panel {
+  background: linear-gradient(180deg, #f3e0b5 0%, #dfc287 100%) !important;
+  border: 2px solid #7d4e21 !important;
+  border-radius: 10px;
+  padding: 12px 14px !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45);
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+}
+.v14-boss-poster-sprite {
+  width: 112px;
+  height: 104px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0;
+  background: radial-gradient(circle, rgba(74, 38, 16, 0.18) 0%, rgba(74, 38, 16, 0) 70%);
+}
+
+/* Completely override v13 wax-contract-cta so button text is 100% crisp and visible! */
+#btn-shop-next,
+#btn-shop-next.wax-contract-cta {
+  position: relative !important;
+  width: 100% !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  color: #fff8e2 !important;
+  font-size: 17px !important;
+  font-weight: 900 !important;
+  letter-spacing: 1px !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.85) !important;
+  background: linear-gradient(180deg, #c92f42 0%, #801524 100%) !important;
+  border: 2px solid #ffd966 !important;
+  border-radius: 10px !important;
+  padding: 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5) !important;
+  overflow: visible !important;
+  text-indent: 0 !important;
+}
+#btn-shop-next::before,
+#btn-shop-next::after {
+  display: none !important;
+  content: none !important;
+}
+#btn-shop-next:hover { filter: brightness(1.12); transform: translateY(-1px); }
+
+/* Relic Inspect Popover: anchored cleanly right under #top-relic-rack */
+#relic-inspect-bar.tavern-inspect-strip {
+  position: absolute !important;
+  top: 62px !important;
+  bottom: auto !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 60 !important;
+  max-width: 900px;
+}
+.v14-relic-order-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(18, 12, 28, 0.98);
+  border: 2px solid #ffd966;
+  border-radius: 10px;
+  color: #f6efe0;
+  font-size: 13px;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.8);
+}
+#squad-ledger-strip {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+.v14-shop-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.v14-shop-card {
+  padding: 10px 11px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #271d38 0%, #181224 100%);
+  border: 2px solid #5c4d73;
+  color: #f6efe0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 7px;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.v14-shop-card:hover { transform: translateY(-3px); border-color: #ffd966; }
+.v14-shop-card.sold { opacity: 0.35; pointer-events: none; }
+.v14-shop-card-head { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.v14-shop-icon-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.v14-shop-pixel-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 7px;
+  padding: 3px;
+  background: rgba(10, 8, 18, 0.72);
+  border: 1px solid rgba(255, 217, 102, 0.35);
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.v14-shop-card-name { font-size: 13.5px; font-weight: 900; color: #fff6dc; line-height: 1.25; }
+.v14-shop-card-desc { font-size: 12.5px; line-height: 1.42; color: #dce2f4; flex: 1; }
+.v14-shop-price {
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: #473311;
+  border: 1px solid #ffd966;
+  color: #ffd966;
+  font-size: 12.5px;
+  font-weight: 900;
+}
+
+.v14-lower-shop {
+  display: grid;
+  grid-template-columns: 1.08fr 1.22fr;
+  gap: 12px;
+  margin-top: 8px;
+}
+.v14-packs-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.v14-slots-upgrade-col { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.v14-slot-upg-btn {
+  padding: 9px 11px;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #1b2f3d 0%, #12202b 100%);
+  border: 1.5px solid rgba(120, 183, 255, 0.5);
+  color: #eaf2ff;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.v14-slot-upg-btn:hover { border-color: #ffd966; filter: brightness(1.1); }
+.v14-slot-upg-top { display: flex; justify-content: space-between; font-size: 13px; font-weight: 900; }
+.v14-slot-upg-sub { font-size: 12px; color: #c7d8f0; font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif !important; }
+
+/* ═══ PACK MODAL: STRICT EQUAL WIDTH & HEIGHT + LARGE ANIMATED SPRITES ═══ */
+#pack-cards-grid.v14-modal-choices,
+#pack-target-grid.v14-modal-choices,
+.v14-modal-choices {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 14px !important;
+  margin-top: 14px !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 1120px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+#pack-cards-grid.v14-modal-choices.cols-3,
+.v14-modal-choices.cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  max-width: 880px !important;
+}
+#pack-cards-grid .v14-shop-card,
+#pack-target-grid .v14-shop-card {
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 224px;
+  box-sizing: border-box;
+}
+.v14-pack-sprite-stage {
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(255, 217, 102, 0.14) 0%, rgba(0, 0, 0, 0) 72%);
+  border-radius: 8px;
+}
+
+/* ═══ PREP HALL: LEFT HERO PREVIEW + RIGHT DUAL-TAB (HEROES / 8 THEMES) ═══ */
+.v14-orbs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 99px;
+  background: rgba(20, 32, 54, 0.94);
+  border: 1.5px solid #6be5ff;
+  color: #b5f2ff;
+  font-size: 13px;
+  font-weight: 900;
+}
+.v14-ad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  background: linear-gradient(180deg, #ebb02e 0%, #b57712 100%);
+  border: 1.5px solid #fff0b3;
+  color: #1c1005;
+  font-size: 12.5px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+.v14-ad-btn:hover { filter: brightness(1.1); }
+.v14-ad-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: grayscale(0.6); }
+
+.v14-src-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 900;
+  background: rgba(126, 242, 138, 0.16);
+  border: 1px solid rgba(126, 242, 138, 0.55);
+  color: #9ff5a8;
+}
+.v14-src-pill.zero { background: rgba(255, 92, 114, 0.25); border-color: #ff5c72; color: #ffc2cc; }
+
+#deck-select-modal { display: flex; flex-direction: column; }
+#deck-select-modal.hidden { display: none !important; }
+#deck-select-modal .contracts-top-rail {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  height: 62px !important;
+  min-height: 62px !important;
+  padding: 0 22px !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 20 !important;
+}
+#deck-select-modal .contracts-rail-title {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 12px !important;
+  white-space: nowrap !important;
+  margin: 0 !important;
+}
+#deck-select-modal .crt-main { margin: 0 !important; font-size: 20px !important; line-height: 1.2 !important; }
+
+.v14-prep-body {
+  flex: 1;
+  overflow: hidden;
+  padding: 12px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.v14-prep-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 16px;
+  min-height: 0;
+}
+.v14-prep-left {
+  padding: 16px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(28, 20, 42, 0.96) 0%, rgba(16, 12, 26, 0.96) 100%);
+  border: 2px solid #ffd966;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+}
+.v14-prep-hero-stage {
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle, rgba(255, 217, 102, 0.18) 0%, rgba(0, 0, 0, 0) 72%);
+  border-radius: 10px;
+}
+.v14-prep-hero-title { font-size: 20px; font-weight: 900; color: #fff6dc; text-align: center; }
+.v14-prep-desc { font-size: 13.5px; line-height: 1.48; color: #dce3f5; text-align: center; }
+
+.v14-asc-row {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
+}
+.v14-asc-btn {
+  padding: 5px 2px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 900;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #dce3f5;
+  cursor: pointer;
+}
+.v14-asc-btn.active { background: #b8293d; border-color: #ffd966; color: #fff8e2; }
+.v14-asc-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.v14-prep-right {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+}
+.v14-prep-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.v14-tab-group { display: flex; gap: 8px; }
+.v14-tab-btn {
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 900;
+  background: rgba(24, 18, 36, 0.9);
+  border: 2px solid #594b70;
+  color: #c8d1e8;
+  cursor: pointer;
+}
+.v14-tab-btn.active {
+  background: linear-gradient(180deg, #4b356e 0%, #2d1f45 100%);
+  border-color: #ffd966;
+  color: #fff6dc;
+}
+
+.v14-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+.v14-hero-card {
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(22, 16, 34, 0.92);
+  border: 2px solid #4e4366;
+  color: #f6efe0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+.v14-hero-card:hover { transform: translateY(-3px); border-color: #ffd966; }
+.v14-hero-card.selected { border-color: #ffd966; background: rgba(45, 31, 68, 0.96); box-shadow: 0 0 14px rgba(255, 217, 102, 0.4); }
+.v14-hero-card.locked { opacity: 0.86; }
+.v14-hero-name { font-size: 13px; font-weight: 900; color: #fff6dc; }
+.v14-hero-badge { font-size: 11px; font-weight: 900; padding: 2px 8px; border-radius: 99px; background: rgba(255, 255, 255, 0.1); }
+.v14-hero-badge.owned { color: #7ef28a; background: rgba(126, 242, 138, 0.16); }
+.v14-hero-badge.price { color: #ffd966; background: rgba(255, 217, 102, 0.16); }
+
+.v14-themes-grid-8 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+.v14-theme-card {
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(20, 15, 32, 0.94);
+  border: 2px solid #4b526e;
+  color: #f4efe6;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+}
+.v14-theme-card.active-pick { border-color: #ffd966; box-shadow: 0 0 12px rgba(255, 217, 102, 0.3); }
+
+/* 3s Rewarded Ad Simulator Modal */
+.v14-ad-modal-box {
+  width: 440px;
+  padding: 24px 28px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #211933 0%, #130e1f 100%);
+  border: 2px solid #ffd966;
+  color: #fff6dc;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.75);
+}
+.v14-ad-tag {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  background: #473311;
+  border: 1px solid #ffd966;
+  color: #ffd966;
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+.v14-ad-progress-wrap { width: 100%; height: 12px; border-radius: 99px; background: rgba(255, 255, 255, 0.12); overflow: hidden; margin: 14px 0 10px; }
+#ad-sim-bar { width: 0%; height: 100%; background: linear-gradient(90deg, #6be5ff, #ffd966); transition: width 0.2s linear; }
+#ad-sim-countdown { font-size: 13px; font-weight: 800; color: #cbd3e8; }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * v15.0 FRAMELESS ORNATE HD-2D ANIME PIXEL BATTLE THEATER
+ * Direction 1 (Full-Bleed Mirror Lake + Zero Heavy Boxes) + Rich Ornate Craft!
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+/* 1. Balatro-Style 3-Section Top HUD: Left (Player) — Center (Large Relic Rack) — Right (Boss HP + Tools) */
+#battle-top-bar {
+  background: transparent !important;
+  padding: 12px 20px 0 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 16px !important;
+}
+#battle-top-bar .bt-squad-box,
+#battle-top-bar .bt-boss-box {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+#battle-top-bar .bt-squad-box {
+  width: 316px !important;
+  min-width: 316px !important;
+}
+#battle-top-bar .bt-boss-box {
+  width: 296px !important;
+  min-width: 296px !important;
+  margin-left: auto !important;
+  margin-right: 12px !important;
+}
+#battle-top-bar .bt-sq-head,
+#battle-top-bar .bt-boss-head {
+  padding: 0 2px 7px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  white-space: nowrap !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95);
+}
+#bt-title {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  color: #ffe89e !important;
+}
+.v15-hud-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: #eef3ff;
+  font-size: 14.5px;
+  font-weight: 900;
+}
+.v15-hud-tag.gold { color: #ffe266; }
+#bt-squad-hp-text {
+  color: #8bf5b8 !important;
+  font-size: 14.5px !important;
+  font-weight: 900 !important;
+}
+#bt-boss-name {
+  color: #ff8aa4 !important;
+  font-size: 15.5px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.8px;
+}
+#bt-boss-hp-text {
+  color: #fff2cc !important;
+  font-size: 14.5px !important;
+  font-weight: 900 !important;
+}
+
+/* Crisp Pixel Double-Framed HP Bars */
+#battle-top-bar .bt-sq-bar-wrap,
+#battle-top-bar #bt-boss-hp-bar {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 15px !important;
+  padding: 2px !important;
+  background: #0d0a18 !important;
+  border: 2px solid #c9a452 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 0 1px #06040d, 0 4px 12px rgba(0, 0, 0, 0.72) !important;
+  overflow: hidden !important;
+  clip-path: none !important;
+  box-sizing: border-box !important;
+}
+#battle-top-bar #bt-boss-hp-bar {
+  border-color: #d94865 !important;
+  height: 16px !important;
+}
+#bt-squad-hp-fill {
+  display: block !important;
+  height: 100% !important;
+  background: linear-gradient(180deg, #6ef7b2 0%, #24b87a 55%, #168256 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.38);
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+#bt-squad-shield-fill {
+  position: absolute !important;
+  top: 2px !important;
+  left: 2px !important;
+  bottom: 2px !important;
+  height: auto !important;
+  background: linear-gradient(180deg, rgba(168, 240, 255, 0.92), rgba(52, 168, 245, 0.85)) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5);
+}
+#bt-boss-hp-bar .boss-hp-fill {
+  display: block !important;
+  height: 100% !important;
+  background: linear-gradient(180deg, #ff708d 0%, #d91c42 52%, #8c0e29 100%) !important;
+  box-shadow: inset 0 2px 0 rgba(255, 210, 220, 0.42);
+  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Sleek Compact Top-Right Pixel Tool Buttons */
+#battle-top-bar .bt-tools-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  margin-top: 4px !important;
+  flex-shrink: 0 !important;
+}
+#battle-top-bar .bt-tools-box .steel-btn {
+  background: rgba(18, 15, 32, 0.72) !important;
+  border: 1.5px solid rgba(201, 164, 82, 0.55) !important;
+  border-radius: 3px !important;
+  color: #ebeef8 !important;
+  padding: 4px 9px !important;
+  font-size: 12.5px !important;
+  font-weight: 800 !important;
+  min-width: 0 !important;
+  height: 30px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.55) !important;
+}
+#battle-top-bar .bt-tools-box .steel-btn:hover {
+  border-color: #ffe266 !important;
+  color: #ffe266 !important;
+  background: rgba(32, 26, 54, 0.9) !important;
+}
+
+/* 2. Balatro-Style Center-Top Large Relic Rack (74×86 Pixel Showcase Cards!) */
+#bt-relic-chain.v14-relic-bar {
+  position: absolute !important;
+  top: 10px !important;
+  left: 50% !important;
+  transform: translateX(-62%) !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  z-index: 27 !important;
+}
+.v15-relic-empty-slot {
+  width: 68px;
+  height: 82px;
+  border-radius: 5px;
+  background: rgba(18, 15, 30, 0.45);
+  border: 1.5px dashed rgba(188, 168, 214, 0.26);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v15-relic-empty-slot::after {
+  content: "◇";
+  font-size: 16px;
+  color: rgba(188, 168, 214, 0.2);
+}
+#bt-relic-chain .v14-relic-chip {
+  width: 72px !important;
+  min-width: 72px !important;
+  max-width: 72px !important;
+  height: 86px !important;
+  padding: 5px 4px 4px !important;
+  border-radius: 5px !important;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(255, 217, 102, 0.22) 0%, rgba(14, 10, 26, 0) 70%),
+    linear-gradient(180deg, #2b2246 0%, #151026 100%) !important;
+  border: 2px solid #d4a644 !important;
+  border-bottom: 4px solid #0b0714 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 2px !important;
+  text-align: center !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 168, 0.25), 0 6px 16px rgba(0, 0, 0, 0.72) !important;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.16s ease !important;
+}
+#bt-relic-chain .v14-relic-chip.pulse {
+  transform: translateY(-6px) scale(1.18) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 24px rgba(255, 226, 102, 0.95), 0 10px 20px rgba(0, 0, 0, 0.75) !important;
+}
+#bt-relic-chain .v14-relic-mini-icon {
+  width: 44px !important;
+  height: 44px !important;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.78));
+}
+#bt-relic-chain .v14-relic-chip-text {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+#bt-relic-chain .v14-relic-chip-title {
+  display: none !important;
+}
+#bt-relic-chain .v14-relic-chip-sub {
+  font-size: 11px !important;
+  font-weight: 900 !important;
+  color: #ffe266 !important;
+  line-height: 1.15 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 64px;
+}
+
+/* 3. Spacious 15px Pixel-Framed Card Detail Floating Card (Below Player HP Bar, Cleanly Left-Aligned) */
+#v14-card-tip {
+  top: 76px !important;
+  left: 20px !important;
+  transform: none !important;
+  max-width: 340px !important;
+  white-space: normal !important;
+  background: linear-gradient(180deg, rgba(22, 16, 40, 0.96) 0%, rgba(12, 9, 24, 0.97) 100%) !important;
+  border: 2px solid #ffd966 !important;
+  border-radius: 4px !important;
+  padding: 9px 14px !important;
+  font-size: 14.5px !important;
+  line-height: 1.48 !important;
+  color: #f6f0dc !important;
+  box-shadow: inset 0 0 0 1px rgba(255, 232, 168, 0.28), 0 8px 22px rgba(0, 0, 0, 0.72) !important;
+}
+
+/* 4. Open-Sky Central Forecast (Cleanly Below Large Center Relic Rack!) */
+#bt-forecast-bar.v14-forecast {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  top: 116px !important;
+  bottom: auto !important;
+  z-index: 28 !important;
+  min-height: 0 !important;
+  padding: 0 22px !important;
+  pointer-events: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+/* Frameless Pixel-Art Draw + Discard Info Display */
+#bt-forecast-bar .fc-piles {
+  position: absolute !important;
+  left: 34px !important;
+  top: 406px !important;
+  bottom: auto !important;
+  z-index: 32 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  pointer-events: auto !important;
+}
+#bt-forecast-bar .pile-btn {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  color: #e6eeff !important;
+  padding: 2px 3px !important;
+  font-size: 12.5px !important;
+  font-weight: 900 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  cursor: pointer !important;
+  text-shadow:
+    -1.5px -1.5px 0 #070512,
+     1.5px -1.5px 0 #070512,
+    -1.5px  1.5px 0 #070512,
+     1.5px  1.5px 0 #070512,
+     0 2px 6px rgba(0, 0, 0, 0.92) !important;
+}
+#bt-forecast-bar .pile-btn:hover {
+  transform: translateY(-1px);
+  color: #ffffff !important;
+}
+#bt-forecast-bar #btn-draw-pile {
+  border-right: none !important;
+}
+#bt-forecast-bar .pile-btn b {
+  color: #ffe266 !important;
+  font-size: 14.5px !important;
+}
+.v15-pile-ico {
+  width: 14px;
+  height: 16px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.85));
+}
+#fc-core-content {
+  flex: none !important;
+  display: inline-flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 2px !important;
+  pointer-events: auto !important;
+}
+.v14-fc-metrics {
+  display: inline-flex !important;
+  align-items: baseline !important;
+  gap: 14px !important;
+  padding: 2px 8px !important;
+  background: transparent !important;
+  border: none !important;
+}
+#bt-forecast-bar .v14-fc-pill {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.4px;
+  text-shadow:
+    -1.5px -1.5px 0 #06040f,
+     1.5px -1.5px 0 #06040f,
+    -1.5px  1.5px 0 #06040f,
+     1.5px  1.5px 0 #06040f,
+     0 3px 8px rgba(0, 0, 0, 0.95);
+}
+#bt-forecast-bar .v14-fc-pill.direct {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-size: 24px !important;
+  line-height: 1 !important;
+  color: #ffe66d !important;
+  text-shadow:
+    -2px -2px 0 #07040f,
+     2px -2px 0 #07040f,
+    -2px  2px 0 #07040f,
+     2px  2px 0 #07040f,
+     0 0 18px rgba(255, 217, 102, 0.72),
+     0 4px 10px rgba(0, 0, 0, 0.95);
+}
+#bt-forecast-bar .v14-fc-pill.break {
+  padding: 1px 8px !important;
+  border-radius: 3px !important;
+  background: #ffd966 !important;
+  color: #1c1005 !important;
+  text-shadow: none !important;
+}
+.v14-fc-links {
+  justify-content: center !important;
+  max-width: none !important;
+  gap: 10px !important;
+}
+.v14-link-chip {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  color: #ffe89e !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.95), 0 0 8px rgba(255, 217, 102, 0.35);
+}
+
+/* 5. Clean Hover-Only Bridge Swap Controls (Zero Permanent Clutter Over Water!) */
+#v14-slots-bar {
+  position: absolute !important;
+  left: 0 !important;
+  transform: none !important;
+  width: 100% !important;
+  top: 300px !important;
+  bottom: auto !important;
+  height: 150px !important;
+  pointer-events: none !important;
+  display: block !important;
+  z-index: 26 !important;
+}
+.v15-bridge-hitbox {
+  position: absolute;
+  top: 0;
+  width: 120px;
+  height: 144px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+.v15-bridge-ctrl {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.v15-bridge-hitbox:hover .v15-bridge-ctrl {
+  opacity: 1;
+  transform: translateY(0);
+}
+.v15-bridge-btn {
+  width: 24px;
+  height: 22px;
+  border-radius: 3px;
+  border: 1.5px solid rgba(255, 217, 102, 0.85);
+  background: rgba(14, 10, 26, 0.9);
+  color: #fff3cc;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.65);
+}
+.v15-bridge-btn:hover {
+  background: #ffd966;
+  color: #1c1008;
+}
+.v15-bridge-btn.unslot {
+  border-color: rgba(255, 110, 134, 0.85);
+  color: #ffb8c6;
+}
+.v15-bridge-btn.unslot:hover {
+  background: #e63956;
+  color: #ffffff;
+}
+
+/* 6. Transparent Bottom Dock — Generous Larger Hand Zone! */
+#bt-hand-dock.bottom-dock,
+#bt-hand-dock.steel-panel {
+  background: linear-gradient(180deg, rgba(6, 6, 18, 0) 0%, rgba(6, 7, 20, 0.42) 65%, rgba(4, 5, 16, 0.72) 100%) !important;
+  border: none !important;
+  box-shadow: none !important;
+  height: 224px !important;
+  padding: 0 16px 10px !important;
+  align-items: flex-end !important;
+  overflow: visible !important;
+}
+
+/* 7. Portrait Collectible Fanned 3D Living Pixel Hand Cards (156x208) */
+#bt-cards-row.v14-hand-row {
+  align-items: flex-end !important;
+  justify-content: center !important;
+  gap: 2px !important;
+  padding: 0 4px 6px !important;
+  overflow: visible !important;
+}
+@keyframes v15-holo-sweep {
+  0%   { transform: translateX(-140%) skewX(-24deg); opacity: 0; }
+  25%  { opacity: 0.45; }
+  55%  { transform: translateX(220%) skewX(-24deg); opacity: 0; }
+  100% { transform: translateX(220%) skewX(-24deg); opacity: 0; }
+}
+.v14-card {
+  position: relative;
+  width: 156px !important;
+  height: 208px !important;
+  margin: 0 -4px !important;
+  padding: 9px 9px 9px !important;
+  border-radius: 7px !important;
+  background:
+    radial-gradient(circle at 50% 42%, var(--card-glow, rgba(255, 217, 102, 0.22)) 0%, rgba(16, 12, 30, 0) 64%),
+    linear-gradient(180deg, #2b2246 0%, #171229 58%, #0e0a1c 100%) !important;
+  border: 2px solid var(--card-border, #8e7aa8) !important;
+  border-bottom: 5px solid #0b0714 !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 232, 168, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 10px 22px rgba(0, 0, 0, 0.65) !important;
+  transform: translateY(var(--fan-y, 0px)) rotate(var(--fan-rot, 0deg));
+  transform-origin: center bottom;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.15s ease, box-shadow 0.15s ease, z-index 0s;
+  overflow: visible;
+}
+.v14-card-top {
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  gap: 3px !important;
+  align-items: center !important;
+}
+.v14-card-top .v14-tier {
+  flex-shrink: 0;
+  padding: 1px 5px !important;
+  font-size: 11px !important;
+  line-height: 1.25 !important;
+}
+.v14-card-top .v14-theme-pill {
+  flex-shrink: 0;
+  white-space: nowrap !important;
+  padding: 1px 6px !important;
+  font-size: 11.5px !important;
+  line-height: 1.25 !important;
+}
+.v14-card-top .v14-card-atk {
+  flex-shrink: 0;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 2px !important;
+  white-space: nowrap !important;
+  font-size: 18px !important;
+}
+/* Pixel Gold Corner Diamond Studs */
+.v14-card::before,
+.v14-card::after {
+  content: "";
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  background: var(--card-stud, #ffd966);
+  transform: rotate(45deg);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.v14-card::before { top: 3px; left: 3px; }
+.v14-card::after  { top: 3px; right: 3px; }
+
+.v14-card {
+  touch-action: none;
+}
+.v14-card.selected-card {
+  z-index: 35 !important;
+  transform: translateY(-20px) rotate(0deg) scale(1.07) !important;
+  border-color: #ffe27a !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 180, 0.72),
+    0 0 22px rgba(255, 217, 102, 0.65),
+    0 16px 28px rgba(0, 0, 0, 0.75) !important;
+}
+/* Smooth Slay-the-Spire Slide-to-Center + Live 3D Aiming Tilt Following Arrow! */
+.v14-card.dragging-centered {
+  z-index: 90 !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(600px) translate(var(--drag-cx, 0px), var(--drag-cy, -26px)) rotateX(var(--drag-rx, 0deg)) rotateY(var(--drag-ry, 0deg)) rotateZ(var(--drag-rz, 0deg)) scale(1.08) !important;
+  transition: transform 0.08s ease-out, border-color 0.14s ease, box-shadow 0.14s ease !important;
+  border-color: #ffe27a !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 240, 180, 0.85),
+    0 0 28px rgba(255, 217, 102, 0.8),
+    0 18px 34px rgba(0, 0, 0, 0.82) !important;
+  pointer-events: none !important;
+}
+
+.v15-px-ico {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  vertical-align: -2px;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.85));
+}
+.v15-px-ico.lg {
+  width: 22px;
+  height: 22px;
+  vertical-align: -3px;
+}
+
+#battle-overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 120;
+}
+
+/* Slay-the-Spire Physical Pile Fly-Out / Deal-In Animations (Crisp solid trajectory, zero fade-ghosting!) */
+@keyframes v15-pile-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.28); }
+  100% { transform: scale(1); }
+}
+.v15-pile-pop {
+  animation: v15-pile-pop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes v15-sts-discard {
+  0%   { transform: translate(0px, -18px) rotate(0deg) scale(1.04); opacity: 1; }
+  82%  { transform: translate(var(--fly-dx, -420px), var(--fly-dy, -20px)) rotate(-26deg) scale(0.22); opacity: 1; }
+  100% { transform: translate(var(--fly-dx, -420px), var(--fly-dy, -20px)) rotate(-32deg) scale(0.08); opacity: 0; }
+}
+.v14-card.card-discard-fly {
+  z-index: 95 !important;
+  animation: v15-sts-discard 0.26s cubic-bezier(0.45, 0, 0.85, 0.45) var(--fly-delay, 0ms) forwards !important;
+  pointer-events: none !important;
+}
+@keyframes v15-sts-draw {
+  0%   { transform: translate(var(--deal-dx, -460px), var(--deal-dy, -30px)) rotate(-24deg) scale(0.18); opacity: 1; }
+  75%  { transform: translate(0px, calc(var(--fan-y, 0px) - 8px)) rotate(var(--fan-rot, 0deg)) scale(1.03); opacity: 1; }
+  100% { transform: translate(0px, var(--fan-y, 0px)) rotate(var(--fan-rot, 0deg)) scale(1); opacity: 1; }
+}
+.v14-card.card-draw-in {
+  animation: v15-sts-draw 0.30s cubic-bezier(0.18, 0.92, 0.32, 1.06) var(--draw-delay, 0ms) both;
+}
+
+.v14-card.v15-dimmed,
+#bt-relic-chain .v14-relic-chip.v15-dimmed {
+  opacity: 0.32 !important;
+  filter: saturate(0.4);
+  transition: opacity 0.16s ease, filter 0.16s ease;
+}
+.v14-card.v15-related-glow,
+#bt-relic-chain .v14-relic-chip.v15-related-glow {
+  opacity: 1 !important;
+  border-color: #7ef28a !important;
+  box-shadow: 0 0 18px rgba(126, 242, 138, 0.7), 0 8px 18px rgba(0, 0, 0, 0.75) !important;
+}
+#bt-relic-chain .v14-relic-chip.v15-related-glow {
+  border-color: #d896ff !important;
+  box-shadow: 0 0 20px rgba(216, 150, 255, 0.85), 0 8px 18px rgba(0, 0, 0, 0.75) !important;
+}
+
+/* Clean Draggable Bridge Unit Hitbox (No overhead buttons!) */
+.v15-bridge-hitbox {
+  position: absolute;
+  top: 0;
+  width: 132px;
+  height: 150px;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+}
+.v15-bridge-hitbox:active {
+  cursor: grabbing;
+}
+.v14-card.in-slot {
+  opacity: 0.42 !important;
+  transform: translateY(10px) rotate(var(--fan-rot, 0deg)) scale(0.92) !important;
+  filter: saturate(0.45);
+}
+.v14-card.discard-pick {
+  z-index: 34 !important;
+  transform: translateY(-20px) rotate(0deg) scale(1.05) !important;
+  border-color: #6be5ff !important;
+  box-shadow: 0 0 22px rgba(107, 229, 255, 0.75), 0 14px 24px rgba(0, 0, 0, 0.7) !important;
+}
+/* 5-Tier Structural & Material Collectible Card Hierarchy (C -> B -> A -> S -> SSS) */
+@keyframes v15-sss-pulse {
+  0%, 100% {
+    border-color: #ff5e8e;
+    box-shadow: inset 0 0 0 1px rgba(255, 190, 210, 0.72), 0 0 20px rgba(255, 94, 142, 0.56), 0 10px 22px rgba(0, 0, 0, 0.72);
+  }
+  50% {
+    border-color: #ffd966;
+    box-shadow: inset 0 0 0 1px rgba(255, 240, 180, 0.88), 0 0 30px rgba(255, 122, 152, 0.82), 0 10px 22px rgba(0, 0, 0, 0.72);
+  }
+}
+@keyframes v15-s-glow {
+  0%, 100% { box-shadow: inset 0 0 0 1px rgba(255, 226, 122, 0.56), 0 0 16px rgba(245, 194, 76, 0.36), 0 10px 22px rgba(0, 0, 0, 0.68); }
+  50%      { box-shadow: inset 0 0 0 1px rgba(255, 244, 184, 0.82), 0 0 26px rgba(255, 210, 82, 0.64), 0 10px 22px rgba(0, 0, 0, 0.68); }
+}
+@keyframes v15-halo-spin {
+  0%   { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Clean unified card surface — remove legacy corner dot studs */
+.v14-card::before,
+.v14-card::after {
+  display: none !important;
+}
+
+@keyframes v15-halo-spin-rev {
+  0%   { transform: translate(-50%, -50%) rotate(360deg); }
+  100% { transform: translate(-50%, -50%) rotate(0deg); }
+}
+@keyframes v15-spark-twinkle {
+  0%, 100% { opacity: 0.15; transform: scale(0.7); }
+  50%      { opacity: 0.95; transform: scale(1.25); }
+}
+
+/* Inset Hairline Chamfered Filigree Frame (same color family per tier — zero clashing stickers) */
+.v15-card-filigree {
+  position: absolute;
+  inset: 4px;
+  width: calc(100% - 8px);
+  height: calc(100% - 8px);
+  pointer-events: none;
+  z-index: 1;
+}
+.v15-card-stage-bg {
+  position: absolute;
+  left: 50%;
+  top: 47%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.78;
+}
+.v15-card-stage-bg.spin {
+  animation: v15-halo-spin 22s linear infinite;
+}
+.v15-card-stage-bg.spin-rev {
+  animation: v15-halo-spin-rev 16s linear infinite;
+  opacity: 0.72;
+}
+.v15-card-spark {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 1px;
+  background: #fff5d1;
+  box-shadow: 0 0 6px #ff7aa8, 0 0 10px #ffd966;
+  pointer-events: none;
+  z-index: 2;
+  animation: v15-spark-twinkle 2.2s ease-in-out infinite;
+}
+.v15-card-spark.s1 { left: 16%; top: 30%; animation-delay: 0s; }
+.v15-card-spark.s2 { right: 15%; top: 36%; animation-delay: 0.65s; }
+.v15-card-spark.s3 { left: 20%; bottom: 32%; animation-delay: 1.25s; }
+.v15-card-spark.s4 { right: 18%; bottom: 28%; animation-delay: 1.75s; }
+.v14-card-hero-stage, .v14-card-top, .v14-card-perk, .v14-card-badges {
+  position: relative;
+  z-index: 2;
+}
+
+/* C Tier: Humble Matte Iron Slate (Zero studs, zero ornament — clear baseline!) */
+.v14-card.v14-card-tier-C {
+  background: linear-gradient(180deg, #1d1f2b 0%, #13141d 65%, #0c0d14 100%) !important;
+  border: 1.5px solid #596075 !important;
+  border-bottom: 4px solid #08090e !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 8px 18px rgba(0, 0, 0, 0.6) !important;
+}
+.v14-card.v14-card-tier-C::before,
+.v14-card.v14-card-tier-C::after {
+  display: none !important;
+}
+.v14-card.v14-card-tier-C .v14-card-perk {
+  border-top-color: rgba(130, 142, 170, 0.25) !important;
+  border-bottom-color: rgba(130, 142, 170, 0.16) !important;
+  color: #cbd4e8 !important;
+}
+
+/* B Tier: Deep Sapphire Enamel + Diagonal Hatch Texture + Silver-Blue Crown Crest */
+.v14-card.v14-card-tier-B {
+  --card-stud: #a8e4ff;
+  background:
+    repeating-linear-gradient(135deg, rgba(102, 204, 255, 0.06) 0px, rgba(102, 204, 255, 0.06) 3px, transparent 3px, transparent 9px),
+    radial-gradient(circle at 50% 44%, rgba(72, 184, 255, 0.34) 0%, rgba(12, 28, 52, 0) 68%),
+    linear-gradient(180deg, #183659 0%, #0e213b 58%, #081426 100%) !important;
+  border: 2px solid #5bc8ff !important;
+  border-bottom: 5px solid #06101e !important;
+  box-shadow: inset 0 0 0 1px rgba(154, 226, 255, 0.45), 0 0 14px rgba(72, 188, 255, 0.28), 0 10px 22px rgba(0, 0, 0, 0.68) !important;
+}
+.v14-card.v14-card-tier-B .v14-card-perk {
+  background: linear-gradient(90deg, rgba(8, 20, 38, 0.25) 0%, rgba(14, 42, 74, 0.94) 16%, rgba(14, 42, 74, 0.94) 84%, rgba(8, 20, 38, 0.25) 100%) !important;
+  border-top-color: rgba(114, 212, 255, 0.62) !important;
+  border-bottom-color: rgba(114, 212, 255, 0.38) !important;
+  color: #dcf4ff !important;
+}
+
+/* A Tier: Arcane Amethyst Starlight + Corner Filigree Brackets + Tri-Gem Crown */
+.v14-card.v14-card-tier-A {
+  --card-stud: #f0d4ff;
+  background:
+    radial-gradient(rgba(232, 186, 255, 0.22) 1px, transparent 1px) 0 0 / 12px 12px,
+    radial-gradient(circle at 50% 44%, rgba(196, 108, 255, 0.42) 0%, rgba(24, 12, 44, 0) 68%),
+    linear-gradient(180deg, #331954 0%, #1c0e33 58%, #10071f 100%) !important;
+  border: 2px solid #cf82ff !important;
+  border-bottom: 5px solid #0c0518 !important;
+  box-shadow: inset 0 0 0 1px rgba(235, 190, 255, 0.56), 0 0 18px rgba(196, 108, 255, 0.38), 0 10px 22px rgba(0, 0, 0, 0.7) !important;
+}
+.v14-card.v14-card-tier-A .v14-card-perk {
+  background: linear-gradient(90deg, rgba(20, 8, 38, 0.25) 0%, rgba(56, 22, 92, 0.95) 16%, rgba(56, 22, 92, 0.95) 84%, rgba(20, 8, 38, 0.25) 100%) !important;
+  border-top-color: rgba(218, 154, 255, 0.72) !important;
+  border-bottom-color: rgba(218, 154, 255, 0.42) !important;
+  color: #f6e6ff !important;
+}
+
+/* S Tier: Imperial Gilded Velvet + Diamond Gold Filigree Grid + Break-Out Gold Crown */
+.v14-card.v14-card-tier-S {
+  --card-stud: #fff4b8;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 214, 82, 0.07) 0px, rgba(255, 214, 82, 0.07) 2px, transparent 2px, transparent 10px),
+    repeating-linear-gradient(-45deg, rgba(255, 214, 82, 0.07) 0px, rgba(255, 214, 82, 0.07) 2px, transparent 2px, transparent 10px),
+    radial-gradient(circle at 50% 42%, rgba(255, 206, 72, 0.44) 0%, rgba(36, 22, 6, 0) 68%),
+    linear-gradient(180deg, #47300d 0%, #241706 58%, #140c03 100%) !important;
+  border: 2px solid #ffd24c !important;
+  border-bottom: 5px solid #120902 !important;
+  animation: v15-s-glow 2.6s ease-in-out infinite;
+}
+.v14-card.v14-card-tier-S .v14-card-perk {
+  background: linear-gradient(90deg, rgba(30, 18, 4, 0.25) 0%, rgba(84, 52, 10, 0.96) 16%, rgba(84, 52, 10, 0.96) 84%, rgba(30, 18, 4, 0.25) 100%) !important;
+  border-top-color: #ffe27a !important;
+  border-bottom-color: rgba(255, 214, 82, 0.55) !important;
+  color: #fff6d6 !important;
+}
+
+/* SSS Tier: Crimson Eclipse Mythic + Break-Out Winged Crown + Iridescent Holo Sweep */
+.v14-card.v14-card-tier-SSS {
+  --card-stud: #fff0f5;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 110, 152, 0.09) 0px, rgba(255, 110, 152, 0.09) 2px, transparent 2px, transparent 9px),
+    repeating-linear-gradient(-45deg, rgba(255, 214, 82, 0.07) 0px, rgba(255, 214, 82, 0.07) 2px, transparent 2px, transparent 9px),
+    radial-gradient(circle at 50% 40%, rgba(255, 94, 142, 0.5) 0%, rgba(24, 6, 18, 0) 68%),
+    linear-gradient(165deg, #521432 0%, #24091e 56%, #120412 100%) !important;
+  border: 2px solid #ff5e8e !important;
+  border-bottom: 5px solid #1a0410 !important;
+  animation: v15-sss-pulse 2.0s ease-in-out infinite;
+}
+.v14-card.v14-card-tier-SSS .v14-card-perk {
+  background: linear-gradient(90deg, rgba(42, 6, 22, 0.25) 0%, rgba(108, 16, 48, 0.96) 16%, rgba(108, 16, 48, 0.96) 84%, rgba(42, 6, 22, 0.25) 100%) !important;
+  border-top-color: #ffd966 !important;
+  border-bottom-color: #ff7a9e !important;
+  color: #fff4d6 !important;
+}
+
+.v14-card-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 3;
+}
+.v14-card-sheen::after {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 38%;
+  height: 120%;
+  background: linear-gradient(90deg, transparent, rgba(255, 245, 200, 0.48), transparent);
+  animation: v15-holo-sweep 3.2s ease-in-out infinite;
+}
+.v14-card.v14-card-tier-A .v14-card-sheen::after {
+  background: linear-gradient(90deg, transparent, rgba(226, 172, 255, 0.36), transparent);
+  animation-duration: 4.0s;
+}
+.v14-card.v14-card-tier-SSS .v14-card-sheen::after {
+  width: 46%;
+  background: linear-gradient(90deg, transparent, rgba(255, 110, 160, 0.36), rgba(255, 244, 184, 0.68), rgba(128, 232, 255, 0.36), transparent);
+  animation-duration: 2.3s;
+}
+.v14-card-hero-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+}
+.v14-card-sprite {
+  width: 78px !important;
+  height: 78px !important;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.72));
+}
+.v14-card-name {
+  font-size: 14.5px !important;
+  line-height: 1.2 !important;
+}
+.v14-card-atk {
+  font-size: 18px !important;
+  color: #ffe27a !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9), 0 0 8px rgba(255, 217, 102, 0.35);
+}
+.v14-card-perk {
+  width: 100%;
+  background: linear-gradient(90deg, rgba(10, 7, 20, 0.3) 0%, rgba(14, 10, 28, 0.92) 15%, rgba(14, 10, 28, 0.92) 85%, rgba(10, 7, 20, 0.3) 100%) !important;
+  border: none !important;
+  border-top: 1px solid rgba(255, 217, 102, 0.32) !important;
+  border-bottom: 1px solid rgba(255, 217, 102, 0.22) !important;
+  border-radius: 3px !important;
+  color: #eef3ff !important;
+  font-size: 12.5px !important;
+  line-height: 1.3 !important;
+  padding: 5px 5px !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 8. Hand-Crafted Pixel Medallion Action Crests (Discard Compass & Strike Blade Crest) */
+#btn-bt-discard.dock-wing-btn,
+#btn-bt-strike.dock-wing-btn {
+  position: relative !important;
+  width: 126px !important;
+  height: 128px !important;
+  margin-bottom: 10px !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  clip-path: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  cursor: pointer !important;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), filter 0.16s ease !important;
+  overflow: visible !important;
+}
+#btn-bt-discard.dock-wing-btn:hover,
+#btn-bt-strike.dock-wing-btn:hover {
+  transform: translateY(-6px) scale(1.06);
+  filter: brightness(1.14);
+}
+#btn-bt-discard.dock-wing-btn:active,
+#btn-bt-strike.dock-wing-btn:active {
+  transform: translateY(-1px) scale(0.97);
+}
+.v15-crest-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v15-crest-svg {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.72));
+  transition: transform 0.25s ease, filter 0.25s ease;
+}
+/* Persistent Ambient Glow for Mobile (No Hover Needed!) */
+@keyframes v15-ambient-cyan {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(107, 229, 255, 0.45)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.72)); }
+  50%      { filter: drop-shadow(0 0 15px rgba(126, 242, 255, 0.78)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.72)); }
+}
+@keyframes v15-ambient-crimson {
+  0%, 100% { filter: drop-shadow(0 0 10px rgba(255, 168, 92, 0.45)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(255, 217, 102, 0.78)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)); }
+}
+/* Discard Crest: Dim when no cards selected (non-interactive), bright cyan pulse when 1~4 cards selected! */
+#btn-bt-discard.dock-wing-btn .v15-crest-svg {
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+  opacity: 0.68;
+  animation: none;
+}
+#btn-bt-discard.dock-wing-btn.ready-discard .v15-crest-svg {
+  opacity: 1;
+  animation: v15-ambient-cyan 1.8s ease-in-out infinite;
+}
+#btn-bt-strike.dock-wing-btn .v15-crest-svg {
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.75));
+}
+#btn-bt-strike.dock-wing-btn.ready-glow .v15-crest-svg {
+  animation: v15-ambient-crimson 2.2s ease-in-out infinite;
+}
+@keyframes v15-lethal-pulse {
+  0%, 100% { filter: drop-shadow(0 0 14px rgba(255, 217, 102, 0.72)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)); transform: scale(1); }
+  50%      { filter: drop-shadow(0 0 24px rgba(255, 174, 54, 0.98)) drop-shadow(0 8px 16px rgba(0, 0, 0, 0.75)); transform: scale(1.05); }
+}
+#btn-bt-strike.dock-wing-btn.lethal-glow .v15-crest-svg {
+  animation: v15-lethal-pulse 1.25s ease-in-out infinite;
+}
+.v15-crest-count {
+  position: absolute;
+  top: 2px;
+  right: -4px;
+  min-width: 24px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #1f2b4d 0%, #0e1428 100%);
+  border: 1.5px solid #ffd966;
+  color: #ffe89e;
+  font-size: 11.5px;
+  font-weight: 900;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.78);
+}
+.v15-crest-count.crimson {
+  background: linear-gradient(180deg, #7d1328 0%, #3d0814 100%);
+  color: #fff3cc;
+  border-color: #ffd966;
+}
+.v15-crest-ribbon {
+  margin-top: -10px;
+  position: relative;
+  z-index: 2;
+  padding: 3px 14px;
+  background: linear-gradient(90deg, rgba(14, 10, 26, 0.18) 0%, rgba(20, 14, 36, 0.94) 18%, rgba(20, 14, 36, 0.94) 82%, rgba(14, 10, 26, 0.18) 100%);
+  border-top: 1.5px solid rgba(255, 217, 102, 0.72);
+  border-bottom: 1.5px solid rgba(255, 217, 102, 0.52);
+  text-align: center;
+  min-width: 108px;
+}
+#btn-bt-strike .v15-crest-ribbon {
+  background: linear-gradient(90deg, rgba(64, 10, 20, 0.22) 0%, rgba(116, 16, 34, 0.95) 18%, rgba(116, 16, 34, 0.95) 82%, rgba(64, 10, 20, 0.22) 100%);
+  border-top-color: #ffd966;
+  border-bottom-color: #ff8ea0;
+}
+.v15-crest-ribbon b {
+  display: block;
+  font-size: 14px !important;
+  font-weight: 900 !important;
+  color: #fff6dc !important;
+  letter-spacing: 1px;
+  line-height: 1.2;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+}
+.v15-crest-ribbon small {
+  display: block;
+  font-size: 11px !important;
+  color: #ffe299 !important;
+  line-height: 1.2;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+/* ============================================================================
+   v15.0 OFFICIAL 5-TIER 3D LIVING PIXEL CARDS (A+B FUSION: C / B / A / S / SSS)
+   ============================================================================ */
+@keyframes v15-aurora-spin {
+  0%   { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+.v15-card-window {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.v15-card-fx-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 0;
+}
+.v15-b-border {
+  position: absolute;
+  inset: -2px;
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 0;
+  padding: 2px;
+  background: linear-gradient(125deg, #ff5ea8, #ffd966, #66f0ff, #b878ff, #ff5ea8);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: v15-aurora-spin 3.8s linear infinite;
+}
+.v15-b-holo {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 1;
+}
+.v15-b-specular {
+  position: absolute;
+  inset: 0;
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 2;
+  background: radial-gradient(circle at var(--mx, 50%) var(--my, 35%), rgba(255, 255, 255, 0.44) 0%, rgba(255, 255, 255, 0.10) 28%, transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0.62;
+}
+
+/* Shared 3D Parallax Base for B / A / S / SSS (disabled during drag or slotted state) */
+.v14-card.v14-card-tier-B,
+.v14-card.v14-card-tier-A,
+.v14-card.v14-card-tier-S,
+.v14-card.v14-card-tier-SSS {
+  background: #08060c !important;
+  transform-style: preserve-3d !important;
+  overflow: visible !important;
+  animation: none !important;
+}
+.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot) {
+  transform: perspective(600px) translateY(var(--fan-y, 0px)) rotate(var(--fan-rot, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+}
+.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot):hover,
+.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot):hover,
+.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot):hover,
+.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot):hover {
+  transform: perspective(600px) translateY(calc(var(--fan-y, 0px) - 18px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05) !important;
+}
+
+/* B Tier: Mirror-Lake Rain Window + Subtle Hover 3D Cool Glass */
+.v14-card.v14-card-tier-B {
+  border: 1.5px solid #5bc8ff !important;
+  border-bottom: 4px solid #09213a !important;
+  box-shadow: inset 0 1px 0 rgba(190, 238, 255, 0.45), 0 10px 22px rgba(0, 0, 0, 0.72), 0 0 14px rgba(72, 188, 255, 0.24) !important;
+}
+.v14-card.v14-card-tier-B .v15-b-specular { opacity: 0.36; }
+.v14-card.v14-card-tier-B .v14-card-hero-stage { transform: translateZ(10px); }
+.v14-card.v14-card-tier-B .v14-card-sprite {
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 5px) 4px rgba(0, 0, 0, 0.80)) !important;
+}
+.v14-card.v14-card-tier-B .v14-card-perk {
+  background: linear-gradient(90deg, rgba(6, 18, 36, 0.45), rgba(10, 32, 60, 0.92), rgba(6, 18, 36, 0.45)) !important;
+  border-top: 1px solid rgba(106, 210, 255, 0.60) !important;
+  border-bottom: none !important;
+  color: #dff5ff !important;
+}
+
+/* A Tier: Amethyst Wisp Flame Window + Gentle Idle 3D Float */
+.v14-card.v14-card-tier-A {
+  border: 2px solid #cf82ff !important;
+  border-bottom: 4px solid #2b0d47 !important;
+  box-shadow: inset 0 1px 0 rgba(240, 206, 255, 0.55), 0 12px 24px rgba(0, 0, 0, 0.76), 0 0 18px rgba(192, 104, 255, 0.34) !important;
+}
+.v14-card.v14-card-tier-A .v15-b-specular { opacity: 0.48; }
+.v14-card.v14-card-tier-A .v14-card-hero-stage { transform: translateZ(18px); }
+.v14-card.v14-card-tier-A .v14-card-top,
+.v14-card.v14-card-tier-A .v14-card-perk { transform: translateZ(8px); }
+.v14-card.v14-card-tier-A .v14-card-sprite {
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 8px) 4px rgba(0, 0, 0, 0.86)) !important;
+}
+.v14-card.v14-card-tier-A .v14-card-perk {
+  background: linear-gradient(90deg, rgba(20, 8, 36, 0.48), rgba(48, 16, 82, 0.92), rgba(20, 8, 36, 0.48)) !important;
+  border-top: 1px solid rgba(214, 148, 255, 0.68) !important;
+  border-bottom: none !important;
+  color: #f6e8ff !important;
+}
+
+/* S Tier: Golden Cathedral God-Ray Window + 24K Bevel & Strong 3D Float */
+.v14-card.v14-card-tier-S {
+  border: 2px solid #ffe484 !important;
+  border-bottom: 5px solid #5a3806 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 250, 214, 0.72), 0 16px 28px rgba(0, 0, 0, 0.80), 0 0 22px rgba(255, 206, 72, 0.38) !important;
+}
+.v14-card.v14-card-tier-S .v14-card-hero-stage { transform: translateZ(26px); }
+.v14-card.v14-card-tier-S .v14-card-top,
+.v14-card.v14-card-tier-S .v14-card-perk { transform: translateZ(12px); }
+.v14-card.v14-card-tier-S .v14-card-sprite {
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 10px) 4px rgba(0, 0, 0, 0.90)) !important;
+}
+.v14-card.v14-card-tier-S .v15-b-holo {
+  background:
+    repeating-linear-gradient(118deg, rgba(255, 244, 188, 0.10) 0px, rgba(255, 244, 188, 0.10) 2px, transparent 2px, transparent 6px),
+    linear-gradient(125deg, transparent 18%, rgba(255, 246, 190, 0.44) var(--mx, 50%), transparent 80%);
+  mix-blend-mode: overlay;
+}
+.v14-card.v14-card-tier-S .v14-card-perk {
+  background: linear-gradient(90deg, rgba(16, 10, 2, 0.52), rgba(30, 18, 4, 0.92), rgba(16, 10, 2, 0.52)) !important;
+  border-top: 1px solid #ffe484 !important;
+  border-bottom: none !important;
+  color: #fff6d4 !important;
+}
+
+/* SSS Tier: Crimson Black-Sun Eclipse Window + Aurora Prism Rim + Peak 3D Float */
+.v14-card.v14-card-tier-SSS {
+  border: 2px solid transparent !important;
+  border-bottom: 5px solid #240718 !important;
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.88), 0 0 26px rgba(255, 78, 138, 0.44), 0 0 16px rgba(120, 224, 255, 0.28) !important;
+}
+.v14-card.v14-card-tier-SSS .v14-card-hero-stage { transform: translateZ(28px); }
+.v14-card.v14-card-tier-SSS .v14-card-top,
+.v14-card.v14-card-tier-SSS .v14-card-perk { transform: translateZ(13px); }
+.v14-card.v14-card-tier-SSS .v14-card-sprite {
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 11px) 4px rgba(0, 0, 0, 0.92)) !important;
+}
+.v14-card.v14-card-tier-SSS .v15-b-holo {
+  background:
+    repeating-linear-gradient(125deg,
+      rgba(255, 76, 148, 0.34) 0%,
+      rgba(255, 224, 96, 0.34) 14%,
+      rgba(86, 244, 186, 0.30) 28%,
+      rgba(90, 212, 255, 0.36) 42%,
+      rgba(196, 114, 255, 0.34) 56%,
+      rgba(255, 76, 148, 0.34) 70%);
+  background-size: 240% 240%;
+  background-position: var(--mx, 50%) var(--my, 50%);
+  mix-blend-mode: color-dodge;
+  opacity: 0.44;
+}
+.v14-card.v14-card-tier-SSS .v14-card-perk {
+  background: linear-gradient(90deg, rgba(24, 3, 12, 0.54), rgba(56, 8, 24, 0.92), rgba(24, 3, 12, 0.54)) !important;
+  border-top: 1px solid rgba(255, 130, 174, 0.80) !important;
+  border-bottom: none !important;
+  color: #fff2f6 !important;
+}
+
+/* ============================================================================
+   v15.1 FULL-GAME 3D LIVING PIXEL UI UNIFICATION
+   (Battle HUD Relics/Bars/Crests + Prep Hall + Black-Market Shop + Modals)
+   ============================================================================ */
+
+/* --- 1. BATTLE HUD: 3D LIVING RELIC RACK, LIQUID HP BARS & BEVELED CRESTS --- */
+@keyframes v15-bar-shimmer {
+  0%   { transform: translateX(-120%) skewX(-22deg); }
+  100% { transform: translateX(260%) skewX(-22deg); }
+}
+@keyframes v15-crest-breathe {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 196, 84, 0.35)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(255, 214, 102, 0.72)); }
+}
+@keyframes v15-crest-cyan {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(102, 232, 255, 0.45)); }
+  50%      { filter: drop-shadow(0 0 18px rgba(126, 242, 255, 0.85)); }
+}
+
+#bt-relic-chain .v14-relic-chip {
+  position: relative !important;
+  background: #08060e !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(480px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  overflow: visible !important;
+  border-radius: 6px !important;
+  transition: box-shadow 0.16s ease, border-color 0.16s ease !important;
+}
+#bt-relic-chain .v14-relic-chip:hover {
+  transform: perspective(480px) translateY(-4px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.07) !important;
+  z-index: 20 !important;
+}
+#bt-relic-chain .v14-relic-chip .v14-relic-mini-icon {
+  position: relative;
+  z-index: 3;
+  transform: translateZ(16px);
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 5px) 4px rgba(0, 0, 0, 0.90)) !important;
+}
+#bt-relic-chain .v14-relic-chip .v14-relic-chip-text {
+  position: relative;
+  z-index: 3;
+  transform: translateZ(8px);
+}
+#bt-relic-chain .v14-relic-chip.v15-relic-tier-B {
+  border: 1.5px solid #5bc8ff !important;
+  border-bottom: 3px solid #09213a !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.72), 0 0 10px rgba(72, 188, 255, 0.25) !important;
+}
+#bt-relic-chain .v14-relic-chip.v15-relic-tier-A {
+  border: 1.5px solid #cf82ff !important;
+  border-bottom: 3px solid #2b0d47 !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.76), 0 0 12px rgba(192, 104, 255, 0.32) !important;
+}
+#bt-relic-chain .v14-relic-chip.v15-relic-tier-S {
+  border: 1.5px solid #ffe484 !important;
+  border-bottom: 3.5px solid #5a3806 !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.78), 0 0 14px rgba(255, 206, 72, 0.34) !important;
+}
+#bt-relic-chain .v14-relic-chip.v15-relic-tier-SSS {
+  border: 1.5px solid transparent !important;
+  border-bottom: 3.5px solid #240718 !important;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.85), 0 0 16px rgba(255, 78, 138, 0.40) !important;
+}
+#bt-relic-chain .v15-relic-empty-slot {
+  background: linear-gradient(180deg, rgba(16, 14, 28, 0.55) 0%, rgba(8, 8, 18, 0.75) 100%) !important;
+  border: 1px solid rgba(160, 178, 224, 0.20) !important;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.65) !important;
+  border-radius: 6px !important;
+}
+
+/* Liquid Specular Shimmer on Battle HP Bars */
+#bt-player-hp-bar,
+#bt-boss-hp-bar {
+  position: relative !important;
+  overflow: hidden !important;
+}
+#bt-player-hp-bar .bar-fill::after,
+#bt-boss-hp-bar .bar-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 36%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+  animation: v15-bar-shimmer 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Battle Right Utility Buttons (Obsidian-Gold Glass Crests) */
+#bt-top-bar .hud-mini-btn {
+  background: linear-gradient(180deg, rgba(24, 20, 42, 0.88) 0%, rgba(11, 10, 22, 0.94) 100%) !important;
+  border: 1px solid rgba(255, 217, 102, 0.34) !important;
+  border-bottom: 2.5px solid #090612 !important;
+  color: #f4ead2 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease !important;
+}
+#bt-top-bar .hud-mini-btn:hover {
+  transform: translateY(-2px);
+  border-color: #ffe27a !important;
+  box-shadow: inset 0 1px 0 rgba(255, 246, 200, 0.28), 0 0 12px rgba(255, 214, 92, 0.35) !important;
+}
+
+/* Living Ambient Energy on Action Medallions */
+#btn-bt-discard.ready-discard .v15-crest-wrap {
+  animation: v15-crest-cyan 2.2s ease-in-out infinite;
+}
+#btn-bt-strike.ready-glow .v15-crest-wrap,
+#btn-bt-strike.lethal-glow .v15-crest-wrap {
+  animation: v15-crest-breathe 2.0s ease-in-out infinite;
+}
+
+/* --- 2. PREP HALL: MIDNIGHT OBSIDIAN x 3D LIVING PIXEL COLLECTIBLE SHOWCASE --- */
+#deck-select-modal.modal-overlay {
+  background:
+    radial-gradient(ellipse at 24% 38%, rgba(88, 38, 128, 0.22) 0%, transparent 56%),
+    radial-gradient(ellipse at 78% 72%, rgba(28, 72, 122, 0.20) 0%, transparent 58%),
+    linear-gradient(180deg, #06060d 0%, #090a16 58%, #04050c 100%) !important;
+}
+#deck-select-modal .modal-card,
+#deck-select-modal .prep-hall-shell {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+#deck-select-modal .modal-header,
+#deck-select-modal .prep-top-bar {
+  background: linear-gradient(180deg, rgba(16, 14, 30, 0.94) 0%, rgba(10, 9, 20, 0.88) 100%) !important;
+  border-bottom: 1px solid rgba(255, 217, 102, 0.28) !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.65) !important;
+}
+#deck-select-modal #meta-orbs-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  background: linear-gradient(180deg, rgba(14, 36, 62, 0.92), rgba(8, 20, 38, 0.96)) !important;
+  border: 1px solid rgba(107, 229, 255, 0.55) !important;
+  box-shadow: 0 0 12px rgba(72, 198, 255, 0.20) !important;
+}
+.v15-saved-run-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(14, 44, 34, 0.92), rgba(10, 26, 28, 0.94));
+  border: 1px solid rgba(126, 242, 138, 0.55);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 12px rgba(78, 224, 128, 0.16);
+  color: #eaffef;
+  flex-shrink: 0;
+}
+
+/* Left Prep Column */
+.v14-prep-left {
+  background: linear-gradient(180deg, rgba(14, 12, 28, 0.86) 0%, rgba(8, 8, 18, 0.94) 100%) !important;
+  border: 1px solid rgba(255, 217, 102, 0.28) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.72) !important;
+  padding: 12px !important;
+  gap: 10px !important;
+}
+.v15-prep-hero-showcase {
+  position: relative;
+  padding: 12px 12px 10px;
+  border-radius: 7px;
+  background: #08060c;
+  border: 1.5px solid rgba(255, 222, 118, 0.65);
+  border-bottom: 4px solid #4d3006;
+  transform-style: preserve-3d;
+  transform: perspective(620px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75), 0 0 18px rgba(255, 204, 72, 0.24);
+  text-align: center;
+}
+.v15-prep-hero-showcase.is-locked {
+  border-color: rgba(207, 130, 255, 0.65);
+  border-bottom-color: #2b0d47;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75), 0 0 18px rgba(192, 104, 255, 0.24);
+}
+.v15-prep-hero-showcase .v14-prep-hero-stage {
+  position: relative;
+  z-index: 3;
+  transform: translateZ(24px);
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 9px) 5px rgba(0, 0, 0, 0.88));
+}
+.v15-prep-hero-showcase .v14-prep-hero-title {
+  position: relative;
+  z-index: 3;
+  transform: translateZ(12px);
+  color: #fff6dc !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.92);
+}
+.v15-prep-hero-showcase .v14-prep-desc {
+  position: relative;
+  z-index: 3;
+  margin: 4px 0 0;
+  color: #dce4f5 !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.92);
+}
+.v15-prep-section {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.v15-prep-label {
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+}
+.v15-theme-chip {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: rgba(16, 40, 68, 0.88);
+  border: 1px solid rgba(107, 229, 255, 0.48);
+  color: #c8f3ff;
+}
+.v15-primary-cta {
+  flex: 1;
+  height: 46px;
+  border-radius: 6px;
+  border: 1.5px solid #ffe484;
+  border-bottom: 4px solid #4a0916;
+  background: linear-gradient(180deg, #b81d38 0%, #7a0f24 100%);
+  color: #fff8e2;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(184, 29, 56, 0.48), inset 0 1px 0 rgba(255, 240, 180, 0.45);
+  transition: transform 0.14s ease, filter 0.14s ease, box-shadow 0.14s ease;
+}
+.v15-primary-cta:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.12);
+  box-shadow: 0 8px 24px rgba(255, 84, 118, 0.56), 0 0 16px rgba(255, 214, 92, 0.42);
+}
+.v15-primary-cta.gold {
+  background: linear-gradient(180deg, #d99b26 0%, #8f5c0c 100%);
+  border-bottom-color: #3d2404;
+  color: #fffaf0;
+}
+.v15-primary-cta:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+}
+
+/* Right Prep 10-Hero 3D Collectible Grid */
+.v14-prep-right .v14-tab-btn {
+  background: rgba(16, 14, 30, 0.86) !important;
+  border: 1px solid rgba(170, 182, 220, 0.26) !important;
+  border-radius: 5px !important;
+}
+.v14-prep-right .v14-tab-btn.active {
+  background: linear-gradient(180deg, rgba(64, 32, 98, 0.94), rgba(32, 16, 56, 0.96)) !important;
+  border-color: #ffe27a !important;
+  color: #fff6d6 !important;
+  box-shadow: 0 0 14px rgba(255, 214, 92, 0.28) !important;
+}
+.v14-hero-card {
+  position: relative !important;
+  background: linear-gradient(180deg, rgba(18, 16, 34, 0.92) 0%, rgba(9, 9, 20, 0.96) 100%) !important;
+  border: 1.5px solid rgba(154, 168, 212, 0.24) !important;
+  border-bottom: 4px solid #07060f !important;
+  border-radius: 7px !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(540px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  overflow: visible !important;
+  transition: box-shadow 0.16s ease, border-color 0.16s ease !important;
+}
+.v14-hero-card:hover {
+  transform: perspective(540px) translateY(-5px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.04) !important;
+  border-color: rgba(255, 226, 132, 0.72) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.78), 0 0 16px rgba(120, 210, 255, 0.28) !important;
+  z-index: 10;
+}
+.v14-hero-card.unlocked {
+  border-color: rgba(91, 200, 255, 0.52) !important;
+  border-bottom-color: #09213a !important;
+}
+.v14-hero-card.selected {
+  border: 2px solid transparent !important;
+  border-bottom: 4px solid #240718 !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.85), 0 0 22px rgba(255, 78, 138, 0.42), 0 0 14px rgba(120, 224, 255, 0.28) !important;
+  z-index: 12;
+}
+.v14-hero-card .v14-card-sprite {
+  position: relative;
+  z-index: 3;
+  width: 60px !important;
+  height: 60px !important;
+  transform: translateZ(20px);
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 7px) 4px rgba(0, 0, 0, 0.88)) !important;
+}
+.v14-hero-card .v14-hero-name,
+.v14-hero-card .v14-hero-badge {
+  position: relative;
+  z-index: 3;
+  transform: translateZ(10px);
+}
+.v14-hero-card .v14-hero-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+
+/* 8 Theme Pack 3D Cards */
+.v14-theme-card {
+  position: relative !important;
+  background: radial-gradient(circle at 50% 0%, var(--th-bg, #1b1634) 0%, rgba(10, 10, 22, 0.96) 72%) !important;
+  border: 1.5px solid rgba(164, 178, 224, 0.26) !important;
+  border-bottom: 4px solid #07060f !important;
+  border-radius: 7px !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(560px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  overflow: hidden !important;
+}
+.v14-theme-card:hover {
+  transform: perspective(560px) translateY(-4px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  border-color: var(--th-col, #ffd966) !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.75) !important;
+}
+.v14-theme-card.active-pick {
+  border-color: var(--th-col, #ffd966) !important;
+  box-shadow: 0 0 18px rgba(255, 214, 92, 0.28), 0 10px 22px rgba(0, 0, 0, 0.72) !important;
+}
+
+/* --- 3. BLACK-MARKET SHOP: 3D LIVING RELICS, BOUNTY STAGE & PACK CEREMONY --- */
+#tavern-view {
+  background:
+    radial-gradient(ellipse at 18% 28%, rgba(112, 22, 54, 0.20) 0%, transparent 52%),
+    radial-gradient(ellipse at 76% 68%, rgba(30, 56, 112, 0.20) 0%, transparent 56%),
+    linear-gradient(180deg, #06060d 0%, #090a16 60%, #04050c 100%) !important;
+}
+#tavern-view #top-hud {
+  background: linear-gradient(180deg, rgba(16, 14, 30, 0.94) 0%, rgba(10, 9, 20, 0.88) 100%) !important;
+  border-bottom: 1px solid rgba(255, 217, 102, 0.26) !important;
+}
+#tavern-view #boss-bounty-panel {
+  position: relative !important;
+  background: #08060c !important;
+  border: 2px solid transparent !important;
+  border-bottom: 5px solid #240718 !important;
+  border-radius: 8px !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(600px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  overflow: visible !important;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.82), 0 0 22px rgba(255, 72, 120, 0.34) !important;
+}
+.v15-bounty-inner {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  transform: translateZ(16px);
+}
+.v15-bounty-wave { font-size: 12px; font-weight: 900; color: #ffd966; letter-spacing: 0.6px; }
+.v15-bounty-name { font-size: 20px; font-weight: 900; color: #fff6e6; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95); }
+.v15-bounty-hp   { font-size: 13px; font-weight: 900; color: #ff7a98; text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9); }
+.v15-bounty-sub  { font-size: 12px; font-weight: 700; color: #d8e2f6; display: inline-flex; align-items: center; gap: 3px; }
+#boss-bounty-panel .v14-boss-poster-sprite {
+  transform: translateZ(24px);
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 9px) 5px rgba(0, 0, 0, 0.92));
+}
+
+.v15-roster-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 3px;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: rgba(16, 14, 30, 0.90);
+  border: 1px solid rgba(164, 178, 224, 0.28);
+  font-size: 11px;
+  color: #f6efe0;
+}
+
+.v14-shop-card.v15-shop-3d {
+  position: relative !important;
+  background: #090812 !important;
+  transform-style: preserve-3d !important;
+  transform: perspective(580px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
+  overflow: visible !important;
+  border-radius: 7px !important;
+  transition: box-shadow 0.16s ease, border-color 0.16s ease !important;
+}
+.v14-shop-card.v15-shop-3d:hover:not(.sold) {
+  transform: perspective(580px) translateY(-6px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.03) !important;
+  z-index: 12;
+}
+.v14-shop-card.v15-shop-3d > :not(.v15-card-window):not(.v15-b-border) {
+  position: relative;
+  z-index: 3;
+}
+.v14-shop-card.v15-shop-3d .v14-shop-pixel-icon,
+.v14-shop-card.v15-shop-3d .v14-pack-sprite-stage {
+  transform: translateZ(20px);
+  filter: drop-shadow(var(--sh-x, 0px) var(--sh-y, 7px) 4px rgba(0, 0, 0, 0.88));
+}
+.v14-shop-card.v15-shop-3d.tier-border-SSS {
+  border: 2px solid transparent !important;
+  border-bottom: 4px solid #240718 !important;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.82), 0 0 20px rgba(255, 78, 138, 0.38) !important;
+}
+.v14-shop-card.v15-shop-3d.tier-border-S {
+  border: 2px solid #ffe484 !important;
+  border-bottom: 4px solid #5a3806 !important;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.78), 0 0 18px rgba(255, 206, 72, 0.32) !important;
+}
+.v14-shop-card.v15-shop-3d.tier-border-A {
+  border: 1.5px solid #cf82ff !important;
+  border-bottom: 4px solid #2b0d47 !important;
+}
+.v14-shop-card.v15-shop-3d.tier-border-B {
+  border: 1.5px solid #5bc8ff !important;
+  border-bottom: 4px solid #09213a !important;
+}
+.v14-shop-price {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+}
+.v14-slot-upg-btn {
+  background: linear-gradient(180deg, rgba(20, 18, 38, 0.92), rgba(10, 10, 22, 0.96)) !important;
+  border: 1px solid rgba(164, 178, 224, 0.28) !important;
+  border-bottom: 3px solid #07060f !important;
+  border-radius: 6px !important;
+  transition: transform 0.14s ease, border-color 0.14s ease !important;
+}
+.v14-slot-upg-btn:hover {
+  transform: translateY(-2px);
+  border-color: #ffe27a !important;
+}
+
+/* --- 4. UNIFIED OBSIDIAN-GOLD MODALS (PACK CEREMONY / ROSTER / CODEX / PAYOUT) --- */
+#pack-ceremony-modal .modal-card,
+#roster-modal .modal-card,
+#payout-modal .modal-card,
+#ad-sim-modal .modal-card {
+  background: linear-gradient(180deg, rgba(16, 14, 30, 0.97) 0%, rgba(8, 8, 18, 0.98) 100%) !important;
+  border: 1.5px solid rgba(255, 217, 102, 0.42) !important;
+  box-shadow: 0 22px 54px rgba(0, 0, 0, 0.88), 0 0 28px rgba(120, 80, 190, 0.22) !important;
+  border-radius: 8px !important;
+}

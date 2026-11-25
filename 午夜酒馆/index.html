@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>午夜酒馆 · 日蚀战团</title>
-  <meta name="description" content="午夜酒馆 · 日蚀战团：推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
-  <meta property="og:title" content="午夜酒馆 · 日蚀战团" />
-  <meta property="og:description" content="推门入座雨夜酒馆，镜湖四回合破招Boss战与实木黑市牌桌构筑。" />
-  <link rel="stylesheet" href="./css/v13.css?v=140" />
+  <title>午夜酒馆 v15.0</title>
+  <meta name="description" content="午夜酒馆 v15.0：无框实景剧场 HD-2D 战斗样板 + 8大主题包。" />
+  <meta property="og:title" content="午夜酒馆 v15.0" />
+  <meta property="og:description" content="午夜酒馆 v15.0：无框实景剧场 HD-2D 战斗样板 + 8大主题包。" />
+  <link rel="stylesheet" href="./css/v13.css?v=187" />
+  <link rel="stylesheet" href="./css/v14.css?v=195" />
 </head>
 <body>
   <div id="viewport">
@@ -22,7 +23,11 @@
         <div class="title-hero-overlay">
           <div class="title-signboard">
             <h1 class="ts-main-title">午夜酒馆</h1>
-            <p class="ts-sub-line">日蚀战团</p>
+            <p class="ts-sub-line">v15.0 · 无框实景剧场样板</p>
+            <div class="v14-ver-pill" style="margin-top:8px">
+              <span>当前：v15.0</span>
+              <a href="./v13_9.html">切换对照 v13.9</a>
+            </div>
           </div>
 
           <div class="title-door-actions">
@@ -31,7 +36,7 @@
               <span class="te-main">推门入座</span>
             </button>
             <div class="title-aux-row">
-              <button id="btn-title-hands" class="title-aux-btn">牌型图鉴</button>
+              <button id="btn-title-hands" class="title-aux-btn">51张卡池图鉴</button>
               <button id="btn-title-mute" class="title-aux-btn">音效：开</button>
             </div>
           </div>
@@ -64,20 +69,23 @@
 
           <div class="bt-tools-box">
             <button id="btn-bt-roster" class="steel-btn hud-mini-btn">牌组</button>
-            <button id="btn-bt-hands" class="steel-btn hud-mini-btn">牌型</button>
+            <button id="btn-bt-hands" class="steel-btn hud-mini-btn">图鉴</button>
             <button id="bt-speed-btn" class="steel-btn" aria-label="战斗速度 1 倍">1×</button>
           </div>
         </div>
 
         <div id="bt-relic-chain" class="steel-panel"></div>
 
-        <div id="bt-forecast-bar" class="bt-forecast-bar">
+        <div id="bt-forecast-bar" class="bt-forecast-bar v14-forecast">
           <div class="fc-piles">
-            <button id="btn-draw-pile" class="steel-btn pile-btn">抽牌堆 <b>3</b></button>
-            <button id="btn-discard-pile" class="steel-btn pile-btn">弃牌堆 <b>0</b></button>
+            <button id="btn-draw-pile" class="steel-btn pile-btn">抽牌 <b>2</b></button>
+            <button id="btn-discard-pile" class="steel-btn pile-btn">弃牌 <b>0</b></button>
           </div>
-          <div id="fc-core-content"></div>
+          <div id="fc-core-content" style="display:flex;align-items:center;justify-content:space-between;flex:1;gap:10px;"></div>
         </div>
+
+        <div id="v14-card-tip" class="v14-body-text hidden"></div>
+        <div id="v14-slots-bar"></div>
 
         <section id="bt-hand-dock" class="bottom-dock steel-panel">
           <button id="btn-bt-discard" class="steel-btn gold dock-wing-btn"></button>
@@ -90,6 +98,7 @@
           <div id="bt-hand-pill"></div>
           <div id="bt-chain-stats"></div>
         </div>
+        <canvas id="battle-overlay-canvas" width="1280" height="720"></canvas>
       </div>
 
       <!-- ═══ BEAT 2: FULL-SCREEN WALNUT TAVERN TABLETOP & UNIFIED BAIZE MARKET ═══ -->
@@ -130,7 +139,7 @@
           <div id="top-relic-rack" class="tavern-relic-rack"></div>
 
           <div class="hud-tools-cluster">
-            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-hands-open">牌型表</button>
+            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-hands-open">卡池图鉴</button>
             <button class="steel-btn tavern-btn hud-mini-btn" id="btn-mute">音效</button>
             <button class="steel-btn tavern-btn hud-mini-btn" id="btn-restart">重开</button>
           </div>
@@ -162,7 +171,8 @@
               <div class="felt-head-left">
                 <span class="felt-title">星界秘宝</span>
               </div>
-              <div class="felt-head-right">
+              <div class="felt-head-right" style="display:flex;gap:8px;align-items:center;">
+                <button id="btn-shop-ad-reroll" class="v14-ad-btn"></button>
                 <button id="btn-shop-reroll" class="brass-reroll-stamp"></button>
               </div>
             </div>
@@ -171,10 +181,10 @@
 
             <div class="felt-mid-divider">
               <div class="felt-mid-left">
-                <span class="felt-title sm">命运卡包</span>
+                <span class="felt-title sm">招募与铭文</span>
               </div>
               <div class="felt-mid-right">
-                <span class="felt-title sm teal">战技酒谱</span>
+                <span class="felt-title sm teal">战位强化</span>
               </div>
             </div>
 
@@ -184,19 +194,24 @@
         <div id="shop-detail-popover" class="shop-detail-popover hidden" role="dialog" aria-label="商品详情与购买确认"></div>
       </div>
 
-      <!-- ═══ UNBOXED TABLETOP: 3 AGED-PARCHMENT WARBAND CONTRACTS ═══ -->
+      <!-- ═══ v14.1 HERO PREP HALL (10 NEUTRAL HEROES + ORBS + THEME PACKS) ═══ -->
       <div id="deck-select-modal" class="tabletop-contracts-layer hidden">
         <header class="contracts-top-rail">
           <button id="btn-contracts-back" class="steel-btn tavern-btn hud-mini-btn">返回</button>
-          <div class="contracts-rail-title">
-            <h2 class="crt-main">选择战团</h2>
+          <div class="contracts-rail-title" style="display:flex;align-items:center;gap:14px;">
+            <h2 class="crt-main">出征准备 · 选择英雄</h2>
+            <span id="meta-orbs-badge" class="v14-orbs-badge">💎 宝珠 10</span>
+            <button id="btn-meta-daily-ad" class="v14-ad-btn">每日签到 (领 3~10 碎片)</button>
           </div>
-          <div class="contracts-rail-tools">
-            <button id="btn-contracts-hands" class="steel-btn tavern-btn hud-mini-btn">牌型图鉴</button>
+          <div class="contracts-rail-tools" style="display:flex;gap:6px;align-items:center;">
+            <span id="meta-sync-badge" style="font-size:11px;color:#9ff5a8;font-weight:800;">☁ 已保存</span>
+            <button id="btn-meta-board" class="steel-btn tavern-btn hud-mini-btn">排行榜</button>
+            <button id="btn-meta-ach" class="steel-btn tavern-btn hud-mini-btn">成就</button>
+            <button id="btn-contracts-hands" class="steel-btn tavern-btn hud-mini-btn">卡池</button>
             <button id="btn-contracts-mute" class="steel-btn tavern-btn hud-mini-btn">音效</button>
           </div>
         </header>
-        <div id="deck-select-grid" class="contracts-spread"></div>
+        <div id="deck-select-grid" class="v14-prep-body"></div>
       </div>
 
       <!-- ═══ SHOWSTOPPER: FULL-SCREEN BOOSTER PACK OPENING CEREMONY ═══ -->
@@ -214,7 +229,10 @@
             <div id="pack-target-grid"></div>
             <button id="btn-pack-target-back" class="steel-btn tavern-btn hud-mini-btn">← 返回重选塔罗</button>
           </div>
-          <div class="pack-footer"><button id="btn-pack-abandon" class="steel-btn tavern-btn">放弃本包 (+2G)</button></div>
+          <div class="pack-footer" style="display:flex;gap:12px;justify-content:center;">
+            <button id="btn-pack-ad-reroll" class="v14-ad-btn">▶ 看广告重抽本包 (1/1)</button>
+            <button id="btn-pack-abandon" class="steel-btn tavern-btn">放弃本包 (+2G)</button>
+          </div>
         </div>
       </div>
 
@@ -269,6 +287,7 @@
             <div id="po-title" class="po-title win">讨伐成功!</div>
             <div id="po-sub"></div>
             <div id="po-rows"></div>
+            <div id="po-extra-actions" style="display:flex;gap:10px;justify-content:center;margin-top:8px;"></div>
             <button id="po-next-btn" class="tavern-modal-cta">进入酒馆黑市 · 开包构筑 →</button>
           </div>
         </div>
@@ -280,7 +299,7 @@
           <div class="rm-head">
             <div class="rm-tabs">
               <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">牌组</button>
-              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">牌型图鉴</button>
+              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">51张卡池</button>
             </div>
             <button id="rm-close-btn" class="steel-btn tavern-btn hud-mini-btn">关闭</button>
           </div>
@@ -289,20 +308,33 @@
         </div>
       </div>
 
+      <!-- ═══ REWARDED AD SIMULATOR MODAL (3s placeholder for TapTap IAA SDK) ═══ -->
+      <div id="ad-sim-modal" class="modal-backdrop tavern-backdrop hidden" role="dialog" aria-modal="true">
+        <div class="v14-ad-modal-box">
+          <div class="v14-ad-tag">激励视频广告（原型 3 秒模拟）</div>
+          <h3 id="ad-sim-title">正在播放激励视频...</h3>
+          <div class="v14-ad-progress-wrap"><div id="ad-sim-bar"></div></div>
+          <div id="ad-sim-countdown">剩余 3 秒发放奖励</div>
+        </div>
+      </div>
+
       <div id="toast-banner"></div>
     </div>
   </div>
 
-  <!-- Duelyst H5 Kit & v13 Engine Scripts -->
-  <script src="./assets/duelyst/duelyst-h5.js?v=139"></script>
-  <script src="./assets/duelyst/assets/manifest.js?v=139"></script>
-  <script src="./js/audio.js?v=139"></script>
-  <script src="./js/vfxPlayer.js?v=139"></script>
-  <script src="./js/sprites.js?v=139"></script>
-  <script src="./js/v13AltarBg.js?v=140"></script>
-  <script src="./js/v12Data.js?v=139"></script>
-  <script src="./js/v13BattleAtmosphere.js?v=141"></script>
-  <script src="./js/v12Battle.js?v=141"></script>
-  <script src="./js/v13Main.js?v=140"></script>
+  <!-- Duelyst H5 Kit & v14.1 Live-Gear Engine Scripts -->
+  <script src="./assets/duelyst/duelyst-h5.js?v=144"></script>
+  <script src="./assets/duelyst/assets/manifest.js?v=144"></script>
+  <script src="./js/audio.js?v=144"></script>
+  <script src="./js/vfxPlayer.js?v=144"></script>
+  <script src="./js/sprites.js?v=183"></script>
+  <script src="./js/v13AltarBg.js?v=144"></script>
+  <script src="./js/v13BattleAtmosphere.js?v=144"></script>
+  <script src="./js/v14TapBridge.js?v=152"></script>
+  <script src="./js/v14Meta.js?v=152"></script>
+  <script src="./js/v14Data.js?v=174"></script>
+  <script src="./js/v14Engine.js?v=152"></script>
+  <script src="./js/v14Battle.js?v=194"></script>
+  <script src="./js/v14Main.js?v=195"></script>
 </body>
 </html>
