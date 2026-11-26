@@ -1585,6 +1585,7 @@
       this.discardPicks.clear();
       this.inspectedCardUid = null;
 
+      const preDiscSnap = this.snapshotBattleHud();
       const res = E.onDiscard(b, discarded, remainingHand);
       b.discardPile.push(...discarded);
       this.drawToHandSize();
@@ -1592,12 +1593,10 @@
       this.run.gold = b.gold;
 
       this.syncBattleUI();
+      this.syncBattleHudOnly(preDiscSnap);
       this.newlyDrawnUids = null;
-      await this.battleStage.playEvents(res.events, {
-        onSyncHud: () => this.syncBattleHudOnly(),
-        onRelicPulse: (uid, lbl) => this.pulseRelicChip(uid, lbl),
-        onToast: (t) => this.toast(t)
-      });
+      await this.battleStage.playEvents(res.events, this.makePlayEventHooks(preDiscSnap));
+      this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
         this.finishBattle(true);
@@ -1623,10 +1622,15 @@
       const slotted = b.slots.slice();
       const remainingHand = this.getRemainingHand();
 
+      const preStrikeSnap = this.snapshotBattleHud();
+      const preCharging = b.bossCharging;
+      const preBreakProgress = b.bossBreakProgress;
+      const preBreakThreshold = b.bossBreakThreshold;
+
       const strikeRes = E.executeStrike(b, slotted, remainingHand, this.run.roster);
-      if (strikeRes.directDmg >= b.bossHp) {
+      if (strikeRes.directDmg >= preStrikeSnap.bossHp + preStrikeSnap.bossShield) {
         this.battleStage.triggerCutIn('⚔ 终结斩杀！', `单手直伤 ${strikeRes.directDmg}`, '#ffd966');
-      } else if (b.bossCharging && b.bossBreakProgress + strikeRes.directDmg >= b.bossBreakThreshold) {
+      } else if (preCharging && preBreakProgress + strikeRes.directDmg >= preBreakThreshold) {
         this.battleStage.triggerCutIn('💥 破招强袭！', `打断蓄力 · 易伤 ×1.5`, '#7be8ff');
       } else if (strikeRes.directDmg >= 450) {
         this.battleStage.triggerCutIn('✦ 绝技连携！', `爆发直伤 ${strikeRes.directDmg}`, '#ff7a98');
@@ -1641,11 +1645,10 @@
         if (ev.type === 'ach_trigger' && ev.id) this.tryUnlockAch(ev.id);
       }
 
-      await this.battleStage.playEvents(strikeRes.events, {
-        onSyncHud: () => this.syncBattleHudOnly(),
-        onRelicPulse: (uid, lbl) => this.pulseRelicChip(uid, lbl),
-        onToast: (t) => this.toast(t)
-      });
+      // Keep Boss HP bar & badges at pre-strike values until each hit lands on screen!
+      this.syncBattleHudOnly(preStrikeSnap);
+      await this.battleStage.playEvents(strikeRes.events, this.makePlayEventHooks(preStrikeSnap));
+      this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
         this.finishBattle(true);
@@ -1657,14 +1660,13 @@
         this.toast('⚠ 未能破招！Boss 下回合将释放灭世大招！');
       }
 
+      const preBossSnap = this.snapshotBattleHud();
       const bossEvents = E.onBossActAndRoundEnd(b, slotted, remainingHand, b.intent, this.run.roster);
       this.run.gold = b.gold;
 
-      await this.battleStage.playEvents(bossEvents, {
-        onSyncHud: () => this.syncBattleHudOnly(),
-        onRelicPulse: (uid, lbl) => this.pulseRelicChip(uid, lbl),
-        onToast: (t) => this.toast(t)
-      });
+      this.syncBattleHudOnly(preBossSnap);
+      await this.battleStage.playEvents(bossEvents, this.makePlayEventHooks(preBossSnap));
+      this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
         if (bossEvents.some((e) => e.type === 'poison_tick')) this.tryUnlockAch('ach_poison_kill');
@@ -1844,8 +1846,89 @@
       $('payout-modal').classList.remove('hidden');
     }
 
-    syncBattleHudOnly() {
+    snapshotBattleHud() {
       const b = this.battle;
+      if (!b) return null;
+      return {
+        wave: b.wave,
+        round: b.round,
+        maxRounds: b.maxRounds,
+        gold: b.gold,
+        squadHp: b.squadHp,
+        squadMaxHp: b.squadMaxHp,
+        squadShield: b.squadShield,
+        bossCfg: b.bossCfg,
+        bossHp: b.bossHp,
+        bossMaxHp: b.bossMaxHp,
+        bossShield: b.bossShield,
+        bossPoison: b.bossPoison || 0,
+        bossVuln: Boolean(b.bossVuln),
+        bossStunned: Boolean(b.bossStunned),
+        intent: b.intent
+      };
+    }
+
+    makePlayEventHooks(snap) {
+      const pulseBar = (el) => {
+        if (!el) return;
+        el.classList.remove('hp-bar-hit');
+        void el.offsetWidth;
+        el.classList.add('hp-bar-hit');
+      };
+      return {
+        onBossDamage: (dmg, ignoreShield = false) => {
+          if (!snap) { this.syncBattleHudOnly(); return; }
+          let rem = Math.max(0, Number(dmg) || 0);
+          if (!ignoreShield && snap.bossShield > 0) {
+            const blk = Math.min(snap.bossShield, rem);
+            snap.bossShield -= blk;
+            rem -= blk;
+          }
+          snap.bossHp = Math.max(0, snap.bossHp - rem);
+          this.syncBattleHudOnly(snap);
+          pulseBar($('bt-boss-hp-bar'));
+        },
+        onSquadDamage: (ev) => {
+          if (!snap) { this.syncBattleHudOnly(); return; }
+          if (ev && ev.isThorns) {
+            let rem = Math.max(0, Number(ev.rawDmg) || 0);
+            const blk = Math.min(snap.squadShield, rem);
+            snap.squadShield -= blk;
+            rem -= blk;
+            snap.squadHp = Math.max(1, snap.squadHp - rem);
+          } else if (ev) {
+            snap.squadShield = Math.max(0, snap.squadShield - (Number(ev.blocked) || 0));
+            snap.squadHp = Math.max(0, snap.squadHp - (Number(ev.hpLost) || 0));
+          }
+          this.syncBattleHudOnly(snap);
+          pulseBar(document.querySelector('#battle-top-bar .bt-sq-bar-wrap'));
+        },
+        onBossStatus: (st) => {
+          if (!snap || !st) { this.syncBattleHudOnly(); return; }
+          if (st.addPoison) snap.bossPoison = (snap.bossPoison || 0) + st.addPoison;
+          if (st.vuln) snap.bossVuln = true;
+          if (st.stunned) snap.bossStunned = true;
+          if (st.addShield) snap.bossShield = (snap.bossShield || 0) + st.addShield;
+          this.syncBattleHudOnly(snap);
+        },
+        onShieldGain: (delta) => {
+          if (!snap) { this.syncBattleHudOnly(); return; }
+          snap.squadShield = Math.max(0, (snap.squadShield || 0) + (Number(delta) || 0));
+          this.syncBattleHudOnly(snap);
+        },
+        onGoldGain: (delta) => {
+          if (!snap) { this.syncBattleHudOnly(); return; }
+          snap.gold = Math.max(0, (snap.gold || 0) + (Number(delta) || 0));
+          this.syncBattleHudOnly(snap);
+        },
+        onSyncHud: () => this.syncBattleHudOnly(snap),
+        onRelicPulse: (uid, lbl) => this.pulseRelicChip(uid, lbl),
+        onToast: (t) => this.toast(t)
+      };
+    }
+
+    syncBattleHudOnly(overrideState = null) {
+      const b = overrideState || this.battle;
       if (!b) return;
       $('bt-title').innerHTML = `<span class="v15-hud-tag">第${b.wave}/8波</span><span class="v15-hud-tag">第${b.round}/${b.maxRounds}回合</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}</span>`;
       $('bt-squad-hp-text').textContent = `${b.squadHp}/${b.squadMaxHp}${b.squadShield > 0 ? ` (+${b.squadShield}盾)` : ''}`;
@@ -1855,7 +1938,18 @@
       $('bt-boss-name').textContent = `${b.bossCfg.name}`;
       $('bt-boss-hp-text').textContent = `${b.bossHp} / ${b.bossMaxHp}${b.bossShield > 0 ? ` (+${b.bossShield}盾)` : ''}`;
       const pct = Math.max(0, Math.min(100, (b.bossHp / b.bossMaxHp) * 100));
-      $('bt-boss-hp-bar').innerHTML = `<div class="boss-hp-fill" style="width:${pct}%"></div>`;
+      const barEl = $('bt-boss-hp-bar');
+      if (barEl) {
+        let lagEl = barEl.querySelector('.boss-hp-lag');
+        let fillEl = barEl.querySelector('.boss-hp-fill');
+        if (!lagEl || !fillEl) {
+          barEl.innerHTML = `<div class="boss-hp-track"><div class="boss-hp-lag" style="width:${pct}%"></div><div class="boss-hp-fill" style="width:${pct}%"></div></div>`;
+          lagEl = barEl.querySelector('.boss-hp-lag');
+          fillEl = barEl.querySelector('.boss-hp-fill');
+        }
+        fillEl.style.width = `${pct}%`;
+        lagEl.style.width = `${pct}%`;
+      }
 
       this.battleStage.syncBossState(b, b.intent);
     }
@@ -3625,6 +3719,10 @@
   }
 
   window.addEventListener('DOMContentLoaded', () => {
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load('12px "FusionPixel"').catch(() => {});
+      document.fonts.load('24px "FusionPixel"').catch(() => {});
+    }
     window.MT.app = new V14App();
   });
 })();

@@ -5,7 +5,7 @@
  * 4. Shop & Pack Modal: Animated Boss on Wanted Poster, colored pixel icons on all relics/packs, zero overlap!
  */
 
-/* Crisp readable font for all body descriptions */
+/* Unified crisp pixel typography for all body descriptions (inherits FusionPixel) */
 .v14-body-text,
 .v14-card-desc,
 .v14-shop-card-desc,
@@ -14,8 +14,8 @@
 .v14-inspect-desc,
 #rm-body,
 #rm-summary {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif !important;
-  letter-spacing: 0.2px;
+  font-family: var(--font-px) !important;
+  letter-spacing: 0.5px;
 }
 
 /* Tier Badges (C / B / A / S / SSS) */
@@ -299,9 +299,9 @@
   border-radius: 5px;
   background: rgba(12, 9, 20, 0.72);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", sans-serif !important;
-  font-size: 11.5px;
-  font-weight: 700;
+  font-family: var(--font-px) !important;
+  font-size: 12px;
+  font-weight: 400;
   color: #dbe4ff;
   white-space: nowrap;
   overflow: hidden;
@@ -529,7 +529,7 @@
 }
 .v14-slot-upg-btn:hover { border-color: #ffd966; filter: brightness(1.1); }
 .v14-slot-upg-top { display: flex; justify-content: space-between; font-size: 13px; font-weight: 900; }
-.v14-slot-upg-sub { font-size: 12px; color: #c7d8f0; font-family: -apple-system, "PingFang SC", "Noto Sans SC", sans-serif !important; }
+.v14-slot-upg-sub { font-size: 12px; color: #c7d8f0; font-family: var(--font-px) !important; }
 
 /* ═══ PACK MODAL: STRICT EQUAL WIDTH & HEIGHT + LARGE ANIMATED SPRITES ═══ */
 #pack-cards-grid.v14-modal-choices,
@@ -902,12 +902,37 @@
   background: linear-gradient(180deg, rgba(168, 240, 255, 0.92), rgba(52, 168, 245, 0.85)) !important;
   box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.5);
 }
+#bt-boss-hp-bar .boss-hp-track {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+#bt-boss-hp-bar .boss-hp-lag {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  height: 100% !important;
+  background: linear-gradient(180deg, #fff6cf 0%, #ffbe4d 100%) !important;
+  transition: width 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.08s;
+  z-index: 1;
+}
 #bt-boss-hp-bar .boss-hp-fill {
+  position: relative !important;
   display: block !important;
   height: 100% !important;
   background: linear-gradient(180deg, #ff708d 0%, #d91c42 52%, #8c0e29 100%) !important;
   box-shadow: inset 0 2px 0 rgba(255, 210, 220, 0.42);
-  transition: width 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  transition: width 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 2;
+}
+#battle-top-bar .hp-bar-hit {
+  animation: v15-hp-bar-hit 0.2s ease-out;
+}
+@keyframes v15-hp-bar-hit {
+  0% { filter: brightness(1.65); transform: translateX(2px); }
+  50% { transform: translateX(-2px); }
+  100% { filter: brightness(1); transform: translateX(0); }
 }
 
 /* Sleek Compact Top-Right Pixel Tool Buttons */
@@ -4967,5 +4992,188 @@
     animation: none !important;
   }
 }
+
+/* ═══ v15.5 GLOBAL CRISP PIXEL TYPOGRAPHY SYSTEM (100% FusionPixel + Hard 0-Blur Pixel Outlines) ═══ */
+:root {
+  --font-px: 'FusionPixel', monospace;
+  --font-px-num: 'FusionPixel', monospace;
+  --px-edge-sm:
+    -1px  0   0 #08060f,
+     1px  0   0 #08060f,
+     0   -1px 0 #08060f,
+     0    1px 0 #08060f,
+     0    2px 0 #08060f;
+  --px-edge:
+    -1px -1px 0 #08060f,
+     1px -1px 0 #08060f,
+    -1px  1px 0 #08060f,
+     1px  1px 0 #08060f,
+    -1px  0   0 #08060f,
+     1px  0   0 #08060f,
+     0   -1px 0 #08060f,
+     0    1px 0 #08060f,
+     0    2px 0 #08060f;
+  --px-edge-lg:
+    -2px  0   0 #08060f,
+     2px  0   0 #08060f,
+     0   -2px 0 #08060f,
+     0    2px 0 #08060f,
+    -2px -1px 0 #08060f,
+     2px -1px 0 #08060f,
+    -2px  1px 0 #08060f,
+     2px  1px 0 #08060f,
+    -1px -2px 0 #08060f,
+     1px -2px 0 #08060f,
+    -1px  2px 0 #08060f,
+     1px  2px 0 #08060f,
+     0    3px 0 #08060f;
+}
+
+/* Enforce FusionPixel on EVERY DOM node including native buttons/inputs, zero faux-bold blur */
+html, body, #stage, #stage *,
+button, input, select, textarea, optgroup, option {
+  font-family: var(--font-px) !important;
+  font-synthesis: none !important;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeSpeed;
+}
+
+/* Baseline crisp 1px pixel outline & clean bitmap tracking across dark-surface game UI */
+#stage {
+  letter-spacing: 0.5px;
+  text-shadow: var(--px-edge-sm);
+}
+
+/* Full 8-way hard pixel outline for primary labels, titles, card headers, HUD numbers & dark buttons */
+.hud-plaque b,
+.hud-plaque-lbl,
+.felt-title,
+.felt-hint,
+.crt-main,
+.v152-boss-name,
+.v152-boss-title,
+.v152-boss-rank-line,
+.v152-bounty-hp-readout,
+.v152-pat-chip,
+.v152-boss-metrics,
+.v152-cta-text,
+.v152-cta-arrow,
+.v152-wax-disc,
+#squad-ledger-strip,
+.v152-rc-tier-emblem,
+.v152-rc-theme-line,
+.v152-rc-name,
+.v152-rc-perk,
+.v152-src-line,
+.v152-rc-price-strip,
+.v152-pack-name,
+.v152-pack-sub,
+.v152-price-bar,
+.v152-foil-tearline span,
+.v152-coffer-tag,
+.v152-coffer-clasp,
+.v152-slot-name,
+.v152-slot-lv,
+.v152-slot-perk,
+.v152-slot-cost,
+.sdp-title,
+.sdp-price-badge,
+.sdp-desc,
+.sdp-note,
+.sdp-btn-cancel,
+.steel-btn,
+.v14-tier,
+.v14-theme-pill,
+.v14-card-name,
+.v14-card-atk,
+.v14-card-perk,
+.v14-shop-card-name,
+.v14-shop-card-desc,
+#bt-title,
+#bt-squad-hp-text,
+#bt-boss-name,
+#bt-boss-hp-text,
+#bt-forecast-bar,
+.v14-fc-pill,
+.v14-link-chip,
+.v14-relic-chip-title,
+.v14-relic-chip-sub,
+.mhs-name,
+.v152-cp-sub,
+.v152-cp-prompt,
+.te-main,
+.title-aux-btn,
+#toast-banner {
+  text-shadow: var(--px-edge) !important;
+}
+
+/* Heavy 2px stepped pixel outline on large hero display titles */
+.ts-main-title,
+#pack-ceremony-title,
+.v152-cp-name {
+  text-shadow: var(--px-edge-lg) !important;
+}
+
+/* Crisp integer pixel sizing so 12px CJK bitmap glyphs never blur at fractional or sub-12px sizes */
+.v152-boss-rank-line,
+.v152-bounty-wave,
+.v152-boss-title,
+.v152-pat-chip,
+.v152-boss-metrics,
+.v152-rc-theme-line,
+.v152-src-line,
+.v152-pack-sub,
+.v152-slot-lv,
+.v14-relic-chip-title,
+.v14-relic-chip-sub {
+  font-size: 12px;
+}
+.v152-bounty-hp-readout,
+.v152-rc-perk,
+.v152-rc-price-strip,
+.v152-pack-card .v152-price-bar,
+.v152-slot-perk,
+.v152-slot-cost,
+.sdp-desc {
+  font-size: 14px;
+}
+.v152-rc-name,
+.v152-pack-name,
+.sdp-title {
+  font-size: 16px;
+}
+.v152-boss-name {
+  font-size: 20px;
+}
+.v152-cta-text {
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+/* Clean dark-ink exception on bright gold / light parchment / bright cyan backgrounds (NO black halo!) */
+.v14-ad-btn,
+.v14-ad-btn *,
+#tavern-view #btn-shop-reroll,
+#tavern-view #btn-shop-reroll *,
+.sdp-btn-confirm,
+.sdp-btn-confirm *,
+.v14-fc-pill.break,
+#bt-forecast-bar .v14-fc-pill.break,
+.v14-bridge-tag,
+.v14-leftmost-tag,
+.v15-bridge-btn:hover {
+  text-shadow: 0 1px 0 rgba(255, 248, 214, 0.45) !important;
+}
+
+#payout-modal .po-scroll-content,
+#payout-modal .po-scroll-content * {
+  text-shadow: 0 1px 0 rgba(255, 248, 224, 0.65) !important;
+}
+#payout-modal .tavern-modal-cta,
+#payout-modal .tavern-modal-cta * {
+  text-shadow: var(--px-edge) !important;
+}
+
 
 

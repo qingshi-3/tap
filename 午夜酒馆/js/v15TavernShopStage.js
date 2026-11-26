@@ -955,14 +955,19 @@
         }
 
         ctx.save();
-        ctx.font = '700 10px -apple-system, "PingFang SC", "Noto Sans SC", sans-serif';
+        ctx.font = '12px "FusionPixel", monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'top';
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#08060f';
         const label = `${h.name} ${h.atk}`;
-        ctx.fillStyle = 'rgba(6, 3, 2, 0.92)';
-        ctx.fillText(label, x + 1, y + 8);
+        const lx = Math.round(x);
+        const ly = Math.round(y + 7);
+        ctx.strokeText(label, lx, ly);
         ctx.fillStyle = h.atk > h.baseAtk ? '#8cf59a' : '#f7e5be';
-        ctx.fillText(label, x, y + 7);
+        ctx.fillText(label, lx, ly);
         ctx.restore();
       }
     }

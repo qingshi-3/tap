@@ -124,6 +124,10 @@
       return null;
     }
 
+    spawn(key, x, y, opts = {}) {
+      return this.createInstance(key, x, y, opts);
+    }
+
     createInstance(key, x, y, opts = {}) {
       // Prefer Duelyst H5 independent keyed effect when available
       const dKey = this.resolveDuelystKey(key);

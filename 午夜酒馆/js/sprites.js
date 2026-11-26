@@ -14,6 +14,73 @@
       this.duelystImages = new Map(); // `${unitId}:${action}` -> HTMLImageElement
       this.domCanvases = [];
       this.ready = false;
+      this._outlineCache = new Map();
+      this._silCanvas = null;
+      this._silCtx = null;
+      this._flashCanvas = null;
+      this._flashCtx = null;
+    }
+
+    _getOutlinedCell(cacheKey, img, sx, sy, sw, sh, outlineColor) {
+      let cached = this._outlineCache.get(cacheKey);
+      if (cached) return cached;
+      if (this._outlineCache.size > 480) {
+        const firstKey = this._outlineCache.keys().next().value;
+        this._outlineCache.delete(firstKey);
+      }
+      if (!this._silCanvas) {
+        this._silCanvas = document.createElement('canvas');
+        this._silCtx = this._silCanvas.getContext('2d');
+      }
+      const silC = this._silCanvas;
+      const silCtx = this._silCtx;
+      if (silC.width < sw || silC.height < sh) {
+        silC.width = Math.max(silC.width, sw);
+        silC.height = Math.max(silC.height, sh);
+      }
+      silCtx.clearRect(0, 0, sw, sh);
+      silCtx.globalCompositeOperation = 'source-over';
+      silCtx.imageSmoothingEnabled = false;
+      silCtx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      silCtx.globalCompositeOperation = 'source-in';
+      silCtx.fillStyle = outlineColor;
+      silCtx.fillRect(0, 0, sw, sh);
+      silCtx.globalCompositeOperation = 'source-over';
+
+      const out = document.createElement('canvas');
+      out.width = sw + 2;
+      out.height = sh + 2;
+      const octx = out.getContext('2d');
+      octx.imageSmoothingEnabled = false;
+      // Crisp 1-native-pixel silhouette rim (left, right, top) — zero ctx.filter overhead!
+      octx.drawImage(silC, 0, 0, sw, sh, 0, 1, sw, sh);
+      octx.drawImage(silC, 0, 0, sw, sh, 2, 1, sw, sh);
+      octx.drawImage(silC, 0, 0, sw, sh, 1, 0, sw, sh);
+      octx.drawImage(img, sx, sy, sw, sh, 1, 1, sw, sh);
+      this._outlineCache.set(cacheKey, out);
+      return out;
+    }
+
+    _getWhiteFlashCell(img, sx, sy, sw, sh) {
+      if (!this._flashCanvas) {
+        this._flashCanvas = document.createElement('canvas');
+        this._flashCtx = this._flashCanvas.getContext('2d');
+      }
+      const fc = this._flashCanvas;
+      const fctx = this._flashCtx;
+      if (fc.width < sw || fc.height < sh) {
+        fc.width = Math.max(fc.width, sw);
+        fc.height = Math.max(fc.height, sh);
+      }
+      fctx.clearRect(0, 0, sw, sh);
+      fctx.globalCompositeOperation = 'source-over';
+      fctx.imageSmoothingEnabled = false;
+      fctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+      fctx.globalCompositeOperation = 'source-in';
+      fctx.fillStyle = '#ffffff';
+      fctx.fillRect(0, 0, sw, sh);
+      fctx.globalCompositeOperation = 'source-over';
+      return fc;
     }
 
     initKit() {
@@ -88,11 +155,11 @@
       const kit = this.initKit();
       const clip = kit && kit.unit(unitId, 'attack');
       if (clip) {
-        // Play 20-43 frame Duelyst attack animations at snappy combat tempo (~0.58s - 0.92s)
+        // Play full 20-43 frame Duelyst attack animations at snappy combat tempo (~0.48s - 0.72s)
         const rawSec = kit.duration(clip) / 1000;
-        return Math.max(0.56, Math.min(0.95, rawSec * 0.44));
+        return Math.max(0.46, Math.min(0.72, rawSec * 0.38));
       }
-      return 0.46;
+      return 0.44;
     }
 
     getAttackSpeedMult(unitId, targetDurSec) {
@@ -192,7 +259,7 @@
       // 1. Check Duelyst H5 Kit unit first (honors exact frame timing & original canvas-center anchorX/anchorY!)
       const dc = this.getDuelystClip(unitId, anim);
       if (dc) {
-        const { kit, clip, idleClip, img } = dc;
+        const { kit, clip, idleClip, img, action } = dc;
         const {
           scale = 1.4,
           flipX = false,
@@ -202,13 +269,17 @@
           elapsedOverride = null,
           speedMult = 1,
           squashX = 1,
-          squashY = 1
+          squashY = 1,
+          flashWhite = 0,
+          tintColor = null
         } = opts;
         const rawSec = elapsedOverride !== null ? elapsedOverride : timeSec;
         const idleRate = (anim === 'idle' && elapsedOverride === null && window.MT.ANIM_CONFIG) ? window.MT.ANIM_CONFIG.idleRate : 1;
         const tMs = Math.max(0, rawSec * 1000 * speedMult * idleRate);
         const totalMs = kit.duration(clip) || 1;
         const safeMs = (!loop && tMs >= totalMs) ? Math.max(0, totalMs - 1) : tMs;
+        const cell = kit.frame(clip, safeMs, { loop });
+        if (!cell) return;
 
         // Normalize Duelyst kit unit scale relative to legacy ~80px tall units
         const kitScale = scale * 1.18;
@@ -220,14 +291,24 @@
         ctx.globalAlpha = alpha;
         ctx.translate(Math.round(x), Math.round(y));
         ctx.scale(squashX, squashY);
-        if (outlineColor) {
-          ctx.filter = `drop-shadow(1.5px 0 0 ${outlineColor}) drop-shadow(-1.5px 0 0 ${outlineColor}) drop-shadow(0 -1.5px 0 ${outlineColor})`;
+        ctx.translate(0, Math.round(-idleFootFromAnchorY * kitScale));
+        ctx.scale(flipX ? -kitScale : kitScale, kitScale);
+
+        if (tintColor) {
+          const sil = this._getOutlinedCell(`tint:${unitId}:${action}:${cell.index}:${tintColor}`, img, cell.sx, cell.sy, cell.width, cell.height, tintColor);
+          ctx.drawImage(sil, -clip.anchorX - 1, -clip.anchorY - 1);
+        } else if (outlineColor) {
+          const outlined = this._getOutlinedCell(`d:${unitId}:${action}:${cell.index}:${outlineColor}`, img, cell.sx, cell.sy, cell.width, cell.height, outlineColor);
+          ctx.drawImage(outlined, -clip.anchorX - 1, -clip.anchorY - 1);
+        } else {
+          ctx.drawImage(img, cell.sx, cell.sy, cell.width, cell.height, -clip.anchorX, -clip.anchorY, cell.width, cell.height);
         }
-        kit.draw(ctx, clip, img, safeMs, 0, Math.round(-idleFootFromAnchorY * kitScale), {
-          loop,
-          scale: kitScale,
-          flipX
-        });
+
+        if (flashWhite > 0.02) {
+          const fc = this._getWhiteFlashCell(img, cell.sx, cell.sy, cell.width, cell.height);
+          ctx.globalAlpha = Math.min(1, alpha * flashWhite);
+          ctx.drawImage(fc, 0, 0, cell.width, cell.height, -clip.anchorX, -clip.anchorY, cell.width, cell.height);
+        }
         ctx.restore();
         return;
       }
@@ -243,7 +324,8 @@
         loop = true,
         elapsedOverride = null,
         squashX = 1,
-        squashY = 1
+        squashY = 1,
+        flashWhite = 0
       } = opts;
 
       const t = elapsedOverride !== null ? elapsedOverride : timeSec;
@@ -264,18 +346,29 @@
       ctx.translate(Math.round(x), Math.round(y));
       if (flipX) ctx.scale(-1, 1);
 
+      const footOffset = Math.round(dh * 0.11);
       if (outlineColor) {
-        ctx.shadowColor = outlineColor;
-        ctx.shadowBlur = 0;
-        ctx.filter = `drop-shadow(2px 0 0 ${outlineColor}) drop-shadow(-2px 0 0 ${outlineColor}) drop-shadow(0 -2px 0 ${outlineColor})`;
+        const outlined = this._getOutlinedCell(`l:${unitId}:${anim}:${frameIdx}:${outlineColor}`, info.img, sx, 0, info.frameW, info.frameH, outlineColor);
+        const padX = Math.round(scale * squashX);
+        const padY = Math.round(scale * squashY);
+        ctx.drawImage(
+          outlined,
+          0, 0, outlined.width, outlined.height,
+          -Math.round(dw / 2) - padX, -dh + footOffset - padY, dw + padX * 2, dh + padY * 2
+        );
+      } else {
+        ctx.drawImage(
+          info.img,
+          sx, 0, info.frameW, info.frameH,
+          -Math.round(dw / 2), -dh + footOffset, dw, dh
+        );
       }
 
-      const footOffset = Math.round(dh * 0.11);
-      ctx.drawImage(
-        info.img,
-        sx, 0, info.frameW, info.frameH,
-        -Math.round(dw / 2), -dh + footOffset, dw, dh
-      );
+      if (flashWhite > 0.02) {
+        const fc = this._getWhiteFlashCell(info.img, sx, 0, info.frameW, info.frameH);
+        ctx.globalAlpha = Math.min(1, alpha * flashWhite);
+        ctx.drawImage(fc, 0, 0, info.frameW, info.frameH, -Math.round(dw / 2), -dh + footOffset, dw, dh);
+      }
       ctx.restore();
     }
 
