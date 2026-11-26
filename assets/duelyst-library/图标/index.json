@@ -1,0 +1,3106 @@
+[
+  {
+    "id": "icon-a4f3076630047ad183a4b817",
+    "name": "artifact f2 braceletblidingstrike",
+    "group": "图标素材（待核对用途）",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_braceletblidingstrike.png",
+    "preview": "preview/icon-a4f3076630047ad183a4b817.png",
+    "note": "图集帧：artifact_f2_braceletblidingstrike_000.png"
+  },
+  {
+    "id": "icon-f8aa833667e4e55e8d02ec3a",
+    "name": "icon f2 phoenixfire",
+    "group": "图标素材（待核对用途）",
+    "source": "duelyst-main/app/resources/icons/icon_f2_phoenixfire.png",
+    "preview": "preview/icon-f8aa833667e4e55e8d02ec3a.png",
+    "note": "图集帧：icon_f2_phoenixfire_000.png。资源键：icon_f2_phoenixfire"
+  },
+  {
+    "id": "icon-c85066b6c3f40411acae6358",
+    "name": "Abyssal Scar",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_taint.png",
+    "preview": "preview/icon-c85066b6c3f40411acae6358.png",
+    "note": "待机帧：generalspell_f4_taint_000.png。工厂分支：Cards.Spell.AbyssalScar（sdk/cards/factory/core/faction4.coffee）。资源键：iconTaintActive、iconTaintIdle"
+  },
+  {
+    "id": "icon-274f972f79144936f1adef34",
+    "name": "Ancient Knowledge",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_ancientknowledge.png",
+    "preview": "preview/icon-274f972f79144936f1adef34.png",
+    "note": "待机帧：bossspell_ancientknowledge_000.png。工厂分支：Cards.BossSpell.AncientKnowledge（sdk/cards/factory/misc/bosses.coffee）。资源键：iconAncientKnowledgeActive、iconAncientKnowledgeIdle"
+  },
+  {
+    "id": "icon-a37b04895535fd65c9cabae1",
+    "name": "Arcane Heart",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f2_twilightsurge.png",
+    "preview": "preview/icon-a37b04895535fd65c9cabae1.png",
+    "note": "待机帧：generalspell_f2_twilightsurge_000.png。工厂分支：Cards.Spell.ArcaneHeart（sdk/cards/factory/core/faction2.coffee）。资源键：iconTwilightSurgeActive、iconTwilightSurgeIdle"
+  },
+  {
+    "id": "icon-eae3d527be7b7f628bd600f7",
+    "name": "Blink",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f2_blink.png",
+    "preview": "preview/icon-eae3d527be7b7f628bd600f7.png",
+    "note": "待机帧：generalspell_f2_blink_000.png。工厂分支：Cards.Spell.Blink（sdk/cards/factory/core/faction2.coffee）。资源键：iconBlinkActive、iconBlinkIdle"
+  },
+  {
+    "id": "icon-fb91a4c422b369fc7f105691",
+    "name": "Conscript",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f1_kingsguard.png",
+    "preview": "preview/icon-fb91a4c422b369fc7f105691.png",
+    "note": "待机帧：generalspell_f1_kingsguard_000.png。工厂分支：Cards.Spell.KingsGuardBBS（sdk/cards/factory/core/faction1.coffee）。资源键：iconConscriptActive、iconConscriptIdle"
+  },
+  {
+    "id": "icon-5940eafe779b5df9c6eecb79",
+    "name": "Crystallize",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f6_stun.png",
+    "preview": "preview/icon-5940eafe779b5df9c6eecb79.png",
+    "note": "待机帧：generalspell_f6_stun_000.png。工厂分支：Cards.Spell.StunBBS（sdk/cards/factory/core/faction6.coffee）。资源键：iconCrystallizeActive、iconCrystallizeIdle"
+  },
+  {
+    "id": "icon-f4843949f5dee685273d9c18",
+    "name": "Decension / Descension",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f3_hex.png",
+    "preview": "preview/icon-f4843949f5dee685273d9c18.png",
+    "note": "待机帧：generalspell_f3_hex_000.png。工厂分支：Cards.Spell.DebuffBBS（sdk/cards/factory/core/faction3.coffee）。资源键：iconDecensionActive、iconDecensionIdle"
+  },
+  {
+    "id": "icon-9863d0f50003ca9cfbf52221",
+    "name": "Entangling Shadow",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_cultivatingdark.png",
+    "preview": "preview/icon-9863d0f50003ca9cfbf52221.png",
+    "note": "待机帧：bossspell_cultivatingdark_000.png。工厂分支：Cards.BossSpell.EntanglingShadow（sdk/cards/factory/misc/bosses.coffee）。资源键：iconCultivatingDarkActive、iconCultivatingDarkIdle"
+  },
+  {
+    "id": "icon-b12a0256fb6cdf4fb16add53",
+    "name": "Ethereal Wind",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_etherealwind.png",
+    "preview": "preview/icon-b12a0256fb6cdf4fb16add53.png",
+    "note": "待机帧：bossspell_etherealwind_000.png。工厂分支：Cards.BossSpell.EtherealWind（sdk/cards/factory/misc/bosses.coffee）。资源键：iconEtherealWindActive、iconEtherealWindIdle"
+  },
+  {
+    "id": "icon-f1dadd13fdcae926707c5235",
+    "name": "Iron Shroud",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f3_windshroud2.png",
+    "preview": "preview/icon-f1dadd13fdcae926707c5235.png",
+    "note": "待机帧：generalspell_f3_windshroud2_000.png。工厂分支：Cards.Spell.WindShroud（sdk/cards/factory/core/faction3.coffee）。资源键：iconWindShroudActive、iconWindShroudIdle"
+  },
+  {
+    "id": "icon-71e4402aae8af925b3acc973",
+    "name": "Kinetic Surge",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f6_kinectcoil.png",
+    "preview": "preview/icon-71e4402aae8af925b3acc973.png",
+    "note": "待机帧：generalspell_f6_kinectcoil_000.png。工厂分支：Cards.Spell.KineticSurge（sdk/cards/factory/core/faction6.coffee）。资源键：iconKineticCoilActive、iconKineticCoilIdle"
+  },
+  {
+    "id": "icon-7e778462987e456f3e70c7b6",
+    "name": "Lacerating Frost",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_laceratingfrost.png",
+    "preview": "preview/icon-7e778462987e456f3e70c7b6.png",
+    "note": "待机帧：bossspell_laceratingfrost_000.png。工厂分支：Cards.BossSpell.LaceratingFrost（sdk/cards/factory/misc/bosses.coffee）。资源键：iconLaceratingFrostActive、iconLaceratingFrostIdle"
+  },
+  {
+    "id": "icon-a1e869a489a383431276c9fd",
+    "name": "Living Flame",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_livingflame.png",
+    "preview": "preview/icon-a1e869a489a383431276c9fd.png",
+    "note": "待机帧：bossspell_livingflame_000.png。工厂分支：Cards.BossSpell.LivingFlame（sdk/cards/factory/misc/bosses.coffee）。资源键：iconLivingFlameActive、iconLivingFlameIdle"
+  },
+  {
+    "id": "icon-ce8822906f0794eea71cc24d",
+    "name": "Malice",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_husk.png",
+    "preview": "preview/icon-ce8822906f0794eea71cc24d.png",
+    "note": "待机帧：generalspell_f4_husk_000.png。工厂分支：Cards.Spell.SacrificeBBS（sdk/cards/factory/core/faction4.coffee）。资源键：iconMaliceActive、iconMaliceIdle"
+  },
+  {
+    "id": "icon-31ec27d35f985d6a2c826b85",
+    "name": "Molding Earth",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_moldingearth.png",
+    "preview": "preview/icon-31ec27d35f985d6a2c826b85.png",
+    "note": "待机帧：bossspell_moldingearth_000.png。工厂分支：Cards.BossSpell.MoldingEarth（sdk/cards/factory/misc/bosses.coffee）。资源键：iconModlingEarthActive、iconModlingEarthIdle"
+  },
+  {
+    "id": "icon-948904bb6ffd14b0519fe543",
+    "name": "Overload",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f5_overload.png",
+    "preview": "preview/icon-948904bb6ffd14b0519fe543.png",
+    "note": "待机帧：generalspell_f5_overload_000.png。工厂分支：Cards.Spell.Overload（sdk/cards/factory/core/faction5.coffee）。资源键：iconOverloadActive、iconOverloadIdle"
+  },
+  {
+    "id": "icon-6a57e0e611daa9183e847791",
+    "name": "Petal Flurry",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f2_spellsword.png",
+    "preview": "preview/icon-6a57e0e611daa9183e847791.png",
+    "note": "待机帧：generalspell_f2_spellsword_000.png。工厂分支：Cards.Spell.SwordsBBS（sdk/cards/factory/core/faction2.coffee）。资源键：iconPetalFlurryActive、iconPetalFlurryIdle"
+  },
+  {
+    "id": "icon-713c33f7bad23cbc1848f725",
+    "name": "Propagate Rage",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f5_egg.png",
+    "preview": "preview/icon-713c33f7bad23cbc1848f725.png",
+    "note": "待机帧：generalspell_f5_egg_000.png。工厂分支：Cards.Spell.EggBBS（sdk/cards/factory/core/faction5.coffee）。资源键：iconPropogateRageActive、iconPropogateRageIdle"
+  },
+  {
+    "id": "icon-81949f5986d671bed98a38c1",
+    "name": "Psionic Strike",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f3_psionicrecall.png",
+    "preview": "preview/icon-81949f5986d671bed98a38c1.png",
+    "note": "待机帧：generalspell_f3_psionicrecall_000.png。工厂分支：Cards.Spell.PsionicStrike（sdk/cards/factory/core/faction3.coffee）。资源键：iconPsionicRecallActive、iconPsionicRecallIdle"
+  },
+  {
+    "id": "icon-dbbd0669eab4ebc0e113686a",
+    "name": "Restoring Light",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/bossspell_restoringlight.png",
+    "preview": "preview/icon-dbbd0669eab4ebc0e113686a.png",
+    "note": "待机帧：bossspell_restoringlight_000.png。工厂分支：Cards.BossSpell.RestoringLight（sdk/cards/factory/misc/bosses.coffee）。资源键：iconRestoringLightActive、iconRestoringLightIdle"
+  },
+  {
+    "id": "icon-4b8c1555ac13ee9d6fa98719",
+    "name": "Seeking Eye",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f5_seekingeye.png",
+    "preview": "preview/icon-4b8c1555ac13ee9d6fa98719.png",
+    "note": "待机帧：generalspell_f5_seekingeye_000.png。工厂分支：Cards.Spell.SeekingEye（sdk/cards/factory/core/faction5.coffee）。资源键：iconSeekingEyeActive、iconSeekingEyeIdle"
+  },
+  {
+    "id": "icon-3b19fdd20f3348f05caff38d",
+    "name": "Shadowspawn",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_shadowspawn.png",
+    "preview": "preview/icon-3b19fdd20f3348f05caff38d.png",
+    "note": "待机帧：generalspell_f4_shadowspawn_000.png。工厂分支：Cards.Spell.Shadowspawn（sdk/cards/factory/core/faction4.coffee）。资源键：iconShadowspawnActive、iconShadowspawnIdle"
+  },
+  {
+    "id": "icon-71a227239a1923270e2bc969",
+    "name": "Warbird",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f6_warbird.png",
+    "preview": "preview/icon-71a227239a1923270e2bc969.png",
+    "note": "待机帧：generalspell_f6_warbird_000.png。工厂分支：Cards.Spell.Warbird（sdk/cards/factory/core/faction6.coffee）。资源键：iconWarbirdActive、iconWarbirdIdle"
+  },
+  {
+    "id": "icon-cf3cc65272f4f1c33901a21c",
+    "name": "夕陽餘輝 / Afterglow",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f1_afterglow.png",
+    "preview": "preview/icon-cf3cc65272f4f1c33901a21c.png",
+    "note": "待机帧：generalspell_f1_afterglow_000.png。工厂分支：Cards.Spell.Afterglow（sdk/cards/factory/core/faction1.coffee）。资源键：iconAfterglowActive、iconAfterglowIdle"
+  },
+  {
+    "id": "icon-02526de834129f8d87162418",
+    "name": "戰吼 / Roar",
+    "group": "将领招牌技能",
+    "source": "duelyst-main/app/resources/icons/generalspell_f1_roar.png",
+    "preview": "preview/icon-02526de834129f8d87162418.png",
+    "note": "待机帧：generalspell_f1_roar_000.png。工厂分支：Cards.Spell.Roar（sdk/cards/factory/core/faction1.coffee）。资源键：iconRoarActive、iconRoarIdle"
+  },
+  {
+    "id": "icon-32fe5fcd2bb5fa78eb3e75b0",
+    "name": "Abhorrent Unbirth",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_abomination.png",
+    "preview": "preview/icon-32fe5fcd2bb5fa78eb3e75b0.png",
+    "note": "待机帧：icon_f4_abomination_000.png。工厂分支：Cards.Spell.AbhorrentUnbirth（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconAbominationActive、iconAbominationIdle"
+  },
+  {
+    "id": "icon-9d3cf2dd46d1dcbacf58ab99",
+    "name": "Abyssal Scar",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_supertaint.png",
+    "preview": "preview/icon-9d3cf2dd46d1dcbacf58ab99.png",
+    "note": "待机帧：generalspell_f4_supertaint_000.png。工厂分支：Cards.Spell.SummonFiends（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconSuperTaintActive、iconSuperTaintIdle"
+  },
+  {
+    "id": "icon-7b1a2fb487d64f7c1992c31b",
+    "name": "Accumulonimbus",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_increasingwinds.png",
+    "preview": "preview/icon-7b1a2fb487d64f7c1992c31b.png",
+    "note": "待机帧：icon_f3_increasingwinds_000.png。工厂分支：Cards.Spell.IncreasingWinds（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconIncreasingWindsActive、iconIncreasingWindsIdle"
+  },
+  {
+    "id": "icon-fe6f676d23be6845e0c60f06",
+    "name": "Aegis Barrier",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_aegisbarrier.png",
+    "preview": "preview/icon-fe6f676d23be6845e0c60f06.png",
+    "note": "待机帧：icon_f1_aegisbarrier_000.png。工厂分支：Cards.Spell.AegisBarrier（sdk/cards/factory/core/faction1.coffee）。资源键：iconAegisBarrierActive、iconAegisBarrierIdle"
+  },
+  {
+    "id": "icon-216dee16f278b4c8d015b129",
+    "name": "Aerial Rift",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_aerial_rift.png",
+    "preview": "preview/icon-216dee16f278b4c8d015b129.png",
+    "note": "待机帧：icon_f1_aerial_rift_000.png。工厂分支：Cards.Spell.AerialRift（sdk/cards/factory/core/faction1.coffee）。资源键：iconAerialRiftActive、iconAerialRiftIdle"
+  },
+  {
+    "id": "icon-a30e1b8a32ca1e062332f9c8",
+    "name": "Afterblaze",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_afterglow.png",
+    "preview": "preview/icon-a30e1b8a32ca1e062332f9c8.png",
+    "note": "待机帧：icon_f1_afterglow_000.png。工厂分支：Cards.Spell.Afterblaze（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconAfterblazeActive、iconAfterblazeIdle"
+  },
+  {
+    "id": "icon-6da4eebb5008b7d370cd332c",
+    "name": "Amaranthine Vow",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_oncemore.png",
+    "preview": "preview/icon-6da4eebb5008b7d370cd332c.png",
+    "note": "待机帧：icon_f1_oncemore_000.png。工厂分支：Cards.Spell.OnceMoreWithProvoke（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconOnceMoreActive、iconOnceMoreIdle"
+  },
+  {
+    "id": "icon-5bfbb413130ee094f67705f9",
+    "name": "Amplification",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_amplification.png",
+    "preview": "preview/icon-5bfbb413130ee094f67705f9.png",
+    "note": "待机帧：icon_f5_amplification_000.png。工厂分支：Cards.Spell.Amplification（sdk/cards/factory/core/faction5.coffee）。资源键：iconAmplificationActive、iconAmplificationIdle"
+  },
+  {
+    "id": "icon-4729a9e5c5b8526207f908e5",
+    "name": "Ancestral Divination",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_ancestralpact.png",
+    "preview": "preview/icon-4729a9e5c5b8526207f908e5.png",
+    "note": "待机帧：icon_f2_ancestralpact_000.png。工厂分支：Cards.Spell.AncestralDivination（sdk/cards/factory/core/faction2.coffee）。资源键：iconAncestralPactActive、iconAncestralPactIdle"
+  },
+  {
+    "id": "icon-99a0ee4368cdcd715ea7fee2",
+    "name": "Aperion's Claim",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_greatergood.png",
+    "preview": "preview/icon-99a0ee4368cdcd715ea7fee2.png",
+    "note": "待机帧：icon_f1_greatergood_000.png。工厂分支：Cards.Spell.AperionsClaim（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconGreaterGoodActive、iconGreaterGoodIdle"
+  },
+  {
+    "id": "icon-297a7770549e4b45711f4833",
+    "name": "Aphotic Drain",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_aphoticdrain.png",
+    "preview": "preview/icon-297a7770549e4b45711f4833.png",
+    "note": "待机帧：icon_f4_aphoticdrain_000.png。工厂分支：Cards.Spell.AphoticDrain（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconAphoticDrainActive、iconAphoticDrainIdle"
+  },
+  {
+    "id": "icon-7a3ed524049a54fba7266b59",
+    "name": "Arid Unmaking",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_soultosand.png",
+    "preview": "preview/icon-7a3ed524049a54fba7266b59.png",
+    "note": "待机帧：icon_f3_soultosand_000.png。工厂分支：Cards.Spell.AridUnmaking（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconAridUnmakingActive、iconAridUnmakingIdle"
+  },
+  {
+    "id": "icon-6219bf46bba4521f7629ba3d",
+    "name": "Artifact Defiler",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_artifact_defiler.png",
+    "preview": "preview/icon-6219bf46bba4521f7629ba3d.png",
+    "note": "待机帧：icon_f2_artifact_defiler_000.png。工厂分支：Cards.Spell.ArtifactDefiler（sdk/cards/factory/core/faction2.coffee）。资源键：iconArtifactDefilerActive、iconArtifactDefilerIdle"
+  },
+  {
+    "id": "icon-b4da826c4bcb5b7fb894926c",
+    "name": "Aspect of Ego",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_aspectofidentity.png",
+    "preview": "preview/icon-b4da826c4bcb5b7fb894926c.png",
+    "note": "待机帧：icon_f6_aspectofidentity_000.png。工厂分支：Cards.Spell.AspectOfIdentity（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconAspectIdentityActive、iconAspectIdentityIdle"
+  },
+  {
+    "id": "icon-175197c6429739b163e3b186",
+    "name": "Aspect of Shim'Zar",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_alteredbeast.png",
+    "preview": "preview/icon-175197c6429739b163e3b186.png",
+    "note": "待机帧：icon_f6_alteredbeast_000.png。工厂分支：Cards.Spell.AlteredBeast（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconAlteredBeastActive、iconAlteredBeastIdle"
+  },
+  {
+    "id": "icon-7209c725e9a9991b3608df90",
+    "name": "Aspect of the Bear",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_aspectofthebear.png",
+    "preview": "preview/icon-7209c725e9a9991b3608df90.png",
+    "note": "待机帧：icon_f6_aspectofthebear_000.png。工厂分支：Cards.Spell.AspectOfBear（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconAspectOfBearActive、iconAspectOfBearIdle"
+  },
+  {
+    "id": "icon-e8b5a09bd3e1f2864573a004",
+    "name": "Aspect of the Mountains",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_aspectofthemountains.png",
+    "preview": "preview/icon-e8b5a09bd3e1f2864573a004.png",
+    "note": "待机帧：icon_f6_aspectofthemountains_000.png。工厂分支：Cards.Spell.AspectOfTheMountains（sdk/cards/factory/core/faction6.coffee）。资源键：iconAspectMountainsActive、iconAspectMountainsIdle"
+  },
+  {
+    "id": "icon-c81f5dc44d74a6076afe5a37",
+    "name": "Aspect of the Ravager",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_aspectofthefox.png",
+    "preview": "preview/icon-c81f5dc44d74a6076afe5a37.png",
+    "note": "待机帧：icon_f6_aspectofthefox_000.png。工厂分支：Cards.Spell.AspectOfTheWolf（sdk/cards/factory/core/faction6.coffee）。资源键：iconAspectFoxActive、iconAspectFoxIdle"
+  },
+  {
+    "id": "icon-f98331b71f5fc2e99eaa1293",
+    "name": "Aspect of the Wyrm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_aspectofthedrake.png",
+    "preview": "preview/icon-f98331b71f5fc2e99eaa1293.png",
+    "note": "待机帧：icon_f6_aspectofthedrake_000.png。工厂分支：Cards.Spell.AspectOfTheDrake（sdk/cards/factory/core/faction6.coffee）。资源键：iconAspectDrakeActive、iconAspectDrakeIdle"
+  },
+  {
+    "id": "icon-a291670e0020ca1b5f6f312d",
+    "name": "Assassination Protocol",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_gogetem.png",
+    "preview": "preview/icon-a291670e0020ca1b5f6f312d.png",
+    "note": "待机帧：icon_f2_gogetem_000.png。工厂分支：Cards.Spell.AssassinationProtocol（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconGoGetEmActive、iconGoGetEmIdle"
+  },
+  {
+    "id": "icon-7da337d3db3ef3558a1d5891",
+    "name": "Astral Flood",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_astraflood.png",
+    "preview": "preview/icon-7da337d3db3ef3558a1d5891.png",
+    "note": "待机帧：icon_f3_astraflood_000.png。工厂分支：Cards.Spell.AstralFlood（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconAstralFloodActive、iconAstralFloodIdle"
+  },
+  {
+    "id": "icon-96b75a623a28e807ba028983",
+    "name": "Astral Phasing",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_astralphasing.png",
+    "preview": "preview/icon-96b75a623a28e807ba028983.png",
+    "note": "待机帧：icon_f3_astralphasing_000.png。工厂分支：Cards.Spell.AstralPhasing（sdk/cards/factory/core/faction3.coffee）。资源键：iconAstralPhasingActive、iconAstralPhasingIdle"
+  },
+  {
+    "id": "icon-58526ab4ae953cb2d5dccda6",
+    "name": "Auroraboros",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_ninelives.png",
+    "preview": "preview/icon-58526ab4ae953cb2d5dccda6.png",
+    "note": "待机帧：icon_f6_ninelives_000.png。工厂分支：Cards.Spell.Auroraboros（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconAuroraborosActive、iconAuroraborosIdle"
+  },
+  {
+    "id": "icon-466a5b65794d8ccb2a0b2c48",
+    "name": "Auroras Tears；Blazing Orb；Freezing Orb",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_aurorastear.png",
+    "preview": "preview/icon-466a5b65794d8ccb2a0b2c48.png",
+    "note": "待机帧：icon_f3_aurorastear_000.png。工厂分支：Cards.Spell.AurorasTears（sdk/cards/factory/core/faction3.coffee）；Cards.TutorialSpell.TutorialFireOrb（sdk/cards/factory/misc/tutorial.coffee）；Cards.TutorialSpell.TutorialFrozenFinisher（sdk/cards/factory/misc/tutorial.coffee）。资源键：iconAurorasTearActive、iconAurorasTearIdle"
+  },
+  {
+    "id": "icon-1a605b69ccd329c4c5ca43ae",
+    "name": "Auryn Nexus",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_aurynnexus.png",
+    "preview": "preview/icon-1a605b69ccd329c4c5ca43ae.png",
+    "note": "待机帧：icon_f1_aurynnexus_000.png。工厂分支：Cards.Spell.AurynNexus（sdk/cards/factory/core/faction1.coffee）。资源键：iconAurynNexusActive、iconAurynNexusIdle"
+  },
+  {
+    "id": "icon-68d96e0b91531d01023cd1c1",
+    "name": "Autarch's Gifts",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_autarchsgift.png",
+    "preview": "preview/icon-68d96e0b91531d01023cd1c1.png",
+    "note": "待机帧：icon_f3_autarchsgift_000.png。工厂分支：Cards.Spell.EquipVetArtifacts（sdk/cards/factory/bloodstorm/faction3.coffee）。资源键：iconAutarchsGiftActive、iconAutarchsGiftIdle"
+  },
+  {
+    "id": "icon-11e2a6daac3d808f3285b9bd",
+    "name": "Avalanche",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_avalanche.png",
+    "preview": "preview/icon-11e2a6daac3d808f3285b9bd.png",
+    "note": "待机帧：icon_f6_avalanche_000.png。工厂分支：Cards.Spell.Avalanche（sdk/cards/factory/core/faction6.coffee）。资源键：iconAvalancheActive、iconAvalancheIdle"
+  },
+  {
+    "id": "icon-cb4e9f0f5800be6fe6576b55",
+    "name": "Azure Summoning",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_azuresummoning.png",
+    "preview": "preview/icon-cb4e9f0f5800be6fe6576b55.png",
+    "note": "待机帧：icon_f3_azuresummoning_000.png。工厂分支：Cards.Spell.AzureSummoning（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconAzureSummoningActive、iconAzureSummoningIdle"
+  },
+  {
+    "id": "icon-78c471305ecc2b2f0aad9d19",
+    "name": "Bamboozle",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_panddohug.png",
+    "preview": "preview/icon-78c471305ecc2b2f0aad9d19.png",
+    "note": "待机帧：icon_f2_panddohug_000.png。工厂分支：Cards.Spell.Bamboozle（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconBamboozleActive、iconBamboozleIdle"
+  },
+  {
+    "id": "icon-d452299548bb945592c87ec8",
+    "name": "Beam Shock",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_beamshock.png",
+    "preview": "preview/icon-d452299548bb945592c87ec8.png",
+    "note": "待机帧：icon_f1_beamshock_000.png。工厂分支：Cards.Spell.BeamShock（sdk/cards/factory/core/faction1.coffee）。资源键：iconBeamShockActive、iconBeamShockIdle"
+  },
+  {
+    "id": "icon-aef146e54961dc829f9b32d5",
+    "name": "Bellow",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_yellrealloud.png",
+    "preview": "preview/icon-aef146e54961dc829f9b32d5.png",
+    "note": "待机帧：icon_f5_yellrealloud_000.png。工厂分支：Cards.Spell.YellRealLoud（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconYellLoudActive、iconYellLoudIdle"
+  },
+  {
+    "id": "icon-9f1ffc70f0965a5a6a080ad0",
+    "name": "Betrayal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_betrayal.png",
+    "preview": "preview/icon-9f1ffc70f0965a5a6a080ad0.png",
+    "note": "待机帧：icon_f4_betrayal_000.png。工厂分支：Cards.Spell.Betrayal（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconBetrayalActive、iconBetrayalIdle"
+  },
+  {
+    "id": "icon-df27c7672b9fff890d550798",
+    "name": "Blazing Spines",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_blazingspines.png",
+    "preview": "preview/icon-df27c7672b9fff890d550798.png",
+    "note": "待机帧：icon_f6_blazingspines_000.png。工厂分支：Cards.Spell.BlazingSpines（sdk/cards/factory/core/faction6.coffee）。资源键：iconBlazingSpinesActive、iconBlazingSpinesIdle"
+  },
+  {
+    "id": "icon-edd12f9a04f0ea4db95fdcc7",
+    "name": "Blinding Snowstorm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_snowstorm.png",
+    "preview": "preview/icon-edd12f9a04f0ea4db95fdcc7.png",
+    "note": "待机帧：icon_f6_snowstorm_000.png。工厂分支：Cards.Spell.BlindingSnowstorm（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconSnowstormActive、iconSnowstormIdle"
+  },
+  {
+    "id": "icon-8e1d88c0a32171a35c5c6339",
+    "name": "Blindscorch",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_blindscorch.png",
+    "preview": "preview/icon-8e1d88c0a32171a35c5c6339.png",
+    "note": "待机帧：icon_f3_blindscorch_000.png。工厂分支：Cards.Spell.Blindscorch（sdk/cards/factory/core/faction3.coffee）。资源键：iconBlindScorchActive、iconBlindScorchIdle"
+  },
+  {
+    "id": "icon-2a36d062f1abcdab969bffe2",
+    "name": "Blood Echoes",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_spiritguardian.png",
+    "preview": "preview/icon-2a36d062f1abcdab969bffe2.png",
+    "note": "待机帧：icon_f4_spiritguardian_000.png。工厂分支：Cards.Spell.DeathIncoming（sdk/cards/factory/unity/faction4.coffee）。资源键：iconBloodEchoesActive、iconBloodEchoesIdle"
+  },
+  {
+    "id": "icon-f4b7a76a202f0583217effc4",
+    "name": "Blood of Air",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_bloodofair.png",
+    "preview": "preview/icon-f4b7a76a202f0583217effc4.png",
+    "note": "待机帧：icon_f3_bloodofair_000.png。工厂分支：Cards.Spell.BloodOfAir（sdk/cards/factory/unity/faction3.coffee）。资源键：iconBloodOfAirActive、iconBloodOfAirIdle"
+  },
+  {
+    "id": "icon-1dde93f80d94cb80d0861041",
+    "name": "Blood Rage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_bloodrage.png",
+    "preview": "preview/icon-1dde93f80d94cb80d0861041.png",
+    "note": "待机帧：icon_f5_bloodrage_000.png。工厂分支：Cards.Spell.BloodRage（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconBloodrageActive、iconBloodrageIdle"
+  },
+  {
+    "id": "icon-b992d6d88b88435b89b7fa43",
+    "name": "Bolster",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_increasingdominance.png",
+    "preview": "preview/icon-b992d6d88b88435b89b7fa43.png",
+    "note": "待机帧：icon_f1_increasingdominance_000.png。工厂分支：Cards.Spell.IncreasingDominance（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconIncreasingDominanceActive、iconIncreasingDominanceIdle"
+  },
+  {
+    "id": "icon-7f6d94ed500f80f6a7638f4c",
+    "name": "Bombard",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_bombard.png",
+    "preview": "preview/icon-7f6d94ed500f80f6a7638f4c.png",
+    "note": "待机帧：icon_f2_bombard_000.png。工厂分支：Cards.Spell.Bombard（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconBombardActive、iconBombardIdle"
+  },
+  {
+    "id": "icon-ed9d9cf48eb767e1597fb6bd",
+    "name": "Bone Swarm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_boneswarm.png",
+    "preview": "preview/icon-ed9d9cf48eb767e1597fb6bd.png",
+    "note": "待机帧：icon_f3_boneswarm_000.png。工厂分支：Cards.Spell.BoneSwarm（sdk/cards/factory/core/faction3.coffee）。资源键：iconBoneSwarmActive、iconBoneSwarmIdle"
+  },
+  {
+    "id": "icon-cf918bee361ba413f75328b9",
+    "name": "Bonechill Barrier",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_bonechillbarrier.png",
+    "preview": "preview/icon-cf918bee361ba413f75328b9.png",
+    "note": "待机帧：icon_f6_bonechillbarrier_000.png。工厂分支：Cards.Spell.BonechillBarrier（sdk/cards/factory/core/faction6.coffee）。资源键：iconBonechillBarrierActive、iconBonechillBarrierIdle"
+  },
+  {
+    "id": "icon-673d3ca4a1ab022c232f032a",
+    "name": "Boulder Hurl",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_precisionboulder.png",
+    "preview": "preview/icon-673d3ca4a1ab022c232f032a.png",
+    "note": "待机帧：icon_neutral_precisionboulder_000.png。工厂分支：Cards.Spell.BoulderHurl（sdk/cards/factory/firstwatch/neutral.coffee）。资源键：iconBoulderHurlActive、iconBoulderHurlIdle"
+  },
+  {
+    "id": "icon-145cf6fa752dcb23d42c1fca",
+    "name": "Bounce Minion Spawn Entity；Hailstone Prison",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_hailstoneprison.png",
+    "preview": "preview/icon-145cf6fa752dcb23d42c1fca.png",
+    "note": "待机帧：icon_f6_hailstoneprison_000.png。工厂分支：Cards.Spell.BounceMinionSpawnEntity（sdk/cards/factory/misc/generic.coffee）；Cards.Spell.IceCage（sdk/cards/factory/core/faction6.coffee）。资源键：iconHailstonePrisonActive、iconHailstonePrisonIdle"
+  },
+  {
+    "id": "icon-87f37493332cf52110aba2bb",
+    "name": "Bounded Lifeforce",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_boundedlifeforce.png",
+    "preview": "preview/icon-87f37493332cf52110aba2bb.png",
+    "note": "待机帧：icon_f5_boundedlifeforce_000.png。工厂分支：Cards.Spell.BoundedLifeforce（sdk/cards/factory/core/faction5.coffee）。资源键：iconBoundedLifeforceActive、iconBoundedLifeforceIdle"
+  },
+  {
+    "id": "icon-2256db15d2c6946347c69a78",
+    "name": "Boundless Courage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_unstoppableforce.png",
+    "preview": "preview/icon-2256db15d2c6946347c69a78.png",
+    "note": "待机帧：icon_f6_unstoppableforce_000.png。工厂分支：Cards.Spell.ElementalFury（sdk/cards/factory/core/faction6.coffee）。资源键：iconUnstoppableForceActive、iconUnstoppableForceIdle"
+  },
+  {
+    "id": "icon-b0ebb01d5fbd43533e101ee8",
+    "name": "Breath Of The Unborn",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_breathoftheunborn.png",
+    "preview": "preview/icon-b0ebb01d5fbd43533e101ee8.png",
+    "note": "待机帧：icon_f4_breathoftheunborn_000.png。工厂分支：Cards.Spell.BreathOfTheUnborn（sdk/cards/factory/core/faction4.coffee）。资源键：iconBreathUnbornActive、iconBreathUnbornIdle"
+  },
+  {
+    "id": "icon-68674fe146421d24736a8220",
+    "name": "Brilliant Plume",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_brilliantplume.png",
+    "preview": "preview/icon-68674fe146421d24736a8220.png",
+    "note": "待机帧：icon_neutral_brilliantplume_000.png。工厂分支：Cards.Spell.BrilliantPlume（sdk/cards/factory/coreshatter/neutral.coffee）。资源键：iconBrilliantPlumeActive、iconBrilliantPlumeIdle"
+  },
+  {
+    "id": "icon-fed9d49c1dd9e9f17a07ae2b",
+    "name": "Burden of Knowledge",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_glimpse.png",
+    "preview": "preview/icon-fed9d49c1dd9e9f17a07ae2b.png",
+    "note": "待机帧：icon_f3_glimpse_000.png。工厂分支：Cards.Spell.BurdenOfKnowledge（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconGlimpseActive、iconGlimpseIdle"
+  },
+  {
+    "id": "icon-d28692e9f5a6cfa0bcb9f2e7",
+    "name": "Call to Arms",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_laststand.png",
+    "preview": "preview/icon-d28692e9f5a6cfa0bcb9f2e7.png",
+    "note": "待机帧：icon_f1_laststand_000.png。工厂分支：Cards.Spell.CallToArms（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconCallToArmsActive、iconCallToArmsIdle"
+  },
+  {
+    "id": "icon-522b073f0b335aef97af1b63",
+    "name": "Cascading Rebirth",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_cascadingrebirth.png",
+    "preview": "preview/icon-522b073f0b335aef97af1b63.png",
+    "note": "待机帧：icon_f5_cascadingrebirth_000.png。工厂分支：Cards.Spell.MoltenRebirth（sdk/cards/factory/unity/faction5.coffee）；Cards.Spell.MoltenRebirthFollowup（sdk/cards/factory/unity/faction5.coffee）。资源键：iconCascadingRebirthActive、iconCascadingRebirthIdle"
+  },
+  {
+    "id": "icon-875f15cbc6dfb3e8bfb65516",
+    "name": "Cataclysmic Fault",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_sandwave.png",
+    "preview": "preview/icon-875f15cbc6dfb3e8bfb65516.png",
+    "note": "待机帧：icon_f3_sandwave_000.png。工厂分支：Cards.Spell.CataclysmicFault（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconCataclysmicFaultActive、iconCataclysmicFaultIdle"
+  },
+  {
+    "id": "icon-933e303961f3e2cd3bc0b45c",
+    "name": "Channeled Breath",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_celestialconduit.png",
+    "preview": "preview/icon-933e303961f3e2cd3bc0b45c.png",
+    "note": "待机帧：icon_f1_celestialconduit_000.png。工厂分支：Cards.Spell.ChanneledBreath（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconChanneledBreathActive、iconChanneledBreathIdle"
+  },
+  {
+    "id": "icon-4035321a438ecf1fae340ac4",
+    "name": "Choking Tendrils",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_creepingtendrils.png",
+    "preview": "preview/icon-4035321a438ecf1fae340ac4.png",
+    "note": "待机帧：icon_f4_creepingtendrils_000.png。工厂分支：Cards.Spell.ChokingTendrils（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconCreepingTendrilsActive、iconCreepingTendrilsIdle"
+  },
+  {
+    "id": "icon-7075769cfe6f990d7b20cd2e",
+    "name": "Chromatic Cold",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_chromaticcold.png",
+    "preview": "preview/icon-7075769cfe6f990d7b20cd2e.png",
+    "note": "待机帧：icon_f6_chromaticcold_000.png。工厂分支：Cards.Spell.ChromaticCold（sdk/cards/factory/core/faction6.coffee）。资源键：iconChromaticColdActive、iconChromaticColdIdle"
+  },
+  {
+    "id": "icon-5244c2005a5df761933db844",
+    "name": "Chrysalis Burst",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_chrysalisburn.png",
+    "preview": "preview/icon-5244c2005a5df761933db844.png",
+    "note": "待机帧：icon_f5_chrysalisburn_000.png。工厂分支：Cards.Spell.ChrysalisBloom（sdk/cards/factory/core/faction5.coffee）。资源键：iconChrysalisBurstActive、iconChrysalisBurstIdle"
+  },
+  {
+    "id": "icon-b177c8dd63f0b6a2e46e6946",
+    "name": "Circle of Desiccation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_circleofdessication.png",
+    "preview": "preview/icon-b177c8dd63f0b6a2e46e6946.png",
+    "note": "待机帧：icon_f3_circleofdessication_000.png。工厂分支：Cards.Spell.CircleOfDesiccation（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconCircleOfDessicationActive、iconCircleOfDessicationIdle"
+  },
+  {
+    "id": "icon-5aa7fbdb79cf4a235795e38b",
+    "name": "Circle of Fabrication",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_summoningstones.png",
+    "preview": "preview/icon-5aa7fbdb79cf4a235795e38b.png",
+    "note": "待机帧：icon_f3_summoningstones_000.png。工厂分支：Cards.Spell.SummoningStones（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconSummoningStonesActive、iconSummoningStonesIdle"
+  },
+  {
+    "id": "icon-24f28191552e58d4fda8a79e",
+    "name": "Circle of Life",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_circleoflife.png",
+    "preview": "preview/icon-24f28191552e58d4fda8a79e.png",
+    "note": "待机帧：icon_f1_circleoflife_000.png。工厂分支：Cards.Spell.CircleLife（sdk/cards/factory/core/faction1.coffee）。资源键：iconCircleofLifeActive、iconCircleofLifeIdle"
+  },
+  {
+    "id": "icon-0f9c181e9d2cb6c35da79525",
+    "name": "Cobra Strike",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_cobrastrike.png",
+    "preview": "preview/icon-0f9c181e9d2cb6c35da79525.png",
+    "note": "待机帧：icon_f2_cobrastrike_000.png。工厂分支：Cards.Spell.CobraStrike（sdk/cards/factory/bloodstorm/faction2.coffee）。资源键：iconCobraStrikeActive、iconCobraStrikeIdle"
+  },
+  {
+    "id": "icon-78db74096b4196ea58c39b8f",
+    "name": "Concealing Shroud",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_conceilingshroud.png",
+    "preview": "preview/icon-78db74096b4196ea58c39b8f.png",
+    "note": "待机帧：icon_f6_conceilingshroud_000.png。工厂分支：Cards.Spell.ConcealingShroud（sdk/cards/factory/bloodstorm/faction6.coffee）。资源键：iconConceilingShroudActive、iconConceilingShroudIdle"
+  },
+  {
+    "id": "icon-910bc06712aa1bf36deeec1d",
+    "name": "Consuming Rebirth",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_consumingrebirth.png",
+    "preview": "preview/icon-910bc06712aa1bf36deeec1d.png",
+    "note": "待机帧：icon_f4_consumingrebirth_000.png。工厂分支：Cards.Spell.ConsumingRebirth（sdk/cards/factory/core/faction4.coffee）。资源键：iconConsumingRebirthActive、iconConsumingRebirthIdle"
+  },
+  {
+    "id": "icon-609b088c4909db7b276108c8",
+    "name": "Corporeal Cadence",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_curseofshadows.png",
+    "preview": "preview/icon-609b088c4909db7b276108c8.png",
+    "note": "待机帧：icon_f4_curseofshadows_000.png。工厂分支：Cards.Spell.CorporealCadence（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconCorporealCadenceActive、iconCorporealCadenceIdle"
+  },
+  {
+    "id": "icon-7373bcacacf45c54156f690b",
+    "name": "Corpse Combustion",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_corpsecombustion.png",
+    "preview": "preview/icon-7373bcacacf45c54156f690b.png",
+    "note": "待机帧：icon_f3_corpsecombustion_000.png。工厂分支：Cards.Spell.CorpseCombustion（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconCorpseCombustionActive、iconCorpseCombustionIdle"
+  },
+  {
+    "id": "icon-059e1877129fefa540148d91",
+    "name": "Cosmic Flesh",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_cosmicflesh.png",
+    "preview": "preview/icon-059e1877129fefa540148d91.png",
+    "note": "待机帧：icon_f3_cosmicflesh_000.png。工厂分支：Cards.Spell.CosmicFlesh（sdk/cards/factory/core/faction3.coffee）。资源键：iconCosmicFleshActive、iconCosmicFleshIdle"
+  },
+  {
+    "id": "icon-c21be97bbeffc37e8ac7b66e",
+    "name": "Crimson Coil",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_crimsoncoil.png",
+    "preview": "preview/icon-c21be97bbeffc37e8ac7b66e.png",
+    "note": "待机帧：icon_f2_crimsoncoil_000.png。工厂分支：Cards.Spell.CrimsonCoil（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconCrimsonCoilActive、iconCrimsonCoilIdle"
+  },
+  {
+    "id": "icon-b35d0c90d66bc50753735067",
+    "name": "Cryogenesis",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_cryogenesis.png",
+    "preview": "preview/icon-b35d0c90d66bc50753735067.png",
+    "note": "待机帧：icon_f6_cryogenesis_000.png。工厂分支：Cards.Spell.Cryogenesis（sdk/cards/factory/core/faction6.coffee）。资源键：iconCryogenesisActive、iconCryogenesisIdle"
+  },
+  {
+    "id": "icon-e9350b3cb81259c4576357aa",
+    "name": "Cryonic Potential",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_icecapsule.png",
+    "preview": "preview/icon-e9350b3cb81259c4576357aa.png",
+    "note": "待机帧：icon_f6_icecapsule_000.png。工厂分支：Cards.Spell.IceCapsule（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconIceCapsuleActive、iconIceCapsuleIdle"
+  },
+  {
+    "id": "icon-06de21c4721af21216a2dd02",
+    "name": "Crystalline Reinforcement",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_icetwice.png",
+    "preview": "preview/icon-06de21c4721af21216a2dd02.png",
+    "note": "待机帧：icon_f6_icetwice_000.png。工厂分支：Cards.Spell.CrystallineReinforcement（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconiconTwiceIceActive、iconiconTwiceIceIdle"
+  },
+  {
+    "id": "icon-72f2d546588daf145986a9f4",
+    "name": "Daemonic Lure",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_daemoniclure.png",
+    "preview": "preview/icon-72f2d546588daf145986a9f4.png",
+    "note": "待机帧：icon_f4_daemoniclure_000.png。工厂分支：Cards.Spell.DaemonicLure（sdk/cards/factory/core/faction4.coffee）。资源键：iconDaemonicLureActive、iconDaemonicLureIdle"
+  },
+  {
+    "id": "icon-3603112da897c633bf752bb7",
+    "name": "Dampening Wave",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_dampeningwave.png",
+    "preview": "preview/icon-3603112da897c633bf752bb7.png",
+    "note": "待机帧：icon_f5_dampeningwave_000.png。工厂分支：Cards.Spell.DampeningWave（sdk/cards/factory/core/faction5.coffee）。资源键：iconDampeningWaveActive、iconDampeningWaveIdle"
+  },
+  {
+    "id": "icon-a496c3915e0ebdacbf62338c",
+    "name": "Dance of Dreams",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_manaburn.png",
+    "preview": "preview/icon-a496c3915e0ebdacbf62338c.png",
+    "note": "待机帧：icon_f5_manaburn_000.png。工厂分支：Cards.Spell.DanceOfDreams（sdk/cards/factory/core/faction5.coffee）。资源键：iconManaBurnActive、iconManaBurnIdle"
+  },
+  {
+    "id": "icon-bc2f98ef20fa10d9de42661d",
+    "name": "Dark Seed",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_darkseed.png",
+    "preview": "preview/icon-bc2f98ef20fa10d9de42661d.png",
+    "note": "待机帧：icon_f4_darkseed_000.png。工厂分支：Cards.Spell.DarkSeed（sdk/cards/factory/core/faction4.coffee）。资源键：iconDarkSeedActive、iconDarkSeedIdle"
+  },
+  {
+    "id": "icon-da3a13138ce8bf65cb8aea2f",
+    "name": "Dark Transformation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_darktransformation.png",
+    "preview": "preview/icon-da3a13138ce8bf65cb8aea2f.png",
+    "note": "待机帧：icon_f4_darktransformation_000.png。工厂分支：Cards.Spell.DarkTransformation（sdk/cards/factory/core/faction4.coffee）。资源键：iconDarkTransformationActive、iconDarkTransformationIdle"
+  },
+  {
+    "id": "icon-d46932927d90763aafc4e551",
+    "name": "Darkfire Sacrifice",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_darkfiresacrifice.png",
+    "preview": "preview/icon-d46932927d90763aafc4e551.png",
+    "note": "待机帧：icon_f4_darkfiresacrifice_000.png。工厂分支：Cards.Spell.DarkSacrifice（sdk/cards/factory/core/faction4.coffee）。资源键：iconDarkfireSacrificeActive、iconDarkfireSacrificeIdle"
+  },
+  {
+    "id": "icon-a7105aeac510ef9b769e221c",
+    "name": "Dauntless Advance",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_presstheattack.png",
+    "preview": "preview/icon-a7105aeac510ef9b769e221c.png",
+    "note": "待机帧：icon_f1_presstheattack_000.png。工厂分支：Cards.Spell.DauntlessAdvance（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconPressTheAttackActive、iconPressTheAttackIdle"
+  },
+  {
+    "id": "icon-2f4c06bd94dbd4cff67c8997",
+    "name": "Deathfire Crescendo",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_deathfirecrescendo.png",
+    "preview": "preview/icon-2f4c06bd94dbd4cff67c8997.png",
+    "note": "待机帧：icon_f4_deathfirecrescendo_000.png。工厂分支：Cards.Spell.DeathfireCrescendo（sdk/cards/factory/core/faction4.coffee）。资源键：iconDeathfireCrescendoActive、iconDeathfireCrescendoIdle"
+  },
+  {
+    "id": "icon-74e39e94f4effa2883f27baa",
+    "name": "Deathmark",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_sickem.png",
+    "preview": "preview/icon-74e39e94f4effa2883f27baa.png",
+    "note": "待机帧：icon_f4_sickem_000.png。工厂分支：Cards.Spell.Deathmark（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconDeathmarkActive、iconDeathmarkIdle"
+  },
+  {
+    "id": "icon-2b424f37a740631cf0edce16",
+    "name": "Deathstrike Seal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_deathstrikeseal.png",
+    "preview": "preview/icon-2b424f37a740631cf0edce16.png",
+    "note": "待机帧：icon_f2_deathstrikeseal_000.png。工厂分支：Cards.Spell.DeathstrikeSeal（sdk/cards/factory/core/faction2.coffee）。资源键：iconDeathstrikeSealActive、iconDeathstrikeSealIdle"
+  },
+  {
+    "id": "icon-238ac23f848adce7e47f2c51",
+    "name": "Deep Impact",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_meteorimpact.png",
+    "preview": "preview/icon-238ac23f848adce7e47f2c51.png",
+    "note": "待机帧：icon_f5_meteorimpact_000.png。工厂分支：Cards.Spell.Spaghettify（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconMeteorActive、iconMeteorIdle"
+  },
+  {
+    "id": "icon-3608b34717a2ee2e5555f371",
+    "name": "Demonic Conversion",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_darkpersuasion.png",
+    "preview": "preview/icon-3608b34717a2ee2e5555f371.png",
+    "note": "待机帧：icon_f4_darkpersuasion_000.png。工厂分支：Cards.Spell.TwoForMe（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconDarkPersuasionActive、iconDarkPersuasionIdle"
+  },
+  {
+    "id": "icon-e1196fec500dbcf85fa5d9ea",
+    "name": "Diretide Frenzy",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_diretidefrenzy.png",
+    "preview": "preview/icon-e1196fec500dbcf85fa5d9ea.png",
+    "note": "待机帧：icon_f5_diretidefrenzy_000.png。工厂分支：Cards.Spell.DiretideFrenzy（sdk/cards/factory/core/faction5.coffee）。资源键：iconDiretideFrenzyActive、iconDiretideFrenzyIdle"
+  },
+  {
+    "id": "icon-f2722a4dfbc8634ebb716255",
+    "name": "Divine Bond",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_divinebond.png",
+    "preview": "preview/icon-f2722a4dfbc8634ebb716255.png",
+    "note": "待机帧：icon_f1_divinebond_000.png。工厂分支：Cards.Spell.DivineBond（sdk/cards/factory/core/faction1.coffee）。资源键：iconDivineBondActive、iconDivineBondIdle"
+  },
+  {
+    "id": "icon-cb0a65bbe662b3d0e70f51a8",
+    "name": "Divine Liturgy",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_divinestbond.png",
+    "preview": "preview/icon-cb0a65bbe662b3d0e70f51a8.png",
+    "note": "待机帧：icon_f1_divinestbond_000.png。工厂分支：Cards.Spell.DivinestBonderest（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconDivinestBondActive、iconDivinestBondIdle"
+  },
+  {
+    "id": "icon-52d2786ba772a6e504f8590d",
+    "name": "Divine Spark",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_divinespark.png",
+    "preview": "preview/icon-52d2786ba772a6e504f8590d.png",
+    "note": "待机帧：icon_f3_divinespark_000.png。工厂分支：Cards.Spell.DivineSpark（sdk/cards/factory/bloodstorm/faction3.coffee）。资源键：iconDivineSparkActive、iconDivineSparkIdle"
+  },
+  {
+    "id": "icon-8ebcfce6abfa56db3ea5c954",
+    "name": "Dominate Will",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_enslave.png",
+    "preview": "preview/icon-8ebcfce6abfa56db3ea5c954.png",
+    "note": "待机帧：icon_f3_enslave_000.png。工厂分支：Cards.Spell.Enslave（sdk/cards/factory/core/faction3.coffee）。资源键：iconEnslaveActive、iconEnslaveIdle"
+  },
+  {
+    "id": "icon-8a0fd590d05d4ce4a667262f",
+    "name": "Draining Wave",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_drainingwave.png",
+    "preview": "preview/icon-8a0fd590d05d4ce4a667262f.png",
+    "note": "待机帧：icon_f1_drainingwave_000.png。工厂分支：Cards.Spell.DrainingWave（sdk/cards/factory/bloodstorm/faction1.coffee）。资源键：iconDrainingWaveActive、iconDrainingWaveIdle"
+  },
+  {
+    "id": "icon-3e1faa3cc645b54b7adfb496",
+    "name": "Droplift",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_droplift.png",
+    "preview": "preview/icon-3e1faa3cc645b54b7adfb496.png",
+    "note": "待机帧：icon_f3_droplift_000.png。工厂分支：Cards.Spell.DropLift（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconDropliftActive、iconDropliftIdle"
+  },
+  {
+    "id": "icon-4a368ebe3a9f3725a48cdccf",
+    "name": "Earth Sphere",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_earthsphere.png",
+    "preview": "preview/icon-4a368ebe3a9f3725a48cdccf.png",
+    "note": "待机帧：icon_f5_earthsphere_000.png。工厂分支：Cards.Spell.EarthSphere（sdk/cards/factory/core/faction5.coffee）。资源键：iconEarthSphereActive、iconEarthSphereIdle"
+  },
+  {
+    "id": "icon-2afbb84582abb2bf1f98e9cd",
+    "name": "Echoing Shriek",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_echoingshriek.png",
+    "preview": "preview/icon-2afbb84582abb2bf1f98e9cd.png",
+    "note": "待机帧：icon_f4_echoingshriek_000.png。工厂分支：Cards.Spell.EchoingShriek（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconEchoingShriekActive、iconEchoingShriekIdle"
+  },
+  {
+    "id": "icon-280b9a7ee4740af44d74eb43",
+    "name": "Effulgent Infusion",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_popeyespinich.png",
+    "preview": "preview/icon-280b9a7ee4740af44d74eb43.png",
+    "note": "待机帧：icon_f5_popeyespinich_000.png。工厂分支：Cards.Spell.EffulgentInfusion（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconEffulgentInfusionActive、iconEffulgentInfusionIdle"
+  },
+  {
+    "id": "icon-d6b95c737ef2ac720fab4aa1",
+    "name": "Egg Morph；Hatch an egg",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_eggmorph.png",
+    "preview": "preview/icon-d6b95c737ef2ac720fab4aa1.png",
+    "note": "待机帧：icon_f5_eggmorph_000.png。工厂分支：Cards.Spell.EggMorph（sdk/cards/factory/core/faction5.coffee）；Cards.Spell.HatchAnEgg（sdk/cards/factory/misc/generic.coffee）。资源键：iconEggMorphActive、iconEggMorphIdle"
+  },
+  {
+    "id": "icon-720962b58e69d45061f2f25a",
+    "name": "Eight Gates",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_eightgates.png",
+    "preview": "preview/icon-720962b58e69d45061f2f25a.png",
+    "note": "待机帧：icon_f2_eightgates_000.png。工厂分支：Cards.Spell.EightGates（sdk/cards/factory/core/faction2.coffee）。资源键：iconEightGatesActive、iconEightGatesIdle"
+  },
+  {
+    "id": "icon-2d723b53f386ed819641d269",
+    "name": "Embryotic Insight",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_eggzactly.png",
+    "preview": "preview/icon-2d723b53f386ed819641d269.png",
+    "note": "待机帧：icon_f5_eggzactly_000.png。工厂分支：Cards.Spell.EmbryoticInsight（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconEggzactlyActive、iconEggzactlyIdle"
+  },
+  {
+    "id": "icon-3d9cd78ba3eb792a090fe50a",
+    "name": "Empyreal Congregation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_buffbloom.png",
+    "preview": "preview/icon-3d9cd78ba3eb792a090fe50a.png",
+    "note": "待机帧：icon_f1_buffbloom_000.png。工厂分支：Cards.Spell.Congregation（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconEmpyrealCongregationActive、iconEmpyrealCongregationIdle"
+  },
+  {
+    "id": "icon-5f79b646b3dd993fae56c192",
+    "name": "Endless Hunt",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_infinitehowlers.png",
+    "preview": "preview/icon-5f79b646b3dd993fae56c192.png",
+    "note": "待机帧：icon_f6_infinitehowlers_000.png。工厂分支：Cards.Spell.InfiniteHowlers（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconInfiniteHowlersActive、iconInfiniteHowlersIdle"
+  },
+  {
+    "id": "icon-2f032033dc773a249168f979",
+    "name": "Endure the Beastlands",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_endurethebeastlands.png",
+    "preview": "preview/icon-2f032033dc773a249168f979.png",
+    "note": "待机帧：icon_f5_endurethebeastlands_000.png。工厂分支：Cards.Spell.EndureTheBeastlands（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconEndureTheBeastlandsActive、iconEndureTheBeastlandsIdle"
+  },
+  {
+    "id": "icon-533d09105896f941ca16b7ab",
+    "name": "Enfeeble",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_enfeeble.png",
+    "preview": "preview/icon-533d09105896f941ca16b7ab.png",
+    "note": "待机帧：icon_f6_enfeeble_000.png。工厂分支：Cards.Spell.Enfeeble（sdk/cards/factory/bloodstorm/faction6.coffee）。资源键：iconEnfeebleActive、iconEnfeebleIdle"
+  },
+  {
+    "id": "icon-8a232e2003af66358a0ef4d3",
+    "name": "Entropic Decay",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_entropicdecay.png",
+    "preview": "preview/icon-8a232e2003af66358a0ef4d3.png",
+    "note": "待机帧：icon_f3_entropicdecay_000.png。工厂分支：Cards.Spell.EntropicDecay（sdk/cards/factory/core/faction3.coffee）。资源键：iconEntropicDecayActive、iconEntropicDecayIdle"
+  },
+  {
+    "id": "icon-1deb5abcd0c0a9effa1cce24",
+    "name": "Entropic Gaze",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_entropicgaze.png",
+    "preview": "preview/icon-1deb5abcd0c0a9effa1cce24.png",
+    "note": "待机帧：icon_f5_entropicgaze_000.png。工厂分支：Cards.Spell.EntropicGaze（sdk/cards/factory/bloodstorm/faction5.coffee）。资源键：iconEntropicGazeActive、iconEntropicGazeIdle"
+  },
+  {
+    "id": "icon-c6832a983d48013aaf9e0240",
+    "name": "Equality Constraint",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_matchtwo.png",
+    "preview": "preview/icon-c6832a983d48013aaf9e0240.png",
+    "note": "待机帧：icon_f3_matchtwo_000.png。工厂分支：Cards.Spell.EqualityConstraint（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconMatchTwoActive、iconMatchTwoIdle"
+  },
+  {
+    "id": "icon-c48c51081ba03217798c742f",
+    "name": "Essence Sculpt",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_icesculpture.png",
+    "preview": "preview/icon-c48c51081ba03217798c742f.png",
+    "note": "待机帧：icon_f6_icesculpture_000.png。工厂分支：Cards.Spell.EssenceSculpt（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconIceSculptureActive、iconIceSculptureIdle"
+  },
+  {
+    "id": "icon-92ace0b1bf060ecb9d5fad7b",
+    "name": "Ethereal Blades",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_etherealblades.png",
+    "preview": "preview/icon-92ace0b1bf060ecb9d5fad7b.png",
+    "note": "待机帧：icon_f2_etherealblades_000.png。工厂分支：Cards.Spell.EtherealBlades（sdk/cards/factory/bloodstorm/faction2.coffee）。资源键：iconEtherealBladesActive、iconEtherealBladesIdle"
+  },
+  {
+    "id": "icon-a50ab37c742cd084443f049c",
+    "name": "Evolutionary Apex",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_dinoparty.png",
+    "preview": "preview/icon-a50ab37c742cd084443f049c.png",
+    "note": "待机帧：icon_f5_dinoparty_000.png。工厂分支：Cards.Spell.EvolutionaryApex（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconEvolutionaryApexActive、iconEvolutionaryApexIdle"
+  },
+  {
+    "id": "icon-a8a67095998774fe505df5e3",
+    "name": "Extinction Event",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_marchbrontodon.png",
+    "preview": "preview/icon-a8a67095998774fe505df5e3.png",
+    "note": "待机帧：icon_f5_marchbrontodon_000.png。工厂分支：Cards.Spell.MarchOfTheBrontos（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconMarchBrontodonActive、iconMarchBrontodonIdle"
+  },
+  {
+    "id": "icon-020b0ae1ead18a20037445e6",
+    "name": "Fealty",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_togetherness.png",
+    "preview": "preview/icon-020b0ae1ead18a20037445e6.png",
+    "note": "待机帧：icon_f1_togetherness_000.png。工厂分支：Cards.Spell.Fealty（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconFealtyActive、iconFealtyIdle"
+  },
+  {
+    "id": "icon-d81011a5f8f65abb79c41a94",
+    "name": "Fighting Spirit",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_enthrall.png",
+    "preview": "preview/icon-d81011a5f8f65abb79c41a94.png",
+    "note": "待机帧：icon_f1_enthrall_000.png。工厂分支：Cards.Spell.FightingSpirit（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconFightingSpiritActive、iconFightingSpiritIdle"
+  },
+  {
+    "id": "icon-24b69eb7aa2e0bf42b3c57a6",
+    "name": "Firestorm Mantra",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_firestormofagony.png",
+    "preview": "preview/icon-24b69eb7aa2e0bf42b3c57a6.png",
+    "note": "待机帧：icon_f2_firestormofagony_000.png。工厂分支：Cards.Spell.FirestormMantra（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconFirestormMantraActive、iconFirestormMantraIdle"
+  },
+  {
+    "id": "icon-de192684d3b1d1775fb5c59a",
+    "name": "Flaming Stampede",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_flamingstampede.png",
+    "preview": "preview/icon-de192684d3b1d1775fb5c59a.png",
+    "note": "待机帧：icon_f5_flamingstampede_000.png。工厂分支：Cards.Spell.FlamingStampede（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconFlamingStampedeActive、iconFlamingStampedeIdle"
+  },
+  {
+    "id": "icon-2e5c43a05fb5e046d3a51681",
+    "name": "Flash Freeze",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_flashfreeze.png",
+    "preview": "preview/icon-2e5c43a05fb5e046d3a51681.png",
+    "note": "待机帧：icon_f6_flashfreeze_000.png。工厂分支：Cards.Spell.FlashFreeze（sdk/cards/factory/core/faction6.coffee）。资源键：iconFlashFreezeActive、iconFlashFreezeIdle"
+  },
+  {
+    "id": "icon-4bf6c0da117eda7512fbb01d",
+    "name": "Flash Reincarnation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_flashreincarnation.png",
+    "preview": "preview/icon-4bf6c0da117eda7512fbb01d.png",
+    "note": "待机帧：icon_f5_flashreincarnation_000.png。工厂分支：Cards.Spell.FlashReincarnation（sdk/cards/factory/core/faction5.coffee）。资源键：iconFlashReincarnationActive、iconFlashReincarnationIdle"
+  },
+  {
+    "id": "icon-c6bfb7e6335ad68fd28363e3",
+    "name": "Flawless Reflection",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_illusoryice.png",
+    "preview": "preview/icon-c6bfb7e6335ad68fd28363e3.png",
+    "note": "待机帧：icon_f6_illusoryice_000.png。工厂分支：Cards.Spell.FlawlessReflection（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconFlaswlessReflectionActive、iconFlaswlessReflectionIdle"
+  },
+  {
+    "id": "icon-9a6e6c3789f14d767a894543",
+    "name": "Flicker",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_enpassant.png",
+    "preview": "preview/icon-9a6e6c3789f14d767a894543.png",
+    "note": "待机帧：icon_f2_enpassant_000.png。工厂分支：Cards.Spell.Flicker（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconFlickerActive、iconFlickerIdle"
+  },
+  {
+    "id": "icon-6243ca01b0b8b0e7ae5d2da8",
+    "name": "Fortified Assault",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_fortifiedassault.png",
+    "preview": "preview/icon-6243ca01b0b8b0e7ae5d2da8.png",
+    "note": "待机帧：icon_f1_fortifiedassault_000.png。工厂分支：Cards.Spell.FortifiedAssault（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconFortifiedAssaultActive、iconFortifiedAssaultIdle"
+  },
+  {
+    "id": "icon-a1e16cb5e8d40cfe724cf58a",
+    "name": "Fountain of Youth",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_fountainofyouth.png",
+    "preview": "preview/icon-a1e16cb5e8d40cfe724cf58a.png",
+    "note": "待机帧：icon_f3_fountainofyouth_000.png。工厂分支：Cards.Spell.FountainOfYouth（sdk/cards/factory/core/faction3.coffee）。资源键：iconFountainYouthActive、iconFountainYouthIdle"
+  },
+  {
+    "id": "icon-3bda6547389b032b07b87d8c",
+    "name": "Fractal Replication",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_fractalreplication.png",
+    "preview": "preview/icon-3bda6547389b032b07b87d8c.png",
+    "note": "待机帧：icon_f5_fractalreplication_000.png。工厂分支：Cards.Spell.FractalReplication（sdk/cards/factory/core/faction5.coffee）。资源键：iconFractalReplicationActive、iconFractalReplicationIdle"
+  },
+  {
+    "id": "icon-16a6418c3135abbf110d0b61",
+    "name": "Frigid Corona",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_frigidcorona.png",
+    "preview": "preview/icon-16a6418c3135abbf110d0b61.png",
+    "note": "待机帧：icon_f6_frigidcorona_000.png。工厂分支：Cards.Spell.FrigidCorona（sdk/cards/factory/bloodstorm/faction6.coffee）。资源键：iconFrigidCoronaActive、iconFrigidCoronaIdle"
+  },
+  {
+    "id": "icon-32f9e74f583d48d8b7cc668f",
+    "name": "Frostburn",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_frostburn.png",
+    "preview": "preview/icon-32f9e74f583d48d8b7cc668f.png",
+    "note": "待机帧：icon_f6_frostburn_000.png。工厂分支：Cards.Spell.Frostburn（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconFrostburnActive、iconFrostburnIdle"
+  },
+  {
+    "id": "icon-e4979751d197e5d538bc84dc",
+    "name": "Frostfire",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_frostfire.png",
+    "preview": "preview/icon-e4979751d197e5d538bc84dc.png",
+    "note": "待机帧：icon_f6_frostfire_000.png。工厂分支：Cards.Spell.PermafrostShield（sdk/cards/factory/core/faction6.coffee）。资源键：iconFrostfireActive、iconFrostfireIdle"
+  },
+  {
+    "id": "icon-39e07e61f22cd09aad438c0c",
+    "name": "Gargantuan Growth",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_bigtime.png",
+    "preview": "preview/icon-39e07e61f22cd09aad438c0c.png",
+    "note": "待机帧：icon_f5_bigtime_000.png。工厂分支：Cards.Spell.BigTime（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconBigTimeActive、iconBigTimeIdle"
+  },
+  {
+    "id": "icon-a46516fbab06eab4d6ddfb40",
+    "name": "Ghost Lightning",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_ghost_lightning.png",
+    "preview": "preview/icon-a46516fbab06eab4d6ddfb40.png",
+    "note": "待机帧：icon_f2_ghost_lightning_000.png。工厂分支：Cards.Spell.GhostLightning（sdk/cards/factory/core/faction2.coffee）。资源键：iconGhostLightningActive、iconGhostLightningIdle"
+  },
+  {
+    "id": "icon-1423b1abfb2b80ebf50f3303",
+    "name": "Glacial Fissure",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_glacialfissure.png",
+    "preview": "preview/icon-1423b1abfb2b80ebf50f3303.png",
+    "note": "待机帧：icon_f6_glacialfissure_000.png。工厂分支：Cards.Spell.GlacialFissure（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconGlacialFissureActive、iconGlacialFissureIdle"
+  },
+  {
+    "id": "icon-f6460cf56732e48680a6b9b1",
+    "name": "Gotatsu",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_gotatsu.png",
+    "preview": "preview/icon-f6460cf56732e48680a6b9b1.png",
+    "note": "待机帧：icon_f2_gotatsu_000.png。工厂分支：Cards.Spell.Gotatsu（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconGotatsuActive、iconGotatsuIdle"
+  },
+  {
+    "id": "icon-034c52d4135b140f64f58c65",
+    "name": "Grasp of Agony",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_curseofagony.png",
+    "preview": "preview/icon-034c52d4135b140f64f58c65.png",
+    "note": "待机帧：icon_f4_curseofagony_000.png。工厂分支：Cards.Spell.CurseOfAgony（sdk/cards/factory/core/faction4.coffee）。资源键：iconCurseOfAgonyActive、iconCurseOfAgonyIdle"
+  },
+  {
+    "id": "icon-73a403267798dbacc3dc9779",
+    "name": "Gravity Well",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_gravitywell.png",
+    "preview": "preview/icon-73a403267798dbacc3dc9779.png",
+    "note": "待机帧：icon_f6_gravitywell_000.png。工厂分支：Cards.Spell.GravityWell（sdk/cards/factory/core/faction6.coffee）。资源键：iconGravityWellActive、iconGravityWellIdle"
+  },
+  {
+    "id": "icon-1a09aece3dc0e4f7e93b4122",
+    "name": "Greater Fortitude",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_greaterfortitude.png",
+    "preview": "preview/icon-1a09aece3dc0e4f7e93b4122.png",
+    "note": "待机帧：icon_f5_greaterfortitude_000.png。工厂分支：Cards.Spell.GreaterFortitude（sdk/cards/factory/core/faction5.coffee）。资源键：iconGreaterFortitudeActive、iconGreaterFortitudeIdle"
+  },
+  {
+    "id": "icon-08578cf104b6ec7d82c8fd04",
+    "name": "Heaven's Eclipse",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_heavens_eclipse.png",
+    "preview": "preview/icon-08578cf104b6ec7d82c8fd04.png",
+    "note": "待机帧：icon_f2_heavens_eclipse_000.png。工厂分支：Cards.Spell.HeavensEclipse（sdk/cards/factory/core/faction2.coffee）。资源键：iconHeavensEclipseActive、iconHeavensEclipseIdle"
+  },
+  {
+    "id": "icon-fd5a5c7465d6f537f49bc84d",
+    "name": "Holiday Gift",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/boss_christmas_present.png",
+    "preview": "preview/icon-fd5a5c7465d6f537f49bc84d.png",
+    "note": "待机帧：boss_christmas_present_000.png。工厂分支：Cards.BossSpell.HolidayGift（sdk/cards/factory/misc/bosses.coffee）。资源键：bossChristmasPresentActive、bossChristmasPresentIdle"
+  },
+  {
+    "id": "icon-6e68d91932f74dd735e7813d",
+    "name": "Holy Immolation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_holyimmolation.png",
+    "preview": "preview/icon-6e68d91932f74dd735e7813d.png",
+    "note": "待机帧：icon_f1_holyimmolation_000.png。工厂分支：Cards.Spell.HolyImmolation（sdk/cards/factory/core/faction1.coffee）。资源键：iconHolyImmolationActive、iconHolyImmolationIdle"
+  },
+  {
+    "id": "icon-455d9ef9d82ee98fda1e5cdf",
+    "name": "Homeostatic Rebuke",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_stophittingyourself.png",
+    "preview": "preview/icon-455d9ef9d82ee98fda1e5cdf.png",
+    "note": "待机帧：icon_f5_stophittingyourself_000.png。工厂分支：Cards.Spell.HomeostaticRebuke（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconHomeostaticRebukeActive、iconHomeostaticRebukeIdle"
+  },
+  {
+    "id": "icon-36f18efb06423e23d28381fa",
+    "name": "Horrific Visage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_spookem.png",
+    "preview": "preview/icon-36f18efb06423e23d28381fa.png",
+    "note": "待机帧：icon_f4_spookem_000.png。工厂分支：Cards.Spell.HorrificVisage（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconSpookemActive、iconSpookemIdle"
+  },
+  {
+    "id": "icon-7dbec5d36b09dc4f8969e2d7",
+    "name": "Ice Age",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_entericedome.png",
+    "preview": "preview/icon-7dbec5d36b09dc4f8969e2d7.png",
+    "note": "待机帧：icon_f6_entericedome_000.png。工厂分支：Cards.Spell.EnterThunderdome（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconEnterIcedomeActive、iconEnterIcedomeIdle"
+  },
+  {
+    "id": "icon-4dd75bb2cc4eb90b06884d8c",
+    "name": "Icebreak Ambush",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_ambush.png",
+    "preview": "preview/icon-4dd75bb2cc4eb90b06884d8c.png",
+    "note": "待机帧：icon_f6_ambush_000.png。工厂分支：Cards.Spell.SnowPatrol（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconAmbushActive、iconAmbushIdle"
+  },
+  {
+    "id": "icon-46dbad5d28da29869bd66e6d",
+    "name": "Infest",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_deathplague.png",
+    "preview": "preview/icon-46dbad5d28da29869bd66e6d.png",
+    "note": "待机帧：icon_f4_deathplague_000.png。工厂分支：Cards.Spell.Infest（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconInfestActive、iconInfestIdle"
+  },
+  {
+    "id": "icon-14d39434b844e9db117fd941",
+    "name": "Inkhorn Gaze",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_inkhorngaze.png",
+    "preview": "preview/icon-14d39434b844e9db117fd941.png",
+    "note": "待机帧：icon_f4_inkhorngaze_000.png。工厂分支：Cards.Spell.InkhornGaze（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconInkhornGazeActive、iconInkhornGazeIdle"
+  },
+  {
+    "id": "icon-ca65b4f04c7cb7764371ac5c",
+    "name": "Inkling Surge",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_inklingsurge.png",
+    "preview": "preview/icon-ca65b4f04c7cb7764371ac5c.png",
+    "note": "待机帧：icon_f4_inklingsurge_000.png。工厂分支：Cards.Spell.InklingSurge（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconInklingSurgeActive、iconInklingSurgeIdle"
+  },
+  {
+    "id": "icon-ad6ce841ade8749661b8d287",
+    "name": "Inner Focus",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_inner_focus.png",
+    "preview": "preview/icon-ad6ce841ade8749661b8d287.png",
+    "note": "待机帧：icon_f2_inner_focus_000.png。工厂分支：Cards.Spell.InnerFocus（sdk/cards/factory/core/faction2.coffee）。资源键：iconInnerFocusActive、iconInnerFocusIdle"
+  },
+  {
+    "id": "icon-008d7dcdd35c329bf5c30af6",
+    "name": "Inner Oasis",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_inneroasis.png",
+    "preview": "preview/icon-008d7dcdd35c329bf5c30af6.png",
+    "note": "待机帧：icon_f3_inneroasis_000.png。工厂分支：Cards.Spell.InnerOasis（sdk/cards/factory/core/faction3.coffee）。资源键：iconInnerOasisActive、iconInnerOasisIdle"
+  },
+  {
+    "id": "icon-2f7502b6187d195bd9021658",
+    "name": "Invigoration",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_increasinghealth.png",
+    "preview": "preview/icon-2f7502b6187d195bd9021658.png",
+    "note": "待机帧：icon_f5_increasinghealth_000.png。工厂分支：Cards.Spell.IncreasingHeal（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconIncreasingHealthActive、iconIncreasingHealthIdle"
+  },
+  {
+    "id": "icon-56489ee42e59c659f908458f",
+    "name": "Invincible",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_invincible.png",
+    "preview": "preview/icon-56489ee42e59c659f908458f.png",
+    "note": "待机帧：icon_f1_invincible_000.png。工厂分支：Cards.Spell.Invincible（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconInvincibleActive、iconInvincibleIdle"
+  },
+  {
+    "id": "icon-6adb6eaabab5d42192e3d43c",
+    "name": "Ironcliffe Heart",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/f1_ironcliffeheart.png",
+    "preview": "preview/icon-6adb6eaabab5d42192e3d43c.png",
+    "note": "待机帧：f1_ironcliffeheart_000.png。工厂分支：Cards.Spell.IroncliffeHeart（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconIroncliffeHeartActive、iconIroncliffeHeartIdle"
+  },
+  {
+    "id": "icon-3f9624f4c66b5783bbe56fef",
+    "name": "Joseki",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_joseki.png",
+    "preview": "preview/icon-3f9624f4c66b5783bbe56fef.png",
+    "note": "待机帧：icon_f2_joseki_000.png。工厂分支：Cards.Spell.Joseki（sdk/cards/factory/unity/faction2.coffee）。资源键：iconJosekiActive、iconJosekiIdle"
+  },
+  {
+    "id": "icon-66d9632d2d02716fab836179",
+    "name": "Juxtaposition",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_juxtaposition.png",
+    "preview": "preview/icon-66d9632d2d02716fab836179.png",
+    "note": "待机帧：icon_f2_juxtaposition_000.png。工厂分支：Cards.Spell.Juxtaposition（sdk/cards/factory/core/faction2.coffee）。资源键：iconJuxtapositionActive、iconJuxtapositionIdle"
+  },
+  {
+    "id": "icon-e3c648207322d42296a21568",
+    "name": "Kage Lightning",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_kagelightning.png",
+    "preview": "preview/icon-e3c648207322d42296a21568.png",
+    "note": "待机帧：icon_f2_kagelightning_000.png。工厂分支：Cards.Spell.KageLightning（sdk/cards/factory/core/faction2.coffee）。资源键：iconKageLightningActive、iconKageLightningIdle"
+  },
+  {
+    "id": "icon-0d75e9fcb8c79b6b313ec227",
+    "name": "Kensho Vortex",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_hollowvortex.png",
+    "preview": "preview/icon-0d75e9fcb8c79b6b313ec227.png",
+    "note": "待机帧：icon_f2_hollowvortex_000.png。工厂分支：Cards.Spell.HollowVortex（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconHollowVortexActive、iconHollowVortexIdle"
+  },
+  {
+    "id": "icon-861203d95111a42404eb7921",
+    "name": "Killing Edge",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_killingedge.png",
+    "preview": "preview/icon-861203d95111a42404eb7921.png",
+    "note": "待机帧：icon_f2_killingedge_000.png。工厂分支：Cards.Spell.KillingEdge（sdk/cards/factory/core/faction2.coffee）。资源键：iconKillingEdgeActive、iconKillingEdgeIdle"
+  },
+  {
+    "id": "icon-9024a9fd2b3728f020fd3bb8",
+    "name": "Kinematic Projection",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_magitekupgrade.png",
+    "preview": "preview/icon-9024a9fd2b3728f020fd3bb8.png",
+    "note": "待机帧：icon_f3_magitekupgrade_000.png。工厂分支：Cards.Spell.KinematicProjection（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconMagitekUpgradeActive、iconMagitekUpgradeIdle"
+  },
+  {
+    "id": "icon-84b3a014fe482039c01781ad",
+    "name": "Kinetic Equilibrium",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_kineticequilibrium.png",
+    "preview": "preview/icon-84b3a014fe482039c01781ad.png",
+    "note": "待机帧：icon_f5_kineticequilibrium_000.png。工厂分支：Cards.Spell.KineticEquilibrium（sdk/cards/factory/core/faction5.coffee）。资源键：iconKineticEquilibriumActive、iconKineticEquilibriumIdle"
+  },
+  {
+    "id": "icon-9b479229031c81523a85d638",
+    "name": "Kiyomori",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spellsword_light.png",
+    "preview": "preview/icon-9b479229031c81523a85d638.png",
+    "note": "待机帧：icon_f2_spellsword_light_000.png。工厂分支：Cards.Spell.SpellSword2（sdk/cards/factory/core/faction2.coffee）。资源键：iconSpellSword2Active、iconSpellSword2Idle"
+  },
+  {
+    "id": "icon-aa16abfc9036021836fa3cf0",
+    "name": "Knucklestorm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_kindle.png",
+    "preview": "preview/icon-aa16abfc9036021836fa3cf0.png",
+    "note": "待机帧：icon_f2_kindle_000.png。工厂分支：Cards.Spell.Kindle（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconKindleActive、iconKindleIdle"
+  },
+  {
+    "id": "icon-2e04cbd033b39827e045cb60",
+    "name": "Koan of Horns",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_koanofhorns.png",
+    "preview": "preview/icon-2e04cbd033b39827e045cb60.png",
+    "note": "待机帧：icon_f2_koanofhorns_000.png。工厂分支：Cards.Spell.KoanOfHorns（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconKoanOfHornsActive、iconKoanOfHornsIdle"
+  },
+  {
+    "id": "icon-b467b77bd8bd8a83ff1b91fe",
+    "name": "Kotetsu",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spellsword_darkness.png",
+    "preview": "preview/icon-b467b77bd8bd8a83ff1b91fe.png",
+    "note": "待机帧：icon_f2_spellsword_darkness_000.png。工厂分支：Cards.Spell.SpellSword4（sdk/cards/factory/core/faction2.coffee）。资源键：iconSpellSword4Active、iconSpellSword4Idle"
+  },
+  {
+    "id": "icon-1dc82669ee35225faebf8bd6",
+    "name": "Lasting Judgement",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_lastingjudgement.png",
+    "preview": "preview/icon-1dc82669ee35225faebf8bd6.png",
+    "note": "待机帧：icon_f1_lastingjudgement_000.png。工厂分支：Cards.Spell.LastingJudgement（sdk/cards/factory/core/faction1.coffee）。资源键：iconLastingJudgementActive、iconLastingJudgementIdle"
+  },
+  {
+    "id": "icon-547a3cec318330a4e355ff08",
+    "name": "Lava Lance",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_lavalance.png",
+    "preview": "preview/icon-547a3cec318330a4e355ff08.png",
+    "note": "待机帧：icon_f5_lavalance_000.png。工厂分支：Cards.Spell.LavaLance（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconLavaLanceActive、iconLavaLanceIdle"
+  },
+  {
+    "id": "icon-9c326a3956e03645146cce91",
+    "name": "Lesser Waterball",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f6_waterball.png",
+    "preview": "preview/icon-9c326a3956e03645146cce91.png",
+    "note": "待机帧：generalspell_f6_waterball_000.png。工厂分支：Cards.Spell.SnowballBBS（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconWaterballActive、iconWaterballIdle"
+  },
+  {
+    "id": "icon-5dc0604782003deb78a58ebd",
+    "name": "Lesson of Courage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_trinityheart.png",
+    "preview": "preview/icon-5dc0604782003deb78a58ebd.png",
+    "note": "待机帧：icon_neutral_trinityheart_000.png。工厂分支：Cards.Spell.DragonHeart（sdk/cards/factory/unity/neutral.coffee）。资源键：iconTrinityCourageActive、iconTrinityCourageIdle"
+  },
+  {
+    "id": "icon-39e38431c35cc1b8f0230ef6",
+    "name": "Lesson of Power",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_trinitybreath.png",
+    "preview": "preview/icon-39e38431c35cc1b8f0230ef6.png",
+    "note": "待机帧：icon_neutral_trinitybreath_000.png。工厂分支：Cards.Spell.DragonBreath（sdk/cards/factory/unity/neutral.coffee）。资源键：iconTrinityPowerActive、iconTrinityPowerIdle"
+  },
+  {
+    "id": "icon-a73e62c0cca24c5d23870c0a",
+    "name": "Lesson of Wisdom",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_trinitygrace.png",
+    "preview": "preview/icon-a73e62c0cca24c5d23870c0a.png",
+    "note": "待机帧：icon_neutral_trinitygrace_000.png。工厂分支：Cards.Spell.DragonGrace（sdk/cards/factory/unity/neutral.coffee）。资源键：iconTrinityWisdomActive、iconTrinityWisdomIdle"
+  },
+  {
+    "id": "icon-fe51efaba185db501f1b68e6",
+    "name": "Life Coil",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_lifecoil.png",
+    "preview": "preview/icon-fe51efaba185db501f1b68e6.png",
+    "note": "待机帧：icon_f1_lifecoil_000.png。工厂分支：Cards.Spell.LifeCoil（sdk/cards/factory/unity/faction1.coffee）。资源键：iconLifecoilActive、iconLifecoilIdle"
+  },
+  {
+    "id": "icon-e8cc3d4755d0278abe54b52a",
+    "name": "Lifestream",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_resilience.png",
+    "preview": "preview/icon-e8cc3d4755d0278abe54b52a.png",
+    "note": "待机帧：icon_f1_resilience_000.png。工厂分支：Cards.Spell.Resilience（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconLifestreamActive、iconLifestreamIdle"
+  },
+  {
+    "id": "icon-1f614cb60219e7b0713132a3",
+    "name": "Lightning Blitz",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_lightningblitz.png",
+    "preview": "preview/icon-1f614cb60219e7b0713132a3.png",
+    "note": "待机帧：icon_f6_lightningblitz_000.png。工厂分支：Cards.Spell.LightningBlitz（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconLightningBlitzActive、iconLightningBlitzIdle"
+  },
+  {
+    "id": "icon-2780f621fa193b285c5582db",
+    "name": "Lionheart Blessing",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_lionheartblessing.png",
+    "preview": "preview/icon-2780f621fa193b285c5582db.png",
+    "note": "待机帧：icon_f1_lionheartblessing_000.png。工厂分支：Cards.Spell.LionheartBlessing（sdk/cards/factory/core/faction1.coffee）。资源键：iconLionheartBlessingActive、iconLionheartBlessingIdle"
+  },
+  {
+    "id": "icon-db7bba5bc38f9385f772ba3d",
+    "name": "Lionize",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_chargeintobattle.png",
+    "preview": "preview/icon-db7bba5bc38f9385f772ba3d.png",
+    "note": "待机帧：icon_f1_chargeintobattle_000.png。工厂分支：Cards.Spell.ChargeIntoBattle（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconChargeIntoBattleActive、iconChargeIntoBattleIdle"
+  },
+  {
+    "id": "icon-b64834cc2b7bd4a2963a2256",
+    "name": "Lost in the Desert",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_lostindesert.png",
+    "preview": "preview/icon-b64834cc2b7bd4a2963a2256.png",
+    "note": "待机帧：icon_f3_lostindesert_000.png。工厂分支：Cards.Spell.LostInTheDesert（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconLostInDesertActive、iconLostInDesertIdle"
+  },
+  {
+    "id": "icon-da06786a38deb0e395e903b8",
+    "name": "Lucent Beam",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_lucentbeam.png",
+    "preview": "preview/icon-da06786a38deb0e395e903b8.png",
+    "note": "待机帧：icon_f1_lucentbeam_000.png。工厂分支：Cards.Spell.LucentBeam（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconLucentBeamActive、iconLucentBeamIdle"
+  },
+  {
+    "id": "icon-c34e403c872d8bd2b3506807",
+    "name": "Luminous Charge",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_lucentcharge.png",
+    "preview": "preview/icon-c34e403c872d8bd2b3506807.png",
+    "note": "待机帧：icon_f6_lucentcharge_000.png。工厂分支：Cards.Spell.LuminousCharge（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconLuminousChargeActive、iconLuminousChargeIdle"
+  },
+  {
+    "id": "icon-8ce9710113475005995c5990",
+    "name": "Lurking Fear",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_lurkingfear.png",
+    "preview": "preview/icon-8ce9710113475005995c5990.png",
+    "note": "待机帧：icon_f4_lurkingfear_000.png。工厂分支：Cards.Spell.LurkingFear（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconLurkingFearActive、iconLurkingFearIdle"
+  },
+  {
+    "id": "icon-7749c21fccb2627d91889eab",
+    "name": "Magnetize",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_magnetize.png",
+    "preview": "preview/icon-7749c21fccb2627d91889eab.png",
+    "note": "待机帧：icon_f1_magnetize_000.png。工厂分支：Cards.Spell.Magnetize（sdk/cards/factory/core/faction1.coffee）。资源键：iconMagnetizeActive、iconMagnetizeIdle"
+  },
+  {
+    "id": "icon-c93cf182efb7fab154254c2a",
+    "name": "Malice",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_superhusk.png",
+    "preview": "preview/icon-c93cf182efb7fab154254c2a.png",
+    "note": "待机帧：generalspell_f4_superhusk_000.png。工厂分支：Cards.Spell.SummonHusks（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconSuperMaliceActive、iconSuperMaliceIdle"
+  },
+  {
+    "id": "icon-e4248ea9c37db6ace0d13a9f",
+    "name": "Mana Deathgrip",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_manadeathgrip.png",
+    "preview": "preview/icon-e4248ea9c37db6ace0d13a9f.png",
+    "note": "待机帧：icon_f6_manadeathgrip_000.png。工厂分支：Cards.Spell.ManaDeathgrip（sdk/cards/factory/unity/faction6.coffee）。资源键：iconManaDeathgripActive、iconManaDeathgripIdle"
+  },
+  {
+    "id": "icon-c73309688fafee8ff6bcb5cd",
+    "name": "Mana Vortex",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_mana_vortex.png",
+    "preview": "preview/icon-c73309688fafee8ff6bcb5cd.png",
+    "note": "待机帧：icon_f2_mana_vortex_000.png。工厂分支：Cards.Spell.ManaVortex（sdk/cards/factory/core/faction2.coffee）。资源键：iconManaVortexActive、iconManaVortexIdle"
+  },
+  {
+    "id": "icon-ee7113d1cf4882d21079d18a",
+    "name": "Marching Orders",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_rally.png",
+    "preview": "preview/icon-ee7113d1cf4882d21079d18a.png",
+    "note": "待机帧：icon_f1_rally_000.png。工厂分支：Cards.Spell.Rally（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconRallyActive、iconRallyIdle"
+  },
+  {
+    "id": "icon-ac8e9fd7d7aa73dabb7a32a3",
+    "name": "Mark of Solitude",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_markofsolitude.png",
+    "preview": "preview/icon-ac8e9fd7d7aa73dabb7a32a3.png",
+    "note": "待机帧：icon_f6_markofsolitude_000.png。工厂分支：Cards.Spell.MarkOfSolitude（sdk/cards/factory/core/faction6.coffee）。资源键：iconMarkOfSolitudeActive、iconMarkOfSolitudeIdle"
+  },
+  {
+    "id": "icon-fe0bd7c3a755864cfdff4e9e",
+    "name": "Martyrdom",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_martydom.png",
+    "preview": "preview/icon-fe0bd7c3a755864cfdff4e9e.png",
+    "note": "待机帧：icon_f1_martydom_000.png。工厂分支：Cards.Spell.Martyrdom（sdk/cards/factory/core/faction1.coffee）。资源键：iconMartyrdomActive、iconMartyrdomIdle"
+  },
+  {
+    "id": "icon-7a5e415362465401e14b7970",
+    "name": "Mass Flight",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_ninjutsumagics.png",
+    "preview": "preview/icon-7a5e415362465401e14b7970.png",
+    "note": "待机帧：icon_f2_ninjutsumagics_000.png。工厂分支：Cards.Spell.MassFlight（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconMassFlyingActive、iconMassFlyingIdle"
+  },
+  {
+    "id": "icon-ed4c80a7b0990242d759b6dc",
+    "name": "MECHAZ0R Progression",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_mechprogress.png",
+    "preview": "preview/icon-ed4c80a7b0990242d759b6dc.png",
+    "note": "待机帧：icon_f2_mechprogress_000.png。工厂分支：Cards.Spell.MechProgress（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconMechProgressActive、iconMechProgressIdle"
+  },
+  {
+    "id": "icon-cc741c8f29007b5f8b256db2",
+    "name": "Meditate",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_dejavu.png",
+    "preview": "preview/icon-cc741c8f29007b5f8b256db2.png",
+    "note": "待机帧：icon_f2_dejavu_000.png。工厂分支：Cards.Spell.DejaVu（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconDejaVuActive、iconDejaVuIdle"
+  },
+  {
+    "id": "icon-78699f0cca976a5fe4eab443",
+    "name": "Mesmerize",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_mesmerize.png",
+    "preview": "preview/icon-78699f0cca976a5fe4eab443.png",
+    "note": "待机帧：icon_f6_mesmerize_000.png。工厂分支：Cards.Spell.Numb（sdk/cards/factory/core/faction6.coffee）。资源键：iconMesmerizeActive、iconMesmerizeIdle"
+  },
+  {
+    "id": "icon-302c173bd75f0d9228a4b595",
+    "name": "Metalmeld",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_metalworking.png",
+    "preview": "preview/icon-302c173bd75f0d9228a4b595.png",
+    "note": "待机帧：icon_f3_metalworking_000.png。工厂分支：Cards.Spell.Metalworking（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconMetalmeldActive、iconMetalmeldIdle"
+  },
+  {
+    "id": "icon-d11bd78245f51c08276ea8db",
+    "name": "Metamorphosis",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_metamorphosis.png",
+    "preview": "preview/icon-d11bd78245f51c08276ea8db.png",
+    "note": "待机帧：icon_f5_metamorphosis_000.png。工厂分支：Cards.Spell.Metamorphosis（sdk/cards/factory/core/faction5.coffee）。资源键：iconMetamorphosisActive、iconMetamorphosisIdle"
+  },
+  {
+    "id": "icon-797a6e7622bdf1645beb86ff",
+    "name": "Mind Steal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_mindsteal.png",
+    "preview": "preview/icon-797a6e7622bdf1645beb86ff.png",
+    "note": "待机帧：icon_f5_mindsteal_000.png。工厂分支：Cards.Spell.MindSteal（sdk/cards/factory/core/faction5.coffee）。资源键：iconMindStealActive、iconMindStealIdle"
+  },
+  {
+    "id": "icon-f4767c4065ec5a27484f02e6",
+    "name": "Mirror Meld",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_mirrormeld.png",
+    "preview": "preview/icon-f4767c4065ec5a27484f02e6.png",
+    "note": "待机帧：icon_f2_mirrormeld_000.png。工厂分支：Cards.Spell.MirrorMeld（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconMirrorMeldActive、iconMirrorMeldIdle"
+  },
+  {
+    "id": "icon-ff9404191bfa84cb0d671b55",
+    "name": "Mist Dragon Seal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_mistdragonseal.png",
+    "preview": "preview/icon-ff9404191bfa84cb0d671b55.png",
+    "note": "待机帧：icon_f2_mistdragonseal_000.png。工厂分支：Cards.Spell.MistDragonSeal（sdk/cards/factory/core/faction2.coffee）。资源键：iconMistdragonSealActive、iconMistdragonSealIdle"
+  },
+  {
+    "id": "icon-4e228d0a07edb95f83f37be6",
+    "name": "Mist Walking",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_mistwalking.png",
+    "preview": "preview/icon-4e228d0a07edb95f83f37be6.png",
+    "note": "待机帧：icon_f2_mistwalking_000.png。工厂分支：Cards.Spell.MistWalking（sdk/cards/factory/core/faction2.coffee）。资源键：iconMistWalkingActive、iconMistWalkingIdle"
+  },
+  {
+    "id": "icon-3a4d70f0f9bb8037e0a11034",
+    "name": "Mitotic Induction",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_reggsplicate.png",
+    "preview": "preview/icon-3a4d70f0f9bb8037e0a11034.png",
+    "note": "待机帧：icon_f5_reggsplicate_000.png。工厂分支：Cards.Spell.Reggplicate（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconReggsplicateActive、iconReggsplicateIdle"
+  },
+  {
+    "id": "icon-b671a397acbed7137756c014",
+    "name": "Monolithic Vision",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_godmulligan.png",
+    "preview": "preview/icon-b671a397acbed7137756c014.png",
+    "note": "待机帧：icon_f3_godmulligan_000.png。工厂分支：Cards.Spell.MonolithicVision（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconMonolithicVisionActive、iconMonolithicVisionIdle"
+  },
+  {
+    "id": "icon-28ae241bbd944e75d72712d9",
+    "name": "Munch",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_tickletendril.png",
+    "preview": "preview/icon-28ae241bbd944e75d72712d9.png",
+    "note": "待机帧：icon_f4_tickletendril_000.png。工厂分支：Cards.Spell.TickleTendril（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconMunchActive、iconMunchIdle"
+  },
+  {
+    "id": "icon-8b3cac0fb17df64e68162399",
+    "name": "Murasame",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spellsword_wind.png",
+    "preview": "preview/icon-8b3cac0fb17df64e68162399.png",
+    "note": "待机帧：icon_f2_spellsword_wind_000.png。工厂分支：Cards.Spell.SpellSword1（sdk/cards/factory/core/faction2.coffee）。资源键：iconSpellSword1Active、iconSpellSword1Idle"
+  },
+  {
+    "id": "icon-98c2196574779460cd93a479",
+    "name": "Natural Selection",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_naturalselection.png",
+    "preview": "preview/icon-98c2196574779460cd93a479.png",
+    "note": "待机帧：icon_f5_naturalselection_000.png。工厂分支：Cards.Spell.NaturalSelection（sdk/cards/factory/core/faction5.coffee）。资源键：iconNaturalSelectionActive、iconNaturalSelectionIdle"
+  },
+  {
+    "id": "icon-e1b2727e6326ad65d22b8800",
+    "name": "Nature's Confluence",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_naturesconfluence.png",
+    "preview": "preview/icon-e1b2727e6326ad65d22b8800.png",
+    "note": "待机帧：icon_f5_naturesconfluence_000.png。工厂分支：Cards.Spell.NaturesConfluence（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconNaturesConfluenceActive、iconNaturesConfluenceIdle"
+  },
+  {
+    "id": "icon-a67a176410baaa985a5f42a4",
+    "name": "Necrotic Sphere",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_necroticsphere.png",
+    "preview": "preview/icon-a67a176410baaa985a5f42a4.png",
+    "note": "待机帧：icon_f4_necroticsphere_000.png。工厂分支：Cards.Spell.NecroticSphere（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconNecroticSphereActive、iconNecroticSphereIdle"
+  },
+  {
+    "id": "icon-ec57ad8128ac4d3357a8c7c1",
+    "name": "Nether Summoning",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_nethersummoning.png",
+    "preview": "preview/icon-ec57ad8128ac4d3357a8c7c1.png",
+    "note": "待机帧：icon_f4_nethersummoning_000.png。工厂分支：Cards.Spell.NetherSummoning（sdk/cards/factory/core/faction4.coffee）。资源键：iconNetherSummoningActive、iconNetherSummoningIdle"
+  },
+  {
+    "id": "icon-7b07ad006090ceaf6c116526",
+    "name": "Nethermeld",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_creepmeld.png",
+    "preview": "preview/icon-7b07ad006090ceaf6c116526.png",
+    "note": "待机帧：icon_f4_creepmeld_000.png。工厂分支：Cards.Spell.Nethermeld（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconNethermeldActive、iconNethermeldIdle"
+  },
+  {
+    "id": "icon-77a7824291f6aae537eb64a7",
+    "name": "Neurolink",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_communalgifts.png",
+    "preview": "preview/icon-77a7824291f6aae537eb64a7.png",
+    "note": "待机帧：icon_f3_communalgifts_000.png。工厂分支：Cards.Spell.Neurolink（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconNeurolinkActive、iconNeurolinkIdle"
+  },
+  {
+    "id": "icon-b3fa7ae93e02c22162c35c28",
+    "name": "Obliterate",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_veilofunraveling.png",
+    "preview": "preview/icon-b3fa7ae93e02c22162c35c28.png",
+    "note": "待机帧：icon_f4_veilofunraveling_000.png。工厂分支：Cards.Spell.VeilOfUnraveling（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconVeilOfUnravelingActive、iconVeilOfUnravelingIdle"
+  },
+  {
+    "id": "icon-200c8b0eeb4ed78046ec0736",
+    "name": "Obscuring Blow",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_obscuringblow.png",
+    "preview": "preview/icon-200c8b0eeb4ed78046ec0736.png",
+    "note": "待机帧：icon_f2_obscuringblow_000.png。工厂分支：Cards.Spell.Backstabbery（sdk/cards/factory/bloodstorm/faction2.coffee）。资源键：iconObscuringBlowActive、iconObscuringBlowIdle"
+  },
+  {
+    "id": "icon-0685b892212ffb8a15890e08",
+    "name": "Onyx Bear Seal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_onyxbearseal.png",
+    "preview": "preview/icon-0685b892212ffb8a15890e08.png",
+    "note": "待机帧：icon_f2_onyxbearseal_000.png。工厂分支：Cards.Spell.OnyxBearSeal（sdk/cards/factory/core/faction2.coffee）。资源键：iconOnyxbearSealActive、iconOnyxbearSealIdle"
+  },
+  {
+    "id": "icon-26b35c66663ca56d1bd90415",
+    "name": "Painful Pluck",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/f4_shadowblossom.png",
+    "preview": "preview/icon-26b35c66663ca56d1bd90415.png",
+    "note": "待机帧：f4_shadowblossom_000.png。工厂分支：Cards.Spell.ShadowBlossom（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconShadowBlossomActive、iconShadowBlossomIdle"
+  },
+  {
+    "id": "icon-e704218df4dbcbb2832cd49a",
+    "name": "Pandamonium",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_ursamonsoon.png",
+    "preview": "preview/icon-e704218df4dbcbb2832cd49a.png",
+    "note": "待机帧：icon_f2_ursamonsoon_000.png。工厂分支：Cards.Spell.Pandamonium（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconPandamoniumActive、iconPandamoniumIdle"
+  },
+  {
+    "id": "icon-53ed858ea2934749bebb342f",
+    "name": "Pandatentiary",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_pandajail.png",
+    "preview": "preview/icon-53ed858ea2934749bebb342f.png",
+    "note": "待机帧：icon_f2_pandajail_000.png。工厂分支：Cards.Spell.PandaJail（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconPandaJailActive、iconPandaJailIdle"
+  },
+  {
+    "id": "icon-b2e93f786483a664ec4316e6",
+    "name": "Permafrost",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_creepingfrost.png",
+    "preview": "preview/icon-b2e93f786483a664ec4316e6.png",
+    "note": "待机帧：icon_f6_creepingfrost_000.png。工厂分支：Cards.Spell.CreepingFrost（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconPermaFrostActive、iconPermaFrostIdle"
+  },
+  {
+    "id": "icon-34905d33f7fc4c405670e85f",
+    "name": "Phoenix Barrage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_phoenixbarrage.png",
+    "preview": "preview/icon-34905d33f7fc4c405670e85f.png",
+    "note": "待机帧：icon_f2_phoenixbarrage_000.png。工厂分支：Cards.Spell.GreaterPhoenixFire（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconPhoenixBarrageActive、iconPhoenixBarrageIdle"
+  },
+  {
+    "id": "icon-130319687a750ebf796effdf",
+    "name": "Phoenix Fire",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f2_phoenixfire.png",
+    "preview": "preview/icon-130319687a750ebf796effdf.png",
+    "note": "待机帧：generalspell_f2_phoenixfire_000.png。工厂分支：Cards.Spell.PhoenixFireBBS（sdk/cards/factory/bloodstorm/faction2.coffee）。资源键：iconBBSPhoenixFireActive、iconBBSPhoenixFireIdle"
+  },
+  {
+    "id": "icon-db103434607295328b5861d5",
+    "name": "Phoenix Fire",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_phoenixfire02.png",
+    "preview": "preview/icon-db103434607295328b5861d5.png",
+    "note": "待机帧：icon_f2_phoenixfire02_000.png。工厂分支：Cards.Spell.PhoenixFire（sdk/cards/factory/core/faction2.coffee）。资源键：iconPhoenixFire2Active、iconPhoenixFire2Idle"
+  },
+  {
+    "id": "icon-f6a2887b9810cd1efb3a37f1",
+    "name": "Planar Foundry",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_grabartifact.png",
+    "preview": "preview/icon-f6a2887b9810cd1efb3a37f1.png",
+    "note": "待机帧：icon_f3_grabartifact_000.png。工厂分支：Cards.Spell.GrabAThing（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconGabArtifactActive、iconGabArtifactIdle"
+  },
+  {
+    "id": "icon-c81b09487f3c449eca0bf477",
+    "name": "Plasma Storm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_plasmastorm.png",
+    "preview": "preview/icon-c81b09487f3c449eca0bf477.png",
+    "note": "待机帧：icon_f5_plasmastorm_000.png。工厂分支：Cards.Spell.PlasmaStorm（sdk/cards/factory/core/faction5.coffee）。资源键：iconPlasmaStormActive、iconPlasmaStormIdle"
+  },
+  {
+    "id": "icon-f1472a2ac05e2168d51146e9",
+    "name": "Polarity",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_polarity.png",
+    "preview": "preview/icon-f1472a2ac05e2168d51146e9.png",
+    "note": "待机帧：icon_f6_polarity_000.png。工厂分支：Cards.Spell.RitualOfTheWind（sdk/cards/factory/core/faction6.coffee）。资源键：iconPolarityActive、iconPolarityIdle"
+  },
+  {
+    "id": "icon-d282b1239c412699ede2d04a",
+    "name": "Primal Ballast",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_toothandtrial.png",
+    "preview": "preview/icon-d282b1239c412699ede2d04a.png",
+    "note": "待机帧：icon_f5_toothandtrial_000.png。工厂分支：Cards.Spell.PrimalBallast（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconPrimalBallastActive、iconPrimalBallastIdle"
+  },
+  {
+    "id": "icon-a41f34eda955cbcd5634c051",
+    "name": "Prism Barrier",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_prismbarrier.png",
+    "preview": "preview/icon-a41f34eda955cbcd5634c051.png",
+    "note": "待机帧：icon_f1_prismbarrier_000.png。工厂分支：Cards.Spell.PrismBarrier（sdk/cards/factory/bloodstorm/faction1.coffee）。资源键：iconPrismBarrierActive、iconPrismBarrierIdle"
+  },
+  {
+    "id": "icon-fa52888519decab912597cf9",
+    "name": "Psychic Conduit",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_psychicconduit.png",
+    "preview": "preview/icon-fa52888519decab912597cf9.png",
+    "note": "待机帧：icon_f3_psychicconduit_000.png。工厂分支：Cards.Spell.PsychicConduit（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconPsychicConduitActive、iconPsychicConduitIdle"
+  },
+  {
+    "id": "icon-670ee7ac0be96aa154f8a1f1",
+    "name": "Punish",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_punish.png",
+    "preview": "preview/icon-670ee7ac0be96aa154f8a1f1.png",
+    "note": "待机帧：icon_f4_punish_000.png。工厂分支：Cards.Spell.Punish（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconPunishActive、iconPunishIdle"
+  },
+  {
+    "id": "icon-76a17f1d9330ffb19eb13e9e",
+    "name": "Pupabomb",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_egggrenade.png",
+    "preview": "preview/icon-76a17f1d9330ffb19eb13e9e.png",
+    "note": "待机帧：icon_f5_egggrenade_000.png。工厂分支：Cards.Spell.EggGrenade（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconEggGrenadeActive、iconEggGrenadeIdle"
+  },
+  {
+    "id": "icon-ab5de6ccfe1fb71bb0548f22",
+    "name": "Rasha's Curse",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_rashascurse.png",
+    "preview": "preview/icon-ab5de6ccfe1fb71bb0548f22.png",
+    "note": "待机帧：icon_f3_rashascurse_000.png。工厂分支：Cards.Spell.RashasCurse（sdk/cards/factory/core/faction3.coffee）；Cards.Spell.RashasCurseFollowup（sdk/cards/factory/core/faction3.coffee）。资源键：iconRashasCurseActive、iconRashasCurseIdle"
+  },
+  {
+    "id": "icon-738df3824d746f723a2d67ac",
+    "name": "Razor Skin",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_razorskin.png",
+    "preview": "preview/icon-738df3824d746f723a2d67ac.png",
+    "note": "待机帧：icon_f5_razorskin_000.png。工厂分支：Cards.Spell.RazorSkin（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconRazorSkinActive、iconRazorSkinIdle"
+  },
+  {
+    "id": "icon-258b57cc2644d8aeb4c052fd",
+    "name": "Reassemble",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_reconstruct.png",
+    "preview": "preview/icon-258b57cc2644d8aeb4c052fd.png",
+    "note": "待机帧：icon_f3_reconstruct_000.png。工厂分支：Cards.Spell.Reassemble（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconReassembleActive、iconReassembleIdle"
+  },
+  {
+    "id": "icon-3bdb371a8b36acdbab13db62",
+    "name": "Riddle",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_neutral_riddle.png",
+    "preview": "preview/icon-3bdb371a8b36acdbab13db62.png",
+    "note": "待机帧：icon_neutral_riddle_000.png。工厂分支：Cards.Spell.Riddle（sdk/cards/factory/monthly/m11_penny_arcade.coffee）。资源键：iconRiddleActive、iconRiddleIdle"
+  },
+  {
+    "id": "icon-7cdee1d0d719998271c86285",
+    "name": "Rite Of The Undervault",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_riteoftheundervault.png",
+    "preview": "preview/icon-7cdee1d0d719998271c86285.png",
+    "note": "待机帧：icon_f4_riteoftheundervault_000.png。工厂分支：Cards.Spell.RiteOfTheUndervault（sdk/cards/factory/core/faction4.coffee）。资源键：iconRiteUndervaultActive、iconRiteUndervaultIdle"
+  },
+  {
+    "id": "icon-94157e9cb4b00012f73c8b55",
+    "name": "Ritual Banishing",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_ritualbanishing.png",
+    "preview": "preview/icon-94157e9cb4b00012f73c8b55.png",
+    "note": "待机帧：icon_f4_ritualbanishing_000.png。工厂分支：Cards.Spell.RitualBanishing（sdk/cards/factory/core/faction4.coffee）。资源键：iconRitualBanishingActive、iconRitualBanishingIdle"
+  },
+  {
+    "id": "icon-c4f8e5f2138f76ed2cd8b08a",
+    "name": "Saberspine Seal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_saberspineseal.png",
+    "preview": "preview/icon-c4f8e5f2138f76ed2cd8b08a.png",
+    "note": "待机帧：icon_f2_saberspineseal_000.png。工厂分支：Cards.Spell.SaberspineSeal（sdk/cards/factory/core/faction2.coffee）。资源键：iconSaberspineSealActive、iconSaberspineSealIdle"
+  },
+  {
+    "id": "icon-75ba36dd430ce3d000c5618d",
+    "name": "Sanctify",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_blessing.png",
+    "preview": "preview/icon-75ba36dd430ce3d000c5618d.png",
+    "note": "待机帧：icon_f1_blessing_000.png。工厂分支：Cards.Spell.Sanctify（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconSanctifyActive、iconSanctifyIdle"
+  },
+  {
+    "id": "icon-654eab3740ddbb88b37276e0",
+    "name": "Sand Trap",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_sandtrap.png",
+    "preview": "preview/icon-654eab3740ddbb88b37276e0.png",
+    "note": "待机帧：icon_f3_sandtrap_000.png。工厂分支：Cards.Spell.DrainMorale（sdk/cards/factory/core/faction3.coffee）。资源键：iconSandTrapActive、iconSandTrapIdle"
+  },
+  {
+    "id": "icon-44d65ee1b7755e37dd992c69",
+    "name": "Saurian Finality",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_dinoultimatum.png",
+    "preview": "preview/icon-44d65ee1b7755e37dd992c69.png",
+    "note": "待机帧：icon_f5_dinoultimatum_000.png。工厂分支：Cards.Spell.SaurianFinality（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconSaurianFinalityActive、iconSaurianFinalityIdle"
+  },
+  {
+    "id": "icon-db848e9c37e74ed951d87b49",
+    "name": "Scion's First Wish",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_scionsfirstwish.png",
+    "preview": "preview/icon-db848e9c37e74ed951d87b49.png",
+    "note": "待机帧：icon_f3_scionsfirstwish_000.png。工厂分支：Cards.Spell.ScionsFirstWish（sdk/cards/factory/core/faction3.coffee）。资源键：iconScionsFirstWishActive、iconScionsFirstWishIdle"
+  },
+  {
+    "id": "icon-ec6c1f166c14f2215b539db5",
+    "name": "Scion's Second Wish",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_scionssecondwish.png",
+    "preview": "preview/icon-ec6c1f166c14f2215b539db5.png",
+    "note": "待机帧：icon_f3_scionssecondwish_000.png。工厂分支：Cards.Spell.ScionsSecondWish（sdk/cards/factory/core/faction3.coffee）。资源键：iconFScionsSecondWishActive、iconScionsSecondWishIdle"
+  },
+  {
+    "id": "icon-a66532e2965b80b4f85cde39",
+    "name": "Scion's Third Wish",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_scionsthirdwish.png",
+    "preview": "preview/icon-a66532e2965b80b4f85cde39.png",
+    "note": "待机帧：icon_f3_scionsthirdwish_000.png。工厂分支：Cards.Spell.ScionsThirdWish（sdk/cards/factory/core/faction3.coffee）。资源键：iconScionsThirdWishActive、iconScionsThirdWishIdle"
+  },
+  {
+    "id": "icon-26d518922e6f19407b49c526",
+    "name": "Second Self",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_projection.png",
+    "preview": "preview/icon-26d518922e6f19407b49c526.png",
+    "note": "待机帧：icon_f2_projection_000.png。工厂分支：Cards.Spell.BootyProjection（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconProjectionActive、iconProjectionIdle"
+  },
+  {
+    "id": "icon-f25221faad999612107327d6",
+    "name": "Seeker Squad",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_seekersquad.png",
+    "preview": "preview/icon-f25221faad999612107327d6.png",
+    "note": "待机帧：icon_f2_seekersquad_000.png。工厂分支：Cards.Spell.SeekerSquad（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconSeekerSquadActive、iconSeekerSquadIdle"
+  },
+  {
+    "id": "icon-eff9e8d4c9430764a796426a",
+    "name": "Shadow Nova",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_shadownova.png",
+    "preview": "preview/icon-eff9e8d4c9430764a796426a.png",
+    "note": "待机帧：icon_f4_shadownova_000.png。工厂分支：Cards.Spell.ShadowNova（sdk/cards/factory/core/faction4.coffee）。资源键：iconShadowNovaActive、iconShadowNovaIdle"
+  },
+  {
+    "id": "icon-74b090282608d7c9aba4290a",
+    "name": "Shadow Reflection",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_shadowreflection.png",
+    "preview": "preview/icon-74b090282608d7c9aba4290a.png",
+    "note": "待机帧：icon_f4_shadowreflection_000.png。工厂分支：Cards.Spell.ShadowReflection（sdk/cards/factory/core/faction4.coffee）。资源键：iconShadowReflectionActive、iconShadowReflectionIdle"
+  },
+  {
+    "id": "icon-620a5c0046d7a04e977c824f",
+    "name": "Shadow Waltz",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_shadowwaltz.png",
+    "preview": "preview/icon-620a5c0046d7a04e977c824f.png",
+    "note": "待机帧：icon_f2_shadowwaltz_000.png。工厂分支：Cards.Spell.ShadowWaltz（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconShadowWaltzActive、iconShadowWaltzIdle"
+  },
+  {
+    "id": "icon-8f51fa15f21e2ca90d2e7ba5",
+    "name": "Shadowspawn",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f4_supershadowspawn.png",
+    "preview": "preview/icon-8f51fa15f21e2ca90d2e7ba5.png",
+    "note": "待机帧：generalspell_f4_supershadowspawn_000.png。工厂分支：Cards.Spell.FuriousLings（sdk/cards/factory/bloodstorm/faction4.coffee）。资源键：iconSuperShadowspawnActive、iconSuperShadowspawnIdle"
+  },
+  {
+    "id": "icon-5cf2cf3d9d4f1f6bfa82ad83",
+    "name": "Shadowstalk",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_shadowstalk.png",
+    "preview": "preview/icon-5cf2cf3d9d4f1f6bfa82ad83.png",
+    "note": "待机帧：icon_f4_shadowstalk_000.png。工厂分支：Cards.Spell.Shadowstalk（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconShadowstalkActive、iconShadowstalkIdle"
+  },
+  {
+    "id": "icon-fbd3dd95281d7ef8a3f0aca0",
+    "name": "Shatter",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_shatter.png",
+    "preview": "preview/icon-fbd3dd95281d7ef8a3f0aca0.png",
+    "note": "待机帧：icon_f6_shatter_000.png。工厂分支：Cards.Spell.Shatter（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconShatterActive、iconShatterIdle"
+  },
+  {
+    "id": "icon-7901c8f23be27a699e3829d6",
+    "name": "Siphon Energy",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_syphonenergy.png",
+    "preview": "preview/icon-7901c8f23be27a699e3829d6.png",
+    "note": "待机帧：icon_f3_syphonenergy_000.png。工厂分支：Cards.Spell.SiphonEnergy（sdk/cards/factory/core/faction3.coffee）。资源键：iconSiphonEnergyActive、iconSiphonEnergyIdle"
+  },
+  {
+    "id": "icon-825e656663a734d3f1740149",
+    "name": "Sky Burial",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_skyburial.png",
+    "preview": "preview/icon-825e656663a734d3f1740149.png",
+    "note": "待机帧：icon_f1_skyburial_000.png。工厂分支：Cards.Spell.SkyBurial（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconSkyBurialActive、iconSkyBurialIdle"
+  },
+  {
+    "id": "icon-de797302093d8b5d0627cb31",
+    "name": "Sky Phalanx",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_skyphalanx.png",
+    "preview": "preview/icon-de797302093d8b5d0627cb31.png",
+    "note": "待机帧：icon_f1_skyphalanx_000.png。工厂分支：Cards.Spell.SkyPhalanx（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconSkyPhalanxActive、iconSkyPhalanxIdle"
+  },
+  {
+    "id": "icon-3ae58698635cf082338dc260",
+    "name": "Soulshatter Pact",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_soulshatterpact.png",
+    "preview": "preview/icon-3ae58698635cf082338dc260.png",
+    "note": "待机帧：icon_f4_soulshatterpact_000.png。工厂分支：Cards.Spell.SoulshatterPact（sdk/cards/factory/core/faction4.coffee）。资源键：iconSoulShatterPactActive、iconSoulShatterPactIdle"
+  },
+  {
+    "id": "icon-da302bc0cc2ef63ddb583640",
+    "name": "Sphere of Darkness",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_sphereofdarkness.png",
+    "preview": "preview/icon-da302bc0cc2ef63ddb583640.png",
+    "note": "待机帧：icon_f4_sphereofdarkness_000.png。工厂分支：Cards.Spell.SphereOfDarkness（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconSphereOfDarknessActive、iconSphereOfDarknessIdle"
+  },
+  {
+    "id": "icon-ced294b4e7af011203c2e7d5",
+    "name": "Spiral Counter",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spiralcounter.png",
+    "preview": "preview/icon-ced294b4e7af011203c2e7d5.png",
+    "note": "待机帧：icon_f2_spiralcounter_000.png。工厂分支：Cards.Spell.SpiralCounter（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconSpiralCounterActive、iconSpiralCounterIdle"
+  },
+  {
+    "id": "icon-7e8e4d8f49630eebf8a1b6ea",
+    "name": "Spiral Technique",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spiraltechnique.png",
+    "preview": "preview/icon-7e8e4d8f49630eebf8a1b6ea.png",
+    "note": "待机帧：icon_f2_spiraltechnique_000.png。工厂分支：Cards.Spell.SpiralTechnique（sdk/cards/factory/core/faction2.coffee）。资源键：iconSpiralTechniqueActive、iconSpiralTechniqueIdle"
+  },
+  {
+    "id": "icon-84fdbf15e257500e8cde9dfd",
+    "name": "Spirit of the Wild",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_spiritofthewild.png",
+    "preview": "preview/icon-84fdbf15e257500e8cde9dfd.png",
+    "note": "待机帧：icon_f6_spiritofthewild_000.png。工厂分支：Cards.Spell.SpiritoftheWild（sdk/cards/factory/core/faction6.coffee）。资源键：iconSpiritOfTheWildActive、iconSpiritOfTheWildIdle"
+  },
+  {
+    "id": "icon-630102b7729df69f550f894b",
+    "name": "Star's Fury",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_starsfury.png",
+    "preview": "preview/icon-630102b7729df69f550f894b.png",
+    "note": "待机帧：icon_f3_starsfury_000.png。工厂分支：Cards.Spell.StarsFury（sdk/cards/factory/core/faction3.coffee）。资源键：iconStarsFuryActive、iconStarsFuryIdle"
+  },
+  {
+    "id": "icon-7859c96c85bc73275451af22",
+    "name": "Steadfast Formation",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_standtogether.png",
+    "preview": "preview/icon-7859c96c85bc73275451af22.png",
+    "note": "待机帧：icon_f1_standtogether_000.png。工厂分支：Cards.Spell.SteadfastFormation（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconStandTogetherActive、iconStandTogetherIdle"
+  },
+  {
+    "id": "icon-5d0d6bec8fc5fb3473f0fa24",
+    "name": "Stone to Spears",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_stonestospears.png",
+    "preview": "preview/icon-5d0d6bec8fc5fb3473f0fa24.png",
+    "note": "待机帧：icon_f3_stonestospears_000.png。工厂分支：Cards.Spell.StoneToSpears（sdk/cards/factory/bloodstorm/faction3.coffee）。资源键：iconStonesToSpearsActive、iconStonesToSpearsIdle"
+  },
+  {
+    "id": "icon-5aaefc1382ba1bfee84f5da4",
+    "name": "Substitution",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_juxtfriends.png",
+    "preview": "preview/icon-5aaefc1382ba1bfee84f5da4.png",
+    "note": "待机帧：icon_f2_juxtfriends_000.png。工厂分支：Cards.Spell.Substitution（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconSubstitutionActive、iconSubstitutionIdle"
+  },
+  {
+    "id": "icon-debfc74711a12d4eca601ee0",
+    "name": "Sun Bloom",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_sunbloom.png",
+    "preview": "preview/icon-debfc74711a12d4eca601ee0.png",
+    "note": "待机帧：icon_f1_sunbloom_000.png。工厂分支：Cards.Spell.SunBloom（sdk/cards/factory/core/faction1.coffee）。资源键：iconSunBloomActive、iconSunBloomIdle"
+  },
+  {
+    "id": "icon-1f44b07f5c53c1db274b3d64",
+    "name": "Sunstrike",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_rayoflight.png",
+    "preview": "preview/icon-1f44b07f5c53c1db274b3d64.png",
+    "note": "待机帧：icon_f1_rayoflight_000.png。工厂分支：Cards.Spell.Sunstrike（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconSunstrikeActive、iconSunstrikeIdle"
+  },
+  {
+    "id": "icon-4e16f6a691f905e9f752d570",
+    "name": "Superior Mirage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_grandmirage.png",
+    "preview": "preview/icon-4e16f6a691f905e9f752d570.png",
+    "note": "待机帧：icon_f3_grandmirage_000.png。工厂分支：Cards.Spell.SuperiorMirage（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconSuperiorMirageActive、iconSuperiorMirageIdle"
+  },
+  {
+    "id": "icon-2c0b31050ee6422678b87f66",
+    "name": "Synaptic Arbitrage",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/f3_thoughtexchange.png",
+    "preview": "preview/icon-2c0b31050ee6422678b87f66.png",
+    "note": "待机帧：f3_thoughtexchange_000.png。工厂分支：Cards.Spell.ThoughtExchange（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconThoughtExchangeActive、iconThoughtExchangeIdle"
+  },
+  {
+    "id": "icon-352d65caedc0c4413fb152df",
+    "name": "Tanahashi",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_spellsword_earth.png",
+    "preview": "preview/icon-352d65caedc0c4413fb152df.png",
+    "note": "待机帧：icon_f2_spellsword_earth_000.png。工厂分支：Cards.Spell.SpellSword3（sdk/cards/factory/core/faction2.coffee）。资源键：iconSpellSword3Active、iconSpellSword3Idle"
+  },
+  {
+    "id": "icon-8a81401f3d898de42c19cc56",
+    "name": "Tectonic Spikes",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_tectonicspikes.png",
+    "preview": "preview/icon-8a81401f3d898de42c19cc56.png",
+    "note": "待机帧：icon_f5_tectonicspikes_000.png。工厂分支：Cards.Spell.TectonicSpikes（sdk/cards/factory/bloodstorm/faction5.coffee）。资源键：iconTectonicSpikesActive、iconTectonicSpikesIdle"
+  },
+  {
+    "id": "icon-f64adec246194ba6f56a0065",
+    "name": "Thumping Wave",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_thumpingwave.png",
+    "preview": "preview/icon-f64adec246194ba6f56a0065.png",
+    "note": "待机帧：icon_f5_thumpingwave_000.png。工厂分支：Cards.Spell.ThumpingWave（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconThumpingWaveActive、iconThumpingWaveIdle"
+  },
+  {
+    "id": "icon-7a02c92fe571921407a32ab5",
+    "name": "Thunderbomb",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_hellskitchen.png",
+    "preview": "preview/icon-7a02c92fe571921407a32ab5.png",
+    "note": "待机帧：icon_f2_hellskitchen_000.png。工厂分支：Cards.Spell.Thunderbomb（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconThunderbombActive、iconThunderbombIdle"
+  },
+  {
+    "id": "icon-b30d72ebda883a7daecde86d",
+    "name": "Time Maelstrom",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_maelstrom.png",
+    "preview": "preview/icon-b30d72ebda883a7daecde86d.png",
+    "note": "待机帧：icon_f3_maelstrom_000.png。工厂分支：Cards.Spell.Maelstrom（sdk/cards/factory/core/faction3.coffee）。资源键：iconMaelstromActive、iconMaelstromIdle"
+  },
+  {
+    "id": "icon-45c1f554a477ce75079ea7e8",
+    "name": "Tremor",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_tremor.png",
+    "preview": "preview/icon-45c1f554a477ce75079ea7e8.png",
+    "note": "待机帧：icon_f5_tremor_000.png。工厂分支：Cards.Spell.Tremor（sdk/cards/factory/core/faction5.coffee）。资源键：iconTremorActive、iconTremorIdle"
+  },
+  {
+    "id": "icon-8a061f53f4542404a3ef1f8d",
+    "name": "Trinity Oath",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_trinityoath.png",
+    "preview": "preview/icon-8a061f53f4542404a3ef1f8d.png",
+    "note": "待机帧：icon_f1_trinityoath_000.png。工厂分支：Cards.Spell.TrinityOath（sdk/cards/factory/bloodstorm/faction1.coffee）。资源键：iconTrinityOathActive、iconTrinityOathIdle"
+  },
+  {
+    "id": "icon-2ec9399762ddd666fee9764d",
+    "name": "True Strike",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_truestrike.png",
+    "preview": "preview/icon-2ec9399762ddd666fee9764d.png",
+    "note": "待机帧：icon_f1_truestrike_000.png。工厂分支：Cards.Spell.TrueStrike（sdk/cards/factory/core/faction1.coffee）；Cards.TutorialSpell.TutorialPlayerTrueStrike（sdk/cards/factory/misc/tutorial.coffee）。资源键：iconTrueStrikeActive、iconTrueStrikeIdle"
+  },
+  {
+    "id": "icon-22f7e9cf4bdf9e69856ab418",
+    "name": "Twilight Reiki",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_earthtwilight.png",
+    "preview": "preview/icon-22f7e9cf4bdf9e69856ab418.png",
+    "note": "待机帧：icon_f2_earthtwilight_000.png。工厂分支：Cards.Spell.TwilightReiki（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconTwilightReikiActive、iconTwilightReikiIdle"
+  },
+  {
+    "id": "icon-458b606534be297996ccda46",
+    "name": "Twin Strike",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f2_twin_strike.png",
+    "preview": "preview/icon-458b606534be297996ccda46.png",
+    "note": "待机帧：icon_f2_twin_strike_000.png。工厂分支：Cards.Spell.TwinStrike（sdk/cards/factory/core/faction2.coffee）。资源键：iconTwinStrikeActive、iconTwinStrikeIdle"
+  },
+  {
+    "id": "icon-28a918e452b12f99ce720af1",
+    "name": "Unfathomable Rite",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_gateofovervault.png",
+    "preview": "preview/icon-28a918e452b12f99ce720af1.png",
+    "note": "待机帧：icon_f4_gateofovervault_000.png。工厂分支：Cards.Spell.GateToDudesHouse（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconGateOthervaultActive、iconGateOthervaultIdle"
+  },
+  {
+    "id": "icon-493fa888a6ddc4b7ef7f1d01",
+    "name": "Unleash the Evil",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_evilxerox.png",
+    "preview": "preview/icon-493fa888a6ddc4b7ef7f1d01.png",
+    "note": "待机帧：icon_f4_evilxerox_000.png。工厂分支：Cards.Spell.EvilXerox（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconEvilXeroxActive、iconEvilXeroxIdle"
+  },
+  {
+    "id": "icon-e3144e683b2bb98b184e0b6d",
+    "name": "Upper Hand",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_smashem.png",
+    "preview": "preview/icon-e3144e683b2bb98b184e0b6d.png",
+    "note": "待机帧：icon_f5_smashem_000.png。工厂分支：Cards.Spell.UpperHand（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconSmashemActive、iconSmashemIdle"
+  },
+  {
+    "id": "icon-c19f6927f1e8f297da3c9b43",
+    "name": "Vaath's Brutality",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_spiritofvaath.png",
+    "preview": "preview/icon-c19f6927f1e8f297da3c9b43.png",
+    "note": "待机帧：icon_f5_spiritofvaath_000.png。工厂分支：Cards.Spell.VaathsBrutality（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconSpiritOfVaathActive、iconSpiritOfVaathIdle"
+  },
+  {
+    "id": "icon-81074aa0897ad547c7025c3a",
+    "name": "Vale Ascension",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_breathoflife.png",
+    "preview": "preview/icon-81074aa0897ad547c7025c3a.png",
+    "note": "待机帧：icon_f1_breathoflife_000.png。工厂分支：Cards.Spell.ValeAscension（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconValeAscensionActive、iconValeAscensionIdle"
+  },
+  {
+    "id": "icon-5b522a343a562de8997f1573",
+    "name": "Valknu's Seal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_valknusseal.png",
+    "preview": "preview/icon-5b522a343a562de8997f1573.png",
+    "note": "待机帧：icon_f5_valknusseal_000.png。工厂分支：Cards.Spell.ValknusSeal（sdk/cards/factory/bloodstorm/faction5.coffee）。资源键：iconValknuSealActive、iconValknuSealIdle"
+  },
+  {
+    "id": "icon-aa4b8da2489ae4352ea26458",
+    "name": "Vellumscry",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_soulclamp.png",
+    "preview": "preview/icon-aa4b8da2489ae4352ea26458.png",
+    "note": "待机帧：icon_f4_soulclamp_000.png。工厂分支：Cards.Spell.Vellumscry（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconVellumscryActive、iconVellumscryIdle"
+  },
+  {
+    "id": "icon-19392deccd577d41f4dfaa87",
+    "name": "Verdant Fulmination",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f5_verdantfulmination.png",
+    "preview": "preview/icon-19392deccd577d41f4dfaa87.png",
+    "note": "待机帧：icon_f5_verdantfulmination_000.png。工厂分支：Cards.Spell.VerdentFulmination（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconVerdentFulminationActive、iconVerdentFulminationIdle"
+  },
+  {
+    "id": "icon-701be1feffd6091d9a692f85",
+    "name": "Vespyrian Might",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_mightofvespyr.png",
+    "preview": "preview/icon-701be1feffd6091d9a692f85.png",
+    "note": "待机帧：icon_f6_mightofvespyr_000.png。工厂分支：Cards.Spell.VespyrianMight（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconVespyrMightActive、iconVespyrMightIdle"
+  },
+  {
+    "id": "icon-fd10f3999224d5a7c6fc2c3a",
+    "name": "Vespyric Call",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_vespyrsurge.png",
+    "preview": "preview/icon-fd10f3999224d5a7c6fc2c3a.png",
+    "note": "待机帧：icon_f6_vespyrsurge_000.png。工厂分支：Cards.Spell.VespyricCall（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconVespyricCallActive、iconVespyricCallIdle"
+  },
+  {
+    "id": "icon-d5a1e331f520b2358d8639e9",
+    "name": "Void Pulse",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_voidpulse.png",
+    "preview": "preview/icon-d5a1e331f520b2358d8639e9.png",
+    "note": "待机帧：icon_f4_voidpulse_000.png。工厂分支：Cards.Spell.VoidPulse（sdk/cards/factory/core/faction4.coffee）。资源键：iconVoidPulseActive、iconVoidPulseIdle"
+  },
+  {
+    "id": "icon-5b78bf3f7e20ca574e91defa",
+    "name": "Void Steal",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_voidsteal.png",
+    "preview": "preview/icon-5b78bf3f7e20ca574e91defa.png",
+    "note": "待机帧：icon_f4_voidsteal_000.png。工厂分支：Cards.Spell.VoidSteal（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconVoidStealActive、iconVoidStealIdle"
+  },
+  {
+    "id": "icon-b489cb32ccec295c284b17b5",
+    "name": "Wailing Overdrive",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_wailingoverdrive.png",
+    "preview": "preview/icon-b489cb32ccec295c284b17b5.png",
+    "note": "待机帧：icon_f6_wailingoverdrive_000.png。工厂分支：Cards.Spell.WailingOverdrive（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconWailingOverdriveActive、iconWailingOverdriveIdle"
+  },
+  {
+    "id": "icon-b17b474efb736b1f10f0d768",
+    "name": "Wanderlust",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_icehook.png",
+    "preview": "preview/icon-b17b474efb736b1f10f0d768.png",
+    "note": "待机帧：icon_f6_icehook_000.png。工厂分支：Cards.Spell.OwnSideTeleport（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconIceHooksActive、iconIceHooksIdle"
+  },
+  {
+    "id": "icon-bf0f9a3736cba9331631e182",
+    "name": "War Surge",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_warsurge.png",
+    "preview": "preview/icon-bf0f9a3736cba9331631e182.png",
+    "note": "待机帧：icon_f1_warsurge_000.png。工厂分支：Cards.Spell.WarSurge（sdk/cards/factory/core/faction1.coffee）。资源键：iconWarSurgeActive、iconWarSurgeIdle"
+  },
+  {
+    "id": "icon-a51834996edde44f5955b810",
+    "name": "Whisper of the Sands",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_songofsands.png",
+    "preview": "preview/icon-a51834996edde44f5955b810.png",
+    "note": "待机帧：icon_f3_songofsands_000.png。工厂分支：Cards.Spell.WhisperOfTheSands（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconWhisperOfTheSandsActive、iconWhisperOfTheSandsIdle"
+  },
+  {
+    "id": "icon-16f0f826e0e3c127a6048f4f",
+    "name": "Winter's Wake",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_winterswake.png",
+    "preview": "preview/icon-16f0f826e0e3c127a6048f4f.png",
+    "note": "待机帧：icon_f6_winterswake_000.png。工厂分支：Cards.Spell.WintersWake（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconWintersWakeActive、iconWintersWakeIdle"
+  },
+  {
+    "id": "icon-74b18f1dade338c4f2290cb4",
+    "name": "Wintertide",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f6_winterwave.png",
+    "preview": "preview/icon-74b18f1dade338c4f2290cb4.png",
+    "note": "待机帧：icon_f6_winterwave_000.png。工厂分支：Cards.Spell.Wintertide（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconWinterTideActive、iconWinterTideIdle"
+  },
+  {
+    "id": "icon-3ad2a425ccae2f0a22cf1ab9",
+    "name": "Wither",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f3_gonewithwind.png",
+    "preview": "preview/icon-3ad2a425ccae2f0a22cf1ab9.png",
+    "note": "待机帧：icon_f3_gonewithwind_000.png。工厂分支：Cards.Spell.GoneWithTheWind（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconGoneWithTheWindActive、iconGoneWithTheWindIdle"
+  },
+  {
+    "id": "icon-9cd841e6fdc5b113da1e3293",
+    "name": "Wraithling Fury",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_wraithlingfury.png",
+    "preview": "preview/icon-9cd841e6fdc5b113da1e3293.png",
+    "note": "待机帧：icon_f4_wraithlingfury_000.png。工厂分支：Cards.Spell.AbyssianStrength（sdk/cards/factory/core/faction4.coffee）。资源键：iconWraithlingFuryActive、iconWraithlingFuryIdle"
+  },
+  {
+    "id": "icon-b0bc653c77f5a999547d5be8",
+    "name": "Wraithling Swarm",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_wraithlingswarm.png",
+    "preview": "preview/icon-b0bc653c77f5a999547d5be8.png",
+    "note": "待机帧：icon_f4_wraithlingswarm_000.png。工厂分支：Cards.Spell.WraithlingSwarm（sdk/cards/factory/core/faction4.coffee）。资源键：iconWraithlingSwarmActive、iconWraithlingSwarmIdle"
+  },
+  {
+    "id": "icon-390de5c9a77a18bcafbdd331",
+    "name": "Yielding Depths",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_perilousfooting.png",
+    "preview": "preview/icon-390de5c9a77a18bcafbdd331.png",
+    "note": "待机帧：icon_f4_perilousfooting_000.png。工厂分支：Cards.Spell.Triggered（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconPerilousFootingActive、iconPerilousFootingIdle"
+  },
+  {
+    "id": "icon-079d4db3738a1863d5e688b5",
+    "name": "叛陣者死 / Decimate",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_decimate.png",
+    "preview": "preview/icon-079d4db3738a1863d5e688b5.png",
+    "note": "待机帧：icon_f1_decimate_000.png。工厂分支：Cards.Spell.Decimate（sdk/cards/factory/core/faction1.coffee）。资源键：iconDecimateActive、iconDecimateIdle"
+  },
+  {
+    "id": "icon-d04272f54d93917db40658a3",
+    "name": "終將殞命 / Doom",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f4_doom.png",
+    "preview": "preview/icon-d04272f54d93917db40658a3.png",
+    "note": "待机帧：icon_f4_doom_000.png。工厂分支：Cards.Spell.Doom（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconDoomActive、iconDoomIdle"
+  },
+  {
+    "id": "icon-8fe3811fcb33e8c9981eb990",
+    "name": "落日仙丹 / Sundrop Elixir",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_sundropelixir.png",
+    "preview": "preview/icon-8fe3811fcb33e8c9981eb990.png",
+    "note": "待机帧：icon_f1_sundropelixir_000.png。工厂分支：Cards.Spell.SundropElixir（sdk/cards/factory/core/faction1.coffee）。资源键：iconSundropElixirActive、iconSundropElixirIdle"
+  },
+  {
+    "id": "icon-3cc7dcda304b370db8375e29",
+    "name": "風暴 / Tempest",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/generalspell_f1_tesmpest.png",
+    "preview": "preview/icon-3cc7dcda304b370db8375e29.png",
+    "note": "待机帧：generalspell_f1_tesmpest_000.png。工厂分支：Cards.Spell.TempestBBS（sdk/cards/factory/bloodstorm/faction1.coffee）。资源键：iconBBSTempestActive、iconBBSTempestIdle"
+  },
+  {
+    "id": "icon-e419a4e547341f1a9be2e7cd",
+    "name": "風暴 / Tempest",
+    "group": "法术",
+    "source": "duelyst-main/app/resources/icons/icon_f1_tempest.png",
+    "preview": "preview/icon-e419a4e547341f1a9be2e7cd.png",
+    "note": "待机帧：icon_f1_tempest_000.png。工厂分支：Cards.Spell.Tempest（sdk/cards/factory/core/faction1.coffee）。资源键：iconTempestActive、iconTempestIdle"
+  },
+  {
+    "id": "icon-f6b708bf78dd83f0fde50df3",
+    "name": "Adamantite Claws",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_adamantineclaws.png",
+    "preview": "preview/icon-f6b708bf78dd83f0fde50df3.png",
+    "note": "待机帧：artifact_f5_adamantineclaws_000.png。工厂分支：Cards.Artifact.AdamantineClaws（sdk/cards/factory/core/faction5.coffee）。资源键：iconAdamantineClawsActive、iconAdamantineClawsIdle"
+  },
+  {
+    "id": "icon-dd5ad741e753ba2d6090db0e",
+    "name": "Animus Plate",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_frostplate.png",
+    "preview": "preview/icon-dd5ad741e753ba2d6090db0e.png",
+    "note": "待机帧：artifact_f6_frostplate_000.png。工厂分支：Cards.Artifact.AnimusPlate（sdk/cards/factory/wartech/faction6.coffee）。资源键：iconAnimusPlateActive、iconAnimusPlateIdle"
+  },
+  {
+    "id": "icon-a00305e9da374be49fcd9c44",
+    "name": "Arclyte Regalia",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_arclyteregalia.png",
+    "preview": "preview/icon-a00305e9da374be49fcd9c44.png",
+    "note": "待机帧：artifact_f1_arclyteregalia_000.png。工厂分支：Cards.Artifact.ArclyteRegalia（sdk/cards/factory/core/faction1.coffee）。资源键：iconArclyteRegaliaActive、iconArclyteRegaliaIdle"
+  },
+  {
+    "id": "icon-002df4f1efd877db83d7f603",
+    "name": "Bangle of Blinding Strike",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_braceletofblinding.png",
+    "preview": "preview/icon-002df4f1efd877db83d7f603.png",
+    "note": "待机帧：artifact_f2_braceletofblinding_000.png。工厂分支：Cards.Artifact.MaskOfCelerity（sdk/cards/factory/unity/faction2.coffee）。资源键：iconBraceletBlindingStrikeActive、iconBraceletBlindingStrikeIdle"
+  },
+  {
+    "id": "icon-9eef27063c682aca98c5b427",
+    "name": "Barren Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f3_goldenhammer.png",
+    "preview": "preview/icon-9eef27063c682aca98c5b427.png",
+    "note": "待机帧：artifact_neutral_f3_goldenhammer_000.png。工厂分支：Cards.Artifact.VetruvianRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf3GoldenHammerActive、iconf3GoldenHammerIdle"
+  },
+  {
+    "id": "icon-bec06da7b002d5e9c7e52685",
+    "name": "Blazing Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f2_goldenhammer.png",
+    "preview": "preview/icon-bec06da7b002d5e9c7e52685.png",
+    "note": "待机帧：artifact_neutral_f2_goldenhammer_000.png。工厂分支：Cards.Artifact.SonghaiRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf2GoldenHammerActive、iconf2GoldenHammerIdle"
+  },
+  {
+    "id": "icon-986e4d34be4a385a6ee3b4b6",
+    "name": "Bloodrage Mask",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_bloodleechmask.png",
+    "preview": "preview/icon-986e4d34be4a385a6ee3b4b6.png",
+    "note": "待机帧：artifact_f2_bloodleechmask_000.png。工厂分支：Cards.Artifact.MaskOfBloodLeech（sdk/cards/factory/core/faction2.coffee）。资源键：iconBloodLeechMaskActive、iconBloodLeechMaskIdle"
+  },
+  {
+    "id": "icon-40256aa5dd99639e5ffc016e",
+    "name": "Coldbiter",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_frostbiter.png",
+    "preview": "preview/icon-40256aa5dd99639e5ffc016e.png",
+    "note": "待机帧：artifact_f6_frostbiter_000.png。工厂分支：Cards.Artifact.Frostbiter（sdk/cards/factory/core/faction6.coffee）。资源键：iconColdbiterActive、iconColdbiterIdle"
+  },
+  {
+    "id": "icon-0fb84a38631da949be569ce5",
+    "name": "Crescent Spear",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_crescentspear.png",
+    "preview": "preview/icon-0fb84a38631da949be569ce5.png",
+    "note": "待机帧：artifact_f2_crescentspear_000.png。工厂分支：Cards.Artifact.CrescentSpear（sdk/cards/factory/shimzar/faction2.coffee）。资源键：iconCrescentSpearActive、iconCrescentSpearIdle"
+  },
+  {
+    "id": "icon-8fcb2f113aa91ce213cb7015",
+    "name": "Cyclone Mask",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_cyclonemask.png",
+    "preview": "preview/icon-8fcb2f113aa91ce213cb7015.png",
+    "note": "待机帧：artifact_f2_cyclonemask_000.png。工厂分支：Cards.Artifact.MaskOfTranscendance（sdk/cards/factory/core/faction2.coffee）。资源键：iconCycloneMaskActive、iconCycloneMaskIdle"
+  },
+  {
+    "id": "icon-20f207666182d15e5dafa811",
+    "name": "Dawn's Eye",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_dawnseye.png",
+    "preview": "preview/icon-20f207666182d15e5dafa811.png",
+    "note": "待机帧：artifact_f1_dawnseye_000.png。工厂分支：Cards.Artifact.DawnsEye（sdk/cards/factory/shimzar/faction1.coffee）。资源键：iconDawnsEyeActive、iconDawnsEyeIdle"
+  },
+  {
+    "id": "icon-b4163fd59b2d82eedb3cf0ec",
+    "name": "Empty Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_neutral_goldenhammer.png",
+    "preview": "preview/icon-b4163fd59b2d82eedb3cf0ec.png",
+    "note": "待机帧：artifact_neutral_neutral_goldenhammer_000.png。工厂分支：Cards.Artifact.NeutralRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconneutralGoldenHammerActive、iconneutralGoldenHammerIdle"
+  },
+  {
+    "id": "icon-ef0dad030257d6d8ae167153",
+    "name": "Eternal Heart",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_eternalheart.png",
+    "preview": "preview/icon-ef0dad030257d6d8ae167153.png",
+    "note": "待机帧：artifact_f5_eternalheart_000.png。工厂分支：Cards.Artifact.EternalHeart（sdk/cards/factory/firstwatch/faction5.coffee）。资源键：iconEternalHeartActive、iconEternalHeartIdle"
+  },
+  {
+    "id": "icon-a0b7aea084dc9ed413b1abd6",
+    "name": "Frost Armor",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_boss_frostarmor.png",
+    "preview": "preview/icon-a0b7aea084dc9ed413b1abd6.png",
+    "note": "待机帧：artifact_boss_frostarmor_000.png。工厂分支：Cards.BossArtifact.FrostArmor（sdk/cards/factory/misc/bosses.coffee）。资源键：iconFrostArmorActive、iconFrostArmorIdle"
+  },
+  {
+    "id": "icon-103f3581b456ac05a15f4107",
+    "name": "Furor Chakram",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_ragechackram.png",
+    "preview": "preview/icon-103f3581b456ac05a15f4107.png",
+    "note": "待机帧：artifact_f4_ragechackram_000.png。工厂分支：Cards.Artifact.FurorChakram（sdk/cards/factory/wartech/faction4.coffee）。资源键：iconRageChakramActive、iconRageChakramIdle"
+  },
+  {
+    "id": "icon-f1d3ae72817f2b99649a8da8",
+    "name": "Ghost Azalea",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_ghostazalea.png",
+    "preview": "preview/icon-f1d3ae72817f2b99649a8da8.png",
+    "note": "待机帧：artifact_f4_ghostazalea_000.png。工厂分支：Cards.Artifact.GhostAzalea（sdk/cards/factory/shimzar/faction4.coffee）。资源键：iconGhostAzaleaActive、iconGhostAzaleaIdle"
+  },
+  {
+    "id": "icon-087055c7861fe605a3ef8e73",
+    "name": "Godhammer",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_godhammer.png",
+    "preview": "preview/icon-087055c7861fe605a3ef8e73.png",
+    "note": "待机帧：artifact_f5_godhammer_000.png。工厂分支：Cards.Artifact.GrowthBangle（sdk/cards/factory/unity/faction5.coffee）。资源键：iconGodhammerActive、iconGodhammerIdle"
+  },
+  {
+    "id": "icon-d7fb4a7519b997571b4ff455",
+    "name": "Gold Vitriol",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_goldenvitriol.png",
+    "preview": "preview/icon-d7fb4a7519b997571b4ff455.png",
+    "note": "待机帧：artifact_f1_goldenvitriol_000.png。工厂分支：Cards.Artifact.GoldVitriol（sdk/cards/factory/unity/faction1.coffee）。资源键：iconGoldVitriolActive、iconGoldVitriolIdle"
+  },
+  {
+    "id": "icon-63cb92ffac30384ab1b51d91",
+    "name": "Halo Bulwark",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_shieldofphalanx.png",
+    "preview": "preview/icon-63cb92ffac30384ab1b51d91.png",
+    "note": "待机帧：artifact_f1_shieldofphalanx_000.png。工厂分支：Cards.Artifact.HaloBulwark（sdk/cards/factory/firstwatch/faction1.coffee）。资源键：iconHaloBulwarkActive、iconHaloBulwarkIdle"
+  },
+  {
+    "id": "icon-454ae99b6edbe3ab5e7f1a4c",
+    "name": "Hexblade",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_hexblade.png",
+    "preview": "preview/icon-454ae99b6edbe3ab5e7f1a4c.png",
+    "note": "待机帧：artifact_f3_hexblade_000.png。工厂分支：Cards.Artifact.PoisonHexblade（sdk/cards/factory/core/faction3.coffee）。资源键：iconHexBladeActive、iconHexBladeIdle"
+  },
+  {
+    "id": "icon-f2c70661b51894b44fd1664b",
+    "name": "Horn of the Forsaken",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_hornofforsaken.png",
+    "preview": "preview/icon-f2c70661b51894b44fd1664b.png",
+    "note": "待机帧：artifact_f4_hornofforsaken_000.png。工厂分支：Cards.Artifact.HornOfTheForsaken（sdk/cards/factory/core/faction4.coffee）。资源键：iconHornForsakenActive、iconHornForsakenIdle"
+  },
+  {
+    "id": "icon-a7aebe91c1d74d039cde28ef",
+    "name": "Horned Mask",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_markgorehorn.png",
+    "preview": "preview/icon-a7aebe91c1d74d039cde28ef.png",
+    "note": "待机帧：artifact_f2_markgorehorn_000.png。工厂分支：Cards.Artifact.BackstabGloves（sdk/cards/factory/coreshatter/faction2.coffee）。资源键：iconGorehornMaskActive、iconGorehornMaskIdle"
+  },
+  {
+    "id": "icon-0ad5146b7e8c79631e4322e4",
+    "name": "Howling Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f6_goldenhammer.png",
+    "preview": "preview/icon-0ad5146b7e8c79631e4322e4.png",
+    "note": "待机帧：artifact_neutral_f6_goldenhammer_000.png。工厂分支：Cards.Artifact.VanarRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf6GoldenHammerActive、iconf6GoldenHammerIdle"
+  },
+  {
+    "id": "icon-7ff7a23f68d4424abbf94012",
+    "name": "Iceshatter Gauntlet",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_iceshatter.png",
+    "preview": "preview/icon-7ff7a23f68d4424abbf94012.png",
+    "note": "待机帧：artifact_f6_iceshatter_000.png。工厂分支：Cards.Artifact.ShatteringHeart（sdk/cards/factory/unity/faction6.coffee）。资源键：iconIceshatterGauntletActive、iconIceshatterGauntletIdle"
+  },
+  {
+    "id": "icon-7b619ed4fd0f7a23e6bd0fcc",
+    "name": "Iridium Scale",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_irridiumscale.png",
+    "preview": "preview/icon-7b619ed4fd0f7a23e6bd0fcc.png",
+    "note": "待机帧：artifact_f5_irridiumscale_000.png。工厂分支：Cards.Artifact.PristineScale（sdk/cards/factory/core/faction5.coffee）。资源键：iconIrridiumScaleActive、iconIrridiumScaleIdle"
+  },
+  {
+    "id": "icon-958c96bf895dc5ce0ca3407c",
+    "name": "Iris Barrier",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_sajjreredemption.png",
+    "preview": "preview/icon-958c96bf895dc5ce0ca3407c.png",
+    "note": "待机帧：artifact_f3_sajjreredemption_000.png。工厂分支：Cards.Artifact.IrisBarrier（sdk/cards/factory/wartech/faction3.coffee）。资源键：iconIrisBarrierActive、iconIrisBarrierIdle"
+  },
+  {
+    "id": "icon-4ed3713a4494c002aab8efbb",
+    "name": "Jingle Bells",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/boss_christmas_jinglebells.png",
+    "preview": "preview/icon-4ed3713a4494c002aab8efbb.png",
+    "note": "待机帧：boss_christmas_jinglebells_000.png。工厂分支：Cards.BossArtifact.FlyingBells（sdk/cards/factory/misc/bosses.coffee）。资源键：bossChristmasJinglebellsActive、bossChristmasJinglebellsIdle"
+  },
+  {
+    "id": "icon-12a0a6e81467a582faa7a4dd",
+    "name": "Lump of Coal",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/boss_christmas_coal.png",
+    "preview": "preview/icon-12a0a6e81467a582faa7a4dd.png",
+    "note": "待机帧：boss_christmas_coal_000.png。工厂分支：Cards.BossArtifact.Coal（sdk/cards/factory/misc/bosses.coffee）。资源键：bossChristmasCoalActive、bossChristmasCoalIdle"
+  },
+  {
+    "id": "icon-968b90f1c0f9a182b5f103f8",
+    "name": "Mask of Shadows",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_maskofshadows.png",
+    "preview": "preview/icon-968b90f1c0f9a182b5f103f8.png",
+    "note": "待机帧：artifact_f2_maskofshadows_000.png。工厂分支：Cards.Artifact.MaskOfShadows（sdk/cards/factory/core/faction2.coffee）。资源键：iconMaskofShadowsActive、iconMaskofShadowsIdle"
+  },
+  {
+    "id": "icon-adfd3f58c78f0c3d848fca80",
+    "name": "Mindlathe",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_heartborrower.png",
+    "preview": "preview/icon-adfd3f58c78f0c3d848fca80.png",
+    "note": "待机帧：artifact_f4_heartborrower_000.png。工厂分支：Cards.Artifact.Mindlathe（sdk/cards/factory/firstwatch/faction4.coffee）。资源键：iconMindlatheActive、iconMindlatheIdle"
+  },
+  {
+    "id": "icon-32e5f646bae8ae8f0d2a29af",
+    "name": "Mistletoe",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/boss_christmas_mistletoe.png",
+    "preview": "preview/icon-32e5f646bae8ae8f0d2a29af.png",
+    "note": "待机帧：boss_christmas_mistletoe_000.png。工厂分支：Cards.BossArtifact.CostReducer（sdk/cards/factory/misc/bosses.coffee）。资源键：bossChristmasMistletoeActive、bossChristmasMistletoeIdle"
+  },
+  {
+    "id": "icon-31c5c67db13bc29e323ca8b1",
+    "name": "Morin-Khur",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_morinkhur.png",
+    "preview": "preview/icon-31c5c67db13bc29e323ca8b1.png",
+    "note": "待机帧：artifact_f5_morinkhur_000.png。工厂分支：Cards.Artifact.MorinKhur（sdk/cards/factory/shimzar/faction5.coffee）。资源键：iconMorinKhurActive、iconMorinKhurIdle"
+  },
+  {
+    "id": "icon-b3c760fed52747ba018b15ae",
+    "name": "Obdurator",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_repairstaff.png",
+    "preview": "preview/icon-b3c760fed52747ba018b15ae.png",
+    "note": "待机帧：artifact_f3_repairstaff_000.png。工厂分支：Cards.Artifact.RepairSword（sdk/cards/factory/coreshatter/faction3.coffee）。资源键：iconRepairStaffActive、iconRepairStaffIdle"
+  },
+  {
+    "id": "icon-dc011a298eca6dfc950172f0",
+    "name": "Oblivion Sickle",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_sandscepter.png",
+    "preview": "preview/icon-dc011a298eca6dfc950172f0.png",
+    "note": "待机帧：artifact_f3_sandscepter_000.png。工厂分支：Cards.Artifact.OblivionSickle（sdk/cards/factory/firstwatch/faction3.coffee）。资源键：iconOblivionSickleActive、iconOblivionSickleIdle"
+  },
+  {
+    "id": "icon-388b6d438ceb15c80bdf976f",
+    "name": "Ornate Hiogi",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_spellfan.png",
+    "preview": "preview/icon-388b6d438ceb15c80bdf976f.png",
+    "note": "待机帧：artifact_f2_spellfan_000.png。工厂分支：Cards.Artifact.OrnateHiogi（sdk/cards/factory/wartech/faction2.coffee）。资源键：iconOrnateHiogiActive、iconOrnateHiogiIdle"
+  },
+  {
+    "id": "icon-65d2a30cf05526f44e8a96c1",
+    "name": "Primal Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f5_goldenhammer.png",
+    "preview": "preview/icon-65d2a30cf05526f44e8a96c1.png",
+    "note": "待机帧：artifact_neutral_f5_goldenhammer_000.png。工厂分支：Cards.Artifact.MagmarRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf5GoldenHammerActive、iconf5GoldenHammerIdle"
+  },
+  {
+    "id": "icon-8a6eaa9f6eb9ecd7c9faf697",
+    "name": "Radiant Standard",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_ironbanner.png",
+    "preview": "preview/icon-8a6eaa9f6eb9ecd7c9faf697.png",
+    "note": "待机帧：artifact_f1_ironbanner_000.png。工厂分支：Cards.Artifact.TwoHander（sdk/cards/factory/coreshatter/faction1.coffee）。资源键：iconIronBannerActive、iconIronBannerIdle"
+  },
+  {
+    "id": "icon-a408b1dcf3fd56ff1159d96e",
+    "name": "Rage Reactor",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_thegibblecup.png",
+    "preview": "preview/icon-a408b1dcf3fd56ff1159d96e.png",
+    "note": "待机帧：artifact_f5_thegibblecup_000.png。工厂分支：Cards.Artifact.RageReactor（sdk/cards/factory/wartech/faction5.coffee）。资源键：iconRageReactorActive、iconRageReactorIdle"
+  },
+  {
+    "id": "icon-5a493459734b5b0d69dddfca",
+    "name": "Resonance Scythe",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_scycicle.png",
+    "preview": "preview/icon-5a493459734b5b0d69dddfca.png",
+    "note": "待机帧：artifact_f6_scycicle_000.png。工厂分支：Cards.Artifact.SnowChipper（sdk/cards/factory/coreshatter/faction6.coffee）。资源键：iconSnowchipperActive、iconSnowchipperIdle"
+  },
+  {
+    "id": "icon-869de204d8fbc7464e607644",
+    "name": "Shining Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f1_goldenhammer.png",
+    "preview": "preview/icon-869de204d8fbc7464e607644.png",
+    "note": "待机帧：artifact_neutral_f1_goldenhammer_000.png。工厂分支：Cards.Artifact.LyonarRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf1GoldenHammerActive、iconf1GoldenHammerIdle"
+  },
+  {
+    "id": "icon-8a040552c9e21154fa8be796",
+    "name": "Skywind Glaives；Cyclone Generator",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_skywindglaives.png",
+    "preview": "preview/icon-8a040552c9e21154fa8be796.png",
+    "note": "待机帧：artifact_f1_skywindglaives_000.png。工厂分支：Cards.Artifact.IndomitableWill（sdk/cards/factory/core/faction1.coffee）；Cards.BossArtifact.CycloneGenerator（sdk/cards/factory/misc/bosses.coffee）。资源键：iconSkywindGlaivesActive、iconSkywindGlaivesIdle"
+  },
+  {
+    "id": "icon-b1085ed4961ae82f95c66094",
+    "name": "Snowball",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/boss_christmas_snowball.png",
+    "preview": "preview/icon-b1085ed4961ae82f95c66094.png",
+    "note": "待机帧：boss_christmas_snowball_000.png。工厂分支：Cards.BossArtifact.Snowball（sdk/cards/factory/misc/bosses.coffee）。资源键：bossChristmasSnowballActive、bossChristmasSnowballIdle"
+  },
+  {
+    "id": "icon-a2ee733aa165ce579c3b84ff",
+    "name": "Snowpiercer",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_snowpiercer.png",
+    "preview": "preview/icon-a2ee733aa165ce579c3b84ff.png",
+    "note": "待机帧：artifact_f6_snowpiercer_000.png。工厂分支：Cards.Artifact.Snowpiercer（sdk/cards/factory/core/faction6.coffee）。资源键：iconSnowpiercerActive、iconSnowpiercerIdle"
+  },
+  {
+    "id": "icon-3f067dacb5b484d193e28440",
+    "name": "Soul Grimwar",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_soulgrimwar.png",
+    "preview": "preview/icon-3f067dacb5b484d193e28440.png",
+    "note": "待机帧：artifact_f4_soulgrimwar_000.png。工厂分支：Cards.Artifact.SoulGrimwar（sdk/cards/factory/core/faction4.coffee）。资源键：iconSoulGrimwarActive、iconSoulGrimwarIdle"
+  },
+  {
+    "id": "icon-a25e63a0ce8d432d9024b951",
+    "name": "Spectral Blade",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_spectralblade.png",
+    "preview": "preview/icon-a25e63a0ce8d432d9024b951.png",
+    "note": "待机帧：artifact_f4_spectralblade_000.png。工厂分支：Cards.Artifact.SpectralBlade（sdk/cards/factory/core/faction4.coffee）。资源键：iconSpectralBladeActive、iconSpectralBladeIdle"
+  },
+  {
+    "id": "icon-4864d27319e119ef29ed5312",
+    "name": "Spinecleaver",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_spinecleaver.png",
+    "preview": "preview/icon-4864d27319e119ef29ed5312.png",
+    "note": "待机帧：artifact_f3_spinecleaver_000.png。工厂分支：Cards.Artifact.Spinecleaver（sdk/cards/factory/shimzar/faction3.coffee）。资源键：iconSpinecleaverActive、iconSpinecleaverIdle"
+  },
+  {
+    "id": "icon-8301ee385fd5a49bc5fecfd2",
+    "name": "Staff Of Y'Kir",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_staffofykir.png",
+    "preview": "preview/icon-8301ee385fd5a49bc5fecfd2.png",
+    "note": "待机帧：artifact_f3_staffofykir_000.png。工厂分支：Cards.Artifact.StaffOfYKir（sdk/cards/factory/core/faction3.coffee）。资源键：iconStaffYkirActive、iconStaffYkirIdle"
+  },
+  {
+    "id": "icon-01cd7f904e07647a3ea00e54",
+    "name": "Sunbond Pavise",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_bigshield.png",
+    "preview": "preview/icon-01cd7f904e07647a3ea00e54.png",
+    "note": "待机帧：artifact_f1_bigshield_000.png。工厂分支：Cards.Artifact.SunbondPavise（sdk/cards/factory/wartech/faction1.coffee）。资源键：iconBigShieldActive、iconBigShieldIdle"
+  },
+  {
+    "id": "icon-d8b20792647f6b663103cae5",
+    "name": "Sunstone Bracers",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f1_sunstonebracers.png",
+    "preview": "preview/icon-d8b20792647f6b663103cae5.png",
+    "note": "待机帧：artifact_f1_sunstonebracers_000.png。工厂分支：Cards.Artifact.SunstoneBracers（sdk/cards/factory/core/faction1.coffee）；Cards.TutorialArtifact.TutorialSunstoneBracers（sdk/cards/factory/misc/tutorial.coffee）。资源键：iconSunstoneBracersActive、iconSunstoneBracersIdle"
+  },
+  {
+    "id": "icon-347ede4ba185b14df15146c2",
+    "name": "The Dredger",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_snowshovel.png",
+    "preview": "preview/icon-347ede4ba185b14df15146c2.png",
+    "note": "待机帧：artifact_f6_snowshovel_000.png。工厂分支：Cards.Artifact.TheDredger（sdk/cards/factory/firstwatch/faction6.coffee）。资源键：iconTheDredgerActive、iconTheDredgerIdle"
+  },
+  {
+    "id": "icon-7e3cf23d934a2ee46e7e8faa",
+    "name": "The Releaser",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_thereleaser.png",
+    "preview": "preview/icon-7e3cf23d934a2ee46e7e8faa.png",
+    "note": "待机帧：artifact_f4_thereleaser_000.png。工厂分支：Cards.Artifact.AngryRebirthAmulet（sdk/cards/factory/unity/faction4.coffee）。资源键：iconTheReleaserActive、iconTheReleaserIdle"
+  },
+  {
+    "id": "icon-4ec69d7fca245bfeacc3fe84",
+    "name": "Thunderclap",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_thunderclap.png",
+    "preview": "preview/icon-4ec69d7fca245bfeacc3fe84.png",
+    "note": "待机帧：artifact_f3_thunderclap_000.png。工厂分支：Cards.Artifact.Thunderclap（sdk/cards/factory/unity/faction3.coffee）。资源键：iconThunderclapActive、iconThunderclapIdle"
+  },
+  {
+    "id": "icon-07e4557e022e78a2dde68434",
+    "name": "Twin Fang",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_twinfang.png",
+    "preview": "preview/icon-07e4557e022e78a2dde68434.png",
+    "note": "待机帧：artifact_f5_twinfang_000.png。工厂分支：Cards.Artifact.TwinFang（sdk/cards/factory/core/faction5.coffee）。资源键：iconTwinFangActive、iconTwinFangIdle"
+  },
+  {
+    "id": "icon-e4ce3c3a0cb7e1c7a1cc0927",
+    "name": "Unbounded Energy Amulet",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f2_unboundedenergyamulet.png",
+    "preview": "preview/icon-e4ce3c3a0cb7e1c7a1cc0927.png",
+    "note": "待机帧：artifact_f2_unboundedenergyamulet_000.png。工厂分支：Cards.Artifact.EnergyAmulet（sdk/cards/factory/firstwatch/faction2.coffee）。资源键：iconEnergyAmuletActive、iconEnergyAmuletIdle"
+  },
+  {
+    "id": "icon-585d48d205e145d530bfa722",
+    "name": "Void Relic",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_neutral_f4_goldenhammer.png",
+    "preview": "preview/icon-585d48d205e145d530bfa722.png",
+    "note": "待机帧：artifact_neutral_f4_goldenhammer_000.png。工厂分支：Cards.Artifact.AbyssianRelic（sdk/cards/factory/wartech/neutral.coffee）。资源键：iconf4GoldenHammerActive、iconf4GoldenHammerIdle"
+  },
+  {
+    "id": "icon-c6b8c19265addfca4cc73770",
+    "name": "White Asp",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_whiteasp.png",
+    "preview": "preview/icon-c6b8c19265addfca4cc73770.png",
+    "note": "待机帧：artifact_f6_whiteasp_000.png。工厂分支：Cards.Artifact.WhiteAsp（sdk/cards/factory/shimzar/faction6.coffee）。资源键：iconWhiteAspActive、iconWhiteAspIdle"
+  },
+  {
+    "id": "icon-c0ba3caceb714e6d7c9dcb20",
+    "name": "Wildfire Ankh",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f3_wildfireankh.png",
+    "preview": "preview/icon-c0ba3caceb714e6d7c9dcb20.png",
+    "note": "待机帧：artifact_f3_wildfireankh_000.png。工厂分支：Cards.Artifact.AnkhFireNova（sdk/cards/factory/core/faction3.coffee）。资源键：iconWildfireAnkhActive、iconWildfireAnkhIdle"
+  },
+  {
+    "id": "icon-c859b77ca06b34684765a733",
+    "name": "Winterblade",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f6_winterblade.png",
+    "preview": "preview/icon-c859b77ca06b34684765a733.png",
+    "note": "待机帧：artifact_f6_winterblade_000.png。工厂分支：Cards.Artifact.Winterblade（sdk/cards/factory/core/faction6.coffee）。资源键：iconWinterbladeActive、iconWinterbladeIdle"
+  },
+  {
+    "id": "icon-5b259d77f8eb2a13a3e620fb",
+    "name": "Wraithcrown",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f4_darkstonering.png",
+    "preview": "preview/icon-5b259d77f8eb2a13a3e620fb.png",
+    "note": "待机帧：artifact_f4_darkstonering_000.png。工厂分支：Cards.Artifact.WraithlingAmulet（sdk/cards/factory/coreshatter/faction4.coffee）。资源键：iconWraithRingActive、iconWraithRingIdle"
+  },
+  {
+    "id": "icon-b43a6c8d40fb8b490ba77e9d",
+    "name": "Zoetic Charm",
+    "group": "神器",
+    "source": "duelyst-main/app/resources/icons/artifact_f5_eggsoul.png",
+    "preview": "preview/icon-b43a6c8d40fb8b490ba77e9d.png",
+    "note": "待机帧：artifact_f5_eggsoul_000.png。工厂分支：Cards.Artifact.EggArmor（sdk/cards/factory/coreshatter/faction5.coffee）。资源键：iconEggArmorActive、iconEggArmorIdle"
+  },
+  {
+    "id": "icon-4c2a020ff647df5818350acd",
+    "name": "Death Watch",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/death_watch.png",
+    "preview": "preview/icon-4c2a020ff647df5818350acd.png",
+    "note": "独立图片；资源键：kill_symbol、modifier_death_watch"
+  },
+  {
+    "id": "icon-c7a0979e19d52b61c83e5a85",
+    "name": "Dying Wish",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/dying_wish.png",
+    "preview": "preview/icon-c7a0979e19d52b61c83e5a85.png",
+    "note": "独立图片；资源键：modifier_dying_wish"
+  },
+  {
+    "id": "icon-36498d41a34f51778752733e",
+    "name": "Ephemeral",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/ephemeral.png",
+    "preview": "preview/icon-36498d41a34f51778752733e.png",
+    "note": "独立图片；资源键：modifier_ephemeral"
+  },
+  {
+    "id": "icon-7d34a4c3d451f2b581869870",
+    "name": "Frenzy",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/frenzy.png",
+    "preview": "preview/icon-7d34a4c3d451f2b581869870.png",
+    "note": "独立图片；资源键：modifier_frenzy"
+  },
+  {
+    "id": "icon-8c088404762f0a0395952a28",
+    "name": "Gain Mana",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/gain_mana.png",
+    "preview": "preview/icon-8c088404762f0a0395952a28.png",
+    "note": "独立图片；资源键：modifier_gain_mana"
+  },
+  {
+    "id": "icon-20dd2b628abb7f12cdb4cd1e",
+    "name": "Grow",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/grow.png",
+    "preview": "preview/icon-20dd2b628abb7f12cdb4cd1e.png",
+    "note": "独立图片；资源键：modifier_grow"
+  },
+  {
+    "id": "icon-b1b5421ad14123eb8ac1c083",
+    "name": "Infiltrated",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/infiltrated.png",
+    "preview": "preview/icon-b1b5421ad14123eb8ac1c083.png",
+    "note": "独立图片；资源键：modifier_infiltrated"
+  },
+  {
+    "id": "icon-760383cb71f5ca87d228810f",
+    "name": "Lose Mana",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/lose_mana.png",
+    "preview": "preview/icon-760383cb71f5ca87d228810f.png",
+    "note": "独立图片；资源键：modifier_lose_mana"
+  },
+  {
+    "id": "icon-94960dc9747ffc9ff72685dd",
+    "name": "Provoked",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/provoked.png",
+    "preview": "preview/icon-94960dc9747ffc9ff72685dd.png",
+    "note": "独立图片；资源键：modifier_provoked"
+  },
+  {
+    "id": "icon-ddfdc44ec7285805748dc799",
+    "name": "Rebirth",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/rebirth.png",
+    "preview": "preview/icon-ddfdc44ec7285805748dc799.png",
+    "note": "独立图片；资源键：modifier_rebirth"
+  },
+  {
+    "id": "icon-fd9d975f2d05a2d06c18bb8b",
+    "name": "Shadow Creep",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/shadow_creep.png",
+    "preview": "preview/icon-fd9d975f2d05a2d06c18bb8b.png",
+    "note": "独立图片；资源键：modifier_shadow_creep"
+  },
+  {
+    "id": "icon-0051f2f0ebafd718820c9e05",
+    "name": "Triggered",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/triggered.png",
+    "preview": "preview/icon-0051f2f0ebafd718820c9e05.png",
+    "note": "独立图片；资源键：modifier_triggered"
+  },
+  {
+    "id": "icon-4702c71483cd28735977c5a8",
+    "name": "Uninfiltrated",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/uninfiltrated.png",
+    "preview": "preview/icon-4702c71483cd28735977c5a8.png",
+    "note": "独立图片；资源键：modifier_uninfiltrated"
+  },
+  {
+    "id": "icon-376469ef0118972058f106d6",
+    "name": "Unzealed",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/unzealed.png",
+    "preview": "preview/icon-376469ef0118972058f106d6.png",
+    "note": "独立图片；资源键：modifier_unzealed"
+  },
+  {
+    "id": "icon-a50f03a2bdaf3c6d53035ac8",
+    "name": "Zealed",
+    "group": "能力与状态提示",
+    "source": "duelyst-main/app/resources/modifiers/zealed.png",
+    "preview": "preview/icon-a50f03a2bdaf3c6d53035ac8.png",
+    "note": "独立图片；资源键：modifier_zealed"
+  }
+]

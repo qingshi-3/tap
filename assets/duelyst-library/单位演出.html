@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Duelyst · 单位演出</title>
+<style>
+:root{color-scheme:dark;background:#141e26;color:#e8efeb;font:16px/1.5 system-ui}
+*{box-sizing:border-box}body{margin:auto;max-width:1300px;padding:clamp(12px,3vw,34px)}
+a{color:#aee1ca}button{font:inherit;color:inherit;background:#263841;border:1px solid #526c76;border-radius:6px;padding:.5rem .7rem;text-align:left;cursor:pointer}
+button[aria-pressed=true]{background:#315449;border-color:#81bca6}
+h1{margin:.25rem 0;overflow-wrap:anywhere}h2{font-size:1rem;margin:0 0 .65rem}p{margin:.5rem 0;color:#c4d2d6}
+.nav{display:flex;flex-wrap:wrap;gap:.75rem 1.25rem}
+.motion-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}
+figure{margin:0;display:grid;grid-template-rows:1fr auto;place-items:center;min-height:126px;padding:.6rem;background:#192732;border:1px solid #364952;border-radius:8px;overflow:auto}
+canvas,img{image-rendering:pixelated}figcaption,small{color:#aec2cb}
+.workspace{display:grid;grid-template-columns:minmax(225px,26%) minmax(0,1fr);gap:1rem;margin-top:1rem}
+aside,main{min-width:0}.section{padding:.9rem;background:#202e39;border:1px solid #364952;border-radius:8px;margin-bottom:.75rem}
+.choices{display:grid;gap:.5rem}.choices button{width:100%;display:flex;gap:.55rem;align-items:center}
+.choices img{width:34px;height:34px;object-fit:contain}.choices small{display:block;overflow-wrap:anywhere}.skill{display:flex;align-items:center;gap:.55rem;margin:.45rem 0}
+#player{display:block;width:100%;height:650px;border:0}.fx-list{display:flex;flex-wrap:wrap;gap:.5rem .75rem;overflow-wrap:anywhere}
+@media(max-width:700px){.workspace{grid-template-columns:1fr}.choices{grid-template-columns:repeat(auto-fit,minmax(min(100%,215px),1fr))}}
+[hidden]{display:none!important}
+</style>
+<nav class="nav" aria-label="预览导航"><a href="index.html">资源阅览台</a><a href="index.html?assetType=fx">独立特效库</a><a id="comparison" href="Skyfall双演出.html" hidden>普攻与撕裂寒霜同屏对比</a></nav>
+<header><h1 id="title">单位演出</h1><p id="asset-id"></p></header>
+<div id="content" hidden>
+  <section aria-label="单位动作" class="motion-grid" id="motions"></section>
+  <div class="workspace">
+    <aside id="events" aria-label="原作演出选项"></aside>
+    <main>
+      <p id="status" role="status"></p>
+      <iframe id="player" title="原作合成预览" hidden></iframe>
+      <section class="section" id="effects" hidden>
+        <h2>本次演出使用的独立特效</h2>
+        <div class="fx-list" id="effect-links"></div>
+      </section>
+    </main>
+  </div>
+</div>
+<script src="H5/data.js"></script><script src="H5/adapter.js"></script>
+<script src="H5/original-events.js"></script><script src="合成/coverage.js"></script><script src="合成/casters.js"></script>
+<script src="H5/unit-preview.js"></script></html>
