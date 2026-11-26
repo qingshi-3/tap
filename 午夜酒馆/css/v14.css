@@ -1346,17 +1346,26 @@
     0 0 22px rgba(255, 217, 102, 0.65),
     0 16px 28px rgba(0, 0, 0, 0.75) !important;
 }
-/* Smooth Slay-the-Spire Slide-to-Center + Live 3D Aiming Tilt Following Arrow! */
+/* Other hand cards gently recede downward out of the way while one card is centered & aiming */
+#bt-cards-row.is-dragging-hand .v14-card:not(.dragging-centered) {
+  transform: translateY(calc(var(--fan-y, 0px) + 56px)) rotate(var(--fan-rot, 0deg)) scale(0.94) !important;
+  opacity: 0.36 !important;
+  filter: saturate(0.55) brightness(0.78);
+  transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease, filter 0.18s ease !important;
+  pointer-events: none !important;
+}
+/* Smooth Slay-the-Spire Slide-to-Center + Refined Center-Origin 3D Aiming Tilt (Zero crooked skew!) */
 .v14-card.dragging-centered {
   z-index: 90 !important;
+  transform-origin: center center !important;
   transform-style: preserve-3d !important;
-  transform: perspective(600px) translate(var(--drag-cx, 0px), var(--drag-cy, -26px)) rotateX(var(--drag-rx, 0deg)) rotateY(var(--drag-ry, 0deg)) rotateZ(var(--drag-rz, 0deg)) scale(1.08) !important;
-  transition: transform 0.08s ease-out, border-color 0.14s ease, box-shadow 0.14s ease !important;
+  transform: perspective(920px) translate(var(--drag-cx, 0px), var(--drag-cy, -26px)) rotateX(var(--drag-rx, 0deg)) rotateY(var(--drag-ry, 0deg)) scale(1.04) !important;
+  transition: transform 0.14s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.14s ease, box-shadow 0.14s ease !important;
   border-color: #ffe27a !important;
   box-shadow:
     inset 0 0 0 1px rgba(255, 240, 180, 0.85),
-    0 0 28px rgba(255, 217, 102, 0.8),
-    0 18px 34px rgba(0, 0, 0, 0.82) !important;
+    0 0 28px rgba(255, 217, 102, 0.78),
+    0 18px 34px rgba(0, 0, 0, 0.84) !important;
   pointer-events: none !important;
 }
 

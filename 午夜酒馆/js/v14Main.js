@@ -2186,12 +2186,12 @@
             window.removeEventListener('pointermove', onMove);
             window.removeEventListener('pointerup', onUp);
             window.removeEventListener('pointercancel', onCancel);
+            row.classList.remove('is-dragging-hand');
             card.classList.remove('dragging-centered');
             card.style.removeProperty('--drag-cx');
             card.style.removeProperty('--drag-cy');
             card.style.removeProperty('--drag-rx');
             card.style.removeProperty('--drag-ry');
-            card.style.removeProperty('--drag-rz');
             if (this.battleStage.setDragArrow) this.battleStage.setDragArrow(null);
           };
 
@@ -2200,38 +2200,41 @@
             const dy = mev.clientY - startY;
             if (!dragging && canDrag && Math.hypot(dx, dy) > 10) {
               dragging = true;
-              // Compute smooth relative offset to slide card gracefully to bottom-center (zero jump/reflow!)
+              // Exact untransformed card layout center via card.offsetParent (100% immune to fan/hover/offsetParent mismatch!)
               const cRect = $('battle-canvas').getBoundingClientRect();
-              const cardRect = card.getBoundingClientRect();
+              const op = card.offsetParent || row;
+              const opRect = op.getBoundingClientRect();
               if (cRect.width > 0 && cRect.height > 0) {
                 const scaleX = 1280 / cRect.width;
                 const scaleY = 720 / cRect.height;
-                const curStageX = ((cardRect.left + cardRect.width / 2) - cRect.left) * scaleX;
-                const curStageY = ((cardRect.top + cardRect.height / 2) - cRect.top) * scaleY;
-                const shiftX = Math.round(640 - curStageX);
-                const shiftY = Math.round(594 - curStageY);
+                const opStageLeft = (opRect.left - cRect.left) * scaleX;
+                const opStageTop = (opRect.top - cRect.top) * scaleY;
+                const baseStageX = opStageLeft + card.offsetLeft + card.offsetWidth / 2;
+                const baseStageY = opStageTop + card.offsetTop + card.offsetHeight / 2;
+                const shiftX = Math.round(640 - baseStageX);
+                const shiftY = Math.round(560 - baseStageY);
                 card.style.setProperty('--drag-cx', `${shiftX}px`);
                 card.style.setProperty('--drag-cy', `${shiftY}px`);
               }
+              row.classList.add('is-dragging-hand');
               card.classList.add('dragging-centered');
               if (tipEl) tipEl.classList.add('hidden');
             }
             if (dragging && this.battleStage.setDragArrow) {
               const { sx, sy, slotIdx } = getStagePos(mev.clientX, mev.clientY);
-              this.battleStage.setDragArrow({ fromX: 640, fromY: 498, toX: sx, toY: sy, slotIdx, active: true });
-              // Real-time 3D tilt & specular tracking following the aiming arrow!
-              const nx = Math.max(-1, Math.min(1, (sx - 640) / 420));
-              const ny = Math.max(-0.35, Math.min(1, (594 - sy) / 360));
-              const dragRy = nx * 20;
-              const dragRx = ny * 15;
-              const dragRz = nx * 5.5;
+              // Arrow emerges cleanly from the exact top-center edge of the centered card (640, 452)
+              this.battleStage.setDragArrow({ fromX: 640, fromY: 452, toX: sx, toY: sy, slotIdx, active: true });
+              // Refined, upright 3D aim tilt (center-origin, max ±8°/±6°, zero crooked roll!)
+              const nx = Math.max(-1, Math.min(1, (sx - 640) / 480));
+              const ny = Math.max(-0.25, Math.min(1, (560 - sy) / 420));
+              const dragRy = nx * 8.0;
+              const dragRx = ny * 6.0;
               card.style.setProperty('--drag-rx', `${dragRx.toFixed(2)}deg`);
               card.style.setProperty('--drag-ry', `${dragRy.toFixed(2)}deg`);
-              card.style.setProperty('--drag-rz', `${dragRz.toFixed(2)}deg`);
-              card.style.setProperty('--mx', `${(50 + nx * 44).toFixed(1)}%`);
-              card.style.setProperty('--my', `${(50 - ny * 40).toFixed(1)}%`);
-              card.style.setProperty('--sh-x', `${(-dragRy * 0.75).toFixed(1)}px`);
-              card.style.setProperty('--sh-y', `${(9 + dragRx * 0.55).toFixed(1)}px`);
+              card.style.setProperty('--mx', `${(50 + nx * 42).toFixed(1)}%`);
+              card.style.setProperty('--my', `${(50 - ny * 38).toFixed(1)}%`);
+              card.style.setProperty('--sh-x', `${(-dragRy * 0.9).toFixed(1)}px`);
+              card.style.setProperty('--sh-y', `${(8 + dragRx * 0.6).toFixed(1)}px`);
             }
           };
 
