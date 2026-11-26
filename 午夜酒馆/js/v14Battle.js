@@ -320,6 +320,7 @@
       this.boss = {
         unitId: bossCfg.unitId,
         name: bossCfg.name,
+        vfx: bossCfg.vfx || 'pfx_blunt_hit',
         scale: 2.75,
         x: BOSS_X,
         homeX: BOSS_X,
@@ -337,8 +338,10 @@
         alive: true,
         dying: false,
         deathElapsed: 0,
-        deathDur: 0.78,
-        deathEmitAcc: 0
+        deathDur: 1.08,
+        deathEmitAcc: 0,
+        deathMidBurst: false,
+        deathEndBurst: false
       };
 
       this.running = true;
@@ -470,29 +473,35 @@
       this.boss.dying = true;
       this.boss.deathElapsed = 0;
       this.boss.deathEmitAcc = 0;
-      this.boss.flash = 0.35;
-      this.boss.knockX = Math.max(this.boss.knockX || 0, 26);
+      this.boss.deathMidBurst = false;
+      this.boss.deathEndBurst = false;
+      this.boss.flash = 0.42;
+      this.boss.knockX = Math.max(this.boss.knockX || 0, 28);
 
       this.triggerHitImpact({
-        hitstop: 0.115,
-        shakeAmp: 11.5,
-        shakeDur: 0.28,
+        hitstop: 0.135,
+        shakeAmp: 12.5,
+        shakeDur: 0.34,
         dirX: 1,
         target: 'boss',
         flashColor: '#fff6d6',
-        flashAlpha: 0.34,
-        flashDur: 0.22
+        flashAlpha: 0.36,
+        flashDur: 0.24
       });
-      this.triggerZoomPunch(1.056, BOSS_X, BRIDGE_Y - 86, 0.38);
+      this.triggerZoomPunch(1.062, BOSS_X, BRIDGE_Y - 86, 0.46);
 
-      this.spawnVfx('fxExplosionBigWhiteHot', BOSS_X, BRIDGE_Y - 86, 2.25, { speedMult: 0.85 });
-      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffffff', 128, 0.34, 5.5);
-      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffd966', 96, 0.44, 4);
-      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ffe484', 28, 0);
-      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ff85b3', 16, 1);
+      this.spawnVfx('pfx_plasma_death', BOSS_X, BRIDGE_Y - 86, 2.25, { speedMult: 1.0 });
+      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffffff', 136, 0.38, 5.5);
+      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffd966', 102, 0.50, 4);
+      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ffe484', 32, 0);
+      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ff85b3', 18, 1);
 
       const audio = window.MT.audio;
       if (audio && audio.playBossKill) audio.playBossKill();
+    }
+
+    _waitRealMs(ms) {
+      return new Promise((resolve) => setTimeout(resolve, Math.max(0, ms)));
     }
 
     async playBossDeath() {
@@ -500,11 +509,42 @@
       if (this.boss.alive && !this.boss.dying) {
         this.triggerBossDeath();
       }
-      if (this.boss.dying) {
-        // Hold just long enough to savor the kill flash & dissolution before payout scroll opens
-        const remain = Math.max(0.18, 0.48 - (this.boss.deathElapsed || 0));
-        await this.waitSec(remain);
+      // Wait on REAL wall-clock time (never cut short by 2x/3x speed!) until:
+      // 1) Boss finishes full dissolution, 2) all explosion VFX & shockwaves finish, 3) scoring banner settles
+      const startMs = performance.now();
+      const maxWaitMs = 2300;
+      let bossDoneAt = 0;
+      while (this.running && (performance.now() - startMs) < maxWaitMs) {
+        const bossStillThere = Boolean(this.boss && (this.boss.dying || this.boss.alive));
+        if (!bossStillThere && !bossDoneAt) {
+          bossDoneAt = performance.now();
+          // Gently trim scoring linger once Boss has fully dissolved so the victory modal arrives cleanly
+          if (this.scoring && this.scoring.active && !this.scoring.holding) {
+            this.scoring.holdTimer = Math.min(this.scoring.holdTimer, 0.22);
+          }
+        }
+        const vfxBusy = (this.activeVfx && this.activeVfx.length > 0) || (this.shockwaves && this.shockwaves.length > 0);
+        const scoringBusy = Boolean(this.scoring && this.scoring.active && this.scoring.fade > 0.08);
+        if (!bossStillThere && !vfxBusy && !scoringBusy) {
+          break;
+        }
+        await this._waitRealMs(40);
       }
+      // Tranquil breath after explosions & scoring clear so the Victory Vault unveils gracefully (never abruptly!)
+      if (this.running) {
+        await this._waitRealMs(360);
+      }
+    }
+
+    async playDefeatPause() {
+      if (!this.running) return;
+      const startMs = performance.now();
+      while (this.running && (performance.now() - startMs) < 950) {
+        const vfxBusy = (this.activeVfx && this.activeVfx.length > 0) || (this.shockwaves && this.shockwaves.length > 0);
+        if (!vfxBusy && (performance.now() - startMs) >= 420) break;
+        await this._waitRealMs(40);
+      }
+      if (this.running) await this._waitRealMs(260);
     }
 
     triggerShake(amp = 6, dur = 0.14, dirX = 1) {
@@ -1230,7 +1270,7 @@
               dirX: 1,
               target: 'boss'
             });
-            this.spawnVfx(ev.vfx || 'fx_f2_twilightreiki', toX + 12, toY, 1.35, { speedMult: 1.45 });
+            this.spawnVfx(ev.vfx || 'pfx_hit_spark', toX + 12, toY, 1.35, { speedMult: 1.15 });
             this.spawnShockwave(toX + 12, toY, '#7be8ff', 42, 0.18, 3);
             this.spawnParticles(toX + 10, toY, '#7be8ff', 10, 1);
             if (audio) {
@@ -1264,7 +1304,7 @@
               alpha: 0.82,
               phase: 0
             };
-            this.spawnVfx('fx_f2_teleportsmoke', ghostStartX, BRIDGE_Y - 56, 1.4, { speedMult: 1.5 });
+            this.spawnVfx('pfx_spawn_portal', ghostStartX, BRIDGE_Y - 56, 1.25, { speedMult: 1.35 });
             this.spawnPopup(ghostStartX, BRIDGE_Y - 126, `影袭 · ${ev.heroName}`, '#d48cff', 20);
             if (audio) {
               if (audio.playGhostAppear) audio.playGhostAppear();
@@ -1293,7 +1333,7 @@
               flashAlpha: 0.14
             });
             if (isHeavy) this.triggerZoomPunch(isMega ? 1.046 : 1.028, BOSS_X, BRIDGE_Y - 82, 0.22);
-            this.spawnVfx(ev.vfx || 'fx_f4_shadownova', BOSS_X - 8, BRIDGE_Y - 82, isHeavy ? 1.85 : 1.55);
+            this.spawnVfx(ev.vfx || 'pfx_void_scythe', BOSS_X - 8, BRIDGE_Y - 82, isHeavy ? 1.85 : 1.55);
             this.spawnShockwave(BOSS_X - 8, BRIDGE_Y - 82, '#d48cff', 66, 0.24, 4);
             this.spawnParticles(BOSS_X - 6, BRIDGE_Y - 82, '#d48cff', 18, 1);
             if (audio) {
@@ -1306,7 +1346,7 @@
             else if (hooks.onSyncHud) hooks.onSyncHud();
 
             await this.waitSec(Math.max(0.14, atk.dur - atk.impactAt));
-            this.spawnVfx('fx_f2_teleportsmoke', this.ghostUnit.x, BRIDGE_Y - 56, 1.35, { speedMult: 1.6 });
+            this.spawnVfx('pfx_spawn_portal', this.ghostUnit.x, BRIDGE_Y - 56, 1.15, { speedMult: 1.5 });
             this.ghostUnit = null;
             await this.waitSec(0.05);
           } else if (actor) {
@@ -1369,10 +1409,10 @@
               this.triggerZoomPunch(1.024, BOSS_X - 10, BRIDGE_Y - 84, 0.20);
             }
 
-            const vfxKey = ev.vfx || (isMega ? 'fx_multislash_full' : 'fx_crossslash');
-            this.spawnVfx(vfxKey, BOSS_X - 8, BRIDGE_Y - 84, isMega ? 2.0 : isHeavy ? 1.78 : 1.52);
-            if (isHeavy) {
-              this.spawnVfx(isMega ? 'fxExplosionBigWhiteHot' : 'fxImpactBigOrange', BOSS_X + 6, BRIDGE_Y - 78, isMega ? 1.55 : 1.25, { speedMult: 1.4 });
+            const vfxKey = ev.vfx || (isMega ? 'pfx_spin_slash' : 'pfx_sword_slash');
+            this.spawnVfx(vfxKey, BOSS_X - 8, BRIDGE_Y - 84, isMega ? 1.95 : isHeavy ? 1.75 : 1.58);
+            if (isMega) {
+              this.spawnVfx('pfx_crit_hit', BOSS_X + 4, BRIDGE_Y - 82, 1.55, { speedMult: 1.1 });
             }
             this.spawnShockwave(BOSS_X - 6, BRIDGE_Y - 82, ev.isRetrigger ? '#ff9a2e' : '#ffd966', isMega ? 92 : isHeavy ? 72 : 54, 0.22, isHeavy ? 4.5 : 3);
             this.spawnParticles(BOSS_X - 10, BRIDGE_Y - 82, ev.isRetrigger ? '#ff9a2e' : '#ffd966', isMega ? 26 : isHeavy ? 18 : 12, 1);
@@ -1415,7 +1455,7 @@
             // Fallback strike with no slot actor
             if (this.boss) { this.boss.knockX = 18; this.boss.flash = 0.15; }
             this.triggerHitImpact({ hitstop: 0.048, shakeAmp: 5.5, shakeDur: 0.13, dirX: 1, target: 'boss' });
-            this.spawnVfx(ev.vfx || 'fx_crossslash', BOSS_X, BRIDGE_Y - 84, 1.6);
+            this.spawnVfx(ev.vfx || 'pfx_sword_slash', BOSS_X, BRIDGE_Y - 84, 1.6);
             this.spawnParticles(BOSS_X, BRIDGE_Y - 80, '#ffd966', 14, 1);
             this.spawnPopup(BOSS_X, BRIDGE_Y - 136, `-${ev.dmg}`, '#ffd966', 28);
             if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
@@ -1430,7 +1470,7 @@
             actor.squashX = 0.92;
             actor.squashY = 1.12;
             const castAtk = this.startUnitAttack(actor, 0.36);
-            this.spawnVfx('fxBuffSimpleGold', actor.x, BRIDGE_Y - 62, 1.35, { speedMult: 1.4 });
+            this.spawnVfx('pfx_holy_pillar', actor.x, BRIDGE_Y - 62, 1.35, { speedMult: 1.25 });
             if (target) {
               const dur = this.spawnProjectile(actor.x + 14, BRIDGE_Y - 68, target.x, BRIDGE_Y - 68, '#ffd966', { dur: 0.15, arc: 36, kind: 'amp' });
               if (audio) {
@@ -1441,7 +1481,7 @@
               target.flash = 0.18;
               target.squashX = 0.92;
               target.squashY = 1.10;
-              this.spawnVfx('fxBuffSimpleGold', target.x, BRIDGE_Y - 62, 1.55, { speedMult: 1.3 });
+              this.spawnVfx('pfx_collect_burst', target.x, BRIDGE_Y - 62, 1.45, { speedMult: 1.2 });
               this.spawnShockwave(target.x, BRIDGE_Y - 58, '#ffd966', 54, 0.22, 3);
               this.spawnPopup(target.x, BRIDGE_Y - 122, `✦ ${ev.label}`, '#ffd966', 24);
             } else {
@@ -1469,7 +1509,7 @@
             this.boss.squashY = 1.11;
           }
           this.triggerHitImpact({ hitstop: 0.042, shakeAmp: 4.8, shakeDur: 0.12, dirX: 1, target: 'boss' });
-          this.spawnVfx('fxImpactBlueBig', BOSS_X - 8, BRIDGE_Y - 84, 1.45);
+          this.spawnVfx('pfx_parry', BOSS_X - 8, BRIDGE_Y - 84, 1.55);
           this.spawnShockwave(BOSS_X - 8, BRIDGE_Y - 84, '#78b7ff', 52, 0.20, 3.5);
           this.spawnParticles(BOSS_X - 10, BRIDGE_Y - 84, '#78b7ff', 14, 1);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 152, `盾击 -${ev.dmg}`, '#78b7ff', 26);
@@ -1482,7 +1522,7 @@
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.11);
         } else if (ev.type === 'poison_apply') {
-          this.spawnVfx('fxImpactGreenBig', BOSS_X, BRIDGE_Y - 86, 1.05, { speedMult: 1.7 });
+          this.spawnVfx('pfx_acid_splash', BOSS_X, BRIDGE_Y - 86, 1.2, { speedMult: 1.35 });
           this.spawnParticles(BOSS_X, BRIDGE_Y - 90, '#7ef28a', 10);
           this.spawnPopup(BOSS_X + 34, BRIDGE_Y - 114, `+${ev.stacks} 剧毒`, '#7ef28a', 22);
           if (audio) {
@@ -1509,7 +1549,7 @@
             flashAlpha: 0.16
           });
           this.triggerZoomPunch(1.032, BOSS_X, BRIDGE_Y - 88, 0.24);
-          this.spawnVfx('fxImpactGreenBig', BOSS_X, BRIDGE_Y - 88, 1.9);
+          this.spawnVfx('pfx_spore_burst', BOSS_X, BRIDGE_Y - 88, 1.85);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 88, '#7ef28a', 78, 0.24, 4);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 88, '#7ef28a', 24);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 150, `毒爆 -${ev.dmg}`, '#7ef28a', 34, { big: true });
@@ -1522,7 +1562,7 @@
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.22);
         } else if (ev.type === 'furnace_proc') {
-          this.spawnVfx('fx_flamesphere', 405, BRIDGE_Y - 86, 1.5);
+          this.spawnVfx('pfx_flame_pillar', 405, BRIDGE_Y - 86, 1.45);
           this.spawnParticles(405, BRIDGE_Y - 86, '#ffd966', 18);
           this.spawnPopup(405, BRIDGE_Y - 145, `炼金炉 +${ev.gold}G · 手牌+${ev.handAtkGain}攻`, '#ffd966', 24);
           if (audio) {
@@ -1533,7 +1573,7 @@
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.22);
         } else if (ev.type === 'boss_vuln') {
-          this.spawnVfx('fx_f4_voidpulse', BOSS_X, BRIDGE_Y - 82, 1.35, { speedMult: 1.5 });
+          this.spawnVfx('pfx_vuln_sigil', BOSS_X, BRIDGE_Y - 82, 1.35, { speedMult: 1.25 });
           this.spawnPopup(BOSS_X, BRIDGE_Y - 172, '易伤 ×1.4!', '#ff8a5c', 24);
           if (audio) audio.tone(280, 0.09, 'sawtooth', 0.07, 0, 170, { filterFreq: 900 });
           if (hooks.onBossStatus) hooks.onBossStatus({ vuln: true });
@@ -1557,7 +1597,7 @@
             flashDur: 0.20
           });
           this.triggerZoomPunch(1.05, BOSS_X, BRIDGE_Y - 84, 0.30);
-          this.spawnVfx('fx_f1_holyimmolation', BOSS_X, BRIDGE_Y - 84, 1.85);
+          this.spawnVfx('pfx_holy_smite', BOSS_X, BRIDGE_Y - 84, 1.85);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 84, '#ffd966', 105, 0.28, 5);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 84, '#ffd966', 26);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 190, '破招眩晕! ×1.5', '#ffd966', 34, { big: true });
@@ -1569,7 +1609,7 @@
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.24);
         } else if (ev.type === 'boss_shield') {
-          this.spawnVfx('fxDistortionHexShield', BOSS_X, BRIDGE_Y - 76, 1.65);
+          this.spawnVfx('pfx_shield_block', BOSS_X, BRIDGE_Y - 76, 1.65, { flipX: true });
           this.spawnPopup(BOSS_X, BRIDGE_Y - 154, `+${ev.amount} 魔盾`, '#7be8ff', 24);
           if (audio) {
             if (audio.playShieldGain) audio.playShieldGain();
@@ -1580,7 +1620,7 @@
           await this.waitSec(0.16);
         } else if (ev.type === 'shield_gain') {
           const sx = (this.slotUnits[lastHeroSlotIdx] ? this.slotUnits[lastHeroSlotIdx].homeX : SLOT_X[0]);
-          this.spawnVfx('fxDistortionHexShield', sx, BRIDGE_Y - 58, 1.25, { speedMult: 1.5 });
+          this.spawnVfx('pfx_shield_block', sx, BRIDGE_Y - 58, 1.35, { speedMult: 1.25 });
           this.spawnParticles(sx, BRIDGE_Y - 58, '#7be8ff', 8);
           this.spawnPopup(sx, BRIDGE_Y - 114, `+${ev.amount} 蓝盾`, '#78b7ff', 22);
           if (audio) {
@@ -1612,7 +1652,7 @@
           const u = this.slotUnits.find((x) => x && x.uid === ev.heroUid) || this.slotUnits[lastHeroSlotIdx];
           const gx = u ? u.homeX : 405;
           if (u) { u.flash = 0.12; u.squashX = 0.94; u.squashY = 1.08; }
-          this.spawnVfx('fxBuffSimpleGold', gx, BRIDGE_Y - 60, 1.15, { speedMult: 1.6 });
+          this.spawnVfx('pfx_collect_burst', gx, BRIDGE_Y - 60, 1.25, { speedMult: 1.35 });
           this.spawnPopup(gx, BRIDGE_Y - 148, `✦ ${ev.text}`, '#ffd966', 21);
           if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.065);
@@ -1685,11 +1725,12 @@
             }
 
             if (fullBlocked) {
-              this.spawnVfx('fxDistortionHexShield', hitCenter, BRIDGE_Y - 72, 1.95);
+              this.spawnVfx('pfx_shield_block', hitCenter, BRIDGE_Y - 72, 1.9);
               this.spawnShockwave(hitCenter, BRIDGE_Y - 72, '#78b7ff', 82, 0.24, 4);
               this.spawnParticles(hitCenter, BRIDGE_Y - 72, '#7be8ff', 18, -1);
             } else {
-              this.spawnVfx(isUlt ? 'fxExplosionBigBall_MetalSlug' : 'fxImpactBigOrange', hitCenter, BRIDGE_Y - 76, isUlt ? 2.15 : 1.85);
+              const bossAtkVfx = isUlt ? 'pfx_ground_slam' : ((this.boss && this.boss.vfx) || 'pfx_blunt_hit');
+              this.spawnVfx(bossAtkVfx, hitCenter, BRIDGE_Y - 76, isUlt ? 1.95 : 1.75, { flipX: true });
               this.spawnShockwave(hitCenter, BRIDGE_Y - 76, '#ff4757', isUlt ? 105 : 78, 0.24, 4.5);
               this.spawnParticles(hitCenter, BRIDGE_Y - 76, '#ff5c72', isUlt ? 26 : 18, -1);
             }
@@ -1747,7 +1788,7 @@
             flashAlpha: 0.18
           });
           this.triggerZoomPunch(1.036, BOSS_X, BRIDGE_Y - 84, 0.24);
-          this.spawnVfx('fxExplosionBigBall_MetalSlug', BOSS_X, BRIDGE_Y - 84, 1.9);
+          this.spawnVfx('pfx_hammer_smash', BOSS_X, BRIDGE_Y - 84, 1.85);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 84, '#78b7ff', 88, 0.26, 4.5);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 84, '#78b7ff', 22, 1);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 155, `反震 -${ev.dmg}!`, '#78b7ff', 34, { big: true });
@@ -2077,21 +2118,55 @@
       relaxUnit(this.boss);
       if (this.boss && this.boss.dying) {
         this.boss.deathElapsed += dt;
+        const prog = Math.min(1, this.boss.deathElapsed / this.boss.deathDur);
         this.boss.deathEmitAcc = (this.boss.deathEmitAcc || 0) + dt;
-        if (this.boss.deathEmitAcc >= 0.045) {
+        if (this.boss.deathEmitAcc >= 0.04) {
           this.boss.deathEmitAcc = 0;
-          const prog = Math.min(1, this.boss.deathElapsed / this.boss.deathDur);
-          for (let k = 0; k < 4; k++) {
-            const sx = this.boss.x + (Math.random() - 0.5) * 86;
-            const sy = BRIDGE_Y - 12 - Math.random() * 128;
+          for (let k = 0; k < 5; k++) {
+            const sx = this.boss.x + (Math.random() - 0.5) * 92;
+            const sy = BRIDGE_Y - 12 - Math.random() * 134;
             this.particles.push({
               x: sx, y: sy, px: sx, py: sy,
-              vx: (Math.random() - 0.5) * 48,
-              vy: -90 - Math.random() * 140 - prog * 60,
+              vx: (Math.random() - 0.5) * 64,
+              vy: -95 - Math.random() * 155 - prog * 68,
               size: Math.random() < 0.45 ? 5 : 3.5,
-              color: Math.random() < 0.55 ? '#fff2b0' : '#ff7aa8',
-              life: 0.36 + Math.random() * 0.28,
-              maxLife: 0.64
+              color: Math.random() < 0.58 ? '#fff2b0' : '#ff7aa8',
+              life: 0.40 + Math.random() * 0.30,
+              maxLife: 0.70
+            });
+          }
+        }
+        // Mid-dissolution secondary shatter + heroes victory hop!
+        if (!this.boss.deathMidBurst && prog >= 0.44) {
+          this.boss.deathMidBurst = true;
+          this.spawnVfx('pfx_crit_hit', this.boss.x, BRIDGE_Y - 84, 1.8, { speedMult: 1.0 });
+          this.spawnShockwave(this.boss.x, BRIDGE_Y - 84, '#ffd966', 110, 0.34, 4);
+          this.triggerShake(7.5, 0.18, 1);
+          for (const u of this.slotUnits) {
+            if (!u) continue;
+            u.squashX = 0.88;
+            u.squashY = 1.15;
+            u.flash = 0.14;
+          }
+        }
+        // Final shatter burst: golden loot sparks fountain!
+        if (!this.boss.deathEndBurst && prog >= 0.86) {
+          this.boss.deathEndBurst = true;
+          this.spawnShockwave(this.boss.x, BRIDGE_Y - 76, '#ffe699', 140, 0.42, 4.5);
+          for (let k = 0; k < 28; k++) {
+            const ang = -Math.PI * (0.12 + Math.random() * 0.76);
+            const spd = 130 + Math.random() * 240;
+            this.particles.push({
+              x: this.boss.x + (Math.random() - 0.5) * 32,
+              y: BRIDGE_Y - 74 + (Math.random() - 0.5) * 36,
+              px: this.boss.x,
+              py: BRIDGE_Y - 74,
+              vx: Math.cos(ang) * spd,
+              vy: Math.sin(ang) * spd - 45,
+              size: Math.random() < 0.55 ? 5 : 4,
+              color: Math.random() < 0.72 ? '#ffd966' : '#fff7d4',
+              life: 0.55 + Math.random() * 0.40,
+              maxLife: 0.95
             });
           }
         }

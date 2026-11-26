@@ -9,7 +9,7 @@
   <meta property="og:description" content="午夜酒馆 v15.0：无框实景剧场 HD-2D 战斗样板 + 8大主题包。" />
   <link rel="preload" href="./assets/fonts/fusion-pixel-12px-proportional-zh_hans.ttf.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="./css/v13.css?v=187" />
-  <link rel="stylesheet" href="./css/v14.css?v=205" />
+  <link rel="stylesheet" href="./css/v14.css?v=226" />
 </head>
 <body>
   <div id="viewport">
@@ -21,7 +21,7 @@
         <div class="title-vignette" aria-hidden="true"></div>
 
         <div class="title-top-utils">
-          <button id="btn-title-hands" class="title-util-btn">51张卡池图鉴</button>
+          <button id="btn-title-hands" class="title-util-btn">卡池图鉴</button>
           <button id="btn-title-mute" class="title-util-btn">音效：开</button>
         </div>
 
@@ -69,6 +69,7 @@
               <span class="te-main">推门入座</span>
               <span class="te-hint" aria-hidden="true">ENTER</span>
             </button>
+            <div id="title-saved-slot" class="title-saved-slot"></div>
           </div>
         </div>
       </section>
@@ -104,6 +105,7 @@
             <button id="btn-bt-roster" class="steel-btn hud-mini-btn">牌组</button>
             <button id="btn-bt-hands" class="steel-btn hud-mini-btn">图鉴</button>
             <button id="bt-speed-btn" class="steel-btn" aria-label="战斗速度 1 倍">1×</button>
+            <button id="btn-bt-home" class="steel-btn hud-mini-btn bt-home-btn" title="返回游戏首页（保留本波进度）">首页</button>
           </div>
         </div>
 
@@ -175,6 +177,7 @@
             <button class="steel-btn tavern-btn hud-mini-btn" id="btn-hands-open">卡池图鉴</button>
             <button class="steel-btn tavern-btn hud-mini-btn" id="btn-mute">音效</button>
             <button class="steel-btn tavern-btn hud-mini-btn" id="btn-restart">重开</button>
+            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-tavern-home" title="返回游戏首页（进度已自动保存）">首页</button>
           </div>
         </header>
 
@@ -271,71 +274,36 @@
         </div>
       </div>
 
-      <!-- ═══ WAVE PAYOUT 16-BIT PIXEL ROLLED PARCHMENT SCROLL MODAL ═══ -->
-      <div id="payout-modal" class="modal-backdrop tavern-backdrop hidden">
-        <div class="payout-box tavern-ledger-modal">
-          <svg class="hs-scroll-svg payout" viewBox="0 0 116 86" preserveAspectRatio="none" shape-rendering="crispEdges" aria-hidden="true">
-            <!-- Stepped Pixel Parchment Body -->
-            <rect x="9" y="7" width="98" height="72" fill="#3a1c0a"/>
-            <rect x="10" y="8" width="96" height="70" fill="#c79e60"/>
-            <rect x="11" y="9" width="94" height="68" fill="#ebd5a4"/>
-            <rect x="12" y="10" width="92" height="4" fill="#f6e7c4"/>
-            <!-- Hand-Torn Pixel Notches (Top & Bottom) -->
-            <rect x="49" y="7" width="3" height="2" fill="#120905"/>
-            <rect x="50" y="9" width="1" height="1" fill="#3a1c0a"/>
-            <rect x="65" y="77" width="3" height="2" fill="#120905"/>
-            <rect x="66" y="76" width="1" height="1" fill="#3a1c0a"/>
-            <!-- Roll Cast Shadows -->
-            <rect x="10" y="8" width="3" height="70" fill="#6b3e19" opacity="0.5"/>
-            <rect x="103" y="8" width="3" height="70" fill="#6b3e19" opacity="0.5"/>
-            <!-- Etched Pixel Rules -->
-            <rect x="15" y="12" width="86" height="1" fill="#8b5a28" opacity="0.55"/>
-            <rect x="15" y="73" width="86" height="1" fill="#8b5a28" opacity="0.55"/>
-            <!-- Left Vertical Pixel Wooden/Brass Scroll Roller + Paper Tube -->
-            <rect x="3" y="1" width="5" height="4" fill="#1a0b04"/>
-            <rect x="4" y="2" width="3" height="2" fill="#e5af46"/>
-            <rect x="4" y="2" width="1" height="1" fill="#fff4bd"/>
-            <rect x="3" y="81" width="5" height="4" fill="#1a0b04"/>
-            <rect x="4" y="82" width="3" height="2" fill="#e5af46"/>
-            <rect x="4" y="82" width="1" height="1" fill="#fff4bd"/>
-            <rect x="2" y="5" width="7" height="76" fill="#2b1307"/>
-            <rect x="3" y="6" width="5" height="74" fill="#b78646"/>
-            <rect x="4" y="6" width="3" height="74" fill="#ebd4a2"/>
-            <rect x="5" y="6" width="1" height="74" fill="#fff8de"/>
-            <rect x="3" y="6" width="5" height="1" fill="#613a18"/>
-            <rect x="3" y="79" width="5" height="1" fill="#613a18"/>
-            <!-- Right Vertical Pixel Wooden/Brass Scroll Roller + Paper Tube -->
-            <rect x="108" y="1" width="5" height="4" fill="#1a0b04"/>
-            <rect x="109" y="2" width="3" height="2" fill="#e5af46"/>
-            <rect x="109" y="2" width="1" height="1" fill="#fff4bd"/>
-            <rect x="108" y="81" width="5" height="4" fill="#1a0b04"/>
-            <rect x="109" y="82" width="3" height="2" fill="#e5af46"/>
-            <rect x="109" y="82" width="1" height="1" fill="#fff4bd"/>
-            <rect x="107" y="5" width="7" height="76" fill="#2b1307"/>
-            <rect x="108" y="6" width="5" height="74" fill="#b78646"/>
-            <rect x="109" y="6" width="3" height="74" fill="#ebd4a2"/>
-            <rect x="110" y="6" width="1" height="74" fill="#fff8de"/>
-            <rect x="108" y="6" width="5" height="1" fill="#613a18"/>
-            <rect x="108" y="79" width="5" height="1" fill="#613a18"/>
-          </svg>
-          <div class="po-scroll-content">
-            <div id="po-title" class="po-title win">讨伐成功!</div>
-            <div id="po-sub"></div>
-            <div id="po-rows"></div>
-            <div id="po-extra-actions" style="display:flex;gap:10px;justify-content:center;margin-top:8px;"></div>
-            <button id="po-next-btn" class="tavern-modal-cta">进入酒馆黑市 · 开包构筑 →</button>
-          </div>
+      <!-- ═══ v16.5 VICTORY & SETTLEMENT PIXEL VAULT MODAL ═══ -->
+      <div id="payout-modal" class="modal-backdrop tavern-backdrop hidden" role="dialog" aria-modal="true" aria-label="讨伐结算">
+        <canvas id="po-fx-canvas" class="po-fx-canvas" width="1280" height="720" aria-hidden="true"></canvas>
+        <div id="po-card" class="v16-po-vault is-win">
+          <div class="v16-po-top-bar" aria-hidden="true"></div>
+          <header class="v16-po-head">
+            <div id="po-emblem" class="v16-po-emblem"></div>
+            <div class="v16-po-head-text">
+              <div id="po-kicker" class="v16-po-kicker">WAVE CLEARED</div>
+              <div id="po-title" class="v16-po-title">第 1 波讨伐成功</div>
+            </div>
+            <div id="po-rank-seal" class="v16-po-rank-seal"></div>
+          </header>
+          <div id="po-boss-banner" class="v16-po-boss-banner"></div>
+          <div id="po-rows" class="v16-po-rows"></div>
+          <div id="po-total-bar" class="v16-po-total-bar"></div>
+          <div id="po-extra-actions" class="v16-po-extra"></div>
+          <button id="po-next-btn" class="v16-po-cta">进入酒馆黑市 · 构筑齿轮 →</button>
         </div>
       </div>
 
-      <!-- ═══ ROSTER / PILE / HAND GUIDE TOME MODAL ═══ -->
-      <div id="roster-modal" class="modal-backdrop tavern-backdrop hidden" role="dialog" aria-modal="true" aria-label="牌组与牌型">
+      <!-- ═══ ROSTER / CODEX / ACHIEVEMENTS / LEADERBOARD VAULT MODAL ═══ -->
+      <div id="roster-modal" class="modal-backdrop tavern-backdrop hidden" role="dialog" aria-modal="true" aria-label="图鉴与殿堂">
         <div class="roster-box tavern-tome-modal">
           <div class="rm-head">
-            <div class="rm-tabs">
-              <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">牌组</button>
-              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">51张卡池</button>
+            <div id="rm-tabs-wrap" class="rm-tabs">
+              <button id="rm-tab-roster" class="steel-btn tavern-btn rm-tab active">当前牌组</button>
+              <button id="rm-tab-hands" class="steel-btn tavern-btn rm-tab">全卡池图鉴</button>
             </div>
+            <div id="rm-mode-title" class="rm-mode-title hidden"></div>
             <button id="rm-close-btn" class="steel-btn tavern-btn hud-mini-btn">关闭</button>
           </div>
           <div id="rm-summary"></div>
@@ -357,21 +325,22 @@
     </div>
   </div>
 
-  <!-- Duelyst H5 Kit & v15.2 Live-Gear Engine Scripts -->
+  <!-- Duelyst H5 Kit, MIT pixelfx Procedural VFX Engine & v16.6 Scripts -->
   <script src="./assets/duelyst/duelyst-h5.js?v=197"></script>
   <script src="./assets/duelyst/assets/manifest.js?v=197"></script>
-  <script src="./js/audio.js?v=205"></script>
-  <script src="./js/vfxPlayer.js?v=202"></script>
+  <script src="./js/pixelfxBundle.js?v=210"></script>
+  <script src="./js/audio.js?v=210"></script>
+  <script src="./js/vfxPlayer.js?v=210"></script>
   <script src="./js/sprites.js?v=202"></script>
   <script src="./js/v13AltarBg.js?v=144"></script>
   <script src="./js/v14TapBridge.js?v=152"></script>
-  <script src="./js/v14Meta.js?v=152"></script>
-  <script src="./js/v14Data.js?v=174"></script>
+  <script src="./js/v14Meta.js?v=220"></script>
+  <script src="./js/v14Data.js?v=210"></script>
   <script src="./js/v14Engine.js?v=205"></script>
-  <script src="./js/v14Battle.js?v=205"></script>
-  <script src="./js/v15HeroMusterStage.js?v=196"></script>
+  <script src="./js/v14Battle.js?v=210"></script>
+  <script src="./js/v15HeroMusterStage.js?v=225"></script>
   <script src="./js/v15TavernShopStage.js?v=200"></script>
-  <script src="./js/v15PackCeremonyFX.js?v=199"></script>
-  <script src="./js/v14Main.js?v=205"></script>
+  <script src="./js/v15PackCeremonyFX.js?v=210"></script>
+  <script src="./js/v14Main.js?v=226"></script>
 </body>
 </html>

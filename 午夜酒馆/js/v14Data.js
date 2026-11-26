@@ -29,34 +29,34 @@
     st_blade: {
       id: 'st_blade', unitId: 'f1_spellbladeadept', theme: 'core', tier: 'C',
       name: '通用 C · 剑客', shortName: '剑客', atk: 55, cost: 3,
-      vfx: 'fx_crossslash', tag: '战力', isStarter: true,
+      vfx: 'pfx_sword_slash', tag: '战力', isStarter: true,
       desc: '无特殊效果，以高基础战力直接攻击。'
     },
     st_guard: {
       id: 'st_guard', unitId: 'f1_3rdgeneral', theme: 'core', tier: 'C',
       name: '通用 C · 盾卫', shortName: '盾卫', atk: 35, cost: 3,
-      vfx: 'fxImpactBlueBig', tag: '护盾', isStarter: true,
+      vfx: 'pfx_blunt_hit', tag: '护盾', isStarter: true,
       shieldVal: 25,
       desc: '出手时获得 +25 蓝盾。'
     },
     st_scout: {
       id: 'st_scout', unitId: 'f3_sister', theme: 'core', tier: 'B',
       name: '通用 B · 破甲斥候', shortName: '破甲斥候', atk: 30, cost: 3,
-      vfx: 'fx_f3_blaststarfire', tag: '易伤', isStarter: true,
+      vfx: 'pfx_thrust', tag: '易伤', isStarter: true,
       applyVuln: true,
       desc: '命中后给 Boss 挂【易伤】：本回合后续受伤害 ×1.4。'
     },
     st_drummer: {
       id: 'st_drummer', unitId: 'f2_grandmasterzendo', theme: 'core', tier: 'B',
       name: '通用 B · 复读鼓手', shortName: '复读鼓手', atk: 20, cost: 4,
-      vfx: 'fx_f2_twilightreiki', tag: '复读', isStarter: true,
+      vfx: 'pfx_magic_circle', tag: '复读', isStarter: true,
       retriggerLeft: true,
       desc: '出手后，让紧邻左侧的侠客立刻再完整出手 1 次！'
     },
     st_waiter: {
       id: 'st_waiter', unitId: 'f3_allomancer', theme: 'core', tier: 'B',
       name: '通用 B · 产钱小二', shortName: '产钱小二', atk: 30, cost: 3,
-      vfx: 'fxImpactBigOrange', tag: '产钱', isStarter: true,
+      vfx: 'pfx_coin_drop', tag: '产钱', isStarter: true,
       goldOnStrike: 1, goldOnDiscard: 1,
       desc: '出手或被【换桌】弃掉时，获得 +1G。'
     }
@@ -68,42 +68,42 @@
     {
       id: 'c_shadow_follow', unitId: 'f2_sparrowhawk', theme: 'core', tier: 'A',
       name: '通用 A · 影步补刀', shortName: '影步补刀', atk: 42, cost: 4,
-      vfx: 'fx_slashfrenzy', tag: '跟打/养成',
+      vfx: 'pfx_dagger_flurry', tag: '跟打/养成',
       followPrev: true, followGrowAtk: 4,
       desc: '前方侠客每次出手顺手补砍 1 刀，且每补砍 1 次自身永久 +4 战力！'
     },
     {
       id: 'c_lone_wolf', unitId: 'f5_rancour', theme: 'core', tier: 'S',
       name: '通用 S · 孤狼空位', shortName: '孤狼空位', atk: 55, cost: 5,
-      vfx: 'fx_f5_flamingstampede', tag: '孤狼',
+      vfx: 'pfx_heavy_cleave', tag: '孤狼',
       emptySlotMult: 1.8,
       desc: '本手每留 1 个空战位，自身本次伤害 ×1.8（单人出战直接 ×3.24）。'
     },
     {
       id: 'c_veteran', unitId: 'f5_grandmasterkraigon', theme: 'core', tier: 'A',
       name: '通用 A · 留手养成', shortName: '留手养成', atk: 40, cost: 4,
-      vfx: 'fxImpactBigOrange', tag: '留手/养成',
+      vfx: 'pfx_double_slash', tag: '留手/养成',
       inHandGrowPerStrike: 8,
       desc: '留在手牌里时，场上每发生 1 次出手，自身永久 +8 战力！'
     },
     {
       id: 'c_amp_mage', unitId: 'f1_altgeneral', theme: 'core', tier: 'S',
       name: '通用 S · 右侧翻倍', shortName: '右侧翻倍', atk: 0, cost: 5,
-      vfx: 'fx_f1_holyimmolation', tag: '增幅',
+      vfx: 'pfx_holy_pillar', tag: '增幅',
       noAttackAmpRight: 2.0,
       desc: '自身不攻击，但使紧邻右侧侠客本次伤害 ×2.0！'
     },
     {
       id: 'c_gold_broker', unitId: 'f3_grandmasternoshrak', theme: 'core', tier: 'A',
       name: '通用 A · 消费养成', shortName: '消费养成', atk: 42, cost: 4,
-      vfx: 'fxImpactBigOrange', tag: '经济/养成',
+      vfx: 'pfx_coin_drop', tag: '经济/养成',
       goldOnStrike: 2, growPerSpend3G: 12,
       desc: '出手 +2G；你在黑市每消费 3G，自身永久 +12 战力！'
     },
     {
       id: 'c_grand_drummer', unitId: 'f2_demononi', theme: 'core', tier: 'SSS',
       name: '通用 SSS · 战鼓宗师', shortName: '战鼓宗师', atk: 35, cost: 7,
-      vfx: 'fx_multislash_full', tag: '复读',
+      vfx: 'pfx_spin_slash', tag: '复读',
       retriggerLeft: true, inheritLeftAtkRatio: 0.6,
       desc: '继承左侧侠客 60% 战力出手，并让左侧侠客立刻再完整出手 1 次！'
     },
@@ -112,28 +112,28 @@
     {
       id: 't_disc_knife', unitId: 'f2_altgeneral', theme: 'discard', tier: 'S',
       name: '换桌 S · 无限飞刀', shortName: '无限飞刀', atk: 40, cost: 5,
-      vfx: 'fx_fireslash', tag: '弃牌/养成',
+      vfx: 'pfx_dagger_flurry', tag: '弃牌/养成',
       knifeCount: 2, growKnifeOnDiscard: 1,
       desc: '被【换桌】弃掉时蓄势飞刀（初2把，单次换桌至多永久+1把），随本手首位上阵侠客出手齐射！'
     },
     {
       id: 't_disc_sharp', unitId: 'f6_altgeneral', theme: 'discard', tier: 'B',
       name: '换桌 B · 磨刃注能', shortName: '磨刃注能', atk: 38, cost: 4,
-      vfx: 'fxImpactBlueBig', tag: '弃牌/养成',
+      vfx: 'pfx_cyan_slash', tag: '弃牌/养成',
       discardGrowSelfAtk: 15, discardInjectTeamAtk: true, discardGold: 1,
       desc: '被【换桌】弃掉时自身永久 +15 战力，把 100% 当前战力注入本回合全队出手并 +1G！'
     },
     {
       id: 't_disc_scav', unitId: 'f4_3rdgeneral', theme: 'discard', tier: 'A',
       name: '换桌 A · 弃牌导流', shortName: '弃牌导流', atk: 42, cost: 5,
-      vfx: 'fx_f2_teleportsmoke', tag: '接口', isBridge: true,
+      vfx: 'pfx_mana_burst', tag: '接口', isBridge: true,
       discardTriggerLeftmostHand: true,
       desc: '【接口】被【换桌】弃掉时锁定手牌最左侧侠客，随本手首次主动出击免费追加出手 1 次！'
     },
     {
       id: 't_disc_reaper', unitId: 'f4_reaperninemoons', theme: 'discard', tier: 'SSS',
       name: '换桌 SSS · 洗牌死神', shortName: '洗牌死神', atk: 52, cost: 7,
-      vfx: 'fx_f4_shadownova', tag: '终结',
+      vfx: 'pfx_scythe_reap', tag: '终结',
       multPerWaveDiscard: 0.4,
       desc: '本波每通过【换桌】弃掉 1 张牌，自身本次伤害倍率 +0.4×！'
     },
@@ -142,28 +142,28 @@
     {
       id: 't_shd_bastion', unitId: 'f3_nimbus', theme: 'shield', tier: 'A',
       name: '盾反 A · 挨打叠盾', shortName: '挨打叠盾', atk: 40, cost: 4,
-      vfx: 'fxImpactBlueBig', tag: '叠盾/养成',
+      vfx: 'pfx_shield_block', tag: '叠盾/养成',
       shieldVal: 35, growOnSlot1SurviveShield: 12, growOnSlot1SurviveAtk: 15,
       desc: '出手获自身护盾值（初35）；站 1 号位硬吃 Boss 攻击存活，永久 +12 盾与 +15 战力！'
     },
     {
       id: 't_shd_spike', unitId: 'f1_peacekeeper2', theme: 'shield', tier: 'B',
       name: '盾反 B · 反甲重击', shortName: '反甲重击', atk: 42, cost: 4,
-      vfx: 'fx_f1_decimate', tag: '盾击',
+      vfx: 'pfx_parry', tag: '盾击',
       shieldVal: 25, shieldToAtkRatio: 1.2,
       desc: '出手 +25 蓝盾，并把当前蓝盾的 120% 转化为本次额外战力！'
     },
     {
       id: 't_shd_borrow', unitId: 'f6_grandmasterembla', theme: 'shield', tier: 'S',
       name: '盾反 S · 借势电池', shortName: '借势电池', atk: 38, cost: 5,
-      vfx: 'fxFrozenIceBlock', tag: '接口', isBridge: true,
+      vfx: 'pfx_zap_hit', tag: '接口', isBridge: true,
       slot1Shield: 28, borrowHitToSlot3: 0.6,
       desc: '【接口】站 1 号位 +28 盾；本回合 Boss 砸向我方总伤的 60%，化作下回合 3 号位战力！'
     },
     {
       id: 't_shd_colossus', unitId: 'f5_rex', theme: 'shield', tier: 'SSS',
       name: '盾反 SSS · 耗盾巨像', shortName: '耗盾巨像', atk: 52, cost: 7,
-      vfx: 'fx_f5_earthsphere_orange', tag: '终结/养成',
+      vfx: 'pfx_hammer_smash', tag: '终结/养成',
       consumeHalfShieldMult: 8, growAtkPer20ShieldConsumed: 15,
       desc: '出手消耗一半蓝盾，每点追加 +8 战力重击；每消耗 20 盾自身永久 +15 战力！'
     },
@@ -172,28 +172,28 @@
     {
       id: 't_poi_fang', unitId: 'f4_blacksolus', theme: 'poison', tier: 'B',
       name: '剧毒 B · 传染毒牙', shortName: '传染毒牙', atk: 36, cost: 4,
-      vfx: 'fxImpactGreenBig', tag: '挂毒',
+      vfx: 'pfx_acid_splash', tag: '挂毒',
       applyPoison: 10, slot1InfectTeammates: 3,
       desc: '出手挂 10 层【剧毒】；若站 1 号位，本回合后续队友每次命中额外传染 +3 层毒！'
     },
     {
       id: 't_poi_brew', unitId: 'f4_altgeneral', theme: 'poison', tier: 'A',
       name: '剧毒 A · 毒层翻倍', shortName: '毒层翻倍', atk: 34, cost: 5,
-      vfx: 'fx_f4_voidpulse', tag: '翻毒/养成',
+      vfx: 'pfx_spore_burst', tag: '翻毒/养成',
       applyPoison: 6, multPoison: 1.5, growPoisonOnPoisonKill: 4,
       desc: '出手挂 6 层毒并使 Boss 当前毒层 ×1.5；每击杀 1 名中毒 Boss，挂毒永久 +4 层！'
     },
     {
       id: 't_poi_blood', unitId: 'f5_sister', theme: 'poison', tier: 'S',
       name: '剧毒 S · 吞毒注能', shortName: '吞毒注能', atk: 38, cost: 5,
-      vfx: 'fxLightningHitGreen', tag: '接口/养成', isBridge: true,
+      vfx: 'pfx_venom_bolt', tag: '接口/养成', isBridge: true,
       poisonBloodBridge: true,
       desc: '【接口】Boss 无毒挂 12 层毒；有毒则吞一半，每吞 1 层自身永久 +3 战力、全队本回合 +5 战力！'
     },
     {
       id: 't_poi_lord', unitId: 'f6_ghostseraphim', theme: 'poison', tier: 'SSS',
       name: '剧毒 SSS · 即时毒爆', shortName: '即时毒爆', atk: 48, cost: 7,
-      vfx: 'fx_f4_doom', tag: '终结',
+      vfx: 'pfx_venom_blast', tag: '终结',
       detonatePoison: true,
       desc: '出手时立刻额外引爆 1 次 Boss 身上的【剧毒】（无视护盾且不衰减层数）！'
     },
@@ -202,28 +202,28 @@
     {
       id: 't_frz_shard', unitId: 'f6_3rdgeneral', theme: 'frost', tier: 'B',
       name: '极寒 B · 寒霜叠冰', shortName: '寒霜叠冰', atk: 38, cost: 4,
-      vfx: 'fx_f6_cryogenesis', tag: '叠冰',
+      vfx: 'pfx_ice_spikes', tag: '叠冰',
       applyFrost: 4,
       desc: '出手给 Boss 挂 4 层【冰霜】（每层降 Boss 攻 5%，满 10 层触发冻结伤减半）！'
     },
     {
       id: 't_frz_shatter', unitId: 'f6_altgeneral', theme: 'frost', tier: 'A',
       name: '极寒 A · 碎冰成长', shortName: '碎冰成长', atk: 44, cost: 5,
-      vfx: 'fx_f6_winterswake', tag: '碎冰/养成',
+      vfx: 'pfx_ice_shatter', tag: '碎冰/养成',
       shatterMult: 1.8, shatterGrowAtk: 8,
       desc: '对带【冰霜】的 Boss 伤害 ×1.8；每次触发碎冰，自身永久 +8 战力！'
     },
     {
       id: 't_frz_bridge', unitId: 'f6_grandmasterembla', theme: 'frost', tier: 'S',
       name: '极寒 S · 冰甲导流', shortName: '冰甲导流', atk: 40, cost: 5,
-      vfx: 'fxFrozenIceBlock', tag: '接口', isBridge: true,
+      vfx: 'pfx_snowflake_burst', tag: '接口', isBridge: true,
       slot1Shield: 22, shieldToFrostPer10: 1,
       desc: '【接口】站 1 号位 +22 蓝盾；出手时当前每有 10 点蓝盾，额外给 Boss 挂 +1 层【冰霜】！'
     },
     {
       id: 't_frz_lord', unitId: 'f6_ghostseraphim', theme: 'frost', tier: 'SSS',
       name: '极寒 SSS · 永冬崩裂', shortName: '永冬崩裂', atk: 52, cost: 7,
-      vfx: 'fxExplosionMediumIcyWhite', tag: '终结',
+      vfx: 'pfx_frost_nova', tag: '终结',
       consumeFrostBonusAtk: 25, consumeFrostBonusMult: 0.18,
       desc: '出手消耗 Boss 全部【冰霜】，每层追加 +25 战力与 +18% 最终伤害！'
     },
@@ -232,58 +232,58 @@
     {
       id: 't_hnd_steel', unitId: 'f1_peacekeeper2', theme: 'hand', tier: 'B',
       name: '留手 B · 钢牌助威', shortName: '钢牌助威', atk: 36, cost: 4,
-      vfx: 'fxImpactBigOrange', tag: '留手',
+      vfx: 'pfx_parry', tag: '留手',
       inHandTeamMult: 1.25,
       desc: '留在手牌里不出时，场上所有侠客本次出手伤害 ×1.25！'
     },
     {
       id: 't_hnd_gold', unitId: 'f3_allomancer', theme: 'hand', tier: 'A',
       name: '留手 A · 藏金养成', shortName: '藏金养成', atk: 38, cost: 5,
-      vfx: 'fxImpactBigOrange', tag: '留手/养成',
+      vfx: 'pfx_coin_drop', tag: '留手/养成',
       inHandEndGold: 2, inHandEndGrowAtk: 12,
       desc: '留在手牌里时，每回合结束获得 +2G 且自身永久 +12 战力！'
     },
     {
       id: 't_hnd_bridge', unitId: 'f2_sparrowhawk', theme: 'hand', tier: 'S',
       name: '留手 S · 场下援护', shortName: '场下援护', atk: 42, cost: 5,
-      vfx: 'fx_slashfrenzy', tag: '接口', isBridge: true,
+      vfx: 'pfx_emerald_double', tag: '接口', isBridge: true,
       leftmostAssistSlot3: true,
       desc: '【接口】留在手牌最左侧时，场上 3 号位每次出手后，本侠客从手牌免费协同补打 1 次！'
     },
     {
       id: 't_hnd_lord', unitId: 'f5_grandmasterkraigon', theme: 'hand', tier: 'SSS',
       name: '留手 SSS · 蓄锋宗师', shortName: '蓄锋宗师', atk: 50, cost: 7,
-      vfx: 'fxExplosionBigWhiteHot', tag: '终结',
+      vfx: 'pfx_gold_cleave', tag: '终结',
       multPerRemainingHand: 1.35,
       desc: '出手时每有 1 张留在手牌的侠客，自身伤害 ×1.35（留 5 张直接 ×4.48）！'
     },
 
     // --- 4 Sacrifice-Summon Theme Heroes (Expansion Pack #6: 60 Orbs) ---
     {
-      id: 't_sac_devour', unitId: 'f4_maehv', theme: 'summon', tier: 'B',
+      id: 't_sac_devour', unitId: 'f4_blacksolus', theme: 'summon', tier: 'B',
       name: '献祭 B · 吞噬剑客', shortName: '吞噬剑客', atk: 42, cost: 4,
-      vfx: 'fx_f4_shadownova', tag: '吞噬/养成',
+      vfx: 'pfx_void_scythe', tag: '吞噬/养成',
       devourLeftRatio: 0.5, devourMult: 1.6,
       desc: '上阵时吞噬紧邻左侧队友（本波退场），永久继承其 50% 战力并本次伤害 ×1.6！'
     },
     {
       id: 't_sac_legacy', unitId: 'f2_grandmasterzendo', theme: 'summon', tier: 'A',
       name: '献祭 A · 遗言燃料', shortName: '遗言燃料', atk: 48, cost: 5,
-      vfx: 'fx_f2_heavenseclipse', tag: '遗言',
+      vfx: 'pfx_hex_sigil', tag: '遗言',
       onExhaustTeamPermAtk: 15, onExhaustGold: 3,
       desc: '被吞噬或玻璃刃力竭退场时，使全牌组永久 +15 战力并 +3G！'
     },
     {
       id: 't_sac_bridge', unitId: 'f3_sister', theme: 'summon', tier: 'S',
       name: '献祭 S · 空位召灵', shortName: '空位召灵', atk: 40, cost: 5,
-      vfx: 'fx_f2_teleportsmoke', tag: '接口', isBridge: true,
+      vfx: 'pfx_spawn_portal', tag: '接口', isBridge: true,
       summonBladeIfEmpty: 0.8,
       desc: '【接口】出手时若场上存在空战位，立刻召唤 1 名剑灵补砍 1 刀（继承 80% 战力且吃秘宝）！'
     },
     {
       id: 't_sac_lord', unitId: 'f4_reaperninemoons', theme: 'summon', tier: 'SSS',
       name: '献祭 SSS · 冥渊魔神', shortName: '冥渊魔神', atk: 55, cost: 7,
-      vfx: 'fx_f4_doom', tag: '终结',
+      vfx: 'pfx_dark_explosion', tag: '终结',
       multPerWaveExhaust: 1.8,
       desc: '本波每有 1 名侠客力竭或被献祭退场，自身本次伤害 ×1.8！'
     },
@@ -292,28 +292,28 @@
     {
       id: 't_bld_slash', unitId: 'f5_rancour', theme: 'blood', tier: 'B',
       name: '燃血 B · 狂血斩击', shortName: '狂血斩击', atk: 46, cost: 4,
-      vfx: 'fx_fireslash', tag: '自残/养成',
+      vfx: 'pfx_blood_claws', tag: '自残/养成',
       selfHpCost: 8, selfCostMult: 1.75, selfCostGrowAtk: 8,
       desc: '出手消耗小队 8 HP（至少留1血），本次伤害 ×1.75 且自身永久 +8 战力！'
     },
     {
       id: 't_bld_leech', unitId: 'f4_3rdgeneral', theme: 'blood', tier: 'A',
       name: '燃血 A · 噬血汲取', shortName: '噬血汲取', atk: 42, cost: 5,
-      vfx: 'fx_f4_voidpulse', tag: '吸血/残血',
+      vfx: 'pfx_blood_drain', tag: '吸血/残血',
       healOnStrike: 12, lowHpThreshold: 0.6, lowHpMult: 1.8,
       desc: '出手回复小队 12 HP；若当前血量 ≤60%，本次伤害 ×1.8！'
     },
     {
       id: 't_bld_bridge', unitId: 'f1_3rdgeneral', theme: 'blood', tier: 'S',
       name: '燃血 S · 血盾转化', shortName: '血盾转化', atk: 44, cost: 5,
-      vfx: 'fx_f1_decimate', tag: '接口', isBridge: true,
+      vfx: 'pfx_blood_smite', tag: '接口', isBridge: true,
       selfHpCost: 10, bloodToShield: 35, applyVuln: true,
       desc: '【接口】出手消耗小队 10 HP，立刻获 +35 蓝盾并给 Boss 挂【易伤 ×1.4】！'
     },
     {
       id: 't_bld_lord', unitId: 'f2_demononi', theme: 'blood', tier: 'SSS',
       name: '燃血 SSS · 猩红战神', shortName: '猩红战神', atk: 54, cost: 7,
-      vfx: 'fx_f2_heavenseclipse', tag: '终结',
+      vfx: 'pfx_blood_cleave', tag: '终结',
       missingHpPctMult: 0.03,
       desc: '小队每损失 1% 生命值，自身本次伤害额外 +3%（10%血直接 ×3.7）！'
     },
@@ -322,28 +322,28 @@
     {
       id: 't_dic_coin', unitId: 'f3_allomancer', theme: 'dice', tier: 'B',
       name: '赌博 B · 抛币赌徒', shortName: '抛币赌徒', atk: 45, cost: 4,
-      vfx: 'fxBuffSimpleGold', tag: '抛币',
+      vfx: 'pfx_coin_drop', tag: '抛币',
       gambleCoinMult: 2.2, gambleFailGold: 2,
       desc: '出手抛硬币（50%正面）：正面本次伤害 ×2.2，反面获得 +2G！'
     },
     {
       id: 't_dic_dice', unitId: 'f2_sparrowhawk', theme: 'dice', tier: 'A',
       name: '赌博 A · 命运骰手', shortName: '命运骰手', atk: 42, cost: 5,
-      vfx: 'fx_f3_blaststarfire', tag: '掷骰/养成',
+      vfx: 'pfx_star_fall', tag: '掷骰/养成',
       gambleDiceMode: true,
       desc: '出手掷骰：低点全队 +20 蓝盾，中点自身永久 +14 战力，高点本次伤害 ×2.4！'
     },
     {
       id: 't_dic_bridge', unitId: 'f3_grandmasternoshrak', theme: 'dice', tier: 'S',
       name: '赌博 S · 筹码加注', shortName: '筹码加注', atk: 44, cost: 5,
-      vfx: 'fxBuffSimpleGold', tag: '接口', isBridge: true,
+      vfx: 'pfx_collect_burst', tag: '接口', isBridge: true,
       gambleBetGold: 2, retriggerLeftOnBet: true,
       desc: '【接口】出手时若持有 ≥2G 自动押 2G：让左侧侠客立刻再出手 1 次，且 50% 返还 4G！'
     },
     {
       id: 't_dic_lord', unitId: 'f1_altgeneral', theme: 'dice', tier: 'SSS',
       name: '赌博 SSS · 皇家庄家', shortName: '皇家庄家', atk: 52, cost: 7,
-      vfx: 'fxExplosionBigWhiteHot', tag: '终结',
+      vfx: 'pfx_royal_crit', tag: '终结',
       multPerGambleWin: 1.45,
       desc: '本波每触发 1 次赌博正面/高点，自身本次伤害 ×1.45！'
     }
@@ -741,14 +741,14 @@
 
   // === 8 Recalibrated Active Mirror-Lake Bosses (GPT Fix #1) ===
   const BOSS_POOL = [
-    { id: 'b_antiswarm',  unitId: 'boss_antiswarm',       name: '噬群巨魔',   title: '镜湖先锋', vfx: 'fxImpactGreenBig',     pattern: ['heavy', 'charge', 'heavy', 'heavy'] },
-    { id: 'b_decepticle', unitId: 'boss_decepticle',      name: '幻影构装',   title: '机械卫兵', vfx: 'fx_f2_teleportsmoke',  pattern: ['shield', 'charge', 'heavy', 'shield'] },
-    { id: 'b_solfist',    unitId: 'boss_solfist',         name: '烈阳铁拳',   title: '熔火守门', vfx: 'fx_flamesphere',       pattern: ['heavy', 'charge', 'thorns', 'heavy'] },
-    { id: 'b_vampire',    unitId: 'boss_vampire',         name: '猩红伯爵',   title: '血月领主', vfx: 'fx_f4_voidpulse',      pattern: ['charge', 'heavy', 'lock3', 'heavy'] },
-    { id: 'b_boreal',     unitId: 'boss_borealjuggernaut',name: '极北冰巨兽', title: '永冬霸主', vfx: 'fx_f6_cryogenesis',    pattern: ['lock3', 'charge', 'shield', 'heavy'] },
-    { id: 'b_cindera',    unitId: 'boss_cindera',         name: '灰烬女皇',   title: '焚城妖姬', vfx: 'fxFireTornado',        pattern: ['thorns', 'charge', 'heavy', 'heavy'] },
-    { id: 'b_chaosknight',unitId: 'boss_chaosknight',     name: '混沌黑骑',   title: '裂隙统帅', vfx: 'fx_f4_shadownova',     pattern: ['shield', 'charge', 'lock3', 'heavy'] },
-    { id: 'b_skyfall',    unitId: 'boss_skyfalltyrant',   name: '天陨暴君',   title: '终末之影', vfx: 'fx_f2_heavenseclipse', pattern: ['charge', 'thorns', 'lock3', 'heavy'] }
+    { id: 'b_antiswarm',  unitId: 'boss_antiswarm',       name: '噬群巨魔',   title: '镜湖先锋', vfx: 'pfx_acid_splash',     pattern: ['heavy', 'charge', 'heavy', 'heavy'] },
+    { id: 'b_decepticle', unitId: 'boss_decepticle',      name: '幻影构装',   title: '机械卫兵', vfx: 'pfx_zap_hit',         pattern: ['shield', 'charge', 'heavy', 'shield'] },
+    { id: 'b_solfist',    unitId: 'boss_solfist',         name: '烈阳铁拳',   title: '熔火守门', vfx: 'pfx_flame_pillar',    pattern: ['heavy', 'charge', 'thorns', 'heavy'] },
+    { id: 'b_vampire',    unitId: 'boss_vampire',         name: '猩红伯爵',   title: '血月领主', vfx: 'pfx_blood_claws',     pattern: ['charge', 'heavy', 'lock3', 'heavy'] },
+    { id: 'b_boreal',     unitId: 'boss_borealjuggernaut',name: '极北冰巨兽', title: '永冬霸主', vfx: 'pfx_ice_spikes',      pattern: ['lock3', 'charge', 'shield', 'heavy'] },
+    { id: 'b_cindera',    unitId: 'boss_cindera',         name: '灰烬女皇',   title: '焚城妖姬', vfx: 'pfx_heavy_cleave',    pattern: ['thorns', 'charge', 'heavy', 'heavy'] },
+    { id: 'b_chaosknight',unitId: 'boss_chaosknight',     name: '混沌黑骑',   title: '裂隙统帅', vfx: 'pfx_shadow_tendrils', pattern: ['shield', 'charge', 'lock3', 'heavy'] },
+    { id: 'b_skyfall',    unitId: 'boss_skyfalltyrant',   name: '天陨暴君',   title: '终末之影', vfx: 'pfx_dark_explosion',  pattern: ['charge', 'thorns', 'lock3', 'heavy'] }
   ];
 
   // Calibrated Wave Curve (Smooth W1-W2 onboarding; steep W4-W8 pressure for ~20-30% zero-ad clear rate!)

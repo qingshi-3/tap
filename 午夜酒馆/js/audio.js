@@ -12,17 +12,17 @@
     4.000
   ];
 
-  // Ambient bed presets: rainGain, rainFreq, rainQ, windGain, windFreq, hearthCrackle
+  // Ambient audio intentionally silent (no rain/wind static noise) — crisp SFX-only soundscape!
   const AMBIENT_PRESETS = {
-    silent:   { rain: 0.0001, rainFreq: 1200, rainQ: 0.7, wind: 0.0001, windFreq: 220, hearth: false },
-    title:    { rain: 0.042,  rainFreq: 1650, rainQ: 0.65, wind: 0.024, windFreq: 240, hearth: false },
-    porch:    { rain: 0.052,  rainFreq: 1900, rainQ: 0.60, wind: 0.028, windFreq: 260, hearth: false },
-    tavern:   { rain: 0.018,  rainFreq: 720,  rainQ: 0.90, wind: 0.020, windFreq: 155, hearth: true  },
-    ceremony: { rain: 0.010,  rainFreq: 560,  rainQ: 1.10, wind: 0.036, windFreq: 180, hearth: false },
+    silent:   { rain: 0, wind: 0, hearth: false },
+    title:    { rain: 0, wind: 0, hearth: false },
+    porch:    { rain: 0, wind: 0, hearth: false },
+    tavern:   { rain: 0, wind: 0, hearth: false },
+    ceremony: { rain: 0, wind: 0, hearth: false },
     battle: {
-      drizzle:   { rain: 0.038, rainFreq: 1500, rainQ: 0.72, wind: 0.034, windFreq: 280, hearth: false },
-      mist:      { rain: 0.012, rainFreq: 900,  rainQ: 0.95, wind: 0.044, windFreq: 230, hearth: false },
-      fireflies: { rain: 0.008, rainFreq: 1100, rainQ: 0.85, wind: 0.030, windFreq: 210, hearth: false }
+      drizzle:   { rain: 0, wind: 0, hearth: false },
+      mist:      { rain: 0, wind: 0, hearth: false },
+      fireflies: { rain: 0, wind: 0, hearth: false }
     }
   };
 
@@ -46,11 +46,14 @@
       this.maxVoices = 30;
       this.lastTagTs = Object.create(null);
 
-      // Ambient loop nodes & state
+      // Ambient loop nodes & organic rain state
       this.ambienceMode = 'silent';
       this.ambienceSub = 'drizzle';
       this._ambNodes = null;
       this._hearthTimer = null;
+      this._rainSwellTimer = null;
+      this._rainDropTimer = null;
+      this._rainDensity = 0.7; // dynamically drifts between sparse lull (0.24) & passing gust (1.35)
 
       this._bindLifecycle();
     }
@@ -76,8 +79,12 @@
           if (!this.ctx) return;
           if (document.hidden) {
             if (this.ctx.state === 'running') this.ctx.suspend().catch(() => {});
+            if (this._ambNodes && this._ambNodes.rainEl) this._ambNodes.rainEl.pause();
           } else if (!this.muted) {
             if (this.ctx.state === 'suspended') this.ctx.resume().catch(() => {});
+            if (this._ambNodes && this._ambNodes.rainEl && this.ambienceMode !== 'silent') {
+              this._ambNodes.rainEl.play().catch(() => {});
+            }
           }
         });
       }
@@ -116,7 +123,7 @@
 
     _buildNoisePool(ctx) {
       const sr = ctx.sampleRate || 44100;
-      const len = Math.floor(sr * 2.0); // 2-second seamless loop buffers
+      const len = Math.floor(sr * 4.5); // 4.5-second seamless loop buffers (eliminates audible loop rhythm)
 
       // 1. White noise (crisp transients, slashes, shatters, rain hiss)
       const white = ctx.createBuffer(1, len, sr);
@@ -161,39 +168,9 @@
       this.noisePool = { white, pink, brown };
     }
 
-    _initAmbientNodes(ctx) {
-      if (!this.noisePool || this._ambNodes) return;
-      const now = ctx.currentTime;
-
-      const rainSrc = ctx.createBufferSource();
-      rainSrc.buffer = this.noisePool.pink;
-      rainSrc.loop = true;
-      const rainFilter = ctx.createBiquadFilter();
-      rainFilter.type = 'bandpass';
-      rainFilter.frequency.setValueAtTime(1200, now);
-      rainFilter.Q.setValueAtTime(0.75, now);
-      const rainGain = ctx.createGain();
-      rainGain.gain.setValueAtTime(0.0001, now);
-      rainSrc.connect(rainFilter);
-      rainFilter.connect(rainGain);
-      rainGain.connect(this.ambientBus);
-      rainSrc.start(now);
-
-      const windSrc = ctx.createBufferSource();
-      windSrc.buffer = this.noisePool.brown;
-      windSrc.loop = true;
-      const windFilter = ctx.createBiquadFilter();
-      windFilter.type = 'lowpass';
-      windFilter.frequency.setValueAtTime(220, now);
-      windFilter.Q.setValueAtTime(1.1, now);
-      const windGain = ctx.createGain();
-      windGain.gain.setValueAtTime(0.0001, now);
-      windSrc.connect(windFilter);
-      windFilter.connect(windGain);
-      windGain.connect(this.ambientBus);
-      windSrc.start(now);
-
-      this._ambNodes = { rainSrc, rainFilter, rainGain, windSrc, windFilter, windGain };
+    _initAmbientNodes() {
+      // Rain & background ambient noise completely disabled per design direction (pure crisp SFX!)
+      this._ambNodes = null;
     }
 
     ensure() {
@@ -219,6 +196,8 @@
       }
       if (this.muted) {
         this._stopHearthCrackle();
+        this._stopRainAtmosphere();
+        if (this._ambNodes && this._ambNodes.rainEl) this._ambNodes.rainEl.pause();
       } else if (this.ambienceMode && this.ambienceMode !== 'silent') {
         const ctx = this.ensure();
         if (ctx) this._applyAmbiencePreset(0.35);
@@ -245,19 +224,133 @@
       if (!this.ctx || !this._ambNodes) return;
       const preset = this._getAmbiencePreset();
       const now = this.ctx.currentTime;
-      const { rainFilter, rainGain, windFilter, windGain } = this._ambNodes;
+      const { rainEl, rainSrc, rainFilter, rainGain, windFilter, windGain } = this._ambNodes;
 
-      rainFilter.frequency.setTargetAtTime(preset.rainFreq, now, tc);
-      rainFilter.Q.setTargetAtTime(preset.rainQ, now, tc);
-      rainGain.gain.setTargetAtTime(preset.rain, now, tc);
+      if (rainEl) {
+        if (!this.muted && preset.rain > 0.005) {
+          if (rainEl.paused) rainEl.play().catch(() => {});
+          if (!rainSrc) rainEl.volume = Math.min(1, preset.rain);
+        } else {
+          if (!rainSrc) rainEl.volume = 0;
+        }
+      }
+
+      rainFilter.frequency.setTargetAtTime(preset.rainFreq || 4200, now, tc);
+      rainGain.gain.setTargetAtTime(this.muted ? 0.0001 : Math.max(0.0001, preset.rain), now, tc);
 
       windFilter.frequency.setTargetAtTime(preset.windFreq, now, tc);
-      windGain.gain.setTargetAtTime(preset.wind, now, tc);
+      windGain.gain.setTargetAtTime(this.muted ? 0.0001 : Math.max(0.0001, preset.wind), now, tc);
 
       if (preset.hearth && !this.muted) {
         this._startHearthCrackle();
       } else {
         this._stopHearthCrackle();
+      }
+      this._stopRainAtmosphere();
+    }
+
+    _startRainAtmosphere() {
+      // 1. Organic Rain Swell / Lull Scheduler: smoothly ebbs between hushed drizzle & soft passing gusts
+      if (!this._rainSwellTimer) {
+        const scheduleSwell = () => {
+          const waitMs = 2200 + Math.random() * 4400;
+          this._rainSwellTimer = setTimeout(() => {
+            this._rainSwellTimer = null;
+            const preset = this._getAmbiencePreset();
+            if (this.muted || !preset || preset.drops <= 0.05) return;
+            if (this.ctx && this.ctx.state === 'running' && this._ambNodes && !document.hidden) {
+              // Skewed random: spends more time in tranquil sparse drizzle, with occasional gentle gusts
+              const roll = Math.random();
+              const targetDens = roll < 0.42
+                ? 0.24 + Math.random() * 0.26   // quiet sparse lull
+                : roll < 0.80
+                ? 0.55 + Math.random() * 0.38   // moderate patter
+                : 0.98 + Math.random() * 0.42;  // passing shower gust
+              this._rainDensity = targetDens;
+              const glide = 1.2 + Math.random() * 2.0;
+              const now = this.ctx.currentTime;
+              const { rainFilter, rainGain, windFilter, windGain } = this._ambNodes;
+              rainGain.gain.setTargetAtTime(Math.max(0.0001, preset.rain * targetDens), now, glide);
+              rainFilter.frequency.setTargetAtTime(Math.max(300, preset.rainFreq * (0.68 + targetDens * 0.42)), now, glide);
+              windGain.gain.setTargetAtTime(Math.max(0.0001, preset.wind * (0.68 + targetDens * 0.45)), now, glide * 1.15);
+              windFilter.frequency.setTargetAtTime(preset.windFreq * (0.82 + targetDens * 0.28), now, glide * 1.15);
+            }
+            scheduleSwell();
+          }, waitMs);
+        };
+        scheduleSwell();
+      }
+
+      // 2. Poisson-spaced Individual Raindrop Patter & Eaves Plinks (gives real spatial rain texture!)
+      if (!this._rainDropTimer) {
+        const spawnDrop = (delaySec = 0, volScale = 1) => {
+          const preset = this._getAmbiencePreset();
+          const indoorDamp = this.ambienceMode === 'tavern' ? 0.55 : 1.0;
+          const r = Math.random();
+          if (r < 0.54) {
+            // Soft water/puddle plink (micro upward sine chirp — soothing nocturnal droplet)
+            const baseHz = 680 + Math.random() * 980;
+            const dur = 0.013 + Math.random() * 0.016;
+            const g = (0.0045 + Math.random() * 0.0085) * volScale * indoorDamp;
+            this.tone(baseHz, dur, 'sine', g, delaySec, baseHz * (1.32 + Math.random() * 0.35), {
+              attack: 0.002,
+              bus: 'ambient',
+              bypassLimit: true
+            });
+          } else {
+            // Subtle raindrop tap on stone courtyard / wet leaves (short high-Q micro-transient)
+            const freq = 1400 + Math.random() * 2200;
+            const dur = 0.009 + Math.random() * 0.014;
+            const g = (0.006 + Math.random() * 0.010) * volScale * indoorDamp;
+            this.noise(dur, g, freq, delaySec, {
+              kind: 'pink',
+              filterType: 'bandpass',
+              Q: 3.2 + Math.random() * 2.4,
+              attack: 0.0015,
+              bus: 'ambient',
+              bypassThrottle: true
+            });
+          }
+        };
+
+        const scheduleDrop = () => {
+          const preset = this._getAmbiencePreset();
+          const rate = Math.max(0.12, (preset.drops || 0.5) * (0.35 + (this._rainDensity || 0.7) * 0.95));
+          // Exponential inter-arrival time (-ln(U)/lambda) produces authentic organic raindrop clustering!
+          const u = Math.max(0.02, Math.random());
+          const meanMs = 210 / rate;
+          const waitMs = Math.max(48, Math.min(920, Math.round(-Math.log(u) * meanMs)));
+
+          this._rainDropTimer = setTimeout(() => {
+            this._rainDropTimer = null;
+            const cur = this._getAmbiencePreset();
+            if (this.muted || !cur || cur.drops <= 0.05) return;
+            if (this.ctx && this.ctx.state === 'running' && !document.hidden) {
+              const volScale = 0.55 + (this._rainDensity || 0.7) * 0.45;
+              spawnDrop(0, volScale);
+              // 16% chance of a tiny eaves-drip double/triple trickle
+              if (Math.random() < 0.16) {
+                spawnDrop(0.065 + Math.random() * 0.075, volScale * 0.78);
+                if (Math.random() < 0.38) {
+                  spawnDrop(0.16 + Math.random() * 0.09, volScale * 0.56);
+                }
+              }
+            }
+            scheduleDrop();
+          }, waitMs);
+        };
+        scheduleDrop();
+      }
+    }
+
+    _stopRainAtmosphere() {
+      if (this._rainSwellTimer) {
+        clearTimeout(this._rainSwellTimer);
+        this._rainSwellTimer = null;
+      }
+      if (this._rainDropTimer) {
+        clearTimeout(this._rainDropTimer);
+        this._rainDropTimer = null;
       }
     }
 
@@ -636,6 +729,40 @@
       this.noise(0.45, 0.07, 1500, 0.12, { kind: 'pink', filterType: 'bandpass', endFreq: 520, Q: 1.8, bypassThrottle: true });
       this.tone(1318.5, 0.11, 'sine', 0.06, 0.30, 1567.98, { bypassLimit: true });
       this.tone(1567.98, 0.16, 'sine', 0.065, 0.37, 2093.0, { bypassLimit: true });
+    }
+
+    // Triumphant Settlement Vault Fanfare (plays when the Victory Vault unveils after Boss dissolution)
+    playVictoryFanfare(isFinalClear = false) {
+      this.duckAmbience(0.28, 0.35, 0.7);
+      const notes = isFinalClear
+        ? [523.25, 659.25, 783.99, 987.77, 1046.5, 1318.5, 1567.98]
+        : [523.25, 659.25, 783.99, 1046.5];
+      notes.forEach((f, idx) => {
+        const delay = idx * 0.068;
+        this.tone(f, isFinalClear ? 0.42 : 0.30, 'triangle', 0.078, delay, f * 1.008, { bypassLimit: true });
+        this.tone(f * 0.5, 0.28, 'sine', 0.042, delay, f * 0.5, { bypassLimit: true });
+      });
+    }
+
+    // Staggered Loot Line Reveal Chime (Balatro-style ascending coin clink)
+    playLootRowTick(step = 0, isTotal = false) {
+      const f = this._pentaFreq(783.99, step);
+      if (isTotal) {
+        this.tone(1046.5, 0.14, 'triangle', 0.085, 0, 1318.5, { bypassLimit: true });
+        this.tone(1318.5, 0.22, 'sine', 0.09, 0.055, 1567.98, { bypassLimit: true });
+        this.tone(1567.98, 0.28, 'sine', 0.075, 0.11, 2093.0, { bypassLimit: true });
+      } else {
+        this.tone(f, 0.09, 'sine', 0.062, 0, f * 1.12, { jitter: 0.015, bypassLimit: true });
+        this.tone(f * 1.5, 0.11, 'triangle', 0.042, 0.03, f * 1.52, { jitter: 0.01, bypassLimit: true });
+      }
+    }
+
+    // Victory Rank Seal Stamp ('S' / 'A' / 'B')
+    playRankStamp(rank = 'S') {
+      this.tone(118, 0.18, 'sine', 0.18, 0, 44, { bypassLimit: true });
+      this.noise(0.11, 0.09, 1100, 0, { kind: 'pink', filterType: 'bandpass', Q: 1.5, bypassThrottle: true });
+      const hi = rank === 'S' ? 1567.98 : rank === 'A' ? 1318.5 : 1046.5;
+      this.tone(hi, 0.26, 'triangle', 0.075, 0.04, hi * 1.015, { bypassLimit: true });
     }
 
     // Pack Ceremony SFX

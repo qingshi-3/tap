@@ -89,6 +89,9 @@
       this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
       this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas'), this.sprites) : null;
       this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
+      this.themeSanctumStage = window.MT.ThemeSanctumStage ? new window.MT.ThemeSanctumStage() : null;
+      this._livePortraitRaf = 0;
+      this._livePortraitEntries = [];
 
       this.run = null;
       this.battle = null;
@@ -103,6 +106,9 @@
       this.activePackState = null;
       this.prepTab = 'heroes'; // 'heroes' | 'themes'
       this.previewHeroId = this.meta.data.selectedHeroId || 'hero_01';
+      this.previewThemeId = (this.meta.data.selectedThemes && this.meta.data.selectedThemes[0]) || 'discard';
+      this.codexFilterTheme = 'all';
+      this.codexFilterKind = 'all';
       this.speed = 1;
 
       this.bindEvents();
@@ -550,18 +556,28 @@
       $('btn-meta-board').onclick = () => this.openLeaderboardModal();
       $('btn-meta-ach').onclick = () => this.openAchievementsModal();
 
-      // Keyboard Left/Right hero cycling on the Rainy Night Porch Muster Dais
+      // Keyboard Left/Right cycling on BOTH Hero Gallery and 8-Theme-Pack Sanctum
       window.addEventListener('keydown', (e) => {
         if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
         const modal = $('deck-select-modal');
-        if (!modal || modal.classList.contains('hidden') || this.prepTab !== 'heroes') return;
+        if (!modal || modal.classList.contains('hidden')) return;
         if (!$('roster-modal').classList.contains('hidden') || !$('ad-sim-modal').classList.contains('hidden')) return;
-        const list = M.HEROES_META || [];
-        if (!list.length) return;
-        const idx = Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
-        const nextIdx = (idx + (e.key === 'ArrowRight' ? 1 : -1) + list.length) % list.length;
-        e.preventDefault();
-        this.selectMusterHero(list[nextIdx].id, true);
+        const step = e.key === 'ArrowRight' ? 1 : -1;
+        if (this.prepTab === 'heroes') {
+          const list = M.HEROES_META || [];
+          if (!list.length) return;
+          const idx = Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
+          const nextIdx = (idx + step + list.length) % list.length;
+          e.preventDefault();
+          this.selectMusterHero(list[nextIdx].id, true);
+        } else if (this.prepTab === 'themes') {
+          const list = M.THEME_PACKS_META || [];
+          if (!list.length) return;
+          const idx = Math.max(0, list.findIndex((t) => t.id === this.previewThemeId));
+          const nextIdx = (idx + step + list.length) % list.length;
+          e.preventDefault();
+          this.focusThemeSanctum(list[nextIdx].id, true);
+        }
       });
 
       $('btn-bt-roster').onclick = () => this.openCodexModal('roster');
@@ -571,6 +587,7 @@
         this.battleStage.setSpeed(this.speed);
         $('bt-speed-btn').textContent = this.speed === 1 ? '1×' : '2×';
       };
+      if ($('btn-bt-home')) $('btn-bt-home').onclick = () => this.exitToTitleFromRun();
 
       $('btn-bt-discard').onclick = () => this.handleDiscardButton();
       $('btn-bt-strike').onclick = () => this.handleStrikeButton();
@@ -578,6 +595,7 @@
       $('btn-hands-open').onclick = () => this.openCodexModal('codex');
       $('btn-mute').onclick = () => this.toggleMute();
       $('btn-restart').onclick = () => this.openPrepHall();
+      if ($('btn-tavern-home')) $('btn-tavern-home').onclick = () => this.exitToTitleFromRun();
       $('btn-shop-reroll').onclick = () => this.rerollShop(false);
       $('btn-shop-ad-reroll').onclick = () => this.handleShopAdReroll();
       $('btn-shop-next').onclick = () => this.startNextWaveBattle();
@@ -608,7 +626,10 @@
 
       $('rm-tab-roster').onclick = () => this.renderCodexModal('roster');
       $('rm-tab-hands').onclick = () => this.renderCodexModal('codex');
-      $('rm-close-btn').onclick = () => $('roster-modal').classList.add('hidden');
+      $('rm-close-btn').onclick = () => {
+        $('roster-modal').classList.add('hidden');
+        this._stopModalLivePortraits();
+      };
 
       $('btn-pack-ad-reroll').onclick = () => this.handlePackAdReroll();
       $('btn-pack-abandon').onclick = () => {
@@ -636,41 +657,67 @@
       $('btn-contracts-mute').textContent = m ? '静音' : '音效';
     }
 
+    exitToTitleFromRun() {
+      if (this.run && this.run.phase === 'shop') {
+        this.meta.saveActiveRun(this.run);
+      }
+      if (this.audio && this.audio.playDrop) this.audio.playDrop();
+      this.showTitleScreen();
+      this.toast('已返回首页 · 对局进度已保留');
+    }
+
     showTitleScreen() {
+      this._battleToken = (this._battleToken || 0) + 1;
+      this.busy = false;
       this.battleStage.stop();
       if (this.heroMusterStage) this.heroMusterStage.stop();
+      if (this.themeSanctumStage) this.themeSanctumStage.stop();
+      this._stopLiveDomPortraits();
+      this._stopModalLivePortraits();
       if (this.tavernShopStage) this.tavernShopStage.stop();
       if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
       if (this.titleRain && this.titleRain.start) this.titleRain.start();
       if (this.audio && this.audio.setAmbience) this.audio.setAmbience('title');
       this.closeShopInspector();
+      const bv = $('battle-view');
+      if (bv) bv.classList.remove('scoring-active');
       $('title-screen-view').classList.remove('hidden');
       $('deck-select-modal').classList.add('hidden');
       $('battle-view').classList.add('hidden');
       $('tavern-view').classList.add('hidden');
-      $('payout-modal').classList.add('hidden');
+      $('roster-modal').classList.add('hidden');
+      this._closePayoutModal();
       $('pack-ceremony-modal').classList.add('hidden');
+      this.updateTitleSavedSlot();
     }
 
     // =========================================================================
     // META PREP HALL: RAINY NIGHT PORCH MUSTER DAIS + UNTOUCHED 8 THEME PACKS
     // =========================================================================
     openPrepHall() {
+      this._battleToken = (this._battleToken || 0) + 1;
+      this.busy = false;
       this.battleStage.stop();
+      if (this.themeSanctumStage) this.themeSanctumStage.stop();
+      this._stopLiveDomPortraits();
+      this._stopModalLivePortraits();
       if (this.titleRain && this.titleRain.stop) this.titleRain.stop();
       if (this.tavernShopStage) this.tavernShopStage.stop();
       if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
       if (this.audio && this.audio.setAmbience) this.audio.setAmbience('porch');
       this.closeShopInspector();
+      const bv = $('battle-view');
+      if (bv) bv.classList.remove('scoring-active');
       this.prepTab = 'heroes';
       $('title-screen-view').classList.add('hidden');
       $('battle-view').classList.add('hidden');
       $('tavern-view').classList.remove('hidden');
       $('top-hud').classList.add('hidden');
       $('market-main-stage').classList.add('hidden');
-      $('payout-modal').classList.add('hidden');
+      $('roster-modal').classList.add('hidden');
+      this._closePayoutModal();
       $('pack-ceremony-modal').classList.add('hidden');
       $('deck-select-modal').classList.remove('hidden');
       this.renderPrepHall({ triggerEntryFlourish: true });
@@ -753,8 +800,10 @@
         frost: './assets/gear/eq_frost_bow.png',
         hand: './assets/gear/eq_oak_charm.png',
         exhaust: './assets/gear/eq_void_fan.png',
+        summon: './assets/gear/eq_void_fan.png',
         blood: './assets/gear/eq_blood_edge.png',
         gamble: './assets/gear/eq_greed_dice.png',
+        dice: './assets/gear/eq_greed_dice.png',
         pack_hero: './assets/gear/eq_dawn_lance.png',
         pack_inscription: './assets/gear/eq_storm_staff.png'
       };
@@ -784,42 +833,165 @@
     selectMusterHero(heroId, playSound = true, isUnlockCelebrate = false) {
       const hero = this.meta.getHero(heroId);
       if (!hero) return;
+      const list = M.HEROES_META;
+      const prevIdx = Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
+      const nextIdx = Math.max(0, list.findIndex((h) => h.id === hero.id));
+      const colDist = Math.abs(nextIdx - prevIdx);
+      const dir = Math.sign(nextIdx - prevIdx);
+      const changed = this.previewHeroId !== hero.id;
       this.previewHeroId = hero.id;
-      if (this.heroMusterStage) {
-        this.heroMusterStage.selectHero(hero, true, isUnlockCelebrate);
+
+      // Cancel any pending post-expand slash timer when rapidly switching
+      if (this._v17SlashTimer) {
+        clearTimeout(this._v17SlashTimer);
+        this._v17SlashTimer = null;
       }
+      // Keep living stardust flowing smoothly while switching heroes (no jarring freeze/blackout!)
+      if (this.heroMusterStage && changed) {
+        if (this.heroMusterStage.setHeroAccent) this.heroMusterStage.setHeroAccent(hero);
+      }
+
+      this.syncMusterSpots(false);
+      this.updateMusterFolio();
+
+      // Distance-aware elastic scroll:
+      //   - Adjacent switch (colDist === 1): smooth grounded glide (zero jumpy overshoot)
+      //   - Multi-column jump (colDist >= 2): Q弹 overshoot past target, then spring cleanly back!
+      this._centerActiveHeroSlice(changed, { colDist, dir, nextIdx });
+
       if (playSound) {
         if (isUnlockCelebrate && this.audio.playCheer) this.audio.playCheer();
-        else if (this.audio.playSlash) this.audio.playSlash();
-        else this.audio.playPickup();
+        else if (this.audio.playPickup) this.audio.playPickup();
       }
-      this.syncMusterSpots();
-      this.updateMusterFolio();
+
+      // Fire twin foreground diagonal light-beams AFTER the parallel lines finish opening & settling!
+      const slashDelayMs = !changed ? 90 : (colDist >= 2 ? 430 : 380);
+      this._v17SlashTimer = setTimeout(() => {
+        this._v17SlashTimer = null;
+        const activeSlice = document.querySelector('#v17-ribbon-track .v17-hero-slice.is-active');
+        const stageEl = $('muster-stage-root');
+        if (!activeSlice || !stageEl || activeSlice.dataset.pickHero !== this.previewHeroId) return;
+
+        // Trigger foil light-sheen sweep simultaneously with the twin seam blades
+        activeSlice.classList.remove('sheen-pop');
+        void activeSlice.offsetWidth;
+        activeSlice.classList.add('sheen-pop');
+
+        if (this.heroMusterStage) {
+          const sRect = stageEl.getBoundingClientRect();
+          const aRect = activeSlice.getBoundingClientRect();
+          const scaleX = sRect.width > 0 ? (1280 / sRect.width) : 1;
+          // Compensate for skewX(-11deg) bounding box overhang (~70px on each side of the 720px tall slice)
+          const leftX = (aRect.left - sRect.left) * scaleX + 70;
+          const rightX = (aRect.right - sRect.left) * scaleX - 70;
+          this.heroMusterStage.setSeamBounds(leftX, rightX);
+          this.heroMusterStage.triggerFlourish(hero, isUnlockCelebrate, leftX, rightX);
+        }
+        if (playSound && !isUnlockCelebrate && this.audio && this.audio.playSlash) {
+          this.audio.playSlash();
+        }
+      }, slashDelayMs);
     }
 
-    syncMusterSpots() {
-      const hitLayer = $('muster-hit-layer');
-      if (!hitLayer) return;
-      hitLayer.querySelectorAll('.muster-hero-spot').forEach((spot) => {
-        const hid = spot.dataset.pickHero;
+    _centerActiveHeroSlice(smooth = true, opts = {}) {
+      const vp = $('v17-ribbon-viewport');
+      if (!vp) return;
+      if (this._v17ScrollRaf) {
+        cancelAnimationFrame(this._v17ScrollRaf);
+        this._v17ScrollRaf = 0;
+      }
+      const list = M.HEROES_META;
+      const nextIdx = opts.nextIdx !== undefined
+        ? opts.nextIdx
+        : Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
+      const colDist = opts.colDist || 0;
+      const dir = opts.dir || 0;
+
+      // Exact deterministic final layout geometry: 92px track pad + 88px per collapsed slice (82+6) + 536px active slice
+      const totalWidth = 92 * 2 + (list.length - 1) * 88 + 536;
+      const maxScroll = Math.max(0, totalWidth - vp.clientWidth);
+      const finalCenter = 92 + nextIdx * 88 + 536 * 0.5;
+      const targetScroll = Math.max(0, Math.min(maxScroll, finalCenter - vp.clientWidth * 0.5));
+
+      if (!smooth) {
+        vp.scrollLeft = targetScroll;
+        return;
+      }
+
+      const startScroll = vp.scrollLeft;
+      const delta = targetScroll - startScroll;
+      if (Math.abs(delta) < 2) {
+        vp.scrollLeft = targetScroll;
+        return;
+      }
+
+      // Adjacent (colDist <= 1): silky direct ease-out cubic (ZERO overshoot jumpiness)
+      // Multi-column jump (colDist >= 2): Q弹 overshoot past target & spring back into dead-center!
+      const useOvershoot = colDist >= 2 && dir !== 0;
+      const overshootMag = useOvershoot ? Math.min(84, 34 + colDist * 12) : 0;
+      const peakScroll = Math.max(0, Math.min(maxScroll, targetScroll + dir * overshootMag));
+      const durMs = useOvershoot ? 500 : 380;
+      const t0 = performance.now();
+
+      const step = (now) => {
+        const u = Math.min(1, (now - t0) / durMs);
+        if (!useOvershoot) {
+          const ease = 1 - Math.pow(1 - u, 3);
+          vp.scrollLeft = startScroll + delta * ease;
+        } else if (u < 0.58) {
+          // Fast glide past target to overshoot peak
+          const p = u / 0.58;
+          const ease = 1 - Math.pow(1 - p, 3);
+          vp.scrollLeft = startScroll + (peakScroll - startScroll) * ease;
+        } else {
+          // Elastic spring-back from overshoot peak to exact target
+          const p = (u - 0.58) / 0.42;
+          const ease = 1 - Math.pow(1 - p, 2.6);
+          vp.scrollLeft = peakScroll + (targetScroll - peakScroll) * ease;
+        }
+        if (u < 1) {
+          this._v17ScrollRaf = requestAnimationFrame(step);
+        } else {
+          vp.scrollLeft = targetScroll;
+          this._v17ScrollRaf = 0;
+        }
+      };
+      this._v17ScrollRaf = requestAnimationFrame(step);
+    }
+
+    syncMusterSpots(triggerSheen = false) {
+      const track = $('v17-ribbon-track');
+      if (!track) return;
+      track.querySelectorAll('.v17-hero-slice').forEach((slice) => {
+        const hid = slice.dataset.pickHero;
         const hero = this.meta.getHero(hid);
         const unlocked = this.meta.isHeroUnlocked(hid);
         const active = hid === this.previewHeroId;
-        spot.classList.toggle('is-active', active);
-        spot.classList.toggle('is-unlocked', unlocked);
-        spot.classList.toggle('is-locked', !unlocked);
-        spot.setAttribute('aria-pressed', active ? 'true' : 'false');
-        const tagEl = spot.querySelector('.mhs-state');
-        if (tagEl && hero) {
-          tagEl.innerHTML = active
-            ? '登台中'
-            : (unlocked ? '待命' : `${pxIcon('orb')}${hero.cost}`);
+        slice.classList.toggle('is-active', active);
+        slice.classList.toggle('is-unlocked', unlocked);
+        slice.classList.toggle('is-locked', !unlocked);
+        slice.setAttribute('aria-pressed', active ? 'true' : 'false');
+        if (active && triggerSheen) {
+          slice.classList.remove('sheen-pop');
+          void slice.offsetWidth;
+          slice.classList.add('sheen-pop');
+        }
+        const badgeEl = slice.querySelector('.v17-sl-lock');
+        if (badgeEl && hero) {
+          badgeEl.innerHTML = unlocked ? (active ? '出征就绪' : '已解锁') : `${pxIcon('orb')}${hero.cost}`;
+          badgeEl.classList.toggle('owned', unlocked);
         }
       });
+      const dots = $('v17-ribbon-dots');
+      if (dots) {
+        dots.querySelectorAll('.v17-dot').forEach((d) => {
+          d.classList.toggle('is-active', d.dataset.dotHero === this.previewHeroId);
+        });
+      }
     }
 
-    updateMusterSavedBar() {
-      const slot = $('muster-saved-slot');
+    updateTitleSavedSlot() {
+      const slot = $('title-saved-slot');
       if (!slot) return;
       const savedRun = this.meta.data.activeRun;
       if (!savedRun) {
@@ -827,113 +999,104 @@
         return;
       }
       slot.innerHTML = `
-        <div class="muster-saved-strip">
-          <span class="v14-body-text"><b>未完成对局</b> · ${esc(savedRun.hero.name)} · 第 ${savedRun.wave}/8 波 · ${pxIcon('gold')}${savedRun.gold} · ${savedRun.roster.length}人</span>
-          <div class="muster-saved-actions">
-            <button class="steel-btn crimson hud-mini-btn" id="btn-resume-run">${pxIcon('play')} 继续对局</button>
-            <button class="steel-btn hud-mini-btn" id="btn-discard-run">放弃旧局</button>
-          </div>
+        <div class="title-saved-row">
+          <button type="button" class="title-resume-btn" id="btn-title-resume">
+            <span class="tr-main">↺ 继续上次征程</span>
+            <span class="tr-meta">第 ${savedRun.wave}/8 波 · ${pxIcon('gold')}${savedRun.gold}</span>
+          </button>
+          <button type="button" class="title-discard-btn" id="btn-title-discard">放弃旧局</button>
         </div>
       `;
-      if ($('btn-resume-run')) $('btn-resume-run').onclick = () => this.resumeSavedRun();
-      if ($('btn-discard-run')) $('btn-discard-run').onclick = () => {
-        this.meta.clearActiveRun();
-        this.toast('已放弃旧对局');
-        this.updateMusterSavedBar();
-      };
+      if ($('btn-title-resume')) {
+        $('btn-title-resume').onclick = () => this.resumeSavedRun();
+      }
+      if ($('btn-title-discard')) {
+        $('btn-title-discard').onclick = () => {
+          this.meta.clearActiveRun();
+          this.toast('已放弃旧对局');
+          this.updateTitleSavedSlot();
+        };
+      }
+    }
+
+    updateMusterSavedBar() {
+      // Saved-run continue action now lives cleanly on the Title Screen (keeps Hero Select 100% pure!)
+      this.updateTitleSavedSlot();
     }
 
     updateMusterFolio() {
-      const folio = $('muster-folio');
-      if (!folio) return;
+      // Refresh floating corner HUD & inline action dock inside the currently expanded hero slice
       const d = this.meta.data;
+      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
       const curHero = this.meta.getHero(this.previewHeroId);
       const curUnlocked = this.meta.isHeroUnlocked(curHero.id);
       const curCanTrial = this.meta.canTrialHero(curHero.id);
       const curAsc = this.meta.getAscension(d.selectedAscension || 0);
-      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
-      const canRandom = liveUnlocked.length >= 4;
-      const activeThemeLabels = d.themeMode === 'random' && canRandom
-        ? ['随机 3 包 (+25%碎片)']
-        : (d.selectedThemes || []).map((id) => (D.THEMES[id] && D.THEMES[id].name) || id);
-      const accent = window.MT.HeroMusterStage
-        ? window.MT.HeroMusterStage.getHeroAccent(curHero.id)
-        : { main: '#ffd966' };
+      const achCount = (d.unlockedAchievements || []).length;
+      const achTotal = T ? T.ACHIEVEMENTS.length : 12;
 
-      folio.style.setProperty('--hero-accent', accent.main);
-      folio.innerHTML = `
-        <div class="mf-block mf-hero-head">
-          <div class="mf-meta-row">
-            <span class="mf-status-text ${curUnlocked ? 'owned' : 'locked'}">
-              ${curUnlocked ? '已入酒馆名册 · 可出征' : `未解锁 · 需 ${curHero.cost} 宝珠`}
-            </span>
-            <button class="mf-flourish-btn" id="btn-folio-flourish" type="button">↻ 演武</button>
-          </div>
-          <h3 class="mf-hero-name">${esc(curHero.name)}</h3>
-          <p class="mf-hero-desc v14-body-text">${esc(curHero.desc)}</p>
-        </div>
+      const orbPill = $('v17-corner-orbs');
+      if (orbPill) orbPill.innerHTML = `${pxIcon('orb')} <b>${d.orbs}</b>`;
+      const thBtn = $('v17-corner-themes');
+      if (thBtn) thBtn.textContent = `主题包 ${liveUnlocked.length}/8`;
+      const menuDot = $('v17-menu-dot');
+      if (menuDot) menuDot.classList.toggle('hidden', Boolean(d.dailyCheckedIn && d.dailyCheckinDoubled));
 
-        <div class="mf-divider"></div>
+      // Update menu popover items
+      const mDaily = $('v17-m-daily');
+      if (mDaily) {
+        if (!d.dailyCheckedIn) { mDaily.textContent = '每日签到 (领 3~10 碎片)'; mDaily.disabled = false; }
+        else if (!d.dailyCheckinDoubled) { mDaily.textContent = `签到翻倍 (+${d.dailyCheckinBase}碎片)`; mDaily.disabled = false; }
+        else { mDaily.textContent = '今日已签到'; mDaily.disabled = true; }
+      }
+      const mAch = $('v17-m-ach');
+      if (mAch) mAch.textContent = `荣耀成就 (${achCount}/${achTotal})`;
+      const mMute = $('v17-m-mute');
+      if (mMute) mMute.textContent = this.audio && this.audio.muted ? '音效：已静音' : '音效：开启';
 
-        <div class="mf-block">
-          <div class="mf-section-head">
-            <span class="mf-kicker">难度阶梯</span>
-            <span class="mf-kicker-val">${esc(curAsc.name)}</span>
-          </div>
-          <div class="v14-asc-row">
+      // Refresh inline command dock inside the expanded active slice
+      const dock = document.querySelector(`#v17-ribbon-track .v17-hero-slice[data-pick-hero="${curHero.id}"] .v17-inline-dock`);
+      if (!dock) return;
+      dock.innerHTML = `
+        <div class="v17-id-asc">
+          <span class="v17-id-asc-lbl">${esc(curAsc.name)}</span>
+          <div class="v17-id-asc-pills">
             ${M.ASCENSIONS.map((a) => {
               const locked = a.lv > (d.maxAscensionUnlocked || 0);
               const active = a.lv === (d.selectedAscension || 0);
-              return `<button class="v14-asc-btn ${active ? 'active' : ''}" data-asc="${a.lv}" ${locked ? 'disabled' : ''}>${a.lv === 0 ? '标准' : `阶${a.lv}`}</button>`;
+              return `<button type="button" class="v17-asc-chip ${active ? 'active' : ''}" data-asc="${a.lv}" ${locked ? 'disabled' : ''}>${a.lv === 0 ? '标准' : `阶${a.lv}`}</button>`;
             }).join('')}
           </div>
-          <p class="mf-sub-note v14-body-text">${esc(curAsc.desc)}</p>
         </div>
-
-        <div class="mf-divider"></div>
-
-        <div class="mf-block">
-          <div class="mf-section-head">
-            <span class="mf-kicker">本局卡池 · 51张</span>
-            <button class="mf-link-btn" id="btn-folio-themes" type="button">配置 8 大主题包 (${liveUnlocked.length}/8) →</button>
-          </div>
-          <div class="mf-theme-line v14-body-text">
-            ${activeThemeLabels.map((lbl) => `<span>${esc(lbl)}</span>`).join('<span class="mf-sep" aria-hidden="true">·</span>')}
-          </div>
-        </div>
-
-        <div class="mf-cta-row">
+        <div class="v17-id-actions">
           ${curUnlocked
-            ? `<button class="v15-primary-cta mf-start-btn" id="btn-prep-start">${pxIcon('atk')} 开始出征</button>`
-            : `<button class="v15-primary-cta gold" id="btn-prep-buy" ${d.orbs < curHero.cost ? 'disabled' : ''}>${pxIcon('orb')} ${curHero.cost} 购买解锁</button>
+            ? `<button type="button" class="v17-hero-cta start" id="btn-prep-start">${pxIcon('atk')} 开始出征 →</button>`
+            : `<button type="button" class="v17-hero-cta buy" id="btn-prep-buy" ${d.orbs < curHero.cost ? 'disabled' : ''}>${pxIcon('orb')} ${curHero.cost} 购买解锁</button>
                ${curCanTrial
-                 ? `<button class="v14-ad-btn mf-trial-btn" id="btn-prep-trial">${pxIcon('play')} 免费试用</button>`
-                 : `<button class="steel-btn mf-trial-btn" disabled>已试用</button>`}`
+                 ? `<button type="button" class="v17-hero-cta trial" id="btn-prep-trial">${pxIcon('play')} 免费试用</button>`
+                 : `<button type="button" class="v17-hero-cta trial" disabled>已试用</button>`}`
           }
         </div>
       `;
 
-      if ($('btn-folio-flourish')) {
-        $('btn-folio-flourish').onclick = () => {
-          if (this.heroMusterStage) this.heroMusterStage.triggerFlourish(curHero, false);
-          if (this.audio.playSlash) this.audio.playSlash();
-        };
-      }
-      if ($('btn-folio-themes')) {
-        $('btn-folio-themes').onclick = () => {
-          this.prepTab = 'themes';
+      dock.querySelectorAll('[data-asc]').forEach((btn) => {
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          this.meta.setSelectedAscension(Number(btn.dataset.asc));
           this.audio.playPickup();
-          this.renderPrepHall();
+          this.updateMusterFolio();
         };
-      }
+      });
       if ($('btn-prep-start')) {
-        $('btn-prep-start').onclick = () => {
+        $('btn-prep-start').onclick = (e) => {
+          e.stopPropagation();
           if (this.audio.playWaxSlam) this.audio.playWaxSlam();
           this.startNewRun(curHero.id, false);
         };
       }
       if ($('btn-prep-buy')) {
-        $('btn-prep-buy').onclick = () => {
+        $('btn-prep-buy').onclick = (e) => {
+          e.stopPropagation();
           if (this.meta.buyHero(curHero.id)) {
             this.toast(`已解锁【${curHero.name}】！`);
             this.syncPrepTopRail();
@@ -942,20 +1105,14 @@
         };
       }
       if ($('btn-prep-trial')) {
-        $('btn-prep-trial').onclick = () => {
+        $('btn-prep-trial').onclick = (e) => {
+          e.stopPropagation();
           this.playRewardedAd(`免费试用【${curHero.name}】（每英雄限 1 次）`, () => {
             this.meta.markHeroTrialed(curHero.id);
             this.startNewRun(curHero.id, true);
           });
         };
       }
-      folio.querySelectorAll('[data-asc]').forEach((btn) => {
-        btn.onclick = () => {
-          this.meta.setSelectedAscension(Number(btn.dataset.asc));
-          this.audio.playPickup();
-          this.updateMusterFolio();
-        };
-      });
     }
 
     syncPrepTopRail() {
@@ -990,7 +1147,7 @@
       }
       const titleEl = document.querySelector('#deck-select-modal .crt-main');
       if (titleEl) {
-        titleEl.textContent = this.prepTab === 'themes' ? '出征准备 · 8 大主题包' : '雨夜门廊 · 点将台';
+        titleEl.textContent = this.prepTab === 'themes' ? '出征准备 · 8 大主题包' : '霓虹星廊 · 英雄点将';
       }
     }
 
@@ -1003,163 +1160,712 @@
       const canRandom = liveUnlocked.length >= 4;
 
       if (this.prepTab === 'heroes') {
+        if (this.themeSanctumStage) this.themeSanctumStage.stop();
+        this._stopLiveDomPortraits();
         modal.classList.add('muster-mode');
         modal.classList.remove('themes-mode');
 
         const existingStage = $('muster-stage-root');
         if (!existingStage) {
-          const seats = window.MT.HeroMusterStage ? window.MT.HeroMusterStage.getSeatLayout() : [];
-          const dais = window.MT.HeroMusterStage ? window.MT.HeroMusterStage.getDais() : { x: 455, y: 454 };
-
           body.innerHTML = `
-            <div id="muster-stage-root" class="muster-stage-root">
-              <canvas id="hero-muster-canvas" class="hero-muster-canvas" width="1280" height="720"></canvas>
-              <div id="muster-saved-slot" class="muster-saved-slot"></div>
-              <div id="muster-hit-layer" class="muster-hit-layer">
-                <button id="btn-dais-replay" class="muster-dais-hit" type="button"
-                  style="left:${dais.x}px;top:${dais.y - 84}px;"
-                  title="点击演武" aria-label="点击重播当前英雄演武"></button>
-                ${M.HEROES_META.map((h, i) => {
-                  const seat = seats[i] || { x: 140 + i * 74, y: 630 };
-                  const shortName = this._shortHeroLabel(h.name);
-                  const unlocked = this.meta.isHeroUnlocked(h.id);
-                  const active = h.id === this.previewHeroId;
-                  return `
-                    <button class="muster-hero-spot ${active ? 'is-active' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'}"
-                      type="button"
-                      data-pick-hero="${h.id}"
-                      style="left:${seat.x}px;top:${seat.y}px;"
-                      aria-pressed="${active ? 'true' : 'false'}"
-                      aria-label="${esc(h.name)}">
-                      <span class="mhs-plate">
-                        <span class="mhs-name">${esc(shortName)}</span>
-                        <span class="mhs-state">${active ? '登台中' : (unlocked ? '待命' : `${pxIcon('orb')}${h.cost}`)}</span>
-                      </span>
+            <div id="muster-stage-root" class="muster-stage-root v17-gallery-root">
+              <!-- Minimal floating top-corner overlay (ZERO bulky top bar!) -->
+              <div class="v17-corner-bar">
+                <button type="button" class="v17-ghost-pill" id="v17-corner-back">← 返回</button>
+                <div class="v17-corner-right">
+                  <span class="v17-ghost-pill orbs" id="v17-corner-orbs">${pxIcon('orb')} <b>${d.orbs}</b></span>
+                  <button type="button" class="v17-ghost-pill" id="v17-corner-themes">主题包 ${liveUnlocked.length}/8</button>
+                  <div class="v17-menu-wrap">
+                    <button type="button" class="v17-ghost-pill menu-btn" id="v17-corner-menu" aria-label="更多殿堂">
+                      ☰ 殿堂<i id="v17-menu-dot" class="v17-menu-dot hidden"></i>
                     </button>
-                  `;
-                }).join('')}
+                    <div id="v17-menu-popover" class="v17-menu-popover hidden">
+                      <button type="button" class="v17-mp-item gold" id="v17-m-daily">每日签到</button>
+                      <button type="button" class="v17-mp-item" id="v17-m-board">镜湖战绩榜</button>
+                      <button type="button" class="v17-mp-item" id="v17-m-ach">荣耀成就</button>
+                      <button type="button" class="v17-mp-item" id="v17-m-codex">全卡池图鉴</button>
+                      <button type="button" class="v17-mp-item" id="v17-m-mute">音效：开启</button>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div class="muster-stage-hint" aria-hidden="true">点选门廊侠客登台演武 · 轻触石台重播招式 · 方向键 ← → 切换</div>
-              <aside id="muster-folio" class="muster-folio"></aside>
+
+              <!-- Full-screen edge-to-edge slanted hero accordion ribbon -->
+              <div class="v17-gallery-stage full-bleed">
+                <button type="button" class="v17-nav-arrow prev" id="btn-v17-prev" aria-label="上一位英雄">◀</button>
+                <div id="v17-ribbon-viewport" class="v17-ribbon-viewport">
+                  <div id="v17-ribbon-track" class="v17-ribbon-track">
+                    ${M.HEROES_META.map((h, idx) => {
+                      const unlocked = this.meta.isHeroUnlocked(h.id);
+                      const active = h.id === this.previewHeroId;
+                      const shortName = this._shortHeroLabel(h.name);
+                      const acc = h.accent || '#ffd966';
+                      const acc2 = h.accent2 || '#ff5c8a';
+                      const code = h.code || String(idx + 1).padStart(2, '0');
+                      return `
+                        <article class="v17-hero-slice ${active ? 'is-active' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'} ${h.portrait ? 'has-portrait' : 'is-blank'}"
+                          data-pick-hero="${h.id}"
+                          style="--h-acc:${acc};--h-acc2:${acc2};"
+                          role="button"
+                          tabindex="0"
+                          aria-pressed="${active ? 'true' : 'false'}"
+                          aria-label="${esc(h.name)}">
+                          <div class="v17-sl-edge left" aria-hidden="true"></div>
+                          <div class="v17-sl-edge right" aria-hidden="true"></div>
+                          <div class="v17-sl-sheen" aria-hidden="true"></div>
+
+                          <div class="v17-sl-unskew">
+                            ${h.portrait
+                              ? `<img class="v17-sl-art" src="${esc(h.portrait)}" alt="${esc(h.name)}" draggable="false" />`
+                              : `<div class="v17-sl-blank-canvas">
+                                   <div class="v17-blank-grid" aria-hidden="true"></div>
+                                   <div class="v17-blank-watermark">${code}</div>
+                                   <div class="v17-blank-frame">
+                                     <span class="v17-bf-kicker">${esc(h.codename || 'HERO')}</span>
+                                     <b class="v17-bf-title">${esc(shortName)}</b>
+                                     <span class="v17-bf-note">专属像素立绘 · 待绘制</span>
+                                   </div>
+                                 </div>`
+                            }
+                            <div class="v17-sl-vignette" aria-hidden="true"></div>
+                          </div>
+
+                          <!-- Collapsed vertical index strip -->
+                          <div class="v17-sl-collapsed-hud">
+                            <span class="v17-sl-num">${code}</span>
+                            <span class="v17-sl-vname">${esc(shortName)}</span>
+                            <span class="v17-sl-mini-lock ${unlocked ? 'owned' : ''}">${unlocked ? '✦' : `${pxIcon('orb')}${h.cost}`}</span>
+                          </div>
+
+                          <!-- Expanded full-portrait nameplate + inline start/difficulty dock (ZERO side modal!) -->
+                          <div class="v17-sl-expanded-hud">
+                            <div class="v17-ex-top">
+                              <span class="v17-ex-code">NO.${code} · ${esc(h.codename || 'HERO')}</span>
+                              <span class="v17-sl-lock ${unlocked ? 'owned' : ''}">${unlocked ? '出征就绪' : `${pxIcon('orb')}${h.cost}`}</span>
+                            </div>
+                            <div class="v17-ex-bottom">
+                              <div class="v17-ex-name">${esc(h.name)}</div>
+                              <div class="v17-ex-sub">${esc(h.desc)}</div>
+                              <div class="v17-inline-dock"></div>
+                            </div>
+                          </div>
+                        </article>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+                <button type="button" class="v17-nav-arrow next" id="btn-v17-next" aria-label="下一位英雄">▶</button>
+
+                <div class="v17-ribbon-hud">
+                  <div id="v17-ribbon-dots" class="v17-ribbon-dots">
+                    ${M.HEROES_META.map((h) => `<button type="button" class="v17-dot ${h.id === this.previewHeroId ? 'is-active' : ''}" data-dot-hero="${h.id}" style="--h-acc:${h.accent || '#ffd966'};" title="${esc(h.name)}"></button>`).join('')}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Foreground transient diagonal slash FX (plays AFTER parallel blades finish opening!) -->
+              <canvas id="hero-muster-canvas" class="hero-muster-canvas v17-fx-canvas fg" width="1280" height="720" aria-hidden="true"></canvas>
             </div>
           `;
 
           const canvas = $('hero-muster-canvas');
           if (this.heroMusterStage && canvas) {
             this.heroMusterStage.attach(canvas, M.HEROES_META, this.previewHeroId);
-            if (opts.triggerEntryFlourish) {
-              this.heroMusterStage.triggerFlourish(this.meta.getHero(this.previewHeroId), false);
-            }
           }
 
-          if ($('btn-dais-replay')) {
-            $('btn-dais-replay').onclick = () => {
-              const cur = this.meta.getHero(this.previewHeroId);
-              if (this.heroMusterStage && cur) this.heroMusterStage.triggerFlourish(cur, false);
-              if (this.audio.playSlash) this.audio.playSlash();
+          // Wire minimal floating corner controls & popover menu
+          if ($('v17-corner-back')) $('v17-corner-back').onclick = () => this.showTitleScreen();
+          if ($('v17-corner-themes')) {
+            $('v17-corner-themes').onclick = () => {
+              this.prepTab = 'themes';
+              this.audio.playPickup();
+              this.renderPrepHall();
+            };
+          }
+          const menuBtn = $('v17-corner-menu');
+          const menuPop = $('v17-menu-popover');
+          if (menuBtn && menuPop) {
+            menuBtn.onclick = (e) => {
+              e.stopPropagation();
+              menuPop.classList.toggle('hidden');
+            };
+            document.addEventListener('click', (e) => {
+              if (!menuPop.classList.contains('hidden') && !menuPop.contains(e.target) && e.target !== menuBtn) {
+                menuPop.classList.add('hidden');
+              }
+            });
+          }
+          if ($('v17-m-daily')) $('v17-m-daily').onclick = () => { if (menuPop) menuPop.classList.add('hidden'); this.handleDailyAdButton(); };
+          if ($('v17-m-board')) $('v17-m-board').onclick = () => { if (menuPop) menuPop.classList.add('hidden'); this.openLeaderboardModal(); };
+          if ($('v17-m-ach')) $('v17-m-ach').onclick = () => { if (menuPop) menuPop.classList.add('hidden'); this.openAchievementsModal(); };
+          if ($('v17-m-codex')) $('v17-m-codex').onclick = () => { if (menuPop) menuPop.classList.add('hidden'); this.openCodexModal('codex'); };
+          if ($('v17-m-mute')) {
+            $('v17-m-mute').onclick = () => {
+              const muted = this.audio.toggleMute();
+              this.toast(muted ? '音效已静音' : '音效已开启');
+              this.updateMusterFolio();
             };
           }
 
-          const hitLayer = $('muster-hit-layer');
-          if (hitLayer) {
-            hitLayer.querySelectorAll('.muster-hero-spot').forEach((spot) => {
-              const hid = spot.dataset.pickHero;
-              spot.onclick = () => this.selectMusterHero(hid, true, false);
-              spot.onmouseenter = () => {
-                if (this.heroMusterStage) this.heroMusterStage.setHovered(hid);
-              };
-              spot.onmouseleave = () => {
-                if (this.heroMusterStage) this.heroMusterStage.setHovered(null);
-              };
+          // Smooth horizontal drag-to-scroll + mouse wheel + subtle portrait parallax!
+          const vp = $('v17-ribbon-viewport');
+          const track = $('v17-ribbon-track');
+          let isDown = false;
+          let startX = 0;
+          let startScroll = 0;
+          let draggedDist = 0;
+
+          if (vp) {
+            vp.addEventListener('pointerdown', (e) => {
+              if (e.target.closest('button')) return;
+              if (e.button !== 0 && e.pointerType === 'mouse') return;
+              isDown = true;
+              draggedDist = 0;
+              startX = e.clientX;
+              startScroll = vp.scrollLeft;
+              vp.classList.add('is-dragging');
+            });
+            window.addEventListener('pointermove', (e) => {
+              if (!isDown) return;
+              const dx = e.clientX - startX;
+              draggedDist = Math.max(draggedDist, Math.abs(dx));
+              vp.scrollLeft = startScroll - dx * 1.15;
+            });
+            const endDrag = () => {
+              if (!isDown) return;
+              isDown = false;
+              vp.classList.remove('is-dragging');
+            };
+            window.addEventListener('pointerup', endDrag);
+            window.addEventListener('pointercancel', endDrag);
+
+            vp.addEventListener('wheel', (e) => {
+              if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+                e.preventDefault();
+                vp.scrollLeft += e.deltaY * 1.25;
+              }
+            }, { passive: false });
+
+            vp.addEventListener('pointermove', (e) => {
+              if (isDown) return;
+              const active = track && track.querySelector('.v17-hero-slice.is-active');
+              if (!active) return;
+              const r = active.getBoundingClientRect();
+              if (r.width <= 0) return;
+              const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
+              const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
+              active.style.setProperty('--px', `${(-nx * 7).toFixed(1)}px`);
+              active.style.setProperty('--py', `${(-ny * 5).toFixed(1)}px`);
             });
           }
+
+          if (track) {
+            track.querySelectorAll('.v17-hero-slice').forEach((slice) => {
+              const hid = slice.dataset.pickHero;
+              slice.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return;
+                if (draggedDist > 7) { draggedDist = 0; return; }
+                this.selectMusterHero(hid, true, false);
+              });
+              slice.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  this.selectMusterHero(hid, true, false);
+                }
+              });
+            });
+          }
+
+          const stepHero = (delta) => {
+            const list = M.HEROES_META;
+            const curIdx = Math.max(0, list.findIndex((h) => h.id === this.previewHeroId));
+            const next = list[(curIdx + delta + list.length) % list.length];
+            if (next) this.selectMusterHero(next.id, true, false);
+          };
+          if ($('btn-v17-prev')) $('btn-v17-prev').onclick = () => stepHero(-1);
+          if ($('btn-v17-next')) $('btn-v17-next').onclick = () => stepHero(1);
+
+          const dots = $('v17-ribbon-dots');
+          if (dots) {
+            dots.querySelectorAll('.v17-dot').forEach((dot) => {
+              dot.onclick = () => this.selectMusterHero(dot.dataset.dotHero, true, false);
+            });
+          }
+
+          setTimeout(() => {
+            this._centerActiveHeroSlice(false);
+            if (opts.triggerEntryFlourish && this.heroMusterStage) {
+              this.selectMusterHero(this.previewHeroId, false, false);
+            }
+          }, 40);
         } else if (this.heroMusterStage) {
-          this.heroMusterStage.setHeroes(M.HEROES_META);
-          this.heroMusterStage.start();
           if (opts.triggerEntryFlourish) {
-            this.heroMusterStage.selectHero(this.meta.getHero(this.previewHeroId), true, false);
+            this.selectMusterHero(this.previewHeroId, false, false);
           }
         }
 
-        this.syncMusterSpots();
+        this.syncMusterSpots(false);
         this.updateMusterSavedBar();
         this.updateMusterFolio();
         return;
       }
 
-      // ─── UNTOUCHED 8 THEME PACKS VIEW ("卡包先不动") ───
+      // ─── v18.0 SLANTED ASTROLABE SANCTUM: 8 THEME PACKS (Unified Ghost Chrome + Living 4-Unit Dais!) ───
       if (this.heroMusterStage) this.heroMusterStage.stop();
       modal.classList.remove('muster-mode');
       modal.classList.add('themes-mode');
+      this.renderThemeSanctum(opts);
+    }
+
+    _themeMetaCode(tpId) {
+      const codes = {
+        discard: 'CYCLONE DISCARD',
+        shield:  'AEGIS COUNTER',
+        poison:  'VENOM ALCHEMY',
+        frost:   'GLACIER SHATTER',
+        hand:    'STEEL RESERVES',
+        summon:  'SOUL SACRIFICE',
+        blood:   'CRIMSON PACT',
+        dice:    'FORTUNE GAMBIT'
+      };
+      return codes[tpId] || 'ARCANE STYLE';
+    }
+
+    focusThemeSanctum(themeId, playSound = true) {
+      if (!themeId) return;
+      const changed = this.previewThemeId !== themeId;
+      this.previewThemeId = themeId;
+      if (playSound && changed && this.audio && this.audio.playPickup) {
+        this.audio.playPickup();
+      }
+      if (this.themeSanctumStage) {
+        this.themeSanctumStage.setTheme(themeId, changed);
+      }
+      this._updateThemeSanctumShowcase(changed);
+    }
+
+    renderThemeSanctum() {
+      const body = $('deck-select-grid');
+      if (!body) return;
+      const d = this.meta.data;
+      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
+      const canRandom = liveUnlocked.length >= 4;
+      if (!M.THEME_PACKS_META.some((tp) => tp.id === this.previewThemeId)) {
+        this.previewThemeId = (d.selectedThemes && d.selectedThemes[0]) || 'discard';
+      }
+
+      const activeThemes = (d.selectedThemes || ['discard', 'shield', 'poison']).slice(0, 3);
+      const isRand = d.themeMode === 'random' && canRandom;
+
+      const slotsHtml = isRand
+        ? `<span class="v18-slot-pill is-rand">🎲 随机 3 包 · 碎片 +25%</span>
+           <button type="button" class="v18-mode-toggle" id="v18-ts-mode-pick">切回自选</button>`
+        : `${[0, 1, 2].map((i) => {
+            const tid = activeThemes[i];
+            if (!tid) return `<span class="v18-slot-pill is-empty">＋ 待装配</span>`;
+            const th = D.THEMES[tid] || D.THEMES.core;
+            return `<button type="button" class="v18-slot-pill is-filled" data-unequip-theme="${tid}" style="--th-col:${th.color};" title="点击卸下「${esc(th.short)}」">
+              <i class="v18-sp-dot"></i>${esc(th.short)}<span class="v18-sp-x">×</span>
+            </button>`;
+          }).join('')}
+          ${canRandom
+            ? `<button type="button" class="v18-mode-toggle" id="v18-ts-mode-rand" title="从已解锁流派中随机 3 包出征，局后碎片 +25%">🎲 随机3包 +25%</button>`
+            : `<span class="v18-slot-hint">解锁4包开随机</span>`}`;
+
+      const achCount = (d.unlockedAchievements || []).length;
+      const achTotal = T ? T.ACHIEVEMENTS.length : 12;
+      const hasDailyDot = !d.dailyCheckedIn || !d.dailyCheckinDoubled;
+      const dailyTxt = !d.dailyCheckedIn
+        ? '每日签到（领碎片）'
+        : (!d.dailyCheckinDoubled ? `签到翻倍 (+${d.dailyCheckinBase}碎片)` : '今日已签到 ✓');
 
       body.innerHTML = `
-        <section class="v14-prep-right v15-themes-only-shell">
-          <div class="v14-prep-tabs">
-            <div class="v14-tab-group">
-              <button class="v14-tab-btn" id="btn-tab-heroes">← 雨夜门廊点将台 (10)</button>
-              <button class="v14-tab-btn active" id="btn-tab-themes">8 大主题包 (${liveUnlocked.length}/8 已解锁)</button>
+        <section id="v18-sanctum-root" class="v18-sanctum-root">
+          <!-- Living 60fps Pixel Astrolabe & Elemental Nebula Canvas -->
+          <canvas id="theme-sanctum-canvas" class="v18-sanctum-bg-canvas" width="1280" height="720" aria-hidden="true"></canvas>
+
+          <!-- Unified Floating Corner Chrome (100% consistent with Hero Gallery!) -->
+          <div class="v17-corner-bar v18-ts-corner-bar">
+            <button type="button" class="v17-ghost-pill" id="v18-ts-back">← 返回点将</button>
+
+            <div class="v18-ts-loadout-bar" aria-label="本局装配流派">
+              <span class="v18-lb-kicker">本局装配</span>
+              <div class="v18-lb-slots">${slotsHtml}</div>
             </div>
-            ${canRandom ? `
-              <div style="display:flex;gap:6px;">
-                <button class="steel-btn hud-mini-btn ${d.themeMode === 'pick' ? 'crimson' : ''}" id="btn-theme-pick">自选3包</button>
-                <button class="steel-btn hud-mini-btn ${d.themeMode === 'random' ? 'gold' : ''}" id="btn-theme-rand">随机3包 (+25%碎片)</button>
+
+            <div class="v17-corner-right">
+              <span class="v17-ghost-pill orbs" id="v18-ts-orbs">${pxIcon('orb')} <b>${d.orbs}</b></span>
+              <div class="v17-menu-wrap">
+                <button type="button" class="v17-ghost-pill menu-btn" id="v18-ts-menu" aria-label="更多殿堂">
+                  ☰ 殿堂<i class="v17-menu-dot ${hasDailyDot ? '' : 'hidden'}"></i>
+                </button>
+                <div id="v18-ts-popover" class="v17-menu-popover hidden">
+                  <button type="button" class="v17-mp-item gold" id="v18-m-daily" ${hasDailyDot ? '' : 'disabled'}>${esc(dailyTxt)}</button>
+                  <button type="button" class="v17-mp-item" id="v18-m-board">镜湖战绩榜</button>
+                  <button type="button" class="v17-mp-item" id="v18-m-ach">荣耀成就 (${achCount}/${achTotal})</button>
+                  <button type="button" class="v17-mp-item" id="v18-m-codex">全卡池图鉴</button>
+                  <button type="button" class="v17-mp-item" id="v18-m-mute">${this.audio.muted ? '音效：静音' : '音效：开启'}</button>
+                </div>
               </div>
-            ` : ''}
+            </div>
           </div>
 
-          <div class="v14-themes-grid-8">
-            ${M.THEME_PACKS_META.map((tp) => {
-              const unlocked = this.meta.isThemeUnlocked(tp.id);
-              const selected = (d.selectedThemes || []).includes(tp.id);
-              const th = D.THEMES[tp.id] || D.THEMES.core;
-              const isPicked = unlocked && selected && d.themeMode === 'pick';
-              return `
-                <div class="v14-theme-card ${isPicked ? 'active-pick' : ''}" style="--th-col:${th.color};--th-bg:${th.bg};">
-                  <div class="v15-card-window"><div class="v15-b-specular"></div></div>
-                  <div style="display:flex;justify-content:space-between;align-items:center;position:relative;z-index:2;">
-                    <b style="font-size:14px;color:${th.color};">${esc(tp.name)}</b>
-                    <span class="v14-tier ${unlocked ? 'tier-B' : 'tier-S'}">${tp.cost === 0 ? '免费' : `${pxIcon('orb')}${tp.cost}`}</span>
-                  </div>
-                  <div class="v14-body-text" style="font-size:12.5px;line-height:1.4;color:#d6e0f5;flex:1;position:relative;z-index:2;">${esc(tp.desc)}</div>
-                  ${unlocked
-                    ? `<button class="steel-btn ${isPicked ? 'crimson' : ''}" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-toggle-theme="${tp.id}">${d.themeMode === 'random' ? '已入随机池' : (selected ? `${pxIcon('check')} 本局已选` : '点选入局')}</button>`
-                    : `<button class="steel-btn gold" style="font-size:12px;padding:6px;position:relative;z-index:2;" data-buy-theme="${tp.id}" ${d.orbs < tp.cost ? 'disabled' : ''}>${pxIcon('orb')} ${tp.cost} 购买解锁</button>`
-                  }
-                </div>
-              `;
-            }).join('')}
+          <!-- Center Theatrical Showcase Stage (dynamically updated on dock click) -->
+          <div id="v18-ts-showcase" class="v18-ts-showcase"></div>
+
+          <!-- Bottom Slanted Parallelogram 8-Style Selector Dock (matches Hero Select -11deg DNA!) -->
+          <div class="v18-ts-dock-wrap">
+            <div class="v18-ts-dock" id="v18-ts-dock">
+              ${M.THEME_PACKS_META.map((tp, idx) => {
+                const unlocked = this.meta.isThemeUnlocked(tp.id);
+                const selected = (d.selectedThemes || []).includes(tp.id);
+                const isPicked = unlocked && selected && !isRand;
+                const isFocused = tp.id === this.previewThemeId;
+                const th = D.THEMES[tp.id] || D.THEMES.core;
+                const tpHeroes = (D.SHOP_HEROES || []).filter((h) => h.theme === tp.id);
+                const leadHero = tpHeroes[0];
+                const shortTitle = (tp.name || '').replace(/^主题包\s*·\s*/, '');
+                const code = String(idx + 1).padStart(2, '0');
+                return `
+                  <article class="v18-ts-slice ${isFocused ? 'is-focused' : ''} ${isPicked ? 'is-picked' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'}"
+                    data-focus-theme="${tp.id}"
+                    style="--th-col:${th.color};--th-bg:${th.bg};"
+                    role="button" tabindex="0" aria-pressed="${isFocused ? 'true' : 'false'}">
+                    <div class="v18-sl-rail" aria-hidden="true"></div>
+                    <div class="v18-sl-sheen" aria-hidden="true"></div>
+                    <div class="v18-sl-inner">
+                      <div class="v18-sl-top">
+                        <span class="v18-sl-code">${code}</span>
+                        <span class="v18-sl-tag ${isPicked ? 'picked' : (unlocked ? 'owned' : 'cost')}">
+                          ${isPicked ? '✦ 参战' : (isRand && unlocked ? '🎲 随机' : (unlocked ? (tp.cost === 0 ? '免费' : '已拥') : `${pxIcon('orb')}${tp.cost}`))}
+                        </span>
+                      </div>
+                      <div class="v18-sl-art">
+                        ${leadHero ? `<canvas class="v16-portrait-canvas" width="64" height="64" data-portrait-unit="${esc(leadHero.unitId)}" data-portrait-flip="0"></canvas>` : ''}
+                      </div>
+                      <div class="v18-sl-name">${esc(shortTitle)}</div>
+                    </div>
+                  </article>
+                `;
+              }).join('')}
+            </div>
           </div>
         </section>
       `;
 
-      body.querySelectorAll('.v14-theme-card').forEach((el) => {
-        this.bindInteractive3DTilt(el, 9, 7, true);
-      });
+      // Paint static thumbnails on bottom dock slices
+      this._paintDomPortraits($('v18-ts-dock'));
 
-      if ($('btn-tab-heroes')) {
-        $('btn-tab-heroes').onclick = () => {
+      // Attach living 60fps Pixel Astrolabe stage
+      const bgCanvas = $('theme-sanctum-canvas');
+      if (this.themeSanctumStage && bgCanvas) {
+        this.themeSanctumStage.attach(bgCanvas, this.previewThemeId);
+      }
+
+      // Wire unified corner controls
+      if ($('v18-ts-back')) {
+        $('v18-ts-back').onclick = () => {
           this.prepTab = 'heroes';
           this.audio.playPickup();
-          this.renderPrepHall({ triggerEntryFlourish: false });
+          this.renderPrepHall({ triggerEntryFlourish: true });
         };
       }
-      if ($('btn-theme-pick')) $('btn-theme-pick').onclick = () => { this.meta.setThemeMode('pick'); this.renderPrepHall(); };
-      if ($('btn-theme-rand')) $('btn-theme-rand').onclick = () => { this.meta.setThemeMode('random'); this.renderPrepHall(); };
-      body.querySelectorAll('[data-buy-theme]').forEach((btn) => {
+      if ($('v18-ts-mode-rand')) {
+        $('v18-ts-mode-rand').onclick = () => {
+          this.meta.setThemeMode('random');
+          this.audio.playPickup();
+          if (this.themeSanctumStage) this.themeSanctumStage.triggerBurst(this.previewThemeId, true);
+          this.renderThemeSanctum();
+        };
+      }
+      if ($('v18-ts-mode-pick')) {
+        $('v18-ts-mode-pick').onclick = () => {
+          this.meta.setThemeMode('pick');
+          this.audio.playPickup();
+          this.renderThemeSanctum();
+        };
+      }
+      body.querySelectorAll('[data-unequip-theme]').forEach((btn) => {
         btn.onclick = () => {
-          if (this.meta.buyThemePack(btn.dataset.buyTheme)) {
-            this.audio.playPickup();
-            this.toast('已解锁拓展主题包！');
-            this.renderPrepHall();
+          const ok = this.meta.toggleSelectTheme(btn.dataset.unequipTheme);
+          if (!ok) {
+            this.toast('本局至少需要保留 1 个参战流派');
+          } else {
+            this.audio.playDrop();
+            this.renderThemeSanctum();
           }
         };
       });
-      body.querySelectorAll('[data-toggle-theme]').forEach((btn) => {
+
+      // Unified Hall Popover Menu
+      const tsMenu = $('v18-ts-menu');
+      const tsPop = $('v18-ts-popover');
+      if (tsMenu && tsPop) {
+        tsMenu.onclick = (e) => {
+          e.stopPropagation();
+          tsPop.classList.toggle('hidden');
+        };
+        const closePop = (e) => {
+          if (!tsPop.isConnected) { document.removeEventListener('click', closePop); return; }
+          if (!tsPop.classList.contains('hidden') && !tsPop.contains(e.target) && e.target !== tsMenu) {
+            tsPop.classList.add('hidden');
+          }
+        };
+        document.addEventListener('click', closePop);
+      }
+      if ($('v18-m-daily')) $('v18-m-daily').onclick = () => { if (tsPop) tsPop.classList.add('hidden'); this.handleDailyAdButton(); };
+      if ($('v18-m-board')) $('v18-m-board').onclick = () => { if (tsPop) tsPop.classList.add('hidden'); this.openLeaderboardModal(); };
+      if ($('v18-m-ach')) $('v18-m-ach').onclick = () => { if (tsPop) tsPop.classList.add('hidden'); this.openAchievementsModal(); };
+      if ($('v18-m-codex')) $('v18-m-codex').onclick = () => { if (tsPop) tsPop.classList.add('hidden'); this.openCodexModal('codex'); };
+      if ($('v18-m-mute')) {
+        $('v18-m-mute').onclick = () => {
+          const muted = this.audio.toggleMute();
+          this.toast(muted ? '音效已静音' : '音效已开启');
+          this.renderThemeSanctum();
+        };
+      }
+
+      // Wire bottom slanted 8-style dock cards
+      const dock = $('v18-ts-dock');
+      if (dock) {
+        dock.querySelectorAll('.v18-ts-slice').forEach((card) => {
+          const tid = card.dataset.focusTheme;
+          card.onclick = () => {
+            if (this.previewThemeId === tid) {
+              // Second click on already-focused unlocked slice toggles equip cleanly!
+              if (this.meta.isThemeUnlocked(tid) && !(d.themeMode === 'random' && canRandom)) {
+                const ok = this.meta.toggleSelectTheme(tid);
+                if (!ok) {
+                  this.toast('本局至少需要保留 1 个参战流派');
+                } else {
+                  this.audio.playPickup();
+                  if (this.themeSanctumStage) this.themeSanctumStage.triggerBurst(tid, false);
+                  this.renderThemeSanctum();
+                }
+              }
+              return;
+            }
+            this.focusThemeSanctum(tid, true);
+          };
+          card.onkeydown = (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              card.click();
+            }
+          };
+        });
+      }
+
+      this._updateThemeSanctumShowcase(false);
+    }
+
+    _updateThemeSanctumShowcase(animateEnter = false) {
+      const stage = $('v18-ts-showcase');
+      if (!stage) return;
+      this._stopLiveDomPortraits();
+
+      const d = this.meta.data;
+      const liveUnlocked = M.THEME_PACKS_META.filter((tp) => tp.live && this.meta.isThemeUnlocked(tp.id));
+      const canRandom = liveUnlocked.length >= 4;
+      const isRand = d.themeMode === 'random' && canRandom;
+
+      const idx = Math.max(0, M.THEME_PACKS_META.findIndex((t) => t.id === this.previewThemeId));
+      const tp = M.THEME_PACKS_META[idx] || M.THEME_PACKS_META[0];
+      const th = D.THEMES[tp.id] || D.THEMES.core;
+      const unlocked = this.meta.isThemeUnlocked(tp.id);
+      const selected = (d.selectedThemes || []).includes(tp.id);
+      const isPicked = unlocked && selected && !isRand;
+      const canBuy = d.orbs >= tp.cost;
+      const shortTitle = (tp.name || '').replace(/^主题包\s*·\s*/, '');
+      const cleanDesc = (tp.desc || '').replace(/^(免费开放|已实装)\s*·\s*/, '');
+      const code = String(idx + 1).padStart(2, '0');
+      const tpHeroes = (D.SHOP_HEROES || []).filter((h) => h.theme === tp.id);
+      const tpRelics = (D.RELICS || []).filter((r) => r.theme === tp.id);
+
+      // Update focused state on bottom dock slices
+      const dock = $('v18-ts-dock');
+      if (dock) {
+        dock.querySelectorAll('.v18-ts-slice').forEach((el) => {
+          const active = el.dataset.focusTheme === tp.id;
+          el.classList.toggle('is-focused', active);
+          el.setAttribute('aria-pressed', active ? 'true' : 'false');
+          if (active && animateEnter) {
+            el.classList.remove('sheen-pop');
+            void el.offsetWidth;
+            el.classList.add('sheen-pop');
+          }
+        });
+      }
+
+      const defaultHero = tpHeroes[0];
+      const defaultInspectHtml = defaultHero
+        ? `<span class="v18-ins-badge tier-${defaultHero.tier}">${defaultHero.tier}</span>
+           <b class="v18-ins-name">${esc(defaultHero.shortName)}</b>
+           <span class="v18-ins-stat">${pxIcon('atk')}${defaultHero.atk}</span>
+           <span class="v18-ins-desc">${esc(defaultHero.desc)}</span>`
+        : `<span class="v18-ins-desc">${esc(cleanDesc)}</span>`;
+
+      const ctaHtml = unlocked
+        ? (isRand
+            ? `<button type="button" class="v18-ts-cta rand" id="v18-ts-action">🎲 已纳入随机出征池（点此切回自选）</button>`
+            : (isPicked
+                ? `<button type="button" class="v18-ts-cta picked" id="v18-ts-action">${pxIcon('check')} 本局已参战 · 点击卸下</button>`
+                : `<button type="button" class="v18-ts-cta equip" id="v18-ts-action">✦ 装配「${esc(shortTitle)}」入局</button>`))
+        : `<button type="button" class="v18-ts-cta unlock ${canBuy ? 'ready' : ''}" id="v18-ts-action" ${canBuy ? '' : 'disabled'}>
+             ${pxIcon('orb')} ${canBuy ? `${tp.cost} 宝珠解锁「${esc(shortTitle)}」` : `需 ${tp.cost} 宝珠解锁（差 ${tp.cost - d.orbs} 宝珠）`}
+           </button>`;
+
+      stage.style.setProperty('--th-col', th.color);
+      stage.style.setProperty('--th-bg', th.bg);
+      stage.innerHTML = `
+        <div class="v18-ts-stage-grid ${animateEnter ? 'is-entering' : ''}">
+          <!-- LEFT WING: Style Manifesto + 4 Living Animated Pixel Heroes on Moonlight Dais -->
+          <div class="v18-ts-left">
+            <div class="v18-ts-meta-row">
+              <span class="v18-ts-code">STYLE ${code} / 08 · ${this._themeMetaCode(tp.id)}</span>
+              <span class="v18-ts-status ${isPicked ? 'picked' : (unlocked ? 'owned' : 'locked')}">
+                ${isPicked ? '✦ 本局参战中' : (unlocked ? '已解锁流派' : `${pxIcon('orb')} ${tp.cost} 未解锁`)}
+              </span>
+            </div>
+            <h2 class="v18-ts-title">${esc(shortTitle)}</h2>
+            <p class="v18-ts-desc">${esc(cleanDesc)}</p>
+
+            <div class="v18-ts-dais-wrap">
+              <div class="v18-ts-dais-ring" aria-hidden="true"></div>
+              <div class="v18-ts-squad-row">
+                ${tpHeroes.map((h, i) => `
+                  <button type="button" class="v18-live-hero ${i === 0 ? 'is-inspected' : ''}" data-ts-hero-idx="${i}">
+                    <span class="v18-lh-tier tier-${h.tier}">${h.tier}</span>
+                    <canvas class="v18-live-canvas" width="96" height="96"
+                      data-live-unit="${esc(h.unitId)}"
+                      data-live-flip="${i >= 2 ? '1' : '0'}"
+                      data-live-phase="${(i * 0.42).toFixed(2)}"></canvas>
+                    <span class="v18-lh-name">${esc(h.shortName)}</span>
+                  </button>
+                `).join('')}
+              </div>
+              <div class="v18-ts-dais-hint">悬停或点击侠客可演武并查看机制</div>
+            </div>
+          </div>
+
+          <!-- RIGHT WING: 5 Arcane Relics Constellation + Live Inspector + Primary Seal CTA -->
+          <div class="v18-ts-right">
+            <div class="v18-ts-section-head">
+              <span class="v18-sh-title">专属星界秘宝</span>
+              <span class="v18-sh-sub">${tpRelics.length} RELICS · 悬停查详规</span>
+            </div>
+
+            <div class="v18-ts-relics-row">
+              ${tpRelics.map((r, i) => `
+                <button type="button" class="v18-ts-relic tier-${r.tier}" data-ts-relic-idx="${i}" title="${esc(r.name)}">
+                  <div class="v18-tr-glow" aria-hidden="true"></div>
+                  ${this.renderSafeIconImg(r.icon, tp.id, 'v18-tr-img')}
+                  <span class="v18-tr-tier">${r.tier}</span>
+                  <span class="v18-tr-name">${esc(r.name.replace(/^[^·]+·\s*/, ''))}</span>
+                </button>
+              `).join('')}
+            </div>
+
+            <div class="v18-ts-inspector" id="v18-ts-inspector">
+              ${defaultInspectHtml}
+            </div>
+
+            <div class="v18-ts-cta-wrap">
+              ${ctaHtml}
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Start 60fps/20fps live Duelyst idle/attack animation for all 4 heroes on the dais!
+      this._startLiveDomPortraits(stage);
+
+      const inspector = $('v18-ts-inspector');
+      const setInspectorHero = (h, btnEl) => {
+        stage.querySelectorAll('.v18-live-hero, .v18-ts-relic').forEach((el) => el.classList.remove('is-inspected'));
+        if (btnEl) btnEl.classList.add('is-inspected');
+        if (inspector && h) {
+          inspector.innerHTML = `
+            <span class="v18-ins-badge tier-${h.tier}">${h.tier}</span>
+            <b class="v18-ins-name">${esc(h.shortName)}</b>
+            <span class="v18-ins-stat">${pxIcon('atk')}${h.atk}</span>
+            <span class="v18-ins-desc">${esc(h.desc)}</span>
+          `;
+        }
+      };
+      const setInspectorRelic = (r, btnEl) => {
+        stage.querySelectorAll('.v18-live-hero, .v18-ts-relic').forEach((el) => el.classList.remove('is-inspected'));
+        if (btnEl) btnEl.classList.add('is-inspected');
+        if (inspector && r) {
+          inspector.innerHTML = `
+            <span class="v18-ins-badge tier-${r.tier}">${r.tier} 秘宝</span>
+            <b class="v18-ins-name">${esc(r.name)}</b>
+            <span class="v18-ins-desc">${esc(r.desc)}</span>
+          `;
+        }
+      };
+
+      stage.querySelectorAll('[data-ts-hero-idx]').forEach((btn) => {
+        const h = tpHeroes[Number(btn.dataset.tsHeroIdx)];
+        if (!h) return;
+        const cv = btn.querySelector('canvas[data-live-unit]');
+        btn.onmouseenter = () => {
+          setInspectorHero(h, btn);
+          this._triggerLivePortraitAttack(cv);
+        };
         btn.onclick = () => {
-          this.meta.toggleSelectTheme(btn.dataset.toggleTheme);
-          this.renderPrepHall();
+          setInspectorHero(h, btn);
+          this._triggerLivePortraitAttack(cv);
+          if (this.audio && this.audio.playSlash) this.audio.playSlash();
         };
       });
+
+      stage.querySelectorAll('[data-ts-relic-idx]').forEach((btn) => {
+        const r = tpRelics[Number(btn.dataset.tsRelicIdx)];
+        if (!r) return;
+        btn.onmouseenter = () => setInspectorRelic(r, btn);
+        btn.onclick = () => {
+          setInspectorRelic(r, btn);
+          if (this.audio && this.audio.playPickup) this.audio.playPickup();
+        };
+      });
+
+      const actionBtn = $('v18-ts-action');
+      if (actionBtn) {
+        actionBtn.onclick = () => {
+          if (!unlocked) {
+            if (this.meta.buyThemePack(tp.id)) {
+              if (this.audio.playCheer) this.audio.playCheer();
+              else this.audio.playPickup();
+              this.toast(`已解锁「${shortTitle}」流派！`);
+              if (this.themeSanctumStage) this.themeSanctumStage.triggerBurst(tp.id, true);
+              this.renderThemeSanctum();
+            }
+            return;
+          }
+          if (isRand) {
+            this.meta.setThemeMode('pick');
+            this.audio.playPickup();
+            this.renderThemeSanctum();
+            return;
+          }
+          const ok = this.meta.toggleSelectTheme(tp.id);
+          if (!ok) {
+            this.toast('本局至少需要保留 1 个参战流派');
+          } else {
+            const nowSelected = (this.meta.data.selectedThemes || []).includes(tp.id);
+            if (nowSelected) {
+              this.audio.playPickup();
+              if (this.themeSanctumStage) this.themeSanctumStage.triggerBurst(tp.id, false);
+              this.toast(`已装配「${shortTitle}」入局`);
+            } else {
+              this.audio.playDrop();
+              this.toast(`已卸下「${shortTitle}」流派`);
+            }
+            this.renderThemeSanctum();
+          }
+        };
+      }
     }
 
     startNewRun(heroId = 'hero_01', isTrial = false) {
@@ -1200,9 +1906,11 @@
       this.selectedRelicUid = null;
       this.meta.saveActiveRun(this.run);
       if (this.heroMusterStage) this.heroMusterStage.stop();
+      if (this.themeSanctumStage) this.themeSanctumStage.stop();
+      this._stopLiveDomPortraits();
       $('title-screen-view').classList.add('hidden');
       $('deck-select-modal').classList.add('hidden');
-      $('payout-modal').classList.add('hidden');
+      this._closePayoutModal();
       this.startWaveBattle(1);
     }
 
@@ -1213,9 +1921,11 @@
       this.run = JSON.parse(JSON.stringify(saved));
       this.selectedRelicUid = null;
       if (this.heroMusterStage) this.heroMusterStage.stop();
+      if (this.themeSanctumStage) this.themeSanctumStage.stop();
+      this._stopLiveDomPortraits();
       $('title-screen-view').classList.add('hidden');
       $('deck-select-modal').classList.add('hidden');
-      $('payout-modal').classList.add('hidden');
+      this._closePayoutModal();
       if (this.run.phase === 'shop') {
         this.openShop();
       } else {
@@ -1227,6 +1937,7 @@
     // BEAT 1: MIRROR-LAKE 7-PHASE BATTLE
     // =========================================================================
     startWaveBattle(wave) {
+      this._battleToken = (this._battleToken || 0) + 1;
       if (this.tavernShopStage) this.tavernShopStage.stop();
       if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
@@ -1234,7 +1945,7 @@
       $('tavern-view').classList.add('hidden');
       $('pack-ceremony-modal').classList.add('hidden');
       $('battle-view').classList.remove('hidden');
-      $('payout-modal').classList.add('hidden');
+      this._closePayoutModal();
 
       this.run.phase = 'battle';
       this.meta.saveActiveRun(this.run);
@@ -1551,6 +2262,7 @@
       }
 
       this.busy = true;
+      const token = this._battleToken || 0;
       const pickedUids = new Set(this.discardPicks);
       // Slay-the-Spire physical fly-to-discard-pile trajectory!
       const discPileEl = $('btn-discard-pile');
@@ -1583,6 +2295,7 @@
         }, 160);
       }
       await new Promise((r) => setTimeout(r, 260 + Math.max(0, flyOrder - 1) * 45));
+      if (this._battleToken !== token) return;
 
       const discarded = b.hand.filter((h) => pickedUids.has(h.uid));
       const prevHandUids = new Set(b.hand.map((h) => h.uid));
@@ -1606,6 +2319,7 @@
       this.syncBattleHudOnly(preDiscSnap);
       this.newlyDrawnUids = null;
       await this.battleStage.playEvents(res.events, this.makePlayEventHooks(preDiscSnap));
+      if (this._battleToken !== token) return;
       this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
@@ -1627,6 +2341,7 @@
       }
 
       this.busy = true;
+      const token = this._battleToken || 0;
       this.inspectedSlotIdx = -1;
       if (this.battleStage.setInspectedSlot) this.battleStage.setInspectedSlot(-1, []);
       const slotted = b.slots.slice();
@@ -1671,12 +2386,14 @@
         }
         if (battleViewEl) battleViewEl.classList.remove('scoring-active');
       }
+      if (this._battleToken !== token) return;
       this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
         if (this.battleStage && this.battleStage.playBossDeath) {
           await this.battleStage.playBossDeath();
         }
+        if (this._battleToken !== token) return;
         this.finishBattle(true);
         return;
       }
@@ -1692,6 +2409,7 @@
 
       this.syncBattleHudOnly(preBossSnap);
       await this.battleStage.playEvents(bossEvents, this.makePlayEventHooks(preBossSnap));
+      if (this._battleToken !== token) return;
       this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
@@ -1699,10 +2417,15 @@
         if (this.battleStage && this.battleStage.playBossDeath) {
           await this.battleStage.playBossDeath();
         }
+        if (this._battleToken !== token) return;
         this.finishBattle(true);
         return;
       }
       if (b.squadHp <= 0 || b.round >= b.maxRounds) {
+        if (this.battleStage && this.battleStage.playDefeatPause) {
+          await this.battleStage.playDefeatPause();
+        }
+        if (this._battleToken !== token) return;
         this.finishBattle(false);
         return;
       }
@@ -1729,12 +2452,180 @@
       this.beginRound();
     }
 
+    _stopPayoutFx() {
+      if (this._poFxRaf) {
+        cancelAnimationFrame(this._poFxRaf);
+        this._poFxRaf = 0;
+      }
+      if (this._poTimers && this._poTimers.length) {
+        for (const tid of this._poTimers) clearTimeout(tid);
+        this._poTimers = [];
+      }
+      const cv = $('po-fx-canvas');
+      if (cv) {
+        const ctx = cv.getContext('2d');
+        if (ctx) ctx.clearRect(0, 0, cv.width, cv.height);
+      }
+    }
+
+    _closePayoutModal() {
+      this._stopPayoutFx();
+      const modal = $('payout-modal');
+      if (modal) {
+        modal.classList.remove('po-open');
+        modal.classList.add('hidden');
+      }
+    }
+
+    _startPayoutFx(mode = 'win') {
+      this._stopPayoutFx();
+      const cv = $('po-fx-canvas');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      if (!ctx) return;
+      const VW = 320;
+      const VH = 180;
+      const buf = document.createElement('canvas');
+      buf.width = VW;
+      buf.height = VH;
+      const bctx = buf.getContext('2d');
+      const isFinal = mode === 'final';
+      const isLose = mode === 'lose';
+
+      const palette = isLose
+        ? ['#a8465c', '#6e3248', '#d97a8e', '#8294b4']
+        : isFinal
+        ? ['#fff4b8', '#ffd966', '#7be8ff', '#ff7aa8', '#ffe082']
+        : ['#fff4b8', '#ffd966', '#f0b840', '#7be8ff'];
+
+      // Rising ambient sparks
+      const sparks = Array.from({ length: isFinal ? 56 : isLose ? 24 : 38 }, () => ({
+        x: Math.random() * VW,
+        y: Math.random() * VH,
+        vx: (Math.random() - 0.5) * (isLose ? 6 : 12),
+        vy: isLose ? (6 + Math.random() * 10) : -(12 + Math.random() * 24),
+        s: Math.random() < 0.35 ? 2 : 1,
+        col: palette[Math.floor(Math.random() * palette.length)],
+        ph: Math.random() * Math.PI * 2
+      }));
+
+      // Initial celebration pixel firework bursts on left & right wings of the Victory Vault
+      const bursts = [];
+      if (!isLose) {
+        const origins = isFinal
+          ? [[54, 48], [266, 48], [46, 128], [274, 128], [160, 22]]
+          : [[56, 54], [264, 54]];
+        origins.forEach(([ox, oy], oi) => {
+          const count = isFinal ? 24 : 18;
+          for (let i = 0; i < count; i++) {
+            const ang = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.25;
+            const spd = 28 + Math.random() * 56;
+            bursts.push({
+              x: ox, y: oy,
+              vx: Math.cos(ang) * spd,
+              vy: Math.sin(ang) * spd - 12,
+              delay: oi * 0.14 + Math.random() * 0.06,
+              life: 0.75 + Math.random() * 0.45,
+              maxLife: 1.2,
+              s: Math.random() < 0.45 ? 2 : 1,
+              col: palette[Math.floor(Math.random() * palette.length)]
+            });
+          }
+        });
+      }
+
+      let last = performance.now();
+      let elapsed = 0;
+      const tick = (now) => {
+        const modal = $('payout-modal');
+        if (!modal || modal.classList.contains('hidden')) {
+          this._poFxRaf = 0;
+          return;
+        }
+        const dt = Math.min(0.05, (now - last) / 1000);
+        last = now;
+        elapsed += dt;
+
+        bctx.clearRect(0, 0, VW, VH);
+        // Subtle golden aurora glow behind vault
+        const g = bctx.createRadialGradient(VW / 2, VH / 2, 10, VW / 2, VH / 2, 132);
+        if (isLose) {
+          g.addColorStop(0, 'rgba(130, 26, 48, 0.22)');
+          g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        } else {
+          g.addColorStop(0, isFinal ? 'rgba(255, 214, 102, 0.28)' : 'rgba(240, 184, 64, 0.20)');
+          g.addColorStop(0.55, 'rgba(107, 229, 255, 0.06)');
+          g.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        }
+        bctx.fillStyle = g;
+        bctx.fillRect(0, 0, VW, VH);
+
+        // Ambient sparks
+        for (const p of sparks) {
+          p.x += (p.vx + Math.sin(elapsed * 2.1 + p.ph) * 4) * dt;
+          p.y += p.vy * dt;
+          if (!isLose && p.y < -4) { p.y = VH + 4; p.x = Math.random() * VW; }
+          if (isLose && p.y > VH + 4) { p.y = -4; p.x = Math.random() * VW; }
+          if (p.x < -4) p.x = VW + 4;
+          if (p.x > VW + 4) p.x = -4;
+          const tw = 0.45 + 0.55 * Math.sin(elapsed * 5.2 + p.ph);
+          bctx.globalAlpha = tw * (isLose ? 0.55 : 0.88);
+          bctx.fillStyle = p.col;
+          bctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+        }
+
+        // Pixel firework sparks
+        for (const b of bursts) {
+          if (elapsed < b.delay || b.life <= 0) continue;
+          b.life -= dt;
+          b.x += b.vx * dt;
+          b.y += b.vy * dt;
+          b.vx *= Math.pow(0.95, dt * 60);
+          b.vy = b.vy * Math.pow(0.96, dt * 60) + 46 * dt;
+          bctx.globalAlpha = Math.max(0, Math.min(1, b.life / 0.45));
+          bctx.fillStyle = b.col;
+          bctx.fillRect(Math.round(b.x), Math.round(b.y), b.s, b.s);
+        }
+        bctx.globalAlpha = 1;
+
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.imageSmoothingEnabled = false;
+        ctx.drawImage(buf, 0, 0, cv.width, cv.height);
+        this._poFxRaf = requestAnimationFrame(tick);
+      };
+      this._poFxRaf = requestAnimationFrame(tick);
+    }
+
     finishBattle(won) {
       const b = this.battle;
       this.busy = true;
+      this._stopPayoutFx();
+      this._poTimers = [];
+      const prevGold = b.gold;
       this.run.gold = b.gold;
+
+      const modal = $('payout-modal');
+      const card = $('po-card');
+      const emblemBox = $('po-emblem');
+      const kickerEl = $('po-kicker');
+      const titleEl = $('po-title');
+      const rankEl = $('po-rank-seal');
+      const bossBanner = $('po-boss-banner');
+      const rowsEl = $('po-rows');
+      const totalBar = $('po-total-bar');
       const extraBox = $('po-extra-actions');
+      const nextBtn = $('po-next-btn');
+
       extraBox.innerHTML = '';
+      totalBar.innerHTML = '';
+      totalBar.className = 'v16-po-total-bar';
+      rankEl.innerHTML = '';
+      rankEl.className = 'v16-po-rank-seal';
+
+      const schedulePo = (ms, fn) => {
+        const tid = setTimeout(fn, ms);
+        this._poTimers.push(tid);
+      };
 
       if (won) {
         this.run.totalKills += 1;
@@ -1742,6 +2633,7 @@
         if (b.wave >= 4) this.tryUnlockAch('ach_clear_w4');
         if (b.wave >= 8) this.tryUnlockAch('ach_clear_w8');
         E.onWaveClear(this.run.relics);
+
         const baseReward = Math.max(1, b.bossCfg.reward + (this.run.hero.rewardDelta || 0));
         const maxInt = this.run.hero.maxInterest || 5;
         const interest = Math.min(maxInt, Math.floor(this.run.gold / 5));
@@ -1757,7 +2649,7 @@
         if (isFinalClear) {
           shardsEarned = this.meta.calcRunShards(this.run.totalKills, true, this.run.shardBonusMult || 1.0);
           const r = this.meta.addShards(shardsEarned);
-          if (r.mergedOrbs > 0) mergedInfo = `（自动合成 +${r.mergedOrbs} 宝珠）`;
+          if (r.mergedOrbs > 0) mergedInfo = `（合成 +${r.mergedOrbs} 宝珠）`;
           const ascRes = this.meta.recordAscensionClear(this.run.ascension || 0);
           ascBonusOrbs = ascRes.bonusOrbs || 0;
           this.meta.clearActiveRun();
@@ -1772,18 +2664,70 @@
           }
         }
 
-        $('po-title').textContent = isFinalClear ? '🏆 8 波通关！' : `第 ${b.wave} 波讨伐成功！`;
-        $('po-title').className = 'po-title win';
-        $('po-sub').textContent = `${b.bossCfg.name} 已倒下 · 用时 ${b.round}/${b.maxRounds} 回合`;
-        $('po-rows').innerHTML = `
-          <div class="po-row"><span>赏金报酬</span><b>+${baseReward}G</b></div>
-          <div class="po-row"><span>黑市利息 (上限${maxInt}G)</span><b>+${interest}G</b></div>
-          <div class="po-row"><span>速胜奖励 (剩${roundBonus}回合)</span><b>+${roundBonus}G</b></div>
-          ${bloodBonus > 0 ? `<div class="po-row"><span>血瓶续命残血奖</span><b>+${bloodBonus}G</b></div>` : ''}
-          <div class="po-row total"><span>当前总金币</span><b>${this.run.gold}G</b></div>
-          ${isFinalClear ? `<div class="po-row" style="color:#6be5ff"><span>💎 通关结算</span><b>+${shardsEarned} 碎片${mergedInfo}</b></div>` : ''}
-          ${ascBonusOrbs > 0 ? `<div class="po-row" style="color:#ffd966"><span>🏆 进阶首通奖励</span><b>+${ascBonusOrbs} 宝珠</b></div>` : ''}
+        // Dynamic Victory Rank (S / A / B) based on speed & remaining squad HP
+        const hpPct = b.squadMaxHp > 0 ? b.squadHp / b.squadMaxHp : 1;
+        const rank = (roundBonus >= 2 || (roundBonus >= 1 && hpPct >= 0.85) || isFinalClear)
+          ? { code: 'S', label: isFinalClear ? '终极制霸' : '神速完破', cls: 'rank-s' }
+          : (roundBonus >= 1 || hpPct >= 0.65)
+          ? { code: 'A', label: '完美破阵', cls: 'rank-a' }
+          : { code: 'B', label: '涉险克敌', cls: 'rank-b' };
+
+        card.className = `v16-po-vault ${isFinalClear ? 'is-final' : 'is-win'}`;
+        emblemBox.innerHTML = this._vaultEmblemSvg(isFinalClear ? 'crown' : 'trophy');
+        kickerEl.textContent = isFinalClear ? 'ECLIPSE CONQUERED · 8/8' : `WAVE ${b.wave} / ${this.run.maxWaves} CLEARED`;
+        titleEl.textContent = isFinalClear ? '镜湖八波 · 全线通关' : `第 ${b.wave} 波 · 讨伐凯旋`;
+
+        bossBanner.innerHTML = `
+          <div class="v16-pb-portrait">
+            <canvas class="v16-portrait-canvas" width="54" height="54" data-portrait-unit="${esc(b.bossCfg.unitId)}" data-portrait-flip="1"></canvas>
+            <span class="v16-pb-slain">已斩</span>
+          </div>
+          <div class="v16-pb-info">
+            <div class="v16-pb-name">${esc(b.bossCfg.name)} <b>已陨落</b></div>
+            <div class="v16-pb-stats">
+              <span>用时 <b>${b.round} / ${b.maxRounds}</b> 回合</span>
+              <span class="v16-pb-sep">·</span>
+              <span>剩余血量 <b>${b.squadHp}/${b.squadMaxHp}</b></span>
+              ${this.run.peakHit > 0 ? `<span class="v16-pb-sep">·</span><span>峰值直伤 <b>${this.run.peakHit.toLocaleString()}</b></span>` : ''}
+            </div>
+          </div>
         `;
+        this._paintDomPortraits(bossBanner);
+
+        const lootItems = [
+          { label: '讨伐赏金报酬', sub: `击败 ${b.bossCfg.name}`, val: `+${baseReward}G`, cls: 'gold' },
+          { label: '黑市金币利息', sub: `每 5G 生 1G · 上限 ${maxInt}G`, val: `+${interest}G`, cls: interest > 0 ? 'gold' : 'dim' },
+          { label: '速胜回合奖励', sub: `剩余 ${roundBonus} 回合`, val: `+${roundBonus}G`, cls: roundBonus > 0 ? 'cyan' : 'dim' }
+        ];
+        if (bloodBonus > 0) {
+          lootItems.push({ label: '血瓶续命残血奖', sub: '血量 ≤50% 触发', val: `+${bloodBonus}G`, cls: 'crimson' });
+        }
+        if (isFinalClear) {
+          lootItems.push({ label: '通关星界碎片', sub: `已自动入账${mergedInfo}`, val: `+${shardsEarned} 碎片`, cls: 'cyan' });
+        }
+        if (ascBonusOrbs > 0) {
+          lootItems.push({ label: '进阶首通嘉奖', sub: `首次通关阶 ${this.run.ascension || 0}`, val: `+${ascBonusOrbs} 宝珠`, cls: 'gold' });
+        }
+
+        rowsEl.innerHTML = lootItems.map((it, idx) => `
+          <div class="v16-po-row" data-po-row="${idx}">
+            <div class="v16-pr-left">
+              <span class="v16-pr-label">${esc(it.label)}</span>
+              <span class="v16-pr-sub">${esc(it.sub)}</span>
+            </div>
+            <b class="v16-pr-val ${it.cls}">${esc(it.val)}</b>
+          </div>
+        `).join('');
+
+        totalBar.innerHTML = `
+          <div class="v16-pt-left">
+            <span class="v16-pt-icon">${pxIcon('gold')}</span>
+            <span class="v16-pt-lbl">当前军资总金币</span>
+            <span class="v16-pt-gain">本次 +${totalEarn}G</span>
+          </div>
+          <b class="v16-pt-val" id="po-gold-counter">${prevGold}G</b>
+        `;
+
         if (isFinalClear && shardsEarned > 0) {
           extraBox.innerHTML = `<button class="v14-ad-btn" id="btn-po-double-orbs">▶ 看广告 · 碎片 ×2 (+${shardsEarned}碎片)</button>`;
           $('btn-po-double-orbs').onclick = () => {
@@ -1795,10 +2739,11 @@
             });
           };
         }
-        const nextBtn = $('po-next-btn');
-        nextBtn.textContent = isFinalClear ? '返回出征大厅（购买新英雄）' : '进入酒馆黑市 · 构筑齿轮 →';
+
+        nextBtn.className = `v16-po-cta ${isFinalClear ? 'gold' : 'win'}`;
+        nextBtn.textContent = isFinalClear ? '凯旋回廊 · 领奖解锁新英雄 →' : '推门进入黑市 · 招募与构筑 →';
         nextBtn.onclick = () => {
-          $('payout-modal').classList.add('hidden');
+          this._closePayoutModal();
           if (isFinalClear) {
             this.openPrepHall();
           } else {
@@ -1806,73 +2751,151 @@
             this.openShop();
           }
         };
+
+        // Play Victory Fanfare + Staggered Loot Reveals + Animated Gold Rollup + Rank Seal Stamp!
+        if (this.audio && this.audio.playVictoryFanfare) {
+          this.audio.playVictoryFanfare(isFinalClear);
+        }
+        this._startPayoutFx(isFinalClear ? 'final' : 'win');
+
+        const rowEls = rowsEl.querySelectorAll('.v16-po-row');
+        rowEls.forEach((el, idx) => {
+          schedulePo(190 + idx * 145, () => {
+            el.classList.add('is-shown');
+            if (this.audio && this.audio.playLootRowTick) this.audio.playLootRowTick(idx, false);
+          });
+        });
+
+        const totalAtMs = 240 + rowEls.length * 145;
+        schedulePo(totalAtMs, () => {
+          totalBar.classList.add('is-shown');
+          if (this.audio && this.audio.playLootRowTick) this.audio.playLootRowTick(rowEls.length, true);
+          const counterEl = $('po-gold-counter');
+          const targetGold = this.run.gold;
+          const steps = Math.min(18, Math.max(6, totalEarn));
+          let curStep = 0;
+          const stepTick = () => {
+            curStep += 1;
+            const v = Math.round(prevGold + (targetGold - prevGold) * (curStep / steps));
+            if (counterEl) counterEl.textContent = `${v}G`;
+            if (curStep < steps) schedulePo(24, stepTick);
+          };
+          stepTick();
+        });
+
+        schedulePo(totalAtMs + 180, () => {
+          rankEl.className = `v16-po-rank-seal ${rank.cls} is-stamped`;
+          rankEl.innerHTML = `<b>${rank.code}</b><span>${rank.label}</span>`;
+          if (this.audio && this.audio.playRankStamp) this.audio.playRankStamp(rank.code);
+        });
       } else {
         const shardsEarned = this.meta.calcRunShards(this.run.totalKills, false, this.run.shardBonusMult || 1.0);
-        const showFinalLossSettle = () => {
-          this.meta.clearActiveRun();
-          if (this.tap && this.run.totalKills > 0) {
-            this.tap.submitRunScore({
-              runId: this.run.runId,
-              heroName: this.run.hero.name,
-              kills: this.run.totalKills,
-              peakHit: this.run.peakHit,
-              themes: this.run.activeThemes
-            });
-          }
-          const r = shardsEarned > 0 ? this.meta.addShards(shardsEarned) : { mergedOrbs: 0 };
-          const mergedInfo = r.mergedOrbs > 0 ? `（合成 +${r.mergedOrbs} 宝珠）` : '';
-          $('po-title').textContent = '本局结算';
-          $('po-title').className = 'po-title lose';
-          $('po-sub').textContent = `倒在第 ${b.wave} 波 ${b.bossCfg.name}（剩余 ${b.bossHp} HP）`;
-          $('po-rows').innerHTML = `
-            <div class="po-row"><span>讨伐波次</span><b>${this.run.totalKills} 波</b></div>
-            <div class="po-row"><span>单手最高直伤</span><b>${this.run.peakHit}</b></div>
-            <div class="po-row" style="color:#6be5ff"><span>💎 本局结算</span><b>+${shardsEarned} 碎片${mergedInfo}</b></div>
+        const renderLossContent = (isFinalSettle) => {
+          card.className = 'v16-po-vault is-lose';
+          emblemBox.innerHTML = this._vaultEmblemSvg('book');
+          kickerEl.textContent = isFinalSettle ? 'EXPEDITION CONCLUDED' : `WAVE ${b.wave} DEFEAT`;
+          titleEl.textContent = isFinalSettle ? '本局讨伐结算' : '讨伐受挫 · 尚可重整';
+
+          bossBanner.innerHTML = `
+            <div class="v16-pb-portrait lose">
+              <canvas class="v16-portrait-canvas" width="54" height="54" data-portrait-unit="${esc(b.bossCfg.unitId)}" data-portrait-flip="1"></canvas>
+            </div>
+            <div class="v16-pb-info">
+              <div class="v16-pb-name">止步于第 ${b.wave} 波 · ${esc(b.bossCfg.name)}</div>
+              <div class="v16-pb-stats">
+                <span>Boss 剩余 <b>${b.bossHp}</b> HP</span>
+                <span class="v16-pb-sep">·</span>
+                <span>累计破阵 <b>${this.run.totalKills}</b> 波</span>
+                <span class="v16-pb-sep">·</span>
+                <span>峰值直伤 <b>${this.run.peakHit.toLocaleString()}</b></span>
+              </div>
+            </div>
           `;
-          extraBox.innerHTML = shardsEarned > 0
-            ? `<button class="v14-ad-btn" id="btn-po-double-orbs">▶ 看广告 · 碎片 ×2 (+${shardsEarned}碎片)</button>`
-            : '';
-          if ($('btn-po-double-orbs')) {
-            $('btn-po-double-orbs').onclick = () => {
-              this.playRewardedAd(`结算碎片翻倍 (+${shardsEarned} 宝珠碎片)`, () => {
-                const r2 = this.meta.addShards(shardsEarned);
-                $('btn-po-double-orbs').disabled = true;
-                $('btn-po-double-orbs').textContent = `已翻倍 (+${shardsEarned}碎片)`;
-                this.toast(`额外获得 +${shardsEarned} 碎片${r2.mergedOrbs > 0 ? `（合成 +${r2.mergedOrbs} 宝珠!）` : ''}`);
+          this._paintDomPortraits(bossBanner);
+
+          let mergedInfo = '';
+          if (isFinalSettle) {
+            this.meta.clearActiveRun();
+            if (this.tap && this.run.totalKills > 0) {
+              this.tap.submitRunScore({
+                runId: this.run.runId,
+                heroName: this.run.hero.name,
+                kills: this.run.totalKills,
+                peakHit: this.run.peakHit,
+                themes: this.run.activeThemes
+              });
+            }
+            const r = shardsEarned > 0 ? this.meta.addShards(shardsEarned) : { mergedOrbs: 0 };
+            mergedInfo = r.mergedOrbs > 0 ? `（合成 +${r.mergedOrbs} 宝珠）` : '';
+          }
+
+          rowsEl.innerHTML = `
+            <div class="v16-po-row is-shown">
+              <div class="v16-pr-left"><span class="v16-pr-label">本局讨伐波次</span><span class="v16-pr-sub">主将 · ${esc(this.run.hero.name)}</span></div>
+              <b class="v16-pr-val gold">${this.run.totalKills} / ${this.run.maxWaves} 波</b>
+            </div>
+            <div class="v16-po-row is-shown">
+              <div class="v16-pr-left"><span class="v16-pr-label">单手最高直伤</span><span class="v16-pr-sub">已计入本局战绩</span></div>
+              <b class="v16-pr-val crimson">${this.run.peakHit.toLocaleString()}</b>
+            </div>
+          `;
+
+          totalBar.className = 'v16-po-total-bar is-shown';
+          totalBar.innerHTML = `
+            <div class="v16-pt-left">
+              <span class="v16-pt-icon">${pxIcon('orb')}</span>
+              <span class="v16-pt-lbl">${isFinalSettle ? '已发放宝珠碎片' : '若现在结束可得'}</span>
+            </div>
+            <b class="v16-pt-val cyan">+${shardsEarned} 碎片${mergedInfo}</b>
+          `;
+
+          if (isFinalSettle) {
+            extraBox.innerHTML = shardsEarned > 0
+              ? `<button class="v14-ad-btn" id="btn-po-double-orbs">▶ 看广告 · 碎片 ×2 (+${shardsEarned}碎片)</button>`
+              : '';
+            if ($('btn-po-double-orbs')) {
+              $('btn-po-double-orbs').onclick = () => {
+                this.playRewardedAd(`结算碎片翻倍 (+${shardsEarned} 宝珠碎片)`, () => {
+                  const r2 = this.meta.addShards(shardsEarned);
+                  $('btn-po-double-orbs').disabled = true;
+                  $('btn-po-double-orbs').textContent = `已翻倍 (+${shardsEarned}碎片)`;
+                  this.toast(`额外获得 +${shardsEarned} 碎片${r2.mergedOrbs > 0 ? `（合成 +${r2.mergedOrbs} 宝珠!）` : ''}`);
+                });
+              };
+            }
+            nextBtn.className = 'v16-po-cta lose';
+            nextBtn.textContent = '返回点将台 · 重整旗鼓 →';
+            nextBtn.onclick = () => {
+              this._closePayoutModal();
+              this.openPrepHall();
+            };
+          } else {
+            extraBox.innerHTML = `<button class="v14-ad-btn" id="btn-po-revive">▶ 看广告复活 · 满血重打第 ${b.wave} 波</button>`;
+            $('btn-po-revive').onclick = () => {
+              this.playRewardedAd(`满血重打第 ${b.wave} 波（保留全部构筑）`, () => {
+                this.run.adReviveLeft -= 1;
+                this._closePayoutModal();
+                this.startWaveBattle(this.run.wave);
               });
             };
+            nextBtn.className = 'v16-po-cta lose';
+            nextBtn.textContent = '放弃重打 · 结算本局碎片 →';
+            nextBtn.onclick = () => renderLossContent(true);
           }
-          const nextBtn = $('po-next-btn');
-          nextBtn.textContent = '返回出征大厅（选英雄 / 再来一局）';
-          nextBtn.onclick = () => this.openPrepHall();
         };
 
-        // P0 Fix: Separate Revive Choice from Final Settlement (no double-orb + revive exploit!)
+        this._startPayoutFx('lose');
         if (this.run.adReviveLeft > 0) {
-          $('po-title').textContent = '讨伐受挫';
-          $('po-title').className = 'po-title lose';
-          $('po-sub').textContent = `倒在第 ${b.wave} 波 ${b.bossCfg.name}（剩余 ${b.bossHp} HP）`;
-          $('po-rows').innerHTML = `
-            <div class="po-row"><span>讨伐波次</span><b>${this.run.totalKills} 波</b></div>
-            <div class="po-row"><span>单手最高直伤</span><b>${this.run.peakHit}</b></div>
-            <div class="po-row"><span>若现在结束可得</span><b>+${shardsEarned} 宝珠碎片</b></div>
-          `;
-          extraBox.innerHTML = `<button class="v14-ad-btn" id="btn-po-revive">▶ 看广告复活 · 满血重打第 ${b.wave} 波</button>`;
-          $('btn-po-revive').onclick = () => {
-            this.playRewardedAd(`满血重打第 ${b.wave} 波（保留全部构筑）`, () => {
-              this.run.adReviveLeft -= 1;
-              $('payout-modal').classList.add('hidden');
-              this.startWaveBattle(this.run.wave);
-            });
-          };
-          const nextBtn = $('po-next-btn');
-          nextBtn.textContent = '放弃重打 · 结算本局碎片 →';
-          nextBtn.onclick = () => showFinalLossSettle();
+          renderLossContent(false);
         } else {
-          showFinalLossSettle();
+          renderLossContent(true);
         }
       }
-      $('payout-modal').classList.remove('hidden');
+
+      modal.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        if (!modal.classList.contains('hidden')) modal.classList.add('po-open');
+      });
     }
 
     snapshotBattleHud() {
@@ -3704,23 +4727,434 @@
       this.startWaveBattle(this.run.wave);
     }
 
+    _stopLiveDomPortraits() {
+      if (this._livePortraitRaf) {
+        cancelAnimationFrame(this._livePortraitRaf);
+        this._livePortraitRaf = 0;
+      }
+      this._livePortraitEntries = [];
+    }
+
+    _stopModalLivePortraits() {
+      if (this._modalPortraitRaf) {
+        cancelAnimationFrame(this._modalPortraitRaf);
+        this._modalPortraitRaf = 0;
+      }
+      this._modalPortraitEntries = [];
+    }
+
+    _triggerLivePortraitAttack(canvas) {
+      if (!canvas) return;
+      const entry = (this._livePortraitEntries || []).find((e) => e.canvas === canvas)
+        || (this._modalPortraitEntries || []).find((e) => e.canvas === canvas);
+      if (!entry) return;
+      entry.anim = 'attack';
+      entry.animT = 0;
+      // Lazy preload attack sheet if needed
+      const kit = this.sprites && this.sprites.initKit ? this.sprites.initKit() : null;
+      const clip = kit && kit.unit(entry.unitId, 'attack');
+      if (clip && (!this.sprites.duelystImages || !this.sprites.duelystImages.has(`${entry.unitId}:attack`))) {
+        kit.image(clip).then((img) => {
+          if (this.sprites.duelystImages) this.sprites.duelystImages.set(`${entry.unitId}:attack`, img);
+        }).catch(() => {});
+      }
+    }
+
+    _drawLivePortraitEntry(entry, nowSec) {
+      const { canvas, ctx, unitId, flipX, phase } = entry;
+      if (!canvas || !canvas.isConnected || !ctx || !this.sprites) return false;
+      const cw = canvas.width;
+      const ch = canvas.height;
+      let dc = null;
+      let cell = null;
+      if (entry.anim === 'attack' && this.sprites.getDuelystClip) {
+        const atkDc = this.sprites.getDuelystClip(unitId, 'attack');
+        if (atkDc && atkDc.clip && atkDc.img) {
+          const durSec = Math.max(0.45, (atkDc.clip.frames.length || 8) / (atkDc.clip.fps || 12));
+          if (entry.animT < durSec) {
+            dc = atkDc;
+            cell = atkDc.kit.frame(atkDc.clip, entry.animT * 1000, { loop: false });
+          } else {
+            entry.anim = 'idle';
+            entry.animT = 0;
+          }
+        } else {
+          entry.anim = 'idle';
+          entry.animT = 0;
+        }
+      }
+      if (!dc && this.sprites.getDuelystClip) {
+        dc = this.sprites.getDuelystClip(unitId, 'idle');
+        if (dc && dc.clip && dc.img) {
+          cell = dc.kit.frame(dc.clip, (nowSec + phase) * 1000, { loop: true });
+        }
+      }
+      if (dc && dc.img && cell) {
+        ctx.clearRect(0, 0, cw, ch);
+        const fit = Math.min((cw - 8) / cell.width, (ch - 6) / cell.height);
+        const dw = Math.max(1, Math.round(cell.width * fit));
+        const dh = Math.max(1, Math.round(cell.height * fit));
+        ctx.save();
+        ctx.imageSmoothingEnabled = false;
+        if (flipX) {
+          ctx.translate(cw, 0);
+          ctx.scale(-1, 1);
+        }
+        ctx.drawImage(dc.img, cell.sx, cell.sy, cell.width, cell.height, Math.round((cw - dw) / 2), Math.round(ch - dh - 3), dw, dh);
+        ctx.restore();
+      }
+      return true;
+    }
+
+    _startLiveDomPortraits(root) {
+      this._stopLiveDomPortraits();
+      if (!root || !this.sprites) return;
+      const canvases = root.querySelectorAll('canvas[data-live-unit]');
+      if (!canvases.length) return;
+      const kit = this.sprites.initKit ? this.sprites.initKit() : null;
+      const entries = [];
+      canvases.forEach((canvas, idx) => {
+        const unitId = canvas.dataset.liveUnit;
+        if (!unitId) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const entry = {
+          canvas,
+          ctx,
+          unitId,
+          flipX: canvas.dataset.liveFlip === '1',
+          phase: parseFloat(canvas.dataset.livePhase || String(idx * 0.37)) || 0,
+          anim: 'idle',
+          animT: 0
+        };
+        entries.push(entry);
+        // Lazy-load idle & attack sheets
+        ['idle', 'attack'].forEach((a) => {
+          const clip = kit && kit.unit(unitId, a);
+          if (clip && (!this.sprites.duelystImages || !this.sprites.duelystImages.has(`${unitId}:${a}`))) {
+            kit.image(clip).then((img) => {
+              if (this.sprites.duelystImages) this.sprites.duelystImages.set(`${unitId}:${a}`, img);
+            }).catch(() => {});
+          }
+        });
+      });
+      this._livePortraitEntries = entries;
+      let lastTs = performance.now();
+      let acc = 0;
+      const tick = (now) => {
+        if (!this._livePortraitEntries.length) { this._livePortraitRaf = 0; return; }
+        const dt = Math.min(0.08, (now - lastTs) / 1000);
+        lastTs = now;
+        acc += dt;
+        if (acc >= 0.048) { // crisp ~20fps pixel-art animation cadence
+          const stepDt = acc;
+          acc = 0;
+          const nowSec = now / 1000;
+          let alive = 0;
+          for (const e of this._livePortraitEntries) {
+            if (e.anim === 'attack') e.animT += stepDt;
+            if (this._drawLivePortraitEntry(e, nowSec)) alive++;
+          }
+          if (!alive) {
+            this._stopLiveDomPortraits();
+            return;
+          }
+        }
+        this._livePortraitRaf = requestAnimationFrame(tick);
+      };
+      // Paint frame 0 immediately
+      const t0 = performance.now() / 1000;
+      for (const e of entries) this._drawLivePortraitEntry(e, t0);
+      this._livePortraitRaf = requestAnimationFrame(tick);
+    }
+
+    _startModalLivePortraits(root) {
+      this._stopModalLivePortraits();
+      if (!root || !this.sprites) return;
+      const canvases = root.querySelectorAll('canvas[data-portrait-unit]');
+      if (!canvases.length) return;
+      const entries = [];
+      canvases.forEach((canvas, idx) => {
+        const unitId = canvas.dataset.portraitUnit;
+        if (!unitId) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        entries.push({
+          canvas,
+          ctx,
+          unitId,
+          flipX: canvas.dataset.portraitFlip === '1',
+          phase: idx * 0.29,
+          anim: 'idle',
+          animT: 0
+        });
+      });
+      this._modalPortraitEntries = entries;
+      let lastTs = performance.now();
+      let acc = 0;
+      const tick = (now) => {
+        const modal = $('roster-modal');
+        if (!modal || modal.classList.contains('hidden') || !this._modalPortraitEntries.length) {
+          this._stopModalLivePortraits();
+          return;
+        }
+        const dt = Math.min(0.08, (now - lastTs) / 1000);
+        lastTs = now;
+        acc += dt;
+        if (acc >= 0.065) { // ~15fps gentle breathing across Codex/Roster portraits
+          acc = 0;
+          const nowSec = now / 1000;
+          let alive = 0;
+          for (const e of this._modalPortraitEntries) {
+            if (this._drawLivePortraitEntry(e, nowSec)) alive++;
+          }
+          if (!alive) { this._stopModalLivePortraits(); return; }
+        }
+        this._modalPortraitRaf = requestAnimationFrame(tick);
+      };
+      this._modalPortraitRaf = requestAnimationFrame(tick);
+    }
+
+    // Lightweight crisp pixel portrait renderer for Theme Packs, Codex & Leaderboard
+    _paintDomPortraits(root) {
+      if (!root || !this.sprites) return;
+      const canvases = root.querySelectorAll('canvas[data-portrait-unit]');
+      canvases.forEach((canvas) => {
+        const unitId = canvas.dataset.portraitUnit;
+        const flipX = canvas.dataset.portraitFlip === '1';
+        if (!unitId) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
+        const cw = canvas.width;
+        const ch = canvas.height;
+        const drawNow = () => {
+          ctx.clearRect(0, 0, cw, ch);
+          ctx.imageSmoothingEnabled = false;
+          const dc = this.sprites.getDuelystClip ? this.sprites.getDuelystClip(unitId, 'idle') : null;
+          if (dc && dc.clip && dc.img) {
+            const cell = dc.kit.frame(dc.clip, 0, { loop: true });
+            if (!cell) return;
+            const fit = Math.min((cw - 6) / cell.width, (ch - 4) / cell.height);
+            const dw = Math.max(1, Math.round(cell.width * fit));
+            const dh = Math.max(1, Math.round(cell.height * fit));
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            if (flipX) {
+              ctx.translate(cw, 0);
+              ctx.scale(-1, 1);
+            }
+            ctx.drawImage(dc.img, cell.sx, cell.sy, cell.width, cell.height, Math.round((cw - dw) / 2), Math.round(ch - dh - 2), dw, dh);
+            ctx.restore();
+            return;
+          }
+          const info = this.sprites.getFrameInfo ? this.sprites.getFrameInfo(unitId, 'idle') : null;
+          if (info && info.img) {
+            const fit = Math.min((cw - 6) / info.frameW, (ch - 4) / info.frameH);
+            const dw = Math.round(info.frameW * fit);
+            const dh = Math.round(info.frameH * fit);
+            ctx.save();
+            ctx.imageSmoothingEnabled = false;
+            if (flipX) {
+              ctx.translate(cw, 0);
+              ctx.scale(-1, 1);
+            }
+            ctx.drawImage(info.img, 0, 0, info.frameW, info.frameH, Math.round((cw - dw) / 2), Math.round(ch - dh - 2), dw, dh);
+            ctx.restore();
+          }
+        };
+        drawNow();
+        // If lazy-loaded image arrives shortly after, repaint once
+        const kit = this.sprites.initKit ? this.sprites.initKit() : null;
+        const clip = kit && kit.unit(unitId, 'idle');
+        if (clip && (!this.sprites.duelystImages || !this.sprites.duelystImages.has(`${unitId}:idle`))) {
+          kit.image(clip).then((img) => {
+            if (this.sprites.duelystImages) this.sprites.duelystImages.set(`${unitId}:idle`, img);
+            if (canvas.isConnected) drawNow();
+          }).catch(() => {});
+        }
+      });
+    }
+
+    _vaultEmblemSvg(kind) {
+      if (kind === 'trophy') {
+        return `<svg class="v16-vault-svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="4" y="2" width="8" height="6" fill="#f0b840"/><rect x="5" y="3" width="6" height="4" fill="#ffe68c"/>
+          <rect x="2" y="3" width="2" height="3" fill="#c9862c"/><rect x="12" y="3" width="2" height="3" fill="#c9862c"/>
+          <rect x="5" y="8" width="6" height="2" fill="#d49228"/><rect x="7" y="10" width="2" height="3" fill="#b5741e"/>
+          <rect x="4" y="13" width="8" height="2" fill="#f0b840"/><rect x="5" y="13" width="6" height="1" fill="#fff2b2"/>
+        </svg>`;
+      }
+      if (kind === 'crown') {
+        return `<svg class="v16-vault-svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+          <rect x="2" y="5" width="2" height="6" fill="#f0b840"/><rect x="7" y="3" width="2" height="8" fill="#ffe68c"/>
+          <rect x="12" y="5" width="2" height="6" fill="#f0b840"/><rect x="4" y="7" width="8" height="4" fill="#d49228"/>
+          <rect x="2" y="11" width="12" height="2" fill="#fff2b2"/><rect x="7" y="8" width="2" height="2" fill="#ff5c7a"/>
+        </svg>`;
+      }
+      return `<svg class="v16-vault-svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="3" y="2" width="10" height="12" fill="#3a284c"/><rect x="4" y="3" width="8" height="10" fill="#e8b85c"/>
+        <rect x="5" y="4" width="6" height="8" fill="#182036"/><rect x="7" y="6" width="2" height="4" fill="#7be8ff"/>
+      </svg>`;
+    }
+
+    _achMedalSvg(achId, done) {
+      const dim = !done;
+      const hi = dim ? '#8da0bf' : '#fff2b2';
+      const mid = dim ? '#586884' : '#f0b840';
+      const acc = (() => {
+        if (dim) return '#6a7c9c';
+        if (achId.includes('shield')) return '#6be5ff';
+        if (achId.includes('poison')) return '#7ef28a';
+        if (achId.includes('freeze')) return '#9cf4ff';
+        if (achId.includes('sac')) return '#d48cff';
+        if (achId.includes('hit')) return '#ff7a52';
+        if (achId.includes('clear_w8')) return '#ff5c8a';
+        return '#ffd966';
+      })();
+      if (achId.includes('shield')) {
+        return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="3" y="2" width="10" height="7" fill="${mid}"/><rect x="4" y="3" width="8" height="6" fill="${acc}"/>
+          <rect x="4" y="9" width="8" height="3" fill="${mid}"/><rect x="6" y="12" width="4" height="2" fill="${mid}"/>
+          <rect x="5" y="4" width="2" height="4" fill="${hi}"/>
+        </svg>`;
+      }
+      if (achId.includes('poison')) {
+        return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="6" y="2" width="4" height="2" fill="${hi}"/><rect x="7" y="4" width="2" height="2" fill="${mid}"/>
+          <rect x="4" y="6" width="8" height="7" fill="${acc}"/><rect x="5" y="13" width="6" height="1" fill="${mid}"/>
+          <rect x="5" y="7" width="2" height="3" fill="${hi}"/>
+        </svg>`;
+      }
+      if (achId.includes('freeze')) {
+        return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="7" y="2" width="2" height="12" fill="${acc}"/><rect x="2" y="7" width="12" height="2" fill="${acc}"/>
+          <rect x="4" y="4" width="2" height="2" fill="${hi}"/><rect x="10" y="4" width="2" height="2" fill="${hi}"/>
+          <rect x="4" y="10" width="2" height="2" fill="${hi}"/><rect x="10" y="10" width="2" height="2" fill="${hi}"/>
+          <rect x="6" y="6" width="4" height="4" fill="${hi}"/>
+        </svg>`;
+      }
+      if (achId.includes('hit')) {
+        return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="11" y="2" width="3" height="3" fill="${hi}"/><rect x="9" y="4" width="3" height="3" fill="${acc}"/>
+          <rect x="7" y="6" width="3" height="3" fill="${acc}"/><rect x="5" y="8" width="3" height="3" fill="${mid}"/>
+          <rect x="3" y="10" width="4" height="2" fill="${hi}"/><rect x="2" y="12" width="3" height="2" fill="${mid}"/>
+        </svg>`;
+      }
+      if (achId.includes('hero') || achId.includes('pack') || achId.includes('sac')) {
+        return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+          <rect x="6" y="2" width="4" height="2" fill="${hi}"/><rect x="4" y="4" width="8" height="8" fill="${acc}"/>
+          <rect x="6" y="12" width="4" height="2" fill="${mid}"/><rect x="6" y="5" width="3" height="3" fill="${hi}"/>
+        </svg>`;
+      }
+      // Boss / Clear Crown
+      return `<svg class="v16-medal-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+        <rect x="2" y="5" width="2" height="6" fill="${mid}"/><rect x="7" y="3" width="2" height="8" fill="${hi}"/>
+        <rect x="12" y="5" width="2" height="6" fill="${mid}"/><rect x="4" y="7" width="8" height="4" fill="${mid}"/>
+        <rect x="2" y="11" width="12" height="2" fill="${hi}"/><rect x="7" y="8" width="2" height="2" fill="${acc}"/>
+      </svg>`;
+    }
+
+    _setVaultHeader(mode, title = '', subtitle = '', emblem = 'book') {
+      const tabsWrap = $('rm-tabs-wrap');
+      const modeTitle = $('rm-mode-title');
+      if (mode === 'codex') {
+        if (tabsWrap) tabsWrap.classList.remove('hidden');
+        if (modeTitle) modeTitle.classList.add('hidden');
+      } else {
+        if (tabsWrap) tabsWrap.classList.add('hidden');
+        if (modeTitle) {
+          modeTitle.classList.remove('hidden');
+          modeTitle.innerHTML = `
+            ${this._vaultEmblemSvg(emblem)}
+            <div class="rm-mt-text">
+              <span class="rm-mt-main">${esc(title)}</span>
+              ${subtitle ? `<span class="rm-mt-sub">${esc(subtitle)}</span>` : ''}
+            </div>
+          `;
+        }
+      }
+    }
+
     openLeaderboardModal() {
       const showLocal = (list) => {
         $('roster-modal').classList.remove('hidden');
-        $('rm-tab-roster').classList.remove('active');
-        $('rm-tab-hands').classList.remove('active');
+        this._setVaultHeader('board', '镜湖战绩榜', 'HALL OF ECLIPSE', 'crown');
+
+        const d = this.meta.data;
+        const bestKills = list.reduce((mx, r) => Math.max(mx, r.kills || 0), 0);
+        const bestPeak = list.reduce((mx, r) => Math.max(mx, r.peakHit || 0), 0);
+        const achCount = (d.unlockedAchievements || []).length;
+        const achTotal = T ? T.ACHIEVEMENTS.length : 12;
+        const heroCount = (d.unlockedHeroes || []).length;
         const ready = this.tap && this.tap.getStatusSummary().boardReady;
-        $('rm-summary').textContent = ready
-          ? 'TapTap 排行榜（计分：通关波次×10000 + 单手最高直伤）'
-          : '本机战绩排行（非 TapTap 宿主降级展示 · 计分：波次×10000 + 单手最高直伤）';
+
+        $('rm-summary').innerHTML = `
+          <div class="v16-board-stats">
+            <div class="v16-stat-card">
+              <span class="v16-stat-lbl">最高破阵波次</span>
+              <b class="v16-stat-val gold">${bestKills > 0 ? `W${bestKills} / 8` : '--'}</b>
+            </div>
+            <div class="v16-stat-card">
+              <span class="v16-stat-lbl">单手峰值直伤</span>
+              <b class="v16-stat-val crimson">${bestPeak > 0 ? bestPeak.toLocaleString() : '--'}</b>
+            </div>
+            <div class="v16-stat-card">
+              <span class="v16-stat-lbl">麾下侠客</span>
+              <b class="v16-stat-val cyan">${heroCount} / ${M.HEROES_META.length}</b>
+            </div>
+            <div class="v16-stat-card">
+              <span class="v16-stat-lbl">荣耀成就</span>
+              <b class="v16-stat-val green">${achCount} / ${achTotal}</b>
+            </div>
+          </div>
+          <div class="v16-board-rule">
+            <span>${ready ? 'TapTap 全服荣耀排行' : '本机荣耀战绩榜'}</span>
+            <span class="v16-rule-sep">·</span>
+            <span>计分规则：通关波次 × 10,000 + 单手最高直伤</span>
+          </div>
+        `;
+
+        const heroByName = (name) => M.HEROES_META.find((h) => h.name === name) || M.HEROES_META[0];
         $('rm-body').innerHTML = list.length === 0
-          ? `<div style="padding:20px;color:#aeb7cf;">暂无战绩记录，完成一局后自动计入。</div>`
-          : list.map((item, idx) => `
-              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;margin:6px 0;border-radius:8px;background:rgba(22,16,32,0.9);border:1px solid #594b70;color:#fff6dc;">
-                <div><b>#${idx + 1}</b> ${esc(item.heroName)} · 过 <b>${item.kills}</b> 波 · 峰值 <b>${item.peakHit}</b> <small style="color:#9da8c4">(${esc(item.themes || '')})</small></div>
-                <b style="color:#ffd966">${item.score} 分</b>
-              </div>
-            `).join('');
+          ? `
+            <div class="v16-board-empty">
+              ${this._vaultEmblemSvg('crown')}
+              <div class="v16-be-title">荣耀碑尚未铭刻战绩</div>
+              <div class="v16-be-desc">完成任意一局镜湖讨伐（或挑战至更高波次），你的英雄阵容、流派构筑与单手峰值直伤将自动镌刻于此。</div>
+              <button type="button" class="v16-be-cta" id="btn-board-go-play">返回点将台 · 开启首局出征 →</button>
+            </div>
+          `
+          : `<div class="v16-board-list">${list.map((item, idx) => {
+              const rank = idx + 1;
+              const rankCls = rank === 1 ? 'r1' : rank === 2 ? 'r2' : rank === 3 ? 'r3' : 'rn';
+              const heroMeta = heroByName(item.heroName);
+              return `
+                <div class="v16-board-row ${rankCls}">
+                  <div class="v16-br-rank">#${rank}</div>
+                  <div class="v16-br-avatar">
+                    <canvas class="v16-portrait-canvas" width="46" height="46" data-portrait-unit="${esc(heroMeta.unitId)}"></canvas>
+                  </div>
+                  <div class="v16-br-info">
+                    <div class="v16-br-hero">${esc(item.heroName)}</div>
+                    <div class="v16-br-meta">
+                      <span>破阵 <b>${item.kills}</b> 波</span>
+                      <span>峰值 <b>${(item.peakHit || 0).toLocaleString()}</b> 伤</span>
+                      ${item.themes ? `<span class="v16-br-themes">${esc(item.themes)}</span>` : ''}
+                    </div>
+                  </div>
+                  <div class="v16-br-score">
+                    <b>${(item.score || 0).toLocaleString()}</b>
+                    <span>荣耀分</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}</div>`;
+
+        this._paintDomPortraits($('rm-body'));
+        this._startModalLivePortraits($('rm-body'));
+        if ($('btn-board-go-play')) {
+          $('btn-board-go-play').onclick = () => $('roster-modal').classList.add('hidden');
+        }
       };
       if (this.tap) {
         this.tap.openLeaderboard(showLocal);
@@ -3731,22 +5165,46 @@
 
     openAchievementsModal() {
       $('roster-modal').classList.remove('hidden');
-      $('rm-tab-roster').classList.remove('active');
-      $('rm-tab-hands').classList.remove('active');
+      this._setVaultHeader('ach', '荣耀成就殿堂', 'ACHIEVEMENTS', 'trophy');
+
       const unlocked = new Set(this.meta.data.unlockedAchievements || []);
       const list = T ? T.ACHIEVEMENTS : [];
-      $('rm-summary').textContent = `成就进度：${unlocked.size} / ${list.length}（解锁即赠一次性宝珠碎片，自动同步存档）`;
-      $('rm-body').innerHTML = `<div class="v14-modal-choices">${list.map((a) => {
+      const totalShards = list.reduce((sum, a) => sum + (a.shards || 0), 0);
+      const earnedShards = list.reduce((sum, a) => sum + (unlocked.has(a.id) ? (a.shards || 0) : 0), 0);
+      const pct = list.length ? Math.round((unlocked.size / list.length) * 100) : 0;
+
+      $('rm-summary').innerHTML = `
+        <div class="v16-ach-banner">
+          <div class="v16-ach-prog-col">
+            <div class="v16-ach-prog-head">
+              <span>殿堂完成度 <b>${unlocked.size} / ${list.length}</b> (${pct}%)</span>
+              <span class="v16-ach-shard-total">${pxIcon('orb')} 已获碎片 <b>${earnedShards}</b> / ${totalShards}</span>
+            </div>
+            <div class="v16-ach-bar-track">
+              <div class="v16-ach-bar-fill" style="width:${pct}%"></div>
+            </div>
+          </div>
+          <div class="v16-ach-hint">达成即自动发放宝珠碎片 · 满 10 碎片自动合成 1 宝珠</div>
+        </div>
+      `;
+
+      $('rm-body').innerHTML = `<div class="v16-ach-grid">${list.map((a) => {
         const done = unlocked.has(a.id);
         return `
-          <div class="v14-shop-card" style="border-color:${done ? '#7ef28a' : '#454d66'};opacity:${done ? 1 : 0.72}">
-            <div class="v14-shop-card-head">
-              <b style="color:${done ? '#7ef28a' : '#ffd966'}">${done ? '✓ 已解锁' : '未解锁'}</b>
-              <span style="color:#6be5ff;font-weight:900">+${a.shards} 碎片</span>
+          <article class="v16-ach-card ${done ? 'is-done' : 'is-locked'}">
+            <div class="v16-ach-medal-box">
+              ${this._achMedalSvg(a.id, done)}
             </div>
-            <div class="v14-shop-card-name">${esc(a.name)}</div>
-            <div class="v14-shop-card-desc">${esc(a.desc)}</div>
-          </div>
+            <div class="v16-ach-content">
+              <div class="v16-ach-top">
+                <b class="v16-ach-name">${esc(a.name)}</b>
+                <span class="v16-ach-reward ${done ? 'claimed' : ''}">
+                  ${done ? `${pxIcon('check')} 已达成` : `+${a.shards} 碎片`}
+                </span>
+              </div>
+              <p class="v16-ach-desc">${esc(a.desc)}</p>
+            </div>
+          </article>
         `;
       }).join('')}</div>`;
     }
@@ -3757,56 +5215,160 @@
     }
 
     renderCodexModal(tab) {
-      $('rm-tab-roster').classList.toggle('active', tab === 'roster');
-      $('rm-tab-hands').classList.toggle('active', tab === 'codex');
+      this._setVaultHeader('codex');
+      const hasRun = Boolean(this.run && this.run.roster && this.run.roster.length > 0);
+      const effectiveTab = (tab === 'roster' && !hasRun) ? 'codex' : tab;
+      $('rm-tab-roster').classList.toggle('active', effectiveTab === 'roster');
+      $('rm-tab-hands').classList.toggle('active', effectiveTab === 'codex');
+      $('rm-tab-roster').disabled = !hasRun;
+
       const body = $('rm-body');
       const sum = $('rm-summary');
 
-      if (tab === 'roster' && this.run) {
-        sum.textContent = `当前牌组共 ${this.run.roster.length} 名侠客 · 英雄：${this.run.hero.name} · 战位：1号Lv.${this.run.slotLevels.slot1} / 2号Lv.${this.run.slotLevels.slot2} / 3号Lv.${this.run.slotLevels.slot3} / 手牌Lv.${this.run.slotLevels.hand}`;
-        body.innerHTML = `<div class="v14-modal-choices">${this.run.roster.map((h) => {
-          const th = D.THEMES[h.theme] || D.THEMES.core;
-          return `<div class="v14-shop-card">
-            <div class="v14-shop-card-head">
-              <span class="v14-tier tier-${h.tier}">${h.tier}</span>
-              <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-              <b style="color:${h.atk > h.baseAtk ? '#7ef28a' : '#ffd966'}">⚔${h.atk}</b>
-            </div>
-            <div class="v14-shop-card-name">${esc(h.name)}</div>
-            <div class="v14-shop-card-desc">${esc(h.desc)}</div>
-          </div>`;
-        }).join('')}</div>`;
-      } else {
-        sum.textContent = `v14.1 单局卡池（51张）：常驻通用 + 换桌 + 盾反 + 剧毒`;
-        body.innerHTML = `
-          <h4 style="color:#ffd966;margin:6px 0">商店稀客 (18名)</h4>
-          <div class="v14-modal-choices">${D.SHOP_HEROES.map((h) => {
-            const th = D.THEMES[h.theme];
-            return `<div class="v14-shop-card">
-              <div class="v14-shop-card-head">
-                <span class="v14-tier tier-${h.tier}">${h.tier}</span>
-                <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-                <span>⚔${h.atk}</span>
-              </div>
-              <div class="v14-shop-card-name">${esc(h.name)} ${h.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}</div>
-              <div class="v14-shop-card-desc">${esc(h.desc)}</div>
-            </div>`;
-          }).join('')}</div>
-          <h4 style="color:#6be5ff;margin:14px 0 6px">商店秘宝 (27件)</h4>
-          <div class="v14-modal-choices">${D.RELICS.map((r) => {
-            const th = D.THEMES[r.theme];
-            return `<div class="v14-shop-card">
-              <div class="v14-shop-card-head">
-                <span class="v14-tier tier-${r.tier}">${r.tier}</span>
-                <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-                <span>${r.cost}G</span>
-              </div>
-              <div class="v14-shop-card-name">${esc(r.name)} ${r.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}</div>
-              <div class="v14-shop-card-desc">${esc(r.desc)}</div>
-            </div>`;
-          }).join('')}</div>
+      if (effectiveTab === 'roster' && hasRun) {
+        const sl = this.run.slotLevels || { slot1: 1, slot2: 1, slot3: 1, hand: 1 };
+        sum.innerHTML = `
+          <div class="v16-roster-bar">
+            <span>当前出征牌组 <b>${this.run.roster.length}</b> 名侠客</span>
+            <span class="v16-rule-sep">·</span>
+            <span>主将：<b>${esc(this.run.hero.name)}</b></span>
+            <span class="v16-rule-sep">·</span>
+            <span>战位强化：1号 Lv.${sl.slot1} / 2号 Lv.${sl.slot2} / 3号 Lv.${sl.slot3} / 手牌 Lv.${sl.hand}</span>
+          </div>
         `;
+        body.innerHTML = `<div class="v16-codex-grid">${this.run.roster.map((h) => {
+          const th = D.THEMES[h.theme] || D.THEMES.core;
+          const grown = h.atk > h.baseAtk;
+          const tags = [
+            h.redSeal ? '双连印' : '',
+            h.glassBlade ? '玻璃刃' : '',
+            h.greedBadge ? '+2G' : '',
+            h.ironPlated ? '+18盾' : ''
+          ].filter(Boolean);
+          return `
+            <article class="v16-codex-card tier-${h.tier}" style="--th-col:${th.color};--th-bg:${th.bg};">
+              <div class="v16-cc-art">
+                <canvas class="v16-portrait-canvas" width="58" height="58" data-portrait-unit="${esc(h.unitId)}"></canvas>
+              </div>
+              <div class="v16-cc-info">
+                <div class="v16-cc-head">
+                  <span class="v14-tier tier-${h.tier}">${h.tier}</span>
+                  <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
+                  <span class="v16-cc-stat ${grown ? 'grown' : ''}">${pxIcon('atk')}${h.atk}</span>
+                </div>
+                <div class="v16-cc-name">${esc(h.shortName || h.name)}${tags.map((tg) => ` <span class="v16-cc-inscrip">${tg}</span>`).join('')}</div>
+                <p class="v16-cc-desc">${esc(h.desc)}</p>
+              </div>
+            </article>
+          `;
+        }).join('')}</div>`;
+        this._paintDomPortraits(body);
+        return;
       }
+
+      // Full Visual Codex with Interactive Theme & Category Filters
+      const allHeroes = (D.SHOP_HEROES || []);
+      const allRelics = (D.RELICS || []);
+      const activeThemes = new Set(['core', ...(this.meta.data.selectedThemes || [])]);
+      const themeOrder = ['all', 'core', 'discard', 'shield', 'poison', 'frost', 'hand', 'summon', 'blood', 'dice'];
+
+      const filterTheme = this.codexFilterTheme || 'all';
+      const filterKind = this.codexFilterKind || 'all';
+
+      const shownHeroes = (filterKind === 'relics')
+        ? []
+        : allHeroes.filter((h) => filterTheme === 'all' || h.theme === filterTheme);
+      const shownRelics = (filterKind === 'heroes')
+        ? []
+        : allRelics.filter((r) => filterTheme === 'all' || r.theme === filterTheme);
+
+      sum.innerHTML = `
+        <div class="v16-codex-controls">
+          <div class="v16-codex-kind-row">
+            <div class="v16-kind-pills">
+              <button type="button" class="v16-filter-btn ${filterKind === 'all' ? 'active' : ''}" data-codex-kind="all">全部 (${allHeroes.length + allRelics.length})</button>
+              <button type="button" class="v16-filter-btn ${filterKind === 'heroes' ? 'active' : ''}" data-codex-kind="heroes">侠客 (${allHeroes.length})</button>
+              <button type="button" class="v16-filter-btn ${filterKind === 'relics' ? 'active' : ''}" data-codex-kind="relics">秘宝 (${allRelics.length})</button>
+            </div>
+            <span class="v16-codex-meta">当前匹配：<b>${shownHeroes.length}</b> 名侠客 · <b>${shownRelics.length}</b> 件秘宝</span>
+          </div>
+          <div class="v16-theme-filter-row">
+            ${themeOrder.map((tid) => {
+              const isAll = tid === 'all';
+              const th = isAll ? { short: '全流派', color: '#ffe08a', bg: '#2c2214' } : (D.THEMES[tid] || D.THEMES.core);
+              const isOn = filterTheme === tid;
+              const inRun = !isAll && activeThemes.has(tid);
+              return `<button type="button" class="v16-th-chip ${isOn ? 'active' : ''} ${inRun ? 'in-run' : ''}" data-codex-theme="${tid}" style="--th-col:${th.color};--th-bg:${th.bg};">${esc(th.short)}</button>`;
+            }).join('')}
+          </div>
+        </div>
+      `;
+
+      const heroSectionHtml = shownHeroes.length > 0 ? `
+        <div class="v16-codex-sec-title"><span>侠客图鉴</span><b>${shownHeroes.length} 名</b></div>
+        <div class="v16-codex-grid">${shownHeroes.map((h) => {
+          const th = D.THEMES[h.theme] || D.THEMES.core;
+          const shortTitle = (h.name || '').includes('·') ? h.name.split('·').pop().trim() : h.name;
+          return `
+            <article class="v16-codex-card tier-${h.tier}" style="--th-col:${th.color};--th-bg:${th.bg};">
+              <div class="v16-cc-art">
+                <canvas class="v16-portrait-canvas" width="58" height="58" data-portrait-unit="${esc(h.unitId)}"></canvas>
+              </div>
+              <div class="v16-cc-info">
+                <div class="v16-cc-head">
+                  <span class="v14-tier tier-${h.tier}">${h.tier}</span>
+                  <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
+                  ${h.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}
+                  <span class="v16-cc-stat">${pxIcon('atk')}${h.atk}</span>
+                </div>
+                <div class="v16-cc-name">${esc(shortTitle)}</div>
+                <p class="v16-cc-desc">${esc(h.desc)}</p>
+              </div>
+            </article>
+          `;
+        }).join('')}</div>
+      ` : '';
+
+      const relicSectionHtml = shownRelics.length > 0 ? `
+        <div class="v16-codex-sec-title relic"><span>星界秘宝</span><b>${shownRelics.length} 件</b></div>
+        <div class="v16-codex-grid">${shownRelics.map((r) => {
+          const th = D.THEMES[r.theme] || D.THEMES.core;
+          const shortTitle = (r.name || '').includes('·') ? r.name.split('·').pop().trim() : r.name;
+          return `
+            <article class="v16-codex-card relic tier-${r.tier}" style="--th-col:${th.color};--th-bg:${th.bg};">
+              <div class="v16-cc-art relic-art">
+                ${this.renderSafeIconImg(r.icon, r.theme, 'v16-cc-relic-img')}
+              </div>
+              <div class="v16-cc-info">
+                <div class="v16-cc-head">
+                  <span class="v14-tier tier-${r.tier}">${r.tier}</span>
+                  <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
+                  ${r.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}
+                  <span class="v16-cc-stat gold">${pxIcon('gold')}${r.cost}G</span>
+                </div>
+                <div class="v16-cc-name">${esc(shortTitle)}</div>
+                <p class="v16-cc-desc">${esc(r.desc)}</p>
+              </div>
+            </article>
+          `;
+        }).join('')}</div>
+      ` : '';
+
+      body.innerHTML = heroSectionHtml + relicSectionHtml;
+      this._paintDomPortraits(body);
+
+      sum.querySelectorAll('[data-codex-kind]').forEach((btn) => {
+        btn.onclick = () => {
+          this.codexFilterKind = btn.dataset.codexKind;
+          this.renderCodexModal('codex');
+        };
+      });
+      sum.querySelectorAll('[data-codex-theme]').forEach((btn) => {
+        btn.onclick = () => {
+          this.codexFilterTheme = btn.dataset.codexTheme;
+          this.renderCodexModal('codex');
+        };
+      });
     }
   }
 
