@@ -35,7 +35,7 @@
     st_guard: {
       id: 'st_guard', unitId: 'f1_3rdgeneral', theme: 'core', tier: 'C',
       name: '通用 C · 盾卫', shortName: '盾卫', atk: 35, cost: 3,
-      vfx: 'fxDistortionHexShield', tag: '护盾', isStarter: true,
+      vfx: 'fxImpactBlueBig', tag: '护盾', isStarter: true,
       shieldVal: 25,
       desc: '出手时获得 +25 蓝盾。'
     },
@@ -56,7 +56,7 @@
     st_waiter: {
       id: 'st_waiter', unitId: 'f3_allomancer', theme: 'core', tier: 'B',
       name: '通用 B · 产钱小二', shortName: '产钱小二', atk: 30, cost: 3,
-      vfx: 'fxBuffSimpleGold', tag: '产钱', isStarter: true,
+      vfx: 'fxImpactBigOrange', tag: '产钱', isStarter: true,
       goldOnStrike: 1, goldOnDiscard: 1,
       desc: '出手或被【换桌】弃掉时，获得 +1G。'
     }
@@ -96,7 +96,7 @@
     {
       id: 'c_gold_broker', unitId: 'f3_grandmasternoshrak', theme: 'core', tier: 'A',
       name: '通用 A · 消费养成', shortName: '消费养成', atk: 42, cost: 4,
-      vfx: 'fxBuffSimpleGold', tag: '经济/养成',
+      vfx: 'fxImpactBigOrange', tag: '经济/养成',
       goldOnStrike: 2, growPerSpend3G: 12,
       desc: '出手 +2G；你在黑市每消费 3G，自身永久 +12 战力！'
     },
@@ -142,7 +142,7 @@
     {
       id: 't_shd_bastion', unitId: 'f3_nimbus', theme: 'shield', tier: 'A',
       name: '盾反 A · 挨打叠盾', shortName: '挨打叠盾', atk: 40, cost: 4,
-      vfx: 'fxDistortionHexShield', tag: '叠盾/养成',
+      vfx: 'fxImpactBlueBig', tag: '叠盾/养成',
       shieldVal: 35, growOnSlot1SurviveShield: 12, growOnSlot1SurviveAtk: 15,
       desc: '出手获自身护盾值（初35）；站 1 号位硬吃 Boss 攻击存活，永久 +12 盾与 +15 战力！'
     },
@@ -232,14 +232,14 @@
     {
       id: 't_hnd_steel', unitId: 'f1_peacekeeper2', theme: 'hand', tier: 'B',
       name: '留手 B · 钢牌助威', shortName: '钢牌助威', atk: 36, cost: 4,
-      vfx: 'fxBuffSimpleGold', tag: '留手',
+      vfx: 'fxImpactBigOrange', tag: '留手',
       inHandTeamMult: 1.25,
       desc: '留在手牌里不出时，场上所有侠客本次出手伤害 ×1.25！'
     },
     {
       id: 't_hnd_gold', unitId: 'f3_allomancer', theme: 'hand', tier: 'A',
       name: '留手 A · 藏金养成', shortName: '藏金养成', atk: 38, cost: 5,
-      vfx: 'fxBuffSimpleGold', tag: '留手/养成',
+      vfx: 'fxImpactBigOrange', tag: '留手/养成',
       inHandEndGold: 2, inHandEndGrowAtk: 12,
       desc: '留在手牌里时，每回合结束获得 +2G 且自身永久 +12 战力！'
     },

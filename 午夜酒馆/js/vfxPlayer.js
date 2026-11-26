@@ -134,7 +134,7 @@
       if (dKey) {
         const kit = this.initKit();
         const clip = kit.effect(dKey);
-        const speedMult = opts.speedMult || 1.15;
+        const speedMult = opts.speedMult || 1.55;
         const rawDurMs = kit.duration(clip) || 500;
         // Kick off lazy load if somehow not preloaded yet
         if (!this.duelystImages.has(dKey)) {
@@ -214,7 +214,10 @@
       const img = this.images.get(inst.key);
       if (!img) return;
       const info = inst.info;
-      const frameIdx = Math.min(info.frames - 1, Math.floor(inst.elapsed * info.fps * inst.speedMult));
+      const rawFrame = Math.floor(inst.elapsed * info.fps * inst.speedMult);
+      const frameIdx = inst.loop
+        ? ((rawFrame % info.frames) + info.frames) % info.frames
+        : Math.min(info.frames - 1, Math.max(0, rawFrame));
       const col = frameIdx % info.columns;
       const row = Math.floor(frameIdx / info.columns);
       const sx = col * info.frameW;

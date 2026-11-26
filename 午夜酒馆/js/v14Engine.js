@@ -629,6 +629,8 @@
     // 2. Base Damage + Team Bonus
     let dmg = (hero.atk || 0) + extraHeroAtk + (state.roundTeamAtkBonus || 0);
     let totalMult = heroMult;
+    const initBaseAtk = Math.round(dmg);
+    const initBaseMult = Number(totalMult.toFixed(2));
 
     // 3. Left -> Right Relic Rack Evaluation (supports r_copy_right!)
     const relicSteps = [];
@@ -648,16 +650,28 @@
         if (res.trigger) {
           if (res.addAtk) dmg += res.addAtk;
           if (res.mult && res.mult !== 1) totalMult *= res.mult;
-          relicSteps.push({ relicUid: r.uid, label: r.isCopyRight ? `复制:${res.label}` : res.label, fx: res.fx });
+          relicSteps.push({
+            relicUid: r.uid,
+            label: r.isCopyRight ? `复制:${res.label}` : res.label,
+            fx: res.fx,
+            addAtk: res.addAtk || 0,
+            mult: res.mult || 1,
+            isMult: Boolean(res.mult && res.mult !== 1),
+            afterBase: Math.round(dmg),
+            afterMult: Number(totalMult.toFixed(2))
+          });
         }
       }
     }
 
     // Boss Vulnerability / Stun multiplier
+    let statusMultLabel = null;
     if (state.bossStunned) {
       totalMult *= 1.5;
+      statusMultLabel = '眩晕×1.5';
     } else if (state.bossVuln) {
       totalMult *= 1.4;
+      statusMultLabel = '易伤×1.4';
     }
 
     const finalDmg = Math.max(1, Math.round(dmg * totalMult));
@@ -674,6 +688,11 @@
         isGhost: Boolean(ctx.isGhost),
         isRetrigger: Boolean(ctx.isRetrigger),
         dmg: finalDmg,
+        baseAtk: initBaseAtk,
+        baseMult: initBaseMult,
+        finalBaseAtk: Math.round(dmg),
+        finalMult: Number(totalMult.toFixed(2)),
+        statusMultLabel,
         vfx: hero.vfx,
         relicSteps,
         hitIndex: ctx.hitIndex

@@ -149,14 +149,21 @@
     }
 
     _preloadImages() {
-      Object.entries(ROOM_ASSETS).forEach(([tier, src]) => {
+      // Lazy-load tavern room backdrops on demand in _getRoomImg() so initial startup saves ~6MB!
+      this.landladyImg = null;
+    }
+
+    _ensureRoomTierLoaded(tier) {
+      if (!this.rooms[tier] && ROOM_ASSETS[tier]) {
         const img = new Image();
-        img.src = src;
+        img.src = ROOM_ASSETS[tier];
         this.rooms[tier] = img;
-      });
-      const ll = new Image();
-      ll.src = LANDLADY_ASSET;
-      this.landladyImg = ll;
+      }
+      if (!this.landladyImg) {
+        const ll = new Image();
+        ll.src = LANDLADY_ASSET;
+        this.landladyImg = ll;
+      }
     }
 
     _initParticles() {
@@ -381,9 +388,10 @@
 
     _getRoomImg() {
       const tier = this.wave >= 6 ? 3 : this.wave >= 3 ? 2 : 1;
+      this._ensureRoomTierLoaded(tier);
       const primary = this.rooms[tier];
       if (primary && primary.complete && primary.naturalWidth > 0) return primary;
-      for (const k of [2, 1, 3]) {
+      for (const k of [1, 2, 3]) {
         const fb = this.rooms[k];
         if (fb && fb.complete && fb.naturalWidth > 0) return fb;
       }
@@ -624,195 +632,142 @@
     }
 
     _renderHeroPackVFX(ctx, cw, ch, t) {
-      const cx = cw / 2;
-      const cy = ch * 0.48;
+      // Strict 2x pixel-art Booster Card Fan (ZERO ctx.shadowBlur, ZERO smooth vector roundRect!)
+      const p = 2;
+      const pw = Math.floor(cw / p);
+      const ph = Math.floor(ch / p);
+      const cx = Math.floor(pw / 2);
+      const cy = Math.floor(ph * 0.50);
       ctx.clearRect(0, 0, cw, ch);
       ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.scale(p, p);
 
-      // 1. Celestial Sapphire Nebula & Rotating Starlight Beams
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const glow = ctx.createRadialGradient(cx, cy, 4, cx, cy, 78);
-      glow.addColorStop(0, 'rgba(136, 234, 255, 0.48)');
-      glow.addColorStop(0.5, 'rgba(54, 148, 232, 0.20)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, cw, ch);
-
-      ctx.translate(cx, cy);
+      // Stepped pixel starlight spokes
       for (let i = 0; i < 8; i++) {
-        const ang = (Math.PI * 2 * i) / 8 + t * 0.38;
-        ctx.fillStyle = i % 2 === 0 ? 'rgba(118, 228, 255, 0.11)' : 'rgba(255, 222, 114, 0.08)';
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(Math.cos(ang - 0.11) * 92, Math.sin(ang - 0.11) * 92);
-        ctx.lineTo(Math.cos(ang + 0.11) * 92, Math.sin(ang + 0.11) * 92);
-        ctx.closePath();
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // 2. Levitating Holographic 3-Card Celestial Fan (pure sculpted light-planes!)
-      const bob = Math.sin(t * 2.6) * 3.2;
-      const drawHologramCard = (ox, oy, rot, w, h, rim, coreTop, coreBot, isCenter) => {
-        ctx.save();
-        ctx.translate(cx + ox, cy + oy + bob);
-        ctx.rotate(rot);
-
-        // Card outer aura
-        ctx.shadowColor = rim;
-        ctx.shadowBlur = isCenter ? 14 : 8;
-
-        // Beveled card body
-        const g = ctx.createLinearGradient(0, -h / 2, 0, h / 2);
-        g.addColorStop(0, coreTop);
-        g.addColorStop(1, coreBot);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.roundRect(-w / 2, -h / 2, w, h, 4);
-        ctx.fill();
-
-        // Crisp metallic rim
-        ctx.strokeStyle = rim;
-        ctx.lineWidth = isCenter ? 1.8 : 1.3;
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        // Inner filigree hairline
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.34)';
-        ctx.lineWidth = 0.8;
-        ctx.strokeRect(-w / 2 + 3.5, -h / 2 + 3.5, w - 7, h - 7);
-
-        // Center 4-point celestial star emblem on center card
-        if (isCenter) {
-          const sp = 0.85 + Math.sin(t * 4.5) * 0.18;
-          ctx.fillStyle = '#fff6c8';
-          ctx.beginPath();
-          ctx.moveTo(0, -13 * sp);
-          ctx.lineTo(3.6 * sp, -3.6 * sp);
-          ctx.lineTo(11 * sp, 0);
-          ctx.lineTo(3.6 * sp, 3.6 * sp);
-          ctx.lineTo(0, 13 * sp);
-          ctx.lineTo(-3.6 * sp, 3.6 * sp);
-          ctx.lineTo(-11 * sp, 0);
-          ctx.lineTo(-3.6 * sp, -3.6 * sp);
-          ctx.closePath();
-          ctx.fill();
+        const ang = (Math.PI * 2 * i) / 8 + t * 0.35;
+        ctx.fillStyle = i % 2 === 0 ? 'rgba(118, 228, 255, 0.24)' : 'rgba(255, 222, 114, 0.18)';
+        for (let r = 8; r < 34; r += 3) {
+          ctx.fillRect(Math.round(cx + Math.cos(ang) * r), Math.round(cy + Math.sin(ang) * r), 1, 1);
         }
-        ctx.restore();
+      }
+
+      // 3 crisp pixel-art tarot/hero cards (stair-stepped pixel frames!)
+      const bob = Math.round(Math.sin(t * 2.6) * 1.5);
+      const drawPxCard = (ox, oy, w, h, rim, fillTop, fillBot, isCenter) => {
+        const x0 = Math.round(cx + ox - w / 2);
+        const y0 = Math.round(cy + oy + bob - h / 2);
+        // Dark pixel outline
+        ctx.fillStyle = '#09111f';
+        ctx.fillRect(x0 - 1, y0, w + 2, h);
+        ctx.fillRect(x0, y0 - 1, w, h + 2);
+        // Metallic rim
+        ctx.fillStyle = rim;
+        ctx.fillRect(x0, y0, w, h);
+        // Inner body (two-tone pixel shade)
+        ctx.fillStyle = fillTop;
+        ctx.fillRect(x0 + 1, y0 + 1, w - 2, Math.floor((h - 2) * 0.5));
+        ctx.fillStyle = fillBot;
+        ctx.fillRect(x0 + 1, y0 + 1 + Math.floor((h - 2) * 0.5), w - 2, h - 2 - Math.floor((h - 2) * 0.5));
+        // Corner pixel rivets
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(x0 + 2, y0 + 2, 1, 1);
+        ctx.fillRect(x0 + w - 3, y0 + 2, 1, 1);
+        if (isCenter) {
+          // Crisp 4-point pixel celestial star
+          const sx = x0 + Math.floor(w / 2);
+          const sy = y0 + Math.floor(h / 2);
+          const sp = Math.sin(t * 4.5) > 0 ? 5 : 4;
+          ctx.fillStyle = '#ffe588';
+          ctx.fillRect(sx - sp, sy, sp * 2 + 1, 1);
+          ctx.fillRect(sx, sy - sp, 1, sp * 2 + 1);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(sx - 1, sy - 1, 3, 3);
+        }
       };
 
-      const fanSpread = Math.sin(t * 1.9) * 0.04;
-      drawHologramCard(-24, 5, -0.30 - fanSpread, 34, 50, '#78dcff', 'rgba(34, 96, 152, 0.86)', 'rgba(12, 34, 66, 0.94)', false);
-      drawHologramCard(24, 5, 0.30 + fanSpread, 34, 50, '#78dcff', 'rgba(34, 96, 152, 0.86)', 'rgba(12, 34, 66, 0.94)', false);
-      drawHologramCard(0, -3, 0, 40, 58, '#ffe27c', 'rgba(66, 146, 212, 0.92)', 'rgba(18, 46, 86, 0.96)', true);
+      drawPxCard(-14, 3, 16, 24, '#66ccff', '#1e4d7a', '#0f2744', false);
+      drawPxCard(14, 3, 16, 24, '#66ccff', '#1e4d7a', '#0f2744', false);
+      drawPxCard(0, -1, 20, 29, '#ffe27c', '#2e72b0', '#143359', true);
 
-      // 3. Ascending Foil Stardust Sparks
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
+      // Ascending crisp pixel stardust
       for (let i = 0; i < this.packMotes.length; i++) {
         const m = this.packMotes[i];
         const a = 0.35 + 0.55 * Math.sin(t * 5.2 + m.phase);
         ctx.globalAlpha = Math.max(0, Math.min(1, a));
         ctx.fillStyle = i % 3 === 0 ? '#ffe588' : '#a8f2ff';
-        ctx.fillRect(Math.round(m.x), Math.round(m.y), m.size, m.size);
+        ctx.fillRect(Math.round(m.x / p), Math.round(m.y / p), 1, 1);
       }
-      ctx.restore();
-
+      ctx.globalAlpha = 1;
       ctx.restore();
     }
 
     _renderInscripCofferVFX(ctx, cw, ch, t) {
-      const cx = cw / 2;
-      const cy = ch * 0.50;
+      // Strict 2x pixel-art Arcane Rune Sigil (ZERO ctx.shadowBlur, ZERO smooth vector curves!)
+      const p = 2;
+      const pw = Math.floor(cw / p);
+      const ph = Math.floor(ch / p);
+      const cx = Math.floor(pw / 2);
+      const cy = Math.floor(ph * 0.50);
       ctx.clearRect(0, 0, cw, ch);
       ctx.save();
+      ctx.imageSmoothingEnabled = false;
+      ctx.scale(p, p);
 
-      // 1. Leaking Arcane Amethyst Mist from the Top Coffer Seam + Center Aura
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const seamG = ctx.createLinearGradient(0, 0, 0, 44);
-      seamG.addColorStop(0, `rgba(222, 132, 255, ${(0.42 + Math.sin(t * 3.8) * 0.14).toFixed(3)})`);
-      seamG.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = seamG;
-      ctx.fillRect(0, 0, cw, 44);
-
-      const coreG = ctx.createRadialGradient(cx, cy, 3, cx, cy, 72);
-      coreG.addColorStop(0, 'rgba(232, 142, 255, 0.44)');
-      coreG.addColorStop(0.55, 'rgba(156, 48, 206, 0.18)');
-      coreG.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = coreG;
-      ctx.fillRect(0, 0, cw, ch);
-
-      // 2. Counter-Rotating Dual Sacred Alchemy Rune Rings
-      ctx.translate(cx, cy);
-
-      // Outer rune circle + 8 cardinal glyph notches
-      ctx.save();
-      ctx.rotate(t * 0.55);
-      ctx.strokeStyle = 'rgba(238, 174, 255, 0.72)';
-      ctx.lineWidth = 1.6;
-      ctx.beginPath();
-      ctx.arc(0, 0, 42, 0, Math.PI * 2);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(255, 214, 108, 0.72)';
-      ctx.lineWidth = 1.5;
-      for (let i = 0; i < 8; i++) {
-        const a = (Math.PI * 2 * i) / 8;
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(a) * 37, Math.sin(a) * 37);
-        ctx.lineTo(Math.cos(a) * 46, Math.sin(a) * 46);
-        ctx.stroke();
-      }
-      ctx.restore();
-
-      // Inner counter-rotating sacred hexagram star
-      ctx.save();
-      ctx.rotate(-t * 0.85);
-      ctx.strokeStyle = 'rgba(255, 212, 118, 0.78)';
-      ctx.lineWidth = 1.4;
-      for (let tri = 0; tri < 2; tri++) {
-        ctx.beginPath();
-        for (let k = 0; k < 3; k++) {
-          const ang = (Math.PI * 2 * k) / 3 + (tri * Math.PI) / 3;
-          const px = Math.cos(ang) * 31;
-          const py = Math.sin(ang) * 31;
-          if (k === 0) ctx.moveTo(px, py);
-          else ctx.lineTo(px, py);
+      const drawPxSeg = (x0, y0, x1, y1, col) => {
+        x0 = Math.round(x0); y0 = Math.round(y0); x1 = Math.round(x1); y1 = Math.round(y1);
+        const dx = Math.abs(x1 - x0), sx = x0 < x1 ? 1 : -1;
+        const dy = -Math.abs(y1 - y0), sy = y0 < y1 ? 1 : -1;
+        let err = dx + dy;
+        ctx.fillStyle = col;
+        for (let g = 0; g < 96; g++) {
+          ctx.fillRect(x0, y0, 1, 1);
+          if (x0 === x1 && y0 === y1) break;
+          const e2 = 2 * err;
+          if (e2 >= dy) { err += dy; x0 += sx; }
+          if (e2 <= dx) { err += dx; y0 += sy; }
         }
-        ctx.closePath();
-        ctx.stroke();
+      };
+
+      // Outer stepped pixel rune circle
+      const ringR = 20;
+      ctx.fillStyle = '#d996ff';
+      for (let k = 0; k < 36; k++) {
+        if (k % 6 === 0) continue;
+        const a = (k / 36) * Math.PI * 2 + t * 0.5;
+        ctx.fillRect(Math.round(cx + Math.cos(a) * ringR), Math.round(cy + Math.sin(a) * ringR), 1, 1);
       }
-      ctx.restore();
 
-      // Breathing Arcane Core Diamond Crystal
-      const p = 0.88 + Math.sin(t * 4.2) * 0.16;
-      ctx.fillStyle = '#fff0b8';
-      ctx.shadowColor = '#e284ff';
-      ctx.shadowBlur = 14;
-      ctx.beginPath();
-      ctx.moveTo(0, -13 * p);
-      ctx.lineTo(9 * p, 0);
-      ctx.lineTo(0, 13 * p);
-      ctx.lineTo(-9 * p, 0);
-      ctx.closePath();
-      ctx.fill();
-      ctx.shadowBlur = 0;
-      ctx.restore();
+      // Counter-rotating pixel hexagram (two stepped triangles)
+      for (let tri = 0; tri < 2; tri++) {
+        const pts = [];
+        for (let k = 0; k < 3; k++) {
+          const ang = (Math.PI * 2 * k) / 3 + (tri * Math.PI) / 3 - t * 0.7;
+          pts.push([cx + Math.cos(ang) * 15, cy + Math.sin(ang) * 15]);
+        }
+        const col = tri === 0 ? '#ffd978' : '#e6a2ff';
+        for (let k = 0; k < 3; k++) {
+          drawPxSeg(pts[k][0], pts[k][1], pts[(k + 1) % 3][0], pts[(k + 1) % 3][1], col);
+        }
+      }
 
-      // 3. Swirling Violet-Gold Arcane Sparks
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
+      // Breathing pixel core diamond crystal
+      const rad = Math.sin(t * 4.2) > 0 ? 5 : 4;
+      for (let dy = -rad; dy <= rad; dy++) {
+        const hw = rad - Math.abs(dy);
+        ctx.fillStyle = Math.abs(dy) <= 1 ? '#ffffff' : '#ffe699';
+        ctx.fillRect(cx - hw, cy + dy, hw * 2 + 1, 1);
+      }
+
+      // Swirling pixel sparks
       for (let i = 0; i < this.packMotes.length; i++) {
         const m = this.packMotes[i];
         const a = 0.32 + 0.56 * Math.sin(t * 4.6 + m.phase + 1.2);
         ctx.globalAlpha = Math.max(0, Math.min(1, a));
         ctx.fillStyle = i % 3 === 0 ? '#ffd978' : '#e6a2ff';
-        ctx.fillRect(Math.round(cw - m.x), Math.round(m.y), m.size, m.size);
+        ctx.fillRect(Math.round((cw - m.x) / p), Math.round(m.y / p), 1, 1);
       }
-      ctx.restore();
-
+      ctx.globalAlpha = 1;
       ctx.restore();
     }
 

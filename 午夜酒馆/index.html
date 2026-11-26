@@ -9,37 +9,66 @@
   <meta property="og:description" content="午夜酒馆 v15.0：无框实景剧场 HD-2D 战斗样板 + 8大主题包。" />
   <link rel="preload" href="./assets/fonts/fusion-pixel-12px-proportional-zh_hans.ttf.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="./css/v13.css?v=187" />
-  <link rel="stylesheet" href="./css/v14.css?v=202" />
+  <link rel="stylesheet" href="./css/v14.css?v=205" />
 </head>
 <body>
   <div id="viewport">
     <div id="stage">
 
-      <!-- ═══ TITLE SCREEN: RAINY MIDNIGHT TAVERN EXTERIOR ═══ -->
+      <!-- ═══ TITLE SCREEN: PROCEDURAL PIXEL-ART ECLIPSE SANCTUM & MIRROR LAKE ═══ -->
       <section id="title-screen-view">
-        <img class="title-bg-art" src="./assets/tavern/lv2.png" alt="午夜酒馆雨夜门面" />
         <canvas id="title-fx-canvas" width="1280" height="720"></canvas>
         <div class="title-vignette" aria-hidden="true"></div>
 
+        <div class="title-top-utils">
+          <button id="btn-title-hands" class="title-util-btn">51张卡池图鉴</button>
+          <button id="btn-title-mute" class="title-util-btn">音效：开</button>
+        </div>
+
         <div class="title-hero-overlay">
-          <div class="title-signboard">
-            <h1 class="ts-main-title">午夜酒馆</h1>
-            <p class="ts-sub-line">v15.0 · 无框实景剧场样板</p>
-            <div class="v14-ver-pill" style="margin-top:8px">
-              <span>当前：v15.0</span>
-              <a href="./v13_9.html">切换对照 v13.9</a>
+          <div class="title-brand-block">
+            <div class="title-emblem-row" aria-hidden="true">
+              <span class="te-rule"></span>
+              <svg class="te-eclipse-svg" viewBox="0 0 18 18" shape-rendering="crispEdges">
+                <rect x="7" y="1" width="4" height="2" fill="#f6ce6b"/>
+                <rect x="4" y="2" width="3" height="2" fill="#f6ce6b"/>
+                <rect x="11" y="2" width="3" height="2" fill="#c9862c"/>
+                <rect x="2" y="4" width="2" height="3" fill="#f6ce6b"/>
+                <rect x="14" y="4" width="2" height="3" fill="#c9862c"/>
+                <rect x="1" y="7" width="2" height="4" fill="#fff6d0"/>
+                <rect x="15" y="7" width="2" height="4" fill="#a86820"/>
+                <rect x="2" y="11" width="2" height="3" fill="#f6ce6b"/>
+                <rect x="14" y="11" width="2" height="3" fill="#a86820"/>
+                <rect x="4" y="14" width="3" height="2" fill="#d99a3a"/>
+                <rect x="11" y="14" width="3" height="2" fill="#8f5418"/>
+                <rect x="7" y="15" width="4" height="2" fill="#c9862c"/>
+                <rect x="8" y="8" width="2" height="2" fill="#fff9df"/>
+              </svg>
+              <span class="te-rule"></span>
             </div>
+            <h1 class="ts-main-title">
+              <span class="ts-title-shadow" aria-hidden="true">午夜酒馆</span>
+              <span class="ts-title-fill">午夜酒馆</span>
+            </h1>
+            <p class="ts-sub-line">
+              <span class="ts-en">MIDNIGHT TAVERN</span>
+              <span class="ts-sep" aria-hidden="true">·</span>
+              <span class="ts-cn">日蚀战团</span>
+            </p>
           </div>
 
           <div class="title-door-actions">
             <button id="btn-title-enter" class="title-enter-seal">
-              <span class="te-wax-disc" aria-hidden="true">入</span>
+              <svg class="te-cursor-svg" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">
+                <rect x="2" y="1" width="2" height="10" fill="#ffe89c"/>
+                <rect x="4" y="2" width="2" height="8" fill="#f6c75c"/>
+                <rect x="6" y="3" width="2" height="6" fill="#e5a33d"/>
+                <rect x="8" y="4" width="2" height="4" fill="#fff6d0"/>
+                <rect x="10" y="5" width="2" height="2" fill="#ffffff"/>
+              </svg>
               <span class="te-main">推门入座</span>
+              <span class="te-hint" aria-hidden="true">ENTER</span>
             </button>
-            <div class="title-aux-row">
-              <button id="btn-title-hands" class="title-aux-btn">51张卡池图鉴</button>
-              <button id="btn-title-mute" class="title-aux-btn">音效：开</button>
-            </div>
           </div>
         </div>
       </section>
@@ -55,8 +84,11 @@
               <span id="bt-squad-hp-text">小队 100/100</span>
             </div>
             <div class="bt-sq-bar-wrap">
-              <div id="bt-squad-hp-fill" style="width:100%"></div>
-              <div id="bt-squad-shield-fill" style="width:0%"></div>
+              <div class="squad-hp-track">
+                <div id="bt-squad-hp-lag" class="squad-hp-lag" style="width:100%"></div>
+                <div id="bt-squad-hp-fill" style="width:100%"></div>
+                <div id="bt-squad-shield-fill" style="width:0%"></div>
+              </div>
             </div>
           </div>
 
@@ -200,13 +232,13 @@
       <div id="deck-select-modal" class="tabletop-contracts-layer hidden">
         <header class="contracts-top-rail">
           <button id="btn-contracts-back" class="steel-btn tavern-btn hud-mini-btn">返回</button>
-          <div class="contracts-rail-title" style="display:flex;align-items:center;gap:14px;">
-            <h2 class="crt-main">雨夜门廊 · 点将台</h2>
-            <span id="meta-orbs-badge" class="v14-orbs-badge">💎 宝珠 10</span>
+          <div class="contracts-rail-title" style="display:flex;align-items:center;gap:12px;">
+            <h2 class="crt-main">雨夜庭院 · 点将台</h2>
+            <span id="meta-orbs-badge" class="v14-orbs-badge">宝珠 10</span>
             <button id="btn-meta-daily-ad" class="v14-ad-btn">每日签到 (领 3~10 碎片)</button>
           </div>
           <div class="contracts-rail-tools" style="display:flex;gap:6px;align-items:center;">
-            <span id="meta-sync-badge" style="font-size:11px;color:#9ff5a8;font-weight:800;">☁ 已保存</span>
+            <span id="meta-sync-badge" class="v15-sync-pill">已保存</span>
             <button id="btn-prep-themes-top" class="steel-btn tavern-btn hud-mini-btn">8大主题包</button>
             <button id="btn-meta-board" class="steel-btn tavern-btn hud-mini-btn">排行榜</button>
             <button id="btn-meta-ach" class="steel-btn tavern-btn hud-mini-btn">成就</button>
@@ -233,7 +265,7 @@
             <button id="btn-pack-target-back" class="steel-btn tavern-btn hud-mini-btn">← 返回重选塔罗</button>
           </div>
           <div class="pack-footer" style="display:flex;gap:12px;justify-content:center;">
-            <button id="btn-pack-ad-reroll" class="v14-ad-btn">▶ 看广告重抽本包 (1/1)</button>
+            <button id="btn-pack-ad-reroll" class="v14-ad-btn">重抽本包 (1/1)</button>
             <button id="btn-pack-abandon" class="steel-btn tavern-btn">放弃本包 (+2G)</button>
           </div>
         </div>
@@ -328,19 +360,18 @@
   <!-- Duelyst H5 Kit & v15.2 Live-Gear Engine Scripts -->
   <script src="./assets/duelyst/duelyst-h5.js?v=197"></script>
   <script src="./assets/duelyst/assets/manifest.js?v=197"></script>
-  <script src="./js/audio.js?v=144"></script>
+  <script src="./js/audio.js?v=205"></script>
   <script src="./js/vfxPlayer.js?v=202"></script>
   <script src="./js/sprites.js?v=202"></script>
   <script src="./js/v13AltarBg.js?v=144"></script>
-  <script src="./js/v13BattleAtmosphere.js?v=144"></script>
   <script src="./js/v14TapBridge.js?v=152"></script>
   <script src="./js/v14Meta.js?v=152"></script>
   <script src="./js/v14Data.js?v=174"></script>
-  <script src="./js/v14Engine.js?v=152"></script>
-  <script src="./js/v14Battle.js?v=203"></script>
+  <script src="./js/v14Engine.js?v=205"></script>
+  <script src="./js/v14Battle.js?v=205"></script>
   <script src="./js/v15HeroMusterStage.js?v=196"></script>
   <script src="./js/v15TavernShopStage.js?v=200"></script>
   <script src="./js/v15PackCeremonyFX.js?v=199"></script>
-  <script src="./js/v14Main.js?v=202"></script>
+  <script src="./js/v14Main.js?v=205"></script>
 </body>
 </html>

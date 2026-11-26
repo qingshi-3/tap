@@ -79,15 +79,15 @@
       if (this.tap) {
         this.tap.onSyncStatusChange = (txt) => {
           const el = $('meta-sync-badge');
-          if (el) el.textContent = `☁ ${txt}`;
+          if (el) el.textContent = `${txt}`;
         };
       }
 
       this.battleStage = new window.MT.V14BattleStage($('battle-canvas'));
-      this.altarBg = window.MT.EclipseAltarBg ? new window.MT.EclipseAltarBg($('altar-bg-canvas')) : null;
+      this.altarBg = null; // Retired v13 tabletop canvas; #altar-bg-canvas is exclusively owned by TavernShopStage
       this.tavernShopStage = window.MT.TavernShopStage ? new window.MT.TavernShopStage($('altar-bg-canvas'), this.sprites) : null;
       this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
-      this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas')) : null;
+      this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas'), this.sprites) : null;
       this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
 
       this.run = null;
@@ -113,7 +113,10 @@
 
     async boot() {
       try {
-        await this.sprites.load();
+        await Promise.all([
+          this.sprites && this.sprites.load ? this.sprites.load().catch(() => {}) : Promise.resolve(),
+          this.vfx && this.vfx.load ? this.vfx.load().catch(() => {}) : Promise.resolve()
+        ]);
       } catch (_) {}
       this.meta.syncFromCloud(() => {
         if (!$('deck-select-modal').classList.contains('hidden')) this.renderPrepHall();
@@ -449,6 +452,10 @@
       const vh = window.innerHeight;
       const scale = Math.min(vw / 1280, vh / 720);
       this.stage.style.transform = `scale(${scale})`;
+      this.stage.style.setProperty('--stage-scale', scale.toFixed(4));
+      const isCompact = scale < 0.78 || vw < 1000 || vh < 520;
+      this.stage.classList.toggle('mobile-compact', isCompact);
+      document.documentElement.classList.toggle('mobile-compact', isCompact);
     }
 
     toast(msg) {
@@ -513,7 +520,7 @@
     tryUnlockAch(achId) {
       const res = this.meta.unlockAchievement(achId);
       if (res && res.ach) {
-        this.toast(`🏅 成就解锁【${res.ach.name}】+${res.ach.shards}碎片${res.mergedOrbs > 0 ? `（合成+${res.mergedOrbs}宝珠!）` : ''}`);
+        this.toast(`[成就解锁] ${res.ach.name} +${res.ach.shards}碎片${res.mergedOrbs > 0 ? `（合成+${res.mergedOrbs}宝珠!）` : ''}`);
       }
     }
 
@@ -609,6 +616,7 @@
         this.run.gold += 2;
         this.activePackState = null;
         if (this.packCeremonyFX) this.packCeremonyFX.stop();
+        if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
         $('pack-ceremony-modal').classList.add('hidden');
         this.toast('放弃本包，返还 +2G');
         this.renderShop();
@@ -635,6 +643,7 @@
       if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
       if (this.titleRain && this.titleRain.start) this.titleRain.start();
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('title');
       this.closeShopInspector();
       $('title-screen-view').classList.remove('hidden');
       $('deck-select-modal').classList.add('hidden');
@@ -653,6 +662,7 @@
       if (this.tavernShopStage) this.tavernShopStage.stop();
       if (this.packCeremonyFX) this.packCeremonyFX.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('porch');
       this.closeShopInspector();
       this.prepTab = 'heroes';
       $('title-screen-view').classList.add('hidden');
@@ -1629,11 +1639,11 @@
 
       const strikeRes = E.executeStrike(b, slotted, remainingHand, this.run.roster);
       if (strikeRes.directDmg >= preStrikeSnap.bossHp + preStrikeSnap.bossShield) {
-        this.battleStage.triggerCutIn('⚔ 终结斩杀！', `单手直伤 ${strikeRes.directDmg}`, '#ffd966');
+        this.battleStage.triggerCutIn('终结斩杀！', `单手直伤 ${strikeRes.directDmg}`, '#ffd966');
       } else if (preCharging && preBreakProgress + strikeRes.directDmg >= preBreakThreshold) {
-        this.battleStage.triggerCutIn('💥 破招强袭！', `打断蓄力 · 易伤 ×1.5`, '#7be8ff');
+        this.battleStage.triggerCutIn('破招强袭！', `打断蓄力 · 易伤 ×1.5`, '#7be8ff');
       } else if (strikeRes.directDmg >= 450) {
-        this.battleStage.triggerCutIn('✦ 绝技连携！', `爆发直伤 ${strikeRes.directDmg}`, '#ff7a98');
+        this.battleStage.triggerCutIn('绝技连携！', `爆发直伤 ${strikeRes.directDmg}`, '#ff7a98');
       }
       this.run.gold = b.gold;
       if (strikeRes.directDmg > this.run.peakHit) this.run.peakHit = strikeRes.directDmg;
@@ -1646,11 +1656,27 @@
       }
 
       // Keep Boss HP bar & badges at pre-strike values until each hit lands on screen!
+      const strikeHooks = this.makePlayEventHooks(preStrikeSnap);
       this.syncBattleHudOnly(preStrikeSnap);
-      await this.battleStage.playEvents(strikeRes.events, this.makePlayEventHooks(preStrikeSnap));
+      const battleViewEl = $('battle-view');
+      if (battleViewEl) battleViewEl.classList.add('scoring-active');
+      if (this.battleStage && this.battleStage.beginScoringTally) {
+        this.battleStage.beginScoringTally(preStrikeSnap.bossHp + preStrikeSnap.bossShield, strikeHooks);
+      }
+      try {
+        await this.battleStage.playEvents(strikeRes.events, strikeHooks);
+      } finally {
+        if (this.battleStage && this.battleStage.endScoringTally) {
+          this.battleStage.endScoringTally();
+        }
+        if (battleViewEl) battleViewEl.classList.remove('scoring-active');
+      }
       this.syncBattleHudOnly();
 
       if (b.bossHp <= 0) {
+        if (this.battleStage && this.battleStage.playBossDeath) {
+          await this.battleStage.playBossDeath();
+        }
         this.finishBattle(true);
         return;
       }
@@ -1670,6 +1696,9 @@
 
       if (b.bossHp <= 0) {
         if (bossEvents.some((e) => e.type === 'poison_tick')) this.tryUnlockAch('ach_poison_kill');
+        if (this.battleStage && this.battleStage.playBossDeath) {
+          await this.battleStage.playBossDeath();
+        }
         this.finishBattle(true);
         return;
       }
@@ -1922,7 +1951,8 @@
           this.syncBattleHudOnly(snap);
         },
         onSyncHud: () => this.syncBattleHudOnly(snap),
-        onRelicPulse: (uid, lbl) => this.pulseRelicChip(uid, lbl),
+        onRelicPulse: (uid, lbl, meta) => this.pulseRelicChip(uid, lbl, meta),
+        onHeatChange: (lv) => this.setBattleHeatLevel(lv),
         onToast: (t) => this.toast(t)
       };
     }
@@ -1932,7 +1962,10 @@
       if (!b) return;
       $('bt-title').innerHTML = `<span class="v15-hud-tag">第${b.wave}/8波</span><span class="v15-hud-tag">第${b.round}/${b.maxRounds}回合</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}</span>`;
       $('bt-squad-hp-text').textContent = `${b.squadHp}/${b.squadMaxHp}${b.squadShield > 0 ? ` (+${b.squadShield}盾)` : ''}`;
-      $('bt-squad-hp-fill').style.width = `${Math.max(0, Math.min(100, (b.squadHp / b.squadMaxHp) * 100))}%`;
+      const sqPct = Math.max(0, Math.min(100, (b.squadHp / b.squadMaxHp) * 100));
+      $('bt-squad-hp-fill').style.width = `${sqPct}%`;
+      const sqLag = $('bt-squad-hp-lag');
+      if (sqLag) sqLag.style.width = `${sqPct}%`;
       $('bt-squad-shield-fill').style.width = `${Math.max(0, Math.min(100, (b.squadShield / b.squadMaxHp) * 100))}%`;
 
       $('bt-boss-name').textContent = `${b.bossCfg.name}`;
@@ -2142,8 +2175,9 @@
         const shortPerk = this.getShortPerk(h);
         const hasBadges = h.redSeal || h.glassBlade || h.greedBadge || h.ironPlated;
         const offset = idx - midIdx;
-        const fanRot = (offset * 2.1).toFixed(2);
-        const fanY = Math.round(Math.abs(offset) * Math.abs(offset) * 2.1);
+        // Zero diagonal rotation on pixel cards so CJK bitmap text & sprites stay 100% razor-sharp!
+        const fanRot = '0';
+        const fanY = Math.round(Math.abs(offset) * 2.2);
         const hasHolo = h.tier === 'A' || h.tier === 'S' || h.tier === 'SSS';
         const isSelected = this.inspectedCardUid === h.uid;
         const isNewlyDrawn = this.newlyDrawnUids && this.newlyDrawnUids.has(h.uid);
@@ -2582,13 +2616,50 @@
       return { arrows, meta };
     }
 
-    pulseRelicChip(uid, label) {
+    setBattleHeatLevel(level = 0) {
+      const bv = $('battle-view');
+      if (!bv) return;
+      const lv = Math.max(0, Math.min(4, Math.floor(Number(level) || 0)));
+      if (lv <= 0) bv.removeAttribute('data-heat');
+      else bv.setAttribute('data-heat', String(lv));
+    }
+
+    pulseRelicChip(uid, label, meta = {}) {
       const el = document.querySelector(`.v14-relic-chip[data-ruid="${uid}"]`);
       if (!el) return;
+      const heatLv = Number(meta.heatLevel) || 0;
+      const isMult = Boolean(meta.isMult) || (typeof label === 'string' && label.includes('×'));
+      const chainIdx = Number(meta.chainIdx) || 0;
+
+      // Alternate tilt angle left/right & intensify scale/rotation with Scoring Heat (Balatro Joker jiggle!)
+      const dir = (chainIdx % 2 === 0) ? -1 : 1;
+      const deg = dir * (5 + Math.min(6, heatLv * 1.6) + (isMult ? 2.2 : 0));
+      const scl = (1.16 + Math.min(0.16, heatLv * 0.035) + (isMult ? 0.05 : 0)).toFixed(2);
+      el.style.setProperty('--jiggle-rot', `${deg.toFixed(1)}deg`);
+      el.style.setProperty('--jiggle-scale', scl);
+
+      el.classList.remove('pulse', 'pulse-mult', 'pulse-heat-3', 'pulse-heat-4');
+      void el.offsetWidth;
       el.classList.add('pulse');
+      if (isMult) el.classList.add('pulse-mult');
+      if (heatLv >= 3) el.classList.add(`pulse-heat-${Math.min(4, heatLv)}`);
+
       const sub = el.querySelector('.v14-relic-chip-sub');
       if (sub && label) sub.textContent = label;
-      setTimeout(() => el.classList.remove('pulse'), 360);
+
+      // Spawn crisp floating Balatro-style trigger badge below the relic card
+      if (label) {
+        const badge = document.createElement('span');
+        badge.className = `v156-relic-pop-badge${isMult ? ' is-mult' : ''}${heatLv >= 3 ? ' is-blue' : ''}`;
+        badge.textContent = label;
+        el.appendChild(badge);
+        setTimeout(() => badge.remove(), 580);
+      }
+
+      clearTimeout(el._pulseTid);
+      el._pulseTid = setTimeout(() => {
+        el.classList.remove('pulse', 'pulse-mult', 'pulse-heat-3', 'pulse-heat-4');
+      }, 340);
     }
 
     formatRelicLiveStat(r) {
@@ -2609,6 +2680,7 @@
       if (this.heroMusterStage) this.heroMusterStage.stop();
       if (this.titleRain && this.titleRain.stop) this.titleRain.stop();
       if (this.altarBg && this.altarBg.stop) this.altarBg.stop();
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
       if (this.tavernShopStage) {
         this.tavernShopStage.setState({ wave: this.run.wave, roster: this.run.roster });
         this.tavernShopStage.start();
@@ -2774,13 +2846,15 @@
       adBtn.textContent = this.run.adPackRerollLeft > 0 ? `▶ 看广告重抽本包 (${this.run.adPackRerollLeft}/1)` : '重抽次数已用完';
 
       this.renderShop();
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('ceremony');
 
       if (isAdReroll) {
         // Re-roll skips waiting on the sealed pack and immediately erupts into fresh cards
         $('pack-sealed-stage').classList.add('hidden');
         $('pack-reveal-stage').classList.remove('hidden');
         if (this.packCeremonyFX) this.packCeremonyFX.triggerTearBurst(packId);
-        if (this.audio.playSackBurst) this.audio.playSackBurst();
+        if (this.audio.playPackTear) this.audio.playPackTear(false);
+        else if (this.audio.playSackBurst) this.audio.playSackBurst();
         this._renderPackRevealCards();
         return;
       }
@@ -2792,7 +2866,8 @@
       if (footer) footer.classList.add('is-sealed');
 
       if (this.packCeremonyFX) this.packCeremonyFX.startCharging(packId);
-      if (this.audio.playStampCharge) this.audio.playStampCharge();
+      if (this.audio.playPackCharge) this.audio.playPackCharge();
+      else if (this.audio.playStampCharge) this.audio.playStampCharge();
 
       const env = $('pack-foil-envelope');
       const isHeroPack = packId === 'pack_hero';
@@ -2854,10 +2929,14 @@
         modal.classList.add('ceremony-shake');
 
         if (this.packCeremonyFX) this.packCeremonyFX.triggerTearBurst(packId);
-        if (this.audio.playSlash) this.audio.playSlash();
-        setTimeout(() => {
-          if (this.audio.playSackBurst) this.audio.playSackBurst();
-        }, 90);
+        if (this.audio.playPackTear) {
+          this.audio.playPackTear(hasJackpot);
+        } else {
+          if (this.audio.playSlash) this.audio.playSlash();
+          setTimeout(() => {
+            if (this.audio.playSackBurst) this.audio.playSackBurst();
+          }, 90);
+        }
 
         setTimeout(() => {
           if (!this.activePackState) return;
@@ -2921,6 +3000,7 @@
             this.run.roster.push(chosen);
             this.activePackState = null;
             if (this.packCeremonyFX) this.packCeremonyFX.stop();
+            if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
             modal.classList.add('hidden');
             if (this.audio.playSynergy) this.audio.playSynergy();
             if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#7ef28a');
@@ -2935,7 +3015,8 @@
         instances.forEach((h, i) => {
           setTimeout(() => {
             if (!this.activePackState) return;
-            if (h.tier === 'SSS' && this.audio.playCrit) this.audio.playCrit();
+            if (this.audio.playCardReveal) this.audio.playCardReveal(h.tier, i);
+            else if (h.tier === 'SSS' && this.audio.playCrit) this.audio.playCrit();
             else if (h.tier === 'S' && this.audio.playSynergy) this.audio.playSynergy();
             else if (this.audio.playChainDing) this.audio.playChainDing(i, false);
           }, i * 105 + 60);
@@ -2968,7 +3049,8 @@
         picks.forEach((ins, i) => {
           setTimeout(() => {
             if (!this.activePackState) return;
-            if (this.audio.playChainDing) this.audio.playChainDing(i, insTier(ins) !== 'A');
+            if (this.audio.playCardReveal) this.audio.playCardReveal(insTier(ins), i);
+            else if (this.audio.playChainDing) this.audio.playChainDing(i, insTier(ins) !== 'A');
           }, i * 115 + 60);
         });
         this.startCardFxLoop();
@@ -3020,6 +3102,7 @@
 
           this.activePackState = null;
           if (this.packCeremonyFX) this.packCeremonyFX.stop();
+          if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
           $('pack-ceremony-modal').classList.add('hidden');
           if (this.audio.playWaxSlam) this.audio.playWaxSlam();
           if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate(ins.color || '#ffd966');
@@ -3175,15 +3258,24 @@
       const popW = pop.offsetWidth || 356;
       const popH = pop.offsetHeight || 200;
 
-      // Prefer placing neatly to the left of the shelf item so the card itself stays unobstructed
-      let left = aLeft - popW - 14;
-      if (left < 18) {
-        left = aRight + 14;
+      // Keep shop popover anchored cleanly inside the right baize market area (x >= 472)
+      // so it stays right beside the clicked item and NEVER obscures the left Boss Bounty / Battle CTA!
+      const MARKET_MIN_X = 472;
+      const aCenterX = (aLeft + aRight) / 2;
+      let left = aRight + 14;
+      if (left + popW > 1258) {
+        left = aLeft - popW - 14;
       }
-      if (left + popW > 1262) {
-        left = Math.max(18, Math.min(1262 - popW, aLeft - popW * 0.35));
+      if (left < MARKET_MIN_X) {
+        left = Math.max(MARKET_MIN_X, Math.min(1258 - popW, Math.round(aCenterX - popW / 2)));
       }
       let top = Math.round(aCenterY - popH / 2);
+      // If overlapping horizontally with anchor (e.g. middle column), open cleanly below or above anchor
+      if (left < aRight && left + popW > aLeft) {
+        const belowTop = Math.round(aTop + (anchorRect.height * scaleY) + 10);
+        const aboveTop = Math.round(aTop - popH - 10);
+        top = (belowTop + popH <= 704) ? belowTop : Math.max(70, aboveTop);
+      }
       top = Math.max(70, Math.min(704 - popH, top));
 
       pop.style.left = `${Math.round(left)}px`;

@@ -144,6 +144,9 @@
     }
   }
 
+  const WEATHER_MODES = ['drizzle', 'mist', 'fireflies'];
+  let prevBattleWeatherIdx = -1;
+
   class V14BattleStage {
     constructor(canvas) {
       this.canvas = canvas;
@@ -181,10 +184,12 @@
       this.shakeMaxTime = 0.14;
       this.shakeAmp = 0;
       this.shakeDirX = 1;
+      this.zoomPunch = null;
       this.screenFlash = null;
+      this.scoring = this._makeScoringState();
 
       this.biome = 'default';
-      this.atmosphere = null;
+      this.weather = 'drizzle';
       this.boss = null;
       this.ghostUnit = null;
       this.slotUnits = [null, null, null];
@@ -283,7 +288,9 @@
       this.shakeTime = 0;
       this.shakeMaxTime = 0.14;
       this.shakeAmp = 0;
+      this.zoomPunch = null;
       this.screenFlash = null;
+      this.scoring = this._makeScoringState();
       this.popups = [];
       this.particles = [];
       this.shockwaves = [];
@@ -301,8 +308,13 @@
       this.bossVuln = false;
       this.bossStunned = false;
 
-      if (window.MT.BattleWeather) {
-        this.atmosphere = new window.MT.BattleWeather();
+      // Rotate nocturnal battle weather without back-to-back repeats
+      const choices = prevBattleWeatherIdx < 0 ? WEATHER_MODES.length : WEATHER_MODES.length - 1;
+      const roll = Math.floor(Math.random() * choices);
+      prevBattleWeatherIdx = (prevBattleWeatherIdx >= 0 && roll >= prevBattleWeatherIdx) ? roll + 1 : roll;
+      this.weather = WEATHER_MODES[prevBattleWeatherIdx];
+      if (window.MT.audio && window.MT.audio.setAmbience) {
+        window.MT.audio.setAmbience('battle', this.weather);
       }
 
       this.boss = {
@@ -322,7 +334,11 @@
         animSpeedMult: 1,
         animTimer: 0,
         phase: 0.6,
-        alive: true
+        alive: true,
+        dying: false,
+        deathElapsed: 0,
+        deathDur: 0.78,
+        deathEmitAcc: 0
       };
 
       this.running = true;
@@ -331,9 +347,12 @@
     }
 
     stop() {
-      if (this.atmosphere) { this.atmosphere.dispose(); this.atmosphere = null; }
       this.running = false;
       if (this.rafId) { cancelAnimationFrame(this.rafId); this.rafId = null; }
+      if (this.scoring && this.scoring.onHeatChange) {
+        try { this.scoring.onHeatChange(0); } catch (_) {}
+      }
+      this.scoring = this._makeScoringState();
       // Resolve any pending choreography waiters cleanly so async callers never hang
       if (this._waiters && this._waiters.length) {
         const list = this._waiters.splice(0);
@@ -421,7 +440,70 @@
       this.bossVuln = Boolean(state.bossVuln);
       this.bossStunned = Boolean(state.bossStunned);
       if (this.boss) {
-        this.boss.alive = state.bossHp > 0;
+        if (state.bossHp <= 0) {
+          if (this.boss.alive && !this.boss.dying) {
+            this.triggerBossDeath();
+          }
+        } else {
+          this.boss.alive = true;
+          this.boss.dying = false;
+          this.boss.deathElapsed = 0;
+        }
+      }
+    }
+
+    // Subtle elastic camera zoom-in centered on impact point (never exposes black borders since scale >= 1)
+    triggerZoomPunch(scale = 1.042, focusX = BOSS_X, focusY = BRIDGE_Y - 82, dur = 0.24) {
+      if (this.zoomPunch && this.zoomPunch.scale > scale && this.zoomPunch.time > dur * 0.4) return;
+      this.zoomPunch = {
+        scale: Math.max(1.01, Math.min(1.08, scale)),
+        focusX,
+        focusY,
+        time: dur,
+        maxTime: dur
+      };
+    }
+
+    // Dramatic Kill-Confirm Finisher: hit-stop + zoom punch + white flash + pixel dissolution + gold burst
+    triggerBossDeath() {
+      if (!this.boss || this.boss.dying || !this.boss.alive) return;
+      this.boss.dying = true;
+      this.boss.deathElapsed = 0;
+      this.boss.deathEmitAcc = 0;
+      this.boss.flash = 0.35;
+      this.boss.knockX = Math.max(this.boss.knockX || 0, 26);
+
+      this.triggerHitImpact({
+        hitstop: 0.115,
+        shakeAmp: 11.5,
+        shakeDur: 0.28,
+        dirX: 1,
+        target: 'boss',
+        flashColor: '#fff6d6',
+        flashAlpha: 0.34,
+        flashDur: 0.22
+      });
+      this.triggerZoomPunch(1.056, BOSS_X, BRIDGE_Y - 86, 0.38);
+
+      this.spawnVfx('fxExplosionBigWhiteHot', BOSS_X, BRIDGE_Y - 86, 2.25, { speedMult: 0.85 });
+      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffffff', 128, 0.34, 5.5);
+      this.spawnShockwave(BOSS_X, BRIDGE_Y - 86, '#ffd966', 96, 0.44, 4);
+      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ffe484', 28, 0);
+      this.spawnParticles(BOSS_X, BRIDGE_Y - 86, '#ff85b3', 16, 1);
+
+      const audio = window.MT.audio;
+      if (audio && audio.playBossKill) audio.playBossKill();
+    }
+
+    async playBossDeath() {
+      if (!this.running || !this.boss) return;
+      if (this.boss.alive && !this.boss.dying) {
+        this.triggerBossDeath();
+      }
+      if (this.boss.dying) {
+        // Hold just long enough to savor the kill flash & dissolution before payout scroll opens
+        const remain = Math.max(0.18, 0.48 - (this.boss.deathElapsed || 0));
+        await this.waitSec(remain);
       }
     }
 
@@ -475,11 +557,11 @@
         color: color || '#b8dcff',
         alpha,
         life: 0.18,
-        maxLife: 0.18
+        maxLife: 0.11
       });
     }
 
-    spawnPopup(x, y, text, color = '#ffd966', size = 28) {
+    spawnPopup(x, y, text, color = '#ffd966', size = 28, opts = {}) {
       // Gently nudge vertically if another very fresh popup shares this spot
       let sy = y;
       for (const existing of this.popups) {
@@ -487,15 +569,19 @@
           sy -= 28;
         }
       }
+      const isBig = Boolean(opts.big) || size >= 34;
       this.popups.push({
         x: x + (Math.random() - 0.5) * 26,
         y: sy,
-        vy: -88,
+        vy: isBig ? -98 : -86,
         text,
         color,
         size,
-        life: 0.92,
-        maxLife: 0.92
+        age: 0,
+        isBig,
+        tilt: isBig ? (Math.random() - 0.5) * 0.14 : (Math.random() - 0.5) * 0.05,
+        life: isBig ? 1.04 : 0.92,
+        maxLife: isBig ? 1.04 : 0.92
       });
     }
 
@@ -536,6 +622,469 @@
         t: 0, dur, arc, color, kind
       });
       return dur;
+    }
+
+    // =========================================================================
+    // v15.6 BALATRO-STYLE SCORING HEAT & PIXEL FLAME ESCALATION ENGINE
+    // =========================================================================
+    _makeScoringState() {
+      return {
+        active: false,
+        holding: false,
+        holdTimer: 0,
+        fade: 0,
+        baseAtk: 0,
+        mult: 1,
+        totalDmg: 0,
+        displayTotal: 0,
+        lethalTarget: 400,
+        heat: 0,
+        heatLevel: 0, // 0: calm | 1: warm | 2: orange flame | 3: blue overkill flame | 4: eclipse supernova
+        chainCount: 0,
+        heroName: '',
+        statusTag: '',
+        atkPop: 0,
+        multPop: 0,
+        totalPop: 0,
+        embers: [],
+        sparks: [],
+        onHeatChange: null
+      };
+    }
+
+    beginScoringTally(lethalTarget = 400, hooks = null) {
+      const s = this._makeScoringState();
+      s.active = true;
+      s.holding = true;
+      s.fade = 0.05;
+      s.lethalTarget = Math.max(80, Number(lethalTarget) || 400);
+      s.onHeatChange = (hooks && hooks.onHeatChange) || null;
+      this.scoring = s;
+      if (s.onHeatChange) s.onHeatChange(0);
+    }
+
+    endScoringTally() {
+      const s = this.scoring;
+      if (!s || !s.active) return;
+      s.holding = false;
+      // Linger longer when flames are blazing so the player can savor the huge total!
+      s.holdTimer = s.heatLevel >= 3 ? 1.05 : s.heatLevel >= 2 ? 0.82 : 0.55;
+    }
+
+    _evalHeatLevel(totalDmg, mult, lethalTarget) {
+      const ratio = totalDmg / Math.max(80, lethalTarget);
+      const absRatio = totalDmg / 520;
+      const multBonus = mult >= 4 ? 0.25 : mult >= 2.2 ? 0.12 : 0;
+      const heat = Math.max(ratio, absRatio) + multBonus;
+      let level = 0;
+      if (ratio >= 1.45 || totalDmg >= 1100) level = 4;
+      else if (ratio >= 0.92 || totalDmg >= 540) level = 3;
+      else if (ratio >= 0.52 || totalDmg >= 260) level = 2;
+      else if (ratio >= 0.22 || totalDmg >= 110 || mult >= 1.8) level = 1;
+      return { heat: Math.min(2.2, heat), level };
+    }
+
+    _syncScoringHeat(hooks = null) {
+      const s = this.scoring;
+      if (!s || !s.active) return;
+      const prevLv = s.heatLevel;
+      const { heat, level } = this._evalHeatLevel(s.totalDmg, s.mult, s.lethalTarget);
+      s.heat = Math.max(s.heat, heat);
+      if (level > prevLv) {
+        s.heatLevel = level;
+        const cb = (hooks && hooks.onHeatChange) || s.onHeatChange;
+        if (cb) cb(level);
+        if (level >= 2) {
+          const audio = window.MT.audio;
+          if (audio && audio.playHeatIgnite) audio.playHeatIgnite(level);
+          // Burst of pixel flames when crossing into Orange / Blue / Eclipse heat!
+          this._spawnScoreEmbers(level >= 3 ? 28 : 18, 640, 162, 130, level);
+          if (level >= 3) {
+            this.triggerShake(level >= 4 ? 6.5 : 4.5, 0.14, 1);
+          }
+        }
+      }
+    }
+
+    _setScoringFactor(baseAtk, mult, kind = 'init', heroName = '', statusTag = '', hooks = null) {
+      const s = this.scoring;
+      if (!s || !s.active) return;
+      if (typeof baseAtk === 'number') s.baseAtk = Math.max(0, Math.round(baseAtk));
+      if (typeof mult === 'number') s.mult = Math.max(0.1, Number(mult.toFixed(2)));
+      if (heroName) s.heroName = heroName;
+      if (statusTag !== undefined) s.statusTag = statusTag || '';
+      if (kind === 'atk') {
+        s.atkPop = 1.0;
+        this._spawnScoreEmbers(7, 566, 152, 42, s.heatLevel, '#7be8ff');
+      } else if (kind === 'mult') {
+        s.multPop = 1.0;
+        this._spawnScoreEmbers(11, 714, 152, 46, Math.max(2, s.heatLevel), s.heatLevel >= 3 ? '#7be8ff' : '#ff6b8b');
+      } else {
+        s.atkPop = 0.7;
+        if (s.mult > 1) s.multPop = 0.7;
+      }
+      this._syncScoringHeat(hooks);
+    }
+
+    _addScoringDamage(dmg, hooks = null) {
+      const s = this.scoring;
+      if (!s || !s.active) return;
+      const add = Math.max(0, Math.round(Number(dmg) || 0));
+      if (add <= 0) return;
+      s.totalDmg += add;
+      s.totalPop = 1.0;
+      this._syncScoringHeat(hooks);
+      const count = s.heatLevel >= 3 ? 16 : s.heatLevel >= 2 ? 10 : 6;
+      this._spawnScoreEmbers(count, 640, 178, 96, s.heatLevel);
+    }
+
+    _spawnScoreEmbers(count, cx, cy, spreadX, heatLv, forceColor = null) {
+      const s = this.scoring;
+      if (!s) return;
+      const pal = heatLv >= 4
+        ? ['#ff5e8e', '#58e8ff', '#ffe266', '#ffffff']
+        : heatLv >= 3
+          ? ['#38c8ff', '#8ef6ff', '#ffffff', '#60a5fa']
+          : heatLv >= 2
+            ? ['#ff4d2e', '#ff942e', '#ffe266', '#fff6d6']
+            : ['#ffd966', '#ffae38', '#fff4c2'];
+      for (let i = 0; i < count; i++) {
+        if (s.embers.length > 95) s.embers.shift();
+        const col = forceColor || pal[Math.floor(Math.random() * pal.length)];
+        s.embers.push({
+          x: cx + (Math.random() - 0.5) * spreadX * 2,
+          y: cy + (Math.random() - 0.5) * 24,
+          vx: (Math.random() - 0.5) * (48 + heatLv * 24),
+          vy: -(65 + Math.random() * (95 + heatLv * 38)),
+          size: Math.random() < 0.35 ? 5 : 3,
+          color: col,
+          life: 0.34 + Math.random() * 0.36,
+          maxLife: 0.70
+        });
+      }
+    }
+
+    _spawnRelicConvergeSparks(isMult = false, heatLv = 0) {
+      const s = this.scoring;
+      if (!s) return;
+      const toX = isMult ? 714 : 566;
+      const toY = 152;
+      const fromX = 520 + (Math.random() - 0.5) * 240;
+      const fromY = 86;
+      const col = heatLv >= 3 ? '#7be8ff' : (isMult ? '#ff5e8e' : '#66d0ff');
+      for (let i = 0; i < 6; i++) {
+        s.sparks.push({
+          fromX: fromX + (Math.random() - 0.5) * 24,
+          fromY,
+          toX: toX + (Math.random() - 0.5) * 28,
+          toY: toY + (Math.random() - 0.5) * 14,
+          t: 0,
+          dur: 0.14 + Math.random() * 0.08,
+          size: i % 2 === 0 ? 5 : 3,
+          color: i === 0 ? '#ffffff' : col
+        });
+      }
+    }
+
+    _updateScoring(dt) {
+      const s = this.scoring;
+      if (!s || !s.active) return;
+
+      // Smooth fade-in and delayed fade-out
+      if (s.holding) {
+        s.fade = Math.min(1, s.fade + dt * 7.5);
+      } else {
+        if (s.holdTimer > 0) {
+          s.holdTimer -= dt;
+        } else {
+          s.fade = Math.max(0, s.fade - dt * 2.8);
+          if (s.fade <= 0) {
+            s.active = false;
+            if (s.onHeatChange) s.onHeatChange(0);
+            return;
+          }
+        }
+      }
+
+      // Snappy odometer roll-up for totalDmg
+      if (s.displayTotal < s.totalDmg) {
+        const diff = s.totalDmg - s.displayTotal;
+        const step = Math.max(1, Math.ceil(diff * Math.min(1, dt * 18)));
+        s.displayTotal = Math.min(s.totalDmg, s.displayTotal + step);
+      }
+
+      // Pop-bounce decay
+      if (s.atkPop > 0) s.atkPop = Math.max(0, s.atkPop - dt * 4.8);
+      if (s.multPop > 0) s.multPop = Math.max(0, s.multPop - dt * 4.4);
+      if (s.totalPop > 0) s.totalPop = Math.max(0, s.totalPop - dt * 3.8);
+
+      // Continuous rising embers proportional to Heat Level
+      if (s.heatLevel >= 1 && s.fade > 0.35) {
+        const spawnProb = s.heatLevel >= 4 ? 0.85 : s.heatLevel >= 3 ? 0.68 : s.heatLevel >= 2 ? 0.45 : 0.18;
+        if (Math.random() < spawnProb) {
+          this._spawnScoreEmbers(s.heatLevel >= 3 ? 2 : 1, 640, 178, 125, s.heatLevel);
+        }
+      }
+
+      for (let i = s.embers.length - 1; i >= 0; i--) {
+        const e = s.embers[i];
+        e.life -= dt;
+        if (e.life <= 0) { s.embers.splice(i, 1); continue; }
+        e.x += e.vx * dt;
+        e.y += e.vy * dt;
+        e.vx *= Math.pow(0.95, dt * 60);
+      }
+      for (let i = s.sparks.length - 1; i >= 0; i--) {
+        const sp = s.sparks[i];
+        sp.t += dt;
+        if (sp.t >= sp.dur) s.sparks.splice(i, 1);
+      }
+    }
+
+    _renderScoringOverlay(octx) {
+      const s = this.scoring;
+      if (!s || !s.active || s.fade <= 0.01) return;
+
+      const t = this.idleTime;
+      const lv = s.heatLevel;
+      const cx = 640;
+      const cy = 152;
+      const fade = s.fade;
+
+      octx.save();
+      octx.imageSmoothingEnabled = false;
+
+      // 1. Subtle Full-Screen Edge Heat Aura when Heat >= Lv.2 (feels genuinely hot without obscuring combat!)
+      if (lv >= 2) {
+        const pulse = 0.78 + 0.22 * Math.sin(t * (lv >= 3 ? 11 : 6.5));
+        const edgeA = (lv >= 4 ? 0.24 : lv >= 3 ? 0.18 : 0.12) * fade * pulse;
+        const rgb = lv >= 4 ? '255, 72, 138' : lv >= 3 ? '56, 206, 255' : '255, 118, 34';
+        const rgb2 = lv >= 4 ? '56, 224, 255' : rgb;
+        octx.save();
+        octx.globalCompositeOperation = 'lighter';
+        const leftG = octx.createLinearGradient(0, 0, 120, 0);
+        leftG.addColorStop(0, `rgba(${rgb}, ${edgeA.toFixed(3)})`);
+        leftG.addColorStop(1, 'rgba(0,0,0,0)');
+        octx.fillStyle = leftG;
+        octx.fillRect(0, 0, 120, BH);
+
+        const rightG = octx.createLinearGradient(BW, 0, BW - 120, 0);
+        rightG.addColorStop(0, `rgba(${rgb2}, ${edgeA.toFixed(3)})`);
+        rightG.addColorStop(1, 'rgba(0,0,0,0)');
+        octx.fillStyle = rightG;
+        octx.fillRect(BW - 120, 0, 120, BH);
+        octx.restore();
+      }
+
+      // 2. Converging Relic -> Scoreboard Spark Stream
+      if (s.sparks.length > 0) {
+        octx.save();
+        octx.globalCompositeOperation = 'lighter';
+        for (const sp of s.sparks) {
+          const k = Math.min(1, sp.t / sp.dur);
+          const ease = 1 - Math.pow(1 - k, 2);
+          const px = sp.fromX + (sp.toX - sp.fromX) * ease;
+          const py = sp.fromY + (sp.toY - sp.fromY) * ease;
+          octx.globalAlpha = (1 - k * 0.4) * fade;
+          octx.fillStyle = sp.color;
+          octx.fillRect(Math.round(px - sp.size / 2), Math.round(py - sp.size / 2), sp.size, sp.size);
+        }
+        octx.restore();
+      }
+
+      // 3. Dynamic Pixel Flame Wall behind & flanking the Scoring Counter (Balatro Orange -> Blue Overkill -> Eclipse!)
+      const slideY = Math.round((1 - fade) * -14);
+      const panelY = cy + slideY;
+      octx.globalAlpha = fade;
+
+      if (lv >= 1) {
+        const flameCols = lv >= 4
+          ? { outer: '#e11d48', mid: '#38e8ff', hi: '#ffe266', core: '#ffffff', glow: '255, 76, 140' }
+          : lv >= 3
+            ? { outer: '#1d4ed8', mid: '#00c8ff', hi: '#8ef6ff', core: '#ffffff', glow: '56, 206, 255' }
+            : lv >= 2
+              ? { outer: '#dc2626', mid: '#ff7a18', hi: '#ffe266', core: '#fffce8', glow: '255, 118, 34' }
+              : { outer: '#b45309', mid: '#f59e0b', hi: '#fef08a', core: '#fffbeb', glow: '245, 158, 11' };
+
+        const flameSpan = lv >= 4 ? 320 : lv >= 3 ? 286 : lv >= 2 ? 250 : 196;
+        const maxFlameH = lv >= 4 ? 86 : lv >= 3 ? 68 : lv >= 2 ? 48 : 22;
+        const colW = 6;
+        const cols = Math.floor(flameSpan / colW);
+        const startX = Math.round(cx - (cols * colW) / 2);
+        const baseY = panelY + 42;
+
+        // Soft volumetric under-glow behind flames
+        octx.save();
+        octx.globalCompositeOperation = 'lighter';
+        const fg = octx.createRadialGradient(cx, panelY + 12, 16, cx, panelY + 8, flameSpan * 0.62);
+        fg.addColorStop(0, `rgba(${flameCols.glow}, ${(0.22 + lv * 0.08).toFixed(3)})`);
+        fg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        octx.fillStyle = fg;
+        octx.fillRect(cx - flameSpan, panelY - 84, flameSpan * 2, 168);
+
+        // Crisp 6px-stepped pixel flame tongues!
+        for (let i = 0; i < cols; i++) {
+          const norm = (i / Math.max(1, cols - 1)) * 2 - 1; // -1..1
+          // Higher on center & shoulders (classic Balatro framing!)
+          const arch = Math.max(0.18, 1 - Math.pow(Math.abs(norm), 1.85) * 0.78);
+          const wave1 = Math.sin(t * (9 + lv * 2.5) + i * 0.85);
+          const wave2 = Math.cos(t * (14 + lv * 3.0) - i * 1.42);
+          const flicker = 0.55 + 0.28 * wave1 + 0.17 * wave2;
+          const h = Math.max(6, Math.round(maxFlameH * arch * flicker / 4) * 4);
+          const x = startX + i * colW;
+
+          octx.globalAlpha = fade * (0.72 + lv * 0.06);
+          octx.fillStyle = flameCols.outer;
+          octx.fillRect(x, baseY - h, colW, h);
+
+          const midH = Math.max(4, Math.round(h * 0.68 / 4) * 4);
+          octx.fillStyle = flameCols.mid;
+          octx.fillRect(x + 1, baseY - midH, colW - 2, midH);
+
+          if (lv >= 2 && h >= 18) {
+            const hiH = Math.max(4, Math.round(h * 0.42 / 4) * 4);
+            octx.fillStyle = flameCols.hi;
+            octx.fillRect(x + 1, baseY - hiH, colW - 2, hiH);
+          }
+          if (lv >= 3 && h >= 28 && (i % 2 === 0)) {
+            const cH = Math.max(4, Math.round(h * 0.24 / 4) * 4);
+            octx.fillStyle = flameCols.core;
+            octx.fillRect(x + 2, baseY - cH, colW - 4, cH);
+          }
+        }
+        octx.restore();
+      }
+
+      // 4. Rising Pixel Embers
+      if (s.embers.length > 0) {
+        octx.save();
+        octx.globalCompositeOperation = 'lighter';
+        for (const e of s.embers) {
+          octx.globalAlpha = Math.max(0, (e.life / e.maxLife) * fade);
+          octx.fillStyle = e.color;
+          octx.fillRect(Math.round(e.x), Math.round(e.y), e.size, e.size);
+        }
+        octx.restore();
+      }
+
+      // 5. Compact HD-2D Scoring Plaque: [ Blue ATK ] × [ Crimson MULT ] + Blazing Total Counter
+      const jitterMag = lv >= 4 ? 3.2 : lv >= 3 ? 2.2 : lv >= 2 ? 1.2 : 0;
+      const jx = jitterMag ? Math.round((Math.sin(t * 68) + (Math.random() - 0.5)) * jitterMag * 0.55) : 0;
+      const jy = jitterMag ? Math.round((Math.cos(t * 54) + (Math.random() - 0.5)) * jitterMag * 0.55) : 0;
+
+      const boxW = 248;
+      const boxH = 44;
+      const boxX = Math.round(cx - boxW / 2 + jx * 0.4);
+      const boxY = Math.round(panelY - 22 + jy * 0.4);
+
+      const borderCol = lv >= 4 ? '#ff6ea8' : lv >= 3 ? '#7be8ff' : lv >= 2 ? '#ff9d3b' : '#c9a452';
+      octx.save();
+      octx.fillStyle = 'rgba(10, 8, 22, 0.86)';
+      octx.fillRect(boxX, boxY, boxW, boxH);
+      octx.strokeStyle = '#05040c';
+      octx.lineWidth = 4;
+      octx.strokeRect(boxX - 1, boxY - 1, boxW + 2, boxH + 2);
+      octx.strokeStyle = borderCol;
+      octx.lineWidth = 2;
+      octx.strokeRect(boxX, boxY, boxW, boxH);
+
+      // Left Blue Chips Box (ATK)
+      const atkScale = 1 + s.atkPop * 0.28;
+      const atkRot = -s.atkPop * 0.11;
+      octx.save();
+      octx.translate(cx - 64, panelY);
+      octx.rotate(atkRot);
+      octx.scale(atkScale, atkScale);
+      octx.fillStyle = s.atkPop > 0.45 ? '#3b9cff' : '#184b8c';
+      octx.fillRect(-52, -16, 104, 32);
+      octx.strokeStyle = '#7be8ff';
+      octx.lineWidth = 2;
+      octx.strokeRect(-52, -16, 104, 32);
+      octx.font = '20px "FusionPixel", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.lineWidth = 4;
+      octx.strokeStyle = '#060a18';
+      octx.strokeText(`${s.baseAtk}`, 0, 1);
+      octx.fillStyle = '#e8faff';
+      octx.fillText(`${s.baseAtk}`, 0, 1);
+      octx.restore();
+
+      // Center × Glyph
+      octx.font = '20px "FusionPixel", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.lineWidth = 4;
+      octx.strokeStyle = '#080510';
+      octx.strokeText('×', cx, panelY + 1);
+      octx.fillStyle = lv >= 3 ? '#8ef6ff' : '#ffd966';
+      octx.fillText('×', cx, panelY + 1);
+
+      // Right Crimson Multiplier Box (MULT)
+      const multScale = 1 + s.multPop * 0.34;
+      const multRot = s.multPop * 0.12;
+      const multStr = Number.isInteger(s.mult) ? `${s.mult}` : `${s.mult.toFixed(2).replace(/0$/, '')}`;
+      octx.save();
+      octx.translate(cx + 64, panelY);
+      octx.rotate(multRot);
+      octx.scale(multScale, multScale);
+      octx.fillStyle = s.multPop > 0.45 ? '#ff4778' : '#8f1938';
+      octx.fillRect(-52, -16, 104, 32);
+      octx.strokeStyle = lv >= 3 ? '#8ef6ff' : '#ff7a98';
+      octx.lineWidth = 2;
+      octx.strokeRect(-52, -16, 104, 32);
+      octx.font = '20px "FusionPixel", monospace';
+      octx.textAlign = 'center';
+      octx.textBaseline = 'middle';
+      octx.lineWidth = 4;
+      octx.strokeStyle = '#18050d';
+      octx.strokeText(multStr, 0, 1);
+      octx.fillStyle = '#fff5d6';
+      octx.fillText(multStr, 0, 1);
+      octx.restore();
+
+      // Top micro-ribbon: Hero name / Status bonus / Heat banner
+      const heatLabel = lv >= 4
+        ? '✦ 日蚀破表 ✦'
+        : lv >= 3
+          ? '⚡ 斩杀魔火 ⚡'
+          : lv >= 2
+            ? '🔥 火力全开 🔥'
+            : (s.statusTag || s.heroName);
+      if (heatLabel) {
+        octx.font = '12px "FusionPixel", monospace';
+        octx.textAlign = 'center';
+        octx.textBaseline = 'alphabetic';
+        octx.lineWidth = 4;
+        octx.strokeStyle = '#07040f';
+        octx.strokeText(heatLabel, cx, boxY - 6);
+        octx.fillStyle = lv >= 4 ? '#ff94c2' : lv >= 3 ? '#8ef6ff' : lv >= 2 ? '#ffb84d' : '#f2e6c9';
+        octx.fillText(heatLabel, cx, boxY - 6);
+      }
+
+      // Blazing Cumulative Total Counter directly below the equation
+      if (s.totalDmg > 0) {
+        const totSize = lv >= 4 ? 42 : lv >= 3 ? 38 : lv >= 2 ? 34 : 28;
+        const totScale = 1 + s.totalPop * (lv >= 3 ? 0.32 : 0.22);
+        const totCol = lv >= 4 ? '#fff6d6' : lv >= 3 ? '#8ef6ff' : lv >= 2 ? '#ffae38' : '#ffe266';
+        octx.save();
+        octx.translate(Math.round(cx + jx), Math.round(panelY + 46 + jy));
+        octx.scale(totScale, totScale);
+        octx.font = `${totSize}px "FusionPixel", monospace`;
+        octx.textAlign = 'center';
+        octx.textBaseline = 'middle';
+        octx.lineWidth = lv >= 3 ? 7 : 5.5;
+        octx.lineJoin = 'round';
+        octx.strokeStyle = lv >= 3 ? '#061428' : '#09050f';
+        const totText = `${s.displayTotal}`;
+        octx.strokeText(totText, 0, 0);
+        octx.fillStyle = totCol;
+        octx.fillText(totText, 0, 0);
+        octx.restore();
+      }
+
+      octx.restore();
+      octx.restore();
     }
 
     // Frame-accurate combat timer (pauses cleanly during hit-stop & scales with battle speed!)
@@ -616,8 +1165,41 @@
           const isHeavy = ev.dmg >= 220 || Boolean(ev.isRetrigger);
           const isMega = ev.dmg >= 420;
 
-          if (ev.relicSteps && ev.relicSteps.length > 0 && hooks.onRelicPulse) {
-            for (const step of ev.relicSteps) hooks.onRelicPulse(step.relicUid, step.label);
+          // Seed scoreboard with this unit's base chips × mult, then pop each Relic left-to-right!
+          const initAtk = ev.baseAtk !== undefined ? ev.baseAtk : ev.dmg;
+          const initMult = ev.baseMult !== undefined ? ev.baseMult : 1;
+          this._setScoringFactor(initAtk, initMult, 'init', ev.heroName || '', ev.statusMultLabel || '', hooks);
+
+          if (ev.relicSteps && ev.relicSteps.length > 0) {
+            for (const step of ev.relicSteps) {
+              if (!this.running) break;
+              const chainIdx = this.scoring ? (this.scoring.chainCount++) : pitchStep;
+              const isMultStep = Boolean(step.isMult || (step.mult && step.mult !== 1));
+              const curHeat = this.scoring ? this.scoring.heatLevel : 0;
+              if (hooks.onRelicPulse) {
+                hooks.onRelicPulse(step.relicUid, step.label, { isMult: isMultStep, heatLevel: curHeat, chainIdx });
+              }
+              if (step.afterBase !== undefined || step.afterMult !== undefined) {
+                this._setScoringFactor(
+                  step.afterBase !== undefined ? step.afterBase : undefined,
+                  step.afterMult !== undefined ? step.afterMult : undefined,
+                  isMultStep ? 'mult' : 'atk',
+                  ev.heroName || '',
+                  ev.statusMultLabel || '',
+                  hooks
+                );
+              }
+              this._spawnRelicConvergeSparks(isMultStep, this.scoring ? this.scoring.heatLevel : 0);
+              if (audio && audio.playRelicTick) {
+                audio.playRelicTick({ step: chainIdx, isMult: isMultStep, heatLevel: this.scoring ? this.scoring.heatLevel : 0 });
+              }
+              // Escalating tempo: accelerates cleanly as combo chain grows (72ms -> 34ms)!
+              const stepDelay = Math.max(0.034, 0.072 - Math.min(8, chainIdx) * 0.0048);
+              await this.waitSec(stepDelay);
+            }
+          }
+          if (ev.finalMult !== undefined && this.scoring && Math.abs(ev.finalMult - this.scoring.mult) > 0.01) {
+            this._setScoringFactor(ev.finalBaseAtk, ev.finalMult, 'mult', ev.heroName || '', ev.statusMultLabel || '', hooks);
           }
 
           if (ev.isKnife) {
@@ -627,7 +1209,10 @@
             const fromY = BRIDGE_Y - 68 + (Math.random() - 0.5) * 18;
             const toX = BOSS_X - 38;
             const toY = BRIDGE_Y - 82 + (Math.random() - 0.5) * 24;
-            if (audio) audio.tone(Math.min(1080, 620 + pitchStep * 36), 0.06, 'triangle', 0.08, 0, 960);
+            if (audio) {
+              if (audio.playDaggerThrow) audio.playDaggerThrow(pitchStep);
+              else audio.tone(Math.min(1080, 620 + pitchStep * 36), 0.06, 'triangle', 0.08, 0, 960);
+            }
             const flightDur = this.spawnProjectile(fromX, fromY, toX, toY, '#7be8ff', { dur: 0.135, arc: 14, kind: 'dagger' });
             await this.waitSec(flightDur);
             if (!this.running) break;
@@ -648,8 +1233,12 @@
             this.spawnVfx(ev.vfx || 'fx_f2_twilightreiki', toX + 12, toY, 1.35, { speedMult: 1.45 });
             this.spawnShockwave(toX + 12, toY, '#7be8ff', 42, 0.18, 3);
             this.spawnParticles(toX + 10, toY, '#7be8ff', 10, 1);
-            if (audio) audio.tone(240 + Math.min(260, pitchStep * 22), 0.07, 'square', 0.08, 0, 110);
+            if (audio) {
+              if (audio.playDaggerHit) audio.playDaggerHit(pitchStep);
+              else audio.tone(240 + Math.min(260, pitchStep * 22), 0.07, 'square', 0.08, 0, 110);
+            }
             this.spawnPopup(BOSS_X, BRIDGE_Y - 132, `-${ev.dmg}`, '#7be8ff', ev.dmg >= 140 ? 30 : 24);
+            this._addScoringDamage(ev.dmg, hooks);
             if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
             else if (hooks.onSyncHud) hooks.onSyncHud();
             await this.waitSec(0.06);
@@ -677,7 +1266,10 @@
             };
             this.spawnVfx('fx_f2_teleportsmoke', ghostStartX, BRIDGE_Y - 56, 1.4, { speedMult: 1.5 });
             this.spawnPopup(ghostStartX, BRIDGE_Y - 126, `影袭 · ${ev.heroName}`, '#d48cff', 20);
-            if (audio) audio.tone(360, 0.09, 'sine', 0.09, 0, 560);
+            if (audio) {
+              if (audio.playGhostAppear) audio.playGhostAppear();
+              else audio.tone(360, 0.09, 'sine', 0.09, 0, 560);
+            }
             await this.tweenUnitX(this.ghostUnit, ghostStrikeX, 0.12, { ease: 'outCubic', trailColor: '#d48cff' });
             if (!this.running) break;
 
@@ -700,11 +1292,16 @@
               flashColor: '#d48cff',
               flashAlpha: 0.14
             });
+            if (isHeavy) this.triggerZoomPunch(isMega ? 1.046 : 1.028, BOSS_X, BRIDGE_Y - 82, 0.22);
             this.spawnVfx(ev.vfx || 'fx_f4_shadownova', BOSS_X - 8, BRIDGE_Y - 82, isHeavy ? 1.85 : 1.55);
             this.spawnShockwave(BOSS_X - 8, BRIDGE_Y - 82, '#d48cff', 66, 0.24, 4);
             this.spawnParticles(BOSS_X - 6, BRIDGE_Y - 82, '#d48cff', 18, 1);
-            if (audio) audio.tone(180, 0.12, 'sawtooth', 0.10, 0, 88);
-            this.spawnPopup(BOSS_X, BRIDGE_Y - 140, `-${ev.dmg}`, '#e5a8ff', isHeavy ? 34 : 28);
+            if (audio) {
+              if (audio.playBattleHit) audio.playBattleHit({ step: pitchStep, isHeavy, isMega, isGhost: true, heatLevel: this.scoring ? this.scoring.heatLevel : 0 });
+              else audio.tone(180, 0.12, 'sawtooth', 0.10, 0, 88);
+            }
+            this.spawnPopup(BOSS_X, BRIDGE_Y - 140, `-${ev.dmg}`, '#e5a8ff', isHeavy ? 34 : 28, { big: isHeavy });
+            this._addScoringDamage(ev.dmg, hooks);
             if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
             else if (hooks.onSyncHud) hooks.onSyncHud();
 
@@ -721,8 +1318,11 @@
             actor.squashY = 0.88;
             this.spawnParticles(actor.homeX - 10, BRIDGE_Y - 6, trailCol, 6, -1);
             if (audio) {
-              const whoosh = Math.min(820, 290 + pitchStep * 36);
-              audio.tone(whoosh, 0.08, 'triangle', 0.08, 0, whoosh * 1.32);
+              if (audio.playDashWhoosh) audio.playDashWhoosh(pitchStep);
+              else {
+                const whoosh = Math.min(820, 290 + pitchStep * 36);
+                audio.tone(whoosh, 0.08, 'triangle', 0.08, 0, whoosh * 1.32);
+              }
             }
             await this.waitSec(0.035);
             if (!this.running) break;
@@ -763,6 +1363,11 @@
               flashColor: isMega ? '#fff4cc' : isHeavy ? '#ffd966' : null,
               flashAlpha: isMega ? 0.22 : 0.12
             });
+            if (isMega) {
+              this.triggerZoomPunch(1.046, BOSS_X - 10, BRIDGE_Y - 84, 0.28);
+            } else if (isHeavy) {
+              this.triggerZoomPunch(1.024, BOSS_X - 10, BRIDGE_Y - 84, 0.20);
+            }
 
             const vfxKey = ev.vfx || (isMega ? 'fx_multislash_full' : 'fx_crossslash');
             this.spawnVfx(vfxKey, BOSS_X - 8, BRIDGE_Y - 84, isMega ? 2.0 : isHeavy ? 1.78 : 1.52);
@@ -773,9 +1378,13 @@
             this.spawnParticles(BOSS_X - 10, BRIDGE_Y - 82, ev.isRetrigger ? '#ff9a2e' : '#ffd966', isMega ? 26 : isHeavy ? 18 : 12, 1);
 
             if (audio) {
-              const hitPitch = Math.min(360, 155 + pitchStep * 18);
-              audio.tone(hitPitch, isHeavy ? 0.13 : 0.09, 'sawtooth', isHeavy ? 0.13 : 0.10, 0, hitPitch * 0.45);
-              audio.tone(Math.min(920, 420 + pitchStep * 45), 0.06, 'triangle', 0.08, 0, 240);
+              if (audio.playBattleHit) {
+                audio.playBattleHit({ step: pitchStep, isHeavy, isMega, isRetrigger: Boolean(ev.isRetrigger), heatLevel: this.scoring ? this.scoring.heatLevel : 0 });
+              } else {
+                const hitPitch = Math.min(360, 155 + pitchStep * 18);
+                audio.tone(hitPitch, isHeavy ? 0.13 : 0.09, 'sawtooth', isHeavy ? 0.13 : 0.10, 0, hitPitch * 0.45);
+                audio.tone(Math.min(920, 420 + pitchStep * 45), 0.06, 'triangle', 0.08, 0, 240);
+              }
             }
 
             this.spawnPopup(
@@ -783,8 +1392,10 @@
               BRIDGE_Y - 138,
               `-${ev.dmg}`,
               ev.isRetrigger ? '#ff9a2e' : (isMega ? '#fff29e' : '#ffd966'),
-              isMega ? 40 : isHeavy ? 34 : 28
+              isMega ? 40 : isHeavy ? 34 : 28,
+              { big: isHeavy || isMega }
             );
+            this._addScoringDamage(ev.dmg, hooks);
             if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
             else if (hooks.onSyncHud) hooks.onSyncHud();
 
@@ -793,8 +1404,8 @@
             await this.waitSec(followDur);
             if (!this.running) break;
 
-            const retDur = Math.max(0.10, Math.min(0.16, 0.08 + dashDist / 6800));
-            await this.tweenUnitX(actor, actor.homeX, retDur, { ease: 'outQuad', trailColor: trailCol, trailEvery: 0.05 });
+            const retDur = Math.max(0.10, Math.min(0.15, 0.08 + dashDist / 6800));
+            await this.tweenUnitX(actor, actor.homeX, retDur, { ease: 'outQuad', trailColor: null });
             actor.squashX = 1.07;
             actor.squashY = 0.94;
             actor.anim = 'idle';
@@ -822,7 +1433,10 @@
             this.spawnVfx('fxBuffSimpleGold', actor.x, BRIDGE_Y - 62, 1.35, { speedMult: 1.4 });
             if (target) {
               const dur = this.spawnProjectile(actor.x + 14, BRIDGE_Y - 68, target.x, BRIDGE_Y - 68, '#ffd966', { dur: 0.15, arc: 36, kind: 'amp' });
-              if (audio) audio.tone(520, 0.12, 'sine', 0.10, 0, 820);
+              if (audio) {
+                if (audio.playAmpCast) audio.playAmpCast();
+                else audio.tone(520, 0.12, 'sine', 0.10, 0, 820);
+              }
               await this.waitSec(dur);
               target.flash = 0.18;
               target.squashX = 0.92;
@@ -831,7 +1445,10 @@
               this.spawnShockwave(target.x, BRIDGE_Y - 58, '#ffd966', 54, 0.22, 3);
               this.spawnPopup(target.x, BRIDGE_Y - 122, `✦ ${ev.label}`, '#ffd966', 24);
             } else {
-              if (audio) audio.tone(520, 0.12, 'sine', 0.10, 0, 820);
+              if (audio) {
+                if (audio.playAmpCast) audio.playAmpCast();
+                else audio.tone(520, 0.12, 'sine', 0.10, 0, 820);
+              }
               this.spawnPopup(actor.homeX, BRIDGE_Y - 118, `✦ ${ev.label}`, '#ffd966', 24);
             }
             await this.waitSec(Math.max(0.12, castAtk.dur - 0.15));
@@ -839,7 +1456,10 @@
           }
         } else if (ev.type === 'crown_bash') {
           const dur = this.spawnProjectile(380, BRIDGE_Y - 72, BOSS_X - 32, BRIDGE_Y - 84, '#78b7ff', { dur: 0.15, arc: 20, kind: 'shield' });
-          if (audio) audio.tone(360, 0.08, 'triangle', 0.09, 0, 240);
+          if (audio) {
+            if (audio.playDashWhoosh) audio.playDashWhoosh(2);
+            else audio.tone(360, 0.08, 'triangle', 0.09, 0, 240);
+          }
           await this.waitSec(dur);
           if (!this.running) break;
           if (this.boss) {
@@ -853,7 +1473,11 @@
           this.spawnShockwave(BOSS_X - 8, BRIDGE_Y - 84, '#78b7ff', 52, 0.20, 3.5);
           this.spawnParticles(BOSS_X - 10, BRIDGE_Y - 84, '#78b7ff', 14, 1);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 152, `盾击 -${ev.dmg}`, '#78b7ff', 26);
-          if (audio) audio.tone(240, 0.09, 'square', 0.09, 0, 140);
+          if (audio) {
+            if (audio.playShieldBash) audio.playShieldBash();
+            else audio.tone(240, 0.09, 'square', 0.09, 0, 140);
+          }
+          this._addScoringDamage(ev.dmg, hooks);
           if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.11);
@@ -861,7 +1485,10 @@
           this.spawnVfx('fxImpactGreenBig', BOSS_X, BRIDGE_Y - 86, 1.05, { speedMult: 1.7 });
           this.spawnParticles(BOSS_X, BRIDGE_Y - 90, '#7ef28a', 10);
           this.spawnPopup(BOSS_X + 34, BRIDGE_Y - 114, `+${ev.stacks} 剧毒`, '#7ef28a', 22);
-          if (audio) audio.tone(310, 0.06, 'sine', 0.07, 0, 440);
+          if (audio) {
+            if (audio.playPoisonApply) audio.playPoisonApply();
+            else audio.tone(310, 0.06, 'sine', 0.07, 0, 440);
+          }
           if (hooks.onBossStatus) hooks.onBossStatus({ addPoison: ev.stacks });
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.075);
@@ -881,11 +1508,16 @@
             flashColor: '#7ef28a',
             flashAlpha: 0.16
           });
+          this.triggerZoomPunch(1.032, BOSS_X, BRIDGE_Y - 88, 0.24);
           this.spawnVfx('fxImpactGreenBig', BOSS_X, BRIDGE_Y - 88, 1.9);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 88, '#7ef28a', 78, 0.24, 4);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 88, '#7ef28a', 24);
-          this.spawnPopup(BOSS_X, BRIDGE_Y - 150, `毒爆 -${ev.dmg}`, '#7ef28a', 34);
-          if (audio) audio.tone(175, 0.16, 'sawtooth', 0.11, 0, 88);
+          this.spawnPopup(BOSS_X, BRIDGE_Y - 150, `毒爆 -${ev.dmg}`, '#7ef28a', 34, { big: true });
+          if (audio) {
+            if (audio.playPoisonDetonate) audio.playPoisonDetonate();
+            else audio.tone(175, 0.16, 'sawtooth', 0.11, 0, 88);
+          }
+          this._addScoringDamage(ev.dmg, hooks);
           if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, true);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.22);
@@ -893,14 +1525,17 @@
           this.spawnVfx('fx_flamesphere', 405, BRIDGE_Y - 86, 1.5);
           this.spawnParticles(405, BRIDGE_Y - 86, '#ffd966', 18);
           this.spawnPopup(405, BRIDGE_Y - 145, `炼金炉 +${ev.gold}G · 手牌+${ev.handAtkGain}攻`, '#ffd966', 24);
-          if (audio) audio.tone(480, 0.11, 'triangle', 0.09, 0, 720);
+          if (audio) {
+            if (audio.playCoin) audio.playCoin();
+            else audio.tone(480, 0.11, 'triangle', 0.09, 0, 720);
+          }
           if (hooks.onGoldGain) hooks.onGoldGain(ev.gold);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.22);
         } else if (ev.type === 'boss_vuln') {
           this.spawnVfx('fx_f4_voidpulse', BOSS_X, BRIDGE_Y - 82, 1.35, { speedMult: 1.5 });
           this.spawnPopup(BOSS_X, BRIDGE_Y - 172, '易伤 ×1.4!', '#ff8a5c', 24);
-          if (audio) audio.tone(280, 0.09, 'sawtooth', 0.07, 0, 170);
+          if (audio) audio.tone(280, 0.09, 'sawtooth', 0.07, 0, 170, { filterFreq: 900 });
           if (hooks.onBossStatus) hooks.onBossStatus({ vuln: true });
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.08);
@@ -921,18 +1556,25 @@
             flashAlpha: 0.28,
             flashDur: 0.20
           });
+          this.triggerZoomPunch(1.05, BOSS_X, BRIDGE_Y - 84, 0.30);
           this.spawnVfx('fx_f1_holyimmolation', BOSS_X, BRIDGE_Y - 84, 1.85);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 84, '#ffd966', 105, 0.28, 5);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 84, '#ffd966', 26);
-          this.spawnPopup(BOSS_X, BRIDGE_Y - 190, '破招眩晕! ×1.5', '#ffd966', 34);
-          if (audio) audio.tone(440, 0.14, 'square', 0.12, 0, 880);
+          this.spawnPopup(BOSS_X, BRIDGE_Y - 190, '破招眩晕! ×1.5', '#ffd966', 34, { big: true });
+          if (audio) {
+            if (audio.playBreakStun) audio.playBreakStun();
+            else audio.tone(440, 0.14, 'square', 0.12, 0, 880);
+          }
           if (hooks.onBossStatus) hooks.onBossStatus({ stunned: true });
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.24);
         } else if (ev.type === 'boss_shield') {
           this.spawnVfx('fxDistortionHexShield', BOSS_X, BRIDGE_Y - 76, 1.65);
           this.spawnPopup(BOSS_X, BRIDGE_Y - 154, `+${ev.amount} 魔盾`, '#7be8ff', 24);
-          if (audio) audio.tone(420, 0.10, 'sine', 0.09, 0, 620);
+          if (audio) {
+            if (audio.playShieldGain) audio.playShieldGain();
+            else audio.tone(420, 0.10, 'sine', 0.09, 0, 620);
+          }
           if (hooks.onBossStatus) hooks.onBossStatus({ addShield: ev.amount });
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.16);
@@ -941,7 +1583,10 @@
           this.spawnVfx('fxDistortionHexShield', sx, BRIDGE_Y - 58, 1.25, { speedMult: 1.5 });
           this.spawnParticles(sx, BRIDGE_Y - 58, '#7be8ff', 8);
           this.spawnPopup(sx, BRIDGE_Y - 114, `+${ev.amount} 蓝盾`, '#78b7ff', 22);
-          if (audio) audio.tone(460, 0.07, 'sine', 0.07, 0, 640);
+          if (audio) {
+            if (audio.playShieldGain) audio.playShieldGain();
+            else audio.tone(460, 0.07, 'sine', 0.07, 0, 640);
+          }
           if (hooks.onShieldGain) hooks.onShieldGain(ev.amount);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.065);
@@ -956,7 +1601,10 @@
           const gx = (this.slotUnits[lastHeroSlotIdx] ? this.slotUnits[lastHeroSlotIdx].homeX : 405);
           this.spawnParticles(gx, BRIDGE_Y - 76, '#ffd966', 10);
           this.spawnPopup(gx, BRIDGE_Y - 134, `+${ev.amount}G`, '#ffd966', 24);
-          if (audio) audio.tone(680, 0.06, 'triangle', 0.08, 0, 980);
+          if (audio) {
+            if (audio.playCoin) audio.playCoin();
+            else audio.tone(680, 0.06, 'triangle', 0.08, 0, 980);
+          }
           if (hooks.onGoldGain) hooks.onGoldGain(ev.amount);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.065);
@@ -981,7 +1629,10 @@
           this.triggerHitImpact({ hitstop: 0.032, shakeAmp: 3.4, shakeDur: 0.09, dirX: -1, target: 'squad' });
           this.spawnParticles(tx, BRIDGE_Y - 64, '#a8ff78', 8, -1);
           this.spawnPopup(tx, BRIDGE_Y - 122, `反伤 -${ev.dmg}`, '#a8ff78', 22);
-          if (audio) audio.tone(210, 0.07, 'square', 0.07, 0, 130);
+          if (audio) {
+            if (audio.playThornsHit) audio.playThornsHit();
+            else audio.tone(210, 0.07, 'square', 0.07, 0, 130);
+          }
           if (hooks.onSquadDamage) hooks.onSquadDamage({ rawDmg: ev.dmg, isThorns: true });
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.07);
@@ -1000,7 +1651,10 @@
             this.boss.squashX = 1.12;
             this.boss.squashY = 0.90;
             this.spawnParticles(this.boss.homeX + 20, BRIDGE_Y - 10, '#ff5e8e', 10, 1);
-            if (audio) audio.tone(110, 0.12, 'sawtooth', 0.09, 0, 165);
+            if (audio) {
+              if (audio.playBossWindup) audio.playBossWindup(isUlt);
+              else audio.tone(110, 0.12, 'sawtooth', 0.09, 0, 165);
+            }
             await this.waitSec(0.06);
             if (!this.running) break;
 
@@ -1026,20 +1680,27 @@
               flashAlpha: isUlt ? 0.30 : 0.20,
               flashDur: 0.16
             });
+            if (isUlt || !fullBlocked) {
+              this.triggerZoomPunch(isUlt ? 1.05 : 1.028, hitCenter, BRIDGE_Y - 76, isUlt ? 0.30 : 0.22);
+            }
 
             if (fullBlocked) {
               this.spawnVfx('fxDistortionHexShield', hitCenter, BRIDGE_Y - 72, 1.95);
               this.spawnShockwave(hitCenter, BRIDGE_Y - 72, '#78b7ff', 82, 0.24, 4);
               this.spawnParticles(hitCenter, BRIDGE_Y - 72, '#7be8ff', 18, -1);
-              if (audio) {
-                audio.tone(520, 0.09, 'triangle', 0.11, 0, 740);
-                audio.tone(240, 0.12, 'sine', 0.09, 0, 180);
-              }
             } else {
               this.spawnVfx(isUlt ? 'fxExplosionBigBall_MetalSlug' : 'fxImpactBigOrange', hitCenter, BRIDGE_Y - 76, isUlt ? 2.15 : 1.85);
               this.spawnShockwave(hitCenter, BRIDGE_Y - 76, '#ff4757', isUlt ? 105 : 78, 0.24, 4.5);
               this.spawnParticles(hitCenter, BRIDGE_Y - 76, '#ff5c72', isUlt ? 26 : 18, -1);
-              if (audio) audio.tone(115, 0.20, 'sawtooth', 0.13, 0, 48);
+            }
+            if (audio) {
+              if (audio.playBossSlam) audio.playBossSlam(isUlt, fullBlocked);
+              else if (fullBlocked) {
+                audio.tone(520, 0.09, 'triangle', 0.11, 0, 740);
+                audio.tone(240, 0.12, 'sine', 0.09, 0, 180);
+              } else {
+                audio.tone(115, 0.20, 'sawtooth', 0.13, 0, 48);
+              }
             }
 
             // Recoil all active bridge heroes on impact
@@ -1054,7 +1715,7 @@
             const msg = ev.hpLost > 0
               ? `${sName} -${ev.hpLost} HP${ev.blocked > 0 ? ` (挡${ev.blocked})` : ''}`
               : `完美格挡 ${ev.blocked} 伤!`;
-            this.spawnPopup(hitCenter, BRIDGE_Y - 134, msg, ev.hpLost > 0 ? '#ff5c72' : '#78b7ff', isUlt ? 32 : 28);
+            this.spawnPopup(hitCenter, BRIDGE_Y - 134, msg, ev.hpLost > 0 ? '#ff5c72' : '#78b7ff', isUlt ? 32 : 28, { big: isUlt });
             if (hooks.onSquadDamage) hooks.onSquadDamage(ev);
             else if (hooks.onSyncHud) hooks.onSyncHud();
 
@@ -1085,11 +1746,16 @@
             flashColor: '#78b7ff',
             flashAlpha: 0.18
           });
+          this.triggerZoomPunch(1.036, BOSS_X, BRIDGE_Y - 84, 0.24);
           this.spawnVfx('fxExplosionBigBall_MetalSlug', BOSS_X, BRIDGE_Y - 84, 1.9);
           this.spawnShockwave(BOSS_X, BRIDGE_Y - 84, '#78b7ff', 88, 0.26, 4.5);
           this.spawnParticles(BOSS_X, BRIDGE_Y - 84, '#78b7ff', 22, 1);
-          this.spawnPopup(BOSS_X, BRIDGE_Y - 155, `反震 -${ev.dmg}!`, '#78b7ff', 34);
-          if (audio) audio.tone(190, 0.15, 'sawtooth', 0.12, 0, 92);
+          this.spawnPopup(BOSS_X, BRIDGE_Y - 155, `反震 -${ev.dmg}!`, '#78b7ff', 34, { big: true });
+          if (audio) {
+            if (audio.playRevengeHit) audio.playRevengeHit();
+            else audio.tone(190, 0.15, 'sawtooth', 0.12, 0, 92);
+          }
+          this._addScoringDamage(ev.dmg, hooks);
           if (hooks.onBossDamage) hooks.onBossDamage(ev.dmg, false);
           else if (hooks.onSyncHud) hooks.onSyncHud();
           await this.waitSec(0.22);
@@ -1125,26 +1791,30 @@
         ctx.fillRect(sx, sy, 1, 1);
       }
 
-      // 3. Pale Cold Moon placed cleanly in the open gap between Slot 3 (vx=146) and Boss (vx=238)!
-      const mx = 186;
-      const my = 29;
-      const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 46);
+      // 3. Pale Cold Moon placed cleanly in open sky between Relic Rack right edge and Boss (never occluded by HUD!)
+      const mx = 208;
+      const my = 36;
+      const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 42);
       mg.addColorStop(0, `rgba(${pal.moonGlow}, 0.16)`);
       mg.addColorStop(0.45, `rgba(${pal.moonGlow}, 0.06)`);
       mg.addColorStop(1, `rgba(${pal.moonGlow}, 0)`);
       ctx.fillStyle = mg;
-      ctx.fillRect(mx - 48, my - 48, 96, 96);
-      this.drawPixelDisc(ctx, mx, my, 11, pal.moonCore);
+      ctx.fillRect(mx - 44, my - 44, 88, 88);
+      this.drawPixelDisc(ctx, mx, my, 10, pal.moonCore);
       // Subtle lunar maria craters
       this.drawPixelDisc(ctx, mx - 3, my - 2, 3, pal.moonShade);
-      this.drawPixelDisc(ctx, mx + 4, my + 2, 2, pal.moonShade);
+      this.drawPixelDisc(ctx, mx + 3, my + 2, 2, pal.moonShade);
       ctx.fillStyle = pal.moonShade;
       ctx.fillRect(mx - 1, my + 4, 3, 2);
 
-      // 4. Low-contrast horizontal nocturnal cloud bands (softly veiling lower moon rim)
+      // 4. Sculpted wind-sheared nocturnal pixel cloud bands (replaces repetitive circular disc blobs!)
       this.drawMergedCloudBank(ctx, [
-        [28, 52, 18], [58, 49, 20], [92, 53, 18], [134, 48, 21],
-        [174, 44, 15], [204, 46, 17], [248, 50, 19], [286, 46, 22], [312, 49, 17]
+        { x: 6,   y: 52, w: 94,  h: 10, seed: 1.2 },
+        { x: 84,  y: 46, w: 108, h: 12, seed: 2.7 },
+        { x: 178, y: 50, w: 92,  h: 10, seed: 4.1 },
+        { x: 242, y: 45, w: 84,  h: 11, seed: 5.5 },
+        { x: 34,  y: 66, w: 124, h: 8,  seed: 6.8 },
+        { x: 162, y: 65, w: 136, h: 9,  seed: 8.3 }
       ], pal.cloudHi, pal.cloudMid, pal.cloudDark);
 
       // 5. Far mountain ridge silhouette (ultra-low contrast, zero harsh outlines)
@@ -1229,10 +1899,32 @@
       return c;
     }
 
-    drawMergedCloudBank(ctx, puffs, colHi, colMid, colDark) {
-      for (const [cx, cy, r] of puffs) this.drawPixelDisc(ctx, cx, cy, r, colHi);
-      for (const [cx, cy, r] of puffs) this.drawPixelDisc(ctx, cx + 1, cy + 3, Math.max(2, r - 1), colMid);
-      for (const [cx, cy, r] of puffs) this.drawPixelDisc(ctx, cx + 2, cy + 7, Math.max(2, r - 2), colDark);
+    drawMergedCloudBank(ctx, ribbons, colHi, colMid, colDark) {
+      // Organic wind-sheared pixel cloud decks (flat mist underside, stepped billowy top crest)
+      for (const c of ribbons) {
+        const seed = c.seed || 1;
+        for (let dx = 0; dx < c.w; dx++) {
+          const px = c.x + dx;
+          if (px < 0 || px >= VW) continue;
+          const u = dx / Math.max(1, c.w - 1);
+          const env = Math.sin(u * Math.PI);
+          if (env < 0.08) continue;
+          const crest =
+            0.48 +
+            0.28 * Math.sin(u * 8.2 + seed) +
+            0.16 * Math.cos(u * 15.5 - seed * 1.4) +
+            0.08 * Math.sin(u * 27.0 + seed * 2.1);
+          const topH = Math.max(1, Math.round(env * crest * c.h));
+          const botH = Math.max(1, Math.round(env * 2));
+          const yTop = c.y - topH;
+          const yBot = c.y + botH;
+          for (let py = yTop; py <= yBot; py++) {
+            const p = (py - yTop) / Math.max(1, yBot - yTop);
+            ctx.fillStyle = p < 0.25 ? colHi : p < 0.65 ? colMid : colDark;
+            ctx.fillRect(px, py, 1, 1);
+          }
+        }
+      }
     }
     drawPixelDisc(ctx, cx, cy, r, color) {
       ctx.fillStyle = color;
@@ -1258,8 +1950,13 @@
       this.lastTs = ts;
       const dt = rawDt * this.speed;
 
-      // Always tick screen shake, flash & cut-in smoothly even during hit-stop!
+      // Always tick screen shake, zoom punch, scoring flames, flash & cut-in smoothly even during hit-stop!
       if (this.shakeTime > 0) this.shakeTime = Math.max(0, this.shakeTime - rawDt);
+      this._updateScoring(rawDt);
+      if (this.zoomPunch) {
+        this.zoomPunch.time -= rawDt;
+        if (this.zoomPunch.time <= 0) this.zoomPunch = null;
+      }
       if (this.screenFlash) {
         this.screenFlash.dur -= rawDt;
         if (this.screenFlash.dur <= 0) this.screenFlash = null;
@@ -1287,6 +1984,7 @@
     updateEffectsOnly(dt) {
       for (let i = this.popups.length - 1; i >= 0; i--) {
         const p = this.popups[i];
+        p.age = (p.age || 0) + dt;
         p.y += p.vy * dt;
         p.vy *= Math.pow(0.92, dt * 60);
         p.life -= dt;
@@ -1377,6 +2075,31 @@
       };
 
       relaxUnit(this.boss);
+      if (this.boss && this.boss.dying) {
+        this.boss.deathElapsed += dt;
+        this.boss.deathEmitAcc = (this.boss.deathEmitAcc || 0) + dt;
+        if (this.boss.deathEmitAcc >= 0.045) {
+          this.boss.deathEmitAcc = 0;
+          const prog = Math.min(1, this.boss.deathElapsed / this.boss.deathDur);
+          for (let k = 0; k < 4; k++) {
+            const sx = this.boss.x + (Math.random() - 0.5) * 86;
+            const sy = BRIDGE_Y - 12 - Math.random() * 128;
+            this.particles.push({
+              x: sx, y: sy, px: sx, py: sy,
+              vx: (Math.random() - 0.5) * 48,
+              vy: -90 - Math.random() * 140 - prog * 60,
+              size: Math.random() < 0.45 ? 5 : 3.5,
+              color: Math.random() < 0.55 ? '#fff2b0' : '#ff7aa8',
+              life: 0.36 + Math.random() * 0.28,
+              maxLife: 0.64
+            });
+          }
+        }
+        if (this.boss.deathElapsed >= this.boss.deathDur) {
+          this.boss.dying = false;
+          this.boss.alive = false;
+        }
+      }
       relaxUnit(this.ghostUnit);
       for (const u of this.slotUnits) relaxUnit(u);
 
@@ -1422,36 +2145,60 @@
       ctx.fillRect(0, BRIDGE_Y - 190, 162, 176);
       ctx.restore();
 
-      // 3. Slow-Drifting Low-Lying Mist Ribbons along the horizon (zero distraction over UI)
+      // 3. Slow-Drifting Low-Lying Mist Ribbons along the horizon (intensified during 'mist' weather)
       ctx.save();
-      for (let r = 0; r < 3; r++) {
-        const yBase = BRIDGE_Y - 52 + r * 18;
-        const speed = 11 + r * 6;
-        const offset = (this.idleTime * speed + r * 370) % (BW + 420);
-        const mx = offset - 420;
-        const mg = ctx.createLinearGradient(mx, yBase, mx + 420, yBase);
+      const mistCount = this.weather === 'mist' ? 5 : 3;
+      const mistBoost = this.weather === 'mist' ? 1.55 : 1.0;
+      for (let r = 0; r < mistCount; r++) {
+        const yBase = BRIDGE_Y - 62 + r * 14;
+        const speed = 10 + (r % 3) * 6;
+        const offset = (this.idleTime * speed + r * 290) % (BW + 440);
+        const mx = offset - 440;
+        const mg = ctx.createLinearGradient(mx, yBase, mx + 440, yBase);
         mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
-        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${0.045 + r * 0.015})`);
+        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.042 + (r % 3) * 0.014) * mistBoost).toFixed(3)})`);
         mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
         ctx.fillStyle = mg;
-        ctx.fillRect(Math.round(mx), yBase, 420, 20 + r * 6);
+        ctx.fillRect(Math.round(mx), yBase, 440, 20 + (r % 3) * 6);
       }
       ctx.restore();
 
-      // 4. Delicate Midnight Drizzle Streaks (ultra-faint, purely atmospheric)
-      ctx.save();
-      ctx.strokeStyle = pal.rainCol;
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      for (let i = 0; i < 18; i++) {
-        const rx = ((hash2(i, 4, 31) * BW) - this.idleTime * 42) % BW;
-        const x = rx < 0 ? rx + BW : rx;
-        const y = ((hash2(i, 9, 17) * BRIDGE_Y) + this.idleTime * (210 + (i % 3) * 35)) % BRIDGE_Y;
-        ctx.moveTo(Math.round(x), Math.round(y));
-        ctx.lineTo(Math.round(x - 4), Math.round(y + 16));
+      // 4. Rotated Nocturnal Weather Layer ('drizzle' | 'mist' | 'fireflies', always low-distraction HD-2D!)
+      if (this.weather === 'drizzle') {
+        ctx.save();
+        ctx.strokeStyle = pal.rainCol;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        for (let i = 0; i < 22; i++) {
+          const rx = ((hash2(i, 4, 31) * BW) - this.idleTime * 46) % BW;
+          const x = rx < 0 ? rx + BW : rx;
+          const y = ((hash2(i, 9, 17) * BRIDGE_Y) + this.idleTime * (215 + (i % 3) * 38)) % BRIDGE_Y;
+          ctx.moveTo(Math.round(x), Math.round(y));
+          ctx.lineTo(Math.round(x - 4), Math.round(y + 17));
+        }
+        ctx.stroke();
+        ctx.restore();
+      } else if (this.weather === 'fireflies') {
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 20; i++) {
+          const phase = hash2(i, 3, 73) * Math.PI * 2;
+          const fx = 64 + hash2(i, 1, 41) * (BW - 128) + Math.sin(this.idleTime * (0.7 + (i % 3) * 0.25) + phase) * 28;
+          const fy = 115 + hash2(i, 2, 59) * (BRIDGE_Y - 148) + Math.cos(this.idleTime * 0.85 + phase) * 14;
+          const pulse = Math.pow(0.5 + 0.5 * Math.sin(this.idleTime * (1.8 + (i % 4) * 0.35) + phase), 2.5);
+          const alpha = 0.22 + pulse * 0.56;
+          const rad = (i % 3 === 0) ? 14 : 9;
+          const fg = ctx.createRadialGradient(fx, fy, 1, fx, fy, rad);
+          fg.addColorStop(0, `rgba(255, 228, 128, ${(alpha * 0.65).toFixed(3)})`);
+          fg.addColorStop(1, 'rgba(255, 214, 96, 0)');
+          ctx.fillStyle = fg;
+          ctx.fillRect(Math.round(fx - rad), Math.round(fy - rad), rad * 2, rad * 2);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = '#fff3b8';
+          ctx.fillRect(Math.round(fx - 1), Math.round(fy - 1), i % 3 === 0 ? 3 : 2, i % 3 === 0 ? 3 : 2);
+        }
+        ctx.restore();
       }
-      ctx.stroke();
-      ctx.restore();
 
       // 5-Tier Unit Visual Signatures (Outline + Persistent Ambient Aura/Motes) + Dedicated Selection Indicator!
       const TIER_VFX = {
@@ -1503,128 +2250,53 @@
           ctx.save();
           if (inspectActive && !isInspected && !isRelated) ctx.globalAlpha = 0.34;
 
-          // Distinct Structural Tier VFX on Bridge Units
-          if (u.tier === 'B') {
-            const bp = 0.78 + 0.22 * Math.sin(this.idleTime * 2.4 + u.phase);
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            ctx.translate(ux, BRIDGE_Y + 3);
-            ctx.scale(1, 0.28);
-            ctx.strokeStyle = `rgba(91, 200, 255, ${0.85 * bp})`;
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(0, 0, 38, 0, Math.PI * 2); ctx.stroke();
-            ctx.strokeStyle = `rgba(184, 236, 255, ${0.55 * bp})`;
-            ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.arc(0, 0, 28, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-          } else if (u.tier === 'A') {
-            const ap = 0.78 + 0.22 * Math.sin(this.idleTime * 2.2 + u.phase);
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            ctx.save();
-            ctx.translate(ux, u.y - 54);
-            ctx.rotate(this.idleTime * 0.55 + u.phase);
-            ctx.strokeStyle = `rgba(212, 140, 255, ${0.58 * ap})`;
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-26, -26, 52, 52);
-            ctx.rotate(Math.PI / 4);
-            ctx.strokeRect(-26, -26, 52, 52);
-            ctx.restore();
-            ctx.save();
-            ctx.translate(ux, BRIDGE_Y + 3);
-            ctx.scale(1, 0.28);
-            ctx.strokeStyle = `rgba(208, 128, 255, ${0.85 * ap})`;
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(0, 0, 42, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-            for (let m = 0; m < 4; m++) {
-              const mt = (this.idleTime * 0.42 + m * 0.25 + u.phase) % 1;
-              const mx = ux + Math.sin(m * 2.3 + this.idleTime * 1.5) * 28;
-              const my = u.y - 8 - mt * 96;
-              ctx.globalAlpha = Math.sin(mt * Math.PI) * 0.85;
-              ctx.fillStyle = m % 2 === 0 ? '#f0d4ff' : '#c97dff';
-              ctx.fillRect(Math.round(mx), Math.round(my), 3, 3);
+          // Refined Pixel-Grid Tier Ground Aura & Outer Stardust (NEVER obscures hero silhouette!)
+          if (u.tier !== 'C') {
+            const tierCfg = {
+              B:   { col: '#66d0ff', hi: '#c8f0ff', rx: 38, motes: 2, size: 3 },
+              A:   { col: '#c97dff', hi: '#f0d6ff', rx: 42, motes: 3, size: 3 },
+              S:   { col: '#ffd24c', hi: '#fff6c4', rx: 46, motes: 5, size: 4 },
+              SSS: { col: '#ff5e8e', hi: '#ffd966', rx: 50, motes: 6, size: 4 }
+            }[u.tier];
+            if (tierCfg) {
+              const pulse = 0.72 + 0.28 * Math.sin(this.idleTime * 2.6 + u.phase);
+              ctx.save();
+              ctx.globalCompositeOperation = 'lighter';
+              // Stepped pixel oval foot ring strictly at bridge floor level (zero behind-body vector crosshair!)
+              const rx = tierCfg.rx;
+              const ry = Math.round(rx * 0.24);
+              const steps = 28;
+              ctx.fillStyle = tierCfg.col;
+              ctx.globalAlpha = 0.65 * pulse;
+              for (let k = 0; k < steps; k++) {
+                const a = (k / steps) * Math.PI * 2 + this.idleTime * 0.35;
+                const px = Math.round((ux + Math.cos(a) * rx) / 2) * 2;
+                const py = Math.round((BRIDGE_Y + 2 + Math.sin(a) * ry) / 2) * 2;
+                ctx.fillRect(px, py, 3, 2);
+              }
+              if (u.tier === 'S' || u.tier === 'SSS') {
+                // Subtle rotating 4-cardinal pixel rune pips at ground level
+                ctx.fillStyle = tierCfg.hi;
+                ctx.globalAlpha = 0.85 * pulse;
+                for (let k = 0; k < 4; k++) {
+                  const a = (k * Math.PI) / 2 + this.idleTime * 0.7 + u.phase;
+                  const px = Math.round(ux + Math.cos(a) * (rx + 6));
+                  const py = Math.round(BRIDGE_Y + 2 + Math.sin(a) * (ry + 2));
+                  ctx.fillRect(px - 2, py - 1, 4, 2);
+                }
+              }
+              // Rising outer pixel stardust motes orbiting cleanly OUTSIDE the hero's body
+              for (let m = 0; m < tierCfg.motes; m++) {
+                const mt = (this.idleTime * 0.44 + m / tierCfg.motes + u.phase) % 1;
+                const side = (m % 2 === 0 ? 1 : -1);
+                const mx = ux + side * (26 + Math.sin(m * 2.1 + this.idleTime * 1.6) * 14);
+                const my = u.y - 10 - mt * 94;
+                ctx.globalAlpha = Math.sin(mt * Math.PI) * 0.85;
+                ctx.fillStyle = m % 2 === 0 ? tierCfg.hi : tierCfg.col;
+                ctx.fillRect(Math.round(mx), Math.round(my), tierCfg.size, tierCfg.size);
+              }
+              ctx.restore();
             }
-            ctx.restore();
-          } else if (u.tier === 'S') {
-            const sp = 0.8 + 0.2 * Math.sin(this.idleTime * 2.4 + u.phase);
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            ctx.save();
-            ctx.translate(ux, u.y - 56);
-            ctx.strokeStyle = `rgba(255, 214, 82, ${0.72 * sp})`;
-            ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.arc(0, 0, 40, 0, Math.PI * 2); ctx.stroke();
-            ctx.rotate(this.idleTime * 0.65 + u.phase);
-            for (let k = 0; k < 8; k++) {
-              ctx.rotate(Math.PI / 4);
-              ctx.fillStyle = k % 2 === 0 ? '#fff4b8' : '#ffd24c';
-              ctx.fillRect(36, -2, 10, 4);
-            }
-            ctx.restore();
-            ctx.save();
-            ctx.translate(ux, BRIDGE_Y + 3);
-            ctx.scale(1, 0.28);
-            ctx.strokeStyle = `rgba(255, 214, 82, ${0.9 * sp})`;
-            ctx.lineWidth = 3.5;
-            ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-            for (let m = 0; m < 6; m++) {
-              const mt = (this.idleTime * 0.45 + m * 0.166 + u.phase) % 1;
-              const mx = ux + Math.sin(m * 2.1 + this.idleTime * 1.6) * 32;
-              const my = u.y - 8 - mt * 108;
-              ctx.globalAlpha = Math.sin(mt * Math.PI) * 0.9;
-              ctx.fillStyle = m % 2 === 0 ? '#fff9d6' : '#ffd24c';
-              ctx.fillRect(Math.round(mx), Math.round(my), 4, 4);
-            }
-            ctx.restore();
-          } else if (u.tier === 'SSS') {
-            const mp = 0.8 + 0.2 * Math.sin(this.idleTime * 2.8 + u.phase);
-            ctx.save();
-            ctx.globalCompositeOperation = 'lighter';
-            ctx.save();
-            ctx.translate(ux, u.y - 58);
-            const ag = ctx.createRadialGradient(0, 0, 8, 0, 0, 62);
-            ag.addColorStop(0, `rgba(255, 94, 142, ${0.42 * mp})`);
-            ag.addColorStop(1, 'rgba(255, 94, 142, 0)');
-            ctx.fillStyle = ag;
-            ctx.fillRect(-62, -62, 124, 124);
-            ctx.strokeStyle = `rgba(255, 94, 142, ${0.88 * mp})`;
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.arc(0, 0, 46, 0, Math.PI * 2); ctx.stroke();
-            ctx.save();
-            ctx.rotate(this.idleTime * 0.85 + u.phase);
-            for (let k = 0; k < 8; k++) {
-              ctx.rotate(Math.PI / 4);
-              ctx.fillStyle = k % 2 === 0 ? '#ffd966' : '#ff5e8e';
-              ctx.fillRect(42, -2.5, 12, 5);
-            }
-            ctx.restore();
-            ctx.save();
-            ctx.rotate(-this.idleTime * 0.95 - u.phase);
-            ctx.strokeStyle = 'rgba(255, 226, 122, 0.85)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(-28, -28, 56, 56);
-            ctx.rotate(Math.PI / 4);
-            ctx.strokeRect(-28, -28, 56, 56);
-            ctx.restore();
-            ctx.restore();
-            ctx.save();
-            ctx.translate(ux, BRIDGE_Y + 3);
-            ctx.scale(1, 0.28);
-            ctx.strokeStyle = `rgba(255, 94, 142, ${0.95 * mp})`;
-            ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.arc(0, 0, 50, 0, Math.PI * 2); ctx.stroke();
-            ctx.restore();
-            for (let m = 0; m < 8; m++) {
-              const mt = (this.idleTime * 0.5 + m * 0.125 + u.phase) % 1;
-              const mx = ux + Math.sin(m * 2.4 + this.idleTime * 1.9) * 36;
-              const my = u.y - 6 - mt * 120;
-              ctx.globalAlpha = Math.sin(mt * Math.PI) * 0.95;
-              ctx.fillStyle = m % 2 === 0 ? '#ffd966' : '#ff5e8e';
-              ctx.fillRect(Math.round(mx), Math.round(my), 4, 4);
-            }
-            ctx.restore();
           }
 
           if (isInspected) {
@@ -1656,6 +2328,28 @@
             ctx.restore();
           }
 
+          // Escalating Heat Fire-Ring beneath the actively striking Hero (Lv.2 Orange -> Lv.3 Blue -> Lv.4 Eclipse!)
+          const isHeroActing = u.anim === 'attack' || Math.abs(u.x - u.homeX) > 4;
+          if (isHeroActing && this.scoring && this.scoring.active && this.scoring.heatLevel >= 2) {
+            const hLv = this.scoring.heatLevel;
+            const ringCol = hLv >= 4 ? '#ff5e8e' : hLv >= 3 ? '#38d6ff' : '#ff942e';
+            const coreCol = hLv >= 3 ? '#ffffff' : '#ffe266';
+            const hp = 0.8 + 0.2 * Math.sin(this.idleTime * 14);
+            ctx.save();
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.translate(ux, BRIDGE_Y + 3);
+            ctx.scale(1, 0.28);
+            ctx.strokeStyle = ringCol;
+            ctx.globalAlpha = 0.85 * hp;
+            ctx.lineWidth = hLv >= 3 ? 5 : 3.5;
+            ctx.beginPath(); ctx.arc(0, 0, 44 + hLv * 5, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = coreCol;
+            ctx.globalAlpha = 0.72 * hp;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.arc(0, 0, 32 + hLv * 3, 0, Math.PI * 2); ctx.stroke();
+            ctx.restore();
+          }
+
           const outline = u.flash > 0 ? '#ffffff'
             : (inspectActive && isRelated && relColors[i]) ? relColors[i]
             : tv.outline;
@@ -1676,25 +2370,40 @@
 
         const bossLunging = Boolean(this.boss && (this.boss.anim === 'attack' || Math.abs(this.boss.x - BOSS_X) > 4));
         const drawBossUnit = () => {
-          if (!this.boss || !this.boss.alive) return;
+          if (!this.boss || (!this.boss.alive && !this.boss.dying)) return;
           const isCharging = this.bossIntent && (this.bossIntent.kind === 'charge' || this.bossIntent.kind === 'ult');
           const bossRelated = Boolean(this.relatedMeta && this.relatedMeta.boss);
           const bossJitter = (this.hitstop > 0 && this.hitstopTarget === 'boss') ? ((Math.floor(performance.now() / 16) % 2 === 0) ? 3 : -3) : 0;
           ctx.save();
-          if (inspectActive && !bossRelated) ctx.globalAlpha = 0.42;
-          const bossOutline = this.boss.flash > 0 ? '#ffffff'
+          let bossAlpha = 1;
+          let bossLiftY = 0;
+          let deathSquashX = this.boss.squashX || 1;
+          let deathSquashY = this.boss.squashY || 1;
+          let deathFlash = this.boss.flash > 0 ? Math.min(0.9, this.boss.flash / 0.15) : 0;
+          if (this.boss.dying) {
+            const dp = Math.max(0, Math.min(1, this.boss.deathElapsed / this.boss.deathDur));
+            bossAlpha = Math.max(0, 1 - Math.pow(dp, 1.35));
+            bossLiftY = -Math.round(dp * 28);
+            deathSquashX = 1 - dp * 0.24;
+            deathSquashY = 1 + dp * 0.34;
+            deathFlash = Math.min(1, 0.55 + (1 - dp) * 0.45);
+          } else if (inspectActive && !bossRelated) {
+            ctx.globalAlpha = 0.42;
+          }
+          const bossOutline = (this.boss.flash > 0 || this.boss.dying) ? '#ffffff'
             : (inspectActive && bossRelated && this.relatedMeta.bossColor) ? this.relatedMeta.bossColor
             : this.bossStunned ? '#ffd966' : isCharging ? '#ff477e' : '#f2f6ff';
           const isBossAtk = this.boss.anim === 'attack';
-          sprites.drawUnit(ctx, this.boss.unitId, this.boss.anim, this.idleTime + this.boss.phase, Math.round(this.boss.x + this.boss.knockX + bossJitter), Math.round(this.boss.y), {
+          sprites.drawUnit(ctx, this.boss.unitId, this.boss.anim, this.idleTime + this.boss.phase, Math.round(this.boss.x + this.boss.knockX + bossJitter), Math.round(this.boss.y + bossLiftY), {
             scale: this.boss.scale,
             flipX: true,
+            alpha: bossAlpha,
             loop: !isBossAtk,
             elapsedOverride: isBossAtk ? (this.boss.animElapsed || 0) : null,
             speedMult: isBossAtk ? (this.boss.animSpeedMult || 1) : 1,
-            squashX: this.boss.squashX || 1,
-            squashY: this.boss.squashY || 1,
-            flashWhite: this.boss.flash > 0 ? Math.min(0.9, this.boss.flash / 0.15) : 0,
+            squashX: deathSquashX,
+            squashY: deathSquashY,
+            flashWhite: deathFlash,
             outlineColor: bossOutline
           });
           ctx.restore();
@@ -1764,18 +2473,22 @@
         ctx.restore();
       }
 
-      // Impact Shockwave Rings
+      // Crisp Pixel-Stepped Impact Shockwave Rings (replaces thin smooth vector ctx.arc!)
       for (const sw of this.shockwaves) {
         const p = Math.min(1, sw.t / sw.dur);
         const r = 10 + (sw.maxR - 10) * (1 - Math.pow(1 - p, 3));
+        const pxSz = p < 0.35 ? 4 : 3;
+        const steps = Math.max(16, Math.round(r * 0.72));
         ctx.save();
         ctx.globalCompositeOperation = 'lighter';
-        ctx.globalAlpha = (1 - p) * 0.85;
-        ctx.strokeStyle = sw.color;
-        ctx.lineWidth = Math.max(1.5, sw.lineWidth * (1 - p * 0.65));
-        ctx.beginPath();
-        ctx.arc(Math.round(sw.x), Math.round(sw.y), r, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.globalAlpha = (1 - p) * 0.92;
+        ctx.fillStyle = sw.color;
+        for (let k = 0; k < steps; k++) {
+          const a = (k / steps) * Math.PI * 2;
+          const sx = Math.round((sw.x + Math.cos(a) * r) / pxSz) * pxSz;
+          const sy = Math.round((sw.y + Math.sin(a) * r) / pxSz) * pxSz;
+          ctx.fillRect(sx, sy, pxSz, pxSz);
+        }
         ctx.restore();
       }
 
@@ -1796,6 +2509,19 @@
       const ctx = this.ctx;
       ctx.save();
       ctx.imageSmoothingEnabled = false;
+      // Subtle elastic camera zoom-in punch on heavy / break / finisher hits (never exposes edge borders)
+      if (this.zoomPunch && this.zoomPunch.time > 0) {
+        const zp = this.zoomPunch;
+        const prog = 1 - (zp.time / Math.max(0.01, zp.maxTime));
+        // Quick ramp-in (first 16%), smooth cubic ease-out back to 1.0
+        const env = prog < 0.16 ? (prog / 0.16) : Math.pow(1 - (prog - 0.16) / 0.84, 2.2);
+        const s = 1 + (zp.scale - 1) * env;
+        const fx = Math.max(BW * 0.2, Math.min(BW * 0.8, zp.focusX));
+        const fy = Math.max(BH * 0.2, Math.min(BH * 0.8, zp.focusY));
+        ctx.translate(fx, fy);
+        ctx.scale(s, s);
+        ctx.translate(-fx, -fy);
+      }
       if (this.shakeTime > 0 && this.shakeAmp > 0) {
         // Subtle damped directional camera shake (smooth quadratic falloff, crisp punch!)
         const ratio = Math.max(0, Math.min(1, this.shakeTime / Math.max(0.01, this.shakeMaxTime)));
@@ -1867,8 +2593,12 @@
         ctx.fill();
         ctx.restore();
       }
-      if (this.boss && this.boss.alive) {
+      if (this.boss && (this.boss.alive || this.boss.dying)) {
+        const shAlpha = this.boss.dying
+          ? Math.max(0, 1 - this.boss.deathElapsed / this.boss.deathDur)
+          : 1;
         ctx.save();
+        ctx.globalAlpha = shAlpha;
         ctx.fillStyle = 'rgba(5, 4, 14, 0.58)';
         ctx.beginPath();
         ctx.ellipse(Math.round(this.boss.x + this.boss.knockX), BRIDGE_Y + 2, 54, 8, 0, 0, Math.PI * 2);
@@ -1928,7 +2658,7 @@
       }
 
       // Boss Overhead Minimal High-Signal Intent (Crisp Pixel Glyphs + Numbers, ZERO emojis!)
-      if (this.boss && this.boss.alive) {
+      if (this.boss && this.boss.alive && !this.boss.dying) {
         const bx = BOSS_X;
         if (this.bossIntent) {
           const parts = [];
@@ -2000,20 +2730,33 @@
         }
       }
 
-      // Floating Damage / Growth Popups
+      // Floating Damage / Growth Popups (with Balatro-style elastic Pop-in Overshoot!)
       for (const p of this.popups) {
+        const age = p.age || 0;
+        const peak = p.isBig ? 1.54 : 1.34;
+        let popScale = 1;
+        if (age < 0.045) {
+          const t = age / 0.045;
+          popScale = 0.45 + (peak - 0.45) * (1 - Math.pow(1 - t, 2));
+        } else if (age < 0.15) {
+          const t = (age - 0.045) / 0.105;
+          popScale = peak - (peak - 1) * (1 - Math.pow(1 - t, 3));
+        }
         ctx.save();
         ctx.globalAlpha = Math.min(1, p.life / (p.maxLife * 0.45));
+        ctx.translate(Math.round(p.x), Math.round(p.y));
+        if (p.tilt) ctx.rotate(p.tilt);
+        ctx.scale(popScale, popScale);
         const pxSize = Math.max(12, Math.round(p.size / 2) * 2);
         ctx.font = `${pxSize}px "FusionPixel", monospace`;
         ctx.textAlign = 'center';
         ctx.lineJoin = 'round';
         ctx.miterLimit = 2;
-        ctx.lineWidth = 5;
+        ctx.lineWidth = p.isBig ? 6 : 5;
         ctx.strokeStyle = '#08060f';
-        ctx.strokeText(p.text, Math.round(p.x), Math.round(p.y));
+        ctx.strokeText(p.text, 0, 0);
         ctx.fillStyle = p.color;
-        ctx.fillText(p.text, Math.round(p.x), Math.round(p.y));
+        ctx.fillText(p.text, 0, 0);
         ctx.restore();
       }
 
@@ -2295,6 +3038,9 @@
           const glowRgb = locked ? '255, 206, 72' : '110, 235, 255';
           drawCurvedPixelArrow(fromX, fromY, toX, toY, mainCol, glowRgb, '', 118, 13);
         }
+
+        // 4. Balatro-Style Live Scoring Tally & Escalating Pixel Flame Wall
+        this._renderScoringOverlay(octx);
       }
 
       if (this.screenFlash) {
