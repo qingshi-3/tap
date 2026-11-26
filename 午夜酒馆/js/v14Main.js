@@ -1205,14 +1205,16 @@
                       return `
                         <article class="v17-hero-slice ${active ? 'is-active' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'} ${h.portrait ? 'has-portrait' : 'is-blank'}"
                           data-pick-hero="${h.id}"
-                          style="--h-acc:${acc};--h-acc2:${acc2};"
+                          style="--h-acc:${acc};--h-acc2:${acc2};--slice-idx:${idx};"
                           role="button"
                           tabindex="0"
                           aria-pressed="${active ? 'true' : 'false'}"
                           aria-label="${esc(h.name)}">
                           <div class="v17-sl-edge left" aria-hidden="true"></div>
                           <div class="v17-sl-edge right" aria-hidden="true"></div>
+                          <div class="v17-sl-piano-wave" aria-hidden="true"></div>
                           <div class="v17-sl-sheen" aria-hidden="true"></div>
+                          <div class="v17-sl-auto-sheen" aria-hidden="true"></div>
 
                           <div class="v17-sl-unskew">
                             ${h.portrait
@@ -1227,6 +1229,7 @@
                                    </div>
                                  </div>`
                             }
+                            <div class="v17-prism-scan" aria-hidden="true"></div>
                             <div class="v17-sl-vignette" aria-hidden="true"></div>
                           </div>
 
@@ -1348,6 +1351,15 @@
 
             vp.addEventListener('pointermove', (e) => {
               if (isDown) return;
+              const stageEl = $('muster-stage-root');
+              if (stageEl && this.heroMusterStage && this.heroMusterStage.setPointerScreen) {
+                const sRect = stageEl.getBoundingClientRect();
+                if (sRect.width > 0 && sRect.height > 0) {
+                  const sx = (e.clientX - sRect.left) * (1280 / sRect.width);
+                  const sy = (e.clientY - sRect.top) * (720 / sRect.height);
+                  this.heroMusterStage.setPointerScreen(sx, sy, true);
+                }
+              }
               const active = track && track.querySelector('.v17-hero-slice.is-active');
               if (!active) return;
               const r = active.getBoundingClientRect();
@@ -1356,6 +1368,11 @@
               const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
               active.style.setProperty('--px', `${(-nx * 7).toFixed(1)}px`);
               active.style.setProperty('--py', `${(-ny * 5).toFixed(1)}px`);
+            });
+            vp.addEventListener('pointerleave', () => {
+              if (this.heroMusterStage && this.heroMusterStage.setPointerScreen) {
+                this.heroMusterStage.setPointerScreen(0, 0, false);
+              }
             });
           }
 
@@ -1513,7 +1530,7 @@
           <!-- Center Theatrical Showcase Stage (dynamically updated on dock click) -->
           <div id="v18-ts-showcase" class="v18-ts-showcase"></div>
 
-          <!-- Bottom Slanted Parallelogram 8-Style Selector Dock (matches Hero Select -11deg DNA!) -->
+          <!-- Bottom Slanted Parallelogram 8-Style Selector Dock (zero Web <Tag> boxes!) -->
           <div class="v18-ts-dock-wrap">
             <div class="v18-ts-dock" id="v18-ts-dock">
               ${M.THEME_PACKS_META.map((tp, idx) => {
@@ -1526,6 +1543,13 @@
                 const leadHero = tpHeroes[0];
                 const shortTitle = (tp.name || '').replace(/^主题包\s*·\s*/, '');
                 const code = String(idx + 1).padStart(2, '0');
+                const cornerEmblem = isPicked
+                  ? `<span class="v18-sl-emblem is-picked"><i class="v18-gem-pip"></i>参战</span>`
+                  : (isRand && unlocked
+                      ? `<span class="v18-sl-emblem is-rand">随机</span>`
+                      : (!unlocked
+                          ? `<span class="v18-sl-emblem is-cost">${pxIcon('orb')}${tp.cost}</span>`
+                          : `<span class="v18-sl-emblem is-ready" aria-label="已拥有"></span>`));
                 return `
                   <article class="v18-ts-slice ${isFocused ? 'is-focused' : ''} ${isPicked ? 'is-picked' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'}"
                     data-focus-theme="${tp.id}"
@@ -1536,9 +1560,7 @@
                     <div class="v18-sl-inner">
                       <div class="v18-sl-top">
                         <span class="v18-sl-code">${code}</span>
-                        <span class="v18-sl-tag ${isPicked ? 'picked' : (unlocked ? 'owned' : 'cost')}">
-                          ${isPicked ? '✦ 参战' : (isRand && unlocked ? '🎲 随机' : (unlocked ? (tp.cost === 0 ? '免费' : '已拥') : `${pxIcon('orb')}${tp.cost}`))}
-                        </span>
+                        ${cornerEmblem}
                       </div>
                       <div class="v18-sl-art">
                         ${leadHero ? `<canvas class="v16-portrait-canvas" width="64" height="64" data-portrait-unit="${esc(leadHero.unitId)}" data-portrait-flip="0"></canvas>` : ''}
@@ -1698,111 +1720,166 @@
       }
 
       const defaultHero = tpHeroes[0];
-      const defaultInspectHtml = defaultHero
-        ? `<span class="v18-ins-badge tier-${defaultHero.tier}">${defaultHero.tier}</span>
-           <b class="v18-ins-name">${esc(defaultHero.shortName)}</b>
-           <span class="v18-ins-stat">${pxIcon('atk')}${defaultHero.atk}</span>
-           <span class="v18-ins-desc">${esc(defaultHero.desc)}</span>`
-        : `<span class="v18-ins-desc">${esc(cleanDesc)}</span>`;
+      const renderLoreHero = (h) => `
+        <div class="v18-lore-id">
+          <span class="v18-rank-gem tier-${h.tier}">${h.tier}</span>
+          <div class="v18-lore-titles">
+            <span class="v18-lore-kind">流派侠客</span>
+            <b class="v18-lore-name">${esc(h.shortName)}</b>
+          </div>
+          <span class="v18-lore-stat">${pxIcon('atk')}<b>${h.atk}</b></span>
+        </div>
+        <div class="v18-lore-sep" aria-hidden="true"></div>
+        <p class="v18-lore-desc">${esc(h.desc)}</p>
+      `;
+      const renderLoreRelic = (r) => `
+        <div class="v18-lore-id">
+          <span class="v18-rank-gem tier-${r.tier}">${r.tier}</span>
+          <div class="v18-lore-titles">
+            <span class="v18-lore-kind">星界秘宝</span>
+            <b class="v18-lore-name">${esc(r.name.replace(/^[^·]+·\s*/, ''))}</b>
+          </div>
+        </div>
+        <div class="v18-lore-sep" aria-hidden="true"></div>
+        <p class="v18-lore-desc">${esc(r.desc)}</p>
+      `;
 
       const ctaHtml = unlocked
         ? (isRand
-            ? `<button type="button" class="v18-ts-cta rand" id="v18-ts-action">🎲 已纳入随机出征池（点此切回自选）</button>`
+            ? `<button type="button" class="v18-ts-cta rand" id="v18-ts-action">随机出征中 · 切回自选</button>`
             : (isPicked
-                ? `<button type="button" class="v18-ts-cta picked" id="v18-ts-action">${pxIcon('check')} 本局已参战 · 点击卸下</button>`
+                ? `<button type="button" class="v18-ts-cta picked" id="v18-ts-action">${pxIcon('check')} 本局已参战 · 卸下</button>`
                 : `<button type="button" class="v18-ts-cta equip" id="v18-ts-action">✦ 装配「${esc(shortTitle)}」入局</button>`))
         : `<button type="button" class="v18-ts-cta unlock ${canBuy ? 'ready' : ''}" id="v18-ts-action" ${canBuy ? '' : 'disabled'}>
-             ${pxIcon('orb')} ${canBuy ? `${tp.cost} 宝珠解锁「${esc(shortTitle)}」` : `需 ${tp.cost} 宝珠解锁（差 ${tp.cost - d.orbs} 宝珠）`}
+             ${pxIcon('orb')} ${canBuy ? `${tp.cost} 宝珠解锁流派` : `需 ${tp.cost} 宝珠（差 ${tp.cost - d.orbs}）`}
            </button>`;
+
+      const cursorSvg = `<svg class="v18-cursor-gem" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">
+        <rect x="5" y="1" width="2" height="2" fill="#fff6d0"/>
+        <rect x="3" y="3" width="6" height="2" fill="currentColor"/>
+        <rect x="2" y="5" width="8" height="2" fill="#ffffff"/>
+        <rect x="3" y="7" width="6" height="2" fill="currentColor"/>
+        <rect x="5" y="9" width="2" height="2" fill="currentColor"/>
+      </svg>`;
 
       stage.style.setProperty('--th-col', th.color);
       stage.style.setProperty('--th-bg', th.bg);
       stage.innerHTML = `
-        <div class="v18-ts-stage-grid ${animateEnter ? 'is-entering' : ''}">
-          <!-- LEFT WING: Style Manifesto + 4 Living Animated Pixel Heroes on Moonlight Dais -->
-          <div class="v18-ts-left">
-            <div class="v18-ts-meta-row">
-              <span class="v18-ts-code">STYLE ${code} / 08 · ${this._themeMetaCode(tp.id)}</span>
-              <span class="v18-ts-status ${isPicked ? 'picked' : (unlocked ? 'owned' : 'locked')}">
-                ${isPicked ? '✦ 本局参战中' : (unlocked ? '已解锁流派' : `${pxIcon('orb')} ${tp.cost} 未解锁`)}
-              </span>
-            </div>
-            <h2 class="v18-ts-title">${esc(shortTitle)}</h2>
-            <p class="v18-ts-desc">${esc(cleanDesc)}</p>
-
-            <div class="v18-ts-dais-wrap">
-              <div class="v18-ts-dais-ring" aria-hidden="true"></div>
-              <div class="v18-ts-squad-row">
-                ${tpHeroes.map((h, i) => `
-                  <button type="button" class="v18-live-hero ${i === 0 ? 'is-inspected' : ''}" data-ts-hero-idx="${i}">
-                    <span class="v18-lh-tier tier-${h.tier}">${h.tier}</span>
-                    <canvas class="v18-live-canvas" width="96" height="96"
-                      data-live-unit="${esc(h.unitId)}"
-                      data-live-flip="${i >= 2 ? '1' : '0'}"
-                      data-live-phase="${(i * 0.42).toFixed(2)}"></canvas>
-                    <span class="v18-lh-name">${esc(h.shortName)}</span>
-                  </button>
-                `).join('')}
+        <div class="v18-ts-layout ${animateEnter ? 'is-entering' : ''}">
+          <!-- ROW 1: Frameless Editorial Header (Title + Direct Style Action Seal) -->
+          <div class="v18-ts-hero-header">
+            <div class="v18-ts-head-left">
+              <div class="v18-ts-kicker-line">
+                <i class="v18-kicker-diamond" aria-hidden="true"></i>
+                <span class="v18-ts-code">STYLE ${code} / 08 · ${this._themeMetaCode(tp.id)}</span>
+                <span class="v18-ts-state-txt ${isPicked ? 'picked' : (unlocked ? 'owned' : 'locked')}">
+                  ${isPicked ? '· 本局参战中' : (unlocked ? '· 已解锁' : `· 未解锁`)}
+                </span>
               </div>
-              <div class="v18-ts-dais-hint">悬停或点击侠客可演武并查看机制</div>
+              <div class="v18-ts-title-row">
+                <h2 class="v18-ts-title">${esc(shortTitle)}</h2>
+                <p class="v18-ts-desc">${esc(cleanDesc)}</p>
+              </div>
+            </div>
+            <div class="v18-ts-head-cta">
+              ${ctaHtml}
             </div>
           </div>
 
-          <!-- RIGHT WING: 5 Arcane Relics Constellation + Live Inspector + Primary Seal CTA -->
-          <div class="v18-ts-right">
-            <div class="v18-ts-section-head">
-              <span class="v18-sh-title">专属星界秘宝</span>
-              <span class="v18-sh-sub">${tpRelics.length} RELICS · 悬停查详规</span>
+          <!-- ROW 2: Symmetric Open Dual-Wing Arena (ZERO boxed-in relic container!) -->
+          <div class="v18-ts-arena">
+            <!-- Left Wing: 4 Live Animated Heroes on Celestial Spotlight Dais -->
+            <div class="v18-arena-units">
+              <div class="v18-wing-label">
+                <span class="v18-wl-main">流派侠客</span>
+                <span class="v18-wl-line" aria-hidden="true"></span>
+                <span class="v18-wl-sub">${tpHeroes.length} UNITS · 点击演武</span>
+              </div>
+              <div class="v18-ts-dais-wrap">
+                <div class="v18-ts-dais-ring" aria-hidden="true"></div>
+                <div class="v18-ts-squad-row">
+                  ${tpHeroes.map((h, i) => `
+                    <button type="button" class="v18-live-hero ${i === 0 ? 'is-inspected' : ''}" data-ts-hero-idx="${i}">
+                      <span class="v18-lh-spotlight" aria-hidden="true"></span>
+                      <span class="v18-lh-cursor">${cursorSvg}</span>
+                      <span class="v18-rank-gem sm tier-${h.tier}">${h.tier}</span>
+                      <canvas class="v18-live-canvas" width="96" height="96"
+                        data-live-unit="${esc(h.unitId)}"
+                        data-live-flip="${i >= 2 ? '1' : '0'}"
+                        data-live-phase="${(i * 0.42).toFixed(2)}"></canvas>
+                      <span class="v18-lh-halo" aria-hidden="true"></span>
+                      <span class="v18-lh-name">${esc(h.shortName)}</span>
+                    </button>
+                  `).join('')}
+                </div>
+              </div>
             </div>
 
-            <div class="v18-ts-relics-row">
-              ${tpRelics.map((r, i) => `
-                <button type="button" class="v18-ts-relic tier-${r.tier}" data-ts-relic-idx="${i}" title="${esc(r.name)}">
-                  <div class="v18-tr-glow" aria-hidden="true"></div>
-                  ${this.renderSafeIconImg(r.icon, tp.id, 'v18-tr-img')}
-                  <span class="v18-tr-tier">${r.tier}</span>
-                  <span class="v18-tr-name">${esc(r.name.replace(/^[^·]+·\s*/, ''))}</span>
-                </button>
-              `).join('')}
+            <!-- Right Wing: 5 Open Floating Arcane Relics (NO boxy container around relics!) -->
+            <div class="v18-arena-relics">
+              <div class="v18-wing-label">
+                <span class="v18-wl-main">专属星界秘宝</span>
+                <span class="v18-wl-line" aria-hidden="true"></span>
+                <span class="v18-wl-sub">${tpRelics.length} RELICS</span>
+              </div>
+              <div class="v18-ts-relics-row">
+                ${tpRelics.map((r, i) => `
+                  <button type="button" class="v18-ts-relic tier-${r.tier}" data-ts-relic-idx="${i}" title="${esc(r.name)}">
+                    <span class="v18-tr-cursor">${cursorSvg}</span>
+                    <div class="v18-tr-socket-wrap">
+                      <div class="v18-tr-socket">
+                        <div class="v18-tr-glow" aria-hidden="true"></div>
+                        ${this.renderSafeIconImg(r.icon, tp.id, 'v18-tr-img')}
+                      </div>
+                      <span class="v18-rank-gem xs tier-${r.tier}">${r.tier}</span>
+                    </div>
+                    <span class="v18-tr-name">${esc(r.name.replace(/^[^·]+·\s*/, ''))}</span>
+                  </button>
+                `).join('')}
+              </div>
             </div>
+          </div>
 
-            <div class="v18-ts-inspector" id="v18-ts-inspector">
-              ${defaultInspectHtml}
-            </div>
-
-            <div class="v18-ts-cta-wrap">
-              ${ctaHtml}
-            </div>
+          <!-- ROW 3: Full-Width FIXED-HEIGHT Obsidian Lore Plaque (serves BOTH heroes & relics, ZERO jump!) -->
+          <div class="v18-ts-lore-plaque" id="v18-ts-inspector">
+            ${defaultHero ? renderLoreHero(defaultHero) : `<p class="v18-lore-desc">${esc(cleanDesc)}</p>`}
           </div>
         </div>
       `;
 
-      // Start 60fps/20fps live Duelyst idle/attack animation for all 4 heroes on the dais!
+      // Start live Duelyst idle/attack animation for all 4 heroes on the dais
       this._startLiveDomPortraits(stage);
+
+      const syncSpotlightToEl = (el) => {
+        if (!el || !this.themeSanctumStage) return;
+        const rootEl = $('v18-sanctum-root');
+        if (!rootEl) return;
+        const rRect = rootEl.getBoundingClientRect();
+        const eRect = el.getBoundingClientRect();
+        const sx = rRect.width > 0 ? ((eRect.left + eRect.width * 0.5 - rRect.left) * (1280 / rRect.width)) : 320;
+        this.themeSanctumStage.setSpotlightScreenX(sx, true);
+      };
+      setTimeout(() => {
+        const firstHeroBtn = stage.querySelector('.v18-live-hero.is-inspected');
+        if (firstHeroBtn) syncSpotlightToEl(firstHeroBtn);
+      }, 30);
 
       const inspector = $('v18-ts-inspector');
       const setInspectorHero = (h, btnEl) => {
         stage.querySelectorAll('.v18-live-hero, .v18-ts-relic').forEach((el) => el.classList.remove('is-inspected'));
-        if (btnEl) btnEl.classList.add('is-inspected');
-        if (inspector && h) {
-          inspector.innerHTML = `
-            <span class="v18-ins-badge tier-${h.tier}">${h.tier}</span>
-            <b class="v18-ins-name">${esc(h.shortName)}</b>
-            <span class="v18-ins-stat">${pxIcon('atk')}${h.atk}</span>
-            <span class="v18-ins-desc">${esc(h.desc)}</span>
-          `;
+        if (btnEl) {
+          btnEl.classList.add('is-inspected');
+          syncSpotlightToEl(btnEl);
         }
+        if (inspector && h) inspector.innerHTML = renderLoreHero(h);
       };
       const setInspectorRelic = (r, btnEl) => {
         stage.querySelectorAll('.v18-live-hero, .v18-ts-relic').forEach((el) => el.classList.remove('is-inspected'));
-        if (btnEl) btnEl.classList.add('is-inspected');
-        if (inspector && r) {
-          inspector.innerHTML = `
-            <span class="v18-ins-badge tier-${r.tier}">${r.tier} 秘宝</span>
-            <b class="v18-ins-name">${esc(r.name)}</b>
-            <span class="v18-ins-desc">${esc(r.desc)}</span>
-          `;
+        if (btnEl) {
+          btnEl.classList.add('is-inspected');
+          syncSpotlightToEl(btnEl);
         }
+        if (inspector && r) inspector.innerHTML = renderLoreRelic(r);
       };
 
       stage.querySelectorAll('[data-ts-hero-idx]').forEach((btn) => {
@@ -4770,7 +4847,8 @@
       if (entry.anim === 'attack' && this.sprites.getDuelystClip) {
         const atkDc = this.sprites.getDuelystClip(unitId, 'attack');
         if (atkDc && atkDc.clip && atkDc.img) {
-          const durSec = Math.max(0.45, (atkDc.clip.frames.length || 8) / (atkDc.clip.fps || 12));
+          const frameCount = atkDc.clip.count || (atkDc.clip.frames && atkDc.clip.frames.length) || 8;
+          const durSec = Math.max(0.45, frameCount / (atkDc.clip.fps || 12));
           if (entry.animT < durSec) {
             dc = atkDc;
             cell = atkDc.kit.frame(atkDc.clip, entry.animT * 1000, { loop: false });

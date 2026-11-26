@@ -7450,28 +7450,33 @@ button, input, select, textarea, optgroup, option {
   justify-content: space-between;
   gap: 8px;
 }
+/* De-webify Hero Select corner badges too (beveled game emblems, zero raw CSS border-left/border box!) */
 .v17-ex-code {
-  padding: 3px 10px;
+  padding: 3px 12px 3px 10px;
   font-size: 12px;
-  letter-spacing: 1.8px;
+  letter-spacing: 2px;
   color: var(--h-acc, #ffe082);
-  background: rgba(6, 9, 18, 0.78);
-  border-left: 3px solid var(--h-acc, #ffe082);
+  background: linear-gradient(90deg, rgba(8, 12, 24, 0.86) 0%, rgba(8, 12, 24, 0.25) 100%);
+  border-left: none;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.92);
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%);
 }
 .v17-sl-lock {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 3px 10px;
+  gap: 4px;
+  padding: 4px 12px;
   font-size: 12px;
-  color: #ffe082;
-  background: rgba(36, 24, 10, 0.84);
-  border: 1px solid #f0b840;
+  color: #ffe699;
+  background: linear-gradient(180deg, rgba(64, 42, 14, 0.92) 0%, rgba(30, 19, 6, 0.94) 100%);
+  border: none;
+  box-shadow: inset 0 1px 0 rgba(255, 224, 130, 0.45), 0 3px 10px rgba(0, 0, 0, 0.65);
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
 }
 .v17-sl-lock.owned {
-  color: #7ef28a;
-  background: rgba(12, 42, 24, 0.82);
-  border-color: #7ef28a;
+  color: #b8ffca;
+  background: linear-gradient(180deg, rgba(16, 62, 36, 0.92) 0%, rgba(8, 32, 18, 0.94) 100%);
+  box-shadow: inset 0 1px 0 rgba(126, 242, 138, 0.45), 0 3px 10px rgba(0, 0, 0, 0.65);
 }
 
 .v17-ex-bottom {
@@ -7922,102 +7927,249 @@ button, input, select, textarea, optgroup, option {
   white-space: nowrap;
 }
 
-/* Center Theatrical Showcase Stage (Frameless Dual-Wing Composition!) */
+/* Center Theatrical Open-Arena Showcase (NO boxed-in relic container, ZERO height jitter!) */
 .v18-ts-showcase {
   position: relative;
   z-index: 5;
   flex: 1;
   min-height: 0;
-  padding: 66px 52px 8px;
-  display: flex;
-  align-items: center;
-}
-@keyframes v18-stage-enter {
-  0%   { opacity: 0; transform: translateY(10px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-.v18-ts-stage-grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1.16fr 0.92fr;
-  gap: 38px;
-  align-items: center;
-}
-.v18-ts-stage-grid.is-entering {
-  animation: v18-stage-enter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-/* Left Wing: Style Manifesto + 4 Living Animated Heroes on Moonlight Dais */
-.v18-ts-left {
+  padding: 62px 54px 6px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  justify-content: center;
 }
-.v18-ts-meta-row {
+@keyframes v18-stage-enter {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes v18-cursor-bob {
+  0%, 100% { transform: translateY(0); opacity: 0.9; }
+  50%      { transform: translateY(-4px); opacity: 1; }
+}
+@keyframes v18-halo-pulse {
+  0%, 100% { transform: scale(0.96); opacity: 0.72; }
+  50%      { transform: scale(1.05); opacity: 1; }
+}
+
+.v18-ts-layout {
+  width: 100%;
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 18px;
 }
-.v18-ts-code {
-  padding: 3px 10px;
-  font-size: 11.5px;
-  letter-spacing: 2px;
-  color: var(--th-col, #6be5ff);
-  background: rgba(7, 11, 22, 0.74);
-  border-left: 3px solid var(--th-col, #6be5ff);
+.v18-ts-layout.is-entering {
+  animation: v18-stage-enter 0.26s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.v18-ts-status {
+
+/* ROW 1: Frameless Editorial Style Header + Direct Action Seal */
+.v18-ts-hero-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+}
+.v18-ts-head-left {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+.v18-ts-kicker-line {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 9px;
-  font-size: 11.5px;
-  border: 1px solid currentColor;
-  background: rgba(8, 12, 22, 0.72);
+  gap: 8px;
 }
-.v18-ts-status.picked { color: #7ef28a; background: rgba(14, 48, 28, 0.78); }
-.v18-ts-status.owned  { color: #9ec8ff; background: rgba(16, 36, 62, 0.75); }
-.v18-ts-status.locked { color: #ffe082; background: rgba(48, 32, 12, 0.78); }
+.v18-kicker-diamond {
+  width: 7px;
+  height: 7px;
+  background: var(--th-col, #6be5ff);
+  transform: rotate(45deg);
+  box-shadow: 0 0 10px var(--th-col, #6be5ff);
+  display: inline-block;
+  flex-shrink: 0;
+}
+.v18-ts-code {
+  font-size: 11.5px;
+  letter-spacing: 2.2px;
+  color: var(--th-col, #6be5ff);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+.v18-ts-state-txt {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+.v18-ts-state-txt.picked { color: #7ef28a; text-shadow: 0 0 10px rgba(126, 242, 138, 0.45); }
+.v18-ts-state-txt.owned  { color: #9ec8ff; }
+.v18-ts-state-txt.locked { color: #e8b85c; }
 
+.v18-ts-title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  flex-wrap: wrap;
+}
 .v18-ts-title {
-  margin: 2px 0 0;
-  font-size: 40px;
-  line-height: 1.1;
+  margin: 0;
+  font-size: 38px;
+  line-height: 1.05;
   letter-spacing: 4px;
   color: #fff7e2;
   text-shadow:
     0 3px 0 #04060d,
-    0 0 28px color-mix(in srgb, var(--th-col, #6be5ff) 55%, transparent);
+    0 0 26px color-mix(in srgb, var(--th-col, #6be5ff) 52%, transparent);
 }
 .v18-ts-desc {
   margin: 0;
   font-size: 13.5px;
-  line-height: 1.55;
-  color: #cddaf0;
-  max-width: 560px;
-  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+  color: #c5d4ee;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+.v18-ts-head-cta {
+  flex-shrink: 0;
+}
+.v18-ts-cta {
+  min-width: 244px;
+  height: 44px;
+  padding: 0 24px;
+  font-family: var(--font-px), monospace;
+  font-size: 14.5px;
+  letter-spacing: 1.4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+  transition: filter 0.14s ease, transform 0.14s ease;
+}
+.v18-ts-cta.equip {
+  color: #05101d;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--th-col, #6be5ff) 88%, #ffffff) 0%, var(--th-col, #6be5ff) 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 0 24px color-mix(in srgb, var(--th-col, #6be5ff) 40%, transparent);
+}
+.v18-ts-cta.picked {
+  color: #fff6df;
+  background: linear-gradient(180deg, #a6253b 0%, #5e1120 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 214, 128, 0.52);
+}
+.v18-ts-cta.unlock.ready {
+  color: #fff9e6;
+  background: linear-gradient(180deg, #d1962a 0%, #7c5112 100%);
+  box-shadow: inset 0 1px 0 #ffe699, 0 0 22px rgba(240, 184, 64, 0.36);
+}
+.v18-ts-cta.rand {
+  color: #ffe89e;
+  background: linear-gradient(180deg, #4a3514 0%, #261909 100%);
+  box-shadow: inset 0 1px 0 rgba(240, 184, 64, 0.55);
+}
+.v18-ts-cta:hover:not(:disabled) {
+  filter: brightness(1.13);
+  transform: translateY(-1px);
+}
+.v18-ts-cta:disabled {
+  opacity: 0.62;
+  cursor: not-allowed;
+  color: #9bb0d4;
+  background: linear-gradient(180deg, #1b243b 0%, #0f1526 100%);
 }
 
-/* Moonlight Rune Dais with 4 Live-Animated Duelyst Heroes */
+/* ROW 2: Symmetric Open Dual-Wing Arena (4 Live Heroes LEFT | 5 Open Relics RIGHT) */
+.v18-ts-arena {
+  display: grid;
+  grid-template-columns: 1.24fr 0.96fr;
+  gap: 44px;
+  align-items: end;
+  height: 196px;
+}
+.v18-arena-units,
+.v18-arena-relics {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+.v18-wing-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.v18-wl-main {
+  font-size: 12.5px;
+  color: #ffe28a;
+  letter-spacing: 1.6px;
+  white-space: nowrap;
+}
+.v18-wl-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--th-col, #6be5ff) 48%, transparent), transparent);
+}
+.v18-wl-sub {
+  font-size: 11px;
+  color: #7f96be;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+/* Beveled Metallic Game Rank Gem (replaces raw Web 1px <Tag> boxes everywhere!) */
+.v18-rank-gem {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 24px;
+  padding: 0 8px;
+  font-family: var(--font-px), monospace;
+  font-size: 13px;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+  clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 50%, calc(100% - 5px) 100%, 5px 100%, 0 50%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  flex-shrink: 0;
+}
+.v18-rank-gem.sm {
+  position: absolute;
+  top: 20px;
+  right: 8px;
+  min-width: 24px;
+  height: 16px;
+  padding: 0 5px;
+  font-size: 10px;
+}
+.v18-rank-gem.xs {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 22px;
+  height: 14px;
+  padding: 0 5px;
+  font-size: 9px;
+}
+.v18-rank-gem.tier-C   { background: linear-gradient(180deg, #5c6882 0%, #343c4f 100%); }
+.v18-rank-gem.tier-B   { background: linear-gradient(180deg, #2d87c4 0%, #15456d 100%); }
+.v18-rank-gem.tier-A   { background: linear-gradient(180deg, #8b42c4 0%, #481a6e 100%); }
+.v18-rank-gem.tier-S   { background: linear-gradient(180deg, #d89b26 0%, #7d4e0d 100%); color: #fffbe6; }
+.v18-rank-gem.tier-SSS { background: linear-gradient(180deg, #dc3163 0%, #780f30 100%); color: #fff2f6; }
+
+/* Left Wing: Moonlight Rune Dais + 4 Live Heroes with Overhead Spotlight & Floor Halo */
 .v18-ts-dais-wrap {
   position: relative;
-  margin-top: 16px;
-  padding: 16px 14px 10px;
+  padding: 4px 6px 2px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
 }
 .v18-ts-dais-ring {
   position: absolute;
-  left: 4%;
-  right: 4%;
-  bottom: 24px;
-  height: 44px;
+  left: 2%;
+  right: 2%;
+  bottom: 18px;
+  height: 36px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--th-col, #6be5ff) 28%, transparent) 0%, transparent 72%);
-  border: 1px solid color-mix(in srgb, var(--th-col, #6be5ff) 38%, transparent);
-  box-shadow: 0 0 26px color-mix(in srgb, var(--th-col, #6be5ff) 22%, transparent);
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--th-col, #6be5ff) 20%, transparent) 0%, transparent 72%);
+  border-bottom: 1px solid color-mix(in srgb, var(--th-col, #6be5ff) 32%, transparent);
   pointer-events: none;
 }
 .v18-ts-squad-row {
@@ -8026,7 +8178,7 @@ button, input, select, textarea, optgroup, option {
   width: 100%;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 8px;
   align-items: end;
 }
 .v18-live-hero {
@@ -8034,241 +8186,294 @@ button, input, select, textarea, optgroup, option {
   appearance: none;
   background: transparent;
   border: none;
-  border-bottom: 2px solid transparent;
-  padding: 6px 4px 8px;
+  padding: 18px 4px 4px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   cursor: pointer;
-  transition: transform 0.22s cubic-bezier(0.34, 1.46, 0.64, 1), border-color 0.18s ease, background 0.18s ease;
+  transition: transform 0.24s cubic-bezier(0.34, 1.46, 0.64, 1);
+}
+.v18-lh-spotlight {
+  position: absolute;
+  top: -12px;
+  left: 6%;
+  right: 6%;
+  bottom: 20px;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(180deg, transparent 0%, color-mix(in srgb, var(--th-col, #6be5ff) 22%, transparent) 34%, color-mix(in srgb, var(--th-col, #6be5ff) 12%, transparent) 78%, transparent 100%);
+  clip-path: polygon(28% 0, 72% 0, 100% 100%, 0 100%);
+  transition: opacity 0.24s ease;
+}
+.v18-lh-cursor,
+.v18-tr-cursor {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--th-col, #ffe082);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+}
+.v18-cursor-gem {
+  width: 12px;
+  height: 12px;
+  display: block;
+  filter: drop-shadow(0 0 6px var(--th-col, #ffe082));
+  animation: v18-cursor-bob 1.5s ease-in-out infinite;
+}
+.v18-lh-halo {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  bottom: 20px;
+  height: 18px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(ellipse at center, color-mix(in srgb, var(--th-col, #6be5ff) 58%, #ffffff) 0%, color-mix(in srgb, var(--th-col, #6be5ff) 24%, transparent) 48%, transparent 74%);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--th-col, #6be5ff) 48%, transparent);
+  transition: opacity 0.22s ease;
+}
+.v18-live-hero:hover .v18-lh-halo,
+.v18-live-hero.is-inspected .v18-lh-halo {
+  opacity: 1;
+  animation: v18-halo-pulse 2.2s ease-in-out infinite;
+}
+.v18-live-hero:hover .v18-lh-spotlight,
+.v18-live-hero.is-inspected .v18-lh-spotlight {
+  opacity: 1;
+}
+.v18-live-hero.is-inspected .v18-lh-cursor {
+  opacity: 1;
 }
 .v18-live-hero:hover,
 .v18-live-hero.is-inspected {
-  transform: translateY(-7px);
-  background: radial-gradient(ellipse at 50% 82%, color-mix(in srgb, var(--th-col, #6be5ff) 24%, transparent) 0%, transparent 70%);
-  border-bottom-color: var(--th-col, #6be5ff);
+  transform: translateY(-6px);
 }
-.v18-lh-tier {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  font-family: var(--font-px), monospace;
-  font-size: 10px;
-  padding: 1px 4px;
-  background: rgba(6, 9, 18, 0.85);
-  border: 1px solid currentColor;
-}
-.v18-lh-tier.tier-C   { color: #c4ccde; }
-.v18-lh-tier.tier-B   { color: #79d2ff; }
-.v18-lh-tier.tier-A   { color: #d48cff; }
-.v18-lh-tier.tier-S   { color: #ffd966; }
-.v18-lh-tier.tier-SSS { color: #ff6b8b; }
 .v18-live-canvas {
+  position: relative;
+  z-index: 2;
   display: block;
   width: 96px;
   height: 96px;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.85));
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.88));
+  transition: filter 0.2s ease;
+}
+.v18-live-hero.is-inspected .v18-live-canvas,
+.v18-live-hero:hover .v18-live-canvas {
+  filter:
+    drop-shadow(0 6px 8px rgba(0, 0, 0, 0.88))
+    drop-shadow(0 0 10px color-mix(in srgb, var(--th-col, #6be5ff) 52%, transparent));
 }
 .v18-lh-name {
-  font-family: var(--font-px), monospace;
-  font-size: 12px;
-  color: #e9f1ff;
-  text-shadow: 0 2px 4px #04060d;
-  white-space: nowrap;
-}
-.v18-ts-dais-hint {
   position: relative;
   z-index: 2;
-  font-size: 11px;
-  color: #8298bd;
-  letter-spacing: 0.8px;
+  font-family: var(--font-px), monospace;
+  font-size: 12.5px;
+  color: #cbd8f0;
+  text-shadow: 0 2px 5px #04060d;
+  white-space: nowrap;
+  transition: color 0.16s ease;
+}
+.v18-live-hero.is-inspected .v18-lh-name,
+.v18-live-hero:hover .v18-lh-name {
+  color: #fff6dc;
+  text-shadow: 0 2px 5px #04060d, 0 0 12px var(--th-col, #6be5ff);
 }
 
-/* Right Wing: 5 Arcane Relics Constellation + Live Inspector + Primary CTA */
-.v18-ts-right {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 20px 22px;
-  background: rgba(7, 11, 22, 0.62);
-  border: 1px solid color-mix(in srgb, var(--th-col, #6be5ff) 32%, rgba(232, 184, 92, 0.25));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 16px 42px rgba(0, 0, 0, 0.62);
-  backdrop-filter: blur(6px);
-}
-.v18-ts-section-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(232, 184, 92, 0.2);
-}
-.v18-sh-title {
-  font-size: 14px;
-  color: #ffe28a;
-  letter-spacing: 1.5px;
-}
-.v18-sh-sub {
-  font-size: 11px;
-  color: #859bc2;
-  letter-spacing: 1px;
-}
+/* Right Wing: 5 Open Floating Beveled Relic Sockets (NO heavy outer container!) */
 .v18-ts-relics-row {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
+  align-items: end;
+  padding-bottom: 10px;
 }
 .v18-ts-relic {
   position: relative;
   appearance: none;
-  padding: 10px 4px 7px;
+  background: transparent;
+  border: none;
+  padding: 18px 2px 2px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  background: rgba(12, 18, 34, 0.86);
-  border: 1px solid rgba(154, 178, 224, 0.26);
+  gap: 12px;
   cursor: pointer;
-  overflow: hidden;
-  transition: transform 0.18s cubic-bezier(0.34, 1.46, 0.64, 1), border-color 0.16s ease, box-shadow 0.16s ease;
+  transition: transform 0.22s cubic-bezier(0.34, 1.46, 0.64, 1);
 }
-.v18-ts-relic.tier-A   { border-color: rgba(201, 125, 255, 0.5); }
-.v18-ts-relic.tier-S   { border-color: rgba(240, 184, 64, 0.58); }
-.v18-ts-relic.tier-SSS { border-color: rgba(255, 107, 139, 0.68); }
 .v18-ts-relic:hover,
 .v18-ts-relic.is-inspected {
-  transform: translateY(-4px);
-  border-color: var(--th-col, #ffe082);
-  box-shadow: 0 0 18px color-mix(in srgb, var(--th-col, #ffe082) 32%, transparent);
+  transform: translateY(-6px);
+}
+.v18-ts-relic.is-inspected .v18-tr-cursor {
+  opacity: 1;
+}
+.v18-tr-socket-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.v18-tr-socket {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(26, 36, 66, 0.9) 0%, rgba(8, 12, 24, 0.94) 76%);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+  box-shadow: inset 0 0 0 1.5px rgba(176, 198, 236, 0.28), 0 10px 20px rgba(0, 0, 0, 0.65);
+  transition: box-shadow 0.2s ease, filter 0.2s ease;
+}
+.v18-ts-relic.tier-A   .v18-tr-socket { box-shadow: inset 0 0 0 1.5px rgba(201, 125, 255, 0.56), 0 10px 20px rgba(0, 0, 0, 0.65); }
+.v18-ts-relic.tier-S   .v18-tr-socket { box-shadow: inset 0 0 0 1.5px rgba(240, 184, 64, 0.65), 0 10px 20px rgba(0, 0, 0, 0.65); }
+.v18-ts-relic.tier-SSS .v18-tr-socket { box-shadow: inset 0 0 0 1.5px rgba(255, 107, 139, 0.72), 0 10px 20px rgba(0, 0, 0, 0.65); }
+.v18-ts-relic:hover .v18-tr-socket,
+.v18-ts-relic.is-inspected .v18-tr-socket {
+  box-shadow: inset 0 0 0 2px var(--th-col, #ffe082), 0 0 22px color-mix(in srgb, var(--th-col, #ffe082) 38%, transparent);
+  filter: brightness(1.12);
 }
 .v18-tr-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 34%, color-mix(in srgb, var(--th-col, #ffe082) 20%, transparent), transparent 68%);
+  background: radial-gradient(circle at 50% 45%, color-mix(in srgb, var(--th-col, #ffe082) 22%, transparent), transparent 68%);
   pointer-events: none;
 }
 .v18-tr-img {
   position: relative;
   z-index: 1;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   image-rendering: pixelated;
-}
-.v18-tr-tier {
-  position: absolute;
-  top: 3px;
-  right: 3px;
-  font-family: var(--font-px), monospace;
-  font-size: 9px;
-  color: #ffe8a6;
-  background: rgba(5, 8, 16, 0.88);
-  padding: 1px 3px;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.85));
 }
 .v18-tr-name {
-  position: relative;
-  z-index: 1;
   font-family: var(--font-px), monospace;
-  font-size: 10.5px;
-  color: #d6e2f8;
+  font-size: 11.5px;
+  color: #c9d7f0;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-shadow: 0 2px 4px #04060d;
+}
+.v18-ts-relic.is-inspected .v18-tr-name,
+.v18-ts-relic:hover .v18-tr-name {
+  color: #fff6dc;
 }
 
-/* Live Hero / Relic Detail Inspector Strip */
-.v18-ts-inspector {
-  min-height: 62px;
-  padding: 10px 12px;
-  background: rgba(4, 7, 15, 0.78);
-  border-left: 3px solid var(--th-col, #6be5ff);
+/* ROW 3: Full-Width FIXED-HEIGHT Beveled Obsidian Lore Plaque (ZERO jumping when text changes!) */
+.v18-ts-lore-plaque {
+  position: relative;
+  height: 70px;
+  min-height: 70px;
+  max-height: 70px;
+  flex-shrink: 0;
+  padding: 0 26px;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 6px 8px;
+  gap: 20px;
+  overflow: hidden;
+  background: linear-gradient(90deg, rgba(10, 15, 29, 0.84) 0%, rgba(15, 22, 42, 0.72) 50%, rgba(10, 15, 29, 0.84) 100%);
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--th-col, #6be5ff) 40%, rgba(232, 184, 92, 0.25)),
+    inset 0 -1px 0 rgba(232, 184, 92, 0.16);
 }
-.v18-ins-badge {
-  padding: 1px 6px;
-  font-size: 11px;
-  border: 1px solid currentColor;
-  background: rgba(10, 15, 28, 0.9);
-}
-.v18-ins-badge.tier-C   { color: #c4ccde; }
-.v18-ins-badge.tier-B   { color: #79d2ff; }
-.v18-ins-badge.tier-A   { color: #d48cff; }
-.v18-ins-badge.tier-S   { color: #ffd966; }
-.v18-ins-badge.tier-SSS { color: #ff6b8b; }
-.v18-ins-name {
-  font-size: 13.5px;
-  color: #fff4d2;
-}
-.v18-ins-stat {
+.v18-lore-id {
   display: inline-flex;
   align-items: center;
+  gap: 12px;
+  min-width: 214px;
+  flex-shrink: 0;
+}
+.v18-lore-titles {
+  display: flex;
+  flex-direction: column;
   gap: 2px;
-  font-size: 12px;
+}
+.v18-lore-kind {
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  color: var(--th-col, #6be5ff);
+}
+.v18-lore-name {
+  font-size: 15px;
+  color: #fff5d6;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.v18-lore-stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 14px;
+  color: #ffe082;
+  margin-left: auto;
+}
+.v18-lore-sep {
+  width: 1px;
+  height: 32px;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--th-col, #ffe082) 52%, transparent), transparent);
+  flex-shrink: 0;
+}
+.v18-lore-desc {
+  margin: 0;
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.48;
+  color: #d6e2f8;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Bottom Slanted Parallelogram 8-Style Dock (clean game emblems, zero Web <Tag> rectangles!) */
+.v18-sl-emblem {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10.5px;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+}
+.v18-sl-emblem.is-picked {
+  color: #88ff9e;
+  text-shadow: 0 0 8px rgba(126, 242, 138, 0.55);
+}
+.v18-gem-pip {
+  width: 6px;
+  height: 6px;
+  background: #7ef28a;
+  transform: rotate(45deg);
+  box-shadow: 0 0 6px #7ef28a;
+  display: inline-block;
+}
+.v18-sl-emblem.is-rand {
   color: #ffe082;
 }
-.v18-ins-desc {
-  flex-basis: 100%;
-  font-size: 12px;
-  line-height: 1.48;
-  color: #c6d4ee;
+.v18-sl-emblem.is-cost {
+  padding: 1px 6px;
+  color: #ffe494;
+  background: rgba(42, 28, 10, 0.85);
+  clip-path: polygon(4px 0, 100% 0, calc(100% - 4px) 100%, 0 100%);
 }
-
-/* Primary High-Craft Seal Action Button */
-.v18-ts-cta-wrap {
-  display: flex;
-}
-.v18-ts-cta {
-  width: 100%;
-  height: 46px;
-  font-family: var(--font-px), monospace;
-  font-size: 15px;
-  letter-spacing: 1.5px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border: 2px solid #04060d;
-  cursor: pointer;
-  transition: filter 0.14s ease, transform 0.14s ease;
-}
-.v18-ts-cta.equip {
-  color: #06101c;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--th-col, #6be5ff) 92%, #ffffff) 0%, var(--th-col, #6be5ff) 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65), 0 4px 0 #04060d, 0 0 22px color-mix(in srgb, var(--th-col, #6be5ff) 35%, transparent);
-}
-.v18-ts-cta.picked {
-  color: #fff6df;
-  background: linear-gradient(180deg, #9c2438 0%, #5e1120 100%);
-  box-shadow: inset 0 0 0 1px rgba(255, 214, 128, 0.68), 0 4px 0 #04060d;
-}
-.v18-ts-cta.unlock.ready {
-  color: #fff9e6;
-  background: linear-gradient(180deg, #c98f28 0%, #7c5112 100%);
-  box-shadow: inset 0 0 0 1px #ffe699, 0 4px 0 #04060d, 0 0 20px rgba(240, 184, 64, 0.35);
-}
-.v18-ts-cta.rand {
-  color: #ffe89e;
-  background: linear-gradient(180deg, #3c2b12 0%, #24180a 100%);
-  box-shadow: inset 0 0 0 1px rgba(240, 184, 64, 0.65), 0 4px 0 #04060d;
-}
-.v18-ts-cta:hover:not(:disabled) {
-  filter: brightness(1.12);
-  transform: translateY(-1px);
-}
-.v18-ts-cta:disabled {
-  opacity: 0.56;
-  cursor: not-allowed;
-  color: #93a4c2;
-  background: #101626;
-  box-shadow: inset 0 0 0 1px rgba(154, 178, 224, 0.2);
+.v18-sl-emblem.is-ready {
+  width: 6px;
+  height: 6px;
+  opacity: 0.35;
+  background: var(--th-col, #9ec8ff);
+  transform: rotate(45deg);
 }
 
 /* Bottom Slanted Parallelogram 8-Style Dock (echoes Hero Select -11deg DNA!) */
@@ -8423,6 +8628,145 @@ button, input, select, textarea, optgroup, option {
 #roster-modal .roster-box.tavern-tome-modal {
   animation: v18-modal-rim-breathe 4.4s ease-in-out infinite !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   v19.5 PLAN B — CYBER PRISM & NEON SLICE HERO GALLERY EFFECTS
+   1. Periodic RGB Chromatic Prism Scanline sweeping cleanly down active hero
+   2. Sharp holographic prism sheen flash
+   3. Crisp sequential terminal scan pulse across collapsed slices
+   ═══════════════════════════════════════════════════════════════════════════ */
+@keyframes v19b-prism-scan {
+  0%, 46% { transform: translateY(-18%); opacity: 0; }
+  52%     { opacity: 1; }
+  88%     { transform: translateY(112%); opacity: 0.92; }
+  94%     { opacity: 0; }
+  100%    { transform: translateY(112%); opacity: 0; }
+}
+@keyframes v19b-auto-sheen {
+  0%, 74% { transform: translateX(-160%); opacity: 0; }
+  81%     { opacity: 0.56; }
+  93%     { transform: translateX(260%); opacity: 0; }
+  100%    { transform: translateX(260%); opacity: 0; }
+}
+@keyframes v19b-piano-tide {
+  0%, 66% { transform: translateY(-120%); opacity: 0; }
+  76%     { opacity: 0.34; }
+  92%     { transform: translateY(140%); opacity: 0; }
+  100%    { transform: translateY(140%); opacity: 0; }
+}
+@keyframes v19b-piano-edge {
+  0%, 68% { opacity: 0.36; }
+  78%     { opacity: 0.96; box-shadow: 0 0 12px var(--h-acc, #5cf2ff); }
+  90%     { opacity: 0.36; }
+  100%    { opacity: 0.36; }
+}
+
+/* RGB Chromatic Prism Holographic Scanline sweeping across expanded hero slice */
+.v17-prism-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  overflow: hidden;
+  mix-blend-mode: screen;
+}
+.v17-prism-scan::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 76px;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(92, 242, 255, 0.04) 44%,
+      rgba(92, 242, 255, 0.22) 86%,
+      rgba(92, 242, 255, 0.72) 93%,
+      rgba(255, 255, 255, 0.92) 95.5%,
+      rgba(255, 77, 141, 0.72) 98%,
+      transparent 100%
+    );
+  transform: translateY(-18%);
+  opacity: 0;
+}
+.v17-prism-scan::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 68px;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.14) 0px,
+    rgba(255, 255, 255, 0.14) 1px,
+    transparent 1px,
+    transparent 4px
+  );
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.75) 88%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.75) 88%, transparent 100%);
+  transform: translateY(-18%);
+  opacity: 0;
+}
+.v17-hero-slice.is-active .v17-prism-scan {
+  opacity: 1;
+}
+.v17-hero-slice.is-active .v17-prism-scan::before,
+.v17-hero-slice.is-active .v17-prism-scan::after {
+  animation: v19b-prism-scan 3.4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+}
+
+/* Sharp Holographic Prism Diagonal Flash */
+.v17-sl-auto-sheen {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  width: 28%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(92, 242, 255, 0.24) 44%,
+    rgba(255, 255, 255, 0.62) 50%,
+    rgba(255, 77, 141, 0.24) 56%,
+    transparent 68%
+  );
+  opacity: 0;
+}
+.v17-hero-slice.is-active .v17-sl-auto-sheen {
+  animation: v19b-auto-sheen 4.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+/* Crisp Terminal Light Pulse gliding across the 9 collapsed strips */
+.v17-sl-piano-wave {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    color-mix(in srgb, var(--h-acc, #5cf2ff) 20%, transparent) 48%,
+    rgba(255, 255, 255, 0.18) 52%,
+    transparent 62%
+  );
+}
+.v17-hero-slice:not(.is-active) .v17-sl-piano-wave {
+  animation: v19b-piano-tide 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--slice-idx, 0) * 0.22s);
+}
+.v17-hero-slice:not(.is-active) .v17-sl-edge.left {
+  animation: v19b-piano-edge 4.6s ease-in-out infinite;
+  animation-delay: calc(var(--slice-idx, 0) * 0.22s);
+}
+
 
 
 
