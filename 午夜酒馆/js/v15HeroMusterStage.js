@@ -13,17 +13,18 @@
   const TAN_11 = Math.tan((11 * Math.PI) / 180);
   const SKEW_DX = 35; // exact -11deg slant across 180px virtual height (used by ThemeSanctumStage too)
 
+  // Muted hero tints (uiAccent mixed 62% with white) + gold, replacing the old neon pairs
   const HERO_ACCENTS = {
-    hero_01: { main: '#ffd966', sec: '#ff4d8d' },
-    hero_02: { main: '#6be5ff', sec: '#4a88ff' },
-    hero_03: { main: '#4ef0c4', sec: '#38a6e8' },
-    hero_05: { main: '#ff7a52', sec: '#ffd24c' },
-    hero_07: { main: '#7ef28a', sec: '#a855f0' },
-    hero_08: { main: '#c97dff', sec: '#ff7aa8' },
-    hero_09: { main: '#ffe066', sec: '#6be5ff' },
-    hero_10: { main: '#ff5286', sec: '#c97dff' },
-    hero_04: { main: '#f5b841', sec: '#fff2a6' },
-    hero_06: { main: '#ff8c42', sec: '#ff5286' }
+    hero_01: { main: '#d38088', sec: '#d4ae68' },
+    hero_02: { main: '#9cd2e6', sec: '#d4ae68' },
+    hero_03: { main: '#7eb69f', sec: '#d4ae68' },
+    hero_05: { main: '#e2ab7b', sec: '#d4ae68' },
+    hero_07: { main: '#ad92d9', sec: '#d4ae68' },
+    hero_08: { main: '#c1b0e4', sec: '#d4ae68' },
+    hero_09: { main: '#7eb0d3', sec: '#d4ae68' },
+    hero_10: { main: '#b97e99', sec: '#d4ae68' },
+    hero_04: { main: '#cead85', sec: '#d4ae68' },
+    hero_06: { main: '#de97b0', sec: '#d4ae68' }
   };
 
   const THEME_ACCENTS = {

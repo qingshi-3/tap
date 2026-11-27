@@ -144,7 +144,7 @@
           } else if (state.spritesDone < state.spritesTotal || state.vfxDone < state.vfxTotal) {
             stageTxt.textContent = '预加载战团单位与秘宝图集...';
           } else {
-            stageTxt.textContent = '点亮午夜酒馆...';
+            stageTxt.textContent = '正在载入...';
           }
         }
       };
@@ -1301,7 +1301,7 @@
                     </button>
                     <div id="v17-menu-popover" class="v17-menu-popover hidden">
                       <button type="button" class="v17-mp-item gold" id="v17-m-daily">每日签到</button>
-                      <button type="button" class="v17-mp-item" id="v17-m-board">镜湖战绩榜</button>
+                      <button type="button" class="v17-mp-item" id="v17-m-board">战绩榜</button>
                       <button type="button" class="v17-mp-item" id="v17-m-ach">荣耀成就</button>
                       <button type="button" class="v17-mp-item" id="v17-m-codex">全卡池图鉴</button>
                       <button type="button" class="v17-mp-item" id="v17-m-mute">音效：开启</button>
@@ -1319,13 +1319,12 @@
                       const unlocked = this.meta.isHeroUnlocked(h.id);
                       const active = h.id === this.previewHeroId;
                       const shortName = this._shortHeroLabel(h.name);
-                      const acc = h.accent || '#ffd966';
-                      const acc2 = h.accent2 || '#ff5c8a';
+                      const acc = h.uiAccent || '#b8323f';
                       const code = h.code || String(idx + 1).padStart(2, '0');
                       return `
                         <article class="v17-hero-slice ${active ? 'is-active' : ''} ${unlocked ? 'is-unlocked' : 'is-locked'} ${h.portrait ? 'has-portrait' : 'is-blank'}"
                           data-pick-hero="${h.id}"
-                          style="--h-acc:${acc};--h-acc2:${acc2};--slice-idx:${idx};"
+                          style="--h-ui:${acc};--slice-idx:${idx};"
                           role="button"
                           tabindex="0"
                           aria-pressed="${active ? 'true' : 'false'}"
@@ -1388,7 +1387,7 @@
 
                 <div class="v17-ribbon-hud">
                   <div id="v17-ribbon-dots" class="v17-ribbon-dots">
-                    ${M.HEROES_META.map((h) => `<button type="button" class="v17-dot ${h.id === this.previewHeroId ? 'is-active' : ''}" data-dot-hero="${h.id}" style="--h-acc:${h.accent || '#ffd966'};" title="${esc(h.name)}"></button>`).join('')}
+                    ${M.HEROES_META.map((h) => `<button type="button" class="v17-dot ${h.id === this.previewHeroId ? 'is-active' : ''}" data-dot-hero="${h.id}" style="--h-ui:${h.uiAccent || '#b8323f'};" title="${esc(h.name)}"></button>`).join('')}
                   </div>
                 </div>
               </div>
@@ -1647,7 +1646,7 @@
                 </button>
                 <div id="v18-ts-popover" class="v17-menu-popover hidden">
                   <button type="button" class="v17-mp-item gold" id="v18-m-daily" ${hasDailyDot ? '' : 'disabled'}>${esc(dailyTxt)}</button>
-                  <button type="button" class="v17-mp-item" id="v18-m-board">镜湖战绩榜</button>
+                  <button type="button" class="v17-mp-item" id="v18-m-board">战绩榜</button>
                   <button type="button" class="v17-mp-item" id="v18-m-ach">荣耀成就 (${achCount}/${achTotal})</button>
                   <button type="button" class="v17-mp-item" id="v18-m-codex">全卡池图鉴</button>
                   <button type="button" class="v17-mp-item" id="v18-m-mute">${this.audio.muted ? '音效：静音' : '音效：开启'}</button>
@@ -2333,6 +2332,10 @@
       const extraDiscards = this.run.relics.filter((r) => r.id === 'r_disc_extra').length * 2 + (hero.extraDiscards || 0) + (asc.discardDelta || 0);
       const drawPile = shuffle(this.run.roster);
       const maxHp = Math.max(40, D.SQUAD_MAX_HP + (hero.maxHpBonus || 0));
+      // 血条跨波继承：首波满血，之后沿用上一波结束时的血量
+      if (typeof this.run.squadHp !== 'number' || this.run.squadHp <= 0) this.run.squadHp = maxHp;
+      this.run.squadHp = Math.min(maxHp, this.run.squadHp);
+      this.run.squadMaxHp = maxHp;
       const baseHandLimit = Math.max(4, D.HAND_SIZE + (asc.handDelta || 0));
 
       this.battle = {
@@ -2343,7 +2346,7 @@
         bossCfg,
         heroPassive: hero,
         gold: this.run.gold,
-        squadHp: maxHp,
+        squadHp: this.run.squadHp,
         squadMaxHp: maxHp,
         squadShield: hero.startShield || 0,
         bossHp: bossCfg.maxHp,
@@ -2436,6 +2439,13 @@
       if (b.pendingUltNextTurn) {
         b.pendingUltNextTurn = false;
         b.intent = { kind: 'ult', dmg: b.bossCfg.ultDmg, skillName: '灭世大招', compact: `💀 ${b.bossCfg.ultDmg}`, label: `💀 灭世大招 · ${b.bossCfg.ultDmg} 巨伤`, color: '#ff477e' };
+        return;
+      }
+
+      b.bossBerserk = b.round > b.maxRounds;
+      if (b.bossBerserk) {
+        const d = Math.round(b.bossCfg.heavyDmg * D.BERSERK_MULT);
+        b.intent = { kind: 'heavy', berserk: true, dmg: d, skillName: '日蚀狂暴', compact: `🔥狂暴 ⚔ ${d}`, label: `🔥 日蚀狂暴 · 重击 ×${D.BERSERK_MULT} · ${d} 伤`, color: '#ff3b5c' };
         return;
       }
 
@@ -2563,7 +2573,7 @@
         return;
       }
 
-      // Balatro-style direct selection: tap 1~limit hand cards to lift & inspect, then tap 换桌 once to discard!
+      // Balatro-style direct selection: tap 1~limit hand cards to lift & inspect, then tap 换牌 once to discard!
       const limit = this.pureFilterMode ? 3 : 4;
       if (this.discardPicks.has(heroUid)) {
         this.discardPicks.delete(heroUid);
@@ -2574,7 +2584,7 @@
         if (this.discardPicks.size >= limit) {
           // NEVER lift a 5th card as selected-card! Trigger crisp shake + quota bar pulse instead.
           this.audio.playDrop();
-          this.toast(`单次换桌已达上限（${limit}/${limit} 张），再点已选牌可取消`);
+          this.toast(`单次换牌已达上限（${limit}/${limit} 张），再点已选牌可取消`);
           const cardEl = document.querySelector(`#bt-cards-row .v14-card[data-uid="${heroUid}"]`);
           if (cardEl) {
             cardEl.classList.remove('pick-limit-shake');
@@ -2624,7 +2634,7 @@
           });
           return;
         }
-        this.toast('本波换桌次数已用尽');
+        this.toast('本波换牌次数已用尽');
         return;
       }
 
@@ -2653,7 +2663,7 @@
 
       // Balatro-style 1-step discard: directly discard currently selected cards (no modal mode!)
       if (this.discardPicks.size === 0) {
-        this.toast('请先点选 1~4 张手牌，再点【换桌】弃牌抽新');
+        this.toast('请先点选 1~4 张手牌，再点【换牌】弃牌抽新');
         return;
       }
 
@@ -2817,7 +2827,8 @@
         this.finishBattle(true);
         return;
       }
-      if (b.squadHp <= 0 || b.round >= b.maxRounds) {
+      // 只在血条归零时判负；第 4 回合后进入日蚀狂暴，HARD_ROUND_CAP 仅为防卡死的安全上限
+      if (b.squadHp <= 0 || b.round >= D.HARD_ROUND_CAP) {
         if (this.battleStage && this.battleStage.playDefeatPause) {
           await this.battleStage.playDefeatPause();
         }
@@ -2845,6 +2856,7 @@
       }
       b.hand = b.hand.filter((h) => !slottedUids.has(h.uid));
       b.round += 1;
+      if (b.round === b.maxRounds + 1) this.toast('🔥 日蚀狂暴！Boss 重击 ×' + D.BERSERK_MULT + '，护盾仍可抵挡');
       this.beginRound();
     }
 
@@ -3038,6 +3050,13 @@
         const totalEarn = baseReward + interest + roundBonus + bloodBonus;
         this.run.gold += totalEarn;
 
+        // 血条跨波继承：过波只回复 30%，不再回满
+        const hpBeforeRest = b.squadHp;
+        const restHeal = Math.round(b.squadMaxHp * D.WAVE_CLEAR_HEAL_PCT);
+        this.run.squadHp = Math.min(b.squadMaxHp, Math.max(1, b.squadHp) + restHeal);
+        this.run.squadMaxHp = b.squadMaxHp;
+        const restGained = this.run.squadHp - Math.max(1, hpBeforeRest);
+
         const isFinalClear = b.wave === this.run.maxWaves;
         let shardsEarned = 0;
         let ascBonusOrbs = 0;
@@ -3070,8 +3089,8 @@
 
         card.className = `v16-po-vault ${isFinalClear ? 'is-final' : 'is-win'}`;
         emblemBox.innerHTML = this._vaultEmblemSvg(isFinalClear ? 'crown' : 'trophy');
-        kickerEl.textContent = isFinalClear ? 'ECLIPSE CONQUERED · 8/8' : `WAVE ${b.wave} / ${this.run.maxWaves} CLEARED`;
-        titleEl.textContent = isFinalClear ? '镜湖八波 · 全线通关' : `第 ${b.wave} 波 · 讨伐凯旋`;
+        kickerEl.textContent = isFinalClear ? 'ALL WAVES CLEARED · 8/8' : `WAVE ${b.wave} / ${this.run.maxWaves} CLEARED`;
+        titleEl.textContent = isFinalClear ? '八波全胜 · 全线通关' : `第 ${b.wave} 波 · 讨伐凯旋`;
 
         bossBanner.innerHTML = `
           <div class="v16-pb-portrait">
@@ -3081,7 +3100,7 @@
           <div class="v16-pb-info">
             <div class="v16-pb-name">${esc(b.bossCfg.name)} <b>已陨落</b></div>
             <div class="v16-pb-stats">
-              <span>用时 <b>${b.round} / ${b.maxRounds}</b> 回合</span>
+              <span>用时 <b>${b.round}</b> 回合${b.round > b.maxRounds ? '（狂暴）' : ''}</span>
               <span class="v16-pb-sep">·</span>
               <span>剩余血量 <b>${b.squadHp}/${b.squadMaxHp}</b></span>
               ${this.run.peakHit > 0 ? `<span class="v16-pb-sep">·</span><span>峰值直伤 <b>${this.run.peakHit.toLocaleString()}</b></span>` : ''}
@@ -3092,9 +3111,12 @@
 
         const lootItems = [
           { label: '讨伐赏金报酬', sub: `击败 ${b.bossCfg.name}`, val: `+${baseReward}G`, cls: 'gold' },
-          { label: '黑市金币利息', sub: `每 5G 生 1G · 上限 ${maxInt}G`, val: `+${interest}G`, cls: interest > 0 ? 'gold' : 'dim' },
-          { label: '速胜回合奖励', sub: `剩余 ${roundBonus} 回合`, val: `+${roundBonus}G`, cls: roundBonus > 0 ? 'cyan' : 'dim' }
+          { label: '金币利息', sub: `每 5G 生 1G · 上限 ${maxInt}G`, val: `+${interest}G`, cls: interest > 0 ? 'gold' : 'dim' },
+          { label: '速胜回合奖励', sub: `${b.maxRounds} 回合内剩余 ${roundBonus} 回合`, val: `+${roundBonus}G`, cls: roundBonus > 0 ? 'cyan' : 'dim' }
         ];
+        if (!isFinalClear) {
+          lootItems.push({ label: '过波休整', sub: `回复 ${Math.round(D.WAVE_CLEAR_HEAL_PCT * 100)}% · 下一波 ${this.run.squadHp}/${this.run.squadMaxHp} 血`, val: `+${restGained} 血`, cls: restGained > 0 ? 'crimson' : 'dim' });
+        }
         if (bloodBonus > 0) {
           lootItems.push({ label: '血瓶续命残血奖', sub: '血量 ≤50% 触发', val: `+${bloodBonus}G`, cls: 'crimson' });
         }
@@ -3137,7 +3159,7 @@
         }
 
         nextBtn.className = `v16-po-cta ${isFinalClear ? 'gold' : 'win'}`;
-        nextBtn.textContent = isFinalClear ? '凯旋回廊 · 领奖解锁新英雄 →' : '推门进入黑市 · 招募与构筑 →';
+        nextBtn.textContent = isFinalClear ? '凯旋回廊 · 领奖解锁新英雄 →' : '进入商店 · 招募与构筑 →';
         nextBtn.onclick = () => {
           this._closePayoutModal();
           if (isFinalClear) {
@@ -3266,10 +3288,12 @@
               this.openPrepHall();
             };
           } else {
-            extraBox.innerHTML = `<button class="v14-ad-btn" id="btn-po-revive">▶ 看广告复活 · 满血重打第 ${b.wave} 波</button>`;
+            const reviveHp = Math.max(1, Math.round(b.squadMaxHp * D.REVIVE_HP_PCT));
+            extraBox.innerHTML = `<button class="v14-ad-btn" id="btn-po-revive">▶ 看广告复活 · ${reviveHp} 血重打第 ${b.wave} 波</button>`;
             $('btn-po-revive').onclick = () => {
-              this.playRewardedAd(`满血重打第 ${b.wave} 波（保留全部构筑）`, () => {
+              this.playRewardedAd(`${reviveHp} 血重打第 ${b.wave} 波（保留全部构筑）`, () => {
                 this.run.adReviveLeft -= 1;
+                this.run.squadHp = reviveHp;
                 this._closePayoutModal();
                 this.startWaveBattle(this.run.wave);
               });
@@ -3389,7 +3413,9 @@
       const maxWaves = (this.run && this.run.maxWaves) || 8;
       if (waveEl) waveEl.textContent = `第 ${b.wave} / ${maxWaves} 波`;
       if (roundEl) {
-        roundEl.textContent = `第 ${b.round} / ${b.maxRounds} 回合`;
+        roundEl.textContent = b.round > b.maxRounds
+          ? `第 ${b.round} 回合 · 狂暴 ×${D.BERSERK_MULT}`
+          : `第 ${b.round} / ${b.maxRounds} 回合`;
         roundEl.classList.toggle('final-round', b.round >= b.maxRounds);
       }
       if (pipsEl) {
@@ -3836,7 +3862,7 @@
       discBtn.classList.remove('active-mode');
       discBtn.classList.toggle('no-discards', b.discardsLeft <= 0 && !this.pureFilterMode && this.run.adFilterLeft <= 0);
       discBtn.classList.toggle('ready-discard', canActDisc);
-      let discTitle = '换桌';
+      let discTitle = '换牌';
       let discSub = '';
       let discSubCls = 'v15-disc-quota';
       let discBadge = `剩${b.discardsLeft}次`;
@@ -3850,16 +3876,16 @@
         discSub = '可选 3 张';
         discBadge = 'AD';
       } else if (b.discardsLeft <= 0) {
-        discTitle = '换桌';
+        discTitle = '换牌';
         discSub = '次数已尽';
         discSubCls = 'v15-disc-quota empty';
         discBadge = '0次';
       } else if (hasPicks) {
-        discTitle = '确认换桌';
+        discTitle = '确认换牌';
         discSub = isFullPick ? `已满 ${pickCount}/${discardLimit} 张` : `已选 ${pickCount}/${discardLimit} 张`;
         discSubCls = isFullPick ? 'v15-disc-quota full' : 'v15-disc-quota active';
       } else {
-        discTitle = '换桌';
+        discTitle = '换牌';
         discSub = `可选 0/${discardLimit} 张`;
       }
 
@@ -3870,7 +3896,7 @@
           const pipsHtml = Array.from({ length: discardLimit }, (_, i) =>
             `<span class="bdc-pip ${i < pickCount ? 'filled' : ''}" aria-hidden="true"></span>`
           ).join('');
-          const modeLabel = this.pureFilterMode ? '绝境纯调度' : '换桌选牌';
+          const modeLabel = this.pureFilterMode ? '绝境纯调度' : '换牌选牌';
           const hintText = isFullPick
             ? `已达上限 · 点左侧【${discTitle}】或再点取消`
             : `再点已选牌取消`;
@@ -4904,7 +4930,7 @@
           </div>
           <div class="v152-boss-name-scrim">
             <span class="v152-boss-name">${esc(nextBoss.name)}</span>
-            <span class="v152-boss-title">${esc(nextBoss.title || '镜湖强敌')}</span>
+            <span class="v152-boss-title">${esc(nextBoss.title || '强敌')}</span>
           </div>
         </div>
         <div class="v152-boss-tactical-bar">
@@ -5537,7 +5563,7 @@
     openLeaderboardModal() {
       const showLocal = (list) => {
         $('roster-modal').classList.remove('hidden');
-        this._setVaultHeader('board', '镜湖战绩榜', 'HALL OF ECLIPSE', 'crown');
+        this._setVaultHeader('board', '战绩榜', 'HALL OF FAME', 'crown');
 
         const d = this.meta.data;
         const bestKills = list.reduce((mx, r) => Math.max(mx, r.kills || 0), 0);
@@ -5579,7 +5605,7 @@
             <div class="v16-board-empty">
               ${this._vaultEmblemSvg('crown')}
               <div class="v16-be-title">荣耀碑尚未铭刻战绩</div>
-              <div class="v16-be-desc">完成任意一局镜湖讨伐（或挑战至更高波次），你的英雄阵容、流派构筑与单手峰值直伤将自动镌刻于此。</div>
+              <div class="v16-be-desc">完成任意一局讨伐（或挑战至更高波次），你的英雄阵容、流派构筑与单手峰值直伤将自动镌刻于此。</div>
               <button type="button" class="v16-be-cta" id="btn-board-go-play">返回点将台 · 开启首局出征 →</button>
             </div>
           `

@@ -6,7 +6,7 @@
 
   const THEMES = {
     core:    { id: 'core',    name: '通用', short: '通用', color: '#ffd966', bg: '#3c2f16', desc: '全流派通用的战力、重触发、易伤、孤狼与经济齿轮' },
-    discard: { id: 'discard', name: '换桌', short: '换桌', color: '#6be5ff', bg: '#153447', desc: '把洗牌换桌变成飞刀蓄势与跨阶段导流引擎' },
+    discard: { id: 'discard', name: '换牌', short: '换牌', color: '#6be5ff', bg: '#153447', desc: '把换牌变成飞刀蓄势与跨阶段导流引擎' },
     shield:  { id: 'shield',  name: '盾反', short: '盾反', color: '#78b7ff', bg: '#1a2d4c', desc: '叠盾硬吃 Boss 重击，蓄势借力与荆棘盾击反杀' },
     poison:  { id: 'poison',  name: '剧毒', short: '剧毒', color: '#7ef28a', bg: '#163b22', desc: '叠毒翻倍与回合末无视护盾毒爆，联动经济与战力转化' },
     frost:   { id: 'frost',   name: '极寒', short: '极寒', color: '#9cf4ff', bg: '#11344a', desc: '叠冰减伤、满 10 层冻结破冰与冰甲接口' },
@@ -36,8 +36,8 @@
       id: 'st_guard', unitId: 'f1_3rdgeneral', theme: 'core', tier: 'C',
       name: '通用 C · 盾卫', shortName: '盾卫', atk: 35, cost: 3,
       vfx: 'pfx_blunt_hit', tag: '护盾', isStarter: true,
-      shieldVal: 25,
-      desc: '出手时获得 +25 蓝盾。'
+      shieldVal: 40,
+      desc: '出手时获得 +40 蓝盾。'
     },
     st_scout: {
       id: 'st_scout', unitId: 'f3_sister', theme: 'core', tier: 'B',
@@ -58,7 +58,7 @@
       name: '通用 B · 产钱小二', shortName: '产钱小二', atk: 30, cost: 3,
       vfx: 'pfx_coin_drop', tag: '产钱', isStarter: true,
       goldOnStrike: 1, goldOnDiscard: 1,
-      desc: '出手或被【换桌】弃掉时，获得 +1G。'
+      desc: '出手或被【换牌】弃掉时，获得 +1G。'
     }
   };
 
@@ -98,7 +98,7 @@
       name: '通用 A · 消费养成', shortName: '消费养成', atk: 42, cost: 4,
       vfx: 'pfx_coin_drop', tag: '经济/养成',
       goldOnStrike: 2, growPerSpend3G: 12,
-      desc: '出手 +2G；你在黑市每消费 3G，自身永久 +12 战力！'
+      desc: '出手 +2G；你在商店每消费 3G，自身永久 +12 战力！'
     },
     {
       id: 'c_grand_drummer', unitId: 'f2_demononi', theme: 'core', tier: 'SSS',
@@ -111,31 +111,31 @@
     // --- 4 Discard-Knife Theme Heroes ---
     {
       id: 't_disc_knife', unitId: 'f2_altgeneral', theme: 'discard', tier: 'S',
-      name: '换桌 S · 无限飞刀', shortName: '无限飞刀', atk: 40, cost: 5,
+      name: '换牌 S · 无限飞刀', shortName: '无限飞刀', atk: 40, cost: 5,
       vfx: 'pfx_dagger_flurry', tag: '弃牌/养成',
       knifeCount: 2, growKnifeOnDiscard: 1,
-      desc: '被【换桌】弃掉时蓄势飞刀（初2把，单次换桌至多永久+1把），随本手首位上阵侠客出手齐射！'
+      desc: '被【换牌】弃掉时蓄势飞刀（初2把，单次换牌至多永久+1把），随本手首位上阵侠客出手齐射！'
     },
     {
       id: 't_disc_sharp', unitId: 'f6_altgeneral', theme: 'discard', tier: 'B',
-      name: '换桌 B · 磨刃注能', shortName: '磨刃注能', atk: 38, cost: 4,
+      name: '换牌 B · 磨刃注能', shortName: '磨刃注能', atk: 38, cost: 4,
       vfx: 'pfx_cyan_slash', tag: '弃牌/养成',
       discardGrowSelfAtk: 15, discardInjectTeamAtk: true, discardGold: 1,
-      desc: '被【换桌】弃掉时自身永久 +15 战力，把 100% 当前战力注入本回合全队出手并 +1G！'
+      desc: '被【换牌】弃掉时自身永久 +15 战力，把 100% 当前战力注入本回合全队出手并 +1G！'
     },
     {
       id: 't_disc_scav', unitId: 'f4_3rdgeneral', theme: 'discard', tier: 'A',
-      name: '换桌 A · 弃牌导流', shortName: '弃牌导流', atk: 42, cost: 5,
+      name: '换牌 A · 弃牌导流', shortName: '弃牌导流', atk: 42, cost: 5,
       vfx: 'pfx_mana_burst', tag: '接口', isBridge: true,
       discardTriggerLeftmostHand: true,
-      desc: '【接口】被【换桌】弃掉时锁定手牌最左侧侠客，随本手首次主动出击免费追加出手 1 次！'
+      desc: '【接口】被【换牌】弃掉时锁定手牌最左侧侠客，随本手首次主动出击免费追加出手 1 次！'
     },
     {
       id: 't_disc_reaper', unitId: 'f4_reaperninemoons', theme: 'discard', tier: 'SSS',
-      name: '换桌 SSS · 洗牌死神', shortName: '洗牌死神', atk: 52, cost: 7,
+      name: '换牌 SSS · 洗牌死神', shortName: '洗牌死神', atk: 52, cost: 7,
       vfx: 'pfx_scythe_reap', tag: '终结',
       multPerWaveDiscard: 0.4,
-      desc: '本波每通过【换桌】弃掉 1 张牌，自身本次伤害倍率 +0.4×！'
+      desc: '本波每通过【换牌】弃掉 1 张牌，自身本次伤害倍率 +0.4×！'
     },
 
     // --- 4 Shield-Counter Theme Heroes ---
@@ -143,8 +143,8 @@
       id: 't_shd_bastion', unitId: 'f3_nimbus', theme: 'shield', tier: 'A',
       name: '盾反 A · 挨打叠盾', shortName: '挨打叠盾', atk: 40, cost: 4,
       vfx: 'pfx_shield_block', tag: '叠盾/养成',
-      shieldVal: 35, growOnSlot1SurviveShield: 12, growOnSlot1SurviveAtk: 15,
-      desc: '出手获自身护盾值（初35）；站 1 号位硬吃 Boss 攻击存活，永久 +12 盾与 +15 战力！'
+      shieldVal: 50, growOnSlot1SurviveShield: 12, growOnSlot1SurviveAtk: 15,
+      desc: '出手获自身护盾值（初50）；站 1 号位硬吃 Boss 攻击存活，永久 +12 盾与 +15 战力！'
     },
     {
       id: 't_shd_spike', unitId: 'f1_peacekeeper2', theme: 'shield', tier: 'B',
@@ -360,7 +360,7 @@
       id: 'r_spend_scale', theme: 'core', tier: 'B', cat: 'scale', cost: 4,
       name: '通用 B · 消费加攻', short: '花5G+12攻',
       icon: 'icon-d7fb4a7519b997571b4ff455', vfx: 'fxBuffSimpleGold',
-      desc: '在黑市每花掉 5G，本秘宝永久 +12 战力（每次出手生效）。',
+      desc: '在商店每花掉 5G，本秘宝永久 +12 战力（每次出手生效）。',
       initState: () => ({ spentAcc: 0, bonusAtk: 0 })
     },
     {
@@ -393,7 +393,7 @@
       id: 'r_ghost_invite', theme: 'core', tier: 'S', cat: 'rule', cost: 6,
       name: '通用 S · 弃牌补打', short: '弃牌补打[接口]', isBridge: true,
       icon: 'icon-585d48d205e145d530bfa722', vfx: 'fx_f2_teleportsmoke',
-      desc: '【接口】每回合第 1 次被【换桌】弃掉的侠客，本手打完后从影子冲出免费补打 1 次！'
+      desc: '【接口】每回合第 1 次被【换牌】弃掉的侠客，本手打完后从影子冲出免费补打 1 次！'
     },
     {
       id: 'r_copy_right', theme: 'core', tier: 'SSS', cat: 'rule', cost: 7,
@@ -436,34 +436,34 @@
     // --- 5 Discard-Knife Theme Relics ---
     {
       id: 'r_disc_extra', theme: 'discard', tier: 'B', cat: 'rule', cost: 4,
-      name: '换桌 B · 换桌+2次', short: '换桌+2次',
+      name: '换牌 B · 换牌+2次', short: '换牌+2次',
       icon: 'icon-0fb84a38631da949be569ce5', vfx: 'fx_f2_teleportsmoke',
-      desc: '每波【换桌】次数上限 +2。'
+      desc: '每波【换牌】次数上限 +2。'
     },
     {
       id: 'r_disc_scale', theme: 'discard', tier: 'A', cat: 'scale', cost: 5,
-      name: '换桌 A · 弃牌加攻', short: '每弃+10攻',
+      name: '换牌 A · 弃牌加攻', short: '每弃+10攻',
       icon: 'icon-087055c7861fe605a3ef8e73', vfx: 'fxImpactBigOrange',
-      desc: '整局每【换桌】弃掉 1 张牌，本秘宝永久 +10 战力（飞刀与出手均生效）。',
+      desc: '整局每【换牌】弃掉 1 张牌，本秘宝永久 +10 战力（飞刀与出手均生效）。',
       initState: () => ({ bonusAtk: 0 })
     },
     {
       id: 'r_disc_vuln', theme: 'discard', tier: 'A', cat: 'rule', cost: 5,
-      name: '换桌 A · 换桌破甲', short: '换桌易伤[接口]', isBridge: true,
+      name: '换牌 A · 换牌破甲', short: '换牌易伤[接口]', isBridge: true,
       icon: 'icon-454ae99b6edbe3ab5e7f1a4c', vfx: 'fx_fireslash',
-      desc: '【接口】每次【换桌】给 Boss 挂【易伤 ×1.4】，且本回合每弃 1 张使下次 1 号位伤害 +25%！'
+      desc: '【接口】每次【换牌】给 Boss 挂【易伤 ×1.4】，且本回合每弃 1 张使下次 1 号位伤害 +25%！'
     },
     {
       id: 'r_disc_double', theme: 'discard', tier: 'SSS', cat: 'retrig', cost: 7,
-      name: '换桌 SSS · 弃牌再触发', short: '弃牌×2次',
+      name: '换牌 SSS · 弃牌再触发', short: '弃牌×2次',
       icon: 'icon-07e4557e022e78a2dde68434', vfx: 'fx_crossslash',
-      desc: '所有【换桌弃牌】触发效果额外再触发 1 次！'
+      desc: '所有【换牌弃牌】触发效果额外再触发 1 次！'
     },
     {
       id: 'r_disc_mult', theme: 'discard', tier: 'S', cat: 'mult', cost: 6,
-      name: '换桌 S · 换桌后×1.85', short: '换桌×1.85',
+      name: '换牌 S · 换牌后×1.85', short: '换牌×1.85',
       icon: 'icon-968b90f1c0f9a182b5f103f8', vfx: 'fx_f4_shadownova',
-      desc: '本回合只要使用过【换桌】，本手所有出手伤害 ×1.85！'
+      desc: '本回合只要使用过【换牌】，本手所有出手伤害 ×1.85！'
     },
 
     // --- 5 Shield-Counter Theme Relics ---
@@ -477,7 +477,7 @@
       id: 'r_shd_crown', theme: 'shield', tier: 'SSS', cat: 'rule', cost: 7,
       name: '盾反 SSS · 荆棘盾击', short: '盾击[接口]', isBridge: true,
       icon: 'icon-5b259d77f8eb2a13a3e620fb', vfx: 'fx_f3_cataclysmicfault',
-      desc: '【接口】回合初若无盾则获 12 盾；持有蓝盾时，每次【出手】或【换桌】额外砸出等于当前蓝盾值的盾击！'
+      desc: '【接口】回合初若无盾则获 12 盾；持有蓝盾时，每次【出手】或【换牌】额外砸出等于当前蓝盾值的盾击！'
     },
     {
       id: 'r_shd_scale', theme: 'shield', tier: 'B', cat: 'scale', cost: 4,
@@ -710,7 +710,7 @@
       desc: '为 1 名侠客永久穿戴【铁壁甲】：每次出手额外获得 +18 蓝盾！' },
     { id: 'm_clone',    name: '铭文 SSS · 镜像克隆', icon: 'icon-f4767c4065ec5a27484f02e6', color: '#e288ff', needsHero: true,
       desc: '完整复制 1 名侠客（含铭文、成长战力、飞刀数、护盾值）加入牌组！' },
-    { id: 'm_banish',   name: '铭文 B · 酒馆驱逐', icon: 'icon-f2c70661b51894b44fd1664b', color: '#ffb84d', needsHero: true, minRoster: 4,
+    { id: 'm_banish',   name: '铭文 B · 驱逐', icon: 'icon-f2c70661b51894b44fd1664b', color: '#ffb84d', needsHero: true, minRoster: 4,
       desc: '永久移出 1 名不需要的杂牌侠客（牌组至少保留 4 人）。' }
   ];
 
@@ -733,7 +733,7 @@
       desc: '从 4 名通用或主题稀客中招募 1 名入牌组（高概率带随机铭文！）'
     },
     {
-      id: 'pack_inscription', name: '酒馆铭文匣', subtitle: '3选1 改造铭文', cost: 4, count: 3,
+      id: 'pack_inscription', name: '铭文匣', subtitle: '3选1 改造铭文', cost: 4, count: 3,
       icon: 'icon-0d75e9fcb8c79b6b313ec227', accent: '#df7dff', glow: '#a93dff', burstVfx: 'fx_f4_shadownova',
       desc: '3 选 1 铭文：双连印、玻璃刃、贪财徽、铁壁甲、克隆或驱逐！'
     }
@@ -741,7 +741,7 @@
 
   // === 8 Recalibrated Active Mirror-Lake Bosses (GPT Fix #1) ===
   const BOSS_POOL = [
-    { id: 'b_antiswarm',  unitId: 'boss_antiswarm',       name: '噬群巨魔',   title: '镜湖先锋', vfx: 'pfx_acid_splash',     pattern: ['heavy', 'charge', 'heavy', 'heavy'] },
+    { id: 'b_antiswarm',  unitId: 'boss_antiswarm',       name: '噬群巨魔',   title: '先锋', vfx: 'pfx_acid_splash',     pattern: ['heavy', 'charge', 'heavy', 'heavy'] },
     { id: 'b_decepticle', unitId: 'boss_decepticle',      name: '幻影构装',   title: '机械卫兵', vfx: 'pfx_zap_hit',         pattern: ['shield', 'charge', 'heavy', 'shield'] },
     { id: 'b_solfist',    unitId: 'boss_solfist',         name: '烈阳铁拳',   title: '熔火守门', vfx: 'pfx_flame_pillar',    pattern: ['heavy', 'charge', 'thorns', 'heavy'] },
     { id: 'b_vampire',    unitId: 'boss_vampire',         name: '猩红伯爵',   title: '血月领主', vfx: 'pfx_blood_claws',     pattern: ['charge', 'heavy', 'lock3', 'heavy'] },
@@ -753,14 +753,14 @@
 
   // Calibrated Wave Curve (Smooth W1-W2 onboarding; steep W4-W8 pressure for ~20-30% zero-ad clear rate!)
   const WAVE_CONFIG = [
-    { wave: 1, hp: 520,   heavyDmg: 34, ultDmg: 64, baseReward: 7,  bossIdx: 0 },
-    { wave: 2, hp: 960,   heavyDmg: 36, ultDmg: 68, baseReward: 8,  bossIdx: 1 },
-    { wave: 3, hp: 1950,  heavyDmg: 39, ultDmg: 72, baseReward: 9,  bossIdx: 2 },
-    { wave: 4, hp: 3700,  heavyDmg: 42, ultDmg: 76, baseReward: 10, bossIdx: 3 },
-    { wave: 5, hp: 6600,  heavyDmg: 46, ultDmg: 80, baseReward: 11, bossIdx: 4 },
-    { wave: 6, hp: 11500, heavyDmg: 50, ultDmg: 84, baseReward: 12, bossIdx: 5 },
-    { wave: 7, hp: 19500, heavyDmg: 54, ultDmg: 88, baseReward: 13, bossIdx: 6 },
-    { wave: 8, hp: 31000, heavyDmg: 58, ultDmg: 92, baseReward: 16, bossIdx: 7 }
+    { wave: 1, hp: 520,   heavyDmg: 34, ultDmg: 48, baseReward: 7,  bossIdx: 0 },
+    { wave: 2, hp: 960,   heavyDmg: 36, ultDmg: 51, baseReward: 8,  bossIdx: 1 },
+    { wave: 3, hp: 1950,  heavyDmg: 39, ultDmg: 54, baseReward: 9,  bossIdx: 2 },
+    { wave: 4, hp: 3700,  heavyDmg: 42, ultDmg: 57, baseReward: 10, bossIdx: 3 },
+    { wave: 5, hp: 6600,  heavyDmg: 46, ultDmg: 60, baseReward: 11, bossIdx: 4 },
+    { wave: 6, hp: 11500, heavyDmg: 50, ultDmg: 63, baseReward: 12, bossIdx: 5 },
+    { wave: 7, hp: 19500, heavyDmg: 54, ultDmg: 66, baseReward: 13, bossIdx: 6 },
+    { wave: 8, hp: 31000, heavyDmg: 58, ultDmg: 69, baseReward: 16, bossIdx: 7 }
   ];
 
   function getWaveBoss(wave) {
@@ -880,7 +880,11 @@
     BOSS_POOL,
     WAVE_CONFIG,
     SQUAD_MAX_HP: 100,
-    MAX_ROUNDS: 4,
+    MAX_ROUNDS: 4,            // 速胜基准：4 回合内击杀拿速胜金；第 4 回合后不再判负
+    BERSERK_MULT: 1.5,        // 第 5 回合起「日蚀狂暴」：Boss 重击固定 ×1.5
+    HARD_ROUND_CAP: 10,       // 安全上限，仅防极端堆盾卡死，正常不应触发
+    WAVE_CLEAR_HEAL_PCT: 0.30,// 血条跨波继承：过波回复最大血量 30%
+    REVIVE_HP_PCT: 0.50,      // 广告复活时血量回到 50%
     BASE_DISCARDS: 2,
     HAND_SIZE: 6,
     BASE_POISON_PER_STACK: 10,

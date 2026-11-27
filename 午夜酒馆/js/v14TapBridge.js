@@ -34,7 +34,7 @@
 
   // === 12 Built-in Achievements (with one-time Orb Shard rewards + optional Host sync) ===
   const ACHIEVEMENTS = [
-    { id: 'ach_first_w1',    name: '初出镜湖',   shards: 5,  desc: '首次击败第 1 波 Boss。' },
+    { id: 'ach_first_w1',    name: '初战告捷',   shards: 5,  desc: '首次击败第 1 波 Boss。' },
     { id: 'ach_clear_w4',    name: '半程破阵',   shards: 8,  desc: '单局击败第 4 波 Boss。' },
     { id: 'ach_clear_w8',    name: '八波制霸',   shards: 20, desc: '首次完整通关第 8 波 Boss！' },
     { id: 'ach_hit_1k',      name: '千伤初现',   shards: 5,  desc: '单手直伤达到 1,000 以上。' },
@@ -44,7 +44,7 @@
     { id: 'ach_poison_kill', name: '蚀骨绝命',   shards: 8,  desc: '通过回合末【剧毒】结算击杀任意 Boss。' },
     { id: 'ach_freeze_boss', name: '绝对零度',   shards: 8,  desc: '通过【极寒】冻结或碎冰重创 Boss。' },
     { id: 'ach_sac_eat',     name: '吞噬进化',   shards: 8,  desc: '触发【献祭】吞噬队友继承永久战力。' },
-    { id: 'ach_hero_3',      name: '酒馆招贤',   shards: 10, desc: '累计解锁 3 位开局英雄。' },
+    { id: 'ach_hero_3',      name: '广纳英才',   shards: 10, desc: '累计解锁 3 位开局英雄。' },
     { id: 'ach_pack_unlock', name: '卡池拓展',   shards: 10, desc: '使用宝珠解锁任意 1 个拓展主题包。' }
   ];
 

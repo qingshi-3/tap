@@ -1,0 +1,20 @@
+{
+  "note": "首次运行自动记录",
+  "updatedAt": "2026-11-27T14:48:27.447Z",
+  "methods": {
+    "startNewRun": "ec919a1bbf32",
+    "startWaveBattle": "5fa55879bb4a",
+    "beginRound": "b85e20cf2a0e",
+    "handleDiscardButton": "7f71a2a5bc04",
+    "handleStrikeButton": "493f5fd46afa",
+    "finishBattle": "0ed0d1f1f17b",
+    "openShop": "c4de7c898e74",
+    "rerollShop": "6248faae9df3",
+    "buyRelicOffer": "58bbf201c007",
+    "upgradeSlot": "4d284abd1fe8",
+    "openPack": "daff1bae51b4",
+    "selectInscriptionTarget": "1f7da6b33377",
+    "spendGold": "33d74976983e",
+    "handleShopAdReroll": "5d24664587b5"
+  }
+}

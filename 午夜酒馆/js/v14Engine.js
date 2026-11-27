@@ -800,7 +800,7 @@
       state.bossVuln = true;
       state.roundSlot1MultBonus += discardedHeroes.length * 0.25;
       events.push({ type: 'boss_vuln' });
-      events.push({ type: 'toast', text: `换桌破甲：Boss 易伤且 1 号位伤害 +${Math.round(discardedHeroes.length * 25)}%！` });
+      events.push({ type: 'toast', text: `换牌破甲：Boss 易伤且 1 号位伤害 +${Math.round(discardedHeroes.length * 25)}%！` });
     }
 
     // r_shd_crown: Shield bash on discard!

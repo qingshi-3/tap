@@ -1113,7 +1113,7 @@
 
       // Top micro-ribbon: Hero name / Status bonus / Heat banner
       const heatLabel = lv >= 4
-        ? '✦ 日蚀破表 ✦'
+        ? '✦ 伤害破表 ✦'
         : lv >= 3
           ? '⚡ 斩杀魔火 ⚡'
           : lv >= 2

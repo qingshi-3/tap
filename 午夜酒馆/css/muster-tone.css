@@ -1,0 +1,93 @@
+/* Hero select colour pass (暗纹画框 palette on the original slanted accordion).
+   Only colours change: layout, motion and FX timing stay exactly as in v14.css.
+   Each slice gets --h-ui (the hero's muted uiAccent) from v14Main.js; the old
+   neon --h-acc / --h-acc2 pair is derived from it here: a light tint + gold. */
+.v17-hero-slice,
+.v17-dot {
+  --h-ui: #b8323f;
+  --h-acc: color-mix(in srgb, var(--h-ui) 62%, #fff);
+  --h-acc2: #d4ae68;
+}
+
+/* warm dark ground instead of navy */
+#deck-select-modal.muster-mode,
+.v17-gallery-root {
+  background: #100e0c !important;
+}
+.v17-hero-slice {
+  background: linear-gradient(180deg, #1d1813 0%, #0d0b09 100%);
+  border-left-color: #0a0806;
+  border-right-color: #0a0806;
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.16);
+}
+.v17-sl-vignette {
+  background: linear-gradient(180deg, rgba(14, 11, 8, 0.38) 0%, transparent 18%, transparent 56%, rgba(14, 11, 8, 0.94) 92%, rgba(12, 10, 8, 0.98) 100%);
+}
+/* scene art: slightly warmer and calmer so it sits on the dark canvas */
+.v17-sl-bg { filter: brightness(0.46) saturate(0.6) sepia(0.18) blur(0.4px); }
+.v17-hero-slice.is-active .v17-sl-bg { filter: brightness(0.74) saturate(0.7) sepia(0.16) blur(0.75px); }
+.v17-sl-blank-canvas {
+  background: radial-gradient(ellipse at 50% 34%, color-mix(in srgb, var(--h-ui) 18%, #16120e), #0d0b09 72%);
+}
+
+/* labels and badges */
+.v17-sl-vname,
+.v17-ex-name { color: #f2e8d6; }
+.v17-ex-sub { color: #d9cfbd; }
+.v17-ex-code { background: linear-gradient(90deg, rgba(16, 13, 10, 0.86) 0%, rgba(16, 13, 10, 0.2) 100%); }
+.v17-sl-mini-lock { background: rgba(16, 13, 10, 0.88); }
+.v17-sl-lock.owned {
+  color: #f2dba2;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--h-ui) 55%, #000) 0%, color-mix(in srgb, var(--h-ui) 30%, #000) 100%);
+  box-shadow: inset 0 1px 0 rgba(242, 219, 162, 0.4), 0 3px 10px rgba(0, 0, 0, 0.65);
+}
+
+/* chrome: ghost pills, menu, arrows, dots */
+.v17-ghost-pill,
+.v17-nav-arrow {
+  color: #ece4d4;
+  background: rgba(16, 13, 10, 0.62);
+  border-color: rgba(212, 174, 104, 0.36);
+}
+.v17-ghost-pill:hover,
+.v17-nav-arrow:hover { background: rgba(38, 32, 25, 0.9); border-color: #d4ae68; }
+.v17-ghost-pill.orbs { color: #ece4d4; border-color: rgba(212, 174, 104, 0.36); }
+.v17-ghost-pill.orbs b,
+.v17-nav-arrow { color: #f2dba2; }
+.v17-menu-popover {
+  background: rgba(16, 14, 12, 0.97);
+  border-color: #0a0806;
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.4), 0 14px 36px rgba(0, 0, 0, 0.88);
+}
+.v17-mp-item {
+  color: #ece4d4;
+  background: rgba(38, 32, 25, 0.6);
+  border-color: rgba(212, 174, 104, 0.16);
+}
+.v17-mp-item:hover:not(:disabled) { background: rgba(60, 50, 38, 0.9); border-color: #d4ae68; color: #fff6dc; }
+.v17-mp-item.gold { color: #f2dba2; background: rgba(74, 56, 26, 0.5); border-color: rgba(212, 174, 104, 0.45); }
+.v17-dot { border-color: rgba(212, 174, 104, 0.35); background: rgba(16, 13, 10, 0.8); }
+.v17-dot.is-active { border-color: #f2dba2; }
+
+/* difficulty chips and action buttons follow the hero colour */
+.v17-id-asc-lbl { color: #9d9383; }
+.v17-asc-chip { color: #cfc4b1; background: rgba(16, 13, 10, 0.84); border-color: rgba(212, 174, 104, 0.24); }
+.v17-asc-chip.active {
+  color: #fff;
+  background: color-mix(in srgb, var(--h-ui) 70%, #000);
+  border-color: var(--h-acc);
+}
+.v17-inline-dock { border-top-color: rgba(212, 174, 104, 0.28); }
+.v17-hero-cta.start {
+  background: linear-gradient(180deg, var(--h-ui) 0%, color-mix(in srgb, var(--h-ui) 50%, #000) 100%);
+  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.72), 0 4px 0 #0a0806;
+}
+.v17-hero-cta.buy {
+  background: linear-gradient(180deg, #b8924f 0%, #6e5427 100%);
+  box-shadow: inset 0 0 0 1px #f2dba2, 0 4px 0 #0a0806;
+}
+.v17-hero-cta.trial {
+  background: linear-gradient(180deg, #3a3129 0%, #1f1a15 100%);
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.5), 0 4px 0 #0a0806;
+}
+.v17-hero-cta { border-color: #0a0806; }
