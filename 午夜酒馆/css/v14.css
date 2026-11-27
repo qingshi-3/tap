@@ -813,8 +813,19 @@
   padding: 0 !important;
 }
 #battle-top-bar .bt-squad-box {
-  width: 316px !important;
-  min-width: 316px !important;
+  width: 358px !important;
+  min-width: 358px !important;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+#battle-top-bar .bt-squad-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 #battle-top-bar .bt-boss-box {
   width: 262px !important;
@@ -2020,17 +2031,31 @@
   overflow: visible !important;
   animation: none !important;
 }
-.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot),
-.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot),
-.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot),
-.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot) {
+.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick),
+.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick),
+.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick),
+.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick) {
   transform: perspective(600px) translateY(var(--fan-y, 0px)) rotate(var(--fan-rot, 0deg)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) !important;
 }
-.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot):hover,
-.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot):hover,
-.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot):hover,
-.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot):hover {
+.v14-card.v14-card-tier-B:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick):hover,
+.v14-card.v14-card-tier-A:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick):hover,
+.v14-card.v14-card-tier-S:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick):hover,
+.v14-card.v14-card-tier-SSS:not(.dragging-centered):not(.in-slot):not(.selected-card):not(.discard-pick):hover {
   transform: perspective(600px) translateY(calc(var(--fan-y, 0px) - 18px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05) !important;
+}
+.v14-card.v14-card-tier-B.selected-card:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-A.selected-card:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-S.selected-card:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-SSS.selected-card:not(.dragging-centered):not(.in-slot) {
+  z-index: 35 !important;
+  transform: perspective(600px) translateY(-20px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.07) !important;
+}
+.v14-card.v14-card-tier-B.discard-pick:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-A.discard-pick:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-S.discard-pick:not(.dragging-centered):not(.in-slot),
+.v14-card.v14-card-tier-SSS.discard-pick:not(.dragging-centered):not(.in-slot) {
+  z-index: 34 !important;
+  transform: perspective(600px) translateY(-20px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05) !important;
 }
 
 /* B Tier: Mirror-Lake Rain Window + Subtle Hover 3D Cool Glass */
@@ -7080,7 +7105,7 @@ button, input, select, textarea, optgroup, option {
   height: 100% !important;
   z-index: 15 !important;
   pointer-events: none !important;
-  image-rendering: pixelated !important;
+  image-rendering: auto !important;
 }
 
 /* Minimal Floating Corner Controls (NO chunky full-width top bar!) */
@@ -7231,45 +7256,66 @@ button, input, select, textarea, optgroup, option {
   --px: 0px;
   --py: 0px;
 }
-.v17-hero-slice:not(.is-active):hover {
-  width: 108px;
-  min-width: 108px;
+.v17-hero-slice:not(.is-active):active {
   box-shadow:
-    inset 0 0 0 1.5px var(--h-acc, #ffd966),
-    0 0 24px color-mix(in srgb, var(--h-acc, #ffd966) 34%, transparent);
+    inset 0 0 0 2px var(--h-acc, #ffd966),
+    0 0 28px color-mix(in srgb, var(--h-acc, #ffd966) 52%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .v17-hero-slice:not(.is-active):hover {
+    width: 102px;
+    min-width: 102px;
+    box-shadow:
+      inset 0 0 0 1.5px var(--h-acc, #ffd966),
+      0 0 24px color-mix(in srgb, var(--h-acc, #ffd966) 34%, transparent);
+  }
+}
+@keyframes v20-active-rim-breathe {
+  0%, 100% {
+    box-shadow:
+      inset 0 0 0 2px var(--h-acc, #ffd966),
+      inset 0 0 34px color-mix(in srgb, var(--h-acc2, #ff5c8a) 22%, transparent),
+      0 0 42px color-mix(in srgb, var(--h-acc, #ffd966) 44%, transparent),
+      0 0 84px color-mix(in srgb, var(--h-acc2, #ff5c8a) 22%, transparent);
+  }
+  50% {
+    box-shadow:
+      inset 0 0 0 2.5px #fff5cc,
+      inset 0 0 48px color-mix(in srgb, var(--h-acc, #ffd966) 30%, transparent),
+      0 0 60px color-mix(in srgb, var(--h-acc, #ffd966) 62%, transparent),
+      0 0 108px color-mix(in srgb, var(--h-acc2, #ff5c8a) 36%, transparent);
+  }
 }
 .v17-hero-slice.is-active {
   width: 536px;
   min-width: 536px;
   z-index: 5;
-  cursor: default;
-  box-shadow:
-    inset 0 0 0 2px var(--h-acc, #ffd966),
-    0 0 44px color-mix(in srgb, var(--h-acc, #ffd966) 40%, transparent);
+  cursor: pointer;
+  animation: v20-active-rim-breathe 3.2s ease-in-out infinite;
 }
 
-/* Glowing Parallel Diagonal Divider Edges */
+/* Delicate Luminous Slanted Bevel Edges (accented by organic canvas aurora ribbons) */
 .v17-sl-edge {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 3px;
+  width: 2px;
   z-index: 6;
   pointer-events: none;
-  opacity: 0.42;
+  opacity: 0.36;
   transition: opacity 0.3s ease, box-shadow 0.3s ease;
 }
 .v17-sl-edge.left {
   left: 0;
-  background: linear-gradient(180deg, transparent 0%, var(--h-acc, #ffd966) 28%, #ffffff 50%, var(--h-acc, #ffd966) 72%, transparent 100%);
+  background: linear-gradient(180deg, transparent 4%, color-mix(in srgb, var(--h-acc, #ffd966) 72%, transparent) 26%, rgba(255, 252, 232, 0.78) 50%, color-mix(in srgb, var(--h-acc, #ffd966) 72%, transparent) 74%, transparent 96%);
 }
 .v17-sl-edge.right {
   right: 0;
-  background: linear-gradient(180deg, transparent 0%, var(--h-acc2, #ff5c8a) 28%, #ffffff 50%, var(--h-acc2, #ff5c8a) 72%, transparent 100%);
+  background: linear-gradient(180deg, transparent 4%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 72%, transparent) 26%, rgba(255, 238, 246, 0.78) 50%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 72%, transparent) 74%, transparent 96%);
 }
 .v17-hero-slice.is-active .v17-sl-edge {
-  opacity: 1;
-  box-shadow: 0 0 14px var(--h-acc, #ffd966);
+  opacity: 0.68;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--h-acc, #ffd966) 55%, transparent);
 }
 
 @keyframes v17-sheen-sweep {
@@ -7303,31 +7349,152 @@ button, input, select, textarea, optgroup, option {
   align-items: center;
   justify-content: center;
 }
+@keyframes v24-bg-drift {
+  0%, 100% { transform: translate3d(calc(var(--rig-px, 0) * -10px), 0px, 0) scale(1.075); }
+  50%      { transform: translate3d(calc(var(--rig-px, 0) * -10px + 3px), -4px, 0) scale(1.105); }
+}
+@keyframes v24-char-live {
+  0%, 100% { transform: translate3d(calc(var(--rig-px, 0) * 14px), 0px, 0) scale(1.015) rotate(0deg); }
+  50%      { transform: translate3d(calc(var(--rig-px, 0) * 14px), -5px, 0) scale(1.032) rotate(-0.35deg); }
+}
+@keyframes v24-backglow-pulse {
+  0%, 100% { opacity: 0.62; transform: translate3d(calc(var(--rig-px, 0) * 4px), 0px, 0) scale(0.96); }
+  50%      { opacity: 0.96; transform: translate3d(calc(var(--rig-px, 0) * 4px), -4px, 0) scale(1.04); }
+}
+
+/* True Multi-Layer Decomposed 2.5D Portrait Rig */
+.v17-portrait-rig {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  isolation: isolate;
+  pointer-events: none;
+}
+
+/* Layer 1: Independent Environmental Scene Backdrop */
+.v17-sl-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 18%;
+  transform: translate3d(calc(var(--rig-px, 0) * -8px), 0px, 0) scale(1.07);
+  filter: brightness(0.48) saturate(0.84) blur(0.4px);
+  transition: filter 0.42s ease, transform 0.24s ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Layer 2: Backlit Silhouette Aura radiating BEHIND the transparent heroine cutout */
+.v17-sl-backglow {
+  position: absolute;
+  inset: -6% -8% 8% -8%;
+  z-index: 2;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 46% 52% at 50% 42%, color-mix(in srgb, var(--h-acc, #ffd966) 52%, transparent) 0%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 22%, transparent) 46%, transparent 74%),
+    radial-gradient(ellipse 68% 36% at 50% 82%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 32%, transparent) 0%, transparent 72%);
+  transition: opacity 0.42s ease;
+}
+
+/* Layer 3: Crisp Alpha-Transparent Heroine Cutout moving in independent 2.5D foreground depth */
+.v17-sl-char {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 10%;
+  transform: translate3d(calc(var(--rig-px, 0) * 10px), 2px, 0) scale(1.015);
+  filter: brightness(0.66) saturate(0.88) drop-shadow(0 8px 18px rgba(4, 6, 14, 0.72));
+  transition: filter 0.38s ease, transform 0.24s ease-out;
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* Layer 4: Subtle Portrait-Internal Lower Atmospheric Blend integrating cutout into scene */
+.v17-sl-fg-glow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  opacity: 0;
+  background:
+    radial-gradient(ellipse 84% 62% at 50% 100%, color-mix(in srgb, var(--h-acc, #ffd966) 24%, transparent) 0%, transparent 72%);
+  transition: opacity 0.38s ease;
+}
+
+/* Collapsed slice touch / hover response */
+.v17-hero-slice:not(.is-active):active .v17-sl-bg {
+  filter: brightness(0.72) saturate(1.02) blur(0.4px);
+}
+.v17-hero-slice:not(.is-active):active .v17-sl-char {
+  filter: brightness(0.95) saturate(1.08) drop-shadow(0 6px 14px rgba(4, 6, 14, 0.78));
+}
+@media (hover: hover) and (pointer: fine) {
+  .v17-hero-slice:not(.is-active):hover .v17-sl-bg {
+    filter: brightness(0.68) saturate(0.98) blur(0.4px);
+  }
+  .v17-hero-slice:not(.is-active):hover .v17-sl-char {
+    filter: brightness(0.90) saturate(1.05) drop-shadow(0 6px 16px rgba(4, 6, 14, 0.76));
+  }
+}
+
+/* Active Expanded Slice: Full 2.5D Depth Separation (softened drifting backdrop + glowing silhouette rim + crisp living heroine) */
+.v17-hero-slice.is-active .v17-sl-bg {
+  filter: brightness(0.82) saturate(1.04) blur(0.75px);
+  animation: v24-bg-drift 9.6s ease-in-out infinite;
+}
+.v17-hero-slice.is-active .v17-sl-backglow {
+  opacity: 0.84;
+  animation: v24-backglow-pulse 5.6s ease-in-out infinite;
+}
+.v17-hero-slice.is-active .v17-sl-char {
+  filter:
+    brightness(1.05)
+    saturate(1.09)
+    contrast(1.03)
+    drop-shadow(0 0 12px color-mix(in srgb, var(--h-acc, #ffd966) 36%, transparent))
+    drop-shadow(0 12px 24px rgba(3, 5, 12, 0.78));
+  animation: v24-char-live 4.8s ease-in-out infinite;
+}
+.v17-hero-slice.is-active .v17-sl-fg-glow {
+  opacity: 0.85;
+}
+
+/* Legacy single-image fallback */
 .v17-sl-art {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 12%;
-  image-rendering: pixelated;
-  transform: translate(var(--px), var(--py)) scale(1.04);
-  filter: brightness(0.62) saturate(0.86);
-  transition: filter 0.38s ease, transform 0.22s ease-out;
+  object-position: 50% 10%;
+  image-rendering: auto;
+  transform: scale(1.04);
+  filter: brightness(0.60) saturate(0.86);
+  transition: filter 0.38s ease, transform 0.28s ease-out;
   pointer-events: none;
 }
-.v17-hero-slice:not(.is-active):hover .v17-sl-art {
-  filter: brightness(0.86) saturate(1.04);
-}
 .v17-hero-slice.is-active .v17-sl-art {
-  filter: brightness(1.03) saturate(1.06);
-  transform: translate(var(--px), var(--py)) scale(1.01);
+  filter: brightness(1.05) saturate(1.10) contrast(1.02);
 }
 
 .v17-sl-vignette {
   position: absolute;
   inset: 0;
+  z-index: 5;
   pointer-events: none;
   background:
-    linear-gradient(180deg, rgba(5, 8, 16, 0.42) 0%, transparent 18%, transparent 56%, rgba(5, 8, 16, 0.94) 92%, rgba(4, 6, 13, 0.98) 100%);
+    linear-gradient(180deg, rgba(5, 8, 16, 0.38) 0%, transparent 18%, transparent 56%, rgba(5, 8, 16, 0.94) 92%, rgba(4, 6, 13, 0.98) 100%);
 }
 
 /* Blank / WIP Portrait Placeholder */
@@ -8630,45 +8797,38 @@ button, input, select, textarea, optgroup, option {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   v19.5 PLAN B — CYBER PRISM & NEON SLICE HERO GALLERY EFFECTS
-   1. Periodic RGB Chromatic Prism Scanline sweeping cleanly down active hero
-   2. Sharp holographic prism sheen flash
-   3. Crisp sequential terminal scan pulse across collapsed slices
+   v20.0 MOBILE-NATIVE SOVEREIGN AWAKENING HERO SHOWCASE FX
+   Zero desktop hover reliance — continuous high-craft gacha card foil sheen,
+   hero-tinted dual-rim aura veil & cascading neon wave across collapsed strips.
    ═══════════════════════════════════════════════════════════════════════════ */
-@keyframes v19b-prism-scan {
-  0%, 46% { transform: translateY(-18%); opacity: 0; }
-  52%     { opacity: 1; }
-  88%     { transform: translateY(112%); opacity: 0.92; }
-  94%     { opacity: 0; }
-  100%    { transform: translateY(112%); opacity: 0; }
+@keyframes v20-aurora-rim {
+  0%, 100% { opacity: 0.48; transform: translateY(0%); }
+  50%      { opacity: 0.92; transform: translateY(-3%); }
 }
-@keyframes v19b-auto-sheen {
-  0%, 74% { transform: translateX(-160%); opacity: 0; }
-  81%     { opacity: 0.56; }
-  93%     { transform: translateX(260%); opacity: 0; }
-  100%    { transform: translateX(260%); opacity: 0; }
+@keyframes v20-auto-sheen {
+  0%, 58%  { transform: translateX(-170%) skewX(-18deg); opacity: 0; }
+  68%      { opacity: 0.88; }
+  84%      { transform: translateX(310%) skewX(-18deg); opacity: 0; }
+  100%     { transform: translateX(310%) skewX(-18deg); opacity: 0; }
 }
-@keyframes v19b-piano-tide {
-  0%, 66% { transform: translateY(-120%); opacity: 0; }
-  76%     { opacity: 0.34; }
-  92%     { transform: translateY(140%); opacity: 0; }
-  100%    { transform: translateY(140%); opacity: 0; }
+@keyframes v20-piano-tide {
+  0%, 58%  { transform: translateY(-120%); opacity: 0; }
+  72%      { opacity: 0.44; }
+  90%      { transform: translateY(140%); opacity: 0; }
+  100%     { transform: translateY(140%); opacity: 0; }
 }
-@keyframes v19b-piano-edge {
-  0%, 68% { opacity: 0.36; }
-  78%     { opacity: 0.96; box-shadow: 0 0 12px var(--h-acc, #5cf2ff); }
-  90%     { opacity: 0.36; }
-  100%    { opacity: 0.36; }
+@keyframes v20-piano-edge {
+  0%, 60%  { opacity: 0.36; }
+  74%      { opacity: 1; box-shadow: 0 0 14px var(--h-acc, #ffd966); }
+  88%      { opacity: 0.36; }
+  100%     { opacity: 0.36; }
 }
 
-/* RGB Chromatic Prism Holographic Scanline sweeping across expanded hero slice */
+/* Hero-Tinted Subtle Edge Rim Halo (original Turn 8 clean UI lighting) */
 .v17-prism-scan {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 100%;
-  z-index: 3;
+  inset: 0;
+  z-index: 6;
   pointer-events: none;
   opacity: 0;
   overflow: hidden;
@@ -8677,99 +8837,1075 @@ button, input, select, textarea, optgroup, option {
 .v17-prism-scan::before {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 76px;
+  inset: 0;
+  mix-blend-mode: screen;
   background:
-    linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(92, 242, 255, 0.04) 44%,
-      rgba(92, 242, 255, 0.22) 86%,
-      rgba(92, 242, 255, 0.72) 93%,
-      rgba(255, 255, 255, 0.92) 95.5%,
-      rgba(255, 77, 141, 0.72) 98%,
-      transparent 100%
-    );
-  transform: translateY(-18%);
-  opacity: 0;
+    radial-gradient(ellipse 92% 32% at 50% 98%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 38%, transparent) 0%, transparent 72%),
+    linear-gradient(90deg, color-mix(in srgb, var(--h-acc, #ffd966) 32%, transparent) 0%, transparent 16%, transparent 84%, color-mix(in srgb, var(--h-acc2, #ff5c8a) 34%, transparent) 100%);
+  opacity: 0.72;
 }
 .v17-prism-scan::after {
   content: '';
   position: absolute;
   left: 0;
   right: 0;
-  top: 0;
-  height: 68px;
-  background-image: repeating-linear-gradient(
-    0deg,
-    rgba(255, 255, 255, 0.14) 0px,
-    rgba(255, 255, 255, 0.14) 1px,
-    transparent 1px,
-    transparent 4px
-  );
-  -webkit-mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.75) 88%, transparent 100%);
-  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.75) 88%, transparent 100%);
-  transform: translateY(-18%);
-  opacity: 0;
+  bottom: 0;
+  height: 36%;
+  mix-blend-mode: screen;
+  background:
+    linear-gradient(0deg, color-mix(in srgb, var(--h-acc, #ffd966) 22%, transparent) 0%, transparent 100%);
+  opacity: 0.62;
 }
 .v17-hero-slice.is-active .v17-prism-scan {
   opacity: 1;
 }
 .v17-hero-slice.is-active .v17-prism-scan::before,
 .v17-hero-slice.is-active .v17-prism-scan::after {
-  animation: v19b-prism-scan 3.4s cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
+  animation: v20-aurora-rim 4.2s ease-in-out infinite;
 }
 
-/* Sharp Holographic Prism Diagonal Flash */
+/* Periodic soft holographic card sheen sweep across active hero slice */
 .v17-sl-auto-sheen {
   position: absolute;
   inset: 0;
   z-index: 6;
+  width: 44%;
   pointer-events: none;
-  width: 28%;
+  opacity: 0;
+  mix-blend-mode: screen;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(92, 242, 255, 0.24) 44%,
-    rgba(255, 255, 255, 0.62) 50%,
-    rgba(255, 77, 141, 0.24) 56%,
-    transparent 68%
+    color-mix(in srgb, var(--h-acc, #ffd966) 20%, transparent) 38%,
+    rgba(255, 250, 232, 0.34) 50%,
+    color-mix(in srgb, var(--h-acc2, #ff5c8a) 18%, transparent) 62%,
+    transparent 100%
   );
-  opacity: 0;
 }
 .v17-hero-slice.is-active .v17-sl-auto-sheen {
-  animation: v19b-auto-sheen 4.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  animation: v20-auto-sheen 6.4s ease-in-out infinite;
 }
 
-/* Crisp Terminal Light Pulse gliding across the 9 collapsed strips */
+/* Cascading Hero-Colored Neon Tide across collapsed strips */
 .v17-sl-piano-wave {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
   opacity: 0;
+  mix-blend-mode: screen;
   background: linear-gradient(
     180deg,
     transparent 0%,
-    color-mix(in srgb, var(--h-acc, #5cf2ff) 20%, transparent) 48%,
-    rgba(255, 255, 255, 0.18) 52%,
-    transparent 62%
+    color-mix(in srgb, var(--h-acc, #ffd966) 28%, transparent) 46%,
+    rgba(255, 255, 255, 0.32) 52%,
+    color-mix(in srgb, var(--h-acc2, #ff5c8a) 24%, transparent) 58%,
+    transparent 70%
   );
 }
 .v17-hero-slice:not(.is-active) .v17-sl-piano-wave {
-  animation: v19b-piano-tide 4.6s ease-in-out infinite;
-  animation-delay: calc(var(--slice-idx, 0) * 0.22s);
+  animation: v20-piano-tide 4.2s ease-in-out infinite;
+  animation-delay: calc(var(--slice-idx, 0) * 0.2s);
 }
 .v17-hero-slice:not(.is-active) .v17-sl-edge.left {
-  animation: v19b-piano-edge 4.6s ease-in-out infinite;
-  animation-delay: calc(var(--slice-idx, 0) * 0.22s);
+  animation: v20-piano-edge 4.2s ease-in-out infinite;
+  animation-delay: calc(var(--slice-idx, 0) * 0.2s);
 }
 
+/* ═══ STARTUP ASSET PRELOADER WITH PROGRESS BAR ═══ */
+.boot-preloader {
+  position: absolute;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(ellipse 68% 58% at 50% 42%, rgba(44, 32, 74, 0.94) 0%, rgba(12, 10, 24, 0.99) 70%, #07060f 100%);
+  opacity: 1;
+  transition: opacity 0.34s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.boot-preloader.is-done {
+  opacity: 0;
+  pointer-events: none;
+}
+.boot-preloader.hidden {
+  display: none !important;
+}
+.boot-card {
+  width: 440px;
+  max-width: 86%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.boot-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  width: 240px;
+  margin-bottom: 14px;
+}
+.boot-rule {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(246, 206, 107, 0.72), transparent);
+}
+.boot-eclipse-svg {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 10px rgba(246, 206, 107, 0.55));
+}
+.boot-title {
+  font-family: var(--font-px), monospace;
+  font-size: 34px;
+  letter-spacing: 6px;
+  color: #fff6dc;
+  text-shadow: 0 3px 0 #1a1026, 0 0 22px rgba(246, 206, 107, 0.35);
+  margin-bottom: 4px;
+}
+.boot-sub {
+  font-size: 12px;
+  letter-spacing: 3.5px;
+  color: rgba(216, 200, 168, 0.72);
+  margin-bottom: 28px;
+}
+.boot-bar-frame {
+  width: 100%;
+  height: 14px;
+  padding: 2px;
+  background: rgba(8, 6, 18, 0.92);
+  border: 2px solid rgba(218, 174, 84, 0.78);
+  box-shadow: 0 0 0 1px #040308, 0 6px 20px rgba(0, 0, 0, 0.65);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+@keyframes boot-bar-shimmer {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.boot-bar-fill {
+  height: 100%;
+  width: 4%;
+  background: linear-gradient(90deg, #c9862c 0%, #ffd966 38%, #fff6d0 50%, #ff7aa8 78%, #c9862c 100%);
+  background-size: 200% 100%;
+  box-shadow: 0 0 14px rgba(255, 217, 102, 0.65);
+  transition: width 0.14s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: boot-bar-shimmer 1.8s linear infinite;
+}
+.boot-meta-row {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #cfd8ee;
+}
+.boot-stage-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.boot-nums {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.boot-count {
+  color: rgba(207, 216, 238, 0.68);
+  font-size: 12px;
+}
+.boot-sep {
+  color: rgba(207, 216, 238, 0.38);
+}
+.boot-pct {
+  color: #ffe285;
+  font-size: 14px;
+}
 
+/* ═══════════════════════════════════════════════════════════════════════════
+ * v18.0 BATTLE VISUAL CONTINUITY
+ * 1. Hero Sortie -11deg Slanted Launch Transition (#hero-sortie-veil)
+ * 2. Battle Commander Portrait Medallion (#bt-hero-medallion & #bt-hero-tip)
+ * 3. In-Battle Heroine High-Impact Slanted Cut-in (#bt-hero-cutin)
+ * 4. Hero-Tinted Luminous Hand Cards & Bottom Dock Polish
+ * ═══════════════════════════════════════════════════════════════════════════ */
 
+#battle-view {
+  --bt-acc: #ffd966;
+  --bt-acc2: #ff6e96;
+  --bt-acc-rgb: 255, 217, 102;
+  --bt-acc2-rgb: 255, 110, 150;
+}
 
+/* Subtle hero-tinted atmospheric edge frame inside battle view (intensifies with heat) */
+#battle-view::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  box-shadow:
+    inset 0 1px 0 rgba(var(--bt-acc-rgb), 0.28),
+    inset 0 0 64px rgba(var(--bt-acc-rgb), 0.08),
+    inset 0 -70px 90px -40px rgba(var(--bt-acc2-rgb), 0.14);
+  transition: box-shadow 0.35s ease;
+}
+#battle-view[data-heat="3"]::after,
+#battle-view[data-heat="4"]::after {
+  box-shadow:
+    inset 0 1px 0 rgba(var(--bt-acc-rgb), 0.55),
+    inset 0 0 86px rgba(var(--bt-acc-rgb), 0.18),
+    inset 0 -80px 100px -36px rgba(var(--bt-acc2-rgb), 0.24);
+}
+
+/* ── 1. HERO SORTIE -11DEG SLANTED LAUNCH TRANSITION ── */
+.hero-sortie-veil {
+  --hsv-acc: #ffd966;
+  --hsv-acc2: #ff6e96;
+  --hsv-acc-rgb: 255, 217, 102;
+  --hsv-acc2-rgb: 255, 110, 150;
+  position: absolute;
+  inset: 0;
+  z-index: 9200;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-sortie-veil.hidden {
+  display: none !important;
+}
+.hsv-blade {
+  position: absolute;
+  left: -18%;
+  width: 136%;
+  height: 58%;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(var(--hsv-acc-rgb), 0.26) 0%, rgba(9, 10, 22, 0) 64%),
+    linear-gradient(135deg, #060712 0%, #0d1022 52%, #131126 100%);
+  will-change: transform, opacity;
+}
+.hsv-blade-top {
+  top: -8%;
+  transform-origin: center bottom;
+  border-bottom: 2px solid rgba(var(--hsv-acc-rgb), 0.88);
+  box-shadow: 0 0 28px rgba(var(--hsv-acc-rgb), 0.55);
+}
+.hsv-blade-bot {
+  bottom: -8%;
+  transform-origin: center top;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(var(--hsv-acc2-rgb), 0.28) 0%, rgba(9, 10, 22, 0) 64%),
+    linear-gradient(315deg, #050610 0%, #0d0e20 55%, #161028 100%);
+  border-top: 2px solid rgba(var(--hsv-acc2-rgb), 0.85);
+  box-shadow: 0 0 28px rgba(var(--hsv-acc2-rgb), 0.55);
+}
+.hsv-slash-beam {
+  position: absolute;
+  left: -20%;
+  top: 50%;
+  width: 140%;
+  height: 10px;
+  margin-top: -5px;
+  background: linear-gradient(90deg, transparent 0%, var(--hsv-acc) 26%, #ffffff 50%, var(--hsv-acc2) 74%, transparent 100%);
+  box-shadow: 0 0 24px var(--hsv-acc), 0 0 48px var(--hsv-acc2);
+  transform: rotate(-11deg) scaleX(0);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.hsv-hero-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.hsv-halo {
+  position: absolute;
+  width: 540px;
+  height: 540px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 252, 240, 0.34) 0%, rgba(var(--hsv-acc-rgb), 0.34) 34%, rgba(var(--hsv-acc2-rgb), 0.16) 62%, transparent 74%);
+  filter: blur(10px);
+}
+.hsv-char {
+  position: relative;
+  height: 660px;
+  max-width: none;
+  object-fit: contain;
+  image-rendering: auto;
+  filter:
+    drop-shadow(0 0 24px rgba(var(--hsv-acc-rgb), 0.65))
+    drop-shadow(0 18px 34px rgba(0, 0, 0, 0.78));
+  transform: translateY(28px);
+}
+.hsv-banner {
+  position: absolute;
+  left: 78px;
+  bottom: 92px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 12px 26px 14px 22px;
+  background: linear-gradient(95deg, rgba(7, 8, 18, 0.92) 0%, rgba(16, 15, 32, 0.84) 76%, rgba(16, 15, 32, 0) 100%);
+  border-top: 1.5px solid rgba(var(--hsv-acc-rgb), 0.75);
+  border-bottom: 1.5px solid rgba(var(--hsv-acc2-rgb), 0.58);
+  transform: skewX(-11deg);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.62);
+  will-change: transform, opacity;
+}
+.hsv-banner > * {
+  transform: skewX(11deg);
+}
+.hsv-code {
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--hsv-acc);
+  text-shadow: 0 0 12px rgba(var(--hsv-acc-rgb), 0.7);
+}
+.hsv-name {
+  font-size: 38px;
+  line-height: 1.08;
+  color: #fffaf0;
+  letter-spacing: 2px;
+  text-shadow: 0 3px 14px rgba(0, 0, 0, 0.85), 0 0 20px rgba(var(--hsv-acc-rgb), 0.45);
+}
+.hsv-sub {
+  font-size: 14px;
+  letter-spacing: 3px;
+  color: rgba(235, 240, 255, 0.82);
+}
+
+.hero-sortie-veil.playing .hsv-blade-top {
+  animation: hsv-blade-top-anim 1.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-sortie-veil.playing .hsv-blade-bot {
+  animation: hsv-blade-bot-anim 1.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.hero-sortie-veil.playing .hsv-slash-beam {
+  animation: hsv-slash-anim 1.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-sortie-veil.playing .hsv-hero-stage {
+  animation: hsv-char-anim 1.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.hero-sortie-veil.playing .hsv-banner {
+  animation: hsv-banner-anim 1.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hsv-blade-top-anim {
+  0%   { transform: rotate(-11deg) translateY(0%); opacity: 1; }
+  66%  { transform: rotate(-11deg) translateY(0%); opacity: 1; }
+  100% { transform: rotate(-11deg) translateY(-124%); opacity: 0; }
+}
+@keyframes hsv-blade-bot-anim {
+  0%   { transform: rotate(-11deg) translateY(0%); opacity: 1; }
+  66%  { transform: rotate(-11deg) translateY(0%); opacity: 1; }
+  100% { transform: rotate(-11deg) translateY(124%); opacity: 0; }
+}
+@keyframes hsv-slash-anim {
+  0%   { transform: rotate(-11deg) scaleX(0.08); opacity: 0; }
+  15%  { transform: rotate(-11deg) scaleX(1.05); opacity: 1; }
+  68%  { transform: rotate(-11deg) scaleX(1.01); opacity: 0.92; }
+  100% { transform: rotate(-11deg) scaleX(1.18) scaleY(0.18); opacity: 0; }
+}
+@keyframes hsv-char-anim {
+  0%   { transform: translateX(88px) scale(1.06); opacity: 0; }
+  16%  { transform: translateX(8px) scale(1); opacity: 1; }
+  70%  { transform: translateX(-10px) scale(1.028); opacity: 1; }
+  100% { transform: translateX(-76px) scale(1.08); opacity: 0; }
+}
+@keyframes hsv-banner-anim {
+  0%   { transform: skewX(-11deg) translateX(-52px); opacity: 0; }
+  16%  { transform: skewX(-11deg) translateX(0); opacity: 1; }
+  70%  { transform: skewX(-11deg) translateX(8px); opacity: 1; }
+  100% { transform: skewX(-11deg) translateX(52px); opacity: 0; }
+}
+
+/* ── 2. BATTLE COMMANDER MEDALLION (#bt-hero-medallion & #bt-hero-tip) ── */
+.bt-hero-medallion {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  padding: 0;
+  border: 2px solid var(--bt-acc);
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(var(--bt-acc-rgb), 0.42) 0%, rgba(var(--bt-acc2-rgb), 0.18) 54%, #0b0c1a 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 250, 232, 0.32),
+    0 0 16px rgba(var(--bt-acc-rgb), 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.78);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.16s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.bt-hero-medallion:hover,
+.bt-hero-medallion:focus-visible {
+  transform: translateY(-2px) scale(1.06);
+  border-color: #fff6d6;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.65),
+    0 0 22px rgba(var(--bt-acc-rgb), 0.78),
+    0 6px 16px rgba(0, 0, 0, 0.82);
+  outline: none;
+}
+.bhm-aura {
+  position: absolute;
+  inset: -6px;
+  background: radial-gradient(circle at 50% 24%, rgba(var(--bt-acc-rgb), 0.55) 0%, transparent 68%);
+  opacity: 0.75;
+  pointer-events: none;
+}
+.bhm-img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 8%;
+  image-rendering: auto;
+  transform: scale(1.28) translateY(5px);
+  filter: contrast(1.04) saturate(1.06);
+  pointer-events: none;
+}
+.bhm-rim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.24) 0%, transparent 32%, rgba(8, 7, 18, 0.55) 100%);
+  pointer-events: none;
+}
+#battle-view[data-heat="2"] .bt-hero-medallion,
+#battle-view[data-heat="3"] .bt-hero-medallion,
+#battle-view[data-heat="4"] .bt-hero-medallion {
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 250, 232, 0.6),
+    0 0 20px rgba(var(--bt-acc-rgb), 0.72),
+    0 0 32px rgba(var(--bt-acc2-rgb), 0.45),
+    0 4px 12px rgba(0, 0, 0, 0.8);
+}
+.bt-hero-medallion.pulse-passive {
+  animation: bhm-passive-pulse 0.62s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes bhm-passive-pulse {
+  0%   { transform: scale(1); box-shadow: 0 0 14px rgba(var(--bt-acc-rgb), 0.5); }
+  32%  { transform: scale(1.16); box-shadow: 0 0 30px rgba(var(--bt-acc-rgb), 1), 0 0 48px rgba(var(--bt-acc2-rgb), 0.8); border-color: #ffffff; }
+  100% { transform: scale(1); box-shadow: 0 0 16px rgba(var(--bt-acc-rgb), 0.45); }
+}
+
+.bt-hero-tip {
+  position: absolute;
+  top: 74px;
+  left: 20px;
+  z-index: 64;
+  width: 312px;
+  padding: 12px 14px;
+  border-radius: 6px;
+  background:
+    radial-gradient(circle at 12% 10%, rgba(var(--bt-acc-rgb), 0.20) 0%, transparent 58%),
+    linear-gradient(170deg, rgba(16, 16, 34, 0.96) 0%, rgba(9, 10, 22, 0.97) 100%);
+  border: 1.5px solid rgba(var(--bt-acc-rgb), 0.72);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.78), 0 0 24px rgba(var(--bt-acc-rgb), 0.22);
+  pointer-events: auto;
+}
+.bt-hero-tip.hidden {
+  display: none !important;
+}
+.bht-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(var(--bt-acc-rgb), 0.26);
+}
+.bht-name {
+  font-size: 16px;
+  color: #fff6dc;
+  letter-spacing: 0.5px;
+}
+.bht-code {
+  font-size: 12px;
+  color: var(--bt-acc);
+  letter-spacing: 1px;
+}
+.bht-passive-title {
+  font-size: 13px;
+  color: var(--bt-acc);
+  margin-bottom: 4px;
+}
+.bht-passive-desc {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #dce4f7;
+}
+
+/* ── 3. IN-BATTLE HIGH-IMPACT HEROINE SLANTED CUT-IN (#bt-hero-cutin) ── */
+.bt-hero-cutin {
+  --bhc-acc: var(--bt-acc);
+  --bhc-acc2: var(--bt-acc2);
+  --bhc-acc-rgb: var(--bt-acc-rgb);
+  position: absolute;
+  inset: 0;
+  z-index: 48;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bt-hero-cutin.hidden {
+  display: none !important;
+}
+.bhc-band {
+  position: absolute;
+  left: -6%;
+  top: 186px;
+  width: 112%;
+  height: 126px;
+  transform: rotate(-5.5deg);
+  background:
+    radial-gradient(circle at 26% 50%, rgba(var(--bhc-acc-rgb), 0.36) 0%, transparent 48%),
+    linear-gradient(90deg, rgba(6, 7, 18, 0.94) 0%, rgba(15, 14, 34, 0.92) 48%, rgba(8, 7, 20, 0.88) 84%, rgba(8, 7, 20, 0.25) 100%);
+  border-top: 2.5px solid var(--bhc-acc);
+  border-bottom: 2.5px solid var(--bhc-acc2);
+  box-shadow:
+    0 0 32px rgba(var(--bhc-acc-rgb), 0.45),
+    0 14px 36px rgba(0, 0, 0, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  will-change: transform, opacity;
+}
+.bhc-speedlines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  opacity: 0.42;
+  background:
+    repeating-linear-gradient(
+      180deg,
+      transparent 0px,
+      transparent 11px,
+      rgba(255, 255, 255, 0.16) 11px,
+      rgba(255, 255, 255, 0.16) 13px,
+      transparent 13px,
+      transparent 29px,
+      rgba(var(--bhc-acc-rgb), 0.26) 29px,
+      rgba(var(--bhc-acc-rgb), 0.26) 31px
+    );
+}
+.bhc-portrait-wrap {
+  position: absolute;
+  left: 16%;
+  bottom: -48px;
+  width: 260px;
+  height: 268px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.bhc-halo {
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  bottom: 24px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 252, 240, 0.4) 0%, rgba(var(--bhc-acc-rgb), 0.46) 44%, transparent 72%);
+  filter: blur(8px);
+}
+.bhc-char {
+  position: relative;
+  height: 288px;
+  width: auto;
+  object-fit: contain;
+  image-rendering: auto;
+  transform: rotate(5.5deg);
+  filter:
+    drop-shadow(0 0 16px rgba(var(--bhc-acc-rgb), 0.78))
+    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.76));
+}
+.bhc-copy {
+  position: relative;
+  z-index: 2;
+  margin-left: 132px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  will-change: transform, opacity;
+}
+.bhc-kicker {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: rgba(255, 248, 224, 0.82);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+.bhc-title {
+  font-size: 38px;
+  line-height: 1.06;
+  color: var(--bhc-acc);
+  letter-spacing: 2px;
+  text-shadow:
+    0 3px 0 #08060f,
+    0 0 22px rgba(var(--bhc-acc-rgb), 0.78);
+}
+.bhc-sub {
+  font-size: 16px;
+  color: #fff8e2;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 0 #08060f, 0 0 12px rgba(0, 0, 0, 0.85);
+}
+
+.bt-hero-cutin.playing .bhc-band {
+  animation: bhc-band-anim 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.bt-hero-cutin.playing .bhc-portrait-wrap {
+  animation: bhc-char-anim 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+.bt-hero-cutin.playing .bhc-copy {
+  animation: bhc-copy-anim 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bhc-band-anim {
+  0%   { transform: rotate(-5.5deg) scaleY(0.12); opacity: 0; }
+  14%  { transform: rotate(-5.5deg) scaleY(1.04); opacity: 1; }
+  78%  { transform: rotate(-5.5deg) scaleY(1); opacity: 1; }
+  100% { transform: rotate(-5.5deg) scaleY(0.28); opacity: 0; }
+}
+@keyframes bhc-char-anim {
+  0%   { transform: translateX(-110px) scale(0.92); opacity: 0; }
+  18%  { transform: translateX(0px) scale(1.03); opacity: 1; }
+  78%  { transform: translateX(16px) scale(1.01); opacity: 1; }
+  100% { transform: translateX(64px) scale(1.06); opacity: 0; }
+}
+@keyframes bhc-copy-anim {
+  0%   { transform: translateX(76px); opacity: 0; }
+  18%  { transform: translateX(0); opacity: 1; }
+  78%  { transform: translateX(-8px); opacity: 1; }
+  100% { transform: translateX(-48px); opacity: 0; }
+}
+
+/* ── 4. HERO-TINTED LUMINOUS BATTLE HAND CARDS & BOTTOM DOCK POLISH ── */
+#battle-view #bt-hand-dock.bottom-dock {
+  background:
+    radial-gradient(ellipse 68% 90% at 50% 100%, rgba(var(--bt-acc-rgb), 0.14) 0%, rgba(8, 9, 24, 0) 70%),
+    linear-gradient(180deg, rgba(6, 7, 18, 0) 0%, rgba(7, 9, 24, 0.48) 54%, rgba(4, 5, 16, 0.82) 100%) !important;
+}
+#battle-view #bt-hand-dock::before {
+  content: "";
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: 2px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(var(--bt-acc-rgb), 0.55) 28%, rgba(255, 248, 224, 0.72) 50%, rgba(var(--bt-acc2-rgb), 0.55) 72%, transparent 100%);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+/* Elevate C-tier baseline card from muddy flat grey to sleek midnight-obsidian with luminous top edge */
+#battle-view .v14-card.v14-card-tier-C {
+  background:
+    radial-gradient(circle at 50% 34%, rgba(var(--bt-acc-rgb), 0.12) 0%, rgba(16, 18, 34, 0) 68%),
+    linear-gradient(180deg, #25293e 0%, #161829 60%, #0d0f1b 100%) !important;
+  border: 1.5px solid #6f7a9c !important;
+  border-bottom: 4px solid #080912 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(235, 242, 255, 0.24),
+    inset 0 0 14px rgba(var(--bt-acc-rgb), 0.08),
+    0 10px 20px rgba(0, 0, 0, 0.66) !important;
+}
+
+/* Crisp jewel sheen & hero-tinted focus aura on all battle cards (preserves 3D tilt for B/A/S/SSS!) */
+#battle-view .v14-card:not(.in-slot):not(.dragging-centered):not(.selected-card):not(.discard-pick):hover {
+  z-index: 32 !important;
+  transform: perspective(600px) translateY(calc(var(--fan-y, 0px) - 16px)) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05) !important;
+  border-color: var(--bt-acc) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 250, 228, 0.62),
+    0 0 20px rgba(var(--bt-acc-rgb), 0.52),
+    0 16px 28px rgba(0, 0, 0, 0.78) !important;
+}
+#battle-view .v14-card.selected-card:not(.dragging-centered):not(.in-slot) {
+  z-index: 35 !important;
+  transform: perspective(600px) translateY(-20px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.07) !important;
+  border-color: var(--bt-acc) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 248, 220, 0.8),
+    0 0 24px rgba(var(--bt-acc-rgb), 0.72),
+    0 0 42px rgba(var(--bt-acc2-rgb), 0.34),
+    0 16px 28px rgba(0, 0, 0, 0.78) !important;
+}
+#battle-view .v14-card.discard-pick:not(.dragging-centered):not(.in-slot) {
+  z-index: 34 !important;
+  transform: perspective(600px) translateY(-20px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.05) !important;
+}
+#battle-view .v14-card.dragging-centered {
+  border-color: var(--bt-acc) !important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 250, 224, 0.88),
+    0 0 28px rgba(var(--bt-acc-rgb), 0.82),
+    0 0 46px rgba(var(--bt-acc2-rgb), 0.38),
+    0 18px 34px rgba(0, 0, 0, 0.86) !important;
+}
+
+/* Subtle diagonal foil sweep on hover & high-tier cards */
+#battle-view .v14-card-tier-A .v14-card-sheen::after,
+#battle-view .v14-card-tier-S .v14-card-sheen::after,
+#battle-view .v14-card-tier-SSS .v14-card-sheen::after {
+  background: linear-gradient(105deg, transparent 0%, rgba(255, 252, 238, 0.32) 48%, rgba(var(--bt-acc-rgb), 0.24) 64%, transparent 100%);
+}
+
+/* Hero-tinted radiant Strike Crest when ready / lethal */
+#battle-view #btn-bt-strike.dock-wing-btn.ready-glow .v15-crest-wrap::before,
+#battle-view #btn-bt-strike.dock-wing-btn.lethal-glow .v15-crest-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(var(--bt-acc-rgb), 0.42) 0%, rgba(var(--bt-acc2-rgb), 0.22) 48%, transparent 72%);
+  pointer-events: none;
+  animation: bt-strike-halo 1.8s ease-in-out infinite;
+}
+@keyframes bt-strike-halo {
+  0%, 100% { transform: scale(0.94); opacity: 0.65; }
+  50%      { transform: scale(1.12); opacity: 1; }
+}
+#battle-view #btn-bt-strike.ready-glow .v15-crest-ribbon {
+  border-top-color: var(--bt-acc);
+  box-shadow: 0 0 16px rgba(var(--bt-acc-rgb), 0.42);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-sortie-veil.playing .hsv-blade-top,
+  .hero-sortie-veil.playing .hsv-blade-bot,
+  .hero-sortie-veil.playing .hsv-slash-beam,
+  .hero-sortie-veil.playing .hsv-hero-stage,
+  .hero-sortie-veil.playing .hsv-banner,
+  .bt-hero-cutin.playing .bhc-band,
+  .bt-hero-cutin.playing .bhc-portrait-wrap,
+  .bt-hero-cutin.playing .bhc-copy {
+    animation-duration: 0.15s !important;
+  }
+}
+
+/* ── 5. DISCARD QUOTA INDICATOR & PICK-CAP FEEDBACK ── */
+.v15-crest-ribbon small.v15-disc-quota {
+  display: block;
+  margin-top: 1px;
+  font-size: 11px !important;
+  color: rgba(206, 232, 255, 0.86) !important;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.v15-crest-ribbon small.v15-disc-quota.active {
+  color: #7ef2ff !important;
+  text-shadow: 0 0 8px rgba(107, 229, 255, 0.55);
+}
+.v15-crest-ribbon small.v15-disc-quota.full {
+  color: #ffe266 !important;
+  text-shadow: 0 0 10px rgba(255, 217, 102, 0.65);
+}
+.v15-crest-ribbon small.v15-disc-quota.empty {
+  color: rgba(186, 196, 218, 0.55) !important;
+}
+
+.bt-discard-counter {
+  position: absolute;
+  left: 50%;
+  bottom: 222px;
+  transform: translateX(-50%);
+  z-index: 36;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: linear-gradient(90deg, rgba(8, 12, 26, 0.72) 0%, rgba(12, 22, 42, 0.92) 22%, rgba(12, 22, 42, 0.92) 78%, rgba(8, 12, 26, 0.72) 100%);
+  border-top: 1.5px solid rgba(107, 229, 255, 0.65);
+  border-bottom: 1.5px solid rgba(107, 229, 255, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.68), 0 0 18px rgba(107, 229, 255, 0.22);
+  pointer-events: none;
+  white-space: nowrap;
+  font-size: 12.5px;
+  color: #dff4ff;
+  font-variant-numeric: tabular-nums;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.bt-discard-counter.hidden {
+  display: none !important;
+}
+.bt-discard-counter.is-full {
+  border-top-color: #ffd966;
+  border-bottom-color: rgba(255, 217, 102, 0.45);
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.74), 0 0 22px rgba(255, 217, 102, 0.34);
+}
+.bt-discard-counter.limit-bump {
+  animation: bdc-limit-bump 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes bdc-limit-bump {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  25%      { transform: translateX(calc(-50% - 6px)) scale(1.05); }
+  55%      { transform: translateX(calc(-50% + 5px)) scale(1.04); }
+  80%      { transform: translateX(calc(-50% - 2px)) scale(1.01); }
+}
+.bdc-mode {
+  color: #8eeeff;
+  letter-spacing: 0.5px;
+}
+.bt-discard-counter.is-full .bdc-mode {
+  color: #ffe266;
+}
+.bdc-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.bdc-pip {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  border: 1.5px solid rgba(142, 238, 255, 0.55);
+  background: rgba(10, 18, 34, 0.75);
+  transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.bdc-pip.filled {
+  background: #7ef2ff;
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(126, 242, 255, 0.85);
+}
+.bt-discard-counter.is-full .bdc-pip.filled {
+  background: #ffd966;
+  border-color: #fff9db;
+  box-shadow: 0 0 10px rgba(255, 217, 102, 0.9);
+}
+.bdc-count {
+  color: #ffffff;
+  font-size: 13px;
+}
+.bt-discard-counter.is-full .bdc-count {
+  color: #ffe89e;
+}
+.bdc-sep {
+  color: rgba(200, 224, 248, 0.4);
+}
+.bdc-hint {
+  color: rgba(212, 230, 248, 0.82);
+  font-size: 12px;
+}
+
+/* Visually dim unselected cards once discard quota is full so player sees max 4/4 instantly */
+#battle-view .v14-card.pick-capped:not(.dragging-centered):not(.in-slot) {
+  filter: saturate(0.55) brightness(0.76);
+}
+#battle-view .v14-card.pick-capped:not(.dragging-centered):not(.in-slot):hover {
+  filter: saturate(0.85) brightness(0.92);
+}
+#battle-view .v14-card.pick-limit-shake {
+  animation: v18-pick-limit-shake 0.3s cubic-bezier(0.36, 0.07, 0.19, 0.97) !important;
+}
+@keyframes v18-pick-limit-shake {
+  0%, 100% { translate: 0 0; }
+  22%      { translate: -6px 0; }
+  50%      { translate: 6px 0; }
+  76%      { translate: -3px 0; }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+ * v18.1 BATTLE HUD SPATIAL LAYOUT REFACTOR
+ * - Top-Left: Squad Medallion + HP Bar -> Relic Rack directly underneath (close to units!)
+ * - Top-Center: Overall Wave & Round Progress Banner + Open-Sky Forecast below
+ * - Boss Overhead: Boss Name & HP Bar anchored cleanly above Boss (x=955, zero overlap!)
+ * - Top-Right: Compact Battle Tools
+ * ═══════════════════════════════════════════════════════════════════════════ */
+
+#battle-top-bar {
+  position: absolute !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+}
+#battle-top-bar .bt-squad-box {
+  width: 344px !important;
+  min-width: 344px !important;
+}
+#battle-top-bar .v15-hud-tag.squad-hero-lbl {
+  color: #ffe89e !important;
+  letter-spacing: 0.5px;
+}
+
+/* Top-Center Overall Wave & Round Progress Banner */
+.bt-wave-banner {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  z-index: 29;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 22px 6px;
+  background: linear-gradient(90deg, rgba(8, 10, 22, 0) 0%, rgba(12, 14, 30, 0.84) 18%, rgba(12, 14, 30, 0.84) 82%, rgba(8, 10, 22, 0) 100%);
+  border-top: 1.5px solid rgba(var(--bt-acc-rgb), 0.52);
+  border-bottom: 1px solid rgba(var(--bt-acc-rgb), 0.24);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.bwb-main {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+}
+.bwb-wave {
+  font-size: 17px;
+  font-weight: 900;
+  color: #ffe89e;
+  letter-spacing: 1.2px;
+}
+.bwb-sep {
+  color: rgba(255, 232, 158, 0.45);
+  font-size: 14px;
+}
+.bwb-round {
+  font-size: 14.5px;
+  font-weight: 900;
+  color: #e6f0ff;
+  letter-spacing: 0.6px;
+}
+.bwb-round.final-round {
+  color: #ff8aa4;
+  text-shadow: 0 0 10px rgba(255, 92, 138, 0.65), 0 2px 5px rgba(0, 0, 0, 0.95);
+}
+.bwb-pips {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.bwb-pip {
+  width: 14px;
+  height: 3.5px;
+  border-radius: 1px;
+  background: rgba(168, 186, 220, 0.22);
+  border: 1px solid rgba(168, 186, 220, 0.2);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+.bwb-pip.done {
+  background: rgba(var(--bt-acc-rgb), 0.68);
+  border-color: rgba(var(--bt-acc-rgb), 0.85);
+}
+.bwb-pip.cur {
+  width: 22px;
+  background: #fff4cc;
+  border-color: var(--bt-acc);
+  box-shadow: 0 0 10px rgba(var(--bt-acc-rgb), 0.9);
+}
+
+/* Boss HP Bar: Anchored Directly Overhead of Boss (x = 955, y = 88..130, cleanly above Boss Intent y=146!) */
+#battle-view #bt-boss-box.bt-boss-box {
+  position: absolute !important;
+  left: 955px !important;
+  top: 88px !important;
+  transform: translateX(-50%) !important;
+  width: 264px !important;
+  min-width: 264px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 27 !important;
+  pointer-events: none !important;
+}
+#battle-view #bt-boss-box .bt-boss-head {
+  padding: 0 2px 6px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  justify-content: space-between !important;
+  gap: 10px !important;
+  white-space: nowrap !important;
+  text-shadow:
+    -1.5px -1.5px 0 #070512,
+     1.5px -1.5px 0 #070512,
+    -1.5px  1.5px 0 #070512,
+     1.5px  1.5px 0 #070512,
+     0 2px 6px rgba(0, 0, 0, 0.95) !important;
+}
+#battle-view #bt-boss-box #bt-boss-hp-bar {
+  display: block !important;
+  position: relative !important;
+  width: 100% !important;
+  height: 15px !important;
+  padding: 2px !important;
+  background: #0d0a18 !important;
+  border: 2px solid #d94865 !important;
+  border-radius: 2px !important;
+  box-shadow: 0 0 0 1px #06040d, 0 0 16px rgba(217, 72, 101, 0.34), 0 4px 12px rgba(0, 0, 0, 0.78) !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+
+/* Relic Rack: Pixel-Aligned Directly Below Squad HP Bar (left: 34px, top: 82px, close to allied units!) */
+#battle-view #bt-relic-chain.v14-relic-bar {
+  position: absolute !important;
+  top: 82px !important;
+  left: 34px !important;
+  transform: none !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  z-index: 27 !important;
+}
+#battle-view #bt-relic-chain .v15-relic-empty-slot {
+  width: 62px !important;
+  height: 74px !important;
+}
+#battle-view #bt-relic-chain .v14-relic-chip {
+  width: 64px !important;
+  min-width: 64px !important;
+  max-width: 64px !important;
+  height: 76px !important;
+  padding: 4px 3px 3px !important;
+}
+#battle-view #bt-relic-chain .v14-relic-mini-icon {
+  width: 38px !important;
+  height: 38px !important;
+}
+#battle-view #bt-relic-chain .v14-relic-chip-sub {
+  max-width: 58px !important;
+  font-size: 10.5px !important;
+}
+
+/* Realign Left-Side Floating Tooltips Below the Relic Rack so they never cover Relics or HP Bar */
+#battle-view #v14-card-tip {
+  top: 166px !important;
+  left: 34px !important;
+  z-index: 62 !important;
+}
+#battle-view .bt-hero-tip {
+  top: 166px !important;
+  left: 34px !important;
+  z-index: 64 !important;
+}
+
+/* Center Forecast sits cleanly beneath Top-Center Wave Banner, keeping Draw/Discard piles fixed at y=522px */
+#battle-view #bt-forecast-bar.v14-forecast {
+  top: 78px !important;
+}
+#battle-view #bt-forecast-bar .fc-piles {
+  top: 444px !important;
+}
 
 
 

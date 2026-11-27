@@ -1,8 +1,7 @@
-// v19.5 Plan B — CYBER PRISM & NEON SLICE:
-//   1. Twin Plasma Charge Rails along the -11deg parallel borders (crisp unidirectional top->bottom bars + corner pixel telemetry ticks!)
-//   2. Floating -11deg Geometric Holo Shards (translucent beveled parallelograms with metallic specular edges, zero noisy dots!)
-//   3. Live Interactive Cursor Lock-On: twin border focal flares + subtle prism refraction line tracking mouse position!
-//   4. Razor-sharp Post-Expand Twin Diagonal Light Blades on hero switch!
+// v20.2 Flowing Liquid-Light Hero Showcase Edge FX & Theme Sanctum Astrolabe
+// Renders ONLY clean directional liquid-starlight streams along the active -11deg slanted seams
+// (flowing UP on left, DOWN on right), subtle rising starlight motes, mobile tap starburst ripples,
+// and hero-switch cross-slashes. Keeps the hero portrait completely unobstructed.
 // Also exports ThemeSanctumStage for the 8-Theme-Pack Sanctum.
 (function () {
   window.MT = window.MT || {};
@@ -11,19 +10,20 @@
   const H = 720;
   const VW = 320;
   const VH = 180;
-  const SKEW_DX = 35; // exact -11deg slant across 180px virtual height
+  const TAN_11 = Math.tan((11 * Math.PI) / 180);
+  const SKEW_DX = 35; // exact -11deg slant across 180px virtual height (used by ThemeSanctumStage too)
 
   const HERO_ACCENTS = {
     hero_01: { main: '#ffd966', sec: '#ff4d8d' },
-    hero_02: { main: '#5cf2ff', sec: '#4a88ff' },
-    hero_03: { main: '#4ef0c4', sec: '#5cf2ff' },
+    hero_02: { main: '#6be5ff', sec: '#4a88ff' },
+    hero_03: { main: '#4ef0c4', sec: '#38a6e8' },
     hero_05: { main: '#ff7a52', sec: '#ffd24c' },
-    hero_07: { main: '#7ef28a', sec: '#c26eff' },
-    hero_08: { main: '#d27dff', sec: '#ff5ca8' },
-    hero_09: { main: '#ffe066', sec: '#5cf2ff' },
-    hero_10: { main: '#ff4d8d', sec: '#5cf2ff' },
+    hero_07: { main: '#7ef28a', sec: '#a855f0' },
+    hero_08: { main: '#c97dff', sec: '#ff7aa8' },
+    hero_09: { main: '#ffe066', sec: '#6be5ff' },
+    hero_10: { main: '#ff5286', sec: '#c97dff' },
     hero_04: { main: '#f5b841', sec: '#fff2a6' },
-    hero_06: { main: '#ff8c42', sec: '#ff4d8d' }
+    hero_06: { main: '#ff8c42', sec: '#ff5286' }
   };
 
   const THEME_ACCENTS = {
@@ -37,19 +37,23 @@
     dice:    { main: '#ffe066', sec: '#ff7aa8' }
   };
 
+  function hexToRgba(hex, alpha) {
+    const h = String(hex || '#ffd966').replace('#', '');
+    const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h;
+    const n = parseInt(full, 16);
+    const r = (n >> 16) & 255;
+    const g = (n >> 8) & 255;
+    const b = n & 255;
+    return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, alpha)).toFixed(3)})`;
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // 1. HERO GALLERY — PLAN B: CYBER PRISM & NEON SLICE
+  // 1. HERO GALLERY — CLEAN DIRECTIONAL LIQUID-LIGHT EDGE FX
   // ═══════════════════════════════════════════════════════════════════════════
   class HeroMusterStage {
     constructor() {
       this.canvas = null;
       this.ctx = null;
-      this.off = document.createElement('canvas');
-      this.off.width = VW;
-      this.off.height = VH;
-      this.offCtx = this.off.getContext('2d');
-      this.imgData = this.offCtx.createImageData(VW, VH);
-      this.frame = null;
 
       this.running = false;
       this.rafId = 0;
@@ -58,38 +62,23 @@
 
       this.selectedHeroId = 'hero_01';
       this.accent = HERO_ACCENTS.hero_01;
-      this.seamLeftX = 88;
-      this.seamRightX = 222;
+
+      // Active hero slice left/right slanted border X in 1280px screen coords (at vertical center H/2)
+      this.seamLeftS = 352;
+      this.seamRightS = 888;
+      this.targetSeamLeftS = 352;
+      this.targetSeamRightS = 888;
       this.seamsReady = false;
 
-      // Interactive cursor tracking (in 320x180 virtual coords)
-      this.pointerActive = false;
-      this.pointerTargetX = 155;
-      this.pointerTargetY = 82;
-      this.pointerX = 155;
-      this.pointerY = 82;
-      this.pointerAlpha = 0;
+      this.railSurge = 0;
 
-      // Floating geometric -11deg Holo Shards along outer flanks of expanded hero (never over face!)
-      this.shards = [
-        { side: 'L', dx: -10, yBase: 36,  w: 6, h: 14, amp: 5.5, spd: 1.15, ph: 0.4, useSec: false },
-        { side: 'L', dx:  12, yBase: 102, w: 5, h: 11, amp: 4.2, spd: 1.45, ph: 2.1, useSec: true  },
-        { side: 'L', dx:  -6, yBase: 122, w: 4, h: 8,  amp: 3.6, spd: 1.75, ph: 4.0, useSec: false },
-        { side: 'R', dx:  10, yBase: 44,  w: 6, h: 15, amp: 5.8, spd: 1.05, ph: 1.3, useSec: true  },
-        { side: 'R', dx: -12, yBase: 92,  w: 5, h: 10, amp: 4.5, spd: 1.55, ph: 3.4, useSec: false },
-        { side: 'R', dx:   8, yBase: 126, w: 4, h: 9,  amp: 3.8, spd: 1.35, ph: 5.2, useSec: true  }
-      ];
-
-      // Plasma charge rail pulses (unidirectional TOP -> BOTTOM!)
-      this.railSegments = [
-        { side: 'L', speed: 0.56, len: 28, phase: 0.0,  bright: 1.0 },
-        { side: 'L', speed: 0.56, len: 12, phase: 0.52, bright: 0.65 },
-        { side: 'R', speed: 0.62, len: 30, phase: 0.24, bright: 1.0 },
-        { side: 'R', speed: 0.62, len: 14, phase: 0.74, bright: 0.65 }
-      ];
-
+      this.edgeStreams = [];
+      this.starMotes = [];
       this.slashes = [];
+      this.rings = [];
       this.sparks = [];
+
+      this._initStreams();
     }
 
     static getHeroAccent(heroId) {
@@ -99,86 +88,186 @@
     static getSeatLayout() { return []; }
     static getDais() { return { x: 455, y: 454 }; }
 
-    _ensureFrame() {
-      const PFX = window.MT && window.MT.PixelFX;
-      if (!PFX) return null;
-      if (!this.frame) this.frame = PFX.createFrame(VW, VH, 0, 0);
-      return PFX;
+    _applyHeroAccent(heroId) {
+      this.selectedHeroId = heroId || 'hero_01';
+      this.accent = HERO_ACCENTS[this.selectedHeroId] || HERO_ACCENTS.hero_01;
+    }
+
+    _initStreams() {
+      // Directional liquid-light currents flowing UP on left & DOWN on right
+      this.edgeStreams = [
+        { side: 0, dir: -1, u: 0.10, speed: 0.34, tailLen: 0.29, width: 2.8, waveAmp: 4.8, waveFreq: 13.0, ph: 0.4, bright: 1.0,  sparkT: 0.10 },
+        { side: 0, dir: -1, u: 0.58, speed: 0.42, tailLen: 0.20, width: 1.8, waveAmp: 6.6, waveFreq: 16.5, ph: 2.4, bright: 0.72, sparkT: 0.16 },
+        { side: 1, dir:  1, u: 0.24, speed: 0.32, tailLen: 0.29, width: 2.8, waveAmp: 5.0, waveFreq: 13.5, ph: 1.5, bright: 1.0,  sparkT: 0.12 },
+        { side: 1, dir:  1, u: 0.72, speed: 0.40, tailLen: 0.20, width: 1.8, waveAmp: 6.4, waveFreq: 16.0, ph: 4.2, bright: 0.72, sparkT: 0.18 }
+      ];
+
+      // Subtle rising starlight dust along outer flanks & pedestal (face completely clear)
+      this.starMotes = [];
+      for (let i = 0; i < 24; i++) this.starMotes.push(this._makeStarMote(true));
+    }
+
+    _makeStarMote(randomY = false) {
+      const band = Math.random();
+      let u;
+      if (band < 0.42) u = -0.06 + Math.random() * 0.24;
+      else if (band < 0.84) u = 0.82 + Math.random() * 0.24;
+      else u = 0.18 + Math.random() * 0.64;
+
+      const startY = randomY
+        ? (band >= 0.84 ? 460 + Math.random() * 260 : 60 + Math.random() * 640)
+        : (band >= 0.84 ? 660 + Math.random() * 60 : 560 + Math.random() * 180);
+
+      return {
+        u,
+        y: startY,
+        vy: -(26 + Math.random() * 48),
+        swayAmp: 5 + Math.random() * 11,
+        swayFreq: 1.0 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+        size: Math.random() < 0.35 ? 3.0 : 1.8,
+        isStar: Math.random() < 0.42,
+        useSec: Math.random() < 0.46,
+        maxRiseY: band >= 0.84 ? 400 + Math.random() * 80 : 32 + Math.random() * 80
+      };
     }
 
     attach(canvas, heroes, selectedHeroId) {
       this.canvas = canvas;
       this.ctx = canvas ? canvas.getContext('2d') : null;
-      this.selectedHeroId = selectedHeroId || 'hero_01';
-      this.accent = HeroMusterStage.getHeroAccent(this.selectedHeroId);
+      this._applyHeroAccent(selectedHeroId || 'hero_01');
+      this.syncSeamBoundsFromDom(true);
       if (this.ctx) this.start();
     }
 
     setHeroes() {}
     setHovered() {}
+    setPointerScreen() {}
 
     setHeroAccent(hero) {
       if (!hero) return;
-      this.selectedHeroId = hero.id;
-      this.accent = HeroMusterStage.getHeroAccent(hero.id);
-      this.slashes = [];
+      this._applyHeroAccent(hero.id);
       if (this.ctx && !this.running) this.start();
     }
 
-    setPointerScreen(screenX, screenY, active = true) {
-      this.pointerActive = Boolean(active);
-      if (active && isFinite(screenX) && isFinite(screenY)) {
-        this.pointerTargetX = Math.max(0, Math.min(VW, screenX / 4));
-        this.pointerTargetY = Math.max(0, Math.min(VH, screenY / 4));
-      }
-    }
-
-    setSeamBounds(leftScreenX, rightScreenX) {
+    setSeamBounds(leftScreenX, rightScreenX, snap = false) {
       if (isFinite(leftScreenX) && isFinite(rightScreenX)) {
-        this.seamLeftX = Math.max(4, Math.min(VW - 60, leftScreenX / 4));
-        this.seamRightX = Math.max(this.seamLeftX + 20, Math.min(VW - 4, rightScreenX / 4));
+        const ls = Math.max(16, Math.min(W - 220, leftScreenX));
+        const rs = Math.max(ls + 120, Math.min(W - 16, rightScreenX));
+        this.targetSeamLeftS = ls;
+        this.targetSeamRightS = rs;
+        if (snap || !this.seamsReady) {
+          this.seamLeftS = ls;
+          this.seamRightS = rs;
+        }
         this.seamsReady = true;
       }
     }
 
+    syncSeamBoundsFromDom(snap = false) {
+      const stageEl = document.getElementById('muster-stage-root');
+      const activeSlice = document.querySelector('#v17-ribbon-track .v17-hero-slice.is-active');
+      if (!stageEl || !activeSlice) return;
+      const sRect = stageEl.getBoundingClientRect();
+      const aRect = activeSlice.getBoundingClientRect();
+      if (sRect.width <= 0 || aRect.width <= 0) return;
+      const scaleX = W / sRect.width;
+      const leftX = (aRect.left - sRect.left) * scaleX + 70;
+      const rightX = (aRect.right - sRect.left) * scaleX - 70;
+      this.setSeamBounds(leftX, rightX, snap);
+    }
+
     selectHero(hero, triggerFx = true, isUnlockCelebrate = false) {
       if (!hero) return;
-      this.selectedHeroId = hero.id;
-      this.accent = HeroMusterStage.getHeroAccent(hero.id);
+      this._applyHeroAccent(hero.id);
       if (triggerFx) this.triggerFlourish(hero, isUnlockCelebrate);
       else this.start();
     }
 
-    triggerFlourish(hero, isCelebrate = false, seamLeftScreen = null, seamRightScreen = null) {
-      if (hero) {
-        this.selectedHeroId = hero.id;
-        this.accent = HeroMusterStage.getHeroAccent(hero.id);
-      }
-      if (seamLeftScreen !== null && seamRightScreen !== null) {
-        this.setSeamBounds(seamLeftScreen, seamRightScreen);
-      }
+    triggerTapPulse(screenX, screenY) {
+      if (!isFinite(screenX) || !isFinite(screenY)) return;
+      const sx = Math.max(24, Math.min(W - 24, screenX));
+      const sy = Math.max(24, Math.min(H - 24, screenY));
 
-      // Twin razor-sharp FOREGROUND diagonal light blades racing DOWNWARD along settled parallel seams!
-      this.slashes.push(
-        { xTop: this.seamLeftX + SKEW_DX * 0.5, xBot: this.seamLeftX - SKEW_DX * 0.5, life: 0.44, maxLife: 0.44, col: this.accent.main },
-        { xTop: this.seamRightX + SKEW_DX * 0.5, xBot: this.seamRightX - SKEW_DX * 0.5, life: 0.48, maxLife: 0.48, col: this.accent.sec }
-      );
+      this.rings.push({
+        x: sx, y: sy, r0: 10, r1: 112, life: 0.44, maxLife: 0.44,
+        col: this.accent.main, diamond: true
+      });
+      this.rings.push({
+        x: sx, y: sy, r0: 6, r1: 72, life: 0.34, maxLife: 0.34,
+        col: this.accent.sec, diamond: false
+      });
 
-      const count = isCelebrate ? 40 : 20;
-      for (let i = 0; i < count; i++) {
-        const onRight = i % 2 === 1;
-        const frac = Math.random();
-        const bx = (onRight ? this.seamRightX : this.seamLeftX) + (0.5 - frac) * SKEW_DX;
-        const by = 10 + frac * (VH - 20);
-        const dir = onRight ? 1 : -1;
+      for (let i = 0; i < 14; i++) {
+        const ang = (Math.PI * 2 * i) / 14 + (Math.random() - 0.5) * 0.25;
+        const spd = 110 + Math.random() * 185;
         this.sparks.push({
-          x: bx,
-          y: by,
-          vx: dir * (26 + Math.random() * 54),
-          vy: -10 - Math.random() * 28,
-          s: Math.random() < 0.3 ? 2 : 1,
-          life: 0.30 + Math.random() * 0.32,
-          col: i % 4 === 0 ? '#ffffff' : (i % 2 === 0 ? this.accent.main : this.accent.sec)
+          x: sx, y: sy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 18,
+          size: Math.random() < 0.35 ? 3.6 : 2.2,
+          len: 9 + Math.random() * 14,
+          life: 0.32 + Math.random() * 0.22,
+          maxLife: 0.54,
+          col: i % 3 === 0 ? '#ffffff' : (i % 2 === 0 ? this.accent.main : this.accent.sec)
+        });
+      }
+
+      this.railSurge = Math.max(this.railSurge, 0.45);
+      if (!this.running && this.ctx) this.start();
+    }
+
+    triggerFlourish(hero, isCelebrate = false, seamLeftScreen = null, seamRightScreen = null) {
+      if (hero) this._applyHeroAccent(hero.id);
+      if (seamLeftScreen !== null && seamRightScreen !== null) {
+        this.setSeamBounds(seamLeftScreen, seamRightScreen, true);
+      } else {
+        this.syncSeamBoundsFromDom(true);
+      }
+
+      this.railSurge = isCelebrate ? 1.2 : 0.9;
+
+      const midX = (this.seamLeftS + this.seamRightS) * 0.5;
+      const spanW = Math.max(360, this.seamRightS - this.seamLeftS);
+      const slashY = 452;
+
+      this.slashes.push({
+        x: midX, y: slashY,
+        len: spanW * 1.12,
+        angle: -0.32, life: 0.42, maxLife: 0.42,
+        col: this.accent.main, thick: isCelebrate ? 14 : 10
+      });
+      this.slashes.push({
+        x: midX, y: slashY + 18,
+        len: spanW * 0.88,
+        angle: 0.22, life: 0.36, maxLife: 0.36,
+        col: this.accent.sec, thick: isCelebrate ? 10 : 8
+      });
+
+      this.rings.push({
+        x: midX, y: 390, r0: 36, r1: isCelebrate ? 310 : 235,
+        life: 0.54, maxLife: 0.54, col: this.accent.main, diamond: true
+      });
+      this.rings.push({
+        x: midX, y: 390, r0: 20, r1: isCelebrate ? 245 : 184,
+        life: 0.45, maxLife: 0.45, col: this.accent.sec, diamond: false
+      });
+
+      const sparkCount = isCelebrate ? 40 : 24;
+      for (let i = 0; i < sparkCount; i++) {
+        const isLeft = i % 2 === 0;
+        const py = 96 + Math.random() * 530;
+        const px = this._sxAtY(isLeft ? this.seamLeftS : this.seamRightS, py);
+        const outDir = isLeft ? -1 : 1;
+        this.sparks.push({
+          x: px, y: py,
+          vx: outDir * (60 + Math.random() * 185) + (Math.random() - 0.5) * 76,
+          vy: -(40 + Math.random() * 160),
+          size: Math.random() < 0.35 ? 3.8 : 2.3,
+          len: 11 + Math.random() * 18,
+          life: 0.38 + Math.random() * 0.34,
+          maxLife: 0.72,
+          col: i % 4 === 0 ? '#ffffff' : (isLeft ? this.accent.main : this.accent.sec)
         });
       }
       this.start();
@@ -206,220 +295,359 @@
         this.rafId = 0;
       }
       this.slashes = [];
+      this.rings = [];
       this.sparks = [];
       if (this.ctx) this.ctx.clearRect(0, 0, W, H);
     }
 
+    _sxAtY(seamS, sy) {
+      return seamS + (H * 0.5 - sy) * TAN_11;
+    }
+
     _update(dt) {
       this.time += dt;
-      const lerp = Math.min(1, dt * 14);
-      this.pointerX += (this.pointerTargetX - this.pointerX) * lerp;
-      this.pointerY += (this.pointerTargetY - this.pointerY) * lerp;
-      const targetA = this.pointerActive ? 1 : 0;
-      this.pointerAlpha += (targetA - this.pointerAlpha) * Math.min(1, dt * 8);
+      this.syncSeamBoundsFromDom(false);
+
+      const lerpK = Math.min(1, dt * 16);
+      this.seamLeftS += (this.targetSeamLeftS - this.seamLeftS) * lerpK;
+      this.seamRightS += (this.targetSeamRightS - this.seamRightS) * lerpK;
+      this.railSurge = Math.max(0, this.railSurge - dt * 1.9);
+
+      for (let i = this.starMotes.length - 1; i >= 0; i--) {
+        const e = this.starMotes[i];
+        e.y += e.vy * dt;
+        if (e.y < e.maxRiseY) this.starMotes[i] = this._makeStarMote(false);
+      }
+
+      if (this.seamsReady) {
+        for (const st of this.edgeStreams) {
+          const clampedU = Math.max(0, Math.min(1, st.u));
+          const speedCurve = 0.72 + 0.62 * Math.sin(clampedU * Math.PI);
+          st.u += st.speed * speedCurve * (1 + this.railSurge * 0.55) * dt;
+          if (st.u >= 1.24) {
+            st.u -= 1.24;
+            st.ph += 1.37;
+          }
+
+          st.sparkT -= dt;
+          if (st.sparkT <= 0 && st.u > 0.08 && st.u < 0.92 && this.sparks.length < 56) {
+            st.sparkT = st.bright > 0.9 ? (0.11 + Math.random() * 0.09) : (0.20 + Math.random() * 0.14);
+            const headY = (st.dir < 0 ? (1 - st.u) : st.u) * H;
+            const seamS = st.side === 0 ? this.seamLeftS : this.seamRightS;
+            const outDir = st.side === 0 ? -1 : 1;
+            const hx = this._sxAtY(seamS, headY) + Math.sin(st.u * st.waveFreq + st.ph) * st.waveAmp * 0.6;
+            this.sparks.push({
+              x: hx, y: headY,
+              vx: outDir * (14 + Math.random() * 28) + (Math.random() - 0.5) * 14,
+              vy: st.dir * (16 + Math.random() * 30) - 16,
+              size: Math.random() < 0.35 ? 2.3 : 1.5,
+              len: 6 + Math.random() * 8,
+              life: 0.28 + Math.random() * 0.22,
+              maxLife: 0.50,
+              col: Math.random() < 0.3 ? '#ffffff' : (st.side === 0 ? this.accent.main : this.accent.sec)
+            });
+          }
+        }
+      }
 
       for (let i = this.slashes.length - 1; i >= 0; i--) {
         this.slashes[i].life -= dt;
         if (this.slashes[i].life <= 0) this.slashes.splice(i, 1);
       }
+      for (let i = this.rings.length - 1; i >= 0; i--) {
+        this.rings[i].life -= dt;
+        if (this.rings[i].life <= 0) this.rings.splice(i, 1);
+      }
       for (let i = this.sparks.length - 1; i >= 0; i--) {
         const s = this.sparks[i];
         s.life -= dt;
         if (s.life <= 0) { this.sparks.splice(i, 1); continue; }
-        s.vx *= Math.pow(0.91, dt * 60);
-        s.vy = s.vy * Math.pow(0.94, dt * 60) + 28 * dt;
+        s.vx *= Math.pow(0.92, dt * 60);
+        s.vy = s.vy * Math.pow(0.93, dt * 60) + 110 * dt;
         s.x += s.vx * dt;
         s.y += s.vy * dt;
       }
     }
 
-    _render() {
-      const ctx = this.ctx;
-      const PFX = this._ensureFrame();
-      if (!ctx || !PFX || !this.frame) return;
+    _drawStar4(ctx, x, y, r, col, alpha) {
+      if (alpha <= 0.01) return;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = col;
+      ctx.beginPath();
+      ctx.moveTo(x, y - r);
+      ctx.lineTo(x + r * 0.22, y - r * 0.22);
+      ctx.lineTo(x + r, y);
+      ctx.lineTo(x + r * 0.22, y + r * 0.22);
+      ctx.lineTo(x, y + r);
+      ctx.lineTo(x - r * 0.22, y + r * 0.22);
+      ctx.lineTo(x - r, y);
+      ctx.lineTo(x - r * 0.22, y - r * 0.22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
 
-      PFX.clearFrame(this.frame);
-      const p = PFX.painterFor(this.frame);
-      p.place(0, 0, false, 0);
-      const whiteC = PFX.WHITE;
-      const cyanC = PFX.hex('#5cf2ff');
-      const magC = PFX.hex('#ff4d8d');
-      const mainC = PFX.hex(this.accent.main);
-      const secC = PFX.hex(this.accent.sec);
+    // ─── DIRECTIONAL LIQUID-LIGHT EDGE CURRENTS (左升右降沿边流光) ───
+    _renderDirectionalEdgeFlow(ctx) {
+      const surge = this.railSurge;
+      const mainCol = this.accent.main;
+      const secCol = this.accent.sec;
 
-      const seamXAtY = (seamX, y) => seamX + (0.5 - y / VH) * SKEW_DX;
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
 
-      if (this.seamsReady) {
-        // 1. TWIN PLASMA CHARGE RAILS (dual-track precision energy bars sliding TOP -> BOTTOM)
-        const drawRail = (seamX, col, offsetX) => {
-          const xTop = seamX + SKEW_DX * 0.5;
-          const xBot = seamX - SKEW_DX * 0.5;
-          // Subtle inner secondary guide track parallel to the border
-          p.glowLine(xTop + offsetX, 16, xBot + offsetX, VH - 16, 1.4, col, 0.12);
-          p.glowLine(xTop, 0, xBot, VH, 3.6, col, 0.16);
-        };
-        drawRail(this.seamLeftX, mainC, -4);
-        drawRail(this.seamRightX, secC, 4);
+      const drawAuroraFlow = (seamS, sideSign, flowDir, primaryCol, accentCol, phaseSeed) => {
+        const steps = 40;
+        const yStart = 20;
+        const yEnd = H - 20;
+        const t = this.time;
+        const ribbons = [
+          { amp1: 5.0, amp2: 2.5, f1: 0.013, f2: 0.025, spd1: flowDir * 3.3, spd2: flowDir * 4.9, ph: phaseSeed,       w: 7.5 + surge * 5, a: 0.12 + surge * 0.11, col: primaryCol, outerBias: 2 },
+          { amp1: 6.8, amp2: 3.2, f1: 0.016, f2: 0.031, spd1: flowDir * 4.1, spd2: flowDir * 6.2, ph: phaseSeed + 2.0, w: 1.7 + surge * 1.3, a: 0.30 + surge * 0.22, col: accentCol,  outerBias: 0 }
+        ];
 
-        if (!this.slashes.length) {
-          for (const seg of this.railSegments) {
-            const seamX = seg.side === 'L' ? this.seamLeftX : this.seamRightX;
-            const col = seg.side === 'L' ? mainC : secC;
-            const prog = (this.time * seg.speed + seg.phase) % 1.25;
-            if (prog > 1) continue;
-            const yHead = prog * (VH + seg.len) - 2;
-            const yTail = yHead - seg.len;
-            const y0 = Math.max(0, Math.min(VH, yTail));
-            const y1 = Math.max(0, Math.min(VH, yHead));
-            if (y1 <= y0 + 2) continue;
-            const x0 = seamXAtY(seamX, y0);
-            const x1 = seamXAtY(seamX, y1);
-            const env = Math.sin(prog * Math.PI) * seg.bright;
-            // Crisp chromatic plasma bar + leading glint
-            p.glowLine(x0, y0, x1, y1, 5.4, col, 0.55 * env);
-            p.glowLine(x0, y0, x1, y1, 1.8, whiteC, 0.68 * env);
-            if (y1 > 2 && y1 < VH - 2 && seg.bright > 0.8) {
-              p.glow(x1, y1, 3.6, whiteC, 0.55 * env);
+        for (const rb of ribbons) {
+          const pts = [];
+          for (let i = 0; i <= steps; i++) {
+            const u = i / steps;
+            const py = yStart + (yEnd - yStart) * u;
+            const edgeFade = Math.sin(u * Math.PI);
+            const wave =
+              Math.sin(py * rb.f1 - t * rb.spd1 + rb.ph) * rb.amp1 +
+              Math.cos(py * rb.f2 - t * rb.spd2 + rb.ph * 1.5) * rb.amp2;
+            const px = this._sxAtY(seamS, py) + sideSign * rb.outerBias + wave * (0.24 + 0.76 * edgeFade);
+            const crest = 0.16 + 0.84 * Math.pow(0.5 + 0.5 * Math.sin(py * 0.012 - t * (flowDir * 3.8) + rb.ph), 2.8);
+            pts.push({ x: px, y: py, alpha: edgeFade * crest });
+          }
+
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let i = 0; i < pts.length - 1; i++) {
+            const p0 = pts[i];
+            const p1 = pts[i + 1];
+            const mA = (p0.alpha + p1.alpha) * 0.5;
+            const segA = mA * rb.a;
+            if (segA <= 0.01) continue;
+            ctx.strokeStyle = hexToRgba(rb.col, segA);
+            ctx.lineWidth = rb.w * (0.45 + 0.72 * mA);
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+          }
+        }
+      };
+
+      drawAuroraFlow(this.seamLeftS,  -1, -1, mainCol, '#fff5d6', 0.4);
+      drawAuroraFlow(this.seamRightS,  1,  1, secCol,  '#ffd9e8', 2.8);
+
+      for (const st of this.edgeStreams) {
+        const headNorm = st.u;
+        const tailNorm = st.u - st.tailLen;
+        if (tailNorm >= 1.02 || headNorm <= -0.02) continue;
+
+        const seamS = st.side === 0 ? this.seamLeftS : this.seamRightS;
+        const sideSign = st.side === 0 ? -1 : 1;
+        const col = st.side === 0 ? mainCol : secCol;
+        const segs = 22;
+        const pts = [];
+
+        for (let i = 0; i <= segs; i++) {
+          const f = i / segs;
+          const norm = tailNorm + (headNorm - tailNorm) * f;
+          if (norm < -0.04 || norm > 1.04) continue;
+          const py = (st.dir < 0 ? (1 - norm) : norm) * H;
+          const flutter = Math.sin(norm * st.waveFreq + st.ph + this.time * 2.4) * st.waveAmp * (0.28 + 0.72 * (1 - f));
+          const px = this._sxAtY(seamS, py) + flutter + sideSign * (1 - f) * 2.4;
+          const boundsFade = Math.max(0, Math.min(1, Math.sin(Math.max(0, Math.min(1, norm)) * Math.PI) * 1.45));
+          pts.push({ x: px, y: py, f, env: boundsFade });
+        }
+
+        if (pts.length >= 2) {
+          ctx.lineCap = 'round';
+          ctx.lineJoin = 'round';
+          for (let i = 1; i < pts.length; i++) {
+            const p0 = pts[i - 1];
+            const p1 = pts[i];
+            const f = p1.f;
+            const env = Math.min(p0.env, p1.env);
+            const profile = Math.pow(f, 1.55) * (1 - Math.pow(Math.max(0, f - 0.92) / 0.08, 2) * 0.35);
+            const a = profile * env * st.bright * (0.76 + surge * 0.25);
+            if (a <= 0.01) continue;
+
+            ctx.strokeStyle = hexToRgba(col, a * 0.34);
+            ctx.lineWidth = (st.width * 3.6 + surge * 3.2) * profile + 1.1;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+
+            ctx.strokeStyle = hexToRgba(col, a * 0.82);
+            ctx.lineWidth = st.width * 1.3 * profile + 0.45;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.stroke();
+
+            if (f > 0.38) {
+              const wf = (f - 0.38) / 0.62;
+              ctx.strokeStyle = hexToRgba('#ffffff', a * wf * 0.90);
+              ctx.lineWidth = Math.max(0.6, st.width * 0.50 * wf);
+              ctx.beginPath();
+              ctx.moveTo(p0.x, p0.y);
+              ctx.lineTo(p1.x, p1.y);
+              ctx.stroke();
+            }
+          }
+
+          const head = pts[pts.length - 1];
+          if (head.env > 0.08 && headNorm <= 1.0 && headNorm >= 0.0) {
+            const hRad = (st.bright > 0.9 ? 15 : 10) + surge * 5;
+            const rg = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, hRad * 1.45);
+            rg.addColorStop(0, hexToRgba('#ffffff', 0.64 * head.env * st.bright));
+            rg.addColorStop(0.32, hexToRgba(col, 0.38 * head.env * st.bright));
+            rg.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = rg;
+            ctx.beginPath();
+            ctx.arc(head.x, head.y, hRad * 1.45, 0, Math.PI * 2);
+            ctx.fill();
+
+            if (st.bright > 0.9) {
+              this._drawStar4(ctx, head.x, head.y, 8 + surge * 4, '#ffffff', 0.74 * head.env);
             }
           }
         }
+      }
 
-        // 2. CORNER PRECISION TELEMETRY & FLOATING HOLO SHARDS are rendered crisp on full 1280x720 ctx below!
+      ctx.restore();
+    }
 
-        // 3. INTERACTIVE CURSOR LOCK-ON (twin rail focal flares + crisp slanted prism beam tracking cursor!)
-        if (this.pointerAlpha > 0.02) {
-          const py = Math.max(12, Math.min(VH - 12, this.pointerY));
-          const lx = seamXAtY(this.seamLeftX, py);
-          const rx = seamXAtY(this.seamRightX, py);
-          const a = this.pointerAlpha;
-          // Twin rail lock-on flares sliding smoothly to match cursor Y!
-          p.glow(lx, py, 6.2, mainC, 0.54 * a);
-          p.glow(lx, py, 2.4, whiteC, 0.68 * a);
-          p.glow(rx, py, 6.2, secC, 0.54 * a);
-          p.glow(rx, py, 2.4, whiteC, 0.68 * a);
+    // ─── STARLIGHT MOTES, SWITCH CROSS-SLASHES & TAP RIPPLES ───
+    _renderImpactAndSparkles(ctx) {
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
 
-          // Ultra-clean diagonal prism refraction blade anchored near cursor X (strictly inside expanded slice)
-          if (this.pointerX > lx + 4 && this.pointerX < rx - 4) {
-            const dxTop = this.pointerX + (py / VH) * SKEW_DX;
-            const dxBot = this.pointerX - ((VH - py) / VH) * SKEW_DX;
-            p.glowLine(dxTop - 1, 0, dxBot - 1, VH, 2.2, cyanC, 0.085 * a);
-            p.glowLine(dxTop + 1, 0, dxBot + 1, VH, 2.2, magC, 0.085 * a);
-            p.glowLine(lx, py, rx, py, 1.2, whiteC, 0.08 * a);
+      if (this.seamsReady) {
+        for (const e of this.starMotes) {
+          const lx = this._sxAtY(this.seamLeftS, e.y);
+          const rx = this._sxAtY(this.seamRightS, e.y);
+          const ex = lx + (rx - lx) * e.u + Math.sin(this.time * e.swayFreq + e.phase) * e.swayAmp;
+          const heightFade = Math.min(1, (e.y - e.maxRiseY) / 90) * Math.min(1, (H - e.y + 40) / 110);
+          const twinkle = 0.42 + 0.58 * Math.sin(this.time * 4.2 + e.phase);
+          const a = Math.max(0, heightFade * twinkle);
+          if (a <= 0.02) continue;
+
+          const col = e.useSec ? this.accent.sec : this.accent.main;
+          if (e.isStar) {
+            this._drawStar4(ctx, ex, e.y, e.size * 2.4, col, a * 0.72);
+            this._drawStar4(ctx, ex, e.y, e.size * 1.15, '#ffffff', a * 0.90);
+          } else {
+            ctx.fillStyle = hexToRgba(col, a * 0.72);
+            ctx.beginPath();
+            ctx.arc(ex, e.y, e.size * 0.72, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
       }
 
-      // 5. Post-Expand Razor-Sharp Twin Diagonal Light Blades on hero switch!
       for (const sl of this.slashes) {
         const prog = 1 - sl.life / sl.maxLife;
-        const fade = 1 - PFX.smooth(0.22, 1, prog);
-        const col = PFX.hex(sl.col);
-        const curY = Math.min(VH, prog * 3.5 * VH);
-        const xEnd = sl.xTop + (sl.xBot - sl.xTop) * (curY / VH);
-        p.glowLine(sl.xTop, 0, xEnd, curY, 7.5 * fade + 1, col, 0.78 * fade);
-        p.glowLine(sl.xTop, 0, xEnd, curY, 2.2 * fade + 0.5, whiteC, 0.85 * fade);
-        if (fade > 0.2) {
-          PFX.sparkle(p, xEnd, Math.min(VH - 6, curY), 6 * fade, whiteC, col, 0.92 * fade);
-        }
-      }
+        const ease = 1 - Math.pow(1 - Math.min(1, prog * 2.2), 3);
+        const fade = Math.pow(1 - prog, 1.45);
+        const half = (sl.len * ease) * 0.5;
+        const w = sl.thick * fade;
 
-      for (const s of this.sparks) {
-        const a = Math.max(0, Math.min(1, s.life / 0.32));
-        const col = PFX.hex(s.col);
-        p.rect(Math.round(s.x), Math.round(s.y), s.s, s.s, col, a);
-        if (a > 0.5) p.glow(s.x, s.y, 2.0, col, 0.22 * a);
-      }
-
-      PFX.composite(this.frame, this.imgData.data, null, 1.15);
-      this.offCtx.putImageData(this.imgData, 0, 0);
-
-      ctx.clearRect(0, 0, W, H);
-      ctx.save();
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(this.off, 0, 0, VW, VH, 0, 0, W, H);
-      ctx.restore();
-
-      // 6. RAZOR-CRISP NATIVE 1280x720 HOLOGRAPHIC GLASS SHARDS & CORNER TELEMETRY RIGS
-      if (this.seamsReady) {
-        const sxAtY = (seamX, sy) => (seamX + (0.5 - sy / H) * SKEW_DX) * 4;
         ctx.save();
+        ctx.translate(sl.x, sl.y);
+        ctx.rotate(sl.angle);
 
-        // Crisp translucent -11deg geometric holo glass shards along outer flanks
-        for (const sh of this.shards) {
-          const seamX = sh.side === 'L' ? this.seamLeftX : this.seamRightX;
-          const cy = (sh.yBase + Math.sin(this.time * sh.spd + sh.ph) * sh.amp) * 4;
-          const cx = sxAtY(seamX, cy) + sh.dx * 4;
-          const sw = sh.w * 3.4;
-          const shH = sh.h * 4.0;
-          const slant = (shH / H) * (SKEW_DX * 4) * 0.5;
-          const glint = 0.5 + 0.5 * Math.sin(this.time * 2.4 + sh.ph * 1.6);
-          const colHex = sh.useSec ? this.accent.sec : this.accent.main;
+        ctx.fillStyle = hexToRgba(sl.col, 0.78 * fade);
+        ctx.beginPath();
+        ctx.moveTo(-half, 0);
+        ctx.quadraticCurveTo(0, -w * 1.4, half, 0);
+        ctx.quadraticCurveTo(0, w * 1.4, -half, 0);
+        ctx.closePath();
+        ctx.fill();
 
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(cx - sw * 0.5 + slant, cy - shH * 0.5);
-          ctx.lineTo(cx + sw * 0.5 + slant, cy - shH * 0.5);
-          ctx.lineTo(cx + sw * 0.5 - slant, cy + shH * 0.5);
-          ctx.lineTo(cx - sw * 0.5 - slant, cy + shH * 0.5);
-          ctx.closePath();
+        ctx.fillStyle = hexToRgba('#ffffff', 0.95 * fade);
+        ctx.beginPath();
+        ctx.moveTo(-half * 0.9, 0);
+        ctx.quadraticCurveTo(0, -w * 0.52, half * 0.9, 0);
+        ctx.quadraticCurveTo(0, w * 0.52, -half * 0.9, 0);
+        ctx.closePath();
+        ctx.fill();
 
-          const grad = ctx.createLinearGradient(cx, cy - shH * 0.5, cx, cy + shH * 0.5);
-          grad.addColorStop(0, `rgba(255, 255, 255, ${(0.08 + 0.14 * glint).toFixed(3)})`);
-          grad.addColorStop(0.5, `rgba(92, 242, 255, ${(0.05 + 0.08 * glint).toFixed(3)})`);
-          grad.addColorStop(1, 'rgba(10, 16, 34, 0.04)');
-          ctx.fillStyle = grad;
-          ctx.fill();
-
-          // Razor-sharp 1px chromatic beveled edge
-          ctx.lineWidth = 1;
-          ctx.strokeStyle = colHex;
-          ctx.globalAlpha = 0.34 + 0.44 * glint;
-          ctx.stroke();
-
-          // Bright top specular highlight strip
-          ctx.beginPath();
-          ctx.moveTo(cx - sw * 0.5 + slant, cy - shH * 0.5);
-          ctx.lineTo(cx + sw * 0.5 + slant, cy - shH * 0.5);
-          ctx.strokeStyle = '#ffffff';
-          ctx.globalAlpha = 0.55 + 0.4 * glint;
-          ctx.stroke();
-          ctx.restore();
-        }
-
-        // Crisp 2px pixel crosshairs + oscillating telemetry meters near upper seam corners
-        const drawHudRig = (seamX, sy, sideSign, colHex) => {
-          const cx = Math.round(sxAtY(seamX, sy) + sideSign * 22);
-          const cy = Math.round(sy);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.72)';
-          ctx.fillRect(cx - 5, cy, 11, 1);
-          ctx.fillRect(cx, cy - 5, 1, 11);
-          for (let i = 0; i < 6; i++) {
-            const ty = cy + 16 + i * 7;
-            const tx = Math.round(sxAtY(seamX, ty) + sideSign * 14);
-            const lvl = 0.5 + 0.5 * Math.sin(this.time * 4.4 + i * 0.85 + (sideSign > 0 ? 2 : 0));
-            const bw = Math.round(6 + lvl * 14);
-            ctx.fillStyle = colHex;
-            ctx.globalAlpha = 0.32 + 0.55 * lvl;
-            ctx.fillRect(sideSign > 0 ? tx : tx - bw, ty, bw, 2);
-          }
-          ctx.globalAlpha = 1;
-        };
-        drawHudRig(this.seamLeftX, 92, -1, this.accent.main);
-        drawHudRig(this.seamRightX, 92, 1, this.accent.sec);
-
-        // Crisp 1px twin lock-on reticle ticks tracking cursor Y along left & right seams
-        if (this.pointerAlpha > 0.04) {
-          const py = Math.max(48, Math.min(H - 48, this.pointerY * 4));
-          const lx = sxAtY(this.seamLeftX, py);
-          const rx = sxAtY(this.seamRightX, py);
-          ctx.globalAlpha = 0.78 * this.pointerAlpha;
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(Math.round(lx - 14), Math.round(py), 10, 1.5);
-          ctx.fillRect(Math.round(rx + 4), Math.round(py), 10, 1.5);
-          ctx.globalAlpha = 1;
+        if (fade > 0.25) {
+          this._drawStar4(ctx, 0, 0, 26 * fade, '#ffffff', 0.92 * fade);
         }
         ctx.restore();
       }
+
+      for (const r of this.rings) {
+        const prog = 1 - r.life / r.maxLife;
+        const ease = 1 - Math.pow(1 - prog, 2.6);
+        const rad = r.r0 + (r.r1 - r.r0) * ease;
+        const fade = Math.pow(1 - prog, 1.35);
+
+        ctx.save();
+        ctx.translate(r.x, r.y);
+        ctx.strokeStyle = hexToRgba(r.col, 0.84 * fade);
+        ctx.lineWidth = Math.max(1, 3.0 * fade);
+        if (r.diamond) {
+          ctx.rotate(-0.19);
+          ctx.beginPath();
+          ctx.moveTo(0, -rad * 0.88);
+          ctx.lineTo(rad * 0.72, 0);
+          ctx.lineTo(0, rad * 0.88);
+          ctx.lineTo(-rad * 0.72, 0);
+          ctx.closePath();
+          ctx.stroke();
+
+          ctx.strokeStyle = hexToRgba('#ffffff', 0.62 * fade);
+          ctx.lineWidth = Math.max(0.8, 1.25 * fade);
+          ctx.stroke();
+        } else {
+          ctx.beginPath();
+          ctx.ellipse(0, 0, rad, rad * 0.68, -0.19, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      for (const s of this.sparks) {
+        const a = Math.max(0, Math.min(1, s.life / (s.maxLife * 0.55)));
+        const spd = Math.hypot(s.vx, s.vy) || 1;
+        const nx = s.vx / spd;
+        const ny = s.vy / spd;
+        const tailLen = Math.min(s.len, spd * 0.065);
+
+        ctx.lineCap = 'round';
+        ctx.strokeStyle = hexToRgba(s.col, 0.88 * a);
+        ctx.lineWidth = Math.max(1.1, s.size * 0.68 * a);
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        ctx.lineTo(s.x - nx * tailLen, s.y - ny * tailLen);
+        ctx.stroke();
+
+        ctx.fillStyle = hexToRgba('#ffffff', 0.92 * a);
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, Math.max(0.9, s.size * 0.42 * a), 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    _render() {
+      const ctx = this.ctx;
+      if (!ctx) return;
+      ctx.clearRect(0, 0, W, H);
+
+      if (this.seamsReady) {
+        this._renderDirectionalEdgeFlow(ctx);
+      }
+      this._renderImpactAndSparkles(ctx);
     }
   }
 

@@ -9,11 +9,49 @@
   <meta property="og:description" content="午夜酒馆 v15.0：无框实景剧场 HD-2D 战斗样板 + 8大主题包。" />
   <link rel="preload" href="./assets/fonts/fusion-pixel-12px-proportional-zh_hans.ttf.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="./css/v13.css?v=187" />
-  <link rel="stylesheet" href="./css/v14.css?v=233" />
+  <link rel="stylesheet" href="./css/v14.css?v=248" />
 </head>
 <body>
   <div id="viewport">
     <div id="stage">
+
+      <!-- ═══ STARTUP ASSET PRELOADER (PROGRESS BAR FOR CRITICAL GAME ASSETS) ═══ -->
+      <div id="boot-preloader" class="boot-preloader" role="status" aria-live="polite">
+        <div class="boot-card">
+          <div class="boot-emblem" aria-hidden="true">
+            <span class="boot-rule"></span>
+            <svg class="boot-eclipse-svg" viewBox="0 0 18 18" shape-rendering="crispEdges">
+              <rect x="7" y="1" width="4" height="2" fill="#f6ce6b"/>
+              <rect x="4" y="2" width="3" height="2" fill="#f6ce6b"/>
+              <rect x="11" y="2" width="3" height="2" fill="#c9862c"/>
+              <rect x="2" y="4" width="2" height="3" fill="#f6ce6b"/>
+              <rect x="14" y="4" width="2" height="3" fill="#c9862c"/>
+              <rect x="1" y="7" width="2" height="4" fill="#fff6d0"/>
+              <rect x="15" y="7" width="2" height="4" fill="#a86820"/>
+              <rect x="2" y="11" width="2" height="3" fill="#f6ce6b"/>
+              <rect x="14" y="11" width="2" height="3" fill="#a86820"/>
+              <rect x="4" y="14" width="3" height="2" fill="#d99a3a"/>
+              <rect x="11" y="14" width="3" height="2" fill="#8f5418"/>
+              <rect x="7" y="15" width="4" height="2" fill="#c9862c"/>
+              <rect x="8" y="8" width="2" height="2" fill="#fff9df"/>
+            </svg>
+            <span class="boot-rule"></span>
+          </div>
+          <div class="boot-title">午夜酒馆</div>
+          <div class="boot-sub">MIDNIGHT TAVERN</div>
+          <div class="boot-bar-frame">
+            <div id="boot-bar-fill" class="boot-bar-fill" style="width: 4%"></div>
+          </div>
+          <div class="boot-meta-row">
+            <span id="boot-stage-text" class="boot-stage-text">正在预加载英雄立绘与核心资源...</span>
+            <span class="boot-nums">
+              <span id="boot-count" class="boot-count">0 / 0</span>
+              <span class="boot-sep" aria-hidden="true">·</span>
+              <b id="boot-pct" class="boot-pct">0%</b>
+            </span>
+          </div>
+        </div>
+      </div>
 
       <!-- ═══ TITLE SCREEN: PROCEDURAL PIXEL-ART ECLIPSE SANCTUM & MIRROR LAKE ═══ -->
       <section id="title-screen-view">
@@ -80,25 +118,33 @@
 
         <div id="battle-top-bar">
           <div class="bt-squad-box steel-panel">
-            <div class="bt-sq-head">
-              <span id="bt-title">W1/8 · 第 1/4 回合</span>
-              <span id="bt-squad-hp-text">小队 100/100</span>
-            </div>
-            <div class="bt-sq-bar-wrap">
-              <div class="squad-hp-track">
-                <div id="bt-squad-hp-lag" class="squad-hp-lag" style="width:100%"></div>
-                <div id="bt-squad-hp-fill" style="width:100%"></div>
-                <div id="bt-squad-shield-fill" style="width:0%"></div>
+            <button id="bt-hero-medallion" class="bt-hero-medallion" type="button" aria-label="查看出战英雄被动">
+              <span class="bhm-aura" aria-hidden="true"></span>
+              <img id="bt-hero-avatar" class="bhm-img" src="" alt="" />
+              <span class="bhm-rim" aria-hidden="true"></span>
+            </button>
+            <div class="bt-squad-main">
+              <div class="bt-sq-head">
+                <span id="bt-title">W1/8 · 第 1/4 回合</span>
+                <span id="bt-squad-hp-text">小队 100/100</span>
+              </div>
+              <div class="bt-sq-bar-wrap">
+                <div class="squad-hp-track">
+                  <div id="bt-squad-hp-lag" class="squad-hp-lag" style="width:100%"></div>
+                  <div id="bt-squad-hp-fill" style="width:100%"></div>
+                  <div id="bt-squad-shield-fill" style="width:0%"></div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="bt-boss-box steel-panel">
-            <div class="bt-boss-head">
-              <span id="bt-boss-name">Boss</span>
-              <span id="bt-boss-hp-text">0 / 0</span>
+          <div id="bt-wave-banner" class="bt-wave-banner" aria-live="polite">
+            <div class="bwb-main">
+              <span id="bt-wave-text" class="bwb-wave">第 1 / 8 波</span>
+              <span class="bwb-sep" aria-hidden="true">·</span>
+              <span id="bt-round-text" class="bwb-round">第 1 / 4 回合</span>
             </div>
-            <div id="bt-boss-hp-bar"></div>
+            <div id="bt-wave-pips" class="bwb-pips" aria-hidden="true"></div>
           </div>
 
           <div class="bt-tools-box">
@@ -107,6 +153,14 @@
             <button id="bt-speed-btn" class="steel-btn" aria-label="战斗速度 1 倍">1×</button>
             <button id="btn-bt-home" class="steel-btn hud-mini-btn bt-home-btn" title="返回游戏首页（保留本波进度）">首页</button>
           </div>
+        </div>
+
+        <div id="bt-boss-box" class="bt-boss-box steel-panel">
+          <div class="bt-boss-head">
+            <span id="bt-boss-name">Boss</span>
+            <span id="bt-boss-hp-text">0 / 0</span>
+          </div>
+          <div id="bt-boss-hp-bar"></div>
         </div>
 
         <div id="bt-relic-chain" class="steel-panel"></div>
@@ -121,6 +175,7 @@
 
         <div id="v14-card-tip" class="v14-body-text hidden"></div>
         <div id="v14-slots-bar"></div>
+        <div id="bt-discard-counter" class="bt-discard-counter hidden" aria-live="polite"></div>
 
         <section id="bt-hand-dock" class="bottom-dock steel-panel">
           <button id="btn-bt-discard" class="steel-btn gold dock-wing-btn"></button>
@@ -129,6 +184,21 @@
           <button id="btn-bt-strike" class="steel-btn crimson dock-wing-btn"></button>
         </section>
 
+        <div id="bt-hero-tip" class="bt-hero-tip hidden" role="tooltip"></div>
+        <div id="bt-hero-cutin" class="bt-hero-cutin hidden" aria-hidden="true">
+          <div class="bhc-band">
+            <div class="bhc-speedlines"></div>
+            <div class="bhc-portrait-wrap">
+              <div class="bhc-halo"></div>
+              <img id="bt-cutin-char" class="bhc-char" src="" alt="" />
+            </div>
+            <div class="bhc-copy">
+              <div id="bt-cutin-kicker" class="bhc-kicker"></div>
+              <div id="bt-cutin-title" class="bhc-title"></div>
+              <div id="bt-cutin-sub" class="bhc-sub"></div>
+            </div>
+          </div>
+        </div>
         <div id="battle-live-telemetry" class="steel-panel hidden">
           <div id="bt-hand-pill"></div>
           <div id="bt-chain-stats"></div>
@@ -321,6 +391,21 @@
         </div>
       </div>
 
+      <div id="hero-sortie-veil" class="hero-sortie-veil hidden" aria-hidden="true">
+        <div class="hsv-blade hsv-blade-top"></div>
+        <div class="hsv-blade hsv-blade-bot"></div>
+        <div class="hsv-slash-beam"></div>
+        <div class="hsv-hero-stage">
+          <div class="hsv-halo"></div>
+          <img id="hsv-char-img" class="hsv-char" src="" alt="" />
+        </div>
+        <div class="hsv-banner">
+          <span id="hsv-code" class="hsv-code"></span>
+          <strong id="hsv-name" class="hsv-name"></strong>
+          <span id="hsv-sub" class="hsv-sub">出征 · 镜湖夜战</span>
+        </div>
+      </div>
+
       <div id="toast-banner"></div>
     </div>
   </div>
@@ -330,17 +415,17 @@
   <script src="./assets/duelyst/assets/manifest.js?v=197"></script>
   <script src="./js/pixelfxBundle.js?v=210"></script>
   <script src="./js/audio.js?v=210"></script>
-  <script src="./js/vfxPlayer.js?v=210"></script>
-  <script src="./js/sprites.js?v=202"></script>
+  <script src="./js/vfxPlayer.js?v=240"></script>
+  <script src="./js/sprites.js?v=240"></script>
   <script src="./js/v13AltarBg.js?v=144"></script>
   <script src="./js/v14TapBridge.js?v=152"></script>
-  <script src="./js/v14Meta.js?v=220"></script>
+  <script src="./js/v14Meta.js?v=243"></script>
   <script src="./js/v14Data.js?v=210"></script>
   <script src="./js/v14Engine.js?v=205"></script>
-  <script src="./js/v14Battle.js?v=210"></script>
-  <script src="./js/v15HeroMusterStage.js?v=234"></script>
+  <script src="./js/v14Battle.js?v=248"></script>
+  <script src="./js/v15HeroMusterStage.js?v=241"></script>
   <script src="./js/v15TavernShopStage.js?v=200"></script>
   <script src="./js/v15PackCeremonyFX.js?v=210"></script>
-  <script src="./js/v14Main.js?v=233"></script>
+  <script src="./js/v14Main.js?v=248"></script>
 </body>
 </html>

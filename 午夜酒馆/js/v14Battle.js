@@ -52,6 +52,24 @@
     return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
   }
 
+  function hexToRgbStr(hex, fallback = '255, 217, 102') {
+    if (!hex || typeof hex !== 'string') return fallback;
+    const clean = hex.trim().replace('#', '');
+    if (clean.length === 3) {
+      const r = parseInt(clean[0] + clean[0], 16);
+      const g = parseInt(clean[1] + clean[1], 16);
+      const b = parseInt(clean[2] + clean[2], 16);
+      return Number.isNaN(r) ? fallback : `${r}, ${g}, ${b}`;
+    }
+    if (clean.length === 6) {
+      const r = parseInt(clean.slice(0, 2), 16);
+      const g = parseInt(clean.slice(2, 4), 16);
+      const b = parseInt(clean.slice(4, 6), 16);
+      return Number.isNaN(r) ? fallback : `${r}, ${g}, ${b}`;
+    }
+    return fallback;
+  }
+
   const PROP_PAL = {
     'K': '#090712', 'I': '#1f2336', 'i': '#3d4563', 's': '#7c89b0',
     'C': '#2289b8', 'c': '#58d4ff', 'W': '#f0fdff',
@@ -214,10 +232,16 @@
       this.onEmptyClick = null;
       this._tweens = [];
       this._waiters = [];
-      this.ambientMotes = Array.from({ length: 34 }, (_, i) => ({
-        x: Math.random() * BW, y: 40 + Math.random() * 380,
-        vx: (Math.random() - 0.5) * 18, vy: -8 - Math.random() * 14,
-        phase: i * 1.15, size: i % 3 === 0 ? 5 : 3
+      this.heroAccent = '#ffd966';
+      this.heroAccent2 = '#ff6e96';
+      this.heroAccRgb = '255, 217, 102';
+      this.heroAcc2Rgb = '255, 110, 150';
+      this.ambientMotes = Array.from({ length: 38 }, (_, i) => ({
+        x: Math.random() * BW, y: 40 + Math.random() * 370,
+        vx: (Math.random() - 0.45) * 16, vy: -9 - Math.random() * 14,
+        phase: i * 1.15, size: i % 4 === 0 ? 4 : i % 2 === 0 ? 3 : 2,
+        isStar: i % 3 === 0,
+        useAcc2: i % 3 === 1
       }));
       this._bindCanvasClick();
     }
@@ -279,9 +303,13 @@
       }
     }
 
-    start(bossCfg, biome = 'default') {
+    start(bossCfg, biome = 'default', hero = null) {
       this.stop();
       this.biome = biome;
+      this.heroAccent = (hero && hero.accent) || '#ffd966';
+      this.heroAccent2 = (hero && hero.accent2) || '#ff6e96';
+      this.heroAccRgb = hexToRgbStr(this.heroAccent, '255, 217, 102');
+      this.heroAcc2Rgb = hexToRgbStr(this.heroAccent2, '255, 110, 150');
       this.time = 0;
       this.hitstop = 0;
       this.hitstopTarget = null;
@@ -1832,8 +1860,8 @@
         ctx.fillRect(sx, sy, 1, 1);
       }
 
-      // 3. Pale Cold Moon placed cleanly in open sky between Relic Rack right edge and Boss (never occluded by HUD!)
-      const mx = 208;
+      // 3. Pale Cold Moon placed cleanly in open sky between Central Forecast and Boss HP bar
+      const mx = 182;
       const my = 36;
       const mg = ctx.createRadialGradient(mx, my, 8, mx, my, 42);
       mg.addColorStop(0, `rgba(${pal.moonGlow}, 0.16)`);
@@ -1975,10 +2003,40 @@
     drawStoneBridge(ctx) {
       const pal = NOCTURNE_PALETTES[this.biome] || NOCTURNE_PALETTES.default;
       const y = BRIDGE_Y, h = LAKE_Y - BRIDGE_Y;
+      const heat = (this.scoring && this.scoring.heatLevel) || 0;
+      const rimPulse = 0.72 + 0.28 * Math.sin(this.idleTime * 2.2);
+
       ctx.fillStyle = '#070810'; ctx.fillRect(0, y - 4, BW, 4);
       const rim = ctx.createLinearGradient(0, 0, BW, 0);
       rim.addColorStop(0, pal.rimL); rim.addColorStop(0.55, pal.rimM); rim.addColorStop(1, pal.rimR);
       ctx.fillStyle = rim; ctx.fillRect(0, y, BW, 4);
+
+      // Luminous hero-tinted stone coping edge sheen (brightens gently with heat!)
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const sheen = ctx.createLinearGradient(0, y, BW, y);
+      const accAlpha = (0.28 + heat * 0.11) * rimPulse;
+      const acc2Alpha = (0.18 + heat * 0.08) * rimPulse;
+      sheen.addColorStop(0, `rgba(${this.heroAccRgb}, ${(accAlpha * 0.35).toFixed(3)})`);
+      sheen.addColorStop(0.26, `rgba(${this.heroAccRgb}, ${accAlpha.toFixed(3)})`);
+      sheen.addColorStop(0.58, `rgba(255, 248, 224, ${(accAlpha * 0.82).toFixed(3)})`);
+      sheen.addColorStop(0.84, `rgba(${this.heroAcc2Rgb}, ${acc2Alpha.toFixed(3)})`);
+      sheen.addColorStop(1, `rgba(${this.heroAcc2Rgb}, 0.04)`);
+      ctx.fillStyle = sheen;
+      ctx.fillRect(0, y, BW, 3);
+      // Soft moonlight specular under active hero slots
+      for (let i = 0; i < 3; i++) {
+        if (!this.slotUnits[i]) continue;
+        const sx = SLOT_X[i];
+        const sg = ctx.createLinearGradient(sx - 56, y, sx + 56, y);
+        sg.addColorStop(0, `rgba(${this.heroAccRgb}, 0)`);
+        sg.addColorStop(0.5, `rgba(${this.heroAccRgb}, ${(0.36 * rimPulse).toFixed(3)})`);
+        sg.addColorStop(1, `rgba(${this.heroAccRgb}, 0)`);
+        ctx.fillStyle = sg;
+        ctx.fillRect(sx - 56, y - 1, 112, 4);
+      }
+      ctx.restore();
+
       ctx.fillStyle = '#262d40'; ctx.fillRect(0, y + 4, BW, 12);
       ctx.fillStyle = '#171c2b'; ctx.fillRect(0, y + 16, BW, 12);
       for (let bx = 0; bx < BW; bx += 48) { ctx.fillStyle = '#0c0f1a'; ctx.fillRect(bx, y + 4, 4, 12); ctx.fillRect(bx + 24, y + 16, 4, 12); }
@@ -2208,13 +2266,64 @@
       const bg = this.getUpperBgCanvas(this.biome);
       ctx.drawImage(bg, 0, 0, VW, BRIDGE_VY, 0, 0, BW, BRIDGE_Y);
 
+      // 1B. Hero-Tinted Luminous Eclipse Corona, -11deg Volumetric Moonlight Shafts & Horizon Aura
+      const heatLvl = (this.scoring && this.scoring.heatLevel) || 0;
+      const skyBreath = 0.85 + 0.15 * Math.sin(this.idleTime * 1.35);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Luminous moon corona linking Hero Select palette with the pale moon
+      const moonX = 182 * 4;
+      const moonY = 36 * 4;
+      const moonCorona = ctx.createRadialGradient(moonX, moonY, 26, moonX, moonY, 265);
+      moonCorona.addColorStop(0, `rgba(${pal.moonGlow}, ${(0.20 * skyBreath).toFixed(3)})`);
+      moonCorona.addColorStop(0.42, `rgba(${this.heroAccRgb}, ${(0.11 * skyBreath).toFixed(3)})`);
+      moonCorona.addColorStop(0.74, `rgba(${this.heroAcc2Rgb}, ${(0.055 * skyBreath).toFixed(3)})`);
+      moonCorona.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = moonCorona;
+      ctx.fillRect(moonX - 270, moonY - 270, 540, 540);
+
+      // Subtle -11deg slanted volumetric moonlight shafts descending across open sky
+      const rays = [
+        { x: 295, w: 120, a: 0.058, col: this.heroAccRgb, spd: 0.55 },
+        { x: 640, w: 155, a: 0.068, col: pal.moonGlow, spd: 0.42 },
+        { x: 895, w: 135, a: 0.052, col: this.heroAcc2Rgb, spd: 0.48 }
+      ];
+      for (let i = 0; i < rays.length; i++) {
+        const ray = rays[i];
+        const drift = Math.sin(this.idleTime * ray.spd + i * 2.1) * 18;
+        const pulse = 0.78 + 0.22 * Math.sin(this.idleTime * 0.9 + i * 1.7);
+        const rx = ray.x + drift;
+        ctx.save();
+        ctx.translate(rx, 0);
+        ctx.transform(1, 0, -0.194, 1, 0, 0); // -11deg slant echoing Hero Select!
+        const rg = ctx.createLinearGradient(0, 18, 0, BRIDGE_Y);
+        rg.addColorStop(0, `rgba(${ray.col}, 0)`);
+        rg.addColorStop(0.28, `rgba(${ray.col}, ${(ray.a * pulse).toFixed(3)})`);
+        rg.addColorStop(0.76, `rgba(${ray.col}, ${(ray.a * 0.55 * pulse).toFixed(3)})`);
+        rg.addColorStop(1, `rgba(${ray.col}, 0)`);
+        ctx.fillStyle = rg;
+        ctx.fillRect(-ray.w * 0.5, 0, ray.w, BRIDGE_Y);
+        ctx.restore();
+      }
+
+      // Soft twilight hero-tinted horizon glow behind the squad & bridge (never washes out HUD!)
+      const hGlow = ctx.createLinearGradient(0, BRIDGE_Y - 145, 0, BRIDGE_Y);
+      const hBoost = 1 + heatLvl * 0.24;
+      hGlow.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      hGlow.addColorStop(0.62, `rgba(${this.heroAcc2Rgb}, ${(0.055 * hBoost).toFixed(3)})`);
+      hGlow.addColorStop(1, `rgba(${this.heroAccRgb}, ${(0.125 * hBoost).toFixed(3)})`);
+      ctx.fillStyle = hGlow;
+      ctx.fillRect(0, BRIDGE_Y - 145, BW, 145);
+      ctx.restore();
+
       // 2. Subtle Warm Bridge-Lamp Halo (far left edge x=72px, softly flickering)
       const lampFlicker = 0.86 + 0.14 * Math.sin(this.idleTime * 5.2) * Math.cos(this.idleTime * 2.3);
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       const lg = ctx.createRadialGradient(72, BRIDGE_Y - 104, 4, 72, BRIDGE_Y - 104, 86);
-      lg.addColorStop(0, `rgba(235, 178, 92, ${0.22 * lampFlicker})`);
-      lg.addColorStop(0.5, `rgba(210, 140, 62, ${0.07 * lampFlicker})`);
+      lg.addColorStop(0, `rgba(235, 178, 92, ${0.24 * lampFlicker})`);
+      lg.addColorStop(0.5, `rgba(210, 140, 62, ${0.08 * lampFlicker})`);
       lg.addColorStop(1, 'rgba(210, 140, 62, 0)');
       ctx.fillStyle = lg;
       ctx.fillRect(0, BRIDGE_Y - 190, 162, 176);
@@ -2231,10 +2340,41 @@
         const mx = offset - 440;
         const mg = ctx.createLinearGradient(mx, yBase, mx + 440, yBase);
         mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
-        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.042 + (r % 3) * 0.014) * mistBoost).toFixed(3)})`);
+        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.048 + (r % 3) * 0.015) * mistBoost).toFixed(3)})`);
         mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
         ctx.fillStyle = mg;
         ctx.fillRect(Math.round(mx), yBase, 440, 20 + (r % 3) * 6);
+      }
+      ctx.restore();
+
+      // 3B. Luminous Hero-Tinted Floating Starlight & Drifting Embers (echoes Hero Select atmosphere!)
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (const m of this.ambientMotes) {
+        const tw = 0.35 + 0.65 * Math.pow(0.5 + 0.5 * Math.sin(this.idleTime * 2.4 + m.phase), 2);
+        const edgeFade = Math.min(1, Math.max(0, (m.y - 36) / 60)) * Math.min(1, Math.max(0, (BRIDGE_Y - 8 - m.y) / 48));
+        const alpha = tw * edgeFade * (m.isStar ? 0.72 : 0.54);
+        if (alpha <= 0.03) continue;
+        const mx = Math.round(m.x + Math.sin(this.idleTime * 1.1 + m.phase) * 8);
+        const my = Math.round(m.y);
+        const colRgb = m.useAcc2 ? this.heroAcc2Rgb : this.heroAccRgb;
+        const haloR = m.isStar ? 11 : 7;
+        const mg = ctx.createRadialGradient(mx, my, 0.5, mx, my, haloR);
+        mg.addColorStop(0, `rgba(${colRgb}, ${(alpha * 0.55).toFixed(3)})`);
+        mg.addColorStop(1, `rgba(${colRgb}, 0)`);
+        ctx.fillStyle = mg;
+        ctx.fillRect(mx - haloR, my - haloR, haloR * 2, haloR * 2);
+
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = m.isStar ? '#fffaf0' : (m.useAcc2 ? this.heroAccent2 : this.heroAccent);
+        if (m.isStar) {
+          // Crisp 4-point starlight cross glint
+          ctx.fillRect(mx - 1, my - 4, 2, 8);
+          ctx.fillRect(mx - 4, my - 1, 8, 2);
+        } else {
+          ctx.fillRect(mx - 1, my - 1, m.size, m.size);
+        }
+        ctx.globalAlpha = 1;
       }
       ctx.restore();
 
@@ -2632,8 +2772,46 @@
       const waterTint = ctx.createLinearGradient(0, LAKE_Y, BW, LAKE_Y);
       waterTint.addColorStop(0, pal.lakeTintL); waterTint.addColorStop(1, pal.lakeTintR);
       ctx.fillStyle = waterTint; ctx.fillRect(0, LAKE_Y, BW, lakeH);
+
+      // Luminous Mirror-Lake Specular Ripples & Hero-Tinted Aurora Shimmer (keeps reflections vivid above hand dock!)
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const lakeAurora = ctx.createLinearGradient(0, LAKE_Y, BW, LAKE_Y + 95);
+      lakeAurora.addColorStop(0, `rgba(${this.heroAccRgb}, 0.08)`);
+      lakeAurora.addColorStop(0.45, `rgba(${pal.moonGlow}, 0.07)`);
+      lakeAurora.addColorStop(0.72, `rgba(${this.heroAcc2Rgb}, 0.09)`);
+      lakeAurora.addColorStop(1, `rgba(${this.heroAccRgb}, 0.03)`);
+      ctx.fillStyle = lakeAurora;
+      ctx.fillRect(0, LAKE_Y, BW, 118);
+
+      // Crisp dancing moon-path & hero specular glints across upper mirror surface
+      for (let r = 0; r < 14; r++) {
+        const ry = LAKE_Y + 6 + r * 7;
+        const waveShift = Math.sin(this.idleTime * (2.2 + (r % 3) * 0.55) + r * 1.3) * (16 + r * 2);
+        const rw = Math.max(26, 128 - r * 6 + Math.sin(this.idleTime * 3.1 + r) * 18);
+        const rx = 728 - rw * 0.5 + waveShift;
+        const ra = Math.max(0.03, (0.20 - r * 0.011) * (0.7 + 0.3 * Math.sin(this.idleTime * 3.5 + r * 2.1)));
+        ctx.fillStyle = r % 3 === 0 ? `rgba(${this.heroAccRgb}, ${ra.toFixed(3)})` : `rgba(235, 244, 255, ${ra.toFixed(3)})`;
+        ctx.fillRect(Math.round(rx), ry, Math.round(rw), 2);
+      }
+      // Subtle hero-side shimmer lines below the 3 bridge slots
+      for (let i = 0; i < 3; i++) {
+        if (!this.slotUnits[i]) continue;
+        const sx = SLOT_X[i];
+        for (let k = 0; k < 4; k++) {
+          const ry = LAKE_Y + 10 + k * 14;
+          const rw = 46 - k * 7 + Math.sin(this.idleTime * 3.4 + i + k) * 8;
+          const rx = sx - rw * 0.5 + Math.sin(this.idleTime * 2.5 + k * 1.4 + i) * 9;
+          ctx.fillStyle = `rgba(${this.heroAccRgb}, ${(0.16 - k * 0.03).toFixed(3)})`;
+          ctx.fillRect(Math.round(rx), ry, Math.round(rw), 2);
+        }
+      }
+      ctx.restore();
+
       const waterDepth = ctx.createLinearGradient(0, LAKE_Y, 0, BH);
-      waterDepth.addColorStop(0, 'rgba(4, 6, 14, 0.34)'); waterDepth.addColorStop(0.55, 'rgba(4, 6, 14, 0.68)'); waterDepth.addColorStop(1, 'rgba(3, 4, 10, 0.88)');
+      waterDepth.addColorStop(0, 'rgba(4, 6, 14, 0.20)');
+      waterDepth.addColorStop(0.46, 'rgba(4, 6, 14, 0.58)');
+      waterDepth.addColorStop(1, 'rgba(3, 4, 10, 0.88)');
       ctx.fillStyle = waterDepth; ctx.fillRect(0, LAKE_Y, BW, lakeH);
       ctx.restore();
 

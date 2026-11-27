@@ -93,45 +93,72 @@
       return this.kit;
     }
 
-    async load() {
+    async load(onProgress) {
       this.manifest = window.MT.UNIT_MANIFEST;
-      const promises = [];
+      const criticalTasks = [];
+      const deferredTasks = [];
 
-      // 1. Preload legacy UNIT_MANIFEST horizontal strips
+      // 1. Legacy UNIT_MANIFEST horizontal strips (idle first, combat actions deferred)
       if (this.manifest && this.manifest.units) {
         for (const [id, info] of Object.entries(this.manifest.units)) {
           const keys = [
-            ['idle', info.image],
-            ['selected', info.selectedImage],
-            ['still', info.still],
-            ['attack', info.attack && info.attack.image],
-            ['hit', info.hit && info.hit.image]
+            ['idle', info.image, true],
+            ['selected', info.selectedImage, false],
+            ['still', info.still, false],
+            ['attack', info.attack && info.attack.image, false],
+            ['hit', info.hit && info.hit.image, false]
           ];
-          for (const [anim, file] of keys) {
+          for (const [anim, file, isCritical] of keys) {
             if (!file) continue;
-            promises.push(this.loadImage(`${id}:${anim}`, `./assets/units/${file}`));
+            const task = () => this.loadImage(`${id}:${anim}`, `./assets/units/${file}`).catch(() => {});
+            (isCritical ? criticalTasks : deferredTasks).push(task);
           }
         }
       }
 
-      // 2. Preload all imported Duelyst H5 kit units (idle + attack!)
+      // 2. Duelyst H5 kit units: preload 'idle' during startup bar, warm 'attack' silently right after boot
       const kit = this.initKit();
       if (kit && kit.manifest && kit.manifest.units) {
         for (const [unitId, rec] of Object.entries(kit.manifest.units)) {
           for (const [action, clip] of Object.entries(rec.actions || {})) {
             if (!clip || !clip.path) continue;
-            promises.push(
-              kit.image(clip)
-                .then((img) => { this.duelystImages.set(`${unitId}:${action}`, img); })
-                .catch(() => {})
-            );
+            const task = () => kit.image(clip)
+              .then((img) => { this.duelystImages.set(`${unitId}:${action}`, img); })
+              .catch(() => {});
+            if (action === 'idle') criticalTasks.push(task);
+            else deferredTasks.push(task);
           }
         }
       }
 
-      await Promise.all(promises);
+      const total = criticalTasks.length;
+      let done = 0;
+      if (onProgress) onProgress(0, total);
+
+      await Promise.all(criticalTasks.map((fn) => fn().finally(() => {
+        done++;
+        if (onProgress) onProgress(done, total);
+      })));
+
       this.ready = true;
       this.startDomCanvasTicker();
+
+      // Silently warm attack strips in small batches in background so battle hits are ready without blocking boot
+      if (deferredTasks.length > 0) {
+        setTimeout(() => {
+          let idx = 0;
+          const runBatch = () => {
+            const slice = deferredTasks.slice(idx, idx + 4);
+            if (!slice.length) return;
+            idx += 4;
+            Promise.all(slice.map((fn) => fn())).then(() => {
+              if (idx < deferredTasks.length) setTimeout(runBatch, 60);
+            });
+          };
+          runBatch();
+        }, 350);
+      }
+
       return this;
     }
 

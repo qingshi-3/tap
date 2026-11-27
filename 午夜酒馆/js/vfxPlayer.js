@@ -124,19 +124,17 @@
       return this.kit;
     }
 
-    async load() {
-      const promises = [];
+    async load(onProgress) {
+      const tasks = [];
 
       // 1. Preload Duelyst H5 shop/relic icons (VFX now primarily powered by pure-code MIT pixelfx!)
       const kit = this.initKit();
       if (kit && kit.manifest && kit.manifest.icons) {
         for (const [key, rec] of Object.entries(kit.manifest.icons)) {
           if (!rec || !rec.path) continue;
-          promises.push(
-            kit.image(rec)
-              .then((img) => { this.iconImages.set(key, img); })
-              .catch(() => {})
-          );
+          tasks.push(() => kit.image(rec)
+            .then((img) => { this.iconImages.set(key, img); })
+            .catch(() => {}));
         }
       }
 
@@ -157,7 +155,7 @@
         './assets/gear/eq_greed_dice.png'
       ];
       for (const src of localUiIcons) {
-        promises.push(new Promise((resolve) => {
+        tasks.push(() => new Promise((resolve) => {
           const img = new Image();
           img.onload = () => resolve();
           img.onerror = () => resolve();
@@ -165,7 +163,14 @@
         }));
       }
 
-      await Promise.all(promises);
+      const total = tasks.length;
+      let done = 0;
+      if (onProgress) onProgress(0, total);
+
+      await Promise.all(tasks.map((fn) => fn().finally(() => {
+        done++;
+        if (onProgress) onProgress(done, total);
+      })));
       this.loaded = true;
       return this;
     }

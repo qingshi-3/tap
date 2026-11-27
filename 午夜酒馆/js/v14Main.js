@@ -118,12 +118,127 @@
     }
 
     async boot() {
+      const preloader = $('boot-preloader');
+      const barFill = $('boot-bar-fill');
+      const stageTxt = $('boot-stage-text');
+      const countEl = $('boot-count');
+      const pctEl = $('boot-pct');
+
+      const state = {
+        portraitsDone: 0, portraitsTotal: (M && M.HEROES_META ? M.HEROES_META.length : 0),
+        spritesDone: 0,   spritesTotal: 1,
+        vfxDone: 0,       vfxTotal: 1,
+        fontDone: 0,      fontTotal: 1
+      };
+
+      const renderProgress = () => {
+        const total = Math.max(1, state.portraitsTotal + state.spritesTotal + state.vfxTotal + state.fontTotal);
+        const done = Math.min(total, state.portraitsDone + state.spritesDone + state.vfxDone + state.fontDone);
+        const pct = Math.min(100, Math.round((done / total) * 100));
+        if (barFill) barFill.style.width = `${Math.max(4, pct)}%`;
+        if (countEl) countEl.textContent = `${done} / ${total}`;
+        if (pctEl) pctEl.textContent = `${pct}%`;
+        if (stageTxt) {
+          if (state.portraitsDone < state.portraitsTotal) {
+            stageTxt.textContent = `预加载英雄立绘 (${state.portraitsDone}/${state.portraitsTotal})`;
+          } else if (state.spritesDone < state.spritesTotal || state.vfxDone < state.vfxTotal) {
+            stageTxt.textContent = '预加载战团单位与秘宝图集...';
+          } else {
+            stageTxt.textContent = '点亮午夜酒馆...';
+          }
+        }
+      };
+
+      renderProgress();
+
+      // Retain decoded layered portrait Image references (bg + transparent character cutout) in memory
+      this._preloadedPortraits = [];
+      const preloadHeroPortraits = () => {
+        const list = (M && M.HEROES_META) ? M.HEROES_META : [];
+        const urls = [];
+        for (const h of list) {
+          if (!h) continue;
+          if (h.portraitBg) urls.push(h.portraitBg);
+          if (h.portraitChar) urls.push(h.portraitChar);
+          else if (h.portrait) urls.push(h.portrait);
+        }
+        state.portraitsTotal = Math.max(1, urls.length);
+        renderProgress();
+        if (!urls.length) {
+          state.portraitsDone = 1;
+          renderProgress();
+          return Promise.resolve();
+        }
+        return Promise.all(urls.map((url) => new Promise((resolve) => {
+          const img = new Image();
+          img.decoding = 'async';
+          let settled = false;
+          const finish = () => {
+            if (settled) return;
+            settled = true;
+            state.portraitsDone++;
+            renderProgress();
+            resolve();
+          };
+          img.onload = () => {
+            if (typeof img.decode === 'function') {
+              img.decode().then(finish).catch(finish);
+            } else {
+              finish();
+            }
+          };
+          img.onerror = finish;
+          img.src = url;
+          this._preloadedPortraits.push(img);
+        })));
+      };
+
+      const preloadFonts = () => {
+        if (!document.fonts || !document.fonts.ready) {
+          state.fontDone = 1;
+          renderProgress();
+          return Promise.resolve();
+        }
+        return Promise.race([
+          document.fonts.ready,
+          new Promise((r) => setTimeout(r, 2500))
+        ]).finally(() => {
+          state.fontDone = 1;
+          renderProgress();
+        });
+      };
+
+      const preloadAll = Promise.all([
+        preloadHeroPortraits(),
+        preloadFonts(),
+        this.sprites && this.sprites.load
+          ? this.sprites.load((d, t) => {
+              state.spritesDone = d;
+              state.spritesTotal = Math.max(1, t);
+              renderProgress();
+            }).catch(() => {})
+          : Promise.resolve().then(() => { state.spritesDone = 1; renderProgress(); }),
+        this.vfx && this.vfx.load
+          ? this.vfx.load((d, t) => {
+              state.vfxDone = d;
+              state.vfxTotal = Math.max(1, t);
+              renderProgress();
+            }).catch(() => {})
+          : Promise.resolve().then(() => { state.vfxDone = 1; renderProgress(); })
+      ]);
+
       try {
-        await Promise.all([
-          this.sprites && this.sprites.load ? this.sprites.load().catch(() => {}) : Promise.resolve(),
-          this.vfx && this.vfx.load ? this.vfx.load().catch(() => {}) : Promise.resolve()
+        // Hard 12s safety cap so flaky networks can never stall entry
+        await Promise.race([
+          preloadAll,
+          new Promise((r) => setTimeout(r, 12000))
         ]);
       } catch (_) {}
+
+      if (barFill) barFill.style.width = '100%';
+      if (pctEl) pctEl.textContent = '100%';
+      if (stageTxt) stageTxt.textContent = '准备就绪';
+
       this.meta.syncFromCloud(() => {
         if (!$('deck-select-modal').classList.contains('hidden')) this.renderPrepHall();
       });
@@ -132,6 +247,11 @@
         this.launchTierShowcase();
       } else {
         this.showTitleScreen();
+      }
+
+      if (preloader) {
+        preloader.classList.add('is-done');
+        setTimeout(() => preloader.classList.add('hidden'), 360);
       }
     }
 
@@ -1217,17 +1337,24 @@
                           <div class="v17-sl-auto-sheen" aria-hidden="true"></div>
 
                           <div class="v17-sl-unskew">
-                            ${h.portrait
-                              ? `<img class="v17-sl-art" src="${esc(h.portrait)}" alt="${esc(h.name)}" draggable="false" />`
-                              : `<div class="v17-sl-blank-canvas">
-                                   <div class="v17-blank-grid" aria-hidden="true"></div>
-                                   <div class="v17-blank-watermark">${code}</div>
-                                   <div class="v17-blank-frame">
-                                     <span class="v17-bf-kicker">${esc(h.codename || 'HERO')}</span>
-                                     <b class="v17-bf-title">${esc(shortName)}</b>
-                                     <span class="v17-bf-note">专属像素立绘 · 待绘制</span>
-                                   </div>
+                            ${(h.portraitBg && h.portraitChar)
+                              ? `<div class="v17-portrait-rig">
+                                   <img class="v17-sl-bg" src="${esc(h.portraitBg)}" alt="" aria-hidden="true" draggable="false" />
+                                   <div class="v17-sl-backglow" aria-hidden="true"></div>
+                                   <img class="v17-sl-char" src="${esc(h.portraitChar)}" alt="${esc(h.name)}" draggable="false" />
+                                   <div class="v17-sl-fg-glow" aria-hidden="true"></div>
                                  </div>`
+                              : (h.portrait
+                                ? `<img class="v17-sl-art" src="${esc(h.portrait)}" alt="${esc(h.name)}" draggable="false" />`
+                                : `<div class="v17-sl-blank-canvas">
+                                     <div class="v17-blank-grid" aria-hidden="true"></div>
+                                     <div class="v17-blank-watermark">${code}</div>
+                                     <div class="v17-blank-frame">
+                                       <span class="v17-bf-kicker">${esc(h.codename || 'HERO')}</span>
+                                       <b class="v17-bf-title">${esc(shortName)}</b>
+                                       <span class="v17-bf-note">专属像素立绘 · 待绘制</span>
+                                     </div>
+                                   </div>`)
                             }
                             <div class="v17-prism-scan" aria-hidden="true"></div>
                             <div class="v17-sl-vignette" aria-hidden="true"></div>
@@ -1349,31 +1476,24 @@
               }
             }, { passive: false });
 
-            vp.addEventListener('pointermove', (e) => {
-              if (isDown) return;
-              const stageEl = $('muster-stage-root');
-              if (stageEl && this.heroMusterStage && this.heroMusterStage.setPointerScreen) {
-                const sRect = stageEl.getBoundingClientRect();
-                if (sRect.width > 0 && sRect.height > 0) {
-                  const sx = (e.clientX - sRect.left) * (1280 / sRect.width);
-                  const sy = (e.clientY - sRect.top) * (720 / sRect.height);
-                  this.heroMusterStage.setPointerScreen(sx, sy, true);
-                }
-              }
-              const active = track && track.querySelector('.v17-hero-slice.is-active');
-              if (!active) return;
-              const r = active.getBoundingClientRect();
-              if (r.width <= 0) return;
-              const nx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width) * 2 - 1));
-              const ny = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height) * 2 - 1));
-              active.style.setProperty('--px', `${(-nx * 7).toFixed(1)}px`);
-              active.style.setProperty('--py', `${(-ny * 5).toFixed(1)}px`);
-            });
-            vp.addEventListener('pointerleave', () => {
-              if (this.heroMusterStage && this.heroMusterStage.setPointerScreen) {
-                this.heroMusterStage.setPointerScreen(0, 0, false);
-              }
-            });
+            // True 2.5D multi-layer parallax: background scene & character cutout shift at distinct depths
+            let rigRaf = 0;
+            const updateRigParallax = () => {
+              rigRaf = 0;
+              const vpRect = vp.getBoundingClientRect();
+              if (vpRect.width <= 0) return;
+              const vpCenter = vpRect.left + vpRect.width * 0.5;
+              const halfSpan = Math.max(240, vpRect.width * 0.55);
+              vp.querySelectorAll('.v17-hero-slice').forEach((sl) => {
+                const r = sl.getBoundingClientRect();
+                const norm = Math.max(-1, Math.min(1, (r.left + r.width * 0.5 - vpCenter) / halfSpan));
+                sl.style.setProperty('--rig-px', norm.toFixed(3));
+              });
+            };
+            vp.addEventListener('scroll', () => {
+              if (!rigRaf) rigRaf = requestAnimationFrame(updateRigParallax);
+            }, { passive: true });
+            requestAnimationFrame(updateRigParallax);
           }
 
           if (track) {
@@ -1382,6 +1502,15 @@
               slice.addEventListener('click', (e) => {
                 if (e.target.closest('button')) return;
                 if (draggedDist > 7) { draggedDist = 0; return; }
+                const stageEl = $('muster-stage-root');
+                if (stageEl && this.heroMusterStage && this.heroMusterStage.triggerTapPulse) {
+                  const sRect = stageEl.getBoundingClientRect();
+                  if (sRect.width > 0 && sRect.height > 0) {
+                    const sx = (e.clientX - sRect.left) * (1280 / sRect.width);
+                    const sy = (e.clientY - sRect.top) * (720 / sRect.height);
+                    this.heroMusterStage.triggerTapPulse(sx, sy);
+                  }
+                }
                 this.selectMusterHero(hid, true, false);
               });
               slice.addEventListener('keydown', (e) => {
@@ -1988,7 +2117,168 @@
       $('title-screen-view').classList.add('hidden');
       $('deck-select-modal').classList.add('hidden');
       this._closePayoutModal();
+      this.playHeroSortieTransition(hero);
       this.startWaveBattle(1);
+    }
+
+    _hexToRgbCsv(hex, fallback = '255, 217, 102') {
+      if (!hex || typeof hex !== 'string') return fallback;
+      const c = hex.trim().replace('#', '');
+      if (c.length === 3) {
+        const r = parseInt(c[0] + c[0], 16);
+        const g = parseInt(c[1] + c[1], 16);
+        const b = parseInt(c[2] + c[2], 16);
+        return Number.isNaN(r) ? fallback : `${r}, ${g}, ${b}`;
+      }
+      if (c.length === 6) {
+        const r = parseInt(c.slice(0, 2), 16);
+        const g = parseInt(c.slice(2, 4), 16);
+        const b = parseInt(c.slice(4, 6), 16);
+        return Number.isNaN(r) ? fallback : `${r}, ${g}, ${b}`;
+      }
+      return fallback;
+    }
+
+    playHeroSortieTransition(hero) {
+      const veil = $('hero-sortie-veil');
+      if (!veil || !hero) return;
+      if (this._sortieTimer) {
+        clearTimeout(this._sortieTimer);
+        this._sortieTimer = null;
+      }
+      const acc = hero.accent || '#ffd966';
+      const acc2 = hero.accent2 || '#ff6e96';
+      veil.style.setProperty('--hsv-acc', acc);
+      veil.style.setProperty('--hsv-acc2', acc2);
+      veil.style.setProperty('--hsv-acc-rgb', this._hexToRgbCsv(acc, '255, 217, 102'));
+      veil.style.setProperty('--hsv-acc2-rgb', this._hexToRgbCsv(acc2, '255, 110, 150'));
+
+      const img = $('hsv-char-img');
+      if (img) {
+        img.src = hero.portraitChar || hero.portrait || '';
+        img.alt = hero.name || '';
+      }
+      const codeEl = $('hsv-code');
+      if (codeEl) codeEl.textContent = `NO.${hero.code || '01'} · ${hero.codename || 'VANGUARD'}`;
+      const nameEl = $('hsv-name');
+      if (nameEl) nameEl.textContent = hero.name || '';
+
+      veil.classList.remove('hidden', 'playing');
+      void veil.offsetWidth;
+      veil.classList.add('playing');
+      this._sortieTimer = setTimeout(() => {
+        veil.classList.remove('playing');
+        veil.classList.add('hidden');
+        this._sortieTimer = null;
+      }, 1320);
+    }
+
+    applyBattleHeroVisuals(hero) {
+      const battleView = $('battle-view');
+      if (!battleView || !hero) return;
+      const acc = hero.accent || '#ffd966';
+      const acc2 = hero.accent2 || '#ff6e96';
+      battleView.style.setProperty('--bt-acc', acc);
+      battleView.style.setProperty('--bt-acc2', acc2);
+      battleView.style.setProperty('--bt-acc-rgb', this._hexToRgbCsv(acc, '255, 217, 102'));
+      battleView.style.setProperty('--bt-acc2-rgb', this._hexToRgbCsv(acc2, '255, 110, 150'));
+
+      const avatar = $('bt-hero-avatar');
+      if (avatar) {
+        avatar.src = hero.portraitChar || hero.portrait || '';
+        avatar.alt = hero.name || '';
+      }
+      const tip = $('bt-hero-tip');
+      if (tip) {
+        tip.classList.add('hidden');
+        tip.innerHTML = `
+          <div class="bht-head">
+            <strong class="bht-name">${esc(hero.name || '')}</strong>
+            <span class="bht-code">NO.${esc(hero.code || '01')} · ${esc(hero.codename || '')}</span>
+          </div>
+          <div class="bht-passive-title">英雄专属被动</div>
+          <div class="bht-passive-desc">${esc(hero.desc || '')}</div>
+        `;
+      }
+      const medallion = $('bt-hero-medallion');
+      if (medallion && !this._heroMedallionBound) {
+        this._heroMedallionBound = true;
+        medallion.addEventListener('click', (ev) => {
+          ev.stopPropagation();
+          const t = $('bt-hero-tip');
+          if (!t) return;
+          const willShow = t.classList.contains('hidden');
+          t.classList.toggle('hidden', !willShow);
+          if (willShow && this.audio && this.audio.playPickup) this.audio.playPickup();
+        });
+      }
+      const cutin = $('bt-hero-cutin');
+      if (cutin) {
+        if (this._heroCutInTimer) {
+          clearTimeout(this._heroCutInTimer);
+          this._heroCutInTimer = null;
+        }
+        cutin.classList.remove('playing');
+        cutin.classList.add('hidden');
+      }
+      if (hero.startShield || hero.startBossPoison) {
+        setTimeout(() => this.pulseHeroMedallion(), 420);
+      }
+    }
+
+    pulseHeroMedallion() {
+      const m = $('bt-hero-medallion');
+      if (!m) return;
+      m.classList.remove('pulse-passive');
+      void m.offsetWidth;
+      m.classList.add('pulse-passive');
+    }
+
+    triggerHeroCutIn(title, sub = '', opts = {}) {
+      const hero = (this.run && this.run.hero)
+        ? (this.meta.getHero(this.run.hero.id) || this.run.hero)
+        : null;
+      const el = $('bt-hero-cutin');
+      if (!el || !hero) {
+        if (this.battleStage && this.battleStage.triggerCutIn) {
+          this.battleStage.triggerCutIn(title, sub, opts.color || '#ffd966');
+        }
+        return;
+      }
+      if (this._heroCutInTimer) {
+        clearTimeout(this._heroCutInTimer);
+        this._heroCutInTimer = null;
+      }
+      const acc = opts.color || hero.accent || '#ffd966';
+      const acc2 = opts.color2 || hero.accent2 || '#ff6e96';
+      el.style.setProperty('--bhc-acc', acc);
+      el.style.setProperty('--bhc-acc2', acc2);
+      el.style.setProperty('--bhc-acc-rgb', this._hexToRgbCsv(acc, '255, 217, 102'));
+
+      const charImg = $('bt-cutin-char');
+      if (charImg) {
+        charImg.src = hero.portraitChar || hero.portrait || '';
+        charImg.alt = hero.name || '';
+      }
+      const kickerEl = $('bt-cutin-kicker');
+      if (kickerEl) kickerEl.textContent = `NO.${hero.code || '01'} · ${hero.codename || hero.name || ''}`;
+      const titleEl = $('bt-cutin-title');
+      if (titleEl) titleEl.textContent = title || '';
+      const subEl = $('bt-cutin-sub');
+      if (subEl) subEl.textContent = sub || '';
+
+      el.classList.remove('hidden', 'playing');
+      void el.offsetWidth;
+      el.classList.add('playing');
+      this.pulseHeroMedallion();
+      if (this.battleStage && this.battleStage.triggerFlash) {
+        this.battleStage.triggerFlash(acc, 0.20, 0.16);
+      }
+      this._heroCutInTimer = setTimeout(() => {
+        el.classList.remove('playing');
+        el.classList.add('hidden');
+        this._heroCutInTimer = null;
+      }, 980);
     }
 
     resumeSavedRun() {
@@ -2037,7 +2327,9 @@
         heavyDmg: Math.round(rawBoss.heavyDmg * asc.dmgMult),
         ultDmg: Math.round(rawBoss.ultDmg * asc.dmgMult)
       };
-      const hero = this.run.hero;
+      const hero = (this.run.hero && this.meta.getHero(this.run.hero.id)) || this.run.hero;
+      this.run.hero = hero;
+      this.applyBattleHeroVisuals(hero);
       const extraDiscards = this.run.relics.filter((r) => r.id === 'r_disc_extra').length * 2 + (hero.extraDiscards || 0) + (asc.discardDelta || 0);
       const drawPile = shuffle(this.run.roster);
       const maxHp = Math.max(40, D.SQUAD_MAX_HP + (hero.maxHpBonus || 0));
@@ -2118,6 +2410,10 @@
       if (!this._battleDismissBound) {
         this._battleDismissBound = true;
         $('battle-view').addEventListener('pointerdown', (ev) => {
+          const heroTip = $('bt-hero-tip');
+          if (heroTip && !heroTip.classList.contains('hidden') && !ev.target.closest('#bt-hero-medallion') && !ev.target.closest('#bt-hero-tip')) {
+            heroTip.classList.add('hidden');
+          }
           if (this.inspectedSlotIdx < 0) return;
           if (ev.target.closest('.v15-bridge-hitbox') || ev.target.closest('#v14-card-tip')) return;
           this.inspectedSlotIdx = -1;
@@ -2125,7 +2421,7 @@
           this.syncBattleUI();
         });
       }
-      this.battleStage.start(bossCfg, biome);
+      this.battleStage.start(bossCfg, biome, hero);
       this.beginRound();
     }
 
@@ -2258,7 +2554,16 @@
         return;
       }
 
-      // Balatro-style direct selection: tap 1~4 hand cards to lift & inspect, then tap 换桌 once to discard!
+      // If no discards remain (and not in pure filter mode), clicking only inspects 1 card cleanly
+      if (b.discardsLeft <= 0 && !this.pureFilterMode) {
+        this.discardPicks.clear();
+        this.inspectedCardUid = (this.inspectedCardUid === heroUid) ? null : heroUid;
+        this.audio.playPickup();
+        this.syncBattleUI();
+        return;
+      }
+
+      // Balatro-style direct selection: tap 1~limit hand cards to lift & inspect, then tap 换桌 once to discard!
       const limit = this.pureFilterMode ? 3 : 4;
       if (this.discardPicks.has(heroUid)) {
         this.discardPicks.delete(heroUid);
@@ -2267,8 +2572,22 @@
         this.audio.playDrop();
       } else {
         if (this.discardPicks.size >= limit) {
-          this.toast(`单次换桌最多选择 ${limit} 张手牌`);
-          this.inspectedCardUid = heroUid;
+          // NEVER lift a 5th card as selected-card! Trigger crisp shake + quota bar pulse instead.
+          this.audio.playDrop();
+          this.toast(`单次换桌已达上限（${limit}/${limit} 张），再点已选牌可取消`);
+          const cardEl = document.querySelector(`#bt-cards-row .v14-card[data-uid="${heroUid}"]`);
+          if (cardEl) {
+            cardEl.classList.remove('pick-limit-shake');
+            void cardEl.offsetWidth;
+            cardEl.classList.add('pick-limit-shake');
+          }
+          const counterEl = $('bt-discard-counter');
+          if (counterEl) {
+            counterEl.classList.remove('limit-bump');
+            void counterEl.offsetWidth;
+            counterEl.classList.add('limit-bump');
+          }
+          return;
         } else {
           this.discardPicks.add(heroUid);
           this.inspectedCardUid = heroUid;
@@ -2431,11 +2750,11 @@
 
       const strikeRes = E.executeStrike(b, slotted, remainingHand, this.run.roster);
       if (strikeRes.directDmg >= preStrikeSnap.bossHp + preStrikeSnap.bossShield) {
-        this.battleStage.triggerCutIn('终结斩杀！', `单手直伤 ${strikeRes.directDmg}`, '#ffd966');
+        this.triggerHeroCutIn('终结斩杀！', `单手直伤 ${strikeRes.directDmg}`, { color: '#ffd966' });
       } else if (preCharging && preBreakProgress + strikeRes.directDmg >= preBreakThreshold) {
-        this.battleStage.triggerCutIn('破招强袭！', `打断蓄力 · 易伤 ×1.5`, '#7be8ff');
-      } else if (strikeRes.directDmg >= 450) {
-        this.battleStage.triggerCutIn('绝技连携！', `爆发直伤 ${strikeRes.directDmg}`, '#ff7a98');
+        this.triggerHeroCutIn('破招强袭！', `打断蓄力 · 易伤 ×1.5`, { color: '#7be8ff' });
+      } else if (strikeRes.directDmg >= 220) {
+        this.triggerHeroCutIn('绝技连携！', `爆发直伤 ${strikeRes.directDmg}`);
       }
       this.run.gold = b.gold;
       if (strikeRes.directDmg > this.run.peakHit) this.run.peakHit = strikeRes.directDmg;
@@ -3060,7 +3379,26 @@
     syncBattleHudOnly(overrideState = null) {
       const b = overrideState || this.battle;
       if (!b) return;
-      $('bt-title').innerHTML = `<span class="v15-hud-tag">第${b.wave}/8波</span><span class="v15-hud-tag">第${b.round}/${b.maxRounds}回合</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}</span>`;
+      const heroLabel = (this.run && this.run.hero && this.run.hero.name)
+        ? this.run.hero.name.replace(/^英雄\d+\s*·\s*/, '')
+        : '小队';
+      $('bt-title').innerHTML = `<span class="v15-hud-tag squad-hero-lbl">${esc(heroLabel)}</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}</span>`;
+      const waveEl = $('bt-wave-text');
+      const roundEl = $('bt-round-text');
+      const pipsEl = $('bt-wave-pips');
+      const maxWaves = (this.run && this.run.maxWaves) || 8;
+      if (waveEl) waveEl.textContent = `第 ${b.wave} / ${maxWaves} 波`;
+      if (roundEl) {
+        roundEl.textContent = `第 ${b.round} / ${b.maxRounds} 回合`;
+        roundEl.classList.toggle('final-round', b.round >= b.maxRounds);
+      }
+      if (pipsEl) {
+        pipsEl.innerHTML = Array.from({ length: maxWaves }, (_, i) => {
+          const w = i + 1;
+          const cls = w < b.wave ? 'done' : (w === b.wave ? 'cur' : '');
+          return `<span class="bwb-pip ${cls}"></span>`;
+        }).join('');
+      }
       $('bt-squad-hp-text').textContent = `${b.squadHp}/${b.squadMaxHp}${b.squadShield > 0 ? ` (+${b.squadShield}盾)` : ''}`;
       const sqPct = Math.max(0, Math.min(100, (b.squadHp / b.squadMaxHp) * 100));
       $('bt-squad-hp-fill').style.width = `${sqPct}%`;
@@ -3262,9 +3600,12 @@
       let firstUnslottedMarked = false;
       const totalCards = b.hand.length;
       const midIdx = (totalCards - 1) / 2;
+      const discardLimit = this.pureFilterMode ? 3 : 4;
+      const isPickCapped = (b.discardsLeft > 0 || this.pureFilterMode) && this.discardPicks.size >= discardLimit;
       row.innerHTML = b.hand.map((h, idx) => {
         const inSlot = slottedUids.has(h.uid);
         const isPick = this.discardPicks.has(h.uid);
+        const isCappedOut = isPickCapped && !isPick && !inSlot;
         const theme = D.THEMES[h.theme] || D.THEMES.core;
         const grown = h.atk > h.baseAtk || h.knifeCount > h.baseKnifeCount || h.shieldVal > h.baseShieldVal || h.applyPoison > h.baseApplyPoison;
         let leftmostBadge = '';
@@ -3279,7 +3620,7 @@
         const fanRot = '0';
         const fanY = Math.round(Math.abs(offset) * 2.2);
         const hasHolo = h.tier === 'A' || h.tier === 'S' || h.tier === 'SSS';
-        const isSelected = this.inspectedCardUid === h.uid;
+        const isSelected = this.inspectedCardUid === h.uid && (!isPickCapped || isPick || inSlot);
         const isNewlyDrawn = this.newlyDrawnUids && this.newlyDrawnUids.has(h.uid);
         const drawDelay = isNewlyDrawn ? `${(idx % 5) * 55}ms` : '0ms';
         // Exact trajectory from draw pile (stage x≈64, y≈526) to each card's fan slot!
@@ -3287,7 +3628,7 @@
         const dealDx = Math.round(64 - estCardX);
         const dealDy = Math.round(526 - 600);
         return `
-          <div class="v14-card v14-card-tier-${h.tier} ${inSlot ? 'in-slot' : ''} ${isPick ? 'discard-pick' : ''} ${isSelected ? 'selected-card' : ''} ${isNewlyDrawn ? 'card-draw-in' : ''}" data-uid="${h.uid}" style="--fan-rot:${fanRot}deg;--fan-y:${fanY}px;--card-glow:${theme.bg};--draw-delay:${drawDelay};--deal-dx:${dealDx}px;--deal-dy:${dealDy}px;z-index:${10 + idx}">
+          <div class="v14-card v14-card-tier-${h.tier} ${inSlot ? 'in-slot' : ''} ${isPick ? 'discard-pick' : ''} ${isCappedOut ? 'pick-capped' : ''} ${isSelected ? 'selected-card' : ''} ${isNewlyDrawn ? 'card-draw-in' : ''}" data-uid="${h.uid}" style="--fan-rot:${fanRot}deg;--fan-y:${fanY}px;--card-glow:${theme.bg};--draw-delay:${drawDelay};--deal-dx:${dealDx}px;--deal-dy:${dealDy}px;z-index:${10 + idx}">
             ${renderCardTierOrnament(h.tier)}
             ${leftmostBadge}
             <div class="v14-card-top">
@@ -3488,26 +3829,66 @@
       });
 
       const discBtn = $('btn-bt-discard');
-      const hasPicks = this.discardPicks.size > 0;
+      const pickCount = this.discardPicks.size;
+      const hasPicks = pickCount > 0;
+      const isFullPick = pickCount >= discardLimit;
       const canActDisc = (hasPicks && (b.discardsLeft > 0 || this.pureFilterMode)) || (b.discardsLeft <= 0 && this.run.adFilterLeft > 0);
       discBtn.classList.remove('active-mode');
       discBtn.classList.toggle('no-discards', b.discardsLeft <= 0 && !this.pureFilterMode && this.run.adFilterLeft <= 0);
       discBtn.classList.toggle('ready-discard', canActDisc);
       let discTitle = '换桌';
       let discSub = '';
-      let discBadge = `${b.discardsLeft}/${b.maxDiscards}`;
+      let discSubCls = 'v15-disc-quota';
+      let discBadge = `剩${b.discardsLeft}次`;
       if (this.pureFilterMode) {
-        discTitle = '纯调度';
-        discSub = hasPicks ? `弃 ${this.discardPicks.size} 张` : '';
-        discBadge = `${this.discardPicks.size}/3`;
+        discTitle = hasPicks ? '确认调度' : '纯调度';
+        discSub = isFullPick ? `已满 ${pickCount}/${discardLimit} 张` : (hasPicks ? `已选 ${pickCount}/${discardLimit} 张` : `可选 0/${discardLimit} 张`);
+        discSubCls = isFullPick ? 'v15-disc-quota full' : (hasPicks ? 'v15-disc-quota active' : 'v15-disc-quota');
+        discBadge = `${pickCount}/${discardLimit}张`;
       } else if (b.discardsLeft <= 0 && this.run.adFilterLeft > 0) {
         discTitle = '▶ 绝境调度';
-        discSub = '滤 3 张';
+        discSub = '可选 3 张';
         discBadge = 'AD';
-      } else if (hasPicks) {
+      } else if (b.discardsLeft <= 0) {
         discTitle = '换桌';
-        discSub = `弃 ${this.discardPicks.size} 张`;
+        discSub = '次数已尽';
+        discSubCls = 'v15-disc-quota empty';
+        discBadge = '0次';
+      } else if (hasPicks) {
+        discTitle = '确认换桌';
+        discSub = isFullPick ? `已满 ${pickCount}/${discardLimit} 张` : `已选 ${pickCount}/${discardLimit} 张`;
+        discSubCls = isFullPick ? 'v15-disc-quota full' : 'v15-disc-quota active';
+      } else {
+        discTitle = '换桌';
+        discSub = `可选 0/${discardLimit} 张`;
       }
+
+      // Live Hand-Top Discard Quota Bar (shows exact picks / limit with diamond pips!)
+      const counterEl = $('bt-discard-counter');
+      if (counterEl) {
+        if ((hasPicks && (b.discardsLeft > 0 || this.pureFilterMode)) || this.pureFilterMode) {
+          const pipsHtml = Array.from({ length: discardLimit }, (_, i) =>
+            `<span class="bdc-pip ${i < pickCount ? 'filled' : ''}" aria-hidden="true"></span>`
+          ).join('');
+          const modeLabel = this.pureFilterMode ? '绝境纯调度' : '换桌选牌';
+          const hintText = isFullPick
+            ? `已达上限 · 点左侧【${discTitle}】或再点取消`
+            : `再点已选牌取消`;
+          counterEl.classList.remove('hidden');
+          counterEl.classList.toggle('is-full', isFullPick);
+          counterEl.innerHTML = `
+            <span class="bdc-mode">${modeLabel}</span>
+            <span class="bdc-pips">${pipsHtml}</span>
+            <strong class="bdc-count">${pickCount} / ${discardLimit} 张</strong>
+            <span class="bdc-sep" aria-hidden="true">·</span>
+            <span class="bdc-hint">${hintText}</span>
+          `;
+        } else {
+          counterEl.classList.add('hidden');
+          counterEl.classList.remove('is-full', 'limit-bump');
+        }
+      }
+
       const discRim = canActDisc ? '#7ef2ff' : '#ffd966';
       const discInnerRim = canActDisc ? '#0d3f54' : '#122244';
       const discCore = canActDisc ? '#145a78' : '#1a325e';
@@ -3540,7 +3921,7 @@
         </div>
         <div class="v15-crest-ribbon">
           <b>${discTitle}</b>
-          ${discSub ? `<small>${discSub}</small>` : ''}
+          ${discSub ? `<small class="${discSubCls}">${discSub}</small>` : ''}
         </div>
       `;
 
