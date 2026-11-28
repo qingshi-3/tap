@@ -1,4 +1,4 @@
-import { createBattle, startBattle, advance, heroOptions, heroAct, HERO_SKILLS, HEROES, CFG } from './engine.js';
+import { createBattle, startBattle, advance, heroOptions, heroAct, HERO_SKILLS, HEROES, CFG, BRANCHES } from './engine.js';
 import { CARDS, POOL, FACTION_NAME } from './cards.js';
 import { ART } from './units.js';
 import { makeTeam, makeEncounter, STAGES, mulberry, ENCOUNTERS, ENC_SCALE } from './teams.js';
@@ -198,6 +198,7 @@ function renderSnap(snap) {
       if (x.stun) b.push(`<span class="badge">冰冻</span>`);
       else if (x.thaw) b.push(`<span class="badge">解冻</span>`);
       if (x.mark) b.push(`<span class="badge">猎物+3</span>`);
+      if (x.vuln) b.push(`<span class="badge">易伤+${Math.round(x.vuln * 100)}%</span>`);
       if (x.obstacle) b.push(`<span class="badge ar">障碍</span>`);
       if (x.extra?.length) b.push(`<span class="badge it">吞:${x.extra.map((id) => CARDS[id].name).join('、')}</span>`);
       el.querySelector('.badges').innerHTML = b.join('');
@@ -256,6 +257,7 @@ function fmt(e) {
     case 'hero': return `【${HEROES[ui.s.hero].name}】${HERO_SKILLS[e.skill].name}${e.a ? '：' + n(e.a) : ''}${e.b ? ' ↔ ' + n(e.b) : ''}`;
     case 'stun': return `  ${n(e.uid)} 被冰冻，下一轮不能攻击`;
     case 'mark': return `  ${n(e.uid)} 被围猎：2 轮内受到的攻击伤害 +3`;
+    case 'vuln': return `  ${n(e.uid)} 露出破绽：受到的攻击伤害 +${Math.round(e.pct * 100)}%`;
     case 'halt': return `  时停：下一轮敌方全体不攻击，蓄力不增长`;
     case 'stunned': return `  ${n(e.uid)} 冰冻中，本轮没有攻击`;
     case 'delay': return `  ${n(e.uid)} 的蓄力被推迟`;
@@ -276,7 +278,7 @@ function pushLog(e) {
   box.scrollTop = box.scrollHeight;
 }
 
-const DUR = { order: 320, redeploy: 300, summon: 320, summonFail: 200, devour: 420, revive: 380, deathrattle: 220, stun: 220, mark: 260, halt: 400, stunned: 260, delay: 220, attack: 420, damage: 220, cast: 320, block: 140, shield: 140, heal: 180, buff: 140, move: 340, enterFront: 200, death: 300, redirect: 260, insert: 380, shatter: 200, stagger: 200, fatigue: 400, hero: 260, round: 260, start: 200, absorb: 140 };
+const DUR = { vuln: 260, order: 320, redeploy: 300, summon: 320, summonFail: 200, devour: 420, revive: 380, deathrattle: 220, stun: 220, mark: 260, halt: 400, stunned: 260, delay: 220, attack: 420, damage: 220, cast: 320, block: 140, shield: 140, heal: 180, buff: 140, move: 340, enterFront: 200, death: 300, redirect: 260, insert: 380, shatter: 200, stagger: 200, fatigue: 400, hero: 260, round: 260, start: 200, absorb: 140 };
 
 async function play() {
   ui.playing = true;
@@ -350,7 +352,9 @@ function renderHero() {
     b.className = 'skill' + (ui.pick?.type === type ? ' on' : '');
     const cost = sk.pre ? `剩余 ${ui.regroupLeft} 次` : sk.cost === 'ult' ? (s?.ultUsed ? '已用' : `奥义 · 充能 ${Math.min(s?.ultMeter || 0, CFG.ultCharge)}/${CFG.ultCharge}`) : `${sk.cost}能量`;
     b.innerHTML = `<span>${sk.name} · ${cost}</span><small>${sk.text.replace(/^(奥义|整局技)（[^）]*）：/, '')}</small>`;
-    b.title = sk.text;
+    const br = (s?.branches || []).map((k) => BRANCHES[k]).find((x) => x.skill === type);
+    b.title = sk.text + (br ? `\n分支【${br.name}】：${br.text}` : '');
+    if (br) b.classList.add('branched');
     b.disabled = type === 'regroup' ? !(inWindow && s.phase === 'window' && ui.regroupLeft > 0) : !has(type) || (sk.pre && ui.regroupLeft <= 0);
     b.onclick = () => onSkill(type);
     box.appendChild(b);
@@ -470,7 +474,8 @@ function startFight() {
   ui.hero = document.querySelector('input[name=hero]:checked').value;
   const mode = { std: [1, 2], old: [0, 1], rich: [2, 3] }[$('energyMode').value];
   [CFG.energyStart, CFG.energyPerRound] = mode;
-  ui.s = createBattle(ui.teams[0], ui.teams[1], ui.seed++, { regroup: ui.regroupLeft, hero: ui.hero });
+  const branches = [...document.querySelectorAll('#branchSel input:checked')].map((x) => x.value).join('+');
+  ui.s = createBattle(ui.teams[0], ui.teams[1], ui.seed++, { regroup: ui.regroupLeft, hero: ui.hero, branches });
   ui.logIdx = 0;
   ui.pick = null;
   ui.auto = false;
@@ -499,6 +504,16 @@ function nextRound() {
   play();
 }
 
+// 分支勾选：随英雄切换（正式规则是第一、二幕 Boss 后各二选一，最多 2 个）
+function renderBranches() {
+  const hero = document.querySelector('input[name=hero]:checked').value;
+  const box = $('branchSel');
+  box.innerHTML = '分支：' + Object.entries(BRANCHES).filter(([, b]) => b.hero === hero)
+    .map(([k, b]) => `<label title="${HERO_SKILLS[b.skill].name}：${b.text}"><input type="checkbox" value="${k}"> ${b.name}</label>`).join('');
+  box.onchange = (e) => { const on = box.querySelectorAll('input:checked'); if (on.length > 2) e.target.checked = false; };
+}
+document.querySelectorAll('input[name=hero]').forEach((r) => (r.onchange = renderBranches));
+renderBranches();
 $('btnStart').onclick = startFight;
 $('btnNext').onclick = nextRound;
 $('btnAuto').onclick = () => { ui.auto = !ui.auto; $('btnAuto').classList.toggle('on', ui.auto); if (ui.auto) nextRound(); };

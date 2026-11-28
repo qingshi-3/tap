@@ -4,7 +4,7 @@
 // 每次 advance 跑完一整轮（攻击前 → 交锋 → 交锋后），停在英雄操作窗口。
 import { CARDS } from './cards.js';
 
-export const CFG = { fatigueStart: 10, depthCap: 10, maxRounds: 30, capacity: 5, energyCap: 6, hpScale: 0.65, energyStart: 1, ultCharge: 4, hero: 'dispatcher', energyPerRound: 2, thaw: 1, freezeMax: 2, huntBonus: 3, huntRounds: 2, sweepRatio: 1 };
+export const CFG = { fatigueStart: 10, depthCap: 10, maxRounds: 30, capacity: 5, energyCap: 6, hpScale: 0.65, energyStart: 1, ultCharge: 4, hero: 'dispatcher', energyPerRound: 2, thaw: 1, freezeMax: 2, huntBonus: 3, huntRounds: 2, sweepRatio: 1, branches: '' };
 
 // ---------- 基础 ----------
 const U = (s, uid) => s.units[uid];
@@ -25,7 +25,7 @@ export function snapshot(s) {
   return {
     lines: s.lines.map((ids) => ids.map((id) => {
       const u = s.units[id];
-      return { uid: u.uid, id: u.id, lvl: u.lvl, atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, shield: u.shield, armor: u.armor, charge: u.charge, size: u.size, combo: u.combo, stun: u.stun, thaw: u.thaw, mark: u.mark, scale: u.scale, atkScale: u.atkScale, obstacle: u.obstacle, extra: u.extra.slice() };
+      return { uid: u.uid, id: u.id, lvl: u.lvl, atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, shield: u.shield, armor: u.armor, charge: u.charge, size: u.size, combo: u.combo, stun: u.stun, thaw: u.thaw, mark: u.mark, vuln: u.vulnRounds ? u.vuln : 0, scale: u.scale, atkScale: u.atkScale, obstacle: u.obstacle, extra: u.extra.slice() };
     })),
     energy: s.energy, ultMeter: s.ultMeter, ultUsed: s.ultUsed, round: s.round,
   };
@@ -47,7 +47,7 @@ export function makeUnit(s, side, spec) {
     uid: s.nextUid++, side, id: d.id, lvl, scale: sc, atkScale: as,
     atk: Math.floor(d.atk * mul * as + 1e-9), hp: Math.max(1, Math.round(d.hp * mul * sc * (d.faction === 'token' ? 1 : CFG.hpScale))), // 召唤物身材很小，不再缩放 maxHp: 0,
     block: 0, armor: d.armor || 0, shield: 0, size: d.size || 1,
-    charge: 0, combo: 0, stun: 0, thaw: 0, frozen: 0, mark: 0, uses: {}, dead: false, summoned: false,
+    charge: 0, combo: 0, stun: 0, thaw: 0, frozen: 0, mark: 0, vuln: 0, vulnRounds: 0, tmpAtk: 0, uses: {}, dead: false, summoned: false,
     obstacle: !!d.obstacle, token: d.faction === 'token', extra: [],
   };
   u.maxHp = u.hp;
@@ -60,6 +60,7 @@ export function createBattle(left, right, seed = 1, opts = {}) {
     phase: 'setup', result: null, log: [],
     energy: CFG.energyStart, ultMeter: 0, ultUsed: false, ultArmed: false, regroup: opts.regroup ?? 2,
     hero: opts.hero ?? CFG.hero, passiveUsed: false, heroActing: false,
+    branches: (opts.branches ?? CFG.branches ?? '').split(/[+,]/).filter(Boolean),
     frontUid: [0, 0], atomic: 0, depth: 0, reg: {}, grave: [[], []],
     stats: { heroActions: 0, refills: [0, 0] },
   };
@@ -171,6 +172,7 @@ function injure(s, tgt, dmg, src, kind, noShare = false) {
 function attackHit(s, src, tgt, atkVal, opts = {}) {
   if (!alive(tgt)) return;
   let dmg = atkVal + (tgt.mark && atkVal > 0 ? CFG.huntBonus : 0);
+  if (tgt.vulnRounds && dmg > 0) dmg = Math.round(dmg * (1 + tgt.vuln)); // 分支的按比例易伤
   if (opts.shatter && tgt.block > 0) { tgt.block = 0; log(s, 'shatter', { uid: tgt.uid }); }
   let blockUsed = false;
   if (dmg > 0 && tgt.block > 0) { tgt.block--; dmg = 0; blockUsed = true; }
@@ -456,7 +458,7 @@ export function heroOptions(s) {
     if (ultOk()) for (const u of E) out.push({ type: 'hunt', a: u.uid });
   }
   if (s.hero === 'chrono') {
-    if (can('haste')) for (const u of L) if (CARDS[u.id].charge) out.push({ type: 'haste', a: u.uid });
+    if (can('haste')) for (const u of L) if (CARDS[u.id].charge || (hasB(s, 'c_hasteEmpower') && u.atk > 0 && !u.obstacle && !u.uses.empower)) out.push({ type: 'haste', a: u.uid });
     if (can('delay')) for (const u of E) if (CARDS[u.id].charge ? u.charge > 0 : !u.obstacle && !u.stun && !u.thaw && u.frozen < CFG.freezeMax) out.push({ type: 'delay', a: u.uid });
     if (ultOk() && E.length) out.push({ type: 'timestop' });
   }
@@ -485,15 +487,15 @@ export function heroAct(s, act) {
       log(s, 'move', { side: 0, why: 'regroup', uids: [...s.lines[0]] });
       break;
     }
-    case 'order': fireTrigger(s, A); break;
+    case 'order': fireTrigger(s, A); if (hasB(s, 'd_orderRage')) tempAtk(s, A, 0.5); break;
     case 'rotate': {
       const f = front(s, 0);
       s.lines[0].push(s.lines[0].shift());
-      heal(s, f, 3);
+      if (hasB(s, 'd_rotateHeal')) { heal(s, f, Math.max(3, Math.round(f.maxHp * 0.5))); addBlock(s, f, 1); } else heal(s, f, 3);
       moved(s, 0, [f], 'rotate');
       break;
     }
-    case 'rally': for (const u of line(s, 0)) { fireTrigger(s, u); if (!u.obstacle) addBlock(s, u, 1); } break;
+    case 'rally': for (const u of line(s, 0)) { fireTrigger(s, u); if (!u.obstacle) addBlock(s, u, 1); if (hasB(s, 'd_rallyFury') && u.atk > 0) buff(s, u, pctAtk(u, 0.5), 0); } break;
     case 'redeploy': s.redeploy = true; log(s, 'redeploy'); break;
     case 'scout': {
       const L1 = s.lines[1], i = L1.indexOf(A.uid), j = L1.indexOf(B.uid);
@@ -502,15 +504,16 @@ export function heroAct(s, act) {
       log(s, 'move', { side: 1, why: 'scout', uids: [A.uid, B.uid] });
       break;
     }
-    case 'hook': pullToFront(s, redirect(s, A, 'pull')); break;
-    case 'shove': knockback(s, 1); break;
+    case 'hook': { const t = redirect(s, A, 'pull'); pullToFront(s, t); if (hasB(s, 'p_hookExpose')) expose(s, t, 1, 1); break; }
+    case 'shove': knockback(s, 1); if (hasB(s, 'p_shoveFreeze')) freeze(s, front(s, 1)); break;
     case 'hunt':
       if (idx(s, A) > 0) moveToFront(s, A, 'hunt');
-      A.mark = CFG.huntRounds;
-      log(s, 'mark', { uid: A.uid });
+      if (hasB(s, 'p_huntBehead')) { expose(s, A, 1, 3); freeze(s, A); }
+      else { A.mark = CFG.huntRounds; log(s, 'mark', { uid: A.uid }); }
       break;
-    case 'haste': addCharge(s, A, 2); break;
+    case 'haste': addCharge(s, A, 2); if (hasB(s, 'c_hasteEmpower') && A.atk > 0 && !A.uses.empower) { A.uses.empower = 1; buff(s, A, pctAtk(A, 0.2), 0); } break;
     case 'delay':
+      if (hasB(s, 'c_delayAll')) for (const x of line(s, 1)) if (x !== A && CARDS[x.id].charge && x.charge > 0) { x.charge--; log(s, 'delay', { uid: x.uid }); }
       if (CARDS[A.id].charge) { A.charge = Math.max(0, A.charge - 2); log(s, 'delay', { uid: A.uid }); }
       else { A.stun = 1; A.frozen++; log(s, 'stun', { uid: A.uid }); }
       break;
@@ -519,6 +522,7 @@ export function heroAct(s, act) {
       s.halt = s.round + 1;
       for (const u of line(s, 1)) if (!u.obstacle) u.stun = 1;
       log(s, 'halt');
+      if (hasB(s, 'c_stopCounter')) tempAtk(s, front(s, 0), 1);
       break;
   }
   s.stats.heroActions++;
@@ -528,6 +532,23 @@ export function heroAct(s, act) {
   checkEnd(s);
   return true;
 }
+
+// ---------- 英雄分支（CONTENT-DESIGN 9.2）：效果按比例结算，跟得上各幕的数值 ----------
+export const BRANCHES = {
+  d_orderRage:   { hero: 'dispatcher', skill: 'order',  name: '激昂号令', text: '被号令的友军本轮攻击 +50%' },
+  d_rotateHeal:  { hero: 'dispatcher', skill: 'rotate', name: '轮换疗伤', text: '轮换改为回复 50% 最大血量（至少 3 点），并获得 1 层格挡' },
+  d_rallyFury:   { hero: 'dispatcher', skill: 'rally',  name: '总动员·怒', text: '总动员时己方全体本场攻击 +50%' },
+  p_hookExpose:  { hero: 'pusher', skill: 'hook',  name: '破绽钩索', text: '钩来的敌人本轮受到的攻击伤害 +100%' },
+  p_shoveFreeze: { hero: 'pusher', skill: 'shove', name: '冰封震退', text: '震退后敌方新队首冰冻一轮' },
+  p_huntBehead:  { hero: 'pusher', skill: 'hunt',  name: '斩首围猎', text: '围猎改为：受到的攻击伤害 +100%，持续 3 轮，并冰冻一轮' },
+  c_delayAll:    { hero: 'chrono', skill: 'delay',    name: '群体迟滞', text: '迟滞时敌方全体蓄力额外 −1' },
+  c_hasteEmpower:{ hero: 'chrono', skill: 'haste',    name: '激励加速', text: '加速可以选任何友军，目标本场攻击 +20%（每名友军每场 1 次；有蓄力技能的照常蓄力 +2）' },
+  c_stopCounter: { hero: 'chrono', skill: 'timestop', name: '反击时停', text: '时停的那一轮，己方队首攻击 +100%' },
+};
+const hasB = (s, k) => s.branches.includes(k);
+const pctAtk = (u, r) => Math.max(1, Math.round(u.atk * r));
+function tempAtk(s, u, r) { if (!alive(u) || u.atk <= 0) return; const n = pctAtk(u, r); u.atk += n; u.tmpAtk += n; log(s, 'buff', { uid: u.uid, atk: n, hp: 0 }); }
+function expose(s, u, pct, rounds) { if (!alive(u)) return; u.vuln = Math.max(u.vulnRounds ? u.vuln : 0, pct); u.vulnRounds = Math.max(u.vulnRounds, rounds); log(s, 'vuln', { uid: u.uid, pct }); }
 
 // 调度者：单位自身可被"号令"触发的技能（按卡面顺序取第一个）
 const TRIG = ['start', 'enterFront', 'afterClash', 'death', 'prep'];
@@ -659,6 +680,8 @@ export function advance(s) {
     if (u.stun) { u.stun--; if (!u.stun) u.thaw = CFG.thaw + 1; }
     if (u.thaw) u.thaw--;
     if (u.mark) u.mark--;
+    if (u.vulnRounds) u.vulnRounds--;
+    if (u.tmpAtk) { u.atk -= u.tmpAtk; u.tmpAtk = 0; }
   }
   if (checkEnd(s)) return s;
   // ⑥ 交锋后：灼烧（原型未使用）→ 疲劳 → 自动触发器 → 英雄

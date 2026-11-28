@@ -17,7 +17,7 @@ const PREONLY = process.argv.includes('preonly'); // 只用整局技，战中不
 const ARRANGE = PRE || PREONLY || process.argv.includes('arrange'); // 整备时看着敌阵预告排好己方站位（双方对照组都用）
 let ONLY = null, TEAM = null;
 for (const a of process.argv) {
-  const m = a.match(/^(\w+)=([\w.]+)$/);
+  const m = a.match(/^(\w+)=([\w.+]+)$/);
   if (!m) continue;
   if (m[1] === 'stage') ONLY = m[2];
   else if (m[1] === 'team') TEAM = m[2];

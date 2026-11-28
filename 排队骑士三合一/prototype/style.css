@@ -118,3 +118,6 @@ select { font: inherit; color: var(--text); background: #2a2e3b; border: 1px sol
 @media (max-width: 860px) {
   .teams, .info { grid-template-columns: 1fr; }
 }
+
+.skill.branched span::after { content: ' ◆'; color: var(--accent); }
+#branchSel label { margin-left: 4px; }
