@@ -11,8 +11,8 @@
   <link rel="stylesheet" href="./css/v13.css?v=187" />
   <link rel="stylesheet" href="./css/v14.css?v=248" />
   <link rel="stylesheet" href="./css/muster-tone.css?v=2" />
-  <link rel="stylesheet" href="./css/camp.css?v=3" />
-  <link rel="stylesheet" href="./css/pack-reveal.css?v=5" />
+  <link rel="stylesheet" href="./css/camp.css?v=11" />
+  <link rel="stylesheet" href="./css/pack-reveal.css?v=7" />
   <link rel="stylesheet" href="./css/perf.css?v=1" />
 </head>
 <body>
@@ -209,7 +209,7 @@
       </div>
 
       <!-- ═══ BEAT 2: FULL-SCREEN WALNUT TAVERN TABLETOP & UNIFIED BAIZE MARKET ═══ -->
-      <div id="tavern-view">
+      <div id="tavern-view" class="frame-float">
         <canvas id="altar-bg-canvas" width="1280" height="720"></canvas>
 
         <!-- Sculpted Riveted Brass & Walnut Top Ledger Beam (72px) -->
@@ -237,33 +237,29 @@
         <div id="relic-inspect-bar" class="camp-relic-inspect hidden"></div>
 
         <main id="market-main-stage" class="camp-stage hidden">
-          <aside class="camp-left">
-            <section class="camp-card camp-boss-card">
-              <div class="camp-sec-head"><span class="camp-sec-title">下一战</span><span id="camp-boss-rank" class="camp-sec-note"></span></div>
-              <div id="boss-bounty-panel" class="camp-boss"></div>
-              <button id="btn-shop-next" class="camp-cta"></button>
-            </section>
+          <div id="deck-overview-panel" class="camp-squad" role="button" tabindex="0" aria-label="查看小队名册">
+            <div id="squad-ledger-strip" class="camp-squad-head"></div>
+            <div id="squad-roam-zone" class="camp-squad-hits"></div>
+          </div>
 
-            <section id="deck-overview-panel" class="camp-card camp-squad" role="button" tabindex="0" aria-label="查看小队名册">
-              <div class="camp-sec-head" id="squad-ledger-strip"></div>
-              <div class="camp-squad-grid" id="squad-roam-zone"></div>
-            </section>
-          </aside>
+          <section class="camp-vs" aria-label="下一战">
+            <div id="boss-bounty-panel" class="camp-boss"></div>
+            <button id="btn-shop-next" class="camp-cta" data-pressable></button>
+          </section>
 
-          <section class="camp-card camp-shop">
-            <div class="camp-shop-head">
-              <div>
-                <span class="camp-shop-title">商店</span>
-                <span class="camp-sec-note">点一下看详情，再点一下购买</span>
-              </div>
-              <div class="camp-shop-tools">
-                <button id="btn-shop-ad-reroll" class="camp-btn ghost"></button>
-                <button id="btn-shop-reroll" class="camp-btn gold"></button>
-              </div>
+          <section class="camp-shelf" aria-label="商店">
+            <div class="camp-shelf-head">
+              <span class="camp-shop-title">商店</span>
+              <span class="camp-sec-note">点一下看详情，再点一下购买</span>
+              <span class="camp-shelf-tools">
+                <button id="btn-shop-ad-reroll" class="camp-btn ghost" data-pressable></button>
+                <button id="btn-shop-reroll" class="camp-btn gold" data-pressable></button>
+              </span>
             </div>
-            <div class="camp-row-label">秘宝 <i>装上后整局生效</i></div>
-            <div id="shop-relics-row" class="camp-relics-row"></div>
-            <div id="shop-packs-row" class="camp-lower"></div>
+            <div class="camp-shelf-row">
+              <div class="camp-group relics"><div class="camp-row-label">秘宝 <i>整局生效</i></div><div id="shop-relics-row" class="camp-relics-row"></div></div>
+              <div id="shop-packs-row" class="camp-lower"></div>
+            </div>
           </section>
         </main>
         <div id="shop-detail-popover" class="shop-detail-popover hidden" role="dialog" aria-label="商品详情与购买确认"></div>
@@ -382,6 +378,8 @@
   <script src="./assets/duelyst/duelyst-h5.js?v=197"></script>
   <script src="./assets/duelyst/assets/manifest.js?v=197"></script>
   <script src="./js/perf.js?v=1"></script>
+  <script src="./js/pxFrame.js?v=1"></script>
+  <script src="./js/livingUI.js?v=2"></script>
   <script src="./js/pixelfxBundle.js?v=210"></script>
   <script src="./js/audio.js?v=210"></script>
   <script src="./js/vfxPlayer.js?v=240"></script>
@@ -393,9 +391,9 @@
   <script src="./js/v14Engine.js?v=249"></script>
   <script src="./js/v14Battle.js?v=250"></script>
   <script src="./js/v15HeroMusterStage.js?v=243"></script>
-  <script src="./js/v15TavernShopStage.js?v=202"></script>
+  <script src="./js/v15TavernShopStage.js?v=206"></script>
   <script src="./js/v15PackCeremonyFX.js?v=210"></script>
-  <script src="./js/packReveal.js?v=4"></script>
-  <script src="./js/v14Main.js?v=258"></script>
+  <script src="./js/packReveal.js?v=5"></script>
+  <script src="./js/v14Main.js?v=263"></script>
 </body>
 </html>

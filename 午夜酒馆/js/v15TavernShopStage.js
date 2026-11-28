@@ -12,6 +12,11 @@
 
   const W = 1280;
   const H = 720;
+  // the battle's bridge (y 416) lifted by 80px so the shop shelf gets room below
+  const CAMP_SHIFT = 80;
+  const CAMP_BRIDGE_Y = 416 - CAMP_SHIFT;
+  const CAMP_LAKE_Y = 448 - CAMP_SHIFT;
+  const CAMP_BOSS_X = 1092;
 
   const ROOM_ASSETS = {
     1: './assets/tavern/room_lv1.png',
@@ -772,67 +777,196 @@
       ctx.restore();
     }
 
+    // ─── 决战前夜 camp scene ───────────────────────────────────────────────
+    // The battle's own night sky, stone bridge and mirror lake. The squad stands
+    // on the left of the bridge, the next boss towers on the right; both reflect
+    // in the water. The shop UI floats on top as DOM.
+    setScene({ biome = 'default', bossUnitId = null, bossTier = 1, aura = 'ember', roster = [] } = {}) {
+      if (biome !== this.campBiome) this._campStatic = null;
+      this.campBiome = biome;
+      this.campBoss = { unitId: bossUnitId, tier: bossTier, aura };
+      this.campBossScale = null;
+      const spots = TavernShopStage.squadSpots(roster.length);
+      this.campSquad = roster.slice(0, spots.length).map((h, i) => ({ unitId: h.unitId, redSeal: Boolean(h.redSeal), spot: spots[i], phase: i * 0.47 }));
+      if (this.running && this.reducedMotion) this._render(this.time);
+    }
+
+    // Two staggered rows on the left half of the bridge; front row first.
+    static squadSpots(n) {
+      const front = [88, 198, 308, 418, 528];
+      const back = [143, 253, 363, 473, 583];
+      const out = [];
+      for (let i = 0; i < Math.min(n, 10); i++) {
+        const isFront = i < 5;
+        out.push({ x: isFront ? front[i] : back[i - 5], y: isFront ? 344 : 320, scale: isFront ? 2.0 : 1.7, back: !isFront });
+      }
+      return out;
+    }
+
+    _ensureCampBuffers() {
+      if (!this.campScene) {
+        this.campScene = document.createElement('canvas');
+        this.campScene.width = W;
+        this.campScene.height = CAMP_LAKE_Y;
+        this.campSceneCtx = this.campScene.getContext('2d');
+        this.campRefl = document.createElement('canvas');
+        this.campRefl.width = W;
+        this.campRefl.height = H - CAMP_LAKE_Y;
+        this.campReflCtx = this.campRefl.getContext('2d');
+      }
+      if (!this._campStatic) {
+        const c = document.createElement('canvas');
+        c.width = W;
+        c.height = CAMP_LAKE_Y;
+        const g = c.getContext('2d');
+        g.imageSmoothingEnabled = false;
+        const sky = this.bgProvider ? this.bgProvider(this.campBiome || 'default') : null;
+        if (sky) {
+          g.drawImage(sky, 0, 0, sky.width, sky.height, 0, -CAMP_SHIFT, W, sky.height * 4);
+        } else {
+          const gr = g.createLinearGradient(0, 0, 0, CAMP_BRIDGE_Y);
+          gr.addColorStop(0, '#070912'); gr.addColorStop(1, '#1b263b');
+          g.fillStyle = gr; g.fillRect(0, 0, W, CAMP_LAKE_Y);
+        }
+        // warm campfire wash on the squad side, cold dusk on the boss side
+        const warm = g.createRadialGradient(330, 320, 20, 330, 320, 480);
+        warm.addColorStop(0, 'rgba(255, 170, 90, 0.16)');
+        warm.addColorStop(1, 'rgba(255, 170, 90, 0)');
+        g.fillStyle = warm; g.fillRect(0, 0, W, CAMP_LAKE_Y);
+        const top = g.createLinearGradient(0, 0, 0, 120);
+        top.addColorStop(0, 'rgba(6, 5, 8, 0.75)'); top.addColorStop(1, 'rgba(6, 5, 8, 0)');
+        g.fillStyle = top; g.fillRect(0, 0, W, 120);
+        // stone bridge (same build as the battle bridge)
+        const y = CAMP_BRIDGE_Y;
+        g.fillStyle = '#070810'; g.fillRect(0, y - 4, W, 4);
+        const rim = g.createLinearGradient(0, 0, W, 0);
+        rim.addColorStop(0, '#8c7a5a'); rim.addColorStop(0.45, '#7e8aa0'); rim.addColorStop(1, '#4b5a75');
+        g.fillStyle = rim; g.fillRect(0, y, W, 4);
+        g.fillStyle = '#262d40'; g.fillRect(0, y + 4, W, 12);
+        g.fillStyle = '#171c2b'; g.fillRect(0, y + 16, W, 12);
+        for (let bx = 0; bx < W; bx += 48) { g.fillStyle = '#0c0f1a'; g.fillRect(bx, y + 4, 4, 12); g.fillRect(bx + 24, y + 16, 4, 12); }
+        g.fillStyle = '#06070f'; g.fillRect(0, CAMP_LAKE_Y - 4, W, 4);
+        this._campStatic = c;
+      }
+    }
+
+    _campBossScale() {
+      if (this.campBossScale) return this.campBossScale;
+      const b = this.campBoss || {};
+      const targetH = 262 + (b.tier || 1) * 10;
+      let s = 3.2;
+      if (b.unitId && this.sprites && this.sprites.getDuelystClip) {
+        const dc = this.sprites.getDuelystClip(b.unitId, 'idle');
+        if (dc && dc.idleClip && dc.idleClip.height > 0) s = Math.max(2.8, Math.min(4.4, targetH / (dc.idleClip.height * 1.18)));
+        else return s; // clip not loaded yet: don't cache
+      }
+      this.campBossScale = s;
+      return s;
+    }
+
     _render(t) {
       const ctx = this.ctx;
       if (!ctx) return;
+      this._ensureCampBuffers();
+      const s = this.campSceneCtx;
+      s.imageSmoothingEnabled = false;
+      s.clearRect(0, 0, W, CAMP_LAKE_Y);
+      s.drawImage(this._campStatic, 0, 0);
 
+      const boss = Object.assign({ tier: 1, aura: 'ember' }, this.campBoss || {});
+      const pal = BOSS_STAGE_PALETTES[boss.aura] || BOSS_STAGE_PALETTES.ember;
+      const [cr, cg, cb] = pal.core;
+      const [rr, rg, rb] = pal.rim;
+      const roar = this.bossRoarTime > 0 ? this.bossRoarTime / 0.78 : 0;
+
+      // boss back-glow: slow, wide, breathing
+      s.save();
+      s.globalCompositeOperation = 'lighter';
+      const pulse = 0.88 + Math.sin(t * 1.3) * 0.12 + roar * 0.5;
+      const bg = s.createRadialGradient(CAMP_BOSS_X, 220, 10, CAMP_BOSS_X, 220, 280 * pulse);
+      bg.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${(0.30 + boss.tier * 0.05).toFixed(3)})`);
+      bg.addColorStop(0.5, `rgba(${rr}, ${rg}, ${rb}, ${(0.14 + boss.tier * 0.03).toFixed(3)})`);
+      bg.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      s.fillStyle = bg;
+      s.fillRect(CAMP_BOSS_X - 320, 0, 640, CAMP_LAKE_Y);
+      s.restore();
+
+      // ground shadows
+      s.fillStyle = 'rgba(4, 4, 8, 0.55)';
+      for (const u of this.campSquad || []) {
+        s.beginPath(); s.ellipse(u.spot.x, u.spot.y + 2, 22 * u.spot.scale / 1.5, 6, 0, 0, Math.PI * 2); s.fill();
+      }
+      s.beginPath(); s.ellipse(CAMP_BOSS_X, CAMP_BRIDGE_Y + 2, 70, 12, 0, 0, Math.PI * 2); s.fill();
+
+      if (this.sprites && this.sprites.drawUnit) {
+        // squad: back row first, a touch darker
+        const squad = (this.campSquad || []).slice().sort((a, b) => a.spot.y - b.spot.y);
+        squad.forEach((u, i) => {
+          const hop = this.celebrateTime > 0 ? Math.abs(Math.sin(this.celebrateTime * 8 + i * 0.7)) * 8 : 0;
+          this.sprites.drawUnit(s, u.unitId, 'idle', t + u.phase, u.spot.x, u.spot.y - hop, {
+            scale: u.spot.scale,
+            flipX: false,
+            alpha: u.spot.back ? 0.86 : 1,
+            outlineColor: u.redSeal ? 'rgba(255, 92, 114, 0.5)' : 'rgba(255, 206, 140, 0.22)'
+          });
+        });
+        if (boss.unitId) {
+          const jitter = roar > 0 ? Math.sin(t * 60) * 3 * roar : 0;
+          this.sprites.drawUnit(s, boss.unitId, 'idle', t, CAMP_BOSS_X + jitter, CAMP_BRIDGE_Y + 2, {
+            scale: this._campBossScale(),
+            flipX: true,
+            alpha: 1,
+            outlineColor: `rgba(${cr}, ${cg}, ${cb}, ${boss.tier >= 3 ? 0.7 : 0.45})`
+          });
+        }
+      }
+
+      // composite: upper scene, then the mirror lake
       ctx.save();
       ctx.imageSmoothingEnabled = false;
-
-      // 1. Camp backdrop: warm near-black ground matching the hero select. It never
-      //    changes, so it is painted once into an offscreen canvas and blitted.
-      if (!this._campBg) {
-        const bgc = document.createElement('canvas');
-        bgc.width = W;
-        bgc.height = H;
-        const bx = bgc.getContext('2d');
-        bx.fillStyle = '#100e0c';
-        bx.fillRect(0, 0, W, H);
-        const glow = bx.createRadialGradient(W * 0.62, H * 0.42, 40, W * 0.62, H * 0.42, 760);
-        glow.addColorStop(0, 'rgba(92, 64, 34, 0.30)');
-        glow.addColorStop(0.5, 'rgba(48, 32, 18, 0.16)');
-        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        bx.fillStyle = glow;
-        bx.fillRect(0, 0, W, H);
-        const leftGlow = bx.createRadialGradient(210, 220, 20, 210, 220, 420);
-        leftGlow.addColorStop(0, 'rgba(140, 34, 46, 0.16)');
-        leftGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        bx.fillStyle = leftGlow;
-        bx.fillRect(0, 0, W, H);
-        bx.strokeStyle = 'rgba(212, 174, 104, 0.035)';
-        bx.lineWidth = 26;
-        for (let x = -400; x < W + 400; x += 170) {
-          bx.beginPath();
-          bx.moveTo(x, H);
-          bx.lineTo(x + 420, 0);
-          bx.stroke();
-        }
-        const vig = bx.createRadialGradient(W * 0.5, H * 0.5, 260, W * 0.5, H * 0.5, 820);
-        vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        vig.addColorStop(1, 'rgba(4, 3, 2, 0.7)');
-        bx.fillStyle = vig;
-        bx.fillRect(0, 0, W, H);
-        this._campBg = bgc;
+      ctx.drawImage(this.campScene, 0, 0);
+      const lakeH = H - CAMP_LAKE_Y;
+      const r = this.campReflCtx;
+      r.save();
+      r.clearRect(0, 0, W, lakeH);
+      r.translate(0, lakeH);
+      r.scale(1, -1);
+      r.drawImage(this.campScene, 0, CAMP_BRIDGE_Y - lakeH, W, lakeH, 0, 0, W, lakeH);
+      r.restore();
+      const band = 12;
+      for (let sy = 0; sy < lakeH; sy += band) {
+        const h = Math.min(band, lakeH - sy);
+        const ripple = Math.round(Math.sin(sy * 0.08 + t * 3.2) * (1.5 + (sy / lakeH) * 2.4));
+        ctx.drawImage(this.campRefl, 0, sy, W, h, ripple, CAMP_LAKE_Y + sy, W, h);
       }
-      ctx.drawImage(this._campBg, 0, 0);
+      const water = ctx.createLinearGradient(0, CAMP_LAKE_Y, 0, H);
+      water.addColorStop(0, 'rgba(6, 10, 20, 0.5)');
+      water.addColorStop(0.35, 'rgba(6, 8, 16, 0.62)');
+      water.addColorStop(1, 'rgba(4, 4, 8, 0.86)');
+      ctx.fillStyle = water;
+      ctx.fillRect(0, CAMP_LAKE_Y, W, lakeH);
+      // a few moving glints on the water
+      ctx.globalCompositeOperation = 'lighter';
+      for (let k = 0; k < 10; k++) {
+        const gx = (k * 137 + t * 22) % W;
+        const gy = CAMP_LAKE_Y + 10 + ((k * 53) % 70);
+        ctx.fillStyle = `rgba(200, 220, 255, ${(0.06 + 0.05 * Math.sin(t * 2 + k)).toFixed(3)})`;
+        ctx.fillRect(Math.round(gx), gy, 18 + (k % 3) * 8, 1);
+      }
+      ctx.globalCompositeOperation = 'source-over';
 
-      // 8. Rising Golden Hearth Embers
+      // rising embers + purchase sparkles
       for (const e of this.embers) {
         const shimmer = 0.55 + 0.45 * Math.sin(t * 4.2 + e.phase);
         ctx.fillStyle = `rgba(255, 212, 118, ${(e.alpha * shimmer).toFixed(3)})`;
         ctx.fillRect(Math.round(e.x), Math.round(e.y), e.size, e.size);
       }
-
-      // 9. Celebration Pixel Sparkles
       for (const p of this.sparkles) {
-        const a = Math.max(0, Math.min(1, p.life / p.maxLife));
-        ctx.save();
-        ctx.globalAlpha = a;
+        ctx.globalAlpha = Math.max(0, Math.min(1, p.life / p.maxLife));
         ctx.fillStyle = p.color;
         ctx.fillRect(Math.round(p.x), Math.round(p.y), p.size, p.size);
-        ctx.restore();
       }
-
+      ctx.globalAlpha = 1;
       ctx.restore();
     }
 

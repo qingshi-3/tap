@@ -87,6 +87,7 @@
       this.altarBg = null; // Retired v13 tabletop canvas; #altar-bg-canvas is exclusively owned by TavernShopStage
       this.tavernShopStage = window.MT.TavernShopStage ? new window.MT.TavernShopStage($('altar-bg-canvas'), this.sprites) : null;
       this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
+      if (this.tavernShopStage) this.tavernShopStage.bgProvider = (biome) => this.battleStage.getUpperBgCanvas(biome);
       this.packReveal = window.MT.PackReveal ? new window.MT.PackReveal(this.stage, this.audio, this.sprites) : null;
       if (this.packReveal) {
         // while the reveal covers the camp, stop drawing everything underneath it
@@ -4605,6 +4606,25 @@
             ` : ''}`;
     }
 
+    // Non-unit card (relic, inscription) in the same frame as the battle hand card.
+    _itemCardHtml({ tier, pill, pillColor = '#ece4d4', iconHtml, name, nameColor = '', perk, extra = '' }) {
+      return `
+        <div class="v14-card v14-card-tier-${tier} item-card">
+          ${renderCardTierOrnament(tier)}
+          <div class="v14-card-top">
+            <span class="v14-tier tier-${tier}">${tier}</span>
+            <span class="v14-theme-pill" style="background:rgba(16,12,10,0.8);color:${pillColor}">${pill}</span>
+          </div>
+          <div class="v14-card-hero-stage">
+            ${iconHtml}
+            <div class="v14-card-name" ${nameColor ? `style="color:${nameColor}"` : ''}>${esc(name)}</div>
+          </div>
+          <div class="v14-card-perk">${esc(perk)}</div>
+          ${extra}
+        </div>
+      `;
+    }
+
     _packInsTier(ins) {
       return ins.id === 'm_clone' ? 'SSS' : (ins.id === 'm_red_seal' || ins.id === 'm_glass' ? 'S' : 'A');
     }
@@ -4616,20 +4636,12 @@
 
     _prInsFront(ins) {
       const t = this._packInsTier(ins);
-      return `
-        <div class="v14-card v14-card-tier-${t} pr-ins-card">
-          ${renderCardTierOrnament(t)}
-          <div class="v14-card-top">
-            <span class="v14-tier tier-${t}">${t}</span>
-            <span class="v14-theme-pill" style="background:rgba(16,12,10,0.8);color:${ins.color}">铭文</span>
-          </div>
-          <div class="v14-card-hero-stage">
-            ${this.renderSafeIconImg(ins.icon, 'pack_inscription', 'pr-ins-icon')}
-            <div class="v14-card-name" style="color:${ins.color}">${esc(this._plainName(ins.name))}</div>
-          </div>
-          <div class="v14-card-perk">${esc(String(ins.desc).replace(/侠客/g, '队员'))}</div>
-        </div>
-      `;
+      return this._itemCardHtml({
+        tier: t, pill: '铭文', pillColor: ins.color,
+        iconHtml: this.renderSafeIconImg(ins.icon, 'pack_inscription', 'item-card-icon'),
+        name: this._plainName(ins.name), nameColor: ins.color,
+        perk: String(ins.desc).replace(/侠客/g, '队员')
+      });
     }
 
     _closePackRevealToShop() {
@@ -5054,18 +5066,12 @@
       else if (bossTier === 3) bossAura = nextBoss.id === 'b_boreal' ? 'frost' : 'inferno';
       else if (bossTier === 2) bossAura = 'blood';
 
-      $('camp-boss-rank').innerHTML = `<i class="camp-stars t${bossTier}">${'★'.repeat(bossTier)}</i>${bossRankLabels[bossTier]}${asc.lv > 0 ? ` · 难度 ${asc.lv}` : ''}`;
-      const bountyEl = $('boss-bounty-panel');
-      bountyEl.className = `camp-boss tier-${bossTier}`;
-      bountyEl.innerHTML = `
-        <div class="camp-boss-stage" title="点一下看它发怒">
-          <canvas id="shop-boss-fx-canvas" width="356" height="172"></canvas>
-          <div class="camp-boss-hp"><b>${nextBossHp.toLocaleString()}</b><small>HP</small></div>
-          <div class="camp-boss-name">
-            <b>${esc(nextBoss.name)}</b>
-            <span>${esc(nextBoss.title || '强敌')}</span>
-          </div>
-        </div>
+      const bossEl = $('boss-bounty-panel');
+      bossEl.className = `camp-boss tier-${bossTier}`;
+      bossEl.innerHTML = `
+        <div class="camp-boss-eyebrow">下一战 · W${run.wave}<i class="camp-stars t${bossTier}">${'★'.repeat(bossTier)}</i>${bossRankLabels[bossTier]}${asc.lv > 0 ? ` · 难度 ${asc.lv}` : ''}</div>
+        <div class="camp-boss-name"><b>${esc(nextBoss.name)}</b><span>${esc(nextBoss.title || '强敌')}</span></div>
+        <div class="camp-boss-hp"><i></i><b>${nextBossHp.toLocaleString()}</b><small>HP</small></div>
         <div class="camp-boss-pattern">${patHtml}</div>
         <div class="camp-boss-stats">
           <div><span>破招线</span><b>≥${nextBossBreak}</b></div>
@@ -5073,23 +5079,26 @@
           <div class="gold"><span>赏金</span><b>+${bountyGold}G</b></div>
         </div>
       `;
-      const bossFxCanvas = $('shop-boss-fx-canvas');
-      if (this.tavernShopStage && bossFxCanvas) {
-        this.tavernShopStage.attachBossCanvas(bossFxCanvas, { tier: bossTier, aura: bossAura, unitId: nextBoss.unitId });
-      }
-      bountyEl.onclick = () => {
+      bossEl.onclick = () => {
         if (this.tavernShopStage) this.tavernShopStage.triggerBossRoar();
         if (this.audio && this.audio.playSlash) this.audio.playSlash();
       };
+      if (this.tavernShopStage && this.tavernShopStage.setScene) {
+        this.tavernShopStage.setScene({
+          biome: run.wave % 3 === 0 ? 'ice' : run.wave % 2 === 0 ? 'dark' : 'default',
+          bossUnitId: nextBoss.unitId,
+          bossTier,
+          aura: bossAura,
+          roster: run.roster
+        });
+      }
 
       $('btn-shop-next').innerHTML = `
         <span class="camp-cta-k">出战</span>
-        <span class="camp-cta-name">W${run.wave} · ${esc(nextBoss.name)}</span>
         <span class="camp-cta-arrow" aria-hidden="true">→</span>
       `;
 
-      // 3. Left: squad grid (real Duelyst idle sprites, tier-coloured bases)
-      if (this.tavernShopStage) this.tavernShopStage.setState({ wave: run.wave, roster: [] });
+      // 3. Squad: the units are drawn in the scene; DOM only adds hover tags + a header
       const themeCounts = {};
       for (const h of run.roster) {
         const k = h.theme || 'core';
@@ -5107,62 +5116,65 @@
         <span class="camp-sec-note"><b>${run.roster.length}</b> 人 ${themeSummary}</span>
         <span class="camp-link">名册 →</span>
       `;
-      const shown = run.roster.slice(0, 10);
-      const zone = $('squad-roam-zone');
-      zone.innerHTML = shown.map((h, i) => {
+      const spots = (window.MT.TavernShopStage && window.MT.TavernShopStage.squadSpots) ? window.MT.TavernShopStage.squadSpots(run.roster.length) : [];
+      $('squad-roam-zone').innerHTML = spots.map((sp, i) => {
+        const h = run.roster[i];
         const buffed = h.atk > (h.baseAtk || h.atk);
-        const marks = [h.redSeal ? 'seal' : '', h.greedBadge ? 'greed' : '', h.ironPlated ? 'iron' : '', h.glassBlade ? 'glass' : ''].filter(Boolean);
-        return `
-          <div class="camp-unit tier-${h.tier}" style="--i:${i}">
-            <div class="camp-unit-sprite" data-unit="${h.unitId}"></div>
-            <div class="camp-unit-base" aria-hidden="true"></div>
-            <div class="camp-unit-name">${esc(h.shortName || this._plainName(h.name))}</div>
-            <div class="camp-unit-atk ${buffed ? 'up' : ''}">${h.atk}${marks.map((m) => `<i class="mk ${m}"></i>`).join('')}</div>
-          </div>
-        `;
-      }).join('') + (run.roster.length > 10 ? `<div class="camp-unit more">+${run.roster.length - 10}</div>` : '');
-      zone.querySelectorAll('.camp-unit-sprite').forEach((sp) => {
-        if (this.sprites && this.sprites.createDomSprite) sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 50));
+        return `<div class="camp-hit tier-${h.tier} ${sp.back ? 'back' : ''}" style="left:${sp.x}px;top:${sp.y}px">
+          <span class="camp-hit-tag"><i class="camp-tier tier-${h.tier}">${h.tier}</i>${esc(h.shortName || this._plainName(h.name))}<b class="${buffed ? 'up' : ''}">${h.atk}</b></span>
+        </div>`;
+      }).join('') + (run.roster.length > 10 ? `<div class="camp-more">+${run.roster.length - 10}</div>` : '');
+      $('squad-roam-zone').querySelectorAll('.camp-hit').forEach((hit) => {
+        hit.onclick = (e) => {
+          e.stopPropagation();
+          clearTimeout(this._campTagTimer);
+          $('squad-roam-zone').querySelectorAll('.camp-hit.show').forEach((x) => x.classList.remove('show'));
+          hit.classList.add('show');
+          if (this.audio && this.audio.playPickup) this.audio.playPickup();
+          this._campTagTimer = setTimeout(() => hit.classList.remove('show'), 2200);
+        };
       });
 
       // 4. Shop header controls
       const adRerollBtn = $('btn-shop-ad-reroll');
       adRerollBtn.disabled = run.adShopRerollLeft <= 0;
-      adRerollBtn.innerHTML = run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费刷新 · 必出 S` : '免费刷新已用';
-      $('btn-shop-reroll').innerHTML = `刷新 <b>${pxIcon('gold')}${this.shop.rerollCost}G</b>`;
+      adRerollBtn.innerHTML = run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费刷新` : '已用';
+      $('btn-shop-reroll').innerHTML = `刷新 <b>${pxIcon('gold')}${this.shop.rerollCost}</b>`;
 
       // 5. Relic shelf
       const rRow = $('shop-relics-row');
       rRow.className = 'camp-relics-row';
+      // Relics are artifacts, not units: an arched altar with a living pixel window
+      // (js/livingUI.js paints it per school + tier), the icon floating over a plinth.
       rRow.innerHTML = this.shop.relicOffers.map((o, idx) => {
         const thKey = o.tpl.theme || 'core';
         const th = D.THEMES[thKey] || D.THEMES.core;
         const canAfford = run.gold >= o.tpl.cost;
-        let srcStatus = '';
+        let src = '';
         if (o.tpl.requiresSource) {
           const cnt = E.countThemeSources(run.roster, run.hero, o.tpl.requiresSource);
-          srcStatus = `<span class="camp-src ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt} 张`}</span>`;
+          src = `<span class="relic-src ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt}`}</span>`;
         }
         return `
-          <button type="button" class="camp-relic tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'poor' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" ${o.sold ? 'disabled' : ''}>
-            <div class="camp-relic-art" aria-hidden="true">
-              <div class="camp-relic-glow"></div>
-              ${this.renderSafeIconImg(o.tpl.icon, thKey, 'camp-relic-img')}
-            </div>
-            <div class="camp-relic-meta">
-              <span class="camp-tier tier-${o.tpl.tier}">${o.tpl.tier}</span>
-              <span class="camp-theme" style="color:${th.color}">${th.short}${o.tpl.isBridge ? ' · 接口' : ''}</span>
-            </div>
-            <div class="camp-relic-name">${esc(this._plainName(o.tpl.name))}</div>
-            <div class="camp-relic-perk">${esc(o.tpl.desc || o.tpl.short || '')}</div>
-            ${srcStatus}
-            <div class="camp-price ${o.sold ? 'sold' : canAfford ? '' : 'short'}">${o.sold ? '已购入' : `${pxIcon('gold')}${o.tpl.cost}G`}</div>
+          <button type="button" class="camp-relic tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'poor' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" data-pressable ${o.sold ? 'disabled' : ''}>
+            <span class="relic-altar">
+              <canvas class="lv-fx" data-painter="relic" data-theme="${thKey}" data-tier="${o.tpl.tier}" width="90" height="76" aria-hidden="true"></canvas>
+              <span class="relic-icon">${this.renderSafeIconImg(o.tpl.icon, thKey, 'relic-icon-img')}</span>
+              <span class="relic-tier tier-${o.tpl.tier}">${o.tpl.tier}</span>
+            </span>
+            <span class="relic-plate">
+              <span class="relic-school" style="color:${th.color}">${th.short}${o.tpl.isBridge ? ' · 接口' : ''}</span>
+              <span class="relic-name">${esc(this._plainName(o.tpl.name))}</span>
+              <span class="relic-perk">${esc(String(o.tpl.desc || o.tpl.short || '').replace(/侠客/g, '队员'))}</span>
+              ${src}
+            </span>
+            <span class="camp-price ${o.sold ? 'sold' : canAfford ? '' : 'short'}">${o.sold ? '已购' : `${pxIcon('gold')}<b>${o.tpl.cost}</b>`}</span>
           </button>
         `;
       }).join('');
+      if (window.MT.livingUI) window.MT.livingUI.rescan();
 
       rRow.querySelectorAll('[data-buyr]').forEach((el) => {
-        if (!el.classList.contains('sold')) this.bindInteractive3DTilt(el, 6, 5, true);
         el.onclick = (e) => {
           e.stopPropagation();
           const idx = Number(el.dataset.buyr);
@@ -5198,8 +5210,7 @@
       const lower = $('shop-packs-row');
       lower.className = 'camp-lower';
       lower.innerHTML = `
-        <div class="camp-lower-col packs">
-          <div class="camp-row-label">卡包 <i>开包选一张</i></div>
+        <div class="camp-group packs">
           <div class="camp-packs">
             ${D.PACKS.map((p) => {
               const c = this.getPackCost(p);
@@ -5207,38 +5218,39 @@
               const canAfford = run.gold >= c;
               const kind = p.id === 'pack_hero' ? 'hero' : 'ins';
               return `
-                <button type="button" class="camp-pack ${kind} ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'poor' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
-                  <div class="camp-pack-foil" aria-hidden="true">
+                <button type="button" class="camp-pack ${kind} ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'poor' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" data-pressable ${sold ? 'disabled' : ''}>
+                  <span class="camp-pack-foil" aria-hidden="true">
                     <i class="camp-pack-crimp top"></i>
-                    <div class="camp-pack-face">
+                    <span class="camp-pack-face">
                       <span class="camp-pack-count">${p.count} 选 1</span>
                       <span class="camp-pack-emblem">${kind === 'hero' ? '<i></i><i></i><i></i>' : '<b></b>'}</span>
                       <span class="camp-pack-name">${esc(p.name)}</span>
-                    </div>
+                    </span>
                     <i class="camp-pack-sheen"></i>
                     <i class="camp-pack-crimp bottom"></i>
-                  </div>
-                  <div class="camp-price ${sold ? 'sold' : canAfford ? '' : 'short'}">${sold ? '已开启' : `${pxIcon('gold')}${c}G`}</div>
+                  </span>
+                  <span class="camp-price ${sold ? 'sold' : canAfford ? '' : 'short'}">${sold ? '已开' : `${pxIcon('gold')}<b>${c}</b>`}</span>
                 </button>
               `;
             }).join('')}
           </div>
         </div>
-        <div class="camp-lower-col slots">
-          <div class="camp-row-label">战位强化 <i>永久提升对应出手位</i></div>
+        <div class="camp-group slots">
           <div class="camp-slots">
             ${D.SLOT_UPGRADES.map((u) => {
               const lv = run.slotLevels[u.id] || 1;
               const canAfford = run.gold >= u.cost;
-              const [num, label] = String(u.name).split('·').map((s) => s.trim());
+              const [num, label] = String(u.name).split('·').map((x) => x.trim());
+              const pips = Array.from({ length: 5 }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
               return `
-                <button type="button" class="camp-slot ${canAfford ? '' : 'poor'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" style="--slot-col:${u.color}">
-                  <span class="camp-slot-num">${esc(num || '')}</span>
+                <button type="button" class="camp-slot ${canAfford ? '' : 'poor'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" data-pressable style="--slot-col:${u.color}">
+                  <span class="camp-slot-badge">${esc(num || '')}</span>
                   <span class="camp-slot-main">
-                    <b>${esc(label || u.name)} <em>Lv.${lv}</em></b>
+                    <b>${esc(label || u.name)}</b>
                     <span>${esc(u.short)}</span>
+                    <span class="camp-slot-pips" title="Lv.${lv}">${pips}</span>
                   </span>
-                  <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}${u.cost}G</span>
+                  <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}<b>${u.cost}</b></span>
                 </button>
               `;
             }).join('')}

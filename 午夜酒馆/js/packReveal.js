@@ -178,10 +178,25 @@
         if (sp && this.sprites && this.sprites.createDomSprite) {
           sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 68));
         }
-        el.onmouseenter = () => {
-          if (!this.flipped[i] && this.phase === 'dealt') this._hoverHum(c.tier);
+        // Touch first: press and hold a face-down card to charge it (it lifts, its
+        // rarity light swells, it hums); release to flip. Mouse hover only adds a hint.
+        el.onpointerenter = (ev) => {
+          if (ev.pointerType === 'mouse' && !this.flipped[i] && this.phase === 'dealt') this._hoverHum(c.tier);
         };
-        el.onclick = () => this._onCardClick(i);
+        el.onpointerdown = (ev) => {
+          if (this.phase !== 'dealt' || this.flipped[i] || this.busy) return;
+          el.classList.add('pressing');
+          this._hoverHum(c.tier);
+          if (el.setPointerCapture) { try { el.setPointerCapture(ev.pointerId); } catch (_) { /* ignore */ } }
+        };
+        const release = (flip) => {
+          if (!el.classList.contains('pressing')) return;
+          el.classList.remove('pressing');
+          if (flip) this._flip(i);
+        };
+        el.onpointerup = () => release(true);
+        el.onpointercancel = () => release(false);
+        el.onclick = () => { if (this.phase === 'pick' && !this.busy) this._pick(i); };
       });
       this.cardEls = [...wrap.querySelectorAll('.pr-card')];
       this.cardX = this.cardEls.map((el) => parseFloat(el.style.left));
@@ -220,7 +235,7 @@
       pack.classList.remove('gone', 'charging', 'torn');
       pack.classList.add('drop');
       setTimeout(() => pack.classList.remove('drop'), 700);
-      this._setHint('点击卡包撕开');
+      this._setHint('点一下撕开卡包');
       this.root.classList.add('is-sealed');
     }
 
@@ -265,7 +280,7 @@
       setTimeout(() => {
         this.phase = 'dealt';
         this.root.classList.add('is-dealt');
-        this._setHint('逐张翻开卡牌');
+        this._setHint('按住卡牌蓄力，松手翻开');
       }, 220 + cards.length * 95 + 380);
     }
 
