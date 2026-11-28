@@ -202,7 +202,9 @@
     startDomCanvasTicker() {
       if (this._domTickStarted) return;
       this._domTickStarted = true;
+      const gateKey = {};
       const tick = (now) => {
+        if (window.MT.perf && !window.MT.perf.gate(gateKey, 'fx')) { requestAnimationFrame(tick); return; }
         for (let i = this.domCanvases.length - 1; i >= 0; i--) {
           const item = this.domCanvases[i];
           if (!item.canvas.isConnected) {
@@ -215,6 +217,11 @@
           const idleRate = (item.anim === 'idle' && window.MT.ANIM_CONFIG) ? window.MT.ANIM_CONFIG.idleRate : 1;
           const cell = kit.frame(clip, (now - item.t0) * idleRate, { loop: true });
           if (!cell) continue;
+          // idle clips run at ~12fps: only redraw when the frame actually changes
+          if (item.lastImg === img && item.lastSx === cell.sx && item.lastSy === cell.sy) continue;
+          item.lastImg = img;
+          item.lastSx = cell.sx;
+          item.lastSy = cell.sy;
           const ctx = item.ctx;
           const cw = item.canvas.width;
           const ch = item.canvas.height;

@@ -1,0 +1,76 @@
+/* Performance overrides, loaded last.
+   Rule of thumb: anything that loops forever may only animate transform or
+   opacity (GPU-composited). Animated box-shadow / filter / background-position /
+   left and backdrop blur over moving content repaint every frame and are
+   rewritten or frozen here, keeping the look as close as possible. */
+
+/* ─── layers hidden under the pack reveal stop painting entirely ─── */
+#tavern-view.under-overlay { visibility: hidden; }
+#tavern-view.under-overlay *,
+#tavern-view.under-overlay *::before,
+#tavern-view.under-overlay *::after { animation-play-state: paused !important; }
+
+/* ─── hero select ─── */
+/* portrait breathing: keep the movement, drop the per-frame filter */
+@keyframes v18-portrait-breathe {
+  0%, 100% { transform: translate(var(--px), var(--py)) scale(1.012); }
+  50%      { transform: translate(var(--px), calc(var(--py) - 3px)) scale(1.026); }
+}
+.v17-hero-slice.is-active .v17-sl-art { will-change: transform; }
+/* glowing edges: static glow, breathe with opacity only */
+@keyframes v18-edge-breathe {
+  0%, 100% { opacity: 0.78; }
+  50%      { opacity: 1; }
+}
+.v17-hero-slice.is-active .v17-sl-edge { box-shadow: 0 0 16px var(--h-acc, #ffd966); }
+@keyframes v20-piano-edge {
+  0%, 60%  { opacity: 0.36; }
+  74%      { opacity: 1; }
+  88%, 100% { opacity: 0.36; }
+}
+/* active slice rim: frozen at its resting glow (animated box-shadow on a 536px panel) */
+.v17-hero-slice.is-active {
+  animation: none;
+  box-shadow:
+    inset 0 0 0 2px var(--h-acc, #ffd966),
+    inset 0 0 34px color-mix(in srgb, var(--h-acc2, #ff5c8a) 22%, transparent),
+    0 0 42px color-mix(in srgb, var(--h-acc, #ffd966) 44%, transparent),
+    0 0 84px color-mix(in srgb, var(--h-acc2, #ff5c8a) 22%, transparent);
+}
+/* blur on ten big scene images makes every accordion width change re-raster them */
+.v17-hero-slice:not(.is-active):active .v17-sl-bg { filter: brightness(0.72) saturate(1.02); }
+@media (hover: hover) and (pointer: fine) {
+  .v17-hero-slice:not(.is-active):hover .v17-sl-bg { filter: brightness(0.68) saturate(0.98); }
+}
+.v17-hero-slice.is-active .v17-sl-bg { will-change: transform; }
+/* frosted pills over moving art re-blur every frame */
+.v17-ghost-pill, .muster-folio, .v18-ts-loadout-bar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.v17-ghost-pill { background: rgba(16, 13, 10, 0.86) !important; }
+
+/* roster modal rim: frozen */
+#roster-modal .roster-box.tavern-tome-modal { animation: none !important; }
+
+/* ─── cards ─── */
+/* SSS rainbow border: hue-rotate filter animation → static gradient */
+.v15-b-border { animation: none !important; }
+/* specular follows the tilt every frame; screen blending forces a repaint of the
+   whole card, plain alpha looks nearly identical */
+.v15-b-specular { mix-blend-mode: normal; opacity: 0.38; }
+
+/* ─── start/unlock CTA glint: left → transform ─── */
+@keyframes v18-cta-glint {
+  0%   { transform: translateX(0); opacity: 0; }
+  20%  { opacity: 1; }
+  60%  { transform: translateX(500%); opacity: 0; }
+  100% { transform: translateX(500%); opacity: 0; }
+}
+
+/* ─── low-power devices: drop purely decorative loops ─── */
+html.perf-low .v17-hero-slice:not(.is-active) .v17-sl-piano-wave,
+html.perf-low .v17-hero-slice:not(.is-active) .v17-sl-edge.left { animation: none !important; }
+html.perf-low .v17-hero-slice.is-active .v17-sl-bg { animation: none !important; }
+html.perf-low .camp-relic-glow,
+html.perf-low .camp-pack-foil,
+html.perf-low .camp-pack-sheen::before,
+html.perf-low #stage #tavern-view #btn-shop-next.camp-cta::after { animation: none !important; }
+html.perf-low .pr-rays { animation: none !important; }

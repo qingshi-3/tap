@@ -24,8 +24,8 @@
   background: linear-gradient(180deg, rgba(14, 11, 8, 0.38) 0%, transparent 18%, transparent 56%, rgba(14, 11, 8, 0.94) 92%, rgba(12, 10, 8, 0.98) 100%);
 }
 /* scene art: slightly warmer and calmer so it sits on the dark canvas */
-.v17-sl-bg { filter: brightness(0.46) saturate(0.6) sepia(0.18) blur(0.4px); }
-.v17-hero-slice.is-active .v17-sl-bg { filter: brightness(0.74) saturate(0.7) sepia(0.16) blur(0.75px); }
+.v17-sl-bg { filter: brightness(0.46) saturate(0.6) sepia(0.18); }
+.v17-hero-slice.is-active .v17-sl-bg { filter: brightness(0.74) saturate(0.7) sepia(0.16); }
 .v17-sl-blank-canvas {
   background: radial-gradient(ellipse at 50% 34%, color-mix(in srgb, var(--h-ui) 18%, #16120e), #0d0b09 72%);
 }

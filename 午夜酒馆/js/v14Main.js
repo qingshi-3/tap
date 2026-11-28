@@ -88,6 +88,17 @@
       this.tavernShopStage = window.MT.TavernShopStage ? new window.MT.TavernShopStage($('altar-bg-canvas'), this.sprites) : null;
       this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
       this.packReveal = window.MT.PackReveal ? new window.MT.PackReveal(this.stage, this.audio, this.sprites) : null;
+      if (this.packReveal) {
+        // while the reveal covers the camp, stop drawing everything underneath it
+        this.packReveal.onOpen = () => {
+          $('tavern-view').classList.add('under-overlay');
+          if (this.tavernShopStage) this.tavernShopStage.stop();
+        };
+        this.packReveal.onClose = () => {
+          $('tavern-view').classList.remove('under-overlay');
+          if (this.tavernShopStage && this.run && this.run.phase === 'shop') this.tavernShopStage.start();
+        };
+      }
       this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas'), this.sprites) : null;
       this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
       this.themeSanctumStage = window.MT.ThemeSanctumStage ? new window.MT.ThemeSanctumStage() : null;
@@ -336,13 +347,23 @@
         }));
       };
       let lastTs = performance.now();
+      const gateKey = {};
+      let canvases = [];
+      let tiltCards = [];
+      let listAt = 0;
       const tick = (now) => {
+        if (window.MT.perf && !window.MT.perf.gate(gateKey, 'fx')) { this._cardFxRaf = requestAnimationFrame(tick); return; }
         const dt = Math.min(0.05, (now - lastTs) / 1000);
         lastTs = now;
         const t = now * 0.001;
-        const canvases = document.querySelectorAll('.v15-card-fx-canvas');
-        const tiltCards = document.querySelectorAll('.v14-card-tier-A, .v14-card-tier-S, .v14-card-tier-SSS, .v15-idle-tilt');
-        if (!canvases.length && !tiltCards.length) {
+        // re-scan the DOM a few times per second instead of every frame
+        if (now - listAt > 400 || canvases.some((c) => !c.isConnected)) {
+          listAt = now;
+          canvases = [...document.querySelectorAll('.v15-card-fx-canvas')].filter((c) => !c.closest('.hidden'));
+          // idle wobble is decorative: off in low-power mode and inside the pack reveal
+          tiltCards = (window.MT.perf && window.MT.perf.low) ? [] : [...document.querySelectorAll('.v14-card-tier-A, .v14-card-tier-S, .v14-card-tier-SSS, .v15-idle-tilt')].filter((c) => !c.closest('.pr-root, .hidden'));
+        }
+        if (!canvases.length && !tiltCards.length && !document.querySelector('.v15-card-fx-canvas')) {
           this._cardFxRaf = 0;
           return;
         }
@@ -3639,14 +3660,11 @@
         const isPick = this.discardPicks.has(h.uid);
         const isCappedOut = isPickCapped && !isPick && !inSlot;
         const theme = D.THEMES[h.theme] || D.THEMES.core;
-        const grown = h.atk > h.baseAtk || h.knifeCount > h.baseKnifeCount || h.shieldVal > h.baseShieldVal || h.applyPoison > h.baseApplyPoison;
         let leftmostBadge = '';
         if (hasScav && !inSlot && !firstUnslottedMarked) {
           firstUnslottedMarked = true;
           leftmostBadge = `<span class="v14-leftmost-tag">最左(导流目标)</span>`;
         }
-        const shortPerk = this.getShortPerk(h);
-        const hasBadges = h.redSeal || h.glassBlade || h.greedBadge || h.ironPlated;
         const offset = idx - midIdx;
         // Zero diagonal rotation on pixel cards so CJK bitmap text & sprites stay 100% razor-sharp!
         const fanRot = '0';
@@ -3661,26 +3679,7 @@
         const dealDy = Math.round(526 - 600);
         return `
           <div class="v14-card v14-card-tier-${h.tier} ${inSlot ? 'in-slot' : ''} ${isPick ? 'discard-pick' : ''} ${isCappedOut ? 'pick-capped' : ''} ${isSelected ? 'selected-card' : ''} ${isNewlyDrawn ? 'card-draw-in' : ''}" data-uid="${h.uid}" style="--fan-rot:${fanRot}deg;--fan-y:${fanY}px;--card-glow:${theme.bg};--draw-delay:${drawDelay};--deal-dx:${dealDx}px;--deal-dy:${dealDy}px;z-index:${10 + idx}">
-            ${renderCardTierOrnament(h.tier)}
-            ${leftmostBadge}
-            <div class="v14-card-top">
-              <span class="v14-tier tier-${h.tier}">${h.tier}</span>
-              <span class="v14-theme-pill" style="background:${theme.bg};color:${theme.color}">${theme.short}</span>
-              <span class="v14-card-atk ${grown ? 'grown' : ''}">${pxIcon('atk')}${h.atk}</span>
-            </div>
-            <div class="v14-card-hero-stage">
-              <div class="v14-card-sprite" data-unit="${h.unitId}"></div>
-              <div class="v14-card-name">${esc(h.shortName)}${h.isBridge ? ' <span class="v14-bridge-tag">接口</span>' : ''}</div>
-            </div>
-            <div class="v14-card-perk">${esc(shortPerk)}</div>
-            ${hasBadges ? `
-              <div class="v14-card-badges">
-                ${h.redSeal ? `<span class="v14-inscrip-pill">双连印</span>` : ''}
-                ${h.glassBlade ? `<span class="v14-inscrip-pill glass">玻璃刃</span>` : ''}
-                ${h.greedBadge ? `<span class="v14-inscrip-pill greed">+2G</span>` : ''}
-                ${h.ironPlated ? `<span class="v14-inscrip-pill iron">+18盾</span>` : ''}
-              </div>
-            ` : ''}
+            ${this._unitCardInner(h, leftmostBadge)}
           </div>
         `;
       }).join('');
@@ -4575,39 +4574,60 @@
       }
     }
 
+    // Shared card face (battle hand + pack reveal): tier ornament, tier/theme/atk row,
+    // sprite stage, name, perk line and inscription badges. Callers wrap it in
+    // <div class="v14-card v14-card-tier-X">.
+    _unitCardInner(h, extraTop = '') {
+      const theme = D.THEMES[h.theme] || D.THEMES.core;
+      const grown = h.atk > h.baseAtk || h.knifeCount > h.baseKnifeCount || h.shieldVal > h.baseShieldVal || h.applyPoison > h.baseApplyPoison;
+      const shortPerk = this.getShortPerk(h);
+      const hasBadges = h.redSeal || h.glassBlade || h.greedBadge || h.ironPlated;
+      return `
+            ${renderCardTierOrnament(h.tier)}
+            ${extraTop}
+            <div class="v14-card-top">
+              <span class="v14-tier tier-${h.tier}">${h.tier}</span>
+              <span class="v14-theme-pill" style="background:${theme.bg};color:${theme.color}">${theme.short}</span>
+              <span class="v14-card-atk ${grown ? 'grown' : ''}">${pxIcon('atk')}${h.atk}</span>
+            </div>
+            <div class="v14-card-hero-stage">
+              <div class="v14-card-sprite" data-unit="${h.unitId}"></div>
+              <div class="v14-card-name">${esc(h.shortName || this._plainName(h.name))}${h.isBridge ? ' <span class="v14-bridge-tag">接口</span>' : ''}</div>
+            </div>
+            <div class="v14-card-perk">${esc(shortPerk)}</div>
+            ${hasBadges ? `
+              <div class="v14-card-badges">
+                ${h.redSeal ? `<span class="v14-inscrip-pill">双连印</span>` : ''}
+                ${h.glassBlade ? `<span class="v14-inscrip-pill glass">玻璃刃</span>` : ''}
+                ${h.greedBadge ? `<span class="v14-inscrip-pill greed">+2G</span>` : ''}
+                ${h.ironPlated ? `<span class="v14-inscrip-pill iron">+18盾</span>` : ''}
+              </div>
+            ` : ''}`;
+    }
+
     _packInsTier(ins) {
       return ins.id === 'm_clone' ? 'SSS' : (ins.id === 'm_red_seal' || ins.id === 'm_glass' ? 'S' : 'A');
     }
 
     _prHeroFront(h) {
-      const th = D.THEMES[h.theme] || D.THEMES.core;
-      return `
-        <div class="pr-face tier-${h.tier}">
-          <div class="pr-face-top">
-            <span class="pr-face-tier">${h.tier}</span>
-            <span class="pr-face-theme" style="color:${th.color}">${th.short}${h.isBridge ? ' · 接口' : ''}</span>
-            <span class="pr-face-atk">${pxIcon('atk')}${h.atk}</span>
-          </div>
-          <div class="pr-face-art"><div data-pr-unit="${h.unitId}" data-pr-size="84"></div></div>
-          <div class="pr-face-name">${esc(h.shortName || this._plainName(h.name))}</div>
-          <div class="pr-face-desc">${esc(h.desc)}</div>
-          <div class="pr-face-badges">
-            ${h.redSeal ? '<span>自带 · 双连印</span>' : ''}
-            ${h.greedBadge ? '<span class="greed">自带 · 贪财徽</span>' : ''}
-            ${h.ironPlated ? '<span class="iron">自带 · 铁壁甲</span>' : ''}
-          </div>
-        </div>
-      `;
+      const theme = D.THEMES[h.theme] || D.THEMES.core;
+      return `<div class="v14-card v14-card-tier-${h.tier}" style="--card-glow:${theme.bg}">${this._unitCardInner(h)}</div>`;
     }
 
     _prInsFront(ins) {
       const t = this._packInsTier(ins);
       return `
-        <div class="pr-face tier-${t}">
-          <div class="pr-face-top"><span class="pr-face-tier">${t}</span><span class="pr-face-theme" style="color:${ins.color}">铭文</span></div>
-          <div class="pr-face-art">${this.renderSafeIconImg(ins.icon, 'pack_inscription', 'pr-ins-icon')}</div>
-          <div class="pr-face-name" style="color:${ins.color}">${esc(this._plainName(ins.name))}</div>
-          <div class="pr-face-desc">${esc(ins.desc)}</div>
+        <div class="v14-card v14-card-tier-${t} pr-ins-card">
+          ${renderCardTierOrnament(t)}
+          <div class="v14-card-top">
+            <span class="v14-tier tier-${t}">${t}</span>
+            <span class="v14-theme-pill" style="background:rgba(16,12,10,0.8);color:${ins.color}">铭文</span>
+          </div>
+          <div class="v14-card-hero-stage">
+            ${this.renderSafeIconImg(ins.icon, 'pack_inscription', 'pr-ins-icon')}
+            <div class="v14-card-name" style="color:${ins.color}">${esc(this._plainName(ins.name))}</div>
+          </div>
+          <div class="v14-card-perk">${esc(String(ins.desc).replace(/侠客/g, '队员'))}</div>
         </div>
       `;
     }

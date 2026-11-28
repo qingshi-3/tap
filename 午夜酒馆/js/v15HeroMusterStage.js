@@ -280,6 +280,7 @@
       this.lastTs = performance.now();
       const tick = (now) => {
         if (!this.running) return;
+        if (window.MT.perf && !window.MT.perf.gate(this, 'bg')) { this.rafId = requestAnimationFrame(tick); return; }
         const dt = Math.min(0.05, Math.max(0.001, (now - this.lastTs) / 1000));
         this.lastTs = now;
         this._update(dt);
@@ -741,6 +742,7 @@
       this.lastTs = performance.now();
       const tick = (now) => {
         if (!this.running) return;
+        if (window.MT.perf && !window.MT.perf.gate(this, 'bg')) { this.rafId = requestAnimationFrame(tick); return; }
         const dt = Math.min(0.05, Math.max(0.001, (now - this.lastTs) / 1000));
         this.lastTs = now;
         this._update(dt);

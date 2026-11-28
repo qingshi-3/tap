@@ -15,9 +15,10 @@
 
   const W = 1280;
   const H = 720;
-  const CARD_W = 188;
-  const CARD_H = 262;
-  const CARD_TOP = 214;
+  // the battle hand card (156×208) shown at 1.5×
+  const CARD_W = 234;
+  const CARD_H = 312;
+  const CARD_TOP = 198;
   const PACK_CX = W / 2;
   const PACK_CY = 372;
 
@@ -58,6 +59,7 @@
       this.parts = [];
       this.rings = [];
       const root = this.root;
+      if (this.onOpen) this.onOpen();
       root.className = `pr-root kind-${opts.kind || 'hero'}`;
       root.classList.remove('hidden');
       const best = opts.cards.reduce((m, c) => (tierOf(c.tier).rank > tierOf(m).rank ? c.tier : m), 'C');
@@ -96,6 +98,7 @@
       this.root.classList.add('hidden');
       this.opts = null;
       this.phase = 'idle';
+      if (this.onClose) this.onClose();
       cancelAnimationFrame(this.raf);
       this.raf = 0;
       if (this.ctx) this.ctx.clearRect(0, 0, W, H);
@@ -144,7 +147,7 @@
     _renderCards() {
       const { cards } = this.opts;
       const n = cards.length;
-      const gap = n >= 4 ? 30 : 44;
+      const gap = n >= 4 ? 26 : 44;
       const total = n * CARD_W + (n - 1) * gap;
       const x0 = (W - total) / 2;
       const wrap = this.$('.pr-cards');
@@ -171,15 +174,17 @@
       wrap.querySelectorAll('.pr-card').forEach((el) => {
         const i = Number(el.dataset.i);
         const c = cards[i];
-        const sp = el.querySelector('[data-pr-unit]');
+        const sp = el.querySelector('.pr-front [data-unit]');
         if (sp && this.sprites && this.sprites.createDomSprite) {
-          sp.appendChild(this.sprites.createDomSprite(sp.dataset.prUnit, 'idle', Number(sp.dataset.prSize) || 84));
+          sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 68));
         }
         el.onmouseenter = () => {
           if (!this.flipped[i] && this.phase === 'dealt') this._hoverHum(c.tier);
         };
         el.onclick = () => this._onCardClick(i);
       });
+      this.cardEls = [...wrap.querySelectorAll('.pr-card')];
+      this.cardX = this.cardEls.map((el) => parseFloat(el.style.left));
       // pack face text
       this.$('.pr-pack-count').textContent = `${n} 选 1`;
       this.$('.pr-pack-name').textContent = this.opts.title || '';
@@ -290,7 +295,7 @@
       const tier = this.opts.cards[i].tier;
       const rank = tierOf(tier).rank;
       this.flipped[i] = true;
-      const rect = { x: parseFloat(el.style.left) + CARD_W / 2, y: CARD_TOP + CARD_H / 2 };
+      const rect = { x: this.cardX[i] + CARD_W / 2, y: CARD_TOP + CARD_H / 2 };
 
       const doFlip = () => {
         el.classList.add('flipped');
@@ -369,7 +374,7 @@
       this.root.classList.add('picking-out');
       const t = tierOf(o.cards[i].tier);
       const el = cards[i];
-      this._spray(parseFloat(el.style.left) + CARD_W / 2, CARD_TOP + CARD_H / 2, 60, [t.rgb, [255, 236, 190]], 420);
+      this._spray(this.cardX[i] + CARD_W / 2, CARD_TOP + CARD_H / 2, 60, [t.rgb, [255, 236, 190]], 420);
       this._sfxPick();
       setTimeout(() => {
         const keep = o.onPick(i);
@@ -435,19 +440,23 @@
 
     _step(dt, t) {
       const g = this.ctx;
+      if (!this.parts.length && !this.rings.length && this.phase !== 'dealt') {
+        if (this._dirty) { g.clearRect(0, 0, W, H); this._dirty = false; }
+        return;
+      }
+      this._dirty = true;
       g.clearRect(0, 0, W, H);
       g.globalCompositeOperation = 'lighter';
-      // ambient motes rising behind face-down rare cards
-      if (this.phase === 'dealt' || this.phase === 'pick') {
-        this.root.querySelectorAll('.pr-card').forEach((el) => {
-          const i = Number(el.dataset.i);
-          const tier = this.opts && this.opts.cards[i] ? this.opts.cards[i].tier : 'B';
-          const rank = tierOf(tier).rank;
-          if (rank < 2 || el.classList.contains('dropped')) return;
-          const rate = rank >= 4 ? 34 : rank === 3 ? 16 : 6;
+      // ambient motes rising behind face-down rare cards only (once face-up, the card settles)
+      if (this.phase === 'dealt' && this.opts && this.cardX) {
+        this.opts.cards.forEach((c, i) => {
+          if (this.flipped[i]) return;
+          const rank = tierOf(c.tier).rank;
+          if (rank < 3) return;
+          const rate = rank >= 4 ? 26 : 10;
           if (Math.random() < rate * dt) {
-            const x = parseFloat(el.style.left) + Math.random() * CARD_W;
-            this.parts.push({ x, y: CARD_TOP + CARD_H - Math.random() * 30, vx: (Math.random() - 0.5) * 14, vy: -30 - Math.random() * 50, s: 2, life: 1.2, max: 1.2, col: tierOf(tier).rgb, star: false, float: true });
+            const x = this.cardX[i] + Math.random() * CARD_W;
+            this.parts.push({ x, y: CARD_TOP + CARD_H - Math.random() * 30, vx: (Math.random() - 0.5) * 12, vy: -30 - Math.random() * 40, s: 2, life: 1.1, max: 1.1, col: tierOf(c.tier).rgb, star: false, float: true });
           }
         });
       }

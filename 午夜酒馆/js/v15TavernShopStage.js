@@ -304,6 +304,7 @@
       }
       const tick = (now) => {
         if (!this.running) return;
+        if (window.MT.perf && !window.MT.perf.gate(this, 'bg')) { this.rafId = requestAnimationFrame(tick); return; }
         const dt = Math.min(0.05, Math.max(0.001, (now - this.lastTs) / 1000));
         this.lastTs = now;
         this._update(dt);
@@ -778,37 +779,42 @@
       ctx.save();
       ctx.imageSmoothingEnabled = false;
 
-      // 1. Camp backdrop: warm near-black ground matching the hero select (no tavern room,
-      //    no landlady, no squad on the floor - the squad now lives in the left DOM panel).
-      ctx.fillStyle = '#100e0c';
-      ctx.fillRect(0, 0, W, H);
-      const glow = ctx.createRadialGradient(W * 0.62, H * 0.42, 40, W * 0.62, H * 0.42, 760);
-      glow.addColorStop(0, 'rgba(92, 64, 34, 0.30)');
-      glow.addColorStop(0.5, 'rgba(48, 32, 18, 0.16)');
-      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, W, H);
-      const leftGlow = ctx.createRadialGradient(210, 220, 20, 210, 220, 420);
-      leftGlow.addColorStop(0, 'rgba(140, 34, 46, 0.16)');
-      leftGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = leftGlow;
-      ctx.fillRect(0, 0, W, H);
-      // faint diagonal bands, the same texture motif as the hero select canvas
-      ctx.save();
-      ctx.strokeStyle = 'rgba(212, 174, 104, 0.035)';
-      ctx.lineWidth = 26;
-      for (let x = -400; x < W + 400; x += 170) {
-        ctx.beginPath();
-        ctx.moveTo(x, H);
-        ctx.lineTo(x + 420, 0);
-        ctx.stroke();
+      // 1. Camp backdrop: warm near-black ground matching the hero select. It never
+      //    changes, so it is painted once into an offscreen canvas and blitted.
+      if (!this._campBg) {
+        const bgc = document.createElement('canvas');
+        bgc.width = W;
+        bgc.height = H;
+        const bx = bgc.getContext('2d');
+        bx.fillStyle = '#100e0c';
+        bx.fillRect(0, 0, W, H);
+        const glow = bx.createRadialGradient(W * 0.62, H * 0.42, 40, W * 0.62, H * 0.42, 760);
+        glow.addColorStop(0, 'rgba(92, 64, 34, 0.30)');
+        glow.addColorStop(0.5, 'rgba(48, 32, 18, 0.16)');
+        glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        bx.fillStyle = glow;
+        bx.fillRect(0, 0, W, H);
+        const leftGlow = bx.createRadialGradient(210, 220, 20, 210, 220, 420);
+        leftGlow.addColorStop(0, 'rgba(140, 34, 46, 0.16)');
+        leftGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        bx.fillStyle = leftGlow;
+        bx.fillRect(0, 0, W, H);
+        bx.strokeStyle = 'rgba(212, 174, 104, 0.035)';
+        bx.lineWidth = 26;
+        for (let x = -400; x < W + 400; x += 170) {
+          bx.beginPath();
+          bx.moveTo(x, H);
+          bx.lineTo(x + 420, 0);
+          bx.stroke();
+        }
+        const vig = bx.createRadialGradient(W * 0.5, H * 0.5, 260, W * 0.5, H * 0.5, 820);
+        vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        vig.addColorStop(1, 'rgba(4, 3, 2, 0.7)');
+        bx.fillStyle = vig;
+        bx.fillRect(0, 0, W, H);
+        this._campBg = bgc;
       }
-      ctx.restore();
-      const vig = ctx.createRadialGradient(W * 0.5, H * 0.5, 260, W * 0.5, H * 0.5, 820);
-      vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      vig.addColorStop(1, 'rgba(4, 3, 2, 0.7)');
-      ctx.fillStyle = vig;
-      ctx.fillRect(0, 0, W, H);
+      ctx.drawImage(this._campBg, 0, 0);
 
       // 8. Rising Golden Hearth Embers
       for (const e of this.embers) {

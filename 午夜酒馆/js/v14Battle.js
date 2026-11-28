@@ -2045,6 +2045,7 @@
 
     loop(ts) {
       if (!this.running) return;
+      if (window.MT.perf && !window.MT.perf.gate(this, 'game')) { this.rafId = requestAnimationFrame((t) => this.loop(t)); return; }
       const rawDt = Math.min(0.05, Math.max(0.001, (ts - this.lastTs) / 1000));
       this.lastTs = ts;
       const dt = rawDt * this.speed;

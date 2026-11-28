@@ -118,17 +118,17 @@
   background: linear-gradient(135deg, #f2dba2, #9a7638); box-shadow: inset 0 0 0 1px #fff4d0, 0 0 26px rgba(200, 162, 255, 0.8);
 }
 .kind-ins .pr-pack-emblem b::after { content: ''; position: absolute; inset: 14px; background: #2a1650; box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.8); }
-.pr-pack-sheen {
-  position: absolute; inset: 12px 0; display: block; pointer-events: none;
-  background: linear-gradient(115deg, transparent 30%, rgba(255, 245, 220, 0.3) 45%, transparent 56%) -220px 0 / 400px 100% no-repeat;
-  animation: prSheen 3.2s ease-in-out infinite; mix-blend-mode: screen;
+.pr-pack-sheen { position: absolute; inset: 12px 0; display: block; pointer-events: none; overflow: hidden; }
+.pr-pack-sheen::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 50%;
+  background: linear-gradient(115deg, transparent 10%, rgba(255, 245, 220, 0.3) 50%, transparent 90%);
+  animation: prSheen 3.2s ease-in-out infinite;
 }
-@keyframes prSheen { 0%, 50% { background-position: -220px 0; } 100% { background-position: 240px 0; } }
+@keyframes prSheen { 0%, 50% { transform: translateX(0); } 100% { transform: translateX(340%); } }
 /* light leaking from the seams in the colour of the best card inside */
 .pr-pack-leak {
   position: absolute; inset: -30px; display: block; opacity: 0; pointer-events: none;
-  background: radial-gradient(ellipse, color-mix(in srgb, var(--best) 70%, transparent) 0%, transparent 65%);
-  filter: blur(6px);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--best) 75%, transparent) 30%, color-mix(in srgb, var(--best) 25%, transparent) 70%, transparent 100%);
 }
 .pr-pack.charging .pr-pack-foil { animation: prCharge 0.56s ease-in forwards; }
 .pr-pack.charging .pr-pack-leak { animation: prLeak 0.56s ease-in forwards; }
@@ -144,15 +144,16 @@
 .pr-pack.torn { pointer-events: none; }
 .pr-pack.torn .pr-pack-foil { animation: prTorn 0.4s ease-out forwards; }
 .pr-pack.torn .pr-pack-leak { opacity: 1; animation: prTornLeak 0.5s ease-out forwards; }
-@keyframes prTorn { to { transform: scale(1.5); opacity: 0; filter: brightness(3); } }
+@keyframes prTorn { to { transform: scale(1.5); opacity: 0; } }
 @keyframes prTornLeak { to { transform: scale(2.4); opacity: 0; } }
 
-/* ─── cards ─────────────────────────────────────────────────────────── */
+/* ─── cards ─────────────────────────────────────────────────────────────
+   234×312 = the battle hand card (156×208) at 1.5×; the front IS that card. */
 .pr-cards { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 .pr-card {
-  position: absolute; width: 188px; height: 262px;
-  perspective: 900px; pointer-events: auto; cursor: pointer;
-  transition: transform 0.5s cubic-bezier(.2, 1.25, .4, 1), opacity 0.35s, filter 0.3s;
+  position: absolute; width: 234px; height: 312px;
+  perspective: 1100px; pointer-events: auto; cursor: pointer;
+  transition: transform 0.5s cubic-bezier(.2, 1.25, .4, 1), opacity 0.35s;
 }
 .pr-card.pr-in { transform: translate(var(--dx), var(--dy)) scale(0.3) rotate(var(--r0)); opacity: 0; pointer-events: none; }
 .pr-card.landing { transition: transform 0.38s cubic-bezier(.2, 1.4, .45, 1), opacity 0.2s; }
@@ -164,59 +165,73 @@
 .pr-back, .pr-front { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .pr-front { transform: rotateY(180deg); }
 
+/* the real hand card, scaled up; its own hover/tilt/fan transforms are neutralised */
+#pr-root .pr-front .v14-card {
+  position: absolute !important; left: 0; top: 0;
+  width: 156px !important; height: 208px !important; margin: 0 !important;
+  transform: scale(1.5) !important; transform-origin: 0 0 !important;
+  transition: box-shadow 0.2s !important;
+  animation: none !important;
+  cursor: inherit;
+}
+#pr-root .pr-front .pr-ins-card .v14-card-hero-stage { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; }
+#pr-root .pr-front .pr-ins-icon { width: 60px; height: 60px; object-fit: contain; image-rendering: pixelated; margin: 6px 0 4px; }
+
 .pr-back {
   background:
-    repeating-linear-gradient(45deg, rgba(242, 219, 162, 0.06) 0 2px, transparent 2px 10px),
+    repeating-linear-gradient(45deg, rgba(242, 219, 162, 0.06) 0 2px, transparent 2px 12px),
     radial-gradient(circle at 50% 46%, #6e1c26 0%, #3a0d14 55%, #1d070b 100%);
-  box-shadow: inset 0 0 0 1px #f2dba2, inset 0 0 0 5px #1a0a0c, inset 0 0 0 6px rgba(242, 219, 162, 0.55), 0 12px 24px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 0 1px #f2dba2, inset 0 0 0 6px #1a0a0c, inset 0 0 0 7px rgba(242, 219, 162, 0.55), 0 14px 28px rgba(0, 0, 0, 0.6);
   display: flex; align-items: center; justify-content: center;
 }
 .pr-back-frame {
-  width: 108px; height: 108px; transform: rotate(45deg);
+  width: 128px; height: 128px; transform: rotate(45deg);
   display: flex; align-items: center; justify-content: center;
   background: linear-gradient(135deg, rgba(242, 219, 162, 0.16), rgba(0, 0, 0, 0.3));
-  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.7), inset 0 0 0 7px rgba(0, 0, 0, 0.3), inset 0 0 0 8px rgba(242, 219, 162, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.7), inset 0 0 0 8px rgba(0, 0, 0, 0.3), inset 0 0 0 9px rgba(242, 219, 162, 0.3);
 }
-.pr-back-emblem { transform: rotate(-45deg); font-size: 46px; color: #f2dba2; text-shadow: 0 0 12px rgba(242, 219, 162, 0.6), 0 2px 0 #3a0d14; }
+.pr-back-emblem { transform: rotate(-45deg); font-size: 56px; color: #f2dba2; text-shadow: 0 0 12px rgba(242, 219, 162, 0.6), 0 2px 0 #3a0d14; }
 
-/* rarity glow behind the card — visible while face-down (the tease) */
+/* rarity glow behind the card. No blur filter: the softness is in the gradient,
+   and it only ever animates opacity. */
 .pr-card-glow {
-  position: absolute; inset: -28px; pointer-events: none; opacity: 0;
-  background: radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--tc) 75%, transparent) 30%, transparent 70%);
-  filter: blur(8px);
-  transition: opacity 0.4s, inset 0.3s;
+  position: absolute; inset: -46px; pointer-events: none; opacity: 0; z-index: -1;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--tc) 70%, transparent) 55%, color-mix(in srgb, var(--tc) 22%, transparent) 78%, transparent 100%);
+  transition: opacity 0.5s;
 }
-.pr-root.is-dealt .pr-card.tier-A .pr-card-glow { opacity: 0.55; animation: prGlow 2.4s ease-in-out infinite; }
-.pr-root.is-dealt .pr-card.tier-S .pr-card-glow { opacity: 0.85; animation: prGlow 1.6s ease-in-out infinite; }
-.pr-root.is-dealt .pr-card.tier-SSS .pr-card-glow { opacity: 1; inset: -30px; animation: prGlowSSS 0.9s ease-in-out infinite; background: conic-gradient(from 0deg, #ff6b8b, #ffd36b, #ff9a5c, #ff6b8b, #ffd36b, #ff6b8b); -webkit-mask: radial-gradient(ellipse, #000 38%, transparent 70%); mask: radial-gradient(ellipse, #000 38%, transparent 70%); }
-.pr-root.is-dealt .pr-card.tier-B .pr-card-glow { opacity: 0.18; }
-@keyframes prGlow { 50% { opacity: 0.35; transform: scale(0.96); } }
-@keyframes prGlowSSS { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.06); } 100% { transform: rotate(360deg) scale(1); } }
+/* face-down: the tease */
+.pr-root.is-dealt .pr-card.tier-B:not(.flipped) .pr-card-glow { opacity: 0.16; }
+.pr-root.is-dealt .pr-card.tier-A:not(.flipped) .pr-card-glow { opacity: 0.5; animation: prBreath 2.4s ease-in-out infinite; }
+.pr-root.is-dealt .pr-card.tier-S:not(.flipped) .pr-card-glow { opacity: 0.8; animation: prBreath 1.6s ease-in-out infinite; }
+.pr-root.is-dealt .pr-card.tier-SSS:not(.flipped) .pr-card-glow {
+  opacity: 1; inset: -60px; animation: prBreath 0.9s ease-in-out infinite;
+  background: radial-gradient(closest-side, rgba(255, 220, 140, 0.85) 45%, rgba(255, 107, 139, 0.6) 66%, rgba(255, 107, 139, 0.18) 84%, transparent 100%);
+}
+@keyframes prBreath { 50% { opacity: 0.45; } }
 .pr-root.is-dealt .pr-card.tier-SSS:not(.flipped) .pr-inner { animation: prTremble 1.4s ease-in-out infinite; }
 @keyframes prTremble { 0%, 80%, 100% { transform: none; } 84% { transform: translateX(-1px) rotate(-0.6deg); } 88% { transform: translateX(1px) rotate(0.6deg); } 92% { transform: translateX(-1px); } }
 
-/* face-down backs carry the rarity in their rim + outer glow */
-.pr-root.is-dealt .pr-card.tier-A:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #f2dba2, inset 0 0 0 5px #1a0a0c, inset 0 0 0 6px var(--tc), 0 0 22px color-mix(in srgb, var(--tc) 55%, transparent), 0 12px 24px rgba(0, 0, 0, 0.6); }
-.pr-root.is-dealt .pr-card.tier-S:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #fff3cf, inset 0 0 0 5px #1a0a0c, inset 0 0 0 7px var(--tc), inset 0 0 40px color-mix(in srgb, var(--tc) 30%, transparent), 0 0 34px color-mix(in srgb, var(--tc) 75%, transparent), 0 12px 24px rgba(0, 0, 0, 0.6); }
-.pr-root.is-dealt .pr-card.tier-SSS:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #fff, inset 0 0 0 5px #1a0a0c, inset 0 0 0 8px var(--tc), inset 0 0 50px rgba(255, 140, 120, 0.4), 0 0 46px var(--tc), 0 0 90px rgba(255, 211, 107, 0.45), 0 12px 24px rgba(0, 0, 0, 0.6); }
+/* face-down backs carry the rarity in their rim */
+.pr-root.is-dealt .pr-card.tier-A:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #f2dba2, inset 0 0 0 6px #1a0a0c, inset 0 0 0 7px var(--tc), 0 14px 28px rgba(0, 0, 0, 0.6); }
+.pr-root.is-dealt .pr-card.tier-S:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #fff3cf, inset 0 0 0 6px #1a0a0c, inset 0 0 0 8px var(--tc), inset 0 0 44px color-mix(in srgb, var(--tc) 30%, transparent), 0 14px 28px rgba(0, 0, 0, 0.6); }
+.pr-root.is-dealt .pr-card.tier-SSS:not(.flipped) .pr-back { box-shadow: inset 0 0 0 1px #fff, inset 0 0 0 6px #1a0a0c, inset 0 0 0 9px var(--tc), inset 0 0 56px rgba(255, 140, 120, 0.4), 0 14px 28px rgba(0, 0, 0, 0.6); }
 .pr-root.is-dealt .pr-card.tier-S:not(.flipped) .pr-back-emblem, .pr-root.is-dealt .pr-card.tier-SSS:not(.flipped) .pr-back-emblem { color: #fff3cf; text-shadow: 0 0 16px var(--tc), 0 0 4px #fff; }
 
 /* hover lift (face-down: the glow swells) */
 .pr-root.is-dealt .pr-card:not(.flipped):hover { transform: translateY(-14px) scale(1.04); }
-.pr-root.is-dealt .pr-card:not(.flipped):hover .pr-card-glow { opacity: 1; inset: -26px; }
-.pr-root.is-dealt .pr-card:not(.flipped):hover .pr-back { box-shadow: inset 0 0 0 1px #fff3cf, inset 0 0 0 5px #1a0a0c, inset 0 0 0 6px var(--tc), 0 18px 30px rgba(0, 0, 0, 0.7); }
+.pr-root.is-dealt .pr-card:not(.flipped):hover .pr-card-glow { opacity: 1; animation: none; }
 .pr-root.is-dealt .pr-card.flipped { cursor: default; }
 
 /* S: a short squeeze before flipping */
 .pr-card.charging-s .pr-inner { animation: prSqueeze 0.26s ease-in; }
 @keyframes prSqueeze { 50% { transform: scale(0.95) rotate(-2deg); } 100% { transform: scale(1.03); } }
 
-/* SSS focus: the rest of the table dims, the card rises and shakes */
-.pr-root.focus .pr-card:not(.focus) { filter: brightness(0.3) saturate(0.4); }
+/* SSS focus: the rest of the table dims (opacity, not filter), the card rises and shakes */
+.pr-root.focus .pr-card:not(.focus) { opacity: 0.25; }
 .pr-root.focus .pr-dim { background: rgba(4, 3, 2, 0.97); transition: background 0.3s; }
 .pr-root.focus .pr-rays { opacity: 0.05; }
-.pr-card.focus { z-index: 3; transform: translateY(-34px) scale(1.18); transition: transform 0.6s cubic-bezier(.2, .9, .3, 1); }
-.pr-card.focus .pr-card-glow { inset: -60px; opacity: 1; }
+.pr-card.focus { z-index: 3; transform: translateY(-30px) scale(1.12); transition: transform 0.6s cubic-bezier(.2, .9, .3, 1); }
+.pr-card.focus .pr-card-glow { inset: -90px; opacity: 1; animation: none; }
 .pr-card.charging .pr-inner { animation: prSSSCharge 0.9s ease-in forwards; }
 @keyframes prSSSCharge {
   0% { transform: none; }
@@ -228,71 +243,45 @@
   100% { transform: scale(1.06); }
 }
 
-/* after reveal: S/SSS keep rays + stamp */
+/* after reveal: everything settles. One still halo in the tier colour, static
+   rays only behind S/SSS, no rotation, no pulsing. */
 .pr-card-rays {
-  position: absolute; left: 50%; top: 50%; width: 520px; height: 520px; margin: -260px 0 0 -260px;
-  pointer-events: none; opacity: 0; z-index: -1;
-  background: repeating-conic-gradient(from 0deg, color-mix(in srgb, var(--tc) 45%, transparent) 0deg 5deg, transparent 5deg 20deg);
-  -webkit-mask: radial-gradient(circle, #000 10%, transparent 58%);
-  mask: radial-gradient(circle, #000 10%, transparent 58%);
-  animation: prSpin 14s linear infinite;
-  transition: opacity 0.4s;
+  position: absolute; left: 50%; top: 50%; width: 560px; height: 560px; margin: -280px 0 0 -280px;
+  pointer-events: none; opacity: 0; z-index: -2;
+  background: repeating-conic-gradient(from 8deg, color-mix(in srgb, var(--tc) 40%, transparent) 0deg 4deg, transparent 4deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 18%, transparent 56%);
+  mask: radial-gradient(circle, #000 18%, transparent 56%);
+  transition: opacity 0.6s;
 }
-.pr-card.revealed.tier-S .pr-card-rays { opacity: 0.55; }
-.pr-card.revealed.tier-SSS .pr-card-rays { opacity: 0.95; animation-duration: 8s; }
-.pr-card.revealed .pr-card-glow { opacity: 0.5; animation: none; }
+.pr-card.revealed.tier-S .pr-card-rays { opacity: 0.35; }
+.pr-card.revealed.tier-SSS .pr-card-rays { opacity: 0.6; }
+.pr-card.revealed .pr-card-glow { animation: none; inset: -40px; }
 .pr-card.revealed.tier-B .pr-card-glow, .pr-card.revealed.tier-C .pr-card-glow { opacity: 0; }
-.pr-card.revealed.tier-A .pr-card-glow { opacity: 0.4; }
-.pr-card.revealed.tier-SSS .pr-card-glow { opacity: 0.9; animation: prGlowSSS 3s linear infinite; }
+.pr-card.revealed.tier-A .pr-card-glow { opacity: 0.32; }
+.pr-card.revealed.tier-S .pr-card-glow { opacity: 0.5; }
+.pr-card.revealed.tier-SSS .pr-card-glow { opacity: 0.62; }
+
 .pr-stamp {
-  position: absolute; right: -14px; top: -18px; z-index: 6;
-  min-width: 54px; height: 54px; padding: 0 8px;
+  position: absolute; right: -16px; top: -20px; z-index: 6;
+  min-width: 58px; height: 58px; padding: 0 8px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 26px; color: #1a0d08; letter-spacing: 1px;
+  font-size: 28px; color: #1a0d08; letter-spacing: 1px;
   background: var(--tc);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7), 0 0 0 2px #1a0d08, 0 0 24px var(--tc);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7), 0 0 0 2px #1a0d08, 0 4px 10px rgba(0, 0, 0, 0.6);
   transform: rotate(10deg) scale(3); opacity: 0; pointer-events: none;
 }
 .pr-card.stamped .pr-stamp { animation: prStamp 0.36s cubic-bezier(.3, 1.6, .5, 1) 0.12s forwards; }
-.pr-card.tier-SSS .pr-stamp { font-size: 22px; min-width: 70px; }
+.pr-card.tier-SSS .pr-stamp { font-size: 24px; min-width: 76px; }
 @keyframes prStamp { to { transform: rotate(10deg) scale(1); opacity: 1; } }
 
 /* pick phase */
-.pr-root.is-pick .pr-card:hover { transform: translateY(-14px) scale(1.05); }
-.pr-root.is-pick .pr-card:hover .pr-front .pr-face { box-shadow: inset 0 0 0 2px var(--tc), 0 0 26px color-mix(in srgb, var(--tc) 50%, transparent), 0 18px 30px rgba(0, 0, 0, 0.7); }
+.pr-root.is-pick .pr-card:hover { transform: translateY(-14px) scale(1.04); }
+.pr-root.is-pick .pr-card:hover .pr-card-glow { opacity: 0.85; }
 .pr-root.is-pick .pr-card { cursor: pointer; }
-.pr-card.chosen { z-index: 4; transform: translateY(-40px) scale(1.16); transition: transform 0.4s cubic-bezier(.2, 1.3, .4, 1); }
+.pr-card.chosen { z-index: 4; transform: translateY(-36px) scale(1.12); transition: transform 0.4s cubic-bezier(.2, 1.3, .4, 1); }
 .pr-card.dropped { transform: translateY(80px) scale(0.9); opacity: 0; transition: transform 0.45s ease-in, opacity 0.35s; }
 .pr-root.picking-out .pr-card.chosen { animation: prChosenOut 0.5s ease-in 0.18s forwards; }
 @keyframes prChosenOut { to { transform: translate(-380px, 260px) scale(0.3); opacity: 0; } }
-
-/* ─── card faces ────────────────────────────────────────────────────── */
-.pr-face {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 10px 12px 12px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 16%, #1e1913) 0%, #14100c 62%);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 80%, transparent), inset 0 0 0 4px rgba(0, 0, 0, 0.35), inset 0 0 0 5px color-mix(in srgb, var(--tc) 30%, transparent), 0 12px 24px rgba(0, 0, 0, 0.6);
-  text-align: center;
-  transition: box-shadow 0.2s;
-}
-.pr-face-top { width: 100%; display: flex; align-items: center; gap: 6px; font-size: 12px; }
-.pr-face-tier { min-width: 24px; padding: 0 5px; line-height: 18px; font-size: 12px; color: #120e0a; background: var(--tc); }
-.pr-face-theme { letter-spacing: 1px; }
-.pr-face-atk { margin-left: auto; display: inline-flex; align-items: center; gap: 2px; color: #ffd966; font-size: 15px; }
-.pr-face-art { position: relative; width: 100%; height: 104px; display: flex; align-items: flex-end; justify-content: center; margin: 2px 0 4px; }
-.pr-face-art::before {
-  content: ''; position: absolute; left: 50%; bottom: 4px; width: 100px; height: 20px; margin-left: -50px; border-radius: 50%;
-  background: radial-gradient(ellipse, color-mix(in srgb, var(--tc) 45%, transparent), transparent 70%);
-}
-.pr-face-art [data-pr-unit] { position: relative; }
-.pr-face-art img.pr-ins-icon { width: 84px; height: 84px; object-fit: contain; image-rendering: pixelated; margin-bottom: 8px; filter: drop-shadow(0 0 12px color-mix(in srgb, var(--tc) 60%, transparent)); }
-.pr-face-name { font-size: 16px; color: #fff3df; letter-spacing: 1px; margin-bottom: 4px; }
-.pr-face-desc { font-size: 11.5px; line-height: 1.45; color: #cfc4b1; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
-.pr-face-badges { margin-top: auto; display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
-.pr-face-badges span { font-size: 10.5px; padding: 1px 6px; color: #ffd2dc; background: rgba(120, 20, 40, 0.6); box-shadow: inset 0 0 0 1px rgba(255, 120, 150, 0.5); }
-.pr-face-badges span.greed { color: #ffe9a8; background: rgba(110, 80, 10, 0.6); box-shadow: inset 0 0 0 1px rgba(255, 210, 100, 0.5); }
-.pr-face-badges span.iron { color: #d6ecff; background: rgba(30, 60, 90, 0.6); box-shadow: inset 0 0 0 1px rgba(140, 190, 230, 0.5); }
 
 .pr-root .tier-C { --tc: #c4ccde; }
 .pr-root .tier-B { --tc: #79d2ff; }
@@ -300,10 +289,16 @@
 .pr-root .tier-S { --tc: #ffd36b; }
 .pr-root .tier-SSS { --tc: #ff6b8b; }
 
-#stage.mobile-compact .pr-face-desc { font-size: 13.5px; -webkit-line-clamp: 3; }
-#stage.mobile-compact .pr-face-name { font-size: 18px; }
 #stage.mobile-compact .pr-hint, #stage.mobile-compact .pr-btn { font-size: 17px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .pr-rays, .pr-pack-foil, .pr-card-rays, .pr-card-glow { animation: none !important; }
+  .pr-rays, .pr-pack-foil, .pr-card-glow, .pr-card .pr-inner { animation: none !important; }
 }
+
+/* inscriptions have no stats row to read, so their perk line may wrap */
+#pr-root .pr-front .pr-ins-card .v14-card-perk {
+  white-space: normal !important; height: auto !important; max-height: none !important;
+  display: -webkit-box !important; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden !important;
+  text-overflow: clip !important; line-height: 1.35 !important; padding: 3px 6px !important; text-align: center;
+}
+#pr-root .pr-front .pr-ins-card .v14-card-hero-stage { flex: 0 0 auto !important; }

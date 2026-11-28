@@ -263,11 +263,11 @@
 #stage #tavern-view #btn-shop-next.camp-cta:hover { filter: brightness(1.12); transform: translateY(-1px); }
 #stage #tavern-view #btn-shop-next.camp-cta:active { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.75), 0 2px 0 #3e0c12 !important; }
 #stage #tavern-view #btn-shop-next.camp-cta::after {
-  content: '' !important; display: block !important; position: absolute; inset: 0 auto 0 -40%;
+  content: '' !important; display: block !important; position: absolute; top: 0; bottom: 0; left: -40%;
   width: 30%; background: linear-gradient(100deg, transparent, rgba(255, 240, 220, 0.25), transparent);
   animation: campCtaSheen 3.6s ease-in-out infinite;
 }
-@keyframes campCtaSheen { 0%, 60% { left: -40%; } 100% { left: 120%; } }
+@keyframes campCtaSheen { 0%, 60% { transform: translateX(0); } 100% { transform: translateX(533%); } }
 .camp-cta-k { font-size: 20px; letter-spacing: 6px; color: #fff3df; }
 .camp-cta-name { font-size: 14px; color: rgba(255, 236, 220, 0.85); }
 .camp-cta-arrow { margin-left: auto; font-size: 22px; color: var(--c-gold-hi); }
@@ -420,14 +420,14 @@
 }
 .camp-pack-emblem b::after { content: ''; position: absolute; inset: 9px; background: #2a1650; box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.8); }
 .camp-pack-name { font-size: 14px; color: #fff3df; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); }
-.camp-pack-sheen {
-  position: absolute; inset: 8px 0; pointer-events: none; overflow: hidden;
-  background: linear-gradient(115deg, transparent 30%, rgba(255, 245, 220, 0.28) 45%, transparent 56%) -140px 0 / 260px 100% no-repeat;
+.camp-pack-sheen { position: absolute; inset: 8px 0; pointer-events: none; overflow: hidden; }
+.camp-pack-sheen::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 50%;
+  background: linear-gradient(115deg, transparent 10%, rgba(255, 245, 220, 0.26) 50%, transparent 90%);
   animation: campSheen 3.8s ease-in-out infinite;
-  mix-blend-mode: screen;
 }
-.camp-pack.ins .camp-pack-sheen { animation-delay: -1.9s; }
-@keyframes campSheen { 0%, 55% { background-position: -140px 0; } 100% { background-position: 160px 0; } }
+.camp-pack.ins .camp-pack-sheen::before { animation-delay: -1.9s; }
+@keyframes campSheen { 0%, 55% { transform: translateX(0); } 100% { transform: translateX(340%); } }
 .camp-pack.poor .camp-pack-foil { filter: grayscale(0.5) brightness(0.7) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6)); }
 .camp-pack.sold { cursor: default; }
 .camp-pack.sold .camp-pack-foil { opacity: 0.25; filter: grayscale(1); animation: none; }
