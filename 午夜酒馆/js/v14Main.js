@@ -3210,7 +3210,7 @@
         let ascBonusOrbs = 0;
         let mergedInfo = '';
         if (isFinalClear) {
-          shardsEarned = this.meta.calcRunShards(this.run.totalKills, true, this.run.shardBonusMult || 1.0);
+          shardsEarned = this.meta.calcRunShards(this.run.totalKills, true, this.run.shardBonusMult || 1.0, this.run.ascension || 0);
           const r = this.meta.addShards(shardsEarned);
           if (r.mergedOrbs > 0) mergedInfo = `（合成 +${r.mergedOrbs} 宝珠）`;
           const ascRes = this.meta.recordAscensionClear(this.run.ascension || 0);
@@ -3269,11 +3269,12 @@
           lootItems.push({ label: '血瓶续命残血奖', sub: '血量 ≤50% 触发', val: `+${bloodBonus}G`, cls: 'crimson' });
         }
         if (isFinalClear) {
-          lootItems.push({ label: '通关星界碎片', sub: `已自动入账${mergedInfo}`, val: `+${shardsEarned} 碎片`, cls: 'cyan' });
+          lootItems.push({ label: '通关碎片', sub: `${this.run.totalKills} 波 + 通关奖励${(this.run.ascension || 0) > 0 ? ` · 难度 ${this.run.ascension} 加成` : ''}${mergedInfo}`, val: `+${shardsEarned} 碎片`, cls: 'cyan' });
         }
         if (ascBonusOrbs > 0) {
           lootItems.push({ label: '进阶首通嘉奖', sub: `首次通关阶 ${this.run.ascension || 0}`, val: `+${ascBonusOrbs} 宝珠`, cls: 'gold' });
         }
+        if (isFinalClear) lootItems.push(...this._metaSettleRows());
 
         rowsEl.innerHTML = lootItems.map((it, idx) => `
           <div class="v16-po-row" data-po-row="${idx}">
@@ -3355,7 +3356,7 @@
           if (this.audio && this.audio.playRankStamp) this.audio.playRankStamp(rank.code);
         });
       } else {
-        const shardsEarned = this.meta.calcRunShards(this.run.totalKills, false, this.run.shardBonusMult || 1.0);
+        const shardsEarned = this.meta.calcRunShards(this.run.totalKills, false, this.run.shardBonusMult || 1.0, this.run.ascension || 0);
         const renderLossContent = (isFinalSettle) => {
           card.className = 'v16-po-vault is-lose';
           emblemBox.innerHTML = this._vaultEmblemSvg('book');
@@ -3394,6 +3395,7 @@
             const r = shardsEarned > 0 ? this.meta.addShards(shardsEarned) : { mergedOrbs: 0 };
             mergedInfo = r.mergedOrbs > 0 ? `（合成 +${r.mergedOrbs} 宝珠）` : '';
           }
+          const metaRows = isFinalSettle ? this._metaSettleRows() : [];
 
           rowsEl.innerHTML = `
             <div class="v16-po-row is-shown">
@@ -3404,6 +3406,12 @@
               <div class="v16-pr-left"><span class="v16-pr-label">单手最高直伤</span><span class="v16-pr-sub">已计入本局战绩</span></div>
               <b class="v16-pr-val crimson">${this.run.peakHit.toLocaleString()}</b>
             </div>
+            ${metaRows.map((it) => `
+              <div class="v16-po-row is-shown">
+                <div class="v16-pr-left"><span class="v16-pr-label">${esc(it.label)}</span><span class="v16-pr-sub">${esc(it.sub)}</span></div>
+                <b class="v16-pr-val ${it.cls}">${esc(it.val)}</b>
+              </div>
+            `).join('')}
           `;
 
           totalBar.className = 'v16-po-total-bar is-shown';
@@ -4781,6 +4789,23 @@
           ${extra}
         </div>
       `;
+    }
+
+    // Settlement rows for the meta loop: today's first-run bonus and how far the
+    // next unlock is. Call once per finished run, after the run shards are added.
+    _metaSettleRows() {
+      const rows = [];
+      const daily = this.meta.claimDailyFirstRun ? this.meta.claimDailyFirstRun() : { shards: 0 };
+      if (daily.shards > 0) {
+        rows.push({ label: '今日首局奖励', sub: '每天第一局结束时发放', val: `+${daily.shards} 碎片`, cls: 'cyan' });
+      }
+      const next = this.meta.nextUnlock ? this.meta.nextUnlock() : null;
+      if (next) {
+        rows.push(next.ready
+          ? { label: '可以解锁了', sub: `${next.kind === 'hero' ? '英雄' : '流派'} · ${this._plainName(next.name)} · ${next.cost} 宝珠`, val: '可解锁', cls: 'gold' }
+          : { label: '下一个解锁', sub: `${next.kind === 'hero' ? '英雄' : '流派'} · ${this._plainName(next.name)} · ${next.cost} 宝珠`, val: `还差 ${next.missing} 宝珠`, cls: 'dim' });
+      }
+      return rows;
     }
 
     _packInsTier(ins) {

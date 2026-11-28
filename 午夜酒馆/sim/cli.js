@@ -391,6 +391,101 @@ async function cmdTuneCurve(args) {
   saveReport('tune-curve', ['# 逐波血量调参', '', cfgLabel(cfg0), '', `目标累计通过率：${targets.map((t) => S.pct(t, 0)).join(' / ')}`, '', S.mdTable(['波次', '原 hp', '新 hp'], G.D.WAVE_CONFIG.map((c, i) => ['W' + c.wave, c.hp, hp[i]])), '', S.formatSummaryMd(Sm, '复测（新种子）')].join('\n'), null);
 }
 
+// ─── economy: project meta unlock pacing from simulated runs ─────────────
+// Runs novice/expert batches (with and without ads), turns each run into
+// shards with the game's own calcRunShards, then walks day by day for a few
+// player profiles, buying the cheapest locked hero/theme whenever affordable.
+async function cmdEconomy(args) {
+  const runs = Number(args.runs || 300);
+  const seed = Number(args.seed || 1);
+  const G = loadGame({});
+  const EC = G.META.ECONOMY;
+  const mgr = G.META.manager;
+  const pool = makePool(args);
+  const batch = async (level, ads) => {
+    const cfg = baseCfg({ ...args, level, ads });
+    const res = await pool.run(cfg, runs, seed, progress(`${level}${ads ? '+广告' : ''}`));
+    const ok = res.filter((r) => !r.error);
+    const shards = ok.map((r) => mgr.calcRunShards(r.wavesCleared || 0, Boolean(r.won), 1, 0));
+    const avg = shards.reduce((a, b) => a + b, 0) / Math.max(1, shards.length);
+    const win = ok.filter((r) => r.won).length / Math.max(1, ok.length);
+    const waves = ok.reduce((a, r) => a + (r.wavesCleared || 0), 0) / Math.max(1, ok.length);
+    return { avg, win, waves };
+  };
+  const B = {
+    novice: await batch('novice', false), noviceAds: await batch('novice', true),
+    expert: await batch('expert', false), expertAds: await batch('expert', true)
+  };
+  pool.close();
+
+  const unlockables = [
+    ...G.META.HEROES_META.filter((h) => h.cost > 0).map((h) => ({ name: h.name, cost: h.cost })),
+    ...G.META.THEME_PACKS_META.filter((t) => t.live && t.cost > 0).map((t) => ({ name: t.name, cost: t.cost }))
+  ].sort((a, b) => a.cost - b.cost);
+  const total = unlockables.reduce((a, u) => a + u.cost, 0);
+  const RAMP = Number(args.ramp || 30);       // runs until a player plays like the expert AI
+  const AD_RATE = Number(args['ad-rate'] || 0.8); // share of settlements an ad watcher doubles
+  const ACH = 115;                              // one-time achievement shards, earned over the first week
+
+  const walk = (runsPerDay, ads) => {
+    let shards = 0;
+    let orbs = 10;
+    let played = 0;
+    const left = unlockables.slice();
+    const got = [];
+    for (let day = 1; day <= 400 && left.length; day++) {
+      const checkin = (EC.CHECKIN_MIN + EC.CHECKIN_MAX) / 2;
+      shards += checkin * (ads ? 2 : 1);
+      if (day <= 7) shards += ACH / 7;
+      for (let k = 0; k < runsPerDay; k++) {
+        const w = Math.min(1, played / RAMP);
+        const nov = ads ? B.noviceAds.avg : B.novice.avg;
+        const exp = ads ? B.expertAds.avg : B.expert.avg;
+        let gain = nov * (1 - w) + exp * w;
+        if (ads) gain *= 1 + AD_RATE;
+        if (k === 0) gain += EC.DAILY_FIRST_RUN;
+        shards += gain;
+        played++;
+        orbs += Math.floor(shards / EC.SHARDS_PER_ORB);
+        shards %= EC.SHARDS_PER_ORB;
+        while (left.length && orbs >= left[0].cost) {
+          orbs -= left[0].cost;
+          got.push({ day, run: played, name: left.shift().name });
+        }
+      }
+    }
+    const at = (n) => (got[n - 1] ? `第 ${got[n - 1].day} 天（第 ${got[n - 1].run} 局）` : '400 天内未达成');
+    return { first: at(1), half: at(Math.ceil(unlockables.length / 2)), all: at(unlockables.length), got };
+  };
+  const profiles = [['轻度 · 每天 3 局', 3], ['常规 · 每天 5 局', 5]];
+  const rows = [];
+  for (const [label, n] of profiles) {
+    for (const ads of [false, true]) {
+      const r = walk(n, ads);
+      rows.push([`${label}${ads ? ' · 看广告' : ''}`, r.first, r.half, r.all]);
+    }
+  }
+  const md = [
+    '# 局外经济节奏推算',
+    '',
+    `每批 ${runs} 局 · 英雄01 · 标准难度 · 三个免费流派。碎片公式：每过一波 ${EC.SHARDS_PER_WAVE}，通关 +${EC.CLEAR_BONUS}，每日首局 +${EC.DAILY_FIRST_RUN}，签到 ${EC.CHECKIN_MIN}~${EC.CHECKIN_MAX}，${EC.SHARDS_PER_ORB} 碎片 = 1 宝珠。`,
+    `玩家模型：前 ${RAMP} 局从新手 AI 线性过渡到老手 AI；看广告的玩家 ${Math.round(AD_RATE * 100)}% 的结算会翻倍，签到也翻倍，并能用 1 次复活和 1 次保底刷新。成就 ${ACH} 碎片在第一周内拿完。`,
+    '',
+    '| 批次 | 平均过波 | 通关率 | 每局碎片 |',
+    '|---|---|---|---|',
+    ...[['新手 AI', B.novice], ['新手 AI + 广告', B.noviceAds], ['老手 AI', B.expert], ['老手 AI + 广告', B.expertAds]]
+      .map(([n, b]) => `| ${n} | ${b.waves.toFixed(2)} | ${S.pct(b.win)} | ${b.avg.toFixed(1)} |`),
+    '',
+    `待解锁 ${unlockables.length} 项，合计 ${total} 宝珠：${unlockables.map((u) => u.cost).join(' / ')}`,
+    '',
+    '| 玩家 | 第一个解锁 | 解锁一半 | 全部解锁 |',
+    '|---|---|---|---|',
+    ...rows.map((r) => `| ${r.join(' | ')} |`)
+  ].join('\n');
+  console.log(md);
+  saveReport('economy', md, { B, rows });
+}
+
 function cmdCheck(args) {
   if (args.accept) {
     writeLock(typeof args.accept === 'string' ? args.accept : '手动确认同步');
@@ -428,6 +523,7 @@ function cmdList(args) {
 const HELP = `
 《日蚀战团》强度回归模拟器
 
+  node sim/cli.js economy [--runs 300] [--ramp 30] [--ad-rate 0.8]   局外解锁节奏推算
   node sim/cli.js run   [--runs 500] [--hero hero_01] [--asc 0] [--themes discard,shield,poison|random]
                         [--force-card id,...] [--force-relic id,...] [--ban-card id,...] [--ads]
                         [--override 文件.json] [--level expert|novice] [--ai ai参数.json] [--seed 1] [--workers N] [--name 报告名]
@@ -448,6 +544,7 @@ async function main() {
   if (cmd === 'tune') return cmdTune(args);
   if (cmd === 'tune-curve') return cmdTuneCurve(args);
   if (cmd === 'check') return cmdCheck(args);
+  if (cmd === 'economy') return cmdEconomy(args);
   if (cmd === 'list') return cmdList(args);
   console.log(HELP);
 }

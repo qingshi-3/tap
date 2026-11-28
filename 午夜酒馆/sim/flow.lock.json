@@ -1,19 +1,19 @@
 {
-  "note": "首次运行自动记录",
-  "updatedAt": "2026-11-27T14:48:27.447Z",
+  "note": "同步：startWaveBattle/finishBattle 仅场景与结算显示，openPack/selectInscriptionTarget 仅新开包界面，数值逻辑未变",
+  "updatedAt": "2026-11-28T12:23:19.493Z",
   "methods": {
     "startNewRun": "ec919a1bbf32",
-    "startWaveBattle": "5fa55879bb4a",
+    "startWaveBattle": "f06e6db23f28",
     "beginRound": "b85e20cf2a0e",
     "handleDiscardButton": "7f71a2a5bc04",
     "handleStrikeButton": "493f5fd46afa",
-    "finishBattle": "0ed0d1f1f17b",
+    "finishBattle": "df5c1c7d5d6b",
     "openShop": "c4de7c898e74",
     "rerollShop": "6248faae9df3",
     "buyRelicOffer": "58bbf201c007",
     "upgradeSlot": "4d284abd1fe8",
-    "openPack": "daff1bae51b4",
-    "selectInscriptionTarget": "1f7da6b33377",
+    "openPack": "3478c79a2622",
+    "selectInscriptionTarget": "4be1198f15af",
     "spendGold": "33d74976983e",
     "handleShopAdReroll": "5d24664587b5"
   }

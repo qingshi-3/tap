@@ -8,26 +8,26 @@
 
   const HEROES_META = [
     { id: 'hero_01', code: '01', codename: 'CRIMSON BLADE', accent: '#ffd966', accent2: '#ff5c8a', uiAccent: '#b8323f', portrait: './assets/heroes/hero_01.webp?v=252', slicePos: '50% 20%', avatarPos: '50% 22%', name: '英雄01 · 标准',     cost: 0,  unitId: 'f1_spellbladeadept', desc: '8 张起手，每波 2 次换牌，无特殊效果。' },
-    { id: 'hero_02', code: '02', codename: 'AEGIS MAIDEN',  accent: '#6be5ff', accent2: '#3a88ff', uiAccent: '#5fb6d6', portrait: './assets/heroes/hero_02.webp?v=252', slicePos: '48% 20%', avatarPos: '48% 22%', name: '英雄02 · 护盾',     cost: 20, unitId: 'f1_3rdgeneral',      desc: '每波开局 +15 护盾，小队血量上限 +15。', startShield: 15, maxHpBonus: 15 },
-    { id: 'hero_03', code: '03', codename: 'PHANTOM DEAL',  accent: '#4ef0c4', accent2: '#38a6e8', uiAccent: '#2f8a64', portrait: './assets/heroes/hero_03.webp?v=252', slicePos: '50% 22%', avatarPos: '50% 28%', name: '英雄03 · 换牌+1',   cost: 30, unitId: 'f2_altgeneral',      desc: '每波换牌次数 +1，过波赏金 -1G。', extraDiscards: 1, rewardDelta: -1 },
-    { id: 'hero_05', code: '04', codename: 'LONE ECLIPSE',  accent: '#ff7a52', accent2: '#ffd24c', uiAccent: '#d0782a', portrait: './assets/heroes/hero_05.webp?v=252', slicePos: '52% 20%', avatarPos: '55% 26%', name: '英雄05 · 孤狼',     cost: 35, unitId: 'f5_rancour',         desc: '场上每空 1 个出战位，全队伤害 ×1.25。', emptySlotExtraMult: 1.25 },
-    { id: 'hero_07', code: '05', codename: 'VENOM ROSE',    accent: '#7ef28a', accent2: '#a855f0', uiAccent: '#7a4fc2', portrait: './assets/heroes/hero_07.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄07 · 挂毒',     cost: 45, unitId: 'f4_blacksolus',      desc: '每波开局给 Boss 挂 6 层【剧毒】。', startBossPoison: 6 },
-    { id: 'hero_08', code: '06', codename: 'RUNE WEAVER',   accent: '#c97dff', accent2: '#ff7aa8', uiAccent: '#9b7fd4', portrait: './assets/heroes/hero_08.webp?v=252', slicePos: '52% 20%', avatarPos: '56% 26%', name: '英雄08 · 铭文',     cost: 50, unitId: 'f3_grandmasternoshrak',desc: '铭文匣便宜 2G，招募包 40% 概率自带随机铭文。', inscriptionDiscount: 2, bonusHeroInscripRate: 0.40 },
-    { id: 'hero_09', code: '07', codename: 'VAULT KEEPER',  accent: '#ffe066', accent2: '#6be5ff', uiAccent: '#2f7fb8', portrait: './assets/heroes/hero_09.webp?v=252', slicePos: '50% 20%', avatarPos: '48% 26%', name: '英雄09 · 6秘宝槽',  cost: 55, unitId: 'f1_altgeneral',      desc: '秘宝槽上限 +1（共 6 槽）。', extraRelicSlots: 1 },
-    { id: 'hero_10', code: '08', codename: 'ABYSS CROWN',   accent: '#ff5286', accent2: '#c97dff', uiAccent: '#8e2f5a', portrait: './assets/heroes/hero_10.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄10 · 开局S秘宝',cost: 60, unitId: 'f4_reaperninemoons', desc: '开局自带 1 件随机 S/SSS 秘宝，小队血量上限降至 80。', startHighRelic: true, maxHpBonus: -20 },
-    { id: 'hero_04', code: '09', codename: 'GILDED QUEEN',  accent: '#f5b841', accent2: '#fff2a6', uiAccent: '#b07a3a', portrait: './assets/heroes/hero_04.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄04 · 经济',     cost: 70, unitId: 'f3_allomancer',      desc: '开局 12G（原 6G），每波利息上限提至 8G。', startGold: 12, maxInterest: 8 },
-    { id: 'hero_06', code: '10', codename: 'ECHO DANCER',   accent: '#ff8c42', accent2: '#ff5286', uiAccent: '#c9577f', portrait: './assets/heroes/hero_06.webp?v=252', slicePos: '42% 20%', avatarPos: '36% 28%', name: '英雄06 · 3号复读',  cost: 80, unitId: 'f2_grandmasterzendo',desc: '每手 3 号位首次出手后，2 号位额外再出手 1 次。', slot3TriggersSlot2: true }
+    { id: 'hero_02', code: '02', codename: 'AEGIS MAIDEN',  accent: '#6be5ff', accent2: '#3a88ff', uiAccent: '#5fb6d6', portrait: './assets/heroes/hero_02.webp?v=252', slicePos: '48% 20%', avatarPos: '48% 22%', name: '英雄02 · 护盾',     cost: 12, unitId: 'f1_3rdgeneral',      desc: '每波开局 +15 护盾，小队血量上限 +15。', startShield: 15, maxHpBonus: 15 },
+    { id: 'hero_03', code: '03', codename: 'PHANTOM DEAL',  accent: '#4ef0c4', accent2: '#38a6e8', uiAccent: '#2f8a64', portrait: './assets/heroes/hero_03.webp?v=252', slicePos: '50% 22%', avatarPos: '50% 28%', name: '英雄03 · 换牌+1',   cost: 16, unitId: 'f2_altgeneral',      desc: '每波换牌次数 +1，过波赏金 -1G。', extraDiscards: 1, rewardDelta: -1 },
+    { id: 'hero_05', code: '04', codename: 'LONE ECLIPSE',  accent: '#ff7a52', accent2: '#ffd24c', uiAccent: '#d0782a', portrait: './assets/heroes/hero_05.webp?v=252', slicePos: '52% 20%', avatarPos: '55% 26%', name: '英雄05 · 孤狼',     cost: 20, unitId: 'f5_rancour',         desc: '场上每空 1 个出战位，全队伤害 ×1.25。', emptySlotExtraMult: 1.25 },
+    { id: 'hero_07', code: '05', codename: 'VENOM ROSE',    accent: '#7ef28a', accent2: '#a855f0', uiAccent: '#7a4fc2', portrait: './assets/heroes/hero_07.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄07 · 挂毒',     cost: 25, unitId: 'f4_blacksolus',      desc: '每波开局给 Boss 挂 6 层【剧毒】。', startBossPoison: 6 },
+    { id: 'hero_08', code: '06', codename: 'RUNE WEAVER',   accent: '#c97dff', accent2: '#ff7aa8', uiAccent: '#9b7fd4', portrait: './assets/heroes/hero_08.webp?v=252', slicePos: '52% 20%', avatarPos: '56% 26%', name: '英雄08 · 铭文',     cost: 30, unitId: 'f3_grandmasternoshrak',desc: '铭文匣便宜 2G，招募包 40% 概率自带随机铭文。', inscriptionDiscount: 2, bonusHeroInscripRate: 0.40 },
+    { id: 'hero_09', code: '07', codename: 'VAULT KEEPER',  accent: '#ffe066', accent2: '#6be5ff', uiAccent: '#2f7fb8', portrait: './assets/heroes/hero_09.webp?v=252', slicePos: '50% 20%', avatarPos: '48% 26%', name: '英雄09 · 6秘宝槽',  cost: 35, unitId: 'f1_altgeneral',      desc: '秘宝槽上限 +1（共 6 槽）。', extraRelicSlots: 1 },
+    { id: 'hero_10', code: '08', codename: 'ABYSS CROWN',   accent: '#ff5286', accent2: '#c97dff', uiAccent: '#8e2f5a', portrait: './assets/heroes/hero_10.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄10 · 开局S秘宝',cost: 40, unitId: 'f4_reaperninemoons', desc: '开局自带 1 件随机 S/SSS 秘宝，小队血量上限降至 80。', startHighRelic: true, maxHpBonus: -20 },
+    { id: 'hero_04', code: '09', codename: 'GILDED QUEEN',  accent: '#f5b841', accent2: '#fff2a6', uiAccent: '#b07a3a', portrait: './assets/heroes/hero_04.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄04 · 经济',     cost: 45, unitId: 'f3_allomancer',      desc: '开局 12G（原 6G），每波利息上限提至 8G。', startGold: 12, maxInterest: 8 },
+    { id: 'hero_06', code: '10', codename: 'ECHO DANCER',   accent: '#ff8c42', accent2: '#ff5286', uiAccent: '#c9577f', portrait: './assets/heroes/hero_06.webp?v=252', slicePos: '42% 20%', avatarPos: '36% 28%', name: '英雄06 · 3号复读',  cost: 50, unitId: 'f2_grandmasterzendo',desc: '每手 3 号位首次出手后，2 号位额外再出手 1 次。', slot3TriggersSlot2: true }
   ];
 
   const THEME_PACKS_META = [
     { id: 'discard', name: '主题包 · 换牌', cost: 0,  live: true,  desc: '免费开放 · 弃牌飞刀、弃牌加攻与免费追打' },
     { id: 'shield',  name: '主题包 · 盾反', cost: 0,  live: true,  desc: '免费开放 · 叠盾抗伤、借势蓄力与护盾反击' },
     { id: 'poison',  name: '主题包 · 剧毒', cost: 0,  live: true,  desc: '免费开放 · 叠毒翻倍、吞毒加攻与毒伤产金' },
-    { id: 'frost',   name: '主题包 · 极寒', cost: 40, live: true,  desc: '已实装 · 叠冰降攻、10 层冻结与碎冰爆发' },
-    { id: 'hand',    name: '主题包 · 留手', cost: 50, live: true,  desc: '已实装 · 留手增伤、场下追打与满手爆发' },
-    { id: 'summon',  name: '主题包 · 献祭', cost: 60, live: true,  desc: '已实装 · 吞噬继承、空位招剑灵与退场爆发' },
-    { id: 'blood',   name: '主题包 · 燃血', cost: 70, live: true,  desc: '已实装 · 扣血换伤、残血再动与锁血反杀' },
-    { id: 'dice',    name: '主题包 · 赌博', cost: 80, live: true,  desc: '已实装 · 抛币掷骰、灌铅改命与押金再动' }
+    { id: 'frost',   name: '主题包 · 极寒', cost: 15, live: true,  desc: '已实装 · 叠冰降攻、10 层冻结与碎冰爆发' },
+    { id: 'hand',    name: '主题包 · 留手', cost: 20, live: true,  desc: '已实装 · 留手增伤、场下追打与满手爆发' },
+    { id: 'summon',  name: '主题包 · 献祭', cost: 25, live: true,  desc: '已实装 · 吞噬继承、空位招剑灵与退场爆发' },
+    { id: 'blood',   name: '主题包 · 燃血', cost: 30, live: true,  desc: '已实装 · 扣血换伤、残血再动与锁血反杀' },
+    { id: 'dice',    name: '主题包 · 赌博', cost: 35, live: true,  desc: '已实装 · 抛币掷骰、灌铅改命与押金再动' }
   ];
 
   const ASCENSIONS = [
@@ -43,6 +43,20 @@
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
   }
+
+  // ─── Meta economy (tuned for an ad-funded free launch) ───────────────────
+  // Front-loaded: the first unlock lands on day one, the curve then climbs so
+  // unlocking everything is a ~6-week goal (~3 weeks for players who watch the
+  // settlement ×2 ad). Validate with: node sim/cli.js economy
+  const ECONOMY = {
+    SHARDS_PER_ORB: 10,
+    SHARDS_PER_WAVE: 3,      // per wave cleared, win or lose
+    CLEAR_BONUS: 15,         // extra for clearing all 8 waves
+    ASC_BONUS_PER_LV: 0.2,   // +20% run shards per difficulty level
+    DAILY_FIRST_RUN: 10,     // first finished run of the day
+    CHECKIN_MIN: 5,
+    CHECKIN_MAX: 10
+  };
 
   function defaultSave() {
     return {
@@ -65,6 +79,7 @@
       dailyCheckedIn: false,
       dailyCheckinBase: 0,
       dailyCheckinDoubled: false,
+      dailyFirstRunDone: false,
       selectedHeroId: 'hero_01',
       totalAdsWatched: 0,
       activeRun: null // Mid-run resume snapshot!
@@ -133,6 +148,7 @@
         this.data.dailyCheckedIn = false;
         this.data.dailyCheckinBase = 0;
         this.data.dailyCheckinDoubled = false;
+        this.data.dailyFirstRunDone = false;
         this.save(true);
       }
     }
@@ -232,10 +248,10 @@
     addShards(n) {
       if (n <= 0) return { mergedOrbs: 0, shards: this.data.shards };
       this.data.shards = (this.data.shards || 0) + n;
-      const mergedOrbs = Math.floor(this.data.shards / 10);
+      const mergedOrbs = Math.floor(this.data.shards / ECONOMY.SHARDS_PER_ORB);
       if (mergedOrbs > 0) {
         this.data.orbs = (this.data.orbs || 0) + mergedOrbs;
-        this.data.shards = this.data.shards % 10;
+        this.data.shards = this.data.shards % ECONOMY.SHARDS_PER_ORB;
       }
       this.save();
       return { mergedOrbs, shards: this.data.shards };
@@ -244,7 +260,7 @@
     claimDailyCheckin() {
       this.checkDailyReset();
       if (this.data.dailyCheckedIn) return { base: 0, mergedOrbs: 0 };
-      const base = 3 + Math.floor(Math.random() * 8);
+      const base = ECONOMY.CHECKIN_MIN + Math.floor(Math.random() * (ECONOMY.CHECKIN_MAX - ECONOMY.CHECKIN_MIN + 1));
       this.data.dailyCheckedIn = true;
       this.data.dailyCheckinBase = base;
       const res = this.addShards(base);
@@ -266,9 +282,32 @@
     }
 
     // 2 shards/wave + 4 clear bonus => W8 = 20 shards (2 orbs; 4 orbs with ad!)
-    calcRunShards(kills, clearedAll, bonusMult = 1.0) {
-      const base = kills * 2 + (clearedAll ? 4 : 0);
-      return Math.round(base * bonusMult);
+    // Run reward: per wave cleared (losing still pays), a clear bonus, and a
+    // difficulty multiplier. bonusMult is the random-themes +25%.
+    calcRunShards(wavesCleared, clearedAll, bonusMult = 1.0, ascLv = 0) {
+      const base = wavesCleared * ECONOMY.SHARDS_PER_WAVE + (clearedAll ? ECONOMY.CLEAR_BONUS : 0);
+      return Math.round(base * bonusMult * (1 + ECONOMY.ASC_BONUS_PER_LV * (ascLv || 0)));
+    }
+
+    // First finished run of the day pays a flat bonus (brings players back daily).
+    claimDailyFirstRun() {
+      this.checkDailyReset();
+      if (this.data.dailyFirstRunDone) return { shards: 0, mergedOrbs: 0 };
+      this.data.dailyFirstRunDone = true;
+      const res = this.addShards(ECONOMY.DAILY_FIRST_RUN);
+      return { shards: ECONOMY.DAILY_FIRST_RUN, mergedOrbs: res.mergedOrbs };
+    }
+
+    // The cheapest thing still locked (hero or theme pack), for "next unlock" hints.
+    nextUnlock() {
+      const items = [
+        ...HEROES_META.filter((h) => !this.data.unlockedHeroes.includes(h.id) && h.cost > 0).map((h) => ({ kind: 'hero', id: h.id, name: h.name, cost: h.cost })),
+        ...THEME_PACKS_META.filter((t) => t.live && !this.data.unlockedThemes.includes(t.id) && t.cost > 0).map((t) => ({ kind: 'theme', id: t.id, name: t.name, cost: t.cost }))
+      ].sort((a, b) => a.cost - b.cost);
+      if (!items.length) return null;
+      const it = items[0];
+      const have = (this.data.orbs || 0) + (this.data.shards || 0) / ECONOMY.SHARDS_PER_ORB;
+      return { ...it, missing: Math.max(0, Math.ceil(it.cost - have)), ready: (this.data.orbs || 0) >= it.cost };
     }
 
     // Achievements
@@ -329,6 +368,5 @@
     HEROES_META,
     THEME_PACKS_META,
     ASCENSIONS,
-    manager: new MetaManager()
-  };
+    manager: new MetaManager(), ECONOMY };
 })();
