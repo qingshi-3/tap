@@ -1,10 +1,13 @@
-import { SAVE_KEYS, CLOUD_META_KEY, ensureStorage, guardedWrite } from './storage-contract.js';
+import { SAVE_KEYS, CLOUD_META_KEY, LEGACY_ARCHIVE_NAME, ensureSaveNamespace, validMatchRecord, validCampaignRecord, guardedWrite } from './storage-contract.js';
 import { CloudArchive } from './cloud-archive.js';
-import { normalizeProfile } from './profile.js';
+import { CampaignProgress } from './campaign-progress.js';
+import { LEVELS } from './levels.js';
+import { validateMatch } from './engine.js';
+import { normalizeExpeditionState } from './expedition-progress.js';
 
 const GAME = 'duelyst-h5';
 const APP_ID = 970030;
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 1;
 const MIN_SYNC_INTERVAL = 60_000;
 const KEYS = SAVE_KEYS;
 const META_KEY = CLOUD_META_KEY;
@@ -15,16 +18,17 @@ const JOURNAL_KEY = `${META_KEY}.restore-journal`;
 const clone = (value) => JSON.parse(JSON.stringify(value));
 
 export class PlayerCloud {
-  constructor({ storage, transport = new CloudArchive(), legacyTransport, onChange = () => {}, onRestore = () => {} } = {}) {
+  constructor({ storage, transport = new CloudArchive(), legacyTransport, onChange = () => {}, onRestore = () => {}, setTimer = setTimeout, clearTimer = clearTimeout, now = Date.now } = {}) {
     if (storage === undefined) { try { storage = globalThis.localStorage; } catch { storage = null; } }
-    this.legacyTransport = legacyTransport ?? null;
+    this.legacyTransport = legacyTransport ?? (transport instanceof CloudArchive ? new CloudArchive({ tap: transport.tap, archiveName: LEGACY_ARCHIVE_NAME }) : null);
     this.legacyRemote = false;
     this.storage = storage; this.transport = transport; this.onChange = onChange; this.onRestore = onRestore;
-    this.paused = false; this.disposed = false; this.timer = null; this.busy = false; this.queued = false; this.lastSyncAt = 0;
+    this.setTimer = setTimer; this.clearTimer = clearTimer; this.now = now; this.manualRetryTimer = null; this.manualRequested = false; this.manualActive = false;
+    this.paused = false; this.disposed = false; this.timer = null; this.busy = false; this.cacheCleaning = false; this.queued = false; this.lastSyncAt = 0;
     this.remote = null; this.remoteLocalFingerprint = null; this.meta = null; this.unknownMetaRaw = null; this.blocked = false;
-    this.view = { status: 'idle', label: '云存档尚未连接', error: '', available: Boolean(transport?.available), localSummary: null,
+    this.view = { status: 'idle', label: '云存档尚未连接', error: '', errorCode: '', available: Boolean(transport?.available), localSummary: null,
       cloudSummary: null, hasRemote: false, conflict: false, blocked: false };
-    try { ensureStorage(storage); } catch { this.blocked = true; }
+    try { ensureSaveNamespace(storage); } catch { this.blocked = true; }
     if (this.blocked) Object.assign(this.view, { status: 'error', label: '本地恢复日志无法回滚，云同步已停用。', error: '本地恢复日志无法回滚，云同步已停用。', blocked: true });
     this.meta = this.#readMeta();
     try { this.metaRaw = this.storage.getItem(META_KEY); } catch { this.blocked = true; }
@@ -32,18 +36,132 @@ export class PlayerCloud {
     if (!this.blocked) this.#recoverJournal();
     if (this.blocked) Object.assign(this.view, { status: 'error', label: '存档版本不支持或恢复未完成，已停用云同步以保护原件。', error: '存档版本不支持或恢复未完成。', blocked: true });
     this.#updateLocalSummary();
+    const activityChanged = () => { if (!this.disposed) { try { this.onChange(this.state); } catch {} this.#resumeManual(); } };
+    this.activityUnsubscribers = [...new Set([this.transport, this.legacyTransport])]
+      .map(adapter => adapter?.subscribeActivity?.(activityChanged)).filter(unsubscribe => typeof unsubscribe === 'function');
   }
 
-  get state() { return clone(this.view); }
+  get state() { return clone({ ...this.view,
+    cacheAvailable: Boolean(this.transport?.cacheAvailable),
+    cacheBusy: this.cacheCleaning || Boolean(this.transport?.cacheBusy || this.legacyTransport?.cacheBusy),
+    operationBusy: this.busy || Boolean(this.transport?.operationBusy || this.legacyTransport?.operationBusy)
+  }); }
   get paused() { return Boolean(this._paused); }
   set paused(value) {
     const next = Boolean(value);
-    if (next && this.timer) { clearTimeout(this.timer); this.timer = null; this.queued = true; }
+    if (next && this.timer) { this.clearTimer(this.timer); this.timer = null; this.queued = true; }
     this._paused = next;
     if (!next && this.queued && !this.disposed) this.#schedule();
   }
 
-  async initialize() {
+  initialize() { return this.#operation(() => this.#initialize()); }
+  refresh() { return this.#operation(() => this.#refresh()); }
+  restore() { return this.#operation(() => this.#restore()); }
+
+  async #operation(operation, manual = false) {
+    if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
+    if (this.state.operationBusy || this.state.cacheBusy) return { ok: false, busy: true, code: 'CACHE_BUSY', error: '同步、恢复或清理尚未完成，请稍后重试。' };
+    this.busy = true; this.manualActive = manual; this.#set({}, null);
+    try { return await operation(); }
+    finally { this.busy = false; this.manualActive = false; if (!this.disposed) { this.#set({}, null); this.#resumeManual(); } }
+  }
+
+  async clearSyncCache() {
+    const empty = { deletedCount: 0, deletedBytes: 0, failures: [] };
+    if (this.disposed || !this.state.cacheAvailable) return { ...empty, ok: false, unavailable: true, code: 'CACHE_UNAVAILABLE', error: '当前环境不支持清理同步缓存。' };
+    if (this.state.operationBusy || this.state.cacheBusy) return { ...empty, ok: false, busy: true, code: 'CACHE_BUSY', error: '同步或恢复尚未完成，请稍后再清理。' };
+    this.cacheCleaning = true; this.#set({}, null);
+    try {
+      const result = await this.transport.clearSyncCache();
+      if (result?.ok && this.view.errorCode === 'STORAGE_QUOTA') this.#set({ status: 'idle', label: '同步缓存已清理，请重试云同步', error: '', errorCode: '' }, null);
+      return result;
+    } catch { return { ...empty, ok: false, code: 'CACHE_DELETE_FAILED', error: '同步缓存清理失败，请稍后重试。' }; }
+    finally { this.cacheCleaning = false; if (!this.disposed) { this.#set({}, null); this.#resumeManual(); } }
+  }
+
+  // Maintenance never authorizes replacement of a different valid cloud save.
+  // Keep one owner across cleanup, fresh cloud read and immutable local upload.
+  syncLatest() {
+    if (this.disposed) return Promise.resolve({ ok: false, disposed: true, error: '云同步已停用。' });
+    if (this.#transportBlocked()) return Promise.resolve(this.#stopManual());
+    if (this.state.operationBusy || this.state.cacheBusy) {
+      // A current latest-sync already owns this intent. Other normal operations
+      // hand it off through their completion/activity notification, never polling.
+      if (!this.manualActive) this.manualRequested = true;
+      return Promise.resolve({ ok: false, pending: true, busy: true, code: 'CACHE_BUSY', error: '当前同步或维护完成后将同步最新进度。' });
+    }
+    this.manualRequested = false;
+    return this.#operation(async () => {
+      if (this.blocked) return this.#fail('存档版本不支持或恢复未完成，已停用云同步以保护原件。');
+      if (!this.view.available) return { ok: false, unavailable: true, error: '当前环境没有 TapTap 云存档能力。' };
+      const initial = this.#capture();
+      if (!initial.ok) return this.#fail(initial.error);
+      if (this.timer) { this.clearTimer(this.timer); this.timer = null; }
+      if (this.manualRetryTimer) { this.clearTimer(this.manualRetryTimer); this.manualRetryTimer = null; }
+      let cacheResult = { ok: false, unavailable: true, code: 'CACHE_UNAVAILABLE', deletedCount: 0, deletedBytes: 0, failures: [] };
+      if (this.state.cacheAvailable) {
+        try { cacheResult = await this.transport.clearSyncCache(); }
+        catch (error) { cacheResult = { ok: false, code: cloudCode(error), error: cloudMessage(error, '同步缓存未能清理。'), uncertain: Boolean(error?.uncertain) }; }
+      }
+      if (this.disposed) return { ok: false, disposed: true, cacheResult, error: '云同步已停用。' };
+      if (this.state.cacheBusy || this.transport?.operationBusy || this.legacyTransport?.operationBusy || cacheResult?.uncertain || cacheResult?.busy) {
+        return { ...this.#fail('同步缓存操作尚未确认，请重新进入游戏后重试。', 'CACHE_BUSY'), cacheResult };
+      }
+      const refreshed = await this.#refresh();
+      if (!refreshed.ok) return { ...this.#manualRetry(refreshed), cacheResult };
+      if (this.disposed) return { ok: false, disposed: true, cacheResult, error: '云同步已停用。' };
+      if (this.timer) { this.clearTimer(this.timer); this.timer = null; }
+      if (this.view.conflict) return { ok: false, conflict: true, cacheResult, error: '本地与云端进度不同，请选择保留哪个版本。' };
+      const current = this.#capture();
+      if (!current.ok) return { ...this.#fail(current.error), cacheResult };
+      if (this.remote && current.fingerprint === fingerprint(this.remote.envelope.data)) return { ok: true, cacheResult };
+      // A legal local change during transport preparation cancels the old
+      // mutation; capture it again once. Continuous play is queued, not spun.
+      let result = await this.#upload(false, false, true);
+      if (result.staleLocal && !this.disposed) result = await this.#upload(false, false, true);
+      return { ...this.#manualRetry(result), cacheResult };
+    }, true);
+  }
+
+  #transportBlocked() { return [this.transport, this.legacyTransport].some(adapter => adapter?.operationUncertain || adapter?.transportBlocked || adapter?.writeBlocked); }
+
+  #stopManual() {
+    if (this.manualRetryTimer) this.clearTimer(this.manualRetryTimer);
+    this.manualRetryTimer = null; this.manualRequested = false;
+    return this.#fail('云同步状态尚未确认，请重新进入游戏后重试。', 'CLOUD_BLOCKED');
+  }
+
+  #resumeManual() {
+    if (this.disposed || this.blocked) { this.manualRequested = false; return; }
+    if ((this.manualRequested || this.manualRetryTimer) && this.#transportBlocked()) { this.#stopManual(); return; }
+    if (!this.manualRequested || this.state.operationBusy || this.state.cacheBusy) return;
+    this.manualRequested = false;
+    void this.syncLatest();
+  }
+
+  #manualRetry(result) {
+    if (this.disposed || this.blocked || result?.uncertain) return result;
+    if (this.#transportBlocked()) return { ...result, ...this.#stopManual() };
+    const retryAfter = Number.isFinite(result?.retryAfter) && result.retryAfter >= 0 ? result.retryAfter : result?.code === 'CLOUD_RATE_LIMIT' ? MIN_SYNC_INTERVAL : null;
+    if (retryAfter === null && !result?.pending) return result;
+    this.#scheduleManual(retryAfter ?? MIN_SYNC_INTERVAL);
+    this.#set({ status: 'pending', label: retryAfter === null ? '本地仍有新进度，已安排继续同步' : '云同步频率受限，已安排稍后同步', error: '', conflict: false }, null);
+    return { ...result, ok: false, pending: true, ...(retryAfter === null ? {} : { retryAfter }) };
+  }
+
+  #scheduleManual(delay) {
+    if (this.manualRetryTimer || this.disposed || this.blocked) return;
+    this.manualRetryTimer = this.setTimer(() => {
+      this.manualRetryTimer = null;
+      if (this.disposed || this.blocked) return;
+      if (this.#transportBlocked()) { this.#stopManual(); return; }
+      if (this.state.operationBusy || this.state.cacheBusy) { this.manualRequested = true; return; }
+      void this.syncLatest();
+    }, Math.max(0, delay));
+    this.manualRetryTimer?.unref?.();
+  }
+
+  async #initialize() {
     if (this.blocked) return this.#fail('存档版本不支持或恢复未完成，已停用云同步以保护原件。');
     if (!this.view.available) return this.#set({ status: 'unavailable', label: '当前环境没有 TapTap 云存档能力' }, false);
     const initialLocal = this.#capture();
@@ -55,11 +173,11 @@ export class PlayerCloud {
     const local = this.#capture();
     if (!local.ok) return this.#fail(local.error);
     if (fingerprint(local.data) === fingerprint(read.remote.envelope.data)) {
-      if (this.legacyRemote && !(await this.#promoteLegacy()).ok) return this.#fail('建立安全代际云槽失败；旧云原件已保留。');
+      if (this.legacyRemote) { const promoted = await this.#promoteLegacy(); if (!promoted.ok) return { ...promoted, ...this.#fail(cloudMessage(promoted, '建立安全代际云槽失败；旧云原件已保留。'), cloudCode(promoted)) }; }
       if (!this.#writeMeta(this.remote.token, local.data)) return this.#fail('无法保存云同步基线。');
       return this.#set({ status: 'synced', label: '本地与云端进度一致', conflict: false }, true);
     }
-    if (initialLocal.pristine && local.pristine && initialLocal.fingerprint === local.fingerprint) return this.restore();
+    if (initialLocal.pristine && local.pristine && initialLocal.fingerprint === local.fingerprint) return this.#restore();
     if (this.#baselineMatchesRemote(read.remote)) {
       if (fingerprint(local.data) !== this.meta.fingerprint) this.#schedule();
       return this.#set({ status: 'pending', label: '本地有新进度，等待同步', conflict: false }, true);
@@ -85,9 +203,9 @@ export class PlayerCloud {
 
   async sync({ useLocal = false } = {}) { return this.#sync(Boolean(useLocal), false); }
 
-  async refresh() {
+  async #refresh() {
     if (this.blocked) return this.#fail('存档版本不支持或恢复未完成，已停用云同步。');
-    if (!this.view.available) return { ok: false, unavailable: true, error: 'TapTap cloud is unavailable.' };
+    if (!this.view.available) return { ok: false, unavailable: true, error: '当前环境没有 TapTap 云存档能力。' };
     const read = await this.#readRemote();
     if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
     if (!read.ok) return read;
@@ -96,7 +214,7 @@ export class PlayerCloud {
     if (!read.remote) return this.#set({ status: 'unlinked', label: '云端尚无存档', conflict: false }, true);
     const same = fingerprint(local.data) === fingerprint(read.remote.envelope.data);
     if (same) {
-      if (this.legacyRemote && !(await this.#promoteLegacy()).ok) return this.#fail('建立安全代际云槽失败；旧云原件已保留。');
+      if (this.legacyRemote) { const promoted = await this.#promoteLegacy(); if (!promoted.ok) return { ...promoted, ...this.#fail(cloudMessage(promoted, '建立安全代际云槽失败；旧云原件已保留。'), cloudCode(promoted)) }; }
       if (!this.#writeMeta(this.remote.token, local.data)) return this.#fail('无法保存云同步基线。');
       return this.#set({ status: 'synced', label: '本地与云端进度一致', conflict: false }, true);
     }
@@ -108,31 +226,31 @@ export class PlayerCloud {
     return this.#set({ status: 'conflict', label: '本地与云端进度存在冲突', conflict: true }, true);
   }
 
-  async restore() {
+  async #restore() {
     if (this.blocked || !this.remote) return { ok: false, error: '没有可恢复的云端进度。' };
     const chosenRemote = clone(this.remote);
     const chosenLocalFingerprint = this.remoteLocalFingerprint;
     const before = this.#capture();
     if (!before.ok) return this.#fail(before.error);
     if (fingerprint(before.data) !== chosenLocalFingerprint) {
-      await this.refresh();
+      await this.#refresh();
       return { ok: false, stale: true, error: '本地进度在确认期间发生变化，请重新选择。' };
     }
     let latest;
     try { latest = await (this.legacyRemote ? this.legacyTransport : this.transport).read(); }
-    catch (error) { this.#invalidateRemote(); return this.#fail(`读取云存档失败：${message(error)}`); }
+    catch (error) { this.#invalidateRemote(); return this.#fail(cloudMessage(error, '读取云存档失败，请稍后重试。'), cloudCode(error)); }
     if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
     const checked = validateRemote(latest);
     if (!checked.ok || !latest || latest.token !== chosenRemote.token || fingerprint(checked.envelope) !== fingerprint(chosenRemote.envelope)) {
       this.#invalidateRemote();
-      await this.refresh();
+      await this.#refresh();
       return { ok: false, stale: true, error: '云端进度在确认期间发生变化，请重新选择。' };
     }
     const current = this.#capture();
     if (!current.ok) return this.#fail(current.error);
     if (current.fingerprint !== before.fingerprint || current.fingerprint !== chosenLocalFingerprint) {
       this.#invalidateRemote();
-      await this.refresh();
+      await this.#refresh();
       return { ok: false, stale: true, error: '本地进度在确认期间发生变化，请重新选择。' };
     }
     if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
@@ -155,8 +273,8 @@ export class PlayerCloud {
     }
     if (this.legacyRemote) {
       let promoted;
-      try { promoted = await this.transport.write(checked.envelope, null, { beforeMutation: () => this.#capture().ok && !this.blocked && !this.disposed }); } catch (error) { return this.#fail(`旧云档已恢复本机，新云槽建立失败：${message(error)}`); }
-      if (!promoted?.ok) return this.#fail('旧云档已恢复本机，新云槽建立失败；旧云槽原件已保留，请刷新。');
+      try { promoted = await this.transport.write(checked.envelope, null, { beforeMutation: () => this.#capture().ok && !this.blocked && !this.disposed }); } catch (error) { return this.#fail(cloudMessage(error, '旧云档已恢复本机，新云槽建立失败，请刷新。'), cloudCode(error)); }
+      if (!promoted?.ok) return this.#fail(cloudMessage(promoted, '旧云档已恢复本机，新云槽建立失败；旧云槽原件已保留，请刷新。'), cloudCode(promoted));
       latest.token = promoted.token; this.legacyRemote = false; this.#displayRemote(promoted.token, checked.envelope);
     }
     const metaSaved = this.#writeMeta(latest.token, checked.envelope.data);
@@ -168,16 +286,25 @@ export class PlayerCloud {
   }
 
   dispose() {
-    this.disposed = true; this.queued = false;
-    if (this.timer) clearTimeout(this.timer);
+    this.disposed = true; this.queued = false; this.manualRequested = false;
+    for (const unsubscribe of this.activityUnsubscribers) { try { unsubscribe(); } catch {} }
+    this.activityUnsubscribers = [];
+    if (this.timer) this.clearTimer(this.timer);
+    if (this.manualRetryTimer) this.clearTimer(this.manualRetryTimer);
+    this.manualRetryTimer = null;
     this.timer = null; this.onChange = () => {}; this.onRestore = () => {};
   }
 
   async #sync(useLocal, automatic) {
     if (this.disposed || this.blocked) return { ok: false, error: '云同步已停用。' };
-    if (!this.view.available) return { ok: false, unavailable: true, error: 'TapTap cloud is unavailable.' };
+    if (!this.view.available) return { ok: false, unavailable: true, error: '当前环境没有 TapTap 云存档能力。' };
+    if (this.state.cacheBusy) return { ok: false, busy: true, code: 'CACHE_BUSY', error: '正在清理同步缓存，请稍后重试。' };
     if (automatic && this.paused) { this.queued = true; return { ok: false, paused: true }; }
-    if (this.busy) { this.queued = true; return { ok: false, pending: true }; }
+    if (this.busy) { this.queued = true; return { ok: false, pending: true, busy: true, code: 'CACHE_BUSY', error: '同步或维护尚未完成，请稍后重试。' }; }
+    return this.#operation(() => this.#upload(useLocal, automatic));
+  }
+
+  async #upload(useLocal, automatic, latest = false) {
     const local = this.#capture();
     if (!local.ok) return this.#fail(local.error);
     let expectedToken;
@@ -193,51 +320,61 @@ export class PlayerCloud {
     const data = clone(local.data);
     const envelope = { game: GAME, appId: APP_ID, schemaVersion: SCHEMA_VERSION,
       saveId: this.remote?.envelope.saveId ?? makeUuid(), savedAt: Date.now(), data };
-    this.busy = true; this.#set({ status: 'syncing', label: '正在同步云端进度', error: '' }, true);
-    let result;
-    try { result = await this.transport.write(envelope, expectedToken, { beforeMutation: () => this.#capture().ok && !this.blocked && !this.disposed }); }
-    catch (error) { result = { ok: false, error: message(error) }; }
-    this.busy = false; this.lastSyncAt = Date.now();
+    this.#set({ status: 'syncing', label: '正在同步云端进度', error: '' }, true);
+    let result, staleLocal = false;
+    try { result = await this.transport.write(envelope, expectedToken, { beforeMutation: () => {
+      const current = this.#capture();
+      if (!current.ok || this.blocked || this.disposed) return false;
+      staleLocal = latest && current.fingerprint !== local.fingerprint;
+      return !staleLocal;
+    } }); }
+    catch (error) { result = { ok: false, code: cloudCode(error), error: cloudMessage(error, '云同步失败，请稍后重试。') }; }
+    this.lastSyncAt = this.now();
     if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
     if (!result?.ok) {
+      if (staleLocal && !result?.uncertain) return { ok: false, pending: true, staleLocal: true, error: '本地进度已更新，正在重新同步。' };
       if (result?.conflict) {
         const checked = validateRemote(result.remote);
         if (checked.ok) this.#displayRemote(result.remote.token, checked.envelope);
         else this.#invalidateRemote();
-        this.#set({ status: 'conflict', label: '云端已被其他设备更新', error: result.error ?? '', conflict: true }, true);
+        this.#set({ status: 'conflict', label: '云端已被其他设备更新', error: '云端进度已变化，请刷新后重新选择。', conflict: true }, true);
       } else if (Number.isFinite(result?.retryAfter) && result.retryAfter >= 0) {
         if (automatic) {
           this.#set({ status: 'pending', label: '云同步频率受限，已安排重试', error: '', conflict: false }, true);
           this.#schedule(result.retryAfter);
         } else this.#set({ status: 'pending', label: '云同步频率受限，请稍后重试', error: '', conflict: false }, true);
-      } else this.#fail(`云同步失败：${result?.error ?? '未知错误'}`);
-      return { ok: false, ...result };
+      } else this.#fail(cloudMessage(result, '云同步失败，请稍后重试。'), cloudCode(result));
+      return { ok: false, ...result, error: cloudMessage(result, '云同步失败，请稍后重试。') };
     }
     this.legacyRemote = false; this.#displayRemote(result.token, envelope);
     if (!this.#writeMeta(result.token, data)) return this.#fail('云端已写入，但本地同步基线保存失败。');
-    this.#set({ status: 'synced', label: '云端进度已同步', error: '', conflict: false }, true);
     const current = this.#capture();
-    if (current.ok && fingerprint(current.data) !== fingerprint(data)) { this.queued = true; this.#schedule(); }
-    else this.queued = false;
+    if (!current.ok) return this.#fail(current.error);
+    if (fingerprint(current.data) !== fingerprint(data)) {
+      this.queued = true;
+      this.#set({ status: 'pending', label: '本地仍有新进度，等待继续同步', error: '', conflict: false }, true);
+      if (latest) return { ok: false, pending: true, token: result.token };
+      this.#schedule();
+    } else { this.queued = false; this.#set({ status: 'synced', label: '云端进度已同步', error: '', conflict: false }, true); }
     return { ok: true, token: result.token };
   }
 
   #schedule(delay) {
     if (this.disposed || this.timer || this.paused) { this.queued = true; return; }
-    const wait = Math.max(0, delay ?? (this.lastSyncAt ? MIN_SYNC_INTERVAL - (Date.now() - this.lastSyncAt) : 0));
+    const wait = Math.max(0, delay ?? (this.lastSyncAt ? MIN_SYNC_INTERVAL - (this.now() - this.lastSyncAt) : 0));
     this.queued = true;
-    this.timer = setTimeout(() => { this.timer = null; this.queued = false; void this.#sync(false, true); }, wait);
+    this.timer = this.setTimer(() => { this.timer = null; this.queued = false; void this.#sync(false, true); }, wait);
     this.timer.unref?.();
   }
 
   async #readRemote() {
     let result;
     try { result = await this.transport.read(); }
-    catch (error) { this.#invalidateRemote(); return this.#fail(`读取云存档失败：${message(error)}`); }
+    catch (error) { this.#invalidateRemote(); return { ...this.#fail(cloudMessage(error, '读取云存档失败，请稍后重试。'), cloudCode(error)), ...(Number.isFinite(error?.retryAfter) ? { retryAfter: error.retryAfter } : {}), ...(error?.uncertain ? { uncertain: true } : {}) }; }
     if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
     this.legacyRemote = false;
     if (result === null && this.legacyTransport) {
-      try { result = await this.legacyTransport.read(); } catch (error) { this.#invalidateRemote(); return this.#fail(`读取旧云存档失败：${message(error)}`); }
+      try { result = await this.legacyTransport.read(); } catch (error) { this.#invalidateRemote(); return { ...this.#fail(cloudMessage(error, '读取旧云存档失败，请稍后重试。'), cloudCode(error)), ...(Number.isFinite(error?.retryAfter) ? { retryAfter: error.retryAfter } : {}), ...(error?.uncertain ? { uncertain: true } : {}) }; }
       if (result !== null) this.legacyRemote = true;
     }
     if (result === null) { this.remote = null; this.remoteLocalFingerprint = this.#capture().fingerprint; this.view.hasRemote = false; this.view.cloudSummary = null; return { ok: true, remote: null }; }
@@ -250,8 +387,9 @@ export class PlayerCloud {
   async #promoteLegacy() {
     let result;
     try { result = await this.transport.write(this.remote.envelope, null, { beforeMutation: () => this.#capture().ok && !this.blocked && !this.disposed }); }
-    catch (error) { return { ok: false, error: message(error) }; }
-    if (!result?.ok) return { ok: false };
+    catch (error) { return { ok: false, code: cloudCode(error), error: cloudMessage(error, '建立安全代际云槽失败。'), ...(Number.isFinite(error?.retryAfter) ? { retryAfter: error.retryAfter } : {}), ...(error?.uncertain ? { uncertain: true } : {}) }; }
+    if (this.disposed) return { ok: false, disposed: true, error: '云同步已停用。' };
+    if (!result?.ok) return { ok: false, ...result };
     this.legacyRemote = false; this.#displayRemote(result.token, this.remote.envelope);
     return { ok: true };
   }
@@ -274,7 +412,7 @@ export class PlayerCloud {
 
   #capture() {
     const raws = {};
-    try { ensureStorage(this.storage); if (this.metaRaw !== undefined && this.storage.getItem(META_KEY) !== this.metaRaw) throw new Error('云同步元数据已被其他页面更新，请刷新。'); } catch (error) { return { ok: false, error: message(error) }; }
+    try { ensureSaveNamespace(this.storage); if (this.metaRaw !== undefined && this.storage.getItem(META_KEY) !== this.metaRaw) throw new Error('云同步元数据已被其他页面更新，请刷新。'); } catch (error) { return { ok: false, error: message(error) }; }
     try { for (const [name, key] of Object.entries(KEYS)) raws[name] = this.storage.getItem(key); }
     catch (error) { return { ok: false, error: `读取本地进度失败：${message(error)}` }; }
     const parsed = {};
@@ -282,9 +420,11 @@ export class PlayerCloud {
       if (raws[name] === null) { parsed[name] = null; continue; }
       try { parsed[name] = JSON.parse(raws[name]); } catch { return { ok: false, error: `本地${name}存档格式不支持，原件已保留。` }; }
     }
-    const profile = parsed.profile === null ? null : normalizeProfile(parsed.profile);
-    if (parsed.profile !== null && !profile) return { ok: false, error: '本地存档格式不支持，原件已保留。' };
-    const data = { profile };
+    const expedition = parsed.expedition === null ? null : normalizeExpeditionState(parsed.expedition);
+    if (parsed.expedition !== null && !expedition) return { ok: false, error: '本地远征存档格式不支持，原件已保留。' };
+    if (parsed.campaign !== null && !validCampaign(parsed.campaign)) return { ok: false, error: '本地战役进度格式不支持，原件已保留。' };
+    if (parsed.match !== null && !validMatchRecord(parsed.match)) return { ok: false, error: '本地棋局格式不支持，原件已保留。' };
+    const data = { expedition, campaign: parsed.campaign, match: parsed.match };
     return { ok: true, data, raws, pristine: Object.values(raws).every((raw) => raw === null), fingerprint: fingerprint(data) };
   }
 
@@ -331,11 +471,11 @@ export class PlayerCloud {
 
   #updateLocalSummary(local = this.#capture()) { this.view.localSummary = local.ok ? summary(local.data, localSavedAt(local.data)) : null; }
   #set(patch, result) {
-    if (patch.status && patch.status !== 'error' && !Object.hasOwn(patch, 'error')) patch = { ...patch, error: '' };
+    if (patch.status && patch.status !== 'error') patch = { errorCode: '', ...patch, ...(!Object.hasOwn(patch, 'error') ? { error: '' } : {}) };
     Object.assign(this.view, patch); this.#updateLocalSummary(); try { this.onChange(this.state); } catch {}
     return typeof result === 'boolean' ? { ok: result } : result;
   }
-  #fail(error) { this.#set({ status: 'error', label: error, error }, null); return { ok: false, error }; }
+  #fail(error, code = '') { this.#set({ status: 'error', label: error, error, errorCode: code }, null); return { ok: false, error, ...(code ? { code } : {}) }; }
 }
 
 function validateRemote(remote) {
@@ -343,30 +483,34 @@ function validateRemote(remote) {
   const value = remote.data;
   if (!plain(value) || !exact(value, ['appId', 'data', 'game', 'saveId', 'savedAt', 'schemaVersion']) || value.game !== GAME
     || value.appId !== APP_ID || value.schemaVersion !== SCHEMA_VERSION || !uuid(value.saveId) || !Number.isFinite(value.savedAt) || value.savedAt < 0
-    || !plain(value.data) || !exact(value.data, ['profile'])) return { ok: false, error: '云存档格式不受支持，原件未修改。' };
+    || !plain(value.data) || !exact(value.data, ['campaign', 'expedition', 'match'])) return { ok: false, error: '云存档格式不受支持，原件未修改。' };
   const data = normalizeCloudData(value.data);
   if (!data) return { ok: false, error: '云端进度内容格式不受支持。' };
   return { ok: true, envelope: { ...clone(value), data } };
 }
 
 function normalizeCloudData(value) {
-  if (!plain(value) || !exact(value, ['profile'])) return null;
-  const profile = value.profile === null ? null : normalizeProfile(value.profile);
-  if (value.profile !== null && !profile) return null;
-  return { profile };
+  if (!plain(value) || !exact(value, ['campaign', 'expedition', 'match'])) return null;
+  const expedition = value.expedition === null ? null : normalizeExpeditionState(value.expedition);
+  if (value.expedition !== null && !expedition) return null;
+  if (value.campaign !== null && !validCampaign(value.campaign)) return null;
+  if (value.match !== null && !validMatchRecord(value.match)) return null;
+  return { expedition, campaign: cloneNullable(value.campaign), match: cloneNullable(value.match) };
 }
 
-function summary(data, savedAt) { return { coins: data.profile?.coins ?? 0, completed: data.profile?.completed?.length ?? 0,
-  cards: (data.profile?.inventory?.units?.length ?? 0) + (data.profile?.inventory?.spells?.length ?? 0),
+function validCampaign(record) { return validCampaignRecord(record); }
+function summary(data, savedAt) { return { coins: data.expedition?.coins ?? 80, completed: data.expedition?.completed?.length ?? 0,
+  trials: data.campaign?.completedLevelIds?.length ?? 0, training: Object.values(data.expedition?.training ?? {}).reduce((sum, rank) => sum + rank, 0),
   savedAt: Number.isFinite(savedAt) ? savedAt : null,
-  hasBattle: Boolean(data.profile?.activeBattle && data.profile.activeBattle.phase !== 'over') }; }
-function localSavedAt() { return null; }
+  hasBattle: Boolean(data.expedition?.activeBattle && data.expedition.activeBattle.phase !== 'over')
+    || Boolean(data.match?.snapshot && data.match.snapshot.phase !== 'over') }; }
+function localSavedAt(data) { return Math.max(0, Number(data.campaign?.updatedAt) || 0, Number(data.match?.savedAt) || 0) || null; }
 function validMeta(value) { return plain(value) && exact(value, ['baseData', 'fingerprint', 'schemaVersion', 'syncedAt', 'token']) && value.schemaVersion === 1
   && (value.token === null || typeof value.token === 'string') && typeof value.fingerprint === 'string' && plain(value.baseData)
   && Number.isFinite(value.syncedAt) && value.syncedAt >= 0
   && [fingerprint(value.baseData), legacyFingerprint(value.baseData)].includes(value.fingerprint); }
 function validJournal(value) {
-  const entries = rows => Array.isArray(rows) && rows.length === Object.keys(KEYS).length && rows.every((entry,i) => plain(entry) && exact(entry,['key','name','raw'])
+  const entries = rows => Array.isArray(rows) && rows.length === 3 && rows.every((entry,i) => plain(entry) && exact(entry,['key','name','raw'])
     && entry.name === Object.keys(KEYS)[i] && entry.key === Object.values(KEYS)[i] && (entry.raw === null || typeof entry.raw === 'string'));
   return plain(value) && ((value.schemaVersion === 1 && exact(value,['originals','schemaVersion']))
     || (value.schemaVersion === 2 && exact(value,['originals','intended','schemaVersion']) && entries(value.intended))) && entries(value.originals);
@@ -378,8 +522,19 @@ function canonical(value) {
   if (!plain(value)) return value;
   return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
 }
+function cloneNullable(value) { return value === null ? null : clone(value); }
 function plain(value) { return value !== null && typeof value === 'object' && !Array.isArray(value) && Object.getPrototypeOf(value) === Object.prototype; }
 function exact(value, keys) { const actual = Object.keys(value).sort(), expected = [...keys].sort(); return actual.length === expected.length && actual.every((key, i) => key === expected[i]); }
 function uuid(value) { return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value); }
 function makeUuid() { return globalThis.crypto?.randomUUID?.() ?? `00000000-0000-4000-8000-${Math.random().toString(16).slice(2).padEnd(12, '0').slice(0, 12)}`; }
 function message(error) { return error?.message ?? String(error ?? 'unknown error'); }
+function cloudCode(error) {
+  if (error?.code === 'STORAGE_QUOTA' || Number(error?.errCode) === 1300202 || /quota|ENOSPC|maximum size of (?:the )?file storage|total file size.{0,30}exceed|exceed.{0,20}100\s*MB/i.test(error?.error ?? error?.errMsg ?? message(error))) return 'STORAGE_QUOTA';
+  return error?.code ?? '';
+}
+function cloudMessage(error, fallback) {
+  if (cloudCode(error) === 'STORAGE_QUOTA') return '同步缓存空间不足，请清理缓存后重试。';
+  if (error?.code === 'CACHE_BUSY') return '正在清理同步缓存，请稍后重试。';
+  if (error?.uncertain || /timed out|blocked|reload before/i.test(error?.error ?? message(error))) return '云同步状态尚未确认，请重新进入游戏后重试。';
+  return fallback;
+}

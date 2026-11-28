@@ -1,0 +1,241 @@
+// Original Duelyst 1.97.13 bodies and complete mechanics; adaptation record: output/recruitment-expansion/card-plan.json.
+export const RECRUITMENT_CARDS = {
+  "18": {
+    "id": 18,
+    "name": "艾莉克丝风刃",
+    "type": "unit",
+    "faction": 1,
+    "cost": 6,
+    "attack": 7,
+    "health": 7,
+    "provoke": true,
+    "movementAura": 1,
+    "description": "嘲讽；己方单位与主将移动距离增加1。"
+  },
+  "121": {
+    "id": 121,
+    "name": "獠牙野猪",
+    "type": "unit",
+    "faction": 2,
+    "cost": 2,
+    "attack": 2,
+    "health": 3,
+    "rush": true,
+    "startBounceSelf": true,
+    "description": "突袭；己方回合开始，返回手牌，清除伤害与战场增益。"
+  },
+  "130": {
+    "id": 130,
+    "name": "战斗熊猫",
+    "type": "unit",
+    "faction": 2,
+    "cost": 3,
+    "attack": 2,
+    "health": 4,
+    "damageAllEnemies": 1,
+    "description": "每次受到伤害，对所有敌人造成1伤害。"
+  },
+  "320": {
+    "id": 320,
+    "name": "幽灵复仇者",
+    "type": "unit",
+    "faction": 4,
+    "cost": 8,
+    "attack": 6,
+    "health": 6,
+    "rush": true,
+    "damageEnemyGeneralOnMinionDamage": 4,
+    "description": "突袭；每次对敌方随从造成伤害，对敌方主将额外造成4伤害。"
+  },
+  "408": {
+    "id": 408,
+    "name": "不稳定巨兽",
+    "type": "unit",
+    "faction": 5,
+    "cost": 7,
+    "attack": 11,
+    "health": 11,
+    "startRandomDamage": 4,
+    "description": "己方回合开始，对随机一个单位造成4伤害，可能伤害己军、主将或自身。"
+  },
+  "508": {
+    "id": 508,
+    "name": "德劳加领主",
+    "type": "unit",
+    "faction": 6,
+    "cost": 6,
+    "attack": 4,
+    "health": 8,
+    "race": "vespyr",
+    "dyingSpawn": 509,
+    "description": "冰灵；亡愿：在原格召唤4/8冰龙。"
+  },
+  "509": {
+    "id": 509,
+    "name": "冰龙",
+    "type": "unit",
+    "faction": 6,
+    "cost": 4,
+    "attack": 4,
+    "health": 8,
+    "token": true,
+    "description": ""
+  },
+  "514": {
+    "id": 514,
+    "name": "古老林地",
+    "type": "unit",
+    "faction": 6,
+    "cost": 7,
+    "attack": 7,
+    "health": 7,
+    "race": "vespyr",
+    "provoke": true,
+    "openingGrantDyingSpawnToAllies": 516,
+    "description": "冰灵、嘲讽；登场：其他己方随从获得亡愿，在原格召唤1/1嘲讽树人。"
+  },
+  "516": {
+    "id": 516,
+    "name": "树人",
+    "type": "unit",
+    "faction": 6,
+    "cost": 1,
+    "attack": 1,
+    "health": 1,
+    "provoke": true,
+    "token": true,
+    "description": "嘲讽。"
+  },
+  "533": {
+    "id": 533,
+    "name": "冰刃树灵",
+    "type": "unit",
+    "faction": 6,
+    "cost": 3,
+    "attack": 3,
+    "health": 3,
+    "race": "vespyr",
+    "openingVespyrBuff": 1,
+    "description": "冰灵；登场：一名友方冰灵永久+1/+1并获得飞行。"
+  },
+  "10973": {
+    "id": 10973,
+    "name": "光之守望",
+    "type": "unit",
+    "faction": 0,
+    "cost": 5,
+    "attack": 2,
+    "health": 5,
+    "ranged": true,
+    "attackRange": 4,
+    "endHealNearby": 2,
+    "description": "远程4格；己方回合结束，附近其他友方随从恢复2生命，不含主将。"
+  },
+  "10979": {
+    "id": 10979,
+    "name": "巨口兽",
+    "type": "unit",
+    "faction": 0,
+    "cost": 2,
+    "attack": 2,
+    "health": 2,
+    "openingDamageTarget": 2,
+    "openingTargetNearby": true,
+    "openingTargetMinion": true,
+    "description": "登场：对附近一名敌方随从造成2伤害。"
+  },
+  "10984": {
+    "id": 10984,
+    "name": "阿克兰首剑",
+    "type": "unit",
+    "faction": 0,
+    "cost": 6,
+    "attack": 7,
+    "health": 7,
+    "otherAlliedAttackAura": 1,
+    "description": "其他己方随从攻击增加1；离场或被驱散后失效。"
+  },
+  "10986": {
+    "id": 10986,
+    "name": "蚀光",
+    "type": "unit",
+    "faction": 0,
+    "cost": 6,
+    "attack": 3,
+    "health": 7,
+    "race": "arcanyst",
+    "mirrorDamageToEnemyGeneral": true,
+    "description": "每次受到伤害，对敌方主将造成相同伤害。"
+  },
+  "10994": {
+    "id": 10994,
+    "name": "枯萎之子泽瑞",
+    "type": "unit",
+    "faction": 0,
+    "cost": 6,
+    "attack": 4,
+    "health": 4,
+    "openingControlMaxAttack": 2,
+    "description": "登场：夺取附近一名攻击不超过2的敌方随从；本回合不能行动，突袭除外。"
+  },
+  "11023": {
+    "id": 11023,
+    "name": "收骨者",
+    "type": "unit",
+    "faction": 0,
+    "cost": 6,
+    "attack": 2,
+    "health": 9,
+    "provoke": true,
+    "endDamageNearbyEnemyMinions": 2,
+    "description": "嘲讽；己方回合结束，对附近敌方随从各造成2伤害。"
+  },
+  "11026": {
+    "id": 11026,
+    "name": "战争巨爪",
+    "type": "unit",
+    "faction": 0,
+    "cost": 7,
+    "attack": 4,
+    "health": 9,
+    "provoke": true,
+    "frenzy": true,
+    "description": "嘲讽、狂暴。"
+  },
+  "11030": {
+    "id": 11030,
+    "name": "落日典范",
+    "type": "unit",
+    "faction": 0,
+    "cost": 5,
+    "attack": 3,
+    "health": 2,
+    "openingNearbySelfDamageEqualAttack": true,
+    "description": "登场：附近所有随从对自己造成等于自身攻击的伤害，不含主将。"
+  },
+  "11032": {
+    "id": 11032,
+    "name": "裂面者",
+    "type": "unit",
+    "faction": 0,
+    "cost": 6,
+    "attack": 4,
+    "health": 6,
+    "damageGeneralMultiplier": 2,
+    "description": "对主将造成双倍伤害。"
+  },
+  "19047": {
+    "id": 19047,
+    "name": "暗血吞噬者",
+    "type": "unit",
+    "faction": 0,
+    "cost": 3,
+    "attack": 2,
+    "health": 4,
+    "nearbySummonBuff": 1,
+    "description": "附近召唤的其他友方随从永久+1/+1。"
+  }
+};
+export const RECRUITMENT_UNIT_IDS = Object.freeze([18,121,130,320,408,508,514,533,10973,10979,10984,10986,10994,11023,11026,11030,11032,19047]);
+export const RECRUITMENT_TOKEN_IDS = Object.freeze([509,516]);
+export const RECRUITMENT_CARD_IDS = Object.freeze([...RECRUITMENT_UNIT_IDS,...RECRUITMENT_TOKEN_IDS]);

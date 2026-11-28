@@ -1,5 +1,17 @@
 # Duelyst 资源来源
 
+## 秘境远征（2026-11-05）
+
+奖励反馈复用实际渲染导出的 pixelfx `pickups/chest-open`。遗物与战斗等级图标使用已授权的本地 Duelyst 素材，逐项原件、帧和制作入口见 [秘境资源来源](roguelike/SOURCES.md)。界面背景沿用既有主页资源，信息面板使用存档窗口现有边框。
+
+## 成就图标（2026-11-05）
+
+游戏内59项成就采用原阵营徽章、段位奖章、卡牌与法术帧，首胜采用pixelfx实体奖牌。逐项来源、尺寸和恢复入口见 [成就图标来源](achievements/SOURCES.md)。53项平台图已按既有ID准备在本地，后台替换待完成。
+
+## 场景转场（2026-11-05）
+
+进入战斗、设置退出战斗与已结束战斗退出使用原版 pixelfx `transitions/burn-away.png`，完整四周燃烧遮幕与中央烧开以1000ms播放。主页、选关和配队不播放燃烧。来源与导出记录见 [转场资源来源](transitions/SOURCES.md)。
+
 ## P3 木刻羊皮控件（2026-10-15，当前采用）
 
 用户看过三组像素与两组非像素控件概念后选定 P3「木刻羊皮」，覆盖全游戏及隐藏弹窗，替代此前 B 宝石材质。以下由内置 `image_gen` 按 P3 参考生成完整透明木框素材，不由宝石图染色得到；原徽章、人物、原卡框、单位、地图和动态背景保留。
@@ -1538,3 +1550,54 @@
 | `maps/trials/redrock-foreground.webp` | `maps/redrock/foreground.png` | 767×1080 | 83160 | `bcf62101e2c8d7176aabb717221b4fe3f8e5d4a6d354b470a7f250a48542357a` |
 | `maps/trials/vanar-background.webp` | `maps/vanar/background.jpg` | 1920×1080 | 30078 | `a4188ad61effaf21cf2eeaedfac3601b20988e039950c1edc212b74643b0be70` |
 | `maps/trials/vanar-midground.webp` | `maps/vanar/midground.png` | 1920×1080 | 199426 | `143977c67e96f0217105b70f48d8087588b69195d89c3d47979fd5f1cff7aebc` |
+
+## 主将移动音效核对（2026-10-21）
+
+来源库：`C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main`（只读）；原作 `app/sdk/cards/factory/core/faction1..6.coffee` 的 `setBaseSoundResource.walk`，并通过 `app/data/resources.js` 解析 RSX 符号。移动播放使用既有 `effect-manifest.js` 的逐卡 `sounds.walk`，移除所有主将统一替换为盔甲跑步声的覆盖；不按人物外观重新分配。
+
+| 主将 ID | 原作配置位置（core/） | walk RSX 符号 |
+| --- | --- | --- |
+| 1 | faction1.coffee:98 | sfx_unit_run_charge_4 |
+| 23 | faction1.coffee:142 | sfx_singe2 |
+| 101 | faction2.coffee:104 | sfx_singe2 |
+| 123 | faction2.coffee:148 | sfx_neutral_ladylocke_attack_impact |
+| 201 | faction3.coffee:100 | sfx_singe2 |
+| 223 | faction3.coffee:144 | sfx_neutral_ladylocke_attack_impact |
+| 301 | faction4.coffee:106 | sfx_singe2 |
+| 323 | faction4.coffee:150 | sfx_neutral_ladylocke_attack_impact |
+| 401 | faction5.coffee:105 | sfx_singe2 |
+| 418 | faction5.coffee:149 | sfx_neutral_primordialgazer_death |
+| 501 | faction6.coffee:107 | sfx_singe2 |
+| 527 | faction6.coffee:151 | sfx_unit_run_charge_4 |
+
+`resources.js:4513` 明确将 `sfx_singe2.audio` 指向 `resources/sfx/sfx_neutral_ladylocke_attack_impact.m4a`；其余三个符号分别在 4290、4313、4538 行解析。因此 12 位主将共用 **3 个实际音频文件**；原作确实将带 attack_impact/death 名称的资源用于 walk，不应凭文件名擅换。以下既有本地资产与原库 `app/resources/sfx/` 文件逐字节一致，本次无需复制资源。
+
+| 本地 assets/sfx/ 文件 | 字节数 | SHA-256 |
+| --- | ---: | --- |
+| sfx_unit_run_charge_4.m4a | 22828 | 792cfb31ed0c28f77ba8ca13459bfe2ef098ffa87a1c7031dbc3211877721638 |
+| sfx_neutral_ladylocke_attack_impact.m4a | 12788 | 8922106166710213553c9fbc623b3e41cb54fd13433692ae15600f086e7a59e4 |
+| sfx_neutral_primordialgazer_death.m4a | 26140 | 090b6a5533446f96812c7eba902cec086d6be86207026deb061602f04401063f |
+
+验证入口 `tools/check-unit-feedback.mjs` 覆盖全部主将的正常/减少动态移动音效分发、随从原映射、无位移不播放、三种实际资源可加载及静音增益/媒体音量；此为浏览器组件验证，不代表设备扬声器听感或 TapTap 宿主已验收。
+
+## 全战斗音效原作核对与轻混音（2026-10-21）
+
+`tools/audit-audio-mapping.mjs` 只读取原作 factory/RSX 与现有同步脚本的显式来源表，重新核对 144 个单位的 864 个 apply/walk/attack/receiveDamage/attackDamage/death 事件及 48 个法术 apply；402 个本地声音文件与原库 `app/resources/sfx/` 原件逐字节一致。完整逐项结果与 SHA-256 在 `output/ui-refinement/audio/source-mapping-audit.json`，未复制或改写原素材。本次不重新生成特效/界面 manifest。
+
+确认并修复：ID 225 `IronDervish` 因原库缺少对应图像，旧同步脚本将完整 body 复制成 217 `Dervish`，同时误带了5个声音。现保留既有图像回退，但 sounds 使用 `app/sdk/cards/factory/core/faction3.coffee` 的 IronDervish 原配置：apply=`sfx_unit_deploy`，attack=`sfx_f6_icebeetle_attack_impact`，receiveDamage=`sfx_neutral_golembloodshard_hit`，attackDamage=`sfx_neutral_golembloodshard_attack_impact`，death=`sfx_neutral_golembloodshard_death`。walk 原本相同。同步脚本同步修复，避免以后再覆盖。25 个显式 `spriteFrom` 关卡对象按其来源 ID 读取原声音，不依赖外观猜测。
+
+播放保留原声音内容与单次播放，不增加循环；法术 apply 每次行动只调用一次，补齐受伤/死亡目标、回合伤害与间接死亡的原单位反应。混音为本作适配而非声称复刻原作音量：用户音效音量×0.42，法术 apply 再×0.70；同一资源60ms内合并，最多同时6声、同一资源最多2声，避免多目标或连续行动堆叠。WebAudio 总线上加保守动态压缩（-12dB threshold、12dB knee、6:1 ratio、4ms attack、180ms release）；媒体回退使用同音量/并发限制。用户静音为0，音乐设置不变。减少动态仅跳动画，仍按同映射发出已提交行动音效，不留延迟重复音。
+
+验证：`check-audio-mix.mjs` 覆盖源ID、次数、并发、音量、静音、无循环和减少动态；`check-audio-browser.mjs` 在568×320减少动态浏览器中用真实触控解锁，验证3种原资源解码、实际声源启动、轻混音和静音。原 `check-unit-feedback.mjs` 的全主将/减少动态/随从映射检查仍通过。扬声器听感、手机设备音频输出及TapTap宿主尚未验收。
+
+## 场景燃烧转场（2026-11-05）
+
+`transitions/burn-away.png` 与同名 JSON 由本地只读 pixelfx checkout 的 `src/fx/transitions/burn-away.js` 原效果生成（`https://github.com/patch-gg/pixelfx`，MIT）。原效果注明其火舌、余烬与烟参考 Sprite Fusion fire（`https://www.spritefusion.com/pixel-art-vfx/fire`，MIT，Copyright 2026 Hugo Duprez）。未修改源库；生成入口为 `tools/render-burn-away.mjs <pixelfx-checkout>`。
+
+保留原 320×180、seed 3、原调色板与完整 91 帧；原3秒视觉以1000ms播放，在450ms全遮黑点提交场景切换。导出图集2560×2160、约2.28MB。原生popover承载装饰层；无popover时使用原生dialog回退。减少动态、不可见页面、资源未就绪或顶层API不可用时即时提交，不阻塞游戏进入。该素材仅用于进入战斗、设置退出战斗与已结束战斗退出；主页/选关/配队不播放燃烧，不改变存档、奖励或战斗规则。
+
+## 冒险章节技能特效（2026-11-05）
+
+雷电、贯穿光束、陨石与黑洞采用本地pixelfx的实际效果导出，图集、来源代码、MIT许可和适配说明见`adventure/SOURCES.md`。生成入口为`tools/build-adventure-fx.mjs`，实际命中位置、伤害和牵引由战斗事件驱动，完整渲染与迭代记录位于`output/adventure-fx/`。专属单位身体复用已授权Duelyst图集，映射见`dist/js/adventure-content.js`。
+
+

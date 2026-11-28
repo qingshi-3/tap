@@ -1,0 +1,55 @@
+.adventure-controls {
+  position: absolute;
+  z-index: 18;
+  display: grid;
+  width: 78px;
+  grid-template-columns: 1fr;
+  gap: 4px;
+  max-width: min(250px, calc(100% - var(--ui-left, 8px) - var(--ui-right, 8px)));
+}
+.adventure-controls[hidden], .adventure-controls [hidden] { display: none; }
+#match #map-controls { z-index: 20; }
+.adventure-controls .button {
+  min-height: 44px;
+  border: 0;
+  border-radius: 0;
+  padding: 8px 12px;
+  font-size: 14px;
+  touch-action: none;
+}
+.adventure-ability { display: flex; gap: 10px; align-items: center; }
+.adventure-controls:not(.is-aiming) .adventure-ability { flex-direction: column; gap: 0; padding: 4px 6px; }
+.adventure-ability span { line-height: 18px; white-space: nowrap; }
+.adventure-ability b { font-size: 12px; line-height: 14px; }
+.adventure-ability:active { transform: translateY(1px); }
+.adventure-ability b { white-space: nowrap; }
+.adventure-ability:disabled b { color: inherit; }
+.adventure-controls .button:focus-visible { outline: 2px solid #f0faff; outline-offset: -4px; }
+.adventure-summary { position: absolute; left: 0; bottom: calc(100% + 8px); width: max-content; max-width: min(240px, calc(100vw - var(--ui-left, 8px) - var(--ui-right, 8px))); padding: 0; border: 0; background: none; color: #f4f0e5; font-size: 13px; line-height: 18px; font-weight: 600; letter-spacing: 0; white-space: nowrap; text-shadow: 0 1px 2px #09101a, 0 0 4px #09101a; pointer-events: none; }
+.adventure-summary.is-charged { color: #ffd36b; }
+.adventure-controls.is-aiming { width: 132px; grid-template-columns: 78px 50px; }
+.adventure-controls.is-aiming .button { padding: 8px 6px; gap: 6px; }
+.adventure-gift { width: min(440px, calc(100vw - 32px)); max-height: calc(100dvh - 24px); padding: 20px; border: 0; border-radius: 12px; background: #1d2833; color: #e8edf1; box-shadow: 0 12px 50px #0009; overflow: auto; }
+.adventure-gift::backdrop { background: #050b12b8; }
+.adventure-gift h2 { margin: 0 40px 14px 0; font-size: 21px; }
+.adventure-gift p { margin: 10px 0; font-size: 15px; line-height: 1.55; }
+.adventure-gift .gift-close { position: absolute; right: 10px; top: 8px; width: 44px; min-height: 44px; border: 0; background: #394651; border-radius: 7px; color: #edf4fa; font-size: 24px; }
+.adventure-gift .gift-actions { display: flex; gap: 10px; margin-top: 18px; }
+.adventure-gift .button { border: 0; min-height: 44px; padding: 10px 16px; border-radius: 7px; font-size: 15px; }
+.adventure-gift .button { border-image: none; background-image: none; clip-path: none; box-shadow: none; text-shadow: none; }
+.adventure-gift .button::before, .adventure-gift .button::after { content: none; }
+.adventure-gift .gift-play { flex: 1; background: #bf8c36; color: #161d25; }
+.adventure-gift .gift-review { background: #3b4a58; color: #ecf2f8; }
+.adventure-gift a.button { display: flex; align-items: center; justify-content: center; text-decoration: none; box-sizing: border-box; }
+.portrait-frame .adventure-portrait { width: 100%; height: 100%; object-fit: contain; }
+.portrait-frame [hidden] { display: none; }
+:root[data-ui] #app #match .adventure-controls .button { border: 0; border-image: none; border-radius: 0; background: var(--qibing-button-background); color: var(--qibing-button-ink); box-shadow: inset 0 -3px #0004; letter-spacing: 0; touch-action: none; }
+:root[data-ui] #app #match .adventure-controls .button:disabled { --qibing-button-ink: #c5c8ce; --qibing-button-background: linear-gradient(180deg, #69707b 0 3px, #444a55 3px calc(100% - 4px), #303540 calc(100% - 4px)); background: var(--qibing-button-background); color: var(--qibing-button-ink); box-shadow: inset 0 -3px #0004; opacity: 1; filter: grayscale(1); }
+@media (prefers-reduced-motion: reduce) { .adventure-controls .button { transition: none; transform: none; } }
+.adventure-gift button:focus-visible { outline: 3px solid #b9e5ff; outline-offset: 2px; }
+@media (max-height: 360px) {
+  .adventure-gift { padding: 14px 18px; }
+  .adventure-gift h2 { font-size: 19px; margin-bottom: 10px; }
+  .adventure-gift p { margin: 8px 0; font-size: 14px; line-height: 1.4; }
+  .adventure-gift .gift-actions { margin-top: 10px; }
+}

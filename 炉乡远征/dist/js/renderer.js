@@ -2,12 +2,29 @@ import { battleDelay, battleElapsed } from './battle-motion.js';
 import { getCard } from './cards.js';
 import { BOARD, boardOf, isTacticalMatch, MANA_TILES, effectiveAttack, summonPositions, spellTargets, spellPositions, occupiedUnit, findGeneral, getBattleCard, getUnitBattleCard } from './engine.js';
 import { EFFECT_MANIFEST } from './effect-manifest.js';
-import { bossMarks, bossArmored } from './boss-mechanics.js';
+import { encounterMarkers, encounterUnitInfo } from './encounter-system.js';
+import { adventureMarkers, adventureUnitInfo } from './adventure-system.js';
+import { bossMarks, bossArmored, bossDefinition } from './boss-mechanics.js';
 import { EffectsPlayer } from './effects-player.js';
 import { CardAssetLoader } from './card-asset-loader.js';
 import { drawAtlasFrame } from './atlas.js';
 import { drawAttackGround, drawAttackTargets, drawAttackGesture, drawAttackResults } from './attack-visuals.js';
 import { RangePreviewCache } from './range-preview.js';
+
+// Keep promised effects distinct from damage and distinguish event countdowns
+// from finite entrance charges. Pure presentation also supports model checks.
+export function encounterMarkerLabel(marker) {
+  if (marker.kind === 'gravity') return '⌛ 引力';
+  if (marker.intent === 'stormStrike') return `⌛ 雷${marker.amount}`;
+  if (marker.intent === 'meteor') return `⌛ 陨${marker.amount}`;
+  if (marker.intent === 'beam') return `⌛ 炮${marker.amount}`;
+  if (marker.kind === 'damage') return `⌛ ${marker.amount}`;
+  if (marker.kind === 'corpse') return `${marker.marked ? '⌛' : '骸'}${Number.isInteger(marker.remaining) ? ` 余${marker.remaining}轮` : ''}`;
+  if (marker.kind === 'portal') return marker.marked ? `⌛ ${marker.label || '门'}` : `门${Number.isInteger(marker.remaining) ? ` 余${marker.remaining}次` : ''}`;
+  if (marker.intent === 'attackFlag') return '⌛ +1攻';
+  if (marker.intent === 'healFlag') return '⌛ +2血';
+  return '⌛ 援';
+}
 
 const SCENE_ANIMATION_FRAME_MS = 80;
 
@@ -222,6 +239,26 @@ export class BoardRenderer {
     return { x: rect.left + cell.center.x, y: rect.top + cell.center.y };
   }
 
+  battlefieldViewport(width, height) {
+    const rect = this.canvas.getBoundingClientRect();
+    const match = this.canvas.closest('.match');
+    const style = getComputedStyle(this.canvas);
+    const inset = name => Math.max(0, parseFloat(style.getPropertyValue(name)) || 0);
+    const sideFloor = inset('--safe-side-floor');
+    const left = Math.max(16, sideFloor, inset('--device-safe-left'));
+    const right = Math.max(left + 1, width - Math.max(16, sideFloor, inset('--device-safe-right')));
+    let top = Math.max(64, inset('--device-safe-top'));
+    for (const element of match?.querySelectorAll('.match-topbar, .general-panel') ?? []) {
+      const bounds = element.getBoundingClientRect();
+      if (bounds.width && bounds.height) top = Math.max(top, bounds.bottom - rect.top + 8);
+    }
+    const hand = match?.querySelector('.hand-zone')?.getBoundingClientRect();
+    const bottom = hand?.height ? hand.top - rect.top - 8 : height - 16;
+    // Degenerate/resizing layouts still have a valid interval; the next paint
+    // reads the settled HUD geometry rather than caching stale screen bounds.
+    return { left, right, top, bottom: Math.max(top + 1, bottom) };
+  }
+
   boardMetrics(width, height) {
     const { columns, rows } = boardOf(this.state);
     // The canvas covers the screen; the layout row still defines the initial
@@ -234,23 +271,37 @@ export class BoardRenderer {
       const cellWidth = Math.max(64, Math.min(92, width / 9));
       const cellHeight = Math.max(44, Math.min(64, framingHeight / 5));
       const boardWidth = columns * cellWidth, boardHeight = rows * cellHeight;
-      const maxX = Math.max(0, (boardWidth - width) / 2 + 32);
+      const viewport = this.battlefieldViewport(width, height);
+      // Use the narrower rear edge of the perspective board. Large maps stop
+      // with their edge at the safe viewport, rather than travelling past it.
+      const halfRearWidth = boardWidth * .94 / 2;
+      const viewportWidth = viewport.right - viewport.left;
+      const centeredX = (viewport.left + viewport.right) / 2;
+      const minimumX = halfRearWidth * 2 > viewportWidth ? viewport.right - halfRearWidth : centeredX;
+      const maximumX = halfRearWidth * 2 > viewportWidth ? viewport.left + halfRearWidth : centeredX;
       const initialTop = Math.max(64, framingTop + (framingHeight - boardHeight) / 2);
-      // Keep standing sprite heads inside the real viewport at both pan limits.
-      // HUDs can float over the scene without ever slicing it at their row edge.
-      const minimumTop = Math.min(64, framingTop + framingHeight - boardHeight);
-      const maximumTop = Math.max(64, height - boardHeight - 16);
-      this.camera.x = Math.max(-maxX, Math.min(maxX, this.camera.x));
+      // Keep the last row above the hand at one limit and the first row's
+      // standing sprites below the general HUD at the other. Small boards fit
+      // centrally without adding free travel through empty background.
+      const headroom = 48;
+      const availableHeight = viewport.bottom - viewport.top;
+      const centeredTop = viewport.top + (availableHeight - boardHeight - headroom) / 2 + headroom;
+      const minimumTop = boardHeight + headroom > availableHeight ? viewport.bottom - boardHeight : centeredTop;
+      const maximumTop = boardHeight + headroom > availableHeight ? viewport.top + headroom : centeredTop;
+      this.camera.x = Math.max(minimumX - width / 2, Math.min(maximumX - width / 2, this.camera.x));
       this.camera.y = Math.max(minimumTop - initialTop, Math.min(maximumTop - initialTop, this.camera.y));
       return { width, height, columns, rows, centerX: width / 2 + this.camera.x,
         top: initialTop + this.camera.y,
         bottom: initialTop + boardHeight + this.camera.y, halfWidth: boardWidth / 2, topScale: .94 };
     }
+    const field = this.battlefieldViewport(width, height);
+    // battlefieldViewport already returns canvas-local coordinates.
+    const fieldTop = field.top, fieldHeight = field.bottom - field.top;
     return {
       width, height, columns, rows,
       centerX: width / 2,
-      top: framingTop + framingHeight * (framingHeight < 280 ? .03 : .12),
-      bottom: framingTop + framingHeight * (framingHeight < 280 ? .97 : .90),
+      top: fieldTop + fieldHeight * (fieldHeight < 280 ? .03 : .12),
+      bottom: fieldTop + fieldHeight * (fieldHeight < 280 ? .97 : .90),
       halfWidth: width * 0.435,
       topScale: 0.90
     };
@@ -306,7 +357,8 @@ export class BoardRenderer {
     const rect = this.canvas.getBoundingClientRect();
     const metrics = this.boardMetrics(rect.width, rect.height);
     const point = this.cellGeometry(metrics, x, y).center;
-    this.pan(rect.width / 2 - point.x, rect.height / 2 + 18 - point.y);
+    const viewport = this.battlefieldViewport(rect.width, rect.height);
+    this.pan((viewport.left + viewport.right) / 2 - point.x, (viewport.top + viewport.bottom) / 2 + 18 - point.y);
   }
 
   drawOverview(canvas) {
@@ -350,10 +402,7 @@ export class BoardRenderer {
     }
     const unit = this.state?.units.find((entry) => entry.unitId === unitId);
     const card = unit && getCard(unit.cardId);
-    // Several original general bodies reuse an impact/death cue for walk.
-    // Use the existing running cue for heroes, independently of motion settings.
-    this.effects.playSound(card?.type === 'general' ? 'resources/sfx/sfx_unit_run_charge_4.m4a'
-      : EFFECT_MANIFEST.bodies?.[unit?.cardId]?.sounds?.walk);
+    this.effects.playMovementSound(unit?.cardId);
     if (this.motionPreference.matches) {
       this.paint();
       return Promise.resolve();
@@ -445,6 +494,7 @@ export class BoardRenderer {
 
     ctx.clearRect(0, 0, width, height);
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
+    const sceneMarkers = [...encounterMarkers(state), ...adventureMarkers(state)];
     const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
 
     for (let y = 0; y < metrics.rows; y++) {
@@ -461,6 +511,7 @@ export class BoardRenderer {
         if (terrain) this.drawTerrain(ctx, cell, terrain, occupied);
         if (state.creepCells?.[`${x},${y}`] != null) this.drawCreep(ctx, cell, state.creepCells[`${x},${y}`]);
         if (marks.has(`${x},${y}`)) this.drawBossMark(ctx, cell);
+        for (const marker of sceneMarkers) if (marker.x === x && marker.y === y) this.drawEncounterGround(ctx, cell, marker);
         if (isTarget) drawTexturedQuad(ctx, this.images.get('tile-spell'), cell.points, .34);
       }
     }
@@ -498,6 +549,7 @@ export class BoardRenderer {
       }
     }
     if (movingUnit) this.drawSelectionBox(ctx, metrics, movingUnit);
+    for (const cell of options.adventurePreview?.cells ?? []) this.drawSoftCell(ctx, metrics, cell, .6);
 
     this.effects.draw(backFX ?? ctx, metrics, performance.now(), 'back');
     const displayUnits = this.effects.displayUnits();
@@ -507,6 +559,17 @@ export class BoardRenderer {
       ? { ...unit, x: playback.x, y: playback.y } : unit).sort((a, b) => a.y - b.y || a.x - b.x);
     const unitOptions = { ...options, selectedUnitId: movingUnit?.unitId, attackableUnitIds: attacks.map(target => target.unitId) };
     for (const unit of orderedUnits) this.drawUnit(ctx, visualState, unit, metrics, unitOptions, playback);
+    if (options.adventurePreview?.moves?.length && !this.effects.playback) {
+      const destinations = new Map(options.adventurePreview.moves.map(move => [move.unitId, move.to]));
+      for (const [unitId, destination] of destinations) {
+        const unit = state.units.find(item => item.unitId === unitId);
+        if (!unit || !destination) continue;
+        ctx.save();
+        ctx.globalAlpha = .45;
+        this.drawUnit(ctx, state, { ...unit, ...destination }, metrics, {}, null);
+        ctx.restore();
+      }
+    }
     this.effects.draw(frontFX ?? ctx, metrics, performance.now(), 'front');
     if ((options.handDragging ? options.handDragPointer : legalCardTarget) && options.cardSourcePoint && frontFX) {
       this.drawCardTargetPath(frontFX, metrics,
@@ -523,10 +586,13 @@ export class BoardRenderer {
     // overlay. This keeps them above front FX while retaining action snapshots,
     // movement interpolation, death fades, and their per-unit opacity.
     const statsContext = frontFX ?? ctx;
+    this.unitFeedbackLayout = [];
+    this.encounterBadgeLayout = [];
     statsContext.save();
     if (isTacticalMatch(state)) { statsContext.beginPath(); statsContext.rect(0, 0, width, height); statsContext.clip(); }
     for (const unit of orderedUnits) this.drawUnitStats(statsContext, visualState, unit, metrics);
     if (state.boss) { this.drawBossArmor(statsContext, visualState, metrics); this.drawBossMarkBadges(statsContext, visualState, metrics); }
+    this.drawEncounterBadges(statsContext, visualState, metrics, sceneMarkers);
     statsContext.restore();
     this.attackPreviewLayout = [];
     drawAttackResults(this, statsContext, metrics, targetingOptions.attackPreview, targetingOptions.attackGesture);
@@ -618,6 +684,84 @@ export class BoardRenderer {
     ctx.restore();
   }
 
+  // Scene intent is a filled footprint, with badges kept clear of unit health.
+  drawEncounterGround(ctx, cell, marker) {
+    const color = marker.kind === 'damage' ? '#ed995f' : marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+    ctx.save();
+    drawTexturedQuad(ctx, this.tintedTile(marker.kind === 'damage' ? 'tile-spell' : 'tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : .62);
+    const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
+    glow.addColorStop(0, marker.kind === 'damage' ? 'rgba(246,149,68,.34)' : 'rgba(110,183,255,.34)'); glow.addColorStop(1, 'rgba(110,183,255,0)');
+    ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
+    if (marker.kind === 'corpse') {
+      drawTexturedQuad(ctx, this.images.get('terrain-rough'), cell.points, .9);
+      const card = getCard(marker.cardId), atlas = this.atlases.get(card?.sprite?.sheet);
+      const frame = atlas?.animations.death?.frames?.at(-1) ?? atlas?.animations.idle?.frames?.[0];
+      if (atlas?.image && frame) {
+        const logicalWidth = frame.canvasWidth || frame.sourceWidth || frame.width;
+        const logicalHeight = frame.canvasHeight || frame.sourceHeight || frame.height;
+        drawAtlasFrame(ctx, atlas.image, frame, cell.center.x, cell.center.y, {
+          scaleX:cell.width * .8 / logicalWidth, scaleY:cell.height * .9 / logicalHeight, resting:true
+        });
+      }
+    }
+    if (marker.kind === 'portal') this.drawCreep(ctx, cell, marker.owner);
+    ctx.restore();
+  }
+
+  drawEncounterBadges(ctx, state, metrics, markers) {
+    const rect = this.canvas.getBoundingClientRect();
+    const viewport = this.battlefieldViewport(rect.width, rect.height);
+    for (const marker of markers) {
+      if (marker.showLabel === false) continue;
+      const cell = this.cellGeometry(metrics, marker.x, marker.y);
+      // A hidden map cell must not become a floating warning at the viewport
+      // edge. Only keep the label visible for a cell actually in this view.
+      if (cell.center.x < 0 || cell.center.x > rect.width || cell.center.y < viewport.top - cell.height || cell.center.y > viewport.bottom + cell.height / 2) continue;
+      const size = Math.max(18, cell.width * .28);
+      const value = encounterMarkerLabel(marker);
+      const labelWidth = Math.max(size, value.length * size * .48 + 8);
+      // Foot-level labels disappear behind the hand on short screens. Keep
+      // intent beside the body, above the unit's attack/health numerals.
+      const x = Math.max(labelWidth / 2 + 8, Math.min(rect.width - labelWidth / 2 - 8, cell.center.x - cell.width * .34));
+      const y = Math.max(viewport.top + size / 2, Math.min(viewport.bottom - size / 2, cell.center.y - cell.height * .55));
+      this.drawEncounterBadge(ctx, x, y, size, value, marker.owner, marker.kind === 'damage');
+    }
+    for (const unit of state.units) {
+      // Borrowed allies retain their existing ability-control ownership.
+      if (unit.owner === 0 && unit.cardId >= 9201 && unit.cardId <= 9204) continue;
+      const info = adventureUnitInfo(state, unit) ?? encounterUnitInfo(state, unit);
+      if (!info) continue;
+      const finite = Number.isInteger(info.remaining) && info.remainingKind !== null && !(info.remainingKind === 'turns' && info.remaining === 0) && info.label !== '亲自迎战';
+      const shortState = ['激活','休眠','关闭','耗尽','过载','亲自迎战','碎冰2'].includes(info.label) ? info.label : '';
+      if (!finite && !shortState) continue;
+      const cell = this.cellGeometry(metrics, unit.x, unit.y);
+      const sourceIndex = state.encounter?.sources.findIndex(source => source.unitId === unit.unitId || source.boundId === unit.unitId) ?? -1;
+      const sourceKind = state.encounter?.config.sources[sourceIndex]?.kind;
+      const remaining = finite ? info.remainingKind === 'turns' ? `余${info.remaining}轮`
+        : info.remainingKind === 'count' ? `余${info.remaining}名`
+        : ['shot','cannon'].includes(sourceKind) ? `余${info.remaining}发` : `余${info.remaining}次` : '';
+      const status = shortState === '亲自迎战' ? '迎战' : shortState;
+      // Keep the label inside the unit's own column: centered over the head and
+      // shortened, so dense rows no longer push it into the neighbour's body.
+      const size = Math.max(14, Math.min(18, cell.width * .24));
+      const value = [status, remaining.replace(/^余/, '')].filter(Boolean).join('·');
+      const y = Math.max(viewport.top + size / 2 + 2, cell.center.y - cell.height * .84);
+      this.drawEncounterBadge(ctx, cell.center.x, y, size, value, unit.owner, false, .9);
+    }
+  }
+
+  drawEncounterBadge(ctx, x, y, size, text, owner, danger, opacity = 1) {
+    ctx.save();
+    ctx.globalAlpha *= opacity;
+    ctx.fillStyle = danger ? 'rgba(112,64,32,.92)' : owner === 2 ? 'rgba(80,52,101,.92)' : owner === 0 ? 'rgba(35,76,104,.92)' : 'rgba(99,63,58,.92)';
+    ctx.font = `700 ${Math.max(11,size*.66)}px "Luxiang UI", sans-serif`;
+    const width = Math.max(size, ctx.measureText(text).width + 8);
+    this.encounterBadgeLayout?.push({ x:x-width/2, y:y-size/2, width, height:size, text, owner, danger });
+    roundRect(ctx, x-width/2, y-size/2, width, size, 4); ctx.fill();
+    ctx.fillStyle = '#fff4da';
+    ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);ctx.restore();
+  }
+
   // Telegraphed boss intent: a frosted cell that resolves on the boss's next turn.
   drawBossMark(ctx, cell) {
     const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 260) * .5;
@@ -630,6 +774,8 @@ export class BoardRenderer {
 
   // Drawn with the stats pass so units standing on a mark never hide the warning.
   drawBossMarkBadges(ctx, state, metrics) {
+    const frost = state.boss?.id === 'frost-queen';
+    const damage = bossDefinition(state.boss?.id)?.intentDamage ?? 3;
     for (const mark of bossMarks(state)) {
       const cell = this.cellGeometry(metrics, mark.x, mark.y), r = Math.max(13, cell.width * .17);
       const x = cell.center.x - cell.width * .3, y = cell.center.y - cell.height * .95;
@@ -637,10 +783,14 @@ export class BoardRenderer {
       ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(16,52,86,.94)'; ctx.fill(); ctx.strokeStyle = '#8fdcff'; ctx.lineWidth = 2.5; ctx.stroke();
       ctx.strokeStyle = '#eafaff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
-      for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * .62, y - Math.sin(a) * r * .62); ctx.lineTo(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62); ctx.stroke(); }
+      if (frost) {
+        for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * .62, y - Math.sin(a) * r * .62); ctx.lineTo(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62); ctx.stroke(); }
+      } else {
+        ctx.fillStyle = '#eafaff'; ctx.font = `800 ${Math.round(r * 1.35)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y);
+      }
       ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0d2840'; ctx.lineWidth = 3.5; ctx.font = `800 ${Math.round(r * 1.05)}px "Luxiang UI", sans-serif`;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.strokeText('3', x + r * .95, y + r * .55); ctx.fillText('3', x + r * .95, y + r * .55);
+      ctx.strokeText(String(damage), x + r * .95, y + r * .55); ctx.fillText(String(damage), x + r * .95, y + r * .55);
       ctx.restore();
     }
   }
@@ -655,7 +805,8 @@ export class BoardRenderer {
     ctx.lineTo(x, y + size * .55); ctx.lineTo(x - size * .38, y + size * .2); ctx.lineTo(x - size * .45, y - size * .35); ctx.closePath();
     ctx.fillStyle = 'rgba(120,205,255,.92)'; ctx.fill(); ctx.strokeStyle = '#f2fbff'; ctx.lineWidth = 2; ctx.stroke();
     ctx.fillStyle = '#0d2840'; ctx.font = `700 ${Math.round(size * .5)}px "Luxiang UI", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('1', x, y + 1);
+    const reduction = bossDefinition(state.boss.id)?.armorReduction;
+    ctx.fillText(reduction ? `−${reduction}` : '1', x, y + 1);
     ctx.restore();
   }
 
@@ -1010,11 +1161,12 @@ export class BoardRenderer {
 
     ctx.save();
     const ringY = footY + cell.height * .015;
-    const ringColor = restingAfterAction ? [138, 145, 150]
+    const ringColor = restingAfterAction ? [116, 122, 130]
       : [[54, 204, 239], [234, 91, 106], [188, 137, 243]][unit.owner] ?? [234, 91, 106];
+    const ringAlpha = restingAfterAction ? .16 : .34;
     const ringGlow = ctx.createRadialGradient(centerX, ringY, 1, centerX, ringY, cell.width * .42);
-    ringGlow.addColorStop(0, `rgba(${ringColor.join(',')},.34)`);
-    ringGlow.addColorStop(.72, `rgba(${ringColor.join(',')},.17)`);
+    ringGlow.addColorStop(0, `rgba(${ringColor.join(',')},${ringAlpha})`);
+    ringGlow.addColorStop(.72, `rgba(${ringColor.join(',')},${ringAlpha * .5})`);
     ringGlow.addColorStop(1, `rgba(${ringColor.join(',')},0)`);
     ctx.fillStyle = ringGlow;
     ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .42, cell.height * .20, 0, 0, Math.PI * 2); ctx.fill();
@@ -1022,10 +1174,18 @@ export class BoardRenderer {
     ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .32, cell.height * .13, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = `rgba(${ringColor.join(',')},.95)`;
     ctx.lineWidth = Math.max(2, cell.width * .022);
-    ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .31, cell.height * .12, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.strokeStyle = 'rgba(224, 246, 252, .54)';
-    ctx.lineWidth = Math.max(1, cell.width * .007);
-    ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .25, cell.height * .075, 0, Math.PI * .1, Math.PI * .9); ctx.stroke();
+    if (restingAfterAction) {
+      // Broken ring reads as "already acted" without graying the sprite.
+      ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .31, cell.height * .12, 0, Math.PI * .16, Math.PI * .5); ctx.stroke();
+      ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .31, cell.height * .12, 0, Math.PI * .6, Math.PI * .94); ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .31, cell.height * .12, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    if (!restingAfterAction) {
+      ctx.strokeStyle = 'rgba(224, 246, 252, .54)';
+      ctx.lineWidth = Math.max(1, cell.width * .007);
+      ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .25, cell.height * .075, 0, Math.PI * .1, Math.PI * .9); ctx.stroke();
+    }
     if (isHovered) {
       ctx.strokeStyle = unit.owner === 0 ? 'rgba(69,224,255,.95)' : 'rgba(255,92,139,.95)';
       ctx.lineWidth = Math.max(2, cell.width * .023);
@@ -1080,21 +1240,30 @@ export class BoardRenderer {
     const iconSize = Math.max(17, cell.width * .29);
     const spacing = cell.width * .22;
     const suffix = unit.owner === 0 && !this.unitRestingAfterAction(unit) ? '' : '-bw';
-    const opacity = this.effects.unitOpacity(unit.unitId);
+    const opacity = this.effects.unitOpacity(unit.unitId)
+      * (this.unitRestingAfterAction(unit) ? .62 : 1);
     ctx.save();
     ctx.globalAlpha *= opacity;
     this.drawStat(ctx, centerX - spacing, footY - cell.height * .11, iconSize,
       effectiveAttack(state, logicalUnit), this.images.get(`stat-attack${suffix}`));
     this.drawStat(ctx, centerX + spacing, footY - cell.height * .11, iconSize,
       Math.max(0, unit.health), this.images.get(`stat-health${suffix}`));
+    this.unitFeedbackLayout?.push({ unitId:unit.unitId, owner:unit.owner,
+      resting:this.unitRestingAfterAction(unit), suffix,
+      stats:[
+        { kind:'attack', value:effectiveAttack(state, logicalUnit), x:centerX-spacing-iconSize/2, y:footY-cell.height*.11-iconSize/2, width:iconSize, height:iconSize },
+        { kind:'health', value:Math.max(0,unit.health), x:centerX+spacing-iconSize/2, y:footY-cell.height*.11-iconSize/2, width:iconSize, height:iconSize }
+      ], indicators:{ visible:[], all:[] } });
     ctx.restore();
   }
 
   unitScale(cell, frame, isGeneral) {
     const width = frame.canvasWidth || frame.sourceWidth || (frame.rotated ? frame.height : frame.width);
     const height = frame.canvasHeight || frame.sourceHeight || (frame.rotated ? frame.width : frame.height);
-    return Math.min(cell.width * (isGeneral ? 2.15 : 1.95) / width,
+    const legacyScale = Math.min(cell.width * (isGeneral ? 2.15 : 1.95) / width,
       cell.height * (isGeneral ? 3.0 : 2.8) / height);
+    // Preserve the original relative body sizes; only apply one uniform 6% trim.
+    return legacyScale * .94;
   }
 
   unitBaseline(card) {

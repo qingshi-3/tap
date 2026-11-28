@@ -1,0 +1,30 @@
+[
+  {
+    "title":"Phoenix Fire · 从技能图标到目标格",
+    "summary":"同一张技能牌明确指定凤凰火图标（待机 4 帧、激活 7 帧）以及两个施加效果：凤凰火 38 帧、火焰龙卷 13 帧。两层按 80 毫秒每帧在生效格播放。",
+    "event":"SpellAppliedFX", "fxKey":"FX.Cards.Spell.PhoenixFire",
+    "assets":[{"type":"icon","id":"icon-db103434607295328b5861d5","role":"skillIcon"},{"type":"fx","id":"vfx-5b020ac5bf546d12797a","role":"spellApplied"},{"type":"fx","id":"vfx-0ee21eb71f53d07a13ff","role":"spellApplied"}],
+    "sources":["app/sdk/cards/factory/core/faction2.coffee:925–943 · 同卡绑定图标与 FX 键","app/data/fx.js:1626–1643 · 两个施加节点；app/data/resources.js:1795–1799、1046–1047、818–819 · 注册图集","app/view/layers/game/GameLayer.js:3933–3944、4098–4125 · 按生效格播放"]
+  },
+  {
+    "title": "Fire Spitter · 远程普攻",
+    "summary": "本体播放 neutralMercGrenadierAttack。出手时从源格射出另一套单位图集里的 4 帧弹体，飞行中挂拖尾，到达目标格后播放橙色冲击、烟雾与火花。弹体取自 Sworn Avenger 的图集，两者共享这份素材。",
+    "event": "UnitAttackedFX", "fxKey": "FX.Cards.Neutral.FireSpitter", "sound": "resources/sfx/sfx_neutral_firespitter_attack_swing.m4a",
+    "assets": [{"type":"unit","id":"neutral_mercgrenadier","role":"attacker"},{"type":"fx","id":"vfx-3d8dfbc31220939cc68b","role":"projectile"},{"type":"fx","id":"vfx-b989044225e8a0e12d34","role":"trail"},{"type":"fx","id":"vfx-a5a1a21857a63992af17","role":"impact"},{"type":"fx","id":"vfx-0eac840a8b344c7b5741","role":"impact"},{"type":"fx","id":"vfx-3d9a6867037ca993ce4d","role":"impact"}],
+    "sources":["app/sdk/cards/factory/core/neutral.coffee:112–140 · 卡牌、动作和音效","app/data/fx.js:6541–6561 · 弹体、拖尾与三个命中节点；app/data/resources.js:9271–9272 · 弹体帧前缀","app/view/layers/game/GameLayer.js:3388–3418 · 读取攻击延迟和格子坐标；app/view/nodes/fx/FXProjectileSprite.js:44–74 · 弹体到达后触发命中"]
+  },
+  {
+    "title": "Bloodtear Alchemist · 普攻",
+    "summary": "单位的 34 帧攻击动作配出手音；攻击者的 UnitAttackedFX 提供蓝色火花与白色冲击。受击者还可以独立提供自己的受击效果。",
+    "event":"UnitAttackedFX", "fxKey":"FX.Cards.Neutral.BloodtearAlchemist", "sound":"resources/sfx/sfx_neutral_bloodtearalchemist_attack_swing.m4a",
+    "assets":[{"type":"unit","id":"neutral_bloodstonealchemist","role":"attacker"},{"type":"fx","id":"vfx-5e5f4b2b745ea0526038","role":"impact"},{"type":"fx","id":"vfx-73f0c9fae8a7df8992fc","role":"impact"}],
+    "sources":["app/sdk/cards/factory/core/neutral.coffee:2098–2120 · 普攻配置；app/data/resources.js:7530–7531 · 单位帧组","app/data/fx.js:8373–8378 · 两个命中节点；app/view/layers/game/GameLayer.js:3964–3975 · 攻击者和受击者各取各的事件键"]
+  },
+  {
+    "title": "Bloodtear Alchemist · 入场战吼",
+    "summary": "同一单位的战吼调用共享后续法术 FollowupDamage。指定目标受到 1 点伤害时，在生效格播放三组特效。注册名 fxFaerieFireRed 明确指向帧前缀 fx_fairiefireyellow_，此处保留原作取值。",
+    "event":"SpellAppliedFX", "fxKey":"FX.Cards.Spell.FollowupDamage", "sound":"resources/sfx/sfx_spell_immolation_a.m4a",
+    "assets":[{"type":"unit","id":"neutral_bloodstonealchemist","role":"abilityOwner"},{"type":"fx","id":"vfx-84898ad4937532389769","role":"spellApplied"},{"type":"fx","id":"vfx-0eac840a8b344c7b5741","role":"spellApplied"},{"type":"fx","id":"vfx-a4e0f1a3995dfd0f8edb","role":"spellApplied"}],
+    "sources":["app/sdk/cards/factory/core/neutral.coffee:2126–2134 · 指定后续牌与伤害；app/sdk/cards/factory/misc/generic.coffee:329–340 · 后续牌 FX 键","app/data/fx.js:1718–1724 · 三个施加效果；app/data/resources.js:815–816 · FaerieFireRed 注册","app/view/layers/game/GameLayer.js:3933–3944、4098–4125 · 取事件键并在生效格播放"]
+  }
+]

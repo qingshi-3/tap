@@ -1,0 +1,3 @@
+# Adventure battle effects
+
+Source: `C:/Users/qs/Documents/ChatGPT/排队骑士/螺旋丸特效/pixelfx/`, MIT (retained at `vendor/pixelfx/LICENSE`). Original four effects, category helper files and core retained unchanged; `adventure-chain.js` explicitly adapts the three demonstration hops to one segment for actual game coordinates. `tools/build-adventure-fx.mjs` uses the original pixelfx renderFrames/contactSheet/spriteSheet tools, 24fps transparent pre-rendered atlases. Black-hole atlas is split at its center into far/back and near/front halves. Meteor impact is remapped from original0.62s to authored540ms; scene speed applies uniformly. No source actor, demonstration target, source act hit count, or particle is a gameplay authority.

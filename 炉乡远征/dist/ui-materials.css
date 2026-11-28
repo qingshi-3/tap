@@ -1,0 +1,117 @@
+/* Material follows the object: stone supports the map, paper supports reading,
+   wood supports commands. Original card faces and their states stay untouched. */
+:root #expedition-home:not([data-page="menu"])::before {
+  background:linear-gradient(110deg,#101c25cf,#1825259c 60%,#121b24d9),url('./assets/ui/generated/slate-panel.webp') center / 512px;
+}
+:root #expedition-home[data-page="expedition"] {
+  background:radial-gradient(ellipse at 50% 48%,#9d956326,transparent 72%),linear-gradient(#1b29235c,#101e26a6),url('./assets/ui/generated/slate-panel.webp') center / 512px;
+}
+:root #expedition-home[data-page="expedition"]::before { background:none; }
+
+/* Chapter selection changes the whole painted plaque, not a surrounding rim. */
+:root #expedition-home .campaign-atlas .atlas-chapter {
+  border-image-width:7px;
+  padding-inline:10px;
+}
+:root #expedition-home .campaign-atlas .atlas-chapter[aria-pressed="true"] {
+  --p3-control-art:var(--p3-gold);
+  color:var(--p3-ink); text-shadow:none;
+  filter:drop-shadow(0 3px 3px #0b171b70);
+}
+:root #expedition-home .campaign-atlas .atlas-chapter.is-locked:not([aria-pressed="true"]) {
+  filter:saturate(.35) brightness(.78);
+}
+:root #expedition-home .campaign-atlas .atlas-chapter[aria-pressed="true"] strong {
+  color:var(--p3-ink); text-shadow:none;
+}
+:root .campaign-atlas .atlas-chapter-number {
+  background:#302c2380; color:#fff0ce;
+}
+:root .campaign-atlas .atlas-chapter[aria-pressed="true"] .atlas-chapter-number {
+  background:#735127; color:#fff0ce; box-shadow:none; text-shadow:none;
+}
+:root .campaign-atlas .atlas-level-caption {
+  background:none; clip-path:none; border-image:var(--p3-parchment) 64 fill / 8px / 0 stretch;
+  color:var(--p3-ink); padding:3px 10px;
+  filter:brightness(.83) saturate(.6);
+}
+:root .campaign-atlas .atlas-level.is-selected .atlas-level-caption {
+  background:none; border-image-source:var(--p3-parchment); filter:none;
+}
+:root .campaign-atlas .atlas-level.is-selected .atlas-level-name { color:#3c281a; }
+:root .campaign-atlas .atlas-level.is-selected .atlas-level-state { color:#544022; }
+:root .campaign-atlas .atlas-summary {
+  background:none; border-image:var(--p3-parchment) 64 fill / 10px / 0 stretch;
+  color:var(--p3-ink); padding:10px 14px;
+}
+:root .campaign-atlas :is(.atlas-unlocks,.atlas-rewards) { color:#594125; text-shadow:none; }
+:root .campaign-atlas .atlas-progress { color:#f4dfad; }
+
+/* A roster is a list of objects, not a stack of framed buttons. Keep the
+   paper tray and leave frames only on the actual increment/decrement commands. */
+:root #expedition-home .deck-card-row {
+  background:#76451c13; box-shadow:none;
+}
+:root #expedition-home .deck-card-row > .deck-card-detail {
+  border:0; border-image:none; background:none; box-shadow:none;
+  color:#422b1b; text-shadow:none; padding-inline:4px;
+}
+:root #expedition-home .deck-card-row > .deck-card-detail:hover { background:#9c692918; }
+:root #expedition-home .deck-card-row :is(button:not(.deck-card-detail)) { border-image-width:6px; }
+:root #expedition-home :is(.expedition-codex-card,.training-card-open,.spell-card-open) {
+  border:0; border-image:none; background:none; box-shadow:none; text-shadow:none;
+  color:#e7ddc5; filter:none;
+}
+:root #expedition-home :is(.expedition-codex-card,.training-card-open,.spell-card-open):hover {
+  filter:none;
+}
+:root #expedition-home :is(.expedition-codex-card,.training-card-open,.spell-card-open):active:not(:disabled) {
+  transform:none; filter:none;
+}
+:root #expedition-home .codex-card-summary { color:#e0d9c7; text-shadow:none; }
+:root #expedition-home .collection-card-status { color:#efd297; text-shadow:none; }
+:root .expedition-card-dialog .training-gold :is(span,strong),
+:root .expedition-card-dialog .training-stat-row strong { color:#49321f; text-shadow:none; }
+:root .expedition-card-dialog .training-stat-row strong.is-improved { color:#28603c; }
+:root .expedition-card-dialog .training-stat-icon { filter:brightness(.65) saturate(1.4); }
+:root #expedition-home :is(.deck-card-meta,.training-card-meta,.training-status,.deck-inventory-status) {
+  color:#f4dfad; text-shadow:0 1px 2px #131b1c;
+}
+
+/* Reading surfaces retain their painted edges; contents keep one clear plane. */
+:root :is(#cloud-dialog,#objective-dialog,#audio-settings,.atlas-dialog,.hero-dialog,.hero-effect-dialog,.game-dialog,.result-panel,.confirm-panel) {
+  border-image-width:12px;
+  box-shadow:0 12px 28px #05101999;
+}
+:root :is(#cloud-dialog,#objective-dialog,#audio-settings,.atlas-dialog,.hero-dialog,.hero-effect-dialog,.game-dialog,.result-panel,.confirm-panel)::backdrop {
+  background:#050f1bb3;
+}
+:root #objective-dialog :is(.objective-heading,.objective-body,.objective-actions),
+:root #cloud-dialog :is(header,.cloud-body,footer),
+:root #audio-settings :is(.audio-settings-header,.audio-settings-controls) { margin-inline:8px; }
+:root #objective-dialog #rule-tabs { margin-inline:8px; }
+:root #cloud-dialog :is(.cloud-slot,.cloud-battle-badge) { background:none; }
+:root #objective-dialog .objective-limit,
+:root #expedition-home .deck-editor :is(.deck-contract,.deck-status) { color:#654829; }
+:root #objective-dialog :is(#battle-rules,.rule-category,.rule-keyword,.rule-example),
+:root #objective-dialog #battle-rules :is(p,li,span,dd) { color:#49321f; text-shadow:none; }
+
+/* Battle chrome stays behind the unit art. Only the ready command is warm. */
+:root .match #end-turn:not(:disabled) {
+  filter:drop-shadow(0 3px 3px #121b2380);
+}
+:root .match #end-turn:disabled { filter:grayscale(1) brightness(.6); }
+:root .match .map-panel {
+  border-image-source:var(--p3-parchment); color:#493322;
+}
+:root .match .turn-toast {
+  border-image-source:var(--p3-gold); color:#3c281a; text-shadow:none;
+}
+:root .match :is(#objective-open,#map-open,#leave-match,#replace-hand-card,#inspect-close) {
+  border-image-width:7px;
+}
+@media(max-height:350px) {
+  :root .campaign-atlas .atlas-summary { padding:7px 11px; }
+  :root #objective-dialog :is(.objective-heading,.objective-body,.objective-actions),
+  :root #cloud-dialog :is(header,.cloud-body,footer) { margin-inline:5px; }
+}

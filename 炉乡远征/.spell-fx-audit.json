@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 2,
+  "auditDate": "2026-10-14",
+  "purpose": "Generated source audit for the selected faction spells.",
+  "sourceRoot": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main",
+  "cards": {
+    "20043": {
+      "name": "SundropElixir",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.SundropElixir"
+        ],
+        "sound": "RSX.sfx_spell_lionheartblessing.audio"
+      }
+    },
+    "20044": {
+      "name": "Tempest",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Tempest"
+        ],
+        "sound": "RSX.sfx_spell_heavenstrike.audio"
+      }
+    },
+    "20049": {
+      "name": "DaemonicLure",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DaemonicLure"
+        ],
+        "sound": "RSX.sfx_spell_daemoniclure.audio"
+      }
+    },
+    "20051": {
+      "name": "ShadowNova",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.ShadowNova"
+        ],
+        "sound": "RSX.sfx_spell_shadownova.audio"
+      }
+    },
+    "20052": {
+      "name": "VoidPulse",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.VoidPulse"
+        ],
+        "sound": "RSX.sfx_spell_voidpulse02.audio"
+      }
+    },
+    "20057": {
+      "name": "RitualBanishing",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.RitualBanishing"
+        ],
+        "sound": "RSX.sfx_f2tank_death.audio"
+      }
+    },
+    "20061": {
+      "name": "DarkTransformation",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DarkTransformation"
+        ],
+        "sound": "RSX.sfx_spell_darktransformation.audio"
+      }
+    },
+    "20064": {
+      "name": "SunBloom",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.SunBloom"
+        ],
+        "sound": "RSX.sfx_spell_sunbloom.audio"
+      }
+    },
+    "20066": {
+      "name": "TrueStrike",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.TrueStrike"
+        ],
+        "sound": "RSX.sfx_spell_truestrike.audio"
+      }
+    },
+    "20067": {
+      "name": "HolyImmolation",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.HolyImmolation"
+        ],
+        "sound": "RSX.sfx_f2_jadeogre_attack_impact.audio"
+      }
+    },
+    "20068": {
+      "name": "DivineBond",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DivineBond"
+        ],
+        "sound": "RSX.sfx_spell_divinebond.audio"
+      }
+    },
+    "20072": {
+      "name": "WraithlingSwarm",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.WraithlingSwarm"
+        ],
+        "sound": "RSX.sfx_neutral_makantorwarbeast_attack_impact.audio"
+      }
+    },
+    "20073": {
+      "name": "SiphonEnergy",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.SiphonEnergy"
+        ],
+        "sound": "RSX.sfx_spell_tranquility.audio"
+      }
+    },
+    "20074": {
+      "name": "CosmicFlesh",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.CosmicFlesh"
+        ],
+        "sound": "RSX.sfx_spell_cosmicflesh.audio"
+      }
+    },
+    "20077": {
+      "name": "EntropicDecay",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.EntropicDecay"
+        ],
+        "sound": "RSX.sfx_spell_entropicdecay.audio"
+      }
+    },
+    "20081": {
+      "name": "PhoenixFire",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.PhoenixFire"
+        ],
+        "sound": "RSX.sfx_spell_phoenixfire.audio"
+      }
+    },
+    "20082": {
+      "name": "TwinStrike",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.TwinStrike"
+        ],
+        "sound": "RSX.sfx_spell_twinstrike.audio"
+      }
+    },
+    "20086": {
+      "name": "InnerFocus",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.InnerFocus"
+        ],
+        "sound": "RSX.sfx_spell_innerfocus.audio"
+      }
+    },
+    "20087": {
+      "name": "OnyxBearSeal",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.OnyxBearSeal"
+        ],
+        "sound": "RSX.sfx_spell_onyxbearseal.audio"
+      }
+    },
+    "20090": {
+      "name": "Martyrdom",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Martyrdom"
+        ],
+        "sound": "RSX.sfx_spell_martyrdom.audio"
+      }
+    },
+    "20095": {
+      "name": "ScionsFirstWish",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Spell.FireTornado"
+        ],
+        "sound": "RSX.sfx_spell_scionsfirstwish.audio"
+      }
+    },
+    "20096": {
+      "name": "ScionsSecondWish",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Spell.FireTornado"
+        ],
+        "sound": "RSX.sfx_spell_scionsfirstwish.audio"
+      }
+    },
+    "20097": {
+      "name": "ScionsThirdWish",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Spell.FireTornado"
+        ],
+        "sound": "RSX.sfx_spell_scionsfirstwish.audio"
+      }
+    },
+    "20102": {
+      "name": "KillingEdge",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.KillingEdge"
+        ],
+        "sound": "RSX.sfx_spell_twinstrike.audio"
+      }
+    },
+    "20113": {
+      "name": "DiretideFrenzy",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DiretideFrenzy"
+        ],
+        "sound": "RSX.sfx_spell_diretidefrenzy.audio"
+      }
+    },
+    "20115": {
+      "name": "DanceOfDreams",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DanceOfDreams"
+        ],
+        "sound": "RSX.sfx_spell_manaburn.audio"
+      }
+    },
+    "20116": {
+      "name": "GreaterFortitude",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.GreaterFortitude"
+        ],
+        "sound": "RSX.sfx_spell_flashreincarnation.audio"
+      }
+    },
+    "20117": {
+      "name": "EarthSphere",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.EarthSphere"
+        ],
+        "sound": "RSX.sfx_neutral_spelljammer_attack_swing.audio"
+      }
+    },
+    "20119": {
+      "name": "Amplification",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Amplification"
+        ],
+        "sound": "RSX.sfx_spell_amplification.audio"
+      }
+    },
+    "20122": {
+      "name": "PlasmaStorm",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.PlasmaStorm"
+        ],
+        "sound": "RSX.sfx_spell_immolation_a.audio"
+      }
+    },
+    "20125": {
+      "name": "NaturalSelection",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.NaturalSelection"
+        ],
+        "sound": "RSX.sfx_spell_naturalselection.audio"
+      }
+    },
+    "20129": {
+      "name": "Juxtaposition",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Juxtaposition"
+        ],
+        "sound": "RSX.sfx_neutral_crossbones_attack_swing.audio"
+      }
+    },
+    "20133": {
+      "name": "DeathfireCrescendo",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.DeathfireCrescendo"
+        ],
+        "sound": "RSX.sfx_spell_deathfirecrescendo.audio"
+      }
+    },
+    "20134": {
+      "name": "ChromaticCold",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.ChromaticCold"
+        ],
+        "sound": "RSX.sfx_spell_icepillar.audio"
+      }
+    },
+    "20136": {
+      "name": "Avalanche",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Avalanche"
+        ],
+        "sound": "RSX.sfx_neutral_crossbones_hit.audio"
+      }
+    },
+    "20139": {
+      "name": "FlashFreeze",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.FlashFreeze"
+        ],
+        "sound": "RSX.sfx_f6_icebeetle_death.audio"
+      }
+    },
+    "20144": {
+      "name": "AspectOfTheWolf",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.AspectOfTheWolf"
+        ],
+        "sound": "RSX.sfx_f6_ghostwolf_attack_swing.audio"
+      }
+    },
+    "20147": {
+      "name": "GravityWell",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Spell.FireTornado"
+        ],
+        "sound": "RSX.sfx_spell_manavortex.audio"
+      }
+    },
+    "20149": {
+      "name": "BonechillBarrier",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Spell.FireTornado"
+        ],
+        "sound": "RSX.sfx_neutral_spelljammer_attack_swing.audio"
+      }
+    },
+    "20151": {
+      "name": "BoneSwarm",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.BoneSwarm"
+        ],
+        "sound": "RSX.sfx_spell_boneswarm.audio"
+      }
+    },
+    "20153": {
+      "name": "InnerOasis",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction3.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.InnerOasis"
+        ],
+        "sound": "RSX.sfx_spell_tranquility.audio"
+      }
+    },
+    "20154": {
+      "name": "RiteOfTheUndervault",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction4.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.RiteOfTheUndervault"
+        ],
+        "sound": "RSX.sfx_spell_manavortex.audio"
+      }
+    },
+    "20155": {
+      "name": "HeavensEclipse",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.HeavensEclipse"
+        ],
+        "sound": "RSX.sfx_spell_immolation_a.audio"
+      }
+    },
+    "20157": {
+      "name": "EggMorph",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction5.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.EggMorph"
+        ],
+        "sound": "RSX.sfx_spell_boneswarm.audio"
+      }
+    },
+    "20163": {
+      "name": "SpiritoftheWild",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.SpiritoftheWild"
+        ],
+        "sound": "RSX.sfx_spell_tranquility.audio"
+      }
+    },
+    "20165": {
+      "name": "Cryogenesis",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction6.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Cryogenesis"
+        ],
+        "sound": "RSX.sfx_spell_icepillar.audio"
+      }
+    },
+    "20168": {
+      "name": "MistDragonSeal",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction2.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.MistDragonSeal"
+        ],
+        "sound": "RSX.sfx_spell_mistdragonseal_alt.audio"
+      }
+    },
+    "20174": {
+      "name": "Roar",
+      "factory": {
+        "location": "app/sdk/cards/factory/core/faction1.coffee",
+        "fxResource": [
+          "FX.Cards.Spell.Roar"
+        ],
+        "sound": "RSX.sfx_neutral_arakiheadhunter_attack_swing.audio"
+      }
+    }
+  }
+}

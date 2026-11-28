@@ -1,12 +1,13 @@
 import {
   movementPositions, attackPositions, canReplaceHandCard, canUseHandCard,
   getBattleCard, getUnitBattleCard, summonPositions, getOpeningFollowup,
-  spellPositions, spellTargets, getSpellFollowup, battleCommandTargets,
+  spellPositions, spellTargets, getSpellFollowup, battleCommandTargets, getAdventureAbilityOptions,
 } from './engine.js';
-import { enemyHalf, EXPANSION_SPELL_IDS } from './expansion-mechanics.js';
+import { isExpansion, enemyHalf, EXPANSION_SPELL_IDS } from './expansion-mechanics.js';
 
 function canSummon(state, card, owner) {
   return summonPositions(state, owner, card.id).some(cell => {
+    if (!isExpansion(state)) return true;
     const choice = getOpeningFollowup(state, card.id, cell, owner);
     if (!choice || choice.optional) return true;
     if (choice.type === 'cell') return choice.cells.length > 0;
@@ -16,13 +17,13 @@ function canSummon(state, card, owner) {
 }
 
 function canCast(state, spell, owner) {
-  const expanded = EXPANSION_SPELL_IDS.includes(spell.id);
+  const expanded = isExpansion(state) && EXPANSION_SPELL_IDS.includes(spell.id);
   if (expanded) {
     if (spell.effect === 'twinStrike' && state.units.filter(unit => unit.owner !== owner && getUnitBattleCard(state, unit)?.type === 'unit').length < 2) return false;
     if (spell.effect === 'spiritWild' && !state.units.some(unit => unit.owner === owner && getUnitBattleCard(state, unit)?.type === 'unit' && enemyHalf(state, unit))) return false;
     if (spell.target === 'none') return true;
   }
-  if (spell.summon || ['cell', 'areaCell'].includes(spell.target) || spell.effect === 'chromaticCold') return spellPositions(state, spell, owner).length > 0;
+  if (spell.summon || ['cell', 'areaCell'].includes(spell.target) || state.schemaVersion === 7 && spell.effect === 'chromaticCold') return spellPositions(state, spell, owner).length > 0;
   // These legacy area spells deliberately allow spending mana with no victims.
   if (!expanded && (spell.effect === 'tempest' || spell.target === 'enemyArea')) return true;
   return spellTargets(state, spell, owner).some(unit => {
@@ -38,6 +39,7 @@ export function hasAvailablePlayerAction(state, owner = 0) {
   if (!state || state.currentPlayer !== owner || !['playing', 'ai'].includes(state.phase) || !state.players?.[owner]) return false;
   if (state.units.some(unit => unit.owner === owner && (movementPositions(state, unit).length || attackPositions(state, unit).length))) return true;
   if (battleCommandTargets(state, owner).available) return true;
+  if (state.adventure && state.units.some(unit => unit.owner === owner && getAdventureAbilityOptions(state, unit.unitId)?.available)) return true;
   const player = state.players[owner];
   return player.hand.some((id, index) => {
     if (canReplaceHandCard(state, index, owner)) return true;

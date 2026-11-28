@@ -1,0 +1,3743 @@
+{
+  "sourceRoot": "C:/Users/qs/Desktop/游戏素材/duelyst-main (1)/duelyst-main",
+  "sourceVersion": "1.97.13",
+  "counts": {
+    "cards": 150,
+    "units": 102,
+    "spells": 48,
+    "newCards": 66
+  },
+  "cards": [
+    {
+      "id": 9,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.WindbladeAdept",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "邻近己方主将时 +1 攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 242,
+        "endLine": 271,
+        "identifier": "Faction1.WindbladeAdept"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 11,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.SilverguardKnight",
+      "set": "core",
+      "cost": 3,
+      "attack": 1,
+      "health": 5,
+      "mechanics": "嘲讽。邻近己方主将时 +2 攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 304,
+        "endLine": 342,
+        "identifier": "Faction1.SilverguardKnight"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 14,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.SilverguardSquire",
+      "set": "core",
+      "cost": 1,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 214,
+        "endLine": 241,
+        "identifier": "Faction1.SilverguardSquire"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 15,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.Lightchaser",
+      "set": "core",
+      "cost": 2,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "任一单位实际恢复生命时，永久获得 +1 / +1。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 453,
+        "endLine": 484,
+        "identifier": "Faction1.Lightchaser"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 16,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.SuntideMaiden",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 6,
+      "mechanics": "邻近己方主将时，己方回合结束恢复全部生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 272,
+        "endLine": 303,
+        "identifier": "Faction1.SuntideMaiden"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 17,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.IroncliffeGuardian",
+      "set": "core",
+      "cost": 5,
+      "attack": 3,
+      "health": 10,
+      "mechanics": "空投，嘲讽。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 518,
+        "endLine": 551,
+        "identifier": "Faction1.IroncliffeGuardian"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 108,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.Heartseeker",
+      "set": "core",
+      "cost": 1,
+      "attack": 1,
+      "health": 1,
+      "mechanics": "远程。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 218,
+        "endLine": 249,
+        "identifier": "Faction2.Heartseeker"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 109,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.Widowmaker",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "远程。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 250,
+        "endLine": 279,
+        "identifier": "Faction2.Widowmaker"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 110,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.KaidoAssassin",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "背刺 1。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 280,
+        "endLine": 310,
+        "identifier": "Faction2.KaidoAssassin"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 111,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.ScarletViper",
+      "set": "core",
+      "cost": 5,
+      "attack": 2,
+      "health": 5,
+      "mechanics": "飞行，背刺 4。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 311,
+        "endLine": 344,
+        "identifier": "Faction2.ScarletViper"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 115,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.ChakriAvatar",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 2,
+      "mechanics": "己方每次施法后，永久增加1攻击和1生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 518,
+        "endLine": 552,
+        "identifier": "Faction2.ChakriAvatar"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 116,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.MageOfFourWinds",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "己方每次施法后，敌方主将受到1伤害，己方主将恢复1生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 553,
+        "endLine": 585,
+        "identifier": "Faction2.MageOfFourWinds"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 209,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.StarfireScarab",
+      "set": "core",
+      "cost": 5,
+      "attack": 4,
+      "health": 6,
+      "mechanics": "爆破。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 245,
+        "endLine": 276,
+        "identifier": "Faction3.StarfireScarab"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 211,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.Dunecaster",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "登场：最早入场的友方沙魔永久增加2攻击和2生命；临时沙魔不再消散。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 595,
+        "endLine": 637,
+        "identifier": "Faction3.Dunecaster"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 213,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.Pyromancer",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "爆破。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 277,
+        "endLine": 308,
+        "identifier": "Faction3.Pyromancer"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 214,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.BrazierRedSand",
+      "set": "core",
+      "cost": 2,
+      "attack": 0,
+      "health": 6,
+      "mechanics": "不能移动；己方回合开始，在相邻空格召唤2/2沙魔，立即可行动，回合结束消散。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 412,
+        "endLine": 448,
+        "identifier": "Faction3.BrazierRedSand"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 215,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.BrazierGoldenFlame",
+      "set": "core",
+      "cost": 3,
+      "attack": 0,
+      "health": 6,
+      "mechanics": "不能移动；己方回合开始召唤相邻2/2临时沙魔。存活时，友方沙魔增加1攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 449,
+        "endLine": 487,
+        "identifier": "Faction3.BrazierGoldenFlame"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 216,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.BrazierDuskWind",
+      "set": "core",
+      "cost": 2,
+      "attack": 0,
+      "health": 4,
+      "mechanics": "不能移动；己方回合开始召唤相邻2/2临时沙魔。存活时，友方沙魔增加1生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 557,
+        "endLine": 594,
+        "identifier": "Faction3.BrazierDuskWind"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 308,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.AbyssalCrawler",
+      "set": "core",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "己方回合结束，在相邻一格留下腐化地形；己方腐化格上的敌人受到1伤害。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 219,
+        "endLine": 251,
+        "identifier": "Faction4.AbyssalCrawler"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 309,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.AbyssalJuggernaut",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "每格己方腐化地形使其获得 +1 / +1；随地形数量变化。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 252,
+        "endLine": 284,
+        "identifier": "Faction4.AbyssalJuggernaut"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 310,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.BloodmoonPriestess",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "其他随从死亡时，在附近空地召唤一名暗灵。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 285,
+        "endLine": 317,
+        "identifier": "Faction4.BloodmoonPriestess"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 311,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.ShadowWatcher",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "其他随从死亡时，永久增加1攻击和1生命，敌我均可触发。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 318,
+        "endLine": 352,
+        "identifier": "Faction4.ShadowWatcher"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 316,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.DarkspineElemental",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "己方腐化地形造成的伤害翻倍。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 499,
+        "endLine": 533,
+        "identifier": "Faction4.DarkspineElemental"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 317,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.GloomChaser",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "登场：在相邻空格召唤一名1/1暗灵。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 534,
+        "endLine": 564,
+        "identifier": "Faction4.GloomChaser"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 402,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.EarthWalker",
+      "set": "core",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "成长 1：己方回合开始时永久获得 +1 / +1。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 218,
+        "endLine": 249,
+        "identifier": "Faction5.EarthWalker"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 404,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.Kolossus",
+      "set": "core",
+      "cost": 5,
+      "attack": 1,
+      "health": 7,
+      "mechanics": "成长 4：己方回合开始时永久获得 +4 / +4。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 282,
+        "endLine": 313,
+        "identifier": "Faction5.Kolossus"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 406,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.Phalanxar",
+      "set": "core",
+      "cost": 2,
+      "attack": 6,
+      "health": 1,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 346,
+        "endLine": 375,
+        "identifier": "Faction5.Phalanxar"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 410,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.PrimordialGazer",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "登场：相邻最早入场的友方随从永久增加2攻击和2生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 474,
+        "endLine": 521,
+        "identifier": "Faction5.PrimordialGazer"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 412,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.YoungSilithar",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "重生。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 555,
+        "endLine": 586,
+        "identifier": "Faction5.YoungSilithar"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 413,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.VeteranSilithar",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "重生。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 587,
+        "endLine": 618,
+        "identifier": "Faction5.VeteranSilithar"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 503,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.FenrirWarmaster",
+      "set": "core",
+      "cost": 3,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "亡愿：在原格召唤一名3/2幽灵狼。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 221,
+        "endLine": 253,
+        "identifier": "Faction6.FenrirWarmaster"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 505,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.CrystalCloaker",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "位于敌方半场时增加2攻击，中央列不计入。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 286,
+        "endLine": 320,
+        "identifier": "Faction6.CrystalCloaker"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 506,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.CrystalWisp",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 1,
+      "mechanics": "亡愿：己方法力上限增加1，最高9。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1001,
+        "endLine": 1032,
+        "identifier": "Faction6.CrystalWisp"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 511,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.WolfRaven",
+      "set": "core",
+      "cost": 3,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "飞行；位于敌方半场时增加3攻击，中央列不计入。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 494,
+        "endLine": 527,
+        "identifier": "Faction6.WolfRaven"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 513,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.Razorback",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 3,
+      "mechanics": "登场：其他己方随从本回合获得 +2 攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 596,
+        "endLine": 632,
+        "identifier": "Faction6.Razorback"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 526,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.ArcticDisplacer",
+      "set": "core",
+      "cost": 5,
+      "attack": 10,
+      "health": 4,
+      "mechanics": "空投。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 321,
+        "endLine": 353,
+        "identifier": "Faction6.ArcticDisplacer"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10001,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.SpottedDragonlark",
+      "set": "core",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "飞行。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1261,
+        "endLine": 1292,
+        "identifier": "Neutral.SpottedDragonlark"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10012,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.SaberspineTiger",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "突袭：召唤当回合即可移动与攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1589,
+        "endLine": 1618,
+        "identifier": "Neutral.SaberspineTiger"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10013,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PhaseHound",
+      "set": "core",
+      "cost": 3,
+      "attack": 4,
+      "health": 3,
+      "mechanics": "登场：各存活阵营抽1张牌。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1385,
+        "endLine": 1414,
+        "identifier": "Neutral.PhaseHound"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10017,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.FireSpitter",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "远程。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 112,
+        "endLine": 141,
+        "identifier": "Neutral.FireSpitter"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10018,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.KomodoCharger",
+      "set": "core",
+      "cost": 1,
+      "attack": 1,
+      "health": 3,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 142,
+        "endLine": 172,
+        "identifier": "Neutral.KomodoCharger"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10019,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PlanarScout",
+      "set": "core",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "空投。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 173,
+        "endLine": 205,
+        "identifier": "Neutral.PlanarScout"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10020,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.EphemeralShroud",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 1,
+      "mechanics": "登场：驱散相邻所选一格的单位与腐化地形。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 206,
+        "endLine": 243,
+        "identifier": "Neutral.EphemeralShroud"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10021,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.ValeHunter",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 2,
+      "mechanics": "远程。",
+      "adaptation": "保留已确认有限射程",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 244,
+        "endLine": 273,
+        "identifier": "Neutral.ValeHunter"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10204,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.BrightmossGolem",
+      "set": "core",
+      "cost": 5,
+      "attack": 4,
+      "health": 9,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 995,
+        "endLine": 1025,
+        "identifier": "Neutral.BrightmossGolem"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10207,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.StormmetalGolem",
+      "set": "core",
+      "cost": 6,
+      "attack": 8,
+      "health": 8,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 964,
+        "endLine": 994,
+        "identifier": "Neutral.StormmetalGolem"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10307,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.Serpenti",
+      "set": "core",
+      "cost": 6,
+      "attack": 7,
+      "health": 4,
+      "mechanics": "狂暴：主动近战同时攻击相邻其他敌人，每个目标各自反击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 811,
+        "endLine": 842,
+        "identifier": "Neutral.Serpenti"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10959,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.DancingBlades",
+      "set": "core",
+      "cost": 5,
+      "attack": 4,
+      "health": 6,
+      "mechanics": "登场：正前方随从受到3伤害，包含友军，不能伤害主将。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2136,
+        "endLine": 2169,
+        "identifier": "Neutral.DancingBlades"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10978,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.HailstoneGolem",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 6,
+      "mechanics": "",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2817,
+        "endLine": 2847,
+        "identifier": "Neutral.HailstoneGolem"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10981,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.HealingMystic",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "登场：为损失生命最多的友军恢复2生命，可治疗主将。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2923,
+        "endLine": 2959,
+        "identifier": "Neutral.HealingMystic"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10982,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.VoidHunter",
+      "set": "core",
+      "cost": 3,
+      "attack": 4,
+      "health": 2,
+      "mechanics": "亡愿：己方抽1张牌。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2960,
+        "endLine": 2991,
+        "identifier": "Neutral.VoidHunter"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19026,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.RockPulverizer",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "嘲讽。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 569,
+        "endLine": 598,
+        "identifier": "Neutral.RockPulverizer"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19027,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PrimusShieldmaster",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 6,
+      "mechanics": "嘲讽。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 629,
+        "endLine": 658,
+        "identifier": "Neutral.PrimusShieldmaster"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19033,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PutridMindflayer",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 4,
+      "mechanics": "飞行。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1293,
+        "endLine": 1322,
+        "identifier": "Neutral.PutridMindflayer"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19034,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.FlameWing",
+      "set": "core",
+      "cost": 4,
+      "attack": 5,
+      "health": 4,
+      "mechanics": "飞行。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1323,
+        "endLine": 1352,
+        "identifier": "Neutral.FlameWing"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19037,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PrimusFist",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "登场：相邻最早入场的友方随从本回合增加2攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1681,
+        "endLine": 1727,
+        "identifier": "Neutral.PrimusFist"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19042,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.FrostboneNaga",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "登场：相邻所有单位受到2伤害，包含友军与主将。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1802,
+        "endLine": 1833,
+        "identifier": "Neutral.FrostboneNaga"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19049,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.Sojourner",
+      "set": "core",
+      "cost": 3,
+      "attack": 1,
+      "health": 5,
+      "mechanics": "每次实际造成伤害后抽1张牌，包含反击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2004,
+        "endLine": 2033,
+        "identifier": "Neutral.Sojourner"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 19050,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.AzureHornShaman",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "亡愿：相邻友方随从永久增加4生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2034,
+        "endLine": 2067,
+        "identifier": "Neutral.AzureHornShaman"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20043,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "SundropElixir",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "为任一受伤单位恢复5生命，敌我均可，包含主将。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 788,
+        "identifier": "SundropElixir"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20044,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "Tempest",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "对棋盘上的所有单位造成 2 点伤害。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 808,
+        "identifier": "Tempest"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20049,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "DaemonicLure",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "敌方随从受到1伤害，存活时传送至所选空格。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 860,
+        "identifier": "DaemonicLure"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20052,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "VoidPulse",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "对敌方主将造成 2 点伤害；己方主将恢复3生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 923,
+        "identifier": "VoidPulse"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20061,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "DarkTransformation",
+      "set": "core",
+      "cost": 5,
+      "attack": null,
+      "health": null,
+      "mechanics": "消灭敌方随从，先触发死亡效果，再在原格召唤己方1/1暗灵；原格被占据时不召唤。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 1040,
+        "identifier": "DarkTransformation"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20066,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "TrueStrike",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "对一个随从造成 2 点伤害。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 975,
+        "identifier": "TrueStrike"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20068,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "DivineBond",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "任一随从永久增加等同于其当前生命值的攻击，敌我均可。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 1055,
+        "identifier": "DivineBond"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20072,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "WraithlingSwarm",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "在所选空格及相邻空格召唤最多3名1/1暗灵。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 1147,
+        "identifier": "WraithlingSwarm"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20073,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "SiphonEnergy",
+      "set": "core",
+      "cost": 0,
+      "attack": null,
+      "health": null,
+      "mechanics": "驱散主将相邻一名敌方随从的能力、战场强化及脚下腐化地形；培养属性保留。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 860,
+        "identifier": "SiphonEnergy"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20077,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "EntropicDecay",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "消灭主将相邻一名敌方随从，触发亡愿与死亡效果。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 976,
+        "identifier": "EntropicDecay"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20081,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "PhoenixFire",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "对一个敌人造成 3 点伤害。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 925,
+        "identifier": "PhoenixFire"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20086,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "InnerFocus",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "攻击不高于3的友方随从可立即移动和攻击；不解除眩晕。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 1050,
+        "identifier": "InnerFocus"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20095,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "ScionsFirstWish",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从永久增加1攻击和1生命；抽1张牌。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 1038,
+        "identifier": "ScionsFirstWish"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20116,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "GreaterFortitude",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从永久增加2攻击和2生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 977,
+        "identifier": "GreaterFortitude"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20117,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "EarthSphere",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "己方主将恢复 8 点生命。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 1000,
+        "identifier": "EarthSphere"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20122,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "PlasmaStorm",
+      "set": "core",
+      "cost": 5,
+      "attack": null,
+      "health": null,
+      "mechanics": "消灭全场当前攻击不超过3的随从，包含友军。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 1088,
+        "identifier": "PlasmaStorm"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20125,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "NaturalSelection",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "消灭全场当前攻击最低或并列最低的一个随从，敌我均可。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 1127,
+        "identifier": "NaturalSelection"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20129,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "Juxtaposition",
+      "set": "core",
+      "cost": 0,
+      "attack": null,
+      "health": null,
+      "mechanics": "交换任意两个随从位置；不刷新行动。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 1155,
+        "identifier": "Juxtaposition"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20134,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "ChromaticCold",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "驱散所选一格单位与腐化地形；其中敌方单位随后受到1伤害，可选敌将。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1169,
+        "identifier": "ChromaticCold"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20139,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "FlashFreeze",
+      "set": "core",
+      "cost": 0,
+      "attack": null,
+      "health": null,
+      "mechanics": "对一个随从造成 1 点伤害并眩晕。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1190,
+        "identifier": "FlashFreeze"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20144,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "AspectOfTheWolf",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "任一随从变为无能力3/3掠食者，保留归属及已消耗行动，不触发死亡或登场。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1334,
+        "identifier": "AspectOfTheWolf"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20149,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "BonechillBarrier",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "在所选空格及相邻空格召唤最多3面0/2冰墙；主动攻击冰墙的单位被眩晕。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1122,
+        "identifier": "BonechillBarrier"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20151,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "BoneSwarm",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "对敌方主将及其附近敌军造成 2 点伤害。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 1171,
+        "identifier": "BoneSwarm"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20168,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "MistDragonSeal",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从永久+1/+1，传送到所选空格。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 901,
+        "identifier": "MistDragonSeal"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 20174,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "Roar",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "主将相邻的一名友方随从永久增加2攻击。",
+      "adaptation": "沿现有已接入规则",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 688,
+        "identifier": "Roar"
+      },
+      "status": "existing"
+    },
+    {
+      "id": 10016,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.RepulsionBeast",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "登场：将相邻敌方随从传送到所选空格。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1518,
+        "endLine": 1558,
+        "identifier": "Neutral.RepulsionBeast",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 10301,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.SunSeer",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 4,
+      "mechanics": "每次造成伤害后，己方主将恢复2生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 274,
+        "endLine": 306,
+        "identifier": "Neutral.SunSeer",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDealDamageWatchHealMyGeneral.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 10306,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.Lightbender",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "登场：驱散周围8格的单位与腐化。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 475,
+        "endLine": 508,
+        "identifier": "Neutral.Lightbender",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambitDispel.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 10958,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.DaggerKiri",
+      "set": "core",
+      "cost": 5,
+      "attack": 2,
+      "health": 8,
+      "mechanics": "每回合可移动和攻击各2次。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2331,
+        "endLine": 2360,
+        "identifier": "Neutral.DaggerKiri",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTranscendance.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 10995,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.EmeraldRejuvenator",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "登场：各存活阵营的主将恢复4生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。原双人主将效果在多敌军战役逐个作用于存活主将。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 3410,
+        "endLine": 3441,
+        "identifier": "Neutral.EmeraldRejuvenator",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambitHealBothGenerals.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 19040,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.PiercingMantis",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "狂暴。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 1619,
+        "endLine": 1648,
+        "identifier": "Neutral.PiercingMantis",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFrenzy.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 19052,
+      "faction": 0,
+      "type": "unit",
+      "identifier": "Neutral.BloodtearAlchemist",
+      "set": "core",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "登场：一名敌方单位受到1伤害，可选主将。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/neutral.coffee",
+        "line": 2098,
+        "endLine": 2135,
+        "identifier": "Neutral.BloodtearAlchemist",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 8,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.LysianBrawler",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "每回合可移动和攻击各2次。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 420,
+        "endLine": 452,
+        "identifier": "Faction1.LysianBrawler",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTranscendance.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 10,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.SunstoneTemplar",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 4,
+      "mechanics": "攻击时驱散目标。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 485,
+        "endLine": 517,
+        "identifier": "Faction1.SunstoneTemplar",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDispelOnAttack.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 12,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.ArclyteSentinel",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 4,
+      "mechanics": "登场：所选随从永久增加2攻击、减少2生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 343,
+        "endLine": 389,
+        "identifier": "Faction1.ArclyteSentinel",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 13,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.WindbladeCommander",
+      "set": "core",
+      "cost": 5,
+      "attack": 0,
+      "health": 8,
+      "mechanics": "邻近己方主将时增加8攻击。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 390,
+        "endLine": 419,
+        "identifier": "Faction1.WindbladeCommander",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierBandingAttack.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 21,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.AzuriteLion",
+      "set": "core",
+      "cost": 2,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "每回合可移动和攻击各2次。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 655,
+        "endLine": 687,
+        "identifier": "Faction1.AzuriteLion",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTranscendance.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 22,
+      "faction": 1,
+      "type": "unit",
+      "identifier": "Faction1.Sunriser",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 4,
+      "mechanics": "任一单位实际恢复生命时，对相邻敌人造成2伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 590,
+        "endLine": 619,
+        "identifier": "Faction1.Sunriser",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierHealWatchDamageNearbyEnemies.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 112,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.GoreHorn",
+      "set": "core",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "背刺2；主动攻击后永久增加1攻击和1生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 345,
+        "endLine": 384,
+        "identifier": "Faction2.GoreHorn",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierBackstab.coffee",
+          "app/sdk/modifiers/modifierMyAttackWatchBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 114,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.JadeOgre",
+      "set": "core",
+      "cost": 3,
+      "attack": 4,
+      "health": 3,
+      "mechanics": "每次受伤后，随机一名敌方随从受到1伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。随机选择使用局内可保存的确定性状态；重进不重新掷结果。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 486,
+        "endLine": 517,
+        "identifier": "Faction2.JadeOgre",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTakeDamageWatchDamageEnemy.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 117,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.CelestialPhantom",
+      "set": "core",
+      "cost": 3,
+      "attack": 1,
+      "health": 5,
+      "mechanics": "对随从造成伤害后将其消灭。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 586,
+        "endLine": 617,
+        "identifier": "Faction2.CelestialPhantom",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDealDamageWatchKillTarget.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 119,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.HamonBlademaster",
+      "set": "core",
+      "cost": 5,
+      "attack": 8,
+      "health": 8,
+      "mechanics": "己方回合开始，己方主将受到2伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 650,
+        "endLine": 679,
+        "identifier": "Faction2.HamonBlademaster",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierStartTurnWatchDamageMyGeneral.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 120,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.KeshraiFanblade",
+      "set": "core",
+      "cost": 4,
+      "attack": 5,
+      "health": 3,
+      "mechanics": "登场：敌方法术与主将技能增加2费用，持续至其下个回合结束。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。冻结卡的基础费用不改；动态卡视图和主将技能共同反映税费。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 680,
+        "endLine": 714,
+        "identifier": "Faction2.KeshraiFanblade",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambitApplyPlayerModifiers.coffee",
+          "app/sdk/playerModifiers/playerModifierManaModifier.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 122,
+      "faction": 2,
+      "type": "unit",
+      "identifier": "Faction2.LanternFox",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "每次受伤后，将1张凤凰火加入手牌。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 454,
+        "endLine": 485,
+        "identifier": "Faction2.LanternFox",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTakeDamageWatchPutCardInHand.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 208,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.WindShrike",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 3,
+      "mechanics": "飞行；亡愿：抽1张牌。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 213,
+        "endLine": 244,
+        "identifier": "Faction3.WindShrike",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDyingWishDrawCard.coffee",
+          "app/sdk/modifiers/modifierFlying.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 210,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.SandHowler",
+      "set": "core",
+      "cost": 3,
+      "attack": 3,
+      "health": 3,
+      "mechanics": "不能被敌方法术直接选为目标；区域与多目标法术仍可影响。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 309,
+        "endLine": 343,
+        "identifier": "Faction3.SandHowler",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierImmuneToSpellsByEnemy.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 212,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.OrbWeaver",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 2,
+      "mechanics": "沙魔。登场：在所选空格召唤自身复制体。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。复制当前战场身体与强化；复制体不重开登场，作为衍生物。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 344,
+        "endLine": 379,
+        "identifier": "Faction3.OrbWeaver",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 219,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.MirrorMaster",
+      "set": "core",
+      "cost": 4,
+      "attack": 1,
+      "health": 1,
+      "mechanics": "登场：变为所选敌方随从的复制体。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。复制所选敌随从当前身体与强化；保留己方归属/入场行动，不触发死亡或登场。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 638,
+        "endLine": 675,
+        "identifier": "Faction3.MirrorMaster",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 220,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.AymaraHealer",
+      "set": "core",
+      "cost": 6,
+      "attack": 5,
+      "health": 5,
+      "mechanics": "嘲讽；亡愿：敌方主将受到5伤害，己方主将恢复5生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。原双人主将效果在多敌军战役逐个作用于存活主将。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 676,
+        "endLine": 707,
+        "identifier": "Faction3.AymaraHealer",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDyingWishDamageEnemyGeneralHealGeneral.coffee",
+          "app/sdk/modifiers/modifierProvoke.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 221,
+      "faction": 3,
+      "type": "unit",
+      "identifier": "Faction3.PortalGuardian",
+      "set": "core",
+      "cost": 3,
+      "attack": 0,
+      "health": 8,
+      "mechanics": "狂暴；每次召唤友方随从后永久增加1攻击。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 708,
+        "endLine": 743,
+        "identifier": "Faction3.PortalGuardian",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFrenzy.coffee",
+          "app/sdk/modifiers/modifierSummonWatchBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 312,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.DeepfireDevourer",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "狂暴。登场：牺牲相邻友方随从，每名使自身永久增加2攻击和2生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 353,
+        "endLine": 387,
+        "identifier": "Faction4.DeepfireDevourer",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFrenzy.coffee",
+          "app/sdk/modifiers/modifierOpeningGambitSacrificeNearbyBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 313,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.DarkSiren",
+      "set": "core",
+      "cost": 2,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "登场：相邻一名敌人本回合减少2攻击。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 388,
+        "endLine": 433,
+        "identifier": "Faction4.DarkSiren",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 314,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.VorpalReaver",
+      "set": "core",
+      "cost": 6,
+      "attack": 6,
+      "health": 6,
+      "mechanics": "每回合可移动和攻击各2次。亡愿：在空格召唤最多6名暗灵。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。随机选择使用局内可保存的确定性状态；重进不重新掷结果。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 434,
+        "endLine": 466,
+        "identifier": "Faction4.VorpalReaver",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDyingWishSpawnEntityAnywhere.coffee",
+          "app/sdk/modifiers/modifierTokenCreator.coffee",
+          "app/sdk/modifiers/modifierTranscendance.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 318,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.SharianShadowdancer",
+      "set": "core",
+      "cost": 5,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "其他随从死亡时，敌方主将受到1伤害，己方主将恢复1生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。原双人主将效果在多敌军战役逐个作用于存活主将。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 597,
+        "endLine": 630,
+        "identifier": "Faction4.SharianShadowdancer",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDeathWatchDamageEnemyGeneralHealMyGeneral.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 319,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.NightsorrowAssassin",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "登场：消灭相邻攻击不超过2的敌方随从。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 631,
+        "endLine": 670,
+        "identifier": "Faction4.NightsorrowAssassin",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 321,
+      "faction": 4,
+      "type": "unit",
+      "identifier": "Faction4.BlackSolus",
+      "set": "core",
+      "cost": 5,
+      "attack": 4,
+      "health": 7,
+      "mechanics": "每次召唤己方暗灵后永久增加2攻击。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 703,
+        "endLine": 737,
+        "identifier": "Faction4.BlackSolus",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierSummonWatchByEntityBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 403,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.Grimrock",
+      "set": "core",
+      "cost": 4,
+      "attack": 3,
+      "health": 4,
+      "mechanics": "成长2。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 250,
+        "endLine": 281,
+        "identifier": "Faction5.Grimrock",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierGrow.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 405,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.MakantorWarbeast",
+      "set": "core",
+      "cost": 6,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "突袭、狂暴。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 314,
+        "endLine": 345,
+        "identifier": "Faction5.MakantorWarbeast",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFirstBlood.coffee",
+          "app/sdk/modifiers/modifierFrenzy.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 407,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.Elucidator",
+      "set": "core",
+      "cost": 4,
+      "attack": 5,
+      "health": 4,
+      "mechanics": "突袭。登场：己方主将受到4伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 376,
+        "endLine": 407,
+        "identifier": "Faction5.Elucidator",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFirstBlood.coffee",
+          "app/sdk/modifiers/modifierOpeningGambitDamageMyGeneral.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 414,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.SilitharElder",
+      "set": "core",
+      "cost": 7,
+      "attack": 7,
+      "health": 7,
+      "mechanics": "重生。己方回合结束，在相邻空格召唤自身的卵。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 619,
+        "endLine": 651,
+        "identifier": "Faction5.SilitharElder",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierEndTurnWatchSpawnEgg.coffee",
+          "app/sdk/modifiers/modifierRebirth.coffee",
+          "app/sdk/modifiers/modifierTokenCreator.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 415,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.SpiritHarvester",
+      "set": "core",
+      "cost": 5,
+      "attack": 5,
+      "health": 5,
+      "mechanics": "己方回合结束，其他所有随从受到1伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 652,
+        "endLine": 683,
+        "identifier": "Faction5.SpiritHarvester",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierEndTurnWatchDamageAllMinions.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 417,
+      "faction": 5,
+      "type": "unit",
+      "identifier": "Faction5.Vindicator",
+      "set": "core",
+      "cost": 3,
+      "attack": 1,
+      "health": 3,
+      "mechanics": "敌方每抽1张牌后，永久增加2攻击和2生命。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 714,
+        "endLine": 747,
+        "identifier": "Faction5.Vindicator",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpponentDrawCardWatchBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 507,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.ArcticRhyno",
+      "set": "core",
+      "cost": 5,
+      "attack": 6,
+      "health": 5,
+      "mechanics": "位于敌方半场时增加1攻击，每回合可移动和攻击各2次。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。双移动/双攻击只在敌方半场获得，中央列不计入；离开后按已用配额失去额外行动。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 354,
+        "endLine": 392,
+        "identifier": "Faction6.ArcticRhyno",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierInfiltrate.coffee",
+          "app/sdk/modifiers/modifierTranscendance.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 510,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.WyrBeast",
+      "set": "core",
+      "cost": 1,
+      "attack": 2,
+      "health": 1,
+      "mechanics": "冰灵。位于敌方半场时获得亡愿：将自身基础卡加入手牌。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 461,
+        "endLine": 493,
+        "identifier": "Faction6.WyrBeast",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDyingWishPutCardInHandClean.coffee",
+          "app/sdk/modifiers/modifierInfiltrate.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 512,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.BoreanBear",
+      "set": "core",
+      "cost": 2,
+      "attack": 1,
+      "health": 3,
+      "mechanics": "冰灵。每次召唤友方冰灵后永久增加1攻击。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 528,
+        "endLine": 560,
+        "identifier": "Faction6.BoreanBear",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierSummonWatchByRaceBuffSelf.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 515,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.VoiceoftheWind",
+      "set": "core",
+      "cost": 4,
+      "attack": 4,
+      "health": 4,
+      "mechanics": "每次从手牌召唤随从后，在相邻空格召唤一名2/2冰灵。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 708,
+        "endLine": 740,
+        "identifier": "Faction6.VoiceoftheWind",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierSummonWatchFromActionBarSpawnEntity.coffee",
+          "app/sdk/modifiers/modifierTokenCreator.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 517,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.HearthSister",
+      "set": "core",
+      "cost": 2,
+      "attack": 3,
+      "health": 2,
+      "mechanics": "登场：与所选其他随从交换位置，不恢复行动。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 561,
+        "endLine": 595,
+        "identifier": "Faction6.HearthSister",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierOpeningGambit.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 519,
+      "faction": 6,
+      "type": "unit",
+      "identifier": "Faction6.SnowElemental",
+      "set": "core",
+      "cost": 3,
+      "attack": 2,
+      "health": 3,
+      "mechanics": "冰灵。每次召唤友方冰灵后，随机一名敌方随从受到2伤害。",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。随机选择使用局内可保存的确定性状态；重进不重新掷结果。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 774,
+        "endLine": 806,
+        "identifier": "Faction6.SnowElemental",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierSummonWatchByRaceDamageEnemyMinion.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20090,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "Spell.Martyrdom",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "消灭随从；其主将恢复被杀前当前生命",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 894,
+        "identifier": "Spell.Martyrdom",
+        "mechanicFiles": [
+          "app/sdk/spells/spellMartyrdom.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20064,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "Spell.SunBloom",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "驱散2x2区域",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。2×2锚点采用原0/1偏移，边界裁切；地图墙不能生成腐化。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 956,
+        "identifier": "Spell.SunBloom",
+        "mechanicFiles": [
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellSilence.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20067,
+      "faction": 1,
+      "type": "spell",
+      "identifier": "Spell.HolyImmolation",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从治疗4；邻近敌人受4伤",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction1.coffee",
+        "line": 1036,
+        "identifier": "Spell.HolyImmolation",
+        "mechanicFiles": [
+          "app/sdk/spells/spellHolyImmolation.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20087,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "Spell.OnyxBearSeal",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "敌随从变0/2攻击免疫Panddo，归属不变",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 1070,
+        "identifier": "Spell.OnyxBearSeal",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTokenCreator.coffee",
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellRemoveAndReplaceEntity.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20102,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "Spell.KillingEdge",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从+4/+2；有背刺则下次常规抽牌+1",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。原临时抽牌增量计入本回合末的常规抽牌，非立刻抽牌。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 1228,
+        "identifier": "Spell.KillingEdge",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierBackstab.coffee",
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellKillingEdge.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20082,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "Spell.TwinStrike",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "至少2敌随从，随机不同两名各受2伤；下次常规抽牌+1",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。随机选择使用局内可保存的确定性状态；重进不重新掷结果。原临时抽牌增量计入本回合末的常规抽牌，非立刻抽牌。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 964,
+        "identifier": "Spell.TwinStrike",
+        "mechanicFiles": [
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellTwinStrike.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20155,
+      "faction": 2,
+      "type": "spell",
+      "identifier": "Spell.HeavensEclipse",
+      "set": "core",
+      "cost": 5,
+      "attack": null,
+      "health": null,
+      "mechanics": "从牌库随机抽最多3法术",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。随机选择使用局内可保存的确定性状态；重进不重新掷结果。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 1193,
+        "identifier": "Spell.HeavensEclipse",
+        "mechanicFiles": [
+          "app/sdk/spells/spellHeavensEclipse.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20074,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "Spell.CosmicFlesh",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从+1/+3及嘲讽",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 880,
+        "identifier": "Spell.CosmicFlesh",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierProvoke.coffee",
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20096,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "Spell.ScionsSecondWish",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从+2/+2及主将伤害免疫",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 1060,
+        "identifier": "Spell.ScionsSecondWish",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierImmuneToDamageByGeneral.coffee",
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20097,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "Spell.ScionsThirdWish",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方沙魔+3/+3及飞行",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 1083,
+        "identifier": "Spell.ScionsThirdWish",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFlying.coffee",
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20153,
+      "faction": 3,
+      "type": "spell",
+      "identifier": "Spell.InnerOasis",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "全体友方随从+3生命；抽1",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction3.coffee",
+        "line": 1207,
+        "identifier": "Spell.InnerOasis",
+        "mechanicFiles": [
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20051,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "Spell.ShadowNova",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "2x2区域生成腐化",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。2×2锚点采用原0/1偏移，边界裁切；地图墙不能生成腐化。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 901,
+        "identifier": "Spell.ShadowNova",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierStackingShadows.coffee",
+          "app/sdk/spells/spellChokingShadows.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20133,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "Spell.DeathfireCrescendo",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从获得死亡监听+2/+2",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 942,
+        "identifier": "Spell.DeathfireCrescendo",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierDeathWatchBuffSelf.coffee",
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20057,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "Spell.RitualBanishing",
+      "set": "core",
+      "cost": 3,
+      "attack": null,
+      "health": null,
+      "mechanics": "牺牲友方随从后消灭敌方随从",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 1016,
+        "identifier": "Spell.RitualBanishing",
+        "mechanicFiles": [
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellKillTarget.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20154,
+      "faction": 4,
+      "type": "spell",
+      "identifier": "Spell.RiteOfTheUndervault",
+      "set": "core",
+      "cost": 6,
+      "attack": null,
+      "health": null,
+      "mechanics": "从牌库抽到手牌上限",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction4.coffee",
+        "line": 981,
+        "identifier": "Spell.RiteOfTheUndervault",
+        "mechanicFiles": [
+          "app/sdk/spells/spellRiteOfTheUndervault.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20113,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "Spell.DiretideFrenzy",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "友方随从+1攻及狂暴",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 912,
+        "identifier": "Spell.DiretideFrenzy",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierFrenzy.coffee",
+          "app/sdk/spells/spellApplyModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20119,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "Spell.Amplification",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "受伤友方随从+2/+4",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 1045,
+        "identifier": "Spell.Amplification",
+        "mechanicFiles": [
+          "app/sdk/spells/spellApplyModifiersToDamagedMinion.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20157,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "Spell.EggMorph",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "随从变为同属卵；卵则立即孵化",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 1161,
+        "identifier": "Spell.EggMorph",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierTokenCreator.coffee",
+          "app/sdk/spells/spellEggMorph.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20115,
+      "faction": 5,
+      "type": "spell",
+      "identifier": "Spell.DanceOfDreams",
+      "set": "core",
+      "cost": 1,
+      "attack": null,
+      "health": null,
+      "mechanics": "本回合友方随从死亡抽1",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction5.coffee",
+        "line": 955,
+        "identifier": "Spell.DanceOfDreams",
+        "mechanicFiles": [
+          "app/sdk/playerModifiers/playerModifierMyDeathwatchDrawCard.coffee",
+          "app/sdk/spells/spellApplyPlayerModifiers.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20147,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "Spell.GravityWell",
+      "set": "core",
+      "cost": 2,
+      "attack": null,
+      "health": null,
+      "mechanics": "召唤4个0/1嘲讽墙",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1098,
+        "identifier": "Spell.GravityWell",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierProvoke.coffee",
+          "app/sdk/modifiers/modifierTokenCreator.coffee",
+          "app/sdk/spells/spellFilterType.coffee",
+          "app/sdk/spells/spellSpawnEntity.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20136,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "Spell.Avalanche",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "己方半场所有单位受4伤及眩晕",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1231,
+        "identifier": "Spell.Avalanche",
+        "mechanicFiles": [
+          "app/sdk/modifiers/modifierStun.coffee",
+          "app/sdk/modifiers/modifierStunnedVanar.coffee",
+          "app/sdk/spells/spellAvalanche.coffee",
+          "app/sdk/spells/spellFilterType.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20165,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "Spell.Cryogenesis",
+      "set": "core",
+      "cost": 4,
+      "attack": null,
+      "health": null,
+      "mechanics": "敌随从受4伤；从牌库抽1冰灵",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。随机选择使用局内可保存的确定性状态；重进不重新掷结果。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1452,
+        "identifier": "Spell.Cryogenesis",
+        "mechanicFiles": [
+          "app/sdk/spells/spellCryogenesis.coffee"
+        ]
+      },
+      "status": "new"
+    },
+    {
+      "id": 20163,
+      "faction": 6,
+      "type": "spell",
+      "identifier": "Spell.SpiritoftheWild",
+      "set": "core",
+      "cost": 5,
+      "attack": null,
+      "health": null,
+      "mechanics": "敌方半场友方随从恢复行动",
+      "adaptation": "保留原版费用、攻血、目标与结算；新机制仅作用于冻结内容版本v2。新增法术沿无需培养契约保持原数值；手牌上限沿现有6张。",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 1434,
+        "identifier": "Spell.SpiritoftheWild",
+        "mechanicFiles": [
+          "app/sdk/spells/spellSpiritAnimalBlessing.coffee"
+        ]
+      },
+      "status": "new"
+    }
+  ],
+  "archetypes": [
+    {
+      "faction": 1,
+      "heroId": 1,
+      "name": "邻将双行动",
+      "deck": [
+        21,
+        21,
+        21,
+        8,
+        8,
+        8,
+        9,
+        9,
+        9,
+        11,
+        11,
+        11,
+        13,
+        13,
+        13,
+        17,
+        17,
+        17,
+        20174,
+        20174,
+        20174,
+        20068,
+        20068,
+        20068,
+        20090,
+        20090,
+        20090,
+        20064,
+        20064,
+        20064
+      ],
+      "coreIds": [
+        21,
+        8,
+        9,
+        11,
+        13,
+        17,
+        20174,
+        20068,
+        20090,
+        20064
+      ]
+    },
+    {
+      "faction": 1,
+      "heroId": 23,
+      "name": "治疗清场",
+      "deck": [
+        15,
+        15,
+        15,
+        22,
+        22,
+        22,
+        16,
+        16,
+        16,
+        11,
+        11,
+        11,
+        17,
+        17,
+        17,
+        10995,
+        10995,
+        10995,
+        20043,
+        20043,
+        20043,
+        20067,
+        20067,
+        20067,
+        20044,
+        20044,
+        20044,
+        20090,
+        20090,
+        20090
+      ],
+      "coreIds": [
+        15,
+        22,
+        16,
+        11,
+        17,
+        10995,
+        20043,
+        20067,
+        20044,
+        20090
+      ]
+    },
+    {
+      "faction": 2,
+      "heroId": 101,
+      "name": "背刺机动",
+      "deck": [
+        110,
+        110,
+        110,
+        112,
+        112,
+        112,
+        111,
+        111,
+        111,
+        117,
+        117,
+        117,
+        119,
+        119,
+        119,
+        19037,
+        19037,
+        19037,
+        20168,
+        20168,
+        20168,
+        20129,
+        20129,
+        20129,
+        20102,
+        20102,
+        20102,
+        20086,
+        20086,
+        20086
+      ],
+      "coreIds": [
+        110,
+        112,
+        111,
+        117,
+        119,
+        19037,
+        20168,
+        20129,
+        20102,
+        20086
+      ]
+    },
+    {
+      "faction": 2,
+      "heroId": 123,
+      "name": "法术连锁",
+      "deck": [
+        115,
+        115,
+        115,
+        116,
+        116,
+        116,
+        122,
+        122,
+        122,
+        108,
+        108,
+        108,
+        109,
+        109,
+        109,
+        120,
+        120,
+        120,
+        20081,
+        20081,
+        20081,
+        20082,
+        20082,
+        20082,
+        20155,
+        20155,
+        20155,
+        20087,
+        20087,
+        20087
+      ],
+      "coreIds": [
+        115,
+        116,
+        122,
+        108,
+        109,
+        120,
+        20081,
+        20082,
+        20155,
+        20087
+      ]
+    },
+    {
+      "faction": 3,
+      "heroId": 201,
+      "name": "沙魔召唤",
+      "deck": [
+        214,
+        214,
+        214,
+        215,
+        215,
+        215,
+        216,
+        216,
+        216,
+        211,
+        211,
+        211,
+        212,
+        212,
+        212,
+        221,
+        221,
+        221,
+        20095,
+        20095,
+        20095,
+        20097,
+        20097,
+        20097,
+        20153,
+        20153,
+        20153,
+        20074,
+        20074,
+        20074
+      ],
+      "coreIds": [
+        214,
+        215,
+        216,
+        211,
+        212,
+        221,
+        20095,
+        20097,
+        20153,
+        20074
+      ]
+    },
+    {
+      "faction": 3,
+      "heroId": 223,
+      "name": "爆破保护",
+      "deck": [
+        213,
+        213,
+        213,
+        209,
+        209,
+        209,
+        210,
+        210,
+        210,
+        208,
+        208,
+        208,
+        219,
+        219,
+        219,
+        220,
+        220,
+        220,
+        20095,
+        20095,
+        20095,
+        20096,
+        20096,
+        20096,
+        20077,
+        20077,
+        20077,
+        20074,
+        20074,
+        20074
+      ],
+      "coreIds": [
+        213,
+        209,
+        210,
+        208,
+        219,
+        220,
+        20095,
+        20096,
+        20077,
+        20074
+      ]
+    },
+    {
+      "faction": 4,
+      "heroId": 301,
+      "name": "暗灵死亡",
+      "deck": [
+        317,
+        317,
+        317,
+        310,
+        310,
+        310,
+        311,
+        311,
+        311,
+        318,
+        318,
+        318,
+        321,
+        321,
+        321,
+        312,
+        312,
+        312,
+        20072,
+        20072,
+        20072,
+        20133,
+        20133,
+        20133,
+        20057,
+        20057,
+        20057,
+        20154,
+        20154,
+        20154
+      ],
+      "coreIds": [
+        317,
+        310,
+        311,
+        318,
+        321,
+        312,
+        20072,
+        20133,
+        20057,
+        20154
+      ]
+    },
+    {
+      "faction": 4,
+      "heroId": 323,
+      "name": "腐化控制",
+      "deck": [
+        308,
+        308,
+        308,
+        309,
+        309,
+        309,
+        316,
+        316,
+        316,
+        319,
+        319,
+        319,
+        314,
+        314,
+        314,
+        313,
+        313,
+        313,
+        20051,
+        20051,
+        20051,
+        20049,
+        20049,
+        20049,
+        20061,
+        20061,
+        20061,
+        20052,
+        20052,
+        20052
+      ],
+      "coreIds": [
+        308,
+        309,
+        316,
+        319,
+        314,
+        313,
+        20051,
+        20049,
+        20061,
+        20052
+      ]
+    },
+    {
+      "faction": 5,
+      "heroId": 401,
+      "name": "成长狂暴",
+      "deck": [
+        402,
+        402,
+        402,
+        403,
+        403,
+        403,
+        404,
+        404,
+        404,
+        410,
+        410,
+        410,
+        405,
+        405,
+        405,
+        406,
+        406,
+        406,
+        20116,
+        20116,
+        20116,
+        20119,
+        20119,
+        20119,
+        20113,
+        20113,
+        20113,
+        20125,
+        20125,
+        20125
+      ],
+      "coreIds": [
+        402,
+        403,
+        404,
+        410,
+        405,
+        406,
+        20116,
+        20119,
+        20113,
+        20125
+      ]
+    },
+    {
+      "faction": 5,
+      "heroId": 418,
+      "name": "重生自伤",
+      "deck": [
+        412,
+        412,
+        412,
+        413,
+        413,
+        413,
+        414,
+        414,
+        414,
+        415,
+        415,
+        415,
+        417,
+        417,
+        417,
+        407,
+        407,
+        407,
+        20115,
+        20115,
+        20115,
+        20157,
+        20157,
+        20157,
+        20117,
+        20117,
+        20117,
+        20122,
+        20122,
+        20122
+      ],
+      "coreIds": [
+        412,
+        413,
+        414,
+        415,
+        417,
+        407,
+        20115,
+        20157,
+        20117,
+        20122
+      ]
+    },
+    {
+      "faction": 6,
+      "heroId": 501,
+      "name": "渗透机动",
+      "deck": [
+        505,
+        505,
+        505,
+        511,
+        511,
+        511,
+        507,
+        507,
+        507,
+        510,
+        510,
+        510,
+        517,
+        517,
+        517,
+        526,
+        526,
+        526,
+        20163,
+        20163,
+        20163,
+        20134,
+        20134,
+        20134,
+        20144,
+        20144,
+        20144,
+        20139,
+        20139,
+        20139
+      ],
+      "coreIds": [
+        505,
+        511,
+        507,
+        510,
+        517,
+        526,
+        20163,
+        20134,
+        20144,
+        20139
+      ]
+    },
+    {
+      "faction": 6,
+      "heroId": 527,
+      "name": "冰灵铺场",
+      "deck": [
+        512,
+        512,
+        512,
+        519,
+        519,
+        519,
+        515,
+        515,
+        515,
+        510,
+        510,
+        510,
+        503,
+        503,
+        503,
+        513,
+        513,
+        513,
+        20147,
+        20147,
+        20147,
+        20149,
+        20149,
+        20149,
+        20165,
+        20165,
+        20165,
+        20136,
+        20136,
+        20136
+      ],
+      "coreIds": [
+        512,
+        519,
+        515,
+        510,
+        503,
+        513,
+        20147,
+        20149,
+        20165,
+        20136
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "id": 113,
+      "identifier": "Faction2.OnyxBear",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction2.coffee",
+        "line": 385,
+        "endLine": 421,
+        "identifier": "Faction2.OnyxBear"
+      },
+      "cost": 1,
+      "attack": 0,
+      "health": 2
+    },
+    {
+      "id": 518,
+      "identifier": "Faction6.WaterBear",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 741,
+        "endLine": 773,
+        "identifier": "Faction6.WaterBear"
+      },
+      "cost": 1,
+      "attack": 2,
+      "health": 2
+    },
+    {
+      "id": 523,
+      "identifier": "Faction6.GravityWell",
+      "source": {
+        "file": "app/sdk/cards/factory/core/faction6.coffee",
+        "line": 903,
+        "endLine": 934,
+        "identifier": "Faction6.GravityWell"
+      },
+      "cost": 1,
+      "attack": 0,
+      "health": 1
+    }
+  ],
+  "notes": [
+    "新增衍生物不计入150",
+    "构筑为完整合法30张基础蓝图；经济路线按逐关保证拥有另行裁剪",
+    "种族必须从原工厂核对；墙不按阵营推定冰灵"
+  ],
+  "races": {
+    "dervish": [
+      211,
+      212,
+      217,
+      225
+    ],
+    "vespyr": [
+      505,
+      510,
+      512,
+      518,
+      519,
+      525,
+      526
+    ]
+  },
+  "runtimeContract": {
+    "contentVersion": "campaign-2026-10-14-v2",
+    "newCollectibleCards": 66,
+    "newTokens": 3,
+    "frozenCardCount": 172,
+    "openingFollowup": "getOpeningFollowup(state,id,deployCell,owner,primaryId=null): unitIds or cells; optional:true",
+    "openingArgument": "playCard(...,{unitId,cell:{x,y}}); old dispel {x,y} remains",
+    "spellFollowup": "RitualBanishing uses getSpellFollowup(...).unitIds and castSpell(...,{unitIds:[allyId,enemyId]})",
+    "bbsCost": "battleCommandCost(state,owner)",
+    "unitFields": [
+      "movesUsed",
+      "attacksUsed",
+      "deathWatchBuff",
+      "tempDebuff",
+      "debuffOwner",
+      "generalImmuneBuff",
+      "flyingBuff",
+      "frenzyBuff"
+    ],
+    "playerFields": [
+      "spellTax",
+      "spellTaxEndsAfter",
+      "drawBonus",
+      "deathDraw"
+    ],
+    "rootFields": [
+      "expansionRandom"
+    ]
+  }
+}

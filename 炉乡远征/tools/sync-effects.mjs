@@ -795,7 +795,7 @@ for (const plist of particlePlists) {
 
 // The authorized source checkout omits f3_irondervish.png while retaining its plist.
 // Use the original same-faction Dervish atlas so the summoned token remains visible.
-if (!fs.existsSync(sourceFile('resources/units/f3_irondervish.png'))) bodies['225'] = { ...bodies['217'] };
+if (!fs.existsSync(sourceFile('resources/units/f3_irondervish.png'))) bodies['225'] = { ...bodies['217'], sounds:bodies['225'].sounds };
 for (const body of Object.values(bodies)) {
   copyVerified(`resources/units/${body.sheet}.png`);
   copyVerified(`resources/units/${body.plist}.plist`);

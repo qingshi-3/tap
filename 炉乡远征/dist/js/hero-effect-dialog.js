@@ -16,7 +16,7 @@ export function openHeroEffectDialog({name, effect, trigger, owner}) {
   returnTarget = trigger;
   const surface = document.createElement('dialog');
   surface.className = 'hero-effect-dialog';
-  surface.setAttribute('aria-label', `${name}效果`);
+  surface.setAttribute('aria-label', name.endsWith('效果') ? name : `${name}效果`);
   const copy = document.createElement('div');
   copy.className = 'hero-effect-copy'; copy.tabIndex = 0; copy.textContent = effect;
   const back = document.createElement('button');

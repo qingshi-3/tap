@@ -8069,12 +8069,12 @@ export const EFFECT_MANIFEST = {
       },
       "attackDelayMs": 400,
       "sounds": {
-        "apply": "resources/sfx/sfx_spell_ghostlightning.m4a",
+        "apply": "resources/sfx/sfx_unit_deploy.m4a",
         "walk": "resources/sfx/sfx_neutral_ladylocke_attack_impact.m4a",
-        "attack": "resources/sfx/sfx_neutral_komodocharger_attack_swing.m4a",
-        "receiveDamage": "resources/sfx/sfx_neutral_komodocharger_hit.m4a",
-        "attackDamage": "resources/sfx/sfx_neutral_komodocharger_attack_impact.m4a",
-        "death": "resources/sfx/sfx_neutral_komodocharger_death.m4a"
+        "attack": "resources/sfx/sfx_f6_icebeetle_attack_impact.m4a",
+        "receiveDamage": "resources/sfx/sfx_neutral_golembloodshard_hit.m4a",
+        "attackDamage": "resources/sfx/sfx_neutral_golembloodshard_attack_impact.m4a",
+        "death": "resources/sfx/sfx_neutral_golembloodshard_death.m4a"
       }
     },
     "301": {

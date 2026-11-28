@@ -1,0 +1,80 @@
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {mkdir,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+const {chromium}=createRequire('C:/Users/qs/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json')('playwright');
+const base=process.env.PLATFORM_UI_BASE||'http://127.0.0.1:4227';
+const out=fileURLToPath(new URL('../output/ui-refinement/platform/native-handoff/',import.meta.url));
+await mkdir(out,{recursive:true});
+const report={checks:[],screens:[],limitations:['Isolated same-DOM host mock in Edge touch emulation. Native TapTap rendering, orientation and physical devices remain unverified.']};
+const browser=await chromium.launch({executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
+try{
+ for(const [width,height]of [[568,320],[844,390]]){
+  const context=await browser.newContext({viewport:{width,height},hasTouch:true,isMobile:true,reducedMotion:'reduce'});
+  const page=await context.newPage(),errors=[];page.on('pageerror',error=>errors.push(String(error)));
+  await page.route('**/__native-handoff-test',route=>route.fulfill({contentType:'text/html',body:`<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="stylesheet" href="/fonts.css"><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/progress-features.css"></head><body><div class="scene-backdrop"></div><button id="board-opener" style="min-height:44px;background:#c89447;color:#241c26;border:0;padding:12px">战役排行</button><button id="achievement-opener" style="min-height:44px;background:#c89447;color:#241c26;border:0;padding:12px">成就</button></body></html>`}));
+  await page.goto(base+'/__native-handoff-test');
+  await page.evaluate(async()=>{
+   const {PlatformProgressUI}=await import('/js/platform-progress-ui.js');
+   const {EXPEDITION_LEVELS}=await import('/js/expedition-data.js');
+   const progress={factionCompleted:{1:[EXPEDITION_LEVELS[0].id]}};
+   localStorage.setItem('handoff-test-progress',JSON.stringify(progress));
+   window.handoff={calls:[],pending:[],fail:false,achievementView:true};const test=window.handoff;
+   const sync=()=>{test.synced=false;return new Promise(resolve=>test.pending.push(resolve)).then(result=>{test.synced=!!result.ok;return result;});};
+   function show(kind){
+    test.calls.push({kind,closed:!test.ui.dialog.open,active:navigator.userActivation.isActive,sameClick:test.inClick});
+    if(test.fail)return Promise.resolve({ok:false,error:'宿主页打开失败，请重试。'});
+    const panel=document.createElement('section');panel.id='mock-host-panel';panel.setAttribute('aria-label','隔离宿主页');
+    panel.style.cssText='position:fixed;inset:0;z-index:9999;background:#17303c;color:#fff;padding:24px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;gap:16px';
+    const title=document.createElement('strong');title.textContent=kind==='achievements'?'模拟成就页':'模拟排行榜';
+    const button=document.createElement('button');button.textContent='返回游戏';button.style.cssText='min-width:100px;min-height:48px;border:0;background:#c89447;color:#241c26;font-size:16px';
+    button.onclick=()=>{test.returned=(test.returned||0)+1;panel.remove();};panel.append(title,button);document.body.append(panel);
+    return kind==='achievements'?{ok:true,requested:true}:Promise.resolve(test.uncertain?{ok:false,uncertain:true,error:'平台回调超时。'}:{ok:true});
+   }
+   const status=()=>({state:test.synced?'synced':'pending',message:test.synced?'已达成成就已同步。':'正在同步…'});
+   const service={getCapabilities:()=>({leaderboard:true,collection:true,challenge:true,achievements:true,achievementView:test.achievementView}),score:()=>1,collectionScore:()=>0,getAchievements:()=>[{key:'first-victory',name:'首场胜利',target:1,progress:1,category:'expedition',configured:true,achieved:true,synced:!!test.synced}],getStatus:()=>({leaderboard:status(),achievements:status()}),syncLeaderboard:sync,syncAchievements:sync,openLeaderboard:()=>show('leaderboard'),showAchievements:()=>show('achievements')};
+   test.ui=new PlatformProgressUI({service,readProgress:()=>progress});
+   const handleView=test.ui.action.onclick;
+   test.ui.action.onclick=event=>{test.inClick=true;queueMicrotask(()=>{test.inClick=false;});return handleView(event);};
+   document.querySelector('#board-opener').onclick=event=>test.ui.open('leaderboard',event.currentTarget);
+   document.querySelector('#achievement-opener').onclick=event=>test.ui.open('achievements',event.currentTarget);
+  });
+  const before=await page.evaluate(()=>localStorage.getItem('handoff-test-progress'));
+  const dialog=page.locator('#platform-progress-dialog'),open=page.getByRole('button',{name:'查看排行',exact:true});
+  await page.locator('#board-opener').tap();assert.equal(await open.isEnabled(),true,'pending auto-sync cannot block viewing');
+  assert.equal(await page.evaluate(()=>handoff.pending.length),1);
+  await open.tap();assert.equal(await dialog.evaluate(el=>el.open),false);
+  assert.deepEqual(await page.evaluate(()=>handoff.calls[0]),{kind:'leaderboard',closed:true,active:true,sameClick:true});
+  await page.evaluate(()=>{handoff.pending.shift()({ok:true});});
+  assert.equal(await dialog.evaluate(el=>el.open),false,'late sync cannot reopen or render over host');
+  const back=page.getByRole('button',{name:'返回游戏',exact:true});
+  assert.equal(await back.evaluate(button=>{const r=button.getBoundingClientRect();return document.elementFromPoint(r.x+r.width/2,r.y+r.height/2)===button&&!button.closest('[inert]');}),true);
+  await page.screenshot({path:out+`${width}-host-board.png`});report.screens.push(`${width}-host-board.png`);
+  await back.tap();assert.equal(await page.evaluate(()=>handoff.returned),1);
+  await page.locator('#board-opener').tap();await page.evaluate(()=>{handoff.uncertain=true;});await open.tap();
+  assert.equal(await dialog.evaluate(el=>el.open),false,'uncertain host timeout must not cover a potentially open panel');
+  await back.tap();assert.equal(await page.evaluate(()=>handoff.returned),2);await page.evaluate(()=>{handoff.uncertain=false;});
+  await page.evaluate(()=>{for(const resolve of handoff.pending.splice(0))resolve({ok:true});});
+  await page.locator('#board-opener').tap();await page.evaluate(()=>{handoff.fail=true;});await open.tap();
+  await dialog.waitFor({state:'visible'});assert.match(await page.locator('.platform-progress-status').innerText(),/宿主页打开失败/);
+  assert.equal(await page.evaluate(()=>handoff.pending.length),1,'failure recovery does not start another sync');
+  await page.evaluate(()=>handoff.pending.shift()({ok:true}));assert.match(await page.locator('.platform-progress-status').innerText(),/宿主页打开失败/,'late sync cannot erase failure');
+  await page.screenshot({path:out+`${width}-failure-restored.png`});report.screens.push(`${width}-failure-restored.png`);
+  await page.getByRole('button',{name:'关闭',exact:true}).tap();await page.evaluate(()=>{handoff.fail=false;});
+  await page.locator('#achievement-opener').tap();await page.getByRole('button',{name:'TapTap成就',exact:true}).tap();
+  assert.equal(await dialog.evaluate(el=>el.open),false);assert.deepEqual(await page.evaluate(()=>handoff.calls.at(-1)),{kind:'achievements',closed:true,active:true,sameClick:true});
+  await page.screenshot({path:out+`${width}-host-achievements.png`});report.screens.push(`${width}-host-achievements.png`);await back.tap();
+  await page.evaluate(()=>{handoff.achievementView=false;});await page.locator('#achievement-opener').tap();
+  assert.equal(await page.getByRole('button',{name:'TapTap成就',exact:true}).isDisabled(),true);
+  assert.equal(await page.getByRole('button',{name:'TapTap成就',exact:true}).evaluate(button=>getComputedStyle(button).backgroundColor),'rgb(66, 73, 85)','unavailable host achievement action is visibly grey');
+  assert.match(await page.locator('.platform-progress-status').innerText(),/发布待确认/,'sync pending retains publication warning');
+  await page.evaluate(()=>{for(const resolve of handoff.pending.splice(0))resolve({ok:true});});
+  assert.match(await page.locator('.platform-progress-status').innerText(),/发布待确认/,'sync completion retains publication warning');
+  await page.screenshot({path:out+`${width}-unpublished-achievements.png`});report.screens.push(`${width}-unpublished-achievements.png`);
+  await page.getByRole('button',{name:'关闭',exact:true}).tap();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('handoff-test-progress')),before);
+  assert.deepEqual(errors,[]);report.checks.push(`${width}x${height}: real taps release modal before synchronous SDK call with active gesture; same-DOM host button is reachable; pending/late sync and uncertain host timeout cannot cover host; failure restores original mode and error; achievement request closes modal without claiming visibility; view capability gates achievements; pending/completed sync retains publication warning; progress bytes preserved.`);
+  await context.close();
+ }
+}finally{await browser.close();await writeFile(out+'report.json',JSON.stringify(report,null,2));}
+console.log(JSON.stringify(report));

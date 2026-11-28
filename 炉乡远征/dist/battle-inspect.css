@@ -1,7 +1,7 @@
 /* Battle details use the collection's original game-card anatomy and assets.
    Only reading size, complete-rule scrolling and battle gesture affordances differ. */
 .match #unit-inspect {
-  position: absolute; pointer-events: auto; touch-action: pan-y;
+  position: absolute; z-index:20; pointer-events: auto; touch-action: pan-y;
   user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
   aspect-ratio: 224 / 296; background: none; border: 0; border-radius: 0; box-shadow: none;
 }
@@ -59,6 +59,9 @@
   top:69%; left:8%; width:84%; height:22%; padding:0; overflow:visible;
 }
 .match #unit-inspect .inspect-rule-list.is-hero-abilities { grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px; height:100%; }
+.match #unit-inspect.hero-preview .game-card-description.has-hero-status { top:68%; height:30%; }
+.match #unit-inspect .has-hero-status .is-hero-abilities { grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; }
+.match #unit-inspect .has-hero-status .inspect-ability { padding-inline:3px; }
 .match #unit-inspect .inspect-ability {
   display:grid; grid-template-columns:1fr auto; grid-template-rows:25px minmax(0,1fr); align-items:center; gap:3px; width:100%;
   min-height:44px; height:100%;

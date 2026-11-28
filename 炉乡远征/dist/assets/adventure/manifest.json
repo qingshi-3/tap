@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "round": 3,
+  "fps": 24,
+  "sheets": {
+    "chain": {
+      "image": "./assets/adventure/chain.png",
+      "width": 184,
+      "height": 96,
+      "columns": 3,
+      "frames": 12,
+      "duration": 480,
+      "pivot": [
+        28,
+        48
+      ],
+      "end": [
+        148,
+        48
+      ]
+    },
+    "beam": {
+      "image": "./assets/adventure/beam.png",
+      "width": 264,
+      "height": 100,
+      "columns": 3,
+      "frames": 21,
+      "duration": 850,
+      "pivot": [
+        41,
+        60
+      ],
+      "end": [
+        209,
+        60
+      ]
+    },
+    "gravity-back": {
+      "image": "./assets/adventure/gravity-back.png",
+      "width": 184,
+      "height": 132,
+      "columns": 5,
+      "frames": 24,
+      "duration": 1000,
+      "pivot": [
+        92,
+        54
+      ]
+    },
+    "gravity-front": {
+      "image": "./assets/adventure/gravity-front.png",
+      "width": 184,
+      "height": 132,
+      "columns": 5,
+      "frames": 24,
+      "duration": 1000,
+      "pivot": [
+        92,
+        54
+      ]
+    },
+    "meteor": {
+      "image": "./assets/adventure/meteor.png",
+      "width": 272,
+      "height": 232,
+      "columns": 6,
+      "frames": 36,
+      "duration": 1500,
+      "pivot": [
+        150,
+        208
+      ],
+      "hitAt": 540
+    }
+  },
+  "source": "pixelfx / Hugo Duprez + patch-gg, MIT"
+}

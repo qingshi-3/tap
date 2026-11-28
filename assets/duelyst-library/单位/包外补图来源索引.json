@@ -1,0 +1,2452 @@
+[
+  {
+    "id": "f1_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f1_3rdgeneral.plist",
+    "textureSource": "f1_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f718572146cf5655efd2395f850a000a2464385faf0a2b1a8c23ad8c72484ba0"
+  },
+  {
+    "id": "f1_archdeacon",
+    "atlas": "duelyst-main/app/resources/units/f1_archdeacon.plist",
+    "textureSource": "f1_archdeacon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "73db78440501525f06f3df9390b7c5477c626fb4e4192837e060decefa7a1885"
+  },
+  {
+    "id": "f1_auroralioness",
+    "atlas": "duelyst-main/app/resources/units/f1_auroralioness.plist",
+    "textureSource": "f1_auroralioness.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4acfb98389ad010c69a26235f860344c1c24905e345106aa7ee3cccda7dfee80"
+  },
+  {
+    "id": "f1_baastchampion",
+    "atlas": "duelyst-main/app/resources/units/f1_baastchampion.plist",
+    "textureSource": "f1_baastchampion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "46e70c19a463435212cf345a0f17c1c9a5ec51e3170821ccdc32f2325f83370b"
+  },
+  {
+    "id": "f1_backlinearcher",
+    "atlas": "duelyst-main/app/resources/units/f1_backlinearcher.plist",
+    "textureSource": "f1_backlinearcher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a543bf791afa51e81452234dc68989ba8181cedcece03ee0ddd58ec02b49ccf3"
+  },
+  {
+    "id": "f1_bromemk2",
+    "atlas": "duelyst-main/app/resources/units/f1_bromemk2.plist",
+    "textureSource": "f1_bromemk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "020feea37a8dd96bc149bd7f5975e8a6589517d21936db1a0ac3d71cc5249455"
+  },
+  {
+    "id": "f1_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f1_buildcommon.plist",
+    "textureSource": "f1_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e6dd10c447fb267b7ea5286730ef836d4ae698895ac3aa25c7e6f1a728b4e9aa"
+  },
+  {
+    "id": "f1_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f1_buildminion.plist",
+    "textureSource": "f1_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "541f0ab3dda8c0425812e3999c6dcbf8ca9087334b6ad9d06b4af16b2e9c4224"
+  },
+  {
+    "id": "f1_elyxstormblademk2",
+    "atlas": "duelyst-main/app/resources/units/f1_elyxstormblademk2.plist",
+    "textureSource": "f1_elyxstormblademk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "549085e9a299ba8bee25da2a1876b83dd7918d4d8ddc67568bdcc69ef12d9768"
+  },
+  {
+    "id": "f1_excelsious",
+    "atlas": "duelyst-main/app/resources/units/f1_excelsious.plist",
+    "textureSource": "f1_excelsious.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e5d013b311cadc6f3db8c9a3c64407d3cfde5530fb50be46dd0e9bd8445ffbaa"
+  },
+  {
+    "id": "f1_fiz",
+    "atlas": "duelyst-main/app/resources/units/f1_fiz.plist",
+    "textureSource": "f1_fiz.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4c7fff11e3df4fbdbdcdbc4147e6f6eb2c0f036c2148fb9e425daad3390f6334"
+  },
+  {
+    "id": "f1_friendsguard",
+    "atlas": "duelyst-main/app/resources/units/f1_friendsguard.plist",
+    "textureSource": "f1_friendsguard.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "eb29c1a22b0003ec41680f4ccc6efc5d8e7e2b9ca34bf9630401bbb94e383e2f"
+  },
+  {
+    "id": "f1_general_skinroguelegacy",
+    "atlas": "duelyst-main/app/resources/units/f1_general_skinroguelegacy.plist",
+    "textureSource": "f1_general_skinroguelegacy.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "079b52a218141ccaf038cbeee7953350a21eb5e554d981ebd039408335dc883b"
+  },
+  {
+    "id": "f1_groundbreaker",
+    "atlas": "duelyst-main/app/resources/units/f1_groundbreaker.plist",
+    "textureSource": "f1_groundbreaker.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "47c16cdc29013cb43399a34cba52875f1ceff5f76d423553c2fed077bc9e7a6c"
+  },
+  {
+    "id": "f1_gryphinox",
+    "atlas": "duelyst-main/app/resources/units/f1_gryphinox.plist",
+    "textureSource": "f1_gryphinox.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0f254e7ce94f9a68dbcd585c33172a268f30a14ec38fbeb5dfa01a4720ee14bf"
+  },
+  {
+    "id": "f1_invincibuddy",
+    "atlas": "duelyst-main/app/resources/units/f1_invincibuddy.plist",
+    "textureSource": "f1_invincibuddy.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6fa67d15877ae4a95ca3049fc25d0d26f564feef9c477d6a6e2cb81aa34ac801"
+  },
+  {
+    "id": "f1_ironcliffemonument",
+    "atlas": "duelyst-main/app/resources/units/f1_ironcliffemonument.plist",
+    "textureSource": "f1_ironcliffemonument.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ca57d9f7a25de669e6b57afe0bf5368b21771e0e221b3fc9d7b1562a322f5e0f"
+  },
+  {
+    "id": "f1_kaisergladiator",
+    "atlas": "duelyst-main/app/resources/units/f1_kaisergladiator.plist",
+    "textureSource": "f1_kaisergladiator.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c31096a5fc143ef73b66a7debb5103c56d248a5f20c30e5188e90f402e4e8f82"
+  },
+  {
+    "id": "f1_kingsguard",
+    "atlas": "duelyst-main/app/resources/units/f1_kingsguard.plist",
+    "textureSource": "f1_kingsguard.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4a78413a90d8b27b3a6271048acb8833da148b225a70f95311202c27b30b5032"
+  },
+  {
+    "id": "f1_leovoyant",
+    "atlas": "duelyst-main/app/resources/units/f1_leovoyant.plist",
+    "textureSource": "f1_leovoyant.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2f416188a2eb893df7b9ddaa892c45c0c7b1753f6d8f3dec68fe1c103675c765"
+  },
+  {
+    "id": "f1_mech",
+    "atlas": "duelyst-main/app/resources/units/f1_mech.plist",
+    "textureSource": "f1_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8ef1a5aacd862743c313d205913a52727780705cd69b8475bd66610f655c3868"
+  },
+  {
+    "id": "f1_peacekeeper",
+    "atlas": "duelyst-main/app/resources/units/f1_peacekeeper.plist",
+    "textureSource": "f1_peacekeeper.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5a1c88b1f9be84b106ef0a3735977072e469c2e75544c6eecab82a96a47b1985"
+  },
+  {
+    "id": "f1_peacekeeper2",
+    "atlas": "duelyst-main/app/resources/units/f1_peacekeeper2.plist",
+    "textureSource": "f1_peacekeeper2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7db6fa9bd1474b7dc7b90ee95e79b08205168823f2c52473d9538834226cd821"
+  },
+  {
+    "id": "f1_radiantdragoon",
+    "atlas": "duelyst-main/app/resources/units/f1_radiantdragoon.plist",
+    "textureSource": "f1_radiantdragoon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d1fa5f0227cf517ccbbdbe00217d49b807a9e1f1d924c6cb155d16f4d84e457e"
+  },
+  {
+    "id": "f1_rightfulheir",
+    "atlas": "duelyst-main/app/resources/units/f1_rightfulheir.plist",
+    "textureSource": "f1_rightfulheir.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "244a3b8599f7632b33e2ef2a5ccf5860105d84099117df63fe41ef243d342c06"
+  },
+  {
+    "id": "f1_scintilla",
+    "atlas": "duelyst-main/app/resources/units/f1_scintilla.plist",
+    "textureSource": "f1_scintilla.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "36bfa4c4a2f772047ba7ce9f2eb7d051aa39f60c0f30c0b081d65c0dcf74d2b1"
+  },
+  {
+    "id": "f1_shieldforger",
+    "atlas": "duelyst-main/app/resources/units/f1_shieldforger.plist",
+    "textureSource": "f1_shieldforger.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "20fc43e6a4cd99ad85b90bfa1caaf2b5664eb7a3ab82ce922a3f3678c665c3d1"
+  },
+  {
+    "id": "f1_sinergyunit",
+    "atlas": "duelyst-main/app/resources/units/f1_sinergyunit.plist",
+    "textureSource": "f1_sinergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "98cbbfbd6325309dccdda729d6231a17b85702e47f2b83d2d4f3024d19ea2944"
+  },
+  {
+    "id": "f1_sister",
+    "atlas": "duelyst-main/app/resources/units/f1_sister.plist",
+    "textureSource": "f1_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "edc8639ae87f6e86bc730c351e93be5956c9df6cf39170e25e0d271e5540506d"
+  },
+  {
+    "id": "f1_slo",
+    "atlas": "duelyst-main/app/resources/units/f1_slo.plist",
+    "textureSource": "f1_slo.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "373b2e8a5c40c5193bef86fc168585061d7b13b10bd7017604626a99106dfad3"
+  },
+  {
+    "id": "f1_solarius",
+    "atlas": "duelyst-main/app/resources/units/f1_solarius.plist",
+    "textureSource": "f1_solarius.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e894f920f58622d8b569f25220c242f288ad464a7fb967045b1309cf0094f82a"
+  },
+  {
+    "id": "f1_solpontiff",
+    "atlas": "duelyst-main/app/resources/units/f1_solpontiff.plist",
+    "textureSource": "f1_solpontiff.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5f1f55f18dfdadd4bf963d0acd5fc3abef0923e9fb956ea5c4c09be0dca3b665"
+  },
+  {
+    "id": "f1_spellbladeadept",
+    "atlas": "duelyst-main/app/resources/units/f1_spellbladeadept.plist",
+    "textureSource": "f1_spellbladeadept.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2d1012cc58510fb395b87c8914975043db025285765c1ee46190eeda39b27819"
+  },
+  {
+    "id": "f1_sunbreaker",
+    "atlas": "duelyst-main/app/resources/units/f1_sunbreaker.plist",
+    "textureSource": "f1_sunbreaker.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "489a6a768d80869f101ef7877169dcae293d2cdb67f94ef8941218d456ba5d63"
+  },
+  {
+    "id": "f1_sunbreakguardian",
+    "atlas": "duelyst-main/app/resources/units/f1_sunbreakguardian.plist",
+    "textureSource": "f1_sunbreakguardian.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7038b5c5a01bfd14b406ddfe0c5b9daaddedf2653544fc5be4b339856cadd0aa"
+  },
+  {
+    "id": "f1_sunforgelancer",
+    "atlas": "duelyst-main/app/resources/units/f1_sunforgelancer.plist",
+    "textureSource": "f1_sunforgelancer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6acda94badfe76d5e9c985d6cdee161a1d3fc79ff64ece0d358b358f3e96bba7"
+  },
+  {
+    "id": "f1_sunwisp",
+    "atlas": "duelyst-main/app/resources/units/f1_sunwisp.plist",
+    "textureSource": "f1_sunwisp.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ab1a07eddef0579d60e693b48dc62bcc10b184bef71c2cdf7a4088c99ec952ee"
+  },
+  {
+    "id": "f1_warblade",
+    "atlas": "duelyst-main/app/resources/units/f1_warblade.plist",
+    "textureSource": "f1_warblade.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cf2a53588765da9166b64ec59f87c447438275d6549550aea17766eab06098d1"
+  },
+  {
+    "id": "f2_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f2_3rdgeneral.plist",
+    "textureSource": "f2_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "686f97e6c101a4045cffa8668de41632cfafc4a64cfd00eb23635211463ebbb8"
+  },
+  {
+    "id": "f2_ace",
+    "atlas": "duelyst-main/app/resources/units/f2_ace.plist",
+    "textureSource": "f2_ace.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "aaed8fc83412464a45161985522d5a29c02b9a5d94e2c1b9edd6ebd4cd5014b5"
+  },
+  {
+    "id": "f2_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f2_buildcommon.plist",
+    "textureSource": "f2_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8baa045120de7a19b61b87a90ae839049d7a5c21bdea5902af812a57ddbf17e1"
+  },
+  {
+    "id": "f2_buildlegendary",
+    "atlas": "duelyst-main/app/resources/units/f2_buildlegendary.plist",
+    "textureSource": "f2_buildlegendary.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3b13b58803c1c741974df8e8a8291ed4bd07877a906a0b8960b61a38a40f3acd"
+  },
+  {
+    "id": "f2_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f2_buildminion.plist",
+    "textureSource": "f2_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "54ac25272622be0306293aacbd32bcfda9c88ce753d66d4ee0d45564aa3da281"
+  },
+  {
+    "id": "f2_caligrapher",
+    "atlas": "duelyst-main/app/resources/units/f2_caligrapher.plist",
+    "textureSource": "f2_caligrapher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c92fc075bc8330375e649a4206af3ba7f3ff2be71ebd68f38f3bd7a885f73aaa"
+  },
+  {
+    "id": "f2_demononi",
+    "atlas": "duelyst-main/app/resources/units/f2_demononi.plist",
+    "textureSource": "f2_demononi.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "eed9da44f91dfa348e9e9b79740b435da4802999777cedd78e097559b3994dc8"
+  },
+  {
+    "id": "f2_eclipseasura",
+    "atlas": "duelyst-main/app/resources/units/f2_eclipseasura.plist",
+    "textureSource": "f2_eclipseasura.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5211c2113d7cc95cfc3c3371b57705a27826fc3e06e1d33688eb0585b528d828"
+  },
+  {
+    "id": "f2_eternitypainter",
+    "atlas": "duelyst-main/app/resources/units/f2_eternitypainter.plist",
+    "textureSource": "f2_eternitypainter.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0e058ebe272077530f3b0a6a169ab37b2fae0de678041bb1422978930c0f675f"
+  },
+  {
+    "id": "f2_firewyrm",
+    "atlas": "duelyst-main/app/resources/units/f2_firewyrm.plist",
+    "textureSource": "f2_firewyrm.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dd01644cb7a60634c01983d943f0241d990eadd766a7d2f2005994011a7ebce7"
+  },
+  {
+    "id": "f2_flareslinger",
+    "atlas": "duelyst-main/app/resources/units/f2_flareslinger.plist",
+    "textureSource": "f2_flareslinger.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dd56aaa9f51b3b70d15fed66ad9465fc336b57a52e7187ebb8cba42c9a0fd975"
+  },
+  {
+    "id": "f2_general_skindogehai",
+    "atlas": "duelyst-main/app/resources/units/f2_general_skindogehai.plist",
+    "textureSource": "f2_general_skindogehai.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fc1f1feadde5117350c9b350e7508131efc8eb02cf5397c0d011af83eb9345a3"
+  },
+  {
+    "id": "f2_geomancer",
+    "atlas": "duelyst-main/app/resources/units/f2_geomancer.plist",
+    "textureSource": "f2_geomancer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ce6fd728d83aae6472d51c698484bcde6544381b71934dbca9312210c568bd4f"
+  },
+  {
+    "id": "f2_godpalmblacktiger",
+    "atlas": "duelyst-main/app/resources/units/f2_godpalmblacktiger.plist",
+    "textureSource": "f2_godpalmblacktiger.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "aca07070e79a91b714d92be6bd1918a740157c6ff6add03479dadbdf8c34f106"
+  },
+  {
+    "id": "f2_grandmasterzendo",
+    "atlas": "duelyst-main/app/resources/units/f2_grandmasterzendo.plist",
+    "textureSource": "f2_grandmasterzendo.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9d5bba5683260cae40bb9ec115ecbf39139fdc13535e97e56fff19539af4d28a"
+  },
+  {
+    "id": "f2_heartofthesonghai",
+    "atlas": "duelyst-main/app/resources/units/f2_heartofthesonghai.plist",
+    "textureSource": "f2_heartofthesonghai.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1fab6542f229496cd5779ddb101f19b65394e86266705516beb6070ccdcbdd9c"
+  },
+  {
+    "id": "f2_katara",
+    "atlas": "duelyst-main/app/resources/units/f2_katara.plist",
+    "textureSource": "f2_katara.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2669fa534687041f75250680479fbfbd6aa5664c4d5e207e7d019cea49d4d89f"
+  },
+  {
+    "id": "f2_kibeholder",
+    "atlas": "duelyst-main/app/resources/units/f2_kibeholder.plist",
+    "textureSource": "f2_kibeholder.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "990c4ffff7787bee6ee5682857cd53f654a97da85f2f7612c1d6e8a36c497c08"
+  },
+  {
+    "id": "f2_kindling",
+    "atlas": "duelyst-main/app/resources/units/f2_kindling.plist",
+    "textureSource": "f2_kindling.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ef5b9916f73527aca7f929018bf137e32e060167b2d96d5d9a2a10a8436f5070"
+  },
+  {
+    "id": "f2_masteroftaikwai",
+    "atlas": "duelyst-main/app/resources/units/f2_masteroftaikwai.plist",
+    "textureSource": "f2_masteroftaikwai.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c9a9a1b4b37dfd3585c1ea1e4008fcd78aa22c8045e6db761de65d6f095a1a2a"
+  },
+  {
+    "id": "f2_mech",
+    "atlas": "duelyst-main/app/resources/units/f2_mech.plist",
+    "textureSource": "f2_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b801faf09b28b7a19aa12ef4a474b07a7de78223b24e03801d7719eaf8648436"
+  },
+  {
+    "id": "f2_onnabugeisha",
+    "atlas": "duelyst-main/app/resources/units/f2_onnabugeisha.plist",
+    "textureSource": "f2_onnabugeisha.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fdc97b484878a741a5bad8ee24f5f2ac7ccc71b5430d9298aaacd860d68d0561"
+  },
+  {
+    "id": "f2_onyxjaguar",
+    "atlas": "duelyst-main/app/resources/units/f2_onyxjaguar.plist",
+    "textureSource": "f2_onyxjaguar.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5903e3a50682990c5c9a2f2fd659217c24b47a3f1f4950d25910309befca5fb8"
+  },
+  {
+    "id": "f2_orizuru",
+    "atlas": "duelyst-main/app/resources/units/f2_orizuru.plist",
+    "textureSource": "f2_orizuru.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dceedb93286b18c1288eb5bbe7f73c48df707a28fa722ec4adede784e3c8755d"
+  },
+  {
+    "id": "f2_paperdropper",
+    "atlas": "duelyst-main/app/resources/units/f2_paperdropper.plist",
+    "textureSource": "f2_paperdropper.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "15211450b82c666b06b436831b39f43bf1e62db86e1d871988acbf7ebc61698a"
+  },
+  {
+    "id": "f2_seenoevil",
+    "atlas": "duelyst-main/app/resources/units/f2_seenoevil.plist",
+    "textureSource": "f2_seenoevil.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f2240405dc034356e34aad0607f76fa28a5865567c80f48bcb7d64fe86eb957a"
+  },
+  {
+    "id": "f2_sekitori",
+    "atlas": "duelyst-main/app/resources/units/f2_sekitori.plist",
+    "textureSource": "f2_sekitori.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4a63008eed063a3f1022c93b8d42e803c92439593876b6a9f8ab47ca09765929"
+  },
+  {
+    "id": "f2_sepukku",
+    "atlas": "duelyst-main/app/resources/units/f2_sepukku.plist",
+    "textureSource": "f2_sepukku.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d730a25f4f190feb48f40e8f0e1533be899ecb6adbdb0c5db4bdc918127058c0"
+  },
+  {
+    "id": "f2_shidaimk2",
+    "atlas": "duelyst-main/app/resources/units/f2_shidaimk2.plist",
+    "textureSource": "f2_shidaimk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0d9df9fd3238d6a459b227dbaaffb53cf125440582ffae77b968ba21102d9e8d"
+  },
+  {
+    "id": "f2_sister",
+    "atlas": "duelyst-main/app/resources/units/f2_sister.plist",
+    "textureSource": "f2_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "54a8d002202e9d0c46715ab2a426a78ba99605fa51a6acc3cde5116533d29b5f"
+  },
+  {
+    "id": "f2_songhaisentinel",
+    "atlas": "duelyst-main/app/resources/units/f2_songhaisentinel.plist",
+    "textureSource": "f2_songhaisentinel.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "830ca01820e5531f2fb3f1795fa18213a619dbf2b9af93c9b05eb145c6dec262"
+  },
+  {
+    "id": "f2_sparrowhawk",
+    "atlas": "duelyst-main/app/resources/units/f2_sparrowhawk.plist",
+    "textureSource": "f2_sparrowhawk.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "431f33ae0ed6fa995ffe323a95f57a98d19d6fe22c7b7098880704a7c333a2d2"
+  },
+  {
+    "id": "f2_spellthief",
+    "atlas": "duelyst-main/app/resources/units/f2_spellthief.plist",
+    "textureSource": "f2_spellthief.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dc3414703f47f6bc0dffb0682e851233e619d395d589ae3a5ea47e8985733e94"
+  },
+  {
+    "id": "f2_supekuta",
+    "atlas": "duelyst-main/app/resources/units/f2_supekuta.plist",
+    "textureSource": "f2_supekuta.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f30b2730068375873b2730771676b725fd2d074616641f86449b55905eefe185"
+  },
+  {
+    "id": "f2_synergyunit",
+    "atlas": "duelyst-main/app/resources/units/f2_synergyunit.plist",
+    "textureSource": "f2_synergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "bce767f2d87c97e79b199b206d9e82fa15f3f484cdfc763f0213d944760d972f"
+  },
+  {
+    "id": "f2_twilightfox",
+    "atlas": "duelyst-main/app/resources/units/f2_twilightfox.plist",
+    "textureSource": "f2_twilightfox.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e276fba25a3be65cdf811bf158e798c3134ea8ac2bc17bbc7bf44c02d1fe549a"
+  },
+  {
+    "id": "f2_xho",
+    "atlas": "duelyst-main/app/resources/units/f2_xho.plist",
+    "textureSource": "f2_xho.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4753bc09a0a7cf3f8e0b8d83ef7265a1675e8cfe73d96c050d60cb1da6e514b2"
+  },
+  {
+    "id": "f3_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f3_3rdgeneral.plist",
+    "textureSource": "f3_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8be3466adeef7cd68b1513d17f9b97d4f2ede48d961a72e01a97bf660ba12465"
+  },
+  {
+    "id": "f3_allomancer",
+    "atlas": "duelyst-main/app/resources/units/f3_allomancer.plist",
+    "textureSource": "f3_allomancer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "314d57b4b7910caec0c355e64e78614b256485104c6c7bc7ce845cb0d1be29cb"
+  },
+  {
+    "id": "f3_badlandsscout",
+    "atlas": "duelyst-main/app/resources/units/f3_badlandsscout.plist",
+    "textureSource": "f3_badlandsscout.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2b673e9b0343a1f7e312f0e46e57705524112a748b849ea72e7fa12555d02aa8"
+  },
+  {
+    "id": "f3_bobble",
+    "atlas": "duelyst-main/app/resources/units/f3_bobble.plist",
+    "textureSource": "f3_bobble.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "17ff5da8330bb54913cbe629473b405add3304e1e5ed6850c1a08dd221b818b6"
+  },
+  {
+    "id": "f3_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f3_buildcommon.plist",
+    "textureSource": "f3_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a0690a947646a3e0d5a6c9f097df0b476b5c5109324c98b09a56014d6da42a06"
+  },
+  {
+    "id": "f3_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f3_buildminion.plist",
+    "textureSource": "f3_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "06d699a5d11ac441f5900cf5f42d63c124e0e165b0065959b01dc74785978726"
+  },
+  {
+    "id": "f3_ciphyronmk2",
+    "atlas": "duelyst-main/app/resources/units/f3_ciphyronmk2.plist",
+    "textureSource": "f3_ciphyronmk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f71787abaff042d9268224a410b67bdf00b520e3a6a940b95d94b111e2e345cb"
+  },
+  {
+    "id": "f3_curseddervish",
+    "atlas": "duelyst-main/app/resources/units/f3_curseddervish.plist",
+    "textureSource": "f3_curseddervish.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "47a51d73f26164871d68e90d1f383b4c82b0ddf408d861f3b5433a0261ee3eb5"
+  },
+  {
+    "id": "f3_deathobelysk",
+    "atlas": "duelyst-main/app/resources/units/f3_deathobelysk.plist",
+    "textureSource": "f3_deathobelysk.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "249824a3dc1e8e6ba0445de73a38166f9f645d5c97f2cc0ed71e38110a91d109"
+  },
+  {
+    "id": "f3_desertspirit",
+    "atlas": "duelyst-main/app/resources/units/f3_desertspirit.plist",
+    "textureSource": "f3_desertspirit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ecb4ea79bf95d56743532b1b21628565316722974ba3d8d03b8d5065168c51b5"
+  },
+  {
+    "id": "f3_dreamshaper",
+    "atlas": "duelyst-main/app/resources/units/f3_dreamshaper.plist",
+    "textureSource": "f3_dreamshaper.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b39f686e5a7d09fe77676d5791fb40da98de22ce9b08f0592f4d322f104bfb60"
+  },
+  {
+    "id": "f3_duskweaver",
+    "atlas": "duelyst-main/app/resources/units/f3_duskweaver.plist",
+    "textureSource": "f3_duskweaver.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6354a3c0d6f7f17fd270830dd15cbaaa2d8293bee72518b073726108e54cdb00"
+  },
+  {
+    "id": "f3_endlessobelysk",
+    "atlas": "duelyst-main/app/resources/units/f3_endlessobelysk.plist",
+    "textureSource": "f3_endlessobelysk.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f20432ee0c17c9d75ccc7722ac8acb5445aa5075dddf0bb9179b432c84e04f6e"
+  },
+  {
+    "id": "f3_eurus",
+    "atlas": "duelyst-main/app/resources/units/f3_eurus.plist",
+    "textureSource": "f3_eurus.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a2587a902dbd887f9b0b1c6059e13772b88fd64236a716800c6061e4eeab0a39"
+  },
+  {
+    "id": "f3_falcius",
+    "atlas": "duelyst-main/app/resources/units/f3_falcius.plist",
+    "textureSource": "f3_falcius.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6f1d57c0c9d313cfe63d7908dd60f26ca102cb975ca94969a5fbe75fe67f2b5e"
+  },
+  {
+    "id": "f3_grandmasternoshrak",
+    "atlas": "duelyst-main/app/resources/units/f3_grandmasternoshrak.plist",
+    "textureSource": "f3_grandmasternoshrak.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6cb124dc706380d1b3c8765a6251623c603ccaaafd847cf4a578abe50275208d"
+  },
+  {
+    "id": "f3_incinera",
+    "atlas": "duelyst-main/app/resources/units/f3_incinera.plist",
+    "textureSource": "f3_incinera.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "adcc0f42418ab870f77c04ff7668860f1eab849692318ccb85e94932bbd523b9"
+  },
+  {
+    "id": "f3_insightcaster",
+    "atlas": "duelyst-main/app/resources/units/f3_insightcaster.plist",
+    "textureSource": "f3_insightcaster.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3410d46d0cbea9a3a04a491b907513b187d80836b64b745a978c79fd74b60655"
+  },
+  {
+    "id": "f3_irondervish",
+    "atlas": "duelyst-main/app/resources/units/f3_irondervish.plist",
+    "textureSource": "f3_irondervish.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b507835df26cd8dae1eb4f8de677452719b1c01f0d95d65d4fbb846253c715ef"
+  },
+  {
+    "id": "f3_ishtarhunter",
+    "atlas": "duelyst-main/app/resources/units/f3_ishtarhunter.plist",
+    "textureSource": "f3_ishtarhunter.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d9e0a4f6fe71a1019cd9146eff1a7446b55e39bef491abd24bd7c5f432de3b88"
+  },
+  {
+    "id": "f3_keeperofages",
+    "atlas": "duelyst-main/app/resources/units/f3_keeperofages.plist",
+    "textureSource": "f3_keeperofages.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8d5f545675600865475e38fd4ac38da9857c13e1a37d73d4f51c4a64839a9de5"
+  },
+  {
+    "id": "f3_lavastormobelysk",
+    "atlas": "duelyst-main/app/resources/units/f3_lavastormobelysk.plist",
+    "textureSource": "f3_lavastormobelysk.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "67e5c4f16512069c18e6b56c9f2a7e5859b902605007a00200022a3e9a423b54"
+  },
+  {
+    "id": "f3_mech",
+    "atlas": "duelyst-main/app/resources/units/f3_mech.plist",
+    "textureSource": "f3_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7f5fbaddb9a71704a1b4c1893f7c4aa264babcd7d4938509a9a08e4fdae261ae"
+  },
+  {
+    "id": "f3_miniscarab",
+    "atlas": "duelyst-main/app/resources/units/f3_miniscarab.plist",
+    "textureSource": "f3_miniscarab.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d6580df369b6f4ce2241b857419c6912cfc24e8eee0e4c06e7445b3bbe3a523c"
+  },
+  {
+    "id": "f3_nimbus",
+    "atlas": "duelyst-main/app/resources/units/f3_nimbus.plist",
+    "textureSource": "f3_nimbus.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e2656f25eebc7cd82c0df56c6c53e10cb815d662a2bf268b65cb8a83d8a5fec2"
+  },
+  {
+    "id": "f3_pax",
+    "atlas": "duelyst-main/app/resources/units/f3_pax.plist",
+    "textureSource": "f3_pax.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d0bf5bd34a851d7bee2c33e62180bfee60af4184d71df6964144b8101e40ffc4"
+  },
+  {
+    "id": "f3_plague_totem",
+    "atlas": "duelyst-main/app/resources/units/f3_plague_totem.plist",
+    "textureSource": "f3_plague_totem.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "bc8617fa1b874c22e232431edcd14987b618b5b434c30dd5e476baf082b7df3c"
+  },
+  {
+    "id": "f3_rae",
+    "atlas": "duelyst-main/app/resources/units/f3_rae.plist",
+    "textureSource": "f3_rae.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1a364577f2abd376bcb9a4afba4215b161ce7c88ad8259627274a7192c2a7313"
+  },
+  {
+    "id": "f3_rehorah",
+    "atlas": "duelyst-main/app/resources/units/f3_rehorah.plist",
+    "textureSource": "f3_rehorah.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "53417f45d083a21a7b158523d0e57b42bf7c482d61dd9904ffca119f9d87b222"
+  },
+  {
+    "id": "f3_sakkak",
+    "atlas": "duelyst-main/app/resources/units/f3_sakkak.plist",
+    "textureSource": "f3_sakkak.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "58243914216b7d871fed922f24c32a0839c85023c35361f16a43da5a62055c9d"
+  },
+  {
+    "id": "f3_scarabtera",
+    "atlas": "duelyst-main/app/resources/units/f3_scarabtera.plist",
+    "textureSource": "f3_scarabtera.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "11cd7f465ae519b3e53a6815f351410bd0c4f6726233f09744c688ce831a9e99"
+  },
+  {
+    "id": "f3_sinergyunit",
+    "atlas": "duelyst-main/app/resources/units/f3_sinergyunit.plist",
+    "textureSource": "f3_sinergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4b845ff198bc227312b226bc2709772d9cc2117b1d41995dacea30bc84b3fbab"
+  },
+  {
+    "id": "f3_sirocco",
+    "atlas": "duelyst-main/app/resources/units/f3_sirocco.plist",
+    "textureSource": "f3_sirocco.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c8c76ba5327eaf3a624eda102004b5331d9cce741a79014ff44bf396abf412a7"
+  },
+  {
+    "id": "f3_sister",
+    "atlas": "duelyst-main/app/resources/units/f3_sister.plist",
+    "textureSource": "f3_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "55735d3ad015c9ec83d3df5dd226d7fa0184a43a572832d583d4df168a5d0f07"
+  },
+  {
+    "id": "f3_trifectaperfecta",
+    "atlas": "duelyst-main/app/resources/units/f3_trifectaperfecta.plist",
+    "textureSource": "f3_trifectaperfecta.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2f4a58e269cf29e9607832a28c68ec7c48ecf0a9ea41c98f5fe8dd866f8477dd"
+  },
+  {
+    "id": "f3_windgiver",
+    "atlas": "duelyst-main/app/resources/units/f3_windgiver.plist",
+    "textureSource": "f3_windgiver.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "01fc82bc73f644b1355e6ffa94b070cbeb13a3265af242e5ce7866df6c6523de"
+  },
+  {
+    "id": "f3_windslicer",
+    "atlas": "duelyst-main/app/resources/units/f3_windslicer.plist",
+    "textureSource": "f3_windslicer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ed5335b59a5a2a19cd131aaa679cf1e670051f440c638119607757b83d7a1d28"
+  },
+  {
+    "id": "f3_windstriker",
+    "atlas": "duelyst-main/app/resources/units/f3_windstriker.plist",
+    "textureSource": "f3_windstriker.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "828f177230af86d9b187c58c9faed27578cb0890411b27e990b7b9a1b05aece9"
+  },
+  {
+    "id": "f3_zephyr",
+    "atlas": "duelyst-main/app/resources/units/f3_zephyr.plist",
+    "textureSource": "f3_zephyr.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4b51941fa69415d48c1ea3b7429099895c41c1d3128251a741b85a44995ba630"
+  },
+  {
+    "id": "f3_zirixfestive",
+    "atlas": "duelyst-main/app/resources/units/f3_zirixfestive.plist",
+    "textureSource": "f3_zirixfestive.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c589e511b8b800abf08b3340a8a03d2a33e82260649b4d9a1d3f64f843c3b7c8"
+  },
+  {
+    "id": "f4_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f4_3rdgeneral.plist",
+    "textureSource": "f4_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "825bcc55097df0146331e2ac927bc2093a8495df70f04f1ed8a80d11c61c63a3"
+  },
+  {
+    "id": "f4_abomination",
+    "atlas": "duelyst-main/app/resources/units/f4_abomination.plist",
+    "textureSource": "f4_abomination.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "53451bd070bc97f39622dd57db946541af5a2f53bbe50a4c023961d0a8ba4064"
+  },
+  {
+    "id": "f4_abyssiansentinel",
+    "atlas": "duelyst-main/app/resources/units/f4_abyssiansentinel.plist",
+    "textureSource": "f4_abyssiansentinel.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "97f2ed899385e5bda96374149c8c528dadb24c51b461ceb67f0dd79266ec9b05"
+  },
+  {
+    "id": "f4_arachne",
+    "atlas": "duelyst-main/app/resources/units/f4_arachne.plist",
+    "textureSource": "f4_arachne.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7c8e432e1faa22a8e646172348c6f1299df86149decb1b1c3e2df4b64b4b9389"
+  },
+  {
+    "id": "f4_arcanedevourer",
+    "atlas": "duelyst-main/app/resources/units/f4_arcanedevourer.plist",
+    "textureSource": "f4_arcanedevourer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f8de9603dddf977800744b9a26b8e72f8d3df0b741b127a7a88c486d8eab199d"
+  },
+  {
+    "id": "f4_bloodbaronette",
+    "atlas": "duelyst-main/app/resources/units/f4_bloodbaronette.plist",
+    "textureSource": "f4_bloodbaronette.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dfbcba26498b368a06ff9351fc9680c72c653a7873f2d84d1aba1fb3cccb7530"
+  },
+  {
+    "id": "f4_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f4_buildcommon.plist",
+    "textureSource": "f4_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "55053b5d7d464535cdc9ca3a04a9a828b10e849321ea703ef5758d0ebac97bb9"
+  },
+  {
+    "id": "f4_buildlegendary",
+    "atlas": "duelyst-main/app/resources/units/f4_buildlegendary.plist",
+    "textureSource": "f4_buildlegendary.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e11996935e032c65a08e7af173aafc9508f5f81af7cb8bf5d792d8cecd619d9b"
+  },
+  {
+    "id": "f4_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f4_buildminion.plist",
+    "textureSource": "f4_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "394b80612782b2efb86cffe332fa5685d149170732c25dcf7ddb024a6899d7fe"
+  },
+  {
+    "id": "f4_creepmangler",
+    "atlas": "duelyst-main/app/resources/units/f4_creepmangler.plist",
+    "textureSource": "f4_creepmangler.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b7dbe41544261d97846925513f0bf891b4e8cfca348aa70daf327be9406bb3bd"
+  },
+  {
+    "id": "f4_creepydemon",
+    "atlas": "duelyst-main/app/resources/units/f4_creepydemon.plist",
+    "textureSource": "f4_creepydemon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "37f3cabbd28ec2a0658718a68ad79105965f361bec9769cd036e334029e05135"
+  },
+  {
+    "id": "f4_deathknell",
+    "atlas": "duelyst-main/app/resources/units/f4_deathknell.plist",
+    "textureSource": "f4_deathknell.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7660f1cdb513507bd346102b59e69614ed84f885be3b6819439fc90b08a96420"
+  },
+  {
+    "id": "f4_demonofeternity",
+    "atlas": "duelyst-main/app/resources/units/f4_demonofeternity.plist",
+    "textureSource": "f4_demonofeternity.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c6bc34386bf7e6efa42d66bb396b8f6c6a3ab110192bd0d4c2b692c9fd27a3fb"
+  },
+  {
+    "id": "f4_desolater",
+    "atlas": "duelyst-main/app/resources/units/f4_desolater.plist",
+    "textureSource": "f4_desolater.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e7d14f46bc84c6855094589c9d79cd1142bd3ba4fd6f49f0bd5dbd51b211841b"
+  },
+  {
+    "id": "f4_fallenaspect",
+    "atlas": "duelyst-main/app/resources/units/f4_fallenaspect.plist",
+    "textureSource": "f4_fallenaspect.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c92c4fc7e7d208d51c81841f217a8778a9402a67c9825fd737065748d9086e0c"
+  },
+  {
+    "id": "f4_furosa",
+    "atlas": "duelyst-main/app/resources/units/f4_furosa.plist",
+    "textureSource": "f4_furosa.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "553d7bb3531ffd720c10fe216c823775904b05e81ccce3c9edd9ab970d712ec2"
+  },
+  {
+    "id": "f4_gor",
+    "atlas": "duelyst-main/app/resources/units/f4_gor.plist",
+    "textureSource": "f4_gor.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2c52bfd754d9de2717ca2307b44046c525aa89b1fad8acf215afbf32f926fbac"
+  },
+  {
+    "id": "f4_grandmastervariax",
+    "atlas": "duelyst-main/app/resources/units/f4_grandmastervariax.plist",
+    "textureSource": "f4_grandmastervariax.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fbabea5ad04e23d1ae4bfb6433ce6ccb00e15f73b7048254bfbffa03479d2fa6"
+  },
+  {
+    "id": "f4_horror",
+    "atlas": "duelyst-main/app/resources/units/f4_horror.plist",
+    "textureSource": "f4_horror.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a057163d35c5207293049474d625aaabc8d0d5907b41e28c0bc2e0aa833247be"
+  },
+  {
+    "id": "f4_horrorburster",
+    "atlas": "duelyst-main/app/resources/units/f4_horrorburster.plist",
+    "textureSource": "f4_horrorburster.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7e9f8fd788a94516983b47c9dd8cf89b290852f188562b2e78ce669bbea5b439"
+  },
+  {
+    "id": "f4_husk",
+    "atlas": "duelyst-main/app/resources/units/f4_husk.plist",
+    "textureSource": "f4_husk.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6de3285c26693115dbd9c9ed320f5f454f74c6c92977fe92cceeba92a8085a8f"
+  },
+  {
+    "id": "f4_klaxon",
+    "atlas": "duelyst-main/app/resources/units/f4_klaxon.plist",
+    "textureSource": "f4_klaxon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f9e613561a973701fe1af9f6ed1afc2bcead66f837ecf47bca71be64762dd604"
+  },
+  {
+    "id": "f4_limbodweller",
+    "atlas": "duelyst-main/app/resources/units/f4_limbodweller.plist",
+    "textureSource": "f4_limbodweller.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "312718ca867bfcd64d2e4e52d08c59c36ec991ea40275fe1cac3b57a8d51dfb8"
+  },
+  {
+    "id": "f4_maehvmk2",
+    "atlas": "duelyst-main/app/resources/units/f4_maehvmk2.plist",
+    "textureSource": "f4_maehvmk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "efb74282c0f8c58812a3ed6a739604581e4944723023279dbb8a1b15d12df14b"
+  },
+  {
+    "id": "f4_mech",
+    "atlas": "duelyst-main/app/resources/units/f4_mech.plist",
+    "textureSource": "f4_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8f0f1011e8cf37b6dc558e7eedfb3d59d75a409b1496047e481c07a33a40272d"
+  },
+  {
+    "id": "f4_megafiend",
+    "atlas": "duelyst-main/app/resources/units/f4_megafiend.plist",
+    "textureSource": "f4_megafiend.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "32a821a0dd3214cc5ec3b9c36a219a4b7923c18eda2e8b279788e6c1bfcbbf78"
+  },
+  {
+    "id": "f4_miniminion",
+    "atlas": "duelyst-main/app/resources/units/f4_miniminion.plist",
+    "textureSource": "f4_miniminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e46e8775fdce6ab25ef5d745a8bd5ae8ab39d9ccf88c8b709f8414f3126fe94c"
+  },
+  {
+    "id": "f4_mistressofcommands",
+    "atlas": "duelyst-main/app/resources/units/f4_mistressofcommands.plist",
+    "textureSource": "f4_mistressofcommands.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ab5fd53f50583b2d81ddd57fae5ba8036ebd74decb47e62d70570377e96ebb60"
+  },
+  {
+    "id": "f4_moonrider",
+    "atlas": "duelyst-main/app/resources/units/f4_moonrider.plist",
+    "textureSource": "f4_moonrider.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f51b9e36b0d3203308ad98defd537419353c08a9343d0935dbf89d06df214370"
+  },
+  {
+    "id": "f4_nightfiend",
+    "atlas": "duelyst-main/app/resources/units/f4_nightfiend.plist",
+    "textureSource": "f4_nightfiend.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "25ccd0a50ebec55c5b6a056687727eb12b43e7e01b58ba203786e9eae1ea1ab4"
+  },
+  {
+    "id": "f4_nocturn",
+    "atlas": "duelyst-main/app/resources/units/f4_nocturn.plist",
+    "textureSource": "f4_nocturn.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e19d52b0929bedca21d8f9d7ad11e7aa788f84109e7a68558bcb14e46352b1e5"
+  },
+  {
+    "id": "f4_ooz",
+    "atlas": "duelyst-main/app/resources/units/f4_ooz.plist",
+    "textureSource": "f4_ooz.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "87e662208165f49464a3393ffb9f4822741d47d340c56cbe541f79e3f4bf29de"
+  },
+  {
+    "id": "f4_phantasm",
+    "atlas": "duelyst-main/app/resources/units/f4_phantasm.plist",
+    "textureSource": "f4_phantasm.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1c948d69c711e13e2f7cb3ce67ad8edf8d690f68152e9d47e0071bd95195eee6"
+  },
+  {
+    "id": "f4_pitstrider",
+    "atlas": "duelyst-main/app/resources/units/f4_pitstrider.plist",
+    "textureSource": "f4_pitstrider.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1f56e864beb4f3f75e41e5bc5de666131a2df3e6973c6ac57bdab0c78fa21a65"
+  },
+  {
+    "id": "f4_plaguedr",
+    "atlas": "duelyst-main/app/resources/units/f4_plaguedr.plist",
+    "textureSource": "f4_plaguedr.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "15589b6428ac8ea6a1f46d45ef47583e585e48864bbc0f79c246358d754d3fa9"
+  },
+  {
+    "id": "f4_remora",
+    "atlas": "duelyst-main/app/resources/units/f4_remora.plist",
+    "textureSource": "f4_remora.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0cbd8e6ae8ff078eb27c9f30319e3b361003b0bda7efae62e4d0cfed3510cdc9"
+  },
+  {
+    "id": "f4_sinergyunit",
+    "atlas": "duelyst-main/app/resources/units/f4_sinergyunit.plist",
+    "textureSource": "f4_sinergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e032ebe55f7d280419d5fe5afcef571dbcd4602937258f8f384c50b2640d7019"
+  },
+  {
+    "id": "f4_sister",
+    "atlas": "duelyst-main/app/resources/units/f4_sister.plist",
+    "textureSource": "f4_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b391028c41e62fe53b345ff6986ed8314a9ebdcbe5a9d6766f24bfb31e286601"
+  },
+  {
+    "id": "f4_skullcaster",
+    "atlas": "duelyst-main/app/resources/units/f4_skullcaster.plist",
+    "textureSource": "f4_skullcaster.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b1f148884a5a9f2990b4424a8fd8da4c34ef25dbfa9ee70628c3f17153cd0add"
+  },
+  {
+    "id": "f4_underworldbrute",
+    "atlas": "duelyst-main/app/resources/units/f4_underworldbrute.plist",
+    "textureSource": "f4_underworldbrute.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fc33258378203b5d3542099bf3f7c382b867b3737a72ed17b5e4ecfd27e84cce"
+  },
+  {
+    "id": "f5_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f5_3rdgeneral.plist",
+    "textureSource": "f5_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b5a0854063a751acc9ee407794d013a4f0c4727b261d20e0ce9bf7717da2daae"
+  },
+  {
+    "id": "f5_ankylos",
+    "atlas": "duelyst-main/app/resources/units/f5_ankylos.plist",
+    "textureSource": "f5_ankylos.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4a35bd10b2137f02bf1ff76f64b2880c7071be27efe4ec792a0976c5c8e12c5b"
+  },
+  {
+    "id": "f5_armada",
+    "atlas": "duelyst-main/app/resources/units/f5_armada.plist",
+    "textureSource": "f5_armada.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "70d294250b39efe3e2b9a1dc3dd164472c52d1bbf1987b0a7c4fda3ae33fbcde"
+  },
+  {
+    "id": "f5_brundlbeast",
+    "atlas": "duelyst-main/app/resources/units/f5_brundlbeast.plist",
+    "textureSource": "f5_brundlbeast.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "62650b0d06e8e10f30f5fee77e799d226604f10de2c39e4bde4d90fc1480d055"
+  },
+  {
+    "id": "f5_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f5_buildcommon.plist",
+    "textureSource": "f5_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f73442a9a2ea23a664885eb2de70b6d6b4142ca57544b209e9c7104b54df0e22"
+  },
+  {
+    "id": "f5_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f5_buildminion.plist",
+    "textureSource": "f5_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c89e8ad9bd80ef2792b95279ff3aeb9939165b3e947366264ba5b622f6f4de78"
+  },
+  {
+    "id": "f5_catalystquillbeast",
+    "atlas": "duelyst-main/app/resources/units/f5_catalystquillbeast.plist",
+    "textureSource": "f5_catalystquillbeast.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0daee7e3d45c21cb1a4fe2f92141a7a47ba6948239563f9212f1c31b7b1c1fb2"
+  },
+  {
+    "id": "f5_dreadnaught",
+    "atlas": "duelyst-main/app/resources/units/f5_dreadnaught.plist",
+    "textureSource": "f5_dreadnaught.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f4ff2834b182b875543a30c0fa0e808c00562c7b62f024e5c9d34011c4e83146"
+  },
+  {
+    "id": "f5_drogon",
+    "atlas": "duelyst-main/app/resources/units/f5_drogon.plist",
+    "textureSource": "f5_drogon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8821195af73eb0f6d489a5036da82aaa8082ffa4ca9a222609e78a0b5074ebd9"
+  },
+  {
+    "id": "f5_firebreather",
+    "atlas": "duelyst-main/app/resources/units/f5_firebreather.plist",
+    "textureSource": "f5_firebreather.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5bcc0d5bfcc608ba4b251d0d9cc394c2e1dd78c40d418c3146a185571481dacd"
+  },
+  {
+    "id": "f5_flumposaur",
+    "atlas": "duelyst-main/app/resources/units/f5_flumposaur.plist",
+    "textureSource": "f5_flumposaur.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "df0ce573fe078db8b537615ae6c7e051cb8886b2343a37b315022ed940d85540"
+  },
+  {
+    "id": "f5_genesis",
+    "atlas": "duelyst-main/app/resources/units/f5_genesis.plist",
+    "textureSource": "f5_genesis.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "955519e4b51b43130120fc4104c574a79507e397fbadd2b31556bf421ce71c01"
+  },
+  {
+    "id": "f5_gibblegup",
+    "atlas": "duelyst-main/app/resources/units/f5_gibblegup.plist",
+    "textureSource": "f5_gibblegup.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1fa4a36d75e2bb5ad1f8a7def2ba9ad6328b9ddbc120ee2dd0f80fdfc6056ef4"
+  },
+  {
+    "id": "f5_grandmasterkraigon",
+    "atlas": "duelyst-main/app/resources/units/f5_grandmasterkraigon.plist",
+    "textureSource": "f5_grandmasterkraigon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "677e5e22ce7aac9c8f940ee15ac9576e4b5c5905792a0e571cb47f6bb7b96a24"
+  },
+  {
+    "id": "f5_gro",
+    "atlas": "duelyst-main/app/resources/units/f5_gro.plist",
+    "textureSource": "f5_gro.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d24bee5197f374d88b9f1c2b55f38121296c13aec3e5ab4078d9648d33ec60ec"
+  },
+  {
+    "id": "f5_juggernaut",
+    "atlas": "duelyst-main/app/resources/units/f5_juggernaut.plist",
+    "textureSource": "f5_juggernaut.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fcec975cdd86568e34832a56a3bd07c93516f3bc775c6aa9fe68200f5ab759d1"
+  },
+  {
+    "id": "f5_lavalasher",
+    "atlas": "duelyst-main/app/resources/units/f5_lavalasher.plist",
+    "textureSource": "f5_lavalasher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3929dd0fc3a951295f57ba12183afd6203346ea145397103ff9e7bf2bb1a180d"
+  },
+  {
+    "id": "f5_mandrake",
+    "atlas": "duelyst-main/app/resources/units/f5_mandrake.plist",
+    "textureSource": "f5_mandrake.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "758aa85ed440951a84bdcdeae3b18b831656adef05245f455f849e48c3a7c9cf"
+  },
+  {
+    "id": "f5_mech",
+    "atlas": "duelyst-main/app/resources/units/f5_mech.plist",
+    "textureSource": "f5_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "99be1007844ec2d265d74f1ad33229edcf172afa3720cfe456b386aa95542863"
+  },
+  {
+    "id": "f5_megabrontodon",
+    "atlas": "duelyst-main/app/resources/units/f5_megabrontodon.plist",
+    "textureSource": "f5_megabrontodon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "08f506bbe4092d1f297bbb433752c1d7edffbbceefa9ffb75383843e04e77343"
+  },
+  {
+    "id": "f5_minibeast",
+    "atlas": "duelyst-main/app/resources/units/f5_minibeast.plist",
+    "textureSource": "f5_minibeast.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b88319b4c3c9f1542d33c5ede48aab0d5f965c15723ba871c4eb5827c3da1fd5"
+  },
+  {
+    "id": "f5_molokihuntress",
+    "atlas": "duelyst-main/app/resources/units/f5_molokihuntress.plist",
+    "textureSource": "f5_molokihuntress.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "be6f629352a35014c511e2f81af6fbd4411c2cbf6b2a195847e5f032b7bac173"
+  },
+  {
+    "id": "f5_mythronquest",
+    "atlas": "duelyst-main/app/resources/units/f5_mythronquest.plist",
+    "textureSource": "f5_mythronquest.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "32e2b0109159f37f7b0387f16317ecf718cc42a0cfba3d26cc44398305119f34"
+  },
+  {
+    "id": "f5_omniseer",
+    "atlas": "duelyst-main/app/resources/units/f5_omniseer.plist",
+    "textureSource": "f5_omniseer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ab9b92cdb45ece0cb2d845b3621a58c38d0ca09a73afbcca8e33ea6f8470851e"
+  },
+  {
+    "id": "f5_orphanoftheaspect",
+    "atlas": "duelyst-main/app/resources/units/f5_orphanoftheaspect.plist",
+    "textureSource": "f5_orphanoftheaspect.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9017d626427db6ec779cf8887bfbf48f065c6eddafb497e0a26a67486805125b"
+  },
+  {
+    "id": "f5_oxalaia",
+    "atlas": "duelyst-main/app/resources/units/f5_oxalaia.plist",
+    "textureSource": "f5_oxalaia.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "011b8a566495a2c30bd5c8f8f462bae2c127f6ecb5e6aab2edb7da20390c2568"
+  },
+  {
+    "id": "f5_pteryx",
+    "atlas": "duelyst-main/app/resources/units/f5_pteryx.plist",
+    "textureSource": "f5_pteryx.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fba06086dd6c2c7497f496e4b9e174b1fa1ae1e4d254254a61765a1f91f4cff9"
+  },
+  {
+    "id": "f5_ragebinder",
+    "atlas": "duelyst-main/app/resources/units/f5_ragebinder.plist",
+    "textureSource": "f5_ragebinder.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c668e9f55985116f71df81c769f3d84085d40691813648fb602acfe71c7504bd"
+  },
+  {
+    "id": "f5_ragnoramk2",
+    "atlas": "duelyst-main/app/resources/units/f5_ragnoramk2.plist",
+    "textureSource": "f5_ragnoramk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "186126632fc8deae74f9c4178ef8abe7b79f3f20e708dc1e016856515e942a26"
+  },
+  {
+    "id": "f5_rancour",
+    "atlas": "duelyst-main/app/resources/units/f5_rancour.plist",
+    "textureSource": "f5_rancour.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "51b59c0b595ecd08d7e51cac5b1a4ee83463a4de3b476b7954e2e733e5b079d0"
+  },
+  {
+    "id": "f5_rex",
+    "atlas": "duelyst-main/app/resources/units/f5_rex.plist",
+    "textureSource": "f5_rex.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7693afd2885fa179b22575727d48f4a58b72c0986a3227ea514423ac8f9293b7"
+  },
+  {
+    "id": "f5_sinergyunit",
+    "atlas": "duelyst-main/app/resources/units/f5_sinergyunit.plist",
+    "textureSource": "f5_sinergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cefe78466b5c1a32cbc23c6124e4be50d41c1879eb613441539a9b460842a28e"
+  },
+  {
+    "id": "f5_sister",
+    "atlas": "duelyst-main/app/resources/units/f5_sister.plist",
+    "textureSource": "f5_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "92dc6c1d3ea29580f6267e26edca1c540797ef7b72bd2ef28d576753a354ee9d"
+  },
+  {
+    "id": "f5_thraex",
+    "atlas": "duelyst-main/app/resources/units/f5_thraex.plist",
+    "textureSource": "f5_thraex.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "245cebc16de76256838b6ece079d9a59433751ccf012d0fc498ef6238ba7686f"
+  },
+  {
+    "id": "f5_unstableflump",
+    "atlas": "duelyst-main/app/resources/units/f5_unstableflump.plist",
+    "textureSource": "f5_unstableflump.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d2c487e1d2075da330a2824128ac0deaa82430892bd0d1fd3b268c5af06238e1"
+  },
+  {
+    "id": "f5_upgradizon",
+    "atlas": "duelyst-main/app/resources/units/f5_upgradizon.plist",
+    "textureSource": "f5_upgradizon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "bcb5cbe931acab950902b9d55361a64fa78c7dbc541f6c0b375aeca1653e8f1c"
+  },
+  {
+    "id": "f5_valknu",
+    "atlas": "duelyst-main/app/resources/units/f5_valknu.plist",
+    "textureSource": "f5_valknu.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b05b10d483355af46d044b6ae992ef1181498c696b6af2cf5b5288f1ba372985"
+  },
+  {
+    "id": "f5_visionar",
+    "atlas": "duelyst-main/app/resources/units/f5_visionar.plist",
+    "textureSource": "f5_visionar.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0c72c8c75af1e2ccb3287f09ab9620de4f8747ef31a55b28597582f3584a72bc"
+  },
+  {
+    "id": "f5_wildinceptor",
+    "atlas": "duelyst-main/app/resources/units/f5_wildinceptor.plist",
+    "textureSource": "f5_wildinceptor.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b53090c151ade7947ae8d6c1ccdec5d5abfebf21953019b11fadcc90f7435f99"
+  },
+  {
+    "id": "f6_3rdgeneral",
+    "atlas": "duelyst-main/app/resources/units/f6_3rdgeneral.plist",
+    "textureSource": "f6_3rdgeneral.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "db157a98b165f727f98fec92a691b2e3593e6d7a1f977535717e2bdce1553241"
+  },
+  {
+    "id": "f6_auroraguardian",
+    "atlas": "duelyst-main/app/resources/units/f6_auroraguardian.plist",
+    "textureSource": "f6_auroraguardian.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9901c7d18361b22aa3da06f3afd8e8ea7609eb72e15e4fb905fb69285f0f2992"
+  },
+  {
+    "id": "f6_bloodsurge",
+    "atlas": "duelyst-main/app/resources/units/f6_bloodsurge.plist",
+    "textureSource": "f6_bloodsurge.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "edbbd45664d7edc97495f34100dc3bd979f5b0a700185ce5d658cca1a30508e1"
+  },
+  {
+    "id": "f6_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/f6_buildcommon.plist",
+    "textureSource": "f6_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "839180b69d94272394ec2d4ae275e0818f4d2bd0d668f116794f8f770077aad8"
+  },
+  {
+    "id": "f6_buildlegendary",
+    "atlas": "duelyst-main/app/resources/units/f6_buildlegendary.plist",
+    "textureSource": "f6_buildlegendary.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d25e7a632b79a042092c65ab9ad4dc235b09a18e2065c76f55d6bfb70804c0b3"
+  },
+  {
+    "id": "f6_buildminion",
+    "atlas": "duelyst-main/app/resources/units/f6_buildminion.plist",
+    "textureSource": "f6_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "20c2904b885826ff5ad518c56372f46336b810f7a024b0e9145ad5f616fbbec7"
+  },
+  {
+    "id": "f6_bur",
+    "atlas": "duelyst-main/app/resources/units/f6_bur.plist",
+    "textureSource": "f6_bur.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b2f685c43647ea3a75ce397b9e9bb2bef0f92a3decbdbbb275681a8a0f426bd4"
+  },
+  {
+    "id": "f6_circulus",
+    "atlas": "duelyst-main/app/resources/units/f6_circulus.plist",
+    "textureSource": "f6_circulus.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "84289d6923082e20d26abe60ce55021d61ee78858d04ba593ffc7e62140a8959"
+  },
+  {
+    "id": "f6_doofybear",
+    "atlas": "duelyst-main/app/resources/units/f6_doofybear.plist",
+    "textureSource": "f6_doofybear.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ab28605f807777ddd3f647b8f003be499b6c3a32baf84c7c7572d51db9e20842"
+  },
+  {
+    "id": "f6_eldersaberspine",
+    "atlas": "duelyst-main/app/resources/units/f6_eldersaberspine.plist",
+    "textureSource": "f6_eldersaberspine.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "462fd0331c59e4613daf56c17e0fbff380ee81f12dc486f4d023e463ffc5ca51"
+  },
+  {
+    "id": "f6_elklodon",
+    "atlas": "duelyst-main/app/resources/units/f6_elklodon.plist",
+    "textureSource": "f6_elklodon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "430da8801cccff467762dc5769ec7d1d32e763ce2abd9ba399913157e6c09649"
+  },
+  {
+    "id": "f6_evilcrystalwisp",
+    "atlas": "duelyst-main/app/resources/units/f6_evilcrystalwisp.plist",
+    "textureSource": "f6_evilcrystalwisp.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1e1e1c4710f9dcabd9383783498dda883feab13bd0b7b886320d58d555ba6856"
+  },
+  {
+    "id": "f6_explodingwall",
+    "atlas": "duelyst-main/app/resources/units/f6_explodingwall.plist",
+    "textureSource": "f6_explodingwall.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7edbd3917723717373834285accf73ea2eb7425617a04d55946854efc30b8a49"
+  },
+  {
+    "id": "f6_faiefestive",
+    "atlas": "duelyst-main/app/resources/units/f6_faiefestive.plist",
+    "textureSource": "f6_faiefestive.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7906a10afddcebcc3d04461b85272a8ca23be917ce869e6707cb9934619d9e7a"
+  },
+  {
+    "id": "f6_fenrirwerewolf",
+    "atlas": "duelyst-main/app/resources/units/f6_fenrirwerewolf.plist",
+    "textureSource": "f6_fenrirwerewolf.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0bce3c2f8a3b93c6bfda23fa268fa18fefe9099ce6a91c364ea8032587495d5a"
+  },
+  {
+    "id": "f6_freeblade",
+    "atlas": "duelyst-main/app/resources/units/f6_freeblade.plist",
+    "textureSource": "f6_freeblade.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "722d5003756eaaacac58bd8dc0970fbd2846a0e334f93d8cfa868a453713cce0"
+  },
+  {
+    "id": "f6_frostbitehawker",
+    "atlas": "duelyst-main/app/resources/units/f6_frostbitehawker.plist",
+    "textureSource": "f6_frostbitehawker.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b2d3b7e88911a8fdd04b220a955f264d8847742c10e7ab657aa4f0ade01a21b4"
+  },
+  {
+    "id": "f6_frostiva",
+    "atlas": "duelyst-main/app/resources/units/f6_frostiva.plist",
+    "textureSource": "f6_frostiva.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "141b7dfee8197e649389e51165635706c7be6d60ba2b906f4ef732d95bdc668d"
+  },
+  {
+    "id": "f6_ghostseraphim",
+    "atlas": "duelyst-main/app/resources/units/f6_ghostseraphim.plist",
+    "textureSource": "f6_ghostseraphim.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b8422940c63154c64143686d50b99ec3958394020155b78c99cc695cbc6776f0"
+  },
+  {
+    "id": "f6_grandmasterembla",
+    "atlas": "duelyst-main/app/resources/units/f6_grandmasterembla.plist",
+    "textureSource": "f6_grandmasterembla.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "daa1f5f679ca338b92c05177130a14a70f997a0d350cf4bf7d1cf74b5f2927f6"
+  },
+  {
+    "id": "f6_greatwhitenorth",
+    "atlas": "duelyst-main/app/resources/units/f6_greatwhitenorth.plist",
+    "textureSource": "f6_greatwhitenorth.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "001982e3bd9daf62be7c65688a081f6462e57de5d6d1df03da33fd3482569c2c"
+  },
+  {
+    "id": "f6_huldra",
+    "atlas": "duelyst-main/app/resources/units/f6_huldra.plist",
+    "textureSource": "f6_huldra.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "40a5771f570a318684715da58fa1411f2ae5d4c9624683c3af5de2dc0eb20b8e"
+  },
+  {
+    "id": "f6_icehornet",
+    "atlas": "duelyst-main/app/resources/units/f6_icehornet.plist",
+    "textureSource": "f6_icehornet.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dea1661e6d20019b22e2bffb28599593c252817cfd2a881dfdfae796e973a012"
+  },
+  {
+    "id": "f6_icy",
+    "atlas": "duelyst-main/app/resources/units/f6_icy.plist",
+    "textureSource": "f6_icy.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cdf307cebf59ac2c9b7d86198089a4c1db0b93bd79329407050e0c6d466820c9"
+  },
+  {
+    "id": "f6_ilenamk2",
+    "atlas": "duelyst-main/app/resources/units/f6_ilenamk2.plist",
+    "textureSource": "f6_ilenamk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ee69048e6678b23f2c239a9dabf3edd75e8138c9efd27b8ce9b76743c476c3e6"
+  },
+  {
+    "id": "f6_kindredhunter",
+    "atlas": "duelyst-main/app/resources/units/f6_kindredhunter.plist",
+    "textureSource": "f6_kindredhunter.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0ab909dcfdbd1af783170560051d00e2c1540772653bab6c581995a683f2cff3"
+  },
+  {
+    "id": "f6_mech",
+    "atlas": "duelyst-main/app/resources/units/f6_mech.plist",
+    "textureSource": "f6_mech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fde6d9b023551e41c20c341a5d004e1db2e5e3aa7c26da6b891f4f617f062d81"
+  },
+  {
+    "id": "f6_motherofdrakes",
+    "atlas": "duelyst-main/app/resources/units/f6_motherofdrakes.plist",
+    "textureSource": "f6_motherofdrakes.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f807d5330afb32af0e0677a75b8cc645ccd2fde493e116dca200c71637443a87"
+  },
+  {
+    "id": "f6_myriad",
+    "atlas": "duelyst-main/app/resources/units/f6_myriad.plist",
+    "textureSource": "f6_myriad.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fd6daa5eee3dfd28b2c4064e0b852bd8c25a0f7fec5d207ab2fdce235a911c19"
+  },
+  {
+    "id": "f6_mythronquest",
+    "atlas": "duelyst-main/app/resources/units/f6_mythronquest.plist",
+    "textureSource": "f6_mythronquest.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "da47f495abd97074d717cd5b9de4e1ca107e056a9d3e9a1d639c440c0fe9e6bc"
+  },
+  {
+    "id": "f6_perfectreflection",
+    "atlas": "duelyst-main/app/resources/units/f6_perfectreflection.plist",
+    "textureSource": "f6_perfectreflection.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b334f97fc80e8ca60da3e0bebb6850920e57a0323948bd74d1bc1b87462d834a"
+  },
+  {
+    "id": "f6_shadowvespyr",
+    "atlas": "duelyst-main/app/resources/units/f6_shadowvespyr.plist",
+    "textureSource": "f6_shadowvespyr.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9bedc3345c2420aadb467aa3dc5e7a045eb2a33776619b94525bd774d4c8ee9e"
+  },
+  {
+    "id": "f6_sinergyunit",
+    "atlas": "duelyst-main/app/resources/units/f6_sinergyunit.plist",
+    "textureSource": "f6_sinergyunit.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a8e20fef64c54daefb189e495491dc4cfbb5e9220f8a17626b96040b97ea1c08"
+  },
+  {
+    "id": "f6_sister",
+    "atlas": "duelyst-main/app/resources/units/f6_sister.plist",
+    "textureSource": "f6_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "bc4b4dc89507577a12e77ab55d19c68d0019c7bd0640fe40d0d6cc06bcc95bb8"
+  },
+  {
+    "id": "f6_sleetdasher",
+    "atlas": "duelyst-main/app/resources/units/f6_sleetdasher.plist",
+    "textureSource": "f6_sleetdasher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3aac116d88b06cd5779987bc23657280d393d40445344eb284d3f718aa153ab5"
+  },
+  {
+    "id": "f6_snowchasermk2",
+    "atlas": "duelyst-main/app/resources/units/f6_snowchasermk2.plist",
+    "textureSource": "f6_snowchasermk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "596a1b8ecccaa9caa7d0a571a3dfb2133301d02f66e2cc6805c470bfa883c092"
+  },
+  {
+    "id": "f6_snowrippler",
+    "atlas": "duelyst-main/app/resources/units/f6_snowrippler.plist",
+    "textureSource": "f6_snowrippler.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "62155f5fd69776fe6e4785124277302d0ad9ebe917c97e71ec6788b6d336c9ec"
+  },
+  {
+    "id": "f6_tundraguardian",
+    "atlas": "duelyst-main/app/resources/units/f6_tundraguardian.plist",
+    "textureSource": "f6_tundraguardian.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2e730f5a2046c74846cac80c3c44c2832b0005a93f78bed1cd87de329b2abe84"
+  },
+  {
+    "id": "f6_vanarsentinel",
+    "atlas": "duelyst-main/app/resources/units/f6_vanarsentinel.plist",
+    "textureSource": "f6_vanarsentinel.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e1eb83ff9635dd21ec3bd64fc883c3527a669c33530e0aa0efdc65ca8f1e8de6"
+  },
+  {
+    "id": "f6_ynuyttracker",
+    "atlas": "duelyst-main/app/resources/units/f6_ynuyttracker.plist",
+    "textureSource": "f6_ynuyttracker.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c81adc11bdb39d172627ecd6579be4d8f267bc47b78da6f09c3ec68de5b55bcc"
+  },
+  {
+    "id": "f6_ynuytunleashed",
+    "atlas": "duelyst-main/app/resources/units/f6_ynuytunleashed.plist",
+    "textureSource": "f6_ynuytunleashed.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9c68a2b383c9703a95c967b2f1e9fd347725823bb30f2368ff500d9e3f12877d"
+  },
+  {
+    "id": "f6_ynuytwarlock",
+    "atlas": "duelyst-main/app/resources/units/f6_ynuytwarlock.plist",
+    "textureSource": "f6_ynuytwarlock.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "371552ddedfce16ee91ca03a224ab9017397eb353f7a2e6d9fbe509ca2dbcfe0"
+  },
+  {
+    "id": "neutral_abjudicator",
+    "atlas": "duelyst-main/app/resources/units/neutral_abjudicator.plist",
+    "textureSource": "neutral_abjudicator.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f835cc8353bf2d0712e465b781a2e85a8982cdebf7b987ef58b7c1b6f5f7435c"
+  },
+  {
+    "id": "neutral_aer",
+    "atlas": "duelyst-main/app/resources/units/neutral_aer.plist",
+    "textureSource": "neutral_aer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "bbe8f767a085add89cc0e18b9f03275874c1d4b1765c2d0886050aa39ebc3dc3"
+  },
+  {
+    "id": "neutral_alterrexx",
+    "atlas": "duelyst-main/app/resources/units/neutral_alterrexx.plist",
+    "textureSource": "neutral_alterrexx.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c36a4e080d4f350b2c8471c629b747efee3a6b361588b0f3227cffd0f2201379"
+  },
+  {
+    "id": "neutral_artificer",
+    "atlas": "duelyst-main/app/resources/units/neutral_artificer.plist",
+    "textureSource": "neutral_artificer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3c8f9d768efef65b764e4d8c07c3b21877ed762032eb297350cd648f2ab4a37b"
+  },
+  {
+    "id": "neutral_artificereshaper",
+    "atlas": "duelyst-main/app/resources/units/neutral_artificereshaper.plist",
+    "textureSource": "neutral_artificereshaper.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "aa8580b8340be7366b38280f7c0b01822069c9af78882d3ffc6ecb9b1e73ae6b"
+  },
+  {
+    "id": "neutral_astralprime",
+    "atlas": "duelyst-main/app/resources/units/neutral_astralprime.plist",
+    "textureSource": "neutral_astralprime.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "52d3f471b6c19e5103d226e64e13a4e91b6247e5556b4a3bc858ab3a1b5b9224"
+  },
+  {
+    "id": "neutral_azureherald",
+    "atlas": "duelyst-main/app/resources/units/neutral_azureherald.plist",
+    "textureSource": "neutral_azureherald.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e9a7867580b63e4e78b2c5ca78a4abcb4671a6a958486b983ca2650a97cbc851"
+  },
+  {
+    "id": "neutral_bastion",
+    "atlas": "duelyst-main/app/resources/units/neutral_bastion.plist",
+    "textureSource": "neutral_bastion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8ab62e5bd31f54aa8b88fa59e78d922a2e28408fb3f9a59699a554680f71b0d8"
+  },
+  {
+    "id": "neutral_beastmaster",
+    "atlas": "duelyst-main/app/resources/units/neutral_beastmaster.plist",
+    "textureSource": "neutral_beastmaster.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "951ae96fef8e536c4f29493aff4f1eb89a3e022be886cc772380f487ac9c9f82"
+  },
+  {
+    "id": "neutral_blisteringscorn",
+    "atlas": "duelyst-main/app/resources/units/neutral_blisteringscorn.plist",
+    "textureSource": "neutral_blisteringscorn.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "368f9791413738779b497d8ea4c885d0deb4283c4eb80b95547d50d13b537fd1"
+  },
+  {
+    "id": "neutral_bloodletter",
+    "atlas": "duelyst-main/app/resources/units/neutral_bloodletter.plist",
+    "textureSource": "neutral_bloodletter.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "440c1ecd123b013e3f8fe938fb02ed62f7d87a20179fde51cad5f42f2bc635d7"
+  },
+  {
+    "id": "neutral_blueconjurer",
+    "atlas": "duelyst-main/app/resources/units/neutral_blueconjurer.plist",
+    "textureSource": "neutral_blueconjurer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6d379fdcebd54de6221ebff7dd116d3865fd698e5fc8e08f100fe69841e3752f"
+  },
+  {
+    "id": "neutral_boulderbreach",
+    "atlas": "duelyst-main/app/resources/units/neutral_boulderbreach.plist",
+    "textureSource": "neutral_boulderbreach.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "aa2c2d3697757cfb29e2e4e7b73a1f06d7764de0431ee94370f65aa95f41112a"
+  },
+  {
+    "id": "neutral_boulderhurler",
+    "atlas": "duelyst-main/app/resources/units/neutral_boulderhurler.plist",
+    "textureSource": "neutral_boulderhurler.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c70ea801aae36c7d37478a52725114b85cf1dea78edad77633a4cf88d7b91566"
+  },
+  {
+    "id": "neutral_buildcommon",
+    "atlas": "duelyst-main/app/resources/units/neutral_buildcommon.plist",
+    "textureSource": "neutral_buildcommon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "86530606b181a4e1cc44b92ca15f1b40555df2d82e406b9541975d735eb86907"
+  },
+  {
+    "id": "neutral_buildepic",
+    "atlas": "duelyst-main/app/resources/units/neutral_buildepic.plist",
+    "textureSource": "neutral_buildepic.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8f210a86bebd5a70a7cd349c329cf2d4aa201e0a90226d5f4f87b12518586eae"
+  },
+  {
+    "id": "neutral_buildminion",
+    "atlas": "duelyst-main/app/resources/units/neutral_buildminion.plist",
+    "textureSource": "neutral_buildminion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2d6e083198dc582587b41e52878721a5c5a9c818723c4cfb6691a8857f0dcffa"
+  },
+  {
+    "id": "neutral_calculator",
+    "atlas": "duelyst-main/app/resources/units/neutral_calculator.plist",
+    "textureSource": "neutral_calculator.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c3241df591ce803c69993288955d3a810396ed2f7d284c7df505658c6a49b069"
+  },
+  {
+    "id": "neutral_capriciouswarrior",
+    "atlas": "duelyst-main/app/resources/units/neutral_capriciouswarrior.plist",
+    "textureSource": "neutral_capriciouswarrior.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2d8fe7dee7a87db497f4bebf2d529dd7ef3c746e1f938e1c4b23ab126585c12e"
+  },
+  {
+    "id": "neutral_celebrant",
+    "atlas": "duelyst-main/app/resources/units/neutral_celebrant.plist",
+    "textureSource": "neutral_celebrant.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5cb3cfca9a1c7570a164265a01563c3b3e6fbaf526e01eeeb43d3c9ee15b45f7"
+  },
+  {
+    "id": "neutral_chakkram",
+    "atlas": "duelyst-main/app/resources/units/neutral_chakkram.plist",
+    "textureSource": "neutral_chakkram.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8a58ad30c49aa6c2f995f7ecd80931f6d7335c73be1b6d3a601acc7503f7e348"
+  },
+  {
+    "id": "neutral_chloroara",
+    "atlas": "duelyst-main/app/resources/units/neutral_chloroara.plist",
+    "textureSource": "neutral_chloroara.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "89c7efed7ea9b58cf085fb564825cf64ed387c38daba08a0f911c0fec838d1dc"
+  },
+  {
+    "id": "neutral_contentiousbrute",
+    "atlas": "duelyst-main/app/resources/units/neutral_contentiousbrute.plist",
+    "textureSource": "neutral_contentiousbrute.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "39d88c0b28b622af9bb2ca982bc2aa96fbab813c8b79f137d3ecb225cb9c3da0"
+  },
+  {
+    "id": "neutral_crimsonmystic",
+    "atlas": "duelyst-main/app/resources/units/neutral_crimsonmystic.plist",
+    "textureSource": "neutral_crimsonmystic.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d3f8d2d4139c929a7444adf1abe34bfcfca204a6ef905cb80e1cc9218157e172"
+  },
+  {
+    "id": "neutral_critterc",
+    "atlas": "duelyst-main/app/resources/units/neutral_critterc.plist",
+    "textureSource": "neutral_critterc.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "22dace9c570bb432752af2e8131e9192cb3891e2755eff4fff7e82ccc3c36bc4"
+  },
+  {
+    "id": "neutral_critterd",
+    "atlas": "duelyst-main/app/resources/units/neutral_critterd.plist",
+    "textureSource": "neutral_critterd.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b9380672600f055c5ea9b594371b5bf42e506f8f74c2508114f438430657f84b"
+  },
+  {
+    "id": "neutral_cryptographer",
+    "atlas": "duelyst-main/app/resources/units/neutral_cryptographer.plist",
+    "textureSource": "neutral_cryptographer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b4263ba7d1f8e36d9ba9503d2ddfe28b3a79bc5d2302f5a5f607d74c34f9a6ae"
+  },
+  {
+    "id": "neutral_dagona",
+    "atlas": "duelyst-main/app/resources/units/neutral_dagona.plist",
+    "textureSource": "neutral_dagona.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d4719b5229ecffd73372524a968e4c2a58753be52812eb3b5a775394db368f00"
+  },
+  {
+    "id": "neutral_dagonafish",
+    "atlas": "duelyst-main/app/resources/units/neutral_dagonafish.plist",
+    "textureSource": "neutral_dagonafish.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "37cdd358e1d65ba179b93232526df5b4de352ea34eb4109b45cf2e3141f8917a"
+  },
+  {
+    "id": "neutral_daywatcher",
+    "atlas": "duelyst-main/app/resources/units/neutral_daywatcher.plist",
+    "textureSource": "neutral_daywatcher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6e39ae11c733ab8161d0ced4d6cc89b056020851cf7a24d95bcdc838ed9a860b"
+  },
+  {
+    "id": "neutral_deceptib0t",
+    "atlas": "duelyst-main/app/resources/units/neutral_deceptib0t.plist",
+    "textureSource": "neutral_deceptib0t.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "30d591fcc354a900ca425b1713ca98a062838f58fb0bbdaec02ec044a78877e5"
+  },
+  {
+    "id": "neutral_dex",
+    "atlas": "duelyst-main/app/resources/units/neutral_dex.plist",
+    "textureSource": "neutral_dex.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "75f6e5d0174c4764e55c0792cc3da8787170c0cbd34c683ae18d16c31c1ece7a"
+  },
+  {
+    "id": "neutral_diamondgolem",
+    "atlas": "duelyst-main/app/resources/units/neutral_diamondgolem.plist",
+    "textureSource": "neutral_diamondgolem.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f3a1cbeae1b56a9f6ea67c5830d0644a611034731a34133fe826be07e8097954"
+  },
+  {
+    "id": "neutral_dustwailer",
+    "atlas": "duelyst-main/app/resources/units/neutral_dustwailer.plist",
+    "textureSource": "neutral_dustwailer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "f12efa0c0fa629866dbcb693ad5f8fd90c37ea6cdd064985fa00a23906f3cc23"
+  },
+  {
+    "id": "neutral_emp",
+    "atlas": "duelyst-main/app/resources/units/neutral_emp.plist",
+    "textureSource": "neutral_emp.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "946699f8766f0f1a154c0342530a8c28530c9534b5de4c6c1491937a293c8734"
+  },
+  {
+    "id": "neutral_envybaer",
+    "atlas": "duelyst-main/app/resources/units/neutral_envybaer.plist",
+    "textureSource": "neutral_envybaer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4233caf39e568deb86f6237fc96ba3a8a52f3a8d84653ff4e07c509c34a60e98"
+  },
+  {
+    "id": "neutral_feralu",
+    "atlas": "duelyst-main/app/resources/units/neutral_feralu.plist",
+    "textureSource": "neutral_feralu.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "81a0f4159cf0a4b2149722c7ebe802145e84ef6d84ad5d168eca5473af2c3e8a"
+  },
+  {
+    "id": "neutral_gambler",
+    "atlas": "duelyst-main/app/resources/units/neutral_gambler.plist",
+    "textureSource": "neutral_gambler.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "dc35064be76b5be7a325c7720d96b06a1bbe2042802760a0631d432d2d1e01cf"
+  },
+  {
+    "id": "neutral_geargrinder",
+    "atlas": "duelyst-main/app/resources/units/neutral_geargrinder.plist",
+    "textureSource": "neutral_geargrinder.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a4d5cf2b326ab88a66e1d714f16930de6296ecfa591fb35b9189354be3aa8110"
+  },
+  {
+    "id": "neutral_ghoulie",
+    "atlas": "duelyst-main/app/resources/units/neutral_ghoulie.plist",
+    "textureSource": "neutral_ghoulie.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "d60325c323c315a36f6f0d6ab25cec235cfdc953bad691d7ff000c5ba14d2bd1"
+  },
+  {
+    "id": "neutral_giantcrab",
+    "atlas": "duelyst-main/app/resources/units/neutral_giantcrab.plist",
+    "textureSource": "neutral_giantcrab.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cbff48e4e93b1d3ec583035881a6ef2f55a8e27c0282f4badb20755e9732b977"
+  },
+  {
+    "id": "neutral_gnasher",
+    "atlas": "duelyst-main/app/resources/units/neutral_gnasher.plist",
+    "textureSource": "neutral_gnasher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "93d6b504da58b47adabde61ea65a128aab32a55f2127710cb09113dfe478ce44"
+  },
+  {
+    "id": "neutral_goldenhammer",
+    "atlas": "duelyst-main/app/resources/units/neutral_goldenhammer.plist",
+    "textureSource": "neutral_goldenhammer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1b5cc85f21f5fcbe7c9f9bf88e94fd1d318a6d0feb76e618a9d8af56d9734fa6"
+  },
+  {
+    "id": "neutral_goldenmantella",
+    "atlas": "duelyst-main/app/resources/units/neutral_goldenmantella.plist",
+    "textureSource": "neutral_goldenmantella.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8f9f0116a009c7b802a50a30e54c98e1acd1c06e1570552131fa4968ccf65042"
+  },
+  {
+    "id": "neutral_grablackhole",
+    "atlas": "duelyst-main/app/resources/units/neutral_grablackhole.plist",
+    "textureSource": "neutral_grablackhole.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "829f529c79915037401f2497f683832e29cb944c7bf2ce195a8e2bba812b3388"
+  },
+  {
+    "id": "neutral_grimes",
+    "atlas": "duelyst-main/app/resources/units/neutral_grimes.plist",
+    "textureSource": "neutral_grimes.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cde101b7ec13823074e23d6e29b51e7a2bd41b4839cbf8a7c6a0b101020b4169"
+  },
+  {
+    "id": "neutral_grincher",
+    "atlas": "duelyst-main/app/resources/units/neutral_grincher.plist",
+    "textureSource": "neutral_grincher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8de6e967880919e905ffb10363e22eb78c2002ec09a60df7014769dc5154dbfd"
+  },
+  {
+    "id": "neutral_hatred",
+    "atlas": "duelyst-main/app/resources/units/neutral_hatred.plist",
+    "textureSource": "neutral_hatred.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "9c69c0b7ef0b8f29d18427da7a6ed167984c8ec160e08d293fe90f4d22e91fde"
+  },
+  {
+    "id": "neutral_healingmysticbandainamco",
+    "atlas": "duelyst-main/app/resources/units/neutral_healingmysticbandainamco.plist",
+    "textureSource": "neutral_healingmysticbandainamco.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b6a01a64420a75b9a0d8707ae8da4c34605e346ff0f118a7137db47f8fafbbf8"
+  },
+  {
+    "id": "neutral_healingmystictwitch",
+    "atlas": "duelyst-main/app/resources/units/neutral_healingmystictwitch.plist",
+    "textureSource": "neutral_healingmystictwitch.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ffaca14296a36be255b00a3b37a247e7df49224a5e57869e64ea3863d8965a2d"
+  },
+  {
+    "id": "neutral_hsuku",
+    "atlas": "duelyst-main/app/resources/units/neutral_hsuku.plist",
+    "textureSource": "neutral_hsuku.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ec7af535cac2df4c22d417ac39dea41942da8ae1e3e07b48aceb2e167afd0b0c"
+  },
+  {
+    "id": "neutral_hydrax",
+    "atlas": "duelyst-main/app/resources/units/neutral_hydrax.plist",
+    "textureSource": "neutral_hydrax.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8c760d95672321ffda863fb335097553bed81db0d3b6329575cadd22dbd87de0"
+  },
+  {
+    "id": "neutral_incindy",
+    "atlas": "duelyst-main/app/resources/units/neutral_incindy.plist",
+    "textureSource": "neutral_incindy.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "08ec173fdd6572877db2a55883da901095db2377c819b24335e3a9d9160083b0"
+  },
+  {
+    "id": "neutral_inquisitorkron",
+    "atlas": "duelyst-main/app/resources/units/neutral_inquisitorkron.plist",
+    "textureSource": "neutral_inquisitorkron.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "908577fa135b4b58a8fd51a5a3739a599ae4a12764292f81886d22abc92864f2"
+  },
+  {
+    "id": "neutral_ion",
+    "atlas": "duelyst-main/app/resources/units/neutral_ion.plist",
+    "textureSource": "neutral_ion.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7d8505fe68c953e9c5eabad13dd686b7445b8543cde117d1973a8145f1cf44fa"
+  },
+  {
+    "id": "neutral_ironclad",
+    "atlas": "duelyst-main/app/resources/units/neutral_ironclad.plist",
+    "textureSource": "neutral_ironclad.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6827ec85d2d37b438e86c5bc3e52ffe886f73ecd015128994a183b2815f4afdc"
+  },
+  {
+    "id": "neutral_keeperofthevalue",
+    "atlas": "duelyst-main/app/resources/units/neutral_keeperofthevalue.plist",
+    "textureSource": "neutral_keeperofthevalue.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "15f23bfef1bd2d11d12928613061232be759efbf3330851c2f785add97fc7b9c"
+  },
+  {
+    "id": "neutral_kin",
+    "atlas": "duelyst-main/app/resources/units/neutral_kin.plist",
+    "textureSource": "neutral_kin.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6c24bb2444d865fcf1153fc45f4893c07d6d68f42c3b01a29ca0d178f4fba4b3"
+  },
+  {
+    "id": "neutral_komodokin",
+    "atlas": "duelyst-main/app/resources/units/neutral_komodokin.plist",
+    "textureSource": "neutral_komodokin.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "128dbcd1b417c5c174a1692a8b5c2da9407fea520b604f422018979fca8617fc"
+  },
+  {
+    "id": "neutral_letigress",
+    "atlas": "duelyst-main/app/resources/units/neutral_letigress.plist",
+    "textureSource": "neutral_letigress.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4283b4fa9f7264888868abc6ca466e1c8a14d39794a41b8611321adc76db1fea"
+  },
+  {
+    "id": "neutral_letigresscub",
+    "atlas": "duelyst-main/app/resources/units/neutral_letigresscub.plist",
+    "textureSource": "neutral_letigresscub.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8b9e9b697311eb4afe0f46c6d16feddb081083ea9ae677a125c44f9da598bdea"
+  },
+  {
+    "id": "neutral_loreweaver",
+    "atlas": "duelyst-main/app/resources/units/neutral_loreweaver.plist",
+    "textureSource": "neutral_loreweaver.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5b768a9ad25dcbbeff36d8744fb286a93787b17090288118483c0b8e6a90ece6"
+  },
+  {
+    "id": "neutral_mageswarm",
+    "atlas": "duelyst-main/app/resources/units/neutral_mageswarm.plist",
+    "textureSource": "neutral_mageswarm.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e042c529e4275cb43506c6ec324f40a2f2978cd88bfde6480f12749d3b3ff960"
+  },
+  {
+    "id": "neutral_masteroftheseven",
+    "atlas": "duelyst-main/app/resources/units/neutral_masteroftheseven.plist",
+    "textureSource": "neutral_masteroftheseven.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7b7b3778b2c3a54f4fe187082813e8ae88664b03886c8b0ae7201163d75d873a"
+  },
+  {
+    "id": "neutral_meltdown",
+    "atlas": "duelyst-main/app/resources/units/neutral_meltdown.plist",
+    "textureSource": "neutral_meltdown.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ffbbf644d6d1251bd5b4e41fa4486698ec3ff0f3161a6af28da008641b9e3396"
+  },
+  {
+    "id": "neutral_metaltooth",
+    "atlas": "duelyst-main/app/resources/units/neutral_metaltooth.plist",
+    "textureSource": "neutral_metaltooth.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4529c3450be86349103e691c3402bc32711eab419bf8fc1b403784a3ecf7398d"
+  },
+  {
+    "id": "neutral_mirrormancer",
+    "atlas": "duelyst-main/app/resources/units/neutral_mirrormancer.plist",
+    "textureSource": "neutral_mirrormancer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c5c9cd94bd8efebae8b14b89b1c932bc061babd001807b20d5fa9df3d986f531"
+  },
+  {
+    "id": "neutral_moltengolem",
+    "atlas": "duelyst-main/app/resources/units/neutral_moltengolem.plist",
+    "textureSource": "neutral_moltengolem.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8e5d30dfe068e228aec8c536a079d41e91a7125ee1b6e365ac8a507082ae6423"
+  },
+  {
+    "id": "neutral_moonlitsorcerer",
+    "atlas": "duelyst-main/app/resources/units/neutral_moonlitsorcerer.plist",
+    "textureSource": "neutral_moonlitsorcerer.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "864ee3e6275e4dd2ef8836791743c5e1d4ea1dd0c5f08ca707bbd56f0c2faf48"
+  },
+  {
+    "id": "neutral_mrgoldmclover",
+    "atlas": "duelyst-main/app/resources/units/neutral_mrgoldmclover.plist",
+    "textureSource": "neutral_mrgoldmclover.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ee38618b181c64db8f3419d1a9dd842c33e40bc400943e5e69d2fec3365ed9b9"
+  },
+  {
+    "id": "neutral_nightwatcher",
+    "atlas": "duelyst-main/app/resources/units/neutral_nightwatcher.plist",
+    "textureSource": "neutral_nightwatcher.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "423876ae355c50ebf7a4eac636129adaf301c9291b515152eaefb7c352f3540f"
+  },
+  {
+    "id": "neutral_nip",
+    "atlas": "duelyst-main/app/resources/units/neutral_nip.plist",
+    "textureSource": "neutral_nip.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5e89dc4c089801c3dbf8f823a9cb75dfd43021609d6c75657eac91654a5b6f32"
+  },
+  {
+    "id": "neutral_oni",
+    "atlas": "duelyst-main/app/resources/units/neutral_oni.plist",
+    "textureSource": "neutral_oni.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "725769ca533a047e59293ea3934f8c065652f1d3ed4097f55ca91f721db2959b"
+  },
+  {
+    "id": "neutral_owlshadescholar",
+    "atlas": "duelyst-main/app/resources/units/neutral_owlshadescholar.plist",
+    "textureSource": "neutral_owlshadescholar.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "37963b33ea1e8bc90c37d4e652392d13d829f3826ec8fe6ccbe7d6a524e3ebef"
+  },
+  {
+    "id": "neutral_partyelf",
+    "atlas": "duelyst-main/app/resources/units/neutral_partyelf.plist",
+    "textureSource": "neutral_partyelf.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1c884501a431b73b8b775c32687d188fbb9ed2fe77d14111972e846fd116094c"
+  },
+  {
+    "id": "neutral_pennyarcade01",
+    "atlas": "duelyst-main/app/resources/units/neutral_pennyarcade01.plist",
+    "textureSource": "neutral_pennyarcade01.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "6c4cd9151aa5a741ecb79c70e377988da688059755fca272a6de94c483c3491a"
+  },
+  {
+    "id": "neutral_pennyarcade02",
+    "atlas": "duelyst-main/app/resources/units/neutral_pennyarcade02.plist",
+    "textureSource": "neutral_pennyarcade02.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "63d1c4e42acee486287e29adb65809bcd0837ed2be6abce1c578de4be2a97f02"
+  },
+  {
+    "id": "neutral_pennyarcade03",
+    "atlas": "duelyst-main/app/resources/units/neutral_pennyarcade03.plist",
+    "textureSource": "neutral_pennyarcade03.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fb857c349dc722c97a37bde3391ad175adf2789586cc24fc8fb508661dd5e767"
+  },
+  {
+    "id": "neutral_pennyarcade04",
+    "atlas": "duelyst-main/app/resources/units/neutral_pennyarcade04.plist",
+    "textureSource": "neutral_pennyarcade04.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c998abb08d3fcaa8a09b75879e7f024ee8981e60d208d49e1729cf10998f306c"
+  },
+  {
+    "id": "neutral_prongbok",
+    "atlas": "duelyst-main/app/resources/units/neutral_prongbok.plist",
+    "textureSource": "neutral_prongbok.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b6020312370b7f8ba336f051b12e80c8fd59603526ed798953e0c601be10cfb1"
+  },
+  {
+    "id": "neutral_quahog",
+    "atlas": "duelyst-main/app/resources/units/neutral_quahog.plist",
+    "textureSource": "neutral_quahog.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c49acf4321a196aa8f2bca9c2ed553fe18e65e69e89e9e250c6c5d138c8b4ece"
+  },
+  {
+    "id": "neutral_quartermastergauj",
+    "atlas": "duelyst-main/app/resources/units/neutral_quartermastergauj.plist",
+    "textureSource": "neutral_quartermastergauj.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "33f34f65245bc0ffa2c2a322d8e20865c41ff2f53d88fa5d3d6868be2362fbc2"
+  },
+  {
+    "id": "neutral_rawr",
+    "atlas": "duelyst-main/app/resources/units/neutral_rawr.plist",
+    "textureSource": "neutral_rawr.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "8626f29bdae8f559633578a72b9369e670661a886789fa03727089a2c373a519"
+  },
+  {
+    "id": "neutral_razorcraggolem",
+    "atlas": "duelyst-main/app/resources/units/neutral_razorcraggolem.plist",
+    "textureSource": "neutral_razorcraggolem.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b51280b46201d90bd39138ae1e045b0f096ac5ecd69c7de15ed957f28b974c1a"
+  },
+  {
+    "id": "neutral_replicator",
+    "atlas": "duelyst-main/app/resources/units/neutral_replicator.plist",
+    "textureSource": "neutral_replicator.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b7b2bd6459191e1e177e8dfcc1a9e5997e386694af1c9a82ff325c174aa5be14"
+  },
+  {
+    "id": "neutral_rok",
+    "atlas": "duelyst-main/app/resources/units/neutral_rok.plist",
+    "textureSource": "neutral_rok.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b795ee0aca86eb0dc3a487d44a0f80f16f7ca97ca4dba86e19a4f3f5b66a5cb5"
+  },
+  {
+    "id": "neutral_rubyrifter",
+    "atlas": "duelyst-main/app/resources/units/neutral_rubyrifter.plist",
+    "textureSource": "neutral_rubyrifter.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e9778f6a045656cca2a4a8a78505d88a6b465b920a332c1592f5baccfa8c4641"
+  },
+  {
+    "id": "neutral_saberspinemk2",
+    "atlas": "duelyst-main/app/resources/units/neutral_saberspinemk2.plist",
+    "textureSource": "neutral_saberspinemk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "4bbdd7799034c211d57c1d7265042585e9435ee18976703fe3f189daabf22c2f"
+  },
+  {
+    "id": "neutral_sarlacmk2",
+    "atlas": "duelyst-main/app/resources/units/neutral_sarlacmk2.plist",
+    "textureSource": "neutral_sarlacmk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "12f00e421a5b9e740561f1e70d967c32764602f3a4ea7faf2d27d19b970be61a"
+  },
+  {
+    "id": "neutral_scarzig",
+    "atlas": "duelyst-main/app/resources/units/neutral_scarzig.plist",
+    "textureSource": "neutral_scarzig.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "b2f6d4f89add3f2f59ea9cbf71a9c845e64475381a45deb21eb31dbfdafaf74d"
+  },
+  {
+    "id": "neutral_shirodogdragon",
+    "atlas": "duelyst-main/app/resources/units/neutral_shirodogdragon.plist",
+    "textureSource": "neutral_shirodogdragon.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "5b15f1b704ea2ba839dd12f7b220153442ebd2c43d00e0509509e0f6ddeceb7c"
+  },
+  {
+    "id": "neutral_shuffler",
+    "atlas": "duelyst-main/app/resources/units/neutral_shuffler.plist",
+    "textureSource": "neutral_shuffler.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "36c53e4d5bc7f4db9c1d2ed6598dd10297ae513b7751af4e8fd4f7ffcc65210f"
+  },
+  {
+    "id": "neutral_silverbeak",
+    "atlas": "duelyst-main/app/resources/units/neutral_silverbeak.plist",
+    "textureSource": "neutral_silverbeak.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "3da490d7dd2e2a5faf85faa85caa7f8a8b49d72371d0754200eef5c61b45d107"
+  },
+  {
+    "id": "neutral_silvermech",
+    "atlas": "duelyst-main/app/resources/units/neutral_silvermech.plist",
+    "textureSource": "neutral_silvermech.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "893020e64dd9fe04c387bfada9ce0f2f538fdd0b6c361aac936717e9e4dfe588"
+  },
+  {
+    "id": "neutral_singletonmythron",
+    "atlas": "duelyst-main/app/resources/units/neutral_singletonmythron.plist",
+    "textureSource": "neutral_singletonmythron.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cc254c7376eff4a826800f1ed8dcc3ae2ec3b004a99c93f1b2ccae948bfa4a82"
+  },
+  {
+    "id": "neutral_sinistersilhouette",
+    "atlas": "duelyst-main/app/resources/units/neutral_sinistersilhouette.plist",
+    "textureSource": "neutral_sinistersilhouette.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cd5d2fff41abc8fc7d6a3ecb3b2ef9d5c3430ef2d1c38a6997bdb31db987b4da"
+  },
+  {
+    "id": "neutral_sister",
+    "atlas": "duelyst-main/app/resources/units/neutral_sister.plist",
+    "textureSource": "neutral_sister.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "fcc1a4e6a47b7a96d36b86c1c2a3339e7ae3b13d5ce86ec7bc6d4488613b5849"
+  },
+  {
+    "id": "neutral_soboro",
+    "atlas": "duelyst-main/app/resources/units/neutral_soboro.plist",
+    "textureSource": "neutral_soboro.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "ea49b2308f76c4640c98e43b8746d6e772bb8d73d69b1c733671f365a39a7899"
+  },
+  {
+    "id": "neutral_sol",
+    "atlas": "duelyst-main/app/resources/units/neutral_sol.plist",
+    "textureSource": "neutral_sol.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1c2f9d36c3bbe7a46d5449850d877ecc0b221219a1d0eee530c2a067870ef557"
+  },
+  {
+    "id": "neutral_spellsammermk2",
+    "atlas": "duelyst-main/app/resources/units/neutral_spellsammermk2.plist",
+    "textureSource": "neutral_spellsammermk2.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "06c502068f93dffb9401666f57e4a5a129558562456fff40ded3c30aa488b1f3"
+  },
+  {
+    "id": "neutral_superdoxx",
+    "atlas": "duelyst-main/app/resources/units/neutral_superdoxx.plist",
+    "textureSource": "neutral_superdoxx.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "7a6c618618d0d114f718715e50373159437d2087fafbec07aaedcbaaa6167f6b"
+  },
+  {
+    "id": "neutral_superscarzig",
+    "atlas": "duelyst-main/app/resources/units/neutral_superscarzig.plist",
+    "textureSource": "neutral_superscarzig.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a3cf24f8b613f9554c8d78c02c6965b13d84137ff789220c825157931026cc94"
+  },
+  {
+    "id": "neutral_taura",
+    "atlas": "duelyst-main/app/resources/units/neutral_taura.plist",
+    "textureSource": "neutral_taura.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "1910caf943b7fdc0ddf88719568ab0ed5822129f7f1bb0349d8addf34004c440"
+  },
+  {
+    "id": "neutral_thecollective",
+    "atlas": "duelyst-main/app/resources/units/neutral_thecollective.plist",
+    "textureSource": "neutral_thecollective.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "e7039103748935278bcdbc693f48a82d4a64cf0c8a70d354ce13c22f329c1cd7"
+  },
+  {
+    "id": "neutral_thegreatprotector",
+    "atlas": "duelyst-main/app/resources/units/neutral_thegreatprotector.plist",
+    "textureSource": "neutral_thegreatprotector.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "a05d471690c21ba94e19ca41d3ff36feac95e7046c05b0d1ac2da5f1a2e83643"
+  },
+  {
+    "id": "neutral_thescientist",
+    "atlas": "duelyst-main/app/resources/units/neutral_thescientist.plist",
+    "textureSource": "neutral_thescientist.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "c2d007acedb91ca377e8b9cd9ccbd85c233ca4da0ae0756a80b677c59d387495"
+  },
+  {
+    "id": "neutral_thunderhorn",
+    "atlas": "duelyst-main/app/resources/units/neutral_thunderhorn.plist",
+    "textureSource": "neutral_thunderhorn.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "60e3304e3a59b5b56e15aa85536dac2ad8e2fc54a066530f16a304b8a8114ab2"
+  },
+  {
+    "id": "neutral_timekeeper",
+    "atlas": "duelyst-main/app/resources/units/neutral_timekeeper.plist",
+    "textureSource": "neutral_timekeeper.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "172f87478e59e62edac589026da765cec40bfde4efe8d35e218dd998836252bc"
+  },
+  {
+    "id": "neutral_trinitywing",
+    "atlas": "duelyst-main/app/resources/units/neutral_trinitywing.plist",
+    "textureSource": "neutral_trinitywing.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "cfbb8a243c8016bb47996f4557ec36bcc2db4fa06a17ada4580df40e43aab71a"
+  },
+  {
+    "id": "neutral_veteranflamewing",
+    "atlas": "duelyst-main/app/resources/units/neutral_veteranflamewing.plist",
+    "textureSource": "neutral_veteranflamewing.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "27472fa4d4c327309b5bffc1b7deb746bd8bc0aecafcb415b0e44481a5dfdb6c"
+  },
+  {
+    "id": "neutral_wildtahr",
+    "atlas": "duelyst-main/app/resources/units/neutral_wildtahr.plist",
+    "textureSource": "neutral_wildtahr.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "26933f2a7b0e38bfee911c92baaed6bde4657207799cfa1a5b2db7e559cd41c2"
+  },
+  {
+    "id": "neutral_z0r",
+    "atlas": "duelyst-main/app/resources/units/neutral_z0r.plist",
+    "textureSource": "neutral_z0r.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "0c3af3b01753142c0bd3f0972bdb15c3c15c769601d4b736e96e0232f840528f"
+  },
+  {
+    "id": "neutral_zukong",
+    "atlas": "duelyst-main/app/resources/units/neutral_zukong.plist",
+    "textureSource": "neutral_zukong.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "2aedada164a8241ddf8970c656c77cab126b9cc05957140cbfd4743699961ee5"
+  },
+  {
+    "id": "neutral_zyx",
+    "atlas": "duelyst-main/app/resources/units/neutral_zyx.plist",
+    "textureSource": "neutral_zyx.png",
+    "textureSourceKind": "external-texture",
+    "textureSHA256": "834f4579cfe3e7840175611cc323c70e70be57c1d5d7b855997742d907977294"
+  }
+]

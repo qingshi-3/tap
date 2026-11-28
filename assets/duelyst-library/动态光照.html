@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>动态光照 · Duelyst 资料库</title>
+<style>
+:root{color-scheme:dark;font:16px/1.55 system-ui;background:#141e26;color:#e8efeb}
+body{max-width:980px;margin:auto;padding:clamp(14px,3vw,36px)}
+h1{margin:.4em 0 .1em}p{color:#b9cbd0;margin:.35em 0 1em}a{color:#aee1ca}
+input{color:inherit;background:#202e39;border:1px solid #56717d;border-radius:.35em;padding:.5em;font:inherit;width:min(85%,28em)}
+ul{list-style:none;margin:1em 0;padding:0}li{padding:.6em 0;border-top:1px solid #364952;display:flex;flex-wrap:wrap;align-items:center;gap:.3em .8em}
+li a{overflow-wrap:anywhere}small{color:#b8c8d0}i{display:inline-block;width:.85em;height:.85em;border:1px solid #8a9aa1;border-radius:50%;vertical-align:middle}
+</style>
+<a href="index.html">资源阅览台</a><h1>动态光照</h1>
+<p>点卡牌查看演出。暂停后可以开关「动态光照」，对比同一帧的受光效果。</p>
+<p>预览显示灯光投在棋盘上的颜色和范围。棋盘使用统一环境光，原地图的常驻灯、单位投影和泛光未纳入本页。</p>
+<input id="search" type="search" placeholder="筛选卡牌、事件或状态" aria-label="筛选卡牌、事件或状态"> <output id="count"></output>
+<ul id="events"></ul>
+<script src="合成/recipes.js"></script><script src="合成/followup.js"></script><script src="合成/coverage.js"></script>
+<script>
+const identity = row => JSON.stringify([row.type, row.id, row.card, row.event]);
+const coverage = new Map(CompositeCoverage.map(row => [identity(row), row.status]));
+function findLights(nodes) {
+  return nodes.flatMap(node => [...(node.nodeType === 'Light' ? [node] : []),
+    ...findLights(node.emitFX), ...findLights(node.impactFX)]);
+}
+const entries = CompositeRecipes.events.flatMap(record => {
+  const lights = findLights(record.layers);
+  return coverage.has(identity(record)) && lights.length ? [{record, lights}] : [];
+});
+const featured = ['Cards.Spell.PhoenixFire', 'Cards.Spell.AstralFlood'];
+const order = name => featured.includes(name) ? featured.indexOf(name) : featured.length;
+entries.sort((a,b) => order(a.record.card)-order(b.record.card) || a.record.card.localeCompare(b.record.card));
+const search = document.getElementById('search');
+function display() {
+  const list = document.getElementById('events'), rows = [];
+  for (const {record,lights} of entries) {
+    const {type,id,card,event} = record;
+    const status = coverage.get(identity(record)) === 'partial' ? '部分合成' : '事件合成';
+    const label = event === 'SpellAppliedFX' ? '生效格' : '施法';
+    if (![card,id,event,status,label].join(' ').toLowerCase().includes(search.value.trim().toLowerCase())) continue;
+    const item = document.createElement('li'), link = document.createElement('a');
+    link.href = '合成预览.html?' + new URLSearchParams({type,id,card,event});
+    link.textContent = card;
+    item.append(link);
+    for (const light of lights) {
+      const {r,g,b} = light.config.color || {r:255,g:255,b:255};
+      const swatch = document.createElement('i'), info = document.createElement('small');
+      swatch.style.backgroundColor = 'rgb('+[r,g,b].join(',')+')';
+      info.append(swatch, ' RGB '+[r,g,b].join(', ')+' · '+label+' · '+status);
+      item.append(info);
+    }
+    rows.push(item);
+  }
+  list.replaceChildren(...rows);
+  document.getElementById('count').value = rows.length+' 条事件';
+}
+search.addEventListener('input', display);
+display();
+</script></html>
