@@ -752,15 +752,19 @@
   ];
 
   // Calibrated Wave Curve (Smooth W1-W2 onboarding; steep W4-W8 pressure for ~20-30% zero-ad clear rate!)
+  // Tuned 2026-11-28 with sim (node sim/cli.js run): W1–W3 eased so new players
+  // get past the opening (novice AI W2 39%→87%, W3 cumulative 12%→50%), W4 softened,
+  // and W6–W8 hardened so the late game is not a victory lap. Expert AI clear rate
+  // stays ~30% at 标准; per-wave pass from W4: 70 / 69 / 81 / 86 / 88%.
   const WAVE_CONFIG = [
-    { wave: 1, hp: 520,   heavyDmg: 34, ultDmg: 48, baseReward: 7,  bossIdx: 0 },
-    { wave: 2, hp: 960,   heavyDmg: 36, ultDmg: 51, baseReward: 8,  bossIdx: 1 },
-    { wave: 3, hp: 1950,  heavyDmg: 39, ultDmg: 54, baseReward: 9,  bossIdx: 2 },
-    { wave: 4, hp: 3700,  heavyDmg: 42, ultDmg: 57, baseReward: 10, bossIdx: 3 },
-    { wave: 5, hp: 6600,  heavyDmg: 46, ultDmg: 60, baseReward: 11, bossIdx: 4 },
-    { wave: 6, hp: 11500, heavyDmg: 50, ultDmg: 63, baseReward: 12, bossIdx: 5 },
-    { wave: 7, hp: 19500, heavyDmg: 54, ultDmg: 66, baseReward: 13, bossIdx: 6 },
-    { wave: 8, hp: 31000, heavyDmg: 58, ultDmg: 69, baseReward: 16, bossIdx: 7 }
+    { wave: 1, hp: 480,   heavyDmg: 22, ultDmg: 32, baseReward: 7,  bossIdx: 0 },
+    { wave: 2, hp: 740,   heavyDmg: 26, ultDmg: 38, baseReward: 8,  bossIdx: 1 },
+    { wave: 3, hp: 1300,  heavyDmg: 28, ultDmg: 40, baseReward: 9,  bossIdx: 2 },
+    { wave: 4, hp: 2900,  heavyDmg: 38, ultDmg: 52, baseReward: 10, bossIdx: 3 },
+    { wave: 5, hp: 5800,  heavyDmg: 46, ultDmg: 60, baseReward: 11, bossIdx: 4 },
+    { wave: 6, hp: 12500, heavyDmg: 50, ultDmg: 63, baseReward: 12, bossIdx: 5 },
+    { wave: 7, hp: 24000, heavyDmg: 54, ultDmg: 66, baseReward: 13, bossIdx: 6 },
+    { wave: 8, hp: 44000, heavyDmg: 62, ultDmg: 74, baseReward: 16, bossIdx: 7 }
   ];
 
   function getWaveBoss(wave) {

@@ -12,11 +12,11 @@
     { id: 'hero_03', code: '03', codename: 'PHANTOM DEAL',  accent: '#4ef0c4', accent2: '#38a6e8', uiAccent: '#2f8a64', portrait: './assets/heroes/hero_03.webp?v=252', slicePos: '50% 22%', avatarPos: '50% 28%', name: '英雄03 · 换牌+1',   cost: 16, unitId: 'f2_altgeneral',      desc: '每波换牌次数 +1，过波赏金 -1G。', extraDiscards: 1, rewardDelta: -1 },
     { id: 'hero_05', code: '04', codename: 'LONE ECLIPSE',  accent: '#ff7a52', accent2: '#ffd24c', uiAccent: '#d0782a', portrait: './assets/heroes/hero_05.webp?v=252', slicePos: '52% 20%', avatarPos: '55% 26%', name: '英雄05 · 孤狼',     cost: 20, unitId: 'f5_rancour',         desc: '场上每空 1 个出战位，全队伤害 ×1.25。', emptySlotExtraMult: 1.25 },
     { id: 'hero_07', code: '05', codename: 'VENOM ROSE',    accent: '#7ef28a', accent2: '#a855f0', uiAccent: '#7a4fc2', portrait: './assets/heroes/hero_07.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄07 · 挂毒',     cost: 25, unitId: 'f4_blacksolus',      desc: '每波开局给 Boss 挂 6 层【剧毒】。', startBossPoison: 6 },
-    { id: 'hero_08', code: '06', codename: 'RUNE WEAVER',   accent: '#c97dff', accent2: '#ff7aa8', uiAccent: '#9b7fd4', portrait: './assets/heroes/hero_08.webp?v=252', slicePos: '52% 20%', avatarPos: '56% 26%', name: '英雄08 · 铭文',     cost: 30, unitId: 'f3_grandmasternoshrak',desc: '铭文匣便宜 2G，招募包 40% 概率自带随机铭文。', inscriptionDiscount: 2, bonusHeroInscripRate: 0.40 },
-    { id: 'hero_09', code: '07', codename: 'VAULT KEEPER',  accent: '#ffe066', accent2: '#6be5ff', uiAccent: '#2f7fb8', portrait: './assets/heroes/hero_09.webp?v=252', slicePos: '50% 20%', avatarPos: '48% 26%', name: '英雄09 · 6秘宝槽',  cost: 35, unitId: 'f1_altgeneral',      desc: '秘宝槽上限 +1（共 6 槽）。', extraRelicSlots: 1 },
-    { id: 'hero_10', code: '08', codename: 'ABYSS CROWN',   accent: '#ff5286', accent2: '#c97dff', uiAccent: '#8e2f5a', portrait: './assets/heroes/hero_10.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄10 · 开局S秘宝',cost: 40, unitId: 'f4_reaperninemoons', desc: '开局自带 1 件随机 S/SSS 秘宝，小队血量上限降至 80。', startHighRelic: true, maxHpBonus: -20 },
-    { id: 'hero_04', code: '09', codename: 'GILDED QUEEN',  accent: '#f5b841', accent2: '#fff2a6', uiAccent: '#b07a3a', portrait: './assets/heroes/hero_04.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄04 · 经济',     cost: 45, unitId: 'f3_allomancer',      desc: '开局 12G（原 6G），每波利息上限提至 8G。', startGold: 12, maxInterest: 8 },
-    { id: 'hero_06', code: '10', codename: 'ECHO DANCER',   accent: '#ff8c42', accent2: '#ff5286', uiAccent: '#c9577f', portrait: './assets/heroes/hero_06.webp?v=252', slicePos: '42% 20%', avatarPos: '36% 28%', name: '英雄06 · 3号复读',  cost: 50, unitId: 'f2_grandmasterzendo',desc: '每手 3 号位首次出手后，2 号位额外再出手 1 次。', slot3TriggersSlot2: true }
+    { id: 'hero_08', code: '06', codename: 'RUNE WEAVER',   accent: '#c97dff', accent2: '#ff7aa8', uiAccent: '#9b7fd4', portrait: './assets/heroes/hero_08.webp?v=252', slicePos: '52% 20%', avatarPos: '56% 26%', name: '英雄08 · 铭文',     cost: 35, unitId: 'f3_grandmasternoshrak',desc: '铭文匣便宜 2G，招募包 40% 概率自带随机铭文。', inscriptionDiscount: 2, bonusHeroInscripRate: 0.40 },
+    { id: 'hero_09', code: '07', codename: 'VAULT KEEPER',  accent: '#ffe066', accent2: '#6be5ff', uiAccent: '#2f7fb8', portrait: './assets/heroes/hero_09.webp?v=252', slicePos: '50% 20%', avatarPos: '48% 26%', name: '英雄09 · 6秘宝槽',  cost: 40, unitId: 'f1_altgeneral',      desc: '秘宝槽上限 +1（共 6 槽）。', extraRelicSlots: 1 },
+    { id: 'hero_10', code: '08', codename: 'ABYSS CROWN',   accent: '#ff5286', accent2: '#c97dff', uiAccent: '#8e2f5a', portrait: './assets/heroes/hero_10.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄10 · 开局S秘宝',cost: 50, unitId: 'f4_reaperninemoons', desc: '开局自带 1 件随机 S/SSS 秘宝，小队血量上限降至 80。', startHighRelic: true, maxHpBonus: -20 },
+    { id: 'hero_04', code: '09', codename: 'GILDED QUEEN',  accent: '#f5b841', accent2: '#fff2a6', uiAccent: '#b07a3a', portrait: './assets/heroes/hero_04.webp?v=252', slicePos: '50% 20%', avatarPos: '52% 24%', name: '英雄04 · 经济',     cost: 55, unitId: 'f3_allomancer',      desc: '开局 12G（原 6G），每波利息上限提至 8G。', startGold: 12, maxInterest: 8 },
+    { id: 'hero_06', code: '10', codename: 'ECHO DANCER',   accent: '#ff8c42', accent2: '#ff5286', uiAccent: '#c9577f', portrait: './assets/heroes/hero_06.webp?v=252', slicePos: '42% 20%', avatarPos: '36% 28%', name: '英雄06 · 3号复读',  cost: 65, unitId: 'f2_grandmasterzendo',desc: '每手 3 号位首次出手后，2 号位额外再出手 1 次。', slot3TriggersSlot2: true }
   ];
 
   const THEME_PACKS_META = [
@@ -25,9 +25,9 @@
     { id: 'poison',  name: '主题包 · 剧毒', cost: 0,  live: true,  desc: '免费开放 · 叠毒翻倍、吞毒加攻与毒伤产金' },
     { id: 'frost',   name: '主题包 · 极寒', cost: 15, live: true,  desc: '已实装 · 叠冰降攻、10 层冻结与碎冰爆发' },
     { id: 'hand',    name: '主题包 · 留手', cost: 20, live: true,  desc: '已实装 · 留手增伤、场下追打与满手爆发' },
-    { id: 'summon',  name: '主题包 · 献祭', cost: 25, live: true,  desc: '已实装 · 吞噬继承、空位招剑灵与退场爆发' },
-    { id: 'blood',   name: '主题包 · 燃血', cost: 30, live: true,  desc: '已实装 · 扣血换伤、残血再动与锁血反杀' },
-    { id: 'dice',    name: '主题包 · 赌博', cost: 35, live: true,  desc: '已实装 · 抛币掷骰、灌铅改命与押金再动' }
+    { id: 'summon',  name: '主题包 · 献祭', cost: 30, live: true,  desc: '已实装 · 吞噬继承、空位招剑灵与退场爆发' },
+    { id: 'blood',   name: '主题包 · 燃血', cost: 35, live: true,  desc: '已实装 · 扣血换伤、残血再动与锁血反杀' },
+    { id: 'dice',    name: '主题包 · 赌博', cost: 45, live: true,  desc: '已实装 · 抛币掷骰、灌铅改命与押金再动' }
   ];
 
   const ASCENSIONS = [
