@@ -397,8 +397,7 @@
           return;
         }
 
-        // 1) Unified 5-Tier Eclipse Celestial Progression:
-        //    C: Still Starlight | B: Crescent Moon & Stardust | A: Half-Eclipse Violet | S: Golden Annular Eclipse | SSS: Black Sun Eclipse Storm
+        // 1) 5-Tier Card VFX Painter (supports 'eclipse' + 3 alternate themes: 'glass' | 'tarot' | 'gem')
         canvases.forEach((cv) => {
           const kind = cv.dataset.fx;
           const ctx = cv.getContext('2d');
@@ -410,114 +409,175 @@
           const cx = Math.round(W * 0.5);
           const cy = Math.round(H * 0.40);
 
+          const hostTheme = cv.closest('[data-card-theme]');
+          const cardTheme = (hostTheme && hostTheme.dataset.cardTheme) || document.documentElement.dataset.cardTheme || 'eclipse_tarot';
+          if (cardTheme !== 'eclipse' && window.MT && window.MT.paintAltCardTheme) {
+            if (window.MT.paintAltCardTheme(cardTheme, ctx, kind, W, H, cx, cy, t, dt, cv._pts)) return;
+          }
+
           if (kind === 'C') {
-            // Stage 1: Quiet Night & Faint Silver Starlight
+            // Stage 1: Refined Slate Night — soft lunar mist backlight + quiet silver starlight
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#141826');
-            bg.addColorStop(0.6, '#0d101c');
-            bg.addColorStop(1, '#080a12');
+            bg.addColorStop(0, '#1a2033');
+            bg.addColorStop(0.54, '#111524');
+            bg.addColorStop(1, '#080a13');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Soft pale lunar mist behind sprite
-            const mist = ctx.createRadialGradient(cx, cy, 2, cx, cy, 28);
-            const mA = 0.14 + Math.sin(t * 1.4) * 0.04;
-            mist.addColorStop(0, `rgba(196, 208, 232, ${mA.toFixed(3)})`);
-            mist.addColorStop(1, 'rgba(30, 38, 60, 0)');
+            // Soft cool-silver lunar mist behind sprite (gives depth without competing with B/A/S)
+            const mist = ctx.createRadialGradient(cx, cy, 2, cx, cy, 32);
+            const mA = 0.22 + Math.sin(t * 1.5) * 0.04;
+            mist.addColorStop(0, `rgba(186, 204, 236, ${mA.toFixed(3)})`);
+            mist.addColorStop(0.55, 'rgba(98, 118, 158, 0.08)');
+            mist.addColorStop(1, 'rgba(20, 26, 44, 0)');
             ctx.fillStyle = mist;
             ctx.fillRect(0, 0, W, H);
 
-            // Quiet twinkling star points
+            // Subtle faint horizon band
+            const hBand = ctx.createLinearGradient(0, H * 0.52, 0, H * 0.72);
+            hBand.addColorStop(0, 'rgba(130, 152, 194, 0)');
+            hBand.addColorStop(0.5, 'rgba(130, 152, 194, 0.07)');
+            hBand.addColorStop(1, 'rgba(130, 152, 194, 0)');
+            ctx.fillStyle = hBand;
+            ctx.fillRect(0, H * 0.52, W, H * 0.20);
+
+            // Quiet twinkling silver star points
             cv._pts.forEach((p) => {
               p.y += p.vy * dt;
               p.x += p.vx * dt;
               if (p.y < -2) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * 2.2 + p.ph));
-              ctx.fillStyle = `rgba(206, 218, 240, ${tw.toFixed(2)})`;
+              const tw = 0.28 + 0.56 * (0.5 + 0.5 * Math.sin(t * 2.2 + p.ph));
+              ctx.fillStyle = `rgba(210, 224, 246, ${tw.toFixed(2)})`;
               ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
             });
           } else if (kind === 'B') {
-            // Stage 2: Sapphire Crescent Moon & Drifting Stardust
+            // Stage 2: Sleek Sapphire Frost-Crystal — soft slanted prism beams + subtle frost-diamond aura + starlight
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#0d223d');
-            bg.addColorStop(0.58, '#08152a');
-            bg.addColorStop(1, '#050b18');
+            bg.addColorStop(0, '#0c2748');
+            bg.addColorStop(0.54, '#081832');
+            bg.addColorStop(1, '#040b18');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Soft sapphire lunar halo
-            const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 32);
-            const hPulse = 0.34 + Math.sin(t * 2.0) * 0.07;
-            halo.addColorStop(0, `rgba(121, 210, 255, ${hPulse.toFixed(3)})`);
-            halo.addColorStop(0.55, 'rgba(62, 146, 224, 0.14)');
-            halo.addColorStop(1, 'rgba(10, 28, 56, 0)');
-            ctx.fillStyle = halo;
+            // Subtle slanted sapphire prism light beams drifting across card
+            ctx.save();
+            const beamShift = Math.sin(t * 0.9) * 5;
+            const b1 = ctx.createLinearGradient(0, 0, W, H);
+            b1.addColorStop(0, 'rgba(98, 214, 255, 0)');
+            b1.addColorStop(0.45, 'rgba(116, 224, 255, 0.13)');
+            b1.addColorStop(0.58, 'rgba(210, 248, 255, 0.08)');
+            b1.addColorStop(1, 'rgba(98, 214, 255, 0)');
+            ctx.fillStyle = b1;
+            ctx.beginPath();
+            ctx.moveTo(W * 0.12 + beamShift, 0);
+            ctx.lineTo(W * 0.44 + beamShift, 0);
+            ctx.lineTo(W * 0.88 + beamShift, H);
+            ctx.lineTo(W * 0.54 + beamShift, H);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+
+            // Soft volumetric sapphire-ice backlight behind hero
+            const centerGlow = ctx.createRadialGradient(cx, cy, 4, cx, cy, 38);
+            const cPulse = 0.42 + Math.sin(t * 2.2) * 0.07;
+            centerGlow.addColorStop(0, `rgba(148, 232, 255, ${cPulse.toFixed(3)})`);
+            centerGlow.addColorStop(0.48, 'rgba(56, 158, 238, 0.22)');
+            centerGlow.addColorStop(1, 'rgba(8, 24, 52, 0)');
+            ctx.fillStyle = centerGlow;
             ctx.fillRect(0, 0, W, H);
 
-            // Crisp pixel crescent moon (bright ice-blue disc carved by night shadow)
-            ctx.fillStyle = '#c8f0ff';
+            // Subtle breathing frost-crystal diamond outline behind hero (sleek geometric precursor to A's rune arcs)
+            const dr = 17.5 + Math.sin(t * 2.0) * 1.0;
+            ctx.save();
+            ctx.strokeStyle = 'rgba(168, 236, 255, 0.36)';
+            ctx.lineWidth = 1;
             ctx.beginPath();
-            ctx.arc(cx, cy, 10.5, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#0a1b33';
-            ctx.beginPath();
-            ctx.arc(cx + 4.2, cy - 1.5, 9.4, 0, Math.PI * 2);
-            ctx.fill();
+            ctx.moveTo(cx, cy - dr);
+            ctx.lineTo(cx + dr * 0.82, cy);
+            ctx.lineTo(cx, cy + dr);
+            ctx.lineTo(cx - dr * 0.82, cy);
+            ctx.closePath();
+            ctx.stroke();
+            ctx.restore();
 
-            // Gently drifting blue-white stardust
-            cv._pts.forEach((p) => {
+            // Gently drifting sapphire-white frost motes & crisp 3px cross glints
+            cv._pts.forEach((p, idx) => {
               p.y += p.vy * dt;
               p.x += (p.vx + Math.sin(t * 1.6 + p.ph) * 3.5) * dt;
               if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.38 + 0.62 * (0.5 + 0.5 * Math.sin(t * 3.2 + p.ph));
-              ctx.fillStyle = tw > 0.8 ? `rgba(226, 248, 255, ${tw.toFixed(2)})` : `rgba(121, 210, 255, ${(tw * 0.88).toFixed(2)})`;
-              ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
+              const tw = 0.40 + 0.60 * (0.5 + 0.5 * Math.sin(t * 3.2 + p.ph));
+              const ix = Math.round(p.x), iy = Math.round(p.y);
+              ctx.fillStyle = tw > 0.80 ? `rgba(232, 252, 255, ${tw.toFixed(2)})` : `rgba(116, 212, 255, ${(tw * 0.9).toFixed(2)})`;
+              if (idx % 4 === 0 && tw > 0.68) {
+                ctx.fillRect(ix - 1, iy, 3, 1);
+                ctx.fillRect(ix, iy - 1, 1, 3);
+              } else {
+                ctx.fillRect(ix, iy, p.s, p.s);
+              }
             });
           } else if (kind === 'A') {
-            // Stage 3: Amethyst Half-Eclipse & Orbiting Arcane Ring
+            // Stage 3: Royal Amethyst Nebula + Segmented Rotating Arcane Rune Ring + Violet Starlight
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#160926');
-            bg.addColorStop(0.55, '#220c3b');
-            bg.addColorStop(1, '#120620');
+            bg.addColorStop(0, '#230a3d');
+            bg.addColorStop(0.50, '#321157');
+            bg.addColorStop(1, '#110520');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Amethyst eclipse corona glow
-            const ag = ctx.createRadialGradient(cx, cy, 6, cx, cy, 35);
-            const aPulse = 0.52 + Math.sin(t * 2.6) * 0.1;
-            ag.addColorStop(0, `rgba(218, 134, 255, ${aPulse.toFixed(3)})`);
-            ag.addColorStop(0.48, 'rgba(146, 62, 224, 0.24)');
-            ag.addColorStop(1, 'rgba(26, 8, 48, 0)');
+            // Soft diagonal amethyst nebula sweep
+            ctx.save();
+            const neb = ctx.createLinearGradient(0, 0, W, H);
+            neb.addColorStop(0, 'rgba(188, 98, 255, 0.04)');
+            neb.addColorStop(0.5, 'rgba(224, 134, 255, 0.16)');
+            neb.addColorStop(1, 'rgba(118, 44, 212, 0.04)');
+            ctx.fillStyle = neb;
+            ctx.fillRect(0, 0, W, H);
+            ctx.restore();
+
+            // Rich royal-violet backlight glow behind hero
+            const ag = ctx.createRadialGradient(cx, cy, 4, cx, cy, 42);
+            const aPulse = 0.62 + Math.sin(t * 2.5) * 0.10;
+            ag.addColorStop(0, `rgba(242, 188, 255, ${aPulse.toFixed(3)})`);
+            ag.addColorStop(0.42, 'rgba(176, 82, 248, 0.36)');
+            ag.addColorStop(0.76, 'rgba(98, 32, 178, 0.14)');
+            ag.addColorStop(1, 'rgba(22, 6, 42, 0)');
             ctx.fillStyle = ag;
             ctx.fillRect(0, 0, W, H);
 
-            // Orbiting pixel star-beads ring around the half-eclipsed moon
-            for (let i = 0; i < 10; i++) {
-              const ang = (i / 10) * Math.PI * 2 + t * 0.48;
-              const rx = Math.round(cx + Math.cos(ang) * 16.5);
-              const ry = Math.round(cy + Math.sin(ang) * 16.5);
-              const bright = (i % 2 === 0);
-              ctx.fillStyle = bright ? 'rgba(246, 220, 255, 0.85)' : 'rgba(186, 108, 255, 0.52)';
-              ctx.fillRect(rx, ry, bright ? 2 : 1, bright ? 2 : 1);
+            // Segmented rotating arcane rune arcs (4 graceful broken arcs instead of plain solid circle!)
+            ctx.save();
+            ctx.strokeStyle = 'rgba(242, 200, 255, 0.72)';
+            ctx.lineWidth = 1.4;
+            for (let k = 0; k < 4; k++) {
+              const start = (k * Math.PI) / 2 + t * 0.42;
+              ctx.beginPath();
+              ctx.arc(cx, cy, 21.5, start, start + 0.92);
+              ctx.stroke();
             }
+            // Counter-rotating inner dashed rune halo
+            ctx.strokeStyle = 'rgba(196, 126, 255, 0.46)';
+            ctx.lineWidth = 1;
+            for (let k = 0; k < 6; k++) {
+              const start = (k * Math.PI) / 3 - t * 0.35;
+              ctx.beginPath();
+              ctx.arc(cx, cy, 16.5, start, start + 0.55);
+              ctx.stroke();
+            }
+            ctx.restore();
 
-            // Half-eclipsed amethyst moon (bright violet rim, shadow creeping across center)
-            ctx.fillStyle = '#f2d6ff';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 11.6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#c870ff';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 10.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#180828';
-            ctx.beginPath();
-            ctx.arc(cx + 2.6, cy - 0.6, 9.6, 0, Math.PI * 2);
-            ctx.fill();
+            // 6 orbiting bright amethyst crystal star-glints
+            for (let i = 0; i < 6; i++) {
+              const ang = (i / 6) * Math.PI * 2 + t * 0.55;
+              const rx = Math.round(cx + Math.cos(ang) * 23.5);
+              const ry = Math.round(cy + Math.sin(ang) * 23.5);
+              ctx.fillStyle = i % 2 === 0 ? '#fceeff' : '#d286ff';
+              ctx.fillRect(rx - 1, ry, 3, 1);
+              ctx.fillRect(rx, ry - 1, 1, 3);
+            }
 
             // Rising amethyst starlight motes
             cv._pts.forEach((p) => {
@@ -526,66 +586,77 @@
               if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(t * 4.2 + p.ph));
-              ctx.fillStyle = tw > 0.8 ? `rgba(250, 234, 255, ${tw.toFixed(2)})` : `rgba(210, 136, 255, ${(tw * 0.9).toFixed(2)})`;
+              const tw = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t * 4.2 + p.ph));
+              ctx.fillStyle = tw > 0.78 ? `rgba(252, 238, 255, ${tw.toFixed(2)})` : `rgba(214, 140, 255, ${(tw * 0.92).toFixed(2)})`;
               ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
             });
           } else if (kind === 'S') {
-            // Stage 4: Golden Annular Eclipse (Ring of Fire — direct precursor to SSS Black Sun!)
+            // Stage 4: Full-Art Imperial Golden Annular Eclipse + Rotating Volumetric Sunburst Rays!
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#2a1a05');
-            bg.addColorStop(0.55, '#190f04');
-            bg.addColorStop(1, '#0b0602');
+            bg.addColorStop(0, '#3d2606');
+            bg.addColorStop(0.45, '#241404');
+            bg.addColorStop(1, '#0e0702');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
+            // Rotating volumetric golden god-rays reaching full card edges!
+            ctx.save();
+            ctx.translate(cx, cy);
+            const rayCount = 10;
+            for (let i = 0; i < rayCount; i++) {
+              const ang = (i / rayCount) * Math.PI * 2 + t * 0.24;
+              const rayA = 0.10 + 0.06 * Math.sin(t * 2.4 + i * 1.3);
+              ctx.fillStyle = `rgba(255, 224, 118, ${rayA.toFixed(3)})`;
+              ctx.beginPath();
+              ctx.moveTo(0, 0);
+              ctx.lineTo(Math.cos(ang - 0.14) * 78, Math.sin(ang - 0.14) * 78);
+              ctx.lineTo(Math.cos(ang + 0.14) * 78, Math.sin(ang + 0.14) * 78);
+              ctx.closePath();
+              ctx.fill();
+            }
+            ctx.restore();
+
             // Radiant golden eclipse aura
-            const sg = ctx.createRadialGradient(cx, cy, 8, cx, cy, 37);
-            const sPulse = 0.72 + Math.sin(t * 3.0) * 0.12;
-            sg.addColorStop(0, `rgba(255, 240, 168, ${sPulse.toFixed(3)})`);
-            sg.addColorStop(0.36, 'rgba(255, 192, 58, 0.45)');
-            sg.addColorStop(0.72, 'rgba(180, 108, 16, 0.16)');
+            const sg = ctx.createRadialGradient(cx, cy, 10, cx, cy, 46);
+            const sPulse = 0.78 + Math.sin(t * 3.0) * 0.12;
+            sg.addColorStop(0, `rgba(255, 244, 182, ${sPulse.toFixed(3)})`);
+            sg.addColorStop(0.42, 'rgba(255, 192, 58, 0.48)');
+            sg.addColorStop(0.78, 'rgba(184, 110, 16, 0.18)');
             sg.addColorStop(1, 'rgba(28, 14, 2, 0)');
             ctx.fillStyle = sg;
             ctx.fillRect(0, 0, W, H);
 
+            // Large Golden Annular Eclipse Halo (r = 22, clearly frames the entire hero!)
+            ctx.strokeStyle = '#fff5c8';
+            ctx.lineWidth = 2.2;
+            ctx.beginPath(); ctx.arc(cx, cy, 21.5, 0, Math.PI * 2); ctx.stroke();
+            ctx.strokeStyle = 'rgba(255, 196, 64, 0.72)';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.arc(cx, cy, 25.5, 0, Math.PI * 2); ctx.stroke();
+
             // 12 rhythmic golden pixel corona sparks around the ring
             for (let i = 0; i < 12; i++) {
-              const ang = (i / 12) * Math.PI * 2 + t * 0.36;
-              const dist = 14.5 + Math.sin(t * 3.8 + i * 1.7) * 2.2 + (i % 2 ? 1.5 : 0);
+              const ang = (i / 12) * Math.PI * 2 - t * 0.42;
+              const dist = 23.5 + Math.sin(t * 3.8 + i * 1.7) * 2.4;
               const px = Math.round(cx + Math.cos(ang) * dist);
               const py = Math.round(cy + Math.sin(ang) * dist);
-              ctx.fillStyle = i % 2 === 0 ? '#fff4be' : '#ffbe3d';
+              ctx.fillStyle = i % 2 === 0 ? '#fff8d4' : '#ffbe3d';
               ctx.fillRect(px - 1, py - 1, 2, 2);
             }
 
-            // Blazing golden annular eclipse ring + dark core
-            ctx.fillStyle = '#fff5c8';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 12.6, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#ffbf3c';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 11.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.fillStyle = '#170d04';
-            ctx.beginPath();
-            ctx.arc(cx, cy, 10.2, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Rising golden corona dust
+            // Rising golden corona embers
             cv._pts.forEach((p) => {
-              p.y += p.vy * dt;
-              p.x += (p.vx + Math.sin(t * 2.0 + p.ph) * 6) * dt;
+              p.y += p.vy * dt * 1.25;
+              p.x += (p.vx + Math.sin(t * 2.2 + p.ph) * 7) * dt;
               if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t * 4.4 + p.ph));
-              ctx.fillStyle = tw > 0.82 ? `rgba(255, 252, 226, ${tw.toFixed(2)})` : `rgba(255, 212, 84, ${(tw * 0.9).toFixed(2)})`;
+              const tw = 0.50 + 0.50 * (0.5 + 0.5 * Math.sin(t * 4.6 + p.ph));
+              ctx.fillStyle = tw > 0.78 ? `rgba(255, 252, 226, ${tw.toFixed(2)})` : `rgba(255, 212, 84, ${(tw * 0.94).toFixed(2)})`;
               ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
             });
           } else if (kind === 'SSS') {
-            // Stage 5: Pitch-black void sky with crimson eclipse horizon (Black Sun Storm!)
+            // Stage 5: Pitch-black void sky with crimson eclipse horizon (original sleek Black Sun Storm!)
             const bg = ctx.createLinearGradient(0, 0, 0, H);
             bg.addColorStop(0, '#090208');
             bg.addColorStop(0.52, '#1d0512');

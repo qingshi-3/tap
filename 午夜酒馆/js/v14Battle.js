@@ -331,54 +331,134 @@
       }
       ctx.restore();
     } else if (weather === 'mist') {
-      // Thick atmospheric horizon mist + tiny floating dew motes
+      // ATMOSPHERIC: Deep Nocturnal Rolling Mist (cool lakeside fog veil + 3-layer billowing volumetric fog banks creeping over bridge + damp dew motes!)
       ctx.save();
-      const mistCount = 6;
-      for (let r = 0; r < mistCount; r++) {
-        const yBase = bridgeY - 78 + r * 14;
-        const speed = 12 + (r % 3) * 7;
-        const offset = (t * speed + r * 260) % (w + 480);
-        const mx = offset - 480;
-        const mg = ctx.createLinearGradient(mx, yBase, mx + 480, yBase);
-        mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
-        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.085 + (r % 3) * 0.024) * intensity).toFixed(3)})`);
-        mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
-        ctx.fillStyle = mg;
-        ctx.fillRect(Math.round(mx), yBase, 480, 24 + (r % 3) * 8);
+      // 1. Soft atmospheric fog veil descending over the mid-to-lower backdrop
+      const veil = ctx.createLinearGradient(0, bridgeY * 0.22, 0, bridgeY + 12);
+      veil.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
+      veil.addColorStop(0.55, `rgba(${pal.mistRgb}, ${(0.14 * intensity).toFixed(3)})`);
+      veil.addColorStop(1, `rgba(${pal.mistRgb}, ${(0.34 * intensity).toFixed(3)})`);
+      ctx.fillStyle = veil;
+      ctx.fillRect(0, Math.round(bridgeY * 0.22), w, Math.round(bridgeY * 0.78) + 12);
+
+      // 2. Three parallax layers of billowing volumetric fog puffs rolling steadily across the bridge
+      const layers = [
+        { count: 7,  yRatio: 0.62, rx: 195, ry: 46, spd: 14, alpha: 0.18 },
+        { count: 8,  yRatio: 0.80, rx: 215, ry: 42, spd: 24, alpha: 0.24 },
+        { count: 9,  yRatio: 0.96, rx: 185, ry: 34, spd: 36, alpha: 0.30 }
+      ];
+      for (let li = 0; li < layers.length; li++) {
+        const ly = layers[li];
+        const span = w + ly.rx * 2;
+        for (let i = 0; i < ly.count; i++) {
+          const base = (i / ly.count) * span;
+          const x = ((base + t * ly.spd + hash2(li, i, 47) * 90) % span) - ly.rx;
+          const y = bridgeY * ly.yRatio + Math.sin(t * 0.8 + i * 1.7 + li) * 8;
+          const a = ly.alpha * (0.82 + 0.18 * Math.sin(t * 1.1 + i * 2.3)) * intensity;
+          ctx.save();
+          ctx.translate(Math.round(x), Math.round(y));
+          ctx.scale(1, ly.ry / ly.rx);
+          const fg = ctx.createRadialGradient(0, 0, 8, 0, 0, ly.rx);
+          fg.addColorStop(0, `rgba(${pal.mistRgb}, ${a.toFixed(3)})`);
+          fg.addColorStop(0.55, `rgba(${pal.mistRgb}, ${(a * 0.48).toFixed(3)})`);
+          fg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
+          ctx.fillStyle = fg;
+          ctx.fillRect(-ly.rx, -ly.rx, ly.rx * 2, ly.rx * 2);
+          ctx.restore();
+        }
+      }
+
+      // 3. Damp drifting pale-silver dew motes suspended in the night fog
+      ctx.globalCompositeOperation = 'lighter';
+      const dewCount = Math.round(28 * intensity);
+      for (let i = 0; i < dewCount; i++) {
+        const x = ((hash2(i, 1, 193) * w + t * (16 + (i % 4) * 6)) % w + w) % w;
+        const y = bridgeY * 0.35 + hash2(i, 2, 197) * (bridgeY * 0.62) + Math.sin(t * 1.3 + i) * 7;
+        const tw = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * 2.2 + i * 1.9));
+        ctx.fillStyle = `rgba(220, 238, 255, ${(tw * 0.52 * intensity).toFixed(2)})`;
+        ctx.fillRect(Math.round(x / px) * px, Math.round(y / px) * px, i % 3 === 0 ? 4 : 2, 2);
       }
       ctx.restore();
     } else if (weather === 'blood_embers') {
-      // EXTREME FANTASY: Blood Eclipse Ember Storm (oppressive crimson horizon pulse + whipping hot embers)
+      // EXTREME FANTASY: Oppressive Blood-Eclipse Firestorm (crimson sky wash + rolling ash smoke + whipping ember streaks + bridge-skimming sparks!)
       ctx.save();
-      const pulse = 0.72 + 0.28 * Math.sin(t * 2.1);
-      const haze = ctx.createLinearGradient(0, bridgeY - 170, 0, bridgeY);
-      haze.addColorStop(0, 'rgba(120, 12, 28, 0)');
-      haze.addColorStop(0.65, `rgba(176, 22, 42, ${(0.12 * pulse * intensity).toFixed(3)})`);
-      haze.addColorStop(1, `rgba(235, 58, 34, ${(0.20 * pulse * intensity).toFixed(3)})`);
-      ctx.fillStyle = haze;
-      ctx.fillRect(0, bridgeY - 170, w, 170);
+      const pulse = 0.74 + 0.26 * Math.sin(t * 2.2);
+      // 1. Oppressive blood-eclipse sky & horizon pressure glow
+      const skyWash = ctx.createLinearGradient(0, 0, 0, bridgeY);
+      skyWash.addColorStop(0, `rgba(98, 8, 22, ${(0.22 * pulse * intensity).toFixed(3)})`);
+      skyWash.addColorStop(0.55, `rgba(148, 18, 30, ${(0.14 * pulse * intensity).toFixed(3)})`);
+      skyWash.addColorStop(1, `rgba(242, 62, 26, ${(0.28 * pulse * intensity).toFixed(3)})`);
+      ctx.fillStyle = skyWash;
+      ctx.fillRect(0, 0, w, bridgeY);
 
-      ctx.globalCompositeOperation = 'lighter';
-      const count = Math.round(52 * intensity);
-      for (let i = 0; i < count; i++) {
-        const spdX = 110 + (i % 5) * 38;
-        const spdY = 48 + (i % 4) * 26;
-        const rawX = (hash2(i, 1, 97) * w) - t * spdX;
-        const rawY = (hash2(i, 2, 61) * bridgeY) - t * spdY + Math.sin(t * 3.2 + i) * 14;
-        const x = ((rawX % w) + w) % w;
-        const y = ((rawY % bridgeY) + bridgeY) % bridgeY;
+      // 2. Rolling dark-crimson volcanic smoke / ash ribbons drifting fast with wind
+      for (let r = 0; r < 4; r++) {
+        const sy = Math.round(bridgeY * (0.28 + r * 0.19));
+        const spd = 42 + r * 16;
+        const off = ((w + 520) - ((t * spd + r * 310) % (w + 520))) - 260;
+        const sm = ctx.createLinearGradient(off, sy, off + 520, sy);
+        sm.addColorStop(0, 'rgba(28, 6, 10, 0)');
+        sm.addColorStop(0.5, `rgba(48, 10, 14, ${(0.22 * intensity).toFixed(3)})`);
+        sm.addColorStop(1, 'rgba(28, 6, 10, 0)');
+        ctx.fillStyle = sm;
+        ctx.fillRect(Math.round(off), sy, 520, 26 + r * 8);
+      }
+
+      // 3. Tumbling charred ash flakes (dark-core + dim red edge for depth)
+      const ashCount = Math.round(28 * intensity);
+      for (let i = 0; i < ashCount; i++) {
+        const spdX = 85 + (i % 4) * 28;
+        const spdY = 22 + (i % 3) * 14;
+        const x = (((hash2(i, 3, 41) * w) - t * spdX) % w + w) % w;
+        const y = (((hash2(i, 8, 29) * bridgeY) - t * spdY + Math.sin(t * 2.4 + i) * 16) % bridgeY + bridgeY) % bridgeY;
         const sx = Math.round(x / px) * px;
         const sy = Math.round(y / px) * px;
-        const hot = i % 4 === 0;
-        const flick = 0.45 + 0.55 * Math.sin(t * 9.5 + i * 1.7);
-        // Ember trail pixel
-        ctx.globalAlpha = 0.36 * flick * intensity;
-        ctx.fillStyle = '#ff4226';
-        ctx.fillRect(sx + 4, sy + 2, 4, 2);
-        // Bright ember core
-        ctx.globalAlpha = (hot ? 0.92 : 0.74) * flick * intensity;
-        ctx.fillStyle = hot ? '#fff2b0' : (i % 2 === 0 ? '#ff8e2b' : '#ff3d4e');
-        ctx.fillRect(sx, sy, hot ? 4 : 2, hot ? 4 : 2);
+        ctx.fillStyle = `rgba(38, 14, 16, ${(0.72 * intensity).toFixed(2)})`;
+        ctx.fillRect(sx, sy, 4, 2);
+      }
+
+      // 4. Whipping incandescent ember streaks + glowing wind-swept sparks
+      ctx.globalCompositeOperation = 'lighter';
+      const count = Math.round(78 * intensity);
+      for (let i = 0; i < count; i++) {
+        const isHeroStreak = i < 16;
+        const spdX = (isHeroStreak ? 250 : 125) + (i % 5) * 44;
+        const spdY = (isHeroStreak ? 68 : 42) + (i % 4) * 24;
+        const gust = Math.sin(t * 2.8 + i * 0.7) * 18;
+        const x = (((hash2(i, 1, 97) * w) - t * spdX) % w + w) % w;
+        const y = (((hash2(i, 2, 61) * bridgeY) - t * spdY + gust) % bridgeY + bridgeY) % bridgeY;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        const flick = 0.52 + 0.48 * Math.sin(t * 10.5 + i * 1.9);
+        const hot = i % 3 === 0;
+        if (isHeroStreak) {
+          // Long 5-segment pixel fire-streak swept by gale
+          for (let s = 0; s < 5; s++) {
+            ctx.globalAlpha = (1 - s / 5) * 0.85 * flick * intensity;
+            ctx.fillStyle = s === 0 ? '#fff7c8' : s < 3 ? '#ff962e' : '#ff2e3b';
+            ctx.fillRect(sx + s * 4, sy + s * 2, s === 0 ? 4 : 3, s === 0 ? 4 : 2);
+          }
+        } else {
+          ctx.globalAlpha = 0.42 * flick * intensity;
+          ctx.fillStyle = '#ff3a24';
+          ctx.fillRect(sx + 4, sy + 2, 4, 2);
+          ctx.globalAlpha = (hot ? 0.96 : 0.78) * flick * intensity;
+          ctx.fillStyle = hot ? '#fff4be' : (i % 2 === 0 ? '#ff8e2b' : '#ff384c');
+          ctx.fillRect(sx, sy, hot ? 4 : 2, hot ? 4 : 2);
+        }
+      }
+
+      // 5. Hot sparks skimming & bouncing right off the bridge deck (y = bridgeY)
+      const skimCount = Math.round(14 * intensity);
+      for (let i = 0; i < skimCount; i++) {
+        const cycle = (t * (1.8 + (i % 3) * 0.5) + hash2(i, 6, 83) * 10) % 1;
+        const x = (((hash2(i, 4, 19) * w) - cycle * 140) % w + w) % w;
+        const bounce = Math.abs(Math.sin(cycle * Math.PI * 2.5)) * (16 * (1 - cycle));
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round((bridgeY - 3 - bounce) / px) * px;
+        ctx.globalAlpha = (1 - cycle) * 0.9 * intensity;
+        ctx.fillStyle = cycle < 0.3 ? '#fff6c4' : '#ff7b29';
+        ctx.fillRect(sx, sy, 4, 2);
       }
       ctx.restore();
     } else if (weather === 'arcane_storm') {
@@ -447,77 +527,253 @@
       }
       ctx.restore();
     } else if (weather === 'meteor_shower') {
-      // EXTREME FANTASY: Astral Meteor Shower (blazing diagonal pixel meteors + shimmering starlight dust)
+      // EXTREME FANTASY: Astral Meteor Shower (celestial aurora + dense continuous comet barrage with 5-8 visible simultaneously + horizon blooms!)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      const meteorCount = Math.round(7 * intensity);
+
+      // 1. Celestial indigo-cyan-gold aurora veil across upper sky
+      const aur = ctx.createLinearGradient(0, 0, w, bridgeY * 0.72);
+      aur.addColorStop(0, 'rgba(32, 92, 198, 0)');
+      aur.addColorStop(0.28, `rgba(68, 178, 255, ${(0.13 * intensity).toFixed(3)})`);
+      aur.addColorStop(0.68, `rgba(255, 206, 102, ${(0.10 * intensity).toFixed(3)})`);
+      aur.addColorStop(1, 'rgba(32, 92, 198, 0)');
+      ctx.fillStyle = aur;
+      ctx.fillRect(0, 0, w, Math.round(bridgeY * 0.72));
+
+      // 2. Dense continuous multi-scale meteor barrage (6 Hero Comets + 16 shooting stars, tightly staggered so 6-10 streak across sky at all times!)
+      const meteorCount = Math.round(22 * intensity);
       for (let i = 0; i < meteorCount; i++) {
-        const period = 2.6 + (i % 3) * 0.9;
-        const phase = (t + hash2(i, 5, 113) * period) % period;
-        const prog = phase / 0.85; // active for 0.85s
-        if (prog > 1) continue;
-        const seed = Math.floor((t + hash2(i, 5, 113) * period) / period) + i * 17;
-        const startX = 240 + hash2(seed, 1, 37) * (w - 140);
-        const startY = 8 + hash2(seed, 2, 67) * 85;
-        const mx = startX - prog * 340;
-        const my = startY + prog * 195;
-        const fade = Math.sin(prog * Math.PI);
+        const isHero = i < 6;
+        const period = isHero ? (1.45 + (i % 3) * 0.28) : (1.05 + (i % 4) * 0.22);
+        const dur = isHero ? 1.18 : 0.78;
+        const offset = (i / meteorCount) * period;
+        const phase = (t + offset) % period;
+        const prog = phase / dur;
+        if (prog > 1.18) continue;
+
+        const seed = Math.floor((t + offset) / period) + i * 31;
+        const startX = (isHero ? 180 : 120) + hash2(seed, 1, 37) * (w + 160);
+        const startY = -16 + hash2(seed, 2, 67) * (isHero ? 28 : 85);
+        const travelX = isHero ? 520 : 320;
+        const travelY = isHero ? (bridgeY - startY - 8) : 190;
+        const clampedP = Math.min(1, prog);
+        const mx = startX - clampedP * travelX;
+        const my = startY + clampedP * travelY;
+
         const isGold = i % 2 === 0;
-        const tailCol = isGold ? '#ffae42' : '#52d6ff';
-        const headCol = isGold ? '#fff8d6' : '#e0faff';
-        // Stepped pixel meteor tail
-        for (let seg = 0; seg < 11; seg++) {
-          const tx = Math.round((mx + seg * 8) / px) * px;
-          const ty = Math.round((my - seg * 4.6) / px) * px;
-          const segA = (1 - seg / 11) * fade * 0.82 * intensity;
-          if (segA <= 0.02) continue;
-          ctx.globalAlpha = segA;
-          ctx.fillStyle = seg < 2 ? headCol : tailCol;
-          const sz = seg === 0 ? 6 : seg < 4 ? 4 : 2;
-          ctx.fillRect(tx, ty, sz, sz);
+        const tailCol = isGold ? '#ffae38' : '#4ad8ff';
+        const midCol = isGold ? '#ffe47a' : '#a8f4ff';
+        const headCol = '#ffffff';
+
+        if (prog <= 1) {
+          const fade = Math.sin(clampedP * Math.PI);
+          // Hero comet bright volumetric glow head + long tapered luminous streak
+          if (isHero) {
+            const hg = ctx.createRadialGradient(mx, my, 2, mx, my, 32);
+            hg.addColorStop(0, `rgba(${isGold ? '255, 244, 184' : '198, 250, 255'}, ${(0.82 * fade * intensity).toFixed(3)})`);
+            hg.addColorStop(0.45, `rgba(${isGold ? '255, 168, 48' : '64, 212, 255'}, ${(0.36 * fade * intensity).toFixed(3)})`);
+            hg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = hg;
+            ctx.fillRect(Math.round(mx - 32), Math.round(my - 32), 64, 64);
+          }
+          const len = Math.hypot(travelX, travelY);
+          const ux = travelX / len, uy = travelY / len;
+          const tailLen = isHero ? 168 : 88;
+          // Continuous glowing tail beam + crisp pixel head & shedding sparks
+          const tg = ctx.createLinearGradient(mx, my, mx + ux * tailLen, my - uy * tailLen);
+          tg.addColorStop(0, headCol);
+          tg.addColorStop(0.22, midCol);
+          tg.addColorStop(0.65, tailCol);
+          tg.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.globalAlpha = fade * (isHero ? 0.92 : 0.72) * intensity;
+          ctx.strokeStyle = tg;
+          ctx.lineWidth = isHero ? 4 : 2;
+          ctx.beginPath();
+          ctx.moveTo(Math.round(mx), Math.round(my));
+          ctx.lineTo(Math.round(mx + ux * tailLen), Math.round(my - uy * tailLen));
+          ctx.stroke();
+
+          // Crisp pixel head core
+          const hs = isHero ? 6 : 4;
+          ctx.fillStyle = headCol;
+          ctx.fillRect(Math.round(mx - hs / 2), Math.round(my - hs / 2), hs, hs);
+
+          // Shedding stardust sparks along hero comet tail
+          if (isHero) {
+            for (let s = 1; s <= 6; s++) {
+              const dist = s * 22;
+              const jx = (hash2(seed, s, 71) - 0.5) * 14;
+              const jy = (hash2(seed, s, 83) - 0.5) * 10;
+              ctx.globalAlpha = (1 - s / 7) * fade * 0.85 * intensity;
+              ctx.fillStyle = s % 2 === 0 ? headCol : midCol;
+              ctx.fillRect(Math.round((mx + ux * dist + jx) / px) * px, Math.round((my - uy * dist + jy) / px) * px, 2, 2);
+            }
+          }
+        } else if (isHero) {
+          // Distant horizon impact bloom when hero comet strikes the skyline
+          const impP = (prog - 1) / 0.18;
+          const impA = (1 - impP) * 0.65 * intensity;
+          const impR = 18 + impP * 62;
+          const ig = ctx.createRadialGradient(mx, bridgeY - 6, 2, mx, bridgeY - 6, impR);
+          ig.addColorStop(0, `rgba(255, 250, 224, ${impA.toFixed(3)})`);
+          ig.addColorStop(0.5, `rgba(${isGold ? '255, 186, 68' : '92, 226, 255'}, ${(impA * 0.55).toFixed(3)})`);
+          ig.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = ig;
+          ctx.fillRect(Math.round(mx - impR), Math.round(bridgeY - 6 - impR), Math.round(impR * 2), Math.round(impR * 1.2));
         }
       }
-      // Ambient drifting starlight sparkles
-      const dustCount = Math.round(22 * intensity);
+
+      // 3. Crisp 4-point twinkling astral stars across the night sky
+      const dustCount = Math.round(38 * intensity);
       for (let i = 0; i < dustCount; i++) {
         const sx = Math.round((hash2(i, 1, 131) * w) / px) * px;
-        const sy = Math.round((24 + hash2(i, 2, 137) * (bridgeY - 60)) / px) * px;
-        const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (2.5 + (i % 4) * 0.6) + i), 3);
-        ctx.globalAlpha = tw * 0.72 * intensity;
-        ctx.fillStyle = i % 3 === 0 ? '#ffe699' : '#b8f0ff';
-        ctx.fillRect(sx, sy, 2, 2);
+        const sy = Math.round((16 + hash2(i, 2, 137) * (bridgeY - 52)) / px) * px;
+        const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (2.6 + (i % 4) * 0.7) + i), 2.5);
+        ctx.globalAlpha = tw * 0.85 * intensity;
+        ctx.fillStyle = i % 3 === 0 ? '#ffe899' : '#c8f6ff';
+        if (i % 4 === 0 && tw > 0.55) {
+          ctx.fillRect(sx - 4, sy, 10, 2);
+          ctx.fillRect(sx, sy - 4, 2, 10);
+        } else {
+          ctx.fillRect(sx, sy, 2, 2);
+        }
       }
       ctx.restore();
     } else if (weather === 'void_rift') {
-      // EXTREME FANTASY: Void Rift Shards (antigravity rising obsidian-violet shards + eerie horizon rift pulse)
+      // EXTREME FANTASY: Dimensional Void Rift (one massive organic jagged spatial fissure tearing the sky + crackling void arcs + gravity-pulled crystal shards!)
       ctx.save();
-      const pulse = 0.7 + 0.3 * Math.sin(t * 1.8);
-      const rift = ctx.createLinearGradient(0, bridgeY - 160, 0, bridgeY);
-      rift.addColorStop(0, 'rgba(68, 22, 118, 0)');
-      rift.addColorStop(0.65, `rgba(104, 34, 178, ${(0.14 * pulse * intensity).toFixed(3)})`);
-      rift.addColorStop(1, `rgba(168, 64, 245, ${(0.18 * pulse * intensity).toFixed(3)})`);
+      const pulse = 0.76 + 0.24 * Math.sin(t * 2.1);
+      // 1. Eerie abyssal violet-indigo sky & horizon distortion veil
+      const rift = ctx.createLinearGradient(0, 0, 0, bridgeY);
+      rift.addColorStop(0, `rgba(28, 6, 56, ${(0.28 * pulse * intensity).toFixed(3)})`);
+      rift.addColorStop(0.55, `rgba(74, 18, 132, ${(0.16 * pulse * intensity).toFixed(3)})`);
+      rift.addColorStop(1, `rgba(154, 42, 232, ${(0.24 * pulse * intensity).toFixed(3)})`);
       ctx.fillStyle = rift;
-      ctx.fillRect(0, bridgeY - 160, w, 160);
+      ctx.fillRect(0, 0, w, bridgeY);
 
+      // 2. Massive Organic Dimensional Sky Fissure (continuous jagged tear polygon — pitch-black void core + glowing violet-magenta plasma lip!)
+      const rcx = w * 0.54;
+      const rcy = bridgeY * 0.30 + Math.sin(t * 1.1) * 3;
+      const halfSpan = Math.min(210, w * 0.22);
+      const tilt = -0.18;
+      const cosT = Math.cos(tilt), sinT = Math.sin(tilt);
+
+      // Wide volumetric magenta-violet rift aura behind the fissure
+      ctx.save();
       ctx.globalCompositeOperation = 'lighter';
-      const count = Math.round(34 * intensity);
-      for (let i = 0; i < count; i++) {
-        const spd = 28 + (i % 4) * 18;
-        const rawY = (hash2(i, 2, 151) * bridgeY) - t * spd;
-        const y = ((rawY % bridgeY) + bridgeY) % bridgeY;
-        const x = hash2(i, 1, 149) * w + Math.sin(t * 1.6 + i) * 14;
-        const sx = Math.round(x / px) * px;
-        const sy = Math.round(y / px) * px;
-        const edgeFade = Math.min(1, y / 56) * Math.min(1, (bridgeY - y) / 40);
-        const isMagenta = i % 3 === 0;
-        const h = i % 4 === 0 ? 8 : 4;
-        ctx.globalAlpha = (0.38 + 0.45 * Math.sin(t * 4.2 + i)) * edgeFade * intensity;
-        ctx.fillStyle = isMagenta ? '#ff6ec7' : '#a86bff';
-        ctx.fillRect(sx, sy, 2, h);
-        if (i % 4 === 0) {
-          ctx.fillStyle = '#f5e0ff';
-          ctx.fillRect(sx, sy + 2, 2, 2);
+      const ag = ctx.createRadialGradient(rcx, rcy, 8, rcx, rcy, halfSpan * 1.25);
+      ag.addColorStop(0, `rgba(255, 106, 224, ${(0.42 * pulse * intensity).toFixed(3)})`);
+      ag.addColorStop(0.38, `rgba(148, 48, 248, ${(0.28 * pulse * intensity).toFixed(3)})`);
+      ag.addColorStop(0.75, `rgba(78, 18, 168, ${(0.10 * pulse * intensity).toFixed(3)})`);
+      ag.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = ag;
+      ctx.fillRect(Math.round(rcx - halfSpan * 1.3), Math.round(rcy - halfSpan * 0.9), Math.round(halfSpan * 2.6), Math.round(halfSpan * 1.8));
+      ctx.restore();
+
+      // Build continuous jagged upper & lower rift lips
+      const segs = 22;
+      const upperPts = [];
+      const lowerPts = [];
+      for (let s = 0; s <= segs; s++) {
+        const u = (s / segs) * 2 - 1; // -1..1
+        const env = Math.pow(Math.max(0, 1 - u * u), 1.35);
+        const spineY = (hash2(7, s, 91) - 0.5) * 18 * env + Math.sin(t * 2.4 + s * 0.9) * 2.2 * env;
+        const openH = (12 + hash2(9, s, 43) * 10) * env * pulse;
+        const lx = u * halfSpan;
+        const txU = rcx + lx * cosT - (spineY - openH) * sinT;
+        const tyU = rcy + lx * sinT + (spineY - openH) * cosT;
+        const txL = rcx + lx * cosT - (spineY + openH) * sinT;
+        const tyL = rcy + lx * sinT + (spineY + openH) * cosT;
+        upperPts.push([txU, tyU]);
+        lowerPts.push([txL, tyL]);
+      }
+
+      // Outer glowing plasma rim + pitch-black dimensional tear interior
+      ctx.save();
+      ctx.beginPath();
+      upperPts.forEach(([x, y], i) => i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+      for (let i = lowerPts.length - 1; i >= 0; i--) ctx.lineTo(lowerPts[i][0], lowerPts[i][1]);
+      ctx.closePath();
+      ctx.fillStyle = '#06010c';
+      ctx.fill();
+      ctx.strokeStyle = `rgba(255, 146, 242, ${(0.92 * intensity).toFixed(2)})`;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      ctx.strokeStyle = `rgba(164, 82, 255, ${(0.65 * intensity).toFixed(2)})`;
+      ctx.lineWidth = 6;
+      ctx.stroke();
+
+      // Tiny inner stars twinkling INSIDE the dark void tear
+      for (let k = 0; k < 10; k++) {
+        const u = (hash2(k, 1, 211) - 0.5) * 1.4;
+        const vx = rcx + u * halfSpan * cosT;
+        const vy = rcy + u * halfSpan * sinT + (hash2(k, 2, 223) - 0.5) * 8;
+        const tw = 0.4 + 0.6 * Math.sin(t * 5.2 + k * 1.7);
+        ctx.fillStyle = `rgba(255, 226, 255, ${(tw * 0.85 * intensity).toFixed(2)})`;
+        ctx.fillRect(Math.round(vx), Math.round(vy), 2, 2);
+      }
+
+      // Periodic thin crackling purple-white void arcs snapping out of the fissure
+      const arcCycle = (t * 1.7) % 1;
+      if (arcCycle < 0.34) {
+        const aSeed = Math.floor(t * 1.7);
+        const aAlpha = (1 - arcCycle / 0.34) * 0.88 * intensity;
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = `rgba(232, 168, 255, ${aAlpha.toFixed(2)})`;
+        ctx.lineWidth = 1.6;
+        for (let a = 0; a < 3; a++) {
+          let ax = rcx + (hash2(aSeed, a, 31) - 0.5) * halfSpan * 1.3;
+          let ay = rcy + (hash2(aSeed, a, 37) - 0.5) * 14;
+          ctx.beginPath(); ctx.moveTo(ax, ay);
+          for (let step = 0; step < 5; step++) {
+            ax += (hash2(aSeed + a, step, 41) - 0.5) * 34;
+            ay += (a % 2 === 0 ? 1 : -1) * (10 + hash2(aSeed + a, step, 47) * 16);
+            ctx.lineTo(ax, ay);
+          }
+          ctx.stroke();
         }
+      }
+      ctx.restore();
+
+      // 3. Antigravity floating angular obsidian crystal shards pulled upward toward the rift!
+      const shardCount = Math.round(24 * intensity);
+      for (let i = 0; i < shardCount; i++) {
+        const spd = 22 + (i % 4) * 12;
+        const prog = ((t * spd + hash2(i, 2, 151) * bridgeY) % bridgeY) / bridgeY; // 0 bottom -> 1 top
+        const y = bridgeY * (1 - prog);
+        const baseX = hash2(i, 1, 149) * w;
+        // Gently curve inward toward the dimensional rift as shards rise!
+        const x = baseX + (rcx - baseX) * (prog * 0.28) + Math.sin(t * 1.8 + i) * 12;
+        const edgeFade = Math.min(1, y / 36) * Math.min(1, (bridgeY - y) / 28);
+        const sz = i % 3 === 0 ? 6 : 4;
+        const rot = t * (i % 2 === 0 ? 1.2 : -1.2) + i;
+        ctx.save();
+        ctx.translate(Math.round(x), Math.round(y));
+        ctx.rotate(rot);
+        ctx.globalAlpha = edgeFade * 0.9 * intensity;
+        // Sharp diamond obsidian shard with glowing violet-magenta rim
+        ctx.beginPath();
+        ctx.moveTo(0, -sz); ctx.lineTo(sz * 0.65, 0); ctx.lineTo(0, sz); ctx.lineTo(-sz * 0.65, 0);
+        ctx.closePath();
+        ctx.fillStyle = '#120624';
+        ctx.fill();
+        ctx.strokeStyle = i % 2 === 0 ? '#d882ff' : '#ff6ec7';
+        ctx.lineWidth = 1.4;
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // 4. Rising thin luminous void energy filaments
+      ctx.globalCompositeOperation = 'lighter';
+      const wispCount = Math.round(32 * intensity);
+      for (let i = 0; i < wispCount; i++) {
+        const spd = 38 + (i % 4) * 20;
+        const y = (((hash2(i, 4, 173) * bridgeY) - t * spd) % bridgeY + bridgeY) % bridgeY;
+        const x = hash2(i, 5, 163) * w + Math.sin(t * 2.0 + i) * 16;
+        const edgeFade = Math.min(1, y / 44) * Math.min(1, (bridgeY - y) / 30);
+        ctx.globalAlpha = (0.38 + 0.45 * Math.sin(t * 4.5 + i)) * edgeFade * intensity;
+        ctx.fillStyle = i % 3 === 0 ? '#ff78d4' : '#b274ff';
+        ctx.fillRect(Math.round(x), Math.round(y), 2, i % 4 === 0 ? 12 : 5);
       }
       ctx.restore();
     }
