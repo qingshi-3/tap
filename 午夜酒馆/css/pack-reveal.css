@@ -319,17 +319,17 @@
 .pr-card.revealed.tier-SSS .pr-card-glow { opacity: 0.62; }
 
 .pr-stamp {
-  position: absolute; right: -16px; top: -20px; z-index: 6;
-  min-width: 58px; height: 58px; padding: 0 8px;
+  position: absolute; left: 50%; top: -22px; z-index: 6;
+  min-width: 46px; height: 28px; padding: 0 10px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 28px; color: #1a0d08; letter-spacing: 1px;
+  font-size: 16px; color: #1a0d08; letter-spacing: 1px;
   background: var(--tc);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.7), 0 0 0 2px #1a0d08, 0 4px 10px rgba(0, 0, 0, 0.6);
-  transform: rotate(10deg) scale(3); opacity: 0; pointer-events: none;
+  box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.72), 0 0 0 2px #1a0d08, 0 4px 10px rgba(0, 0, 0, 0.6);
+  transform: translateX(-50%) scale(2.4); opacity: 0; pointer-events: none;
 }
 .pr-card.stamped .pr-stamp { animation: prStamp 0.36s cubic-bezier(.3, 1.6, .5, 1) 0.12s forwards; }
-.pr-card.tier-SSS .pr-stamp { font-size: 24px; min-width: 76px; }
-@keyframes prStamp { to { transform: rotate(10deg) scale(1); opacity: 1; } }
+.pr-card.tier-SSS .pr-stamp { font-size: 15px; min-width: 62px; }
+@keyframes prStamp { to { transform: translateX(-50%) scale(1); opacity: 1; } }
 
 /* pick phase */
 @media (hover: hover) and (pointer: fine) {
@@ -362,3 +362,45 @@
   text-overflow: clip !important; line-height: 1.35 !important; padding: 3px 6px !important; text-align: center;
 }
 #pr-root .pr-front .pr-ins-card .v14-card-hero-stage { flex: 0 0 auto !important; }
+
+/* hero cards inside pack reveal: compact sprite + full multi-line player description */
+#pr-root .pr-front .v14-card.pr-hero-card {
+  padding: 7px 7px 6px !important;
+  justify-content: flex-start !important;
+  gap: 3px !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-card-hero-stage {
+  flex: 0 0 auto !important;
+  gap: 2px !important;
+  padding: 0 !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-card-sprite {
+  width: 54px !important;
+  height: 54px !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-card-name {
+  font-size: 12.5px !important;
+  line-height: 1.15 !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-card-perk.is-full-desc {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  font-size: 9.2px !important;
+  line-height: 1.38 !important;
+  padding: 4px 5px !important;
+  text-align: center !important;
+  color: #eef3ff !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-card-badges {
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .v14-inscrip-pill {
+  font-size: 8.5px !important;
+  padding: 1px 5px !important;
+}

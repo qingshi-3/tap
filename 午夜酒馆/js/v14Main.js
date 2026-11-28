@@ -13,6 +13,32 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+  // Unified inline slot & status keyword renderer across all UI copy
+  const KEYWORD_DEFS = [
+    { key: '易伤', cls: 'kw-vuln',   note: '本回合 Boss 后续受伤 ×1.4' },
+    { key: '剧毒', cls: 'kw-poison', note: '回合末每层扣 10 血（无视护盾）' },
+    { key: '冰霜', cls: 'kw-frost',  note: '每层降 Boss 攻 5%，满 10 层冻结减伤 50%' },
+    { key: '眩晕', cls: 'kw-stun',   note: 'Boss 跳过本回合行动，本回合受伤 ×1.5' }
+  ];
+
+  function richText(s) {
+    return esc(s)
+      .replace(/(^|[^0-9~～-])([123])\s*号位/g, '$1<span class="slot-badge slot-$2">$2号位</span>')
+      .replace(/(^|[^0-9~～-])([123])\s*号(?!位)/g, '$1<span class="slot-badge slot-$2 compact">$2号</span>')
+      .replace(/【易伤】/g, '<span class="kw-badge kw-vuln">易伤</span>')
+      .replace(/【剧毒】/g, '<span class="kw-badge kw-poison">剧毒</span>')
+      .replace(/【冰霜】/g, '<span class="kw-badge kw-frost">冰霜</span>')
+      .replace(/【眩晕】/g, '<span class="kw-badge kw-stun">眩晕</span>');
+  }
+
+  function renderKeywordNotes(text) {
+    if (!text) return '';
+    const src = String(text);
+    const hits = KEYWORD_DEFS.filter((k) => src.includes(k.key));
+    if (!hits.length) return '';
+    return `<div class="kw-notes">${hits.map((k) => `<div class="kw-note-row"><span class="kw-badge ${k.cls}">${k.key}</span><span>${k.note}</span></div>`).join('')}</div>`;
+  }
+
   function shuffle(arr) {
     const a = arr.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -55,15 +81,15 @@
   }
 
   function renderCardTierOrnament(tier, w = 78, h = 104) {
-    if (tier === 'C') return '';
     const border = tier === 'SSS' ? `<div class="v15-b-border"></div>` : '';
     const holo = (tier === 'S' || tier === 'SSS') ? `<div class="v15-b-holo"></div>` : '';
+    const spec = tier === 'C' ? '' : `<div class="v15-b-specular"></div>`;
     return `
       ${border}
       <div class="v15-card-window">
         <canvas class="v15-card-fx-canvas" width="${w}" height="${h}" data-fx="${tier}"></canvas>
         ${holo}
-        <div class="v15-b-specular"></div>
+        ${spec}
       </div>
     `;
   }
@@ -102,6 +128,7 @@
       }
       this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas'), this.sprites) : null;
       this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
+      this.previewStudio = window.MT.PreviewStudio ? new window.MT.PreviewStudio(this) : null;
       this.themeSanctumStage = window.MT.ThemeSanctumStage ? new window.MT.ThemeSanctumStage() : null;
       this._livePortraitRaf = 0;
       this._livePortraitEntries = [];
@@ -331,19 +358,20 @@
       const initParticles = (canvas, kind) => {
         if (canvas._fxInit) return;
         canvas._fxInit = true;
-        const countMap = { B: 14, A: 18, S: 20, SSS: 28 };
-        const n = countMap[kind] || 16;
+        const countMap = { C: 8, B: 12, A: 16, S: 20, SSS: 28 };
+        const n = countMap[kind] || 12;
         canvas._pts = Array.from({ length: n }, () => ({
           x: Math.random() * canvas.width,
           y: Math.random() * canvas.height,
-          vx: kind === 'B' ? -10 - Math.random() * 6
-            : kind === 'SSS' ? 16 + Math.random() * 24
-            : (Math.random() - 0.5) * 6,
-          vy: kind === 'B' ? 32 + Math.random() * 22
-            : kind === 'A' ? -(10 + Math.random() * 14)
-            : kind === 'S' ? -(6 + Math.random() * 11)
+          vx: kind === 'SSS' ? 16 + Math.random() * 24
+            : kind === 'C' ? (Math.random() - 0.5) * 1.6
+            : (Math.random() - 0.5) * 5,
+          vy: kind === 'C' ? -(1.5 + Math.random() * 2.5)
+            : kind === 'B' ? -(4 + Math.random() * 6)
+            : kind === 'A' ? -(8 + Math.random() * 11)
+            : kind === 'S' ? -(10 + Math.random() * 14)
             : -(14 + Math.random() * 26),
-          s: Math.random() < 0.35 ? 2 : 1,
+          s: kind === 'C' ? 1 : (Math.random() < 0.35 ? 2 : 1),
           ph: Math.random() * Math.PI * 2
         }));
       };
@@ -369,7 +397,8 @@
           return;
         }
 
-        // 1) Living Pixel Scene Windows (B: Mirror-Lake Rain | A: Amethyst Wisp | S: God Rays | SSS: Black Sun Eclipse)
+        // 1) Unified 5-Tier Eclipse Celestial Progression:
+        //    C: Still Starlight | B: Crescent Moon & Stardust | A: Half-Eclipse Violet | S: Golden Annular Eclipse | SSS: Black Sun Eclipse Storm
         canvases.forEach((cv) => {
           const kind = cv.dataset.fx;
           const ctx = cv.getContext('2d');
@@ -378,137 +407,185 @@
           const W = cv.width;
           const H = cv.height;
           ctx.clearRect(0, 0, W, H);
+          const cx = Math.round(W * 0.5);
+          const cy = Math.round(H * 0.40);
 
-          if (kind === 'B') {
-            // Deep sapphire midnight lake backdrop
+          if (kind === 'C') {
+            // Stage 1: Quiet Night & Faint Silver Starlight
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#0c203a');
-            bg.addColorStop(0.62, '#081529');
-            bg.addColorStop(1, '#050c1a');
+            bg.addColorStop(0, '#141826');
+            bg.addColorStop(0.6, '#0d101c');
+            bg.addColorStop(1, '#080a12');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Soft moonlight water glow near bottom
-            const wg = ctx.createRadialGradient(W * 0.5, H * 0.72, 2, W * 0.5, H * 0.72, 34);
-            wg.addColorStop(0, 'rgba(84, 198, 255, 0.28)');
-            wg.addColorStop(1, 'rgba(30, 96, 160, 0)');
-            ctx.fillStyle = wg;
+            // Soft pale lunar mist behind sprite
+            const mist = ctx.createRadialGradient(cx, cy, 2, cx, cy, 28);
+            const mA = 0.14 + Math.sin(t * 1.4) * 0.04;
+            mist.addColorStop(0, `rgba(196, 208, 232, ${mA.toFixed(3)})`);
+            mist.addColorStop(1, 'rgba(30, 38, 60, 0)');
+            ctx.fillStyle = mist;
             ctx.fillRect(0, 0, W, H);
 
-            // Subtle shimmering mirror-lake ripples at bottom
-            for (let i = 0; i < 4; i++) {
-              const ry = 66 + i * 5;
-              const rw = 16 + Math.sin(t * 2.2 + i * 1.4) * 7;
-              const rx = Math.round(W * 0.5 - rw * 0.5 + Math.cos(t * 1.3 + i) * 4);
-              ctx.fillStyle = `rgba(130, 224, 255, ${(0.18 - i * 0.03).toFixed(2)})`;
-              ctx.fillRect(rx, ry, Math.round(rw), 1);
-            }
-
-            // Crisp diagonal pixel rain streaks
+            // Quiet twinkling star points
             cv._pts.forEach((p) => {
-              p.x += p.vx * dt;
               p.y += p.vy * dt;
-              if (p.y > H + 4 || p.x < -4) {
-                p.y = -3 - Math.random() * 10;
-                p.x = Math.random() * (W + 18);
-              }
-              const ix = Math.round(p.x);
-              const iy = Math.round(p.y);
-              ctx.fillStyle = 'rgba(132, 220, 255, 0.55)';
-              ctx.fillRect(ix, iy, 1, 2);
-              ctx.fillStyle = 'rgba(196, 242, 255, 0.85)';
-              ctx.fillRect(ix - 1, iy + 2, 1, 2);
+              p.x += p.vx * dt;
+              if (p.y < -2) { p.y = H + 2; p.x = Math.random() * W; }
+              if (p.x < 0) p.x += W;
+              if (p.x >= W) p.x -= W;
+              const tw = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t * 2.2 + p.ph));
+              ctx.fillStyle = `rgba(206, 218, 240, ${tw.toFixed(2)})`;
+              ctx.fillRect(Math.round(p.x), Math.round(p.y), 1, 1);
+            });
+          } else if (kind === 'B') {
+            // Stage 2: Sapphire Crescent Moon & Drifting Stardust
+            const bg = ctx.createLinearGradient(0, 0, 0, H);
+            bg.addColorStop(0, '#0d223d');
+            bg.addColorStop(0.58, '#08152a');
+            bg.addColorStop(1, '#050b18');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, W, H);
+
+            // Soft sapphire lunar halo
+            const halo = ctx.createRadialGradient(cx, cy, 4, cx, cy, 32);
+            const hPulse = 0.34 + Math.sin(t * 2.0) * 0.07;
+            halo.addColorStop(0, `rgba(121, 210, 255, ${hPulse.toFixed(3)})`);
+            halo.addColorStop(0.55, 'rgba(62, 146, 224, 0.14)');
+            halo.addColorStop(1, 'rgba(10, 28, 56, 0)');
+            ctx.fillStyle = halo;
+            ctx.fillRect(0, 0, W, H);
+
+            // Crisp pixel crescent moon (bright ice-blue disc carved by night shadow)
+            ctx.fillStyle = '#c8f0ff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 10.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#0a1b33';
+            ctx.beginPath();
+            ctx.arc(cx + 4.2, cy - 1.5, 9.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Gently drifting blue-white stardust
+            cv._pts.forEach((p) => {
+              p.y += p.vy * dt;
+              p.x += (p.vx + Math.sin(t * 1.6 + p.ph) * 3.5) * dt;
+              if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
+              if (p.x < 0) p.x += W;
+              if (p.x >= W) p.x -= W;
+              const tw = 0.38 + 0.62 * (0.5 + 0.5 * Math.sin(t * 3.2 + p.ph));
+              ctx.fillStyle = tw > 0.8 ? `rgba(226, 248, 255, ${tw.toFixed(2)})` : `rgba(121, 210, 255, ${(tw * 0.88).toFixed(2)})`;
+              ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
             });
           } else if (kind === 'A') {
-            // Deep royal amethyst night
+            // Stage 3: Amethyst Half-Eclipse & Orbiting Arcane Ring
             const bg = ctx.createLinearGradient(0, 0, 0, H);
             bg.addColorStop(0, '#160926');
             bg.addColorStop(0.55, '#220c3b');
-            bg.addColorStop(1, '#301052');
+            bg.addColorStop(1, '#120620');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Rising amethyst wisp core glow
-            const ag = ctx.createRadialGradient(W * 0.5, H * 0.62, 3, W * 0.5, H * 0.62, 36);
-            ag.addColorStop(0, 'rgba(216, 126, 255, 0.45)');
-            ag.addColorStop(0.55, 'rgba(146, 62, 224, 0.22)');
-            ag.addColorStop(1, 'rgba(30, 10, 56, 0)');
+            // Amethyst eclipse corona glow
+            const ag = ctx.createRadialGradient(cx, cy, 6, cx, cy, 35);
+            const aPulse = 0.52 + Math.sin(t * 2.6) * 0.1;
+            ag.addColorStop(0, `rgba(218, 134, 255, ${aPulse.toFixed(3)})`);
+            ag.addColorStop(0.48, 'rgba(146, 62, 224, 0.24)');
+            ag.addColorStop(1, 'rgba(26, 8, 48, 0)');
             ctx.fillStyle = ag;
             ctx.fillRect(0, 0, W, H);
 
-            // Flickering pixel wisp tongues at lower stage
-            for (let i = 0; i < 7; i++) {
-              const fx = 12 + i * 8 + Math.sin(t * 2.6 + i * 1.5) * 2;
-              const fh = 10 + Math.sin(t * 4.4 + i * 2.1) * 5;
-              ctx.fillStyle = 'rgba(184, 96, 255, 0.26)';
-              ctx.fillRect(Math.round(fx), Math.round(H - 18 - fh), 3, Math.round(fh));
-              ctx.fillStyle = 'rgba(238, 196, 255, 0.35)';
-              ctx.fillRect(Math.round(fx + 1), Math.round(H - 18 - fh * 0.5), 1, Math.round(fh * 0.5));
+            // Orbiting pixel star-beads ring around the half-eclipsed moon
+            for (let i = 0; i < 10; i++) {
+              const ang = (i / 10) * Math.PI * 2 + t * 0.48;
+              const rx = Math.round(cx + Math.cos(ang) * 16.5);
+              const ry = Math.round(cy + Math.sin(ang) * 16.5);
+              const bright = (i % 2 === 0);
+              ctx.fillStyle = bright ? 'rgba(246, 220, 255, 0.85)' : 'rgba(186, 108, 255, 0.52)';
+              ctx.fillRect(rx, ry, bright ? 2 : 1, bright ? 2 : 1);
             }
 
-            // Floating arcane lavender sparks
+            // Half-eclipsed amethyst moon (bright violet rim, shadow creeping across center)
+            ctx.fillStyle = '#f2d6ff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 11.6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#c870ff';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 10.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#180828';
+            ctx.beginPath();
+            ctx.arc(cx + 2.6, cy - 0.6, 9.6, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Rising amethyst starlight motes
             cv._pts.forEach((p) => {
               p.y += p.vy * dt;
-              p.x += (Math.sin(t * 2.4 + p.ph) * 8) * dt;
+              p.x += (Math.sin(t * 2.2 + p.ph) * 6) * dt;
               if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.45 + 0.55 * Math.sin(t * 4.5 + p.ph);
-              ctx.fillStyle = tw > 0.8 ? `rgba(250,234,255,${tw.toFixed(2)})` : `rgba(210,136,255,${(tw * 0.9).toFixed(2)})`;
+              const tw = 0.42 + 0.58 * (0.5 + 0.5 * Math.sin(t * 4.2 + p.ph));
+              ctx.fillStyle = tw > 0.8 ? `rgba(250, 234, 255, ${tw.toFixed(2)})` : `rgba(210, 136, 255, ${(tw * 0.9).toFixed(2)})`;
               ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
             });
           } else if (kind === 'S') {
-            // Deep obsidian-amber cathedral backdrop
+            // Stage 4: Golden Annular Eclipse (Ring of Fire — direct precursor to SSS Black Sun!)
             const bg = ctx.createLinearGradient(0, 0, 0, H);
-            bg.addColorStop(0, '#2e1d06');
-            bg.addColorStop(0.55, '#191004');
-            bg.addColorStop(1, '#090602');
+            bg.addColorStop(0, '#2a1a05');
+            bg.addColorStop(0.55, '#190f04');
+            bg.addColorStop(1, '#0b0602');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            // Diagonal golden cathedral God Rays
-            const rays = [
-              { x0: -6, w: 15, spd: 0.7, ph: 0.0, a: 0.28 },
-              { x0: 18, w: 20, spd: 0.55, ph: 1.9, a: 0.34 },
-              { x0: 44, w: 13, spd: 0.85, ph: 3.4, a: 0.24 }
-            ];
-            rays.forEach((r) => {
-              const pulse = 0.65 + 0.35 * Math.sin(t * r.spd + r.ph);
-              const shift = Math.sin(t * 0.4 + r.ph) * 3;
-              const grad = ctx.createLinearGradient(r.x0 + shift, 0, r.x0 + 26 + shift, H * 0.82);
-              grad.addColorStop(0, `rgba(255, 242, 174, ${(r.a * pulse).toFixed(3)})`);
-              grad.addColorStop(0.65, `rgba(255, 198, 66, ${(r.a * 0.58 * pulse).toFixed(3)})`);
-              grad.addColorStop(1, 'rgba(255, 170, 30, 0)');
-              ctx.fillStyle = grad;
-              ctx.beginPath();
-              ctx.moveTo(Math.round(r.x0 + shift), 0);
-              ctx.lineTo(Math.round(r.x0 + r.w + shift), 0);
-              ctx.lineTo(Math.round(r.x0 + r.w + 26 + shift), H);
-              ctx.lineTo(Math.round(r.x0 + 18 + shift), H);
-              ctx.closePath();
-              ctx.fill();
-            });
-
-            // Warm golden floor mist
-            const fg = ctx.createRadialGradient(W * 0.5, H * 0.74, 2, W * 0.5, H * 0.74, 36);
-            fg.addColorStop(0, 'rgba(255, 214, 92, 0.46)');
-            fg.addColorStop(1, 'rgba(255, 174, 42, 0)');
-            ctx.fillStyle = fg;
+            // Radiant golden eclipse aura
+            const sg = ctx.createRadialGradient(cx, cy, 8, cx, cy, 37);
+            const sPulse = 0.72 + Math.sin(t * 3.0) * 0.12;
+            sg.addColorStop(0, `rgba(255, 240, 168, ${sPulse.toFixed(3)})`);
+            sg.addColorStop(0.36, 'rgba(255, 192, 58, 0.45)');
+            sg.addColorStop(0.72, 'rgba(180, 108, 16, 0.16)');
+            sg.addColorStop(1, 'rgba(28, 14, 2, 0)');
+            ctx.fillStyle = sg;
             ctx.fillRect(0, 0, W, H);
 
-            // Drifting pixel golden light dust
+            // 12 rhythmic golden pixel corona sparks around the ring
+            for (let i = 0; i < 12; i++) {
+              const ang = (i / 12) * Math.PI * 2 + t * 0.36;
+              const dist = 14.5 + Math.sin(t * 3.8 + i * 1.7) * 2.2 + (i % 2 ? 1.5 : 0);
+              const px = Math.round(cx + Math.cos(ang) * dist);
+              const py = Math.round(cy + Math.sin(ang) * dist);
+              ctx.fillStyle = i % 2 === 0 ? '#fff4be' : '#ffbe3d';
+              ctx.fillRect(px - 1, py - 1, 2, 2);
+            }
+
+            // Blazing golden annular eclipse ring + dark core
+            ctx.fillStyle = '#fff5c8';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 12.6, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#ffbf3c';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 11.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#170d04';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 10.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Rising golden corona dust
             cv._pts.forEach((p) => {
               p.y += p.vy * dt;
-              p.x += (p.vx + Math.sin(t * 1.8 + p.ph) * 5) * dt;
+              p.x += (p.vx + Math.sin(t * 2.0 + p.ph) * 6) * dt;
               if (p.y < -3) { p.y = H + 2; p.x = Math.random() * W; }
               if (p.x < 0) p.x += W;
               if (p.x >= W) p.x -= W;
-              const tw = 0.45 + 0.55 * Math.sin(t * 4.2 + p.ph);
-              ctx.fillStyle = tw > 0.82 ? `rgba(255,252,226,${tw.toFixed(2)})` : `rgba(255,212,84,${(tw * 0.88).toFixed(2)})`;
+              const tw = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(t * 4.4 + p.ph));
+              ctx.fillStyle = tw > 0.82 ? `rgba(255, 252, 226, ${tw.toFixed(2)})` : `rgba(255, 212, 84, ${(tw * 0.9).toFixed(2)})`;
               ctx.fillRect(Math.round(p.x), Math.round(p.y), p.s, p.s);
             });
           } else if (kind === 'SSS') {
-            // Pitch-black void sky with crimson eclipse horizon
+            // Stage 5: Pitch-black void sky with crimson eclipse horizon (Black Sun Storm!)
             const bg = ctx.createLinearGradient(0, 0, 0, H);
             bg.addColorStop(0, '#090208');
             bg.addColorStop(0.52, '#1d0512');
@@ -516,8 +593,6 @@
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
-            const cx = Math.round(W * 0.5);
-            const cy = Math.round(H * 0.44);
             const aura = ctx.createRadialGradient(cx, cy, 10, cx, cy, 38);
             aura.addColorStop(0, 'rgba(255, 232, 130, 0.94)');
             aura.addColorStop(0.32, 'rgba(255, 72, 112, 0.74)');
@@ -675,6 +750,7 @@
 
     bindEvents() {
       $('btn-title-enter').onclick = () => this.openPrepHall();
+      if ($('btn-title-preview')) $('btn-title-preview').onclick = () => this.previewStudio && this.previewStudio.open('scene');
       $('btn-title-hands').onclick = () => this.openCodexModal('codex');
       $('btn-title-mute').onclick = () => this.toggleMute();
 
@@ -725,6 +801,7 @@
 
       $('btn-bt-roster').onclick = () => this.openCodexModal('roster');
       $('btn-bt-hands').onclick = () => this.openCodexModal('codex');
+      if ($('btn-bt-preview')) $('btn-bt-preview').onclick = () => this.previewStudio && this.previewStudio.open('scene');
       $('bt-speed-btn').onclick = () => {
         this.speed = this.speed === 1 ? 1.8 : 1;
         this.battleStage.setSpeed(this.speed);
@@ -735,6 +812,7 @@
       $('btn-bt-discard').onclick = () => this.handleDiscardButton();
       $('btn-bt-strike').onclick = () => this.handleStrikeButton();
 
+      if ($('btn-shop-preview')) $('btn-shop-preview').onclick = () => this.previewStudio && this.previewStudio.open('scene');
       $('btn-hands-open').onclick = () => this.openCodexModal('codex');
       $('btn-mute').onclick = () => this.toggleMute();
       $('btn-restart').onclick = () => this.openPrepHall();
@@ -894,49 +972,49 @@
     }
 
     getShortPerk(h) {
-      if (h.applyVuln && !h.bloodToShield) return '挂易伤 ×1.4';
-      if (h.retriggerLeft && h.inheritLeftAtkRatio) return '继60%攻+复读';
-      if (h.retriggerLeft) return '左侧再动 1 次';
+      if (h.applyVuln && !h.bloodToShield) return '出手挂【易伤】';
+      if (h.retriggerLeft && h.inheritLeftAtkRatio) return '出手继左攻再动';
+      if (h.retriggerLeft) return '出手左侧再动';
       if (h.goldOnDiscard && h.goldOnStrike) return '出手/弃牌 +1G';
-      if (h.followPrev) return '前动补刀+4攻';
-      if (h.emptySlotMult) return '每空位 ×1.8';
+      if (h.followPrev) return '左动补刀 +4攻';
+      if (h.emptySlotMult) return '出手每空位 ×1.8';
       if (h.inHandGrowPerStrike) return '留手每击 +8攻';
-      if (h.noAttackAmpRight) return '右侧伤害 ×2.0';
-      if (h.growPerSpend3G) return '+2G · 消费成长';
+      if (h.noAttackAmpRight) return '出手右侧 ×2.0';
+      if (h.growPerSpend3G) return '出手+2G 消费+攻';
       if (h.knifeCount > 0) return `弃牌蓄 ${h.knifeCount} 刀`;
-      if (h.discardInjectTeamAtk) return '弃牌注攻 +1G';
-      if (h.discardTriggerLeftmostHand) return '接口 · 弃牌导流';
-      if (h.multPerWaveDiscard) return '每弃1张 +0.4×';
-      if (h.growOnSlot1SurviveShield) return `+${h.shieldVal}盾 · 挨打成长`;
-      if (h.shieldToAtkRatio) return `+${h.shieldVal}盾 · 盾转攻`;
-      if (h.borrowHitToSlot3) return '接口 · 承伤充3号';
-      if (h.consumeHalfShieldMult) return '耗半盾 ×8 重击';
-      if (h.slot1InfectTeammates) return `挂${h.applyPoison}毒 · 队友传染`;
-      if (h.multPoison) return `挂${h.applyPoison}毒 · 毒×1.5`;
-      if (h.poisonBloodBridge) return '接口 · 吞毒注全队';
-      if (h.detonatePoison) return '即时引爆剧毒';
-      if (h.applyFrost) return `挂 ${h.applyFrost} 层冰霜`;
-      if (h.shatterMult) return '碎冰 ×1.8 成长';
-      if (h.shieldToFrostPer10) return '接口 · 蓝盾转冰';
-      if (h.consumeFrostBonusAtk) return '耗全冰爆发';
+      if (h.discardInjectTeamAtk) return '弃牌加全队攻+1G';
+      if (h.discardTriggerLeftmostHand) return '弃牌最左追打';
+      if (h.multPerWaveDiscard) return '出手每弃 +0.4×';
+      if (h.growOnSlot1SurviveShield) return `出手+${h.shieldVal}盾 1号成长`;
+      if (h.shieldToAtkRatio) return `出手+${h.shieldVal}盾 盾转攻`;
+      if (h.borrowHitToSlot3) return '站1号承伤→3号';
+      if (h.consumeHalfShieldMult) return '出手耗半盾重击';
+      if (h.slot1InfectTeammates) return `出手挂${h.applyPoison}毒 1号传染`;
+      if (h.multPoison) return `出手挂${h.applyPoison}毒 毒×1.5`;
+      if (h.poisonBloodBridge) return '出手挂毒/吞毒';
+      if (h.detonatePoison) return '出手结算【剧毒】';
+      if (h.applyFrost) return `出手挂${h.applyFrost}【冰霜】`;
+      if (h.shatterMult) return '出手碎冰 ×1.8';
+      if (h.shieldToFrostPer10) return '站1号+盾 盾挂冰';
+      if (h.consumeFrostBonusAtk) return '出手清冰爆发';
       if (h.inHandTeamMult) return '留手全队 ×1.25';
-      if (h.inHandEndGold) return '留手+2G +12攻';
-      if (h.leftmostAssistSlot3) return '接口 · 3号援护';
-      if (h.multPerRemainingHand) return '每留1手 ×1.35';
-      if (h.devourLeftRatio) return '吞左侧 ×1.6';
-      if (h.onExhaustTeamPermAtk) return '遗言全队 +15攻';
-      if (h.summonBladeIfEmpty) return '接口 · 空位召灵';
-      if (h.multPerWaveExhaust) return '每退场 ×1.8';
-      if (h.selfCostGrowAtk) return '自残8血 ×1.75';
-      if (h.healOnStrike) return '回12血 · 残血×1.8';
-      if (h.bloodToShield) return '接口 · 燃血转盾';
-      if (h.missingHpPctMult) return '每损1%血 +3%';
-      if (h.gambleCoinMult) return '抛币 ×2.2/+2G';
-      if (h.gambleDiceMode) return '掷骰盾/攻/×2.4';
-      if (h.retriggerLeftOnBet) return '接口 · 押2G复读';
-      if (h.multPerGambleWin) return '每正面 ×1.45';
-      if (h.shieldVal > 0) return `出手 +${h.shieldVal} 蓝盾`;
-      return '纯高战力底座';
+      if (h.inHandEndGold) return '留手 +2G +12攻';
+      if (h.leftmostAssistSlot3) return '最左随3号追打';
+      if (h.multPerRemainingHand) return '出手每留手 ×1.35';
+      if (h.devourLeftRatio) return '上阵吞左 ×1.6';
+      if (h.onExhaustTeamPermAtk) return '退场全队 +15攻';
+      if (h.summonBladeIfEmpty) return '出手空位招剑灵';
+      if (h.multPerWaveExhaust) return '出手每退场 ×1.8';
+      if (h.selfCostGrowAtk) return '出手扣8血 ×1.75';
+      if (h.healOnStrike) return '出手回12血 残血×';
+      if (h.bloodToShield) return '出手扣血+盾【易伤】';
+      if (h.missingHpPctMult) return '出手损1%血+3%';
+      if (h.gambleCoinMult) return '出手抛币 ×2.2/+2G';
+      if (h.gambleDiceMode) return '出手掷骰盾/攻/×';
+      if (h.retriggerLeftOnBet) return '出手押2G左再动';
+      if (h.multPerGambleWin) return '出手每正面 ×1.45';
+      if (h.shieldVal > 0) return `出手 +${h.shieldVal} 护盾`;
+      return '无特殊效果';
     }
 
     getThemeFallbackGear(themeOrKind = 'core') {
@@ -1372,7 +1450,7 @@
                                    <div class="v17-sl-fg-glow" aria-hidden="true"></div>
                                  </div>`
                               : (h.portrait
-                                ? `<img class="v17-sl-art" src="${esc(h.portrait)}" alt="${esc(h.name)}" draggable="false" />`
+                                ? `<img class="v17-sl-art" src="${esc(h.portrait)}" alt="${esc(h.name)}" style="object-position:${esc(h.slicePos || '50% 20%')}" draggable="false" />`
                                 : `<div class="v17-sl-blank-canvas">
                                      <div class="v17-blank-grid" aria-hidden="true"></div>
                                      <div class="v17-blank-watermark">${code}</div>
@@ -1402,7 +1480,7 @@
                             </div>
                             <div class="v17-ex-bottom">
                               <div class="v17-ex-name">${esc(h.name)}</div>
-                              <div class="v17-ex-sub">${esc(h.desc)}</div>
+                              <div class="v17-ex-sub">${richText(h.desc)}</div>
                               <div class="v17-inline-dock"></div>
                             </div>
                           </div>
@@ -1880,13 +1958,13 @@
         <div class="v18-lore-id">
           <span class="v18-rank-gem tier-${h.tier}">${h.tier}</span>
           <div class="v18-lore-titles">
-            <span class="v18-lore-kind">流派侠客</span>
+            <span class="v18-lore-kind">流派队员</span>
             <b class="v18-lore-name">${esc(h.shortName)}</b>
           </div>
           <span class="v18-lore-stat">${pxIcon('atk')}<b>${h.atk}</b></span>
         </div>
         <div class="v18-lore-sep" aria-hidden="true"></div>
-        <p class="v18-lore-desc">${esc(h.desc)}</p>
+        <p class="v18-lore-desc">${richText(h.desc)}</p>
       `;
       const renderLoreRelic = (r) => `
         <div class="v18-lore-id">
@@ -1897,7 +1975,7 @@
           </div>
         </div>
         <div class="v18-lore-sep" aria-hidden="true"></div>
-        <p class="v18-lore-desc">${esc(r.desc)}</p>
+        <p class="v18-lore-desc">${richText(r.desc)}</p>
       `;
 
       const ctaHtml = unlocked
@@ -1947,7 +2025,7 @@
             <!-- Left Wing: 4 Live Animated Heroes on Celestial Spotlight Dais -->
             <div class="v18-arena-units">
               <div class="v18-wing-label">
-                <span class="v18-wl-main">流派侠客</span>
+                <span class="v18-wl-main">流派队员</span>
                 <span class="v18-wl-line" aria-hidden="true"></span>
                 <span class="v18-wl-sub">${tpHeroes.length} UNITS · 点击演武</span>
               </div>
@@ -2184,6 +2262,7 @@
       if (img) {
         img.src = hero.portraitChar || hero.portrait || '';
         img.alt = hero.name || '';
+        img.style.objectPosition = hero.slicePos || '50% 20%';
       }
       const codeEl = $('hsv-code');
       if (codeEl) codeEl.textContent = `NO.${hero.code || '01'} · ${hero.codename || 'VANGUARD'}`;
@@ -2214,6 +2293,7 @@
       if (avatar) {
         avatar.src = hero.portraitChar || hero.portrait || '';
         avatar.alt = hero.name || '';
+        avatar.style.objectPosition = hero.avatarPos || '50% 22%';
       }
       const tip = $('bt-hero-tip');
       if (tip) {
@@ -2224,7 +2304,7 @@
             <span class="bht-code">NO.${esc(hero.code || '01')} · ${esc(hero.codename || '')}</span>
           </div>
           <div class="bht-passive-title">英雄专属被动</div>
-          <div class="bht-passive-desc">${esc(hero.desc || '')}</div>
+          <div class="bht-passive-desc">${richText(hero.desc || '')}</div>
         `;
       }
       const medallion = $('bt-hero-medallion');
@@ -2286,6 +2366,7 @@
       if (charImg) {
         charImg.src = hero.portraitChar || hero.portrait || '';
         charImg.alt = hero.name || '';
+        charImg.style.objectPosition = hero.avatarPos || '50% 22%';
       }
       const kickerEl = $('bt-cutin-kicker');
       if (kickerEl) kickerEl.textContent = `NO.${hero.code || '01'} · ${hero.codename || hero.name || ''}`;
@@ -2313,6 +2394,33 @@
       if (!saved) return;
       this.audio.ensure();
       this.run = JSON.parse(JSON.stringify(saved));
+      // Refresh static text fields from current templates so resumed runs always show latest copy
+      if (Array.isArray(this.run.roster)) {
+        this.run.roster.forEach((h) => {
+          const tpl = D.ALL_HERO_MAP && D.ALL_HERO_MAP[h.tplId || h.id];
+          if (tpl) {
+            h.desc = tpl.desc;
+            h.name = tpl.name;
+            h.shortName = tpl.shortName;
+          }
+        });
+      }
+      if (Array.isArray(this.run.relics)) {
+        const relicMap = {};
+        (D.RELICS || []).forEach((r) => { relicMap[r.id] = r; });
+        this.run.relics.forEach((r) => {
+          const tpl = relicMap[r.id];
+          if (tpl) {
+            r.desc = tpl.desc;
+            r.short = tpl.short;
+            r.name = tpl.name;
+          }
+        });
+      }
+      if (this.run.hero && this.run.hero.id && this.meta.getHero) {
+        const latestHero = this.meta.getHero(this.run.hero.id);
+        if (latestHero) this.run.hero.desc = latestHero.desc;
+      }
       this.selectedRelicUid = null;
       if (this.heroMusterStage) this.heroMusterStage.stop();
       if (this.themeSanctumStage) this.themeSanctumStage.stop();
@@ -2421,7 +2529,8 @@
         slots: [null, null, null]
       };
 
-      const biome = wave % 3 === 0 ? 'ice' : wave % 2 === 0 ? 'dark' : 'default';
+      const scene = this._getWaveScene(wave, bossCfg.tier || (wave >= 8 ? 4 : wave >= 6 ? 3 : wave >= 3 ? 2 : 1));
+      const biome = scene ? scene.biome : (wave % 3 === 0 ? 'ice' : wave % 2 === 0 ? 'dark' : 'default');
       this.battleStage.onSlotClick = (idx) => {
         if (this.busy || !this.battle) return;
         if (this.battle.slots[idx]) {
@@ -2452,8 +2561,19 @@
           this.syncBattleUI();
         });
       }
-      this.battleStage.start(bossCfg, biome, hero);
+      this.battleStage.start(bossCfg, biome, hero, scene);
       this.beginRound();
+    }
+
+    _getWaveScene(wave, bossTier = 1) {
+      if (!this.run) return null;
+      const cur = this.run.waveScene;
+      if (cur && cur.wave === wave && cur.mapId && cur.weather) return cur;
+      if (window.MT && window.MT.pickWaveScene) {
+        this.run.waveScene = window.MT.pickWaveScene(wave, bossTier, cur || null);
+        return this.run.waveScene;
+      }
+      return null;
     }
 
     prepareBossIntent() {
@@ -2770,7 +2890,7 @@
       const b = this.battle;
       if (this.discardMode) { this.discardMode = false; this.discardPicks.clear(); }
       if (b.slots.filter(Boolean).length === 0) {
-        this.toast('请至少派出 1 名侠客上阵！');
+        this.toast('请至少派出 1 名队员上阵！');
         return;
       }
 
@@ -3434,7 +3554,7 @@
       const heroLabel = (this.run && this.run.hero && this.run.hero.name)
         ? this.run.hero.name.replace(/^英雄\d+\s*·\s*/, '')
         : '小队';
-      $('bt-title').innerHTML = `<span class="v15-hud-tag squad-hero-lbl">${esc(heroLabel)}</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}</span>`;
+      $('bt-title').innerHTML = `<span class="v15-hud-tag squad-hero-lbl">${esc(heroLabel)}</span><span class="v15-hud-tag gold">${pxIcon('gold')}${b.gold}G</span>`;
       const waveEl = $('bt-wave-text');
       const roundEl = $('bt-round-text');
       const pipsEl = $('bt-wave-pips');
@@ -3518,7 +3638,7 @@
             this.inspectedSlotIdx = -1;
             this.inspectedCardUid = null;
             if (this.battleStage.setInspectedSlot) this.battleStage.setInspectedSlot(-1, []);
-            tip.innerHTML = `<b style="color:#ffe266">${esc(r.name)}</b><br/>${esc(r.desc)}`;
+            tip.innerHTML = `<b style="color:#ffe266">${esc(this._plainName(r.name))}</b><br/>${richText(r.desc)}${renderKeywordNotes(r.desc)}`;
             tip.classList.remove('hidden');
             this.audio.playPickup();
           }
@@ -3632,20 +3752,50 @@
       if (this.battleStage.syncSynergyLinks) this.battleStage.syncSynergyLinks(fc.links);
       const fcCore = $('fc-core-content');
       const hasAnyActive = b.slots.some(Boolean);
-      fcCore.innerHTML = hasAnyActive ? `
-        <div class="v14-fc-metrics">
-          <span class="v14-fc-pill direct">${pxIcon('atk', 'lg')} ${fc.directDmg}${fc.willDirectKill ? ' 斩杀!' : ''}</span>
-          ${fc.poisonEndDmg > 0 ? `<span class="v14-fc-pill poison">${pxIcon('poison')} ${fc.poisonEndDmg}</span>` : ''}
-          ${fc.shieldTotal > 0 ? `<span class="v14-fc-pill shield">${pxIcon('shield')} ${fc.shieldTotal}</span>` : ''}
-          <span class="v14-fc-pill">${pxIcon('hit')} ${fc.hits}段</span>
-          ${fc.willBreak ? `<span class="v14-fc-pill break">可破招</span>` : ''}
-        </div>
-        ${fc.links.length > 0 ? `
-          <div class="v14-fc-links">
-            ${fc.links.map((l) => `<span class="v14-link-chip">✦ ${esc(l)}</span>`).join('')}
+      const prevDmg = this._lastForecastDmg || 0;
+      const prevHits = this._lastForecastHits || 0;
+      if (this._fcRollRaf) { cancelAnimationFrame(this._fcRollRaf); this._fcRollRaf = 0; }
+      if (hasAnyActive) {
+        const isLethalFc = Boolean(fc.willDirectKill || fc.willBreak);
+        const dmgDelta = fc.directDmg - prevDmg;
+        const hitsDelta = fc.hits - prevHits;
+        const bumpCls = dmgDelta > 0 ? 'fc-bump-up' : (dmgDelta < 0 ? 'fc-bump-down' : '');
+        const hitBumpCls = hitsDelta > 0 ? 'fc-hit-bump' : '';
+        fcCore.innerHTML = `
+          <div class="v14-fc-metrics ${isLethalFc ? 'is-lethal' : ''}">
+            <span class="v14-fc-pill direct ${isLethalFc ? 'is-lethal' : ''} ${bumpCls}">
+              <span class="fc-blade-ico">${pxIcon('atk', 'lg')}</span>
+              <span class="fc-dmg-num">${prevDmg > 0 && dmgDelta !== 0 ? prevDmg : fc.directDmg}</span>${fc.willDirectKill ? '<span class="fc-kill-tag"> 斩杀!</span>' : ''}
+            </span>
+            ${fc.poisonEndDmg > 0 ? `<span class="v14-fc-pill poison">${pxIcon('poison')} ${fc.poisonEndDmg}</span>` : ''}
+            ${fc.shieldTotal > 0 ? `<span class="v14-fc-pill shield">${pxIcon('shield')} ${fc.shieldTotal}</span>` : ''}
+            <span class="v14-fc-pill hits ${hitBumpCls}"><span class="fc-bolt-ico">${pxIcon('hit')}</span> ${fc.hits}段</span>
+            ${fc.willBreak ? `<span class="v14-fc-pill break">可破招</span>` : ''}
           </div>
-        ` : ''}
-      ` : '';
+        `;
+        // Smooth elastic number roll when forecast damage changes
+        const numEl = fcCore.querySelector('.fc-dmg-num');
+        if (numEl && prevDmg > 0 && dmgDelta !== 0) {
+          const fromVal = prevDmg;
+          const toVal = fc.directDmg;
+          const startTs = performance.now();
+          const dur = 190;
+          const stepRoll = (now) => {
+            const p = Math.min(1, (now - startTs) / dur);
+            const eased = 1 - Math.pow(1 - p, 3);
+            numEl.textContent = String(Math.round(fromVal + (toVal - fromVal) * eased));
+            if (p < 1) this._fcRollRaf = requestAnimationFrame(stepRoll);
+            else this._fcRollRaf = 0;
+          };
+          this._fcRollRaf = requestAnimationFrame(stepRoll);
+        }
+        this._lastForecastDmg = fc.directDmg;
+        this._lastForecastHits = fc.hits;
+      } else {
+        fcCore.innerHTML = '';
+        this._lastForecastDmg = 0;
+        this._lastForecastHits = 0;
+      }
 
       const hasScav = b.hand.some((h) => h.discardTriggerLeftmostHand);
       const slottedUids = new Set(b.slots.filter(Boolean).map((h) => h.uid));
@@ -3664,7 +3814,7 @@
         let leftmostBadge = '';
         if (hasScav && !inSlot && !firstUnslottedMarked) {
           firstUnslottedMarked = true;
-          leftmostBadge = `<span class="v14-leftmost-tag">最左(导流目标)</span>`;
+          leftmostBadge = `<span class="v14-leftmost-tag">最左(追打目标)</span>`;
         }
         const offset = idx - midIdx;
         // Zero diagonal rotation on pixel cards so CJK bitmap text & sprites stay 100% razor-sharp!
@@ -3737,10 +3887,16 @@
           if (inspectedUnit.greedBadge) badges.push('贪财+2G');
           if (inspectedUnit.ironPlated) badges.push('铁壁+18盾');
           const bStr = badges.length ? ` <span style="color:#ff9cb0">[${badges.join(' · ')}]</span>` : '';
-          tipEl.innerHTML = `<b style="color:#ffe266">${esc(inspectedUnit.name)} · ${pxIcon('atk')}${inspectedUnit.atk}</b>${bStr}<br/>${esc(inspectedUnit.desc)}`;
+          tipEl.innerHTML = `<b style="color:#ffe266">${esc(inspectedUnit.shortName || this._plainName(inspectedUnit.name))} · ${pxIcon('atk')}${inspectedUnit.atk}</b>${bStr}<br/>${richText(inspectedUnit.desc)}${renderKeywordNotes(inspectedUnit.desc)}`;
           tipEl.classList.remove('hidden');
         } else if (inspectedHero) {
-          tipEl.innerHTML = `<b style="color:#ffd966">${esc(inspectedHero.name)} · ${pxIcon('atk')}${inspectedHero.atk}</b><br/>${esc(inspectedHero.desc)}`;
+          const hBadges = [];
+          if (inspectedHero.redSeal) hBadges.push('双连印');
+          if (inspectedHero.glassBlade) hBadges.push('玻璃刃');
+          if (inspectedHero.greedBadge) hBadges.push('贪财+2G');
+          if (inspectedHero.ironPlated) hBadges.push('铁壁+18盾');
+          const hbStr = hBadges.length ? ` <span style="color:#ff9cb0">[${hBadges.join(' · ')}]</span>` : '';
+          tipEl.innerHTML = `<b style="color:#ffd966">${esc(inspectedHero.shortName || this._plainName(inspectedHero.name))} · ${pxIcon('atk')}${inspectedHero.atk}</b>${hbStr}<br/>${richText(inspectedHero.desc)}${renderKeywordNotes(inspectedHero.desc)}`;
           tipEl.classList.remove('hidden');
         } else {
           tipEl.classList.add('hidden');
@@ -3871,7 +4027,7 @@
       let discTitle = '换牌';
       let discSub = '';
       let discSubCls = 'v15-disc-quota';
-      let discBadge = `剩${b.discardsLeft}次`;
+      let discBadge = `${b.discardsLeft}次`;
       if (this.pureFilterMode) {
         discTitle = hasPicks ? '确认调度' : '纯调度';
         discSub = isFullPick ? `已满 ${pickCount}/${discardLimit} 张` : (hasPicks ? `已选 ${pickCount}/${discardLimit} 张` : `可选 0/${discardLimit} 张`);
@@ -3993,7 +4149,6 @@
         </div>
         <div class="v15-crest-ribbon">
           <b>${fc.willDirectKill ? '斩杀' : '出击'}</b>
-          ${activeN > 0 ? `<small>${pxIcon('atk')} ${fc.directDmg}</small>` : ''}
         </div>
       `;
     }
@@ -4496,7 +4651,7 @@
                 <span style="color:#ffd966;font-weight:900;font-size:15px;display:inline-flex;align-items:center;gap:2px;">${pxIcon('atk')}${h.atk}</span>
               </div>
               <div class="v14-pack-sprite-stage" data-unit="${h.unitId}"></div>
-              <div class="v14-shop-card-name" style="text-align:center">${esc(h.name)} ${h.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}</div>
+              <div class="v14-shop-card-name" style="text-align:center">${esc(h.shortName || this._plainName(h.name))}</div>
               <div class="v14-shop-card-desc">${esc(h.desc)}</div>
               <div class="v14-card-badges">
                 ${h.redSeal ? `<span class="v14-inscrip-pill">自带·双连印</span>` : ''}
@@ -4578,10 +4733,13 @@
     // Shared card face (battle hand + pack reveal): tier ornament, tier/theme/atk row,
     // sprite stage, name, perk line and inscription badges. Callers wrap it in
     // <div class="v14-card v14-card-tier-X">.
-    _unitCardInner(h, extraTop = '') {
+    _unitCardInner(h, extraTop = '', opts = {}) {
       const theme = D.THEMES[h.theme] || D.THEMES.core;
       const grown = h.atk > h.baseAtk || h.knifeCount > h.baseKnifeCount || h.shieldVal > h.baseShieldVal || h.applyPoison > h.baseApplyPoison;
+      const isPack = Boolean(opts.packMode);
       const shortPerk = this.getShortPerk(h);
+      const perkText = isPack ? (h.desc || shortPerk) : shortPerk;
+      const isPlain = !isPack && shortPerk === '无特殊效果';
       const hasBadges = h.redSeal || h.glassBlade || h.greedBadge || h.ironPlated;
       return `
             ${renderCardTierOrnament(h.tier)}
@@ -4593,15 +4751,15 @@
             </div>
             <div class="v14-card-hero-stage">
               <div class="v14-card-sprite" data-unit="${h.unitId}"></div>
-              <div class="v14-card-name">${esc(h.shortName || this._plainName(h.name))}${h.isBridge ? ' <span class="v14-bridge-tag">接口</span>' : ''}</div>
+              <div class="v14-card-name">${esc(h.shortName || this._plainName(h.name))}</div>
             </div>
-            <div class="v14-card-perk">${esc(shortPerk)}</div>
+            <div class="v14-card-perk ${isPack ? 'is-full-desc' : ''} ${isPlain ? 'is-plain' : ''}"><span class="v14-perk-flow">${richText(perkText)}</span></div>
             ${hasBadges ? `
               <div class="v14-card-badges">
-                ${h.redSeal ? `<span class="v14-inscrip-pill">双连印</span>` : ''}
-                ${h.glassBlade ? `<span class="v14-inscrip-pill glass">玻璃刃</span>` : ''}
-                ${h.greedBadge ? `<span class="v14-inscrip-pill greed">+2G</span>` : ''}
-                ${h.ironPlated ? `<span class="v14-inscrip-pill iron">+18盾</span>` : ''}
+                ${h.redSeal ? `<span class="v14-inscrip-pill">${isPack ? '双连印·出手2次' : '双连印'}</span>` : ''}
+                ${h.glassBlade ? `<span class="v14-inscrip-pill glass">${isPack ? '玻璃刃·×2伤退场' : '玻璃刃'}</span>` : ''}
+                ${h.greedBadge ? `<span class="v14-inscrip-pill greed">${isPack ? '贪财徽·+2G' : '+2G'}</span>` : ''}
+                ${h.ironPlated ? `<span class="v14-inscrip-pill iron">${isPack ? '铁壁甲·+18盾' : '+18盾'}</span>` : ''}
               </div>
             ` : ''}`;
     }
@@ -4631,7 +4789,7 @@
 
     _prHeroFront(h) {
       const theme = D.THEMES[h.theme] || D.THEMES.core;
-      return `<div class="v14-card v14-card-tier-${h.tier}" style="--card-glow:${theme.bg}">${this._unitCardInner(h)}</div>`;
+      return `<div class="v14-card v14-card-tier-${h.tier} pr-hero-card" style="--card-glow:${theme.bg}">${this._unitCardInner(h, '', { packMode: true })}</div>`;
     }
 
     _prInsFront(ins) {
@@ -4718,7 +4876,7 @@
 
     selectInscriptionTarget(ins) {
       if (ins.minRoster && this.run.roster.length <= ins.minRoster) {
-        this.toast(`牌组至少需保留 ${ins.minRoster} 名侠客，无法驱逐`);
+        this.toast(`牌组至少需保留 ${ins.minRoster} 名队员，无法驱逐`);
         return;
       }
       this.activePackState.chosenInscription = ins;
@@ -4812,12 +4970,12 @@
       const map = {
         heavy:  { label: '重击', cls: 'heavy' },
         charge: { label: '蓄力', cls: 'charge' },
-        shield: { label: '魔盾', cls: 'shield' },
-        thorns: { label: '荆棘', cls: 'thorns' },
-        lock3:  { label: '封位', cls: 'lock' }
+        shield: { label: '加盾', cls: 'shield' },
+        thorns: { label: '反伤', cls: 'thorns' },
+        lock3:  { label: '封3号', cls: 'lock' }
       };
       const info = map[code] || { label: '重击', cls: 'heavy' };
-      return `<span class="v152-pat-chip ${info.cls}"><b>R${roundIdx + 1}</b>${info.label}</span>`;
+      return `<span class="v152-pat-chip ${info.cls}"><b>${roundIdx + 1}回</b>${info.label}</span>`;
     }
 
     _slotLevelPreview(u, curLv) {
@@ -4885,7 +5043,7 @@
           </div>
           <div class="sdp-price-badge">${pxIcon('gold')}${spec.cost}G</div>
         </div>
-        <div class="sdp-desc">${esc(spec.desc)}</div>
+        <div class="sdp-desc">${richText(spec.desc)}${renderKeywordNotes(spec.desc)}</div>
         ${spec.extraHtml ? `<div class="sdp-extra">${spec.extraHtml}</div>` : ''}
         <div class="sdp-actions">
           <button type="button" class="sdp-btn-cancel" id="sdp-btn-cancel">取消</button>
@@ -4961,7 +5119,7 @@
       const run = this.run;
 
       // 1. Top bar: wave progress, hero, relic rack, gold
-      $('hud-wave').textContent = `W${run.wave}/${run.maxWaves}`;
+      $('hud-wave').textContent = `第 ${run.wave} / ${run.maxWaves} 波`;
       $('hud-gold').textContent = `${run.gold}G`;
       const pipEl = $('camp-wave-pips');
       if (pipEl) {
@@ -4974,7 +5132,6 @@
       }
       $('hud-hearts').innerHTML = `
         <span class="camp-hero-name">${esc(run.hero.name)}</span>
-        <span class="camp-orbs">${pxIcon('orb')}${this.meta.data.orbs}</span>
       `;
 
       const maxSlots = run.maxRelicSlots || 5;
@@ -5013,7 +5170,7 @@
         insp.classList.remove('hidden');
         insp.innerHTML = `
           <b class="camp-ri-name">${esc(this._plainName(r.name))}</b>
-          <span class="camp-ri-desc">${esc(r.desc)}</span>
+          <span class="camp-ri-desc">${richText(r.desc)}</span>
           <div class="camp-ri-actions">
             ${selIdx > 0 ? `<button class="camp-btn ghost sm" id="btn-r-left">← 左移</button>` : ''}
             ${selIdx < run.relics.length - 1 ? `<button class="camp-btn ghost sm" id="btn-r-right">右移 →</button>` : ''}
@@ -5069,14 +5226,12 @@
       const bossEl = $('boss-bounty-panel');
       bossEl.className = `camp-boss tier-${bossTier}`;
       bossEl.innerHTML = `
-        <div class="camp-boss-eyebrow">下一战 · W${run.wave}<i class="camp-stars t${bossTier}">${'★'.repeat(bossTier)}</i>${bossRankLabels[bossTier]}${asc.lv > 0 ? ` · 难度 ${asc.lv}` : ''}</div>
+        <div class="camp-boss-eyebrow"><span>下一战 · 第 ${run.wave} 波${asc.lv > 0 ? ` · 进阶 ${asc.lv}` : ''}</span></div>
         <div class="camp-boss-name"><b>${esc(nextBoss.name)}</b><span>${esc(nextBoss.title || '强敌')}</span></div>
         <div class="camp-boss-hp"><i></i><b>${nextBossHp.toLocaleString()}</b><small>HP</small></div>
-        <div class="camp-boss-pattern">${patHtml}</div>
-        <div class="camp-boss-stats">
-          <div><span>破招线</span><b>≥${nextBossBreak}</b></div>
-          <div><span>重击 / 大招</span><b>${nextBossHeavy} / ${nextBossUlt}</b></div>
-          <div class="gold"><span>赏金</span><b>+${bountyGold}G</b></div>
+        <div class="camp-boss-pills">
+          <span class="camp-boss-pill trait"><small>特性</small><b>${richText(nextBoss.trait || '高伤重击')}</b></span>
+          <span class="camp-boss-pill gold"><small>赏金</small><b>+${bountyGold}G</b></span>
         </div>
       `;
       bossEl.onclick = () => {
@@ -5084,8 +5239,11 @@
         if (this.audio && this.audio.playSlash) this.audio.playSlash();
       };
       if (this.tavernShopStage && this.tavernShopStage.setScene) {
+        const scene = this._getWaveScene(run.wave, bossTier);
         this.tavernShopStage.setScene({
-          biome: run.wave % 3 === 0 ? 'ice' : run.wave % 2 === 0 ? 'dark' : 'default',
+          biome: (scene && scene.biome) || (run.wave % 3 === 0 ? 'ice' : run.wave % 2 === 0 ? 'dark' : 'default'),
+          mapId: scene ? scene.mapId : null,
+          weather: scene ? scene.weather : 'drizzle',
           bossUnitId: nextBoss.unitId,
           bossTier,
           aura: bossAura,
@@ -5112,9 +5270,8 @@
           return `<span style="color:${th.color}">${th.short} ${cnt}</span>`;
         }).join('');
       $('squad-ledger-strip').innerHTML = `
-        <span class="camp-sec-title">小队</span>
-        <span class="camp-sec-note"><b>${run.roster.length}</b> 人 ${themeSummary}</span>
-        <span class="camp-link">名册 →</span>
+        <span class="camp-sec-title">小队 <b>${run.roster.length}</b> 人</span>
+        <span class="camp-link">查看名册 →</span>
       `;
       const spots = (window.MT.TavernShopStage && window.MT.TavernShopStage.squadSpots) ? window.MT.TavernShopStage.squadSpots(run.roster.length) : [];
       $('squad-roam-zone').innerHTML = spots.map((sp, i) => {
@@ -5153,22 +5310,27 @@
         let src = '';
         if (o.tpl.requiresSource) {
           const cnt = E.countThemeSources(run.roster, run.hero, o.tpl.requiresSource);
-          src = `<span class="relic-src ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt}`}</span>`;
+          const srcLabel = o.tpl.requiresSource === 'poison' ? '挂毒' : (o.tpl.requiresSource === 'frost' ? '挂冰' : th.short);
+          src = `<span class="relic-src ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? `缺${srcLabel}卡` : `${srcLabel}卡 ${cnt}`}</span>`;
         }
         return `
           <button type="button" class="camp-relic tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'poor' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" data-pressable ${o.sold ? 'disabled' : ''}>
             <span class="relic-altar">
               <canvas class="lv-fx" data-painter="relic" data-theme="${thKey}" data-tier="${o.tpl.tier}" width="90" height="76" aria-hidden="true"></canvas>
               <span class="relic-icon">${this.renderSafeIconImg(o.tpl.icon, thKey, 'relic-icon-img')}</span>
-              <span class="relic-tier tier-${o.tpl.tier}">${o.tpl.tier}</span>
             </span>
             <span class="relic-plate">
-              <span class="relic-school" style="color:${th.color}">${th.short}${o.tpl.isBridge ? ' · 接口' : ''}</span>
+              <span class="relic-meta-row">
+                <span class="relic-tier-pill tier-${o.tpl.tier}">${o.tpl.tier}</span>
+                <span class="relic-school" style="color:${th.color}">${th.short}</span>
+                ${src}
+              </span>
               <span class="relic-name">${esc(this._plainName(o.tpl.name))}</span>
-              <span class="relic-perk">${esc(String(o.tpl.desc || o.tpl.short || '').replace(/侠客/g, '队员'))}</span>
-              ${src}
+              <span class="relic-perk"><span class="v14-perk-flow">${richText(String(o.tpl.desc || o.tpl.short || ''))}</span></span>
+              <span class="relic-foot">
+                <span class="camp-slot-cta ${o.sold ? 'sold' : canAfford ? '' : 'short'}">${o.sold ? '已购' : `${pxIcon('gold')}<b>${o.tpl.cost}</b>`}</span>
+              </span>
             </span>
-            <span class="camp-price ${o.sold ? 'sold' : canAfford ? '' : 'short'}">${o.sold ? '已购' : `${pxIcon('gold')}<b>${o.tpl.cost}</b>`}</span>
           </button>
         `;
       }).join('');
@@ -5186,14 +5348,15 @@
           let extraHtml = '';
           if (offer.tpl.requiresSource) {
             const cnt = E.countThemeSources(run.roster, run.hero, offer.tpl.requiresSource);
-            extraHtml += `<div class="sdp-note ${cnt === 0 ? 'warn' : 'ok'}">当前牌组启动源：<b>${cnt} 张</b>${cnt === 0 ? '（建议同时招募对应流派的队员）' : '（已就绪，购入即可生效）'}</div>`;
+            const srcLabel = offer.tpl.requiresSource === 'poison' ? '挂毒' : (offer.tpl.requiresSource === 'frost' ? '挂冰' : th.short);
+            extraHtml += `<div class="sdp-note ${cnt === 0 ? 'warn' : 'ok'}">当前牌组${srcLabel}手段：<b>${cnt} 张</b>${cnt === 0 ? `（需搭配${srcLabel}队员才能生效）` : '（已就绪，购入即可生效）'}</div>`;
           }
           if (rackFull) {
             extraHtml += `<div class="sdp-note warn">秘宝栏已满（${run.relics.length}/${run.maxRelicSlots}），可以先点顶部已装备的秘宝出售腾位。</div>`;
           }
           this.inspectShopItem(`relic:${idx}`, el, {
             iconHtml: this.renderSafeIconImg(offer.tpl.icon, offer.tpl.theme || 'core', 'sdp-icon-img'),
-            badgesHtml: `<span class="v14-tier tier-${offer.tpl.tier}">${offer.tpl.tier}</span><span class="v152-theme-chip" style="color:${th.color};border-color:${th.color}66;background:${th.bg}">${th.short}</span>${offer.tpl.isBridge ? '<span class="v152-bridge-chip">跨流派接口</span>' : ''}`,
+            badgesHtml: `<span class="v14-tier tier-${offer.tpl.tier}">${offer.tpl.tier}</span><span class="v152-theme-chip" style="color:${th.color};border-color:${th.color}66;background:${th.bg}">${th.short}</span>`,
             title: this._plainName(offer.tpl.name),
             cost: offer.tpl.cost,
             desc: offer.tpl.desc,
@@ -5255,10 +5418,18 @@
              </defs>
            </svg>`;
       const slotCrestMeta = {
-        slot1: { roman: 'I', glyph: '<path d="M12 3 L19 6 V12 C19 16.5 16 19.5 12 21 C8 19.5 5 16.5 5 12 V6 Z" stroke="currentColor" stroke-width="1.7" fill="rgba(255,255,255,0.08)"/><path d="M12 7 V17 M8.5 11 H15.5" stroke="currentColor" stroke-width="1.4"/>' },
-        slot2: { roman: 'II', glyph: '<path d="M18.5 5.5 L8.5 15.5 M14.5 5.5 H18.5 V9.5 M6 18 L9 15 M7 13 L11 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="square"/>' },
-        slot3: { roman: 'III', glyph: '<path d="M12 4 L14.4 9.6 L20 12 L14.4 14.4 L12 20 L9.6 14.4 L4 12 L9.6 9.6 Z" stroke="currentColor" stroke-width="1.6" fill="rgba(255,255,255,0.1)"/>' },
-        hand:  { roman: '备', glyph: '<rect x="5" y="6" width="8" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="rgba(255,255,255,0.06)"/><rect x="11" y="4" width="8" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="#14110e"/>' }
+        slot1: {
+          glyph: `<rect x="4" y="2" width="8" height="2" fill="#c9e8ff"/><rect x="3" y="4" width="10" height="5" fill="#78b7ff"/><rect x="4" y="9" width="8" height="3" fill="#4f8ed6"/><rect x="6" y="12" width="4" height="2" fill="#3266a8"/><rect x="7" y="4" width="2" height="7" fill="#fff8e0"/><rect x="5" y="6" width="6" height="2" fill="#fff8e0"/>`
+        },
+        slot2: {
+          glyph: `<rect x="11" y="2" width="3" height="3" fill="#fff6cc"/><rect x="9" y="4" width="3" height="3" fill="#ffe07a"/><rect x="7" y="6" width="3" height="3" fill="#ffd966"/><rect x="5" y="8" width="3" height="3" fill="#e5a935"/><rect x="3" y="8" width="2" height="2" fill="#ffd966"/><rect x="6" y="11" width="2" height="2" fill="#ffd966"/><rect x="3" y="11" width="3" height="3" fill="#8f5418"/><rect x="2" y="12" width="2" height="2" fill="#ffd966"/>`
+        },
+        slot3: {
+          glyph: `<rect x="7" y="1" width="2" height="14" fill="#ff7b6b"/><rect x="1" y="7" width="14" height="2" fill="#ff7b6b"/><rect x="5" y="5" width="6" height="6" fill="#ffb8ad"/><rect x="6" y="6" width="4" height="4" fill="#fff6d6"/><rect x="3" y="3" width="2" height="2" fill="#ffd966"/><rect x="11" y="3" width="2" height="2" fill="#ffd966"/><rect x="3" y="11" width="2" height="2" fill="#ffd966"/><rect x="11" y="11" width="2" height="2" fill="#ffd966"/>`
+        },
+        hand: {
+          glyph: `<rect x="3" y="4" width="6" height="9" fill="#3a8a4b"/><rect x="4" y="5" width="4" height="7" fill="#7ef28a"/><rect x="7" y="2" width="7" height="10" fill="#183822"/><rect x="8" y="3" width="5" height="8" fill="#a8ffb2"/><rect x="9" y="5" width="3" height="4" fill="#fff8d6"/>`
+        }
       };
       lower.innerHTML = `
         <div class="camp-group packs">
@@ -5278,13 +5449,13 @@
                       <span class="camp-pack-emblem">${packEmblemSvg(kind)}</span>
                       <span class="camp-pack-banner">
                         <span class="camp-pack-name">${esc(p.name)}</span>
-                        <span class="camp-pack-sub">${kind === 'hero' ? 'RARE RECRUIT' : 'ARCANE SEAL'}</span>
+                        <span class="camp-pack-sub">${kind === 'hero' ? '招募新队员' : '强化队员铭文'}</span>
                       </span>
                     </span>
                     <i class="camp-pack-sheen"></i>
                     <i class="camp-pack-crimp bottom"></i>
                   </span>
-                  <span class="camp-price ${sold ? 'sold' : canAfford ? '' : 'short'}">${sold ? '已开' : `${pxIcon('gold')}<b>${c}</b>`}</span>
+                  <span class="camp-price ${sold ? 'sold' : canAfford ? '' : 'short'}">${sold ? '已购' : `${pxIcon('gold')}<b>${c}</b>`}</span>
                 </button>
               `;
             }).join('')}
@@ -5296,24 +5467,25 @@
               const lv = run.slotLevels[u.id] || 1;
               const canAfford = run.gold >= u.cost;
               const [num, label] = String(u.name).split('·').map((x) => x.trim());
-              const crest = slotCrestMeta[u.id] || { roman: num || '', glyph: '' };
+              const crest = slotCrestMeta[u.id] || { glyph: '' };
               const pips = Array.from({ length: 5 }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
+              const cleanStat = String(u.short || '').replace(/^升级\s*/, '');
               return `
                 <button type="button" class="camp-slot ${canAfford ? '' : 'poor'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" data-pressable style="--slot-col:${u.color}">
-                  <span class="camp-slot-crest" aria-hidden="true">
-                    <svg class="camp-slot-svg" viewBox="0 0 24 24" fill="none">${crest.glyph}</svg>
-                    <em class="camp-slot-num">${esc(crest.roman)}</em>
+                  <i class="camp-slot-corners" aria-hidden="true"></i>
+                  <span class="camp-slot-head">
+                    <b>${esc(num || label || u.name)}</b>
+                    <span class="camp-slot-lv">Lv.${lv}</span>
                   </span>
-                  <span class="camp-slot-body">
-                    <span class="camp-slot-top">
-                      <b>${esc(label || u.name)}</b>
-                      <span class="camp-slot-lv">Lv.${lv}</span>
+                  <span class="camp-slot-mid">
+                    <span class="camp-slot-crest" aria-hidden="true">
+                      <svg class="camp-slot-svg" viewBox="0 0 16 16" shape-rendering="crispEdges">${crest.glyph}</svg>
                     </span>
-                    <span class="camp-slot-stat">${esc(u.short)}</span>
-                    <span class="camp-slot-foot">
-                      <span class="camp-slot-pips" title="Lv.${lv}">${pips}</span>
-                      <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}<b>${u.cost}</b></span>
-                    </span>
+                    <span class="camp-slot-stat">${esc(cleanStat)}</span>
+                  </span>
+                  <span class="camp-slot-foot">
+                    <span class="camp-slot-pips" title="Lv.${lv}">${pips}</span>
+                    <span class="camp-slot-cta ${canAfford ? '' : 'short'}">升级 ${pxIcon('gold')}<b>${u.cost}</b></span>
                   </span>
                 </button>
               `;
@@ -5750,7 +5922,7 @@
               <b class="v16-stat-val crimson">${bestPeak > 0 ? bestPeak.toLocaleString() : '--'}</b>
             </div>
             <div class="v16-stat-card">
-              <span class="v16-stat-lbl">麾下侠客</span>
+              <span class="v16-stat-lbl">麾下队员</span>
               <b class="v16-stat-val cyan">${heroCount} / ${M.HEROES_META.length}</b>
             </div>
             <div class="v16-stat-card">
@@ -5880,7 +6052,7 @@
         const sl = this.run.slotLevels || { slot1: 1, slot2: 1, slot3: 1, hand: 1 };
         sum.innerHTML = `
           <div class="v16-roster-bar">
-            <span>当前出征牌组 <b>${this.run.roster.length}</b> 名侠客</span>
+            <span>当前出征牌组 <b>${this.run.roster.length}</b> 名队员</span>
             <span class="v16-rule-sep">·</span>
             <span>主将：<b>${esc(this.run.hero.name)}</b></span>
             <span class="v16-rule-sep">·</span>
@@ -5908,7 +6080,7 @@
                   <span class="v16-cc-stat ${grown ? 'grown' : ''}">${pxIcon('atk')}${h.atk}</span>
                 </div>
                 <div class="v16-cc-name">${esc(h.shortName || h.name)}${tags.map((tg) => ` <span class="v16-cc-inscrip">${tg}</span>`).join('')}</div>
-                <p class="v16-cc-desc">${esc(h.desc)}</p>
+                <p class="v16-cc-desc">${richText(h.desc)}</p>
               </div>
             </article>
           `;
@@ -5938,10 +6110,10 @@
           <div class="v16-codex-kind-row">
             <div class="v16-kind-pills">
               <button type="button" class="v16-filter-btn ${filterKind === 'all' ? 'active' : ''}" data-codex-kind="all">全部 (${allHeroes.length + allRelics.length})</button>
-              <button type="button" class="v16-filter-btn ${filterKind === 'heroes' ? 'active' : ''}" data-codex-kind="heroes">侠客 (${allHeroes.length})</button>
+              <button type="button" class="v16-filter-btn ${filterKind === 'heroes' ? 'active' : ''}" data-codex-kind="heroes">队员 (${allHeroes.length})</button>
               <button type="button" class="v16-filter-btn ${filterKind === 'relics' ? 'active' : ''}" data-codex-kind="relics">秘宝 (${allRelics.length})</button>
             </div>
-            <span class="v16-codex-meta">当前匹配：<b>${shownHeroes.length}</b> 名侠客 · <b>${shownRelics.length}</b> 件秘宝</span>
+            <span class="v16-codex-meta">当前匹配：<b>${shownHeroes.length}</b> 名队员 · <b>${shownRelics.length}</b> 件秘宝</span>
           </div>
           <div class="v16-theme-filter-row">
             ${themeOrder.map((tid) => {
@@ -5956,7 +6128,7 @@
       `;
 
       const heroSectionHtml = shownHeroes.length > 0 ? `
-        <div class="v16-codex-sec-title"><span>侠客图鉴</span><b>${shownHeroes.length} 名</b></div>
+        <div class="v16-codex-sec-title"><span>队员图鉴</span><b>${shownHeroes.length} 名</b></div>
         <div class="v16-codex-grid">${shownHeroes.map((h) => {
           const th = D.THEMES[h.theme] || D.THEMES.core;
           const shortTitle = (h.name || '').includes('·') ? h.name.split('·').pop().trim() : h.name;
@@ -5969,11 +6141,10 @@
                 <div class="v16-cc-head">
                   <span class="v14-tier tier-${h.tier}">${h.tier}</span>
                   <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-                  ${h.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}
                   <span class="v16-cc-stat">${pxIcon('atk')}${h.atk}</span>
                 </div>
                 <div class="v16-cc-name">${esc(shortTitle)}</div>
-                <p class="v16-cc-desc">${esc(h.desc)}</p>
+                <p class="v16-cc-desc">${richText(h.desc)}</p>
               </div>
             </article>
           `;
@@ -5994,11 +6165,10 @@
                 <div class="v16-cc-head">
                   <span class="v14-tier tier-${r.tier}">${r.tier}</span>
                   <span class="v14-theme-pill" style="background:${th.bg};color:${th.color}">${th.short}</span>
-                  ${r.isBridge ? '<span class="v14-bridge-tag">接口</span>' : ''}
                   <span class="v16-cc-stat gold">${pxIcon('gold')}${r.cost}G</span>
                 </div>
                 <div class="v16-cc-name">${esc(shortTitle)}</div>
-                <p class="v16-cc-desc">${esc(r.desc)}</p>
+                <p class="v16-cc-desc">${richText(r.desc)}</p>
               </div>
             </article>
           `;

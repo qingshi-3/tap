@@ -211,9 +211,8 @@
   z-index: 30;
   pointer-events: none;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 #v14-card-tip.hidden { display: none !important; }
 
@@ -859,7 +858,16 @@
   font-size: 14.5px;
   font-weight: 900;
 }
-.v15-hud-tag.gold { color: #ffe266; }
+.v15-hud-tag.gold {
+  color: #ffe266;
+  background: rgba(34, 24, 10, 0.78);
+  border: 1px solid rgba(255, 217, 102, 0.45);
+  border-radius: 3px;
+  padding: 0 6px;
+  margin-left: 6px;
+  font-size: 13px;
+  line-height: 1.45;
+}
 #bt-squad-hp-text {
   color: #8bf5b8 !important;
   font-size: 14.5px !important;
@@ -1206,10 +1214,11 @@
   pointer-events: auto !important;
 }
 #bt-forecast-bar .pile-btn {
-  background: transparent !important;
-  border: none !important;
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  background: rgba(10, 12, 24, 0.62) !important;
+  border: 1px solid rgba(180, 200, 240, 0.18) !important;
+  border-radius: 3px !important;
+  padding: 2px 7px !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
   color: #e6eeff !important;
   padding: 2px 3px !important;
   font-size: 12.5px !important;
@@ -1277,7 +1286,10 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  font-size: 24px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 25px !important;
   line-height: 1 !important;
   color: #ffe66d !important;
   text-shadow:
@@ -1287,13 +1299,87 @@
      2px  2px 0 #07040f,
      0 0 18px rgba(255, 217, 102, 0.72),
      0 4px 10px rgba(0, 0, 0, 0.95);
+  animation: fcDirectBreathe 2.3s ease-in-out infinite;
+  transform-origin: center center;
+}
+#bt-forecast-bar .v14-fc-pill.direct.is-lethal {
+  color: #fff2a8 !important;
+  animation: fcLethalPulse 0.95s ease-in-out infinite;
+}
+#bt-forecast-bar .v14-fc-pill.direct.fc-bump-up {
+  animation: fcBumpUp 0.34s cubic-bezier(0.22, 1.5, 0.36, 1) forwards, fcDirectBreathe 2.3s ease-in-out 0.34s infinite;
+}
+#bt-forecast-bar .v14-fc-pill.direct.fc-bump-down {
+  animation: fcBumpDown 0.24s ease-out forwards, fcDirectBreathe 2.3s ease-in-out 0.24s infinite;
+}
+#bt-forecast-bar .fc-blade-ico {
+  display: inline-flex;
+  animation: fcBladeSway 2.3s ease-in-out infinite;
+  transform-origin: 40% 60%;
+}
+#bt-forecast-bar .fc-bolt-ico {
+  display: inline-flex;
+  animation: fcBoltFlash 1.8s ease-in-out infinite;
+}
+#bt-forecast-bar .v14-fc-pill.hits.fc-hit-bump {
+  animation: fcHitBump 0.28s cubic-bezier(0.22, 1.5, 0.36, 1);
+}
+#bt-forecast-bar .fc-kill-tag {
+  font-size: 15px;
+  color: #ff7a98;
+  margin-left: 2px;
+}
+@keyframes fcDirectBreathe {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    filter: drop-shadow(0 0 8px rgba(255, 217, 102, 0.38));
+  }
+  50% {
+    transform: translateY(-2.5px) scale(1.045);
+    filter: drop-shadow(0 0 16px rgba(255, 226, 118, 0.78));
+  }
+}
+@keyframes fcLethalPulse {
+  0%, 100% {
+    transform: translateY(0) scale(1.02);
+    filter: drop-shadow(0 0 12px rgba(255, 118, 92, 0.65));
+  }
+  50% {
+    transform: translateY(-3px) scale(1.1);
+    filter: drop-shadow(0 0 22px rgba(255, 224, 102, 0.98));
+  }
+}
+@keyframes fcBumpUp {
+  0%   { transform: scale(0.94) translateY(2px); filter: brightness(1.55) drop-shadow(0 0 22px rgba(255, 240, 150, 0.95)); }
+  45%  { transform: scale(1.26) translateY(-5px); filter: brightness(1.35) drop-shadow(0 0 20px rgba(255, 224, 102, 0.9)); }
+  100% { transform: scale(1) translateY(0); filter: brightness(1); }
+}
+@keyframes fcBumpDown {
+  0%   { transform: scale(1.08); }
+  50%  { transform: scale(0.92); }
+  100% { transform: scale(1); }
+}
+@keyframes fcBladeSway {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50%      { transform: rotate(6deg) scale(1.08); }
+}
+@keyframes fcBoltFlash {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.14); filter: drop-shadow(0 0 6px rgba(255, 232, 128, 0.85)); }
+}
+@keyframes fcHitBump {
+  0%   { transform: scale(0.9); }
+  50%  { transform: scale(1.22) translateY(-2px); color: #ffe66d; }
+  100% { transform: scale(1); }
 }
 #bt-forecast-bar .v14-fc-pill.break {
-  padding: 1px 8px !important;
-  border-radius: 3px !important;
+  padding: 2px 8px !important;
+  border-radius: 0 !important;
   background: #ffd966 !important;
   color: #1c1005 !important;
   text-shadow: none !important;
+  box-shadow: 0 2px 0 #07040f !important;
+  animation: fcLethalPulse 1.1s ease-in-out infinite;
 }
 .v14-fc-links {
   justify-content: center !important;
@@ -5747,19 +5833,163 @@ button, input, select, textarea, optgroup, option {
   padding: 2px 8px;
 }
 
-/* 2. Battle Hand Dock Trim (reveals Mirror-Lake reflection cleanly + keeps pixel cards straight & crisp!) */
+/* 2. Battle Hand Dock: generous vertical room for taller cards & multi-line effect descriptions */
 #battle-view #bt-hand-dock {
-  height: 196px !important;
+  height: 234px !important;
   bottom: 6px !important;
-  padding: 6px 14px 8px !important;
+  padding: 8px 14px 8px !important;
 }
 #battle-view .v14-card {
-  height: 174px !important;
-  border-radius: 2px !important;
+  height: 214px !important;
+  padding: 7px 8px 7px !important;
+  border-radius: 3px !important;
+  justify-content: flex-start !important;
+  gap: 4px !important;
 }
 #battle-view .v14-card-hero-stage {
+  flex: 0 0 auto !important;
   padding-top: 2px !important;
-  padding-bottom: 2px !important;
+  padding-bottom: 0 !important;
+  gap: 3px !important;
+  min-height: 0 !important;
+}
+#battle-view .v14-card-sprite {
+  width: 60px !important;
+  height: 60px !important;
+}
+#battle-view .v14-card-name {
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+}
+#battle-view .v14-card-perk {
+  flex: 1 1 auto !important;
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  align-content: center !important;
+  justify-content: center !important;
+  gap: 2px 3px !important;
+  white-space: normal !important;
+  overflow: hidden !important;
+  text-overflow: clip !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  padding: 5px 5px !important;
+  text-align: center !important;
+}
+.v14-card-perk.is-plain {
+  color: rgba(210, 218, 236, 0.52) !important;
+  border-top-color: rgba(255, 255, 255, 0.1) !important;
+  border-bottom-color: rgba(255, 255, 255, 0.08) !important;
+}
+.v14-perk-flow {
+  display: block;
+  width: 100%;
+  text-align: center;
+  line-height: inherit;
+}
+
+/* Unified pixel-beveled inline slot badge (1号位 / 2号位 / 3号位) matching battle bridge plaques */
+.slot-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  margin: 0 2px;
+  border-radius: 0;
+  font-size: 0.92em;
+  line-height: 1.35;
+  font-weight: 700;
+  vertical-align: baseline;
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 2px 0 rgba(6, 5, 12, 0.85);
+}
+.slot-badge.compact {
+  padding: 0 4px;
+  margin: 0 1px;
+  font-size: 0.9em;
+  line-height: 1.2;
+}
+.slot-badge.slot-1 {
+  color: #9ad0ff;
+  background: #102238;
+  border: 1px solid #5c9ee6;
+}
+.slot-badge.slot-2 {
+  color: #ffe484;
+  background: #2e220b;
+  border: 1px solid #d9ab43;
+}
+.slot-badge.slot-3 {
+  color: #ff9688;
+  background: #361318;
+  border: 1px solid #d95c50;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .slot-badge {
+  padding: 0 3px;
+  margin: 0 1px;
+  border-width: 0.75px;
+  line-height: 1.25;
+}
+
+/* Unified pixel-beveled status keyword badges (易伤 / 剧毒 / 冰霜 / 眩晕) + auto-glossary notes */
+.kw-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  margin: 0 2px;
+  border-radius: 0;
+  font-size: 0.92em;
+  line-height: 1.3;
+  font-weight: 700;
+  vertical-align: baseline;
+  white-space: nowrap;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), inset 0 -1px 0 rgba(0, 0, 0, 0.55), 0 2px 0 rgba(6, 5, 12, 0.85);
+}
+.kw-badge.kw-vuln {
+  color: #ffa6e8;
+  background: #3d1234;
+  border: 1px solid #d96ec0;
+}
+.kw-badge.kw-poison {
+  color: #8cf596;
+  background: #12331b;
+  border: 1px solid #58c768;
+}
+.kw-badge.kw-frost {
+  color: #9ef4ff;
+  background: #0e2e3f;
+  border: 1px solid #5ecbe0;
+}
+.kw-badge.kw-stun {
+  color: #ffe484;
+  background: #33250b;
+  border: 1px solid #d9b043;
+}
+#pr-root .pr-front .v14-card.pr-hero-card .kw-badge {
+  padding: 0 3px;
+  margin: 0 1px;
+  border-width: 0.75px;
+  line-height: 1.25;
+}
+.kw-notes {
+  margin-top: 6px;
+  padding-top: 5px;
+  border-top: 1px dashed rgba(255, 217, 102, 0.25);
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 11.5px;
+  color: #cfd6e8;
+  line-height: 1.35;
+}
+.kw-note-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 /* 3. Pack Opening Ceremony: keep VFX canvas strictly BEHIND reveal cards + unify footer buttons + keep sealed pack crisp */
@@ -7472,20 +7702,20 @@ button, input, select, textarea, optgroup, option {
   opacity: 0.85;
 }
 
-/* Legacy single-image fallback */
+/* Unified Sdorica single-layer thick-painted portrait */
 .v17-sl-art {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 10%;
+  object-position: 50% 20%;
   image-rendering: auto;
-  transform: scale(1.04);
-  filter: brightness(0.60) saturate(0.86);
+  transform: scale(1.02);
+  filter: brightness(0.64) saturate(0.88);
   transition: filter 0.38s ease, transform 0.28s ease-out;
   pointer-events: none;
 }
 .v17-hero-slice.is-active .v17-sl-art {
-  filter: brightness(1.05) saturate(1.10) contrast(1.02);
+  filter: brightness(1.04) saturate(1.06) contrast(1.02);
 }
 
 .v17-sl-vignette {
@@ -9139,14 +9369,18 @@ button, input, select, textarea, optgroup, option {
 }
 .hsv-char {
   position: relative;
-  height: 660px;
+  width: 440px;
+  height: 590px;
   max-width: none;
-  object-fit: contain;
+  object-fit: cover;
+  object-position: 50% 20%;
   image-rendering: auto;
-  filter:
-    drop-shadow(0 0 24px rgba(var(--hsv-acc-rgb), 0.65))
-    drop-shadow(0 18px 34px rgba(0, 0, 0, 0.78));
-  transform: translateY(28px);
+  border: 2px solid rgba(var(--hsv-acc-rgb), 0.72);
+  border-radius: 6px;
+  box-shadow:
+    0 0 32px rgba(var(--hsv-acc-rgb), 0.55),
+    0 20px 44px rgba(0, 0, 0, 0.82);
+  transform: translateY(16px);
 }
 .hsv-banner {
   position: absolute;
@@ -9272,9 +9506,9 @@ button, input, select, textarea, optgroup, option {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 50% 8%;
+  object-position: 50% 22%;
   image-rendering: auto;
-  transform: scale(1.28) translateY(5px);
+  transform: scale(1.36);
   filter: contrast(1.04) saturate(1.06);
   pointer-events: none;
 }
@@ -9427,14 +9661,17 @@ button, input, select, textarea, optgroup, option {
 }
 .bhc-char {
   position: relative;
-  height: 288px;
-  width: auto;
-  object-fit: contain;
+  width: 186px;
+  height: 248px;
+  object-fit: cover;
+  object-position: 50% 22%;
   image-rendering: auto;
-  transform: rotate(5.5deg);
-  filter:
-    drop-shadow(0 0 16px rgba(var(--bhc-acc-rgb), 0.78))
-    drop-shadow(0 10px 18px rgba(0, 0, 0, 0.76));
+  border: 2px solid rgba(var(--bhc-acc-rgb), 0.78);
+  border-radius: 5px;
+  transform: rotate(4deg);
+  box-shadow:
+    0 0 22px rgba(var(--bhc-acc-rgb), 0.65),
+    0 12px 24px rgba(0, 0, 0, 0.8);
 }
 .bhc-copy {
   position: relative;
@@ -9625,7 +9862,7 @@ button, input, select, textarea, optgroup, option {
 .bt-discard-counter {
   position: absolute;
   left: 50%;
-  bottom: 222px;
+  bottom: 248px;
   transform: translateX(-50%);
   z-index: 36;
   display: inline-flex;
@@ -9904,9 +10141,368 @@ button, input, select, textarea, optgroup, option {
   top: 78px !important;
 }
 #battle-view #bt-forecast-bar .fc-piles {
-  top: 444px !important;
+  top: 410px !important;
 }
 
 
 
 
+
+/* ═══ v16.6 EFFECT PREVIEW STUDIO MODAL ═══ */
+#preview-studio-modal {
+  z-index: 120;
+  background: rgba(5, 6, 12, 0.84);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#preview-studio-modal.hidden { display: none; }
+
+.ps-shell {
+  width: 1228px;
+  height: 676px;
+  background: linear-gradient(180deg, rgba(16, 18, 30, 0.98), rgba(9, 10, 18, 0.99));
+  border: 2px solid rgba(217, 171, 67, 0.52);
+  box-shadow: 0 0 0 2px #06070d, 0 22px 48px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 16px 14px;
+  gap: 12px;
+  box-sizing: border-box;
+  font-family: "FusionPixel", monospace;
+  color: #f4eedc;
+}
+
+.ps-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(217, 171, 67, 0.28);
+  padding-bottom: 10px;
+}
+
+.ps-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.ps-tab {
+  font-family: inherit;
+  font-size: 16px;
+  padding: 8px 18px;
+  color: #a9b5cc;
+  background: rgba(18, 22, 36, 0.85);
+  border: 2px solid rgba(112, 126, 160, 0.36);
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+.ps-tab:hover { color: #fff6d6; border-color: rgba(217, 171, 67, 0.65); }
+.ps-tab.active {
+  color: #fff6d6;
+  background: linear-gradient(180deg, rgba(84, 62, 22, 0.9), rgba(46, 33, 12, 0.95));
+  border-color: #f2c866;
+  box-shadow: inset 0 1px 0 rgba(255, 240, 180, 0.3);
+}
+
+.ps-close {
+  font-family: inherit;
+  font-size: 15px;
+  padding: 7px 18px;
+  color: #f4eedc;
+  background: rgba(34, 24, 34, 0.9);
+  border: 2px solid rgba(217, 171, 67, 0.42);
+  cursor: pointer;
+}
+.ps-close:hover { border-color: #ff7a8a; color: #ffd4db; }
+
+.ps-pane { flex: 1; min-height: 0; }
+.ps-pane.hidden { display: none; }
+
+/* Scene & Weather Tab */
+.ps-scene-layout {
+  display: grid;
+  grid-template-columns: 860px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.ps-stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ps-canvas-wrap {
+  width: 860px;
+  height: 484px;
+  border: 2px solid rgba(217, 171, 67, 0.44);
+  box-shadow: 0 0 0 2px #05060b;
+  background: #060812;
+  overflow: hidden;
+  cursor: crosshair;
+}
+#ps-scene-canvas {
+  display: block;
+  width: 860px;
+  height: 484px;
+  image-rendering: pixelated;
+}
+
+.ps-scene-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  color: #ffe8a3;
+  padding: 4px 2px;
+}
+.ps-scene-caption small {
+  color: #8f9db8;
+  font-size: 13px;
+}
+
+.ps-ctrl-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 584px;
+}
+
+.ps-sec-label {
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: #d9b664;
+  margin-top: 2px;
+}
+.ps-sec-label.is-fantasy {
+  color: #ff8fb8;
+  margin-top: 6px;
+}
+
+.ps-map-grid,
+.ps-weather-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.ps-chip {
+  font-family: inherit;
+  text-align: left;
+  padding: 7px 9px;
+  background: rgba(18, 22, 36, 0.9);
+  border: 1px solid rgba(112, 128, 166, 0.34);
+  color: #d3dcf0;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.12s ease;
+}
+.ps-chip:hover {
+  border-color: rgba(242, 200, 102, 0.7);
+  color: #fff6d6;
+}
+.ps-chip.active {
+  background: linear-gradient(180deg, rgba(84, 62, 22, 0.92), rgba(42, 30, 10, 0.96));
+  border-color: #ffd966;
+  color: #fff8de;
+}
+.ps-chip-num {
+  font-size: 11px;
+  color: #8896b3;
+}
+.ps-chip.active .ps-chip-num { color: #ffd966; }
+.ps-chip-name { font-size: 13px; line-height: 1.2; }
+
+.ps-weather-chip {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 6px 8px;
+}
+.ps-weather-chip.is-fantasy {
+  border-color: rgba(212, 108, 174, 0.34);
+}
+.ps-weather-chip.is-fantasy.active {
+  background: linear-gradient(180deg, rgba(88, 26, 62, 0.92), rgba(44, 14, 34, 0.96));
+  border-color: #ff7ab8;
+}
+.ps-chip-sub {
+  font-size: 11px;
+  color: #8896b3;
+  line-height: 1.2;
+}
+.ps-chip.active .ps-chip-sub { color: #e8d8b0; }
+
+.ps-actions {
+  margin-top: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 6px;
+}
+.ps-act-btn {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 10px 10px;
+  background: rgba(24, 30, 48, 0.95);
+  border: 2px solid rgba(132, 152, 196, 0.45);
+  color: #e6eefc;
+  cursor: pointer;
+}
+.ps-act-btn:hover:not(:disabled) { border-color: #ffd966; color: #fff7d6; }
+.ps-act-btn.primary {
+  background: linear-gradient(180deg, #b88222, #7d5210);
+  border-color: #ffd966;
+  color: #fff9e6;
+}
+.ps-act-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* Cards & VFX Tab */
+.ps-cards-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ps-seals-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.ps-seals-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ps-seal-btn {
+  font-family: inherit;
+  font-size: 12px;
+  padding: 5px 10px;
+  background: rgba(18, 22, 36, 0.92);
+  border: 1px solid rgba(124, 140, 178, 0.4);
+  color: #cbd6ed;
+  cursor: pointer;
+}
+.ps-seal-btn:hover { border-color: #ffd966; color: #fff6d6; }
+.ps-seal-btn.active {
+  background: rgba(112, 36, 52, 0.9);
+  border-color: #ff7a98;
+  color: #fff0f4;
+}
+.ps-cycle-btn {
+  border-color: rgba(217, 171, 67, 0.55);
+  color: #ffe49c;
+}
+
+.ps-cards-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 6px 10px 4px;
+}
+
+.ps-card-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.ps-tier-label {
+  font-size: 13px;
+  letter-spacing: 0.03em;
+  color: #cbd6ed;
+}
+.ps-tier-label.tier-B { color: #7cd4ff; }
+.ps-tier-label.tier-A { color: #d896ff; }
+.ps-tier-label.tier-S { color: #ffd966; }
+.ps-tier-label.tier-SSS { color: #ff7aa8; }
+
+.ps-preview-card.v14-card {
+  position: relative !important;
+  --fan-rot: 0deg;
+  --fan-y: 0px;
+  width: 184px !important;
+  height: 244px !important;
+  margin: 0 !important;
+  cursor: pointer;
+}
+.ps-preview-card.v14-card:hover {
+  transform: perspective(600px) translateY(-8px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.04) !important;
+}
+.ps-preview-card .v14-card-perk {
+  white-space: normal !important;
+  line-height: 1.38 !important;
+  font-size: 11.5px !important;
+  min-height: 46px !important;
+  overflow: visible !important;
+}
+
+.ps-vfx-bottom {
+  display: grid;
+  grid-template-columns: 484px 1fr;
+  gap: 14px;
+  margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid rgba(217, 171, 67, 0.24);
+}
+
+.ps-vfx-stage-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#ps-vfx-canvas {
+  display: block;
+  width: 480px;
+  height: 196px;
+  border: 2px solid rgba(217, 171, 67, 0.42);
+  background: #080a14;
+  image-rendering: pixelated;
+}
+.ps-vfx-status {
+  font-size: 12px;
+  color: #a9b8d4;
+}
+
+.ps-vfx-picker-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.ps-vfx-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.ps-vfx-btn {
+  font-family: inherit;
+  text-align: left;
+  padding: 6px 8px;
+  background: rgba(18, 22, 36, 0.92);
+  border: 1px solid rgba(118, 134, 172, 0.36);
+  color: #dce4f7;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ps-vfx-btn:hover {
+  background: rgba(68, 50, 20, 0.9);
+  border-color: #ffd966;
+  color: #fff8de;
+}
+.ps-vfx-cat {
+  font-size: 10px;
+  color: #8b9bb8;
+}
+.ps-vfx-name {
+  font-size: 12px;
+}

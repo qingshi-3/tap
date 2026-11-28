@@ -781,11 +781,18 @@
     // The battle's own night sky, stone bridge and mirror lake. The squad stands
     // on the left of the bridge, the next boss towers on the right; both reflect
     // in the water. The shop UI floats on top as DOM.
-    setScene({ biome = 'default', bossUnitId = null, bossTier = 1, aura = 'ember', roster = [] } = {}) {
-      if (biome !== this.campBiome) this._campStatic = null;
+    setScene({ biome = 'default', bossUnitId = null, bossTier = 1, aura = 'ember', roster = [], mapId = null, weather = 'drizzle' } = {}) {
+      if (biome !== this.campBiome || mapId !== this.campMapId) this._campStatic = null;
       this.campBiome = biome;
+      this.campMapId = mapId;
+      this.campWeather = weather || 'drizzle';
       this.campBoss = { unitId: bossUnitId, tier: bossTier, aura };
       this.campBossScale = null;
+      if (mapId && window.MT.getBattleMapImage) {
+        window.MT.getBattleMapImage(mapId, () => {
+          this._campStatic = null;
+        });
+      }
       const spots = TavernShopStage.squadSpots(roster.length);
       this.campSquad = roster.slice(0, spots.length).map((h, i) => ({ unitId: h.unitId, redSeal: Boolean(h.redSeal), spot: spots[i], phase: i * 0.47 }));
       if (this.running && this.reducedMotion) this._render(this.time);
@@ -820,32 +827,40 @@
         c.height = CAMP_LAKE_Y;
         const g = c.getContext('2d');
         g.imageSmoothingEnabled = false;
-        const sky = this.bgProvider ? this.bgProvider(this.campBiome || 'default') : null;
-        if (sky) {
-          g.drawImage(sky, 0, 0, sky.width, sky.height, 0, -CAMP_SHIFT, W, sky.height * 4);
+        const mapCfg = (this.campMapId && window.MT.getBattleMapConfig) ? window.MT.getBattleMapConfig(this.campMapId) : null;
+        const mapImg = (mapCfg && window.MT.getBattleMapImage) ? window.MT.getBattleMapImage(mapCfg.id) : null;
+        const hasMap = Boolean(mapImg && mapImg.complete && mapImg.naturalWidth > 0);
+        if (hasMap && window.MT.drawBattleMapAligned) {
+          // Undistorted 1:1 map alignment: road center lands right on CAMP_BRIDGE_Y (336px)
+          window.MT.drawBattleMapAligned(g, mapCfg, mapImg, W, H, CAMP_BRIDGE_Y);
         } else {
-          const gr = g.createLinearGradient(0, 0, 0, CAMP_BRIDGE_Y);
-          gr.addColorStop(0, '#070912'); gr.addColorStop(1, '#1b263b');
-          g.fillStyle = gr; g.fillRect(0, 0, W, CAMP_LAKE_Y);
+          const sky = this.bgProvider ? this.bgProvider(this.campBiome || 'default') : null;
+          if (sky) {
+            g.drawImage(sky, 0, 0, sky.width, sky.height, 0, -CAMP_SHIFT, W, sky.height * 4);
+          } else {
+            const gr = g.createLinearGradient(0, 0, 0, CAMP_BRIDGE_Y);
+            gr.addColorStop(0, '#070912'); gr.addColorStop(1, '#1b263b');
+            g.fillStyle = gr; g.fillRect(0, 0, W, CAMP_LAKE_Y);
+          }
+          // stone bridge fallback
+          const y = CAMP_BRIDGE_Y;
+          g.fillStyle = '#070810'; g.fillRect(0, y - 4, W, 4);
+          const rim = g.createLinearGradient(0, 0, W, 0);
+          rim.addColorStop(0, '#8c7a5a'); rim.addColorStop(0.45, '#7e8aa0'); rim.addColorStop(1, '#4b5a75');
+          g.fillStyle = rim; g.fillRect(0, y, W, 4);
+          g.fillStyle = '#262d40'; g.fillRect(0, y + 4, W, 12);
+          g.fillStyle = '#171c2b'; g.fillRect(0, y + 16, W, 12);
+          for (let bx = 0; bx < W; bx += 48) { g.fillStyle = '#0c0f1a'; g.fillRect(bx, y + 4, 4, 12); g.fillRect(bx + 24, y + 16, 4, 12); }
+          g.fillStyle = '#06070f'; g.fillRect(0, CAMP_LAKE_Y - 4, W, 4);
         }
-        // warm campfire wash on the squad side, cold dusk on the boss side
-        const warm = g.createRadialGradient(330, 320, 20, 330, 320, 480);
-        warm.addColorStop(0, 'rgba(255, 170, 90, 0.16)');
+        // warm campfire wash on the squad side, top readability scrim
+        const warm = g.createRadialGradient(330, 320, 20, 330, 320, 460);
+        warm.addColorStop(0, 'rgba(255, 170, 90, 0.14)');
         warm.addColorStop(1, 'rgba(255, 170, 90, 0)');
         g.fillStyle = warm; g.fillRect(0, 0, W, CAMP_LAKE_Y);
-        const top = g.createLinearGradient(0, 0, 0, 120);
-        top.addColorStop(0, 'rgba(6, 5, 8, 0.75)'); top.addColorStop(1, 'rgba(6, 5, 8, 0)');
-        g.fillStyle = top; g.fillRect(0, 0, W, 120);
-        // stone bridge (same build as the battle bridge)
-        const y = CAMP_BRIDGE_Y;
-        g.fillStyle = '#070810'; g.fillRect(0, y - 4, W, 4);
-        const rim = g.createLinearGradient(0, 0, W, 0);
-        rim.addColorStop(0, '#8c7a5a'); rim.addColorStop(0.45, '#7e8aa0'); rim.addColorStop(1, '#4b5a75');
-        g.fillStyle = rim; g.fillRect(0, y, W, 4);
-        g.fillStyle = '#262d40'; g.fillRect(0, y + 4, W, 12);
-        g.fillStyle = '#171c2b'; g.fillRect(0, y + 16, W, 12);
-        for (let bx = 0; bx < W; bx += 48) { g.fillStyle = '#0c0f1a'; g.fillRect(bx, y + 4, 4, 12); g.fillRect(bx + 24, y + 16, 4, 12); }
-        g.fillStyle = '#06070f'; g.fillRect(0, CAMP_LAKE_Y - 4, W, 4);
+        const top = g.createLinearGradient(0, 0, 0, 118);
+        top.addColorStop(0, 'rgba(6, 5, 10, 0.72)'); top.addColorStop(1, 'rgba(6, 5, 10, 0)');
+        g.fillStyle = top; g.fillRect(0, 0, W, 118);
         this._campStatic = c;
       }
     }
@@ -921,11 +936,24 @@
         }
       }
 
-      // composite: upper scene, then the mirror lake
+      // composite: upper scene + subtle wave weather, then the mirror lake
+      if (window.MT.renderPixelWeather && this.campWeather) {
+        window.MT.renderPixelWeather(s, this.campWeather, t, W, CAMP_BRIDGE_Y, { biome: this.campBiome || 'default', intensity: 0.68 });
+      }
       ctx.save();
       ctx.imageSmoothingEnabled = false;
       ctx.drawImage(this.campScene, 0, 0);
       const lakeH = H - CAMP_LAKE_Y;
+      const mapCfg = (this.campMapId && window.MT.getBattleMapConfig) ? window.MT.getBattleMapConfig(this.campMapId) : null;
+      const mapImg = (mapCfg && window.MT.getBattleMapImage) ? window.MT.getBattleMapImage(mapCfg.id) : null;
+      if (mapImg && mapImg.complete && mapImg.naturalWidth > 0 && window.MT.drawBattleMapAligned) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, CAMP_LAKE_Y, W, lakeH);
+        ctx.clip();
+        window.MT.drawBattleMapAligned(ctx, mapCfg, mapImg, W, H, CAMP_BRIDGE_Y);
+        ctx.restore();
+      }
       const r = this.campReflCtx;
       r.save();
       r.clearRect(0, 0, W, lakeH);
@@ -934,15 +962,19 @@
       r.drawImage(this.campScene, 0, CAMP_BRIDGE_Y - lakeH, W, lakeH, 0, 0, W, lakeH);
       r.restore();
       const band = 12;
+      ctx.save();
       for (let sy = 0; sy < lakeH; sy += band) {
         const h = Math.min(band, lakeH - sy);
         const ripple = Math.round(Math.sin(sy * 0.08 + t * 3.2) * (1.5 + (sy / lakeH) * 2.4));
+        // Subtle, low-contrast mirror reflection so shop shelf stays super crisp & legible
+        ctx.globalAlpha = Math.max(0.08, 0.32 - (sy / lakeH) * 0.22);
         ctx.drawImage(this.campRefl, 0, sy, W, h, ripple, CAMP_LAKE_Y + sy, W, h);
       }
+      ctx.restore();
       const water = ctx.createLinearGradient(0, CAMP_LAKE_Y, 0, H);
-      water.addColorStop(0, 'rgba(6, 10, 20, 0.5)');
-      water.addColorStop(0.35, 'rgba(6, 8, 16, 0.62)');
-      water.addColorStop(1, 'rgba(4, 4, 8, 0.86)');
+      water.addColorStop(0, 'rgba(6, 10, 20, 0.62)');
+      water.addColorStop(0.35, 'rgba(6, 8, 16, 0.78)');
+      water.addColorStop(1, 'rgba(4, 4, 8, 0.92)');
       ctx.fillStyle = water;
       ctx.fillRect(0, CAMP_LAKE_Y, W, lakeH);
       // a few moving glints on the water

@@ -162,7 +162,376 @@
     }
   }
 
-  const WEATHER_MODES = ['drizzle', 'mist', 'fireflies'];
+  // 8 Hand-Curated 16-bit Pixel-Art Battle Maps
+  // roadRatio: exact center of flat walking road; waterRatio: where water/abyss starts BELOW the stone parapet
+  const BATTLE_MAPS = [
+    { id: 'mirror_lake',    name: '镜湖月桥',     src: './assets/battle/map_01_mirror_lake.jpg',    roadRatio: 0.535, waterRatio: 0.620, biome: 'default', preferred: ['drizzle', 'fireflies', 'mist'],         bossWeathers: ['meteor_shower', 'arcane_storm', 'blood_embers'] },
+    { id: 'frost_pine',     name: '极光雪松桥',   src: './assets/battle/map_02_frost_pine.jpg',     roadRatio: 0.568, waterRatio: 0.625, biome: 'ice',     preferred: ['snow', 'mist', 'fireflies'],            bossWeathers: ['meteor_shower', 'arcane_storm', 'void_rift'] },
+    { id: 'crimson_shrine', name: '绯月鸟居桥',   src: './assets/battle/map_03_crimson_shrine.jpg', roadRatio: 0.576, waterRatio: 0.625, biome: 'dark',    preferred: ['fireflies', 'mist', 'drizzle'],         bossWeathers: ['blood_embers', 'void_rift', 'meteor_shower'] },
+    { id: 'astral_ruins',   name: '星界浮空道',   src: './assets/battle/map_04_astral_ruins.jpg',   roadRatio: 0.545, waterRatio: 0.612, biome: 'dark',    preferred: ['fireflies', 'mist', 'snow'],            bossWeathers: ['meteor_shower', 'void_rift', 'arcane_storm'] },
+    { id: 'ember_citadel',  name: '烬火铁链桥',   src: './assets/battle/map_05_ember_citadel.jpg',  roadRatio: 0.525, waterRatio: 0.625, biome: 'dark',    preferred: ['blood_embers', 'mist', 'drizzle'],      bossWeathers: ['blood_embers', 'arcane_storm', 'void_rift'] },
+    { id: 'emerald_grove',  name: '幽林古根桥',   src: './assets/battle/map_06_emerald_grove.jpg',  roadRatio: 0.555, waterRatio: 0.615, biome: 'default', preferred: ['fireflies', 'drizzle', 'mist'],         bossWeathers: ['void_rift', 'meteor_shower', 'blood_embers'] },
+    { id: 'storm_belfry',   name: '雷鸣钟楼桥',   src: './assets/battle/map_07_storm_belfry.jpg',   roadRatio: 0.520, waterRatio: 0.602, biome: 'ice',     preferred: ['drizzle', 'arcane_storm', 'mist'],      bossWeathers: ['arcane_storm', 'blood_embers', 'void_rift'] },
+    { id: 'abyss_sanctum',  name: '深海沉没圣殿', src: './assets/battle/map_08_abyss_sanctum.jpg',  roadRatio: 0.595, waterRatio: 0.680, biome: 'ice',     preferred: ['mist', 'fireflies', 'snow'],            bossWeathers: ['void_rift', 'arcane_storm', 'meteor_shower'] }
+  ];
+
+  // Distortion-free 1:1 map alignment: shifts full 16:9 map vertically so road center lands exactly on targetBridgeY
+  function getBattleMapLayout(mapCfg, h, targetBridgeY) {
+    const roadRatio = (mapCfg && mapCfg.roadRatio) || 0.55;
+    const waterRatio = (mapCfg && mapCfg.waterRatio) || 0.62;
+    const shiftY = Math.round(targetBridgeY - h * roadRatio);
+    const waterY = Math.max(targetBridgeY + 14, Math.min(h - 24, Math.round(h * waterRatio) + shiftY));
+    return { shiftY, waterY };
+  }
+
+  function drawBattleMapAligned(ctx, mapCfg, mapImg, w, h, targetBridgeY) {
+    const layout = getBattleMapLayout(mapCfg, h, targetBridgeY);
+    if (layout.shiftY > 0) {
+      ctx.fillStyle = '#070912';
+      ctx.fillRect(0, 0, w, layout.shiftY + 2);
+    }
+    ctx.drawImage(mapImg, 0, 0, mapImg.naturalWidth, mapImg.naturalHeight, 0, layout.shiftY, w, h);
+    if (layout.shiftY < 0) {
+      ctx.fillStyle = '#05060d';
+      ctx.fillRect(0, h + layout.shiftY - 2, w, -layout.shiftY + 4);
+    }
+    return layout;
+  }
+  const BATTLE_MAP_BY_ID = Object.fromEntries(BATTLE_MAPS.map((m) => [m.id, m]));
+  const EVERYDAY_WEATHERS = ['drizzle', 'snow', 'fireflies', 'mist'];
+  const FANTASY_WEATHERS = ['blood_embers', 'arcane_storm', 'meteor_shower', 'void_rift'];
+  const WEATHER_MODES = [...EVERYDAY_WEATHERS, ...FANTASY_WEATHERS];
+  const BATTLE_MAP_IMGS = {};
+
+  function getBattleMapConfig(mapId) {
+    return BATTLE_MAP_BY_ID[mapId] || BATTLE_MAPS[0];
+  }
+
+  function getBattleMapImage(mapId, onLoad) {
+    const cfg = getBattleMapConfig(mapId);
+    let img = BATTLE_MAP_IMGS[cfg.id];
+    if (!img) {
+      img = new Image();
+      img.decoding = 'async';
+      img.src = cfg.src;
+      BATTLE_MAP_IMGS[cfg.id] = img;
+    }
+    if (onLoad && !(img.complete && img.naturalWidth > 0)) {
+      img.addEventListener('load', onLoad, { once: true });
+    }
+    return img;
+  }
+
+  function pickWaveScene(wave = 1, bossTier = 1, prev = null) {
+    const prevMapId = prev && prev.mapId;
+    const prevWeather = prev && prev.weather;
+    const mapPool = BATTLE_MAPS.filter((m) => m.id !== prevMapId);
+    const mapCfg = mapPool[Math.floor(Math.random() * mapPool.length)] || BATTLE_MAPS[0];
+
+    // Boss / late waves strongly favor extreme fantasy oppressive weathers; early waves mix atmospheric & fantasy
+    const fantasyChance = (bossTier >= 3 || wave >= 5) ? 0.78 : (bossTier >= 2 || wave >= 3) ? 0.50 : 0.28;
+    const useFantasy = Math.random() < fantasyChance;
+    const basePool = useFantasy
+      ? (Math.random() < 0.72 && mapCfg.bossWeathers ? mapCfg.bossWeathers : FANTASY_WEATHERS)
+      : (Math.random() < 0.70 && mapCfg.preferred ? mapCfg.preferred : EVERYDAY_WEATHERS);
+    const filtered = basePool.filter((w) => w !== prevWeather);
+    const weatherPool = filtered.length ? filtered : WEATHER_MODES.filter((w) => w !== prevWeather);
+    const weather = weatherPool[Math.floor(Math.random() * weatherPool.length)] || 'drizzle';
+    return {
+      wave,
+      mapId: mapCfg.id,
+      mapName: mapCfg.name,
+      biome: mapCfg.biome,
+      weather
+    };
+  }
+
+  // Pixelfx-inspired crisp 2px/4px pixel + additive light weather renderer (shared by Battle & Tavern Camp)
+  function renderPixelWeather(ctx, weather, t, w, bridgeY, opts = {}) {
+    const intensity = opts.intensity !== undefined ? opts.intensity : 1.0;
+    const pal = NOCTURNE_PALETTES[opts.biome || 'default'] || NOCTURNE_PALETTES.default;
+    const px = 2;
+
+    if (weather === 'drizzle') {
+      // Crisp slanted pixel rain + pixel bridge-surface splashes
+      const count = Math.round(36 * intensity);
+      ctx.save();
+      ctx.fillStyle = 'rgba(186, 214, 245, 0.34)';
+      for (let i = 0; i < count; i++) {
+        const spd = 290 + (i % 4) * 55;
+        const rawX = (hash2(i, 4, 31) * w) - t * (spd * 0.24);
+        const x = ((rawX % w) + w) % w;
+        const y = ((hash2(i, 9, 17) * bridgeY) + t * spd) % bridgeY;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        // Stepped 2px pixel rain streak (3 stepped segments)
+        ctx.fillRect(sx, sy, px, 6);
+        ctx.fillRect(sx - 2, sy + 6, px, 6);
+        ctx.fillRect(sx - 4, sy + 12, px, 4);
+      }
+      // Tiny pixel splashes bouncing off bridge surface
+      ctx.globalCompositeOperation = 'lighter';
+      const splashCount = Math.round(12 * intensity);
+      for (let i = 0; i < splashCount; i++) {
+        const cycle = (t * (2.6 + (i % 3) * 0.7) + hash2(i, 7, 53) * 10) % 1;
+        if (cycle > 0.36) continue;
+        const p = cycle / 0.36;
+        const sx = Math.round((40 + hash2(i, 2, 89) * (w - 80)) / px) * px;
+        const spread = Math.round(p * 8);
+        const hop = Math.round(Math.sin(p * Math.PI) * 5);
+        ctx.globalAlpha = (1 - p) * 0.55 * intensity;
+        ctx.fillStyle = '#c8e4ff';
+        ctx.fillRect(sx - spread, bridgeY - 2 - hop, px, px);
+        ctx.fillRect(sx + spread, bridgeY - 2 - hop, px, px);
+        if (p < 0.45) ctx.fillRect(sx - 2, bridgeY - 2, 6, px);
+      }
+      ctx.restore();
+    } else if (weather === 'snow') {
+      // Drifting crisp 2px/4px pixel snowflakes with gentle icy sparkle
+      const count = Math.round(48 * intensity);
+      ctx.save();
+      for (let i = 0; i < count; i++) {
+        const layer = i % 3; // 0 far, 1 mid, 2 near
+        const spd = 28 + layer * 20;
+        const sway = Math.sin(t * (1.2 + layer * 0.4) + hash2(i, 5, 19) * 6.28) * (14 + layer * 10);
+        const rawX = (hash2(i, 1, 41) * w) - t * (16 + layer * 12) + sway;
+        const x = ((rawX % w) + w) % w;
+        const y = ((hash2(i, 2, 71) * bridgeY) + t * spd) % bridgeY;
+        const sz = layer === 2 ? 4 : 2;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        ctx.globalAlpha = (0.35 + layer * 0.22) * intensity;
+        ctx.fillStyle = layer === 2 ? '#e8fbff' : '#9ed4f0';
+        ctx.fillRect(sx, sy, sz, sz);
+      }
+      ctx.restore();
+    } else if (weather === 'fireflies') {
+      // Warm additive pixel fireflies with pixelfx-style light halos
+      const count = Math.round(24 * intensity);
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      for (let i = 0; i < count; i++) {
+        const phase = hash2(i, 3, 73) * Math.PI * 2;
+        const fx = 48 + hash2(i, 1, 41) * (w - 96) + Math.sin(t * (0.7 + (i % 3) * 0.25) + phase) * 32;
+        const fy = 80 + hash2(i, 2, 59) * (bridgeY - 108) + Math.cos(t * 0.85 + phase) * 16;
+        const pulse = Math.pow(0.5 + 0.5 * Math.sin(t * (1.9 + (i % 4) * 0.35) + phase), 2.2);
+        const alpha = (0.24 + pulse * 0.62) * intensity;
+        const rad = (i % 3 === 0) ? 16 : 10;
+        const isLime = i % 4 === 0;
+        const fg = ctx.createRadialGradient(fx, fy, 1, fx, fy, rad);
+        fg.addColorStop(0, isLime ? `rgba(176, 255, 148, ${(alpha * 0.62).toFixed(3)})` : `rgba(255, 228, 128, ${(alpha * 0.68).toFixed(3)})`);
+        fg.addColorStop(1, 'rgba(255, 214, 96, 0)');
+        ctx.fillStyle = fg;
+        ctx.fillRect(Math.round(fx - rad), Math.round(fy - rad), rad * 2, rad * 2);
+        ctx.globalAlpha = alpha;
+        ctx.fillStyle = isLime ? '#d8ffbd' : '#fff5c2';
+        const sx = Math.round(fx / px) * px;
+        const sy = Math.round(fy / px) * px;
+        ctx.fillRect(sx, sy, i % 3 === 0 ? 4 : 2, i % 3 === 0 ? 4 : 2);
+      }
+      ctx.restore();
+    } else if (weather === 'mist') {
+      // Thick atmospheric horizon mist + tiny floating dew motes
+      ctx.save();
+      const mistCount = 6;
+      for (let r = 0; r < mistCount; r++) {
+        const yBase = bridgeY - 78 + r * 14;
+        const speed = 12 + (r % 3) * 7;
+        const offset = (t * speed + r * 260) % (w + 480);
+        const mx = offset - 480;
+        const mg = ctx.createLinearGradient(mx, yBase, mx + 480, yBase);
+        mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
+        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.085 + (r % 3) * 0.024) * intensity).toFixed(3)})`);
+        mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
+        ctx.fillStyle = mg;
+        ctx.fillRect(Math.round(mx), yBase, 480, 24 + (r % 3) * 8);
+      }
+      ctx.restore();
+    } else if (weather === 'blood_embers') {
+      // EXTREME FANTASY: Blood Eclipse Ember Storm (oppressive crimson horizon pulse + whipping hot embers)
+      ctx.save();
+      const pulse = 0.72 + 0.28 * Math.sin(t * 2.1);
+      const haze = ctx.createLinearGradient(0, bridgeY - 170, 0, bridgeY);
+      haze.addColorStop(0, 'rgba(120, 12, 28, 0)');
+      haze.addColorStop(0.65, `rgba(176, 22, 42, ${(0.12 * pulse * intensity).toFixed(3)})`);
+      haze.addColorStop(1, `rgba(235, 58, 34, ${(0.20 * pulse * intensity).toFixed(3)})`);
+      ctx.fillStyle = haze;
+      ctx.fillRect(0, bridgeY - 170, w, 170);
+
+      ctx.globalCompositeOperation = 'lighter';
+      const count = Math.round(52 * intensity);
+      for (let i = 0; i < count; i++) {
+        const spdX = 110 + (i % 5) * 38;
+        const spdY = 48 + (i % 4) * 26;
+        const rawX = (hash2(i, 1, 97) * w) - t * spdX;
+        const rawY = (hash2(i, 2, 61) * bridgeY) - t * spdY + Math.sin(t * 3.2 + i) * 14;
+        const x = ((rawX % w) + w) % w;
+        const y = ((rawY % bridgeY) + bridgeY) % bridgeY;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        const hot = i % 4 === 0;
+        const flick = 0.45 + 0.55 * Math.sin(t * 9.5 + i * 1.7);
+        // Ember trail pixel
+        ctx.globalAlpha = 0.36 * flick * intensity;
+        ctx.fillStyle = '#ff4226';
+        ctx.fillRect(sx + 4, sy + 2, 4, 2);
+        // Bright ember core
+        ctx.globalAlpha = (hot ? 0.92 : 0.74) * flick * intensity;
+        ctx.fillStyle = hot ? '#fff2b0' : (i % 2 === 0 ? '#ff8e2b' : '#ff3d4e');
+        ctx.fillRect(sx, sy, hot ? 4 : 2, hot ? 4 : 2);
+      }
+      ctx.restore();
+    } else if (weather === 'arcane_storm') {
+      // EXTREME FANTASY: Arcane Violet Lightning Storm (slashing storm rain + periodic branching pixel bolts + sky flash)
+      ctx.save();
+      // Periodic lightning strike every ~3.8s
+      const cycle = t % 3.8;
+      const strikeEnv = cycle < 0.26 ? (1 - cycle / 0.26) : (cycle > 0.32 && cycle < 0.44 ? 0.55 * (1 - (cycle - 0.32) / 0.12) : 0);
+      if (strikeEnv > 0.02) {
+        // Brief oppressive violet-white sky illumination
+        ctx.fillStyle = `rgba(182, 146, 255, ${(strikeEnv * 0.22 * intensity).toFixed(3)})`;
+        ctx.fillRect(0, 0, w, bridgeY);
+
+        // Stepped pixel lightning bolt in distant sky
+        const boltSeed = Math.floor(t / 3.8) + 1;
+        let bx = 180 + hash2(boltSeed, 3, 101) * (w - 360);
+        let by = 8;
+        ctx.save();
+        ctx.globalCompositeOperation = 'lighter';
+        const segs = 14;
+        const stepY = Math.floor((bridgeY - 36) / segs);
+        for (let s = 0; s < segs; s++) {
+          const nx = bx + (hash2(boltSeed, s, 43) - 0.5) * 44;
+          const ny = by + stepY;
+          const steps = 6;
+          for (let k = 0; k <= steps; k++) {
+            const lx = Math.round((bx + (nx - bx) * (k / steps)) / px) * px;
+            const ly = Math.round((by + (ny - by) * (k / steps)) / px) * px;
+            ctx.globalAlpha = strikeEnv * 0.55 * intensity;
+            ctx.fillStyle = '#a86bff';
+            ctx.fillRect(lx - 4, ly - 2, 10, 6);
+            ctx.globalAlpha = strikeEnv * 0.96 * intensity;
+            ctx.fillStyle = '#f5eeff';
+            ctx.fillRect(lx, ly, 4, 4);
+          }
+          // Occasional side fork
+          if (s === 4 || s === 8) {
+            const dir = s === 4 ? -1 : 1;
+            for (let fk = 1; fk <= 5; fk++) {
+              const fx = Math.round((nx + dir * fk * 10) / px) * px;
+              const fy = Math.round((ny + fk * 8) / px) * px;
+              ctx.globalAlpha = strikeEnv * 0.72 * intensity;
+              ctx.fillStyle = '#d4b3ff';
+              ctx.fillRect(fx, fy, 2, 4);
+            }
+          }
+          bx = nx;
+          by = ny;
+        }
+        ctx.restore();
+      }
+
+      // Slashing diagonal storm rain + violet-tinted sparks
+      const count = Math.round(46 * intensity);
+      ctx.fillStyle = 'rgba(176, 196, 255, 0.36)';
+      for (let i = 0; i < count; i++) {
+        const spd = 380 + (i % 4) * 70;
+        const rawX = (hash2(i, 4, 79) * w) - t * (spd * 0.38);
+        const x = ((rawX % w) + w) % w;
+        const y = ((hash2(i, 9, 23) * bridgeY) + t * spd) % bridgeY;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        ctx.fillRect(sx, sy, px, 6);
+        ctx.fillRect(sx - 2, sy + 6, px, 6);
+        ctx.fillRect(sx - 4, sy + 12, px, 6);
+      }
+      ctx.restore();
+    } else if (weather === 'meteor_shower') {
+      // EXTREME FANTASY: Astral Meteor Shower (blazing diagonal pixel meteors + shimmering starlight dust)
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+      const meteorCount = Math.round(7 * intensity);
+      for (let i = 0; i < meteorCount; i++) {
+        const period = 2.6 + (i % 3) * 0.9;
+        const phase = (t + hash2(i, 5, 113) * period) % period;
+        const prog = phase / 0.85; // active for 0.85s
+        if (prog > 1) continue;
+        const seed = Math.floor((t + hash2(i, 5, 113) * period) / period) + i * 17;
+        const startX = 240 + hash2(seed, 1, 37) * (w - 140);
+        const startY = 8 + hash2(seed, 2, 67) * 85;
+        const mx = startX - prog * 340;
+        const my = startY + prog * 195;
+        const fade = Math.sin(prog * Math.PI);
+        const isGold = i % 2 === 0;
+        const tailCol = isGold ? '#ffae42' : '#52d6ff';
+        const headCol = isGold ? '#fff8d6' : '#e0faff';
+        // Stepped pixel meteor tail
+        for (let seg = 0; seg < 11; seg++) {
+          const tx = Math.round((mx + seg * 8) / px) * px;
+          const ty = Math.round((my - seg * 4.6) / px) * px;
+          const segA = (1 - seg / 11) * fade * 0.82 * intensity;
+          if (segA <= 0.02) continue;
+          ctx.globalAlpha = segA;
+          ctx.fillStyle = seg < 2 ? headCol : tailCol;
+          const sz = seg === 0 ? 6 : seg < 4 ? 4 : 2;
+          ctx.fillRect(tx, ty, sz, sz);
+        }
+      }
+      // Ambient drifting starlight sparkles
+      const dustCount = Math.round(22 * intensity);
+      for (let i = 0; i < dustCount; i++) {
+        const sx = Math.round((hash2(i, 1, 131) * w) / px) * px;
+        const sy = Math.round((24 + hash2(i, 2, 137) * (bridgeY - 60)) / px) * px;
+        const tw = Math.pow(0.5 + 0.5 * Math.sin(t * (2.5 + (i % 4) * 0.6) + i), 3);
+        ctx.globalAlpha = tw * 0.72 * intensity;
+        ctx.fillStyle = i % 3 === 0 ? '#ffe699' : '#b8f0ff';
+        ctx.fillRect(sx, sy, 2, 2);
+      }
+      ctx.restore();
+    } else if (weather === 'void_rift') {
+      // EXTREME FANTASY: Void Rift Shards (antigravity rising obsidian-violet shards + eerie horizon rift pulse)
+      ctx.save();
+      const pulse = 0.7 + 0.3 * Math.sin(t * 1.8);
+      const rift = ctx.createLinearGradient(0, bridgeY - 160, 0, bridgeY);
+      rift.addColorStop(0, 'rgba(68, 22, 118, 0)');
+      rift.addColorStop(0.65, `rgba(104, 34, 178, ${(0.14 * pulse * intensity).toFixed(3)})`);
+      rift.addColorStop(1, `rgba(168, 64, 245, ${(0.18 * pulse * intensity).toFixed(3)})`);
+      ctx.fillStyle = rift;
+      ctx.fillRect(0, bridgeY - 160, w, 160);
+
+      ctx.globalCompositeOperation = 'lighter';
+      const count = Math.round(34 * intensity);
+      for (let i = 0; i < count; i++) {
+        const spd = 28 + (i % 4) * 18;
+        const rawY = (hash2(i, 2, 151) * bridgeY) - t * spd;
+        const y = ((rawY % bridgeY) + bridgeY) % bridgeY;
+        const x = hash2(i, 1, 149) * w + Math.sin(t * 1.6 + i) * 14;
+        const sx = Math.round(x / px) * px;
+        const sy = Math.round(y / px) * px;
+        const edgeFade = Math.min(1, y / 56) * Math.min(1, (bridgeY - y) / 40);
+        const isMagenta = i % 3 === 0;
+        const h = i % 4 === 0 ? 8 : 4;
+        ctx.globalAlpha = (0.38 + 0.45 * Math.sin(t * 4.2 + i)) * edgeFade * intensity;
+        ctx.fillStyle = isMagenta ? '#ff6ec7' : '#a86bff';
+        ctx.fillRect(sx, sy, 2, h);
+        if (i % 4 === 0) {
+          ctx.fillStyle = '#f5e0ff';
+          ctx.fillRect(sx, sy + 2, 2, 2);
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  window.MT.BATTLE_MAPS = BATTLE_MAPS;
+  window.MT.WEATHER_MODES = WEATHER_MODES;
+  window.MT.getBattleMapConfig = getBattleMapConfig;
+  window.MT.getBattleMapImage = getBattleMapImage;
+  window.MT.getBattleMapLayout = getBattleMapLayout;
+  window.MT.drawBattleMapAligned = drawBattleMapAligned;
+  window.MT.pickWaveScene = pickWaveScene;
+  window.MT.renderPixelWeather = renderPixelWeather;
+
   let prevBattleWeatherIdx = -1;
 
   class V14BattleStage {
@@ -207,6 +576,7 @@
       this.scoring = this._makeScoringState();
 
       this.biome = 'default';
+      this.mapCfg = BATTLE_MAPS[0];
       this.weather = 'drizzle';
       this.boss = null;
       this.ghostUnit = null;
@@ -303,9 +673,11 @@
       }
     }
 
-    start(bossCfg, biome = 'default', hero = null) {
+    start(bossCfg, biome = 'default', hero = null, scene = null) {
       this.stop();
-      this.biome = biome;
+      this.mapCfg = scene && scene.mapId ? getBattleMapConfig(scene.mapId) : BATTLE_MAPS[Math.floor(Math.random() * BATTLE_MAPS.length)];
+      this.biome = (scene && scene.biome) || this.mapCfg.biome || biome;
+      getBattleMapImage(this.mapCfg.id);
       this.heroAccent = (hero && hero.accent) || '#ffd966';
       this.heroAccent2 = (hero && hero.accent2) || '#ff6e96';
       this.heroAccRgb = hexToRgbStr(this.heroAccent, '255, 217, 102');
@@ -336,13 +708,23 @@
       this.bossVuln = false;
       this.bossStunned = false;
 
-      // Rotate nocturnal battle weather without back-to-back repeats
-      const choices = prevBattleWeatherIdx < 0 ? WEATHER_MODES.length : WEATHER_MODES.length - 1;
-      const roll = Math.floor(Math.random() * choices);
-      prevBattleWeatherIdx = (prevBattleWeatherIdx >= 0 && roll >= prevBattleWeatherIdx) ? roll + 1 : roll;
-      this.weather = WEATHER_MODES[prevBattleWeatherIdx];
+      // Use wave's rolled weather if provided, otherwise rotate without back-to-back repeats
+      if (scene && scene.weather && WEATHER_MODES.includes(scene.weather)) {
+        this.weather = scene.weather;
+        prevBattleWeatherIdx = WEATHER_MODES.indexOf(scene.weather);
+      } else {
+        const choices = prevBattleWeatherIdx < 0 ? WEATHER_MODES.length : WEATHER_MODES.length - 1;
+        const roll = Math.floor(Math.random() * choices);
+        prevBattleWeatherIdx = (prevBattleWeatherIdx >= 0 && roll >= prevBattleWeatherIdx) ? roll + 1 : roll;
+        this.weather = WEATHER_MODES[prevBattleWeatherIdx];
+      }
       if (window.MT.audio && window.MT.audio.setAmbience) {
-        window.MT.audio.setAmbience('battle', this.weather);
+        const ambMap = {
+          drizzle: 'drizzle', arcane_storm: 'drizzle',
+          mist: 'mist', blood_embers: 'mist', void_rift: 'mist',
+          fireflies: 'fireflies', snow: 'fireflies', meteor_shower: 'fireflies'
+        };
+        window.MT.audio.setAmbience('battle', ambMap[this.weather] || 'drizzle');
       }
 
       this.boss = {
@@ -406,7 +788,7 @@
       if (h.applyFrost > 0) chips.push({ icon: 'frost', text: `+${h.applyFrost}`, color: '#9ef2ff' });
       const gold = (h.goldOnStrike || 0) + (h.greedBadge ? 2 : 0);
       if (gold > 0) chips.push({ icon: 'gold', text: `+${gold}`, color: '#ffd966' });
-      if (h.applyVuln) chips.push({ icon: 'vuln', text: '易伤×1.4', color: '#ff9666' });
+      if (h.applyVuln) chips.push({ icon: 'vuln', text: '易伤', color: '#ff9ce6' });
       if (h.retriggerLeft) chips.push({ text: '再动←', color: '#ffe89e' });
       if (h.noAttackAmpRight) chips.push({ text: `→×${h.noAttackAmpRight}`, color: '#ff9666' });
       if (h.inheritLeftRatio) chips.push({ text: '继承←', color: '#ffb8e6' });
@@ -2006,41 +2388,53 @@
       const heat = (this.scoring && this.scoring.heatLevel) || 0;
       const rimPulse = 0.72 + 0.28 * Math.sin(this.idleTime * 2.2);
 
-      ctx.fillStyle = '#070810'; ctx.fillRect(0, y - 4, BW, 4);
-      const rim = ctx.createLinearGradient(0, 0, BW, 0);
-      rim.addColorStop(0, pal.rimL); rim.addColorStop(0.55, pal.rimM); rim.addColorStop(1, pal.rimR);
-      ctx.fillStyle = rim; ctx.fillRect(0, y, BW, 4);
+      const mapImg = this.mapCfg ? getBattleMapImage(this.mapCfg.id) : null;
+      const hasMap = Boolean(mapImg && mapImg.complete && mapImg.naturalWidth > 0);
+      if (hasMap) {
+        // Draw the undistorted pixel-art bridge parapet from BRIDGE_Y..waterY cleanly
+        const { shiftY, waterY } = getBattleMapLayout(this.mapCfg, BH, BRIDGE_Y);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, y, BW, Math.max(24, waterY - y));
+        ctx.clip();
+        drawBattleMapAligned(ctx, this.mapCfg, mapImg, BW, BH, BRIDGE_Y);
+        ctx.restore();
+      } else {
+        ctx.fillStyle = '#070810'; ctx.fillRect(0, y - 4, BW, 4);
+        const rim = ctx.createLinearGradient(0, 0, BW, 0);
+        rim.addColorStop(0, pal.rimL); rim.addColorStop(0.55, pal.rimM); rim.addColorStop(1, pal.rimR);
+        ctx.fillStyle = rim; ctx.fillRect(0, y, BW, 4);
+        ctx.fillStyle = '#262d40'; ctx.fillRect(0, y + 4, BW, 12);
+        ctx.fillStyle = '#171c2b'; ctx.fillRect(0, y + 16, BW, 12);
+        for (let bx = 0; bx < BW; bx += 48) { ctx.fillStyle = '#0c0f1a'; ctx.fillRect(bx, y + 4, 4, 12); ctx.fillRect(bx + 24, y + 16, 4, 12); }
+        ctx.fillStyle = '#06070f'; ctx.fillRect(0, y + h - 4, BW, 4);
+      }
 
       // Luminous hero-tinted stone coping edge sheen (brightens gently with heat!)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       const sheen = ctx.createLinearGradient(0, y, BW, y);
-      const accAlpha = (0.28 + heat * 0.11) * rimPulse;
-      const acc2Alpha = (0.18 + heat * 0.08) * rimPulse;
+      const accAlpha = (hasMap ? 0.18 : 0.28 + heat * 0.11) * rimPulse;
+      const acc2Alpha = (hasMap ? 0.12 : 0.18 + heat * 0.08) * rimPulse;
       sheen.addColorStop(0, `rgba(${this.heroAccRgb}, ${(accAlpha * 0.35).toFixed(3)})`);
       sheen.addColorStop(0.26, `rgba(${this.heroAccRgb}, ${accAlpha.toFixed(3)})`);
-      sheen.addColorStop(0.58, `rgba(255, 248, 224, ${(accAlpha * 0.82).toFixed(3)})`);
+      sheen.addColorStop(0.58, `rgba(255, 248, 224, ${(accAlpha * 0.72).toFixed(3)})`);
       sheen.addColorStop(0.84, `rgba(${this.heroAcc2Rgb}, ${acc2Alpha.toFixed(3)})`);
       sheen.addColorStop(1, `rgba(${this.heroAcc2Rgb}, 0.04)`);
       ctx.fillStyle = sheen;
-      ctx.fillRect(0, y, BW, 3);
+      ctx.fillRect(0, y, BW, 2);
       // Soft moonlight specular under active hero slots
       for (let i = 0; i < 3; i++) {
         if (!this.slotUnits[i]) continue;
         const sx = SLOT_X[i];
         const sg = ctx.createLinearGradient(sx - 56, y, sx + 56, y);
         sg.addColorStop(0, `rgba(${this.heroAccRgb}, 0)`);
-        sg.addColorStop(0.5, `rgba(${this.heroAccRgb}, ${(0.36 * rimPulse).toFixed(3)})`);
+        sg.addColorStop(0.5, `rgba(${this.heroAccRgb}, ${(0.34 * rimPulse).toFixed(3)})`);
         sg.addColorStop(1, `rgba(${this.heroAccRgb}, 0)`);
         ctx.fillStyle = sg;
-        ctx.fillRect(sx - 56, y - 1, 112, 4);
+        ctx.fillRect(sx - 56, y - 1, 112, 3);
       }
       ctx.restore();
-
-      ctx.fillStyle = '#262d40'; ctx.fillRect(0, y + 4, BW, 12);
-      ctx.fillStyle = '#171c2b'; ctx.fillRect(0, y + 16, BW, 12);
-      for (let bx = 0; bx < BW; bx += 48) { ctx.fillStyle = '#0c0f1a'; ctx.fillRect(bx, y + 4, 4, 12); ctx.fillRect(bx + 24, y + 16, 4, 12); }
-      ctx.fillStyle = '#06070f'; ctx.fillRect(0, y + h - 4, BW, 4);
     }
 
     loop(ts) {
@@ -2263,105 +2657,87 @@
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, BW, this.sceneBuf.height);
 
-      // 1. Nocturnal Mist & Pale-Moon Cached Pixel Backdrop (low luminance & low saturation for 100% UI clarity)
-      const bg = this.getUpperBgCanvas(this.biome);
-      ctx.drawImage(bg, 0, 0, VW, BRIDGE_VY, 0, 0, BW, BRIDGE_Y);
+      // 1. Hand-Curated 16-bit Pixel-Art Battle Map (undistorted 1:1 road alignment, procedural fallback while loading)
+      const mapImg = this.mapCfg ? getBattleMapImage(this.mapCfg.id) : null;
+      const hasMap = Boolean(mapImg && mapImg.complete && mapImg.naturalWidth > 0);
+      if (hasMap) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, BW, BRIDGE_Y + 24);
+        ctx.clip();
+        drawBattleMapAligned(ctx, this.mapCfg, mapImg, BW, BH, BRIDGE_Y);
+        ctx.restore();
+        // Subtle nocturnal readability veil so floating HUD, damage numbers & hero sprites pop cleanly
+        const veil = ctx.createLinearGradient(0, 0, 0, BRIDGE_Y);
+        veil.addColorStop(0, 'rgba(6, 8, 16, 0.24)');
+        veil.addColorStop(0.65, 'rgba(6, 8, 16, 0.08)');
+        veil.addColorStop(1, 'rgba(6, 8, 16, 0.16)');
+        ctx.fillStyle = veil;
+        ctx.fillRect(0, 0, BW, BRIDGE_Y);
+      } else {
+        const bg = this.getUpperBgCanvas(this.biome);
+        ctx.drawImage(bg, 0, 0, VW, BRIDGE_VY, 0, 0, BW, BRIDGE_Y);
+      }
 
-      // 1B. Hero-Tinted Luminous Eclipse Corona, -11deg Volumetric Moonlight Shafts & Horizon Aura
+      // 1B. Subtle Hero-Tinted Horizon Aura & Volumetric Atmosphere
       const heatLvl = (this.scoring && this.scoring.heatLevel) || 0;
-      const skyBreath = 0.85 + 0.15 * Math.sin(this.idleTime * 1.35);
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
+      if (!hasMap) {
+        const skyBreath = 0.85 + 0.15 * Math.sin(this.idleTime * 1.35);
+        const moonX = 182 * 4;
+        const moonY = 36 * 4;
+        const moonCorona = ctx.createRadialGradient(moonX, moonY, 26, moonX, moonY, 265);
+        moonCorona.addColorStop(0, `rgba(${pal.moonGlow}, ${(0.20 * skyBreath).toFixed(3)})`);
+        moonCorona.addColorStop(0.42, `rgba(${this.heroAccRgb}, ${(0.11 * skyBreath).toFixed(3)})`);
+        moonCorona.addColorStop(0.74, `rgba(${this.heroAcc2Rgb}, ${(0.055 * skyBreath).toFixed(3)})`);
+        moonCorona.addColorStop(1, 'rgba(0, 0, 0, 0)');
+        ctx.fillStyle = moonCorona;
+        ctx.fillRect(moonX - 270, moonY - 270, 540, 540);
+      }
 
-      // Luminous moon corona linking Hero Select palette with the pale moon
-      const moonX = 182 * 4;
-      const moonY = 36 * 4;
-      const moonCorona = ctx.createRadialGradient(moonX, moonY, 26, moonX, moonY, 265);
-      moonCorona.addColorStop(0, `rgba(${pal.moonGlow}, ${(0.20 * skyBreath).toFixed(3)})`);
-      moonCorona.addColorStop(0.42, `rgba(${this.heroAccRgb}, ${(0.11 * skyBreath).toFixed(3)})`);
-      moonCorona.addColorStop(0.74, `rgba(${this.heroAcc2Rgb}, ${(0.055 * skyBreath).toFixed(3)})`);
-      moonCorona.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = moonCorona;
-      ctx.fillRect(moonX - 270, moonY - 270, 540, 540);
+      // Soft twilight hero-tinted horizon glow behind the squad & bridge (never washes out pixel art!)
+      const hGlow = ctx.createLinearGradient(0, BRIDGE_Y - 135, 0, BRIDGE_Y);
+      const hBoost = (hasMap ? 0.65 : 1.0) * (1 + heatLvl * 0.28);
+      hGlow.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      hGlow.addColorStop(0.62, `rgba(${this.heroAcc2Rgb}, ${(0.048 * hBoost).toFixed(3)})`);
+      hGlow.addColorStop(1, `rgba(${this.heroAccRgb}, ${(0.105 * hBoost).toFixed(3)})`);
+      ctx.fillStyle = hGlow;
+      ctx.fillRect(0, BRIDGE_Y - 135, BW, 135);
+      ctx.restore();
 
-      // Subtle -11deg slanted volumetric moonlight shafts descending across open sky
-      const rays = [
-        { x: 295, w: 120, a: 0.058, col: this.heroAccRgb, spd: 0.55 },
-        { x: 640, w: 155, a: 0.068, col: pal.moonGlow, spd: 0.42 },
-        { x: 895, w: 135, a: 0.052, col: this.heroAcc2Rgb, spd: 0.48 }
-      ];
-      for (let i = 0; i < rays.length; i++) {
-        const ray = rays[i];
-        const drift = Math.sin(this.idleTime * ray.spd + i * 2.1) * 18;
-        const pulse = 0.78 + 0.22 * Math.sin(this.idleTime * 0.9 + i * 1.7);
-        const rx = ray.x + drift;
+      // 2. Gentle Drifting Low-Lying Mist Ribbons (subtle baseline on all maps)
+      if (this.weather !== 'mist') {
         ctx.save();
-        ctx.translate(rx, 0);
-        ctx.transform(1, 0, -0.194, 1, 0, 0); // -11deg slant echoing Hero Select!
-        const rg = ctx.createLinearGradient(0, 18, 0, BRIDGE_Y);
-        rg.addColorStop(0, `rgba(${ray.col}, 0)`);
-        rg.addColorStop(0.28, `rgba(${ray.col}, ${(ray.a * pulse).toFixed(3)})`);
-        rg.addColorStop(0.76, `rgba(${ray.col}, ${(ray.a * 0.55 * pulse).toFixed(3)})`);
-        rg.addColorStop(1, `rgba(${ray.col}, 0)`);
-        ctx.fillStyle = rg;
-        ctx.fillRect(-ray.w * 0.5, 0, ray.w, BRIDGE_Y);
+        for (let r = 0; r < 2; r++) {
+          const yBase = BRIDGE_Y - 46 + r * 16;
+          const speed = 10 + r * 6;
+          const offset = (this.idleTime * speed + r * 360) % (BW + 440);
+          const mx = offset - 440;
+          const mg = ctx.createLinearGradient(mx, yBase, mx + 440, yBase);
+          mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
+          mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${(0.036 + r * 0.012).toFixed(3)})`);
+          mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
+          ctx.fillStyle = mg;
+          ctx.fillRect(Math.round(mx), yBase, 440, 18 + r * 6);
+        }
         ctx.restore();
       }
 
-      // Soft twilight hero-tinted horizon glow behind the squad & bridge (never washes out HUD!)
-      const hGlow = ctx.createLinearGradient(0, BRIDGE_Y - 145, 0, BRIDGE_Y);
-      const hBoost = 1 + heatLvl * 0.24;
-      hGlow.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      hGlow.addColorStop(0.62, `rgba(${this.heroAcc2Rgb}, ${(0.055 * hBoost).toFixed(3)})`);
-      hGlow.addColorStop(1, `rgba(${this.heroAccRgb}, ${(0.125 * hBoost).toFixed(3)})`);
-      ctx.fillStyle = hGlow;
-      ctx.fillRect(0, BRIDGE_Y - 145, BW, 145);
-      ctx.restore();
-
-      // 2. Subtle Warm Bridge-Lamp Halo (far left edge x=72px, softly flickering)
-      const lampFlicker = 0.86 + 0.14 * Math.sin(this.idleTime * 5.2) * Math.cos(this.idleTime * 2.3);
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      const lg = ctx.createRadialGradient(72, BRIDGE_Y - 104, 4, 72, BRIDGE_Y - 104, 86);
-      lg.addColorStop(0, `rgba(235, 178, 92, ${0.24 * lampFlicker})`);
-      lg.addColorStop(0.5, `rgba(210, 140, 62, ${0.08 * lampFlicker})`);
-      lg.addColorStop(1, 'rgba(210, 140, 62, 0)');
-      ctx.fillStyle = lg;
-      ctx.fillRect(0, BRIDGE_Y - 190, 162, 176);
-      ctx.restore();
-
-      // 3. Slow-Drifting Low-Lying Mist Ribbons along the horizon (intensified during 'mist' weather)
-      ctx.save();
-      const mistCount = this.weather === 'mist' ? 5 : 3;
-      const mistBoost = this.weather === 'mist' ? 1.55 : 1.0;
-      for (let r = 0; r < mistCount; r++) {
-        const yBase = BRIDGE_Y - 62 + r * 14;
-        const speed = 10 + (r % 3) * 6;
-        const offset = (this.idleTime * speed + r * 290) % (BW + 440);
-        const mx = offset - 440;
-        const mg = ctx.createLinearGradient(mx, yBase, mx + 440, yBase);
-        mg.addColorStop(0, `rgba(${pal.mistRgb}, 0)`);
-        mg.addColorStop(0.5, `rgba(${pal.mistRgb}, ${((0.048 + (r % 3) * 0.015) * mistBoost).toFixed(3)})`);
-        mg.addColorStop(1, `rgba(${pal.mistRgb}, 0)`);
-        ctx.fillStyle = mg;
-        ctx.fillRect(Math.round(mx), yBase, 440, 20 + (r % 3) * 6);
-      }
-      ctx.restore();
-
-      // 3B. Luminous Hero-Tinted Floating Starlight & Drifting Embers (echoes Hero Select atmosphere!)
+      // 3B. Luminous Hero-Tinted Floating Starlight & Drifting Embers (preserved ambient particles!)
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
       for (const m of this.ambientMotes) {
         const tw = 0.35 + 0.65 * Math.pow(0.5 + 0.5 * Math.sin(this.idleTime * 2.4 + m.phase), 2);
         const edgeFade = Math.min(1, Math.max(0, (m.y - 36) / 60)) * Math.min(1, Math.max(0, (BRIDGE_Y - 8 - m.y) / 48));
-        const alpha = tw * edgeFade * (m.isStar ? 0.72 : 0.54);
+        const alpha = tw * edgeFade * (m.isStar ? 0.62 : 0.46);
         if (alpha <= 0.03) continue;
         const mx = Math.round(m.x + Math.sin(this.idleTime * 1.1 + m.phase) * 8);
         const my = Math.round(m.y);
         const colRgb = m.useAcc2 ? this.heroAcc2Rgb : this.heroAccRgb;
-        const haloR = m.isStar ? 11 : 7;
+        const haloR = m.isStar ? 10 : 6;
         const mg = ctx.createRadialGradient(mx, my, 0.5, mx, my, haloR);
-        mg.addColorStop(0, `rgba(${colRgb}, ${(alpha * 0.55).toFixed(3)})`);
+        mg.addColorStop(0, `rgba(${colRgb}, ${(alpha * 0.48).toFixed(3)})`);
         mg.addColorStop(1, `rgba(${colRgb}, 0)`);
         ctx.fillStyle = mg;
         ctx.fillRect(mx - haloR, my - haloR, haloR * 2, haloR * 2);
@@ -2369,7 +2745,6 @@
         ctx.globalAlpha = alpha;
         ctx.fillStyle = m.isStar ? '#fffaf0' : (m.useAcc2 ? this.heroAccent2 : this.heroAccent);
         if (m.isStar) {
-          // Crisp 4-point starlight cross glint
           ctx.fillRect(mx - 1, my - 4, 2, 8);
           ctx.fillRect(mx - 4, my - 1, 8, 2);
         } else {
@@ -2379,42 +2754,8 @@
       }
       ctx.restore();
 
-      // 4. Rotated Nocturnal Weather Layer ('drizzle' | 'mist' | 'fireflies', always low-distraction HD-2D!)
-      if (this.weather === 'drizzle') {
-        ctx.save();
-        ctx.strokeStyle = pal.rainCol;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        for (let i = 0; i < 22; i++) {
-          const rx = ((hash2(i, 4, 31) * BW) - this.idleTime * 46) % BW;
-          const x = rx < 0 ? rx + BW : rx;
-          const y = ((hash2(i, 9, 17) * BRIDGE_Y) + this.idleTime * (215 + (i % 3) * 38)) % BRIDGE_Y;
-          ctx.moveTo(Math.round(x), Math.round(y));
-          ctx.lineTo(Math.round(x - 4), Math.round(y + 17));
-        }
-        ctx.stroke();
-        ctx.restore();
-      } else if (this.weather === 'fireflies') {
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        for (let i = 0; i < 20; i++) {
-          const phase = hash2(i, 3, 73) * Math.PI * 2;
-          const fx = 64 + hash2(i, 1, 41) * (BW - 128) + Math.sin(this.idleTime * (0.7 + (i % 3) * 0.25) + phase) * 28;
-          const fy = 115 + hash2(i, 2, 59) * (BRIDGE_Y - 148) + Math.cos(this.idleTime * 0.85 + phase) * 14;
-          const pulse = Math.pow(0.5 + 0.5 * Math.sin(this.idleTime * (1.8 + (i % 4) * 0.35) + phase), 2.5);
-          const alpha = 0.22 + pulse * 0.56;
-          const rad = (i % 3 === 0) ? 14 : 9;
-          const fg = ctx.createRadialGradient(fx, fy, 1, fx, fy, rad);
-          fg.addColorStop(0, `rgba(255, 228, 128, ${(alpha * 0.65).toFixed(3)})`);
-          fg.addColorStop(1, 'rgba(255, 214, 96, 0)');
-          ctx.fillStyle = fg;
-          ctx.fillRect(Math.round(fx - rad), Math.round(fy - rad), rad * 2, rad * 2);
-          ctx.globalAlpha = alpha;
-          ctx.fillStyle = '#fff3b8';
-          ctx.fillRect(Math.round(fx - 1), Math.round(fy - 1), i % 3 === 0 ? 3 : 2, i % 3 === 0 ? 3 : 2);
-        }
-        ctx.restore();
-      }
+      // 4. Pixelfx-Style Dynamic Weather Layer (4 Everyday + 4 Extreme Fantasy Boss-Room Weathers!)
+      renderPixelWeather(ctx, this.weather, this.idleTime, BW, BRIDGE_Y, { biome: this.biome, intensity: 1.0 });
 
       // 5-Tier Unit Visual Signatures (Outline + Persistent Ambient Aura/Motes) + Dedicated Selection Indicator!
       const TIER_VFX = {
@@ -2751,28 +3092,37 @@
       this.renderUpperWorld(this.sceneCtx);
       ctx.drawImage(this.sceneBuf, 0, 0, BW, BRIDGE_Y, 0, 0, BW, BRIDGE_Y);
 
-      // Fast Shimmering Mirror-Lake Reflection (single vertical flip + 20 wave bands, zero per-slice save/restore!)
-      const lakeH = BH - LAKE_Y;
+      // Fast Shimmering Mirror-Lake Reflection strictly below the bridge parapet (waterY)
+      const mapImg = this.mapCfg ? getBattleMapImage(this.mapCfg.id) : null;
+      const hasMap = Boolean(mapImg && mapImg.complete && mapImg.naturalWidth > 0);
+      const waterY = hasMap ? getBattleMapLayout(this.mapCfg, BH, BRIDGE_Y).waterY : LAKE_Y;
+      const lakeH = BH - waterY;
       const rctx = this.reflCtx;
       rctx.save();
-      rctx.clearRect(0, 0, BW, lakeH);
+      rctx.clearRect(0, 0, BW, this.reflBuf.height);
       rctx.translate(0, lakeH);
       rctx.scale(1, -1);
       rctx.drawImage(this.sceneBuf, 0, BRIDGE_Y - lakeH, BW, lakeH, 0, 0, BW, lakeH);
       rctx.restore();
 
       ctx.save();
-      ctx.beginPath(); ctx.rect(0, LAKE_Y, BW, lakeH); ctx.clip();
+      ctx.beginPath(); ctx.rect(0, waterY, BW, lakeH); ctx.clip();
+      if (hasMap) {
+        drawBattleMapAligned(ctx, this.mapCfg, mapImg, BW, BH, BRIDGE_Y);
+      }
       const bandH = 12;
+      ctx.save();
+      if (hasMap) ctx.globalAlpha = 0.42;
       for (let sy = 0; sy < lakeH; sy += bandH) {
         const h = Math.min(bandH, lakeH - sy);
         const ripple = Math.round(Math.sin(sy * 0.08 + this.idleTime * 3.6) * (1.5 + (sy / lakeH) * 2.4));
-        ctx.drawImage(this.reflBuf, 0, sy, BW, h, ripple, LAKE_Y + sy, BW, h);
+        ctx.drawImage(this.reflBuf, 0, sy, BW, h, ripple, waterY + sy, BW, h);
       }
+      ctx.restore();
       const pal = NOCTURNE_PALETTES[this.biome] || NOCTURNE_PALETTES.default;
-      const waterTint = ctx.createLinearGradient(0, LAKE_Y, BW, LAKE_Y);
+      const waterTint = ctx.createLinearGradient(0, waterY, BW, waterY);
       waterTint.addColorStop(0, pal.lakeTintL); waterTint.addColorStop(1, pal.lakeTintR);
-      ctx.fillStyle = waterTint; ctx.fillRect(0, LAKE_Y, BW, lakeH);
+      ctx.fillStyle = waterTint; ctx.fillRect(0, waterY, BW, lakeH);
 
       // Luminous Mirror-Lake Specular Ripples & Hero-Tinted Aurora Shimmer (keeps reflections vivid above hand dock!)
       ctx.save();
@@ -2860,53 +3210,111 @@
         ctx.restore();
       }
 
-      // High-Signal Bridge Unit Effect Chips (Pixel Glyphs + Crisp Stats, ZERO system emojis!)
+      // Unified Pixel-Art Slot Plaques (1号位 / 2号位 / 3号位) + Frameless Overhead Unit Stats
+      const SLOT_STYLES = [
+        { label: '1号位', fg: '#9ad0ff', hi: '#c9e8ff', bg: '#102238', shade: '#081322', border: '#5c9ee6', glow: 'rgba(120, 183, 255, 0.42)' },
+        { label: '2号位', fg: '#ffe484', hi: '#fff4c2', bg: '#2e220b', shade: '#191104', border: '#d9ab43', glow: 'rgba(255, 217, 102, 0.42)' },
+        { label: '3号位', fg: '#ff9688', hi: '#ffd0c9', bg: '#361318', shade: '#1d080b', border: '#d95c50', glow: 'rgba(255, 123, 107, 0.42)' }
+      ];
       for (let i = 0; i < 3; i++) {
         const sx = SLOT_X[i];
         const locked = i === 2 && this.slot3Locked;
         const u = this.slotUnits[i];
-        if (!u && !locked) continue;
-        if (u && u.isDragging) continue;
+        const occupied = Boolean(u && !u.isDragging);
+        const st = SLOT_STYLES[i];
+
         ctx.save();
+        // 1. Recessed pixel stone foothold bar on the bridge parapet
+        const barW = 72;
+        const barX = Math.round(sx - barW / 2);
+        ctx.fillStyle = '#07060e';
+        ctx.fillRect(barX - 2, BRIDGE_Y - 2, barW + 4, 4);
+        ctx.fillStyle = locked ? '#6bd8ee' : (occupied ? st.hi : st.border);
+        ctx.globalAlpha = occupied || locked ? 0.96 : 0.62;
+        ctx.fillRect(barX, BRIDGE_Y - 1, barW, 2);
+        // Pixel end gems
+        ctx.fillRect(barX - 2, BRIDGE_Y - 3, 2, 4);
+        ctx.fillRect(barX + barW, BRIDGE_Y - 3, 2, 4);
+
+        // 2. Pixel-beveled RPG nameplate embedded in the stone bridge below (zero web-box feel!)
+        const pillW = locked ? 74 : 58;
+        const pillH = 20;
+        const px = Math.round(sx - pillW / 2);
+        const py = BRIDGE_Y + 8;
+        const bgCol = locked ? '#0e2838' : st.bg;
+        const bdCol = locked ? '#7ce6ff' : (occupied ? st.hi : st.border);
+        const shCol = locked ? '#07141e' : st.shade;
+
+        ctx.globalAlpha = occupied || locked ? 1 : 0.86;
+        // 2px stepped pixel drop shadow + black pixel outline
+        ctx.fillStyle = '#06050c';
+        ctx.fillRect(px + 2, py - 2, pillW - 4, pillH + 4);
+        ctx.fillRect(px - 2, py + 2, pillW + 4, pillH - 4);
+        ctx.fillRect(px, py, pillW, pillH);
+        // Chamfered pixel inner plate (2px corner cuts)
+        ctx.fillStyle = bdCol;
+        ctx.fillRect(px + 2, py, pillW - 4, pillH);
+        ctx.fillRect(px, py + 2, pillW, pillH - 4);
+        // Inner recessed stone fill
+        ctx.fillStyle = bgCol;
+        ctx.fillRect(px + 2, py + 2, pillW - 4, pillH - 4);
+        // Bottom inner bevel shade + top inner highlight
+        ctx.fillStyle = shCol;
+        ctx.fillRect(px + 2, py + pillH - 4, pillW - 4, 2);
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.16)';
+        ctx.fillRect(px + 4, py + 2, pillW - 8, 2);
+        // Side pixel rivets
+        ctx.fillStyle = bdCol;
+        ctx.fillRect(px + 4, py + Math.floor(pillH / 2) - 1, 2, 2);
+        ctx.fillRect(px + pillW - 6, py + Math.floor(pillH / 2) - 1, 2, 2);
+
+        ctx.font = '12px "FusionPixel", monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
         if (locked) {
-          ctx.font = '14px "FusionPixel", monospace';
-          const tw = ctx.measureText('封锁').width;
-          const ox = Math.round(sx - (16 + 4 + tw) / 2);
-          drawPixelGlyph(ctx, 'frost', ox, BRIDGE_Y + 12, 2);
-          ctx.textAlign = 'left';
-          ctx.lineJoin = 'round';
-          ctx.miterLimit = 2;
-          ctx.lineWidth = 4;
-          ctx.strokeStyle = '#08060f';
-          ctx.strokeText('封锁', ox + 20, BRIDGE_Y + 25);
-          ctx.fillStyle = '#8ef0ff';
-          ctx.fillText('封锁', ox + 20, BRIDGE_Y + 25);
+          drawPixelGlyph(ctx, 'frost', px + 8, py + 3, 1.5);
+          ctx.fillStyle = '#9ef4ff';
+          ctx.fillText('3号封锁', Math.round(sx + 7), py + pillH / 2 + 0.5);
         } else {
-          const chips = (u.effectChips && u.effectChips.length) ? u.effectChips : [{ icon: 'atk', text: `${u.atk}`, color: '#ffe266' }];
-          ctx.font = '14px "FusionPixel", monospace';
-          const gap = 9;
-          const items = chips.map((c) => {
-            const icoW = c.icon ? 15 : 0;
-            const txtW = ctx.measureText(c.text).width;
-            return { ...c, icoW, txtW, w: icoW + (c.icon ? 3 : 0) + txtW };
-          });
-          const totalW = items.reduce((a, b) => a + b.w, 0) + gap * (items.length - 1);
-          let curX = Math.round(sx - totalW / 2);
-          ctx.textAlign = 'left';
-          ctx.lineJoin = 'round';
-          ctx.miterLimit = 2;
-          ctx.lineWidth = 4;
-          ctx.strokeStyle = '#08060f';
-          for (const it of items) {
-            if (it.icon) {
-              drawPixelGlyph(ctx, it.icon, curX, BRIDGE_Y + 13, 1.8);
-              curX += it.icoW + 3;
-            }
-            ctx.strokeText(it.text, Math.round(curX), BRIDGE_Y + 25);
-            ctx.fillStyle = it.color;
-            ctx.fillText(it.text, Math.round(curX), BRIDGE_Y + 25);
-            curX += it.txtW + gap;
+          ctx.fillStyle = occupied ? '#fff9e6' : st.fg;
+          ctx.fillText(st.label, Math.round(sx), py + pillH / 2 + 0.5);
+        }
+        ctx.restore();
+
+        if (!occupied || locked) continue;
+
+        // 3. Frameless RPG-style overhead unit stats (bold pixel outline, zero web border box!)
+        ctx.save();
+        const chips = (u.effectChips && u.effectChips.length) ? u.effectChips : [{ icon: 'atk', text: `${u.atk}`, color: '#ffe266' }];
+        ctx.font = '15px "FusionPixel", monospace';
+        const gap = 10;
+        const items = chips.map((c) => {
+          const icoW = c.icon ? 16 : 0;
+          const txtW = ctx.measureText(c.text).width;
+          return { ...c, icoW, txtW, w: icoW + (c.icon ? 3 : 0) + txtW };
+        });
+        const totalW = items.reduce((a, b) => a + b.w, 0) + gap * (items.length - 1);
+        const headY = BRIDGE_Y - 118;
+
+        let curX = Math.round(sx - totalW / 2);
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'alphabetic';
+        ctx.lineJoin = 'round';
+        ctx.miterLimit = 2;
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = '#07050f';
+        for (const it of items) {
+          if (it.icon) {
+            drawPixelGlyph(ctx, it.icon, curX, headY - 12, 2.0);
+            curX += it.icoW + 3;
           }
+          // Crisp 2px pixel drop shadow + bold dark outline
+          ctx.fillStyle = '#07050f';
+          ctx.fillText(it.text, Math.round(curX), headY + 3);
+          ctx.strokeText(it.text, Math.round(curX), headY + 1);
+          ctx.fillStyle = it.color;
+          ctx.fillText(it.text, Math.round(curX), headY + 1);
+          curX += it.txtW + gap;
         }
         ctx.restore();
       }
@@ -2917,50 +3325,107 @@
         if (this.bossIntent) {
           const parts = [];
           if (this.bossStunned) {
-            parts.push({ icon: 'stun', text: '眩晕 ×1.5', color: '#ffe266' });
+            parts.push({ icon: 'stun', text: '眩晕 · 跳过行动', color: '#ffe266' });
           } else {
             const k = this.bossIntent.kind;
-            if (k === 'ult') parts.push({ icon: 'skull', text: `${this.bossIntent.dmg}`, color: '#ff477e' });
-            else if (k === 'charge') parts.push({ icon: 'flame', text: `破 ${this.bossIntent.breakNeed || ''}`, color: '#ff9a2e' });
+            if (k === 'ult') parts.push({ icon: 'skull', text: `大招 ${this.bossIntent.dmg}`, color: '#ff477e' });
+            else if (k === 'charge') parts.push({ icon: 'flame', text: `蓄力 · 破招 ${this.bossIntent.breakNeed || ''}`, color: '#ff9a2e' });
             else if (k === 'shield') {
-              parts.push({ icon: 'shield', text: `+${this.bossIntent.shieldGain}`, color: '#7be8ff' });
-              parts.push({ icon: 'atk', text: `${this.bossIntent.dmg}`, color: '#ff667d' });
+              parts.push({ icon: 'shield', text: `加盾 +${this.bossIntent.shieldGain}`, color: '#7be8ff' });
+              parts.push({ icon: 'atk', text: `攻 ${this.bossIntent.dmg}`, color: '#ff667d' });
             } else if (k === 'lock3') {
-              parts.push({ icon: 'frost', text: '封3', color: '#8ef0ff' });
-              parts.push({ icon: 'atk', text: `${this.bossIntent.dmg}`, color: '#ff667d' });
+              parts.push({ icon: 'frost', text: '封3号', color: '#8ef0ff' });
+              parts.push({ icon: 'atk', text: `攻 ${this.bossIntent.dmg}`, color: '#ff667d' });
             } else if (k === 'thorns') {
-              parts.push({ icon: 'thorns', text: '反4', color: '#a8ff78' });
-              parts.push({ icon: 'atk', text: `${this.bossIntent.dmg}`, color: '#ff667d' });
+              parts.push({ icon: 'thorns', text: '反伤', color: '#a8ff78' });
+              parts.push({ icon: 'atk', text: `攻 ${this.bossIntent.dmg}`, color: '#ff667d' });
             } else {
-              parts.push({ icon: 'atk', text: `${this.bossIntent.dmg}`, color: '#ff667d' });
+              parts.push({ icon: 'atk', text: `将重击 ${this.bossIntent.dmg}`, color: '#ff667d' });
             }
           }
+          // Animated breathing & threat motion per Boss intent type (60fps Canvas-native)
+          const t = this.time || 0;
+          const kind = this.bossStunned ? 'stun' : (this.bossIntent.kind || 'heavy');
+          let bobY = Math.sin(t * 3.1) * 2.4;
+          let swayX = 0;
+          let scale = 1 + Math.sin(t * 3.1) * 0.022;
+          let glowRgb = '255, 92, 118';
+          let glowAlpha = 0.22 + (Math.sin(t * 3.1) * 0.5 + 0.5) * 0.16;
+          if (kind === 'ult') {
+            const beat = Math.pow(Math.max(0, Math.sin(t * 4.8)), 4);
+            scale = 1 + beat * 0.11;
+            bobY = Math.sin(t * 4.8) * 2.2;
+            swayX = beat > 0.35 ? Math.sin(t * 42) * 1.4 : 0;
+            glowRgb = '255, 58, 118';
+            glowAlpha = 0.28 + beat * 0.32;
+          } else if (kind === 'charge') {
+            const pulse = Math.sin(t * 5.6) * 0.5 + 0.5;
+            scale = 1 + pulse * 0.065;
+            bobY = Math.sin(t * 4.2) * 2.8;
+            glowRgb = '255, 154, 46';
+            glowAlpha = 0.24 + pulse * 0.24;
+          } else if (kind === 'shield' || kind === 'lock3') {
+            scale = 1 + Math.sin(t * 2.6) * 0.02;
+            bobY = Math.sin(t * 2.6) * 2.4;
+            glowRgb = '123, 232, 255';
+            glowAlpha = 0.18 + (Math.sin(t * 2.6) * 0.5 + 0.5) * 0.14;
+          } else if (kind === 'thorns') {
+            scale = 1 + Math.sin(t * 3.4) * 0.025;
+            glowRgb = '168, 255, 120';
+            glowAlpha = 0.18 + (Math.sin(t * 3.4) * 0.5 + 0.5) * 0.14;
+          } else if (kind === 'stun') {
+            swayX = Math.sin(t * 3.8) * 3.2;
+            bobY = Math.cos(t * 3.8) * 1.6;
+            scale = 1 + Math.sin(t * 3.8) * 0.02;
+            glowRgb = '255, 226, 102';
+            glowAlpha = 0.22 + (Math.sin(t * 3.8) * 0.5 + 0.5) * 0.14;
+          }
+
           ctx.save();
-          ctx.font = '24px "FusionPixel", monospace';
+          ctx.font = '20px "FusionPixel", monospace';
           const gap = 14;
           const measured = parts.map((p) => {
             const tw = ctx.measureText(p.text).width;
-            return { ...p, tw, w: 22 + 6 + tw };
+            return { ...p, tw, w: 20 + 5 + tw };
           });
           const totalW = measured.reduce((a, c) => a + c.w, 0) + gap * (measured.length - 1);
-          let ox = Math.round(bx - totalW / 2);
+          const centerY = 158;
+
+          // Transform around intent center for smooth scale + breathing bob
+          ctx.translate(Math.round(bx + swayX), Math.round(centerY + bobY));
+          ctx.scale(scale, scale);
+
+          // Soft ambient threat glow behind intent (zero hard box!)
+          ctx.save();
+          ctx.globalCompositeOperation = 'lighter';
+          const gx = Math.max(66, totalW * 0.65);
+          const ig = ctx.createRadialGradient(0, 0, 4, 0, 0, gx);
+          ig.addColorStop(0, `rgba(${glowRgb}, ${glowAlpha.toFixed(3)})`);
+          ig.addColorStop(1, `rgba(${glowRgb}, 0)`);
+          ctx.fillStyle = ig;
+          ctx.fillRect(-gx, -28, gx * 2, 56);
+          ctx.restore();
+
+          let ox = Math.round(-totalW / 2);
           ctx.textAlign = 'left';
           ctx.lineJoin = 'round';
           ctx.miterLimit = 2;
-          ctx.lineWidth = 5;
+          ctx.lineWidth = 4.5;
           ctx.strokeStyle = '#08060f';
-          for (const p of measured) {
-            drawPixelGlyph(ctx, p.icon, ox, 146, 2.6);
-            ctx.strokeText(p.text, Math.round(ox + 27), 166);
+          for (let pi = 0; pi < measured.length; pi++) {
+            const p = measured[pi];
+            const icoBob = Math.sin(t * 5.2 + pi * 1.4) * 1.3;
+            drawPixelGlyph(ctx, p.icon, ox, Math.round(-10 + icoBob), 2.3);
+            ctx.strokeText(p.text, Math.round(ox + 24), 8);
             ctx.fillStyle = p.color;
-            ctx.fillText(p.text, Math.round(ox + 27), 166);
+            ctx.fillText(p.text, Math.round(ox + 24), 8);
             ox += p.w + gap;
           }
           ctx.restore();
         }
         const badges = [];
-        if (this.bossPoison > 0) badges.push({ icon: 'poison', text: `${this.bossPoison}`, color: '#7ef28a' });
-        if (this.bossVuln) badges.push({ icon: 'vuln', text: '×1.4', color: '#ff8a5c' });
+        if (this.bossPoison > 0) badges.push({ icon: 'poison', text: `${this.bossPoison}毒`, color: '#7ef28a' });
+        if (this.bossVuln) badges.push({ icon: 'vuln', text: '易伤', color: '#ff9ce6' });
         if (badges.length > 0) {
           ctx.save();
           ctx.font = '14px "FusionPixel", monospace';
@@ -3052,8 +3517,8 @@
 
         ctx.globalAlpha = 1;
         ctx.save();
-        ctx.translate(sx, BRIDGE_Y + 3);
-        ctx.scale(1, 0.28);
+        ctx.translate(sx, BRIDGE_Y - 4);
+        ctx.scale(1, 0.22);
         ctx.strokeStyle = `rgba(255, 226, 102, ${0.9 * pulse})`;
         ctx.lineWidth = 4;
         ctx.beginPath(); ctx.arc(0, 0, 56, 0, Math.PI * 2); ctx.stroke();
@@ -3117,17 +3582,6 @@
         ctx.beginPath();
         ctx.moveTo(sx, ry + 23); ctx.lineTo(sx - 7, ry + 15); ctx.lineTo(sx + 7, ry + 15);
         ctx.closePath(); ctx.fill();
-
-        const slotNames = ['1号 · 先锋', '2号 · 中军', '3号 · 压轴'];
-        ctx.font = '14px "FusionPixel", monospace';
-        ctx.textAlign = 'center';
-        ctx.lineJoin = 'round';
-        ctx.miterLimit = 2;
-        ctx.lineWidth = 4;
-        ctx.strokeStyle = '#08060f';
-        ctx.strokeText(slotNames[activeTargetSlot], Math.round(sx), Math.round(ry - 20));
-        ctx.fillStyle = '#fff4c2';
-        ctx.fillText(slotNames[activeTargetSlot], Math.round(sx), Math.round(ry - 20));
         ctx.restore();
       }
 
