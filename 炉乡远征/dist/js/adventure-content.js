@@ -54,11 +54,11 @@ export const ADVENTURE_CARDS = freeze({
     attackRange: 3,
   }),
   9221: g(9221, "风暴巨像", 4, 54, 10207),
-  9222: g(9222, "引力监守", 4, 64, 317),
+  9222: g(9222, "引力监守", 4, 56, 317),
   9223: g(9223, "换轨督军", 4, 64, 215),
   9224: g(9224, "雷霆主宰", 5, 80, 513),
   9225: g(9225, "陨星裁决者", 4, 72, 115),
-  9226: g(9226, "坠星君王", 5, 84, 402),
+  9226: g(9226, "坠星君王", 5, 72, 402),
   9231: u(9231, "供能源", 0, 0, 6, 0, 214, {
     anchored: true,
     description: "驻场供能源。击败或驱散关闭并取消其预告。",
@@ -269,7 +269,7 @@ const layouts = [
   },
   {
     title: "引力监守",
-    health: 64,
+    health: 56,
     allies: [
       [9203, 3, 2],
       [9204, 3, 4],
@@ -364,7 +364,7 @@ const layouts = [
   },
   {
     title: "坠星君王",
-    health: 84,
+    health: 72,
     allies: [
       [9203, 3, 2],
       [9203, 3, 4],
@@ -438,6 +438,34 @@ export const ADVENTURE_DEFINITIONS = freeze(
 );
 export const getAdventureDefinition = (id) =>
   Object.hasOwn(ADVENTURE_DEFINITIONS, id) ? ADVENTURE_DEFINITIONS[id] : null;
+const rebalancedBossIds = { "starfall-03": 9222, "starfall-09": 9226 };
+const legacyAdventureCards = freeze({
+  ...ADVENTURE_CARDS,
+  9222: { ...ADVENTURE_CARDS[9222], health: 64 },
+  9226: { ...ADVENTURE_CARDS[9226], health: 84 },
+});
+const legacyAdventureDefinitions = freeze(
+  Object.fromEntries(
+    Object.entries(rebalancedBossIds).map(([id, cardId]) => {
+      const definition = getAdventureDefinition(id);
+      return [id, {
+        ...definition,
+        boss: { ...definition.boss, threshold: legacyAdventureCards[cardId].health / 2 },
+      }];
+    }),
+  ),
+);
+export function getAdventureSnapshotRules(id, playerCards) {
+  const legacy = playerCards?.[9222]?.health === legacyAdventureCards[9222].health
+    && playerCards?.[9226]?.health === legacyAdventureCards[9226].health;
+  const cards = legacy ? legacyAdventureCards : ADVENTURE_CARDS;
+  return {
+    cards,
+    definition: legacy && Object.hasOwn(legacyAdventureDefinitions, id)
+      ? legacyAdventureDefinitions[id] : getAdventureDefinition(id),
+    bossCard: cards[rebalancedBossIds[id]],
+  };
+}
 export const ADVENTURE_LEVELS = freeze(
   layouts.map((r, i) => {
     const {

@@ -1,31 +1,36 @@
 import battle02Url from '../assets/audio/music_battlemap02.m4a?url';
 import battle01Url from '../assets/audio/music_battlemap01.m4a?url';
 import songhaiUrl from '../assets/audio/music_battlemap_songhai.m4a?url';
-import titleUrl from '../assets/audio/music_mainmenu_songhai.m4a?url';
+import mosswalkUrl from '../assets/audio/music_mosswalk.flac?url';
 
 export const MUSIC_TRACKS = [
+  { id: 'mosswalk', label: '苔径小步' },
   { id: 'battle02', label: '战场 02' },
   { id: 'battle01', label: '战场 01' },
   { id: 'songhai', label: 'Songhai' },
 ] as const;
 export type MusicTrackId = typeof MUSIC_TRACKS[number]['id'];
 export type MusicSelection = 'random' | MusicTrackId;
-type PlayingTrackId = MusicTrackId | 'title';
-const musicUrls: Record<PlayingTrackId, string> = { battle02: battle02Url, battle01: battle01Url, songhai: songhaiUrl, title: titleUrl };
+const musicUrls: Record<MusicTrackId, string> = {
+  mosswalk: mosswalkUrl, battle02: battle02Url, battle01: battle01Url, songhai: songhaiUrl,
+};
 const trackIds = MUSIC_TRACKS.map(t => t.id);
-let selection: MusicSelection = 'random';
+const chapters = 3;
+let selection: MusicSelection = 'mosswalk';
 type MusicRun = { key: string; order: MusicTrackId[] };
 let rememberedRun: MusicRun | null = null;
 try {
   const saved = localStorage.getItem('zl_music_selection');
   if (saved === 'random' || trackIds.includes(saved as MusicTrackId)) selection = saved as MusicSelection;
   const run = JSON.parse(localStorage.getItem('zl_music_run') ?? 'null');
-  if (typeof run?.key === 'string' && Array.isArray(run.order) && run.order.length === 3 &&
-      new Set(run.order).size === 3 && run.order.every((id: unknown) => trackIds.includes(id as MusicTrackId))) rememberedRun = run;
+  if (typeof run?.key === 'string' && Array.isArray(run.order) &&
+      run.order.length >= chapters && run.order.length <= trackIds.length &&
+      new Set(run.order).size === run.order.length && run.order.every((id: unknown) => trackIds.includes(id as MusicTrackId)))
+    rememberedRun = run;
 } catch { /* Audio preferences are optional. */ }
 let runKey: string | null = null;
 let chapter = 0;
-let currentTrack: PlayingTrackId | null = null;
+let currentTrack: MusicTrackId | null = null;
 let titleActive = false;
 let musicOffset = 0;
 let sourceStartedAt = 0;
@@ -134,7 +139,7 @@ function syncMusic() {
   try { source.start(0, musicOffset); }
   catch { musicSource = null; source.disconnect(); }
 }
-function changeTrack(track: PlayingTrackId | null) {
+function changeTrack(track: MusicTrackId | null) {
   if (currentTrack === track) { syncMusic(); return; }
   epoch++;
   loadAbort?.abort(); loadAbort = null; loading = null;
@@ -145,8 +150,8 @@ function changeTrack(track: PlayingTrackId | null) {
   currentTrack = track;
   syncMusic();
 }
-function selectedTrack(): PlayingTrackId | null {
-  if (runKey === null) return titleActive ? 'title' : null;
+function selectedTrack(): MusicTrackId | null {
+  if (runKey === null) return titleActive ? 'mosswalk' : null;
   if (selection !== 'random') return selection;
   return rememberedRun?.order[chapter] ?? null;
 }
@@ -238,7 +243,9 @@ export function setVolume(channel: VolumeChannel, value: number) {
 }
 export function getMusicSelection(): MusicSelection { return selection; }
 export function setTitleMusic(active: boolean) {
+  runKey = null;
   titleActive = active;
+  ducked = false;
   changeTrack(selectedTrack());
 }
 export function setMusicSelection(value: MusicSelection) {
@@ -258,14 +265,10 @@ export function setMusicRun(key: string | null, nextChapter = 0) {
     rememberedRun = { key, order };
     try { localStorage.setItem('zl_music_run', JSON.stringify(rememberedRun)); } catch { /* Optional persistence. */ }
   }
-  const changedRun = key !== runKey;
+  if (key !== runKey) ducked = false;
   runKey = key;
-  chapter = Number.isFinite(nextChapter) ? Math.max(0, Math.min(2, Math.floor(nextChapter))) : 0;
-  if (changedRun) {
-    changeTrack(null);
-    // A closed modal from the previous run cannot leave the next run ducked.
-    ducked = false;
-  }
+  if (key !== null) titleActive = false;
+  chapter = Number.isFinite(nextChapter) ? Math.max(0, Math.min(chapters - 1, Math.floor(nextChapter))) : 0;
   changeTrack(selectedTrack());
 }
 export function setAudioPaused(value: boolean) {

@@ -1,4 +1,4 @@
-import { ADVENTURE_CARDS, getAdventureDefinition } from './adventure-content.js';
+import { ADVENTURE_CARDS, getAdventureDefinition, getAdventureSnapshotRules } from './adventure-content.js';
 
 const copy = (v) => JSON.parse(JSON.stringify(v));
 const integer = (n, min = 0, max = Number.MAX_SAFE_INTEGER) =>
@@ -728,12 +728,12 @@ const scheduleRules = {
     '敌方第1、3、5次行动结束锁定充能最高的存活炮格，同充能按单位ID；无炮则主将。下次行动开始雷击3伤。',
   storm09:
     '上供能源奇数敌回合末锁定充能最高炮格，无炮选攻击最高随从、再回退主将；下供能源偶数回合锁主将。下次敌回合开始雷击4伤；击败或驱散对应电源取消其预告。第3、6、9等敌回合末改为Boss独立重炮，取命中玩家最多的正交方向至边界，墙阻断，同数按东南西北、无目标朝西，下次敌回合开始各玩家目标6伤，不能吸收充能，拆电源不取消。40血及以下新重炮8伤、普通攻击6；非重炮轮双电源各预告，同格只击中一次。',
-  starfall03:
-    '中心依次为(5,1)→(6,3)→(5,5)。每处先预告半径2牵引一轮，再预告3×3陨击4伤，均在下一敌回合开始兑现，敌我同伤。32血及以下新预告牵引两轮、陨击6伤、普通攻击5；当前中心先完成陨击。',
+  starfall03: (threshold) =>
+    `中心依次为(5,1)→(6,3)→(5,5)。每处先预告半径2牵引一轮，再预告3×3陨击4伤，均在下一敌回合开始兑现，敌我同伤。${threshold}血及以下新预告牵引两轮、陨击6伤、普通攻击5；当前中心先完成陨击。`,
   starfall06:
     '每次敌方行动结束依次预告(5,1)、(5,5)的3×3陨击，下一敌回合开始各格4伤，敌我同伤。36血及以下，新预告6伤、普通攻击5。',
-  starfall09:
-    '中心依次A(3,1)→B(5,3)→C(8,3)。每处先预告半径2牵引一轮，再预告3×3陨击4伤；下一敌回合开始兑现，敌我同伤，C可伤Boss。42血及以下新预告牵引两轮、陨击6伤、普通攻击6；当前中心完成陨击后按A→C→B循环。',
+  starfall09: (threshold) =>
+    `中心依次A(3,1)→B(5,3)→C(8,3)。每处先预告半径2牵引一轮，再预告3×3陨击4伤；下一敌回合开始兑现，敌我同伤，C可伤Boss。${threshold}血及以下新预告牵引两轮、陨击6伤、普通攻击6；当前中心完成陨击后按A→C→B循环。`,
 };
 const skillRules = {
   9201: '连锁放电：1法力，首目标曼哈顿3格，随后每跳2格，最多4节点，敌人各3伤。未沉默的友方导雷卫中继、棱晶炮充能1；墙和墙角阻断。链路锁定，死亡节点不改后续路径。敌方预告雷击可吸收，向3格内最近敌人反射、随后2格内连跳，最多3敌人。',
@@ -744,16 +744,18 @@ const skillRules = {
 export function adventureRules(s) {
   if (!s?.adventure) return [];
   const a = s.adventure;
+  const schedule = scheduleRules[a.config.script];
   return [
     {
       id: `adventure-${s.levelId}`,
       title: '关卡规则',
-      text: scheduleRules[a.config.script] ?? '敌军依靠普通行动和有限牌库推进，没有额外灾害排程。',
+      text: typeof schedule === 'function' ? schedule(a.config.boss.threshold)
+        : schedule ?? '敌军依靠普通行动和有限牌库推进，没有额外灾害排程。',
     },
     {
       id: 'adventure-actions',
       title: '驻场与行动',
-      text: '技能每己方回合一次，消耗一次普通攻击机会；不触发普通攻击被动或反击。刷新行动不能重置技能次数。沉默禁技能与导电，冻结或召唤等待禁主动技能。每种友军共1名后备，首次阵亡后下一玩家回合开始抵达，满场延期；后备有召唤等待、零充能。驻场身份不能复制、变形、回手或转换控制。',
+      text: '借用友军技能每回合限1次（消耗普攻，不触发反击）；沉默/冻结/召唤等待禁用。每种友军有1名后备，首次阵亡后下回合初从主将旁增援（不可复制/变形/回手）。',
     },
     ...[...new Set(a.config.allies.map((d) => d.cardId))].map((id) => ({
       id: `adventure-skill-${id}`,
@@ -796,7 +798,7 @@ export const adventureAnnouncement = () => null;
 export function validateAdventureState(s) {
   try {
     const a = s.adventure,
-      def = getAdventureDefinition(s.levelId);
+      { definition: def, bossCard } = getAdventureSnapshotRules(s.levelId, s.battleCards?.[0]);
     if (!a) return !def && !s.enemyPlan?.adventureVersion;
     if (
       !def ||
@@ -819,6 +821,12 @@ export function validateAdventureState(s) {
       !integer(a.nextEvent, 1)
     )
       return false;
+    if (bossCard) {
+      const plan = s.enemyPlan.players?.[1], boss = general(s, 1);
+      if (s.players[1]?.generalId !== bossCard.id || plan?.generalId !== bossCard.id
+        || plan.generalHealth !== bossCard.health || (!boss && s.phase !== 'over')
+        || (s.phase === 'mulligan' && (boss.health !== bossCard.health || boss.maxHealth !== bossCard.health))) return false;
+    }
     const roles = [...new Set(def.allies.map((d) => d.cardId))];
     if (
       !exact(a.reserves, roles.join(',')) ||

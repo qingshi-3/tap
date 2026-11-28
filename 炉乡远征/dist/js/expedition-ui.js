@@ -72,7 +72,7 @@ export class ExpeditionUI {
     this.drawCardIdle = typeof drawCardIdle === 'function' ? drawCardIdle : () => 0;
     this.onStart = typeof onStart === 'function' ? onStart : () => {};
     this.onResume = typeof onResume === 'function' ? onResume : () => {};
-    this.onRoguelike = typeof onRoguelike === 'function' ? onRoguelike : () => {};
+    this.onRoguelike = typeof onRoguelike === 'function' ? onRoguelike : null;
     this.onAdventurePreview = onAdventurePreview;
     this.trials = trials;
     this.onCloud = onCloud || (() => {});
@@ -358,7 +358,7 @@ export class ExpeditionUI {
     const links = el('nav', 'menu-destinations');
     const collection = button('menu-destination', '收藏', 'nav'); collection.dataset.page = 'codex'; links.append(collection);
     links.append(button('menu-destination', '招募', 'recruitment'));
-    links.append(button('menu-destination', '秘境', 'roguelike'));
+    if (this.onRoguelike) links.append(button('menu-destination', '秘境', 'roguelike'));
     links.append(button('menu-destination', '排行', 'leaderboard'), button('menu-destination', '成就', 'achievements'));
     selected.append(story, emblem, journeys, links);
     if (this.onAdventurePreview) selected.append(button("menu-adventure-preview", "冒险测试", "adventure-preview"));
@@ -1011,7 +1011,7 @@ export class ExpeditionUI {
     else if (action === 'music-toggle') this.onMusicToggle(event);
     else if (action === 'recruitment') this.onRecruitment();
     else if (action === 'adventure-preview') this.onAdventurePreview?.();
-    else if (action === 'roguelike') this.onRoguelike();
+    else if (action === 'roguelike') this.onRoguelike?.();
     else if (action === 'leaderboard') this.onLeaderboard(target);
     else if (action === 'achievements') this.onAchievements(target);
     else if (action === 'resource-rewards') this.onResourceRewards();

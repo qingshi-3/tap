@@ -23,57 +23,59 @@
   box-shadow: inset 0 0 0 3px #ffd36b, 0 0 16px rgba(255, 211, 107, .6);
 }
 
-/* ── 关卡信息横幅（底部布局见下方“备战底部布局”） ── */
+/* ── 关卡信息横幅：非阻断顶部轻提示，纯像素直角，点标题可开可关 ── */
 .screen.game .stage-banner {
-  left: 1000px !important; top: 84px !important; width: 244px; z-index: 5;
-  padding: 8px 12px; border-radius: 10px;
-  background: linear-gradient(180deg, rgba(34, 26, 72, .9), rgba(10, 8, 28, .94));
-  border: 2px solid rgba(242, 211, 156, .45);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .12), 0 6px 14px rgba(0, 0, 0, .45);
+  left: 50% !important; top: 74px !important; width: auto; max-width: 560px; z-index: 25;
+  padding: 10px 22px; border-radius: 0;
+  background: var(--ui-panel);
+  border: 0;
+  box-shadow: var(--ui-notch-brass), 0 10px 26px rgba(0, 0, 0, .58);
+  pointer-events: none;
+  transform: translateX(-50%);
 }
-/* 关卡信息进场：置灰屏幕 → 居中弹出 → 飞向顶部幕次标题并收起；点击标题可再次展开详情 */
 .screen.game .stage-dim {
   position: absolute; inset: 0; z-index: 900;
-  background: radial-gradient(ellipse at center, rgba(6, 4, 20, .96), rgba(2, 1, 8, .985));
-  opacity: 0; pointer-events: none; transition: opacity .35s ease;
+  background: transparent;
+  opacity: 0; pointer-events: none;
 }
-.screen.game .stage-dim.on { opacity: 1; pointer-events: auto; cursor: pointer; }
+.screen.game .stage-dim.on { opacity: 0; pointer-events: none; }
 .screen.game .stage-banner.sb-modal {
-  left: 640px !important; top: 291px !important; z-index: 910; pointer-events: auto; cursor: pointer;
-  width: 420px; padding: 0; border-radius: 0; text-align: center;
-  background: none; border: 0; box-shadow: none;
-  animation: sb-enter .45s cubic-bezier(.2, .8, .2, 1) both;
+  left: 50% !important; top: 74px !important; z-index: 25; pointer-events: none; cursor: default;
+  width: auto; min-width: 300px; max-width: 560px; padding: 10px 24px; border-radius: 0; text-align: center;
+  background: var(--ui-panel);
+  border: 0;
+  box-shadow: var(--ui-notch-brass), 0 12px 30px rgba(0, 0, 0, .6);
+  animation: sb-enter .24s cubic-bezier(.2, .8, .2, 1) both;
 }
-.screen.game .stage-banner.sb-modal .sb-title { flex-direction: column; align-items: center; gap: 14px; }
+.screen.game .stage-banner.sb-modal.sb-open { pointer-events: auto; cursor: pointer; }
+.screen.game .stage-banner.sb-modal .sb-title { flex-direction: row; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
 .screen.game .stage-banner.sb-modal .sb-no {
-  background: none; border: 0; padding: 0; color: rgba(242, 211, 156, .7);
-  font-size: 15px; letter-spacing: .32em;
+  background: none; border: 0; padding: 0; color: rgba(242, 211, 156, .78);
+  font-size: 14px; letter-spacing: .12em;
 }
-.screen.game .stage-banner.sb-modal .sb-nico { width: 56px; height: 56px; }
+.screen.game .stage-banner.sb-modal .sb-nico { width: 28px; height: 28px; }
 .screen.game .stage-banner.sb-modal .sb-title b {
-  font-size: 40px; letter-spacing: .08em; color: #fff8e6;
-  text-shadow: 0 2px 0 rgba(0, 0, 0, .5);
+  font-size: 24px; letter-spacing: .06em; color: #fff8e6;
+  text-shadow: 0 2px 0 rgba(0, 0, 0, .45);
 }
 .screen.game .stage-banner.sb-modal .sb-hint {
-  margin-top: 16px; padding: 0; background: none; border: 0; font-size: 18px; color: #f2d39c;
+  margin-top: 4px; padding: 0; background: none; border: 0; font-size: 15px; color: #e2d8f8;
 }
 .screen.game .stage-banner.sb-modal .sb-hint:empty { display: none; }
-.screen.game .stage-banner .sb-foot { display: none; }
-.screen.game .stage-banner.sb-modal .sb-foot {
-  display: block; margin-top: 64px; font-size: 13px; letter-spacing: .4em; color: rgba(255, 246, 225, .65);
-}
+.screen.game .stage-banner .sb-foot,
+.screen.game .stage-banner.sb-modal .sb-foot { display: none; }
 
 @keyframes sb-enter {
-  0% { opacity: 0; transform: translateX(-50%) translateY(16px) scale(1); }
-  100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.25); }
+  0% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  100% { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 .screen.game .stage-banner.sb-fly {
-  left: 640px !important; top: 291px !important; pointer-events: none;
-  animation: sb-fly .7s cubic-bezier(.5, 0, .2, 1) both;
+  left: 50% !important; top: 76px !important; pointer-events: none;
+  animation: sb-fly .35s ease-in both;
 }
 @keyframes sb-fly {
-  0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.25); }
-  100% { opacity: 0; transform: translateX(calc(-50% - 170px)) translateY(-323px) scale(.25); }
+  0% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-14px); }
 }
 .screen.game .stage-banner.sb-fly .sb-foot { display: none; }
 
@@ -114,9 +116,9 @@
 .screen.game .hud-center .hud-wins { margin: 0; align-items: center; gap: 6px; font-size: 13px; }
 .screen.game .hud-center .hud-wins b { font-size: 25px; line-height: 1; }
 .screen.game .hud-center .hud-act { font-size: 23px; line-height: 1; }
-/* 五个工具图标保持方形，像素画在完整画布内按比例居中。 */
+/* 五个工具图标放大触控热区，去除沉重套框。 */
 .screen.game .hud-right > .icon-btn {
-  flex: 0 0 48px; width: 48px; height: 48px; min-height: 0; padding: 0; aspect-ratio: 1;
+  flex: 0 0 58px; width: 58px; height: 58px; min-height: 0; padding: 0; aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
 }
 .screen.game .hud-right > .hud-archetypes::after { display: none; }
@@ -127,75 +129,77 @@
 #stage .screen.game .hud-right > .icon-btn:hover { background: none; box-shadow: none; }
 #stage .screen.game .hud-right > .icon-btn:focus-visible { outline: 2px solid var(--ui-brass-hi); outline-offset: 2px; }
 .screen.game .hud-right .hud-tool-icon {
-  display: block; flex: none; width: 40px; height: 40px; pointer-events: none;
+  display: block; flex: none; width: 38px; height: 38px; pointer-events: none;
   filter: drop-shadow(0 2px 0 #080917);
 }
 .screen.game .hud-right .hud-tool-icon svg { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
 .screen.game .hud-right > .icon-btn .ic { width: 24px; height: 24px; }
 .screen.game .hud-right > .icon-btn .ic svg { display: block; }
 
-.screen.game > .tray { top: auto !important; bottom: 0 !important; height: 392px !important; }
+.screen.game > .tray { top: auto !important; bottom: 0 !important; height: 396px !important; }
 .screen.game .tray::before { top: 0; left: 0; right: 0; }
 
-/* 左右操作共用底部 16 / 96 两条基线；中间弹性留白吸收屏高差。 */
+/* 左栏：金币 / 放大后的酒馆升级卡 / 刷新 / 低调紧凑的免费刷新（广告） */
 .screen.game .tray.paid-shelf .tray-left {
-  left: 16px !important; top: 22px !important; bottom: 16px !important; width: 216px !important; height: auto !important;
-  display: grid !important; grid-template: 50px 78px minmax(0, 1fr) 70px 70px / minmax(0, 1fr);
+  left: 16px !important; top: 18px !important; bottom: 16px !important; width: 216px !important; height: auto !important;
+  display: grid !important; grid-template: 46px 96px minmax(0, 1fr) 64px 44px / minmax(0, 1fr);
   gap: 10px !important;
   padding: 0 !important; background: none !important; box-shadow: none !important; border: 0 !important;
 }
-.screen.game .tray.paid-shelf .tray-left > .tl-gold { grid-row: 1; height: 50px; min-height: 0; }
+.screen.game .tray.paid-shelf .tray-left > .tl-gold { grid-row: 1; height: 46px; min-height: 0; }
 .screen.game .tray.paid-shelf .tray-left > .tavern-box {
   position: static !important; left: auto !important; top: auto !important;
-  grid-row: 2; width: 216px !important; height: 78px !important; flex: none !important;
+  grid-row: 2; width: 216px !important; height: 96px !important; flex: none !important;
 }
 .screen.game .tray.paid-shelf .tray-left > .reroll {
-  grid-row: 4; width: 216px !important; height: 70px !important; min-height: 0 !important;
-  margin: 0 !important; padding: 5px 8px !important; gap: 3px !important; font-size: 22px !important;
+  grid-row: 4; width: 216px !important; height: 64px !important; min-height: 0 !important;
+  margin: 0 !important; padding: 5px 10px !important; gap: 4px !important; font-size: 21px !important;
 }
-.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded { grid-row: 5; }
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded {
+  grid-row: 5; height: 44px !important; flex-direction: row !important; font-size: 17px !important;
+}
+.screen.game .tray.paid-shelf .tray-left > .reroll.rewarded .rr-main { font-size: 16px !important; gap: 6px !important; }
 .screen.game .tray.paid-shelf .tray-left > .reroll .rr-price { font-size: 18px; line-height: 22px; }
 .screen.game .tray.paid-shelf .tray-left > .reroll .rr-price .px-item { width: 20px; height: 20px; }
 
-/* 中列上：货架 */
+/* 中列上：货架（上移并控制缩放，与下方手牌留出清晰呼吸间距，零叠压） */
 .screen.game .tray.paid-shelf .cards {
-  left: 248px !important; top: 16px !important; width: 784px !important; height: 236px !important;
-  display:grid !important; grid-template-rows:repeat(2,84px); grid-auto-flow:column; grid-auto-columns:max-content;
-  column-gap:10px; row-gap:10px; justify-content:center !important; align-content:start; align-items:center !important;
+  left: 248px !important; top: 12px !important; width: 784px !important; height: 184px !important;
+  display:grid !important; grid-template-rows:repeat(2, 82px); grid-auto-flow:column; grid-auto-columns:max-content;
+  column-gap:12px; row-gap:10px; justify-content:center !important; align-content:start; align-items:center !important;
 }
 /* 单位卡占两行，补给按两行排布，按实际货品数分配阅读空间。 */
-.screen.game .tray.paid-shelf .cards[data-count] > .card { grid-row:span 2; zoom:var(--shop-card-zoom,.68) !important; align-self:start; }
-.screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width:84px; height:84px; zoom:1 !important; }
-.screen.game .tray.paid-shelf .cards > .shelf-div { grid-row:span 2; width:1px; height:164px; margin:0; zoom:1 !important; }
+.screen.game .tray.paid-shelf .cards[data-count] > .card { grid-row:span 2; zoom:var(--shop-card-zoom,.60) !important; align-self:start; }
+.screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width:84px; height:82px; zoom:1 !important; }
+.screen.game .tray.paid-shelf .cards > .shelf-div { grid-row:span 2; width:1px; height:158px; margin:0; zoom:1 !important; }
 
-/* 手牌：炉石式扇形，居中贴底；悬停时抬起放大并摆正。
-   --i / --n 由 renderHand 写入，--o 为相对中心的偏移 */
+/* 手牌：摊开不互遮、不撞上方商店卡、不切屏幕底边；悬停优雅上浮 */
 .screen.game .hand-strip {
-  left: 320px !important; top: auto !important; bottom: 0 !important; width: 640px !important; height: 178.16px !important; z-index: 7;
+  left: 256px !important; top: auto !important; bottom: 8px !important; width: 768px !important; height: 158px !important; z-index: 7;
   display: block !important; padding: 0 !important; gap: 0 !important; pointer-events: none;
 }
 .screen.game .hand-strip .hand-head { display: none; }
 .screen.game .hand-strip .hand-slot {
   --o: calc(var(--i) - (var(--n) - 1) / 2);
-  --step: min(96px, calc(560px / var(--n)));
-  --fan: translateX(calc(var(--o) * var(--step))) translateY(calc(var(--o) * var(--o) * 2.5px)) rotate(calc(var(--o) * 4deg));
-  position: absolute !important; left: 50%; bottom: 0; margin-left: -63.92px;
-  width: 127.84px !important; height: 178.16px !important; zoom: 1 !important; border-radius: 10px; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
-  transform-origin: 50% 160%; transform: var(--fan);
+  --step: min(124px, calc(680px / var(--n)));
+  --fan: translateX(calc(var(--o) * var(--step))) translateY(calc(var(--o) * var(--o) * 1.6px)) rotate(calc(var(--o) * 2deg));
+  position: absolute !important; left: 50%; bottom: 0; margin-left: -55px;
+  width: 110px !important; height: 154px !important; zoom: 1 !important; border-radius: 0; background: none !important; outline: 0 !important; border: 0 !important; padding: 0 !important;
+  transform-origin: 50% 170%; transform: var(--fan);
   z-index: calc(var(--i) + 1); pointer-events: auto;
-  transition: transform .2s cubic-bezier(.2, .8, .3, 1), box-shadow .2s, opacity .2s;
+  transition: transform .18s cubic-bezier(.2, .8, .3, 1), filter .18s, opacity .18s;
   box-shadow: none;
 }
 .screen.game .hand-strip .hand-slot:not(.empty):hover,
 .screen.game .hand-strip .hand-slot:not(.empty):focus-visible {
-  z-index: 30; transform: translateY(calc(var(--o) * var(--o) * 2.5px - 22px)) translateX(calc(var(--o) * var(--step))) scale(1.12);
+  z-index: 30; transform: translateY(-20px) translateX(calc(var(--o) * var(--step))) scale(1.12);
   box-shadow: none;
 }
-.screen.game .hand-strip .hand-slot:not(.empty):active { transform: translateY(-14px) translateX(calc(var(--o) * var(--step))) scale(1.06); }
+.screen.game .hand-strip .hand-slot:not(.empty):active { transform: translateY(-12px) translateX(calc(var(--o) * var(--step))) scale(1.06); }
 .screen.game .hand-strip .hand-slot.drop-hover { transform: var(--fan) scale(1.08); }
 .screen.game .hand-strip .hand-slot.empty { opacity: 0 !important; background: none !important; box-shadow: none !important; }
-.screen.game .hand-strip .hand-slot.empty[data-drop] { opacity: .5 !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.7); }
-.screen.game .hand-strip .hand-slot > .card { position: absolute; left: 0; top: 0; margin: 0 !important; zoom: 1 !important; transform-origin: 0 0; transform: scale(.68); pointer-events: none; filter: drop-shadow(0 8px 10px rgba(0,0,0,.6)); }
+.screen.game .hand-strip .hand-slot.empty[data-drop] { opacity: .55 !important; box-shadow: inset 0 0 0 2px rgba(255,211,107,.7); border-radius: 6px; }
+.screen.game .hand-strip .hand-slot > .card { position: absolute; left: 0; top: 0; margin: 0 !important; zoom: 1 !important; transform-origin: 0 0; transform: scale(.585); pointer-events: none; filter: drop-shadow(0 8px 14px rgba(0,0,0,.55)); }
 .screen.game .hand-strip .hand-slot:not(.empty):hover { filter: drop-shadow(0 0 14px rgba(255,211,107,.6)); }
 .screen.game .hand-strip .hand-slot::after { display: none !important; }
 .screen.game .hand-strip .hand-slot.hand-spell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
@@ -258,17 +262,27 @@
 #stage.compact .screen.game:not(.in-battle):not(.rehearsal) > .board .unit:has(.u-pips) .u-tags {
   left: calc(50% + 17px); transform: none;
 }
-#stage.compact .screen.game > .tray { height: 352px !important; }
+#stage.compact .screen.game > .tray { height: 356px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left {
+  top: 12px !important; bottom: 10px !important;
+  grid-template: 40px 92px minmax(0, 1fr) 58px 40px / minmax(0, 1fr);
+  gap: 8px !important;
+}
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .tl-gold { height: 40px; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .tavern-box { height: 92px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .reroll { height: 58px !important; }
+#stage.compact .screen.game .tray.paid-shelf .tray-left > .reroll.rewarded { height: 40px !important; }
 #stage.compact .screen.game .tray.paid-shelf .cards {
-  top: 12px !important; height: 174px !important; grid-template-rows: repeat(2, 80px);
+  top: 10px !important; height: 164px !important; grid-template-rows: repeat(2, 74px);
 }
-#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .card { zoom: calc(var(--shop-card-zoom, .68) * .96) !important; }
-#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width: 80px; height: 80px; }
-#stage.compact .screen.game .hand-strip { height: 162.44px !important; }
+#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .card { zoom: calc(var(--shop-card-zoom, .60) * .93) !important; }
+#stage.compact .screen.game .tray.paid-shelf .cards[data-count] > .food-tile { width: 80px; height: 74px; }
+#stage.compact .screen.game .hand-strip { bottom: 6px !important; height: 146px !important; }
 #stage.compact .screen.game .hand-strip .hand-slot {
-  width: 116.56px !important; height: 162.44px !important; margin-left: -58.28px;
+  --step: min(116px, calc(660px / var(--n)));
+  width: 102px !important; height: 142px !important; margin-left: -51px;
 }
-#stage.compact .screen.game .hand-strip .hand-slot > .card { transform: scale(.62); }
+#stage.compact .screen.game .hand-strip .hand-slot > .card { transform: scale(.54); }
 @media (prefers-reduced-motion: reduce) {
   .screen.game .hand-strip .hand-slot,
   .screen.game .hand-strip .hand-slot:not(.empty):is(:hover, :focus-visible, :active) {
@@ -281,8 +295,9 @@
 .game .buy-zone {
   position: absolute; z-index: 40; pointer-events: none; box-sizing: border-box;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-  border: 3px dashed rgba(217, 180, 255, 0.7); border-radius: 14px; color: #f9e2ad;
-  background: rgba(52, 26, 84, 0.88);
+  border: 3px dashed rgba(217, 176, 102, 0.75); border-radius: 0; color: #f9e2ad;
+  background: rgba(24, 18, 52, 0.92);
+  box-shadow: var(--ui-notch-dark);
   transition: background 0.12s, border-color 0.12s, transform 0.12s;
 }
 .game .buy-zone b { font-size: 30px; letter-spacing: 2px; }

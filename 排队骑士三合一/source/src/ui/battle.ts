@@ -7,6 +7,8 @@ import { Board, bodyPos, keywordsOf, UNIT_Y, UnitView } from '../qb/board';
 import { h } from '../qb/dom';
 import type { FX } from '../qb/fx';
 import { icon } from '../qb/icons';
+import { itemIcon } from '../qb/pixelItems';
+import { hideTip, showTip, unitTip } from '../qb/tip';
 import { vfxFor, type Pt, type VfxKind, type VfxSource } from '../qb/vfx';
 import './battle-rhythm.css';
 
@@ -39,6 +41,9 @@ export class BattlePlayer {
   set rate(value: number) { this.clearClashCue(); this.playbackRate = Math.max(0.1, value); this.fx.rate = this.speed; }
   hook: ((ev: Ev, i: number) => Promise<void> | void) | null = null;
   private stopped = false;
+  private paused = false;
+  private resumeResolvers: (() => void)[] = [];
+  private pauseBtn: HTMLButtonElement | null = null;
   /** 批量结算中：同一来源一次打到多个目标，特效一次铺开，不逐个过 */
   private batch = false;
   private batchSfx: (() => void) | null = null;
@@ -56,6 +61,12 @@ export class BattlePlayer {
       this.fx.rate = 1;
       return;
     }
+    const pauseBtn = h('button', { class: 'btn ghost bb-pause', type: 'button', 'aria-pressed': 'false' }, h('span', null, '暂停'));
+    this.pauseBtn = pauseBtn;
+    pauseBtn.addEventListener('click', () => {
+      this.sfx.click();
+      this.setPaused(!this.paused);
+    });
     const speedBtn = h('button', { class: 'btn ghost speed' }, icon('ff'), h('span', null, `${SPEEDS[speedIdx]}×`));
     speedBtn.addEventListener('click', () => {
       speedIdx = (speedIdx + 1) % SPEEDS.length;
@@ -66,12 +77,32 @@ export class BattlePlayer {
     });
     const skipBtn = h('button', { class: 'btn ghost' }, icon('skip'), h('span', null, '跳过'));
     skipBtn.addEventListener('click', () => { this.sfx.click(); this.skip(); });
-    bar.replaceChildren(h('div', { class: 'bb-phase' }, this.phase), this.log, h('div', { class: 'bb-btns' }, speedBtn, skipBtn));
+    bar.replaceChildren(h('div', { class: 'bb-phase' }, this.phase), this.log, h('div', { class: 'bb-btns' }, pauseBtn, speedBtn, skipBtn));
     this.fx.rate = SPEEDS[speedIdx];
+  }
+
+  private setPaused(value: boolean) {
+    this.paused = value;
+    if (this.pauseBtn) {
+      this.pauseBtn.setAttribute('aria-pressed', String(value));
+      this.pauseBtn.classList.toggle('is-paused', value);
+      this.pauseBtn.querySelector('span')!.textContent = value ? '继续' : '暂停';
+    }
+    if (!value) {
+      const list = this.resumeResolvers.splice(0);
+      for (const r of list) r();
+    }
+  }
+
+  private waitUnpause() {
+    if (!this.paused || this.skipping || this.stopped) return Promise.resolve();
+    return new Promise<void>((resolve) => this.resumeResolvers.push(resolve));
   }
 
   skip() {
     this.skipping = true;
+    this.setPaused(false);
+    hideTip();
     this.clearClashCue();
     this.board.clearMarks();
     this.fx.clear();
@@ -80,6 +111,8 @@ export class BattlePlayer {
   stop() {
     this.stopped = true;
     this.skipping = true;
+    this.setPaused(false);
+    hideTip();
     this.clearClashCue();
     this.board.clearMarks();
     this.fx.clear();
@@ -139,8 +172,12 @@ export class BattlePlayer {
     lifetime.onfinish = () => { if (this.clashCue === cue) this.clearClashCue(); };
     this.cueAnimations.push(lifetime);
   }
-  private w(ms: number) {
-    return this.skipping ? Promise.resolve() : new Promise<void>((r) => setTimeout(r, ms / this.speed));
+  private async w(ms: number) {
+    if (this.skipping || this.stopped) return;
+    if (this.paused) await this.waitUnpause();
+    if (this.skipping || this.stopped) return;
+    await new Promise<void>((r) => setTimeout(r, ms / this.speed));
+    if (this.paused && !this.skipping && !this.stopped) await this.waitUnpause();
   }
 
   private bsfx(f: () => void) { if (this.batch) this.batchSfx ??= f; else f(); }
@@ -212,6 +249,29 @@ export class BattlePlayer {
     L.v.setStats({ atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, chill: 0, burn: s.burn ?? 0, kw }, { pop: pop && !this.skipping });
   }
 
+  private inspectLive(uid: number) {
+    const L = this.live.get(uid);
+    if (!L || this.demo) return;
+    this.sfx.click();
+    const s = L.s;
+    const tip = unitTip(s.def, s.lvl, {
+      atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, ench: s.ench, kws: s.kws,
+    }, false);
+    const liveTags: string[] = [];
+    if (s.block) liveTags.push(`格挡 ${s.block}`);
+    if (s.shield) liveTags.push(`护甲 ${s.shield}`);
+    if (s.charge) liveTags.push(`蓄能 ${s.charge}`);
+    if (s.mark) liveTags.push(`猎标 ${s.mark} 层`);
+    if (s.burn) liveTags.push(`灼烧 ${s.burn}`);
+    if (liveTags.length) tip.appendChild(h('div', { class: 'tip-text tip-current-state' }, `当前状态：${liveTags.join(' · ')}`));
+    if (s.ax?.length && s.side === 1) {
+      tip.appendChild(h('div', { class: 'tip-text tip-ench' }, h('b', { class: 'tip-elite' }, '精英词缀'),
+        ...s.ax.flatMap((a) => [h('br'), itemIcon(ATOM_INFO[a].icon, 'spell', 'tip-item'), `${ATOM_INFO[a].name}：${ATOM_INFO[a].desc}`])));
+    }
+    const p = this.pos(uid);
+    showTip(tip, p.x, p.y + 46, 'below', p.y - 60, null, L.v.el);
+  }
+
   private mk(s: Snap, slot: number) {
     const v = new UnitView(s.def, s.side, slot, s.lvl, { token: !!card(s.def).token });
     this.board.add(`u${s.uid}`, v);
@@ -221,6 +281,9 @@ export class BattlePlayer {
     this.sides.set(s.uid, s.side);
     this.paint(L);
     v.setEquips([...(s.ench ? [s.ench] : []), ...(s.ax ?? []).filter((a) => s.side === 1).map((a) => ATOM_INFO[a].icon)]);
+    if (!this.demo) {
+      v.el.addEventListener('click', (e) => { e.stopPropagation(); this.inspectLive(s.uid); });
+    }
     return L;
   }
 

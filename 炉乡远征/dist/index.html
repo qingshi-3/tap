@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="./battle-history.css">
   <link rel="stylesheet" href="./adventure.css">
   <link rel="stylesheet" href="./roguelike.css">
+  <link rel="stylesheet" href="./battle-ux-polish.css">
 </head>
 <body>
   <dialog id="adventure-gift" class="adventure-gift" aria-labelledby="adventure-gift-title">
@@ -131,6 +132,7 @@
           <strong id="phase-label">你的回合</strong>
         </div>
         <button id="objective-open" class="objective-toggle" type="button" aria-haspopup="dialog" aria-controls="objective-dialog" aria-expanded="false">本局目标</button>
+        <button id="battle-speed" class="battle-speed-toggle" type="button" data-speed="1" aria-label="战斗倍速 1倍">1x</button>
         </div>
       </header>
 
@@ -211,6 +213,9 @@
         <button id="end-turn" class="button button-primary end-turn">结束回合</button>
         <span id="end-turn-hint" class="end-turn-hint" role="status" hidden>可以结束回合了</span>
       </div>
+      <div id="battle-event-banner" class="battle-event-banner" role="status" aria-live="polite" hidden></div>
+      <div id="telegraph-popover" class="telegraph-popover" role="status" hidden></div>
+      <button id="telegraph-locate" class="telegraph-locate" type="button" hidden>定位预告</button>
       <div id="move-cancel-zone" class="move-cancel-zone" role="status" hidden>拖到这里取消移动</div>
 
       <div id="game-result" class="result-screen" hidden role="dialog" aria-modal="true" aria-labelledby="result-title">
@@ -308,6 +313,7 @@
     <header class="audio-settings-header"><h2 id="audio-settings-title">设置</h2><button id="audio-settings-close" class="audio-settings-close" type="button" aria-label="关闭设置">关闭</button></header>
     <div class="audio-settings-controls"><div class="audio-settings-row"><span class="audio-settings-label">背景音乐</span><button id="settings-music-toggle" type="button" role="switch" aria-label="背景音乐" aria-checked="true"><span class="settings-toggle-label">开启</span><i class="settings-toggle-knob" aria-hidden="true"></i></button></div><label class="audio-settings-volume" for="settings-music-volume">音乐音量<output id="settings-music-value" for="settings-music-volume">45%</output><input id="settings-music-volume" type="range" min="0" max="100" step="5" value="45"></label>
     <label class="audio-settings-volume" for="settings-effects-volume">战斗音效<output id="settings-effects-value" for="settings-effects-volume">100%</output><input id="settings-effects-volume" type="range" min="0" max="100" step="5" value="100"></label>
+    <div class="audio-settings-row" id="settings-speed-row"><span class="audio-settings-label">战斗倍速</span><div class="settings-speed-group" role="group" aria-label="战斗倍速"><button type="button" data-battle-speed="1" aria-pressed="true">1x</button><button type="button" data-battle-speed="2" aria-pressed="false">2x</button><button type="button" data-battle-speed="3" aria-pressed="false">3x</button></div></div>
     <button id="settings-music-retry" type="button" hidden>重试播放</button>
     </div>
     <button id="settings-gift-code" type="button" hidden>兑换码</button>

@@ -1,6 +1,6 @@
 import { ENCOUNTER_CARDS, ENCOUNTER_CARD_IDS, encounterDefinition, validateFrozenEncounterDefinition, initEncounter, validateEncounterState, encounterSync, encounterTurnStart, encounterTurnEnd, encounterDamage, encounterDeath, encounterAfterDamage, encounterAfterAttack, encounterAttackBonus, encounterRooted, encounterCanAttack, encounterMarkers, encounterClearUnitBuffs } from './encounter-system.js';
 import { LEGACY_FROST_LEVEL } from './legacy-frost-level.js';
-import { ADVENTURE_CARDS, ADVENTURE_CARD_IDS } from './adventure-content.js';
+import { ADVENTURE_CARD_IDS, getAdventureSnapshotRules } from './adventure-content.js';
 import {
   initAdventure, validateAdventureState, adventureIdentityLocked, adventureRooted,
   adventureBeginAction, adventureFinishAction, adventureIncomingDamage, adventureDeath,
@@ -227,8 +227,8 @@ export function createContentBattleCardTables(enemyPlan,loadout={spellTraining:{
   }
   return tables;
 }
-function validFrozenCard(id, card, schema=5, expanded=false, recruited=false) {
-  if(ADVENTURE_CARD_IDS.includes(Number(id)))return schema===7&&JSON.stringify(card)===JSON.stringify(freezeBattleCard(ADVENTURE_CARDS[id]));
+function validFrozenCard(id, card, schema=5, expanded=false, recruited=false, adventureCards=null) {
+  if(ADVENTURE_CARD_IDS.includes(Number(id)))return schema===7&&!!adventureCards&&JSON.stringify(card)===JSON.stringify(freezeBattleCard(adventureCards[id]));
   if (ENCOUNTER_CARD_IDS.includes(Number(id))) return schema===7 && JSON.stringify(card)===JSON.stringify(freezeBattleCard(ENCOUNTER_CARDS[id]));
   if (Number(id) === ICE_SHARD_ID) {
     return schema === 7 && !!card && JSON.stringify(card) === JSON.stringify(freezeBattleCard(BOSS_CARDS[id]));
@@ -438,8 +438,9 @@ function validCampaignSnapshot(state) {
   if (state.schemaVersion === 5 && (state.players[0].deck.length || JSON.stringify(state.players[0].hand) !== JSON.stringify([...state.squad,...state.loadout.spells]))) return false;
   if ([6,7].includes(state.schemaVersion) && !validDrawBattle(state)) return false;
   if (!state.enemyPlan || typeof state.enemyPlan.label !== 'string' || typeof state.enemyPlan.hint !== 'string' || !state.enemyPlan.players || !state.battleCards) return false;
+  const adventureCards = state.adventure ? getAdventureSnapshotRules(state.levelId, state.battleCards[0]).cards : null;
   for (const player of state.players) {
-    if (!state.battleCards[player.id] || Object.keys(state.battleCards[player.id]).length !== cardIds.length || cardIds.some(id => !Object.hasOwn(state.battleCards[player.id],id)) || Object.entries(state.battleCards[player.id]).some(([id,card]) => !validFrozenCard(id,card,state.schemaVersion,isExpansion(state),isRecruitmentExpansion(state)))) return false;
+    if (!state.battleCards[player.id] || Object.keys(state.battleCards[player.id]).length !== cardIds.length || cardIds.some(id => !Object.hasOwn(state.battleCards[player.id],id)) || Object.entries(state.battleCards[player.id]).some(([id,card]) => !validFrozenCard(id,card,state.schemaVersion,isExpansion(state),isRecruitmentExpansion(state),adventureCards))) return false;
     if ([...player.hand,...player.deck].some(id => !getBattleCard(state,id,player.id))) return false;
     if (!player.id) continue;
     const plan = state.enemyPlan.players[player.id];
@@ -2056,9 +2057,9 @@ export function autoAct(state, playerId = state.currentPlayer) {
 async function botAct(state, notify, options, sessionId) {
   const isCancelled = options?.isCancelled ?? (() => false);
   const cancelled = () => isCancelled() || botSessions.get(state) !== sessionId;
-  const delay = options?.delayMs ?? 380;
+  const stepDelay = () => typeof options?.delayMs === "function" ? options.delayMs() : (options?.delayMs ?? 380);
   if (cancelled()) return;
-  if (delay > 0) await sleep(delay);
+  if (stepDelay() > 0) await sleep(stepDelay());
   let guard = 0;
   while (state.phase === 'ai' && state.players[state.currentPlayer]?.ai && guard++ < 100) {
     if (cancelled()) return;
@@ -2067,7 +2068,7 @@ async function botAct(state, notify, options, sessionId) {
     const action = state.lastAction ? clone(state.lastAction) : { kind: 'end-turn' };
     await notify(beforeUnits, action);
     if (cancelled()) return;
-    if (state.phase === 'ai' && delay > 0) await sleep(action.kind === 'attack' ? delay + 40 : delay);
+    const wait = stepDelay(); if (state.phase === 'ai' && wait > 0) await sleep(action.kind === 'attack' ? wait + 30 : wait);
   }
 }
 

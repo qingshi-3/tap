@@ -1,5 +1,6 @@
 import { createBattleHistory } from './battle-history.js';
 import { bossRules } from './boss-mechanics.js';
+import { getBattleSpeed, setBattleSpeed, cycleBattleSpeed, battleSpeedScale, onBattleSpeedChange } from './battle-motion.js';
 import { encounterRules, encounterUnitInfo, encounterAnnouncement } from './encounter-system.js';
 import { adventureRules, adventureUnitInfo, adventureAnnouncement } from './adventure-system.js';
 import { createAdventureControls } from './adventure-ui.js';
@@ -134,6 +135,105 @@ const battleHistory = createBattleHistory({
 });
 
 const battleTips = createBattleTips({ root: document.querySelector('.battle-top-center') });
+const speedButton = $('battle-speed');
+const eventBanner = $('battle-event-banner');
+const telegraphPopover = $('telegraph-popover');
+const telegraphLocate = $('telegraph-locate');
+const settingsSpeedButtons = [...document.querySelectorAll('[data-battle-speed]')];
+let eventBannerTimer = null, telegraphPopoverTimer = null;
+
+function syncSpeedUI(level = getBattleSpeed()) {
+  if (speedButton) {
+    speedButton.textContent = `${level}x`;
+    speedButton.dataset.speed = String(level);
+    speedButton.setAttribute('aria-label', `战斗倍速 ${level}倍，点按切换`);
+  }
+  for (const btn of settingsSpeedButtons) {
+    btn.setAttribute('aria-pressed', String(Number(btn.dataset.battleSpeed) === level));
+  }
+}
+syncSpeedUI();
+onBattleSpeedChange(syncSpeedUI);
+speedButton?.addEventListener('click', () => { cycleBattleSpeed(); });
+for (const btn of settingsSpeedButtons) {
+  btn.addEventListener('click', () => { setBattleSpeed(Number(btn.dataset.battleSpeed)); });
+}
+
+function cleanAnnouncementText(text) {
+  if (!text) return '';
+  return String(text)
+    .replace(/标记（d+,d+）（?:、（d+,d+））*/g, '标记了冰封格')
+    .replace(/标记(?:（d+,d+）[、]?)+/g, '标记了冰封格')
+    .replace(/（d+,d+）/g, '');
+}
+
+function showBattleEventBanner(rawText) {
+  if (!eventBanner || !rawText) return;
+  const text = cleanAnnouncementText(rawText);
+  eventBanner.textContent = text;
+  eventBanner.hidden = false;
+  requestAnimationFrame(() => eventBanner.classList.add('visible'));
+  clearTimeout(eventBannerTimer);
+  eventBannerTimer = setTimeout(() => {
+    eventBanner.classList.remove('visible');
+    setTimeout(() => { if (!eventBanner.classList.contains('visible')) eventBanner.hidden = true; }, 220);
+  }, Math.max(1500, Math.round(2800 / battleSpeedScale())));
+}
+
+function hideTelegraphPopover() {
+  clearTimeout(telegraphPopoverTimer);
+  telegraphPopoverTimer = null;
+  if (telegraphPopover) telegraphPopover.hidden = true;
+}
+
+function describeTelegraph(marker) {
+  if (!marker) return null;
+  if (marker.kind === 'boss-mark') return { title: '冰封预告', body: '下回合女王开始时，格上单位受3伤并冻结，空格长出冰棱。' };
+  if (marker.intent === 'stormStrike') return { title: `雷击预告 · ${marker.amount ?? 3}伤`, body: '下回合敌方开始劈落雷击。导雷卫可吸收并反射给附近敌人。' };
+  if (marker.intent === 'meteor') return { title: `陨击预告 · ${marker.amount ?? 6}伤`, body: '下回合敌方开始砸落陨星，请提前移出范围或借敌清场。' };
+  if (marker.intent === 'beam') return { title: `重炮预告 · ${marker.amount ?? 6}伤`, body: '下回合敌方开始沿直线贯射，移出射线可规避。' };
+  if (marker.kind === 'gravity') return { title: '引力预告', body: '下回合敌方开始向中心格牵引范围内随从。' };
+  if (marker.kind === 'damage') return { title: `危险预告 · ${marker.amount ?? 1}伤`, body: '下回合敌方开始对该格结算伤害，可提前移开。' };
+  if (marker.kind === 'portal') return { title: '传送入口', body: '下回合敌方开始将从此格增援，站上此格可封堵。' };
+  if (marker.kind === 'corpse') return { title: '残骸标记', body: '倒计时结束将复生敌军，可提前占位或处理来源。' };
+  return null;
+}
+
+function showTelegraphPopoverAt(cell, marker) {
+  if (!telegraphPopover || !cell || !marker) return;
+  const desc = describeTelegraph(marker);
+  if (!desc) return;
+  const rect = ui.board.getBoundingClientRect();
+  const matchRect = ui.match.getBoundingClientRect();
+  const metrics = renderer.boardMetrics(rect.width, rect.height);
+  const pt = renderer.cellGeometry(metrics, cell.x, cell.y).center;
+  telegraphPopover.innerHTML = '';
+  const strong = document.createElement('strong'); strong.textContent = desc.title;
+  const span = document.createElement('span'); span.textContent = desc.body;
+  telegraphPopover.append(strong, span);
+  telegraphPopover.hidden = false;
+  const pw = telegraphPopover.offsetWidth || 220, ph = telegraphPopover.offsetHeight || 56;
+  const left = Math.max(12, Math.min(matchRect.width - pw - 12, pt.x - pw / 2));
+  const top = Math.max(58, Math.min(matchRect.height - ph - 130, pt.y - ph - 18));
+  telegraphPopover.style.left = `${Math.round(left)}px`;
+  telegraphPopover.style.top = `${Math.round(top)}px`;
+  clearTimeout(telegraphPopoverTimer);
+  telegraphPopoverTimer = setTimeout(hideTelegraphPopover, 3200);
+}
+
+telegraphLocate?.addEventListener('click', () => {
+  if (!match) return;
+  renderer.focusTelegraphs(match);
+  drawVisibleOverview();
+  telegraphLocate.hidden = true;
+});
+
+function syncHandOverflow() {
+  if (!ui.hand) return;
+  const hasMore = ui.hand.scrollWidth > ui.hand.clientWidth + 4 && ui.hand.scrollLeft + ui.hand.clientWidth < ui.hand.scrollWidth - 4;
+  ui.hand.dataset.overflowRight = String(hasMore);
+}
+ui.hand?.addEventListener('scroll', syncHandOverflow, { passive: true });
 const battleFlow = createBattleFlow(ui.match, { onSelect: onHandCard, onConfirm: advanceTurn, getCard: id => getBattleCard(match, id), makeCard: (id, index) => cardButton(getBattleCard(match, id), index) });
 let announcedTurn = '', pendingTurn = null;
 let shownBossAnnounce = 0;
@@ -300,9 +400,10 @@ const adventurePreview = new AdventurePreviewSession();
 let adventurePreviewContext = false;
 let adventurePreviewCloudPaused = false;
 const isAdventurePreview = (state = match) => adventurePreview.attempted(state);
-const roguelikeSession = new RoguelikeSession();
+const ROGUELIKE_ENABLED = false;
+const roguelikeSession = ROGUELIKE_ENABLED ? new RoguelikeSession() : null;
 const hasRoguelikeMarker = (state = match) => !!state && Object.hasOwn(state, 'roguelike');
-const isRoguelikeMatch = (state = match) => !!state && roguelikeSession.owns(state);
+const isRoguelikeMatch = (state = match) => !!state && Boolean(roguelikeSession?.owns(state));
 const isIndependentMatch = (state = match) => isRankedMatch(state) || hasRoguelikeMarker(state) || isAdventurePreview(state);
 const isRoguelikeActive = () => Boolean(roguelikeUI?.visible) || hasRoguelikeMarker();
 // A detached challenge must fail closed rather than fall through to the player
@@ -388,7 +489,7 @@ expeditionUI = new ExpeditionUI({
   drawCardArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   drawCardIdle: (canvas, id, time) => renderer.drawCardIdle(canvas, id, time),
   onStart: (id) => void startExpedition(id), onResume: resumeExpedition,
-  onRoguelike: openRoguelike,
+  onRoguelike: ROGUELIKE_ENABLED ? openRoguelike : null,
   onAdventurePreview: ADVENTURE_PREVIEW_ENABLED ? openAdventurePreview : null,
   onCloud: openPlayerCloud,
   onLeaderboard: target => platformProgressUI.open('leaderboard', target),
@@ -415,7 +516,7 @@ expeditionUI = new ExpeditionUI({
     resumeCloud: () => void resumeCloud(), sync: () => void syncNow(saves.localSnapshot)
   }
 });
-roguelikeUI = new RoguelikeUI({
+if (ROGUELIKE_ENABLED) roguelikeUI = new RoguelikeUI({
   session: roguelikeSession,
   drawArt: (canvas, id) => renderer.drawCardArt(canvas, id),
   onBattle: startRoguelikeBattle,
@@ -428,7 +529,7 @@ roguelikeUI = new RoguelikeUI({
 });
 const adventureGift = createAdventureGift({
   progress: expedition,
-  canShow: () => ui.match.hidden && !roguelikeUI.visible && !sceneLoading.busy && !adventurePreviewContext,
+  canShow: () => ui.match.hidden && !roguelikeUI?.visible && !sceneLoading.busy && !adventurePreviewContext,
   onPlay() {
     expeditionUI.chapterId = 'storm-front';
     expeditionUI.levelId = 'storm-01';
@@ -450,18 +551,20 @@ function showExpeditionHome() {
   adventureGift.check();
 }
 
-const adventurePreviewPicker = createAdventurePreviewPicker({
+const adventurePreviewPicker = ADVENTURE_PREVIEW_ENABLED ? createAdventurePreviewPicker({
   onChoose: levelId => void startAdventurePreview(levelId),
   onClose: () => { adventurePreview.leave(); releaseAdventurePreview(); }
-});
-const previewSwitch = document.createElement('button');
-previewSwitch.type = 'button'; previewSwitch.className = 'button button-secondary';
-previewSwitch.textContent = '切换测试'; previewSwitch.hidden = true;
-ui.playAgain.after(previewSwitch);
-previewSwitch.addEventListener('click', () => {
-  if (!isAdventurePreview()) return;
-  void returnToLobby({ afterReturn: openAdventurePreview });
-});
+}) : null;
+const previewSwitch = ADVENTURE_PREVIEW_ENABLED ? document.createElement('button') : null;
+if (previewSwitch) {
+  previewSwitch.type = 'button'; previewSwitch.className = 'button button-secondary';
+  previewSwitch.textContent = '切换测试'; previewSwitch.hidden = true;
+  ui.playAgain.after(previewSwitch);
+  previewSwitch.addEventListener('click', () => {
+    if (!isAdventurePreview()) return;
+    void returnToLobby({ afterReturn: openAdventurePreview });
+  });
+}
 function releaseAdventurePreview() {
   if (!adventurePreviewContext) return;
   adventurePreviewContext = false;
@@ -497,7 +600,7 @@ async function startAdventurePreview(levelId) {
 }
 
 function openRoguelike() {
-  if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || !ui.match.hidden) return;
+  if (!ROGUELIKE_ENABLED || sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked || !ui.match.hidden) return;
   invalidateCampAds(); metagame.closeOverlays();
   expeditionUI.hide(); ui.lobby.hidden = true;
   playerCloud.paused = true;
@@ -507,6 +610,7 @@ function openRoguelike() {
 }
 
 async function startRoguelikeBattle() {
+  if (!ROGUELIKE_ENABLED) return { ok: false, error: '秘境暂未开放。' };
   if (sceneLoading.busy || cloudBusy || replacingPlayerSave || playerCloud.state.blocked) return { ok: false, error: '当前操作尚未完成，请稍后再试。' };
   const restoring = roguelikeSession.record.run?.phase === 'battle';
   const prepared = restoring ? roguelikeSession.restoreBattle() : roguelikeSession.prepareBattle();
@@ -630,7 +734,7 @@ function refreshCloudUI() {
 }
 
 function openPlayerCloud() {
-  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) { showHint('请先返营再管理云存档。'); return; }
+  if (isIndependentMatch() || roguelikeUI?.visible || adventurePreviewContext) { showHint('请先返营再管理云存档。'); return; }
   invalidateCampAds();
   cloudReturnFocus = document.activeElement;
   cloudChoice = null;
@@ -643,7 +747,7 @@ function openPlayerCloud() {
 }
 
 async function runCloudAction(action) {
-  if (isIndependentMatch() || roguelikeUI.visible || adventurePreviewContext) return;
+  if (isIndependentMatch() || roguelikeUI?.visible || adventurePreviewContext) return;
   if (cloudBusy) {
     if (action === 'latest' && !cloudSyncingLatest) { cloudLatestQueued = true; refreshCloudUI(); }
     return;
@@ -695,10 +799,11 @@ $('cloud-choice-confirm').addEventListener('click', () => void runCloudAction(cl
 
 // Never let an older in-memory battle overwrite another tab's newly saved progress.
 window.addEventListener('storage', (event) => {
+  if (!ROGUELIKE_ENABLED && event.key === ROGUELIKE_KEY) return;
   if (!['duelyst-h5.safe-v1.expedition', 'duelyst-h5.safe-v1.campaign', 'duelyst-h5.safe-v1.match', ROGUELIKE_KEY].includes(event.key)) return;
   replacingPlayerSave = true;
   invalidateCampAds();
-  sceneLoading.cancelRequest?.(); cancelRoguelikeRewardFx(); roguelikeSession.leave();
+  sceneLoading.cancelRequest?.(); cancelRoguelikeRewardFx(); roguelikeSession?.leave();
   drawController.cancel(); battleFlow.cancel(); botRunToken++; botRunning = false;
   matchEpoch += 1;
   match = null;
@@ -1299,6 +1404,9 @@ function returnToLobby({ requireSave = false, afterReturn = null } = {}) {
 
 function finishReturnToLobby(requireSave, ranked, rogue) {
   battleTips.setVisible(false);
+  hideTelegraphPopover();
+  if (eventBanner) { eventBanner.classList.remove('visible'); eventBanner.hidden = true; }
+  if (telegraphLocate) telegraphLocate.hidden = true;
   invalidateCampAds();
   commandPreview?.close();
   closeMapOverview(false);
@@ -1538,9 +1646,9 @@ function refreshMatch() {
   const level = rogue ? match.roguelikeTemplate ?? getLevel(match.levelId) : challenge || isExpedition ? getLevel(match.levelId) : LEVELS[0];
   const isMulligan = match.phase === 'mulligan';
   const encounterNote = adventureAnnouncement(match) ?? encounterAnnouncement(match);
-  if (encounterNote && encounterNote.serial !== shownEncounterAnnounce) { shownEncounterAnnounce = encounterNote.serial; if (!isMulligan) showHint(encounterNote.text); }
+  if (encounterNote && encounterNote.serial !== shownEncounterAnnounce) { shownEncounterAnnounce = encounterNote.serial; if (!isMulligan) showBattleEventBanner(encounterNote.text); }
   const bossNote = encounterNote ? null : match.boss?.announce;
-  if (bossNote && bossNote.serial !== shownBossAnnounce) { shownBossAnnounce = bossNote.serial; if (!isMulligan) showHint(bossNote.text); }
+  if (bossNote && bossNote.serial !== shownBossAnnounce) { shownBossAnnounce = bossNote.serial; if (!isMulligan) showBattleEventBanner(bossNote.text); }
   const isOver = match.phase === 'over';
   const isHumanTurn = activeTurn();
   const myGeneral = findGeneral(match, 0);
@@ -1622,6 +1730,11 @@ function refreshMatch() {
   battleTips.setContext(cardFollowup ? cardFollowup.type === 'unit' ? '选择一名高亮单位' : '选择高亮格子' : null);
   battleTips.setVisible(Boolean(cardFollowup) && !ui.match.hidden && !ui.objective.open && !isMulligan && !isOver && !battleFlow.busy && !drawController.busy);
   refreshDrawControls();
+  syncHandOverflow();
+  if (telegraphLocate) {
+    const off = isHumanTurn && !ui.objective.open && !isMulligan && !isOver ? renderer.getOffscreenTelegraph(match) : null;
+    telegraphLocate.hidden = !off;
+  }
   const focusedCard = ui.hand.children[focusedHandIndex];
   if (focusedCard && !focusedCard.disabled) focusedCard.focus({ preventScroll: true });
   ui.instruction.textContent = isMulligan
@@ -1638,7 +1751,7 @@ function refreshMatch() {
   const resultWasVisible = !ui.result.hidden;
   ui.result.hidden = !isOver || actionPlayback;
   rankedSubmit.hidden = rankedStatus.hidden = !ranked || !isOver;
-  previewSwitch.hidden = !isAdventurePreview() || !isOver;
+  if (previewSwitch) previewSwitch.hidden = !isAdventurePreview() || !isOver;
   ui.playAgain.hidden = rogue;
   if (isOver) {
     ui.resultTitle.textContent = match.winner === 0 ? '胜利' : '战败';
@@ -1933,6 +2046,9 @@ function onBoardInput(event) {
   match.selectedUnitId = null;
   hoveredUnitId = null;
   clearHint();
+  const tele = position && renderer.getTelegraphCells(match).find(item => item.x === position.x && item.y === position.y);
+  if (tele) showTelegraphPopoverAt(position, tele.marker);
+  else hideTelegraphPopover();
   refreshMatch();
 }
 
@@ -2258,7 +2374,7 @@ function runBotIfNeeded() {
     }
     if (cancelled()) return;
     await drawController.playPending();
-  }, { isCancelled: cancelled });
+  }, { isCancelled: cancelled, delayMs: () => Math.max(85, Math.round(320 / battleSpeedScale())) });
   })().catch(error => {
     if (!cancelled()) botFailure = error.message || '行动中断';
   }).finally(() => {
@@ -2269,8 +2385,8 @@ function runBotIfNeeded() {
       renderer.finishMovement(); renderer.finishAction(); movementPlayback = actionPlayback = false;
       refreshMatch();
     } else if (!cancelled() && match.phase === 'playing') {
-      // The last AI refresh still saw botRunning=true. Release the same live
-      // battle once, after every awaited draw and turn announcement completes.
+      // Auto-frame offscreen telegraphs before handing control back to the player.
+      if (renderer.focusTelegraphs(match)) drawVisibleOverview();
       refreshMatch();
     }
     if (!ui.match.hidden && match?.phase === 'ai' && (match !== targetMatch || matchEpoch !== epoch)) runBotIfNeeded();

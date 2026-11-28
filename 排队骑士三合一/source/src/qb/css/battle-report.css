@@ -65,7 +65,10 @@
 .br-col::-webkit-scrollbar { display: none; }
 .br-row { position: relative; display: grid !important; grid-template-columns: 48px 1fr 54px; align-items: center; gap: 10px; min-height: 52px; flex: none; padding: 2px 8px 2px 2px !important; background: linear-gradient(90deg, #ffffff08, transparent) !important; }
 .br-row.foe { grid-template-columns: 54px 1fr 48px; padding: 2px 2px 2px 8px !important; background: linear-gradient(270deg, #ffffff08, transparent) !important; }
-.br-row.foe > .br-face { order: 3; } .br-row.foe > .br-num { order: 1; text-align: right; }
+.br-row.foe > .br-face { order: 3; } .br-row.foe > .br-rail { order: 2; } .br-row.foe > .br-num { order: 1; text-align: right; }
+.br-legend { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 14px; padding: 2px 0 4px; font-size: 14px; color: #c4bbe0; }
+.br-legend-item { display: inline-flex; align-items: center; gap: 5px; }
+.br-legend-dot { width: 10px; height: 10px; background: var(--sc); box-shadow: 0 0 0 1px #080b16; }
 .br-row > .br-num { font-size: 26px; text-shadow: 0 2px #0a0d18; }
 .br-row.zero { opacity: .5; }
 .br-row.open { background: linear-gradient(90deg, #ffe39c22, transparent) !important; }

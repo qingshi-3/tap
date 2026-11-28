@@ -1,3 +1,4 @@
+import { battleSpeedScale } from "./battle-motion.js";
 import { cardRuleSections } from './card-rules.js';
 
 export function createBattleFlow(host, { onSelect, onConfirm, makeCard, getCard }) {
@@ -66,7 +67,7 @@ export function createBattleFlow(host, { onSelect, onConfirm, makeCard, getCard 
     announce(text) {
       finish(); toast.textContent = text; toast.hidden = false; host.classList.add('turn-transition');
       if (document.hidden) { finish(); return Promise.resolve(); }
-      return new Promise(resolve => { settle = resolve; timer = setTimeout(finish, matchMedia('(prefers-reduced-motion: reduce)').matches ? 240 : 820); });
+      return new Promise(resolve => { settle = resolve; timer = setTimeout(finish, matchMedia('(prefers-reduced-motion: reduce)').matches ? 220 : Math.max(240, Math.round(760 / battleSpeedScale()))); });
     },
     cancel() { closeDetail(); finish(); opening.hidden = true; host.classList.remove('opening-hand-active'); current = null; }
   };

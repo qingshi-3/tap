@@ -162,7 +162,14 @@ export function buildCampaignAtlas(ui) {
   }
   const level = EXPEDITION_LEVELS.find(l => l.id === ui.levelId), payout = ui.progress.rewardPreview(level.id,ui.faction.id);
   const summary = node('footer','atlas-summary'), copy = node('div','atlas-summary-copy');
-  copy.append(node('p','atlas-goal',level.goal));
+  const goalRow = node('p','atlas-goal',level.goal);
+  const isBoss = /-(03|06|09)$/.test(level.id);
+  if (isBoss) goalRow.prepend(node('span','atlas-tag atlas-tag-boss','首领'));
+  if (level.adventureVersion) {
+    const tagText = level.id.startsWith('storm-') ? '雷霆战线 · 导雷/贯穿' : '坠星深渊 · 引力/陨击';
+    goalRow.append(node('span','atlas-tag atlas-tag-adv',tagText));
+  }
+  copy.append(goalRow);
   const rewards = node('div','atlas-rewards');
   rewards.append(node('span','atlas-reward-kind',payout.accountFirst || payout.factionFirst ? '首通' : '重打'));
   for (const [amount,file,label] of [[payout.coins,'resource-gold.png','金币'],[payout.tickets,'spirit-orb.png','宝珠']]) if (amount) {

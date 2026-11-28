@@ -361,6 +361,61 @@ export class BoardRenderer {
     this.pan((viewport.left + viewport.right) / 2 - point.x, (viewport.top + viewport.bottom) / 2 + 18 - point.y);
   }
 
+  triggerShake(intensity = 5, duration = 200) {
+    if (this.motionPreference.matches) return;
+    this.shake = { startedAt: performance.now(), intensity, duration };
+  }
+
+  sampleShake(now = performance.now()) {
+    if (!this.shake || this.motionPreference.matches) return { x: 0, y: 0 };
+    const elapsed = now - this.shake.startedAt;
+    if (elapsed >= this.shake.duration) { this.shake = null; return { x: 0, y: 0 }; }
+    const decay = 1 - elapsed / this.shake.duration;
+    const mag = this.shake.intensity * decay;
+    return { x: Math.sin(elapsed * 0.095) * mag, y: Math.cos(elapsed * 0.13) * mag * 0.7 };
+  }
+
+  getTelegraphCells(state = this.state) {
+    if (!state) return [];
+    const cells = [];
+    for (const m of [...encounterMarkers(state), ...adventureMarkers(state)]) {
+      if (m.marked || m.kind === 'damage' || m.kind === 'gravity') cells.push({ x: m.x, y: m.y, marker: m, priority: m.showLabel === false ? 0 : 2 });
+    }
+    for (const c of bossMarks(state)) cells.push({ x: c.x, y: c.y, marker: { kind: 'boss-mark', intent: state.boss?.id }, priority: 3 });
+    return cells;
+  }
+
+  getOffscreenTelegraph(state = this.state) {
+    if (!state || !isTacticalMatch(state)) return null;
+    const cells = this.getTelegraphCells(state);
+    if (!cells.length) return null;
+    const rect = this.canvas.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const metrics = this.boardMetrics(rect.width, rect.height);
+    const viewport = this.battlefieldViewport(rect.width, rect.height);
+    const pad = 16;
+    const prioritized = [...cells].sort((a, b) => b.priority - a.priority);
+    for (const item of prioritized) {
+      const p = this.cellGeometry(metrics, item.x, item.y).center;
+      if (p.x < viewport.left + pad || p.x > viewport.right - pad || p.y < viewport.top + pad || p.y > viewport.bottom - pad) return item;
+    }
+    return null;
+  }
+
+  focusTelegraphs(state = this.state) {
+    if (!state || !isTacticalMatch(state)) return false;
+    const cells = this.getTelegraphCells(state);
+    if (!cells.length) return false;
+    const offscreen = this.getOffscreenTelegraph(state);
+    if (!offscreen) return false;
+    const primary = cells.filter(c => c.priority >= 2);
+    const targetList = primary.length ? primary : cells;
+    const avgX = targetList.reduce((s, c) => s + c.x, 0) / targetList.length;
+    const avgY = targetList.reduce((s, c) => s + c.y, 0) / targetList.length;
+    this.focusCell(Math.round(avgX), Math.round(avgY));
+    return true;
+  }
+
   drawOverview(canvas) {
     if (!canvas || !isTacticalMatch(this.state)) return;
     const ctx = canvas.getContext('2d'), board = boardOf(this.state);
@@ -433,6 +488,14 @@ export class BoardRenderer {
   }
 
   animateAction(action, beforeUnits = []) {
+    if (action) {
+      const lethal = this.state?.phase === 'over';
+      const bigAdventure = action.kind === 'adventure' && (action.abilityId === 'meteor-strike' || (action.abilityId === 'prism-beam' && action.overcharged));
+      const heavyHit = action.kind === "attack" && ((action.damage ?? 0) >= 5 || beforeUnits.some(u => u.unitId === action.targetId && getCard(u.cardId)?.type === "general"));
+      if (lethal) this.triggerShake(7, 260);
+      else if (bigAdventure) this.triggerShake(5.5, 220);
+      else if (heavyHit) this.triggerShake(3.2, 140);
+    }
     const completed = this.effects.play(action, beforeUnits);
     if (this.motionPreference.matches) this.onVisualFrame?.(this.state?.units ?? []);
     return completed;
@@ -493,9 +556,13 @@ export class BoardRenderer {
       : selectedSpell?.type === 'spell' ? spellTargets(state, selectedSpell) : [];
 
     ctx.clearRect(0, 0, width, height);
+    const shakeOffset = this.sampleShake();
+    ctx.save();
+    if (shakeOffset.x || shakeOffset.y) ctx.translate(shakeOffset.x, shakeOffset.y);
     this.drawBoardFloor(ctx, metrics, width, height, state.mode);
     const sceneMarkers = [...encounterMarkers(state), ...adventureMarkers(state)];
     const marks = new Set(bossMarks(state).map(cell => `${cell.x},${cell.y}`));
+    this.hasActiveTelegraph = marks.size > 0 || sceneMarkers.some(m => m.kind === 'damage' || m.kind === 'gravity') || Boolean(movingUnit || options.movementPreview?.path?.length > 1 || options.adventurePreview);
 
     for (let y = 0; y < metrics.rows; y++) {
       for (let x = 0; x < metrics.columns; x++) {
@@ -594,8 +661,254 @@ export class BoardRenderer {
     if (state.boss) { this.drawBossArmor(statsContext, visualState, metrics); this.drawBossMarkBadges(statsContext, visualState, metrics); }
     this.drawEncounterBadges(statsContext, visualState, metrics, sceneMarkers);
     statsContext.restore();
+    if (options.adventurePreview && !this.effects.playback) {
+      this.drawAdventurePreview(statsContext, state, metrics, options.adventurePreview);
+    }
     this.attackPreviewLayout = [];
     drawAttackResults(this, statsContext, metrics, targetingOptions.attackPreview, targetingOptions.attackGesture);
+    ctx.restore();
+  }
+
+  drawAdventurePreview(ctx, state, metrics, preview) {
+    if (!preview) return;
+    const steps = preview.steps ?? [];
+    const castStep = steps.find(s => s.kind === 'cast');
+    const abilityId = castStep?.abilityId;
+    ctx.save();
+    const pNow = performance.now(), pRed = this.motionPreference.matches;
+    const pulse = pRed ? 0.5 : 0.5 + Math.sin(pNow / 200) * 0.5;
+    const drawMiniChevron = (x, y, angle, outlineCol, bodyCol, tipCol, px = 2.8) => {
+      ctx.save();
+      ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(angle);
+      const pts = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+      ctx.fillStyle = outlineCol;
+      for (const [bx, by] of pts) ctx.fillRect(bx * px - 1.2, by * px - 1.2, px + 2.4, px + 2.4);
+      ctx.fillStyle = bodyCol;
+      for (const [bx, by] of pts) ctx.fillRect(bx * px, by * px, px, px);
+      ctx.fillStyle = tipCol;
+      ctx.fillRect(0.45 * px, -0.45 * px, px, px);
+      ctx.restore();
+    };
+    const drawTileBrackets = (cell, outCol, mainCol, tipCol, fillCol) => {
+      const [p0, p1, p2, p3] = cell.points;
+      const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+      const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+      ctx.save();
+      if (fillCol) {
+        ctx.fillStyle = fillCol;
+        ctx.beginPath(); cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); ctx.fill();
+      }
+      const inset = pRed ? 0.06 : 0.04 + pulse * 0.05, arm = 0.25;
+      const corners = [
+        [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+        [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+        [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+        [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+      ];
+      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+      for (const [a, pt, b] of corners) {
+        ctx.strokeStyle = outCol; ctx.lineWidth = 4.4;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.strokeStyle = mainCol; ctx.lineWidth = 2.3;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(pt.x, pt.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.fillStyle = tipCol; ctx.fillRect(Math.round(pt.x - 1.5), Math.round(pt.y - 1.5), 3, 3);
+      }
+      ctx.restore();
+    };
+    const drawCutBadge = (cx, cy, text, bg, border, fg) => {
+      ctx.save();
+      ctx.font = '700 11.5px "Luxiang UI", sans-serif';
+      const w = Math.round(Math.max(46, ctx.measureText(text).width + 14)), h = 21;
+      const bx = Math.round(cx - w / 2), by = Math.round(cy - h / 2), c = 3;
+      const trace = (ox, oy, ow, oh) => {
+        ctx.beginPath();
+        ctx.moveTo(ox + c, oy); ctx.lineTo(ox + ow - c, oy); ctx.lineTo(ox + ow, oy + c);
+        ctx.lineTo(ox + ow, oy + oh - c); ctx.lineTo(ox + ow - c, oy + oh);
+        ctx.lineTo(ox + c, oy + oh); ctx.lineTo(ox, oy + oh - c); ctx.lineTo(ox, oy + c);
+        ctx.closePath();
+      };
+      ctx.shadowColor = 'rgba(0,0,0,0.75)'; ctx.shadowBlur = 5; ctx.shadowOffsetY = 2;
+      trace(bx, by, w, h); ctx.fillStyle = bg; ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = 'rgba(255, 240, 200, 0.22)'; ctx.fillRect(bx + c, by + 1, w - c * 2, 2);
+      trace(bx + 0.5, by + 0.5, w - 1, h - 1);
+      ctx.strokeStyle = border; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.fillStyle = fg; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(text, cx, cy + 0.5);
+      ctx.restore();
+    };
+
+    const hopByUnit = new Map();
+    if (abilityId === 'chain-lightning') {
+      const chains = steps.filter(s => s.kind === 'chain' && s.from && s.to);
+      const tick = pRed ? 0 : Math.floor(pNow / 110);
+      const phase = pRed ? 0.5 : (pNow / 440) % 1;
+      chains.forEach((link, idx) => {
+        if (link.unitId != null && !hopByUnit.has(link.unitId)) hopByUnit.set(link.unitId, idx + 1);
+        const targetUnit = state.units.find(u => u.unitId === link.unitId);
+        const isAllyRelay = targetUnit && targetUnit.owner === 0;
+        const toCell = this.cellGeometry(metrics, link.to.x, link.to.y);
+        drawTileBrackets(toCell,
+          isAllyRelay ? 'rgba(44, 28, 6, 0.92)' : 'rgba(6, 22, 42, 0.92)',
+          isAllyRelay ? '#ffd866' : '#4aeaff',
+          '#ffffff',
+          isAllyRelay ? 'rgba(255, 214, 96, 0.16)' : 'rgba(56, 220, 255, 0.16)');
+      });
+      // High-contrast dark-outlined jagged pixel lightning bolts between hops
+      chains.forEach((link, idx) => {
+        const a = this.cellGeometry(metrics, link.from.x, link.from.y).center;
+        const b = this.cellGeometry(metrics, link.to.x, link.to.y).center;
+        const x0 = a.x, y0 = a.y - 16, x1 = b.x, y1 = b.y - 16;
+        const dx = x1 - x0, dy = y1 - y0, dist = Math.hypot(dx, dy);
+        if (dist < 4) return;
+        const nx = -dy / dist, ny = dx / dist;
+        const segs = Math.max(4, Math.min(8, Math.round(dist / 26)));
+        const pts = [{ x: x0, y: y0 }];
+        for (let sIdx = 1; sIdx < segs; sIdx++) {
+          const t = sIdx / segs;
+          const seed = Math.sin((tick * 13.7 + idx * 7.3 + sIdx * 19.1)) * 43758.5453;
+          const jitter = ((seed - Math.floor(seed)) - 0.5) * 14 * (sIdx % 2 ? 1 : -1);
+          pts.push({ x: Math.round(x0 + dx * t + nx * jitter), y: Math.round(y0 + dy * t + ny * jitter) });
+        }
+        pts.push({ x: x1, y: y1 });
+        const tracePts = () => {
+          ctx.beginPath();
+          pts.forEach((pt, i) => i ? ctx.lineTo(pt.x, pt.y) : ctx.moveTo(pt.x, pt.y));
+        };
+        ctx.save();
+        ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+        // 1. Thick dark navy silhouette so bright lightning pops over bright sand & sprites
+        tracePts(); ctx.strokeStyle = 'rgba(6, 16, 36, 0.86)'; ctx.lineWidth = 9; ctx.stroke();
+        // 2. Electric cyan plasma body
+        tracePts(); ctx.strokeStyle = '#3ce6ff'; ctx.lineWidth = 4.2; ctx.stroke();
+        // 3. White-gold hot core
+        tracePts(); ctx.strokeStyle = '#f4ffff'; ctx.lineWidth = 1.8; ctx.stroke();
+        // 4. Crisp marching directional pixel arrows along the bolt
+        const ang = Math.atan2(dy, dx);
+        const arrowCount = Math.max(2, Math.min(4, Math.round(dist / 52)));
+        for (let k = 0; k < arrowCount; k++) {
+          const t = ((k + phase) / arrowCount) % 1;
+          if (t < 0.1 || t > 0.9) continue;
+          const ax = x0 + dx * t, ay = y0 + dy * t;
+          drawMiniChevron(ax, ay, ang, '#071a33', '#ffe27a', '#ffffff', 3.0);
+        }
+        ctx.restore();
+      });
+      // Friendly relay / charge badges
+      const chargedUnitIds = new Set(steps.filter(step => step.kind === 'charge').map(step => step.unitId));
+      chains.forEach((link, idx) => {
+        const u = state.units.find(item => item.unitId === link.unitId);
+        if (!u || u.owner !== 0) return;
+        const cell = this.cellGeometry(metrics, u.x, u.y);
+        const role = u.cardId === 9202 ? (chargedUnitIds.has(u.unitId) ? '充能+1' : '充能已满') : '导雷中继';
+        const tag = `#${idx + 1} ${role}`;
+        drawCutBadge(cell.center.x, cell.center.y - cell.height * 0.74, tag, '#18284a', '#ffd978', '#fff6d1');
+      });
+    }
+
+    if (abilityId === 'arcane-beam') {
+      const beam = steps.find(step => step.kind === 'beam');
+      const endpoint = beam?.cells?.at(-1);
+      if (beam?.from && endpoint && this.effects.adventure.sheets.has('beam')) {
+        const duration = 850;
+        const progress = 0.4 + (pRed ? 0 : ((pNow / 400) % 1) * 0.2);
+        ctx.save();
+        ctx.globalAlpha *= beam.damage >= 10 ? 0.88 : 0.68;
+        this.effects.adventure.draw(ctx, metrics, { name: 'beam', from: beam.from, cell: endpoint, duration }, duration * progress, 'front', pRed);
+        ctx.restore();
+      }
+    }
+
+    if (abilityId === 'black-hole') {
+      if (castStep?.cell) {
+        const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
+        const [p0, p1, p2, p3] = c.points;
+        const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+        const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+        drawTileBrackets(c, 'rgba(34, 10, 66, 0.92)', '#d194ff', '#fff4ff', 'rgba(110, 48, 214, 0.24)');
+        ctx.save();
+        for (let i = 0; i < 2; i++) {
+          const vp = pRed ? (0.3 + i * 0.4) : ((pNow / 950 + i * 0.5) % 1);
+          const r = (1 - vp) * 0.38 + 0.08;
+          const vt = quadPt(0.5, 0.5 - r), vr = quadPt(0.5 + r, 0.5), vb = quadPt(0.5, 0.5 + r), vl = quadPt(0.5 - r, 0.5);
+          ctx.strokeStyle = `rgba(232, 194, 255, ${Math.sin(vp * Math.PI) * 0.95})`;
+          ctx.lineWidth = 2.4;
+          ctx.beginPath(); ctx.moveTo(vt.x, vt.y); ctx.lineTo(vr.x, vr.y); ctx.lineTo(vb.x, vb.y); ctx.lineTo(vl.x, vl.y); ctx.closePath(); ctx.stroke();
+        }
+        ctx.fillStyle = '#2a0e54'; ctx.fillRect(Math.round(c.center.x - 4), Math.round(c.center.y - 4), 8, 8);
+        ctx.fillStyle = '#f3dcff'; ctx.fillRect(Math.round(c.center.x - 2), Math.round(c.center.y - 2), 4, 4);
+        ctx.restore();
+      }
+      const gPhase = pRed ? 0.5 : (pNow / 500) % 1;
+      for (const mv of preview.moves ?? []) {
+        if (!mv.from || !mv.to) continue;
+        const a = this.cellGeometry(metrics, mv.from.x, mv.from.y).center;
+        const b = this.cellGeometry(metrics, mv.to.x, mv.to.y).center;
+        const dist = Math.hypot(b.x - a.x, b.y - a.y);
+        if (dist < 6) continue;
+        const ang = Math.atan2(b.y - a.y, b.x - a.x);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(30, 10, 56, 0.8)'; ctx.lineWidth = 7; ctx.lineCap = 'round';
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 10); ctx.lineTo(b.x, b.y - 10); ctx.stroke();
+        ctx.strokeStyle = 'rgba(206, 146, 255, 0.72)'; ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y - 10); ctx.lineTo(b.x, b.y - 10); ctx.stroke();
+        const cnt = Math.max(2, Math.min(5, Math.round(dist / 30)));
+        for (let k = 0; k < cnt; k++) {
+          const t = ((k + gPhase) / cnt) % 1;
+          drawMiniChevron(a.x + (b.x - a.x) * t, (a.y - 10) + (b.y - a.y) * t, ang, '#260c48', '#d294ff', '#ffffff', 2.6);
+        }
+        ctx.restore();
+      }
+    }
+
+    if (abilityId === 'meteor' && castStep?.cell) {
+      const c = this.cellGeometry(metrics, castStep.cell.x, castStep.cell.y);
+      const [p0, p1, p2, p3] = c.points;
+      const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+      const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+      for (const pos of preview.cells ?? []) {
+        if (pos.x === castStep.cell.x && pos.y === castStep.cell.y) continue;
+        const oc = this.cellGeometry(metrics, pos.x, pos.y);
+        ctx.save();
+        ctx.fillStyle = 'rgba(255, 92, 42, 0.16)';
+        ctx.strokeStyle = 'rgba(255, 168, 92, 0.58)'; ctx.lineWidth = 1.4;
+        ctx.beginPath(); oc.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
+        ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+      drawTileBrackets(c, 'rgba(54, 10, 6, 0.94)', '#ff6e36', '#fff1a8', `rgba(255, 76, 36, ${0.24 + pulse * 0.14})`);
+      const ping = pRed ? 0.35 : (pNow % 850) / 850;
+      const pr = (1 - ping) * 0.36 + 0.06;
+      const dt = quadPt(0.5, 0.5 - pr), dr = quadPt(0.5 + pr, 0.5), db = quadPt(0.5, 0.5 + pr), dl = quadPt(0.5 - pr, 0.5);
+      ctx.save();
+      ctx.strokeStyle = `rgba(255, 226, 130, ${Math.sin(ping * Math.PI) * 0.94})`; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(dt.x, dt.y); ctx.lineTo(dr.x, dr.y); ctx.lineTo(db.x, db.y); ctx.lineTo(dl.x, dl.y); ctx.closePath(); ctx.stroke();
+      ctx.restore();
+    }
+
+    const dmgByUnit = new Map();
+    for (const ch of preview.statChanges ?? []) {
+      if (ch.kind === 'damage' && ch.unitId != null) dmgByUnit.set(ch.unitId, (dmgByUnit.get(ch.unitId) ?? 0) + ch.amount);
+    }
+    for (const [unitId, amount] of dmgByUnit) {
+      const u = state.units.find(item => item.unitId === unitId);
+      if (!u) continue;
+      const cell = this.cellGeometry(metrics, u.x, u.y);
+      const after = Math.max(0, u.health - amount);
+      const lethal = after <= 0;
+      const hop = hopByUnit.get(unitId);
+      const prefix = hop ? `#${hop} · ` : '';
+      const label = lethal ? `${prefix}-${amount} 斩杀` : `${prefix}-${amount} → ${after}`;
+      drawCutBadge(
+        cell.center.x,
+        cell.center.y - cell.height * 0.74,
+        label,
+        lethal ? '#6b1414' : '#1b1832',
+        lethal ? '#ffd978' : '#ff9b7a',
+        lethal ? '#fff4cc' : '#ffe2d4'
+      );
+    }
+    ctx.restore();
   }
 
   drawBoardFloor(ctx, metrics, width, height, mode) {
@@ -686,12 +999,114 @@ export class BoardRenderer {
 
   // Scene intent is a filled footprint, with badges kept clear of unit health.
   drawEncounterGround(ctx, cell, marker) {
-    const color = marker.kind === 'damage' ? '#ed995f' : marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+    const now = performance.now();
+    const reduced = this.motionPreference.matches;
+    const pulse = reduced ? .5 : .5 + Math.sin(now / 240) * .5;
+    const isDamage = marker.kind === 'damage';
+    const isGravity = marker.kind === 'gravity';
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+    const traceQuad = (pad = 0) => {
+      const q0 = quadPt(pad, pad), q1 = quadPt(1 - pad, pad), q2 = quadPt(1 - pad, 1 - pad), q3 = quadPt(pad, 1 - pad);
+      ctx.beginPath(); ctx.moveTo(q0.x, q0.y); ctx.lineTo(q1.x, q1.y); ctx.lineTo(q2.x, q2.y); ctx.lineTo(q3.x, q3.y); ctx.closePath();
+    };
     ctx.save();
-    drawTexturedQuad(ctx, this.tintedTile(marker.kind === 'damage' ? 'tile-spell' : 'tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : .62);
-    const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
-    glow.addColorStop(0, marker.kind === 'damage' ? 'rgba(246,149,68,.34)' : 'rgba(110,183,255,.34)'); glow.addColorStop(1, 'rgba(110,183,255,0)');
-    ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
+    if (isDamage) {
+      // 1. Clipped translucent crimson base + slowly scrolling diagonal hazard scanlines
+      ctx.save();
+      traceQuad(0.02);
+      ctx.fillStyle = `rgba(196, 30, 26, ${.18 + pulse * .10})`;
+      ctx.fill();
+      ctx.clip();
+      const stripeShift = reduced ? 0 : ((now / 45) % 14);
+      const minX = Math.min(p0.x, p3.x) - 24, maxX = Math.max(p1.x, p2.x) + 24;
+      const minY = Math.min(p0.y, p1.y) - 24, maxY = Math.max(p2.y, p3.y) + 24;
+      ctx.strokeStyle = `rgba(255, 118, 72, ${.18 + pulse * .08})`;
+      ctx.lineWidth = 3;
+      for (let x = minX - (maxY - minY); x < maxX + 24; x += 14) {
+        ctx.beginPath();
+        ctx.moveTo(x + stripeShift, minY);
+        ctx.lineTo(x + stripeShift + (maxY - minY) * 0.7, maxY);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // 2. Breathing pixel-style corner lock-on brackets (┌ ┐ └ ┘) inside perspective quad
+      const inset = reduced ? 0.08 : 0.06 + pulse * 0.055;
+      const arm = 0.24;
+      const corners = [
+        [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+        [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+        [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+        [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+      ];
+      ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+      for (const [a, c, b] of corners) {
+        ctx.strokeStyle = 'rgba(42, 8, 8, 0.9)'; ctx.lineWidth = 4.5;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        ctx.strokeStyle = '#ff543e'; ctx.lineWidth = 2.4;
+        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        // Bright gold pixel highlight right at each corner apex
+        ctx.fillStyle = '#ffe99e';
+        ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+      }
+
+      // 3. Expanding pixel diamond ping in tile center
+      const ping = reduced ? 0.35 : (now % 1100) / 1100;
+      const pr = 0.10 + ping * 0.28;
+      const pa = (1 - ping) * 0.85;
+      const dTop = quadPt(0.5, 0.5 - pr), dRight = quadPt(0.5 + pr, 0.5), dBot = quadPt(0.5, 0.5 + pr), dLeft = quadPt(0.5 - pr, 0.5);
+      ctx.strokeStyle = `rgba(255, 224, 130, ${pa})`;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath(); ctx.moveTo(dTop.x, dTop.y); ctx.lineTo(dRight.x, dRight.y); ctx.lineTo(dBot.x, dBot.y); ctx.lineTo(dLeft.x, dLeft.y); ctx.closePath(); ctx.stroke();
+      // Crisp 4x4 center pixel core
+      ctx.fillStyle = '#3a0b09';
+      ctx.fillRect(Math.round(cell.center.x - 3), Math.round(cell.center.y - 3), 6, 6);
+      ctx.fillStyle = '#ffe48f';
+      ctx.fillRect(Math.round(cell.center.x - 2), Math.round(cell.center.y - 2), 4, 4);
+
+      // 4. Tiny rising 2x2 pixel embers
+      if (!reduced) {
+        for (let i = 0; i < 3; i++) {
+          const ep = ((now / 900) + i * 0.33 + (marker.x * 0.17 + marker.y * 0.29)) % 1;
+          const ex = Math.round(cell.center.x + Math.sin(i * 2.4 + marker.x) * cell.width * 0.24);
+          const ey = Math.round(cell.center.y + cell.height * 0.12 - ep * cell.height * 0.55);
+          ctx.fillStyle = `rgba(255, ${165 + Math.round((1 - ep) * 75)}, 90, ${(1 - ep) * 0.85})`;
+          ctx.fillRect(ex, ey, 2.5, 2.5);
+        }
+      }
+    } else if (isGravity) {
+      const isCenter = marker.showLabel !== false;
+      traceQuad(0.02);
+      ctx.fillStyle = isCenter ? `rgba(96, 40, 206, ${.28 + pulse * .14})` : `rgba(124, 82, 232, ${.10 + pulse * .05})`;
+      ctx.fill();
+      ctx.strokeStyle = isCenter ? '#dfb8ff' : 'rgba(176, 138, 255, .36)';
+      ctx.lineWidth = isCenter ? 2.2 : 1;
+      ctx.stroke();
+      if (isCenter) {
+        // Two staggered inward-contracting pixel vortex rings
+        for (let i = 0; i < 2; i++) {
+          const vp = reduced ? (0.3 + i * 0.4) : ((now / 1200 + i * 0.5) % 1);
+          const r = (1 - vp) * 0.36 + 0.06;
+          const alpha = Math.sin(vp * Math.PI) * 0.9;
+          const vt = quadPt(0.5, 0.5 - r), vr = quadPt(0.5 + r, 0.5), vb = quadPt(0.5, 0.5 + r), vl = quadPt(0.5 - r, 0.5);
+          ctx.strokeStyle = `rgba(226, 188, 255, ${alpha})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath(); ctx.moveTo(vt.x, vt.y); ctx.lineTo(vr.x, vr.y); ctx.lineTo(vb.x, vb.y); ctx.lineTo(vl.x, vl.y); ctx.closePath(); ctx.stroke();
+        }
+        ctx.fillStyle = '#250e4d';
+        ctx.fillRect(Math.round(cell.center.x - 4), Math.round(cell.center.y - 4), 8, 8);
+        ctx.fillStyle = '#e8ccff';
+        ctx.fillRect(Math.round(cell.center.x - 2), Math.round(cell.center.y - 2), 4, 4);
+      }
+    } else {
+      const color = marker.kind === 'corpse' ? '#bb98df' : '#76bded';
+      drawTexturedQuad(ctx, this.tintedTile('tile-spawn', color), cell.points, marker.kind === 'corpse' ? .42 : .55);
+      const glow = ctx.createRadialGradient(cell.center.x, cell.center.y, 0, cell.center.x, cell.center.y, cell.width * .55);
+      glow.addColorStop(0, 'rgba(110,183,255,.32)'); glow.addColorStop(1, 'rgba(110,183,255,0)');
+      ctx.fillStyle = glow; ctx.fillRect(cell.center.x-cell.width*.6,cell.center.y-cell.width*.6,cell.width*1.2,cell.width*1.2);
+    }
     if (marker.kind === 'corpse') {
       drawTexturedQuad(ctx, this.images.get('terrain-rough'), cell.points, .9);
       const card = getCard(marker.cardId), atlas = this.atlases.get(card?.sprite?.sheet);
@@ -711,6 +1126,67 @@ export class BoardRenderer {
   drawEncounterBadges(ctx, state, metrics, markers) {
     const rect = this.canvas.getBoundingClientRect();
     const viewport = this.battlefieldViewport(rect.width, rect.height);
+    // Draw animated flowing pixel-art chevron arrows from enemy shooter units to their marked damage cells
+    const flowNow = performance.now();
+    const flowReduced = this.motionPreference.matches;
+    for (const marker of markers) {
+      if (marker.kind !== 'damage' || marker.sourceUnitId == null) continue;
+      const shooter = state.units.find(u => u.unitId === marker.sourceUnitId && u.health > 0);
+      if (!shooter) continue;
+      const fromCell = this.cellGeometry(metrics, shooter.x, shooter.y).center;
+      const toCell = this.cellGeometry(metrics, marker.x, marker.y).center;
+      const p0 = { x: fromCell.x, y: fromCell.y - 18 };
+      const p2 = { x: toCell.x, y: toCell.y - 2 };
+      const dist = Math.hypot(p2.x - p0.x, p2.y - p0.y);
+      const lift = Math.min(34, Math.max(12, dist * 0.16));
+      const p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - lift };
+      const bezPt = t => {
+        const u = 1 - t;
+        return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
+      };
+      const bezTan = t => {
+        const u = 1 - t;
+        return { x: 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x), y: 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y) };
+      };
+
+      ctx.save();
+      // Soft glowing under-track so arrows pop over sprites
+      ctx.strokeStyle = 'rgba(255, 74, 48, 0.24)';
+      ctx.lineWidth = 5;
+      ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
+
+      // Marching pixel chevrons along the arc
+      const count = Math.max(3, Math.min(7, Math.round(dist / 36)));
+      const phase = flowReduced ? 0.5 : (flowNow / 680) % 1;
+      const px = 2.5;
+      for (let i = 0; i < count; i++) {
+        const t = ((i + phase) / count) % 1;
+        if (t < 0.06 || t > 0.96) continue;
+        const pt = bezPt(t);
+        const tan = bezTan(t);
+        const angle = Math.atan2(tan.y, tan.x);
+        const edgeFade = Math.min(1, t / 0.18, (1 - t) / 0.12);
+        const scale = 0.85 + t * 0.25;
+        ctx.save();
+        ctx.translate(Math.round(pt.x), Math.round(pt.y));
+        ctx.rotate(angle);
+        ctx.scale(scale, scale);
+        ctx.globalAlpha = edgeFade * 0.96;
+        // Stepped pixel chevron (>) with dark pixel outline + vermilion body + gold tip
+        const outlineBlocks = [[-2,-3],[-1,-2],[0,-1],[1,0],[0,1],[-1,2],[-2,3],[-3,-2],[-2,-1],[-1,0],[-2,1],[-3,2]];
+        ctx.fillStyle = '#330807';
+        for (const [bx, by] of outlineBlocks) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+        const bodyBlocks = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+        ctx.fillStyle = '#ff4b36';
+        for (const [bx, by] of bodyBlocks) ctx.fillRect(bx * px, by * px, px, px);
+        // Hot gold-white leading tip pixel
+        ctx.fillStyle = '#fff0b3';
+        ctx.fillRect(0.6 * px, -0.5 * px, px, px);
+        ctx.restore();
+      }
+      ctx.restore();
+    }
     for (const marker of markers) {
       if (marker.showLabel === false) continue;
       const cell = this.cellGeometry(metrics, marker.x, marker.y);
@@ -718,7 +1194,8 @@ export class BoardRenderer {
       // edge. Only keep the label visible for a cell actually in this view.
       if (cell.center.x < 0 || cell.center.x > rect.width || cell.center.y < viewport.top - cell.height || cell.center.y > viewport.bottom + cell.height / 2) continue;
       const size = Math.max(18, cell.width * .28);
-      const value = encounterMarkerLabel(marker);
+      const rawValue = encounterMarkerLabel(marker);
+      const value = marker.kind === 'damage' && !marker.intent?.includes('storm') && !marker.intent?.includes('meteor') && !marker.intent?.includes('beam') ? `瞄准 ${marker.amount}伤` : rawValue;
       const labelWidth = Math.max(size, value.length * size * .48 + 8);
       // Foot-level labels disappear behind the hand on short screens. Keep
       // intent beside the body, above the unit's attack/health numerals.
@@ -753,22 +1230,75 @@ export class BoardRenderer {
   drawEncounterBadge(ctx, x, y, size, text, owner, danger, opacity = 1) {
     ctx.save();
     ctx.globalAlpha *= opacity;
-    ctx.fillStyle = danger ? 'rgba(112,64,32,.92)' : owner === 2 ? 'rgba(80,52,101,.92)' : owner === 0 ? 'rgba(35,76,104,.92)' : 'rgba(99,63,58,.92)';
-    ctx.font = `700 ${Math.max(11,size*.66)}px "Luxiang UI", sans-serif`;
-    const width = Math.max(size, ctx.measureText(text).width + 8);
-    this.encounterBadgeLayout?.push({ x:x-width/2, y:y-size/2, width, height:size, text, owner, danger });
-    roundRect(ctx, x-width/2, y-size/2, width, size, 4); ctx.fill();
+    ctx.font = `700 ${Math.max(11,size*.64)}px "Luxiang UI", sans-serif`;
+    const width = Math.round(Math.max(size, ctx.measureText(text).width + 12));
+    const h = Math.round(size);
+    const bx = Math.round(x - width / 2), by = Math.round(y - h / 2), c = 3;
+    this.encounterBadgeLayout?.push({ x:bx, y:by, width, height:h, text, owner, danger });
+    const traceCut = (ox, oy, ow, oh, cut) => {
+      ctx.beginPath();
+      ctx.moveTo(ox + cut, oy); ctx.lineTo(ox + ow - cut, oy); ctx.lineTo(ox + ow, oy + cut);
+      ctx.lineTo(ox + ow, oy + oh - cut); ctx.lineTo(ox + ow - cut, oy + oh);
+      ctx.lineTo(ox + cut, oy + oh); ctx.lineTo(ox, oy + oh - cut); ctx.lineTo(ox, oy + cut);
+      ctx.closePath();
+    };
+    ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+    traceCut(bx, by, width, h, c);
+    ctx.fillStyle = danger ? '#5c1814' : owner === 2 ? '#3d2452' : owner === 0 ? '#1b3e59' : '#3a2228';
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    // Crisp 1px top inner highlight + pixel-cut metallic rim
+    ctx.fillStyle = danger ? 'rgba(255, 198, 120, 0.25)' : 'rgba(210, 236, 255, 0.16)';
+    ctx.fillRect(bx + c, by + 1, width - c * 2, 2);
+    traceCut(bx + 0.5, by + 0.5, width - 1, h - 1, c);
+    ctx.strokeStyle = danger ? '#ffba66' : 'rgba(184, 214, 238, 0.72)';
+    ctx.lineWidth = 1.5; ctx.stroke();
     ctx.fillStyle = '#fff4da';
     ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,x,y);ctx.restore();
   }
 
   // Telegraphed boss intent: a frosted cell that resolves on the boss's next turn.
   drawBossMark(ctx, cell) {
-    const pulse = this.motionPreference.matches ? .5 : .5 + Math.sin(performance.now() / 260) * .5;
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const pulse = reduced ? .5 : .5 + Math.sin(now / 260) * .5;
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
     ctx.save();
     ctx.beginPath(); cell.points.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath();
-    ctx.fillStyle = `rgba(120,210,255,${.34 + pulse * .2})`; ctx.fill();
-    ctx.strokeStyle = '#dff6ff'; ctx.lineWidth = 3; ctx.stroke();
+    ctx.fillStyle = `rgba(76, 188, 255, ${.20 + pulse * .14})`; ctx.fill();
+    const inset = reduced ? 0.08 : 0.06 + pulse * 0.05;
+    const arm = 0.25;
+    const corners = [
+      [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+      [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+      [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+      [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+    ];
+    ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+    for (const [a, c, b] of corners) {
+      ctx.strokeStyle = 'rgba(8, 32, 54, 0.9)'; ctx.lineWidth = 4.2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.strokeStyle = '#7ce8ff'; ctx.lineWidth = 2.2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+    }
+    const ping = reduced ? 0.35 : (now % 1150) / 1150;
+    const pr = 0.10 + ping * 0.26;
+    const dt = quadPt(0.5, 0.5 - pr), dr = quadPt(0.5 + pr, 0.5), db = quadPt(0.5, 0.5 + pr), dl = quadPt(0.5 - pr, 0.5);
+    ctx.strokeStyle = `rgba(218, 250, 255, ${(1 - ping) * 0.88})`;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath(); ctx.moveTo(dt.x, dt.y); ctx.lineTo(dr.x, dr.y); ctx.lineTo(db.x, db.y); ctx.lineTo(dl.x, dl.y); ctx.closePath(); ctx.stroke();
+    if (!reduced) {
+      for (let i = 0; i < 3; i++) {
+        const sp = ((now / 1000) + i * 0.33) % 1;
+        const sx = Math.round(cell.center.x + Math.sin(i * 2.1 + sp * 4) * cell.width * 0.24);
+        const sy = Math.round(cell.center.y - cell.height * 0.36 + sp * cell.height * 0.62);
+        ctx.fillStyle = `rgba(220, 250, 255, ${Math.sin(sp * Math.PI) * 0.9})`;
+        ctx.fillRect(sx, sy, 2.5, 2.5);
+      }
+    }
     ctx.restore();
   }
 
@@ -776,21 +1306,30 @@ export class BoardRenderer {
   drawBossMarkBadges(ctx, state, metrics) {
     const frost = state.boss?.id === 'frost-queen';
     const damage = bossDefinition(state.boss?.id)?.intentDamage ?? 3;
+    const traceCut = (ox, oy, ow, oh, c = 3) => {
+      ctx.beginPath();
+      ctx.moveTo(ox + c, oy); ctx.lineTo(ox + ow - c, oy); ctx.lineTo(ox + ow, oy + c);
+      ctx.lineTo(ox + ow, oy + oh - c); ctx.lineTo(ox + ow - c, oy + oh);
+      ctx.lineTo(ox + c, oy + oh); ctx.lineTo(ox, oy + oh - c); ctx.lineTo(ox, oy + c);
+      ctx.closePath();
+    };
     for (const mark of bossMarks(state)) {
-      const cell = this.cellGeometry(metrics, mark.x, mark.y), r = Math.max(13, cell.width * .17);
-      const x = cell.center.x - cell.width * .3, y = cell.center.y - cell.height * .95;
+      const cell = this.cellGeometry(metrics, mark.x, mark.y);
+      const label = frost ? `❄ ${damage}伤` : `! ${damage}伤`;
+      const h = Math.round(Math.max(18, cell.width * .24));
       ctx.save();
-      ctx.beginPath(); ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(16,52,86,.94)'; ctx.fill(); ctx.strokeStyle = '#8fdcff'; ctx.lineWidth = 2.5; ctx.stroke();
-      ctx.strokeStyle = '#eafaff'; ctx.lineWidth = 2; ctx.lineCap = 'round';
-      if (frost) {
-        for (let i = 0; i < 3; i++) { const a = i * Math.PI / 3; ctx.beginPath(); ctx.moveTo(x - Math.cos(a) * r * .62, y - Math.sin(a) * r * .62); ctx.lineTo(x + Math.cos(a) * r * .62, y + Math.sin(a) * r * .62); ctx.stroke(); }
-      } else {
-        ctx.fillStyle = '#eafaff'; ctx.font = `800 ${Math.round(r * 1.35)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('!', x, y);
-      }
-      ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0d2840'; ctx.lineWidth = 3.5; ctx.font = `800 ${Math.round(r * 1.05)}px "Luxiang UI", sans-serif`;
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.strokeText(String(damage), x + r * .95, y + r * .55); ctx.fillText(String(damage), x + r * .95, y + r * .55);
+      ctx.font = `700 ${Math.max(11, Math.round(h * .62))}px "Luxiang UI", sans-serif`;
+      const w = Math.round(Math.max(h + 14, ctx.measureText(label).width + 14));
+      const bx = Math.round(cell.center.x - w / 2), by = Math.round(cell.center.y - cell.height * .82 - h / 2);
+      ctx.shadowColor = 'rgba(0,0,0,.68)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+      traceCut(bx, by, w, h, 3);
+      ctx.fillStyle = '#102c46'; ctx.fill();
+      ctx.shadowColor = 'transparent';
+      ctx.fillStyle = 'rgba(170, 240, 255, 0.22)'; ctx.fillRect(bx + 3, by + 1, w - 6, 2);
+      traceCut(bx + 0.5, by + 0.5, w - 1, h - 1, 3);
+      ctx.strokeStyle = '#7ce8ff'; ctx.lineWidth = 1.6; ctx.stroke();
+      ctx.fillStyle = '#ebfcff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(label, bx + w / 2, by + h / 2 + 0.5);
       ctx.restore();
     }
   }
@@ -798,15 +1337,25 @@ export class BoardRenderer {
   drawBossArmor(ctx, state, metrics) {
     const boss = findGeneral(state, state.boss.owner);
     if (!boss || !bossArmored(state, { general: owner => findGeneral(state, owner) })) return;
-    const cell = this.cellGeometry(metrics, boss.x, boss.y), size = Math.max(18, cell.width * .26);
-    const x = cell.center.x + cell.width * .34, y = cell.center.y - cell.height * 1.15;
-    ctx.save();
-    ctx.beginPath(); ctx.moveTo(x, y - size * .55); ctx.lineTo(x + size * .45, y - size * .35); ctx.lineTo(x + size * .38, y + size * .2);
-    ctx.lineTo(x, y + size * .55); ctx.lineTo(x - size * .38, y + size * .2); ctx.lineTo(x - size * .45, y - size * .35); ctx.closePath();
-    ctx.fillStyle = 'rgba(120,205,255,.92)'; ctx.fill(); ctx.strokeStyle = '#f2fbff'; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#0d2840'; ctx.font = `700 ${Math.round(size * .5)}px "Luxiang UI", sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const cell = this.cellGeometry(metrics, boss.x, boss.y), size = Math.max(20, cell.width * .28);
+    const x = Math.round(cell.center.x + cell.width * .34), y = Math.round(cell.center.y - cell.height * 1.12);
     const reduction = bossDefinition(state.boss.id)?.armorReduction;
-    ctx.fillText(reduction ? `−${reduction}` : '1', x, y + 1);
+    const label = reduction ? `冰甲−${reduction}` : '冰甲';
+    ctx.save();
+    ctx.font = `700 ${Math.max(10.5, Math.round(size * .52))}px "Luxiang UI", sans-serif`;
+    const w = Math.round(Math.max(size + 12, ctx.measureText(label).width + 12)), h = Math.round(size * .86);
+    const bx = Math.round(x - w / 2), by = Math.round(y - h / 2), c = 3;
+    ctx.shadowColor = 'rgba(0,0,0,.65)'; ctx.shadowBlur = 4; ctx.shadowOffsetY = 2;
+    ctx.beginPath();
+    ctx.moveTo(bx + c, by); ctx.lineTo(bx + w - c, by); ctx.lineTo(bx + w, by + c);
+    ctx.lineTo(bx + w, by + h - c); ctx.lineTo(bx + w - c, by + h);
+    ctx.lineTo(bx + c, by + h); ctx.lineTo(bx, by + h - c); ctx.lineTo(bx, by + c); ctx.closePath();
+    ctx.fillStyle = '#163d5e'; ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.fillStyle = 'rgba(196, 246, 255, 0.25)'; ctx.fillRect(bx + c, by + 1, w - c * 2, 2);
+    ctx.strokeStyle = '#9eeeff'; ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.fillStyle = '#f2fdff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(label, bx + w / 2, by + h / 2 + 0.5);
     ctx.restore();
   }
 
@@ -837,7 +1386,7 @@ export class BoardRenderer {
       this.pending = null;
       const currentBounds = this.canvas.getBoundingClientRect();
       if (currentBounds.width && currentBounds.height && this.state && (this.paintRequested || !['mulligan', 'over'].includes(this.state.phase) || this.effects.playback)) {
-        if (this.paintRequested || this.movement || this.effects.playback || this.cardTargetingActive || now - this.lastFrame >= SCENE_ANIMATION_FRAME_MS) {
+        if (this.paintRequested || this.movement || this.effects.playback || this.cardTargetingActive || (this.hasActiveTelegraph && !this.motionPreference.matches && now - this.lastFrame >= 33) || now - this.lastFrame >= SCENE_ANIMATION_FRAME_MS) {
           this.paintRequested = false;
           this.lastFrame = now;
           this.paint();
@@ -911,12 +1460,35 @@ export class BoardRenderer {
 
   drawSelectionBox(ctx, metrics, unit) {
     const cell = this.cellGeometry(metrics, unit.x, unit.y);
-    const pulse = this.motionPreference.matches ? 1 : .95 + Math.cos(performance.now()/700*Math.PI*2)*.05;
-    ctx.save(); ctx.translate(cell.center.x,cell.center.y+cell.height*.12); ctx.scale(1,.44);
-    const halo = ctx.createRadialGradient(0,0,cell.width*.14,0,0,cell.width*.48*pulse);
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const pulse = reduced ? 1 : .95 + Math.cos(now / 650 * Math.PI * 2) * .05;
+    const wave = reduced ? .5 : .5 + Math.sin(now / 260) * .5;
+    ctx.save(); ctx.translate(cell.center.x, cell.center.y + cell.height * .12); ctx.scale(1, .44);
+    const halo = ctx.createRadialGradient(0, 0, cell.width * .14, 0, 0, cell.width * .48 * pulse);
     const rgb = unit.owner === 0 ? '134,231,255' : '255,146,119';
-    halo.addColorStop(0,`rgba(${rgb},.06)`); halo.addColorStop(.5,`rgba(${rgb},.64)`); halo.addColorStop(1,`rgba(${rgb},0)`);
-    ctx.fillStyle=halo;ctx.beginPath();ctx.arc(0,0,cell.width*.48*pulse,0,Math.PI*2);ctx.fill();ctx.restore();
+    halo.addColorStop(0, `rgba(${rgb},.08)`); halo.addColorStop(.5, `rgba(${rgb},.62)`); halo.addColorStop(1, `rgba(${rgb},0)`);
+    ctx.fillStyle = halo; ctx.beginPath(); ctx.arc(0, 0, cell.width * .48 * pulse, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+    // Crisp breathing pixel corner brackets around the selected tile
+    const [p0, p1, p2, p3] = cell.points;
+    const lerpPt = (a, b, t) => ({ x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t });
+    const quadPt = (u, v) => lerpPt(lerpPt(p0, p1, u), lerpPt(p3, p2, u), v);
+    const inset = reduced ? 0.07 : 0.05 + wave * 0.045, arm = 0.22;
+    const corners = [
+      [quadPt(inset + arm, inset), quadPt(inset, inset), quadPt(inset, inset + arm)],
+      [quadPt(1 - inset - arm, inset), quadPt(1 - inset, inset), quadPt(1 - inset, inset + arm)],
+      [quadPt(1 - inset - arm, 1 - inset), quadPt(1 - inset, 1 - inset), quadPt(1 - inset, 1 - inset - arm)],
+      [quadPt(inset + arm, 1 - inset), quadPt(inset, 1 - inset), quadPt(inset, 1 - inset - arm)],
+    ];
+    ctx.save(); ctx.lineCap = 'square'; ctx.lineJoin = 'miter';
+    for (const [a, c, b] of corners) {
+      ctx.strokeStyle = 'rgba(8, 28, 44, 0.85)'; ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.strokeStyle = unit.owner === 0 ? '#78ecff' : '#ff8a70'; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+      ctx.fillStyle = '#fff5cc';
+      ctx.fillRect(Math.round(c.x - 1.5), Math.round(c.y - 1.5), 3, 3);
+    }
+    ctx.restore();
   }
 
   drawAttackPath(ctx, metrics, source, target) {
@@ -943,26 +1515,46 @@ export class BoardRenderer {
   }
 
   drawCardTargetPath(ctx, metrics, start, end, legal = true) {
-    const image = this.tintedTile('tile-path-attack', legal ? '#ffffff' : '#c95353');
-    if (!image) return;
     const dx = end.x - start.x, dy = end.y - start.y, distance = Math.hypot(dx, dy);
-    if (!distance) return;
+    if (distance < 12) return;
     const cell = this.cellGeometry(metrics, 0, 0);
-    const spacing = cell.width * .4;
-    const fadeDistance = cell.width * (40 / 95);
-    const arcDistance = cell.width * .5;
-    const phase = this.motionPreference.matches ? 0 : (performance.now() / 1500 * cell.width) % spacing;
-    for (let offset = phase + spacing * .5; offset < distance; offset += spacing) {
-      const progress = offset / distance;
-      const arc = Math.sin(progress * Math.PI) * arcDistance;
+    const lift = Math.min(54, Math.max(22, cell.width * .5));
+    const p0 = start, p2 = end, p1 = { x: (p0.x + p2.x) / 2, y: Math.min(p0.y, p2.y) - lift };
+    const bezPt = t => {
+      const u = 1 - t;
+      return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
+    };
+    const bezTan = t => {
+      const u = 1 - t;
+      return { x: 2 * u * (p1.x - p0.x) + 2 * t * (p2.x - p1.x), y: 2 * u * (p1.y - p0.y) + 2 * t * (p2.y - p1.y) };
+    };
+    const reduced = this.motionPreference.matches;
+    const count = Math.max(3, Math.min(9, Math.round(distance / 32)));
+    const phase = reduced ? 0.5 : (performance.now() / 520) % 1;
+    const px = legal ? 2.4 : 2.0;
+
+    ctx.save();
+    ctx.strokeStyle = legal ? 'rgba(98, 224, 255, 0.28)' : 'rgba(204, 82, 82, 0.24)';
+    ctx.lineWidth = legal ? 5 : 3.5; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(p0.x, p0.y); ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y); ctx.stroke();
+    for (let i = 0; i < count; i++) {
+      const t = ((i + phase) / count) % 1;
+      if (t < 0.05 || t > 0.96) continue;
+      const pt = bezPt(t), tan = bezTan(t), ang = Math.atan2(tan.y, tan.x);
+      const fade = Math.min(1, t / 0.16, (1 - t) / 0.12);
       ctx.save();
-      ctx.globalAlpha = .78 * Math.min(1, offset / fadeDistance, (distance - offset) / fadeDistance);
-      ctx.translate(start.x + dx * progress, start.y + dy * progress - arc);
-      ctx.rotate(Math.atan2(dy - arcDistance * Math.cos(progress * Math.PI), dx));
-      ctx.drawImage(image, -spacing / 2, -spacing * image.height / image.width / 2,
-        spacing, spacing * image.height / image.width);
+      ctx.translate(Math.round(pt.x), Math.round(pt.y)); ctx.rotate(ang);
+      ctx.globalAlpha = fade * (legal ? 0.95 : 0.5);
+      const body = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+      ctx.fillStyle = legal ? '#082a40' : '#331014';
+      for (const [bx, by] of body) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+      ctx.fillStyle = legal ? '#68eeff' : '#c96060';
+      for (const [bx, by] of body) ctx.fillRect(bx * px, by * px, px, px);
+      ctx.fillStyle = legal ? '#fff8d2' : '#f0b0b0';
+      ctx.fillRect(0.5 * px, -0.4 * px, px, px);
       ctx.restore();
     }
+    ctx.restore();
   }
 
   drawMovementPath(ctx, metrics, path) {
@@ -979,22 +1571,67 @@ export class BoardRenderer {
         rotation = Math.atan2(incoming.y, incoming.x) * 180 / Math.PI;
         flippedY = incoming.x * outgoing.y - incoming.y * outgoing.x < 0;
       } else part = index === 1 ? 'straight_from_start' : 'straight';
-      const image = this.tintedTile(`tile-path-move-${part}`, '#ffffff', rotation, flippedY);
-      if (image) drawTexturedQuad(ctx, image, this.cellPoints(metrics, point.x, point.y), .78);
+      const image = this.tintedTile(`tile-path-move-${part}`, '#c8f6ff', rotation, flippedY);
+      if (image) drawTexturedQuad(ctx, image, this.cellPoints(metrics, point.x, point.y), .58);
     }
+    // Flowing cyan-white pixel chevrons marching along the movement path
+    const now = performance.now(), reduced = this.motionPreference.matches;
+    const phase = reduced ? 0.5 : (now / 420) % 1;
+    const px = 2.2;
+    ctx.save();
+    for (let i = 0; i < path.length - 1; i++) {
+      const a = this.cellGeometry(metrics, path[i].x, path[i].y).center;
+      const b = this.cellGeometry(metrics, path[i + 1].x, path[i + 1].y).center;
+      const angle = Math.atan2(b.y - a.y, b.x - a.x);
+      for (const offset of [0, 0.5]) {
+        const t = (phase + offset) % 1;
+        const x = Math.round(a.x + (b.x - a.x) * t), y = Math.round(a.y + (b.y - a.y) * t);
+        ctx.save();
+        ctx.translate(x, y); ctx.rotate(angle);
+        ctx.globalAlpha = Math.min(1, t / 0.2, (1 - t) / 0.15) * 0.95;
+        const outline = [[-2,-2],[-1,-1],[0,0],[-1,1],[-2,2]];
+        ctx.fillStyle = '#092b3f';
+        for (const [bx, by] of outline) ctx.fillRect(bx * px - 1, by * px - 1, px + 2, px + 2);
+        ctx.fillStyle = '#74efff';
+        for (const [bx, by] of outline) ctx.fillRect(bx * px, by * px, px, px);
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0.4 * px, -0.4 * px, px, px);
+        ctx.restore();
+      }
+    }
+    // Pulsing destination pixel diamond
+    const end = path[path.length - 1];
+    if (end) {
+      const cell = this.cellGeometry(metrics, end.x, end.y);
+      const p = reduced ? 0.5 : 0.5 + Math.sin(now / 200) * 0.5;
+      const r = 6 + p * 3;
+      ctx.strokeStyle = '#9cf5ff'; ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cell.center.x, cell.center.y - r);
+      ctx.lineTo(cell.center.x + r * 1.25, cell.center.y);
+      ctx.lineTo(cell.center.x, cell.center.y + r);
+      ctx.lineTo(cell.center.x - r * 1.25, cell.center.y);
+      ctx.closePath(); ctx.stroke();
+    }
+    ctx.restore();
   }
 
   drawManaRune(ctx, x, y, radius) {
+    const pulse = this.motionPreference.matches ? 0.5 : 0.5 + Math.sin(performance.now() / 360) * 0.5;
     ctx.save();
-    ctx.translate(x, y);
-    ctx.fillStyle = 'rgba(7, 26, 37, .72)';
-    ctx.beginPath(); ctx.ellipse(0, 0, radius * 1.2, radius * 0.72, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(69, 216, 236, .9)';
-    ctx.lineWidth = Math.max(1, radius * 0.11);
-    ctx.beginPath(); ctx.ellipse(0, 0, radius * 0.88, radius * 0.53, 0, 0, Math.PI * 2); ctx.stroke();
-    ctx.fillStyle = '#a9f5ff';
-    ctx.font = `bold ${radius * 1.2}px Georgia, serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('✦', 0, -1);
+    ctx.translate(Math.round(x), Math.round(y));
+    ctx.fillStyle = 'rgba(8, 26, 40, .74)';
+    ctx.beginPath(); ctx.ellipse(0, 0, radius * 1.15, radius * 0.66, 0, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = `rgba(96, 232, 255, ${0.55 + pulse * 0.35})`;
+    ctx.lineWidth = Math.max(1.2, radius * 0.11);
+    ctx.beginPath(); ctx.ellipse(0, 0, radius * (0.82 + pulse * 0.1), radius * (0.48 + pulse * 0.06), 0, 0, Math.PI * 2); ctx.stroke();
+    const r = Math.max(4, Math.round(radius * 0.52));
+    ctx.fillStyle = '#0c3a56';
+    ctx.beginPath(); ctx.moveTo(0, -r - 2); ctx.lineTo(r + 2, 0); ctx.lineTo(0, r + 2); ctx.lineTo(-r - 2, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#5ce8ff';
+    ctx.beginPath(); ctx.moveTo(0, -r); ctx.lineTo(r, 0); ctx.lineTo(0, r); ctx.lineTo(-r, 0); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#eefdff';
+    ctx.fillRect(-1.5, -Math.round(r * 0.45), 3, 3);
     ctx.restore();
   }
 
@@ -1181,6 +1818,12 @@ export class BoardRenderer {
     } else {
       ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * .31, cell.height * .12, 0, 0, Math.PI * 2); ctx.stroke();
     }
+    if (!restingAfterAction && unit.owner === 0 && state.currentPlayer === 0) {
+      const rp = this.motionPreference.matches ? 0.5 : 0.5 + Math.sin(performance.now() / 340 + unit.unitId) * 0.5;
+      ctx.strokeStyle = `rgba(128, 242, 255, ${0.28 + rp * 0.42})`;
+      ctx.lineWidth = Math.max(1.4, cell.width * .014);
+      ctx.beginPath(); ctx.ellipse(centerX, ringY, cell.width * (.35 + rp * .025), cell.height * (.145 + rp * .012), 0, 0, Math.PI * 2); ctx.stroke();
+    }
     if (!restingAfterAction) {
       ctx.strokeStyle = 'rgba(224, 246, 252, .54)';
       ctx.lineWidth = Math.max(1, cell.width * .007);
@@ -1248,6 +1891,21 @@ export class BoardRenderer {
       effectiveAttack(state, logicalUnit), this.images.get(`stat-attack${suffix}`));
     this.drawStat(ctx, centerX + spacing, footY - cell.height * .11, iconSize,
       Math.max(0, unit.health), this.images.get(`stat-health${suffix}`));
+    if (unit.owner === 0 && unit.cardId === 9202 && state.adventure) {
+      const adv = state.adventure.units?.find(item => item.unitId === unit.unitId);
+      const charge = Math.max(0, Math.min(2, adv?.charge ?? 0));
+      const pipY = footY + cell.height * 0.08;
+      for (let i = 0; i < 2; i++) {
+        const px = centerX + (i === 0 ? -7 : 7);
+        const lit = i < charge;
+        ctx.save();
+        ctx.fillStyle = lit ? (charge >= 2 ? '#ffd86b' : '#6eeeff') : 'rgba(18, 28, 38, 0.85)';
+        ctx.strokeStyle = lit ? '#ffffff' : 'rgba(160, 195, 215, 0.55)';
+        ctx.lineWidth = 1.4;
+        ctx.beginPath(); ctx.arc(px, pipY, 4.2, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        ctx.restore();
+      }
+    }
     this.unitFeedbackLayout?.push({ unitId:unit.unitId, owner:unit.owner,
       resting:this.unitRestingAfterAction(unit), suffix,
       stats:[

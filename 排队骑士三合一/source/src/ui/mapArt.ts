@@ -1,78 +1,247 @@
-/** Decorative cartography only; route geometry and all input live in prep.ts. */
-export function mapArt(): HTMLElement {
-  const art = document.createElement('div');
-  art.className = 'map-illustration';
-  art.setAttribute('aria-hidden', 'true');
-  art.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 420" preserveAspectRatio="none" focusable="false">
-    <defs>
-      <g id="map-pine" fill="#76805b" fill-opacity=".24" stroke="#6e7250" stroke-width="1.5" stroke-linejoin="miter">
-        <path d="M0 0-8 13H-5L-12 23H-7L-16 35H16L7 23H12L5 13H8Z"/>
-        <path d="M0 17V41" fill="none"/>
-      </g>
-      <g id="map-crag" stroke="#8a704a" stroke-width="1.5" stroke-linejoin="miter">
-        <path d="m-37 40 12-15 6 2L0-8 9 9l5-3 23 34" fill="#b2986b" fill-opacity=".14"/>
-        <path d="M0-8-2 10l-8 10 7-2-5 15m8-41 9 17-7 1 11 19m-32-2 9 5m25-10 7 10" fill="none"/>
-      </g>
-    </defs>
-    <!-- Long, unlabelled contours leave the route itself as the dominant mark. -->
-    <g fill="none" stroke="#a68c60" stroke-width="1.2" opacity=".3">
-      <path d="m0 78 47-8 45 7 48-13 53 10 48-4 48 14 39-4 54 12 48-3"/>
-      <path d="m0 87 47-7 46 7 48-13 51 11 49-5 48 13 39-3 53 12"/>
-      <path d="m747 42 53 12 44-4 32 13 41-3 48 12 50-6 57 14 65-4 63 14"/>
-      <path d="m773 29 28 13 44-4 32 13 40-3 49 12 49-6 57 14 65-4 63 14"/>
-      <path d="m0 343 48-10 55 4 46-13 45 5 42-12 40 7 44-14 58 5"/>
-      <path d="m0 354 49-10 54 4 46-13 45 6 43-13 38 6 46-13 58 6"/>
-      <path d="m699 370 43-12 47 7 42-15 56 3 47-13 41 4 46-14 55 6 47-13 77 11"/>
-      <path d="m713 381 30-11 47 8 42-16 55 3 47-13 42 4 45-14 55 6 48-12 76 11"/>
-    </g>
-    <!-- A faded river with two banks, broken by a small stone crossing. -->
-    <path d="m551-8 5 36-18 28 5 37-24 34 5 28-17 33 8 32-19 33 6 39-19 35 9 38-21 40h21l19-39-8-37 19-35-5-39 18-35-7-30 16-34-5-29 24-33-5-38 18-29-4-41Z" fill="#7a8d82" opacity=".13"/>
-    <g fill="none" stroke="#7b8877" stroke-width="1.5" opacity=".29">
-      <path d="m551-8 5 36-18 28 5 37-24 34 5 28-17 33 8 32-19 33 6 39-19 35 9 38-21 40"/>
-      <path d="m573-8 4 41-18 29 5 38-24 33 5 29-16 34 7 30-18 35 5 39-19 35 8 37-19 39"/>
-      <path d="m546 32-9 17m15 62-11 17m-24 155-8 17m-8 76-8 17"/>
-    </g>
-    <g opacity=".44">
-      <use href="#map-crag" transform="translate(126 20) scale(1.06)"/>
-      <use href="#map-crag" transform="translate(183 5) scale(1.35)"/>
-      <use href="#map-crag" transform="translate(232 34) scale(.85)"/>
-      <use href="#map-crag" transform="translate(284 17) scale(1.12)"/>
-      <use href="#map-crag" transform="translate(334 43) scale(.7)"/>
-      <use href="#map-crag" transform="translate(809 351) scale(.84)"/>
-      <use href="#map-crag" transform="translate(862 329) scale(1.32)"/>
-      <use href="#map-crag" transform="translate(925 352) scale(1.02)"/>
-      <use href="#map-crag" transform="translate(974 366) scale(.72)"/>
-    </g>
-    <g opacity=".53">
-      <use href="#map-pine" transform="translate(47 277) scale(.7)"/>
-      <use href="#map-pine" transform="translate(72 288) scale(.9)"/>
-      <use href="#map-pine" transform="translate(98 271) scale(.85)"/>
-      <use href="#map-pine" transform="translate(122 291) scale(.75)"/>
-      <use href="#map-pine" transform="translate(58 310) scale(.85)"/>
-      <use href="#map-pine" transform="translate(88 309)"/>
-      <use href="#map-pine" transform="translate(115 320) scale(.8)"/>
-      <use href="#map-pine" transform="translate(144 310) scale(.7)"/>
-      <use href="#map-pine" transform="translate(906 9) scale(.75)"/>
-      <use href="#map-pine" transform="translate(933 18) scale(.9)"/>
-      <use href="#map-pine" transform="translate(958 4) scale(.9)"/>
-      <use href="#map-pine" transform="translate(984 23) scale(.8)"/>
-      <use href="#map-pine" transform="translate(1010 12) scale(.7)"/>
-      <use href="#map-pine" transform="translate(925 46) scale(.75)"/>
-      <use href="#map-pine" transform="translate(955 43) scale(.85)"/>
-      <use href="#map-pine" transform="translate(986 52) scale(.7)"/>
-    </g>
-    <g transform="translate(1117 344)" stroke="#8d724a" stroke-width="1.5" opacity=".44">
-      <circle r="36" fill="none"/>
-      <circle r="29" fill="none" stroke-dasharray="1 6"/>
-      <path d="M0-46V46M-46 0H46m-26-20 40 40m0-40-40 40" fill="none"/>
-      <path d="m0-40 8 32L0 0-8 8Zm0 80L-8 8 0 0l8-8Z" fill="#9c623e" fill-opacity=".46"/>
-      <path d="m-40 0 32-8L0 0l8 8Zm80 0L8 8 0 0l-8-8Z" fill="#bba271" fill-opacity=".48"/>
-      <path d="m-4-53 4-7 4 7M0-60v12" fill="none"/>
-    </g>
-    <g fill="none" stroke="#8d724a" stroke-width="1.5" opacity=".35">
-      <path d="M36 29V14H78M36 391v15h42M1164 29V14h-42M1164 391v15h-42"/>
-      <path d="M12 192v36m-4-28h8m-8 20h8M1188 192v36m-4-28h8m-8 20h8"/>
-    </g>
-  </svg>`;
-  return art;
+import type { Vector3 } from 'three';
+import { expeditionCamera } from './mapVoxelCamera';
+import { ACT_DEFAULT_THEME, BIOMES, VOXEL_THEMES, type VoxelThemeInfo } from './mapVoxelThemes';
+import { clamp, nodeKey, survey } from './mapVoxelTerrain';
+import { createRealmRenderer, type RealmRenderer } from './mapVoxelRenderer';
+import { skyLight } from './mapVoxelSky';
+
+export { ACT_DEFAULT_THEME, ACT_REALMS, VOXEL_THEMES, type VoxelThemeInfo } from './mapVoxelThemes';
+export type MapNodeKind = 'fight' | 'elite' | 'camp' | 'shop' | 'event' | 'treasure' | 'boss';
+export interface MapNodeSpec {
+  layer: number;
+  index: number;
+  cols: number;
+  count: number;
+  kind: MapNodeKind;
+  next: number[];
+}
+export interface MapPathState {
+  walked: Set<string>;
+  available: Set<string>;
+  preview: Set<string>;
+  chosen: string;
+}
+export type MapPulse = 'inspect' | 'depart';
+export interface ProjectedPoint {
+  x: number;
+  y: number;
+  scale: number;
+}
+export interface MapRealm {
+  el: HTMLElement;
+  theme: VoxelThemeInfo;
+  setTheme: (themeId: string) => void;
+  setParallax: (nx: number, ny: number) => void;
+  setPathState: (state: MapPathState) => void;
+  projectNode: (layer: number, index: number) => ProjectedPoint;
+  projectEntry: () => ProjectedPoint;
+  onFrame: (cb: () => void) => void;
+  pulseNode: (layer: number, index: number, kind?: MapPulse) => void;
+  dispose: () => void;
+}
+
+export function mountMapRealm(act: number, nodes: MapNodeSpec[] = [], initialThemeId?: string): MapRealm {
+  const actId = ACT_DEFAULT_THEME[clamp(Math.trunc(act) || 0, 0, 2)];
+  let theme = VOXEL_THEMES.find(v => v.id === initialThemeId) ?? VOXEL_THEMES.find(v => v.id === actId)!;
+  const el = document.createElement('div');
+  el.className = 'map-illustration';
+  el.setAttribute('aria-hidden', 'true');
+  Object.assign(el.style, { position: 'absolute', inset: '0', overflow: 'hidden', pointerEvents: 'none' });
+  const sky = document.createElement('div');
+  sky.className = 'map-skylight';
+  el.appendChild(sky);
+  function backdrop() {
+    const [top, horizon, base] = BIOMES[theme.id].sky;
+    // 分阶像素天空色带 + 四周暗角压边，避免平滑塑料渐变与体素浮空岛割裂
+    el.style.background = [
+      'radial-gradient(ellipse 84% 78% at 50% 48%, transparent 54%, rgba(7, 5, 18, .62) 100%)',
+      `radial-gradient(ellipse at 20% 34%, ${base}48, transparent 54%)`,
+      `linear-gradient(180deg, ${top} 0% 18%, color-mix(in srgb, ${top} 66%, ${horizon}) 18% 36%, color-mix(in srgb, ${top} 28%, ${horizon}) 36% 54%, ${horizon} 54% 72%, color-mix(in srgb, ${horizon} 45%, ${base}) 72% 86%, ${base} 86% 100%)`,
+    ].join(', ');
+    el.dataset.theme = theme.id;
+    sky.style.backgroundImage = skyLight(theme);
+  }
+  backdrop();
+  let land = survey(nodes, theme.id);
+  let view = expeditionCamera(land);
+  let width = 0,
+    height = 0,
+    yaw = 0,
+    pitch = 0,
+    nx = 0,
+    ny = 0;
+  let paths: MapPathState = { walked: new Set(), available: new Set(), preview: new Set(), chosen: '' };
+  const listeners = new Set<() => void>();
+  const motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let renderer: RealmRenderer | undefined;
+  let pendingPulse: { pos: Vector3; kind: MapPulse } | undefined;
+  let dead = false,
+    loading = false,
+    failed = false;
+  let raf = 0,
+    previous = 0,
+    elapsed = 0;
+
+  function stop() {
+    if (raf) cancelAnimationFrame(raf);
+    raf = previous = 0;
+  }
+  function redraw() {
+    if (!dead && !document.hidden && width && height && !raf) raf = requestAnimationFrame(frame);
+  }
+  function frame(now: number) {
+    raf = 0;
+    if (dead || document.hidden || !width || !height) return;
+    const dt = previous ? Math.min(0.08, (now - previous) / 1000) : 0;
+    previous = now;
+    const moving = renderer?.animated && !motion.matches;
+    if (moving) {
+      elapsed += dt;
+      const ease = -Math.expm1(-dt * 6.1);
+      yaw += (nx - yaw) * ease;
+      pitch += (ny - pitch) * ease;
+    } else {
+      yaw = pitch = 0;
+    }
+    view.aim(yaw, pitch);
+    if (moving) redraw();
+    for (const cb of listeners) cb();
+    if (!dead) renderer?.draw(view.camera, motion.matches ? 0 : elapsed);
+  }
+  function start() {
+    loading = true;
+    try {
+      if (dead || document.hidden || !width || !height) return;
+      renderer = createRealmRenderer(el, land, theme, redraw);
+      renderer.resize(width, height);
+      renderer.setPaths(paths);
+      if (pendingPulse && !motion.matches) renderer.pulse(pendingPulse.pos, elapsed, pendingPulse.kind);
+      pendingPulse = undefined;
+    } catch (error) {
+      failed = true;
+      renderer?.dispose();
+      renderer = undefined;
+      console.warn('远征地图已启用静态布局', error);
+    } finally {
+      loading = false;
+      redraw();
+    }
+  }
+  function refresh() {
+    stop();
+    if (dead || document.hidden || !width || !height) return;
+    if (!loading && !renderer && !failed) void start();
+    redraw();
+  }
+  function resize(w: number, h: number) {
+    width = Math.round(w);
+    height = Math.round(h);
+    if (width && height) {
+      view.aim(yaw, pitch, width / height);
+      renderer?.resize(width, height);
+    }
+    refresh();
+  }
+  const measure = () => resize(el.clientWidth, el.clientHeight);
+  const observer =
+    typeof ResizeObserver === 'undefined'
+      ? undefined
+      : new ResizeObserver(([entry]) => resize(entry.contentRect.width, entry.contentRect.height));
+  observer?.observe(el);
+  window.addEventListener('resize', measure);
+  const kickMeasure = () => {
+    if (dead || (width > 0 && height > 0)) return;
+    if (el.clientWidth > 0 && el.clientHeight > 0) measure();
+    else requestAnimationFrame(kickMeasure);
+  };
+  requestAnimationFrame(kickMeasure);
+  motion.addEventListener('change', refresh);
+  document.addEventListener('visibilitychange', refresh);
+  return {
+    el,
+    get theme() {
+      return theme;
+    },
+    setTheme(id) {
+      const next = VOXEL_THEMES.find(v => v.id === id);
+      if (dead || !next || next === theme) return;
+      const nextLand = survey(nodes, next.id);
+      const nextView = expeditionCamera(nextLand);
+      if (width && height) nextView.aim(yaw, pitch, width / height);
+      renderer?.setTheme(nextLand, next);
+      land = nextLand;
+      view = nextView;
+      theme = next;
+      pendingPulse = undefined;
+      backdrop();
+      renderer?.setPaths(paths);
+      redraw();
+    },
+    setParallax(x, y) {
+      nx = Number.isFinite(x) ? clamp(x, -1, 1) : 0;
+      ny = Number.isFinite(y) ? clamp(y, -1, 1) : 0;
+    },
+    setPathState(state) {
+      if (dead) return;
+      paths = state;
+      renderer?.setPaths(state);
+      redraw();
+    },
+    projectNode(l, i) {
+      return view.project(land.sites.get(nodeKey(l, i))?.pos ?? land.gate);
+    },
+    projectEntry() {
+      return view.project(land.gate);
+    },
+    onFrame(cb) {
+      if (!dead) {
+        listeners.add(cb);
+        redraw();
+      }
+    },
+    pulseNode(l, i, kind = 'depart') {
+      const site = land.sites.get(nodeKey(l, i));
+      if (!dead && site && !motion.matches) {
+        if (renderer) renderer.pulse(site.pos, elapsed, kind);
+        else pendingPulse = { pos: site.pos, kind };
+        redraw();
+      }
+    },
+    dispose() {
+      if (dead) return;
+      dead = true;
+      stop();
+      listeners.clear();
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+      motion.removeEventListener('change', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+      renderer?.dispose();
+      renderer = undefined;
+    },
+  };
+}
+
+export function mapArt(act = 0): HTMLElement {
+  const tag = 'expedition-map-art';
+  if (!customElements.get(tag))
+    customElements.define(
+      tag,
+      class extends HTMLElement {
+        private realm?: MapRealm;
+        connectedCallback() {
+          this.realm = mountMapRealm(Number(this.dataset.act));
+          this.replaceChildren(this.realm.el);
+        }
+        disconnectedCallback() {
+          this.realm?.dispose();
+          this.realm = undefined;
+        }
+      },
+    );
+  const host = document.createElement(tag);
+  host.className = 'map-illustration';
+  host.setAttribute('aria-hidden', 'true');
+  host.dataset.act = String(act);
+  return host;
 }

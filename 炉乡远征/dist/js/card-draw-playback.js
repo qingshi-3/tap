@@ -1,3 +1,4 @@
+import { battleSpeedScale } from "./battle-motion.js";
 // The host owns rules, persistence, input locks and hand snapshots. This layer only plays receipts.
 export function createCardDrawPlayback(host, hooks) {
   let current=null, serial=0;
@@ -12,7 +13,7 @@ export function createCardDrawPlayback(host, hooks) {
   function cancel() { if(current){const run=current;run.cancelled=true;end(run,false);} }
   async function animate(run,node,frames,duration) {
     if(run.cancelled||current!==run||hooks.isCurrent?.(run.context)===false)return false;
-    const animation=node.animate(frames,{duration,easing:'cubic-bezier(.22,.75,.2,1)',fill:'forwards'});
+    const scaled=Math.max(45,Math.round(duration/battleSpeedScale()));const animation=node.animate(frames,{duration:scaled,easing:'cubic-bezier(.22,.75,.2,1)',fill:'forwards'});
     run.animations.add(animation);
     try{await animation.finished;}catch{return false;}finally{run.animations.delete(animation);}
     return !run.cancelled&&current===run&&hooks.isCurrent?.(run.context)!==false;
