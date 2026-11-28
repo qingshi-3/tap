@@ -47,7 +47,7 @@
     const rank = e.rank;
     const energy = 0.55 + rank * 0.15 + e.boost * 0.6 + e.flare * 0.5;
     const cx = w / 2;
-    const cy = 38;
+    const cy = 34;
     if (!e.pts) initMotif(e, w, h);
 
     // air
@@ -74,7 +74,7 @@
       }
     }
     // halo behind the icon
-    const halo = g.createRadialGradient(cx, cy, 2, cx, cy, 22 + rank * 3 + e.boost * 8);
+    const halo = g.createRadialGradient(cx, cy, 3, cx, cy, 28 + rank * 3 + e.boost * 8);
     halo.addColorStop(0, rgba(rank >= 4 ? [255, 220, 150] : tc, 0.34 * energy));
     halo.addColorStop(0.6, rgba(rank >= 4 ? rim : tc, 0.12 * energy));
     halo.addColorStop(1, rgba(tc, 0));

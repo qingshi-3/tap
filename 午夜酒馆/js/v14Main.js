@@ -5209,6 +5209,57 @@
       // 6. Lower shelf: two booster packs + four slot upgrades
       const lower = $('shop-packs-row');
       lower.className = 'camp-lower';
+      const packEmblemSvg = (kind) => kind === 'hero'
+        ? `<svg class="camp-pack-svg" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+             <circle cx="44" cy="44" r="36" stroke="#f2dba2" stroke-opacity="0.28" stroke-width="1.2" stroke-dasharray="3 3"/>
+             <circle cx="44" cy="44" r="29" fill="rgba(20,6,9,0.55)" stroke="#d4ae68" stroke-opacity="0.65" stroke-width="1.2"/>
+             <g transform="rotate(-18 44 46)">
+               <rect x="27" y="20" width="26" height="38" rx="2" fill="#2c0b12" stroke="#d4ae68" stroke-width="1.6"/>
+               <rect x="30" y="23" width="20" height="32" rx="1" stroke="#f2dba2" stroke-opacity="0.35" stroke-width="1"/>
+             </g>
+             <g transform="rotate(18 44 46)">
+               <rect x="35" y="20" width="26" height="38" rx="2" fill="#2c0b12" stroke="#d4ae68" stroke-width="1.6"/>
+               <rect x="38" y="23" width="20" height="32" rx="1" stroke="#f2dba2" stroke-opacity="0.35" stroke-width="1"/>
+             </g>
+             <rect x="30" y="18" width="28" height="42" rx="2" fill="url(#pkHeroGold)" stroke="#14080a" stroke-width="1.5"/>
+             <rect x="32.5" y="20.5" width="23" height="37" rx="1" fill="#3a0d16" stroke="#fff0c2" stroke-width="1.2"/>
+             <path d="M44 26 L46.6 35.4 L55 39 L46.6 42.6 L44 52 L41.4 42.6 L33 39 L41.4 35.4 Z" fill="#ffe7a8" stroke="#5a1820" stroke-width="0.9"/>
+             <circle cx="44" cy="39" r="2.2" fill="#fffaf0"/>
+             <path d="M44 8 L45.5 13 L44 15 L42.5 13 Z M44 80 L45.5 75 L44 73 L42.5 75 Z M8 44 L13 45.5 L15 44 L13 42.5 Z M80 44 L75 45.5 L73 44 L75 42.5 Z" fill="#f2dba2" opacity="0.85"/>
+             <defs>
+               <linearGradient id="pkHeroGold" x1="30" y1="18" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+                 <stop offset="0%" stop-color="#fff0c2"/>
+                 <stop offset="50%" stop-color="#d4ae68"/>
+                 <stop offset="100%" stop-color="#8a6228"/>
+               </linearGradient>
+             </defs>
+           </svg>`
+        : `<svg class="camp-pack-svg" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+             <circle cx="44" cy="44" r="35" stroke="#d8beff" stroke-opacity="0.32" stroke-width="1.2" stroke-dasharray="2 3"/>
+             <circle cx="44" cy="44" r="27" fill="rgba(16,8,34,0.62)" stroke="#e8c77e" stroke-opacity="0.7" stroke-width="1.3"/>
+             <polygon points="44,12 68,44 44,76 20,44" fill="none" stroke="#e8c77e" stroke-opacity="0.5" stroke-width="1.2"/>
+             <polygon points="44,18 64,44 44,70 24,44" fill="url(#pkInsPrism)" stroke="#fff0c2" stroke-width="1.5"/>
+             <polygon points="44,25 56,44 44,63 32,44" fill="#231048" stroke="#d4b3ff" stroke-width="1.2"/>
+             <polygon points="44,32 50,44 44,56 38,44" fill="#e8c77e"/>
+             <circle cx="44" cy="44" r="3" fill="#ffffff"/>
+             <circle cx="44" cy="12" r="2" fill="#fff0c2"/>
+             <circle cx="44" cy="76" r="2" fill="#fff0c2"/>
+             <circle cx="12" cy="44" r="2" fill="#d4b3ff"/>
+             <circle cx="76" cy="44" r="2" fill="#d4b3ff"/>
+             <defs>
+               <linearGradient id="pkInsPrism" x1="24" y1="18" x2="64" y2="70" gradientUnits="userSpaceOnUse">
+                 <stop offset="0%" stop-color="#e5ccff"/>
+                 <stop offset="45%" stop-color="#7c4dff"/>
+                 <stop offset="100%" stop-color="#2c125c"/>
+               </linearGradient>
+             </defs>
+           </svg>`;
+      const slotCrestMeta = {
+        slot1: { roman: 'I', glyph: '<path d="M12 3 L19 6 V12 C19 16.5 16 19.5 12 21 C8 19.5 5 16.5 5 12 V6 Z" stroke="currentColor" stroke-width="1.7" fill="rgba(255,255,255,0.08)"/><path d="M12 7 V17 M8.5 11 H15.5" stroke="currentColor" stroke-width="1.4"/>' },
+        slot2: { roman: 'II', glyph: '<path d="M18.5 5.5 L8.5 15.5 M14.5 5.5 H18.5 V9.5 M6 18 L9 15 M7 13 L11 17" stroke="currentColor" stroke-width="1.7" stroke-linecap="square"/>' },
+        slot3: { roman: 'III', glyph: '<path d="M12 4 L14.4 9.6 L20 12 L14.4 14.4 L12 20 L9.6 14.4 L4 12 L9.6 9.6 Z" stroke="currentColor" stroke-width="1.6" fill="rgba(255,255,255,0.1)"/>' },
+        hand:  { roman: '备', glyph: '<rect x="5" y="6" width="8" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="rgba(255,255,255,0.06)"/><rect x="11" y="4" width="8" height="12" rx="1" stroke="currentColor" stroke-width="1.5" fill="#14110e"/>' }
+      };
       lower.innerHTML = `
         <div class="camp-group packs">
           <div class="camp-packs">
@@ -5222,9 +5273,13 @@
                   <span class="camp-pack-foil" aria-hidden="true">
                     <i class="camp-pack-crimp top"></i>
                     <span class="camp-pack-face">
+                      <i class="camp-pack-corners"></i>
                       <span class="camp-pack-count">${p.count} 选 1</span>
-                      <span class="camp-pack-emblem">${kind === 'hero' ? '<i></i><i></i><i></i>' : '<b></b>'}</span>
-                      <span class="camp-pack-name">${esc(p.name)}</span>
+                      <span class="camp-pack-emblem">${packEmblemSvg(kind)}</span>
+                      <span class="camp-pack-banner">
+                        <span class="camp-pack-name">${esc(p.name)}</span>
+                        <span class="camp-pack-sub">${kind === 'hero' ? 'RARE RECRUIT' : 'ARCANE SEAL'}</span>
+                      </span>
                     </span>
                     <i class="camp-pack-sheen"></i>
                     <i class="camp-pack-crimp bottom"></i>
@@ -5241,16 +5296,25 @@
               const lv = run.slotLevels[u.id] || 1;
               const canAfford = run.gold >= u.cost;
               const [num, label] = String(u.name).split('·').map((x) => x.trim());
+              const crest = slotCrestMeta[u.id] || { roman: num || '', glyph: '' };
               const pips = Array.from({ length: 5 }, (_, k) => `<i class="${k < lv ? 'on' : ''}"></i>`).join('');
               return `
                 <button type="button" class="camp-slot ${canAfford ? '' : 'poor'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" data-pressable style="--slot-col:${u.color}">
-                  <span class="camp-slot-badge">${esc(num || '')}</span>
-                  <span class="camp-slot-main">
-                    <b>${esc(label || u.name)}</b>
-                    <span>${esc(u.short)}</span>
-                    <span class="camp-slot-pips" title="Lv.${lv}">${pips}</span>
+                  <span class="camp-slot-crest" aria-hidden="true">
+                    <svg class="camp-slot-svg" viewBox="0 0 24 24" fill="none">${crest.glyph}</svg>
+                    <em class="camp-slot-num">${esc(crest.roman)}</em>
                   </span>
-                  <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}<b>${u.cost}</b></span>
+                  <span class="camp-slot-body">
+                    <span class="camp-slot-top">
+                      <b>${esc(label || u.name)}</b>
+                      <span class="camp-slot-lv">Lv.${lv}</span>
+                    </span>
+                    <span class="camp-slot-stat">${esc(u.short)}</span>
+                    <span class="camp-slot-foot">
+                      <span class="camp-slot-pips" title="Lv.${lv}">${pips}</span>
+                      <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}<b>${u.cost}</b></span>
+                    </span>
+                  </span>
                 </button>
               `;
             }).join('')}

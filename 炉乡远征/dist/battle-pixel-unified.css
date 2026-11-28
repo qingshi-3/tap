@@ -1,0 +1,1115 @@
+/* ============================================================================
+   Hearthland Expedition — Unified Hard-Edge Pixel Battle Art System
+   Original forged-basalt, dark-iron & hearth-brass pixel visual language
+   harmonizing battlegrounds, board grid, card frames, and tactical HUD.
+   ============================================================================ */
+
+:root {
+  --px-ink: #0b0d12;
+  --px-stone-hi: #5c6575;
+  --px-stone-mid: #282e39;
+  --px-stone-lo: #181c24;
+  --px-slot: #11151d;
+  --px-brass: #d4a259;
+  --px-brass-hi: #f2cf88;
+  --px-brass-lo: #7a5424;
+  --px-ember: #c45e29;
+  --px-ember-hi: #f2a05a;
+  --px-ember-lo: #662a10;
+  --px-ally: #3eb58e;
+  --px-ally-hi: #8cf2cf;
+  --px-ally-lo: #1b5c47;
+  --px-enemy: #c94c4c;
+  --px-enemy-hi: #ff9e96;
+  --px-enemy-lo: #6b1f24;
+  --px-mana: #2f8dd6;
+  --px-mana-hi: #94e6ff;
+  --px-mana-lo: #154978;
+  --px-ivory: #f4efe2;
+  --px-muted: #b4bcc9;
+  --px-shadow-hard: 0 3px 0 rgba(6, 8, 12, 0.72);
+  --px-bevel: inset 2px 2px 0 var(--px-stone-hi), inset -2px -2px 0 var(--px-stone-lo);
+  --px-bevel-sm: inset 1px 1px 0 var(--px-stone-hi), inset -1px -1px 0 var(--px-stone-lo);
+  --px-text-shadow: 1px 1px 0 #0b0d12, -1px 0 0 #0b0d12, 0 -1px 0 #0b0d12;
+}
+
+/* ============================================================================
+   1. Cohesive 3/4 Top-Down Pixel Battleground Layers
+   ============================================================================ */
+
+:root #app #match .battle-layers {
+  background-color: #12151c;
+  background-image: var(--pixel-battle-bg, url('./assets/maps/pixel/hearth-frontier.webp'));
+  background-position: center center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Subtle top/bottom contrast scrim so HUD & hand always read cleanly over any biome */
+:root #app #match .battle-layers::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 11, 16, 0.46) 0%,
+    rgba(9, 11, 16, 0.08) 16%,
+    rgba(9, 11, 16, 0) 32%,
+    rgba(9, 11, 16, 0) 72%,
+    rgba(9, 11, 16, 0.56) 100%
+  );
+}
+
+/* Hide legacy Duelyst flat-shaded midground/foreground overlays */
+:root #app #match .battle-midground,
+:root #app #match .battle-foreground,
+:root #app #match .battle-foreground-left,
+:root #app #match .battle-foreground-right {
+  display: none !important;
+  background-image: none !important;
+}
+
+/* ============================================================================
+   2. Global Handcrafted 56x74 Pixel-Art Card System (Battle + All External UI)
+   Applies to Battle Hand, Mulligan, Drag Ghost, Unit Inspect, Command Preview,
+   Collection, Deck Editor, Codex, Recruitment, Atlas Preview & Roguelike.
+   ============================================================================ */
+
+.game-card {
+  --card-trim-hi: #ddd5c5;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--px-ivory);
+  overflow: visible;
+  filter: drop-shadow(0 3px 0 rgba(7, 9, 13, 0.78));
+}
+
+/* Six-faction accent highlights for card type labels */
+.game-card[data-faction="0"] { --card-trim-hi: #ddd5c5; }
+.game-card[data-faction="1"] { --card-trim-hi: #ffe194; }
+.game-card[data-faction="2"] { --card-trim-hi: #ffa096; }
+.game-card[data-faction="3"] { --card-trim-hi: #ffc985; }
+.game-card[data-faction="4"] { --card-trim-hi: #d9b0f5; }
+.game-card[data-faction="5"] { --card-trim-hi: #9ef0bf; }
+.game-card[data-faction="6"] { --card-trim-hi: #a3e6ff; }
+
+/* Handcrafted 56x74 pixel-art SVG card frames (chamfered stone, metal clasps,
+   heraldic crest, arched stage window, ribbon nameplate & arcane spell scrolls) */
+.game-card .game-card-frame {
+  background-color: transparent;
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-image: url('./assets/ui/pixel-cards/card-f0-unit.svg') !important;
+  box-shadow: none;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.game-card[data-faction="0"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f0-spell.svg') !important; }
+.game-card[data-faction="1"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f1-unit.svg') !important; }
+.game-card[data-faction="1"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f1-spell.svg') !important; }
+.game-card[data-faction="1"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f1-general.svg') !important; }
+.game-card[data-faction="2"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f2-unit.svg') !important; }
+.game-card[data-faction="2"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f2-spell.svg') !important; }
+.game-card[data-faction="2"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f2-general.svg') !important; }
+.game-card[data-faction="3"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f3-unit.svg') !important; }
+.game-card[data-faction="3"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f3-spell.svg') !important; }
+.game-card[data-faction="3"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f3-general.svg') !important; }
+.game-card[data-faction="4"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f4-unit.svg') !important; }
+.game-card[data-faction="4"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f4-spell.svg') !important; }
+.game-card[data-faction="4"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f4-general.svg') !important; }
+.game-card[data-faction="5"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f5-unit.svg') !important; }
+.game-card[data-faction="5"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f5-spell.svg') !important; }
+.game-card[data-faction="5"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f5-general.svg') !important; }
+.game-card[data-faction="6"] .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f6-unit.svg') !important; }
+.game-card[data-faction="6"].game-card-spell .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f6-spell.svg') !important; }
+.game-card[data-faction="6"].game-card-general .game-card-frame { background-image: url('./assets/ui/pixel-cards/card-f6-general.svg') !important; }
+
+/* Remove legacy neutral stat cleanup mask */
+.game-card[data-faction="0"] .game-card-frame::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Squad slots intentionally remain frameless square portraits */
+.squad-slot .game-card .game-card-frame {
+  display: none;
+}
+
+/* Sprite sits cleanly inside the SVG arched stage window (x=6..50, y=6..33 of 56x74) */
+.game-card .game-card-art {
+  top: 8.5%;
+  left: 11%;
+  width: 78%;
+  height: 36.5%;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  image-rendering: pixelated;
+}
+
+.game-card .game-card-art canvas {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+/* Card name sits inside the raised SVG nameplate ribbon (y=35..43 -> 47.3%..58%) */
+.game-card .game-card-caption {
+  top: 48.2%;
+  left: 10%;
+  width: 80%;
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+.game-card .game-card-name {
+  color: var(--px-ivory);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+}
+
+.game-card .game-card-type {
+  margin-top: 3.5%;
+  color: var(--card-trim-hi);
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+/* Full-card description inside the recessed lower warm parchment tablet */
+.game-card .game-card-description {
+  top: 73%;
+  left: 13%;
+  width: 74%;
+  height: 17.5%;
+  color: #e8e1d5;
+  text-shadow: 1px 1px 0 #0a0c11;
+}
+
+/* Spell cards have no attack/health plaques: center description cleanly in the arcane scroll chamber */
+:root[data-ui="qibing"][data-ui] .game-card.game-card-spell .game-card-description {
+  top: 60.5%;
+  left: 14%;
+  width: 72%;
+  height: 28%;
+}
+
+/* Collection / Deck / Codex engraved pixel keyword plaques (replaces bare floating white text) */
+:root[data-ui="qibing"][data-ui] .game-card .card-keywords,
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .card-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 3px 4px;
+}
+
+:root[data-ui="qibing"][data-ui] .game-card .keyword-chip,
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 0;
+  min-height: 0;
+  padding: 1.5px 5px;
+  border: 1.5px solid var(--px-ink);
+  border-radius: 0;
+  background: linear-gradient(180deg, #342f2d 0%, #201d1e 100%);
+  box-shadow:
+    inset 1px 1px 0 rgba(255, 229, 156, 0.24),
+    inset -1px -1px 0 rgba(0, 0, 0, 0.6),
+    0 1px 0 rgba(0, 0, 0, 0.55);
+  color: #f4ede0;
+  font-size: 9.5px;
+  line-height: 1.2;
+  text-shadow: 1px 1px 0 #0a0c11;
+}
+
+:root[data-ui="qibing"][data-ui] .game-card .keyword-icon,
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-icon {
+  display: block;
+  flex: none;
+  width: 11px;
+  height: 11px;
+  margin: 0;
+  filter: drop-shadow(0 1px 0 #0a0c11);
+}
+
+:root[data-ui="qibing"][data-ui] .game-card .keyword-label,
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .keyword-label {
+  display: inline;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f4ede0;
+  letter-spacing: 0.01em;
+}
+
+/* Collection card layout overrides (superseding qibing-ui.css bare text rules) */
+:root[data-ui="qibing"][data-ui] .game-card.is-collection .game-card-description {
+  top: 72.5%;
+  left: 12.5%;
+  width: 75%;
+  height: 18.5%;
+  gap: 3px;
+}
+
+:root[data-ui="qibing"][data-ui] .game-card.is-collection.game-card-spell .game-card-description {
+  top: 60.5%;
+  left: 14%;
+  width: 72%;
+  height: 27.5%;
+}
+
+/* General cards: structured forged-slate & gold-trimmed ability strips */
+:root[data-ui="qibing"][data-ui] .game-card.game-card-general .game-card-stats {
+  top: 59.5%;
+  height: 10.5%;
+}
+
+:root[data-ui="qibing"][data-ui] .game-card.is-collection.game-card-general .game-card-description {
+  top: 71.5%;
+  left: 12.5%;
+  width: 75%;
+  height: 19.5%;
+}
+
+:root[data-ui="qibing"][data-ui] .collection-card-abilities {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+}
+
+:root[data-ui="qibing"][data-ui] .collection-card-ability {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 2px 5px;
+  border: 1px solid rgba(214, 160, 60, 0.36);
+  background: linear-gradient(180deg, rgba(36, 31, 28, 0.92), rgba(20, 17, 17, 0.95));
+  box-shadow: inset 0 1px 0 rgba(255, 229, 156, 0.14), 0 1px 0 rgba(0, 0, 0, 0.5);
+  text-align: left;
+}
+
+:root[data-ui="qibing"][data-ui] .collection-ability-kind {
+  flex: none;
+  min-width: 42px;
+  color: #d9b068;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+:root[data-ui="qibing"][data-ui] .collection-ability-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #f8f1e2;
+  text-shadow: 1px 1px 0 #0a0c11;
+}
+
+/* Vanilla unit cards (no rules/keywords): center attack/health plaques cleanly in the lower tablet */
+:root[data-ui="qibing"][data-ui] :not(.hand-card):not(.unit-inspect-card) > .game-card.is-entity:not(.game-card-general):not(:has(.keyword-chip, .game-card-rule, .collection-card-ability)) .game-card-stats {
+  top: 67.5%;
+}
+
+/* Sculpted Pixel Mana Gem & Range Shield Medallions (Global) */
+.card-stat-badge {
+  border: 0;
+  border-radius: 0;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  font-family: 'Noto Sans SC', 'Luxiang UI', monospace, sans-serif;
+  font-weight: 900;
+  text-shadow: 1px 1px 0 #0b0d12, -1px 0 0 #0b0d12, 0 -1px 0 #0b0d12;
+}
+
+.card-stat-mana {
+  background-image: url('./assets/ui/pixel-cards/badge-mana.svg') !important;
+  color: #ffffff;
+  filter: drop-shadow(0 2px 0 rgba(7, 9, 13, 0.72));
+}
+
+.card-stat-range {
+  background-image: url('./assets/ui/pixel-cards/badge-range.svg') !important;
+  color: var(--px-brass-hi);
+  filter: drop-shadow(0 2px 0 rgba(7, 9, 13, 0.72));
+}
+
+.game-card :is(.game-card-cost, .game-card-range) {
+  top: 0;
+  width: 24%;
+}
+.game-card .game-card-cost { left: 0; }
+.game-card .game-card-range { right: 0; }
+
+/* Sculpted Pixel Attack Sword & Health Heart Banner Plaques (Global) */
+.game-card .game-card-stats {
+  top: 61.5%;
+  left: 11%;
+  right: 11%;
+  height: 11.5%;
+  gap: 5%;
+  align-items: stretch;
+  font-family: 'Noto Sans SC', 'Luxiang UI', monospace, sans-serif;
+  font-weight: 900;
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+.game-card .game-card-stats span {
+  position: relative;
+  flex: 1 1 0;
+  width: auto;
+  height: 100%;
+  padding-left: 11cqw;
+  border: 0;
+  border-radius: 0;
+  background-position: center;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+
+.game-card .game-card-attack {
+  background-image: url('./assets/ui/pixel-cards/plaque-attack.svg') !important;
+  color: #ffefc2;
+}
+
+.game-card .game-card-health {
+  background-image: url('./assets/ui/pixel-cards/plaque-health.svg') !important;
+  color: #ffeaec;
+}
+
+/* ============================================================================
+   2b. Battle Hand, Mulligan & Drag Ghost Card Proportions
+   ============================================================================ */
+
+#match .hand-card {
+  background: none !important;
+  box-shadow: none !important;
+  overflow: visible;
+}
+
+#match .hand .game-card-art,
+.hand-drag-ghost .game-card-art {
+  top: 8.5%;
+  left: 10.5%;
+  width: 79%;
+  height: 37%;
+}
+
+#match .hand .game-card-caption,
+.hand-drag-ghost .game-card-caption {
+  top: 49%;
+  left: 9%;
+  width: 82%;
+}
+
+#match .hand .game-card-name,
+.hand-drag-ghost .game-card-name {
+  font-size: 9.5px;
+  line-height: 1.15;
+}
+
+#match .hand .game-card :is(.game-card-cost, .game-card-range),
+.hand-drag-ghost .game-card :is(.game-card-cost, .game-card-range) {
+  top: -3px;
+  width: 22px;
+  height: 22px;
+  font-size: 11.5px;
+  line-height: 1;
+}
+
+#match .hand .game-card .game-card-cost,
+.hand-drag-ghost .game-card .game-card-cost {
+  left: -3px;
+}
+
+#match .hand .game-card .game-card-range,
+.hand-drag-ghost .game-card .game-card-range {
+  right: -3px;
+}
+
+#match .hand .game-card-stats,
+.hand-drag-ghost .game-card-stats {
+  top: auto;
+  bottom: 7px;
+  left: 6px;
+  right: 6px;
+  height: 18px;
+  gap: 3px;
+}
+
+#match .hand .game-card-stats span,
+.hand-drag-ghost .game-card-stats span {
+  padding-left: 11px;
+  font-size: 11px;
+}
+
+/* Opening mulligan larger cards */
+#match .opening-cards .game-card-caption {
+  top: 49%;
+}
+
+#match .opening-cards .game-card-stats {
+  top: 63.5%;
+  height: 20px;
+}
+
+#match .opening-cards .game-card-stats span {
+  padding-left: 14px;
+  font-size: 13px;
+}
+
+/* Hand card tactile hover / selected / unplayable states */
+#match .hand-card:hover:not(.unplayable) {
+  transform: translateY(-5px);
+  filter: none;
+}
+
+#match .hand-card:hover:not(.unplayable) > .game-card {
+  filter: drop-shadow(0 0 1px #ffe08a) drop-shadow(0 5px 0 rgba(7, 9, 13, 0.85));
+}
+
+#match .hand-card.selected {
+  transform: translateY(-8px);
+  filter: none;
+}
+
+#match .hand-card.selected > .game-card {
+  filter: drop-shadow(0 0 2px #ffe08a) drop-shadow(0 0 1px #ffe08a) drop-shadow(0 6px 0 rgba(7, 9, 13, 0.88));
+}
+
+#match .hand-card.unplayable {
+  filter: saturate(0.52) brightness(0.74);
+}
+
+#match .hand-card.aiming > .game-card {
+  filter: drop-shadow(0 0 2px #8eeeff) drop-shadow(0 4px 0 rgba(7, 9, 13, 0.85));
+}
+
+/* ============================================================================
+   3. Card Inspect Popup (#unit-inspect) & External Card Polish
+   ============================================================================ */
+
+#match #unit-inspect .unit-inspect-card.game-card {
+  background: transparent;
+}
+
+#match #unit-inspect .game-card-art {
+  top: 8.5%;
+  left: 11%;
+  width: 78%;
+  height: 36.5%;
+}
+
+#match #unit-inspect .game-card-caption {
+  top: 48%;
+  left: 10%;
+  width: 80%;
+}
+
+#match #unit-inspect .game-card-type {
+  margin-top: 3%;
+}
+
+#match #unit-inspect .game-card-stats {
+  top: 60.5%;
+  left: 11%;
+  right: 11%;
+  height: 28px;
+  gap: 8px;
+}
+
+#match #unit-inspect .game-card-stats span {
+  padding-left: 20px;
+  font-size: 16px;
+}
+
+#match #unit-inspect .game-card-description {
+  top: 71.5%;
+  left: 12%;
+  width: 76%;
+  height: 20.5%;
+  padding: 5px 7px;
+  box-sizing: border-box;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #e4eaf4;
+}
+
+#match #unit-inspect.spell-preview .game-card-description {
+  top: 63.5%;
+  height: 22%;
+}
+
+#match #unit-inspect .game-card-description:empty {
+  display: none;
+}
+
+#match #unit-inspect .card-stat-badge {
+  width: 38px;
+  height: 38px;
+  font-size: 19px;
+}
+
+#match #unit-inspect #unit-inspect-cost,
+#match #unit-inspect .unit-inspect-cost {
+  top: -4px;
+  left: -4px;
+}
+
+#match #unit-inspect #unit-inspect-range,
+#match #unit-inspect .unit-inspect-range {
+  top: -4px;
+  right: -4px;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #unit-inspect .keyword-chip {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel-sm), 0 2px 0 rgba(0, 0, 0, 0.55);
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #unit-inspect .keyword-chip:hover {
+  background: #343d4c;
+  border-color: var(--px-brass);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #replace-hand-card {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel), var(--px-shadow-hard);
+  color: var(--px-brass-hi);
+  font-weight: 700;
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #replace-hand-card:hover:not(:disabled) {
+  background: #343c4a;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #unit-inspect .inspect-close {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel-sm), 0 2px 0 rgba(0, 0, 0, 0.65);
+  color: var(--px-ivory);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #unit-inspect .inspect-ability {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: #232b38;
+  box-shadow: inset 1px 1px 0 #536178, inset -1px -1px 0 #11151d;
+  color: var(--px-ivory);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #unit-inspect .inspect-ability:hover {
+  background: #2d384a;
+  border-color: var(--px-brass);
+}
+
+/* External collection / deck / codex / atlas cards: keep crisp badge sizing */
+.squad-slot .game-card :is(.game-card-cost, .game-card-range) {
+  top: 0;
+  width: 22px;
+  height: 22px;
+  font-size: 12px;
+}
+.squad-slot .game-card .game-card-cost { left: 0; }
+.squad-slot .game-card .game-card-range { right: 0; }
+.squad-slot .game-card .game-card-stats {
+  top: auto;
+  bottom: 0;
+  left: -4%;
+  right: -4%;
+  height: 17px;
+  font-size: 11px;
+}
+.squad-slot .game-card .game-card-stats span {
+  padding-left: 11px;
+}
+
+/* ============================================================================
+   4. Battle Top HUD — Hard-Edge Forged-Basalt & Hearth-Brass Pixel Chrome
+   ============================================================================ */
+
+/* General Plaques (Left Ally / Right Enemy) */
+:root[data-ui="qibing"][data-ui] #match .general-panel {
+  border: 2px solid var(--px-ink);
+  border-left: 4px solid var(--px-ally);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow:
+    inset 2px 2px 0 var(--px-stone-hi),
+    inset -2px -2px 0 var(--px-stone-lo),
+    var(--px-shadow-hard);
+}
+
+:root[data-ui="qibing"][data-ui] #match .general-enemy {
+  border-left: 2px solid var(--px-ink);
+  border-right: 4px solid var(--px-enemy);
+}
+
+:root[data-ui="qibing"][data-ui] #match .portrait-frame {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-slot);
+  box-shadow:
+    inset 1px 1px 0 var(--px-brass),
+    inset -1px -1px 0 var(--px-brass-lo);
+}
+
+:root[data-ui="qibing"][data-ui] #match .portrait-frame::after {
+  display: none;
+}
+
+:root[data-ui="qibing"][data-ui] #match .portrait-frame img {
+  inset: 2px;
+  width: calc(100% - 4px);
+  height: calc(100% - 4px);
+  border-radius: 0;
+  image-rendering: pixelated;
+}
+
+:root[data-ui="qibing"][data-ui] #match .general-name {
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #match .general-enemy .general-name {
+  color: #f6d5d0;
+}
+
+/* Stepped Pixel HP Bars */
+:root[data-ui="qibing"][data-ui] #match .health-meter {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-slot);
+  box-shadow: inset 0 2px 0 rgba(0, 0, 0, 0.65);
+}
+
+:root[data-ui="qibing"][data-ui] #match .health-meter i {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(11, 13, 18, 0.32) 9px 10px),
+    linear-gradient(180deg, var(--px-ally-hi) 0 22%, var(--px-ally) 22% 76%, var(--px-ally-lo) 76% 100%);
+  border-right: 1px solid #d4ffef;
+  box-shadow: none;
+}
+
+:root[data-ui="qibing"][data-ui] #match .enemy-health .health-meter {
+  border-color: var(--px-ink);
+}
+
+:root[data-ui="qibing"][data-ui] #match .enemy-health .health-meter i {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, rgba(11, 13, 18, 0.32) 9px 10px),
+    linear-gradient(180deg, var(--px-enemy-hi) 0 22%, var(--px-enemy) 22% 76%, var(--px-enemy-lo) 76% 100%);
+  border-right: 1px solid #ffd5d0;
+}
+
+:root[data-ui="qibing"][data-ui] #match .general-health strong {
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #0b0d12, -1px 0 0 #0b0d12, 0 -1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #match .deck-count {
+  border: 1.5px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-slot);
+  box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+  color: var(--px-brass-hi);
+}
+
+/* Top-Center Command Cluster (Turn + Objective + Speed) */
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker,
+:root[data-ui="qibing"][data-ui] #app #match #objective-open,
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel), var(--px-shadow-hard);
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker span {
+  color: var(--px-muted);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .battle-top-center .turn-marker strong {
+  color: var(--px-brass-hi);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #objective-open::before {
+  color: var(--px-brass-hi);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #objective-open:hover,
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed:hover {
+  background: #333a48;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed[data-speed="2"] {
+  border-color: var(--px-ink);
+  background: #205270;
+  box-shadow: inset 2px 2px 0 #6cc4eb, inset -2px -2px 0 #102b3d, var(--px-shadow-hard);
+  color: #e4f9ff;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #battle-speed[data-speed="3"] {
+  border-color: var(--px-ink);
+  background: #9c6222;
+  box-shadow: inset 2px 2px 0 #f2c374, inset -2px -2px 0 #4d2c0b, var(--px-shadow-hard);
+  color: #fff5d9;
+}
+
+/* Side Utility Controls (History, Settings, Map, Telegraph Locate) */
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button::before,
+:root[data-ui="qibing"][data-ui] #app #match #leave-match::before {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel), var(--px-shadow-hard);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button[aria-expanded="true"]::before {
+  background: #224d66;
+  box-shadow: inset 2px 2px 0 #6bc2e8, inset -2px -2px 0 #102838, var(--px-shadow-hard);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #battle-history > button:hover::before,
+:root[data-ui="qibing"][data-ui] #app #match #leave-match:hover::before {
+  background: #353c4a;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #map-open {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel), var(--px-shadow-hard);
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #telegraph-locate {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-ember);
+  box-shadow:
+    inset 2px 2px 0 var(--px-ember-hi),
+    inset -2px -2px 0 var(--px-ember-lo),
+    var(--px-shadow-hard);
+  color: #fff6e6;
+  text-shadow: 1px 1px 0 #3d1606;
+}
+
+/* Hand count pill */
+:root #app #match .hand-count {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel-sm), 0 2px 0 rgba(0, 0, 0, 0.65);
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root #app #match .hand-count.is-full {
+  color: var(--px-brass-hi);
+}
+
+/* ============================================================================
+   5. Bottom Command Dock (BBS, Mana Track & Hearth-Ember End Turn Button)
+   ============================================================================ */
+
+:root[data-ui="qibing"][data-ui] #app #match .match-footer {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel), var(--px-shadow-hard);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-track {
+  padding: 2px 6px;
+  border: 1.5px solid var(--px-ink);
+  background: var(--px-slot);
+  box-shadow: inset 1px 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-track strong {
+  color: #eef9ff;
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-glyph {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect x='6' y='1' width='4' height='1' fill='%230b0d12'/%3E%3Crect x='4' y='2' width='2' height='1' fill='%230b0d12'/%3E%3Crect x='10' y='2' width='2' height='1' fill='%230b0d12'/%3E%3Crect x='3' y='3' width='1' height='2' fill='%230b0d12'/%3E%3Crect x='12' y='3' width='1' height='2' fill='%230b0d12'/%3E%3Crect x='2' y='5' width='1' height='6' fill='%230b0d12'/%3E%3Crect x='13' y='5' width='1' height='6' fill='%230b0d12'/%3E%3Crect x='3' y='11' width='1' height='2' fill='%230b0d12'/%3E%3Crect x='12' y='11' width='1' height='2' fill='%230b0d12'/%3E%3Crect x='4' y='13' width='2' height='1' fill='%230b0d12'/%3E%3Crect x='10' y='13' width='2' height='1' fill='%230b0d12'/%3E%3Crect x='6' y='14' width='4' height='1' fill='%230b0d12'/%3E%3Crect x='6' y='2' width='4' height='1' fill='%23b8f0ff'/%3E%3Crect x='4' y='3' width='8' height='2' fill='%2366cbff'/%3E%3Crect x='5' y='3' width='2' height='2' fill='%23d6f7ff'/%3E%3Crect x='3' y='5' width='10' height='4' fill='%232e8ed8'/%3E%3Crect x='4' y='5' width='2' height='3' fill='%238ee0ff'/%3E%3Crect x='3' y='9' width='10' height='2' fill='%231d64a6'/%3E%3Crect x='4' y='11' width='8' height='2' fill='%23154b80'/%3E%3Crect x='6' y='13' width='4' height='1' fill='%230f365e'/%3E%3C/svg%3E") !important;
+  image-rendering: pixelated;
+  filter: none;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-orbs i,
+:root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-orbs span {
+  border-radius: 0 !important;
+  border: 1px solid var(--px-ink);
+  image-rendering: pixelated;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-slot);
+  box-shadow: inset 1px 1px 0 var(--px-brass), inset -1px -1px 0 var(--px-brass-lo), 0 2px 0 rgba(0, 0, 0, 0.65);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button b {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: linear-gradient(180deg, #5ec4ff 0 28%, #2882cc 28% 76%, #164f85 76% 100%) !important;
+  box-shadow: inset 1px 1px 0 #b8efff, inset -1px -1px 0 #0e3358, 0 2px 0 rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  text-shadow: 1px 1px 0 #0b0d12;
+  width: 20px;
+  height: 20px;
+  font-size: 11px;
+  line-height: 16px;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #bbs-button:disabled b {
+  background: linear-gradient(180deg, #4b5261 0 32%, #2b313d 32% 100%) !important;
+  box-shadow: inset 1px 1px 0 #6e778a, inset -1px -1px 0 #141820;
+  color: #b8c0cf;
+}
+
+/* Hero Primary Action: Forged Hearth-Ember Pixel Plate ("结束回合") */
+:root[data-ui="qibing"][data-ui] #app #match #end-turn {
+  border: 2px solid var(--px-ink) !important;
+  border-radius: 0 !important;
+  background: linear-gradient(180deg, #d97538 0 18%, var(--px-ember) 18% 82%, #9e451b 82% 100%) !important;
+  box-shadow:
+    inset 2px 2px 0 var(--px-ember-hi),
+    inset -2px -2px 0 var(--px-ember-lo),
+    var(--px-shadow-hard) !important;
+  color: #fff7e8 !important;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-shadow: 1px 1px 0 #3a1405 !important;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #end-turn::after {
+  display: none !important;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #end-turn:hover:not(:disabled) {
+  background: linear-gradient(180deg, #e88444 0 18%, #d46b31 18% 82%, #ab4d1f 82% 100%) !important;
+  filter: none;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #end-turn:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow:
+    inset 2px 2px 0 var(--px-ember-lo),
+    inset -1px -1px 0 var(--px-ember-hi),
+    0 1px 0 rgba(6, 8, 12, 0.72) !important;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match #end-turn:disabled {
+  background: #232833 !important;
+  box-shadow: inset 1px 1px 0 #3e4554, inset -1px -1px 0 #12151c !important;
+  color: #7d8594 !important;
+  text-shadow: none !important;
+  opacity: 0.72;
+}
+
+/* End-turn hint tag */
+:root #app #match .match-footer .end-turn-hint {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-brass-hi);
+  color: #241607;
+  box-shadow: inset 1px 1px 0 #fff5d6, inset -1px -1px 0 var(--px-brass-lo), 0 2px 0 rgba(0, 0, 0, 0.65);
+  font-weight: 800;
+}
+
+:root #app #match .match-footer .end-turn-hint::after {
+  background: var(--px-brass-hi);
+  border-right: 2px solid var(--px-ink);
+  border-bottom: 2px solid var(--px-ink);
+}
+
+/* ============================================================================
+   6. Battle Drawers, Banners, Mulligan & Dialogs — Unified Forged Pixel Chrome
+   ============================================================================ */
+
+:root[data-ui="qibing"][data-ui] #app #match #battle-history-panel,
+:root[data-ui="qibing"][data-ui] #app #match #map-panel,
+:root[data-ui="qibing"][data-ui] #app #match #telegraph-popover,
+:root[data-ui="qibing"][data-ui] #app #match #battle-event-banner {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: rgba(34, 40, 50, 0.96);
+  box-shadow: var(--px-bevel), 0 6px 0 rgba(6, 8, 12, 0.68);
+  color: var(--px-ivory);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .turn-toast {
+  width: auto;
+  min-width: 196px;
+  min-height: 48px;
+  padding: 10px 28px;
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: linear-gradient(180deg, #323947 0%, #222732 52%, #191d26 100%) !important;
+  box-shadow:
+    inset 0 2px 0 var(--px-brass),
+    inset 0 -2px 0 var(--px-brass-lo),
+    inset 2px 0 0 #4d5666,
+    inset -2px 0 0 #141820,
+    0 5px 0 rgba(6, 8, 12, 0.78);
+  color: var(--px-brass-hi);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-shadow: 2px 2px 0 #0b0d12;
+}
+
+/* Mulligan overlay & buttons */
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand {
+  background: rgba(8, 10, 15, 0.84);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand > p {
+  padding: 5px 14px;
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel-sm), 0 3px 0 rgba(0, 0, 0, 0.65);
+  color: var(--px-brass-hi);
+  font-weight: 700;
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .battle-card-level {
+  border: 1px solid var(--px-ink);
+  background: #1a202b;
+  color: var(--px-brass-hi);
+  font-weight: 700;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-cards .hand-card.replacing > .game-card {
+  border-color: var(--px-ember-hi);
+  box-shadow: 0 0 0 2px var(--px-ink);
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-cards .replacing .mulligan-mark {
+  border: 2px solid var(--px-ink);
+  background: var(--px-ember);
+  color: #fff6e6;
+  font-weight: 800;
+  text-shadow: 1px 1px 0 #3a1405;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand .opening-card-toggle {
+  border: 2px solid var(--px-ink);
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow: var(--px-bevel-sm), 0 2px 0 rgba(0, 0, 0, 0.65);
+  color: var(--px-ivory);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-hand .opening-card-toggle[aria-pressed="true"] {
+  background: var(--px-ember);
+  box-shadow: inset 1px 1px 0 var(--px-ember-hi), inset -1px -1px 0 var(--px-ember-lo), 0 2px 0 rgba(0, 0, 0, 0.65);
+  color: #fff6e6;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-confirm {
+  border: 2px solid var(--px-ink) !important;
+  border-radius: 0 !important;
+  background: linear-gradient(180deg, #d97538 0 18%, var(--px-ember) 18% 82%, #9e451b 82% 100%) !important;
+  box-shadow:
+    inset 2px 2px 0 var(--px-ember-hi),
+    inset -2px -2px 0 var(--px-ember-lo),
+    var(--px-shadow-hard) !important;
+  color: #fff7e8 !important;
+  text-shadow: 1px 1px 0 #3a1405 !important;
+}
+
+:root[data-ui="qibing"][data-ui] #app #match .opening-confirm::after {
+  display: none !important;
+}
+
+/* Battle-scoped dialogs (Objective, Audio Settings, Confirm, Result, Opening Card Detail) */
+:root[data-ui="qibing"][data-ui] :is(#objective-dialog, #audio-settings, .opening-card-detail, #game-result .result-panel, #confirm-screen .confirm-panel, .hero-effect-dialog) {
+  border: 2px solid var(--px-ink);
+  border-image: none;
+  border-radius: 0;
+  background: var(--px-stone-mid);
+  box-shadow:
+    inset 2px 2px 0 var(--px-stone-hi),
+    inset -2px -2px 0 var(--px-stone-lo),
+    0 10px 0 rgba(6, 8, 12, 0.72);
+  color: var(--px-ivory);
+}
+
+:root[data-ui="qibing"][data-ui] :is(#objective-dialog, #audio-settings, .opening-card-detail, #game-result .result-panel, #confirm-screen .confirm-panel) h2 {
+  color: var(--px-brass-hi);
+  text-shadow: 1px 1px 0 #0b0d12;
+}
+
+/* Compact 568x320 mobile refinements */
+@media (max-width: 660px), (max-height: 350px) {
+  #match .hand .game-card :is(.game-card-cost, .game-card-range) {
+    top: -2px;
+    width: 19px;
+    height: 19px;
+    font-size: 10.5px;
+  }
+  #match .hand .game-card-stats {
+    bottom: 6px;
+    left: 5px;
+    right: 5px;
+    height: 16px;
+    gap: 2px;
+  }
+  #match .hand .game-card-stats span {
+    padding-left: 10px;
+    font-size: 10px;
+  }
+  #match .hand .game-card-name {
+    font-size: 9px;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-track {
+    padding: 2px 4px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    align-self: center;
+    margin-top: 0;
+  }
+  :root[data-ui="qibing"][data-ui] #app #match .match-footer .mana-glyph {
+    width: 18px;
+    height: 18px;
+  }
+}

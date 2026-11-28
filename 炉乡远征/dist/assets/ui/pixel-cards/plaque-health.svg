@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 24" shape-rendering="crispEdges">
+  <rect x="3" y="0" width="50" height="24" fill="#0a0c11"/>
+  <rect x="1" y="2" width="54" height="20" fill="#0a0c11"/>
+  <rect x="0" y="4" width="56" height="16" fill="#0a0c11"/>
+  <!-- Crimson bevel plate -->
+  <rect x="3" y="2" width="50" height="20" fill="#541d26"/>
+  <rect x="2" y="4" width="52" height="16" fill="#541d26"/>
+  <rect x="4" y="2" width="48" height="2" fill="#f07882"/>
+  <rect x="3" y="4" width="50" height="2" fill="#a33340"/>
+  <rect x="4" y="20" width="48" height="2" fill="#290c12"/>
+  <rect x="2" y="5" width="2" height="14" fill="#c44552"/>
+  <rect x="52" y="5" width="2" height="14" fill="#290c12"/>
+  <!-- Inner dark plate right side for crisp number -->
+  <rect x="21" y="5" width="30" height="14" fill="#331118"/>
+  <rect x="21" y="5" width="30" height="1" fill="#1f080d"/>
+  <!-- Hi-bit faceted ruby heart on left -->
+  <rect x="6" y="5" width="4" height="2" fill="#ffb8c0"/>
+  <rect x="12" y="5" width="4" height="2" fill="#ffb8c0"/>
+  <rect x="4" y="7" width="14" height="4" fill="#f25767"/>
+  <rect x="6" y="7" width="3" height="2" fill="#ffe6e9"/>
+  <rect x="5" y="11" width="12" height="3" fill="#d93848"/>
+  <rect x="7" y="14" width="8" height="2" fill="#b82736"/>
+  <rect x="9" y="16" width="4" height="2" fill="#8c1a27"/>
+  <rect x="10" y="18" width="2" height="1" fill="#5e1019"/>
+</svg>

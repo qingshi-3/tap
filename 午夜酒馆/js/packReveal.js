@@ -68,6 +68,9 @@
 
       this.$('.pr-title b').textContent = opts.title || '';
       this.$('.pr-title span').textContent = opts.subtitle || '';
+      const kind = opts.kind === 'ins' ? 'ins' : 'hero';
+      this.$('.pr-pack-emblem').innerHTML = this._packEmblemSvg(kind);
+      this.$('.pr-pack-sub').textContent = kind === 'hero' ? 'RARE RECRUIT' : 'ARCANE SEAL';
       this._renderCards();
       this._renderFoot();
       this._loop();
@@ -122,10 +125,15 @@
             <span class="pr-pack-foil">
               <i class="pr-crimp top"></i>
               <span class="pr-pack-face">
+                <i class="pr-pack-corners"></i>
                 <span class="pr-pack-count"></span>
-                <span class="pr-pack-emblem"><i></i><i></i><i></i><b></b></span>
-                <span class="pr-pack-name"></span>
+                <span class="pr-pack-emblem"></span>
+                <span class="pr-pack-banner">
+                  <span class="pr-pack-name"></span>
+                  <span class="pr-pack-sub"></span>
+                </span>
               </span>
+              <i class="pr-pack-crack" aria-hidden="true"></i>
               <i class="pr-pack-sheen"></i>
               <i class="pr-crimp bottom"></i>
             </span>
@@ -228,11 +236,60 @@
       h.classList.add('pop');
     }
 
+    _packEmblemSvg(kind) {
+      return kind === 'hero'
+        ? `<svg class="pr-pack-svg" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+             <circle cx="44" cy="44" r="36" stroke="#f2dba2" stroke-opacity="0.3" stroke-width="1.2" stroke-dasharray="3 3"/>
+             <circle cx="44" cy="44" r="29" fill="rgba(20,6,9,0.55)" stroke="#d4ae68" stroke-opacity="0.7" stroke-width="1.2"/>
+             <g transform="rotate(-18 44 46)">
+               <rect x="27" y="20" width="26" height="38" rx="2" fill="#2c0b12" stroke="#d4ae68" stroke-width="1.6"/>
+               <rect x="30" y="23" width="20" height="32" rx="1" stroke="#f2dba2" stroke-opacity="0.35" stroke-width="1"/>
+             </g>
+             <g transform="rotate(18 44 46)">
+               <rect x="35" y="20" width="26" height="38" rx="2" fill="#2c0b12" stroke="#d4ae68" stroke-width="1.6"/>
+               <rect x="38" y="23" width="20" height="32" rx="1" stroke="#f2dba2" stroke-opacity="0.35" stroke-width="1"/>
+             </g>
+             <rect x="30" y="18" width="28" height="42" rx="2" fill="url(#prHeroGold)" stroke="#14080a" stroke-width="1.5"/>
+             <rect x="32.5" y="20.5" width="23" height="37" rx="1" fill="#3a0d16" stroke="#fff0c2" stroke-width="1.2"/>
+             <path d="M44 26 L46.6 35.4 L55 39 L46.6 42.6 L44 52 L41.4 42.6 L33 39 L41.4 35.4 Z" fill="#ffe7a8" stroke="#5a1820" stroke-width="0.9"/>
+             <circle cx="44" cy="39" r="2.2" fill="#fffaf0"/>
+             <path d="M44 8 L45.5 13 L44 15 L42.5 13 Z M44 80 L45.5 75 L44 73 L42.5 75 Z M8 44 L13 45.5 L15 44 L13 42.5 Z M80 44 L75 45.5 L73 44 L75 42.5 Z" fill="#f2dba2" opacity="0.85"/>
+             <defs>
+               <linearGradient id="prHeroGold" x1="30" y1="18" x2="58" y2="60" gradientUnits="userSpaceOnUse">
+                 <stop offset="0%" stop-color="#fff0c2"/>
+                 <stop offset="50%" stop-color="#d4ae68"/>
+                 <stop offset="100%" stop-color="#8a6228"/>
+               </linearGradient>
+             </defs>
+           </svg>`
+        : `<svg class="pr-pack-svg" viewBox="0 0 88 88" fill="none" aria-hidden="true">
+             <circle cx="44" cy="44" r="35" stroke="#d8beff" stroke-opacity="0.34" stroke-width="1.2" stroke-dasharray="2 3"/>
+             <circle cx="44" cy="44" r="27" fill="rgba(16,8,34,0.62)" stroke="#e8c77e" stroke-opacity="0.72" stroke-width="1.3"/>
+             <polygon points="44,12 68,44 44,76 20,44" fill="none" stroke="#e8c77e" stroke-opacity="0.52" stroke-width="1.2"/>
+             <polygon points="44,18 64,44 44,70 24,44" fill="url(#prInsPrism)" stroke="#fff0c2" stroke-width="1.5"/>
+             <polygon points="44,25 56,44 44,63 32,44" fill="#231048" stroke="#d4b3ff" stroke-width="1.2"/>
+             <polygon points="44,32 50,44 44,56 38,44" fill="#e8c77e"/>
+             <circle cx="44" cy="44" r="3" fill="#ffffff"/>
+             <circle cx="44" cy="12" r="2" fill="#fff0c2"/>
+             <circle cx="44" cy="76" r="2" fill="#fff0c2"/>
+             <circle cx="12" cy="44" r="2" fill="#d4b3ff"/>
+             <circle cx="76" cy="44" r="2" fill="#d4b3ff"/>
+             <defs>
+               <linearGradient id="prInsPrism" x1="24" y1="18" x2="64" y2="70" gradientUnits="userSpaceOnUse">
+                 <stop offset="0%" stop-color="#e5ccff"/>
+                 <stop offset="45%" stop-color="#7c4dff"/>
+                 <stop offset="100%" stop-color="#2c125c"/>
+               </linearGradient>
+             </defs>
+           </svg>`;
+    }
+
     // ─── phases ────────────────────────────────────────────────────────
     _showPack() {
       this.phase = 'sealed';
       const pack = this.$('.pr-pack');
-      pack.classList.remove('gone', 'charging', 'torn');
+      pack.classList.remove('gone', 'charging', 'hitstop', 'torn');
+      this.root.classList.remove('pack-focus');
       pack.classList.add('drop');
       setTimeout(() => pack.classList.remove('drop'), 700);
       this._setHint('点一下撕开卡包');
@@ -243,27 +300,61 @@
       if (this.phase !== 'sealed') return;
       this.phase = 'charging';
       const pack = this.$('.pr-pack');
-      pack.classList.add('charging');
-      this._setHint('');
-      this._sfxCharge();
-      setTimeout(() => {
-        pack.classList.remove('charging');
+      const bestRank = tierOf(this.best).rank;
+      const bestCol = tierOf(this.best).rgb;
+
+      if (this.reduced) {
         pack.classList.add('torn');
         this._burst(false);
-      }, this.reduced ? 80 : 560);
+        return;
+      }
+
+      // Beat 1: dim the theater, lift & tremble the sealed pack with escalating rarity tension
+      this.root.classList.add('pack-focus');
+      pack.classList.add('charging');
+      this._setHint('');
+      if (bestRank >= 3) this._sfxLegendCharge();
+      else this._sfxCharge();
+
+      // Pull-in spark anticipation bursts during charge
+      const chargeMs = bestRank >= 4 ? 660 : bestRank >= 3 ? 580 : 460;
+      const hitstopMs = bestRank >= 4 ? 195 : bestRank >= 3 ? 165 : 120;
+      this._spray(PACK_CX, PACK_CY, 18 + bestRank * 8, [bestCol, [255, 240, 200]], 180);
+
+      // Beat 2: sudden dead-stop HITSTOP freeze at peak tension (the tactile 顿挫感)
+      setTimeout(() => {
+        if (this.phase !== 'charging') return;
+        pack.classList.remove('charging');
+        pack.classList.add('hitstop');
+        this._sfxCrackTick(bestRank);
+        this._ring(PACK_CX, PACK_CY, [255, 246, 214], 240);
+      }, chargeMs);
+
+      // Beat 3: explosive tear release
+      setTimeout(() => {
+        if (this.phase !== 'charging') return;
+        this.root.classList.remove('pack-focus');
+        pack.classList.remove('hitstop');
+        pack.classList.add('torn');
+        this._burst(false);
+      }, chargeMs + hitstopMs);
     }
 
     _burst(fromReroll) {
       this.phase = 'burst';
-      this.root.classList.remove('is-sealed');
+      this.root.classList.remove('is-sealed', 'pack-focus');
       this.root.classList.add('is-open');
       const bestRank = tierOf(this.best).rank;
-      this._flash(bestRank >= 3 ? 0.9 : 0.6);
-      this._shake(bestRank >= 4 ? 12 : bestRank >= 3 ? 8 : 5, 420);
-      this._sfxTear(bestRank >= 3);
       const bestCol = tierOf(this.best).rgb;
-      this._spray(PACK_CX, PACK_CY, 90 + bestRank * 30, [[255, 236, 190], bestCol], 520);
-      this._ring(PACK_CX, PACK_CY, bestCol, 520);
+      this._flash(bestRank >= 4 ? 1.0 : bestRank >= 3 ? 0.85 : 0.62);
+      this._shake(bestRank >= 4 ? 16 : bestRank >= 3 ? 11 : 7, bestRank >= 4 ? 580 : 420);
+      this._sfxTear(bestRank >= 3);
+      if (bestRank >= 3) this._sfxLegendBoom();
+      this._spray(PACK_CX, PACK_CY, 110 + bestRank * 42, [[255, 236, 190], bestCol, [255, 255, 255]], 580 + bestRank * 45);
+      this._ring(PACK_CX, PACK_CY, bestCol, 560 + bestRank * 45);
+      if (bestRank >= 3) {
+        setTimeout(() => this._ring(PACK_CX, PACK_CY, [255, 224, 140], 480), 110);
+      }
       setTimeout(() => this.$('.pr-pack').classList.add('gone'), 420);
       // deal the cards out face-down
       const cards = [...this.root.querySelectorAll('.pr-card')];
@@ -275,13 +366,13 @@
             el.classList.remove('landing');
             this._sfxLand(i);
           }, 380);
-        }, (fromReroll ? 60 : 160) + i * 95);
+        }, (fromReroll ? 60 : 180) + i * 95);
       });
       setTimeout(() => {
         this.phase = 'dealt';
         this.root.classList.add('is-dealt');
         this._setHint('按住卡牌蓄力，松手翻开');
-      }, 220 + cards.length * 95 + 380);
+      }, 240 + cards.length * 95 + 380);
     }
 
     _onCardClick(i) {
@@ -300,7 +391,7 @@
       let delay = 0;
       order.forEach((i) => {
         setTimeout(() => this._flip(i, true), delay);
-        delay += tierOf(this.opts.cards[i].tier).rank >= 4 ? 1500 : tierOf(this.opts.cards[i].tier).rank >= 3 ? 700 : 300;
+        delay += tierOf(this.opts.cards[i].tier).rank >= 4 ? 520 : tierOf(this.opts.cards[i].tier).rank >= 3 ? 380 : 240;
       });
     }
 
@@ -315,32 +406,22 @@
       const doFlip = () => {
         el.classList.add('flipped');
         this._sfxFlip();
-        setTimeout(() => this._revealFx(el, tier, rect, i), 210);
+        setTimeout(() => this._revealFx(el, tier, rect, i), 200);
       };
 
+      // Heavy hitstop drama now lives on tearing the pack open;
+      // individual card flips stay crisp and punchy with a brief tactile squeeze for S/SSS.
       if (rank >= 4 && !this.reduced) {
-        // SSS: hold the moment — dim the rest, the card rises and trembles
-        this.busy = true;
-        this.root.classList.add('focus');
-        el.classList.add('focus', 'charging');
-        this._sfxLegendCharge();
-        setTimeout(() => {
-          el.classList.remove('charging');
-          doFlip();
-        }, 900);
-        setTimeout(() => {
-          this.root.classList.remove('focus');
-          el.classList.remove('focus');
-          this.busy = false;
-          this._afterFlip();
-        }, 2000);
+        el.classList.add('charging-s');
+        setTimeout(() => { el.classList.remove('charging-s'); doFlip(); }, 220);
+        setTimeout(() => this._afterFlip(), 680);
       } else if (rank >= 3 && !this.reduced) {
         el.classList.add('charging-s');
-        setTimeout(() => { el.classList.remove('charging-s'); doFlip(); }, 260);
-        setTimeout(() => this._afterFlip(), 760);
+        setTimeout(() => { el.classList.remove('charging-s'); doFlip(); }, 150);
+        setTimeout(() => this._afterFlip(), 560);
       } else {
         doFlip();
-        setTimeout(() => this._afterFlip(), 420);
+        setTimeout(() => this._afterFlip(), 380);
       }
     }
 
@@ -349,24 +430,23 @@
       el.classList.add('revealed');
       if (this.audio && this.audio.playCardReveal) this.audio.playCardReveal(tier, i);
       if (t.rank >= 4) {
-        this._flash(1);
-        this._shake(16, 620);
-        this._spray(p.x, p.y, 260, [t.rgb, [255, 224, 140], [255, 255, 255]], 760);
-        this._ring(p.x, p.y, t.rgb, 760);
-        setTimeout(() => this._ring(p.x, p.y, [255, 224, 140], 620), 120);
-        this._sfxLegendBoom();
+        this._flash(0.65);
+        this._shake(10, 420);
+        this._spray(p.x, p.y, 180, [t.rgb, [255, 224, 140], [255, 255, 255]], 640);
+        this._ring(p.x, p.y, t.rgb, 620);
+        setTimeout(() => this._ring(p.x, p.y, [255, 224, 140], 500), 100);
         el.classList.add('stamped');
       } else if (t.rank === 3) {
-        this._flash(0.45);
-        this._shake(7, 360);
-        this._spray(p.x, p.y, 140, [t.rgb, [255, 246, 214]], 560);
-        this._ring(p.x, p.y, t.rgb, 560);
+        this._flash(0.35);
+        this._shake(6, 300);
+        this._spray(p.x, p.y, 110, [t.rgb, [255, 246, 214]], 500);
+        this._ring(p.x, p.y, t.rgb, 500);
         el.classList.add('stamped');
       } else if (t.rank === 2) {
-        this._spray(p.x, p.y, 70, [t.rgb], 420);
-        this._ring(p.x, p.y, t.rgb, 400);
+        this._spray(p.x, p.y, 65, [t.rgb], 400);
+        this._ring(p.x, p.y, t.rgb, 380);
       } else {
-        this._spray(p.x, p.y, 26, [t.rgb, [236, 228, 212]], 300);
+        this._spray(p.x, p.y, 24, [t.rgb, [236, 228, 212]], 280);
       }
     }
 
@@ -528,7 +608,13 @@
     }
     _sfxCharge() {
       if (this.audio && this.audio.playPackCharge) this.audio.playPackCharge();
-      this._tone(120, 0.55, 'sawtooth', 0.04, 0, 360);
+      this._tone(110, 0.46, 'sawtooth', 0.045, 0, 340);
+      this._tone(165, 0.44, 'sine', 0.05, 0.04, 480);
+    }
+    _sfxCrackTick(rank) {
+      // Crisp metallic snap right as the hitstop freezes — accents the 顿挫 beat!
+      this._tone(rank >= 3 ? 1180 : 880, 0.07, 'triangle', 0.11, 0, rank >= 3 ? 1560 : 1120);
+      this._noise(0.05, 0.08, 3400, 0, { kind: 'white', filterType: 'bandpass', Q: 2.2 });
     }
     _sfxTear(big) {
       if (this.audio && this.audio.playPackTear) this.audio.playPackTear(big);

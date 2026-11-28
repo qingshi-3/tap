@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#141434">
+  <title>群英公会</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="hall"></canvas>
+    <header id="top"></header>
+    <nav id="nav">
+      <button data-tab="quests"><i class="ic ic-quests"></i><span>委托</span></button>
+      <button data-tab="members"><i class="ic ic-members"></i><span>成员</span></button>
+      <button data-tab="recruit"><i class="ic ic-recruit"></i><span>招募</span></button>
+      <button data-tab="facilities"><i class="ic ic-facilities"></i><span>设施</span></button>
+      <button data-tab="guild"><i class="ic ic-guild"></i><span>公会</span></button>
+    </nav>
+    <button id="endDay"></button>
+    <section id="panel" class="hidden">
+      <div class="p-bg"></div>
+      <div class="p-head"><button class="x" aria-label="返回"><i class="ic ic-back"></i><span>返回</span></button><h2></h2><div class="p-res"></div></div>
+      <div class="p-body"></div>
+    </section>
+    <div id="battle" class="hidden"></div>
+    <div id="modal" class="hidden"><div class="m-box"></div></div>
+    <div id="curtain"></div>
+    <div id="toast"></div>
+    <div id="rotate"><div>请将手机横过来<small>群英公会需要横屏游玩</small></div></div>
+  </div>
+  <script src="assets/duelyst/assets/manifest.js"></script>
+  <script src="assets/duelyst/duelyst-h5.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

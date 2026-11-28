@@ -73,79 +73,128 @@
 
 /* ─── the sealed pack ───────────────────────────────────────────────── */
 .pr-pack {
-  position: absolute; left: 50%; top: 372px; width: 200px; height: 310px; margin: -155px 0 0 -100px;
+  position: absolute; left: 50%; top: 372px; width: 204px; height: 316px; margin: -158px 0 0 -102px;
   padding: 0; border: 0; background: none; cursor: pointer; z-index: 3;
-  --pk1: #8a1f2b; --pk2: #4a0f17; --pk-hi: #ff8a8a;
+  --pk1: #7d1927; --pk2: #380910; --pk-hi: #ff9c8a; --pk-rim: #e6c178;
 }
-.kind-ins .pr-pack { --pk1: #4b2a86; --pk2: #22113f; --pk-hi: #c8a2ff; }
+.kind-ins .pr-pack { --pk1: #412178; --pk2: #190a36; --pk-hi: #c8a2ff; --pk-rim: #d8c2ff; }
 .pr-pack.gone, .pr-root.is-open .pr-pack:not(.torn) { display: none; }
-.pr-pack-foil { position: absolute; inset: 0; display: block; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.7)); animation: prPackFloat 3s ease-in-out infinite; }
+.pr-pack-foil { position: absolute; inset: 0; display: block; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.72)); animation: prPackFloat 3s ease-in-out infinite; }
 @keyframes prPackFloat { 50% { transform: translateY(-8px) rotate(-1deg); } }
-.pr-pack:hover .pr-pack-foil { filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.7)) drop-shadow(0 0 18px color-mix(in srgb, var(--pk-hi) 50%, transparent)); }
+.pr-pack:hover .pr-pack-foil { filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.72)) drop-shadow(0 0 22px color-mix(in srgb, var(--pk-hi) 55%, transparent)); }
 .pr-pack.drop .pr-pack-foil { animation: prPackDrop 0.7s cubic-bezier(.2, 1.4, .4, 1); }
 @keyframes prPackDrop { from { transform: translateY(-420px) rotate(-14deg); } 60% { transform: translateY(10px) rotate(2deg); } }
 .pr-crimp {
-  position: absolute; left: 0; right: 0; height: 14px; display: block;
-  background: linear-gradient(90deg, #d9be86, #fff1c8 30%, #b8925a 60%, #f2dba2);
-  -webkit-mask: linear-gradient(135deg, #000 50%, transparent 50%) 0 0 / 10px 14px repeat-x, linear-gradient(225deg, #000 50%, transparent 50%) 0 0 / 10px 14px repeat-x;
-  mask: linear-gradient(135deg, #000 50%, transparent 50%) 0 0 / 10px 14px repeat-x, linear-gradient(225deg, #000 50%, transparent 50%) 0 0 / 10px 14px repeat-x;
+  position: absolute; left: 3px; right: 3px; height: 15px; display: block; z-index: 2;
+  background:
+    linear-gradient(180deg, rgba(255, 248, 224, 0.58) 0 2px, transparent 2px 11px, rgba(20, 12, 6, 0.68) 11px 15px),
+    repeating-linear-gradient(90deg, #f3dca4 0 2px, #a87e38 2px 4px, #d9b263 4px 6px);
+  box-shadow: inset 0 0 0 1px #140d07;
 }
-.pr-crimp.top { top: 0; transform: scaleY(-1); }
-.pr-crimp.bottom { bottom: 0; }
+.pr-crimp.top { top: 0; border-radius: 2px 2px 0 0; }
+.pr-crimp.bottom { bottom: 0; border-radius: 0 0 2px 2px; }
 .pr-pack-face {
-  position: absolute; inset: 12px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
-  padding: 20px 12px 22px;
-  background: radial-gradient(circle at 50% 46%, color-mix(in srgb, var(--pk-hi) 34%, transparent), transparent 60%), linear-gradient(160deg, var(--pk1), var(--pk2));
-  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.8), inset 0 0 0 6px rgba(0, 0, 0, 0.25), inset 0 0 0 7px rgba(242, 219, 162, 0.4);
+  position: absolute; inset: 14px 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 18px 12px 18px;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 244, 214, 0.04) 0 1px, transparent 1px 10px),
+    repeating-linear-gradient(-45deg, rgba(255, 244, 214, 0.04) 0 1px, transparent 1px 10px),
+    radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--pk-hi) 40%, transparent), transparent 62%),
+    linear-gradient(180deg, var(--pk1) 0%, color-mix(in srgb, var(--pk1) 65%, var(--pk2)) 58%, var(--pk2) 100%);
+  box-shadow:
+    inset 0 0 0 2px #0a0806,
+    inset 0 0 0 4px #f2dba2,
+    inset 0 0 0 6px #140b08,
+    inset 0 0 0 7px rgba(242, 219, 162, 0.35),
+    inset 0 18px 28px rgba(0, 0, 0, 0.38),
+    inset 0 -22px 28px rgba(0, 0, 0, 0.58);
   overflow: hidden;
 }
-.pr-pack-count { font-size: 13px; color: #f2dba2; letter-spacing: 3px; padding: 2px 12px; background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.4); }
-.pr-pack-name { font-size: 20px; color: #fff3df; letter-spacing: 4px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8); }
-.pr-pack-emblem { position: relative; width: 110px; height: 110px; display: block; }
-.pr-pack-emblem i {
-  position: absolute; left: 50%; top: 50%; width: 52px; height: 74px; margin: -37px 0 0 -26px;
-  background: linear-gradient(160deg, #3a1016, #1a0709);
-  box-shadow: inset 0 0 0 1px #f2dba2, inset 0 0 0 4px rgba(0, 0, 0, 0.4), 0 3px 6px rgba(0, 0, 0, 0.5);
+.pr-pack-corners {
+  position: absolute; inset: 9px; pointer-events: none;
+  background:
+    linear-gradient(90deg, #f2dba2 0 14px, transparent 14px) 0 0 / 100% 1.5px no-repeat,
+    linear-gradient(90deg, transparent calc(100% - 14px), #f2dba2 calc(100% - 14px)) 0 0 / 100% 1.5px no-repeat,
+    linear-gradient(90deg, #f2dba2 0 14px, transparent 14px) 0 100% / 100% 1.5px no-repeat,
+    linear-gradient(90deg, transparent calc(100% - 14px), #f2dba2 calc(100% - 14px)) 0 100% / 100% 1.5px no-repeat,
+    linear-gradient(180deg, #f2dba2 0 14px, transparent 14px) 0 0 / 1.5px 100% no-repeat,
+    linear-gradient(180deg, #f2dba2 0 14px, transparent 14px) 100% 0 / 1.5px 100% no-repeat,
+    linear-gradient(180deg, transparent calc(100% - 14px), #f2dba2 calc(100% - 14px)) 0 0 / 1.5px 100% no-repeat,
+    linear-gradient(180deg, transparent calc(100% - 14px), #f2dba2 calc(100% - 14px)) 100% 0 / 1.5px 100% no-repeat;
+  opacity: 0.8;
 }
-.pr-pack-emblem i:nth-child(1) { transform: rotate(-16deg) translateX(-18px); }
-.pr-pack-emblem i:nth-child(2) { transform: rotate(16deg) translateX(18px); }
-.pr-pack-emblem i:nth-child(3) { background: linear-gradient(160deg, #f2dba2, #b8925a); box-shadow: inset 0 0 0 1px #fff4d0, 0 3px 8px rgba(0, 0, 0, 0.6); }
-.pr-pack-emblem i:nth-child(3)::after { content: '★'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #6e1c24; font-size: 28px; font-style: normal; }
-.pr-pack-emblem b { display: none; }
-.kind-ins .pr-pack-emblem i { display: none; }
-.kind-ins .pr-pack-emblem b {
-  display: block; position: absolute; left: 50%; top: 50%; width: 64px; height: 64px; margin: -32px 0 0 -32px; transform: rotate(45deg);
-  background: linear-gradient(135deg, #f2dba2, #9a7638); box-shadow: inset 0 0 0 1px #fff4d0, 0 0 26px rgba(200, 162, 255, 0.8);
+.pr-pack-count {
+  position: relative; z-index: 1;
+  font-size: 13px; color: #f7e4b6; letter-spacing: 3px; padding: 3px 16px;
+  background: rgba(12, 9, 7, 0.88);
+  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.58), 0 2px 6px rgba(0, 0, 0, 0.5);
+  clip-path: polygon(7px 0, calc(100% - 7px) 0, 100% 50%, calc(100% - 7px) 100%, 7px 100%, 0 50%);
 }
-.kind-ins .pr-pack-emblem b::after { content: ''; position: absolute; inset: 14px; background: #2a1650; box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.8); }
-.pr-pack-sheen { position: absolute; inset: 12px 0; display: block; pointer-events: none; overflow: hidden; }
+.pr-pack-emblem {
+  position: relative; z-index: 1; width: 122px; height: 122px;
+  display: flex; align-items: center; justify-content: center;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+}
+.pr-pack-svg { width: 118px; height: 118px; display: block; }
+.pr-pack-banner {
+  position: relative; z-index: 1; width: calc(100% + 12px);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 8px 5px;
+  background: linear-gradient(90deg, transparent 0%, rgba(12, 8, 7, 0.9) 14%, rgba(12, 8, 7, 0.9) 86%, transparent 100%);
+  border-top: 1px solid rgba(242, 219, 162, 0.52);
+  border-bottom: 1px solid rgba(242, 219, 162, 0.32);
+}
+.pr-pack-name { font-size: 19px; color: #fff4df; letter-spacing: 3px; text-shadow: 0 2px 6px rgba(0, 0, 0, 0.85); }
+.pr-pack-sub { font-size: 10px; color: var(--pk-rim); letter-spacing: 2.2px; opacity: 0.82; }
+.pr-pack-sheen { position: absolute; inset: 14px 0; display: block; pointer-events: none; overflow: hidden; z-index: 3; }
 .pr-pack-sheen::before {
   content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 50%;
-  background: linear-gradient(115deg, transparent 10%, rgba(255, 245, 220, 0.3) 50%, transparent 90%);
+  background: linear-gradient(115deg, transparent 10%, rgba(255, 245, 220, 0.28) 50%, transparent 90%);
   animation: prSheen 3.2s ease-in-out infinite;
 }
 @keyframes prSheen { 0%, 50% { transform: translateX(0); } 100% { transform: translateX(340%); } }
+/* glowing horizontal crack seam that flashes during the hitstop freeze-beat */
+.pr-pack-crack {
+  position: absolute; left: -18px; right: -18px; top: 26%; height: 4px; z-index: 4;
+  pointer-events: none; opacity: 0; transform: scaleX(0.1);
+  background: linear-gradient(90deg, transparent, #fffaf0 22%, var(--best) 50%, #fffaf0 78%, transparent);
+  box-shadow: 0 0 18px 4px var(--best), 0 0 32px 6px #fff6d6;
+}
 /* light leaking from the seams in the colour of the best card inside */
 .pr-pack-leak {
-  position: absolute; inset: -30px; display: block; opacity: 0; pointer-events: none;
-  background: radial-gradient(closest-side, color-mix(in srgb, var(--best) 75%, transparent) 30%, color-mix(in srgb, var(--best) 25%, transparent) 70%, transparent 100%);
+  position: absolute; inset: -48px; display: block; opacity: 0; pointer-events: none;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--best) 85%, transparent) 28%, color-mix(in srgb, var(--best) 32%, transparent) 66%, transparent 100%);
 }
-.pr-pack.charging .pr-pack-foil { animation: prCharge 0.56s ease-in forwards; }
-.pr-pack.charging .pr-pack-leak { animation: prLeak 0.56s ease-in forwards; }
+/* Beat 1: dim theater + pack rises & trembles with escalating tension */
+.pr-root.pack-focus .pr-dim { background: rgba(3, 2, 2, 0.98); transition: background 0.28s; }
+.pr-root.pack-focus .pr-title { opacity: 0.28; transition: opacity 0.25s; }
+.pr-root.pack-focus .pr-rays { opacity: 0.95; transition: opacity 0.25s; }
+.pr-pack.charging .pr-pack-foil { animation: prCharge 0.66s ease-in forwards; }
+.pr-pack.charging .pr-pack-leak { animation: prLeak 0.66s ease-in forwards; }
 @keyframes prCharge {
-  0% { transform: scale(1); }
-  20% { transform: scale(0.97) rotate(-2deg) translateX(-2px); }
-  40% { transform: scale(0.96) rotate(2.5deg) translateX(3px); }
-  60% { transform: scale(0.95) rotate(-3deg) translateX(-4px); }
-  80% { transform: scale(0.94) rotate(3.5deg) translateX(5px); }
-  100% { transform: scale(1.06) rotate(0deg); }
+  0%   { transform: translateY(0) scale(1); }
+  20%  { transform: translateY(-6px) scale(0.97) rotate(-2deg) translateX(-2px); }
+  40%  { transform: translateY(-10px) scale(0.96) rotate(2.6deg) translateX(3px); }
+  60%  { transform: translateY(-14px) scale(0.95) rotate(-3.4deg) translateX(-5px); }
+  80%  { transform: translateY(-18px) scale(0.94) rotate(4deg) translateX(6px); }
+  100% { transform: translateY(-22px) scale(1.06) rotate(-1deg); }
 }
-@keyframes prLeak { 0% { opacity: 0; transform: scale(0.7); } 100% { opacity: 1; transform: scale(1.25); } }
+@keyframes prLeak { 0% { opacity: 0; transform: scale(0.65); } 100% { opacity: 1; transform: scale(1.38); } }
+/* Beat 2: dead-stop HITSTOP freeze (顿挫感) — snaps still, swells, crack flashes */
+.pr-pack.hitstop .pr-pack-foil {
+  animation: none;
+  transform: translateY(-26px) scale(1.14);
+  filter: brightness(1.32) drop-shadow(0 0 28px var(--best)) drop-shadow(0 20px 28px rgba(0, 0, 0, 0.85));
+  transition: transform 0.06s cubic-bezier(.2, 1.5, .4, 1), filter 0.06s;
+}
+.pr-pack.hitstop .pr-pack-leak { opacity: 1; transform: scale(1.55); transition: transform 0.08s ease-out; }
+.pr-pack.hitstop .pr-pack-crack { opacity: 1; transform: scaleX(1.12); transition: transform 0.08s cubic-bezier(.1, 1, .2, 1), opacity 0.05s; }
+/* Beat 3: explosive tear */
 .pr-pack.torn { pointer-events: none; }
-.pr-pack.torn .pr-pack-foil { animation: prTorn 0.4s ease-out forwards; }
-.pr-pack.torn .pr-pack-leak { opacity: 1; animation: prTornLeak 0.5s ease-out forwards; }
-@keyframes prTorn { to { transform: scale(1.5); opacity: 0; } }
-@keyframes prTornLeak { to { transform: scale(2.4); opacity: 0; } }
+.pr-pack.torn .pr-pack-foil { animation: prTorn 0.36s ease-out forwards; }
+.pr-pack.torn .pr-pack-leak { opacity: 1; animation: prTornLeak 0.48s ease-out forwards; }
+@keyframes prTorn { 0% { transform: translateY(-26px) scale(1.16); opacity: 1; } 100% { transform: translateY(-34px) scale(1.65); opacity: 0; } }
+@keyframes prTornLeak { to { transform: scale(2.6); opacity: 0; } }
 
 /* ─── cards ─────────────────────────────────────────────────────────────
    234×312 = the battle hand card (156×208) at 1.5×; the front IS that card. */
