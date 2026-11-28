@@ -1,0 +1,469 @@
+/* ═══ 备战营地 · between-wave camp ═══════════════════════════════════════════
+   Same palette as the hero select: warm near-black ground, one gold line
+   colour, rarity colours only as rims and badges. Layout on the 1280×720 stage:
+   top bar 56px · left column 392px (next boss + squad) · right shop panel.
+   Old v13/v14 rules still target these IDs with !important, so the few
+   properties they force are re-set here with !important too. */
+
+#tavern-view {
+  --c-ink: #100e0c;
+  --c-panel: #17130f;
+  --c-panel2: #1e1913;
+  --c-line: rgba(212, 174, 104, 0.22);
+  --c-line-hi: rgba(212, 174, 104, 0.5);
+  --c-gold: #d4ae68;
+  --c-gold-hi: #f2dba2;
+  --c-bone: #ece4d4;
+  --c-mute: #9d9383;
+  --c-dim: #6f675b;
+  --c-red: #b8323f;
+  --t-B: #79d2ff;
+  --t-A: #c99cff;
+  --t-S: #ffd36b;
+  --t-SSS: #ff6b8b;
+  --t-C: #c4ccde;
+  background: var(--c-ink);
+}
+#tavern-view .tier-C { --tc: var(--t-C); }
+#tavern-view .tier-B { --tc: var(--t-B); }
+#tavern-view .tier-A { --tc: var(--t-A); }
+#tavern-view .tier-S { --tc: var(--t-S); }
+#tavern-view .tier-SSS { --tc: var(--t-SSS); }
+
+/* ─── top bar ─────────────────────────────────────────────────────────── */
+#stage #tavern-view #top-hud.camp-top {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 56px !important;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(180deg, rgba(14, 12, 10, 0.96), rgba(14, 12, 10, 0.78));
+  border: 0 !important;
+  border-bottom: 1px solid var(--c-line) !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  border-radius: 0;
+  z-index: 40;
+  pointer-events: auto;
+}
+#top-hud.camp-top.hidden { display: none !important; }
+.camp-top-l, .camp-top-r { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.camp-top-r { justify-content: flex-end; }
+.camp-k { font-size: 11px; color: var(--c-mute); letter-spacing: 1px; }
+.camp-wave { display: flex; align-items: baseline; gap: 6px; }
+#tavern-view .camp-wave #hud-wave { font-size: 20px; color: var(--c-gold-hi) !important; letter-spacing: 1px; }
+.camp-wave-pips { display: flex; gap: 4px; align-items: center; }
+.camp-wave-pips i {
+  width: 10px; height: 10px;
+  background: rgba(236, 228, 212, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.3);
+  transform: rotate(45deg);
+}
+.camp-wave-pips i.done { background: #7d6a46; box-shadow: none; }
+.camp-wave-pips i.now { background: var(--c-gold-hi); box-shadow: 0 0 8px rgba(242, 219, 162, 0.7); }
+.camp-wave-pips i.last { width: 13px; height: 13px; box-shadow: inset 0 0 0 1px var(--c-red); }
+.camp-wave-pips i.last.now { background: var(--c-red); box-shadow: 0 0 10px rgba(184, 50, 63, 0.9); }
+.camp-hero-line { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--c-bone); white-space: nowrap; }
+.camp-hero-line .camp-orbs { display: inline-flex; align-items: center; gap: 3px; color: #9fd6ff; }
+
+.camp-relics { display: flex; align-items: center; gap: 10px; }
+.camp-rslots { display: flex; gap: 6px; }
+.camp-rslot {
+  position: relative;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(30, 25, 19, 0.9);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  border: 0; padding: 0;
+  color: var(--c-dim);
+  font-size: 12px;
+}
+.camp-rslot.empty span { opacity: 0.6; }
+.camp-rslot.filled {
+  cursor: pointer;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--tc) 26%, #1e1913), #15110d 75%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 70%, transparent), 0 0 10px color-mix(in srgb, var(--tc) 22%, transparent);
+}
+.camp-rslot.filled:hover, .camp-rslot.is-sel { transform: translateY(-2px); box-shadow: inset 0 0 0 2px var(--tc), 0 0 14px color-mix(in srgb, var(--tc) 45%, transparent); }
+.camp-rslot-icon { width: 30px; height: 30px; image-rendering: pixelated; object-fit: contain; }
+.camp-rslot-stat {
+  position: absolute; left: 50%; bottom: -7px; transform: translateX(-50%);
+  padding: 0 4px; font-size: 10px; line-height: 13px; white-space: nowrap;
+  color: #10100c; background: var(--tc);
+}
+
+.camp-gold {
+  display: flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 14px 0 10px;
+  background: linear-gradient(180deg, #2b2214, #1a140c);
+  box-shadow: inset 0 0 0 1px var(--c-line-hi);
+}
+.camp-coin {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff3b0 0 18%, #f0b636 20% 62%, #9c590c 64%);
+  box-shadow: 0 0 0 1px #3a1c06;
+}
+#tavern-view .camp-gold #hud-gold { font-size: 22px; color: var(--c-gold-hi) !important; letter-spacing: 0.5px; }
+.camp-gold.bump { animation: campGoldBump 0.4s ease-out; }
+@keyframes campGoldBump { 40% { transform: scale(1.12); } }
+.camp-tools { display: flex; gap: 4px; }
+.camp-tool {
+  height: 30px; padding: 0 10px;
+  font-size: 12px; color: var(--c-mute);
+  background: transparent; border: 0;
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.18);
+  cursor: pointer;
+}
+.camp-tool:hover { color: var(--c-gold-hi); box-shadow: inset 0 0 0 1px var(--c-gold); background: rgba(212, 174, 104, 0.08); }
+
+#stage #tavern-view #relic-inspect-bar.camp-relic-inspect {
+  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  z-index: 60;
+  display: flex; align-items: center; gap: 14px;
+  max-width: 880px; padding: 10px 14px;
+  background: rgba(20, 17, 13, 0.98);
+  box-shadow: inset 0 0 0 1px var(--c-line-hi), 0 14px 30px rgba(0, 0, 0, 0.8);
+  color: var(--c-bone); font-size: 13px;
+}
+#tavern-view #relic-inspect-bar.hidden { display: none !important; }
+.camp-ri-name { color: var(--c-gold-hi); white-space: nowrap; }
+.camp-ri-desc { color: #cfc4b1; min-width: 0; }
+.camp-ri-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+/* ─── buttons ─────────────────────────────────────────────────────────── */
+.camp-btn {
+  height: 32px; padding: 0 14px;
+  display: inline-flex; align-items: center; gap: 6px;
+  font: inherit; font-size: 13px; color: var(--c-bone);
+  border: 0; cursor: pointer;
+  background: rgba(30, 25, 19, 0.9);
+  box-shadow: inset 0 0 0 1px var(--c-line-hi);
+  text-shadow: none !important;
+}
+.camp-btn.sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.camp-btn:hover:not(:disabled) { background: rgba(48, 40, 30, 0.95); box-shadow: inset 0 0 0 1px var(--c-gold); color: #fff6dc; }
+.camp-btn:disabled { opacity: 0.45; cursor: default; }
+.camp-btn.gold { color: #1a1208 !important; background: linear-gradient(180deg, #f2dba2, #c9a259); box-shadow: inset 0 0 0 1px #fff2c8, 0 2px 0 #5a4320; }
+.camp-btn.gold * { color: #1a1208 !important; text-shadow: none !important; }
+.camp-btn.gold b { display: inline-flex; align-items: center; gap: 2px; }
+.camp-btn.gold:hover:not(:disabled) { color: #1a1208; background: linear-gradient(180deg, #fff0c4, #d9b468); }
+.camp-btn.danger { color: #ffd9dc; background: rgba(110, 24, 32, 0.8); box-shadow: inset 0 0 0 1px rgba(255, 120, 130, 0.5); }
+
+/* ─── stage + cards ───────────────────────────────────────────────────── */
+#stage #tavern-view #market-main-stage.camp-stage {
+  position: absolute;
+  top: 68px; left: 16px; right: 16px; bottom: 16px;
+  display: grid;
+  grid-template-columns: 392px 1fr;
+  gap: 16px;
+  padding: 0; margin: 0;
+  background: none; border: 0; box-shadow: none;
+  z-index: 10;
+}
+#tavern-view #market-main-stage.camp-stage.hidden { display: none !important; }
+.camp-left { display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+.camp-card {
+  position: relative;
+  background: linear-gradient(180deg, rgba(30, 25, 19, 0.94), rgba(20, 17, 13, 0.94));
+  box-shadow: inset 0 0 0 1px var(--c-line), 0 10px 26px rgba(0, 0, 0, 0.5);
+  padding: 12px 14px 14px;
+  min-width: 0;
+}
+.camp-card::before {
+  /* thin gold corner ticks, the frame motif from the hero select */
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    linear-gradient(var(--c-gold), var(--c-gold)) 0 0 / 14px 1px no-repeat,
+    linear-gradient(var(--c-gold), var(--c-gold)) 0 0 / 1px 14px no-repeat,
+    linear-gradient(var(--c-gold), var(--c-gold)) 100% 100% / 14px 1px no-repeat,
+    linear-gradient(var(--c-gold), var(--c-gold)) 100% 100% / 1px 14px no-repeat;
+  opacity: 0.7;
+}
+.camp-sec-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; min-width: 0; }
+#tavern-view #squad-ledger-strip.camp-sec-head { white-space: nowrap !important; overflow: visible !important; text-shadow: none !important; font-family: inherit !important; }
+.camp-sec-title { font-size: 15px; color: var(--c-gold-hi); letter-spacing: 2px; }
+.camp-sec-note { font-size: 12px; color: var(--c-mute); display: inline-flex; gap: 8px; align-items: baseline; }
+.camp-sec-note b { color: var(--c-bone); font-size: 14px; }
+.camp-link { margin-left: auto; font-size: 12px; color: var(--c-gold); }
+.camp-stars { font-style: normal; margin-right: 4px; letter-spacing: 1px; }
+.camp-stars.t1 { color: #cfa45c; }
+.camp-stars.t2 { color: #ff8a5c; }
+.camp-stars.t3 { color: #ff5a5a; }
+.camp-stars.t4 { color: #ff3f6e; }
+
+/* next boss */
+.camp-boss-card { display: flex; flex-direction: column; }
+#stage #tavern-view #boss-bounty-panel.camp-boss {
+  display: flex !important; flex-direction: column; gap: 10px;
+  padding: 0 !important; margin: 0;
+  background: none !important; border: 0 !important; box-shadow: none !important;
+  border-radius: 0; text-align: left; align-items: stretch;
+  cursor: pointer;
+}
+.camp-boss-stage {
+  position: relative; height: 172px; overflow: hidden;
+  background: #0c0a08;
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.16);
+}
+.camp-boss-stage canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.camp-boss-hp {
+  position: absolute; top: 8px; right: 10px;
+  display: flex; align-items: baseline; gap: 3px;
+  color: #ffd2d6; text-shadow: 0 2px 4px #000;
+}
+.camp-boss-hp b { font-size: 18px; }
+.camp-boss-hp small { font-size: 11px; color: #d79aa1; }
+.camp-boss-name {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  padding: 18px 12px 8px;
+  display: flex; align-items: baseline; gap: 10px;
+  background: linear-gradient(180deg, transparent, rgba(10, 8, 6, 0.92));
+}
+.camp-boss-name b { font-size: 22px; color: #fff3df; letter-spacing: 2px; text-shadow: 0 2px 6px #000; }
+.camp-boss-name span { font-size: 12px; color: var(--c-mute); }
+.camp-boss.tier-3 .camp-boss-stage, .camp-boss.tier-4 .camp-boss-stage { box-shadow: inset 0 0 0 1px rgba(255, 90, 110, 0.45), inset 0 0 30px rgba(184, 50, 63, 0.35); }
+.camp-boss-pattern { display: flex; gap: 6px; }
+#tavern-view .camp-boss-pattern .v152-pat-chip {
+  flex: 1; height: 28px;
+  display: flex; align-items: center; justify-content: center; gap: 5px;
+  font-size: 12px; color: var(--c-bone);
+  background: rgba(236, 228, 212, 0.05);
+  box-shadow: inset 0 0 0 1px rgba(212, 174, 104, 0.18);
+  border: 0; border-radius: 0; padding: 0;
+}
+#tavern-view .camp-boss-pattern .v152-pat-chip b { font-size: 10px; color: var(--c-dim); font-weight: 400; }
+#tavern-view .camp-boss-pattern .v152-pat-chip.charge { color: #ffb36b; box-shadow: inset 0 0 0 1px rgba(255, 179, 107, 0.4); }
+#tavern-view .camp-boss-pattern .v152-pat-chip.shield { color: #8fd0ff; }
+#tavern-view .camp-boss-pattern .v152-pat-chip.thorns { color: #9fe08a; }
+#tavern-view .camp-boss-pattern .v152-pat-chip.lock { color: #d6a6ff; }
+.camp-boss-stats { display: grid; grid-template-columns: 1fr 1.3fr 0.9fr; gap: 1px; background: var(--c-line); }
+.camp-boss-stats > div { background: #18140f; padding: 6px 10px; display: flex; flex-direction: column; gap: 1px; }
+.camp-boss-stats span { font-size: 11px; color: var(--c-mute); }
+.camp-boss-stats b { font-size: 15px; color: var(--c-bone); }
+.camp-boss-stats .gold b { color: var(--c-gold-hi); }
+
+#stage #tavern-view #btn-shop-next.camp-cta {
+  position: relative !important;
+  margin-top: 12px;
+  width: 100% !important; height: 54px !important; min-height: 54px !important;
+  display: flex !important; align-items: center !important; justify-content: flex-start !important; gap: 12px;
+  padding: 0 18px !important;
+  font-family: inherit !important; font-size: 15px !important; letter-spacing: 0 !important;
+  color: #fff6e6 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+  background: linear-gradient(180deg, #c43a48 0%, #8a1f2b 100%) !important;
+  border: 0 !important; border-radius: 0 !important;
+  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.75), inset 0 2px 0 rgba(255, 210, 200, 0.25), 0 4px 0 #3e0c12, 0 10px 22px rgba(0, 0, 0, 0.5) !important;
+  cursor: pointer !important;
+  overflow: hidden !important;
+  transition: transform 0.12s, filter 0.12s;
+}
+#stage #tavern-view #btn-shop-next.camp-cta:hover { filter: brightness(1.12); transform: translateY(-1px); }
+#stage #tavern-view #btn-shop-next.camp-cta:active { transform: translateY(2px); box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.75), 0 2px 0 #3e0c12 !important; }
+#stage #tavern-view #btn-shop-next.camp-cta::after {
+  content: '' !important; display: block !important; position: absolute; inset: 0 auto 0 -40%;
+  width: 30%; background: linear-gradient(100deg, transparent, rgba(255, 240, 220, 0.25), transparent);
+  animation: campCtaSheen 3.6s ease-in-out infinite;
+}
+@keyframes campCtaSheen { 0%, 60% { left: -40%; } 100% { left: 120%; } }
+.camp-cta-k { font-size: 20px; letter-spacing: 6px; color: #fff3df; }
+.camp-cta-name { font-size: 14px; color: rgba(255, 236, 220, 0.85); }
+.camp-cta-arrow { margin-left: auto; font-size: 22px; color: var(--c-gold-hi); }
+
+/* squad */
+#stage #tavern-view #deck-overview-panel.camp-squad {
+  flex: 1; display: flex; flex-direction: column; cursor: pointer;
+  border: 0; border-radius: 0; margin: 0;
+}
+#stage #tavern-view #deck-overview-panel.camp-squad:hover { box-shadow: inset 0 0 0 1px var(--c-line-hi), 0 10px 26px rgba(0, 0, 0, 0.5); }
+#stage #tavern-view #squad-roam-zone.camp-squad-grid {
+  flex: 1; position: relative;
+  display: grid; grid-template-columns: repeat(5, 1fr); grid-auto-rows: 1fr;
+  gap: 4px 2px; padding: 0; background: none; border: 0; min-height: 0;
+}
+.camp-unit { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; min-width: 0; }
+.camp-unit-sprite { position: relative; z-index: 1; height: 54px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: -10px; }
+.camp-unit-sprite .duelyst-dom-sprite { transform-origin: 50% 100%; }
+.camp-unit-base {
+  width: 46px; height: 12px; border-radius: 50%;
+  background: radial-gradient(ellipse, color-mix(in srgb, var(--tc) 40%, transparent) 0%, transparent 70%);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--tc) 55%, transparent);
+}
+.camp-unit-name { margin-top: 4px; font-size: 11px; color: var(--c-bone); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.camp-unit-atk { display: flex; align-items: center; gap: 2px; font-size: 11px; color: var(--c-mute); }
+.camp-unit-atk.up { color: #8cf59a; }
+.camp-unit-atk .mk { width: 5px; height: 5px; transform: rotate(45deg); background: var(--c-gold); }
+.camp-unit-atk .mk.seal { background: #ff6b8b; }
+.camp-unit-atk .mk.greed { background: #ffd36b; }
+.camp-unit-atk .mk.iron { background: #8fb7d6; }
+.camp-unit-atk .mk.glass { background: #9ff0ff; }
+.camp-unit.more { justify-content: center; font-size: 16px; color: var(--c-gold); }
+
+/* ─── shop panel ──────────────────────────────────────────────────────── */
+.camp-shop { display: flex; flex-direction: column; padding: 14px 16px 16px; }
+.camp-shop-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.camp-shop-head > div:first-child { display: flex; align-items: baseline; gap: 12px; }
+.camp-shop-title { font-size: 18px; color: var(--c-gold-hi); letter-spacing: 4px; }
+.camp-shop-tools { display: flex; gap: 8px; }
+#stage #tavern-view #btn-shop-ad-reroll.camp-btn { border: 0; border-radius: 0; text-shadow: none !important; }
+#stage #tavern-view #btn-shop-ad-reroll.camp-btn * { text-shadow: none !important; }
+#stage #tavern-view #btn-shop-reroll.camp-btn { border: 0; border-radius: 0; height: 32px; min-width: 0; }
+.camp-row-label { font-size: 13px; color: var(--c-bone); letter-spacing: 2px; margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px; }
+.camp-row-label i { font-style: normal; font-size: 11px; letter-spacing: 0; color: var(--c-dim); }
+
+.camp-price {
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+  height: 26px; padding: 0 12px;
+  font-size: 14px; color: #1a1208;
+  background: linear-gradient(180deg, #f2dba2, #c9a259);
+  box-shadow: inset 0 0 0 1px #fff2c8;
+}
+.camp-price.short { color: #e9b4b4; background: rgba(90, 24, 28, 0.7); box-shadow: inset 0 0 0 1px rgba(255, 120, 120, 0.35); }
+.camp-price.sold { color: var(--c-mute); background: rgba(236, 228, 212, 0.06); box-shadow: inset 0 0 0 1px rgba(236, 228, 212, 0.12); }
+
+/* relics */
+.camp-relics-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.camp-relic {
+  position: relative; height: 214px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  padding: 0 12px 12px;
+  font: inherit; text-align: center; color: var(--c-bone);
+  border: 0; cursor: pointer;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--tc) 9%, #1d1813) 0%, #15110d 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 38%, transparent), 0 6px 16px rgba(0, 0, 0, 0.45);
+  transition: transform 0.14s, box-shadow 0.14s;
+  transform-style: preserve-3d;
+}
+.camp-relic:hover:not(:disabled), .camp-relic.is-inspected {
+  box-shadow: inset 0 0 0 1px var(--tc), 0 0 22px color-mix(in srgb, var(--tc) 30%, transparent), 0 10px 22px rgba(0, 0, 0, 0.55);
+}
+.camp-relic-art { position: relative; width: 100%; height: 92px; display: flex; align-items: center; justify-content: center; }
+.camp-relic-glow {
+  position: absolute; inset: 6px 20%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--tc) 36%, transparent), transparent 68%);
+  animation: campGlow 3.2s ease-in-out infinite;
+}
+.camp-relic.tier-SSS .camp-relic-glow { animation-duration: 1.8s; }
+@keyframes campGlow { 50% { opacity: 0.55; transform: scale(0.92); } }
+.camp-relic-img { position: relative; width: 80px; height: 80px; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.6)); }
+.camp-relic-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.camp-tier { min-width: 22px; padding: 0 5px; line-height: 16px; font-size: 11px; color: #120e0a; background: var(--tc); }
+.camp-theme { letter-spacing: 1px; }
+.camp-relic-name { font-size: 16px; color: #fff3df; letter-spacing: 1px; }
+.camp-relic-perk { font-size: 12px; color: #cfc4b1; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.camp-src { font-size: 11px; }
+.camp-src.ok { color: #8cf59a; }
+.camp-src.warn { color: #ffb36b; }
+.camp-relic .camp-price { margin-top: auto; }
+.camp-relic.poor .camp-relic-img { filter: grayscale(0.4) brightness(0.75); }
+.camp-relic.sold { cursor: default; opacity: 0.45; }
+.camp-relic.sold .camp-relic-glow { display: none; }
+
+/* lower shelf */
+.camp-lower { flex: 1; display: grid; grid-template-columns: 316px 1fr; gap: 16px; min-height: 0; }
+.camp-lower-col { display: flex; flex-direction: column; min-height: 0; }
+.camp-packs { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.camp-pack {
+  --pk1: #8a1f2b; --pk2: #4a0f17; --pk-hi: #ff8a8a;
+  position: relative;
+  display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 10px;
+  padding: 0; font: inherit; border: 0; background: none; cursor: pointer;
+}
+.camp-pack.ins { --pk1: #4b2a86; --pk2: #22113f; --pk-hi: #c8a2ff; }
+.camp-pack-foil {
+  position: relative; width: 128px; flex: 1; max-height: 206px;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6));
+  transition: transform 0.18s cubic-bezier(.3, 1.6, .5, 1);
+  animation: campPackBob 3.4s ease-in-out infinite;
+}
+.camp-pack.ins .camp-pack-foil { animation-delay: -1.7s; }
+@keyframes campPackBob { 50% { transform: translateY(-4px) rotate(-0.6deg); } }
+.camp-pack:hover:not(:disabled) .camp-pack-foil, .camp-pack.is-inspected .camp-pack-foil { animation: campPackWiggle 0.5s ease-in-out; transform: translateY(-8px) scale(1.04); }
+@keyframes campPackWiggle { 25% { transform: translateY(-8px) rotate(-3deg) scale(1.04); } 60% { transform: translateY(-8px) rotate(2.5deg) scale(1.04); } }
+.camp-pack-crimp {
+  position: absolute; left: 0; right: 0; height: 10px;
+  background: linear-gradient(90deg, #d9be86, #fff1c8 30%, #b8925a 60%, #f2dba2);
+  -webkit-mask: linear-gradient(135deg, #000 50%, transparent 50%) 0 0 / 8px 10px repeat-x, linear-gradient(225deg, #000 50%, transparent 50%) 0 0 / 8px 10px repeat-x;
+  mask: linear-gradient(135deg, #000 50%, transparent 50%) 0 0 / 8px 10px repeat-x, linear-gradient(225deg, #000 50%, transparent 50%) 0 0 / 8px 10px repeat-x;
+}
+.camp-pack-crimp.top { top: 0; transform: scaleY(-1); }
+.camp-pack-crimp.bottom { bottom: 0; }
+.camp-pack-face {
+  position: absolute; inset: 8px 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+  padding: 12px 8px 14px;
+  background:
+    radial-gradient(circle at 50% 44%, color-mix(in srgb, var(--pk-hi) 30%, transparent), transparent 58%),
+    linear-gradient(160deg, var(--pk1), var(--pk2));
+  box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.7), inset 0 0 0 4px rgba(0, 0, 0, 0.25), inset 0 0 0 5px rgba(242, 219, 162, 0.35);
+  overflow: hidden;
+}
+.camp-pack-count { font-size: 11px; color: var(--c-gold-hi); letter-spacing: 2px; padding: 1px 8px; background: rgba(0, 0, 0, 0.35); box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.4); }
+.camp-pack-emblem { position: relative; width: 70px; height: 70px; display: block; }
+.camp-pack-emblem i {
+  position: absolute; left: 50%; top: 50%; width: 34px; height: 48px; margin: -24px 0 0 -17px;
+  background: linear-gradient(160deg, #3a1016, #1a0709);
+  box-shadow: inset 0 0 0 1px var(--c-gold-hi), inset 0 0 0 3px rgba(0, 0, 0, 0.4), 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+.camp-pack-emblem i:nth-child(1) { transform: rotate(-16deg) translateX(-12px); }
+.camp-pack-emblem i:nth-child(2) { transform: rotate(16deg) translateX(12px); }
+.camp-pack-emblem i:nth-child(3) { background: linear-gradient(160deg, #f2dba2, #b8925a); box-shadow: inset 0 0 0 1px #fff4d0, 0 2px 6px rgba(0, 0, 0, 0.6); }
+.camp-pack-emblem i:nth-child(3)::after { content: '★'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #6e1c24; font-size: 18px; font-style: normal; }
+.camp-pack-emblem b {
+  position: absolute; left: 50%; top: 50%; width: 40px; height: 40px; margin: -20px 0 0 -20px;
+  transform: rotate(45deg);
+  background: linear-gradient(135deg, #f2dba2, #9a7638);
+  box-shadow: inset 0 0 0 1px #fff4d0, 0 0 18px rgba(200, 162, 255, 0.7);
+}
+.camp-pack-emblem b::after { content: ''; position: absolute; inset: 9px; background: #2a1650; box-shadow: inset 0 0 0 1px rgba(242, 219, 162, 0.8); }
+.camp-pack-name { font-size: 14px; color: #fff3df; letter-spacing: 2px; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); }
+.camp-pack-sheen {
+  position: absolute; inset: 8px 0; pointer-events: none; overflow: hidden;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 245, 220, 0.28) 45%, transparent 56%) -140px 0 / 260px 100% no-repeat;
+  animation: campSheen 3.8s ease-in-out infinite;
+  mix-blend-mode: screen;
+}
+.camp-pack.ins .camp-pack-sheen { animation-delay: -1.9s; }
+@keyframes campSheen { 0%, 55% { background-position: -140px 0; } 100% { background-position: 160px 0; } }
+.camp-pack.poor .camp-pack-foil { filter: grayscale(0.5) brightness(0.7) drop-shadow(0 10px 14px rgba(0, 0, 0, 0.6)); }
+.camp-pack.sold { cursor: default; }
+.camp-pack.sold .camp-pack-foil { opacity: 0.25; filter: grayscale(1); animation: none; }
+
+/* slot upgrades */
+.camp-slots { flex: 1; display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 1fr; gap: 10px; }
+.camp-slot {
+  position: relative;
+  display: grid; grid-template-columns: auto 1fr; grid-template-rows: 1fr auto;
+  column-gap: 12px; row-gap: 8px; align-items: center;
+  padding: 12px 12px 12px 16px;
+  font: inherit; text-align: left; color: var(--c-bone);
+  border: 0; cursor: pointer;
+  background: linear-gradient(180deg, #1d1813, #15110d);
+  box-shadow: inset 0 0 0 1px var(--c-line);
+}
+.camp-slot::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--slot-col); }
+.camp-slot:hover, .camp-slot.is-inspected { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--slot-col) 70%, transparent), 0 0 16px color-mix(in srgb, var(--slot-col) 18%, transparent); }
+.camp-slot-num { grid-row: 1 / 3; font-size: 26px; color: var(--slot-col); line-height: 1; }
+.camp-slot-main { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.camp-slot-main b { font-size: 14px; color: #fff3df; font-weight: 400; }
+.camp-slot-main b em { font-style: normal; font-size: 11px; color: var(--c-gold); margin-left: 4px; }
+.camp-slot-main span { font-size: 12px; color: #cfc4b1; }
+.camp-slot .camp-price { justify-self: start; height: 24px; font-size: 13px; }
+.camp-slot.poor .camp-slot-num { opacity: 0.55; }
+
+/* inspector popover in the camp palette */
+#tavern-view ~ #shop-detail-popover, #shop-detail-popover.shop-detail-popover {
+  border-radius: 0 !important;
+}
+
+/* phone landscape: the stage is scaled down, so lift the small text */
+#stage.mobile-compact .camp-tool, #stage.mobile-compact .camp-k, #stage.mobile-compact .camp-sec-note,
+#stage.mobile-compact .camp-row-label i, #stage.mobile-compact .camp-unit-name, #stage.mobile-compact .camp-unit-atk,
+#stage.mobile-compact .camp-boss-stats span, #stage.mobile-compact .camp-relic-meta, #stage.mobile-compact .camp-src { font-size: 14px !important; }
+#stage.mobile-compact .camp-relic-perk, #stage.mobile-compact .camp-slot-main span, #stage.mobile-compact .camp-boss-pattern .v152-pat-chip,
+#stage.mobile-compact .camp-hero-line, #stage.mobile-compact .camp-cta-name { font-size: 15px !important; }
+#stage.mobile-compact .camp-relic-name, #stage.mobile-compact .camp-pack-name, #stage.mobile-compact .camp-slot-main b { font-size: 18px !important; }
+#stage.mobile-compact .camp-tool, #stage.mobile-compact .camp-btn, #stage.mobile-compact .camp-shop-head *, #stage.mobile-compact .camp-sec-head * { font-family: var(--font-ui-mobile) !important; text-shadow: none !important; }

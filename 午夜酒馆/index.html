@@ -11,6 +11,8 @@
   <link rel="stylesheet" href="./css/v13.css?v=187" />
   <link rel="stylesheet" href="./css/v14.css?v=248" />
   <link rel="stylesheet" href="./css/muster-tone.css?v=1" />
+  <link rel="stylesheet" href="./css/camp.css?v=2" />
+  <link rel="stylesheet" href="./css/pack-reveal.css?v=3" />
 </head>
 <body>
   <div id="viewport">
@@ -210,91 +212,57 @@
         <canvas id="altar-bg-canvas" width="1280" height="720"></canvas>
 
         <!-- Sculpted Riveted Brass & Walnut Top Ledger Beam (72px) -->
-        <header id="top-hud" class="tavern-top-beam hidden">
-          <div class="hud-stats-cluster">
-            <div class="hud-plaque wave">
-              <span class="hud-plaque-lbl">波次</span>
-              <b id="hud-wave">W2/8</b>
-            </div>
-            <div class="hud-plaque hearts">
-              <div id="hud-hearts" class="hud-hearts-row" aria-label="剩余气血"></div>
-            </div>
-            <div class="hud-plaque gold">
-              <svg class="hud-coin-svg" viewBox="0 0 16 16" shape-rendering="crispEdges" aria-hidden="true">
-                <rect x="5" y="1" width="6" height="14" fill="#3a1c06"/>
-                <rect x="3" y="2" width="10" height="12" fill="#3a1c06"/>
-                <rect x="2" y="4" width="12" height="8" fill="#3a1c06"/>
-                <rect x="1" y="5" width="14" height="6" fill="#3a1c06"/>
-                <rect x="5" y="2" width="6" height="12" fill="#d48c1d"/>
-                <rect x="3" y="3" width="10" height="10" fill="#f0b636"/>
-                <rect x="2" y="5" width="12" height="6" fill="#f0b636"/>
-                <rect x="4" y="3" width="5" height="2" fill="#fff3b0"/>
-                <rect x="3" y="5" width="2" height="4" fill="#ffe680"/>
-                <rect x="7" y="5" width="2" height="6" fill="#9c590c"/>
-                <rect x="6" y="6" width="1" height="4" fill="#fff5c0"/>
-                <rect x="9" y="9" width="3" height="2" fill="#a8620e"/>
-              </svg>
-              <div class="hud-gold-stack">
-                <b id="hud-gold">18G</b>
-              </div>
-            </div>
+        <header id="top-hud" class="camp-top hidden">
+          <div class="camp-top-l">
+            <div class="camp-wave"><span class="camp-k">波次</span><b id="hud-wave">W1/8</b></div>
+            <div id="camp-wave-pips" class="camp-wave-pips" aria-hidden="true"></div>
+            <div id="hud-hearts" class="camp-hero-line" aria-label="英雄与宝珠"></div>
           </div>
-
-          <div id="top-relic-rack" class="tavern-relic-rack"></div>
-
-          <div class="hud-tools-cluster">
-            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-hands-open">卡池图鉴</button>
-            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-mute">音效</button>
-            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-restart">重开</button>
-            <button class="steel-btn tavern-btn hud-mini-btn" id="btn-tavern-home" title="返回游戏首页（进度已自动保存）">首页</button>
+          <div id="top-relic-rack" class="camp-relics"></div>
+          <div class="camp-top-r">
+            <div class="camp-gold" aria-label="金币">
+              <i class="camp-coin" aria-hidden="true"></i>
+              <b id="hud-gold">0G</b>
+            </div>
+            <div class="camp-tools">
+              <button class="camp-tool" id="btn-hands-open">卡池图鉴</button>
+              <button class="camp-tool" id="btn-mute">音效</button>
+              <button class="camp-tool" id="btn-restart">重开</button>
+              <button class="camp-tool" id="btn-tavern-home" title="返回游戏首页（进度已自动保存）">首页</button>
+            </div>
           </div>
         </header>
 
-        <!-- Tap-to-Inspect Equipped Relic Floating Strip -->
-        <div id="relic-inspect-bar" class="tavern-inspect-strip hidden"></div>
+        <div id="relic-inspect-bar" class="camp-relic-inspect hidden"></div>
 
-        <!-- UNBOXED FULL-TABLETOP LAYOUT: Pinned Parchment + Free-Roaming Squad | Unified Baize Market Mat -->
-        <main id="market-main-stage" class="tabletop-stage hidden">
-          <!-- LEFT WALNUT SIDE: Pinned Parchment Wanted Poster + Wax-Seal Battle Stamp + Open Roaming Squad Floor -->
-          <aside class="tabletop-left-zone">
-            <div class="bounty-contract-assembly">
-              <section id="boss-bounty-panel" class="parchment-poster"></section>
-              <button id="btn-shop-next" class="wax-contract-cta"></button>
-            </div>
+        <main id="market-main-stage" class="camp-stage hidden">
+          <aside class="camp-left">
+            <section class="camp-card camp-boss-card">
+              <div class="camp-sec-head"><span class="camp-sec-title">下一战</span><span id="camp-boss-rank" class="camp-sec-note"></span></div>
+              <div id="boss-bounty-panel" class="camp-boss"></div>
+              <button id="btn-shop-next" class="camp-cta"></button>
+            </section>
 
-            <section id="deck-overview-panel" class="squad-promenade" role="button" tabindex="0" aria-label="查看战团名册">
-              <div class="sp-ledger-strip" id="squad-ledger-strip"></div>
-              <div class="sp-open-floor" id="squad-roam-zone">
-                <div class="sp-hover-tip hidden" id="squad-hover-tip"></div>
-              </div>
+            <section id="deck-overview-panel" class="camp-card camp-squad" role="button" tabindex="0" aria-label="查看小队名册">
+              <div class="camp-sec-head" id="squad-ledger-strip"></div>
+              <div class="camp-squad-grid" id="squad-roam-zone"></div>
             </section>
           </aside>
 
-          <!-- RIGHT BAIZE MAT: Mobile-Density Scannable Market Artifacts + On-Demand Detail Inspector -->
-          <section class="tabletop-felt-zone">
-            <div class="felt-top-header">
-              <div class="felt-head-left">
-                <span class="felt-title">星界秘宝</span>
-                <span class="felt-hint">点选查详规 · 再点确认</span>
+          <section class="camp-card camp-shop">
+            <div class="camp-shop-head">
+              <div>
+                <span class="camp-shop-title">商店</span>
+                <span class="camp-sec-note">点一下看详情，再点一下购买</span>
               </div>
-              <div class="felt-head-right" style="display:flex;gap:8px;align-items:center;">
-                <button id="btn-shop-ad-reroll" class="v14-ad-btn"></button>
-                <button id="btn-shop-reroll" class="brass-reroll-stamp"></button>
-              </div>
-            </div>
-
-            <div id="shop-relics-row" class="portrait-relics-row"></div>
-
-            <div class="felt-mid-divider">
-              <div class="felt-mid-left">
-                <span class="felt-title sm">招募与铭文</span>
-              </div>
-              <div class="felt-mid-right">
-                <span class="felt-title sm teal">战位强化</span>
+              <div class="camp-shop-tools">
+                <button id="btn-shop-ad-reroll" class="camp-btn ghost"></button>
+                <button id="btn-shop-reroll" class="camp-btn gold"></button>
               </div>
             </div>
-
-            <div id="shop-packs-row" class="tabletop-artifacts-row"></div>
+            <div class="camp-row-label">秘宝 <i>装上后整局生效</i></div>
+            <div id="shop-relics-row" class="camp-relics-row"></div>
+            <div id="shop-packs-row" class="camp-lower"></div>
           </section>
         </main>
         <div id="shop-detail-popover" class="shop-detail-popover hidden" role="dialog" aria-label="商品详情与购买确认"></div>
@@ -423,8 +391,9 @@
   <script src="./js/v14Engine.js?v=249"></script>
   <script src="./js/v14Battle.js?v=249"></script>
   <script src="./js/v15HeroMusterStage.js?v=242"></script>
-  <script src="./js/v15TavernShopStage.js?v=200"></script>
+  <script src="./js/v15TavernShopStage.js?v=201"></script>
   <script src="./js/v15PackCeremonyFX.js?v=210"></script>
-  <script src="./js/v14Main.js?v=253"></script>
+  <script src="./js/packReveal.js?v=3"></script>
+  <script src="./js/v14Main.js?v=256"></script>
 </body>
 </html>

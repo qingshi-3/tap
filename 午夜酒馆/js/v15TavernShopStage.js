@@ -778,82 +778,37 @@
       ctx.save();
       ctx.imageSmoothingEnabled = false;
 
-      // 1. Native 16-bit Pixel Tavern Interior Backdrop
-      const roomImg = this._getRoomImg();
-      if (roomImg) {
-        ctx.drawImage(roomImg, 0, 0, W, H);
-      } else {
-        const bg = ctx.createLinearGradient(0, 0, 0, H);
-        bg.addColorStop(0, '#1a110b');
-        bg.addColorStop(0.55, '#2b1a10');
-        bg.addColorStop(1, '#160d08');
-        ctx.fillStyle = bg;
-        ctx.fillRect(0, 0, W, H);
-      }
-
-      // 2. Soft Warm-Espresso Atmospheric Depth Veil
-      const veil = ctx.createLinearGradient(0, 0, 0, H);
-      veil.addColorStop(0, 'rgba(12, 8, 6, 0.56)');
-      veil.addColorStop(0.28, 'rgba(18, 11, 7, 0.42)');
-      veil.addColorStop(0.72, 'rgba(16, 10, 6, 0.40)');
-      veil.addColorStop(1, 'rgba(10, 6, 4, 0.58)');
-      ctx.fillStyle = veil;
+      // 1. Camp backdrop: warm near-black ground matching the hero select (no tavern room,
+      //    no landlady, no squad on the floor - the squad now lives in the left DOM panel).
+      ctx.fillStyle = '#100e0c';
       ctx.fillRect(0, 0, W, H);
-
-      const vig = ctx.createRadialGradient(W * 0.46, H * 0.54, 240, W * 0.5, H * 0.5, 820);
-      vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
-      vig.addColorStop(1, 'rgba(6, 3, 2, 0.48)');
-      ctx.fillStyle = vig;
+      const glow = ctx.createRadialGradient(W * 0.62, H * 0.42, 40, W * 0.62, H * 0.42, 760);
+      glow.addColorStop(0, 'rgba(92, 64, 34, 0.30)');
+      glow.addColorStop(0.5, 'rgba(48, 32, 18, 0.16)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = glow;
       ctx.fillRect(0, 0, W, H);
-
-      // 3. Subtle Blue Night Rain glimpsed along the upper stone-window frieze
+      const leftGlow = ctx.createRadialGradient(210, 220, 20, 210, 220, 420);
+      leftGlow.addColorStop(0, 'rgba(140, 34, 46, 0.16)');
+      leftGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      ctx.fillStyle = leftGlow;
+      ctx.fillRect(0, 0, W, H);
+      // faint diagonal bands, the same texture motif as the hero select canvas
       ctx.save();
-      ctx.beginPath();
-      ctx.rect(0, 56, W, 148);
-      ctx.clip();
-      ctx.lineWidth = 1.5;
-      for (const r of this.rainDrops) {
-        ctx.strokeStyle = `rgba(148, 198, 255, ${r.alpha.toFixed(3)})`;
+      ctx.strokeStyle = 'rgba(212, 174, 104, 0.035)';
+      ctx.lineWidth = 26;
+      for (let x = -400; x < W + 400; x += 170) {
         ctx.beginPath();
-        ctx.moveTo(Math.round(r.x), Math.round(r.y));
-        ctx.lineTo(Math.round(r.x - r.len * 0.24), Math.round(r.y + r.len));
+        ctx.moveTo(x, H);
+        ctx.lineTo(x + 420, 0);
         ctx.stroke();
       }
       ctx.restore();
-
-      // 4. Breathing Wall Torches & Hearth Floor Warm Glow Pools
-      ctx.save();
-      ctx.globalCompositeOperation = 'lighter';
-      for (const L of LIGHT_ANCHORS) {
-        const pulse = 0.86 + Math.sin(t * L.freq + L.phase) * 0.14;
-        const r = L.r * (0.96 + Math.sin(t * L.freq * 0.7 + L.phase) * 0.04);
-        const g = ctx.createRadialGradient(L.x, L.y, 4, L.x, L.y, r);
-        const a = L.base * pulse;
-        g.addColorStop(0, `rgba(${L.color[0]}, ${L.color[1]}, ${L.color[2]}, ${a.toFixed(3)})`);
-        g.addColorStop(0.55, `rgba(${L.color[0]}, ${L.color[1]}, ${L.color[2]}, ${(a * 0.35).toFixed(3)})`);
-        g.addColorStop(1, 'rgba(0, 0, 0, 0)');
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(L.x, L.y, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-
-      // 5. Lower-Left Resting Tavern Floor Warm Wood Carpet Glow
-      ctx.save();
-      const floorG = ctx.createRadialGradient(218, 628, 18, 218, 628, 224);
-      floorG.addColorStop(0, 'rgba(255, 194, 102, 0.16)');
-      floorG.addColorStop(0.65, 'rgba(92, 46, 18, 0.18)');
-      floorG.addColorStop(1, 'rgba(0, 0, 0, 0)');
-      ctx.fillStyle = floorG;
-      ctx.fillRect(16, 480, 444, 226);
-      ctx.restore();
-
-      // 6. Live Resting Squad Sprites on the Tavern Wooden Floor
-      this._drawRestingSquad(ctx, t);
-
-      // 7. Reactive Pixel Tavern Landlady tucked beside the lower-left cozy bar edge
-      this._drawLandlady(ctx, t);
+      const vig = ctx.createRadialGradient(W * 0.5, H * 0.5, 260, W * 0.5, H * 0.5, 820);
+      vig.addColorStop(0, 'rgba(0, 0, 0, 0)');
+      vig.addColorStop(1, 'rgba(4, 3, 2, 0.7)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(0, 0, W, H);
 
       // 8. Rising Golden Hearth Embers
       for (const e of this.embers) {

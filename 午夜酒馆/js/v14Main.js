@@ -87,6 +87,7 @@
       this.altarBg = null; // Retired v13 tabletop canvas; #altar-bg-canvas is exclusively owned by TavernShopStage
       this.tavernShopStage = window.MT.TavernShopStage ? new window.MT.TavernShopStage($('altar-bg-canvas'), this.sprites) : null;
       this.packCeremonyFX = window.MT.PackCeremonyFX ? new window.MT.PackCeremonyFX($('pack-fx-canvas'), this.vfx) : null;
+      this.packReveal = window.MT.PackReveal ? new window.MT.PackReveal(this.stage, this.audio, this.sprites) : null;
       this.titleRain = window.MT.TitleRainFX ? new window.MT.TitleRainFX($('title-fx-canvas'), this.sprites) : null;
       this.heroMusterStage = window.MT.HeroMusterStage ? new window.MT.HeroMusterStage(this.sprites, this.meta) : null;
       this.themeSanctumStage = window.MT.ThemeSanctumStage ? new window.MT.ThemeSanctumStage() : null;
@@ -765,6 +766,11 @@
       $('btn-pack-target-back').onclick = () => {
         if (!this.activePackState) return;
         this.activePackState.chosenInscription = null;
+        if (this.packReveal && this.packReveal.opts) {
+          $('pack-ceremony-modal').classList.add('hidden');
+          this.packReveal.show();
+          return;
+        }
         $('pack-target-stage').classList.add('hidden');
         $('pack-reveal-stage').classList.remove('hidden');
       };
@@ -4342,6 +4348,11 @@
         this.activePackState = { type: 'inscription', packId, pack, picks, chosenInscription: null, torn: false };
       }
 
+      if (this.packReveal) {
+        this._openPackReveal(isAdReroll);
+        return;
+      }
+
       const modal = $('pack-ceremony-modal');
       modal.classList.remove('hidden', 'ceremony-shake');
       $('pack-target-stage').classList.add('hidden');
@@ -4564,6 +4575,106 @@
       }
     }
 
+    _packInsTier(ins) {
+      return ins.id === 'm_clone' ? 'SSS' : (ins.id === 'm_red_seal' || ins.id === 'm_glass' ? 'S' : 'A');
+    }
+
+    _prHeroFront(h) {
+      const th = D.THEMES[h.theme] || D.THEMES.core;
+      return `
+        <div class="pr-face tier-${h.tier}">
+          <div class="pr-face-top">
+            <span class="pr-face-tier">${h.tier}</span>
+            <span class="pr-face-theme" style="color:${th.color}">${th.short}${h.isBridge ? ' · 接口' : ''}</span>
+            <span class="pr-face-atk">${pxIcon('atk')}${h.atk}</span>
+          </div>
+          <div class="pr-face-art"><div data-pr-unit="${h.unitId}" data-pr-size="84"></div></div>
+          <div class="pr-face-name">${esc(h.shortName || this._plainName(h.name))}</div>
+          <div class="pr-face-desc">${esc(h.desc)}</div>
+          <div class="pr-face-badges">
+            ${h.redSeal ? '<span>自带 · 双连印</span>' : ''}
+            ${h.greedBadge ? '<span class="greed">自带 · 贪财徽</span>' : ''}
+            ${h.ironPlated ? '<span class="iron">自带 · 铁壁甲</span>' : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    _prInsFront(ins) {
+      const t = this._packInsTier(ins);
+      return `
+        <div class="pr-face tier-${t}">
+          <div class="pr-face-top"><span class="pr-face-tier">${t}</span><span class="pr-face-theme" style="color:${ins.color}">铭文</span></div>
+          <div class="pr-face-art">${this.renderSafeIconImg(ins.icon, 'pack_inscription', 'pr-ins-icon')}</div>
+          <div class="pr-face-name" style="color:${ins.color}">${esc(this._plainName(ins.name))}</div>
+          <div class="pr-face-desc">${esc(ins.desc)}</div>
+        </div>
+      `;
+    }
+
+    _closePackRevealToShop() {
+      this.activePackState = null;
+      if (this.packReveal) this.packReveal.close();
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
+      $('pack-ceremony-modal').classList.add('hidden');
+    }
+
+    _openPackReveal(isAdReroll) {
+      const st = this.activePackState;
+      const isHero = st.type === 'hero';
+      const cards = isHero
+        ? st.instances.map((h) => ({ tier: h.tier, frontHtml: this._prHeroFront(h) }))
+        : st.picks.map((ins) => ({ tier: this._packInsTier(ins), frontHtml: this._prInsFront(ins) }));
+      if (this.audio && this.audio.setAmbience) this.audio.setAmbience('ceremony');
+      this.packReveal.open({
+        kind: isHero ? 'hero' : 'ins',
+        title: st.pack.name,
+        subtitle: isHero ? `${st.instances.length} 选 1 · 招募 1 名队员` : `${st.picks.length} 选 1 · 改造 1 名队员`,
+        pickHint: isHero ? '选择 1 名加入小队' : '选择 1 个铭文',
+        cards,
+        skipSeal: isAdReroll,
+        reroll: { left: this.run.adPackRerollLeft, onClick: () => this.handlePackAdReroll() },
+        abandonLabel: '放弃本包 · 返还 2G',
+        onAbandon: () => {
+          if (!this.activePackState) return;
+          this.run.gold += 2;
+          this._closePackRevealToShop();
+          this.toast('放弃本包，返还 2G');
+          this.renderShop();
+        },
+        onPick: (i) => {
+          if (!this.activePackState) return false;
+          if (isHero) {
+            const chosen = st.instances[i];
+            this.run.roster.push(chosen);
+            this._closePackRevealToShop();
+            if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#7ef28a');
+            this.toast(`【${chosen.shortName || this._plainName(chosen.name)}】加入小队！`);
+            this.renderShop();
+            return true;
+          }
+          const ins = st.picks[i];
+          if (ins.minRoster && this.run.roster.length <= ins.minRoster) {
+            this.toast(`小队至少要保留 ${ins.minRoster} 人，无法驱逐`);
+            return false;
+          }
+          // reuse the existing target picker in the old ceremony modal
+          this.packReveal.hide();
+          const modal = $('pack-ceremony-modal');
+          modal.classList.remove('hidden', 'ceremony-shake');
+          $('pack-sealed-stage').classList.add('hidden');
+          $('pack-reveal-stage').classList.add('hidden');
+          const footer = modal.querySelector('.pack-footer');
+          if (footer) footer.classList.add('hidden');
+          $('pack-ceremony-title').textContent = st.pack.name;
+          $('pack-ceremony-sub').textContent = '';
+          this.selectInscriptionTarget(ins);
+          return true;
+        }
+      });
+      this.renderShop();
+    }
+
     handlePackAdReroll() {
       if (!this.activePackState || this.run.adPackRerollLeft <= 0) return;
       const pid = this.activePackState.packId;
@@ -4581,7 +4692,7 @@
       this.activePackState.chosenInscription = ins;
       $('pack-reveal-stage').classList.add('hidden');
       $('pack-target-stage').classList.remove('hidden');
-      $('pack-target-title').textContent = `选择目标侠客施加【${ins.name}】`;
+      $('pack-target-title').textContent = `选择 1 名队员施加【${this._plainName(ins.name)}】`;
 
       const tGrid = $('pack-target-grid');
       tGrid.className = 'v14-modal-choices';
@@ -4609,6 +4720,9 @@
 
           this.activePackState = null;
           if (this.packCeremonyFX) this.packCeremonyFX.stop();
+          if (this.packReveal) this.packReveal.close();
+          const pf = $('pack-ceremony-modal').querySelector('.pack-footer');
+          if (pf) pf.classList.remove('hidden');
           if (this.audio && this.audio.setAmbience) this.audio.setAmbience('tavern');
           $('pack-ceremony-modal').classList.add('hidden');
           if (this.audio.playWaxSlam) this.audio.playWaxSlam();
@@ -4802,86 +4916,96 @@
       };
     }
 
+    // Card / relic names are stored as "主题 档位 · 名字"; the shop shows the plain name.
+    _plainName(n) {
+      const s = String(n || '');
+      const i = s.lastIndexOf('·');
+      return i >= 0 ? s.slice(i + 1).trim() : s;
+    }
+
+    // ─── 备战营地 (between-wave camp): boss + squad on the left, one shop panel on the right ───
     renderShop() {
       this.closeShopInspector();
+      const run = this.run;
 
-      // 1. Top Walnut & Brass Ledger Beam (fixes duplicate gold icon!)
-      $('hud-wave').textContent = `W${this.run.wave}/${this.run.maxWaves}`;
-      $('hud-gold').textContent = `${this.run.gold}G`;
+      // 1. Top bar: wave progress, hero, relic rack, gold
+      $('hud-wave').textContent = `W${run.wave}/${run.maxWaves}`;
+      $('hud-gold').textContent = `${run.gold}G`;
+      const pipEl = $('camp-wave-pips');
+      if (pipEl) {
+        const pips = [];
+        for (let w = 1; w <= run.maxWaves; w++) {
+          const cls = w < run.wave ? 'done' : w === run.wave ? 'now' : '';
+          pips.push(`<i class="${cls} ${w === run.maxWaves ? 'last' : ''}"></i>`);
+        }
+        pipEl.innerHTML = pips.join('');
+      }
       $('hud-hearts').innerHTML = `
-        <span class="v152-hud-hero">${esc(this.run.hero.name)}</span>
-        <span class="v152-hud-sep">·</span>
-        <span class="v152-hud-orbs">${pxIcon('orb')}${this.meta.data.orbs}</span>
+        <span class="camp-hero-name">${esc(run.hero.name)}</span>
+        <span class="camp-orbs">${pxIcon('orb')}${this.meta.data.orbs}</span>
       `;
 
-      // 2. Real Visual 5/6-Slot Brass Relic Rack (Ⅰ ~ Ⅴ/Ⅵ)
-      const romans = ['Ⅰ', 'Ⅱ', 'Ⅲ', 'Ⅳ', 'Ⅴ', 'Ⅵ'];
-      const maxSlots = this.run.maxRelicSlots || 5;
+      const maxSlots = run.maxRelicSlots || 5;
       const rack = $('top-relic-rack');
       const slotHtml = [];
       for (let i = 0; i < maxSlots; i++) {
-        const r = this.run.relics[i];
+        const r = run.relics[i];
         if (r) {
           const isSel = this.selectedRelicUid === r.uid;
           slotHtml.push(`
-            <button type="button" class="v152-rack-slot filled tier-${r.tier || 'A'} ${isSel ? 'pulse' : ''}" data-ridx="${i}" title="${esc(r.name)}">
-              ${this.renderSafeIconImg(r.icon, r.theme || 'core', 'v152-rack-icon')}
-              <span class="v152-rack-stat">${esc(this.formatRelicLiveStat(r) || r.short || r.tier)}</span>
+            <button type="button" class="camp-rslot filled tier-${r.tier || 'A'} ${isSel ? 'is-sel' : ''}" data-ridx="${i}" title="${esc(r.name)}">
+              ${this.renderSafeIconImg(r.icon, r.theme || 'core', 'camp-rslot-icon')}
+              <span class="camp-rslot-stat">${esc(this.formatRelicLiveStat(r) || r.short || r.tier)}</span>
             </button>
           `);
         } else {
-          slotHtml.push(`
-            <div class="v152-rack-slot empty" aria-label="空秘宝槽 ${romans[i] || i + 1}">
-              <span class="v152-rack-roman">${romans[i] || (i + 1)}</span>
-            </div>
-          `);
+          slotHtml.push(`<div class="camp-rslot empty" aria-label="空秘宝槽 ${i + 1}"><span>${i + 1}</span></div>`);
         }
       }
-      rack.innerHTML = `<span class="v152-rack-lbl">秘宝<br>${this.run.relics.length}/${maxSlots}</span><div class="v152-rack-slots">${slotHtml.join('<span class="v152-rack-arrow">›</span>')}</div>`;
-
+      rack.innerHTML = `<span class="camp-k">秘宝 ${run.relics.length}/${maxSlots}</span><div class="camp-rslots">${slotHtml.join('')}</div>`;
       rack.querySelectorAll('[data-ridx]').forEach((el) => {
         el.onclick = (e) => {
           e.stopPropagation();
           this.closeShopInspector();
-          const r = this.run.relics[Number(el.dataset.ridx)];
+          const r = run.relics[Number(el.dataset.ridx)];
           this.selectedRelicUid = this.selectedRelicUid === r.uid ? null : r.uid;
           this.renderShop();
         };
       });
 
       const insp = $('relic-inspect-bar');
-      const selIdx = this.run.relics.findIndex((r) => r.uid === this.selectedRelicUid);
+      const selIdx = run.relics.findIndex((r) => r.uid === this.selectedRelicUid);
       if (selIdx >= 0) {
-        const r = this.run.relics[selIdx];
+        const r = run.relics[selIdx];
         const sellVal = Math.max(2, Math.floor(r.cost / 2));
         insp.classList.remove('hidden');
         insp.innerHTML = `
-          <div class="v14-relic-order-bar">
-            <b style="color:#ffd966;white-space:nowrap">${esc(r.name)}</b>
-            <span class="v14-inspect-desc">${esc(r.desc)}</span>
-            ${selIdx > 0 ? `<button class="steel-btn hud-mini-btn" id="btn-r-left">←左移</button>` : ''}
-            ${selIdx < this.run.relics.length - 1 ? `<button class="steel-btn hud-mini-btn" id="btn-r-right">右移→</button>` : ''}
-            <button class="steel-btn crimson hud-mini-btn" id="btn-r-sell">出售 +${sellVal}G</button>
-            <button class="steel-btn hud-mini-btn" id="btn-r-close" title="关闭">✕</button>
+          <b class="camp-ri-name">${esc(this._plainName(r.name))}</b>
+          <span class="camp-ri-desc">${esc(r.desc)}</span>
+          <div class="camp-ri-actions">
+            ${selIdx > 0 ? `<button class="camp-btn ghost sm" id="btn-r-left">← 左移</button>` : ''}
+            ${selIdx < run.relics.length - 1 ? `<button class="camp-btn ghost sm" id="btn-r-right">右移 →</button>` : ''}
+            <button class="camp-btn danger sm" id="btn-r-sell">出售 +${sellVal}G</button>
+            <button class="camp-btn ghost sm" id="btn-r-close" title="关闭">✕</button>
           </div>
         `;
         if ($('btn-r-left')) $('btn-r-left').onclick = () => {
-          [this.run.relics[selIdx - 1], this.run.relics[selIdx]] = [this.run.relics[selIdx], this.run.relics[selIdx - 1]];
+          [run.relics[selIdx - 1], run.relics[selIdx]] = [run.relics[selIdx], run.relics[selIdx - 1]];
           this.renderShop();
         };
         if ($('btn-r-right')) $('btn-r-right').onclick = () => {
-          [this.run.relics[selIdx + 1], this.run.relics[selIdx]] = [this.run.relics[selIdx], this.run.relics[selIdx + 1]];
+          [run.relics[selIdx + 1], run.relics[selIdx]] = [run.relics[selIdx], run.relics[selIdx + 1]];
           this.renderShop();
         };
         $('btn-r-sell').onclick = () => {
-          this.run.relics.splice(selIdx, 1);
-          this.run.gold += sellVal;
+          run.relics.splice(selIdx, 1);
+          run.gold += sellVal;
           this.selectedRelicUid = null;
           if (this.tavernShopStage) this.tavernShopStage.triggerCelebrate('#ffd966');
           this.toast(`出售秘宝 +${sellVal}G`);
           this.renderShop();
         };
-        if ($('btn-r-close')) $('btn-r-close').onclick = () => {
+        $('btn-r-close').onclick = () => {
           this.selectedRelicUid = null;
           this.renderShop();
         };
@@ -4889,68 +5013,49 @@
         insp.classList.add('hidden');
       }
 
-      // 3. Left Top: 4-Rank Escalating Live Boss Wanted Warrant + Crimson Wax Seal CTA
-      const nextBoss = D.getWaveBoss(this.run.wave);
-      const asc = this.meta.getAscension(this.run.ascension || 0);
+      // 2. Left: next boss
+      const nextBoss = D.getWaveBoss(run.wave);
+      const asc = this.meta.getAscension(run.ascension || 0);
       const nextBossHp = Math.round(nextBoss.maxHp * asc.hpMult);
       const nextBossBreak = Math.round(nextBoss.breakThreshold * asc.hpMult);
       const nextBossHeavy = Math.round(nextBoss.heavyDmg * asc.dmgMult);
       const nextBossUlt = Math.round(nextBoss.ultDmg * asc.dmgMult);
-      const bountyGold = Math.max(1, nextBoss.reward + (this.run.hero.rewardDelta || 0));
+      const bountyGold = Math.max(1, nextBoss.reward + (run.hero.rewardDelta || 0));
       const patHtml = (nextBoss.pattern || ['heavy', 'charge', 'heavy', 'heavy'])
         .slice(0, 4)
         .map((code, i) => this._bossPatternChip(code, i))
         .join('');
 
-      // Boss Threat Tier & Elemental Aura Profile (W1-2 Elite / W3-4 Blood Rival / W5-6 Calamity Overlord / W7-8 Eclipse Sovereign)
-      let bossTier = this.run.wave >= 7 ? 4 : this.run.wave >= 5 ? 3 : this.run.wave >= 3 ? 2 : 1;
+      let bossTier = run.wave >= 7 ? 4 : run.wave >= 5 ? 3 : run.wave >= 3 ? 2 : 1;
       if (asc.lv >= 3 && bossTier < 4) bossTier += 1;
-      const bossRankLabels = { 1: '精英悬赏', 2: '猩红大敌', 3: '灾厄霸主', 4: '终末魔王' };
-      const bossStars = '★'.repeat(bossTier);
+      const bossRankLabels = { 1: '精英', 2: '强敌', 3: '霸主', 4: '魔王' };
       let bossAura = 'ember';
       if (bossTier === 4) bossAura = 'eclipse';
       else if (bossTier === 3) bossAura = nextBoss.id === 'b_boreal' ? 'frost' : 'inferno';
       else if (bossTier === 2) bossAura = 'blood';
 
+      $('camp-boss-rank').innerHTML = `<i class="camp-stars t${bossTier}">${'★'.repeat(bossTier)}</i>${bossRankLabels[bossTier]}${asc.lv > 0 ? ` · 难度 ${asc.lv}` : ''}`;
       const bountyEl = $('boss-bounty-panel');
-      bountyEl.className = `v152-boss-monolith boss-tier-${bossTier} aura-${bossAura}`;
-      bountyEl.style.transform = '';
+      bountyEl.className = `camp-boss tier-${bossTier}`;
       bountyEl.innerHTML = `
-        ${bossTier >= 3 ? `<div class="v152-monolith-crest" aria-hidden="true">${bossTier === 4 ? '♛' : '❖'}</div>` : ''}
-        <div class="v152-boss-stage-wrap" title="点击激怒 Boss 预览气场">
-          <canvas class="v152-boss-fx-canvas" id="shop-boss-fx-canvas" width="362" height="188"></canvas>
-          <div class="v152-boss-top-hud">
-            <span class="v152-boss-rank-line tier-${bossTier}">
-              <i class="v152-rank-stars">${bossStars}</i>
-              <span>${bossRankLabels[bossTier]}</span>
-              <span class="v152-rank-sep">·</span>
-              <span class="v152-bounty-wave">W${this.run.wave}${asc.lv > 0 ? ` 阶${asc.lv}` : ''}</span>
-            </span>
-            <span class="v152-bounty-hp-readout">${nextBossHp.toLocaleString()} <small>HP</small></span>
-          </div>
-          <div class="v152-boss-name-scrim">
-            <span class="v152-boss-name">${esc(nextBoss.name)}</span>
-            <span class="v152-boss-title">${esc(nextBoss.title || '强敌')}</span>
+        <div class="camp-boss-stage" title="点一下看它发怒">
+          <canvas id="shop-boss-fx-canvas" width="356" height="172"></canvas>
+          <div class="camp-boss-hp"><b>${nextBossHp.toLocaleString()}</b><small>HP</small></div>
+          <div class="camp-boss-name">
+            <b>${esc(nextBoss.name)}</b>
+            <span>${esc(nextBoss.title || '强敌')}</span>
           </div>
         </div>
-        <div class="v152-boss-tactical-bar">
-          <div class="v152-boss-pattern">${patHtml}</div>
-          <div class="v152-boss-metrics">
-            <span>破招 <b>≥${nextBossBreak}</b></span>
-            <span class="v152-m-dot">·</span>
-            <span>重击 <b>${nextBossHeavy}</b> / 大招 <b>${nextBossUlt}</b></span>
-            <span class="v152-m-dot">·</span>
-            <span class="v152-m-gold">赏金 <b>+${bountyGold}G</b></span>
-          </div>
+        <div class="camp-boss-pattern">${patHtml}</div>
+        <div class="camp-boss-stats">
+          <div><span>破招线</span><b>≥${nextBossBreak}</b></div>
+          <div><span>重击 / 大招</span><b>${nextBossHeavy} / ${nextBossUlt}</b></div>
+          <div class="gold"><span>赏金</span><b>+${bountyGold}G</b></div>
         </div>
       `;
       const bossFxCanvas = $('shop-boss-fx-canvas');
       if (this.tavernShopStage && bossFxCanvas) {
-        this.tavernShopStage.attachBossCanvas(bossFxCanvas, {
-          tier: bossTier,
-          aura: bossAura,
-          unitId: nextBoss.unitId
-        });
+        this.tavernShopStage.attachBossCanvas(bossFxCanvas, { tier: bossTier, aura: bossAura, unitId: nextBoss.unitId });
       }
       bountyEl.onclick = () => {
         if (this.tavernShopStage) this.tavernShopStage.triggerBossRoar();
@@ -4958,17 +5063,15 @@
       };
 
       $('btn-shop-next').innerHTML = `
-        <span class="v152-wax-disc" aria-hidden="true">战</span>
-        <span class="v152-cta-text">迎战 W${this.run.wave} · ${esc(nextBoss.name)}</span>
-        <span class="v152-cta-arrow" aria-hidden="true">→</span>
+        <span class="camp-cta-k">出战</span>
+        <span class="camp-cta-name">W${run.wave} · ${esc(nextBoss.name)}</span>
+        <span class="camp-cta-arrow" aria-hidden="true">→</span>
       `;
 
-      // 4. Left Bottom: Sync Live Resting Squad to Tavern Floor Canvas + Minimal Ledger Strip
-      if (this.tavernShopStage) {
-        this.tavernShopStage.setState({ wave: this.run.wave, roster: this.run.roster });
-      }
+      // 3. Left: squad grid (real Duelyst idle sprites, tier-coloured bases)
+      if (this.tavernShopStage) this.tavernShopStage.setState({ wave: run.wave, roster: [] });
       const themeCounts = {};
-      for (const h of this.run.roster) {
+      for (const h of run.roster) {
         const k = h.theme || 'core';
         themeCounts[k] = (themeCounts[k] || 0) + 1;
       }
@@ -4977,181 +5080,151 @@
         .slice(0, 3)
         .map(([k, cnt]) => {
           const th = D.THEMES[k] || D.THEMES.core;
-          return `<span class="v152-sq-th" style="color:${th.color}">${th.short}${cnt}</span>`;
+          return `<span style="color:${th.color}">${th.short} ${cnt}</span>`;
         }).join('');
       $('squad-ledger-strip').innerHTML = `
-        <span class="v152-sq-count">战团 <b>${this.run.roster.length}</b> 人</span>
-        <span class="v152-sq-themes">${themeSummary}</span>
-        <span class="v152-sq-link">名册 →</span>
+        <span class="camp-sec-title">小队</span>
+        <span class="camp-sec-note"><b>${run.roster.length}</b> 人 ${themeSummary}</span>
+        <span class="camp-link">名册 →</span>
       `;
-      $('squad-roam-zone').innerHTML = `
-        <div class="v152-roam-hint">${this.run.roster.length > 10 ? `地板展示前 10 位 / 共 ${this.run.roster.length} 人` : '点击休整区管理牌组'}</div>
-      `;
+      const shown = run.roster.slice(0, 10);
+      const zone = $('squad-roam-zone');
+      zone.innerHTML = shown.map((h, i) => {
+        const buffed = h.atk > (h.baseAtk || h.atk);
+        const marks = [h.redSeal ? 'seal' : '', h.greedBadge ? 'greed' : '', h.ironPlated ? 'iron' : '', h.glassBlade ? 'glass' : ''].filter(Boolean);
+        return `
+          <div class="camp-unit tier-${h.tier}" style="--i:${i}">
+            <div class="camp-unit-sprite" data-unit="${h.unitId}"></div>
+            <div class="camp-unit-base" aria-hidden="true"></div>
+            <div class="camp-unit-name">${esc(h.shortName || this._plainName(h.name))}</div>
+            <div class="camp-unit-atk ${buffed ? 'up' : ''}">${h.atk}${marks.map((m) => `<i class="mk ${m}"></i>`).join('')}</div>
+          </div>
+        `;
+      }).join('') + (run.roster.length > 10 ? `<div class="camp-unit more">+${run.roster.length - 10}</div>` : '');
+      zone.querySelectorAll('.camp-unit-sprite').forEach((sp) => {
+        if (this.sprites && this.sprites.createDomSprite) sp.appendChild(this.sprites.createDomSprite(sp.dataset.unit, 'idle', 50));
+      });
 
-      // 5. Right Top Shelf Controls
+      // 4. Shop header controls
       const adRerollBtn = $('btn-shop-ad-reroll');
-      adRerollBtn.disabled = this.run.adShopRerollLeft <= 0;
-      adRerollBtn.innerHTML = this.run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费必出S刷新` : '保底刷新已用';
-      $('btn-shop-reroll').innerHTML = `<span class="v152-reroll-lbl">刷新</span><span class="v152-reroll-cost">${pxIcon('gold')}${this.shop.rerollCost}G</span>`;
+      adRerollBtn.disabled = run.adShopRerollLeft <= 0;
+      adRerollBtn.innerHTML = run.adShopRerollLeft > 0 ? `${pxIcon('play')} 免费刷新 · 必出 S` : '免费刷新已用';
+      $('btn-shop-reroll').innerHTML = `刷新 <b>${pxIcon('gold')}${this.shop.rerollCost}G</b>`;
 
-      // 6. Right Upper Shelf: 3 Full-Art Illustrated Collectible Relic Cards (ZERO Box-in-Box!)
+      // 5. Relic shelf
       const rRow = $('shop-relics-row');
-      rRow.className = 'v152-relics-row';
+      rRow.className = 'camp-relics-row';
       rRow.innerHTML = this.shop.relicOffers.map((o, idx) => {
         const thKey = o.tpl.theme || 'core';
         const th = D.THEMES[thKey] || D.THEMES.core;
-        const canAfford = this.run.gold >= o.tpl.cost;
+        const canAfford = run.gold >= o.tpl.cost;
         let srcStatus = '';
         if (o.tpl.requiresSource) {
-          const cnt = E.countThemeSources(this.run.roster, this.run.hero, o.tpl.requiresSource);
-          srcStatus = `<span class="v152-src-line ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt}张`}</span>`;
+          const cnt = E.countThemeSources(run.roster, run.hero, o.tpl.requiresSource);
+          srcStatus = `<span class="camp-src ${cnt === 0 ? 'warn' : 'ok'}">${cnt === 0 ? '缺启动源' : `启动源 ${cnt} 张`}</span>`;
         }
         return `
-          <button type="button" class="v152-relic-card v15-shop-3d theme-${thKey} tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'unaffordable' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" style="--rc-accent:${th.color}" ${o.sold ? 'disabled' : ''}>
-            ${renderCardTierOrnament(o.tpl.tier, 76, 118)}
-            <div class="v152-rc-art-layer" aria-hidden="true">
-              <div class="v152-rc-rays"></div>
-              <div class="v152-rc-filigree"></div>
-              ${this.renderSafeIconImg(o.tpl.icon, thKey, 'v152-rc-art-img')}
-              <div class="v152-rc-vignette"></div>
+          <button type="button" class="camp-relic tier-${o.tpl.tier} ${o.sold ? 'sold' : ''} ${!o.sold && !canAfford ? 'poor' : ''}" data-buyr="${idx}" data-shop-inspect="relic:${idx}" ${o.sold ? 'disabled' : ''}>
+            <div class="camp-relic-art" aria-hidden="true">
+              <div class="camp-relic-glow"></div>
+              ${this.renderSafeIconImg(o.tpl.icon, thKey, 'camp-relic-img')}
             </div>
-            <div class="v152-rc-top-meta">
-              <span class="v152-rc-tier-emblem tier-${o.tpl.tier}">${o.tpl.tier}</span>
-              <span class="v152-rc-theme-line" style="color:${th.color}">
-                ${th.short}${o.tpl.isBridge ? '<i class="v152-rc-bridge-dot">·</i><b class="v152-rc-bridge-txt">接口</b>' : ''}
-              </span>
+            <div class="camp-relic-meta">
+              <span class="camp-tier tier-${o.tpl.tier}">${o.tpl.tier}</span>
+              <span class="camp-theme" style="color:${th.color}">${th.short}${o.tpl.isBridge ? ' · 接口' : ''}</span>
             </div>
-            <div class="v152-rc-bottom-scrim">
-              <div class="v152-rc-name">${esc(o.tpl.name)}</div>
-              <div class="v152-rc-perk">${esc(o.tpl.short || o.tpl.desc)}</div>
-              ${srcStatus ? `<div class="v152-rc-meta">${srcStatus}</div>` : ''}
-              <div class="v152-rc-price-strip ${o.sold ? 'sold' : canAfford ? 'ready' : 'short'}">
-                ${o.sold ? '已购入' : `${pxIcon('gold')}<span>${o.tpl.cost}G</span>`}
-              </div>
-            </div>
+            <div class="camp-relic-name">${esc(this._plainName(o.tpl.name))}</div>
+            <div class="camp-relic-perk">${esc(o.tpl.desc || o.tpl.short || '')}</div>
+            ${srcStatus}
+            <div class="camp-price ${o.sold ? 'sold' : canAfford ? '' : 'short'}">${o.sold ? '已购入' : `${pxIcon('gold')}${o.tpl.cost}G`}</div>
           </button>
         `;
       }).join('');
 
       rRow.querySelectorAll('[data-buyr]').forEach((el) => {
-        if (!el.classList.contains('sold')) {
-          this.bindInteractive3DTilt(el, 8, 7, true);
-        }
+        if (!el.classList.contains('sold')) this.bindInteractive3DTilt(el, 6, 5, true);
         el.onclick = (e) => {
           e.stopPropagation();
           const idx = Number(el.dataset.buyr);
           const offer = this.shop.relicOffers[idx];
           if (!offer || offer.sold) return;
           const th = D.THEMES[offer.tpl.theme] || D.THEMES.core;
-          const rackFull = this.run.relics.length >= this.run.maxRelicSlots;
-          const afford = this.run.gold >= offer.tpl.cost;
+          const rackFull = run.relics.length >= run.maxRelicSlots;
+          const afford = run.gold >= offer.tpl.cost;
           let extraHtml = '';
           if (offer.tpl.requiresSource) {
-            const cnt = E.countThemeSources(this.run.roster, this.run.hero, offer.tpl.requiresSource);
-            extraHtml += `<div class="sdp-note ${cnt === 0 ? 'warn' : 'ok'}">当前牌组启动源：<b>${cnt} 张</b>${cnt === 0 ? '（建议同时招募对应流派侠客）' : '（已就绪，购入即可生效）'}</div>`;
+            const cnt = E.countThemeSources(run.roster, run.hero, offer.tpl.requiresSource);
+            extraHtml += `<div class="sdp-note ${cnt === 0 ? 'warn' : 'ok'}">当前牌组启动源：<b>${cnt} 张</b>${cnt === 0 ? '（建议同时招募对应流派的队员）' : '（已就绪，购入即可生效）'}</div>`;
           }
           if (rackFull) {
-            extraHtml += `<div class="sdp-note warn">秘宝架已满（${this.run.relics.length}/${this.run.maxRelicSlots}），可先点击顶部已装秘宝出售腾位。</div>`;
+            extraHtml += `<div class="sdp-note warn">秘宝栏已满（${run.relics.length}/${run.maxRelicSlots}），可以先点顶部已装备的秘宝出售腾位。</div>`;
           }
           this.inspectShopItem(`relic:${idx}`, el, {
             iconHtml: this.renderSafeIconImg(offer.tpl.icon, offer.tpl.theme || 'core', 'sdp-icon-img'),
             badgesHtml: `<span class="v14-tier tier-${offer.tpl.tier}">${offer.tpl.tier}</span><span class="v152-theme-chip" style="color:${th.color};border-color:${th.color}66;background:${th.bg}">${th.short}</span>${offer.tpl.isBridge ? '<span class="v152-bridge-chip">跨流派接口</span>' : ''}`,
-            title: offer.tpl.name,
+            title: this._plainName(offer.tpl.name),
             cost: offer.tpl.cost,
             desc: offer.tpl.desc,
             extraHtml,
             canConfirm: !rackFull && afford,
             confirmLabel: '确认购入',
-            disabledReason: rackFull ? `秘宝栏已满 (${this.run.relics.length}/${this.run.maxRelicSlots})` : `金币不足 · 需 ${offer.tpl.cost}G`,
+            disabledReason: rackFull ? `秘宝栏已满 (${run.relics.length}/${run.maxRelicSlots})` : `金币不足 · 需 ${offer.tpl.cost}G`,
             onConfirm: () => this.buyRelicOffer(idx)
           });
         };
       });
 
-      // 7. Right Lower Shelf: Pure-VFX Foil Booster Sachet + Pure-VFX Arcane Rune Coffer + 4 Forged Slot Plaques
+      // 6. Lower shelf: two booster packs + four slot upgrades
       const lower = $('shop-packs-row');
-      lower.className = 'v152-lower-shop';
+      lower.className = 'camp-lower';
       lower.innerHTML = `
-        <div class="v152-packs-col">
-          ${D.PACKS.map((p) => {
-            const c = this.getPackCost(p);
-            const sold = Boolean(this.shop.packSold[p.id]);
-            const canAfford = this.run.gold >= c;
-            const isHeroPack = p.id === 'pack_hero';
-            if (isHeroPack) {
+        <div class="camp-lower-col packs">
+          <div class="camp-row-label">卡包 <i>开包选一张</i></div>
+          <div class="camp-packs">
+            ${D.PACKS.map((p) => {
+              const c = this.getPackCost(p);
+              const sold = Boolean(this.shop.packSold[p.id]);
+              const canAfford = run.gold >= c;
+              const kind = p.id === 'pack_hero' ? 'hero' : 'ins';
               return `
-                <button type="button" class="v152-pack-card hero-pack ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'unaffordable' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
-                  <div class="v152-foil-crimp top" aria-hidden="true"></div>
-                  <div class="v152-pack-body">
-                    <div class="v152-foil-sheen" aria-hidden="true"></div>
-                    <div class="v152-foil-tearline" aria-hidden="true"><span>${p.count}选1</span></div>
-                    <div class="v152-pack-vfx-stage">
-                      <canvas class="v152-pack-fx-canvas" id="shop-pack-hero-fx" width="184" height="136"></canvas>
+                <button type="button" class="camp-pack ${kind} ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'poor' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
+                  <div class="camp-pack-foil" aria-hidden="true">
+                    <i class="camp-pack-crimp top"></i>
+                    <div class="camp-pack-face">
+                      <span class="camp-pack-count">${p.count} 选 1</span>
+                      <span class="camp-pack-emblem">${kind === 'hero' ? '<i></i><i></i><i></i>' : '<b></b>'}</span>
+                      <span class="camp-pack-name">${esc(p.name)}</span>
                     </div>
-                    <div class="v152-pack-foot">
-                      <div class="v152-pack-name" style="color:${p.accent}">${esc(p.name)}</div>
-                      <div class="v152-pack-sub">${esc(p.subtitle)}</div>
-                      <div class="v152-price-bar ${sold ? 'sold' : canAfford ? 'ready' : 'short'}">
-                        ${sold ? '已撕开' : `${pxIcon('gold')}<span>${c}G 撕开</span>`}
-                      </div>
-                    </div>
+                    <i class="camp-pack-sheen"></i>
+                    <i class="camp-pack-crimp bottom"></i>
                   </div>
-                  <div class="v152-foil-crimp bottom" aria-hidden="true"></div>
+                  <div class="camp-price ${sold ? 'sold' : canAfford ? '' : 'short'}">${sold ? '已开启' : `${pxIcon('gold')}${c}G`}</div>
                 </button>
               `;
-            }
-            return `
-              <button type="button" class="v152-pack-card inscrip-pack ${sold ? 'sold' : ''} ${!sold && !canAfford ? 'unaffordable' : ''}" data-pack="${p.id}" data-shop-inspect="pack:${p.id}" ${sold ? 'disabled' : ''}>
-                <div class="v152-coffer-lid" aria-hidden="true">
-                  <span class="v152-coffer-tag">${p.count}选1</span>
-                  <span class="v152-coffer-clasp">封</span>
-                </div>
-                <div class="v152-coffer-body">
-                  <div class="v152-foil-sheen arcane" aria-hidden="true"></div>
-                  <div class="v152-pack-vfx-stage">
-                    <canvas class="v152-pack-fx-canvas" id="shop-pack-inscrip-fx" width="184" height="136"></canvas>
-                  </div>
-                  <div class="v152-pack-foot">
-                    <div class="v152-pack-name" style="color:${p.accent}">${esc(p.name)}</div>
-                    <div class="v152-pack-sub">${esc(p.subtitle)}</div>
-                    <div class="v152-price-bar ${sold ? 'sold' : canAfford ? 'ready' : 'short'}">
-                      ${sold ? '已启封' : `${pxIcon('gold')}<span>${c}G 启封</span>`}
-                    </div>
-                  </div>
-                </div>
-              </button>
-            `;
-          }).join('')}
+            }).join('')}
+          </div>
         </div>
-        <div class="v152-slots-col">
-          ${D.SLOT_UPGRADES.map((u) => {
-            const lv = this.run.slotLevels[u.id] || 1;
-            const canAfford = this.run.gold >= u.cost;
-            return `
-              <button type="button" class="v152-slot-plaque slot-${u.id} ${canAfford ? '' : 'unaffordable'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" style="--slot-col:${u.color}">
-                <div class="v152-slot-head">
-                  <div class="v152-slot-id">
-                    ${this._slotEmblemSvg(u.id)}
-                    <span class="v152-slot-name">${esc(u.name)}</span>
-                  </div>
-                  <span class="v152-slot-lv">Lv.${lv}</span>
-                </div>
-                <div class="v152-slot-body">
-                  <span class="v152-slot-perk">${esc(u.short)}</span>
-                  <span class="v152-slot-cost ${canAfford ? 'ready' : 'short'}">${pxIcon('gold')}${u.cost}G</span>
-                </div>
-              </button>
-            `;
-          }).join('')}
+        <div class="camp-lower-col slots">
+          <div class="camp-row-label">战位强化 <i>永久提升对应出手位</i></div>
+          <div class="camp-slots">
+            ${D.SLOT_UPGRADES.map((u) => {
+              const lv = run.slotLevels[u.id] || 1;
+              const canAfford = run.gold >= u.cost;
+              const [num, label] = String(u.name).split('·').map((s) => s.trim());
+              return `
+                <button type="button" class="camp-slot ${canAfford ? '' : 'poor'}" data-upgs="${u.id}" data-shop-inspect="slot:${u.id}" style="--slot-col:${u.color}">
+                  <span class="camp-slot-num">${esc(num || '')}</span>
+                  <span class="camp-slot-main">
+                    <b>${esc(label || u.name)} <em>Lv.${lv}</em></b>
+                    <span>${esc(u.short)}</span>
+                  </span>
+                  <span class="camp-price ${canAfford ? '' : 'short'}">${pxIcon('gold')}${u.cost}G</span>
+                </button>
+              `;
+            }).join('')}
+          </div>
         </div>
       `;
-
-      if (this.tavernShopStage && this.tavernShopStage.attachPackCanvases) {
-        this.tavernShopStage.attachPackCanvases({
-          heroCanvas: $('shop-pack-hero-fx'),
-          inscripCanvas: $('shop-pack-inscrip-fx')
-        });
-      }
 
       lower.querySelectorAll('[data-pack]').forEach((el) => {
         el.onclick = (e) => {
@@ -5159,41 +5232,36 @@
           const p = D.PACKS.find((x) => x.id === el.dataset.pack);
           if (!p || this.shop.packSold[p.id]) return;
           const cost = this.getPackCost(p);
-          const afford = this.run.gold >= cost;
+          const afford = run.gold >= cost;
           const isHeroPack = p.id === 'pack_hero';
           const extraHtml = isHeroPack
-            ? `<div class="sdp-note ok">当前可抽取主题池：<b>${this.run.activeThemes.map((k) => (D.THEMES[k] && D.THEMES[k].short) || k).join(' / ')}</b></div>`
-            : `<div class="sdp-note ok">${this.run.hero.inscriptionDiscount ? `已享英雄铭文折减（原价 ${p.cost}G → ${cost}G）` : '开启后先 3 选 1 铭文，再指定 1 名战团侠客施加。'}</div>`;
-          const vfxMiniHtml = isHeroPack
-            ? `<div class="sdp-vfx-badge hero-fan" aria-hidden="true"><span>✦</span></div>`
-            : `<div class="sdp-vfx-badge coffer-seal" aria-hidden="true"><span>封</span></div>`;
+            ? `<div class="sdp-note ok">当前可抽取的流派：<b>${run.activeThemes.map((k) => (D.THEMES[k] && D.THEMES[k].short) || k).join(' / ')}</b></div>`
+            : `<div class="sdp-note ok">${run.hero.inscriptionDiscount ? `英雄铭文折扣：原价 ${p.cost}G → ${cost}G` : '先 3 选 1 铭文，再指定 1 名队员施加。'}</div>`;
           this.inspectShopItem(`pack:${p.id}`, el, {
-            iconHtml: vfxMiniHtml,
-            badgesHtml: `<span class="v152-theme-chip" style="color:${p.accent};border-color:${p.accent}66;background:rgba(16,14,24,0.85)">${p.subtitle}</span>`,
+            iconHtml: `<div class="sdp-vfx-badge ${isHeroPack ? 'hero-fan' : 'coffer-seal'}" aria-hidden="true"><span>${isHeroPack ? '✦' : '◆'}</span></div>`,
+            badgesHtml: `<span class="v152-theme-chip" style="color:${p.accent};border-color:${p.accent}66;background:rgba(16,14,12,0.85)">${p.count} 选 1</span>`,
             title: p.name,
             cost,
             desc: p.desc,
             extraHtml,
             canConfirm: afford,
-            confirmLabel: isHeroPack ? '确认撕开' : '确认启封',
+            confirmLabel: '开包',
             disabledReason: `金币不足 · 需 ${cost}G`,
             onConfirm: () => this.openPack(p.id, false)
           });
         };
       });
 
-      this.startCardFxLoop();
-
       lower.querySelectorAll('[data-upgs]').forEach((el) => {
         el.onclick = (e) => {
           e.stopPropagation();
           const u = D.SLOT_UPGRADES.find((x) => x.id === el.dataset.upgs);
           if (!u) return;
-          const lv = this.run.slotLevels[u.id] || 1;
-          const afford = this.run.gold >= u.cost;
+          const lv = run.slotLevels[u.id] || 1;
+          const afford = run.gold >= u.cost;
           this.inspectShopItem(`slot:${u.id}`, el, {
             iconHtml: this._slotEmblemSvg(u.id),
-            badgesHtml: `<span class="v152-theme-chip" style="color:${u.color};border-color:${u.color}66;background:rgba(16,12,10,0.85)">战位锻造 · Lv.${lv} → Lv.${lv + 1}</span>`,
+            badgesHtml: `<span class="v152-theme-chip" style="color:${u.color};border-color:${u.color}66;background:rgba(16,12,10,0.85)">Lv.${lv} → Lv.${lv + 1}</span>`,
             title: u.name,
             cost: u.cost,
             desc: u.desc,
@@ -5205,6 +5273,8 @@
           });
         };
       });
+
+      this.startCardFxLoop();
     }
 
     startNextWaveBattle() {
