@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>排队骑士 · 战斗原型</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="title">排队骑士 · 战斗原型 <span class="sub">圣盾 / 影刃 / 深渊 / 霜境 / 中立 · 机制敌人 · 三名英雄</span></div>
+    <div class="status" id="status"></div>
+  </header>
+
+  <!-- 编队 -->
+  <section id="setup" class="screen">
+    <div class="teams">
+      <div class="team" data-side="0">
+        <div class="team-head"><b>我方</b><span class="hint">点卡池加入 · 点两个格子换位 · 点等级切换 · 右键移除</span></div>
+        <div class="slots" id="slots0"></div>
+        <div class="presets" id="presets0"></div>
+      </div>
+      <div class="team" data-side="1">
+        <div class="team-head"><b>敌方</b><span class="hint">同样可编辑</span></div>
+        <div class="slots" id="slots1"></div>
+        <div class="presets" id="presets1"></div>
+      </div>
+    </div>
+    <div class="pool-head">
+      <span>卡池（加入到：</span>
+      <label><input type="radio" name="target" value="0" checked> 我方</label>
+      <label><input type="radio" name="target" value="1"> 敌方</label>
+      <span>）</span>
+      <span class="herosel">英雄：
+        <label><input type="radio" name="hero" value="dispatcher" checked> 调度者</label>
+        <label><input type="radio" name="hero" value="pusher"> 推阵者</label>
+        <label><input type="radio" name="hero" value="chrono"> 时序者</label>
+      </span>
+      <select id="energyMode" title="能量节奏">
+        <option value="std">标准能量（开局 1，每轮 +2）</option>
+        <option value="old">紧缺能量（开局 0，每轮 +1，旧版）</option>
+        <option value="rich">充裕能量（开局 2，每轮 +3）</option>
+      </select>
+      <button id="btnStart" class="primary">开战</button>
+    </div>
+    <div class="pool" id="pool"></div>
+  </section>
+
+  <!-- 战斗 -->
+  <section id="battle" class="screen hidden">
+    <div class="arena" id="arena">
+      <div class="stage" id="stage">
+        <div class="lane" id="lane0"></div>
+        <div class="vs" id="vs">VS</div>
+        <div class="lane enemy" id="lane1"></div>
+      </div>
+      <div class="banner hidden" id="banner"></div>
+    </div>
+    <div class="dock">
+      <div class="hero" id="hero"></div>
+      <div class="controls">
+        <button id="btnNext" class="primary">下一轮</button>
+        <button id="btnAuto">自动</button>
+        <button id="btnSpeed">1×</button>
+        <button id="btnBack">返回编队</button>
+      </div>
+    </div>
+    <div class="info">
+      <div class="inspect" id="inspect">点单位查看技能</div>
+      <div class="log" id="log"></div>
+    </div>
+  </section>
+</div>
+<script type="module" src="ui.js"></script>
+</body>
+</html>
