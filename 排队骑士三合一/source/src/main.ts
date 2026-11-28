@@ -10,6 +10,7 @@ import './ui/pdqs.css';
 import './qb/css/battle-report.css';
 import { CARDS } from './core/data';
 import { App } from './ui/app';
+import { useEngineV2 } from './core/v2';
 import './ui/theme.css';
 // 卡面、技能行、金色单位（2026-11-16）：最后加载，覆盖旧卡面同名元素
 import './qb/css/card-face.css';
@@ -53,6 +54,6 @@ document.getElementById('rotate-hint')!.addEventListener('click', (e) => (e.curr
 document.addEventListener('contextmenu', (e) => e.preventDefault());
 
 const warm = CARDS.map((c) => rasterize(c.id));
-Promise.race([Promise.allSettled(warm), new Promise((r) => setTimeout(r, 1500))]).then(() => app.toTitle());
+Promise.race([Promise.allSettled(warm), new Promise((r) => setTimeout(r, 1500))]).then(() => (useEngineV2() ? app.toV2Battle() : app.toTitle()));
 
 if (location.search.includes('debug')) (window as unknown as { __app: App }).__app = app;

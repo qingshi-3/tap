@@ -1,0 +1,78 @@
+/* v2 战斗试玩：编队面板、英雄面板、意图、结算 */
+#stage .screen.v2-root { position: absolute; inset: 0; }
+
+#stage .v2-setup {
+  position: absolute; inset: 24px 120px; overflow: auto; padding: 22px 30px;
+  background: rgba(14, 12, 28, .92); border: 2px solid #3d3560; border-radius: 10px; color: #e8e2ff;
+}
+#stage .v2-setup h1 { margin: 0 0 4px; font-size: 30px; color: #ffd98a; }
+#stage .v2-setup h2 { margin: 0 0 8px; font-size: 18px; color: #b9aee6; }
+#stage .v2-hint { margin: 6px 0 0; color: #9a90c4; font-size: 15px; }
+#stage .v2-sec { margin-top: 16px; }
+#stage .v2-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+#stage .v2-btns .btn { min-height: 38px; padding: 0 14px; font-size: 16px; }
+#stage .v2-foot { justify-content: flex-end; margin-top: 22px; }
+#stage .v2-start { min-width: 160px; }
+#stage .v2-team { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 8px; }
+#stage .v2-chip { padding: 3px 10px; border-radius: 12px; background: #2a2446; font-size: 15px; border: 1px solid #4a4072; }
+#stage .v2-chip i { margin-left: 4px; font-style: normal; color: #ffd98a; }
+#stage .v2-chip.f-shield { border-color: #e8c35a; }
+#stage .v2-chip.f-blade { border-color: #6fc3ff; }
+#stage .v2-chip.f-abyss { border-color: #b77bff; }
+#stage .v2-chip.f-frost { border-color: #8fe3ff; }
+#stage .v2-chip.f-enemy { border-color: #ff6b78; color: #ffb3ba; }
+
+#stage .v2-battle .v2-hero {
+  position: absolute; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 30;
+  display: flex; flex-direction: column; gap: 8px; min-width: 640px; padding: 10px 14px;
+  background: rgba(14, 12, 28, .88); border: 2px solid #4a4072; border-radius: 10px; color: #e8e2ff;
+}
+#stage .v2-hero-head { display: flex; align-items: center; gap: 12px; font-size: 18px; }
+#stage .v2-hero-head b { color: #ffd98a; }
+#stage .v2-pips { display: inline-flex; gap: 4px; }
+#stage .v2-pips i { width: 14px; height: 14px; border-radius: 3px; background: #2f2850; border: 1px solid #5b4f8c; }
+#stage .v2-pips i.on { background: #ffd24a; border-color: #fff0b0; box-shadow: 0 0 6px rgba(255, 210, 74, .8); }
+#stage .v2-ult { margin-left: auto; color: #c7a8ff; font-size: 16px; }
+#stage .v2-skills { display: flex; gap: 8px; }
+#stage .v2-skill {
+  flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 6px 10px;
+  background: #241f3e; border: 2px solid #4a4072; border-radius: 8px; color: #e8e2ff; cursor: pointer; font: inherit;
+}
+#stage .v2-skill b { font-size: 17px; }
+#stage .v2-skill small { font-size: 13px; color: #a99fd6; }
+#stage .v2-skill.branched b { color: #ffd98a; }
+#stage .v2-skill.on { border-color: #ffd24a; box-shadow: 0 0 10px rgba(255, 210, 74, .6); }
+#stage .v2-skill:disabled { opacity: .4; cursor: default; }
+#stage .v2-skill:not(:disabled):hover { border-color: #8f7fd6; }
+#stage .v2-hero-foot { display: flex; align-items: center; gap: 10px; }
+#stage .v2-tip { flex: 1; color: #b9aee6; font-size: 15px; }
+#stage .v2-hero-foot .btn { min-height: 38px; padding: 0 16px; font-size: 16px; }
+#stage .v2-hero-foot .btn.on { border-color: #ffd24a; color: #ffd98a; }
+#stage .v2-next { min-width: 120px; }
+
+#stage .v2-intent {
+  position: absolute; left: 50%; top: -34px; transform: translateX(-50%); white-space: nowrap; z-index: 5;
+  padding: 2px 8px; border-radius: 10px; background: rgba(120, 20, 34, .92); border: 1px solid #ff6b78;
+  color: #ffe1e4; font-size: 14px; pointer-events: none;
+}
+
+#stage .v2-toast {
+  position: absolute; left: 50%; top: 120px; transform: translateX(-50%); z-index: 40; pointer-events: none;
+  padding: 6px 18px; border-radius: 8px; background: rgba(40, 30, 70, .92); border: 2px solid #ffd24a;
+  color: #ffd98a; font-size: 22px; opacity: 0;
+}
+#stage .v2-toast.on { animation: v2Toast 1.4s ease-out; }
+@keyframes v2Toast {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  15%, 70% { opacity: 1; transform: translate(-50%, 0); }
+  100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+
+#stage .v2-result {
+  position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); z-index: 50; text-align: center;
+  padding: 22px 40px; background: rgba(14, 12, 28, .94); border: 2px solid #4a4072; border-radius: 12px; color: #e8e2ff;
+}
+#stage .v2-result h2 { margin: 0 0 6px; font-size: 40px; }
+#stage .v2-result.win h2 { color: #ffd98a; }
+#stage .v2-result.lose h2 { color: #ff8a95; }
+#stage .v2-result p { margin: 0 0 14px; color: #b9aee6; }

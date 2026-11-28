@@ -195,6 +195,8 @@ const BASE_CARDS: CardDef[] = [
 export const CARDS: CardDef[] = [...BASE_CARDS.map(d => d.enemy || d.token ? d : { ...d, legacy: true }), ...REWORK_CARDS];
 export const CARD: Record<string, CardDef> = Object.fromEntries(CARDS.map((c) => [c.id, c]));
 export const card = (id: string) => CARD[id];
+/** 外部卡牌（v2 引擎的卡，id 带 v2_ 前缀）注册进查找表，供界面取名字、阵营、素材；不进入 CARDS 和任何卡池。 */
+export function registerCards(defs: CardDef[]) { for (const d of defs) CARD[d.id] = d; }
 /** 金色身材：基础攻血 ×1.5（四舍五入）。金色的主要收益是技能升级，身材是次要。 */
 export const goldStat = (v: number) => Math.round(v * 1.5);
 export const SHOP_POOL = REWORK_CARDS;

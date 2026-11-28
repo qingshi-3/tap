@@ -19,6 +19,7 @@ import { clearAll, DIFFS, load, lvlOf, maxLives, newRun, save, saveStatus, begin
 import { Game } from './prep';
 import { codexScreen } from './codex';
 import { heroCampScreen } from './heroCamp';
+import { v2BattleScreen } from './battleV2';
 
 // ── 本地战绩 ──
 const REC_KEY = 'pdqs3_records';
@@ -205,6 +206,14 @@ export class App {
     });
     this.modal(h('div', { class: 'confirm', 'aria-label': '设置' }, h('h3', null, '设置'), audioSettings(onChange),
       inRun ? null : h('div', { class: 'data-tools danger-zone' }, wipe)), 'audio-dialog', document.body);
+  }
+
+  /** v2 战斗试玩（逻辑替换第 2 步；入口 ?engine=v2） */
+  toV2Battle() {
+    this.leaveGame();
+    setTitleMusic(false);
+    const screen = v2BattleScreen(this.fx, () => this.toTitle());
+    this.show(screen.el, screen.dispose);
   }
 
   toCodex() {

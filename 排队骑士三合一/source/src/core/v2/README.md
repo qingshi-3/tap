@@ -37,8 +37,8 @@ pnpm sim:v2 100 3 0.65 10 boss stage=mid hero=pusher pre
 
 ## 接入步骤
 
-1. **移植引擎**（本目录）。旧引擎不动。
-2. 改造战斗界面：分步播放、英雄窗口、意图显示；开关打开时走新引擎。
+1. **移植引擎**（本目录）。旧引擎不动。✅
+2. **改造战斗界面**：分步播放、英雄窗口、意图显示；开关打开时走新引擎。✅（试玩入口：地址栏 `?engine=v2`）
 3. 换卡池。
 4. 改一局的流程：按 CONTENT-DESIGN 第 3、4 章裁掉旧系统，接上升级、生命、分支选择和遗物。
 5. 清理旧引擎和测旧机制的测试。
@@ -47,3 +47,16 @@ pnpm sim:v2 100 3 0.65 10 boss stage=mid hero=pusher pre
 
 - 去掉了旧调度者留下的死代码（`regroup` 分支、"双锋"的 `ultArmed`）。`regroup` 已不在技能表里，原型里真被调用会报错。
 - `pnpm sim:v2` 的 `focus` 模式从四个流派里抽（原型漏了霜境）。
+
+## 战斗界面（第 2 步）
+
+表现层复用实战的 `Board` / `BattlePlayer` / `FX` / 场景，不另写播放器：
+
+| 文件 | 作用 |
+| --- | --- |
+| `core/v2bridge.ts` | v2 卡牌以 `v2_` 前缀注册进旧卡牌查找表（只供界面取名字、阵营、素材，不进任何卡池）；`LogConverter` 把 v2 日志逐段转成旧事件流 |
+| `ui/battle.ts` | `play()` 拆成 `begin` / `playEvents` / `finish`（旧调用方式不变）；新增 `reconcile`（每段播完按引擎快照静默对齐数值、状态、站位）、`unitClick`（选目标）、`unitEl` |
+| `ui/battleV2.ts` / `battleV2.css` | 试玩屏：编队（阶段、预设阵容、机制遭遇、英雄、分支）→ 分步战斗（英雄面板：能量、奥义充能、技能、选目标、下一轮、自动）→ 结算 |
+| `assets/units/` | 用 `scripts/import-unit-art.py` 新增 21 个深渊、霜境单位素材 |
+
+地址栏同时带 `debug` 时，战斗状态挂在 `window.__v2`（`{ s, conv, player }`）上，便于排查。

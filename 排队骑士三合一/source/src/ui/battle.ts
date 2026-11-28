@@ -40,6 +40,10 @@ export class BattlePlayer {
   get rate() { return this.playbackRate; }
   set rate(value: number) { this.clearClashCue(); this.playbackRate = Math.max(0.1, value); this.fx.rate = this.speed; }
   hook: ((ev: Ev, i: number) => Promise<void> | void) | null = null;
+  /** 分步战斗选目标：返回 true 表示点击已被消费，不再弹单位详情 */
+  unitClick: ((uid: number) => boolean) | null = null;
+  /** 当前棋盘上某单位的视图元素（v2 英雄面板标记可选目标、意图用） */
+  unitEl(uid: number): HTMLElement | null { return this.live.get(uid)?.v.el ?? null; }
   private stopped = false;
   private paused = false;
   private resumeResolvers: (() => void)[] = [];
@@ -246,7 +250,8 @@ export class BattlePlayer {
     L.v.setMark('energy', s.charge ? 'bolt' : null, String(s.charge ?? 0), false, `蓄能 ${s.charge ?? 0}`);
     L.v.setMark('quarry', (s.mark ?? 0) > 0 ? 'target' : null, String(s.mark ?? 0), false, `猎标 ${s.mark ?? 0} 层`);
     L.v.setMark('station', s.rounds && card(s.def).rules?.some(r => r.phase === 'battle' && r.when === 'stationary') ? 'flag' : null, String(s.rounds ?? 0), false, `驻阵 ${s.rounds ?? 0} 回合`);
-    L.v.setStats({ atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, chill: 0, burn: s.burn ?? 0, kw }, { pop: pop && !this.skipping });
+    // v2 冰冻：按满额冰冻显示（单位视图在 chill ≥ 攻击时画冰块）
+    L.v.setStats({ atk: s.atk, hp: s.hp, maxHp: s.maxHp, block: s.block, chill: s.stun ? Math.max(1, s.atk) : 0, burn: s.burn ?? 0, kw }, { pop: pop && !this.skipping });
   }
 
   private inspectLive(uid: number) {
@@ -282,7 +287,7 @@ export class BattlePlayer {
     this.paint(L);
     v.setEquips([...(s.ench ? [s.ench] : []), ...(s.ax ?? []).filter((a) => s.side === 1).map((a) => ATOM_INFO[a].icon)]);
     if (!this.demo) {
-      v.el.addEventListener('click', (e) => { e.stopPropagation(); this.inspectLive(s.uid); });
+      v.el.addEventListener('click', (e) => { e.stopPropagation(); if (this.unitClick?.(s.uid)) return; this.inspectLive(s.uid); });
     }
     return L;
   }
@@ -299,6 +304,13 @@ export class BattlePlayer {
   }
 
   async play(out: BattleOut) {
+    await this.begin(out.init, out.initOrder);
+    await this.playEvents(out.events);
+    this.finish(out.result);
+  }
+
+  /** 开场：清空棋盘，按初始阵容摆上单位。分步战斗（v2 引擎）先调用一次，再逐段 playEvents。 */
+  async begin(init: Snap[], initOrder: Order) {
     this.clearClashCue();
     this.live.clear();
     this.sides.clear();
@@ -310,13 +322,18 @@ export class BattlePlayer {
     this.board.clearUnits();
     this.board.clearArrows();
     this.board.setCenter('0', '交锋', 'beat');
-    for (const s of out.init) {
-      const slot = out.initOrder[s.side].indexOf(s.uid);
+    for (const s of init) {
+      const slot = initOrder[s.side].indexOf(s.uid);
       if (slot < 0 || slot >= 5) continue;
       const L = this.mk(s, slot);
       L.v.appear(slot * 60 + s.side * 30);
     }
     await this.w(700);
+  }
+
+  /** 播放一段事件；播完对齐站位。跳过只作用于当前这一段。 */
+  async playEvents(events: Ev[]) {
+    const out = { events };
     for (let i = 0; i < out.events.length; i++) {
       const ev = out.events[i];
       this.board.clearMarks();
@@ -346,8 +363,32 @@ export class BattlePlayer {
     // 跳过时最后对齐一次
     this.skipping = false;
     this.clearClashCue();
-    this.phase.textContent = out.result === 'win' ? '胜利' : out.result === 'lose' ? '失败' : '平局';
   }
+
+  /** 收尾：显示结果 */
+  finish(result: BattleOut['result']) {
+    this.phase.textContent = result === 'win' ? '胜利' : result === 'lose' ? '失败' : '平局';
+  }
+
+  /**
+   * 分步战斗（v2）每段播完后按引擎快照静默对齐：数值、状态、站位。
+   * 事件转换难免漏掉个别静默改动（如复活后压血），这里兜底，保证棋盘显示和规则状态一致。
+   */
+  async reconcile(units: Snap[], order: Order) {
+    for (const u of units) {
+      const L = this.live.get(u.uid);
+      if (!L) continue;
+      const s = L.s;
+      if (s.atk === u.atk && s.hp === u.hp && s.maxHp === u.maxHp && s.block === u.block && s.shield === u.shield
+        && (s.charge ?? 0) === (u.charge ?? 0) && (s.mark ?? 0) === (u.mark ?? 0) && (s.stun ?? 0) === (u.stun ?? 0)) continue;
+      Object.assign(s, { atk: u.atk, hp: u.hp, maxHp: u.maxHp, block: u.block, shield: u.shield, charge: u.charge, mark: u.mark, stun: u.stun });
+      this.paint(L);
+    }
+    await this.relayout(order);
+  }
+
+  /** 分步战斗在等待玩家操作时显示的阶段文字 */
+  setPhase(text: string) { this.phase.textContent = text; }
 
   /** 同一来源、同类效果连续打到多个目标（中间夹着的阵亡也算进来）→ 返回这一批最后一个事件的下标；不成批返回 i */
   private groupEnd(evs: Ev[], i: number) {
@@ -601,7 +642,7 @@ export class BattlePlayer {
       }
       case 'counter': {
         const L = this.live.get(ev.uid);
-        if (L) { L.s.charge = ev.charge; L.s.mark = ev.mark; L.s.rounds = ev.rounds; this.paint(L); }
+        if (L) { L.s.charge = ev.charge; L.s.mark = ev.mark; L.s.rounds = ev.rounds; if (ev.stun !== undefined) L.s.stun = ev.stun; this.paint(L); }
         return;
       }
       case 'fizzle': {

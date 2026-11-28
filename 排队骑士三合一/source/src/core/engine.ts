@@ -109,7 +109,7 @@ interface RuntimeRule {
 }
 
 
-export type Snap = Pick<BUnit, 'uid' | 'side' | 'def' | 'lvl' | 'atk' | 'hp' | 'maxHp' | 'block' | 'kws' | 'shield' | 'burn'> & { ench?: Ench | null; ax?: Atom[]; charge?: number; mark?: number; rounds?: number };
+export type Snap = Pick<BUnit, 'uid' | 'side' | 'def' | 'lvl' | 'atk' | 'hp' | 'maxHp' | 'block' | 'kws' | 'shield' | 'burn'> & { ench?: Ench | null; ax?: Atom[]; charge?: number; mark?: number; rounds?: number; /** v2：冰冻剩余轮数 */ stun?: number };
 export type Order = [number[], number[]];
 
 export type Ev =
@@ -124,7 +124,7 @@ export type Ev =
   | { t: 'die'; uid: number; order: Order }
   | { t: 'summon'; src: number | null; unit: Snap; order: Order; revive?: boolean }
   | { t: 'move'; uid: number; from: number; to: number; order: Order; reason?: string }
-  | { t: 'counter'; uid: number; charge: number; mark: number; rounds: number }
+  | { t: 'counter'; uid: number; charge: number; mark: number; rounds: number; /** v2：冰冻剩余轮数 */ stun?: number }
   | { t: 'fizzle'; uid: number; label: string; reason?: string; ability?: string; source?: string; required?: number; available?: number }
   | { t: 'end'; result: Result };
 
